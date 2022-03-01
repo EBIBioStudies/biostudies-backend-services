@@ -11,6 +11,8 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
 import java.time.Instant
+import java.time.Instant.ofEpochSecond
+import ac.uk.ebi.pmc.persistence.docs.InputFileStatus.PROCESSED as PROCESSED1
 
 const val FILE1_CONTENT = "that is the content"
 const val FILE2_CONTENT = "that is another the content"
@@ -120,4 +122,4 @@ internal val processedSubmission = SubmissionDoc(
 
 internal val submissionErrorDoc = SubmissionErrorDoc(submission = docSubmission, error = "error", mode = PmcMode.LOAD)
 internal val submissionFileDoc = FileDoc(name = "name", path = "path", accNo = "accNo")
-internal val inputFileDoc = InputFileDoc(name = "name", loaded = Instant.ofEpochSecond(1000))
+internal val inputFileDoc = InputFileDoc(name = "name", loaded = ofEpochSecond(1000), status = PROCESSED1, error = null)

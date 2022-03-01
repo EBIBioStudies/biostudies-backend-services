@@ -50,6 +50,19 @@ RabbitMQ image with the following configuration:
 * Port: 5672
 * Admin console: http://localhost:15672
 
+#### FireMock Setup (EBI only)
+
+* Generate a GitLab access token [here](https://gitlab.ebi.ac.uk/-/profile/personal_access_tokens) with at least `read_registry` scope
+* Execute `docker login dockerhub.ebi.ac.uk` and enter your GitLab username when prompted for username, and the access token when prompted for a password
+* Execute `gradle setUpFireMock` in the [infrastructure](infrastructure) folder
+
+The steps above will deploy a FIREMock image listening on localhost, with the following configurations
+
+* Container name: biostudies-firemock
+* User: user
+* Password: pass
+* Port: 8092
+
 #### Configure WebApp
 1. Move to [Submission WebApp](submission/submission-webapp) folder
 2. Edit the [Submission WebApp Config File](submission/submission-webapp/src/main/resources/application.yml) to match

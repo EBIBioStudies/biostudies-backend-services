@@ -14,46 +14,63 @@ data class ExtTag(val name: String, val value: String)
 
 data class ExtCollection(val accNo: String)
 
-data class ExtAttributeDetail(val name: String, val value: String)
+data class ExtAttributeDetail(val name: String, val value: String?)
 
 data class ExtLink(
     val url: String,
     val attributes: List<ExtAttribute> = listOf()
 )
 
-sealed class ExtFile
+sealed class ExtFile {
+    abstract val filePath: String
+    abstract val relPath: String
+    abstract val attributes: List<ExtAttribute>
+    abstract val md5: String
+
+    val fileName: String
+        get() = filePath.substringAfterLast("/")
+}
 
 data class FireFile(
-    val fileName: String,
+    override val filePath: String,
+    override val relPath: String,
     val fireId: String,
-    val md5: String,
+    override val md5: String,
     val size: Long,
-    val attributes: List<ExtAttribute>
+    override val attributes: List<ExtAttribute>
+) : ExtFile()
+
+data class FireDirectory(
+    override val filePath: String,
+    override val relPath: String,
+    override val md5: String,
+    val size: Long,
+    override val attributes: List<ExtAttribute>
 ) : ExtFile()
 
 data class NfsFile(
-    val fileName: String,
+    override val filePath: String,
+    override val relPath: String,
     val file: File,
-    val attributes: List<ExtAttribute> = listOf()
-) : ExtFile() {
-    // TODO Once SQL is removed, this field should be removed and md5 should be set as a constructor property
-    private var _md5: String = ""
+    val fullPath: String,
+    override val md5: String,
+    val size: Long,
+    override val attributes: List<ExtAttribute> = listOf()
+) : ExtFile()
 
-    var md5: String
-        get(): String {
-            if (_md5.isBlank()) _md5 = file.md5()
-            return _md5
-        }
+@Deprecated(message = "Only for testing. Prefer default class constructor to avoid computation of md5 and size.")
+fun createNfsFile(filePath: String, relpath: String, file: File, attributes: List<ExtAttribute> = listOf()): NfsFile =
+    NfsFile(filePath, relpath, file, file.absolutePath, file.md5(), file.size(), attributes)
 
-        set(value) {
-            _md5 = value
-        }
-
-    val size: Long
-        get() = file.size()
+data class ExtFileList(
+    val filePath: String,
+    val files: List<ExtFile> = listOf(),
+    val filesUrl: String? = null,
+    val pageTabFiles: List<ExtFile> = listOf()
+) {
+    val fileName: String
+        get() = filePath.substringAfterLast("/")
 }
-
-data class ExtFileList(val fileName: String, val files: List<ExtFile> = listOf())
 
 data class ExtSectionTable(val sections: List<ExtSection>)
 
@@ -65,7 +82,7 @@ data class ExtFileTable(val files: List<ExtFile>) {
 
 data class ExtAttribute(
     val name: String,
-    val value: String,
+    val value: String?,
     val reference: Boolean = false,
     val nameAttrs: List<ExtAttributeDetail> = listOf(),
     val valueAttrs: List<ExtAttributeDetail> = listOf()
@@ -86,6 +103,7 @@ data class ExtAccessTag(val name: String)
 data class ExtSubmission(
     val accNo: String,
     var version: Int,
+    var schemaVersion: String,
     val owner: String,
     val submitter: String,
     val title: String?,
@@ -102,8 +120,24 @@ data class ExtSubmission(
     val attributes: List<ExtAttribute> = listOf(),
     val tags: List<ExtTag> = listOf(),
     val collections: List<ExtCollection> = listOf(),
-    val stats: List<ExtStat> = listOf()
+    val stats: List<ExtStat> = listOf(),
+    val pageTabFiles: List<ExtFile> = listOf(),
+    val storageMode: StorageMode
 )
+
+enum class StorageMode(val value: String) {
+    FIRE("FIRE"), NFS("NFS");
+
+    companion object {
+        fun fromString(value: String): StorageMode {
+            return when (value) {
+                "FIRE" -> FIRE
+                "NFS" -> NFS
+                else -> throw IllegalStateException("Unknown storage mode $value")
+            }
+        }
+    }
+}
 
 // TODO change value type to long
 data class ExtStat(val name: String, val value: String)

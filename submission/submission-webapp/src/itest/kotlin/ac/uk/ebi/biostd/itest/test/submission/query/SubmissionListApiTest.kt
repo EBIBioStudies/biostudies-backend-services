@@ -7,8 +7,8 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.dsl.line
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
 import ebi.ac.uk.test.createFile
@@ -59,7 +59,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
         }
 
         @Test
-        @Disabled("If submission is processed fast enough test wil fail. Needs re desing.")
+        @Disabled("If submission is processed fast enough test wil fail. Needs re design.")
         fun `get submission when processing`() {
             val newVersion = getSimpleSubmission(18)
             webClient.submitAsync(newVersion, TSV)

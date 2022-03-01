@@ -1,56 +1,68 @@
 package ac.uk.ebi.biostd.service
 
-import ac.uk.ebi.biostd.exception.InvalidExtensionException
+import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
+import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
+import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.NfsBioFile
 import ebi.ac.uk.model.File
-import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.file.ExcelReader
+import ebi.ac.uk.util.file.ExcelReader.asTsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.InputStream
 import kotlin.test.assertNotNull
 
 @ExtendWith(TemporaryFolderExtension::class)
 class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
     private val source = mockk<FilesSource>()
-    private val excelReader = mockk<ExcelReader>()
     private val serializer = mockk<PagetabSerializer>()
     private val filesTable = filesTable { file("some-file.txt") }
-    private val testInstance = FileListSerializer(excelReader, serializer)
+    private val testInstance = FileListSerializer(serializer)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
+
+    @BeforeEach
+    fun beforeEach() = mockkObject(PageTabFileReader)
 
     @Test
     fun `deserialize JSON file list`() {
         val fileListName = "FileList.json"
         val submission = testSubmission(fileListName)
         val fileList = tempFolder.createFile(fileListName, "test file list")
+        val inputStream = slot<InputStream>()
 
-        every { source.getFile(fileListName) } returns fileList
-        every { serializer.deserializeElement<FilesTable>("test file list", JSON) } returns filesTable
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { serializer.deserializeFileList(capture(inputStream), JSON) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
 
-        assertFileList(submission, fileListName)
+        assertSubmissionFileList(submission, fileListName)
+        verify(exactly = 1) { serializer.deserializeFileList(inputStream.captured, JSON) }
     }
 
     @Test
@@ -58,13 +70,15 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val fileListName = "FileList.tsv"
         val submission = testSubmission(fileListName)
         val fileList = tempFolder.createFile(fileListName, "test file list")
+        val inputStream = slot<InputStream>()
 
-        every { source.getFile(fileListName) } returns fileList
-        every { serializer.deserializeElement<FilesTable>("test file list", TSV) } returns filesTable
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { serializer.deserializeFileList(capture(inputStream), TSV) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
 
-        assertFileList(submission, fileListName)
+        assertSubmissionFileList(submission, fileListName)
+        verify(exactly = 1) { serializer.deserializeFileList(inputStream.captured, TSV) }
     }
 
     @Test
@@ -72,29 +86,49 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val fileListName = "FileList.xml"
         val submission = testSubmission(fileListName)
         val fileList = tempFolder.createFile(fileListName, "test file list")
+        val inputStream = slot<InputStream>()
 
-        every { source.getFile(fileListName) } returns fileList
-        every { serializer.deserializeElement<FilesTable>("test file list", XML) } returns filesTable
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { serializer.deserializeFileList(capture(inputStream), XML) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
 
-        assertFileList(submission, fileListName)
+        assertSubmissionFileList(submission, fileListName)
+        verify(exactly = 1) { serializer.deserializeFileList(inputStream.captured, XML) }
     }
 
     @Test
     fun `deserialize XLS file list`() {
         val fileListName = "FileList.xlsx"
         val submission = testSubmission(fileListName)
-        val fileList = tempFolder.createFile(fileListName)
+        val fileList = tempFolder.createFile(fileListName, "test file list")
+        val inputStream = slot<InputStream>()
 
-        every { source.getFile(fileListName) } returns fileList
-        every { excelReader.readContentAsTsv(fileList) } returns "test file list"
-        every { serializer.deserializeElement<FilesTable>("test file list", TSV) } returns filesTable
+        val tempFile = java.io.File.createTempFile("file", "temp")
+        tempFile.writeText("test file list")
+
+        mockkObject(ExcelReader)
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { asTsv(fileList) } returns tempFile
+        every { serializer.deserializeFileList(capture(inputStream), XlsxTsv) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
 
-        assertFileList(submission, fileListName)
-        verify(exactly = 1) { excelReader.readContentAsTsv(fileList) }
+        assertSubmissionFileList(submission, fileListName)
+        verify(exactly = 1) { serializer.deserializeFileList(inputStream.captured, XlsxTsv) }
+    }
+
+    @Test
+    fun `deserialize standalone file list`() {
+        val fileListName = "AFileList.tsv"
+        val fileList = tempFolder.createFile(fileListName, "test file list")
+        val inputStream = slot<InputStream>()
+
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { serializer.deserializeFileList(capture(inputStream), TSV) } returns filesTable
+
+        assertFileList(testInstance.deserializeFileList(fileListName, source), fileListName)
+        verify(exactly = 1) { serializer.deserializeFileList(inputStream.captured, TSV) }
     }
 
     @Test
@@ -103,10 +137,48 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val submission = testSubmission(fileListName)
         val fileList = tempFolder.createFile(fileListName)
 
-        every { source.getFile(fileListName) } returns fileList
-        val exception = assertThrows<InvalidExtensionException> { testInstance.deserializeFileList(submission, source) }
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        val exception = assertThrows<InvalidFileListException> { testInstance.deserializeFileList(submission, source) }
 
-        assertThat(exception.message).isEqualTo("Unsupported page tab format FileList.txt")
+        assertThat(exception.message).isEqualTo(
+            "Problem processing file list 'FileList.txt': Unsupported page tab format FileList.txt"
+        )
+    }
+
+    @Test
+    fun `deserialize file list with invalid page tab`() {
+        val fileListName = "BFileList.tsv"
+        val fileList = tempFolder.createFile(fileListName, "test file list")
+        val inputStream = slot<InputStream>()
+
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { serializer.deserializeFileList(capture(inputStream), TSV) } throws InvalidChunkSizeException()
+
+        val exception = assertThrows<InvalidFileListException> {
+            testInstance.deserializeFileList(fileListName, source)
+        }
+        assertThat(exception.message).isEqualTo(
+            "Problem processing file list 'BFileList.tsv': The provided page tab doesn't match the file list format"
+        )
+        verify(exactly = 1) { serializer.deserializeFileList(inputStream.captured, TSV) }
+    }
+
+    @Test
+    fun `deserialize file list with a valid page tab but NOT file list element`() {
+        val fileListName = "CFileList.tsv"
+        val fileList = tempFolder.createFile(fileListName, "test file list")
+        val inputStream = slot<InputStream>()
+
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { serializer.deserializeFileList(capture(inputStream), TSV) } throws ClassCastException()
+
+        val exception = assertThrows<InvalidFileListException> {
+            testInstance.deserializeFileList(fileListName, source)
+        }
+        assertThat(exception.message).isEqualTo(
+            "Problem processing file list 'CFileList.tsv': The provided page tab doesn't match the file list format"
+        )
+        verify(exactly = 1) { serializer.deserializeFileList(inputStream.captured, TSV) }
     }
 
     private fun testSubmission(fileList: String) = submission("S-TEST123") {
@@ -115,9 +187,13 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         }
     }
 
-    private fun assertFileList(submission: Submission, fileListName: String) {
+    private fun assertSubmissionFileList(submission: Submission, fileListName: String) {
         assertNotNull(submission.section.fileList)
-        assertThat(submission.section.fileList!!.name).isEqualTo(fileListName)
-        assertThat(submission.section.fileList!!.referencedFiles).isEqualTo(listOf(File("some-file.txt")))
+        assertFileList(submission.section.fileList!!, fileListName)
+    }
+
+    private fun assertFileList(fileList: FileList, fileListName: String) {
+        assertThat(fileList.name).isEqualTo(fileListName)
+        assertThat(fileList.referencedFiles).isEqualTo(listOf(File("some-file.txt")))
     }
 }

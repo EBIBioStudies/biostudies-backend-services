@@ -25,13 +25,13 @@ class BioStudiesWebConsumerTest(
         val url = "http://biostudy:8788/submission/extended/S-TEST123"
 
         every { restTemplate.getForObject<String>(url) } returns "the-submission"
-        every { extSerializationService.deserialize("the-submission", ExtSubmission::class.java) } returns extSubmission
+        every { extSerializationService.deserialize("the-submission") } returns extSubmission
 
         val submission = testInstance.getExtSubmission(url)
 
         assertThat(submission).isEqualTo(extSubmission)
         verify { restTemplate.getForObject<String>(url) }
-        verify { extSerializationService.deserialize("the-submission", ExtSubmission::class.java) }
+        verify { extSerializationService.deserialize("the-submission") }
     }
 
     @Test

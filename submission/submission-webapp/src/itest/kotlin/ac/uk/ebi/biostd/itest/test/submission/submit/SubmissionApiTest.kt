@@ -12,28 +12,42 @@ import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
-import ac.uk.ebi.biostd.persistence.model.Sequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
+import arrow.core.Either
 import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
-import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.ExtAttributeDetail
+import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtLink
+import ebi.ac.uk.extended.model.ExtLinkTable
+import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.ExtSectionTable
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.security.integration.components.IGroupService
+import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
+import ebi.ac.uk.test.createOrReplaceFile
 import ebi.ac.uk.util.collections.ifRight
+import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -59,7 +73,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository,
-        @Autowired val groupService: IGroupService
+        @Autowired val userDataRepository: UserDataRepository,
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -71,8 +85,13 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
 
-            sequenceRepository.save(Sequence("S-BSST"))
+            sequenceRepository.save(DbSequence("S-BSST"))
             tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
+        }
+
+        @BeforeEach
+        fun beforeEach() {
+            tempFolder.clean()
         }
 
         @Test
@@ -96,9 +115,11 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line("Title", "Empty AccNo")
             }.toString()
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("S-BSST0")).isEqualTo(
-                submission("S-BSST0") {
+            val response = webClient.submitSingle(submission, TSV)
+
+            assertThat(response).isSuccessful()
+            assertThat(submissionRepository.getSimpleByAccNo(response.body.accNo)).isEqualTo(
+                submission(response.body.accNo) {
                     title = "Empty AccNo"
                 }
             )
@@ -120,7 +141,10 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }.toString()
 
             tempFolder.createDirectory("RootPathFolder")
-            webClient.uploadFiles(listOf(tempFolder.createFile("RootPathFolder/DataFile5.txt")), "RootPathFolder")
+            webClient.uploadFiles(
+                listOf(tempFolder.createFile("RootPathFolder/DataFile5.txt", "An example content")),
+                "RootPathFolder"
+            )
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(submissionRepository.getSimpleByAccNo("S-12364")).isEqualTo(
@@ -165,8 +189,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line("Title", "Submission Title")
             }.toString()
 
-            val onBehalfClient = SecurityWebClient
-                .create("http://localhost:$serverPort")
+            val onBehalfClient = SecurityWebClient.create("http://localhost:$serverPort")
                 .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
             val response = onBehalfClient.submitSingle(submission, TSV)
@@ -192,8 +215,13 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             val response = webClient.submitSingle(submission, TSV, UserRegistration(username, email))
             val saved = submissionRepository.getExtByAccNo(response.body.accNo)
+
             assertThat(saved.owner).isEqualTo(email)
             assertThat(saved.submitter).isEqualTo(SuperUser.email)
+            val newUser = userDataRepository.findByEmail(email)
+            assertThat(newUser).isNotNull
+            assertThat(newUser!!.active).isFalse
+            assertThat(newUser.notificationsEnabled).isFalse
         }
 
         @Test
@@ -257,7 +285,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line()
             }.toString()
 
-            groupService.addUserInGroup(groupService.createGroup(groupName, "group-desc").name, SuperUser.email)
+            webClient.addUserInGroup(webClient.createGroup(groupName, "group-desc").name, SuperUser.email)
             webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile1.txt")))
             webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile2.txt")), "folder")
 
@@ -275,34 +303,130 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @Test
         fun `resubmit existing submission`() {
-            val submission = tsv {
-                line("Submission", "S-ABC123")
-                line("Title", "Simple Submission")
+            fun submission(accNo: String? = null) = tsv {
+                if (accNo == null) line("Submission") else line("Submission", accNo)
+                line("Title", "Simple Submission With Files 2")
+                line("ReleaseDate", "2020-01-25")
                 line()
+
                 line("Study")
+                line("Type", "Experiment")
+                line("File List", "file-list.tsv")
                 line()
-                line("File", "DataFile9.txt")
+
+                line("File", "file section.doc")
+                line("Type", "test")
+                line()
+
+                line("Experiment", "Exp1")
+                line("Type", "Subsection")
+                line()
+
+                line("File", "fileSubSection.txt")
+                line("Type", "Attached")
                 line()
             }.toString()
 
-            val originalFile = tempFolder.createFile("DataFile9.txt", "original, content")
-            webClient.uploadFiles(listOf(originalFile))
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            val fileListContent = tsv {
+                line("Files", "Type")
+                line("a/fileFileList.pdf", "inner")
+                line("a", "folder")
+            }.toString()
 
-            val original = submissionRepository.getExtByAccNo("S-ABC123")
-            assertThat(original.title).isEqualTo("Simple Submission")
-            assertThat(original.version).isEqualTo(1)
-            assertThat(File("$submissionPath/${original.relPath}/Files/DataFile9.txt")).hasSameContentAs(originalFile)
+            webClient.uploadFiles(
+                listOf(
+                    tempFolder.createFile("fileSubSection.txt", "content"),
+                    tempFolder.createFile("file-list.tsv", fileListContent),
+                    tempFolder.createFile("file section.doc"),
+                )
+            )
+            webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf")), "a")
 
-            originalFile.delete()
-            val newFile = tempFolder.createFile("DataFile9.txt", "new content")
-            webClient.uploadFiles(listOf(newFile))
+            val response = webClient.submitSingle(submission(), TSV)
 
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            val resubmitted = submissionRepository.getExtByAccNo("S-ABC123")
-            assertThat(resubmitted.title).isEqualTo("Simple Submission")
+            assertThat(response).isSuccessful()
+            val accNo = response.body.accNo
+            val submitted = submissionRepository.getExtByAccNo(accNo)
+            assertThat(submitted.version).isEqualTo(1)
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/file section.doc")).exists()
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).exists()
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).hasContent("content")
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/a/fileFileList.pdf")).exists()
+
+            val changedFile = tempFolder.root.resolve("fileSubSection.txt").apply { writeText("newContent") }
+            webClient.uploadFiles(listOf(changedFile))
+
+            val reSubmitResponse = webClient.submitSingle(submission(accNo), TSV)
+
+            assertThat(reSubmitResponse).isSuccessful()
+            val resubmitted = submissionRepository.getExtByAccNo(accNo)
             assertThat(resubmitted.version).isEqualTo(2)
-            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/DataFile9.txt")).hasSameContentAs(newFile)
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/file section.doc")).exists()
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).exists()
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).hasContent("newContent")
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/a/fileFileList.pdf")).exists()
+        }
+
+        @Test
+        fun `resubmit existing submission with the same files`() {
+            fun submission(accNo: String? = null) = tsv {
+                if (accNo == null) line("Submission") else line("Submission", accNo)
+                line("Title", "Simple Submission With Files 2")
+                line("ReleaseDate", "2020-01-25")
+                line()
+
+                line("Study")
+                line("Type", "Experiment")
+                line("File List", "file-list.tsv")
+                line()
+
+                line("File", "file section.doc")
+                line("Type", "test")
+                line()
+
+                line("Experiment", "Exp1")
+                line("Type", "Subsection")
+                line()
+
+                line("File", "fileSubSection.txt")
+                line("Type", "Attached")
+                line()
+            }.toString()
+
+            val fileListContent = tsv {
+                line("Files", "Type")
+                line("a/fileFileList.pdf", "inner")
+                line("a", "folder")
+            }.toString()
+
+            webClient.uploadFiles(
+                listOf(
+                    tempFolder.createFile("fileSubSection.txt", "content"),
+                    tempFolder.createFile("file-list.tsv", fileListContent),
+                    tempFolder.createFile("file section.doc"),
+                )
+            )
+            webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf")), "a")
+
+            val response = webClient.submitSingle(submission(), TSV)
+            val accNo = response.body.accNo
+
+            val submitted = submissionRepository.getExtByAccNo(accNo)
+            assertThat(response).isSuccessful()
+            assertThat(submitted.version).isEqualTo(1)
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/file section.doc")).exists()
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).exists()
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).hasContent("content")
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/a/fileFileList.pdf")).exists()
+
+            val reSubmitResponse = webClient.submitSingle(submission(accNo), TSV)
+            assertThat(reSubmitResponse).isSuccessful()
+            val resubmitted = submissionRepository.getExtByAccNo(accNo)
+            assertThat(resubmitted.version).isEqualTo(2)
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/file section.doc")).exists()
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).exists()
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).hasContent("content")
+            assertThat(File("$submissionPath/${resubmitted.relPath}/Files/a/fileFileList.pdf")).exists()
         }
 
         @Test
@@ -319,7 +443,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             val savedSubmission = submissionRepository.getExtByAccNo("S-RLSD123")
             assertThat(savedSubmission.accNo).isEqualTo("S-RLSD123")
             assertThat(savedSubmission.title).isEqualTo("Test Public Submission")
-            assertThat(savedSubmission.released).isTrue()
+            assertThat(savedSubmission.released).isTrue
         }
 
         @Test
@@ -352,9 +476,206 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 val subSection = it.sections.first()
                 assertThat(subSection.accNo).isEmpty()
                 assertThat(subSection.attributes).hasSize(1)
-                assertThat(subSection.attributes.first().name).isEqualTo("Title")
-                assertThat(subSection.attributes.first().value).isEqualTo("Group 1")
+                assertThat(subSection.attributes.first()).isEqualTo(ExtAttribute("Title", "Group 1"))
             }
+        }
+
+        @Test
+        fun `new submission with empty-null attributes`() {
+            fun assertSubmission(submission: ExtSubmission) {
+                assertThat(submission.accNo).isEqualTo("S-STBL124")
+                assertThat(submission.title).isEqualTo("Test Section Table")
+
+                val submissionAttributes = submission.attributes
+                assertThat(submissionAttributes).hasSize(2)
+                assertThat(submissionAttributes.first()).isEqualTo(ExtAttribute("Submission Empty Attribute", null))
+                assertThat(submissionAttributes.second()).isEqualTo(ExtAttribute("Submission Null Attribute", null))
+            }
+
+            fun assertSection(section: ExtSection) {
+                assertThat(section.accNo).isEqualTo("SECT-001")
+
+                val sectionAttributes = section.attributes
+                assertThat(sectionAttributes).hasSize(2)
+                assertThat(sectionAttributes.first()).isEqualTo(ExtAttribute("Section Empty Attribute", null))
+                assertThat(sectionAttributes.second()).isEqualTo(ExtAttribute("Section Null Attribute", null))
+            }
+
+            fun assertLinks(links: List<Either<ExtLink, ExtLinkTable>>) {
+                assertThat(links).hasSize(1)
+                assertThat(links.first()).hasLeftValueSatisfying {
+                    assertThat(it.url).isEqualTo("www.linkTable.com")
+
+                    val attributes = it.attributes
+                    assertThat(attributes).hasSize(2)
+                    assertThat(attributes.first()).isEqualTo(ExtAttribute("Link Empty Attribute", null))
+                    assertThat(attributes.second()).isEqualTo(ExtAttribute("Link Null Attribute", null))
+                }
+            }
+
+            fun assertFiles(files: List<Either<ExtFile, ExtFileTable>>, fileName: String) {
+                assertThat(files).hasSize(1)
+                assertThat(files.first()).hasLeftValueSatisfying {
+                    assertThat(it.filePath).isEqualTo(fileName)
+                    assertThat(it.relPath).isEqualTo("Files/$fileName")
+
+                    val fileAttributes = it.attributes
+                    assertThat(fileAttributes).hasSize(2)
+                    assertThat(fileAttributes.first()).isEqualTo(ExtAttribute("File Empty Attribute", null))
+                    assertThat(fileAttributes.second()).isEqualTo(ExtAttribute("File Null Attribute", null))
+                }
+            }
+
+            fun assertSubSections(sections: List<Either<ExtSection, ExtSectionTable>>) {
+                assertThat(sections).hasSize(1)
+                assertThat(sections.first()).hasLeftValueSatisfying {
+                    val attributes = it.attributes
+                    assertThat(attributes.first()).isEqualTo(ExtAttribute("SubSection Empty Attribute", null))
+                    assertThat(attributes.second()).isEqualTo(ExtAttribute("SubSection Null Attribute", null))
+                }
+            }
+
+            val fileName = "DataFile.txt"
+            webClient.uploadFile(tempFolder.createOrReplaceFile(fileName))
+
+            val submission = tsv {
+                line("Submission", "S-STBL124")
+                line("Title", "Test Section Table")
+                line("Submission Empty Attribute", "")
+                line("Submission Null Attribute")
+                line()
+
+                line("Study", "SECT-001")
+                line("Section Empty Attribute", "")
+                line("Section Null Attribute")
+                line()
+
+                line("Link", "www.linkTable.com")
+                line("Link Empty Attribute", "")
+                line("Link Null Attribute")
+                line()
+
+                line("File", fileName)
+                line("File Empty Attribute", "")
+                line("File Null Attribute")
+                line()
+
+                line("SubSection", "F-001")
+                line("SubSection Empty Attribute", "")
+                line("SubSection Null Attribute")
+                line()
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val savedSubmission = submissionRepository.getExtByAccNo("S-STBL124")
+
+            assertSubmission(savedSubmission)
+            assertSection(savedSubmission.section)
+            assertLinks(savedSubmission.section.links)
+            assertFiles(savedSubmission.section.files, fileName)
+            assertSubSections(savedSubmission.section.sections)
+        }
+
+        @Test
+        fun `new submission with empty-null table attributes`() {
+            fun assertSubmission(submission: ExtSubmission) {
+                assertThat(submission.accNo).isEqualTo("S-STBL124")
+                assertThat(submission.title).isEqualTo("Test Section Table")
+                assertThat(submission.section.accNo).isEqualTo("SECT-001")
+            }
+
+            fun assertLinks(links: List<Either<ExtLink, ExtLinkTable>>) {
+                assertThat(links).hasSize(1)
+                assertThat(links.first()).hasRightValueSatisfying { linkTable ->
+                    val tableLinks = linkTable.links
+                    assertThat(tableLinks).hasSize(1)
+
+                    val tableLink = tableLinks.first()
+                    assertThat(tableLink.url).isEqualTo("www.linkTable.com")
+
+                    val attributes = tableLink.attributes
+                    assertThat(attributes).hasSize(2)
+                    assertThat(attributes.first()).isEqualTo(ExtAttribute("Link Empty Attribute", null))
+                    assertThat(attributes.second()).isEqualTo(ExtAttribute("Link Null Attribute", null))
+                }
+            }
+
+            fun assertFiles(files: List<Either<ExtFile, ExtFileTable>>, fileName: String) {
+                assertThat(files).hasSize(1)
+                assertThat(files.first()).hasRightValueSatisfying { fileTable ->
+                    val tableFile = fileTable.files
+                    assertThat(tableFile).hasSize(1)
+
+                    val file = tableFile.first()
+                    assertThat(file.filePath).isEqualTo(fileName)
+                    assertThat(file.relPath).isEqualTo("Files/$fileName")
+
+                    val attributes = file.attributes
+                    assertThat(attributes).hasSize(2)
+                    assertThat(attributes.first()).isEqualTo(ExtAttribute("File Empty Attribute", null))
+                    assertThat(attributes.second()).isEqualTo(ExtAttribute("File Null Attribute", null))
+                }
+            }
+
+            fun assertSubSections(sections: List<Either<ExtSection, ExtSectionTable>>) {
+                assertThat(sections).hasSize(1)
+                assertThat(sections.first()).hasRightValueSatisfying { sectionTable ->
+                    val subSections = sectionTable.sections
+                    assertThat(subSections).hasSize(1)
+                    val attributes = subSections.first().attributes
+                    assertThat(attributes.first()).isEqualTo(
+                        ExtAttribute(
+                            name = "Empty Attr",
+                            value = null,
+                            nameAttrs = listOf(ExtAttributeDetail("TermId", "EFO_0002768")),
+                            valueAttrs = listOf(ExtAttributeDetail("NullValue", null))
+                        )
+                    )
+                    assertThat(attributes.second()).isEqualTo(
+                        ExtAttribute(
+                            name = "Null Attr",
+                            value = null,
+                            nameAttrs = listOf(ExtAttributeDetail("NullName", null)),
+                            valueAttrs = listOf(ExtAttributeDetail("Ontology", "EFO"))
+                        )
+                    )
+                }
+            }
+
+            val fileName = "DataFile.txt"
+            webClient.uploadFile(tempFolder.createOrReplaceFile(fileName))
+
+            val submission = tsv {
+                line("Submission", "S-STBL124")
+                line("Title", "Test Section Table")
+                line()
+
+                line("Study", "SECT-001")
+                line()
+
+                line("Links", "Link Empty Attribute", "Link Null Attribute")
+                line("www.linkTable.com", "")
+                line()
+
+                line("Files", "File Empty Attribute", "File Null Attribute")
+                line(fileName, "")
+                line()
+
+                line("Data[SECT-001]", "Empty Attr", "(TermId)", "[NullValue]", "Null Attr", "(NullName)", "[Ontology]")
+                line("DT-1", "", "EFO_0002768", "", "", "", "EFO")
+                line()
+            }.toString()
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val savedSubmission = submissionRepository.getExtByAccNo("S-STBL124")
+            assertSubmission(savedSubmission)
+
+            val section = savedSubmission.section
+            assertLinks(section.links)
+            assertFiles(section.files, fileName)
+            assertSubSections(section.sections)
         }
 
         @Test

@@ -2,26 +2,17 @@ package ac.uk.ebi.biostd.service
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
-import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat
-import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
-import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
-import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
+import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.model.FileList
+import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.util.file.ExcelReader
 import java.io.File
 
 internal class PageTabSerializationService(
-    private val excelReader: ExcelReader,
     private val serializer: PagetabSerializer,
     private val fileListSerializer: FileListSerializer
 ) : SerializationService {
-    override fun <T> serializeElement(element: T, format: SubFormat) =
-        serializer.serializeElement(element, format)
-
     override fun serializeSubmission(submission: Submission, format: SubFormat) =
         serializer.serializeSubmission(submission, format)
 
@@ -32,13 +23,16 @@ internal class PageTabSerializationService(
         fileListSerializer.deserializeFileList(serializer.deserializeSubmission(content, format), source)
 
     override fun deserializeSubmission(file: File): Submission =
-        when (SubFormat.fromFile(file)) {
-            XmlFormat -> deserializeSubmission(file.readText(), XML)
-            is JsonFormat -> deserializeSubmission(file.readText(), JSON)
-            Tsv -> deserializeSubmission(file.readText(), TSV)
-            XlsxTsv -> deserializeSubmission(excelReader.readContentAsTsv(file), TSV)
-        }
+        deserializeSubmission(readAsPageTab(file).readText(), SubFormat.fromFile(file))
 
     override fun deserializeSubmission(file: File, source: FilesSource): Submission =
         fileListSerializer.deserializeFileList(deserializeSubmission(file), source)
+
+    override fun serializeFileList(table: FilesTable, format: SubFormat, file: File): File {
+        file.outputStream().use { serializer.serializeFileList(table, format, it) }
+        return file
+    }
+
+    override fun deserializeFileList(fileName: String, source: FilesSource): FileList =
+        fileListSerializer.deserializeFileList(fileName, source)
 }

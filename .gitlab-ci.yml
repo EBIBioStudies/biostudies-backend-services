@@ -1,4 +1,4 @@
-image: gradle:6.5.1-jdk8
+image: gradle:6.9.2-jdk11
 services:
   - docker:dind
 variables:
@@ -18,7 +18,8 @@ include:
 
 stages:
   - build-test
-  - mysql-itest
+  - mongo-nfs-itest
+  - auto-deploy-dev-bio-commandline
   - auto-deploy-dev-submitter
   - auto-deploy-dev-handlers
   - deploy-dev-submitter
@@ -37,14 +38,16 @@ stages:
   - deploy-beta-scheduler
   - deploy-prod-scheduler
   - deploy-bio-admin
-  - deploy-bio-commandline
+  - deploy-dev-bio-commandline
+  - deploy-beta-bio-commandline
+  - deploy-prod-bio-commandline
   - deploy-dev-handlers
   - deploy-beta-handlers
   - deploy-prod-handlers
 
 build-test:
   stage: build-test
-  script: gradle clean build test buildArtifacts --stacktrace
+  script: gradle clean build test -x itest -x jacocoTestCoverageVerification buildArtifacts --stacktrace
   artifacts:
     paths:
       - bio-admin/build/libs/bio-admin-1.0.0.jar
@@ -56,6 +59,6 @@ build-test:
       - submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
       - submission/submission-handlers/build/libs/submission-handlers-1.0.0.jar
 
-mysql-itest:
-  stage: mysql-itest
-  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mysql --rerun-tasks --stacktrace
+mongo-nfs-itest:
+  stage: mongo-nfs-itest
+  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mongo -PenableFire=false --rerun-tasks --stacktrace

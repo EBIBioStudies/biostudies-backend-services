@@ -4,7 +4,7 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 
 interface ISecurityQueryService {
-    fun existsByEmail(email: String): Boolean
+    fun existsByEmail(email: String, onlyActive: Boolean = true): Boolean
 
     fun getUser(email: String): SecurityUser
 

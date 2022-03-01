@@ -4,12 +4,12 @@ import ebi.ac.uk.errors.FileNotFoundException
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import java.io.File
 
 @ExtendWith(MockKExtension::class)
 internal class ComposedFileSourceTest(
@@ -18,6 +18,7 @@ internal class ComposedFileSourceTest(
 ) {
     private val testInstance = ComposedFileSource(listOf(oneFileSource, anotherFileSource))
     private val filePath = "path/to/a/file.txt"
+    private val bioFileMockK = mockk<BioFile>()
 
     @Nested
     inner class Exists {
@@ -39,12 +40,11 @@ internal class ComposedFileSourceTest(
 
     @Nested
     inner class GetFile {
-        private val file = File(filePath)
 
         @Test
         fun whenOne() {
             testWhenOne {
-                every { oneFileSource.getFile(filePath) } returns file
+                every { oneFileSource.getFile(filePath) } returns bioFileMockK
 
                 assertThat(testInstance.exists(filePath)).isTrue()
             }
@@ -53,7 +53,7 @@ internal class ComposedFileSourceTest(
         @Test
         fun whenAnother() {
             testWhenOne {
-                every { anotherFileSource.getFile(filePath) } returns file
+                every { anotherFileSource.getFile(filePath) } returns bioFileMockK
 
                 assertThat(testInstance.exists(filePath)).isTrue()
             }
@@ -63,37 +63,6 @@ internal class ComposedFileSourceTest(
         fun whenNone() {
             testWhenNone {
                 val exception = assertThrows<FileNotFoundException> { testInstance.getFile(filePath) }
-                assertThat(exception.message).isEqualTo("File not found: $filePath")
-            }
-        }
-    }
-
-    @Nested
-    inner class ReadText {
-        private val text = "file text"
-
-        @Test
-        fun whenOne() {
-            testWhenOne {
-                every { oneFileSource.readText(filePath) } returns text
-
-                assertThat(testInstance.exists(filePath)).isTrue()
-            }
-        }
-
-        @Test
-        fun whenAnother() {
-            testWhenOne {
-                every { anotherFileSource.readText(filePath) } returns text
-
-                assertThat(testInstance.exists(filePath)).isTrue()
-            }
-        }
-
-        @Test
-        fun whenNone() {
-            testWhenNone {
-                val exception = assertThrows<FileNotFoundException> { testInstance.readText(filePath) }
                 assertThat(exception.message).isEqualTo("File not found: $filePath")
             }
         }

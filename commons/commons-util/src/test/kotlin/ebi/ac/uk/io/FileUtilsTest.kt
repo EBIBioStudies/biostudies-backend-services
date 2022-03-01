@@ -1,5 +1,6 @@
 package ebi.ac.uk.io
 
+import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.test.clean
@@ -10,8 +11,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Timeout
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.File
+import java.nio.file.Files
 import java.nio.file.Files.getPosixFilePermissions
+import java.util.concurrent.TimeUnit
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
@@ -27,7 +32,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val file = temporaryFolder.createFile("one.txt", "one")
                 val another = temporaryFolder.createFile("two.txt", "two")
 
-                FileUtils.copyOrReplaceFile(file, another, RW_______, RWX______)
+                FileUtils.copyOrReplaceFile(file, another, Permissions(RW_______, RWX______))
 
                 assertThat(temporaryFolder.root.resolve("one.txt")).hasContent("one")
                 assertThat(temporaryFolder.root.resolve("two.txt")).hasContent("one")
@@ -39,7 +44,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val file = temporaryFolder.createFile("one.txt", "one")
                 val target = temporaryFolder.root.resolve("new.txt")
 
-                FileUtils.copyOrReplaceFile(file, target, RW_______, RWX______)
+                FileUtils.copyOrReplaceFile(file, target, Permissions(RW_______, RWX______))
 
                 assertThat(target).hasContent("one")
                 assertThat(getPosixFilePermissions(target.toPath())).containsExactlyInAnyOrderElementsOf(RW_______)
@@ -52,7 +57,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val folder = temporaryFolder.root.resolve("nested/folder")
                 val target = temporaryFolder.root.resolve("nested/folder/new.txt")
 
-                FileUtils.copyOrReplaceFile(file, target, RW_______, RWX______)
+                FileUtils.copyOrReplaceFile(file, target, Permissions(RW_______, RWX______))
 
                 assertThat(target).hasContent("one")
                 assertThat(getPosixFilePermissions(target.toPath())).containsExactlyInAnyOrderElementsOf(RW_______)
@@ -71,7 +76,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val targetDirectory = temporaryFolder.createDirectory("target-directory")
                 targetDirectory.createNewFile("one.txt")
 
-                FileUtils.copyOrReplaceFile(tempDir, targetDirectory, RW_______, RWX______)
+                FileUtils.copyOrReplaceFile(tempDir, targetDirectory, Permissions(RW_______, RWX______))
 
                 val folderPermissions = getPosixFilePermissions(targetDirectory.toPath())
                 val filePermissions = getPosixFilePermissions(targetDirectory.resolve("two.txt").toPath())
@@ -87,7 +92,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 tempDir.createNewFile("two.txt")
                 val target = temporaryFolder.root.resolve("target")
 
-                FileUtils.copyOrReplaceFile(tempDir, target, RW_______, RWX______)
+                FileUtils.copyOrReplaceFile(tempDir, target, Permissions(RW_______, RWX______))
 
                 val folderPermissions = getPosixFilePermissions(target.toPath())
                 val filePermissions = getPosixFilePermissions(target.resolve("two.txt").toPath())
@@ -106,7 +111,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val nestedDir = temporaryFolder.root.resolve("target/subDirectory")
                 val nestedFile = temporaryFolder.root.resolve("target/subDirectory/subTempFile.txt")
 
-                FileUtils.copyOrReplaceFile(tempDir, target, RW_______, RWX______)
+                FileUtils.copyOrReplaceFile(tempDir, target, Permissions(RW_______, RWX______))
 
                 assertThat(target).isDirectory()
                 assertThat(nestedDir).isDirectory()
@@ -127,7 +132,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val file = temporaryFolder.createFile("one.txt", "one")
                 val another = temporaryFolder.createFile("two.txt", "two")
 
-                FileUtils.moveFile(file, another, RW_______, RWX______)
+                FileUtils.moveFile(file, another, Permissions(RW_______, RWX______))
 
                 assertThat(temporaryFolder.root.resolve("one.txt")).doesNotExist()
                 assertThat(temporaryFolder.root.resolve("two.txt")).hasContent("one")
@@ -139,7 +144,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val file = temporaryFolder.createFile("one.txt", "one")
                 val target = temporaryFolder.root.resolve("new.txt")
 
-                FileUtils.moveFile(file, target, RW_______, RWX______)
+                FileUtils.moveFile(file, target, Permissions(RW_______, RWX______))
 
                 assertThat(temporaryFolder.root.resolve("new.txt")).hasContent("one")
                 assertThat(getPosixFilePermissions(target.toPath())).containsExactlyInAnyOrderElementsOf(RW_______)
@@ -152,7 +157,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val folder = temporaryFolder.root.resolve("nested/folder")
                 val target = temporaryFolder.root.resolve("nested/folder/new.txt")
 
-                FileUtils.moveFile(file, target, RW_______, RWX______)
+                FileUtils.moveFile(file, target, Permissions(RW_______, RWX______))
 
                 assertThat(target).hasContent("one")
                 assertThat(getPosixFilePermissions(target.toPath())).containsExactlyInAnyOrderElementsOf(RW_______)
@@ -171,7 +176,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 val targetDirectory = temporaryFolder.createDirectory("target-directory")
                 targetDirectory.createNewFile("one.txt")
 
-                FileUtils.moveFile(tempDir, targetDirectory, RW_______, RWX______)
+                FileUtils.moveFile(tempDir, targetDirectory, Permissions(RW_______, RWX______))
 
                 val folderPermissions = getPosixFilePermissions(targetDirectory.toPath())
                 val filePermissions = getPosixFilePermissions(targetDirectory.resolve("two.txt").toPath())
@@ -187,7 +192,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
                 tempDir.createNewFile("two.txt")
                 val target = temporaryFolder.root.resolve("target")
 
-                FileUtils.moveFile(tempDir, target, RW_______, RWX______)
+                FileUtils.moveFile(tempDir, target, Permissions(RW_______, RWX______))
 
                 val folderPermissions = getPosixFilePermissions(target.toPath())
                 val filePermissions = getPosixFilePermissions(target.resolve("two.txt").toPath())
@@ -234,8 +239,8 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             val file = temporaryFolder.createFile("test.txt")
             val folder = temporaryFolder.createDirectory("test-folder")
 
-            assertThat(FileUtils.isDirectory(file)).isFalse()
-            assertThat(FileUtils.isDirectory(folder)).isTrue()
+            assertThat(FileUtils.isDirectory(file)).isFalse
+            assertThat(FileUtils.isDirectory(folder)).isTrue
         }
 
         @Test
@@ -253,6 +258,23 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             assertThat(FileUtils.md5(file)).isEqualTo("FC5D029EE5D34A268F8FA016E949073B")
         }
 
+        @Nested
+        inner class Md5Performance {
+            lateinit var file: File
+
+            @BeforeEach
+            fun beforeEach() {
+                val oneGb = (1024 * 1024 * 1024).toLong()
+                file = temporaryFolder.createFile("md5-p-test.txt", oneGb)
+            }
+
+            @Test
+            @Timeout(10_000, unit = TimeUnit.MILLISECONDS)
+            fun md5Performance() {
+                assertThat(FileUtils.md5(file)).isNotEmpty()
+            }
+        }
+
         @Test
         fun `list files`() {
             val folder = temporaryFolder.createDirectory("listing-test")
@@ -262,6 +284,32 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
 
             assertThat(FileUtils.listFiles(file1)).isEmpty()
             assertThat(FileUtils.listFiles(folder)).containsExactlyInAnyOrder(innerFolder, file1, file2)
+        }
+    }
+
+    @Nested
+    inner class FileUtilsHelperTest {
+        @Test
+        fun `create folder if not exists when not exists`() {
+            val folder = temporaryFolder.root.resolve("folder1")
+            assertThat(folder).doesNotExist()
+
+            createFolderIfNotExist(folder.toPath(), RW_______)
+
+            assertThat(folder).exists()
+            assertThat(getPosixFilePermissions(folder.toPath())).isEqualTo(RW_______)
+        }
+
+        @Test
+        fun `create folder if not exists when exists`() {
+            val folder = temporaryFolder.createDirectory("folder2")
+            Files.setPosixFilePermissions(folder.toPath(), RW_______)
+            assertThat(folder).exists()
+
+            createFolderIfNotExist(folder.toPath(), RWXRWX___)
+
+            assertThat(folder).exists()
+            assertThat(getPosixFilePermissions(folder.toPath())).isEqualTo(RWXRWX___)
         }
     }
 }

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.files.web.common
 
+import ac.uk.ebi.biostd.files.web.fileListPath
 import ac.uk.ebi.biostd.files.web.groupPath
 import ac.uk.ebi.biostd.files.web.userPath
 import ebi.ac.uk.base.removeFirstOccurrence
@@ -17,9 +18,9 @@ class UserPathDescriptorResolver : HandlerMethodArgumentResolver {
 
     override fun resolveArgument(
         parameter: MethodParameter,
-        mavContainer: ModelAndViewContainer,
+        mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
-        binderFactory: WebDataBinderFactory
+        binderFactory: WebDataBinderFactory?
     ) = UserPath(getPath(userPath, getServletRequest(webRequest)))
 }
 
@@ -28,10 +29,21 @@ class GroupPathDescriptorResolver : HandlerMethodArgumentResolver {
 
     override fun resolveArgument(
         parameter: MethodParameter,
-        mavContainer: ModelAndViewContainer,
+        mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
-        binderFactory: WebDataBinderFactory
+        binderFactory: WebDataBinderFactory?
     ) = GroupPath(getPath(groupPath, getServletRequest(webRequest)))
+}
+
+class FileListPathDescriptorResolver : HandlerMethodArgumentResolver {
+    override fun supportsParameter(parameter: MethodParameter) = parameter.parameterType == FileListPath::class.java
+
+    override fun resolveArgument(
+        parameter: MethodParameter,
+        mavContainer: ModelAndViewContainer?,
+        webRequest: NativeWebRequest,
+        binderFactory: WebDataBinderFactory?
+    ) = FileListPath(getPath(fileListPath, getServletRequest(webRequest)))
 }
 
 private fun getServletRequest(webRequest: NativeWebRequest) =
@@ -42,3 +54,4 @@ private fun getPath(prefix: Regex, webRequest: HttpServletRequest): String =
 
 class UserPath(val path: String)
 class GroupPath(val path: String)
+class FileListPath(val path: String)

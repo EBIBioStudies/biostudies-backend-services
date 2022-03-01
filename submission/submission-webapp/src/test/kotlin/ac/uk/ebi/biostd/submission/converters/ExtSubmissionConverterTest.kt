@@ -7,7 +7,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
-import java.io.OutputStream
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -17,6 +16,7 @@ import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType.APPLICATION_JSON
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.io.OutputStream
 
 @ExtendWith(MockKExtension::class)
 class ExtSubmissionConverterTest(@MockK private val extSerializationService: ExtSerializationService) {
@@ -27,22 +27,22 @@ class ExtSubmissionConverterTest(@MockK private val extSerializationService: Ext
 
     @Test
     fun `can read`() {
-        assertThat(testInstance.canRead(ExtSubmission::class.java, APPLICATION_JSON)).isTrue()
+        assertThat(testInstance.canRead(ExtSubmission::class.java, APPLICATION_JSON)).isTrue
     }
 
     @Test
     fun `can not read`() {
-        assertThat(testInstance.canRead(Submission::class.java, APPLICATION_JSON)).isFalse()
+        assertThat(testInstance.canRead(Submission::class.java, APPLICATION_JSON)).isFalse
     }
 
     @Test
     fun `can write`() {
-        assertThat(testInstance.canWrite(ExtSubmission::class.java, APPLICATION_JSON)).isTrue()
+        assertThat(testInstance.canWrite(ExtSubmission::class.java, APPLICATION_JSON)).isTrue
     }
 
     @Test
     fun `can not write`() {
-        assertThat(testInstance.canWrite(Submission::class.java, APPLICATION_JSON)).isFalse()
+        assertThat(testInstance.canWrite(Submission::class.java, APPLICATION_JSON)).isFalse
     }
 
     @Test
@@ -76,7 +76,7 @@ class ExtSubmissionConverterTest(@MockK private val extSerializationService: Ext
         @MockK extSubmission: ExtSubmission
     ) {
         every { message.body } returns "submission".byteInputStream()
-        every { extSerializationService.deserialize("submission", ExtSubmission::class.java) } returns extSubmission
+        every { extSerializationService.deserialize("submission") } returns extSubmission
 
         val read = testInstance.read(ExtSubmission::class.java, message)
         assertThat(read).isEqualTo(extSubmission)

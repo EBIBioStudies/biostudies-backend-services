@@ -1,5 +1,7 @@
 package ac.uk.ebi.pmc.load
 
+import arrow.core.Either.Companion.left
+import arrow.core.Either.Companion.right
 import ebi.ac.uk.functions.milisToInstant
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -20,7 +22,11 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
      */
     fun loadFolder(folder: File) {
         runBlocking {
-            processFiles(toProcess = folder, processed = folder.createSubFolder("processed"))
+            processFiles(
+                toProcess = folder,
+                processed = folder.createSubFolder("processed"),
+                failed = folder.createSubFolder("failed")
+            )
         }
     }
 
@@ -30,14 +36,19 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
         return folder
     }
 
-    private suspend fun processFiles(toProcess: File, processed: File) {
+    private suspend fun processFiles(toProcess: File, processed: File, failed: File) {
         logger.info { "loading files in ${toProcess.absolutePath}" }
         toProcess.listFiles(GzFilter)
             .orEmpty()
             .asSequence()
-            .onEach { logger.info { "checking file '${it.absolutePath}'" } }
-            .map(::getFileData)
-            .forEach { pmcLoader.processFile(it, processed) }
+            .onEach { file -> logger.info { "checking file '${file.absolutePath}'" } }
+            .map { file -> runCatching { getFileData(file) }.fold({ left(it) }, { right(Pair(file, it)) }) }
+            .forEach { either ->
+                either.fold(
+                    { pmcLoader.processFile(it, processed) },
+                    { pmcLoader.processCorruptedFile(it, failed) }
+                )
+            }
     }
 
     private fun getFileData(file: File): FileSpec {
@@ -46,6 +57,6 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
     }
 
     object GzFilter : FilenameFilter {
-        override fun accept(dir: File, name: String): Boolean = name.toLowerCase().endsWith(".gz")
+        override fun accept(dir: File, name: String): Boolean = name.lowercase().endsWith(".gz")
     }
 }

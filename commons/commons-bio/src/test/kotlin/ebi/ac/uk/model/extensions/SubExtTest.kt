@@ -9,8 +9,12 @@ import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.collections.third
+import ebi.ac.uk.util.date.asIsoTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 class SubExtTest {
     @Test
@@ -27,7 +31,56 @@ class SubExtTest {
         val submission = submission("ABC-123") {}
         submission.releaseDate = "2015-02-20"
 
+        assertThat(submission.releaseDate).isEqualTo("2015-02-20")
         assertExtendedAttribute(submission, SubFields.RELEASE_DATE, "2015-02-20")
+    }
+
+    @Test
+    fun `release date null`() {
+        val submission = submission("ABC-123") {}
+
+        submission.attributes = listOf(Attribute(SubFields.RELEASE_DATE.value, "2015-02-20"))
+        submission.releaseDate = null
+        assertThat(submission.attributes).hasSize(0)
+    }
+
+    @Test
+    fun `release time`() {
+        val submission = submission("ABC-123") {}
+        val dateTime = OffsetDateTime.of(2020, 1, 1, 1, 1, 1, 1, ZoneOffset.UTC)
+        submission.releaseTime = dateTime
+
+        assertThat(submission.releaseTime).isEqualTo(dateTime)
+        assertExtendedAttribute(submission, SubFields.RELEASE_TIME, dateTime.asIsoTime())
+    }
+
+    @Test
+    fun `creation time`() {
+        val submission = submission("ABC-123") {}
+        val dateTime = OffsetDateTime.of(2020, 1, 1, 1, 1, 1, 1, ZoneOffset.UTC)
+        submission.creationTime = dateTime
+
+        assertThat(submission.creationTime).isEqualTo(dateTime)
+        assertExtendedAttribute(submission, SubFields.CREATION_TIME, dateTime.asIsoTime())
+    }
+
+    @Test
+    fun `modification time`() {
+        val submission = submission("ABC-123") {}
+        val dateTime = OffsetDateTime.of(2020, 1, 1, 1, 1, 1, 1, ZoneOffset.UTC)
+        submission.modificationTime = dateTime
+
+        assertThat(submission.modificationTime).isEqualTo(dateTime)
+        assertExtendedAttribute(submission, SubFields.MODIFICATION_TIME, dateTime.asIsoTime())
+    }
+
+    @Test
+    fun `secret key`() {
+        val submission = submission("ABC-123") {}
+        submission.secretKey = "secretKey"
+
+        assertThat(submission.secretKey).isEqualTo("secretKey")
+        assertExtendedAttribute(submission, SubFields.SECRET, "secretKey")
     }
 
     @Test
@@ -93,7 +146,7 @@ class SubExtTest {
 
     private fun assertExtendedAttribute(submission: Submission, name: SubFields, value: String) {
         assertThat(submission.attributes).hasSize(1)
-        assertThat(submission.attributes.first()).isEqualTo(Attribute(name, value))
+        assertThat(submission.attributes.first()).isEqualTo(Attribute(name.value, value))
     }
 
     @Test
@@ -118,5 +171,30 @@ class SubExtTest {
         assertThat(libFileSections).hasSize(2)
         assertThat(libFileSections.first().fileListName).isEqualTo("FileList2.tsv")
         assertThat(libFileSections.second().fileListName).isEqualTo("FileList1.tsv")
+    }
+
+    @Test
+    fun `get all sections`() {
+        val submission = submission("ABC-123") {
+            section("Study") {
+                fileListName = "FileList1.tsv"
+
+                section("Data") {
+                    accNo = "DT-1"
+                }
+
+                section("Experiment") {
+                    accNo = "EXP-1"
+                    fileListName = "FileList2.tsv"
+                }
+            }
+        }
+
+        val sections = submission.allSections()
+
+        assertThat(sections).hasSize(3)
+        assertThat(sections.first().type).isEqualTo("Study")
+        assertThat(sections.second().type).isEqualTo("Data")
+        assertThat(sections.third().type).isEqualTo("Experiment")
     }
 }

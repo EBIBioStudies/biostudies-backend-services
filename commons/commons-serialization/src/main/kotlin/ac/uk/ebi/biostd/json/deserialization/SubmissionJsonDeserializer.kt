@@ -8,9 +8,10 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.constants.SubFields
-import uk.ac.ebi.serialization.extensions.convertList
-import uk.ac.ebi.serialization.extensions.convertNode
+import ebi.ac.uk.model.constants.SubFields.ACC_NO
+import ebi.ac.uk.model.constants.SubFields.ATTRIBUTES
+import ebi.ac.uk.model.constants.SubFields.SECTION
+import uk.ac.ebi.serialization.extensions.convertOrDefault
 import uk.ac.ebi.serialization.extensions.findNode
 
 internal class SubmissionJsonDeserializer : StdDeserializer<Submission>(Submission::class.java) {
@@ -19,9 +20,9 @@ internal class SubmissionJsonDeserializer : StdDeserializer<Submission>(Submissi
         val node = mapper.readTree<JsonNode>(jp)
 
         return Submission(
-            accNo = node.findNode<TextNode>(SubFields.ACC_NO.value)?.textValue().orEmpty(),
-            attributes = mapper.convertList(node.findNode(SubFields.ATTRIBUTES.value)),
-            section = mapper.convertNode(node.findNode(SubFields.SECTION.value)) ?: Section()
+            accNo = node.findNode<TextNode>(ACC_NO.value)?.textValue().orEmpty(),
+            attributes = mapper.convertOrDefault(node, ATTRIBUTES.value) { emptyList() },
+            section = mapper.convertOrDefault(node, SECTION.value) { Section() }
         )
     }
 }

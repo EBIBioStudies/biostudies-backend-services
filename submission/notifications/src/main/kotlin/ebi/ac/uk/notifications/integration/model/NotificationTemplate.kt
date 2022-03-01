@@ -7,12 +7,10 @@ open class NotificationTemplate<T : NotificationTemplateModel>(private var templ
     /**
      * Obtaining the string representation by replacing model properties into template string.
      */
-    fun getContent(model: T): String {
-        return getContent(model.getParams())
-    }
+    fun render(model: T): String = render(model.getParams())
 
-    private fun getContent(params: List<Pair<String, String>>): String =
-        params.fold(template, { content, (key, value) -> content.replace("\${$key}", value) })
+    private fun render(params: List<Pair<String, String>>): String =
+        params.fold(template) { content, (key, value) -> content.replace("\${$key}", value) }
 }
 
 /**

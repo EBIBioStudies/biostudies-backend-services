@@ -16,16 +16,13 @@ internal class PathFilesSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun exists() {
-        assertThat(testInstance.exists(file.name)).isTrue()
+        assertThat(testInstance.exists(file.name)).isTrue
     }
 
     @Test
     fun getFile() {
-        assertThat(testInstance.getFile(file.name)).isEqualTo(file)
-    }
-
-    @Test
-    fun readText() {
-        assertThat(testInstance.readText(file.name)).isEqualTo("the content of file")
+        val result = testInstance.getFile(file.name)
+        assertThat(result).isInstanceOf(NfsBioFile::class.java)
+        assertThat(result.file).isEqualTo(file)
     }
 }

@@ -5,11 +5,11 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
-import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ACC_NO_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ON_BEHALF_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
+import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.ACC_NO_HELP
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 

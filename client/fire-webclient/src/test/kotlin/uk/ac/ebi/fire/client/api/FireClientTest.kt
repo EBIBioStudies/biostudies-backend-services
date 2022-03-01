@@ -11,13 +11,19 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
+import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.util.LinkedMultiValueMap
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.getForObject
+import uk.ac.ebi.fire.client.exception.FireClientException
 import uk.ac.ebi.fire.client.model.FireFile
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
@@ -39,11 +45,12 @@ class FireClientTest(
             template.postForObject(FIRE_OBJECTS_URL, capture(httpEntitySlot), FireFile::class.java)
         } returns fireFile
 
-        testInstance.save(file, "the-md5")
+        testInstance.save(file, "the-md5", "relPath")
 
         val httpEntity = httpEntitySlot.captured
         assertThat(httpEntity.headers[FIRE_MD5_HEADER]!!.first()).isEqualTo("the-md5")
         assertThat(httpEntity.headers[FIRE_SIZE_HEADER]!!.first()).isEqualTo(file.size().toString())
+        assertThat(httpEntity.headers[SUBMISSION_FILE_RELPATH_HEADER]!!.first()).isEqualTo("relPath")
         assertThat(httpEntity.body!![FIRE_FILE_PARAM]!!.first()).isEqualTo(FileSystemResource(file))
         verify(exactly = 1) { template.postForObject(FIRE_OBJECTS_URL, capture(httpEntitySlot), FireFile::class.java) }
     }
@@ -62,6 +69,15 @@ class FireClientTest(
     }
 
     @Test
+    fun `unset path`() {
+        every { template.delete("$FIRE_OBJECTS_URL/the-fire-oid/firePath") } answers { nothing }
+
+        testInstance.unsetPath("the-fire-oid")
+
+        verify(exactly = 1) { template.delete("$FIRE_OBJECTS_URL/the-fire-oid/firePath") }
+    }
+
+    @Test
     fun `download by path`() {
         val file = tmpFolder.createFile("test.txt", "test content")
 
@@ -75,6 +91,66 @@ class FireClientTest(
         assertThat(downloadedFile.absolutePath).isEqualTo("${tmpFolder.root.absolutePath}/file1.txt")
         verify(exactly = 1) {
             template.getForObject("$FIRE_OBJECTS_URL/blob/path/S-BSST1/file1.txt", ByteArray::class.java)
+        }
+    }
+
+    @Test
+    fun `download by fireId`() {
+        val file = tmpFolder.createFile("test.txt", "test content")
+
+        every {
+            template.getForObject("$FIRE_OBJECTS_URL/blob/fireOId", ByteArray::class.java)
+        } returns file.readBytes()
+
+        val downloadedFile = testInstance.downloadByFireId("fireOId", "file1.txt")
+
+        assertThat(downloadedFile.readText()).isEqualTo("test content")
+        assertThat(downloadedFile.absolutePath).isEqualTo("${tmpFolder.root.absolutePath}/file1.txt")
+        verify(exactly = 1) {
+            template.getForObject("$FIRE_OBJECTS_URL/blob/fireOId", ByteArray::class.java)
+        }
+    }
+
+    @Test
+    fun `find all by path`(@MockK fireFile: FireFile) {
+        every {
+            template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
+        } returns arrayOf(fireFile)
+
+        val files = testInstance.findAllInPath("my/path")
+
+        assertThat(files).hasSize(1)
+        assertThat(files.first()).isEqualTo(fireFile)
+        verify(exactly = 1) {
+            template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
+        }
+    }
+
+    @Test
+    fun `find all by path when FireClientException with NOT_FOUND status code`() {
+        every {
+            template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
+        }.throws(FireClientException(NOT_FOUND, "no files found in the given path"))
+
+        val files = testInstance.findAllInPath("my/path")
+
+        assertThat(files).hasSize(0)
+        verify(exactly = 1) {
+            template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
+        }
+    }
+
+    @Test
+    fun `find all by path when httpException without a status code other than NOT_FOUND`() {
+        every {
+            template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
+        }.throws(HttpClientErrorException(HttpStatus.BAD_REQUEST))
+
+        assertThatExceptionOfType(HttpClientErrorException::class.java)
+            .isThrownBy { testInstance.findAllInPath("my/path") }
+
+        verify(exactly = 1) {
+            template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
         }
     }
 

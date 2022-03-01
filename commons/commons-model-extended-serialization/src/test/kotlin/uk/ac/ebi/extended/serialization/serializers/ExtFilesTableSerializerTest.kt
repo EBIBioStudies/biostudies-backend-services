@@ -5,13 +5,14 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.serialize
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
@@ -22,32 +23,47 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
         val file = tempFolder.createFile("test-file.txt")
         val extFilesTable = ExtFileTable(
             NfsFile(
+                filePath = "folder/test-file.txt",
+                relPath = "Files/folder/test-file.txt",
+                fullPath = file.absolutePath,
                 file = file,
-                fileName = "test/path/test-file.txt",
-                attributes = listOf(ExtAttribute("Type", "Data", false))
+                md5 = file.md5(),
+                size = file.size(),
+                attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true))
             )
         )
         val expectedJson = jsonObj {
             "files" to jsonArray(
                 jsonObj {
                     "fileName" to "test-file.txt"
-                    "path" to "test/path/test-file.txt"
-                    "file" to file.absolutePath
+                    "filePath" to "folder/test-file.txt"
+                    "relPath" to "Files/folder/test-file.txt"
+                    "fullPath" to file.absolutePath
+                    "md5" to file.md5()
                     "attributes" to jsonArray(
                         jsonObj {
                             "name" to "Type"
                             "value" to "Data"
                             "reference" to false
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
+                        },
+                        jsonObj {
+                            "name" to "Source"
+                            "value" to null
+                            "reference" to true
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
                         }
                     )
                     "extType" to "nfsFile"
                     "type" to "file"
-                    "size" to 0
+                    "size" to file.size()
                 }
             )
             "extType" to "filesTable"
         }.toString()
 
-        assertThat(testInstance.serialize(extFilesTable)).isEqualToIgnoringWhitespace(expectedJson)
+        assertThat(testInstance.writeValueAsString(extFilesTable)).isEqualToIgnoringWhitespace(expectedJson)
     }
 }

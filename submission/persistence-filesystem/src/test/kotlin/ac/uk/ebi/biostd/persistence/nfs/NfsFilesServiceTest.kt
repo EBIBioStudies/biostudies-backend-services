@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.persistence.filesystem.extSubmissionWithFileList
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
+import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
@@ -18,7 +18,6 @@ import ebi.ac.uk.io.RWXR_X___
 import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.io.RW_R_____
 import ebi.ac.uk.io.ext.createNewFile
-import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
@@ -32,7 +31,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.nio.file.Files
+import java.nio.file.Files.getPosixFilePermissions
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.attribute.PosixFilePermission
@@ -45,9 +44,8 @@ class NfsFilesServiceTest(
     private lateinit var extSubmission: ExtSubmission
 
     private val rootPath = tempFolder.root.toPath()
-    private val pageTabService = PageTabService(mockSerializationService)
     private val folderResolver = SubmissionFolderResolver(Paths.get("$rootPath/submission"), Paths.get("$rootPath/ftp"))
-    private val testInstance = NfsFilesService(pageTabService, folderResolver)
+    private val testInstance = NfsFilesService(folderResolver)
 
     @BeforeEach
     fun beforeEach() {
@@ -61,13 +59,9 @@ class NfsFilesServiceTest(
         val simpleSubmission = extSubmission.toSimpleSubmission()
         sectionFolder.createNewFile("file3.txt", "folder-file-content")
 
-        every { mockSerializationService.serializeElement(simpleSubmission, XML) } returns ""
-        every { mockSerializationService.serializeElement(simpleSubmission, TSV) } returns ""
-        every { mockSerializationService.serializeElement(simpleSubmission, JSON_PRETTY) } returns ""
-
-        every { mockSerializationService.serializeElement(any<FilesTable>(), XML) } returns ""
-        every { mockSerializationService.serializeElement(any<FilesTable>(), TSV) } returns ""
-        every { mockSerializationService.serializeElement(any<FilesTable>(), JSON_PRETTY) } returns ""
+        every { mockSerializationService.serializeSubmission(simpleSubmission, XML) } returns ""
+        every { mockSerializationService.serializeSubmission(simpleSubmission, TSV) } returns ""
+        every { mockSerializationService.serializeSubmission(simpleSubmission, JSON_PRETTY) } returns ""
     }
 
     @Nested
@@ -102,7 +96,7 @@ class NfsFilesServiceTest(
         expectedFilePermissions: Set<PosixFilePermission>,
         expectedFolderPermissions: Set<PosixFilePermission>
     ) {
-        testInstance.persistSubmissionFiles(extSubmission, mode)
+        testInstance.persistSubmissionFiles(FilePersistenceRequest(extSubmission, mode))
 
         val relPath = extSubmission.relPath
 
@@ -118,21 +112,13 @@ class NfsFilesServiceTest(
         val directory = directoryPath.toFile()
         assertThat(FileUtils.listFiles(directory).first()).hasContent("folder-file-content")
         assertThat(FileUtils.listFiles(directory).first()).hasName("file3.txt")
-        assertThat(Files.getPosixFilePermissions(directoryPath)).isEqualTo(expectedFolderPermissions)
-
-        assertFile(getPath("submission/$relPath/ABC-123.xml"), expectedFilePermissions)
-        assertFile(getPath("submission/$relPath/ABC-123.json"), expectedFilePermissions)
-        assertFile(getPath("submission/$relPath/ABC-123.pagetab.tsv"), expectedFilePermissions)
-
-        assertFile(getPath("submission/$relPath/Files/fileList.xml"), expectedFilePermissions)
-        assertFile(getPath("submission/$relPath/Files/fileList.json"), expectedFilePermissions)
-        assertFile(getPath("submission/$relPath/Files/fileList.pagetab.tsv"), expectedFilePermissions)
+        assertThat(getPosixFilePermissions(directoryPath)).isEqualTo(expectedFolderPermissions)
     }
 
     private fun getPath(path: String) = Paths.get("${tempFolder.root.absolutePath}/$path")
 
     private fun assertFile(path: Path, expectedPermissions: Set<PosixFilePermission>) {
         assertThat(path).exists()
-        assertThat(Files.getPosixFilePermissions(path)).containsExactlyInAnyOrderElementsOf(expectedPermissions)
+        assertThat(getPosixFilePermissions(path)).containsExactlyInAnyOrderElementsOf(expectedPermissions)
     }
 }

@@ -1,7 +1,6 @@
 package ebi.ac.uk.notifications.api
 
 import ac.uk.ebi.biostd.common.properties.RtConfig
-import arrow.core.getOrElse
 import ebi.ac.uk.notifications.exception.InvalidResponseException
 import ebi.ac.uk.notifications.exception.InvalidTicketIdException
 import ebi.ac.uk.util.collections.second
@@ -46,10 +45,7 @@ class RtClient(
         val body = response.split("\n\n")
 
         require(body.size > 2) { throw InvalidTicketIdException() }
-        return ticketIdPattern
-            .match(body.second())
-            .map { it.secondGroup() }
-            .getOrElse { throw InvalidTicketIdException() }
+        return ticketIdPattern.match(body.second())?.secondGroup() ?: throw InvalidTicketIdException()
     }
 
     private fun ticketComment(ticketId: String, comment: String) =
@@ -61,6 +57,7 @@ class RtClient(
     private fun ticketContent(accNo: String, subject: String, owner: String, content: String) =
         StringBuilder("Queue: ${rtConfig.queue}\n")
             .append("Subject: $subject\n")
+            .append("Status: resolved\n")
             .append("Requestor: $owner\n")
             .append("CF-Accession: $accNo\n")
             .append("Text: ${trimContent(content)}")

@@ -4,6 +4,14 @@ import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.MySql
 import Dependencies.SpringWeb
+import Projects.CommonsHttp
+import Projects.CommonsModelExtended
+import Projects.CommonsModelExtendedSerialization
+import Projects.CommonsUtil
+import Projects.SubmissionConfig
+import Projects.SubmissionNotification
+import Projects.SubmissionPersistenceCommonApi
+import Projects.SubmissionPersistenceSql
 import SpringBootDependencies.SpringBootAmqp
 import SpringBootDependencies.SpringBootStarterDataJpa
 import TestDependencies.BaseTestCompileDependencies
@@ -11,20 +19,20 @@ import TestDependencies.BaseTestRuntimeDependencies
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "1.4.32"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.6.10"
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
     id("org.springframework.boot") version "2.3.2.RELEASE"
 }
 
 dependencies {
-    api(project(":commons:commons-model-extended"))
-    api(project(":commons:commons-model-extended-serialization"))
-    api(project(":commons:commons-http"))
-    api(project(":commons:commons-util"))
-    api(project(":submission:notifications"))
-    api(project(":submission:submission-config"))
-    api(project(":submission:persistence-common-api"))
-    api(project(":submission:persistence-sql"))
+    api(project(CommonsModelExtended))
+    api(project(CommonsModelExtendedSerialization))
+    api(project(CommonsHttp))
+    api(project(CommonsUtil))
+    api(project(SubmissionNotification))
+    api(project(SubmissionConfig))
+    api(project(SubmissionPersistenceCommonApi))
+    api(project(SubmissionPersistenceSql))
 
     implementation(KotlinStdLib)
     implementation(KotlinReflect)

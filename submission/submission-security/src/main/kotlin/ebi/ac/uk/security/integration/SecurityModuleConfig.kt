@@ -43,7 +43,7 @@ class SecurityModuleConfig(
     fun securityFilter(): ISecurityFilter = securityFilter
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
-    private val groupService by lazy { GroupService(groupRepository, userRepo) }
+    private val groupService by lazy { GroupService(groupRepository, userRepo, props.filesDirPath) }
     private val securityQueryService by lazy { SecurityQueryService(securityUtil, profileService, userRepo) }
     private val securityService by lazy {
         SecurityService(userRepo, securityUtil, props, profileService, captchaVerifier, eventsPublisherService)
@@ -55,8 +55,10 @@ class SecurityModuleConfig(
     }
 
     private val captchaVerifier by lazy { CaptchaVerifier(RestTemplate(), props) }
-    private val securityUtil by lazy { SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash) }
     private val objectMapper by lazy { JacksonFactory.createMapper() }
     private val jwtParser by lazy { Jwts.parser()!! }
     private val profileService by lazy { ProfileService(Paths.get(props.filesDirPath)) }
+    private val securityUtil by lazy {
+        SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
+    }
 }

@@ -2,7 +2,6 @@ package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import arrow.core.getOrElse
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
@@ -15,32 +14,33 @@ class SecurityQueryService(
     private val profileService: ProfileService,
     private val userRepository: UserDataRepository
 ) : ISecurityQueryService {
-    override fun existsByEmail(email: String): Boolean = userRepository.existsByEmailAndActive(email, active = true)
+    override fun existsByEmail(email: String, onlyActive: Boolean): Boolean =
+        if (onlyActive) userRepository.existsByEmailAndActive(email, true) else userRepository.existsByEmail(email)
 
     override fun getUser(email: String): SecurityUser =
         userRepository.findByEmailAndActive(email, true)
-            .map { profileService.asSecurityUser(it) }
-            .orElseThrow { throw UserAlreadyRegister(email) }
+            ?.let { profileService.asSecurityUser(it) }
+            ?: throw UserAlreadyRegister(email)
 
     override fun getUserProfile(authToken: String): UserInfo =
         securityUtil.checkToken(authToken)
-            .getOrElse { throw UserNotFoundByTokenException() }
-            .let { profileService.getUserProfile(it, authToken) }
+            ?.let { profileService.getUserProfile(it, authToken) }
+            ?: throw UserNotFoundByTokenException()
 
     override fun getOrCreateInactive(email: String, username: String): SecurityUser =
-        userRepository.findByEmail(email)
-            .orElseGet { createUserInactive(email, username) }
-            .let { profileService.asSecurityUser(it) }
+        profileService.asSecurityUser(userRepository.findByEmail(email) ?: createUserInactive(email, username))
 
     private fun createUserInactive(email: String, username: String): DbUser {
         val user = DbUser(
             email = email,
             fullName = username,
             secret = securityUtil.newKey(),
-            passwordDigest = ByteArray(0)
-        )
-        user.active = false
-        user.notificationsEnabled = false
+            passwordDigest = ByteArray(0),
+            notificationsEnabled = false
+        ).apply {
+            active = false
+            activationKey = securityUtil.newKey()
+        }
 
         return userRepository.save(user)
     }

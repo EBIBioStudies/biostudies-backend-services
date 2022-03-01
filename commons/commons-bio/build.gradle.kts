@@ -3,12 +3,15 @@ import Dependencies.JacksonDataBind
 import Dependencies.JavaValidationApi
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
+import Projects.CommonsModelExtended
+import Projects.CommonsTest
+import Projects.CommonsUtil
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
-    api(project(":commons:commons-util"))
-    api(project(":commons:commons-model-extended"))
+    api(project(CommonsUtil))
+    api(project(CommonsModelExtended))
 
     implementation(Arrow)
     implementation(JacksonDataBind)
@@ -16,7 +19,7 @@ dependencies {
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
 
-    testApi(project(":commons:commons-test"))
+    testApi(project(CommonsTest))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

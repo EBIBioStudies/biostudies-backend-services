@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.converters
 
-import ac.uk.ebi.biostd.submission.web.model.ExtPage
+import ebi.ac.uk.extended.model.WebExtPage
 import org.springframework.http.HttpInputMessage
 import org.springframework.http.HttpOutputMessage
 import org.springframework.http.MediaType
@@ -10,18 +10,19 @@ import kotlin.reflect.full.isSuperclassOf
 
 class ExtPageSubmissionConverter(
     private val extSerializationService: ExtSerializationService
-) : HttpMessageConverter<ExtPage> {
+) : HttpMessageConverter<WebExtPage> {
     override fun canRead(clazz: Class<*>, mediaType: MediaType): Boolean = false
 
-    override fun canWrite(clazz: Class<*>, mediaType: MediaType?): Boolean = ExtPage::class.isSuperclassOf(clazz.kotlin)
+    override fun canWrite(clazz: Class<*>, mediaType: MediaType?): Boolean =
+        WebExtPage::class.isSuperclassOf(clazz.kotlin)
 
     override fun getSupportedMediaTypes(): List<MediaType> = listOf(MediaType.APPLICATION_JSON)
 
-    override fun write(extSubmission: ExtPage, contentType: MediaType, message: HttpOutputMessage) {
+    override fun write(webExtPage: WebExtPage, contentType: MediaType, message: HttpOutputMessage) {
         message.headers.contentType = MediaType.APPLICATION_JSON
-        message.body.write(extSerializationService.serialize(extSubmission).toByteArray())
+        message.body.write(extSerializationService.serialize(webExtPage).toByteArray())
     }
 
-    override fun read(clazz: Class<out ExtPage>, inputMessage: HttpInputMessage): ExtPage =
+    override fun read(clazz: Class<out WebExtPage>, inputMessage: HttpInputMessage): WebExtPage =
         throw NotImplementedError("ExtPage as input is not supported")
 }

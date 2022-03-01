@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.client.integration.web
 
-import ac.uk.ebi.biostd.client.dto.ExtPage
 import ac.uk.ebi.biostd.client.dto.ExtPageQuery
+import ac.uk.ebi.biostd.client.dto.ReleaseRequestDto
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ebi.ac.uk.api.ClientResponse
@@ -9,12 +9,17 @@ import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.dto.NonRegistration
 import ebi.ac.uk.api.dto.RegisterConfig
 import ebi.ac.uk.api.dto.SubmissionDto
+import ebi.ac.uk.api.dto.UserGroupDto
 import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.base.EMPTY
+import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.Group
 import ebi.ac.uk.model.Submission
@@ -36,6 +41,7 @@ typealias SubmissionResponse = ClientResponse<Submission>
 
 interface FilesOperations {
     fun uploadFiles(files: List<File>, relativePath: String = EMPTY)
+    fun uploadFile(file: File, relativePath: String = EMPTY)
     fun downloadFile(fileName: String, relativePath: String = EMPTY): File
     fun listUserFiles(relativePath: String = EMPTY): List<UserFile>
     fun deleteFile(fileName: String, relativePath: String = EMPTY)
@@ -67,22 +73,54 @@ interface SubmissionOperations {
 
     fun submitAsync(submission: String, format: SubmissionFormat = JSON, register: RegisterConfig = NonRegistration)
 
-    fun refreshSubmission(accNo: String): SubmissionResponse
     fun deleteSubmission(accNo: String)
+
     fun deleteSubmissions(submissions: List<String>)
+
+    fun releaseSubmission(request: ReleaseRequestDto)
+
     fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
 }
 
 interface MultipartSubmissionOperations {
-    fun submitSingle(submission: String, format: SubmissionFormat, files: List<File>): SubmissionResponse
-    fun submitSingle(submission: Submission, format: SubmissionFormat, files: List<File>): SubmissionResponse
-    fun submitSingle(submission: File, files: List<File>, attrs: Map<String, String> = emptyMap()): SubmissionResponse
+    fun submitSingle(
+        submission: String,
+        format: SubmissionFormat,
+        files: List<File>,
+        fileMode: FileMode = COPY
+    ): SubmissionResponse
+
+    fun submitSingle(
+        submission: Submission,
+        format: SubmissionFormat,
+        files: List<File>,
+        fileMode: FileMode = COPY
+    ): SubmissionResponse
+
+    fun submitSingle(
+        submission: File,
+        files: List<File>,
+        attrs: Map<String, String> = emptyMap(),
+        fileMode: FileMode = COPY
+    ): SubmissionResponse
 }
 
 interface MultipartAsyncSubmissionOperations {
-    fun asyncSubmitSingle(submission: String, format: SubmissionFormat, files: List<File>)
-    fun asyncSubmitSingle(submission: Submission, format: SubmissionFormat, files: List<File>)
-    fun asyncSubmitSingle(submission: File, files: List<File>, attrs: Map<String, String> = emptyMap())
+    fun asyncSubmitSingle(submission: String, format: SubmissionFormat, files: List<File>, fileMode: FileMode = COPY)
+
+    fun asyncSubmitSingle(
+        submission: Submission,
+        format: SubmissionFormat,
+        files: List<File>,
+        fileMode: FileMode = COPY
+    )
+
+    fun asyncSubmitSingle(
+        submission: File,
+        files: List<File>,
+        attrs: Map<String, String> = emptyMap(),
+        fileMode: FileMode = COPY
+    )
 }
 
 interface SecurityOperations {
@@ -96,6 +134,8 @@ interface GeneralOperations {
     fun getGroups(): List<Group>
     fun getCollections(): List<Collection>
     fun generateFtpLink(relPath: String)
+    fun createGroup(groupName: String, groupDescription: String): UserGroupDto
+    fun addUserInGroup(groupName: String, userName: String)
 }
 
 interface DraftSubmissionOperations {
@@ -110,7 +150,15 @@ interface ExtSubmissionOperations {
     fun getExtSubmissions(extPageQuery: ExtPageQuery): ExtPage
     fun getExtSubmissionsPage(pageUrl: String): ExtPage
     fun getExtByAccNo(accNo: String): ExtSubmission
-    fun submitExt(extSubmission: ExtSubmission): ExtSubmission
+    fun getReferencedFiles(filesUrl: String): ExtFileTable
+    fun submitExtAsync(extSubmission: ExtSubmission, fileLists: List<File> = emptyList(), fileMode: FileMode = COPY)
+    fun submitExt(
+        extSubmission: ExtSubmission,
+        fileLists: List<File> = emptyList(),
+        fileMode: FileMode = COPY
+    ): ExtSubmission
+
+    fun refreshSubmission(accNo: String): ExtSubmission
 }
 
 interface PermissionOperations {
