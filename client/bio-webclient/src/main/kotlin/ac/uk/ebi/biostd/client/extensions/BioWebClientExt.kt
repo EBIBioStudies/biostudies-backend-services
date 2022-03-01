@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.client.extensions
 
-import ac.uk.ebi.biostd.client.dto.ExtPage
 import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ebi.ac.uk.base.isNotBlank
+import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
 
 fun BioWebClient.getExtSubmissionsAsSequence(extPageQuery: ExtPageQuery): Sequence<ExtSubmission> =

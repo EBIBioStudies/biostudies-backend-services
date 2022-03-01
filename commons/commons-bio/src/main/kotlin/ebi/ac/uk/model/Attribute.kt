@@ -5,12 +5,11 @@ import java.util.Objects
 
 data class Attribute(
     var name: String,
-    var value: String,
+    var value: String?,
     var reference: Boolean = false,
     var nameAttrs: MutableList<AttributeDetail> = mutableListOf(),
     var valueAttrs: MutableList<AttributeDetail> = mutableListOf()
 ) {
-    constructor(name: Any, value: Any) : this(name.toString(), value.toString())
 
     companion object {
         val EMPTY_ATTR: Attribute = Attribute(EMPTY, EMPTY, false, mutableListOf())
@@ -29,14 +28,12 @@ data class Attribute(
     override fun hashCode() = Objects.hash(name, value, reference, nameAttrs, valueAttrs)
 }
 
-data class AttributeDetail(val name: String, val value: String) {
+data class AttributeDetail(val name: String, val value: String?) {
     override fun equals(other: Any?) = when {
         other !is AttributeDetail -> false
         this === other -> true
         else -> name.equals(other.name, ignoreCase = true).and(value.equals(other.value, ignoreCase = true))
     }
 
-    override fun hashCode() = Objects.hash(name.toLowerCase(), value.toLowerCase())
+    override fun hashCode() = Objects.hash(name.lowercase(), value?.lowercase())
 }
-
-fun attributeDetails(name: String, value: String) = mutableListOf(AttributeDetail(name, value))

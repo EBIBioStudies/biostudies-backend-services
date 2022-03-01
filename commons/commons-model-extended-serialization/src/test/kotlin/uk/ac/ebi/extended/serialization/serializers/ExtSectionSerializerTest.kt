@@ -15,6 +15,7 @@ import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -22,11 +23,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.serialize
+import uk.ac.ebi.extended.serialization.service.Properties
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
-    private val testInstance = ExtSerializationService.mapper
+    private val testInstance = ExtSerializationService()
 
     @Test
     fun `serialize basic section`() {
@@ -42,7 +43,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "section"
         }.toString()
 
-        assertThat(testInstance.serialize(extSection)).isEqualToIgnoringWhitespace(expectedJson)
+        assertThat(testInstance.serializeElement(extSection)).isEqualToIgnoringWhitespace(expectedJson)
     }
 
     @Test
@@ -66,8 +67,10 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     NfsFile(
                         "folder/ref-file.txt",
                         "Files/folder/ref-file.txt",
-                        "root/Files/folder/ref-file.txt",
-                        referencedFile
+                        referencedFile,
+                        referencedFile.absolutePath,
+                        referencedFile.md5(),
+                        referencedFile.size(),
                     )
                 ),
                 pageTabFiles = listOf(
@@ -76,12 +79,14 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     NfsFile(
                         "folder/${fileNfs.name}",
                         "Files/folder/${fileNfs.name}",
+                        fileNfs,
                         fileNfs.absolutePath,
-                        fileNfs
+                        fileNfs.md5(),
+                        fileNfs.size(),
                     )
                 )
             ),
-            attributes = listOf(ExtAttribute("Title", "Test Section")),
+            attributes = listOf(ExtAttribute("Title", "Test Section"), ExtAttribute("Description", value = null, true)),
             sections = listOf(
                 Either.left(ExtSection(type = "Exp")),
                 Either.right(ExtSectionTable(listOf(ExtSection(type = "Data"))))
@@ -91,8 +96,10 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     NfsFile(
                         "folder/section-file.txt",
                         "Files/folder/section-file.txt",
-                        "root/Files/folder/section-file.txt",
-                        sectionFile
+                        sectionFile,
+                        sectionFile.absolutePath,
+                        sectionFile.md5(),
+                        sectionFile.size()
                     )
                 ),
                 Either.right(
@@ -101,8 +108,10 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                             NfsFile(
                                 "folder/section-file-table.txt",
                                 "Files/folder/section-file-table.txt",
-                                "root/Files/folder/section-file-table.txt",
-                                sectionFilesTable
+                                sectionFilesTable,
+                                sectionFilesTable.absolutePath,
+                                sectionFilesTable.md5(),
+                                sectionFilesTable.size()
                             )
                         )
                     )
@@ -146,7 +155,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                         "filePath" to "folder/${fileNfs.name}"
                         "relPath" to "Files/folder/${fileNfs.name}"
                         "fullPath" to fileNfs.absolutePath
-                        "file" to fileNfs.absolutePath
+                        "md5" to fileNfs.md5()
                         "attributes" to jsonArray()
                         "extType" to "nfsFile"
                         "type" to "file"
@@ -159,6 +168,15 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     "name" to "Title"
                     "value" to "Test Section"
                     "reference" to false
+                    "nameAttrs" to jsonArray()
+                    "valueAttrs" to jsonArray()
+                },
+                jsonObj {
+                    "name" to "Description"
+                    "value" to null
+                    "reference" to true
+                    "nameAttrs" to jsonArray()
+                    "valueAttrs" to jsonArray()
                 }
             )
 
@@ -195,8 +213,8 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                     "fileName" to "section-file.txt"
                     "filePath" to "folder/section-file.txt"
                     "relPath" to "Files/folder/section-file.txt"
-                    "fullPath" to "root/Files/folder/section-file.txt"
-                    "file" to sectionFile.absolutePath
+                    "fullPath" to sectionFile.absolutePath
+                    "md5" to fileNfs.md5()
                     "attributes" to jsonArray()
                     "extType" to "nfsFile"
                     "type" to "file"
@@ -208,8 +226,8 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                             "fileName" to "section-file-table.txt"
                             "filePath" to "folder/section-file-table.txt"
                             "relPath" to "Files/folder/section-file-table.txt"
-                            "fullPath" to "root/Files/folder/section-file-table.txt"
-                            "file" to sectionFilesTable.absolutePath
+                            "fullPath" to sectionFilesTable.absolutePath
+                            "md5" to fileNfs.md5()
                             "attributes" to jsonArray()
                             "extType" to "nfsFile"
                             "type" to "file"
@@ -242,6 +260,11 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
         }.toString()
 
         ExtSectionSerializer.parentAccNo = "S-BSST1"
-        assertThat(testInstance.serialize(allInOneSection)).isEqualToIgnoringWhitespace(expectedJson)
+        assertThat(
+            testInstance.serializeElement(
+                allInOneSection,
+                Properties(includeFileListFiles = false)
+            )
+        ).isEqualToIgnoringWhitespace(expectedJson)
     }
 }

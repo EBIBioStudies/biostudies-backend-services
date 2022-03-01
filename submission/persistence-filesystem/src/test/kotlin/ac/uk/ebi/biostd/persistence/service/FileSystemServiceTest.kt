@@ -46,7 +46,6 @@ class FileSystemServiceTest(
 
         verify(exactly = 1) {
             filesService.persistSubmissionFiles(request)
-            ftpService.processSubmissionFiles(finalSub)
             pageTabService.generatePageTab(processedSubmission)
         }
     }
@@ -59,6 +58,5 @@ class FileSystemServiceTest(
     private fun setUpServices() {
         every { filesService.persistSubmissionFiles(FilePersistenceRequest(submission, MOVE)) } returns processedSubmission
         every { pageTabService.generatePageTab(processedSubmission) } answers { finalSub }
-        every { ftpService.processSubmissionFiles(finalSub) } answers { nothing }
     }
 }

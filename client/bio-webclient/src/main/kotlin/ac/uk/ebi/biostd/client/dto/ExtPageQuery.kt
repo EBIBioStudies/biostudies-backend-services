@@ -7,5 +7,6 @@ data class ExtPageQuery(
     val offset: Int = 0,
     val fromRTime: OffsetDateTime? = null,
     val toRTime: OffsetDateTime? = null,
-    val released: Boolean? = null
+    val released: Boolean? = null,
+    val collection: String? = null
 )

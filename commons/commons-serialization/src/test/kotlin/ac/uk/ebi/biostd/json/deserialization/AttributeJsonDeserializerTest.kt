@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
+import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
@@ -8,41 +9,62 @@ import ebi.ac.uk.model.AttributeDetail
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import uk.ac.ebi.serialization.extensions.deserialize
 
 class AttributeJsonDeserializerTest {
     private val testInstance = JsonSerializer.mapper
 
     @Test
     fun `deserialize empty`() {
-        val exception = assertThrows<IllegalStateException> { testInstance.deserialize<Attribute>("{}") }
+        val exception = assertThrows<IllegalStateException> { testInstance.readValue<Attribute>("{}") }
 
         assertThat(exception.message).isEqualTo("Expecting to find property with 'name' in node '{}'")
     }
 
     @Test
-    fun `deserialize empty value`() {
-        val attribute = testInstance.deserialize<Attribute>(
-            """{
-            |"name": "attr name",
-            |"value": ""
-            |}""".trimMargin()
-        )
+    fun `deserialize null value`() {
+        val jsonAttribute = jsonObj {
+            "name" to "attr name"
+            "value" to null
+        }
+        val attribute = testInstance.readValue<Attribute>(jsonAttribute.toString())
 
         assertThat(attribute.name).isEqualTo("attr name")
-        assertThat(attribute.value).isEmpty()
+        assertThat(attribute.value).isNull()
+    }
+
+    @Test
+    fun `deserialize blank value`() {
+        val jsonAttribute = jsonObj {
+            "name" to "attr name"
+            "value" to "  "
+        }
+        val attribute = testInstance.readValue<Attribute>(jsonAttribute.toString())
+
+        assertThat(attribute.name).isEqualTo("attr name")
+        assertThat(attribute.value).isNull()
+    }
+
+    @Test
+    fun `deserialize empty value`() {
+        val jsonAttribute = jsonObj {
+            "name" to "attr name"
+            "value" to ""
+        }
+        val attribute = testInstance.readValue<Attribute>(jsonAttribute.toString())
+
+        assertThat(attribute.name).isEqualTo("attr name")
+        assertThat(attribute.value).isNull()
     }
 
     @Test
     fun `deserialize no value`() {
-        val attribute = testInstance.deserialize<Attribute>(
-            """{
-            |"name": "attr name"
-            |}""".trimMargin()
-        )
+        val jsonAttribute = jsonObj {
+            "name" to "attr name"
+        }
+        val attribute = testInstance.readValue<Attribute>(jsonAttribute.toString())
 
         assertThat(attribute.name).isEqualTo("attr name")
-        assertThat(attribute.value).isEmpty()
+        assertThat(attribute.value).isNull()
     }
 
     @Test
@@ -52,7 +74,7 @@ class AttributeJsonDeserializerTest {
         }.toString()
 
         val node = "{\"name\":[1,2,3]}"
-        val exception = assertThrows<IllegalArgumentException> { testInstance.deserialize<Attribute>(invalidJson) }
+        val exception = assertThrows<IllegalArgumentException> { testInstance.readValue<Attribute>(invalidJson) }
 
         assertThat(exception.message).isEqualTo(
             "Expecting node: '$node', property: 'name' to be of type 'TextNode' but 'ArrayNode' was found instead"
@@ -62,13 +84,11 @@ class AttributeJsonDeserializerTest {
     @Test
     fun `deserialize attribute with name and value`() {
         val attr = Attribute(name = "attr name", value = "attr value", reference = false)
-
-        val result = testInstance.deserialize<Attribute>(
-            """{
-            |"name": "${attr.name}",
-            |"value": "${attr.value}"
-            |}""".trimMargin()
-        )
+        val jsonAttribute = jsonObj {
+            "name" to attr.name
+            "value" to attr.value
+        }
+        val result = testInstance.readValue<Attribute>(jsonAttribute.toString())
 
         assertThat(result).isEqualTo(attr)
     }
@@ -100,7 +120,7 @@ class AttributeJsonDeserializerTest {
             })
         }.toString()
 
-        assertThat(testInstance.deserialize<Attribute>(attributeJson)).isEqualTo(attr)
+        assertThat(testInstance.readValue<Attribute>(attributeJson)).isEqualTo(attr)
     }
 
     @Test
@@ -130,7 +150,7 @@ class AttributeJsonDeserializerTest {
             })
         }.toString()
 
-        assertThrows<IllegalArgumentException> { testInstance.deserialize<Attribute>(attributeJson) }
+        assertThrows<IllegalArgumentException> { testInstance.readValue<Attribute>(attributeJson) }
     }
 
     @Test
@@ -160,6 +180,6 @@ class AttributeJsonDeserializerTest {
             })
         }.toString()
 
-        assertThrows<IllegalArgumentException> { testInstance.deserialize<Attribute>(attributeJson) }
+        assertThrows<IllegalArgumentException> { testInstance.readValue<Attribute>(attributeJson) }
     }
 }

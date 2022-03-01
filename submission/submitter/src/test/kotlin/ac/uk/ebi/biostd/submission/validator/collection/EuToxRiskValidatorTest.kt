@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.exception.CollectionValidationExcepti
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -53,7 +53,7 @@ class EuToxRiskValidatorTest(
             section = ExtSection(
                 type = "Study",
                 files = listOf(
-                    left(NfsFile("folder/test.xlsx", "Files/folder/test.xlsx", "root/Files/folder/test.xlsx", excelFile))
+                    left(createNfsFile("folder/test.xlsx", "Files/folder/test.xlsx", excelFile))
                 )
             )
         )
@@ -90,7 +90,13 @@ class EuToxRiskValidatorTest(
             section = ExtSection(
                 type = "Study",
                 files = listOf(
-                    left(NfsFile("folder/test.xlsx", "Files/folder/test.xlsx", "root/Files/folder/test.xlsx", excelFile))
+                    left(
+                        createNfsFile(
+                            "folder/test.xlsx",
+                            "Files/folder/test.xlsx",
+                            excelFile
+                        )
+                    )
                 )
             )
         )
@@ -114,7 +120,7 @@ class EuToxRiskValidatorTest(
             section = ExtSection(
                 type = "Study",
                 files = listOf(
-                    left(NfsFile("folder/test.txt", "Files/folder/test.txt", "root/Files/folder/test.txt", textFile))
+                    left(createNfsFile("folder/test.txt", "Files/folder/test.txt", textFile))
                 )
             )
         )

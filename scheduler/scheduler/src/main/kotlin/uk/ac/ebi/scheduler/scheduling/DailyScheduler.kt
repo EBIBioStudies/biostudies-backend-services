@@ -5,6 +5,7 @@ import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 import org.springframework.scheduling.annotation.Scheduled
 import uk.ac.ebi.scheduler.common.properties.DailyScheduling
 import uk.ac.ebi.scheduler.exporter.domain.ExporterTrigger
+import uk.ac.ebi.scheduler.pmc.importer.DEFAULT_FOLDER
 import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
 
 internal class DailyScheduler(
@@ -13,9 +14,14 @@ internal class DailyScheduler(
     private val pmcLoaderService: PmcLoaderService,
     private val submissionReleaserTrigger: SubmissionReleaserTrigger
 ) {
+    @Scheduled(cron = "0 0 1 * * *")
+    fun releaseSubmissions() {
+        dailyScheduling.releaser.ifTrue { submissionReleaserTrigger.triggerSubmissionReleaser() }
+    }
+
     @Scheduled(cron = "0 0 6 * * *")
     fun loadPmc() {
-        dailyScheduling.pmc.ifTrue { pmcLoaderService.loadFile("/nfs/production3/ma/home/biostudy/EPMC-export/daily") }
+        dailyScheduling.pmc.ifTrue { pmcLoaderService.loadFile(DEFAULT_FOLDER) }
     }
 
     @Scheduled(cron = "0 0 7 * * *")
@@ -28,17 +34,17 @@ internal class DailyScheduler(
         dailyScheduling.pmc.ifTrue { pmcLoaderService.triggerSubmitter() }
     }
 
-    @Scheduled(cron = "0 0 9 * * *")
-    fun releaseSubmissions() {
-        dailyScheduling.releaser.ifTrue { submissionReleaserTrigger.triggerSubmissionReleaser() }
-    }
-
     @Scheduled(cron = "0 0 10 * * *")
     fun notifySubmissionRelease() {
         dailyScheduling.notifier.ifTrue { submissionReleaserTrigger.triggerSubmissionReleaseNotifier() }
     }
 
     @Scheduled(cron = "0 0 20 * * *")
+    fun exportPmcSubmissions() {
+        dailyScheduling.pmc.ifTrue { exporterTrigger.triggerPmcExport() }
+    }
+
+    @Scheduled(cron = "0 0 21 * * *")
     fun exportPublicSubmissions() {
         dailyScheduling.exporter.ifTrue { exporterTrigger.triggerPublicExport() }
     }

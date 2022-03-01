@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.CollectionService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
@@ -51,19 +50,21 @@ class SubmissionConfig(
     @Bean
     fun extSubmissionService(
         rabbitTemplate: RabbitTemplate,
-        submissionRequestService: SubmissionRequestService,
+        submissionSubmitter: SubmissionSubmitter,
         subRepository: SubmissionQueryService,
         userPrivilegeService: IUserPrivilegesService,
         securityQueryService: ISecurityQueryService,
-        extSerializationService: ExtSerializationService
+        extSerializationService: ExtSerializationService,
+        eventsPublisherService: EventsPublisherService
     ): ExtSubmissionService =
         ExtSubmissionService(
             rabbitTemplate,
-            submissionRequestService,
+            submissionSubmitter,
             subRepository,
             userPrivilegeService,
             securityQueryService,
-            extSerializationService
+            extSerializationService,
+            eventsPublisherService
         )
 
     @Bean

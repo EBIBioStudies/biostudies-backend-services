@@ -91,7 +91,6 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         mongoContainer.start()
         System.setProperty("spring.data.mongodb.uri", mongoContainer.getReplicaSetUrl("biostudies-test"))
         System.setProperty("spring.data.mongodb.database", "biostudies-test")
-        System.setProperty("app.persistence.enableMongo", "true")
     }
 
     private fun setUpMySql() {
@@ -105,7 +104,10 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         val tempDirPath = tempFolder.createDirectory("tmp")
         System.setProperty("app.submissionPath", submissionPath)
         System.setProperty("app.ftpPath", "${tempFolder.root.absolutePath}/ftpPath")
+        System.setProperty("app.fireTempDirPath", fireTempFolder)
         System.setProperty("app.tempDirPath", tempDirPath.absolutePath)
+        System.setProperty("app.requestFilesPath", tempFolder.createDirectory("request-files").absolutePath)
+
         System.setProperty("app.security.filesDirPath", tempFolder.createDirectory("dropbox").absolutePath)
         System.setProperty("app.security.magicDirPath", tempFolder.createDirectory("magic").absolutePath)
         System.setProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")

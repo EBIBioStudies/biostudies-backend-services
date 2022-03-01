@@ -1,13 +1,16 @@
 package ac.uk.ebi.scheduler.properties
 
 import ac.uk.ebi.scheduler.common.BaseAppProperty
+import ac.uk.ebi.scheduler.common.JAVA_HOME
 
 private const val APP_NAME = "submission-releaser-task-1.0.0.jar"
 
 class SubmissionReleaserProperties : BaseAppProperty {
     override fun asJavaCommand(location: String): String =
         StringBuilder().apply {
-            append("java -Dsun.jnu.encoding=UTF-8 -jar $location/$APP_NAME \\\n")
+            append("$JAVA_HOME/bin/java -Dsun.jnu.encoding=UTF-8 -jar $location/$APP_NAME \\\n")
+            append("--spring.data.mongodb.uri=$mongodbUri \\\n")
+            append("--spring.data.mongodb.database=$mongodbDatabase \\\n")
             append("--spring.rabbitmq.host=$rabbitMqHost \\\n")
             append("--spring.rabbitmq.username=$rabbitMqUser \\\n")
             append("--spring.rabbitmq.password=$rabbitMqPassword \\\n")
@@ -22,6 +25,9 @@ class SubmissionReleaserProperties : BaseAppProperty {
         }.removeSuffix(" \\\n").toString()
 
     lateinit var mode: ReleaserMode
+
+    lateinit var mongodbUri: String
+    lateinit var mongodbDatabase: String
 
     lateinit var rabbitMqHost: String
     lateinit var rabbitMqUser: String
@@ -40,6 +46,8 @@ class SubmissionReleaserProperties : BaseAppProperty {
         @Suppress("LongParameterList")
         fun create(
             mode: ReleaserMode,
+            databaseName: String,
+            databaseUri: String,
             rabbitMqHost: String,
             rabbitMqUser: String,
             rabbitMqPassword: String,
@@ -52,6 +60,8 @@ class SubmissionReleaserProperties : BaseAppProperty {
             thirdWarningDays: Long
         ) = SubmissionReleaserProperties().apply {
             this.mode = mode
+            this.mongodbUri = databaseUri
+            this.mongodbDatabase = databaseName
             this.rabbitMqHost = rabbitMqHost
             this.rabbitMqUser = rabbitMqUser
             this.rabbitMqPassword = rabbitMqPassword

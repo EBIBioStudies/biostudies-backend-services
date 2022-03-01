@@ -14,11 +14,13 @@ class SubmissionSerializer : XmlStdSerializer<Submission>(Submission::class.java
 
     override fun serializeXml(value: Submission, gen: ToXmlGenerator, provider: SerializerProvider) {
         with(gen) {
+            staxWriter.writeStartDocument()
             writeXmlObj(SubFields.SUBMISSION) {
                 writeXmlAttr(SubFields.ACC_NO, value.accNo)
                 writeXmlCollection(SubFields.ATTRIBUTES, value.attributes)
                 writeXmlField(SubFields.SECTION, value.section)
             }
+            staxWriter.writeEndDocument()
         }
     }
 }

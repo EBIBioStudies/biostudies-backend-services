@@ -6,6 +6,14 @@ import org.junit.jupiter.api.Test
 internal class ListExtensionsTest {
 
     @Test
+    fun destructure() {
+        val result = listOf(1, 2, 3, 4, 5).destructure()
+
+        assertThat(result.first).isEqualTo(1)
+        assertThat(result.second).isEqualTo(listOf(2, 3, 4, 5))
+    }
+
+    @Test
     fun replace() {
         val list = listOf(1, 2, 3)
 

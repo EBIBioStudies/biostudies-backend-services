@@ -8,7 +8,6 @@ import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
 import ebi.ac.uk.extended.events.SubmissionMessage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtUser
-import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.notifications.service.RtNotificationService
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -87,7 +86,7 @@ class SubmissionNotificationsListenerTest(
     @Test
     fun `notify failed submission`() {
         val notificationSlot = slot<SystemNotification>()
-        val message = FailedSubmissionRequestMessage("S-BSST1", 1, COPY, "TMP_123", "error message")
+        val message = FailedSubmissionRequestMessage("S-BSST1", 1)
 
         every { notificationsSender.send(capture(notificationSlot)) } answers { nothing }
 

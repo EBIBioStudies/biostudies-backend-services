@@ -28,8 +28,8 @@ class JsonObject(private val elements: MutableMap<String, JsonVal> = mutableMapO
         elements.entries.joinToString(prefix = "{", postfix = "}") { (key, value) -> """"$key": $value""" }
 
     @JvmName("addAttribute")
-    infix fun String.to(value: String) {
-        elements[this] = JsonString(value)
+    infix fun String.to(value: String?) {
+        elements[this] = value?.let { JsonString(value) } ?: jsonNull
     }
 
     infix fun String.to(value: Number) {

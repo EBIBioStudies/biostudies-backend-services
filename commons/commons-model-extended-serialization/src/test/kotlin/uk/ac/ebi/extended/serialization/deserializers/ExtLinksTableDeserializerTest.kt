@@ -1,12 +1,12 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtLinkTable
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.deserialize
 
 class ExtLinksTableDeserializerTest {
     private val testInstance = ExtSerializationService.mapper
@@ -29,7 +29,7 @@ class ExtLinksTableDeserializerTest {
             "extType" to "linksTable"
         }.toString()
 
-        val extLinksTable = testInstance.deserialize<ExtLinkTable>(json)
+        val extLinksTable = testInstance.readValue<ExtLinkTable>(json)
         assertThat(extLinksTable.links).hasSize(1)
 
         val extLink = extLinksTable.links.first()

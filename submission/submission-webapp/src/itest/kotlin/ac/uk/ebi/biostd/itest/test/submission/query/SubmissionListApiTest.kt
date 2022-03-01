@@ -59,7 +59,7 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
         }
 
         @Test
-        @Disabled("If submission is processed fast enough test wil fail. Needs re desing.")
+        @Disabled("If submission is processed fast enough test wil fail. Needs re design.")
         fun `get submission when processing`() {
             val newVersion = getSimpleSubmission(18)
             webClient.submitAsync(newVersion, TSV)

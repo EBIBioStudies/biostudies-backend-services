@@ -2,6 +2,7 @@ import Dependencies.Arrow
 import Dependencies.CommonsFileUpload
 import Dependencies.CommonsIO
 import Dependencies.JpaEntityGraph
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -46,13 +47,21 @@ import TestDependencies.XmlUnitMatchers
 import TestDependencies.rabitMqMock
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
+buildscript {
+    dependencies {
+        "classpath"("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r") {
+            isForce = true
+        }
+    }
+}
+
 plugins {
-    id("com.gorylenko.gradle-git-properties") version "2.3.1"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.4.32"
+    id("com.gorylenko.gradle-git-properties") version "2.4.0-rc1"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.6.10"
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
     id("org.springframework.boot") version "2.3.2.RELEASE"
-    id("org.jetbrains.kotlin.plugin.jpa") version "1.4.32"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.4.32"
+    id("org.jetbrains.kotlin.plugin.jpa") version "1.6.10"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.6.10"
 }
 
 allOpen {
@@ -95,6 +104,7 @@ dependencies {
     implementation(JpaEntityGraph)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
+    implementation(KotlinCoroutines)
     implementation(RxJava2)
     implementation(SpringfoxSwagger)
     implementation(SpringfoxSwaggerUI)

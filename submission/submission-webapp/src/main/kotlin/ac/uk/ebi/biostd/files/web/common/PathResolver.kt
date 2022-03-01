@@ -18,9 +18,9 @@ class UserPathDescriptorResolver : HandlerMethodArgumentResolver {
 
     override fun resolveArgument(
         parameter: MethodParameter,
-        mavContainer: ModelAndViewContainer,
+        mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
-        binderFactory: WebDataBinderFactory
+        binderFactory: WebDataBinderFactory?
     ) = UserPath(getPath(userPath, getServletRequest(webRequest)))
 }
 
@@ -29,9 +29,9 @@ class GroupPathDescriptorResolver : HandlerMethodArgumentResolver {
 
     override fun resolveArgument(
         parameter: MethodParameter,
-        mavContainer: ModelAndViewContainer,
+        mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
-        binderFactory: WebDataBinderFactory
+        binderFactory: WebDataBinderFactory?
     ) = GroupPath(getPath(groupPath, getServletRequest(webRequest)))
 }
 
@@ -40,9 +40,9 @@ class FileListPathDescriptorResolver : HandlerMethodArgumentResolver {
 
     override fun resolveArgument(
         parameter: MethodParameter,
-        mavContainer: ModelAndViewContainer,
+        mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
-        binderFactory: WebDataBinderFactory
+        binderFactory: WebDataBinderFactory?
     ) = FileListPath(getPath(fileListPath, getServletRequest(webRequest)))
 }
 

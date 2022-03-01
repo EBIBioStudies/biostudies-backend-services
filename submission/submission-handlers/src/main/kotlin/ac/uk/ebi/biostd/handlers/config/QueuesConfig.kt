@@ -12,6 +12,7 @@ const val SUBMISSIONS_ROUTING_KEY = "bio.submission.published"
 const val SUBMISSIONS_RELEASE_ROUTING_KEY = "bio.submission.published.notification"
 const val SECURITY_NOTIFICATIONS_ROUTING_KEY = "bio.security.notification"
 const val SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY = "bio.submission.failed"
+const val SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY = "bio.submission.partials"
 
 const val LOG_QUEUE = "submission-submitted-log-queue"
 const val ST_LOG_QUEUE = "submission-submitted-st-queue"
@@ -73,6 +74,10 @@ class QueuesConfig {
     @Bean
     fun partialUpdatesQueueBinding(exchange: TopicExchange): Binding =
         BindingBuilder.bind(partialUpdatesQueue()).to(exchange).with(SUBMISSIONS_ROUTING_KEY)
+
+    @Bean
+    fun partialUpdatesOnlyQueueBinding(exchange: TopicExchange): Binding =
+        BindingBuilder.bind(partialUpdatesQueue()).to(exchange).with(SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY)
 
     @Bean
     fun failedSubmissionLogQueueBinding(exchange: TopicExchange): Binding =

@@ -1,27 +1,29 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.deserialization.stream.FileListJsonStreamDeserializer
+import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.File
+import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-
-const val JSON_FILE_LIST = "FileList.json"
+import java.lang.IllegalArgumentException
 
 @ExtendWith(TemporaryFolderExtension::class)
-class FileListJsonStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
+class FileListJsonStreamDeserializerTest(
+    private val tempFolder: TemporaryFolder
+) {
     private val testInstance = FileListJsonStreamDeserializer()
-    private val jsonFile = temporaryFolder.createFile(JSON_FILE_LIST)
 
-    @BeforeEach
-    fun beforeEach() {
+    @Test
+    fun deserialize() {
         val jsonFileList = jsonArray(
             jsonObj {
                 "path" to "file1.txt"
@@ -51,15 +53,10 @@ class FileListJsonStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
                 )
             }
         )
-
-        jsonFile.writeText(jsonFileList.toString())
-    }
-
-    @Test
-    fun deserialize() {
+        val jsonFile = tempFolder.createFile("FileList.json", jsonFileList.toString())
         val fileList = testInstance.deserialize(jsonFile)
 
-        assertThat(fileList.name).isEqualTo(JSON_FILE_LIST)
+        assertThat(fileList.name).isEqualTo("FileList.json")
         assertThat(fileList.referencedFiles).hasSize(2)
 
         assertThat(fileList.referencedFiles.first()).isEqualTo(
@@ -68,5 +65,17 @@ class FileListJsonStreamDeserializerTest(temporaryFolder: TemporaryFolder) {
         assertThat(fileList.referencedFiles.second()).isEqualTo(
             File("file2.txt", attributes = listOf(Attribute("Attr1", "C"), Attribute("Attr2", "D")))
         )
+    }
+
+    @Test
+    fun `file with empty path`() {
+        val json = jsonArray(
+            jsonObj { "path" to "file1.txt" },
+            jsonObj { "path" to "" }
+        )
+        val testFile = tempFolder.createFile("invalid.json", json.toString())
+        val exception = assertThrows<IllegalArgumentException> { testInstance.deserialize(testFile) }
+
+        assertThat(exception.message).isEqualTo(REQUIRED_FILE_PATH)
     }
 }

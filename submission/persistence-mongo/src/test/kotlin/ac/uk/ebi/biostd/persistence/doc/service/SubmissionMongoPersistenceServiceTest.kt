@@ -1,194 +1,203 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
-import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocSubmission
-import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.RequestFileList
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
-import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
-import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode.MOVE
-import io.mockk.clearAllMocks
+import com.mongodb.BasicDBObject.parse
+import ebi.ac.uk.base.EMPTY
+import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtProcessingStatus
+import ebi.ac.uk.extended.model.FileMode.COPY
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
+import org.bson.types.ObjectId
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as submission
+import uk.ac.ebi.extended.serialization.service.Properties
+import uk.ac.ebi.extended.test.FileListFactory.defaultFileList
+import uk.ac.ebi.extended.test.NfsFileFactory.defaultNfsFile
+import uk.ac.ebi.extended.test.SectionFactory.defaultSection
+import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO
+import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
+import java.io.OutputStream
+import kotlin.io.path.ExperimentalPathApi
 
-@ExtendWith(MockKExtension::class)
+@ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionMongoPersistenceServiceTest(
-    @MockK private val systemService: FileSystemService,
-    @MockK private val dataRepository: SubmissionDocDataRepository,
-    @MockK private val draftRepository: SubmissionDraftDocDataRepository,
-    @MockK private val requestRepository: SubmissionRequestDocDataRepository,
-    @MockK private val serializationService: ExtSerializationService,
-    @MockK private val fileListDocFileRepository: FileListDocFileRepository,
-    @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper
+    @MockK val subDataRepository: SubmissionDocDataRepository,
+    @MockK val submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
+    @MockK val serializationService: ExtSerializationService,
+    @MockK val systemService: FileSystemService,
+    @MockK val submissionRepository: ExtSubmissionRepository,
+    val temporaryFolder: TemporaryFolder
 ) {
-    private val draftKey = "TMP_123456"
-
-    private val docSubmission = slot<DocSubmission>()
-    private val submissionSlot = slot<ExtSubmission>()
-    private val submissionRequestSlot = slot<SubmissionRequest>()
-    private val filePersistenceRequestSlot = slot<FilePersistenceRequest>()
-    private val filesList = slot<List<FileListDocFile>>()
-    private val statusSlot = slot<SubmissionRequestStatus>()
-    private val accNoSlot = slot<String>()
-    private val versionSlot = slot<Int>()
-    private val filesListMock = mockk<List<FileListDocFile>>()
-    private val docSubmissionMock = mockk<DocSubmission>()
-    private val resultExtSubmission = mockk<ExtSubmission>()
-
+    @OptIn(ExperimentalPathApi::class)
     private val testInstance = SubmissionMongoPersistenceService(
-        dataRepository,
-        requestRepository,
-        draftRepository,
+        subDataRepository,
+        submissionRequestDocDataRepository,
         serializationService,
         systemService,
-        fileListDocFileRepository,
-        toExtSubmissionMapper
+        submissionRepository,
+        temporaryFolder.root.toPath()
     )
 
-    @AfterEach
-    fun afterEach() = clearAllMocks()
+    private companion object {
+        const val serializedSub = "{}"
+        const val fileListSerialized = "{file-list}"
+    }
 
-    @BeforeEach
-    fun beforeEach() {
-        setUpDataRepository()
-        setUpDraftRepository()
-        every { serializationService.serialize(capture(submissionSlot)) } returns "{}"
-        every { systemService.persistSubmissionFiles(capture(filePersistenceRequestSlot)) } returns submission
-        every { requestRepository.saveRequest(capture(submissionRequestSlot)) } answers { nothing }
-        every { fileListDocFileRepository.saveAll(capture(filesList)) } answers { nothing }
-        every {
-            requestRepository.updateStatus(
-                capture(statusSlot),
-                capture(accNoSlot),
-                capture(versionSlot)
+    @Nested
+    inner class SaveRequest {
+        @Test
+        fun `save request with current version active`() {
+            val subRequestSlot = slot<DocSubmissionRequest>()
+
+            val fileList = defaultFileList(files = listOf(defaultNfsFile()))
+            val newVersion = defaultSubmission(version = 1, section = defaultSection(fileList = fileList))
+            val expectedNewVersion = newVersion.copy(version = 2, status = ExtProcessingStatus.REQUESTED)
+            val outputStream = slot<OutputStream>()
+            val sequence = slot<Sequence<ExtFile>>()
+
+            every { subDataRepository.getCurrentVersion(ACC_NO) } returns 1
+            every { serializationService.serialize(expectedNewVersion, Properties(false)) } returns serializedSub
+            every { serializationService.serialize(capture(sequence), capture(outputStream)) } answers { nothing }
+            every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } returnsArgument 0
+
+            val request = SubmissionRequest(newVersion.copy(version = 1), COPY, "draftKey")
+            val result = testInstance.saveSubmissionRequest(request)
+            assertThat(result).isEqualTo(ACC_NO to 2)
+
+            val expectedFile = temporaryFolder.root.resolve(ACC_NO).resolve("2").resolve(fileList.fileName)
+            assertThat(expectedFile.readText()).isEqualTo(EMPTY)
+
+            val saved = subRequestSlot.captured
+            assertThat(saved.accNo).isEqualTo(ACC_NO)
+            assertThat(saved.version).isEqualTo(2)
+            assertThat(saved.fileMode).isEqualTo(COPY)
+            assertThat(saved.draftKey).isEqualTo("draftKey")
+            assertThat(saved.status).isEqualTo(REQUESTED)
+            assertThat(saved.submission).isEqualTo(parse(serializedSub))
+            assertThat(saved.fileList).containsExactly(RequestFileList(fileList.fileName, expectedFile.absolutePath))
+        }
+
+        @Test
+        fun `save request with current version deleted`() {
+            val subRequestSlot = slot<DocSubmissionRequest>()
+            val newVersion = defaultSubmission(version = 3, status = ExtProcessingStatus.REQUESTED)
+            val request = SubmissionRequest(defaultSubmission(version = 1), COPY, "draftKey")
+
+            every { subDataRepository.getCurrentVersion(ACC_NO) } returns -2
+            every { serializationService.serialize(newVersion, Properties(false)) } returns serializedSub
+            every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } returnsArgument 0
+
+            val result = testInstance.saveSubmissionRequest(request)
+
+            assertThat(result).isEqualTo(ACC_NO to 3)
+            val submissionRequest = DocSubmissionRequest(
+                ObjectId(),
+                ACC_NO,
+                3,
+                COPY,
+                "draftKey",
+                REQUESTED,
+                parse(serializedSub),
+                emptyList()
             )
-        } answers { nothing }
-        mockkStatic("ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionKt")
-        every { submission.copy(status = PROCESSING).toDocSubmission() } returns Pair(docSubmissionMock, filesListMock)
-        every { docSubmissionMock.accNo } returns submission.accNo
-        every { docSubmissionMock.owner } returns submission.owner
-        every { docSubmissionMock.submitter } returns submission.submitter
-        every { docSubmissionMock.version } returns submission.version
-        every { toExtSubmissionMapper.toExtSubmission(docSubmissionMock) } returns resultExtSubmission
-    }
+            assertThat(subRequestSlot.captured).isEqualToIgnoringGivenFields(submissionRequest, "id")
+        }
 
-    @Test
-    fun `save and process submission request`() {
-        testInstance.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, MOVE, draftKey))
+        @Test
+        fun `save request when not current version`() {
+            val subRequestSlot = slot<DocSubmissionRequest>()
+            val newVersion = defaultSubmission(version = 1, status = ExtProcessingStatus.REQUESTED)
+            val request = SubmissionRequest(defaultSubmission(version = 1), COPY, "draftKey")
 
-        assertSaveSubmissionRequest()
-        assertUpdateSubmissionRequest()
-        assertPersistedSubmission()
-        verifyDraftRemovalByAccNo()
-        verifyDraftRemovalByDraftKey()
-        verifySubmissionProcessing()
-    }
+            every { subDataRepository.getCurrentVersion(ACC_NO) } returns null
+            every { serializationService.serialize(newVersion, Properties(false)) } returns serializedSub
+            every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } returnsArgument 0
 
-    @Test
-    fun `save and process submission request without draft key`() {
-        testInstance.saveAndProcessSubmissionRequest(SaveSubmissionRequest(submission, MOVE))
+            val result = testInstance.saveSubmissionRequest(request)
 
-        assertSaveSubmissionRequest()
-        assertUpdateSubmissionRequest()
-        assertPersistedSubmission()
-        verifyDraftRemovalByAccNo()
-        verifySubmissionProcessing()
-        verify(exactly = 0) {
-            draftRepository.deleteByKey(draftKey)
+            assertThat(result).isEqualTo(ACC_NO to 1)
+            val submissionRequest = DocSubmissionRequest(
+                ObjectId(),
+                ACC_NO,
+                1,
+                COPY,
+                "draftKey",
+                REQUESTED,
+                parse(serializedSub),
+                emptyList()
+            )
+            assertThat(subRequestSlot.captured).isEqualToIgnoringGivenFields(submissionRequest, "id")
         }
     }
 
     @Test
-    fun `refresh submission`() {
-        testInstance.refreshSubmission(submission)
+    fun `process private submission request`() {
+        val sub = defaultSubmission()
+        val request = SubmissionRequest(sub, COPY, "draftKey")
+        val filePersistenceRequest = FilePersistenceRequest(request.submission, request.fileMode)
 
-        assertSaveSubmissionRequest()
-        assertUpdateSubmissionRequest()
-        assertPersistedSubmission()
-        verifyDraftRemovalByAccNo()
-        verifySubmissionProcessing()
+        every { subDataRepository.release(sub.accNo) } answers { nothing }
+        every { submissionRepository.saveSubmission(sub, request.draftKey) } returns sub
+        every { systemService.persistSubmissionFiles(filePersistenceRequest) } returns sub
+        every { systemService.persistSubmissionFiles(filePersistenceRequest) } returns sub
+        every { systemService.releaseSubmissionFiles(sub.accNo, sub.owner, sub.relPath) } answers { nothing }
+        every { submissionRequestDocDataRepository.updateStatus(PROCESSED, sub.accNo, 1) } answers { nothing }
+
+        val result = testInstance.processSubmissionRequest(request)
+
+        assertThat(result).isEqualTo(sub)
+        verify(exactly = 0) {
+            subDataRepository.release(sub.accNo)
+            systemService.releaseSubmissionFiles(sub.accNo, sub.owner, sub.relPath)
+        }
+        verify(exactly = 1) {
+            submissionRepository.saveSubmission(sub, request.draftKey)
+            systemService.persistSubmissionFiles(filePersistenceRequest)
+            systemService.persistSubmissionFiles(filePersistenceRequest)
+            submissionRequestDocDataRepository.updateStatus(PROCESSED, sub.accNo, 1)
+        }
     }
 
-    private fun assertPersistedSubmission() {
-        val persistedSubmission = submissionSlot.captured
-        assertThat(persistedSubmission.version).isEqualTo(2)
-        assertThat(persistedSubmission.status).isEqualTo(REQUESTED)
+    @Test
+    fun `process public submission request`() {
+        val sub = defaultSubmission().copy(released = true)
+        val request = SubmissionRequest(sub, COPY, "draftKey")
+        val filePersistenceRequest = FilePersistenceRequest(request.submission, request.fileMode)
 
-        val filePersistenceRequest = filePersistenceRequestSlot.captured
-        assertThat(filePersistenceRequest.submission).isEqualTo(persistedSubmission)
-        assertThat(filePersistenceRequest.mode).isEqualTo(MOVE)
-        assertThat(filePersistenceRequest.previousFiles).isEmpty()
-        verify(exactly = 1) { systemService.persistSubmissionFiles(filePersistenceRequest) }
-    }
+        every { subDataRepository.release(sub.accNo) } answers { nothing }
+        every { submissionRepository.saveSubmission(sub, request.draftKey) } returns sub
+        every { systemService.persistSubmissionFiles(filePersistenceRequest) } returns sub
+        every { systemService.persistSubmissionFiles(filePersistenceRequest) } returns sub
+        every { systemService.releaseSubmissionFiles(sub.accNo, sub.owner, sub.relPath) } answers { nothing }
+        every { submissionRequestDocDataRepository.updateStatus(PROCESSED, sub.accNo, 1) } answers { nothing }
 
-    private fun assertSaveSubmissionRequest() {
-        val submissionRequest = submissionRequestSlot.captured
-        assertThat(submissionRequest.accNo).isEqualTo(submission.accNo)
-        assertThat(submissionRequest.version).isEqualTo(2)
-        verify(exactly = 1) { requestRepository.saveRequest(submissionRequest) }
-    }
+        val result = testInstance.processSubmissionRequest(request)
 
-    private fun assertUpdateSubmissionRequest() {
-        val newStatus = statusSlot.captured
-        val accNo = accNoSlot.captured
-        val version = versionSlot.captured
-        assertThat(newStatus).isEqualTo(REQUEST_PROCESSED)
-        assertThat(accNo).isEqualTo(submissionSlot.captured.accNo)
-        assertThat(version).isEqualTo(submissionSlot.captured.version)
-        verify(exactly = 1) { requestRepository.updateStatus(newStatus, accNo, version) }
-    }
-
-    private fun verifyDraftRemovalByAccNo() = verify(exactly = 1) {
-        draftRepository.deleteByUserIdAndKey(submission.owner, submission.accNo)
-        draftRepository.deleteByUserIdAndKey(submission.submitter, submission.accNo)
-    }
-
-    private fun verifyDraftRemovalByDraftKey() = verify(exactly = 1) {
-        draftRepository.deleteByKey(draftKey)
-    }
-
-    private fun verifySubmissionProcessing() = verify(exactly = 1) {
-        dataRepository.expireActiveProcessedVersions(submission.accNo)
-        dataRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
-    }
-
-    private fun setUpDataRepository() {
-        every { dataRepository.getCurrentVersion(submission.accNo) } returns 1
-        every { dataRepository.save(capture(docSubmission)) } answers { nothing }
-        every { dataRepository.expireActiveProcessedVersions(submission.accNo) } answers { nothing }
-        every { dataRepository.updateStatus(PROCESSED, submission.accNo, submission.version) } answers { nothing }
-    }
-
-    private fun setUpDraftRepository() {
-        val owner = submission.owner
-        val submitter = submission.submitter
-
-        every { draftRepository.deleteByKey(draftKey) } answers { nothing }
-        every { draftRepository.deleteByUserIdAndKey(owner, submission.accNo) } answers { nothing }
-        every { draftRepository.deleteByUserIdAndKey(submitter, submission.accNo) } answers { nothing }
+        assertThat(result).isEqualTo(sub)
+        verify(exactly = 1) {
+            subDataRepository.release(sub.accNo)
+            submissionRepository.saveSubmission(sub, request.draftKey)
+            systemService.persistSubmissionFiles(filePersistenceRequest)
+            systemService.persistSubmissionFiles(filePersistenceRequest)
+            systemService.releaseSubmissionFiles(sub.accNo, sub.owner, sub.relPath)
+            submissionRequestDocDataRepository.updateStatus(PROCESSED, sub.accNo, 1)
+        }
     }
 }

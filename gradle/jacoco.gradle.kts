@@ -3,13 +3,13 @@ import java.math.BigDecimal.ZERO
 apply(plugin = "java")
 apply(plugin = "jacoco")
 
-configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+configure<JavaPluginExtension> {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 configure<JacocoPluginExtension> {
-    toolVersion = "0.8.4"
+    toolVersion = "0.8.7"
 }
 
 tasks.named<Test>("test") {

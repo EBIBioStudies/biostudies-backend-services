@@ -24,7 +24,7 @@ sealed class SubmitWebRequest(
     val format: SubFormat,
     val fileMode: FileMode,
     val files: List<File>,
-    val attrs: Map<String, String>
+    val attrs: Map<String, String?>
 )
 
 @Suppress("LongParameterList")
@@ -35,7 +35,7 @@ class ContentSubmitWebRequest(
     user: SecurityUser,
     format: SubFormat,
     fileMode: FileMode,
-    attrs: Map<String, String> = emptyMap(),
+    attrs: Map<String, String?> = emptyMap(),
     files: List<File> = emptyList()
 ) : SubmitWebRequest(user, onBehalfRequest, format, fileMode, files, attrs)
 
@@ -46,11 +46,6 @@ class FileSubmitWebRequest(
     user: SecurityUser,
     format: SubFormat,
     fileMode: FileMode,
-    attrs: Map<String, String> = emptyMap(),
+    attrs: Map<String, String?> = emptyMap(),
     files: List<File> = emptyList()
 ) : SubmitWebRequest(user, onBehalfRequest, format, fileMode, files, attrs)
-
-class RefreshWebRequest(
-    val accNo: String,
-    val user: SecurityUser
-)

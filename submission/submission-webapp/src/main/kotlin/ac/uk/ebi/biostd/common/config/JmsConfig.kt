@@ -31,7 +31,7 @@ class JmsConfig {
     @Bean
     fun myRabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate {
         val rabbitTemplate = RabbitTemplate(connectionFactory)
-        rabbitTemplate.setMessageConverter(messageConverter())
+        rabbitTemplate.messageConverter = messageConverter()
         return rabbitTemplate
     }
 
