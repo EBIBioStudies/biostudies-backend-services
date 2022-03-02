@@ -181,9 +181,9 @@ internal class SubmissionMongoQueryServiceTest(
 
         @Test
         fun `filtered by accNo`() {
-            val request1 =
-                saveAsRequest(extSubmission.copy(accNo = "accNo1", title = "title1", section = section), REQUESTED)
-            val sub1 = submissionRepo.save(docSubmission.copy(accNo = "accNo1", status = PROCESSED))
+            val subRequest = extSubmission.copy(accNo = "accNo1", version = 2, title = "title1", section = section)
+            val savedRequest = saveAsRequest(subRequest, REQUESTED)
+            submissionRepo.save(docSubmission.copy(accNo = "accNo1", status = PROCESSED))
 
             var result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
@@ -191,15 +191,14 @@ internal class SubmissionMongoQueryServiceTest(
             )
 
             assertThat(result).hasSize(1)
-            assertThat(result.first()).isEqualTo(request1.asBasicSubmission())
+            assertThat(result.first()).isEqualTo(savedRequest.asBasicSubmission())
 
             result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
                 SubmissionFilter(accNo = "accNo1", limit = 2)
             )
-            assertThat(result).hasSize(2)
-            assertThat(result.first()).isEqualTo(request1.asBasicSubmission())
-            assertThat(result.second()).isEqualTo(sub1.asBasicSubmission())
+            assertThat(result).hasSize(1)
+            assertThat(result.first()).isEqualTo(savedRequest.asBasicSubmission())
         }
 
         @Test
@@ -369,7 +368,7 @@ internal class SubmissionMongoQueryServiceTest(
                 )
             )
 
-            assertThat(result).hasSize(2)
+            assertThat(result).hasSize(1)
             val request = result.first()
             assertThat(request.accNo).isEqualTo("accNo1")
             assertThat(request.version).isEqualTo(1)
@@ -377,14 +376,6 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(request.releaseTime).isEqualTo(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
             assertThat(request.released).isEqualTo(false)
             assertThat(request.status).isEqualTo(ProcessingStatus.REQUESTED)
-
-            val submission = result.second()
-            assertThat(submission.accNo).isEqualTo("accNo1")
-            assertThat(submission.version).isEqualTo(1)
-            assertThat(submission.title).isEqualTo("title")
-            assertThat(submission.releaseTime).isEqualTo(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
-            assertThat(submission.released).isEqualTo(false)
-            assertThat(submission.status).isEqualTo(ProcessingStatus.PROCESSED)
         }
 
         @Test
@@ -453,7 +444,6 @@ internal class SubmissionMongoQueryServiceTest(
         fun propertySource(register: DynamicPropertyRegistry) {
             register.add("spring.data.mongodb.uri") { mongoContainer.getReplicaSetUrl("biostudies-test") }
             register.add("spring.data.mongodb.database") { "biostudies-test" }
-            register.add("app.persistence.enableMongo") { "true" }
         }
     }
 }

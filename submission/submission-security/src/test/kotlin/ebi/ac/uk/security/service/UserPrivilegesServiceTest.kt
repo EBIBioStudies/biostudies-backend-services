@@ -111,6 +111,17 @@ class UserPrivilegesServiceTest(
         assertThrows<UserNotFoundByEmailException> { testInstance.canProvideAccNo("empty@mail.com") }
     }
 
+    @Test
+    fun `super user release`() {
+        assertThat(testInstance.canRelease("superuser@mail.com")).isTrue
+    }
+
+    @Test
+    fun `regular user release`() {
+        every { superuser.superuser } returns false
+        assertThat(testInstance.canRelease("superuser@mail.com")).isFalse
+    }
+
     private fun initUsers() {
         every { superuser.id } returns 123
         every { superuser.superuser } returns true

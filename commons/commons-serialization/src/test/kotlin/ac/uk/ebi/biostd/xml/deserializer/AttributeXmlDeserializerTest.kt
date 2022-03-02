@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.xml.deserializer
 
 import ac.uk.ebi.biostd.xml.common.createXmlDocument
-import ac.uk.ebi.biostd.xml.deserializer.TestDeserializerFactory.Companion.attributeXmlDeserializer
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import org.assertj.core.api.Assertions.assertThat
@@ -9,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.redundent.kotlin.xml.xml
 
 class AttributeXmlDeserializerTest {
-    private val testInstance = attributeXmlDeserializer()
+    private val testInstance = AttributeXmlDeserializer(DetailsXmlDeserializer())
 
     @Test
     fun `deserialize attribute`() {

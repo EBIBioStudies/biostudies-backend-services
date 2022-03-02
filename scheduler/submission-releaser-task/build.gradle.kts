@@ -1,14 +1,18 @@
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
+import Dependencies.SpringDataJpa
 import Dependencies.SpringWeb
 import Projects.ClientBioWebClient
 import Projects.CommonsModelExtended
 import Projects.EventsPublisher
 import Projects.SchedulerTaskProperties
 import Projects.SubmissionNotification
+import Projects.SubmissionPersistenceCommonApi
+import Projects.SubmissionPersistenceMongo
 import SpringBootDependencies.SpringBootAmqp
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
+import SpringBootDependencies.SpringBootStarterMongo
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import org.springframework.boot.gradle.tasks.bundling.BootJar
@@ -25,13 +29,17 @@ dependencies {
     api(project(EventsPublisher))
     api(project(SchedulerTaskProperties))
     api(project(SubmissionNotification))
+    api(project(SubmissionPersistenceCommonApi))
+    api(project(SubmissionPersistenceMongo))
 
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
     implementation(SpringBootAmqp)
     implementation(SpringBootStarter)
+    implementation(SpringDataJpa)
     implementation(SpringWeb)
     implementation(SpringBootStarterConfigProcessor)
+    implementation(SpringBootStarterMongo)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

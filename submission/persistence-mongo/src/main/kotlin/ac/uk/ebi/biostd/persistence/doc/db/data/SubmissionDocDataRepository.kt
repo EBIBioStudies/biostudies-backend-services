@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_PROJECTS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
@@ -43,7 +44,7 @@ import java.time.Instant
 
 private const val SUB_ALIAS = "submission"
 
-@Suppress("SpreadOperator")
+@Suppress("SpreadOperator", "TooManyFunctions")
 class SubmissionDocDataRepository(
     private val submissionRepository: SubmissionMongoRepository,
     private val mongoTemplate: MongoTemplate
@@ -51,6 +52,11 @@ class SubmissionDocDataRepository(
     fun updateStatus(status: DocProcessingStatus, accNo: String, version: Int) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
         mongoTemplate.updateFirst(query, update(SUB_STATUS, status), DocSubmission::class.java)
+    }
+
+    fun release(accNo: String) {
+        val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
+        mongoTemplate.updateFirst(query, update(SUB_RELEASED, true), DocSubmission::class.java)
     }
 
     fun getCurrentVersion(accNo: String): Int? {
@@ -165,6 +171,7 @@ class SubmissionDocDataRepository(
                 filter.rTimeTo?.let { add(where(SUB_RELEASE_TIME).lte(it.toInstant())) }
                 filter.keywords?.let { add(keywordsCriteria(it)) }
                 filter.released?.let { add(where(SUB_RELEASED).`is`(it)) }
+                filter.collection?.let { add(where("$SUB_PROJECTS.$SUB_ACC_NO").`in`(it)) }
             }.build().toTypedArray()
 
         private fun keywordsCriteria(keywords: String) = Criteria().orOperator(

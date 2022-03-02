@@ -15,6 +15,7 @@ import Versions.CommonsCsvVersion
 import Versions.CommonsFileUploadVersion
 import Versions.CommonsIOVersion
 import Versions.CommonsLang3Version
+import Versions.CommonsNetVersion
 import Versions.GuavaVersion
 import Versions.H2Version
 import Versions.HibernateEMVersion
@@ -80,6 +81,7 @@ object Versions {
     const val CommonsFileUploadVersion = "1.4"
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
+    const val CommonsNetVersion = "3.6"
     const val CommonsCsvVersion = "1.8"
     const val MySqlVersion = "8.0.25"
     const val XmlBuilderVersion = "1.7.4"
@@ -147,6 +149,7 @@ object Dependencies {
 
     // Web related
     const val JSONOrg = "org.json:json:$JSONOrgVersion"
+    const val JacksonAnnotations = "com.fasterxml.jackson.core:jackson-annotations:$JacksonVersion"
     const val JacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:$JacksonVersion"
     const val JacksonDataBind = "com.fasterxml.jackson.core:jackson-databind:$JacksonVersion"
     const val JacksonCore = "com.fasterxml.jackson.core:jackson-core:$JacksonVersion"
@@ -193,7 +196,7 @@ object Dependencies {
     const val CommonsFileUpload = "commons-fileupload:commons-fileupload:$CommonsFileUploadVersion"
     const val CommonsLang3 = "org.apache.commons:commons-lang3:$CommonsLang3Version"
     const val CommonsIO = "commons-io:commons-io:$CommonsIOVersion"
-    const val Poi = "org.apache.poi:poi:$PoiVersion"
+    const val CommonsNet = "commons-net:commons-net:$CommonsNetVersion"
     const val CommonsCsv = "org.apache.commons:commons-csv:$CommonsCsvVersion"
     const val PoiOxml = "org.apache.poi:poi-ooxml:$PoiVersion"
 }

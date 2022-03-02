@@ -510,20 +510,25 @@ class TsvDeserializerTest {
                             accNo = "DT-1",
                             attributes = listOf(
                                 Attribute(
-                                    name = "Empty Attribute",
+                                    name = "Empty Attr",
                                     value = null,
                                     nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768")),
-                                    valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"))
+                                    valueAttrs = mutableListOf(AttributeDetail("NullValue", null))
                                 ),
-                                Attribute("Null Attribute", null)
+                                Attribute(
+                                    name = "Null Attr",
+                                    value = null,
+                                    nameAttrs = mutableListOf(AttributeDetail("NullName", null)),
+                                    valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"))
+                                )
                             )
                         )
                     )
                 }
             }
             val submission = submissionWithRootSection().apply {
-                line("Data[]", "Empty Attribute", "(TermId)", "[Ontology]", "Null Attribute")
-                line("DT-1", "", "EFO_0002768", "EFO")
+                line("Data[]", "Empty Attr", "(TermId)", "[NullValue]", "Null Attr", "(NullName)", "[Ontology]")
+                line("DT-1", "", "EFO_0002768", "", "", "", "EFO")
                 line()
             }
             val result = deserializer.deserialize(submission.toString())

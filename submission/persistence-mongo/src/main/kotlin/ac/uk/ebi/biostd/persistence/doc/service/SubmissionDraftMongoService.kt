@@ -2,13 +2,15 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.PROCESSING
 import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import java.time.Instant
 
 class SubmissionDraftMongoService(
@@ -29,17 +31,23 @@ class SubmissionDraftMongoService(
     override fun deleteSubmissionDraft(userEmail: String, key: String) =
         draftDocDataRepository.deleteByUserIdAndKey(userEmail, key)
 
-    override fun getSubmissionsDraft(userEmail: String, filter: PaginationFilter): List<SubmissionDraft> =
-        draftDocDataRepository.findAllByUserId(userEmail, filter).map { SubmissionDraft(it.key, it.content) }
+    override fun getActiveSubmissionsDraft(userEmail: String, filter: PaginationFilter): List<SubmissionDraft> {
+        return draftDocDataRepository
+            .findAllByUserIdAndStatus(userEmail, ACTIVE, filter)
+            .map { SubmissionDraft(it.key, it.content) }
+    }
 
     override fun createSubmissionDraft(userEmail: String, content: String): SubmissionDraft {
         val draft = draftDocDataRepository.createDraft(userEmail, "TMP_${Instant.now().toEpochMilli()}", content)
         return SubmissionDraft(draft.key, draft.content)
     }
 
+    override fun setProcessingStatus(userEmail: String, key: String) =
+        draftDocDataRepository.setStatus(userEmail, key, PROCESSING)
+
     private fun create(userEmail: String, key: String): DocSubmissionDraft {
         val submission = submissionQueryService.getExtByAccNo(key).toSimpleSubmission()
         val content = serializationService.serializeSubmission(submission, JsonPretty)
-        return draftDocDataRepository.saveDraft(userEmail, key, content)
+        return draftDocDataRepository.createDraft(userEmail, key, content)
     }
 }

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.data.web
 
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.converters.BioUser
@@ -10,7 +11,6 @@ import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
 import ebi.ac.uk.extended.model.FileMode
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -40,7 +40,8 @@ internal class SubmissionDraftResource(
     fun getDraftSubmissions(
         @BioUser user: SecurityUser,
         @ModelAttribute filter: PaginationFilter
-    ): List<ResponseSubmissionDraft> = draftService.getSubmissionsDraft(user.email, filter).map { it.asResponseDraft() }
+    ): List<ResponseSubmissionDraft> =
+        draftService.getActiveSubmissionsDraft(user.email, filter).map { it.asResponseDraft() }
 
     @GetMapping("/{key}")
     @ResponseBody

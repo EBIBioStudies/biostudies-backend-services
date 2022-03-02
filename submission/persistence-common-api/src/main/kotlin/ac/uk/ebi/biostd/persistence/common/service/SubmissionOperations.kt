@@ -8,10 +8,12 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.data.domain.Page
 
-interface SubmissionRequestService {
+interface SubmissionPersistenceService {
     fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 
     fun processSubmissionRequest(saveRequest: SubmissionRequest): ExtSubmission
+
+    fun releaseSubmission(accNo: String, owner: String, relPath: String)
 }
 
 interface SubmissionQueryService {

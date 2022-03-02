@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
@@ -48,7 +49,11 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {
     fun findByUserIdAndKey(userId: String, key: String): DocSubmissionDraft?
 
-    fun findAllByUserId(userId: String, pageRequest: Pageable): List<DocSubmissionDraft>
+    fun findAllByUserIdAndStatus(
+        userId: String,
+        status: DraftStatus,
+        pageRequest: Pageable
+    ): List<DocSubmissionDraft>
 
     fun getById(id: String): DocSubmissionDraft
 

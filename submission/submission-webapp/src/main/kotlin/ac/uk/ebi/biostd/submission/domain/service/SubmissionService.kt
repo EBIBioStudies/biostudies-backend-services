@@ -9,7 +9,9 @@ import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDelete
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotRelease
 import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
+import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
@@ -92,5 +94,10 @@ class SubmissionService(
     fun deleteSubmissions(submissions: List<String>, user: SecurityUser) {
         submissions.forEach { require(userPrivilegesService.canDelete(user.email, it)) }
         submissionQueryService.expireSubmissions(submissions)
+    }
+
+    fun releaseSubmission(request: ReleaseRequest, user: SecurityUser) {
+        require(userPrivilegesService.canRelease(user.email)) { throw UserCanNotRelease(request.accNo, user.email) }
+        submissionSubmitter.release(request)
     }
 }

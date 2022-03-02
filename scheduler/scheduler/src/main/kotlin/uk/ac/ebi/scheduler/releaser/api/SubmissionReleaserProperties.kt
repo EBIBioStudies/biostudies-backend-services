@@ -11,6 +11,9 @@ class SubmissionReleaserProperties {
     var bioStudies: BioStudies = BioStudies()
 
     @NestedConfigurationProperty
+    var persistence: Persistence = Persistence()
+
+    @NestedConfigurationProperty
     var rabbitmq: Rabbitmq = Rabbitmq()
 
     @NestedConfigurationProperty
@@ -21,6 +24,11 @@ class BioStudies {
     lateinit var url: String
     lateinit var user: String
     lateinit var password: String
+}
+
+class Persistence {
+    lateinit var uri: String
+    lateinit var database: String
 }
 
 class Rabbitmq {

@@ -61,6 +61,7 @@ app:
   ftpPath: # Absolute path to the folder to be used ftp hardlinks
   tempDirPath: # Absolute path of the temp folder to store files
   requestFilesPath: # Base directory absolute path where request file list are stored.
+  fireTempDirPath: # Absolute path of the temp folder for FIRE storage
   instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
   fire:
     host: # FIRE host
@@ -79,11 +80,9 @@ app:
       beta: # Instance key for the submission tool BETA environment
       prod: # Instance key for the submission tool PROD environment
   persistence:
-    enableMongo: true
     enableFire: true
   mongo:
     execute-migrations: true
     migration-package: ac.uk.ebi.biostd.persistence.doc.migrations
   validator:
     euToxRiskValidationApi: # EU-ToxRisk validation API
-

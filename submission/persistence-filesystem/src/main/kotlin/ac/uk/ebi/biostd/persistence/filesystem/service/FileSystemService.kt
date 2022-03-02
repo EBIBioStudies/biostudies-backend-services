@@ -23,10 +23,17 @@ class FileSystemService(
 
         val processedSubmission = filesService.persistSubmissionFiles(request)
         val finalSub = pageTabService.generatePageTab(processedSubmission)
-        ftpService.processSubmissionFiles(finalSub)
 
         logger.info { "$accNo $owner Finished processing files of submission $accNo in mode $mode" }
 
         return finalSub
+    }
+
+    fun releaseSubmissionFiles(accNo: String, owner: String, relPath: String) {
+        logger.info { "$accNo $owner Releasing files of submission $accNo" }
+
+        ftpService.releaseSubmissionFiles(accNo, owner, relPath)
+
+        logger.info { "$accNo $owner Finished releasing files of submission $accNo" }
     }
 }

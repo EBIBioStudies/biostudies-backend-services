@@ -69,7 +69,11 @@ internal class SubmissionMongoQueryService(
         val offset = max(0, filter.offset - requestsCount)
         val limit = filter.limit - requests.size
         val submissionFilter = filter.copy(limit = limit, offset = offset)
-        return requests.map { it.asBasicSubmission() } + getSubmissions(owner, submissionFilter)
+        val drafts = requests.map { it.asBasicSubmission() }
+        val draftsKeys = drafts.associateBy { it.accNo }
+        val submissions = getSubmissions(owner, submissionFilter).filter { draftsKeys.containsKey(it.accNo).not() }
+
+        return drafts + submissions
     }
 
     private fun getSubmissions(owner: String, filter: SubmissionFilter): List<BasicSubmission> =

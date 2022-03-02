@@ -1,6 +1,7 @@
 package ac.uk.ebi.scheduler.properties
 
 import ac.uk.ebi.scheduler.common.BaseAppProperty
+import ac.uk.ebi.scheduler.common.JAVA_HOME
 
 private const val APP_NAME = "pmc-processor-task-1.0.0.jar"
 
@@ -20,7 +21,7 @@ class PmcImporterProperties : BaseAppProperty {
 
     override fun asJavaCommand(location: String) =
         StringBuilder().apply {
-            append("java -jar $location/$APP_NAME \\\n")
+            append("$JAVA_HOME/bin/java -jar $location/$APP_NAME \\\n")
             append("--app.data.mode=$mode \\\n")
             append("--app.data.temp=$temp \\\n")
             append("--app.data.mongodbUri=$mongodbUri \\\n")
