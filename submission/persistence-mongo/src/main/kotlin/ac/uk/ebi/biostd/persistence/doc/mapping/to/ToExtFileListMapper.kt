@@ -9,8 +9,8 @@ class ToExtFileListMapper(
     private val fileListDocFileRepository: FileListDocFileRepository,
 ) {
     /**
-     * Maps a DocFileList to corresponding Ext type. Note that empty list may used if includeFileListFiles as files as
-     * list files are not loaded as part of the submission.
+     * Maps a DocFileList to corresponding Ext type. Note that empty list is used if includeFileListFiles is false as
+     * files list files are not loaded as part of the submission.
      */
     fun toExtFileList(
         docFileList: DocFileList,
