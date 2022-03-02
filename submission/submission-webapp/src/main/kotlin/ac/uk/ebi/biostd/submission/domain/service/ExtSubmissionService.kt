@@ -49,9 +49,8 @@ class ExtSubmissionService(
 
     fun refreshSubmission(accNo: String, user: String): ExtSubmission {
         val submission = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        val (accno, version) = submissionSubmitter
-            .submitAsync(SubmissionRequest(submission.copy(submitter = user), COPY))
-        return submissionSubmitter.processRequest(accno, version)
+        val (_, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission.copy(submitter = user), COPY))
+        return submissionSubmitter.processRequest(accNo, version)
     }
 
     fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
