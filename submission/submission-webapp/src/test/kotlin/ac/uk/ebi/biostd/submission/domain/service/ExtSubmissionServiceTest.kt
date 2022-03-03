@@ -7,8 +7,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
-import ebi.ac.uk.extended.events.SubmissionMessage
-import ebi.ac.uk.extended.events.SubmissionRequestMessage
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
@@ -33,9 +31,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
-import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
-import uk.ac.ebi.events.config.SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
@@ -52,7 +47,6 @@ class ExtSubmissionServiceTest(
     private val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
     private val testInstance =
         ExtSubmissionService(
-            rabbitTemplate,
             submissionSubmitter,
             submissionRepository,
             userPrivilegesService,
@@ -131,12 +125,11 @@ class ExtSubmissionServiceTest(
     @Test
     fun `submit extended async`() {
         val requestSlot = slot<SubmissionRequest>()
-        val requestMsgSlot = slot<SubmissionRequestMessage>()
 
         every { submissionSubmitter.processRequest(extSubmission.accNo, 1) } returns extSubmission
         every { submissionSubmitter.submitAsync(capture(requestSlot)) } returns (extSubmission.accNo to 1)
         every {
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, capture(requestMsgSlot))
+            eventsPublisherService.submissionRequest(extSubmission.accNo, extSubmission.version)
         } answers { nothing }
 
         testInstance.submitExtAsync("user@mail.com", extSubmission, fileMode = COPY)
@@ -145,29 +138,23 @@ class ExtSubmissionServiceTest(
         assertThat(request.fileMode).isEqualTo(COPY)
         assertThat(request.submission).isEqualTo(extSubmission.copy(submitter = "user@mail.com"))
 
-        val asyncMessage = requestMsgSlot.captured
-        assertThat(asyncMessage.version).isEqualTo(1)
-        assertThat(asyncMessage.accNo).isEqualTo(extSubmission.accNo)
-
-        verify(exactly = 0) { submissionSubmitter.processRequest(extSubmission.accNo, 1) }
+        verify(exactly = 0) { submissionSubmitter.processRequest(any(), any()) }
         verify(exactly = 1) {
             submissionRepository.existByAccNo("ArrayExpress")
             securityQueryService.existsByEmail("owner@email.org", false)
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, asyncMessage)
+            eventsPublisherService.submissionRequest(extSubmission.accNo, extSubmission.version)
         }
     }
 
     @Test
     fun `refresh submission`() {
         val submissionRequestSlot = slot<SubmissionRequest>()
-        val subMsg = SubmissionMessage(extSubmission.accNo, "pageTabUrl", "extUrl", "extUserUrl", "time")
         every { submissionRepository.getExtByAccNo("S-TEST123", true) } returns extSubmission
-        every { eventsPublisherService.submissionMessage(extSubmission.accNo, extSubmission.owner) } returns subMsg
+        every {
+            eventsPublisherService.submissionsRefresh(extSubmission.accNo, extSubmission.owner)
+        } answers { nothing }
         every { submissionSubmitter.processRequest(extSubmission.accNo, 1) } returns extSubmission
         every { submissionSubmitter.submitAsync(capture(submissionRequestSlot)) } returns (extSubmission.accNo to 1)
-        every {
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY, subMsg)
-        } answers { nothing }
 
         testInstance.refreshSubmission(extSubmission.accNo, "user@mail.com")
 
@@ -176,8 +163,7 @@ class ExtSubmissionServiceTest(
             submissionRepository.getExtByAccNo(extSubmission.accNo, true)
             submissionSubmitter.submitAsync(submissionRequest)
             submissionSubmitter.processRequest(extSubmission.accNo, 1)
-            eventsPublisherService.submissionMessage(extSubmission.accNo, extSubmission.owner)
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY, subMsg)
+            eventsPublisherService.submissionsRefresh(extSubmission.accNo, extSubmission.owner)
         }
     }
 
