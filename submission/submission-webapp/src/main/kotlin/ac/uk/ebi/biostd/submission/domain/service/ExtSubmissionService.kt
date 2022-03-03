@@ -22,21 +22,24 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
+import uk.ac.ebi.events.config.SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY
 import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
 import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class ExtSubmissionService(
     private val rabbitTemplate: RabbitTemplate,
     private val submissionSubmitter: SubmissionSubmitter,
     private val submissionQueryService: SubmissionQueryService,
     private val userPrivilegesService: IUserPrivilegesService,
     private val securityQueryService: ISecurityQueryService,
-    private val extSerializationService: ExtSerializationService
+    private val extSerializationService: ExtSerializationService,
+    private val eventsPublisherService: EventsPublisherService
 ) {
     fun getExtendedSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
 
@@ -50,7 +53,14 @@ class ExtSubmissionService(
     fun refreshSubmission(accNo: String, user: String): ExtSubmission {
         val submission = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
         val (_, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission.copy(submitter = user), COPY))
-        return submissionSubmitter.processRequest(accNo, version)
+        val refreshedSubmission = submissionSubmitter.processRequest(accNo, version)
+
+        rabbitTemplate.convertAndSend(
+            BIOSTUDIES_EXCHANGE,
+            SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY,
+            eventsPublisherService.submissionMessage(refreshedSubmission.accNo, refreshedSubmission.owner)
+        )
+        return refreshedSubmission
     }
 
     fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {

@@ -23,27 +23,21 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
-import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.util.collections.second
-import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import java.io.File
-import java.time.ZoneOffset
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import ac.uk.ebi.biostd.persistence.doc.test.fireDocDirectory as subFireDocDirectory
-import ac.uk.ebi.biostd.persistence.doc.test.fireDocFile as subFireDocFile
+import java.io.File
+import java.time.ZoneOffset
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
@@ -68,7 +62,7 @@ class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
         every { toExtSectionMapper.toExtSection(docSection, "S-TEST123", 1, true) } returns extSection
         val submission = docSubmission.copy(
             section = docSection,
-            pageTabFiles = listOf(subFireDocFile, subFireDocDirectory, subNfsDocFile)
+            pageTabFiles = listOf(subNfsDocFile)
         )
 
         val extSubmission = testInstance.toExtSubmission(submission, includeFileListFiles = true)
@@ -82,7 +76,7 @@ class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
         every { toExtSectionMapper.toExtSection(docSection, "S-TEST123", 1, false) } returns extSection
         val submission = docSubmission.copy(
             section = docSection,
-            pageTabFiles = listOf(subFireDocFile, subFireDocDirectory, subNfsDocFile)
+            pageTabFiles = listOf(subNfsDocFile)
         )
 
         val extSubmission = testInstance.toExtSubmission(submission, includeFileListFiles = false)
@@ -100,26 +94,7 @@ class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
         assertTags(extSubmission)
         assertStats(extSubmission)
         assertProject(extSubmission)
-        assertThat(extSubmission.pageTabFiles.first()).isEqualTo(
-            FireFile(
-                ac.uk.ebi.biostd.persistence.doc.test.fireDocFile.filePath,
-                ac.uk.ebi.biostd.persistence.doc.test.fireDocFile.relPath,
-                ac.uk.ebi.biostd.persistence.doc.test.fireDocFile.fireId,
-                ac.uk.ebi.biostd.persistence.doc.test.fireDocFile.md5,
-                1,
-                listOf()
-            )
-        )
-        assertThat(extSubmission.pageTabFiles.second()).isEqualTo(
-            FireDirectory(
-                ac.uk.ebi.biostd.persistence.doc.test.fireDocDirectory.filePath,
-                ac.uk.ebi.biostd.persistence.doc.test.fireDocDirectory.relPath,
-                ac.uk.ebi.biostd.persistence.doc.test.fireDocDirectory.md5,
-                ac.uk.ebi.biostd.persistence.doc.test.fireDocDirectory.fileSize,
-                listOf()
-            )
-        )
-        assertThat(extSubmission.pageTabFiles.third()).isEqualTo(createNfsFile("filePath", "relPath", nfsFileFile))
+        assertThat(extSubmission.pageTabFiles.first()).isEqualTo(createNfsFile("filePath", "relPath", nfsFileFile))
     }
 
     private fun assertBasicProperties(extSubmission: ExtSubmission) {
