@@ -47,7 +47,7 @@ class FireFtpServiceTest(
     fun `release submission files`() {
         val submission = extSub.copy(released = true)
 
-        every { submissionQueryService.getExtByAccNo(submission.accNo) } returns submission
+        every { submissionQueryService.getExtByAccNo(submission.accNo, true) } returns submission
 
         testInstance.releaseSubmissionFiles(extSub.accNo, extSub.owner, extSub.relPath)
 
@@ -59,7 +59,7 @@ class FireFtpServiceTest(
     fun `create ftp folder`() {
         val submission = extSub.copy(released = true)
 
-        every { submissionQueryService.getExtByAccNo(submission.accNo) } returns submission
+        every { submissionQueryService.getExtByAccNo(submission.accNo, true) } returns submission
 
         testInstance.generateFtpLinks(submission.accNo)
 
@@ -109,7 +109,7 @@ class FireFtpServiceTest(
                     ExtSection(
                         type = "Study",
                         fileList = ExtFileList(
-                            "fileName2",
+                            "a/fileName2",
                             files = listOf(innerFileListFile),
                             pageTabFiles = listOf(innerFileListPageTabFile)
                         ),
