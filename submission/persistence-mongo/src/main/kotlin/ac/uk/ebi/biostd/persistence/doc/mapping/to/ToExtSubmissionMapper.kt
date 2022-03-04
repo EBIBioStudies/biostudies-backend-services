@@ -101,8 +101,9 @@ class ToExtSubmissionMapper(
     }
 
     private fun fileListFiles(subAccNo: String, subVersion: Int, fileListName: String): List<ExtFile> {
+        val fileName = fileListName.substringAfterLast("/")
         return fileListDocFileRepository
-            .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(subAccNo, subVersion, fileListName)
+            .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(subAccNo, subVersion, fileName)
             .map { it.file.toExtFile() }
     }
 }
