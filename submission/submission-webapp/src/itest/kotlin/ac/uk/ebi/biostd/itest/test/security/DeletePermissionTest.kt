@@ -15,8 +15,8 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.dsl.line
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -169,8 +169,8 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
             assertThat(superUserWebClient.submitSingle(projectFile, emptyList())).isSuccessful()
 
             val accessTag = tagsDataRepository.getByName("AProject")
-            val user = userDataRepository.findByEmailAndActive(RegularUser.email, active = true)
-            val accessPermission = DbAccessPermission(accessType = DELETE, user = user.get(), accessTag = accessTag)
+            val user = userDataRepository.getByEmailAndActive(RegularUser.email, active = true)
+            val accessPermission = DbAccessPermission(accessType = DELETE, user = user, accessTag = accessTag)
             accessPermissionRepository.save(accessPermission)
         }
     }

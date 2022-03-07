@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.itest.common
 
 import ac.uk.ebi.biostd.itest.entities.TestGroup
 import ac.uk.ebi.biostd.itest.entities.TestUser
-import ac.uk.ebi.biostd.persistence.model.UserGroup
+import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -25,11 +25,11 @@ class SecurityTestService(
         return user
     }
 
-    fun createTestGroup(): UserGroup {
+    fun createTestGroup(): DbUserGroup {
         return groupService.createGroup(TestGroup.testGroupName, TestGroup.testGroupDescription)
     }
 
-    fun addUserInGroup(testUser: TestUser, group: UserGroup) {
+    fun addUserInGroup(testUser: TestUser, group: DbUserGroup) {
         groupService.addUserInGroup(group.name, testUser.email)
     }
 }

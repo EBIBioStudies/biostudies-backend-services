@@ -5,7 +5,6 @@ internal const val ACC_NO_KEY = "Submission"
 internal const val ROOT_PATH_KEY = "RootPath"
 
 internal const val ATTR_VAL_SEPARATOR = ";"
-internal const val TAGS_SEPARATOR = ATTR_VAL_SEPARATOR
 
 internal class TsvBuilder(private val builder: StringBuilder) {
 
@@ -13,8 +12,8 @@ internal class TsvBuilder(private val builder: StringBuilder) {
 
     override fun toString(): String = builder.toString()
 
-    fun with(key: String, value: String) {
-        builder.append("$key\t$value\n")
+    fun with(key: String, value: String?) {
+        builder.append("$key\t${value.orEmpty()}\n")
     }
 
     fun append(value: String) {

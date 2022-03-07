@@ -14,6 +14,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.CREATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_STAT_NAME
@@ -21,8 +24,10 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_STAT_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_TAG_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_TAG_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_FILENAME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_FILEPATH
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.RELEASE_TIME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_FILE_LIST_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SECTION_LINK_URL
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SECTION_TABLE_LINK_URL
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ACC_NO
@@ -32,18 +37,22 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTRIBUTE_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTR_NAME_ATTRS
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTR_VALUE_ATTRS
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_EXT_FILE_LIST_FILENAME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTRIBUTE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTRIBUTE_REFERENCE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTRIBUTE_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTRIBUTE_VALUE_ATTRS
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTR_NAME_ATTRS
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_LINK_ATTRIBUTE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_LINK_ATTRIBUTE_REFERENCE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_LINK_ATTRIBUTE_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_LINK_ATTR_NAME_ATTRS
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_LINK_ATTR_VALUE_ATTRS
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TABLE_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ATTRIBUTE_NAME
@@ -55,11 +64,11 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_ROOT_PATH
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SCHEMA_VERSION
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SECRET_KEY
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_TITLE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_VERSION
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_FILE_LIST_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_EXT_FILE_LIST_FILENAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ACC_NO3
@@ -70,24 +79,29 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ATTR_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ATTR_VALUE_ATTRS
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TYPE
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fireDirectory
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fireFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionFileListFile
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionFileListFile
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionFile
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionFileListFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionTableFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSection
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionFileListFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionTable
 import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSectionTable
+import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.extended.model.createNfsFile
+import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
-import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -103,8 +117,15 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
 
     private val newSubSection =
         subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
+
+    private val nfsFileFile = tempFolder.createFile(NFS_FILENAME)
+    private val extNfsFile = createNfsFile(NFS_FILEPATH, NFS_REL_PATH, nfsFileFile)
+
     private val newRootSection = rootSection.copy(
-        fileList = rootSection.fileList!!.copy(files = listOf(newRootSectionFileListFile)),
+        fileList = rootSection.fileList!!.copy(
+            files = listOf(newRootSectionFileListFile),
+            pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile)
+        ),
         sections = listOf(
             Either.left(newSubSection),
             Either.right(ExtSectionTable(sections = listOf(subSectionTable)))
@@ -114,22 +135,19 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
             Either.right(ExtFileTable(files = listOf(newRootSectionTableFile)))
         )
     )
-    private val submission = fullExtSubmission.copy(section = newRootSection)
+
+    private val submission = fullExtSubmission.copy(
+        section = newRootSection,
+        pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile)
+    )
 
     @Test
     fun `to Doc Submission with a file inside the section and another file inside the inner section`() {
         val (docSubmission, listFiles) = submission.toDocSubmission()
 
         assertDocSubmission(docSubmission)
-        assertListFiles(listFiles, docSubmission.id)
-        assertFileReferences(docSubmission, listFiles)
-    }
-
-    private fun assertFileReferences(docSubmission: DocSubmission, listFiles: List<FileListDocFile>) {
-        assertThat(listFiles.first().id).isEqualTo(docSubmission.section.fileList?.files?.first()?.fileId)
-        assertThat(docSubmission.section.sections.first()).hasLeftValueSatisfying {
-            assertThat(listFiles.second().id).isEqualTo(it.fileList?.files?.first()?.fileId)
-        }
+        assertListFiles(listFiles, docSubmission)
+        assertThat(docSubmission.storageMode).isEqualTo(StorageMode.NFS)
     }
 
     private fun assertDocSubmission(docSubmission: DocSubmission) {
@@ -147,25 +165,67 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
 
         assertThat(docSubmission.stats).hasSize(1)
         assertStat(docSubmission.stats.first())
+
+        assertPageTabFiles(docSubmission.pageTabFiles)
     }
 
-    private fun assertListFiles(listFiles: List<FileListDocFile>, docSubmissionId: ObjectId) {
+    private fun assertPageTabFiles(pageTabFiles: List<DocFile>) {
+        assertThat(pageTabFiles).hasSize(3)
+        assertThat(pageTabFiles.first()).isEqualTo(
+            FireDocFile(
+                fireFile.fileName,
+                fireFile.filePath,
+                fireFile.relPath,
+                fireFile.fireId,
+                listOf(),
+                fireFile.md5,
+                fireFile.size
+            )
+        )
+        assertThat(pageTabFiles.second()).isEqualTo(
+            FireDocDirectory(
+                fireDirectory.fileName, fireDirectory.filePath,
+                fireDirectory.relPath, listOf(), fireDirectory.md5, fireDirectory.size
+            )
+        )
+        assertThat(pageTabFiles.third()).isEqualTo(
+            NfsDocFile(
+                extNfsFile.fileName,
+                extNfsFile.filePath,
+                extNfsFile.relPath,
+                nfsFileFile.absolutePath,
+                listOf(),
+                nfsFileFile.md5(),
+                extNfsFile.size,
+                "file"
+            )
+        )
+    }
+
+    private fun assertListFiles(listFiles: List<FileListDocFile>, docSubmission: DocSubmission) {
         assertThat(listFiles).hasSize(2)
 
-        val listFile = listFiles[0]
-        assertThat(listFile.submissionId).isEqualTo(docSubmissionId)
-        assertThat(listFile.fileName).isEqualTo(ROOT_FILE_LIST_FILE_NAME)
-        assertThat(listFile.fullPath).isEqualTo(newRootSectionFileListFile.file.path)
+        val listFile = listFiles.first()
+        assertThat(listFile.submissionId).isEqualTo(docSubmission.id)
+        assertThat(listFile.file).isEqualTo(newRootSectionFileListFile.toDocFile())
+        assertThat(listFile.fileListName).isEqualTo(ROOT_SEC_EXT_FILE_LIST_FILENAME)
+        assertThat(listFile.index).isEqualTo(0)
+        assertThat(listFile.submissionVersion).isEqualTo(docSubmission.version)
+        assertThat(listFile.submissionAccNo).isEqualTo(docSubmission.accNo)
 
         val sublistFile = listFiles[1]
-        assertThat(sublistFile.submissionId).isEqualTo(docSubmissionId)
-        assertThat(sublistFile.fileName).isEqualTo(SUB_FILE_LIST_FILE_NAME)
-        assertThat(sublistFile.fullPath).isEqualTo(newSubSectionFileListFile.file.path)
+        assertThat(sublistFile.submissionId).isEqualTo(docSubmission.id)
+        assertThat(sublistFile.file).isEqualTo(newSubSectionFileListFile.toDocFile())
+        assertThat(sublistFile.fileListName).isEqualTo(SUB_SEC_EXT_FILE_LIST_FILENAME)
+        assertThat(sublistFile.index).isEqualTo(0)
+        assertThat(sublistFile.submissionVersion).isEqualTo(docSubmission.version)
+        assertThat(sublistFile.submissionAccNo).isEqualTo(docSubmission.accNo)
     }
 
     private fun assertSimpleDocProperties(docSubmission: DocSubmission) {
         assertThat(docSubmission.accNo).isEqualTo(SUBMISSION_ACC_NO)
         assertThat(docSubmission.version).isEqualTo(SUBMISSION_VERSION)
+        assertThat(docSubmission.schemaVersion).isEqualTo(SUBMISSION_SCHEMA_VERSION)
         assertThat(docSubmission.owner).isEqualTo(SUBMISSION_OWNER)
         assertThat(docSubmission.submitter).isEqualTo(SUBMISSION_SUBMITTER)
         assertThat(docSubmission.title).isEqualTo(SUBMISSION_TITLE)
@@ -189,6 +249,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         assertInnerSections(docSection.sections)
         assertFiles(docSection.files)
         assertLinks(docSection.links)
+        assertPageTabFiles(docSection.fileList!!.pageTabFiles)
     }
 
     private fun assertRootSectionAttribute(docAttribute: DocAttribute) {
@@ -272,13 +333,24 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
     }
 
     private fun assertFiles(docFiles: List<Either<DocFile, DocFileTable>>) {
-        assertThat(docFiles.first()).hasLeftValueSatisfying {
-            assertThat(it.relPath).isEqualTo(ROOT_SEC_FILE_NAME)
-            assertThat(it.fullPath).isEqualTo(newRootSectionFile.file.path)
+        val docFile = docFiles.first()
+        assertThat(docFile).hasLeftValueSatisfying {
+            require(docFile is Either.Left)
+            require(docFile.a is NfsDocFile)
+            assertThat((docFile.a as NfsDocFile).fileName).isEqualTo(ROOT_SEC_FILE_NAME)
+            assertThat((docFile.a as NfsDocFile).filePath).isEqualTo(ROOT_SEC_FILEPATH)
+            assertThat((docFile.a as NfsDocFile).relPath).isEqualTo(ROOT_SEC_REL_PATH)
+            assertThat((docFile.a as NfsDocFile).fullPath).isEqualTo(newRootSectionFile.file.path)
         }
-        assertThat(docFiles.second()).hasRightValueSatisfying {
-            assertThat(it.files.first().relPath).isEqualTo(ROOT_SEC_TABLE_FILE_NAME)
-            assertThat(it.files.first().fullPath).isEqualTo(newRootSectionTableFile.file.path)
+
+        val docFileTable = docFiles.second()
+        assertThat(docFileTable).hasRightValueSatisfying {
+            val innerNfsDocFile = it.files.first()
+            require(innerNfsDocFile is NfsDocFile)
+            assertThat(innerNfsDocFile.fileName).isEqualTo(ROOT_SEC_TABLE_FILE_NAME)
+            assertThat(innerNfsDocFile.filePath).isEqualTo(ROOT_SEC_TABLE_FILEPATH)
+            assertThat(innerNfsDocFile.relPath).isEqualTo(ROOT_SEC_TABLE_REL_PATH)
+            assertThat(innerNfsDocFile.fullPath).isEqualTo(newRootSectionTableFile.file.path)
         }
     }
 }

@@ -1,5 +1,8 @@
 import Dependencies.Arrow
 import Dependencies.KotlinLogging
+import Projects.CommonsHttp
+import Projects.SchedulerClusterClient
+import Projects.SchedulerTaskProperties
 import SpringBootDependencies.SpringBootStartedAdminClient
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
@@ -9,13 +12,12 @@ import TestDependencies.BaseTestRuntimeDependencies
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "1.4.32"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.6.10"
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
     id("org.springframework.boot") version "2.3.2.RELEASE"
 }
 
 repositories {
-    jcenter()
     maven { setUrl("https://oss.sonatype.org/content/repositories/snapshots") }
     maven {
         setUrl("https://dl.bintray.com/konrad-kaminski/maven")
@@ -24,9 +26,9 @@ repositories {
 }
 
 dependencies {
-    api(project(":commons:commons-http"))
-    api(project(":scheduler:cluster-client"))
-    api(project(":scheduler:task-properties"))
+    api(project(CommonsHttp))
+    api(project(SchedulerClusterClient))
+    api(project(SchedulerTaskProperties))
 
     implementation(Arrow)
     implementation(KotlinLogging)

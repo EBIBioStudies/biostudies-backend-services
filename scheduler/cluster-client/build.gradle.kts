@@ -3,11 +3,12 @@ import Dependencies.CommonsIO
 import Dependencies.Jsch
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
+import Projects.CommonsUtil
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
-    api(project(":commons:commons-util"))
+    api(project(CommonsUtil))
 
     implementation(Arrow)
     implementation(CommonsIO)

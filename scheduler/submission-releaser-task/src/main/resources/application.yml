@@ -1,4 +1,9 @@
 spring:
+  data:
+    mongodb:
+      database: # The name of the database to access the data
+      uri: # The database connection URI
+
   rabbitmq:
     host: # RabbitMQ Host
     username: # RabbitMQ User

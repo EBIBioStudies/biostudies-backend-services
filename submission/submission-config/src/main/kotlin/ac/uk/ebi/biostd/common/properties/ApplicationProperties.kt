@@ -1,41 +1,33 @@
 package ac.uk.ebi.biostd.common.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.NestedConfigurationProperty
+import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConfigurationProperties(prefix = "app")
-open class ApplicationProperties {
-    lateinit var tempDirPath: String
-    lateinit var submissionPath: String
-    lateinit var ftpPath: String
-    lateinit var instanceBaseUrl: String
+@ConstructorBinding
+data class ApplicationProperties(
+    val tempDirPath: String,
+    val fireTempDirPath: String,
+    val requestFilesPath: String,
+    val submissionPath: String,
+    val ftpPath: String,
+    val instanceBaseUrl: String,
+    val security: SecurityProperties,
+    val fire: FireProperties,
+    val validator: ValidatorProperties,
+    val persistence: PersistenceProperties
+)
 
-    @NestedConfigurationProperty
-    var security: SecurityProperties = SecurityProperties()
+data class FireProperties(
+    val host: String,
+    val username: String,
+    val password: String
+)
 
-    @NestedConfigurationProperty
-    var notifications: NotificationProperties = NotificationProperties()
+data class ValidatorProperties(
+    val euToxRiskValidationApi: String
+)
 
-    @NestedConfigurationProperty
-    var fire: FireProperties = FireProperties()
-
-    @NestedConfigurationProperty
-    var mongo: MongoModuleProperties = MongoModuleProperties()
-
-    @NestedConfigurationProperty
-    var validator: ValidatorProperties = ValidatorProperties()
-}
-
-class FireProperties {
-    lateinit var host: String
-    lateinit var username: String
-    lateinit var password: String
-}
-
-class MongoModuleProperties {
-    lateinit var connection: String
-}
-
-class ValidatorProperties {
-    lateinit var euToxRiskValidationApi: String
-}
+class PersistenceProperties(
+    val enableFire: Boolean = false
+)

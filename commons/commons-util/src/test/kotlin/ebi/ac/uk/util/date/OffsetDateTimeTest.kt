@@ -44,17 +44,17 @@ internal class OffsetDateTimeTest {
 
         @Test
         fun `when is before`() {
-            assertThat(oneDate.isBeforeOrEqual(anotherDate)).isTrue()
+            assertThat(oneDate.isBeforeOrEqual(anotherDate)).isTrue
         }
 
         @Test
         fun `When is equal`() {
-            assertThat(oneDate.isBeforeOrEqual(oneDate)).isTrue()
+            assertThat(oneDate.isBeforeOrEqual(oneDate)).isTrue
         }
 
         @Test
         fun `When is greater`() {
-            assertThat(anotherDate.isBeforeOrEqual(oneDate)).isFalse()
+            assertThat(anotherDate.isBeforeOrEqual(oneDate)).isFalse
         }
     }
 

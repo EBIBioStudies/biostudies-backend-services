@@ -1,6 +1,9 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
+import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
+import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
@@ -8,14 +11,13 @@ import ebi.ac.uk.model.File
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import uk.ac.ebi.serialization.extensions.deserialize
 
 class FileDeserializerTest {
     private val testInstance = JsonSerializer.mapper
 
     @Test
     fun `deserialize no value`() {
-        val exception = assertThrows<IllegalStateException> { testInstance.deserialize<File>("{}") }
+        val exception = assertThrows<IllegalStateException> { testInstance.readValue<File>("{}") }
 
         assertThat(exception.message).isEqualTo("Expecting to find property with 'path' in node '{}'")
     }
@@ -27,10 +29,20 @@ class FileDeserializerTest {
         }.toString()
 
         val node = "{\"path\":[1,2,3]}"
-        val exception = assertThrows<IllegalArgumentException> { testInstance.deserialize<File>(invalidJson) }
+        val exception = assertThrows<IllegalArgumentException> { testInstance.readValue<File>(invalidJson) }
         assertThat(exception.message).isEqualTo(
             "Expecting node: '$node', property: 'path' to be of type 'TextNode' but 'ArrayNode' was found instead"
         )
+    }
+
+    @Test
+    fun `deserialize with empty path`() {
+        val invalidJson = jsonObj {
+            "path" to ""
+        }.toString()
+
+        val exception = assertThrows<InvalidElementException> { testInstance.readValue<File>(invalidJson) }
+        assertThat(exception.message).isEqualTo("$REQUIRED_FILE_PATH. Element was not created.")
     }
 
     @Test
@@ -43,7 +55,7 @@ class FileDeserializerTest {
             })
         }.toString()
 
-        val file = testInstance.deserialize<File>(fileJson)
+        val file = testInstance.readValue<File>(fileJson)
         val expected = File("/path/file.txt", attributes = listOf(Attribute("attr name", "attr value")))
 
         assertThat(file).isEqualTo(expected)
@@ -55,7 +67,7 @@ class FileDeserializerTest {
             "path" to "/path/file.txt"
         }.toString()
 
-        val file = testInstance.deserialize<File>(fileJson)
+        val file = testInstance.readValue<File>(fileJson)
 
         assertThat(file).isEqualTo(File("/path/file.txt"))
     }
@@ -72,7 +84,7 @@ class FileDeserializerTest {
             "type" to "file"
         }.toString()
 
-        val file = testInstance.deserialize<File>(fileJson)
+        val file = testInstance.readValue<File>(fileJson)
         val expected = File("/path/file.txt", attributes = listOf(Attribute("attr name", "attr value")))
 
         assertThat(file).isEqualTo(expected)

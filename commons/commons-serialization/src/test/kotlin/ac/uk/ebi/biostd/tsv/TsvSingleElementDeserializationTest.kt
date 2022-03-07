@@ -4,10 +4,10 @@ import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
-import ebi.ac.uk.dsl.line
 import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.linksTable
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
@@ -26,7 +26,7 @@ class TsvSingleElementDeserializationTest {
             line()
         }.toString()
 
-        assertThat(deserializer.deserializeElement<File>(tsv)).isEqualTo(
+        assertThat(deserializer.deserializeElement<File>(tsv)).isEqualToComparingFieldByField(
             file("File1.txt") {
                 attribute("Attr", "Value")
             }
@@ -41,7 +41,7 @@ class TsvSingleElementDeserializationTest {
             line()
         }.toString()
 
-        assertThat(deserializer.deserializeElement<FilesTable>(tsv)).isEqualTo(
+        assertThat(deserializer.deserializeElement<FilesTable>(tsv)).isEqualToComparingFieldByField(
             filesTable {
                 file("File1.txt") {
                     attribute("Attr", "Value")
@@ -58,7 +58,7 @@ class TsvSingleElementDeserializationTest {
             line()
         }.toString()
 
-        assertThat(deserializer.deserializeElement<Link>(tsv)).isEqualTo(
+        assertThat(deserializer.deserializeElement<Link>(tsv)).isEqualToComparingFieldByField(
             link("http://alink.org") {
                 attribute("Attr", "Value")
             }
@@ -73,7 +73,7 @@ class TsvSingleElementDeserializationTest {
             line()
         }.toString()
 
-        assertThat(deserializer.deserializeElement<LinksTable>(tsv)).isEqualTo(
+        assertThat(deserializer.deserializeElement<LinksTable>(tsv)).isEqualToComparingFieldByField(
             linksTable {
                 link("http://alink.org") {
                     attribute("Attr", "Value")
@@ -93,7 +93,7 @@ class TsvSingleElementDeserializationTest {
             line()
         }.toString()
 
-        assertThat(deserializer.deserializeElement<LinksTable>(tsv)).isEqualTo(
+        assertThat(deserializer.deserializeElement<LinksTable>(tsv)).isEqualToComparingFieldByField(
             linksTable {
                 link("AF069307") {
                     attribute("Attr1", "Value 1")
@@ -102,18 +102,21 @@ class TsvSingleElementDeserializationTest {
                 }
 
                 link("AF069308") {
+                    attribute("Attr1", null)
                     attribute("Attr2", "Value 2")
                     attribute("Attr3", "Value 3")
                 }
 
                 link("AF069309") {
                     attribute("Attr1", "Value 1")
+                    attribute("Attr2", null)
                     attribute("Attr3", "Value 3")
                 }
 
                 link("AF069310") {
                     attribute("Attr1", "Value 1")
                     attribute("Attr2", "Value 2")
+                    attribute("Attr3", null)
                 }
             }
         )

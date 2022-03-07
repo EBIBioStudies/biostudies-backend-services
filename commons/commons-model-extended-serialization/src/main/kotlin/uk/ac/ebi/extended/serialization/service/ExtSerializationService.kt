@@ -8,21 +8,23 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
+import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.WebExtPage
 import uk.ac.ebi.extended.serialization.deserializers.EitherExtTypeDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileListDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFilesTableDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtLinkDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtLinksTableDeserializer
-import uk.ac.ebi.extended.serialization.deserializers.ExtSectionDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtSectionsTableDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.OffsetDateTimeDeserializer
 import uk.ac.ebi.extended.serialization.serializers.ExtFileSerializer
@@ -33,16 +35,36 @@ import uk.ac.ebi.extended.serialization.serializers.ExtSectionSerializer
 import uk.ac.ebi.extended.serialization.serializers.ExtSectionsTableSerializer
 import uk.ac.ebi.extended.serialization.serializers.ExtSubmissionSerializer
 import uk.ac.ebi.extended.serialization.serializers.OffsetDateTimeSerializer
+import uk.ac.ebi.serialization.extensions.deserializeList
+import uk.ac.ebi.serialization.extensions.serializeList
 import uk.ac.ebi.serialization.serializers.EitherSerializer
+import java.io.InputStream
+import java.io.OutputStream
+import java.io.StringWriter
 import java.time.OffsetDateTime
+import uk.ac.ebi.extended.serialization.deserializers.ExtAttributeDeserializer
+import uk.ac.ebi.extended.serialization.serializers.ExtAttributeSerializer
+
+data class Properties(val includeFileListFiles: Boolean) : StringWriter()
 
 class ExtSerializationService {
-    fun <T> serialize(element: T): String =
-        mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
+    fun serialize(sub: ExtSubmission, props: Properties = Properties(false)): String = serializeElement(sub, props)
+    fun serialize(files: Sequence<ExtFile>, stream: OutputStream) = mapper.serializeList(files, stream)
+    fun serialize(table: ExtFileTable): String = serializeElement(table)
+    fun serialize(extPage: WebExtPage): String = serializeElement(extPage)
 
-    fun <T> deserialize(value: String, type: Class<out T>) = mapper.readValue(value, type)
+    fun deserialize(stream: InputStream): Sequence<ExtFile> = mapper.deserializeList(stream)
+    fun deserialize(value: String): ExtSubmission = mapper.readValue(value)
+    fun deserializePage(value: String): ExtPage = mapper.readValue(value)
+    fun deserializeTable(value: String): ExtFileTable = mapper.readValue(value)
 
-    inline fun <reified T> deserialize(value: String) = mapper.readValue<T>(value)
+    /**
+     * Serialize a generic element. ONLY for testing purpose.
+     */
+    internal fun <T> serializeElement(element: T, properties: Properties = Properties(false)): String {
+        mapper.writerWithDefaultPrettyPrinter().writeValue(properties, element)
+        return properties.buffer.toString()
+    }
 
     companion object {
         val mapper = createMapper()
@@ -50,16 +72,18 @@ class ExtSerializationService {
         private fun createMapper(): ObjectMapper {
             val module = SimpleModule().apply {
                 addDeserializer(Either::class.java, EitherExtTypeDeserializer())
+                addDeserializer(ExtAttribute::class.java, ExtAttributeDeserializer())
                 addDeserializer(ExtFile::class.java, ExtFileDeserializer())
                 addDeserializer(ExtFileList::class.java, ExtFileListDeserializer())
                 addDeserializer(ExtFileTable::class.java, ExtFilesTableDeserializer())
                 addDeserializer(ExtLink::class.java, ExtLinkDeserializer())
+                addDeserializer(ExtFileList::class.java, ExtFileListDeserializer())
                 addDeserializer(ExtLinkTable::class.java, ExtLinksTableDeserializer())
-                addDeserializer(ExtSection::class.java, ExtSectionDeserializer())
                 addDeserializer(ExtSectionTable::class.java, ExtSectionsTableDeserializer())
                 addDeserializer(OffsetDateTime::class.java, OffsetDateTimeDeserializer())
 
                 addSerializer(Either::class.java, EitherSerializer())
+                addSerializer(ExtAttribute::class.java, ExtAttributeSerializer())
                 addSerializer(ExtFile::class.java, ExtFileSerializer())
                 addSerializer(ExtFileTable::class.java, ExtFilesTableSerializer())
                 addSerializer(ExtLink::class.java, ExtLinkSerializer())

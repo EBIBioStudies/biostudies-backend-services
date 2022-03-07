@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.persistence.doc.db.converters.shared
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
-import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
@@ -14,7 +13,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 
 object DocAttributeFields {
     val DOC_ATTRIBUTE_CLASS: String = DocAttribute::class.java.canonicalName
@@ -28,19 +29,31 @@ object DocAttributeFields {
 }
 
 object DocFileFields {
-    val DOC_FILE_CLASS: String = DocFile::class.java.canonicalName
+    const val FILE_DOC_FILENAME = "fileName"
+    const val FILE_DOC_FILEPATH = "filePath"
     const val FILE_DOC_REL_PATH = "relPath"
-    const val FILE_DOC_FULL_PATH = "fullPath"
     const val FILE_DOC_ATTRIBUTES = "attributes"
     const val FILE_DOC_MD5 = "md5"
-    const val FILE_TYPE = "type"
-    const val FILE_SIZE = "size"
+    const val FILE_DOC_SIZE = "fileSize"
+}
+
+object NfsDocFileFields {
+    val NFS_DOC_FILE_CLASS: String = NfsDocFile::class.java.canonicalName
+    const val NFS_FILE_FULL_PATH = "fullPath"
+    const val NFS_FILE_TYPE = "type"
+}
+
+object FireDocFileFields {
+    val FIRE_DOC_FILE_CLASS: String = FireDocFile::class.java.canonicalName
+    val FIRE_DOC_DIRECTORY_CLASS: String = FireDocDirectory::class.java.canonicalName
+    const val FIRE_FILE_DOC_ID = "fireId"
 }
 
 object DocFileListFields {
     val DOC_FILE_LIST_CLASS: String = DocFileList::class.java.canonicalName
     const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
     const val FILE_LIST_DOC_FILES = "files"
+    const val FILE_LIST_DOC_PAGE_TAB_FILES = "pageTabFiles"
 }
 
 object DocFileRefFields {
@@ -49,13 +62,13 @@ object DocFileRefFields {
 }
 
 object FileListDocFileFields {
-    val FILE_LIST_DOC_FILE_CLASS: String = FileListDocFile::class.java.canonicalName
+    const val FILE_LIST_DOC_FILE_ID = "_id"
     const val FILE_LIST_DOC_FILE_SUBMISSION_ID = "submissionId"
-    const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
-    const val FILE_LIST_DOC_FILE_REL_PATH = "relPath"
-    const val FILE_LIST_DOC_FILE_FULL_PATH = "fullPath"
-    const val FILE_LIST_DOC_FILE_ATTRIBUTES = "attributes"
-    const val FILE_LIST_DOC_FILE_MD5 = "md5"
+    const val FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO = "submissionAccNo"
+    const val FILE_LIST_DOC_FILE_SUBMISSION_VERSION = "submissionVersion"
+    const val FILE_LIST_DOC_FILE_FILE = "file"
+    const val FILE_LIST_DOC_FILE_INDEX = "index"
+    const val FILE_LIST_DOC_FILE_FILE_LIST_NAME = "fileListName"
 }
 
 object DocFileTableFields {
@@ -98,9 +111,11 @@ object DocSubmissionFields {
     val DOC_STAT_CLASS: String = DocStat::class.java.canonicalName
 
     const val CLASS_FIELD = "_class"
+    const val SUB = "submission"
     const val SUB_ID = "id"
     const val SUB_ACC_NO = "accNo"
     const val SUB_VERSION = "version"
+    const val SUB_SCHEMA_VERSION = "schemaVersion"
     const val SUB_OWNER = "owner"
     const val SUB_SUBMITTER = "submitter"
     const val SUB_TITLE = "title"
@@ -123,4 +138,6 @@ object DocSubmissionFields {
     const val STAT_DOC_NAME = "name"
     const val STAT_DOC_VALUE = "value"
     const val SUB_STATS = "stats"
+    const val PAGE_TAB_FILES = "pageTabFiles"
+    const val STORAGE_MODE = "storageMode"
 }

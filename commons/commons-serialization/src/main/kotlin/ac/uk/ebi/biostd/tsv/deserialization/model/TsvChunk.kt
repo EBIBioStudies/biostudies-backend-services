@@ -8,12 +8,14 @@ import ac.uk.ebi.biostd.tsv.deserialization.common.toAttributes
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ac.uk.ebi.biostd.validation.REQUIRED_LINK_URL
+import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
+import ebi.ac.uk.util.collections.findSecond
 
 sealed class TsvChunk(lines: List<TsvChunkLine>) {
     val header = lines.first()
@@ -40,9 +42,11 @@ internal class LinkChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
 class FileChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
     fun asFile(): File {
-        val fileName = getIdOrElse(InvalidElementException(REQUIRED_FILE_PATH))
+        val fileName = header.findSecond()
+        require(fileName.isNotBlank()) { throw InvalidElementException(REQUIRED_FILE_PATH) }
+
         val attributes = toAttributes(lines)
-        return File(fileName, attributes = attributes)
+        return File(fileName!!, attributes = attributes)
     }
 }
 

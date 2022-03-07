@@ -4,26 +4,39 @@ import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
+import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSection
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.doc.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
+import arrow.core.Either.Companion.left
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.constants.ProcessingStatus
 import ebi.ac.uk.util.collections.second
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.bson.types.ObjectId
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -39,6 +52,7 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
@@ -49,18 +63,25 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as att
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmission
 
-@ExtendWith(MockKExtension::class, SpringExtension::class)
+@ExtendWith(MockKExtension::class, SpringExtension::class, TemporaryFolderExtension::class)
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 internal class SubmissionMongoQueryServiceTest(
+    private val tempFolder: TemporaryFolder,
     @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
+    @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository
 ) {
-    private val serializationService: ExtSerializationService = ExtSerializationService()
-
+    private val serializationService: ExtSerializationService = extSerializationService()
     private val testInstance =
-        SubmissionMongoQueryService(submissionRepo, requestRepository, serializationService, toExtSubmissionMapper)
+        SubmissionMongoQueryService(
+            submissionRepo,
+            requestRepository,
+            fileListDocFileRepository,
+            serializationService,
+            toExtSubmissionMapper
+        )
 
     @Nested
     inner class ExpireSubmissions {
@@ -84,6 +105,71 @@ internal class SubmissionMongoQueryServiceTest(
     }
 
     @Nested
+    inner class GetReferencedFiles {
+        private val fileReference = ObjectId()
+        private val referencedFile = tempFolder.createFile("referenced.txt")
+        private val fileListFile = FileListDocFile(
+            fileReference,
+            docSubmission.id,
+            NfsDocFile(
+                "referenced.txt",
+                "referenced.txt",
+                "referenced.txt",
+                referencedFile.absolutePath,
+                listOf(),
+                "test-md5",
+                1,
+                "file"
+            ),
+            fileListName = "test-file-list",
+            index = 1,
+            submissionVersion = docSubmission.version,
+            submissionAccNo = docSubmission.accNo
+        )
+        private val fileList = DocFileList("test-file-list")
+        private val submission =
+            docSubmission.copy(section = DocSection(id = ObjectId(), type = "Study", fileList = fileList))
+
+        @BeforeEach
+        fun beforeEach() {
+            submissionRepo.save(submission)
+            fileListDocFileRepository.save(fileListFile)
+        }
+
+        @AfterEach
+        fun afterEach() {
+            submissionRepo.deleteAll()
+            fileListDocFileRepository.deleteAll()
+        }
+
+        @Test
+        fun `get referenced files`() {
+            val files = testInstance.getReferencedFiles(SUB_ACC_NO, "test-file-list")
+            assertThat(files).hasSize(1)
+            assertThat((files.first() as NfsFile).file).isEqualTo(referencedFile)
+        }
+
+        @Test
+        fun `get referenced files for inner section`() {
+            val innerSection = DocSection(id = ObjectId(), type = "Experiment", fileList = fileList)
+            val rootSection = DocSection(id = ObjectId(), type = "Study", sections = listOf(left(innerSection)))
+            val innerSectionSubmission = docSubmission.copy(accNo = "S-REF1", section = rootSection)
+
+            submissionRepo.save(innerSectionSubmission)
+            fileListDocFileRepository.save(fileListFile.copy(submissionAccNo = innerSectionSubmission.accNo))
+
+            val files = testInstance.getReferencedFiles("S-REF1", "test-file-list")
+            assertThat(files).hasSize(1)
+            assertThat((files.first() as NfsFile).file).isEqualTo(referencedFile)
+        }
+
+        @Test
+        fun `non existing referenced files`() {
+            assertThat(testInstance.getReferencedFiles(SUB_ACC_NO, "non-existing-fileListName")).hasSize(0)
+        }
+    }
+
+    @Nested
     inner class GetSubmissionsByUser {
         private val section = rootSection.copy(fileList = null, files = listOf(), sections = listOf())
 
@@ -95,9 +181,9 @@ internal class SubmissionMongoQueryServiceTest(
 
         @Test
         fun `filtered by accNo`() {
-            val request1 =
-                saveAsRequest(extSubmission.copy(accNo = "accNo1", title = "title1", section = section), REQUESTED)
-            val sub1 = submissionRepo.save(docSubmission.copy(accNo = "accNo1", status = PROCESSED))
+            val subRequest = extSubmission.copy(accNo = "accNo1", version = 2, title = "title1", section = section)
+            val savedRequest = saveAsRequest(subRequest, REQUESTED)
+            submissionRepo.save(docSubmission.copy(accNo = "accNo1", status = PROCESSED))
 
             var result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
@@ -105,15 +191,14 @@ internal class SubmissionMongoQueryServiceTest(
             )
 
             assertThat(result).hasSize(1)
-            assertThat(result.first()).isEqualTo(request1.asBasicSubmission())
+            assertThat(result.first()).isEqualTo(savedRequest.asBasicSubmission())
 
             result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
                 SubmissionFilter(accNo = "accNo1", limit = 2)
             )
-            assertThat(result).hasSize(2)
-            assertThat(result.first()).isEqualTo(request1.asBasicSubmission())
-            assertThat(result.second()).isEqualTo(sub1.asBasicSubmission())
+            assertThat(result).hasSize(1)
+            assertThat(result.first()).isEqualTo(savedRequest.asBasicSubmission())
         }
 
         @Test
@@ -283,7 +368,7 @@ internal class SubmissionMongoQueryServiceTest(
                 )
             )
 
-            assertThat(result).hasSize(2)
+            assertThat(result).hasSize(1)
             val request = result.first()
             assertThat(request.accNo).isEqualTo("accNo1")
             assertThat(request.version).isEqualTo(1)
@@ -291,14 +376,6 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(request.releaseTime).isEqualTo(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
             assertThat(request.released).isEqualTo(false)
             assertThat(request.status).isEqualTo(ProcessingStatus.REQUESTED)
-
-            val submission = result.second()
-            assertThat(submission.accNo).isEqualTo("accNo1")
-            assertThat(submission.version).isEqualTo(1)
-            assertThat(submission.title).isEqualTo("title")
-            assertThat(submission.releaseTime).isEqualTo(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
-            assertThat(submission.released).isEqualTo(false)
-            assertThat(submission.status).isEqualTo(ProcessingStatus.PROCESSED)
         }
 
         @Test
@@ -339,11 +416,15 @@ internal class SubmissionMongoQueryServiceTest(
             return extSubmission
         }
 
-        private fun asRequest(submission: ExtSubmission, status: SubmissionRequestStatus) = SubmissionRequest(
+        private fun asRequest(submission: ExtSubmission, status: SubmissionRequestStatus) = DocSubmissionRequest(
+            id = ObjectId(),
             accNo = submission.accNo,
             version = submission.version,
             status = status,
-            submission = BasicDBObject.parse(serializationService.serialize(submission))
+            fileMode = FileMode.COPY,
+            draftKey = null,
+            submission = BasicDBObject.parse(serializationService.serialize(submission)),
+            fileList = emptyList()
         )
     }
 
@@ -363,7 +444,6 @@ internal class SubmissionMongoQueryServiceTest(
         fun propertySource(register: DynamicPropertyRegistry) {
             register.add("spring.data.mongodb.uri") { mongoContainer.getReplicaSetUrl("biostudies-test") }
             register.add("spring.data.mongodb.database") { "biostudies-test" }
-            register.add("app.persistence.enableMongo") { "true" }
         }
     }
 }

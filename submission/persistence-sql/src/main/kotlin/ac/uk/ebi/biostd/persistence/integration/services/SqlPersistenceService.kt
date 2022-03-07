@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.SequenceNotFoundException
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
-import ac.uk.ebi.biostd.persistence.model.Sequence
+import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
@@ -19,7 +19,7 @@ internal open class SqlPersistenceService(
     override fun sequenceAccNoPatternExists(pattern: String): Boolean = sequenceRepository.existsByPrefix(pattern)
 
     override fun createAccNoPatternSequence(pattern: String) {
-        sequenceRepository.save(Sequence(pattern))
+        sequenceRepository.save(DbSequence(pattern))
     }
 
     @Transactional

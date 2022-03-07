@@ -1,11 +1,14 @@
 package ac.uk.ebi.biostd.submission.submitter
 
-import ac.uk.ebi.biostd.json.exception.NoAttributeValueException
-import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
-import ac.uk.ebi.biostd.submission.model.SubmissionRequest
+import ac.uk.ebi.biostd.submission.model.ReleaseRequest
+import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
@@ -23,6 +26,8 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.Submission
@@ -42,54 +47,45 @@ import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
 private const val DEFAULT_VERSION = 1
+private const val DEFAULT_SCHEMA_VERSION = "1.0"
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class SubmissionSubmitter(
     private val timesService: TimesService,
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
     private val collectionInfoService: CollectionInfoService,
-    private val submissionRequestService: SubmissionRequestService,
-    private val queryService: SubmissionMetaQueryService
+    private val submissionPersistenceService: SubmissionPersistenceService,
+    private val queryService: SubmissionMetaQueryService,
+    private val submissionQueryService: SubmissionQueryService,
+    private val draftService: SubmissionDraftService,
+    private val properties: ApplicationProperties
 ) {
-    fun submit(request: SubmissionRequest): ExtSubmission {
-        logger.info { "${request.accNo} ${request.owner} Processing request $request" }
-        val submission = process(
-            request.submission,
-            request.submitter.asUser(),
-            request.onBehalfUser?.asUser(),
-            request.sources,
-            request.method
-        )
-
-        logger.info { "${submission.accNo} ${submission.owner} Saving submission ${submission.accNo}" }
-        val saveRequest = SaveSubmissionRequest(submission, request.mode, request.draftKey)
-
-        return submissionRequestService.saveAndProcessSubmissionRequest(saveRequest)
+    fun submitAsync(rqt: SubmitRequest): Pair<String, Int> {
+        logger.info { "${rqt.accNo} ${rqt.submitter.email} Processing async request $rqt" }
+        val sub = process(rqt.submission, rqt.submitter.asUser(), rqt.onBehalfUser?.asUser(), rqt.sources, rqt.method)
+        logger.info { "${sub.accNo} ${sub.submitter} Saving submission request ${sub.accNo}" }
+        return saveRequest(SubmissionRequest(sub, rqt.mode, rqt.draftKey), rqt.owner)
     }
 
-    fun processRequest(request: SaveSubmissionRequest): ExtSubmission {
-        val accNo = request.submission.accNo
-        logger.info { "$accNo ${request.submission.owner} processing request for submission $accNo" }
-        return submissionRequestService.processSubmission(request)
+    fun submitAsync(request: SubmissionRequest): Pair<String, Int> = saveRequest(request, request.submission.submitter)
+
+    fun processRequest(accNo: String, version: Int): ExtSubmission {
+        val saveRequest = submissionQueryService.getPendingRequest(accNo, version)
+        val submitter = saveRequest.submission.submitter
+        logger.info { "$accNo, $submitter Processing request for submission accNo='$accNo', version='$version'" }
+        return submissionPersistenceService.processSubmissionRequest(saveRequest)
     }
 
-    fun submitAsync(request: SubmissionRequest): SaveSubmissionRequest {
-        logger.info { "${request.accNo} ${request.submitter.email} Processing async request $request" }
+    fun release(request: ReleaseRequest) {
+        val (accNo, owner, relPath) = request
+        submissionPersistenceService.releaseSubmission(accNo, owner, relPath)
+    }
 
-        val submission = process(
-            request.submission,
-            request.submitter.asUser(),
-            request.onBehalfUser?.asUser(),
-            request.sources,
-            request.method
-        )
-
-        logger.info { "${submission.accNo} ${submission.submitter} Saving submission request ${submission.accNo}" }
-        val saveRequest = SaveSubmissionRequest(submission, request.mode, request.draftKey)
-        val persistedRequest = submissionRequestService.saveSubmissionRequest(saveRequest)
-
-        return SaveSubmissionRequest(persistedRequest, request.mode, request.draftKey)
+    private fun saveRequest(request: SubmissionRequest, owner: String): Pair<String, Int> {
+        val saved = submissionPersistenceService.saveSubmissionRequest(request)
+        request.draftKey?.let { draftService.setProcessingStatus(owner, it) }
+        return saved
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -106,6 +102,7 @@ class SubmissionSubmitter(
 
             return extSubmission
         } catch (exception: RuntimeException) {
+            logger.error(exception) { "Error processing submission request accNo='${submission.accNo}'" }
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
     }
@@ -135,6 +132,7 @@ class SubmissionSubmitter(
             owner = ownerEmail,
             submitter = submitter.email,
             version = DEFAULT_VERSION,
+            schemaVersion = DEFAULT_SCHEMA_VERSION,
             method = getMethod(method),
             title = submission.title,
             relPath = relPath,
@@ -148,7 +146,8 @@ class SubmissionSubmitter(
             tags = submission.tags.map { ExtTag(it.first, it.second) },
             collections = tags.map { ExtCollection(it) },
             section = submission.section.toExtSection(source),
-            attributes = getAttributes(submission)
+            attributes = getAttributes(submission),
+            storageMode = if (properties.persistence.enableFire) FIRE else NFS
         )
     }
 
@@ -173,7 +172,6 @@ class SubmissionSubmitter(
 
     private fun getAttributes(submission: Submission): List<ExtAttribute> {
         return submission.attributes
-            .onEach { require(it.value.isNotEmpty()) { throw NoAttributeValueException(it.value) } }
             .filterNot { SUBMISSION_RESERVED_ATTRIBUTES.contains(it.name) }
             .map { it.toExtAttribute() }
     }

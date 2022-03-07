@@ -9,8 +9,8 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.dsl.json.jsonObj
-import ebi.ac.uk.dsl.line
-import ebi.ac.uk.dsl.tsv
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension

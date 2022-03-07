@@ -26,7 +26,7 @@ post:
       required: false
       type: string
     - in: query
-      name: sse
+      name: register
       description:
         In case the submission is performed on behalf of another user, this parameter indicates whether a new user should
         be registered in case the given owner doesn't exist.

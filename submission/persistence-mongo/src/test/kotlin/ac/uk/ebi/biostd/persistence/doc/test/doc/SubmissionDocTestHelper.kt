@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
+import ebi.ac.uk.extended.model.StorageMode
 import org.bson.types.ObjectId
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -29,6 +30,7 @@ val testDocAttribute: DocAttribute = DocAttribute(
 
 internal const val SUB_ACC_NO = "S-TEST123"
 internal const val SUB_VERSION = 1
+internal const val SUB_SCHEMA_VERSION = "1.0"
 internal const val OWNER = "owner@mail.org"
 internal const val SUBMITTER = "submitter@mail.org"
 internal const val SUB_TITLE = "Test Submission"
@@ -53,6 +55,7 @@ internal val testDocSubmission: DocSubmission
         id = ObjectId(),
         accNo = SUB_ACC_NO,
         version = SUB_VERSION,
+        schemaVersion = SUB_SCHEMA_VERSION,
         owner = OWNER,
         submitter = SUBMITTER,
         title = SUB_TITLE,
@@ -62,12 +65,13 @@ internal val testDocSubmission: DocSubmission
         released = false,
         secretKey = SECRET_KEY,
         status = PROCESSED,
-        releaseTime = RELEASE_TIME,
-        modificationTime = MODIFICATION_TIME,
-        creationTime = CREATION_TIME,
+        releaseTime = RELEASE_TIME.truncatedTo(ChronoUnit.MILLIS),
+        modificationTime = MODIFICATION_TIME.truncatedTo(ChronoUnit.MILLIS),
+        creationTime = CREATION_TIME.truncatedTo(ChronoUnit.MILLIS),
         attributes = listOf(testDocAttribute),
         tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
         stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
         collections = listOf(testDocCollection),
-        section = testDocSection
+        section = testDocSection,
+        storageMode = StorageMode.NFS
     )

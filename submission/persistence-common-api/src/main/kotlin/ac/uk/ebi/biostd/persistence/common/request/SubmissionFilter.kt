@@ -10,6 +10,7 @@ data class SubmissionFilter(
     val rTimeTo: OffsetDateTime? = null,
     val keywords: String? = null,
     val released: Boolean? = null,
+    val collection: String? = null,
     override val limit: Int = 15,
     override val offset: Long = 0
 ) : PaginationFilter(limit, offset)

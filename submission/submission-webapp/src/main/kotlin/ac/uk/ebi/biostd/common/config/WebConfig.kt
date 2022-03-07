@@ -1,16 +1,20 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.files.web.common.FileListPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.GroupPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.submission.converters.BioUserResolver
+import ac.uk.ebi.biostd.submission.converters.ExtAttributeDetailConverter
+import ac.uk.ebi.biostd.submission.converters.ExtFileTableConverter
 import ac.uk.ebi.biostd.submission.converters.ExtPageSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.JsonPagetabConverter
 import ac.uk.ebi.biostd.submission.converters.OnBehalfUserRequestResolver
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.format.FormatterRegistry
 import org.springframework.http.MediaType
 import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
@@ -22,6 +26,7 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
 @Configuration
+@Suppress("MagicNumber")
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 internal class WebConfig(
     private val serializationService: SerializationService,
@@ -36,7 +41,7 @@ internal class WebConfig(
     @Bean
     fun fireWebClient(properties: ApplicationProperties): FireWebClient =
         FireWebClient.create(
-            properties.tempDirPath,
+            properties.fireTempDirPath,
             properties.fire.host,
             properties.fire.username,
             properties.fire.password
@@ -50,6 +55,7 @@ internal class WebConfig(
         converters.add(0, JsonPagetabConverter(serializationService))
         converters.add(1, ExtSubmissionConverter(extSerializationService))
         converters.add(2, ExtPageSubmissionConverter(extSerializationService))
+        converters.add(3, ExtFileTableConverter(extSerializationService))
     }
 
     override fun addArgumentResolvers(argumentResolvers: MutableList<HandlerMethodArgumentResolver>) {
@@ -57,5 +63,10 @@ internal class WebConfig(
         argumentResolvers.add(GroupPathDescriptorResolver())
         argumentResolvers.add(submitterResolver())
         argumentResolvers.add(OnBehalfUserRequestResolver())
+        argumentResolvers.add(FileListPathDescriptorResolver())
+    }
+
+    override fun addFormatters(registry: FormatterRegistry) {
+        registry.addConverter(ExtAttributeDetailConverter())
     }
 }

@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest
 
 internal val userPath = ".*/user".toRegex()
 internal val groupPath = ".*/groups/[\\w'-]+/?".toRegex()
+internal val fileListPath = ".*/referencedFiles".toRegex()
 
 class PathDescriptorResolver : HandlerMethodArgumentResolver {
     override fun supportsParameter(parameter: MethodParameter) = parameter.parameterType == PathDescriptor::class.java

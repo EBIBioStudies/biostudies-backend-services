@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.client.api
 
+import ac.uk.ebi.biostd.client.dto.ReleaseRequestDto
 import ac.uk.ebi.biostd.client.extensions.map
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
@@ -22,7 +23,6 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForEntity
 import org.springframework.web.util.UriComponentsBuilder
-import java.net.URLEncoder
 
 private const val SUBMISSIONS_URL = "/submissions"
 
@@ -46,12 +46,6 @@ internal class SubmissionClient(
         submitAsyncSingle(HttpEntity(submission, createHeaders(format)), register)
     }
 
-    override fun refreshSubmission(accNo: String): SubmissionResponse {
-        return template.postForEntity<String>("$SUBMISSIONS_URL/refresh/$accNo")
-            .map { body -> serializationService.deserializeSubmission(body, SubFormat.JSON) }
-            .let { ClientResponse(it.body!!, it.statusCodeValue) }
-    }
-
     override fun deleteSubmission(accNo: String) = template.delete("$SUBMISSIONS_URL/$accNo")
 
     override fun deleteSubmissions(submissions: List<String>) =
@@ -63,11 +57,8 @@ internal class SubmissionClient(
         return template.getForObject<Array<SubmissionDto>>(builder.toUriString()).toList()
     }
 
-    private fun encode(value: Any): Any {
-        return when (value) {
-            is String -> URLEncoder.encode(value, "UTF-8")
-            else -> value
-        }
+    override fun releaseSubmission(request: ReleaseRequestDto) {
+        template.put("$SUBMISSIONS_URL/release", request)
     }
 
     private fun submitSingle(request: HttpEntity<String>, register: RegisterConfig): SubmissionResponse {

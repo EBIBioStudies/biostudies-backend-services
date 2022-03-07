@@ -1,14 +1,36 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PAGE_TAB_FILES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_CREATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_METHOD
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ROOT_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SCHEMA_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECRET_KEY
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATUS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
+import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
+import ebi.ac.uk.extended.model.StorageMode
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -22,40 +44,49 @@ import java.time.Instant
 @ExtendWith(MockKExtension::class)
 internal class SubmissionConverterTest(
     @MockK val attributeConverter: AttributeConverter,
-    @MockK val sectionConverter: SectionConverter,
-    @MockK val sectionDocument: Document,
+    @MockK val docAttribute: DocAttribute,
     @MockK val attributeDocument: Document,
+
+    @MockK val sectionConverter: SectionConverter,
     @MockK val docSection: DocSection,
-    @MockK val docAttribute: DocAttribute
+    @MockK val sectionDocument: Document,
+
+    @MockK val fileConverter: FileConverter,
+    @MockK val docFile: DocFile,
+    @MockK val fileDocument: Document
 ) {
-    private val testInstance = SubmissionConverter(sectionConverter, attributeConverter)
+    private val testInstance = SubmissionConverter(sectionConverter, attributeConverter, fileConverter)
 
     @Test
     fun converter() {
         every { sectionConverter.convert(docSection) } returns sectionDocument
         every { attributeConverter.convert(docAttribute) } returns attributeDocument
+        every { fileConverter.convert(docFile) } returns fileDocument
 
-        val docSubmission = createDocSubmission(docSection, docAttribute)
+        val docSubmission = createDocSubmission(docSection, docAttribute, docFile)
 
         val result = testInstance.convert(docSubmission)
 
-        assertThat(result[DocSubmissionFields.SUB_ID]).isEqualTo(submissionId)
-        assertThat(result[DocSubmissionFields.SUB_ACC_NO]).isEqualTo(submissionAccNo)
-        assertThat(result[DocSubmissionFields.SUB_VERSION]).isEqualTo(submissionVersion)
-        assertThat(result[DocSubmissionFields.SUB_OWNER]).isEqualTo(submissionOwner)
-        assertThat(result[DocSubmissionFields.SUB_SUBMITTER]).isEqualTo(submissionSubmitter)
-        assertThat(result[DocSubmissionFields.SUB_TITLE]).isEqualTo(submissionTitle)
-        assertThat(result[DocSubmissionFields.SUB_METHOD]).isEqualTo(DocSubmissionMethod.PAGE_TAB.value)
-        assertThat(result[DocSubmissionFields.SUB_REL_PATH]).isEqualTo(submissionRelPath)
-        assertThat(result[DocSubmissionFields.SUB_ROOT_PATH]).isEqualTo(submissionRootPath)
-        assertThat(result[DocSubmissionFields.SUB_RELEASED]).isEqualTo(submissionReleased)
-        assertThat(result[DocSubmissionFields.SUB_SECRET_KEY]).isEqualTo(submissionSecretKey)
-        assertThat(result[DocSubmissionFields.SUB_STATUS]).isEqualTo(DocProcessingStatus.PROCESSED.value)
-        assertThat(result[DocSubmissionFields.SUB_RELEASE_TIME]).isEqualTo(submissionReleaseTime)
-        assertThat(result[DocSubmissionFields.SUB_MODIFICATION_TIME]).isEqualTo(submissionModificationTime)
-        assertThat(result[DocSubmissionFields.SUB_CREATION_TIME]).isEqualTo(submissionCreationTime)
-        assertThat(result[DocSubmissionFields.SUB_SECTION]).isEqualTo(sectionDocument)
-        assertThat(result[DocSubmissionFields.SUB_ATTRIBUTES]).isEqualTo(listOf(attributeDocument))
+        assertThat(result[SUB_ID]).isEqualTo(submissionId)
+        assertThat(result[SUB_ACC_NO]).isEqualTo(submissionAccNo)
+        assertThat(result[SUB_VERSION]).isEqualTo(submissionVersion)
+        assertThat(result[SUB_SCHEMA_VERSION]).isEqualTo(submissionSchemaVersion)
+        assertThat(result[SUB_OWNER]).isEqualTo(submissionOwner)
+        assertThat(result[SUB_SUBMITTER]).isEqualTo(submissionSubmitter)
+        assertThat(result[SUB_TITLE]).isEqualTo(submissionTitle)
+        assertThat(result[SUB_METHOD]).isEqualTo(DocSubmissionMethod.PAGE_TAB.value)
+        assertThat(result[SUB_REL_PATH]).isEqualTo(submissionRelPath)
+        assertThat(result[SUB_ROOT_PATH]).isEqualTo(submissionRootPath)
+        assertThat(result[SUB_RELEASED]).isEqualTo(submissionReleased)
+        assertThat(result[SUB_SECRET_KEY]).isEqualTo(submissionSecretKey)
+        assertThat(result[SUB_STATUS]).isEqualTo(DocProcessingStatus.PROCESSED.value)
+        assertThat(result[SUB_RELEASE_TIME]).isEqualTo(submissionReleaseTime)
+        assertThat(result[SUB_MODIFICATION_TIME]).isEqualTo(submissionModificationTime)
+        assertThat(result[SUB_CREATION_TIME]).isEqualTo(submissionCreationTime)
+        assertThat(result[SUB_SECTION]).isEqualTo(sectionDocument)
+        assertThat(result[SUB_ATTRIBUTES]).isEqualTo(listOf(attributeDocument))
+        assertThat(result[PAGE_TAB_FILES]).isEqualTo(listOf(fileDocument))
+        assertThat(result[STORAGE_MODE]).isEqualTo(StorageMode.NFS.value)
 
         val tags = result.getAs<List<Document>>(DocSubmissionFields.SUB_TAGS)
         val tag = tags.first()
@@ -72,11 +103,16 @@ internal class SubmissionConverterTest(
         assertThat(stat[DocSubmissionFields.STAT_DOC_VALUE]).isEqualTo(docStatValue)
     }
 
-    private fun createDocSubmission(docSection: DocSection, docAttribute: DocAttribute): DocSubmission {
+    private fun createDocSubmission(
+        docSection: DocSection,
+        docAttribute: DocAttribute,
+        docFile: DocFile
+    ): DocSubmission {
         return DocSubmission(
             id = submissionId,
             accNo = submissionAccNo,
             version = submissionVersion,
+            schemaVersion = submissionSchemaVersion,
             owner = submissionOwner,
             submitter = submissionSubmitter,
             title = submissionTitle,
@@ -93,7 +129,9 @@ internal class SubmissionConverterTest(
             attributes = listOf(docAttribute),
             tags = submissionTags,
             collections = submissionProjects,
-            stats = submissionStats
+            stats = submissionStats,
+            pageTabFiles = listOf(docFile),
+            storageMode = StorageMode.NFS
         )
     }
 
@@ -101,6 +139,7 @@ internal class SubmissionConverterTest(
         val submissionId = ObjectId()
         const val submissionAccNo = "S-TEST1"
         const val submissionVersion = 1
+        const val submissionSchemaVersion = "1.0"
         const val submissionOwner = "owner@mail.org"
         const val submissionSubmitter = "submitter@mail.org"
         const val submissionTitle = "TestSubmission"

@@ -28,7 +28,3 @@ fun File.createNewFile(name: String, text: String): File {
 fun File.gZipTo(target: File) {
     FileOutputStream(target).use { GZIPOutputStream(it).bufferedWriter().use { writer -> writer.write(readText()) } }
 }
-
-fun File.copyTo(target: File) {
-    FileOutputStream(target).use { writer -> writer.write(readBytes()) }
-}

@@ -10,22 +10,30 @@ import Dependencies.ServletApi
 import Dependencies.SpringDataJpa
 import Dependencies.SpringSecurityCore
 import Dependencies.SpringWeb
+import Projects.CommonsBio
+import Projects.CommonsHttp
+import Projects.CommonsTest
+import Projects.CommonsUtil
+import Projects.EventsPublisher
+import Projects.SubmissionPersistenceSql
 import SpringBootDependencies.SpringBootAmqp
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.JaxbApi
 
 dependencies {
-    api(project(":commons:commons-util"))
-    api(project(":commons:commons-http"))
-    api(project(":commons:commons-bio"))
-    api(project(":commons:commons-http"))
-    api(project(":events:events-publisher"))
-    api(project(":submission:persistence-sql"))
+    api(project(CommonsUtil))
+    api(project(CommonsHttp))
+    api(project(CommonsBio))
+    api(project(CommonsHttp))
+    api(project(EventsPublisher))
+    api(project(SubmissionPersistenceSql))
 
     implementation(Arrow)
     implementation(HibernateEntityManager)
     implementation(Jwt)
     implementation(KotlinLogging)
+    implementation(JaxbApi)
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(RxJava2)
@@ -34,7 +42,7 @@ dependencies {
     implementation(SpringDataJpa)
     implementation(ServletApi)
 
-    testApi(project(":commons:commons-test"))
+    testApi(project(CommonsTest))
 
     testImplementation(Logback)
     testImplementation(SpringBootAmqp)

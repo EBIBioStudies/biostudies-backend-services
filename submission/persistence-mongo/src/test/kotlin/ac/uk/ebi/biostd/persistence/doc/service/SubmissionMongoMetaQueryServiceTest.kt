@@ -1,17 +1,17 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionWithoutPatternException
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
+import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.PropertyOverrideContextInitializer
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.TestConfig
 import ac.uk.ebi.biostd.persistence.doc.test.doc.RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
-import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
-import ac.uk.ebi.biostd.persistence.common.exception.CollectionWithoutPatternException
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.model.constants.SubFields.ACC_NO_TEMPLATE
@@ -22,12 +22,16 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.ApplicationContextInitializer
+import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.test.context.support.TestPropertySourceUtils.addInlinedPropertiesToEnvironment
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.junit.jupiter.Container
@@ -37,10 +41,12 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Files
 import java.time.Duration.ofSeconds
 import java.time.ZoneOffset.UTC
+import java.time.temporal.ChronoUnit
 
 @ExtendWith(SpringExtension::class)
 @Testcontainers
 @SpringBootTest(classes = [TestConfig::class])
+@ContextConfiguration(initializers = [PropertyOverrideContextInitializer::class])
 internal class SubmissionMongoMetaQueryServiceTest(
     @Autowired private val submissionMongoRepository: SubmissionMongoRepository,
     @Autowired private val testInstance: SubmissionMongoMetaQueryService
@@ -63,7 +69,7 @@ internal class SubmissionMongoMetaQueryServiceTest(
         assertThat(accNo).isEqualTo("EuToxRisk")
         assertThat(accNoPattern).isEqualTo("!{S-TOX}")
         assertThat(validator).isEqualTo("EuToxRiskValidator")
-        assertThat(releaseTime).isEqualTo(RELEASE_TIME.atOffset(UTC))
+        assertThat(releaseTime).isEqualTo(RELEASE_TIME.atOffset(UTC).truncatedTo(ChronoUnit.MILLIS))
     }
 
     @Test
@@ -95,7 +101,7 @@ internal class SubmissionMongoMetaQueryServiceTest(
 
         val lastVersion = testInstance.findLatestBasicByAccNo("accNo2")
 
-        assertThat(lastVersion).isNotNull()
+        assertThat(lastVersion).isNotNull
         assertThat(lastVersion!!.version).isEqualTo(4)
     }
 
@@ -103,31 +109,32 @@ internal class SubmissionMongoMetaQueryServiceTest(
     fun `exists by AccNo when exists`() {
         submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo3", version = 1, status = PROCESSED))
 
-        assertThat(submissionMongoRepository.existsByAccNo("accNo3")).isTrue()
+        assertThat(submissionMongoRepository.existsByAccNo("accNo3")).isTrue
     }
 
     @Test
     fun `exist by AccNo when don't exists`() {
         submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo4", version = 1, status = PROCESSED))
 
-        assertThat(submissionMongoRepository.existsByAccNo("accNo5")).isFalse()
+        assertThat(submissionMongoRepository.existsByAccNo("accNo5")).isFalse
     }
 
     @Configuration
     @Import(MongoDbServicesConfig::class)
     class TestConfig {
-        @Bean
-        fun applicationProperties(): ApplicationProperties {
-            val properties = ApplicationProperties()
-            properties.submissionPath = Files.createTempDirectory("mongo_test").toString()
-            return properties
-        }
 
         @Bean
         fun extSerializationService(): ExtSerializationService = ExtSerializationService()
 
         @Bean
         fun serializationService(): SerializationService = SerializationConfig.serializationService()
+    }
+
+    class PropertyOverrideContextInitializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
+        override fun initialize(context: ConfigurableApplicationContext) {
+            val path = Files.createTempDirectory("mongo_test").toString()
+            addInlinedPropertiesToEnvironment(context, "app.submissionPath=$path")
+        }
     }
 
     companion object {
@@ -140,7 +147,6 @@ internal class SubmissionMongoMetaQueryServiceTest(
         fun propertySource(register: DynamicPropertyRegistry) {
             register.add("spring.data.mongodb.uri") { mongoContainer.getReplicaSetUrl("biostudies-test") }
             register.add("spring.data.mongodb.database") { "biostudies-test" }
-            register.add("app.persistence.enableMongo") { "true" }
         }
     }
 }

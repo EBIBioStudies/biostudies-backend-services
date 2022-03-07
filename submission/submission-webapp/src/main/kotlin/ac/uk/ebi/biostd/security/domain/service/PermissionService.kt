@@ -14,13 +14,11 @@ class PermissionService(
     private val tagRepository: AccessTagDataRepo
 ) {
     fun givePermissionToUser(accessType: AccessType, email: String, tag: String) {
-        val user = userRepository.findByEmail(email).orElseThrow { throw PermissionsUserDoesNotExistsException(email) }
+        val user = userRepository.findByEmail(email) ?: throw PermissionsUserDoesNotExistsException(email)
         val accessTag = tagRepository.findByName(tag) ?: throw PermissionsAccessTagDoesNotExistsException(tag)
 
         if (permissionExists(accessType, email, tag).not()) {
-            permissionRepository.save(
-                DbAccessPermission(accessType = accessType, user = user, accessTag = accessTag)
-            )
+            permissionRepository.save(DbAccessPermission(accessType = accessType, user = user, accessTag = accessTag))
         }
     }
 

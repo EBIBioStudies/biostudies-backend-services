@@ -1,32 +1,45 @@
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
+import Dependencies.SpringDataJpa
 import Dependencies.SpringWeb
+import Projects.ClientBioWebClient
+import Projects.CommonsModelExtended
+import Projects.EventsPublisher
+import Projects.SchedulerTaskProperties
+import Projects.SubmissionNotification
+import Projects.SubmissionPersistenceCommonApi
+import Projects.SubmissionPersistenceMongo
 import SpringBootDependencies.SpringBootAmqp
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
+import SpringBootDependencies.SpringBootStarterMongo
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "1.4.32"
+    id("org.jetbrains.kotlin.plugin.spring") version "1.6.10"
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
     id("org.springframework.boot") version "2.3.2.RELEASE"
 }
 
 dependencies {
-    api(project(":client:bio-webclient"))
-    api(project(":commons:commons-model-extended"))
-    api(project(":events:events-publisher"))
-    api(project(":scheduler:task-properties"))
-    api(project(":submission:notifications"))
+    api(project(ClientBioWebClient))
+    api(project(CommonsModelExtended))
+    api(project(EventsPublisher))
+    api(project(SchedulerTaskProperties))
+    api(project(SubmissionNotification))
+    api(project(SubmissionPersistenceCommonApi))
+    api(project(SubmissionPersistenceMongo))
 
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
     implementation(SpringBootAmqp)
     implementation(SpringBootStarter)
+    implementation(SpringDataJpa)
     implementation(SpringWeb)
     implementation(SpringBootStarterConfigProcessor)
+    implementation(SpringBootStarterMongo)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

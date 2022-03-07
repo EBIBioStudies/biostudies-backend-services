@@ -1,8 +1,6 @@
 package ebi.ac.uk.security.web
 
-import arrow.core.Option
 import ebi.ac.uk.base.isNotBlank
-import ebi.ac.uk.base.toOption
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -26,8 +24,8 @@ internal class SecurityFilter(
 ) : GenericFilterBean(), ISecurityFilter {
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         getSecurityKey(request as HttpServletRequest)
-            .map { securityQueryService.getUserProfile(it) }
-            .map { (user, token) -> setSecurityUser(user, token) }
+            ?.let { securityQueryService.getUserProfile(it) }
+            ?.let { (user, token) -> setSecurityUser(user, token) }
         chain.doFilter(request, response)
     }
 
@@ -40,14 +38,14 @@ internal class SecurityFilter(
         return if (user.superuser) listOf(SimpleGrantedAuthority("ADMIN")) else emptyList()
     }
 
-    private fun getSecurityKey(httpRequest: HttpServletRequest): Option<String> {
+    private fun getSecurityKey(httpRequest: HttpServletRequest): String? {
         val header: String? = httpRequest.getHeader(HEADER_NAME)
         val cookie = WebUtils.getCookie(httpRequest, "$COOKIE_NAME-$environment")
 
         return when {
-            header.isNotBlank() -> header.toOption()
-            cookie != null && cookie.value.isNotBlank() -> cookie.value.toOption()
-            else -> httpRequest.getParameter(COOKIE_NAME).toOption()
+            header.isNotBlank() -> header
+            cookie != null && cookie.value.isNotBlank() -> cookie.value
+            else -> httpRequest.getParameter(COOKIE_NAME)
         }
     }
 }

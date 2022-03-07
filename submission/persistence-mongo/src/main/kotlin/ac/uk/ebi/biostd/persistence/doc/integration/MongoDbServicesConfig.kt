@@ -9,13 +9,13 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.CollectionMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoQueryService
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -23,17 +23,18 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
 @Import(MongoDbReposConfig::class)
-@ConditionalOnProperty(prefix = "app.persistence", name = ["enableMongo"], havingValue = "true")
 class MongoDbServicesConfig {
     @Bean
     internal fun submissionQueryService(
         submissionDocDataRepository: SubmissionDocDataRepository,
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
+        fileListDocFileRepository: FileListDocFileRepository,
         serializationService: ExtSerializationService,
         toExtSubmissionMapper: ToExtSubmissionMapper
     ): SubmissionQueryService = SubmissionMongoQueryService(
         submissionDocDataRepository,
         submissionRequestDocDataRepository,
+        fileListDocFileRepository,
         serializationService,
         toExtSubmissionMapper
     )
@@ -44,7 +45,9 @@ class MongoDbServicesConfig {
     ): CollectionDataService = CollectionMongoDataService(submissionDocDataRepository)
 
     @Bean
-    internal fun toExtSubmissionMapper(): ToExtSubmissionMapper = ToExtSubmissionMapper()
+    internal fun toExtSubmissionMapper(
+        fileListDocFileRepository: FileListDocFileRepository
+    ): ToExtSubmissionMapper = ToExtSubmissionMapper(fileListDocFileRepository)
 
     @Bean
     internal fun submissionDraftMongoService(

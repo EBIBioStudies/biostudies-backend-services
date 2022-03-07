@@ -6,6 +6,7 @@ object ExtSerializationFields {
     const val EXT_TYPE = "extType"
     const val FILE = "file"
     const val FILES = "files"
+    const val FILES_URL = "filesUrl"
     const val FILE_LIST = "fileList"
     const val LINKS = "links"
     const val SECTIONS = "sections"
@@ -13,15 +14,27 @@ object ExtSerializationFields {
     const val URL = "url"
 
     // Ext Files Fields
-    const val FILE_TYPE = "type"
-    const val FILE_PATH = "path"
     const val FILE_NAME = "fileName"
+    const val FILE_FILEPATH = "filePath"
+    const val FILE_REL_PATH = "relPath"
+    const val FILE_FULL_PATH = "fullPath"
+    const val FILE_TYPE = "type"
+    const val FILE_FIRE_ID = "fireId"
     const val FILE_SIZE = "size"
+    const val FILE_MD5 = "md5"
     const val FILE_FILE_TYPE = "file"
     const val FILE_DIR_TYPE = "directory"
 
+    // Ext Attributes Fields
+    const val ATTR_NAME = "name"
+    const val ATTR_VALUE = "value"
+    const val ATTR_REFERENCE = "reference"
+    const val ATTR_NAME_ATTRS = "nameAttrs"
+    const val ATTR_VAL_ATTRS = "valueAttrs"
+
     // Ext Submission Fields
     var VERSION = "version"
+    var SCHEMA_VERSION = "schemaVersion"
     const val OWNER = "owner"
     const val SUBMITTER = "submitter"
     const val TITLE = "title"
@@ -39,4 +52,6 @@ object ExtSerializationFields {
     const val COLLECTIONS = "collections"
     const val STATS = "stats"
     const val ACCESS_TAGS = "accessTags"
+    const val PAGE_TAB_FILES = "pageTabFiles"
+    const val STORAGE_MODE = "storageMode"
 }

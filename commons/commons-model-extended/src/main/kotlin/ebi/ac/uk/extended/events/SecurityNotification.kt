@@ -11,6 +11,9 @@ class SecurityNotification(
     @JsonProperty("username")
     val username: String,
 
+    @JsonProperty("activationCode")
+    val activationCode: String,
+
     @JsonProperty("activationLink")
     val activationLink: String,
 

@@ -9,9 +9,9 @@ class StringExtTest {
 
     @Test
     fun isNotEmptyOrNull() {
-        assertThat("".isNotBlank()).isFalse()
-        assertThat(null.isNotBlank()).isFalse()
-        assertThat("something".isNotBlank()).isTrue()
+        assertThat("".isNotBlank()).isFalse
+        assertThat(null.isNotBlank()).isFalse
+        assertThat("something".isNotBlank()).isTrue
     }
 
     @Test
@@ -33,6 +33,13 @@ class StringExtTest {
         val original = """hey "friend" """
 
         assertThat(original.scape("\"")).isEqualTo("""hey \"friend\" """)
+    }
+
+    @Test
+    fun trim() {
+        val original = "Multiple    Spaced  String"
+
+        assertThat(original.trim()).isEqualTo("Multiple Spaced String")
     }
 
     @Nested

@@ -25,7 +25,7 @@ internal class ToFileListTest(
 
             val fileList = extFileList.toFileList()
             assertThat(fileList.referencedFiles.first()).isEqualTo(file)
-            assertThat(fileList.name).isEqualTo(this.extFileList.fileName)
+            assertThat(fileList.name).isEqualTo(this.extFileList.filePath)
         }
     }
 }

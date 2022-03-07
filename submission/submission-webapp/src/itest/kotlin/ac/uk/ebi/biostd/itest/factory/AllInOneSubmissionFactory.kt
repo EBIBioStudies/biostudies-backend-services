@@ -117,7 +117,10 @@ fun allInOneRootSectionFilesTable() = filesTable {
     }
 }
 
-fun allInOneSubsection() = section("Stranded Total RNA-Seq") { this.accNo = "SUBSECT-001" }
+fun allInOneSubsection() = section("Stranded Total RNA-Seq") {
+    this.accNo = "SUBSECT-001"
+    attribute("File List", "sub-folder/file-list2.json")
+}
 
 fun allInOneSubSectionLinksTable() = linksTable {
     link("EGAD00001001282") {

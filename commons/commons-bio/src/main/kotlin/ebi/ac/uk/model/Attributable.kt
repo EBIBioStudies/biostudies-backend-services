@@ -9,7 +9,7 @@ interface Attributable {
 
     fun find(attr: Any): String? = attributes.find { it.name == attr.toString() }?.value
 
-    operator fun set(attr: Any, value: String) {
+    operator fun set(attr: Any, value: String?) {
         when (val attribute = attributes.find { it.name == attr.toString() }) {
             null -> attributes = attributes + Attribute(attr.toString(), value)
             else -> attribute.value = value
