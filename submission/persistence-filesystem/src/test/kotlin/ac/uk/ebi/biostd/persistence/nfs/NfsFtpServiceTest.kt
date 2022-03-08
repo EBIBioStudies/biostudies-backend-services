@@ -50,7 +50,7 @@ internal class NfsFtpServiceTest(
 
     @Test
     fun `create ftp folder`() {
-        every { submissionQueryService.getExtByAccNo("S-BSST0") } returns extSubmission
+        every { submissionQueryService.getExtByAccNo("S-BSST0", true) } returns extSubmission
 
         testInstance.generateFtpLinks("S-BSST0")
 
