@@ -19,6 +19,7 @@ import org.bson.types.ObjectId
 import java.io.File
 
 internal fun Either<ExtFile, ExtFileTable>.toDocFiles() = bimap(ExtFile::toDocFile, ExtFileTable::toDocFileTable)
+
 internal fun ExtFileList.toDocFileList(
     submissionId: ObjectId,
     accNo: String,
@@ -27,6 +28,7 @@ internal fun ExtFileList.toDocFileList(
     val listFiles =
         files.mapIndexed { index, file -> toFileDocListFile(submissionId, accNo, fileName, version, index, file) }
     val pageTabFiles = pageTabFiles.map { it.toDocFile() }
+
     return Pair(DocFileList(filePath, pageTabFiles), listFiles)
 }
 
@@ -50,7 +52,9 @@ private fun toFileDocListFile(
     )
 
 private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFile() })
+
 private fun fileType(file: File): String = if (file.isDirectory) "directory" else "file"
+
 internal fun ExtFile.toDocFile(): DocFile = when (this) {
     is FireFile -> FireDocFile(
         fileName = fileName,
