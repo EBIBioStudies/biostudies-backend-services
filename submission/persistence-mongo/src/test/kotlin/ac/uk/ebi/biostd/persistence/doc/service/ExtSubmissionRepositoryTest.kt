@@ -3,14 +3,16 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
-import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
+import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.TestConfig
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
+import java.time.Duration
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,20 +33,20 @@ import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO
 import uk.ac.ebi.extended.test.SubmissionFactory.OWNER
 import uk.ac.ebi.extended.test.SubmissionFactory.SUBMITTER
 import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
-import java.time.Duration
 
 @Testcontainers
-@SpringBootTest(classes = [MongoDbReposConfig::class])
+@SpringBootTest(classes = [TestConfig::class])
 class ExtSubmissionRepositoryTest(
     @Autowired private val subDataRepository: SubmissionDocDataRepository,
     @Autowired private val draftDocDataRepository: SubmissionDraftDocDataRepository,
-    @Autowired private val fileListDocFileRepository: FileListDocFileRepository
+    @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
+    @Autowired private val toExtSectionMapper: ToExtSectionMapper,
 ) {
     private val testInstance = ExtSubmissionRepository(
         subDataRepository,
         draftDocDataRepository,
         fileListDocFileRepository,
-        ToExtSubmissionMapper(fileListDocFileRepository)
+        ToExtSubmissionMapper(toExtSectionMapper)
     )
 
     @BeforeEach

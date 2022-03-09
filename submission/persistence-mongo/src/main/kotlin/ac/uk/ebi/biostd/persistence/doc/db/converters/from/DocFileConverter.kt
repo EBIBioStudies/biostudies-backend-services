@@ -22,7 +22,6 @@ import org.springframework.core.convert.converter.Converter
 
 class DocFileConverter(private val docAttributeConverter: DocAttributeConverter) : Converter<Document, DocFile> {
     override fun convert(source: Document): DocFile {
-
         val fileName = source.getString(FILE_DOC_FILENAME)
         val filePath = source.getString(FILE_DOC_FILEPATH)
         val relPath = source.getString(FILE_DOC_REL_PATH)
