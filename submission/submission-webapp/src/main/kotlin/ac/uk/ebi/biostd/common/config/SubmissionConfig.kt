@@ -10,8 +10,10 @@ import ac.uk.ebi.biostd.submission.domain.service.CollectionService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.web.handlers.MetadataUpdateWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
+import ac.uk.ebi.biostd.submission.web.handlers.WebHandlerHelper
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -74,11 +76,14 @@ class SubmissionConfig(
     ): CollectionService = CollectionService(collectionSqlDataService, userPrivilegeService)
 
     @Bean
+    fun webHandlerHelper(securityService: ISecurityQueryService): WebHandlerHelper = WebHandlerHelper(securityService)
+
+    @Bean
     fun submitHandler(
         submissionService: SubmissionService,
         userFilesService: UserFilesService,
-        securityQueryService: ISecurityQueryService,
-        extSubmissionService: ExtSubmissionService
+        extSubmissionService: ExtSubmissionService,
+        webHandlerHelper: WebHandlerHelper
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
@@ -86,7 +91,23 @@ class SubmissionConfig(
             sourceGenerator,
             serializationService,
             userFilesService,
-            securityQueryService
+            webHandlerHelper
+        )
+
+    @Bean
+    fun metadataUpdateWebHandler(
+        sourceGenerator: SourceGenerator,
+        webHandlerHelper: WebHandlerHelper,
+        submissionService: SubmissionService,
+        serializationService: SerializationService,
+        extSubmissionService: ExtSubmissionService
+    ): MetadataUpdateWebHandler =
+        MetadataUpdateWebHandler(
+            sourceGenerator,
+            webHandlerHelper,
+            submissionService,
+            serializationService,
+            extSubmissionService
         )
 
     @Bean

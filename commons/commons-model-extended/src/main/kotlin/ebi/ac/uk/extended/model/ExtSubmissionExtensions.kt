@@ -14,8 +14,16 @@ val ExtSubmission.allSectionsFiles
 val ExtSubmission.isCollection
     get(): Boolean = section.type == PROJECT_TYPE
 
-val ExtSubmission.filesPath
-    get(): String = "$relPath/Files"
-
 val ExtSubmission.computedTitle
     get(): String? = title ?: section.title
+
+fun ExtSubmission.allFiles(): Sequence<ExtFile> = allFileListFiles().plus(allSectionsFiles).plus(pageTabFiles)
+
+/**
+ * Returns all file list files. Note that sequence is used instead regular iterable to avoid loading all submission
+ * files before start processing.
+ */
+fun ExtSubmission.allFileListFiles(): Sequence<ExtFile> =
+    allFileList
+        .flatMap { it.files + it.pageTabFiles }
+        .asSequence()

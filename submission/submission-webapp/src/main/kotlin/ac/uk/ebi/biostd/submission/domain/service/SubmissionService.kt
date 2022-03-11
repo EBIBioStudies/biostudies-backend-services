@@ -39,6 +39,8 @@ class SubmissionService(
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         val (accNo, version) = submissionSubmitter.submitAsync(rqt)
+
+        // TODO this needs to be removed since it might be processing the submission twice
         return processSubmission(accNo, version)
     }
 

@@ -19,16 +19,16 @@ class ExtFileListSource(
     override fun exists(filePath: String): Boolean = files.any { it.fileName == filePath }
 
     override fun getFile(filePath: String): BioFile {
-        val file = files.firstOrNull { it.fileName == filePath } ?: throw FileNotFoundException(filePath)
+        val file = files.firstOrNull { it.filePath == filePath } ?: throw FileNotFoundException(filePath)
         return when (file) {
             is FireFile -> FireBioFile(
                 file.fireId,
-                file.fileName,
+                file.filePath,
                 file.md5,
                 file.size,
                 lazy { fireWebClient.downloadByFireId(file.fireId, file.fileName).readText() }
             )
-            is FireDirectory -> FireDirectoryBioFile(file.fileName, file.md5, file.size)
+            is FireDirectory -> FireDirectoryBioFile(file.filePath, file.md5, file.size)
             is NfsFile -> NfsBioFile(file.file)
         }
     }

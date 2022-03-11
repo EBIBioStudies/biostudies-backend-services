@@ -42,9 +42,15 @@ class ExtSubmissionService(
     private val extSerializationService: ExtSerializationService,
     private val eventsPublisherService: EventsPublisherService
 ) {
-    fun getExtendedSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
+    fun getExtendedSubmission(
+        accNo: String,
+        includeFileListFiles: Boolean = false
+    ): ExtSubmission = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles)
 
-    fun findExtendedSubmission(accNo: String): ExtSubmission? = submissionQueryService.findExtByAccNo(accNo)
+    fun findExtendedSubmission(
+        accNo: String,
+        includeFileListFiles: Boolean = false
+    ): ExtSubmission? = submissionQueryService.findExtByAccNo(accNo, includeFileListFiles)
 
     fun getReferencedFiles(
         accNo: String,

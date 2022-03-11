@@ -35,7 +35,7 @@ class SubmitWebHandler(
     private val sourceGenerator: SourceGenerator,
     private val serializationService: SerializationService,
     private val userFilesService: UserFilesService,
-    private val securityQueryService: ISecurityQueryService
+    private val webHelper: WebHandlerHelper
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission =
         submissionService.submit(buildRequest(request)).toSimpleSubmission()
@@ -49,7 +49,7 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: ContentSubmitWebRequest): SubmitRequest {
         val sub = serializationService.deserializeSubmission(request.submission, request.format)
-        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.also { requireProcessed(it) }
+        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.also { webHelper.requireProcessed(it) }
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
@@ -64,7 +64,7 @@ class SubmitWebHandler(
         return SubmitRequest(
             submission = submission,
             submitter = request.submitter,
-            onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
+            onBehalfUser = request.onBehalfRequest?.let { webHelper.getOnBehalfUser(it) },
             method = PAGE_TAB,
             sources = source,
             mode = request.fileMode,
@@ -74,7 +74,7 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: FileSubmitWebRequest): SubmitRequest {
         val sub = serializationService.deserializeSubmission(request.submission)
-        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.apply { requireProcessed(this) }
+        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.apply { webHelper.requireProcessed(this) }
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
@@ -89,21 +89,11 @@ class SubmitWebHandler(
         return SubmitRequest(
             submission = submission,
             submitter = request.submitter,
-            onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
+            onBehalfUser = request.onBehalfRequest?.let { webHelper.getOnBehalfUser(it) },
             sources = source,
             method = FILE,
             mode = request.fileMode
         )
-    }
-
-    private fun getOnBehalfUser(onBehalfRequest: OnBehalfRequest): SecurityUser {
-        val request = onBehalfRequest.asRegisterRequest()
-        return if (request.register) registerInactive(request) else securityQueryService.getUser(request.userEmail)
-    }
-
-    private fun registerInactive(registerRequest: GetOrRegisterUserRequest): SecurityUser {
-        requireNotNull(registerRequest.userName) { "A valid user name must be provided for registration" }
-        return securityQueryService.getOrCreateInactive(registerRequest.userEmail, registerRequest.userName!!)
     }
 
     private fun withAttributes(submission: Submission, attrs: Map<String, String?>): Submission {
@@ -114,9 +104,8 @@ class SubmitWebHandler(
     private fun submission(content: String, format: SubFormat, source: FilesSource) =
         serializationService.deserializeSubmission(content, format, source)
 
-    private fun submission(subFile: File, source: FilesSource) =
-        serializationService.deserializeSubmission(subFile, source)
-
-    private fun requireProcessed(sub: ExtSubmission) =
-        require(sub.status == PROCESSED) { throw ConcurrentProcessingSubmissionException(sub.accNo) }
+    private fun submission(
+        subFile: File,
+        source: FilesSource
+    ) = serializationService.deserializeSubmission(subFile, source)
 }

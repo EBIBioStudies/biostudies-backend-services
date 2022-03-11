@@ -25,6 +25,8 @@ class SourceGenerator(
         return ComposedFileSource(submissionSources(user, files, rootPath.orEmpty(), previousFiles))
     }
 
+    fun submissionsList(listFiles: List<ExtFile>): FilesSource = ExtFileListSource(fireWebClient, listFiles)
+
     private fun submissionSources(
         user: SecurityUser?,
         files: List<File>,
@@ -41,8 +43,6 @@ class SourceGenerator(
 
     private fun userSourcesList(user: SecurityUser, rootPath: String): List<FilesSource> =
         listOf(createPathSource(user.magicFolder.path, rootPath)).plus(groupSources(user.groupsFolders))
-
-    private fun submissionsList(listFiles: List<ExtFile>): FilesSource = ExtFileListSource(fireWebClient, listFiles)
 
     private fun createPathSource(folder: Path, rootPath: String) = PathFilesSource(folder.resolve(rootPath))
 
