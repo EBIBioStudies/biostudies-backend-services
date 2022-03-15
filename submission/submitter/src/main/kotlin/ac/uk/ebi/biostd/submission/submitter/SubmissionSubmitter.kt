@@ -18,8 +18,8 @@ import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.base.orFalse
+import ebi.ac.uk.extended.mapping.from.ToExtSection
 import ebi.ac.uk.extended.mapping.from.toExtAttribute
-import ebi.ac.uk.extended.mapping.from.toExtSection
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus
@@ -59,7 +59,8 @@ class SubmissionSubmitter(
     private val queryService: SubmissionMetaQueryService,
     private val submissionQueryService: SubmissionQueryService,
     private val draftService: SubmissionDraftService,
-    private val properties: ApplicationProperties
+    private val properties: ApplicationProperties,
+    private val toExtSection: ToExtSection
 ) {
     fun submitAsync(rqt: SubmitRequest): Pair<String, Int> {
         logger.info { "${rqt.accNo} ${rqt.submitter.email} Processing async request $rqt" }
@@ -145,7 +146,7 @@ class SubmissionSubmitter(
             creationTime = createTime,
             tags = submission.tags.map { ExtTag(it.first, it.second) },
             collections = tags.map { ExtCollection(it) },
-            section = submission.section.toExtSection(source),
+            section = toExtSection.convert(submission.section, source),
             attributes = getAttributes(submission),
             storageMode = if (properties.persistence.enableFire) FIRE else NFS
         )

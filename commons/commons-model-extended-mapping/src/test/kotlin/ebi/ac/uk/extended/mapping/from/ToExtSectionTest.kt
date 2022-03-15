@@ -8,6 +8,7 @@ import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
+import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Attribute
@@ -23,6 +24,7 @@ import ebi.ac.uk.util.collections.second
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -44,8 +46,7 @@ class ToExtSectionTest(
     @MockK val extFile: ExtFile,
     @MockK val extFileTable: ExtFileTable,
     @MockK val extLink: ExtLink,
-    @MockK val extLinkTable: ExtLinkTable,
-    @MockK val extSectionTable: ExtSectionTable
+    @MockK val extLinkTable: ExtLinkTable
 ) {
     private val subSection = Section(type = "subtype", accNo = "accNo1")
     private val section = Section(
@@ -57,30 +58,30 @@ class ToExtSectionTest(
         links = mutableListOf(left(link), right(linkTable)),
         sections = mutableListOf(left(subSection), right(sectionTable))
     )
+    private val toExtFileList: ToExtFileList = mockk()
+    private val testInstance = ToExtSection(toExtFileList)
 
     @Test
     fun toExtSection() {
         mockkStatic(
             TO_EXT_ATTRIBUTE_EXTENSIONS,
             TO_EXT_FILE_EXTENSIONS,
-            TO_EXT_LIBRARY_FILE_EXTENSIONS,
             TO_EXT_LINK_EXTENSIONS,
             TO_EXT_TABLE_EXTENSIONS,
             TO_EXT_SECTION_EXTENSIONS
         ) {
-
             every { attribute.name } returns "attr1"
             every { fileListAttribute.name } returns SectionFields.FILE_LIST.value
             every { attribute.toExtAttribute() } returns extAttribute
             every { file.toExtFile(fileSource) } returns extFile
-            every { fileList.toExtFileList(fileSource) } returns extFileList
+            every { toExtFileList.convert(fileList, fileSource) } returns extFileList
             every { link.toExtLink() } returns extLink
             every { fileTable.toExtTable(fileSource) } returns extFileTable
             every { linkTable.toExtTable() } returns extLinkTable
-            every { sectionTable.toExtTable(fileSource) } returns extSectionTable
-            every { fileList.toExtFileList(fileSource) } returns extFileList
+            every { sectionTable.elements } returns emptyList()
 
-            val sectionResult = section.toExtSection(fileSource)
+            val sectionResult = testInstance.convert(section, fileSource)
+
             assertThat(sectionResult.accNo).isEqualTo(section.accNo)
             assertThat(sectionResult.type).isEqualTo(section.type)
             assertThat(sectionResult.fileList).isEqualTo(extFileList)
@@ -89,11 +90,28 @@ class ToExtSectionTest(
             assertThat(sectionResult.files.second()).isEqualTo(right(extFileTable))
             assertThat(sectionResult.links.first()).isEqualTo(left(extLink))
             assertThat(sectionResult.links.second()).isEqualTo(right(extLinkTable))
-            assertThat(sectionResult.sections.second()).isEqualTo(right(extSectionTable))
+            assertThat(sectionResult.sections.second()).isEqualTo(right(ExtSectionTable(emptyList())))
             sectionResult.sections.first().mapLeft {
                 assertThat(it.type).isEqualTo("subtype")
                 assertThat(it.accNo).isEqualTo("accNo1")
             }
         }
+    }
+
+    @Test
+    fun `SectionTable toExtTable`(
+        @MockK filesSource: FilesSource,
+        @MockK section: Section,
+        @MockK sectionTable: SectionsTable,
+        @MockK extSection: ExtSection
+    ) {
+        every { sectionTable.elements } returns listOf(section)
+        every { testInstance.convert(section, filesSource) } returns extSection
+        every { testInstance.toExtTable(sectionTable, filesSource) } answers { callOriginal() }
+        every { sectionTable.elements } returns listOf()
+
+        val result = testInstance.toExtTable(sectionTable, filesSource)
+
+        assertThat(result.sections).isEmpty()
     }
 }
