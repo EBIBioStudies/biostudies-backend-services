@@ -140,10 +140,11 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         section = newRootSection,
         pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile)
     )
+    private val testInstance: ToDocSubmission = ToDocSubmission(ToDocSection(ToDocFileList()))
 
     @Test
     fun `to Doc Submission with a file inside the section and another file inside the inner section`() {
-        val (docSubmission, listFiles) = submission.toDocSubmission()
+        val (docSubmission, listFiles) = testInstance.convert(submission)
 
         assertDocSubmission(docSubmission)
         assertListFiles(listFiles, docSubmission)

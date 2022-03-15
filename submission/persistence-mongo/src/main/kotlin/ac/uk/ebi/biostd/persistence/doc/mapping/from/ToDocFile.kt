@@ -19,15 +19,20 @@ import org.bson.types.ObjectId
 import java.io.File
 
 internal fun Either<ExtFile, ExtFileTable>.toDocFiles() = bimap(ExtFile::toDocFile, ExtFileTable::toDocFileTable)
-internal fun ExtFileList.toDocFileList(
-    submissionId: ObjectId,
-    accNo: String,
-    version: Int
-): Pair<DocFileList, List<FileListDocFile>> {
-    val listFiles =
-        files.mapIndexed { index, file -> toFileDocListFile(submissionId, accNo, fileName, version, index, file) }
-    val pageTabFiles = pageTabFiles.map { it.toDocFile() }
-    return Pair(DocFileList(filePath, pageTabFiles), listFiles)
+
+class ToDocFileList {
+    internal fun convert(
+        extFileList: ExtFileList,
+        submissionId: ObjectId,
+        accNo: String,
+        version: Int
+    ): Pair<DocFileList, List<FileListDocFile>> {
+        val listFiles = extFileList.files.mapIndexed { index, file ->
+            toFileDocListFile(submissionId, accNo, extFileList.fileName, version, index, file)
+        }
+        val pageTabFiles = extFileList.pageTabFiles.map { it.toDocFile() }
+        return Pair(DocFileList(extFileList.filePath, pageTabFiles), listFiles)
+    }
 }
 
 @Suppress("LongParameterList")

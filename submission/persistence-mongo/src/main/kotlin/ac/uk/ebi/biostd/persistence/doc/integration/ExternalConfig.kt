@@ -6,6 +6,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocFileList
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSection
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmission
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.ExtSubmissionRepository
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceService
@@ -45,13 +48,24 @@ class ExternalConfig {
         subDataRepository: SubmissionDocDataRepository,
         draftDocDataRepository: SubmissionDraftDocDataRepository,
         fileListDocFileRepository: FileListDocFileRepository,
-        toExtSubmissionMapper: ToExtSubmissionMapper
+        toExtSubmissionMapper: ToExtSubmissionMapper,
+        toDocSubmission: ToDocSubmission
     ): ExtSubmissionRepository {
         return ExtSubmissionRepository(
             subDataRepository,
             draftDocDataRepository,
             fileListDocFileRepository,
-            toExtSubmissionMapper
+            toExtSubmissionMapper,
+            toDocSubmission
         )
     }
+
+    @Bean
+    internal fun toDocSubmission(toDocSection: ToDocSection): ToDocSubmission = ToDocSubmission(toDocSection)
+
+    @Bean
+    internal fun toDocSection(toDocFileList: ToDocFileList): ToDocSection = ToDocSection(toDocFileList)
+
+    @Bean
+    internal fun toDocFileList(): ToDocFileList = ToDocFileList()
 }

@@ -15,42 +15,46 @@ import org.bson.types.ObjectId
 
 typealias EitherList <A, B> = List<Either<A, B>>
 
-internal fun ExtSection.toDocSection(accNo: String, version: Int, submissionId: ObjectId): DocSectionData {
-    val sections = sections.map { it.toDocSections(accNo, version, submissionId) }
-    val (sectionFileList, sectionFiles) = fileList?.toDocFileList(submissionId, accNo, version)
-    return DocSectionData(
-        section = toDocSection(sectionFileList, sections.subSections()),
-        fileListFiles = sectionFiles.orEmpty() + sections.subSectionsFiles()
+class ToDocSection(private val toDocFileList: ToDocFileList) {
+    internal fun convert(section: ExtSection, accNo: String, version: Int, subId: ObjectId): DocSectionData {
+        val sections = section.sections.map { it.toDocSections(accNo, version, subId) }
+        val (sectionFileList, sectionFiles) = section.fileList?.let {
+            toDocFileList.convert(it, subId, accNo, version)
+        }
+        return DocSectionData(
+            section = section.convert(sectionFileList, sections.subSections()),
+            fileListFiles = sectionFiles.orEmpty() + sections.subSectionsFiles()
+        )
+    }
+
+    private fun EitherList<DocSectionData, DocSectionTable>.subSections(): EitherList<DocSection, DocSectionTable> =
+        map { either -> either.mapLeft { it.section } }
+
+    private fun EitherList<DocSectionData, DocSectionTable>.subSectionsFiles(): List<FileListDocFile> =
+        mapLeft { it.fileListFiles }.flatten()
+
+    private fun ExtSection.convert(
+        fileList: DocFileList?,
+        sections: EitherList<DocSection, DocSectionTable>,
+    ) = DocSection(
+        id = ObjectId(),
+        accNo = accNo,
+        type = type,
+        fileList = fileList,
+        attributes = attributes.map { it.toDocAttribute() },
+        files = files.map { it.toDocFiles() },
+        links = links.map { it.toDocLinks() },
+        sections = sections
     )
-}
 
-private fun EitherList<DocSectionData, DocSectionTable>.subSections(): EitherList<DocSection, DocSectionTable> =
-    map { either -> either.mapLeft { it.section } }
+    private fun ExtSection.toDocTableSection() = DocSectionTableRow(accNo, type, attributes.map { it.toDocAttribute() })
+    private fun ExtSectionTable.toDocSectionTable() = DocSectionTable(sections.map { it.toDocTableSection() })
 
-private fun EitherList<DocSectionData, DocSectionTable>.subSectionsFiles(): List<FileListDocFile> =
-    mapLeft { it.fileListFiles }.flatten()
-
-private fun ExtSection.toDocSection(
-    fileList: DocFileList?,
-    sections: EitherList<DocSection, DocSectionTable>
-) = DocSection(
-    id = ObjectId(),
-    accNo = accNo,
-    type = type,
-    fileList = fileList,
-    attributes = attributes.map { it.toDocAttribute() },
-    files = files.map { it.toDocFiles() },
-    links = links.map { it.toDocLinks() },
-    sections = sections
-)
-
-private fun ExtSection.toDocTableSection() = DocSectionTableRow(accNo, type, attributes.map { it.toDocAttribute() })
-private fun ExtSectionTable.toDocSectionTable() = DocSectionTable(sections.map { it.toDocTableSection() })
-
-private fun Either<ExtSection, ExtSectionTable>.toDocSections(
-    accNo: String,
-    version: Int,
-    submissionId: ObjectId,
-): Either<DocSectionData, DocSectionTable> {
-    return bimap({ it.toDocSection(accNo, version, submissionId) }, ExtSectionTable::toDocSectionTable)
+    private fun Either<ExtSection, ExtSectionTable>.toDocSections(
+        accNo: String,
+        version: Int,
+        submissionId: ObjectId,
+    ): Either<DocSectionData, DocSectionTable> {
+        return bimap({ convert(it, accNo, version, submissionId) }) { it.toDocSectionTable() }
+    }
 }
