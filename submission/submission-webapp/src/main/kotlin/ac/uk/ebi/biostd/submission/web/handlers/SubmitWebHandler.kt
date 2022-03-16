@@ -36,7 +36,7 @@ class SubmitWebHandler(
     private val serializationService: SerializationService,
     private val userFilesService: UserFilesService,
     private val securityQueryService: ISecurityQueryService,
-    private val toSubmission: ToSubmission,
+    private val toSubmission: ToSubmission
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission =
         toSubmission.toSimpleSubmission(submissionService.submit(buildRequest(request)))

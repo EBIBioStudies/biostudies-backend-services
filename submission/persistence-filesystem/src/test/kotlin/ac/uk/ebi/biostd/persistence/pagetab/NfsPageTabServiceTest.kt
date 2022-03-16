@@ -63,11 +63,9 @@ class NfsPageTabServiceTest(
             subFolder.createNewFile("S-TEST123.pagetab.tsv"),
         )
         every {
-            pageTabUtil.generateFileListPageTab(
-                serializationService,
+            pageTabUtil.generateFileListPageTab(serializationService,
                 submission,
-                subFolder.resolve("Files")
-            )
+                subFolder.resolve("Files"))
         } returns mapOf(
             "file-list2" to PageTabFiles(
                 subFolder.createNewFile("Files/file-list2.json"),
