@@ -17,13 +17,15 @@ internal class ToFileListTest(
     @MockK val extFile: ExtFile
 ) {
     private val extFileList = ExtFileList("fileList", listOf(extFile))
+    private val testInstance = ToFileList()
 
     @Test
     fun toExtFileList() {
         mockkStatic(TO_FILE_EXTENSIONS) {
             every { extFile.toFile() } returns file
 
-            val fileList = extFileList.toFileList()
+            val fileList = testInstance.convert(extFileList)
+
             assertThat(fileList.referencedFiles.first()).isEqualTo(file)
             assertThat(fileList.name).isEqualTo(this.extFileList.filePath)
         }

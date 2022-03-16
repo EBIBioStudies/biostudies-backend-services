@@ -3,8 +3,7 @@ package ac.uk.ebi.biostd.persistence.pagetab
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.NfsPageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabFiles
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.generateFileListPageTab
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.generateSubPageTab
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
 import arrow.core.Either
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtFileList
@@ -23,21 +22,22 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
+import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.nio.file.Paths
 import ebi.ac.uk.asserts.assertThat as assertThatEither
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class NfsPageTabServiceTest(
     tempFolder: TemporaryFolder,
-    @MockK private val serializationService: SerializationService
+    @MockK private val serializationService: SerializationService,
+    @MockK private val pageTabUtil: PageTabUtil,
 ) {
     private val rootPath = tempFolder.root
     private val folderResolver = SubmissionFolderResolver(Paths.get("$rootPath/submission"), Paths.get("$rootPath/ftp"))
-    private val testInstance = NfsPageTabService(folderResolver, serializationService)
+    private val testInstance = NfsPageTabService(folderResolver, serializationService, pageTabUtil)
     private val subFolder = tempFolder.root.resolve("submission/S-TEST/123/S-TEST123")
 
     @BeforeEach
@@ -60,12 +60,16 @@ class NfsPageTabServiceTest(
     private fun setUpGeneratePageTab(submission: ExtSubmission) {
         mockkStatic("ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtilKt")
 
-        every { serializationService.generateSubPageTab(submission, subFolder) } returns PageTabFiles(
+        every { pageTabUtil.generateSubPageTab(serializationService, submission, subFolder) } returns PageTabFiles(
             subFolder.createNewFile("S-TEST123.json"),
             subFolder.createNewFile("S-TEST123.xml"),
             subFolder.createNewFile("S-TEST123.pagetab.tsv"),
         )
-        every { serializationService.generateFileListPageTab(submission, subFolder.resolve("Files")) } returns mapOf(
+        every {
+            pageTabUtil.generateFileListPageTab(serializationService,
+                submission,
+                subFolder.resolve("Files"))
+        } returns mapOf(
             "file-list2" to PageTabFiles(
                 subFolder.createNewFile("Files/file-list2.json"),
                 subFolder.createNewFile("Files/file-list2.xml"),

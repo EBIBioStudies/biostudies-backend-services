@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.persistence.filesystem.extSubmissionWithFileList
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ebi.ac.uk.extended.mapping.to.ToSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
@@ -39,7 +39,8 @@ import java.nio.file.attribute.PosixFilePermission
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class NfsFilesServiceTest(
     private val tempFolder: TemporaryFolder,
-    @MockK private val mockSerializationService: SerializationService
+    @MockK private val mockSerializationService: SerializationService,
+    @MockK private val toSubmission: ToSubmission
 ) {
     private lateinit var extSubmission: ExtSubmission
 
@@ -56,7 +57,7 @@ class NfsFilesServiceTest(
         val sectionFolder = tempFolder.createDirectory("fileDirectory")
         extSubmission = extSubmissionWithFileList(listOf(file1, file1, sectionFolder), listOf(file2, file1))
 
-        val simpleSubmission = extSubmission.toSimpleSubmission()
+        val simpleSubmission = toSubmission.toSimpleSubmission(extSubmission)
         sectionFolder.createNewFile("file3.txt", "folder-file-content")
 
         every { mockSerializationService.serializeSubmission(simpleSubmission, XML) } returns ""

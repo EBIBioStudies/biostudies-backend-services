@@ -13,6 +13,9 @@ import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
+import ebi.ac.uk.extended.mapping.to.ToFileList
+import ebi.ac.uk.extended.mapping.to.ToSection
+import ebi.ac.uk.extended.mapping.to.ToSubmission
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -86,7 +89,8 @@ class SubmissionConfig(
             sourceGenerator,
             serializationService,
             userFilesService,
-            securityQueryService
+            securityQueryService,
+            ToSubmission(ToSection(ToFileList()))
         )
 
     @Bean

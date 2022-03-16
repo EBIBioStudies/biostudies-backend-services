@@ -16,6 +16,9 @@ import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoQueryService
+import ebi.ac.uk.extended.mapping.to.ToFileList
+import ebi.ac.uk.extended.mapping.to.ToSection
+import ebi.ac.uk.extended.mapping.to.ToSubmission
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -30,13 +33,15 @@ class MongoDbServicesConfig {
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
         fileListDocFileRepository: FileListDocFileRepository,
         serializationService: ExtSerializationService,
-        toExtSubmissionMapper: ToExtSubmissionMapper
+        toExtSubmissionMapper: ToExtSubmissionMapper,
+        toSubmission: ToSubmission
     ): SubmissionQueryService = SubmissionMongoQueryService(
         submissionDocDataRepository,
         submissionRequestDocDataRepository,
         fileListDocFileRepository,
         serializationService,
-        toExtSubmissionMapper
+        toExtSubmissionMapper,
+        ToSubmission(ToSection(ToFileList()))
     )
 
     @Bean
@@ -53,12 +58,23 @@ class MongoDbServicesConfig {
     internal fun submissionDraftMongoService(
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
         submissionQueryService: SubmissionQueryService,
-        serializationService: SerializationService
+        serializationService: SerializationService,
+//        toSubmission: ToSubmission
     ): SubmissionDraftService = SubmissionDraftMongoService(
         submissionDraftDocDataRepository,
         submissionQueryService,
-        serializationService
+        serializationService,
+        ToSubmission(ToSection(ToFileList()))
     )
+
+//    @Bean
+//    fun toSubmission(toSection: ToSection): ToSubmission = ToSubmission(toSection)
+//
+//    @Bean
+//    fun toSection(toFileList: ToFileList): ToSection = ToSection(toFileList)
+//
+//    @Bean
+//    fun toFileList(): ToFileList = ToFileList()
 
     @Bean
     internal fun submissionMongoMetaQueryService(

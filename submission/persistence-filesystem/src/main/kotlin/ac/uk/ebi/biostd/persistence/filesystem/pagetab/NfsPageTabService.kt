@@ -11,12 +11,14 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 
 class NfsPageTabService(
     private val folderResolver: SubmissionFolderResolver,
-    private val serializationService: SerializationService
+    private val serializationService: SerializationService,
+    private val pageTabUtil: PageTabUtil,
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
         val submissionFolder = folderResolver.getSubFolder(sub.relPath).toFile()
-        val subFiles = serializationService.generateSubPageTab(sub, submissionFolder)
-        val fileListFiles = serializationService.generateFileListPageTab(sub, submissionFolder.resolve("Files"))
+        val subFiles = pageTabUtil.generateSubPageTab(serializationService, sub, submissionFolder)
+        val fileListFiles =
+            pageTabUtil.generateFileListPageTab(serializationService, sub, submissionFolder.resolve("Files"))
         val section = process(sub.section) { updateFileList(it, fileListFiles) }
 
         return when {

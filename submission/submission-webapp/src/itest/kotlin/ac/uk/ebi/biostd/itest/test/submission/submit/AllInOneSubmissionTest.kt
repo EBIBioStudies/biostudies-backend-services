@@ -13,6 +13,9 @@ import ac.uk.ebi.biostd.itest.factory.submissionSpecJson
 import ac.uk.ebi.biostd.itest.factory.submissionSpecTsv
 import ac.uk.ebi.biostd.itest.factory.submissionSpecXml
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ebi.ac.uk.extended.mapping.to.ToFileList
+import ebi.ac.uk.extended.mapping.to.ToSection
+import ebi.ac.uk.extended.mapping.to.ToSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.junit.jupiter.api.BeforeAll
@@ -42,12 +45,13 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
 
         private lateinit var webClient: BioWebClient
         private lateinit var allInOneSubmissionHelper: AllInOneSubmissionHelper
+        private val toSubmission = ToSubmission(ToSection(ToFileList()))
 
         @BeforeAll
         fun init() {
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
-            allInOneSubmissionHelper = AllInOneSubmissionHelper(submissionPath, submissionRepository)
+            allInOneSubmissionHelper = AllInOneSubmissionHelper(submissionPath, submissionRepository, toSubmission)
         }
 
         @Test
