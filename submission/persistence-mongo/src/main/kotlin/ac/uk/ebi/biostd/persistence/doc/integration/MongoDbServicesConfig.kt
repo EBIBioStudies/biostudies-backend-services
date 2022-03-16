@@ -16,6 +16,9 @@ import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoQueryService
+import ebi.ac.uk.extended.mapping.to.ToFileList
+import ebi.ac.uk.extended.mapping.to.ToSection
+import ebi.ac.uk.extended.mapping.to.ToSubmission
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -36,7 +39,8 @@ class MongoDbServicesConfig {
         submissionRequestDocDataRepository,
         fileListDocFileRepository,
         serializationService,
-        toExtSubmissionMapper
+        toExtSubmissionMapper,
+        ToSubmission(ToSection(ToFileList()))
     )
 
     @Bean
@@ -57,7 +61,8 @@ class MongoDbServicesConfig {
     ): SubmissionDraftService = SubmissionDraftMongoService(
         submissionDraftDocDataRepository,
         submissionQueryService,
-        serializationService
+        serializationService,
+        ToSubmission(ToSection(ToFileList()))
     )
 
     @Bean

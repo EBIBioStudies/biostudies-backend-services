@@ -9,14 +9,14 @@ import com.fasterxml.jackson.core.JsonEncoding.UTF8
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ebi.ac.uk.extended.mapping.to.ToSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.isCollection
-import mu.KotlinLogging
-import uk.ac.ebi.scheduler.exporter.config.ApplicationProperties
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
+import mu.KotlinLogging
+import uk.ac.ebi.scheduler.exporter.config.ApplicationProperties
 
 private val logger = KotlinLogging.logger {}
 internal const val SUBMISSIONS = "submissions"
@@ -24,7 +24,8 @@ internal const val SUBMISSIONS = "submissions"
 class PublicOnlyExporterService(
     private val bioWebClient: BioWebClient,
     private val appProperties: ApplicationProperties,
-    private val serializationService: SerializationService
+    private val serializationService: SerializationService,
+    private val toSubmission: ToSubmission
 ) {
     private lateinit var jsonWriter: JsonGenerator
 
@@ -51,7 +52,10 @@ class PublicOnlyExporterService(
         if (extSubmission.isCollection.not()) {
             logger.info { "Exporting public submission '${extSubmission.accNo}'" }
             jsonWriter.writeRawValue(
-                serializationService.serializeSubmission(extSubmission.toSimpleSubmission(), SubFormat.JSON_PRETTY)
+                serializationService.serializeSubmission(
+                    toSubmission.toSimpleSubmission(extSubmission),
+                    SubFormat.JSON_PRETTY
+                )
             )
         }
     }

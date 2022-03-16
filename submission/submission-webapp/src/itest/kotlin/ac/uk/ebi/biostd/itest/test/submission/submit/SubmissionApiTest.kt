@@ -17,7 +17,6 @@ import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import arrow.core.Either
 import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.asserts.assertThat
@@ -73,7 +72,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository,
-        @Autowired val userDataRepository: UserDataRepository,
+        @Autowired val userDataRepository: UserDataRepository
     ) {
         @LocalServerPort
         private var serverPort: Int = 0

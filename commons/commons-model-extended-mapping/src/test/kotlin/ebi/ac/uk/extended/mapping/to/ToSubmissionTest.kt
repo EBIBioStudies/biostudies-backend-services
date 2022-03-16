@@ -9,10 +9,10 @@ import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.test.basicExtSubmission
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 
 class ToSubmissionTest {
     private val extSubmission = basicExtSubmission.copy(
@@ -24,10 +24,11 @@ class ToSubmissionTest {
             ExtAttribute("CollectionValidator", "BioImagesValidator")
         )
     )
+    private val testInstance = ToSubmission(ToSection(ToFileList()))
 
     @Test
     fun toSimpleSubmission() {
-        val submission = extSubmission.toSimpleSubmission()
+        val submission = testInstance.toSimpleSubmission(extSubmission)
         assertThat(submission.accNo).isEqualTo("S-TEST123")
         assertSection(submission)
         assertSubmissionAttributes(submission)

@@ -10,13 +10,14 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.PROCESSING
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ebi.ac.uk.extended.mapping.to.ToSubmission
 import java.time.Instant
 
 class SubmissionDraftMongoService(
     private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     private val submissionQueryService: SubmissionQueryService,
-    private val serializationService: SerializationService
+    private val serializationService: SerializationService,
+    private val toSubmission: ToSubmission,
 ) : SubmissionDraftService {
     override fun getSubmissionDraft(userEmail: String, key: String): SubmissionDraft {
         val draft = draftDocDataRepository.findByUserIdAndKey(userEmail, key) ?: create(userEmail, key)
@@ -46,7 +47,7 @@ class SubmissionDraftMongoService(
         draftDocDataRepository.setStatus(userEmail, key, PROCESSING)
 
     private fun create(userEmail: String, key: String): DocSubmissionDraft {
-        val submission = submissionQueryService.getExtByAccNo(key).toSimpleSubmission()
+        val submission = toSubmission.toSimpleSubmission(submissionQueryService.getExtByAccNo(key))
         val content = serializationService.serializeSubmission(submission, JsonPretty)
         return draftDocDataRepository.createDraft(userEmail, key, content)
     }

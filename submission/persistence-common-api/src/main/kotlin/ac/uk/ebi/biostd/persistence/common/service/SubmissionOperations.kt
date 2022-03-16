@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.Submission
 import org.springframework.data.domain.Page
 
 interface SubmissionPersistenceService {
@@ -16,6 +17,7 @@ interface SubmissionPersistenceService {
     fun releaseSubmission(accNo: String, owner: String, relPath: String)
 }
 
+@Suppress("TooManyFunctions")
 interface SubmissionQueryService {
     fun existByAccNo(accNo: String): Boolean
 
@@ -43,6 +45,8 @@ interface SubmissionQueryService {
     fun getPendingRequest(accNo: String, version: Int): SubmissionRequest
 
     fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile>
+
+    fun getSimpleByAccNo(accNo: String): Submission
 }
 
 interface SubmissionMetaQueryService {

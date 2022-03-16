@@ -24,6 +24,9 @@ import arrow.core.Either.Companion.left
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import ebi.ac.uk.extended.mapping.to.ToFileList
+import ebi.ac.uk.extended.mapping.to.ToSection
+import ebi.ac.uk.extended.mapping.to.ToSubmission
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
@@ -71,7 +74,7 @@ internal class SubmissionMongoQueryServiceTest(
     @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
     @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
-    @Autowired private val requestRepository: SubmissionRequestDocDataRepository
+    @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
 ) {
     private val serializationService: ExtSerializationService = extSerializationService()
     private val testInstance =
@@ -80,7 +83,8 @@ internal class SubmissionMongoQueryServiceTest(
             requestRepository,
             fileListDocFileRepository,
             serializationService,
-            toExtSubmissionMapper
+            toExtSubmissionMapper,
+            ToSubmission(ToSection(ToFileList()))
         )
 
     @Nested

@@ -6,8 +6,6 @@ import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FileList
 
-internal const val TO_EXT_LIBRARY_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.from.ToExtFileListKt"
-
 class ToExtFileList {
     fun convert(fileList: FileList, fileSource: FilesSource): ExtFileList =
         ExtFileList(fileList.name.substringBeforeLast("."), toExtFiles(fileSource, fileList.referencedFiles))

@@ -6,6 +6,11 @@ import ebi.ac.uk.model.FilesTable
 
 internal const val TO_LIBRARY_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.to.ToFileListKt"
 
-fun ExtFileList.toFileList(): FileList = FileList(filePath, files.map { it.toFile() })
+class ToFileList {
+    fun convert(extFileList: ExtFileList): FileList =
+        FileList(extFileList.filePath, extFileList.files.map { it.toFile() })
+}
 
-fun ExtFileList.toFilesTable() = FilesTable(toFileList().referencedFiles)
+class ToFilesTable(private val toFileList: ToFileList) {
+    fun convert(extFileList: ExtFileList) = FilesTable(toFileList.convert(extFileList).referencedFiles)
+}
