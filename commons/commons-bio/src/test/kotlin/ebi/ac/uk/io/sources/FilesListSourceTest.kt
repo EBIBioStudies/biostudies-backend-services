@@ -10,14 +10,13 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class FilesListSourceTest(temporaryFolder: TemporaryFolder) {
-    private val file: File = temporaryFolder.createFile("abc.txt", "the content of file")
-    private val files: List<File> = listOf(file)
+    private val file = temporaryFolder.createFile("abc.txt", "the content of file")
+    private val files = listOf(file)
 
-    private val testInstance: FilesListSource = FilesListSource(files)
+    private val testInstance: FilesListSource = FilesListSource(files, null)
 
     @Test
     fun exists() {
@@ -43,5 +42,12 @@ internal class FilesListSourceTest(temporaryFolder: TemporaryFolder) {
     fun `get non existing file`() {
         val exception = assertThrows<FileNotFoundException> { testInstance.getFile("ghost.txt") }
         assertThat(exception.message).isEqualTo("File not found: ghost.txt")
+    }
+
+    @Test
+    fun `get non existing file with root path`() {
+        val rootPathInstance = FilesListSource(files, "root/path")
+        val exception = assertThrows<FileNotFoundException> { rootPathInstance.getFile("ghost.txt") }
+        assertThat(exception.message).isEqualTo("File not found: root/path/ghost.txt")
     }
 }

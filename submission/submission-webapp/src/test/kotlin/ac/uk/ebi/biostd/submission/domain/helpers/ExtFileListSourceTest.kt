@@ -26,7 +26,6 @@ internal class ExtFileListSourceTest(
     tempFolder: TemporaryFolder,
     @MockK private val fireWebClient: FireWebClient
 ) {
-
     private val nfsFilename = "nfsFile.txt"
     private val fireFilename = "fireFile.txt"
     private val nfsFile = tempFolder.createFile(nfsFilename)
@@ -44,7 +43,7 @@ internal class ExtFileListSourceTest(
         )
     )
 
-    private val testInstance: ExtFileListSource = ExtFileListSource(fireWebClient, files)
+    private val testInstance = ExtFileListSource(fireWebClient, files, null)
 
     @Test
     fun exists() {
@@ -83,5 +82,12 @@ internal class ExtFileListSourceTest(
     fun `get non existing file`() {
         val exception = assertThrows<FileNotFoundException> { testInstance.getFile("ghost.txt") }
         assertThat(exception.message).isEqualTo("File not found: ghost.txt")
+    }
+
+    @Test
+    fun `get non existing file with root path`() {
+        val rootPathInstance = ExtFileListSource(fireWebClient, files, "root/path")
+        val exception = assertThrows<FileNotFoundException> { rootPathInstance.getFile("ghost.txt") }
+        assertThat(exception.message).isEqualTo("File not found: root/path/ghost.txt")
     }
 }

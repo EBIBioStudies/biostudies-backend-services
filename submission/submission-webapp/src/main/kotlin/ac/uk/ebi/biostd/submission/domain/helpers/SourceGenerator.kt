@@ -18,35 +18,41 @@ class SourceGenerator(
     fun userSources(
         user: SecurityUser,
         rootPath: String? = null
-    ): FilesSource = ComposedFileSource(userSourcesList(user, rootPath.orEmpty()))
+    ): FilesSource = ComposedFileSource(userSourcesList(user, rootPath), rootPath)
 
     fun submissionSources(requestSources: RequestSources): FilesSource {
         val (user, files, rootPath, previousFiles) = requestSources
-        return ComposedFileSource(submissionSources(user, files, rootPath.orEmpty(), previousFiles))
+        return ComposedFileSource(submissionSources(user, files, rootPath, previousFiles), rootPath)
     }
 
     private fun submissionSources(
         user: SecurityUser?,
         files: List<File>,
-        rootPath: String,
+        rootPath: String?,
         previousFiles: List<ExtFile>
     ): List<FilesSource> {
-        val sources = mutableListOf<FilesSource>(FilesListSource(files))
+        val sources = mutableListOf<FilesSource>(FilesListSource(files, rootPath))
 
         user?.let { sources.addAll(userSourcesList(it, rootPath)) }
-        sources.add(submissionsList(previousFiles))
+        sources.add(submissionsList(previousFiles, rootPath))
 
         return sources
     }
 
-    private fun userSourcesList(user: SecurityUser, rootPath: String): List<FilesSource> =
+    private fun userSourcesList(user: SecurityUser, rootPath: String?): List<FilesSource> =
         listOf(createPathSource(user.magicFolder.path, rootPath)).plus(groupSources(user.groupsFolders))
 
-    private fun submissionsList(listFiles: List<ExtFile>): FilesSource = ExtFileListSource(fireWebClient, listFiles)
-
-    private fun createPathSource(folder: Path, rootPath: String) = PathFilesSource(folder.resolve(rootPath))
-
     private fun groupSources(groups: List<GroupMagicFolder>) = groups.map { GroupSource(it.groupName, it.path) }
+
+    private fun createPathSource(
+        folder: Path,
+        rootPath: String?
+    ) = PathFilesSource(folder.resolve(rootPath.orEmpty()), rootPath)
+
+    private fun submissionsList(
+        listFiles: List<ExtFile>,
+        rootPath: String?
+    ): FilesSource = ExtFileListSource(fireWebClient, listFiles, rootPath)
 }
 
 data class RequestSources(

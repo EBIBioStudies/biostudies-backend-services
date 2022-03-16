@@ -10,7 +10,7 @@ class GroupSource(groupName: String, private val pathSource: PathFilesSource) : 
 
     private val groupPattern = "/?groups/$groupName/".toRegex()
 
-    constructor(groupName: String, path: Path) : this(groupName, PathFilesSource(path))
+    constructor(groupName: String, path: Path) : this(groupName, PathFilesSource(path, null))
 
     override fun exists(filePath: String): Boolean = pathSource.exists(filePath.remove(groupPattern))
 

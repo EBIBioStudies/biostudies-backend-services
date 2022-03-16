@@ -5,9 +5,13 @@ import ebi.ac.uk.io.ext.size
 import java.io.File
 
 interface FilesSource {
+    val rootPath: String?
+
     fun exists(filePath: String): Boolean
 
     fun getFile(filePath: String): BioFile
+
+    fun fullPath(filePath: String): String = "${rootPath?.plus("/").orEmpty()}$filePath"
 }
 
 sealed class BioFile {

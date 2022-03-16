@@ -16,7 +16,7 @@ internal class ComposedFileSourceTest(
     @MockK private val oneFileSource: FilesSource,
     @MockK private val anotherFileSource: FilesSource
 ) {
-    private val testInstance = ComposedFileSource(listOf(oneFileSource, anotherFileSource))
+    private val testInstance = ComposedFileSource(listOf(oneFileSource, anotherFileSource), null)
     private val filePath = "path/to/a/file.txt"
     private val bioFileMockK = mockk<BioFile>()
 
@@ -40,7 +40,6 @@ internal class ComposedFileSourceTest(
 
     @Nested
     inner class GetFile {
-
         @Test
         fun whenOne() {
             testWhenOne {
@@ -64,6 +63,15 @@ internal class ComposedFileSourceTest(
             testWhenNone {
                 val exception = assertThrows<FileNotFoundException> { testInstance.getFile(filePath) }
                 assertThat(exception.message).isEqualTo("File not found: $filePath")
+            }
+        }
+
+        @Test
+        fun `when none with root path`() {
+            testWhenNone {
+                val rootPathInstance = ComposedFileSource(listOf(oneFileSource, anotherFileSource), "root/path")
+                val exception = assertThrows<FileNotFoundException> { rootPathInstance.getFile(filePath) }
+                assertThat(exception.message).isEqualTo("File not found: root/path/$filePath")
             }
         }
     }

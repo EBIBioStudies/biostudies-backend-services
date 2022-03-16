@@ -14,12 +14,14 @@ import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
 class ExtFileListSource(
     private val fireWebClient: FireWebClient,
-    private val files: List<ExtFile>
+    private val files: List<ExtFile>,
+    override val rootPath: String?
 ) : FilesSource {
     override fun exists(filePath: String): Boolean = files.any { it.fileName == filePath }
 
     override fun getFile(filePath: String): BioFile {
-        val file = files.firstOrNull { it.fileName == filePath } ?: throw FileNotFoundException(filePath)
+        val file = files.firstOrNull { it.fileName == filePath } ?: throw FileNotFoundException(fullPath(filePath))
+
         return when (file) {
             is FireFile -> FireBioFile(
                 file.fireId,

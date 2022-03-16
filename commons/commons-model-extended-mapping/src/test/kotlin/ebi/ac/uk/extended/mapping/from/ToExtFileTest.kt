@@ -26,7 +26,7 @@ internal class ToExtFileTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun `nfs file to ext file`() {
-        val extFile = file.toExtFile(PathFilesSource(tempFolder.root.toPath())) as NfsFile
+        val extFile = file.toExtFile(PathFilesSource(tempFolder.root.toPath(), null)) as NfsFile
 
         assertThat(extFile.fileName).isEqualTo("file.txt")
         assertThat(extFile.filePath).isEqualTo(file.path)
