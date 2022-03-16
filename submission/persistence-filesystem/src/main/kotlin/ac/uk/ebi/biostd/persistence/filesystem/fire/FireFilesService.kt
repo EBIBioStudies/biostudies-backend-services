@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.filesystem.fire
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.request.Md5
-import ac.uk.ebi.biostd.persistence.filesystem.service.processFiles
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireDirectory
@@ -16,13 +16,16 @@ import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
 private val logger = KotlinLogging.logger {}
 
-class FireFilesService(private val fireWebClient: FireWebClient) : FilesService {
+class FireFilesService(
+    private val fireWebClient: FireWebClient,
+    private val fileProcessingService: FileProcessingService,
+) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
         val (sub, _, previousFiles) = request
         logger.info { "${sub.accNo} ${sub.owner} Persisting files of submission ${sub.accNo} on FIRE" }
 
         val config = FireFileProcessingConfig(sub.accNo, sub.owner, sub.relPath, fireWebClient, previousFiles)
-        val processed = processFiles(sub) { config.processFile(request.submission, it) }
+        val processed = fileProcessingService.processFiles(sub) { config.processFile(request.submission, it) }
 
         logger.info { "${sub.accNo} ${sub.owner} Finished persisting files of submission ${sub.accNo} on FIRE" }
 
@@ -35,7 +38,7 @@ data class FireFileProcessingConfig(
     val owner: String,
     val relPath: String,
     val fireWebClient: FireWebClient,
-    val previousFiles: Map<Md5, ExtFile>
+    val previousFiles: Map<Md5, ExtFile>,
 )
 
 fun FireFileProcessingConfig.processFile(sub: ExtSubmission, file: ExtFile): ExtFile =

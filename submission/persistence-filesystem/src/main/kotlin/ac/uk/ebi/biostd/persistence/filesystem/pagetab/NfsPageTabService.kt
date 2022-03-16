@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.persistence.filesystem.service.Section
-import ac.uk.ebi.biostd.persistence.filesystem.service.process
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
@@ -13,13 +13,14 @@ class NfsPageTabService(
     private val folderResolver: SubmissionFolderResolver,
     private val serializationService: SerializationService,
     private val pageTabUtil: PageTabUtil,
+    private val fileProcessingService: FileProcessingService
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
         val submissionFolder = folderResolver.getSubFolder(sub.relPath).toFile()
         val subFiles = pageTabUtil.generateSubPageTab(serializationService, sub, submissionFolder)
         val fileListFiles =
             pageTabUtil.generateFileListPageTab(serializationService, sub, submissionFolder.resolve("Files"))
-        val section = process(sub.section) { updateFileList(it, fileListFiles) }
+        val section = fileProcessingService.process(sub.section) { updateFileList(it, fileListFiles) }
 
         return when {
             section.changed -> sub.copy(pageTabFiles = subFiles(subFiles), section = section.section)

@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.NfsPageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabFiles
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtFileList
@@ -36,7 +37,8 @@ class NfsPageTabServiceTest(
 ) {
     private val rootPath = tempFolder.root
     private val folderResolver = SubmissionFolderResolver(Paths.get("$rootPath/submission"), Paths.get("$rootPath/ftp"))
-    private val testInstance = NfsPageTabService(folderResolver, serializationService, pageTabUtil)
+    private val testInstance =
+        NfsPageTabService(folderResolver, serializationService, pageTabUtil, FileProcessingService())
     private val subFolder = tempFolder.root.resolve("submission/S-TEST/123/S-TEST123")
 
     @BeforeEach
@@ -63,9 +65,11 @@ class NfsPageTabServiceTest(
             subFolder.createNewFile("S-TEST123.pagetab.tsv"),
         )
         every {
-            pageTabUtil.generateFileListPageTab(serializationService,
+            pageTabUtil.generateFileListPageTab(
+                serializationService,
                 submission,
-                subFolder.resolve("Files"))
+                subFolder.resolve("Files")
+            )
         } returns mapOf(
             "file-list2" to PageTabFiles(
                 subFolder.createNewFile("Files/file-list2.json"),

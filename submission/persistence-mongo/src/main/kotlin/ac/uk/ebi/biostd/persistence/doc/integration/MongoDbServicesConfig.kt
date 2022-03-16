@@ -33,8 +33,7 @@ class MongoDbServicesConfig {
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
         fileListDocFileRepository: FileListDocFileRepository,
         serializationService: ExtSerializationService,
-        toExtSubmissionMapper: ToExtSubmissionMapper,
-        toSubmission: ToSubmission
+        toExtSubmissionMapper: ToExtSubmissionMapper
     ): SubmissionQueryService = SubmissionMongoQueryService(
         submissionDocDataRepository,
         submissionRequestDocDataRepository,
@@ -58,23 +57,13 @@ class MongoDbServicesConfig {
     internal fun submissionDraftMongoService(
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
         submissionQueryService: SubmissionQueryService,
-        serializationService: SerializationService,
-//        toSubmission: ToSubmission
+        serializationService: SerializationService
     ): SubmissionDraftService = SubmissionDraftMongoService(
         submissionDraftDocDataRepository,
         submissionQueryService,
         serializationService,
         ToSubmission(ToSection(ToFileList()))
     )
-
-//    @Bean
-//    fun toSubmission(toSection: ToSection): ToSubmission = ToSubmission(toSection)
-//
-//    @Bean
-//    fun toSection(toFileList: ToFileList): ToSection = ToSection(toFileList)
-//
-//    @Bean
-//    fun toFileList(): ToFileList = ToFileList()
 
     @Bean
     internal fun submissionMongoMetaQueryService(

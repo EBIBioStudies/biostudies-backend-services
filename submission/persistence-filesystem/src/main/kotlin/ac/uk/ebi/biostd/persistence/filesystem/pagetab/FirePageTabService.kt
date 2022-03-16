@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.persistence.filesystem.service.Section
-import ac.uk.ebi.biostd.persistence.filesystem.service.process
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -16,12 +16,13 @@ class FirePageTabService(
     private val serializationService: SerializationService,
     private val fireWebClient: FireWebClient,
     private val pageTabUtil: PageTabUtil,
+    private val fileProcessingService: FileProcessingService
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
         val subFiles = pageTabUtil.generateSubPageTab(serializationService, sub, fireTempFolder)
         val fileListFiles = pageTabUtil.generateFileListPageTab(serializationService, sub, fireTempFolder)
 
-        val section = process(sub.section) { updateFileList(it, sub.relPath, fileListFiles) }
+        val section = fileProcessingService.process(sub.section) { updateFileList(it, sub.relPath, fileListFiles) }
 
         return when {
             section.changed -> sub.copy(pageTabFiles = subExtFiles(subFiles, sub.relPath), section = section.section)

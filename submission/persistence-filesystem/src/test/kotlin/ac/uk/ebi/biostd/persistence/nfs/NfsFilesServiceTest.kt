@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.persistence.filesystem.extSubmissionWithFileList
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.mapping.to.ToFileList
 import ebi.ac.uk.extended.mapping.to.ToSection
 import ebi.ac.uk.extended.mapping.to.ToSubmission
@@ -48,7 +49,7 @@ class NfsFilesServiceTest(
 
     private val rootPath = tempFolder.root.toPath()
     private val folderResolver = SubmissionFolderResolver(Paths.get("$rootPath/submission"), Paths.get("$rootPath/ftp"))
-    private val testInstance = NfsFilesService(folderResolver)
+    private val testInstance = NfsFilesService(folderResolver, FileProcessingService())
 
     @BeforeEach
     fun beforeEach() {

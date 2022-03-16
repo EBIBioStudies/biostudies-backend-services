@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.FirePageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.NfsPageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
 import ebi.ac.uk.extended.mapping.to.ToFileList
@@ -51,7 +52,7 @@ class PersistenceConfig(
         matchIfMissing = true
     )
     fun nfsPageTabService(pageTabUtil: PageTabUtil): PageTabService =
-        NfsPageTabService(folderResolver, serializationService, pageTabUtil)
+        NfsPageTabService(folderResolver, serializationService, pageTabUtil, FileProcessingService())
 
     @Bean
     fun pageTabUtil(): PageTabUtil =
@@ -64,7 +65,13 @@ class PersistenceConfig(
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
     fun firePageTabService(pageTabUtil: PageTabUtil): PageTabService =
-        FirePageTabService(File(properties.fireTempDirPath), serializationService, fireWebClient, pageTabUtil)
+        FirePageTabService(
+            File(properties.fireTempDirPath),
+            serializationService,
+            fireWebClient,
+            pageTabUtil,
+            FileProcessingService()
+        )
 
     @Bean
     fun fileSystemService(
