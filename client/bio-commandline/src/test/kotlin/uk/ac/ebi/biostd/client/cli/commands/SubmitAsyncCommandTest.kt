@@ -88,7 +88,34 @@ internal class SubmitAsyncCommandTest(
                 "-p", "password",
                 "-i", "$rootFolder/Submission.tsv",
                 "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
-                "--moveFiles"
+                "-fm", "MOVE"
+            )
+        )
+
+        verify(exactly = 1) { submissionService.submitAsync(request) }
+    }
+
+    @Test
+    fun `no attached files`() {
+        val submission = temporaryFolder.createFile("Submission.tsv")
+
+        val request = SubmissionRequest(
+            server = "server",
+            user = "user",
+            password = "password",
+            onBehalf = null,
+            file = submission,
+            attached = emptyList(),
+            fileMode = COPY
+        )
+        every { submissionService.submitAsync(request) } answers { nothing }
+
+        testInstance.parse(
+            listOf(
+                "-s", "server",
+                "-u", "user",
+                "-p", "password",
+                "-i", "$rootFolder/Submission.tsv"
             )
         )
 
