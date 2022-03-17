@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonEncoding.UTF8
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
-import ebi.ac.uk.extended.mapping.to.ToSubmission
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.isCollection
 import java.nio.file.Files
@@ -25,7 +25,7 @@ class PublicOnlyExporterService(
     private val bioWebClient: BioWebClient,
     private val appProperties: ApplicationProperties,
     private val serializationService: SerializationService,
-    private val toSubmission: ToSubmission
+    private val toSubmissionMapper: ToSubmissionMapper
 ) {
     private lateinit var jsonWriter: JsonGenerator
 
@@ -53,7 +53,7 @@ class PublicOnlyExporterService(
             logger.info { "Exporting public submission '${extSubmission.accNo}'" }
             jsonWriter.writeRawValue(
                 serializationService.serializeSubmission(
-                    toSubmission.toSimpleSubmission(extSubmission),
+                    toSubmissionMapper.toSimpleSubmission(extSubmission),
                     SubFormat.JSON_PRETTY
                 )
             )

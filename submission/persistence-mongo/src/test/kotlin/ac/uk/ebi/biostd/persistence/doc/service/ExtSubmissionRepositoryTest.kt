@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.ToDocSubmissionConfig
-import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmission
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
@@ -41,14 +41,14 @@ class ExtSubmissionRepositoryTest(
     @Autowired private val subDataRepository: SubmissionDocDataRepository,
     @Autowired private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
-    @Autowired private val toDocSubmission: ToDocSubmission
+    @Autowired private val toDocSubmissionMapper: ToDocSubmissionMapper
 ) {
     private val testInstance = ExtSubmissionRepository(
         subDataRepository,
         draftDocDataRepository,
         fileListDocFileRepository,
         ToExtSubmissionMapper(fileListDocFileRepository),
-        toDocSubmission
+        toDocSubmissionMapper
     )
 
     @BeforeEach

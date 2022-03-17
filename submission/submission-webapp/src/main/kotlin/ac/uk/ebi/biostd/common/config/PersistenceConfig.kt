@@ -14,10 +14,10 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
-import ebi.ac.uk.extended.mapping.to.ToFileList
-import ebi.ac.uk.extended.mapping.to.ToFilesTable
-import ebi.ac.uk.extended.mapping.to.ToSection
-import ebi.ac.uk.extended.mapping.to.ToSubmission
+import ebi.ac.uk.extended.mapping.to.ToFileListMapper
+import ebi.ac.uk.extended.mapping.to.ToFilesTableMapper
+import ebi.ac.uk.extended.mapping.to.ToSectionMapper
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import java.io.File
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -56,7 +56,7 @@ class PersistenceConfig(
 
     @Bean
     fun pageTabUtil(): PageTabUtil =
-        PageTabUtil(ToSubmission(ToSection(ToFileList())), ToFilesTable(ToFileList()))
+        PageTabUtil(ToSubmissionMapper(ToSectionMapper(ToFileListMapper())), ToFilesTableMapper(ToFileListMapper()))
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")

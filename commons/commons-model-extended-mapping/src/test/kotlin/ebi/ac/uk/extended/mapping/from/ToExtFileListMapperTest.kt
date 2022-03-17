@@ -14,13 +14,13 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-internal class ToExtFileListTest(
+internal class ToExtFileListMapperTest(
     @MockK val fileSource: FilesSource,
     @MockK val file: File,
     @MockK val systemFile: NfsBioFile,
     @MockK val extFile: ExtFile,
 ) {
-    private val tesInstance = ToExtFileList()
+    private val tesInstance = ToExtFileListMapper()
     private val fileList = FileList("fileList", listOf(file))
 
     @Test

@@ -14,7 +14,7 @@ import java.time.ZoneOffset.UTC
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ToSubmissionTest {
+class ToSubmissionMapperTest {
     private val extSubmission = basicExtSubmission.copy(
         rootPath = "/a/root/path",
         collections = listOf(ExtCollection("BioImages")),
@@ -24,7 +24,7 @@ class ToSubmissionTest {
             ExtAttribute("CollectionValidator", "BioImagesValidator")
         )
     )
-    private val testInstance = ToSubmission(ToSection(ToFileList()))
+    private val testInstance = ToSubmissionMapper(ToSectionMapper(ToFileListMapper()))
 
     @Test
     fun toSimpleSubmission() {

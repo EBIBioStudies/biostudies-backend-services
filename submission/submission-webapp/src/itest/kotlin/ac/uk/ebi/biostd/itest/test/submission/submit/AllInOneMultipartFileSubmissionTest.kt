@@ -10,9 +10,9 @@ import ac.uk.ebi.biostd.itest.factory.submissionSpecJson
 import ac.uk.ebi.biostd.itest.factory.submissionSpecTsv
 import ac.uk.ebi.biostd.itest.factory.submissionSpecXml
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ebi.ac.uk.extended.mapping.to.ToFileList
-import ebi.ac.uk.extended.mapping.to.ToSection
-import ebi.ac.uk.extended.mapping.to.ToSubmission
+import ebi.ac.uk.extended.mapping.to.ToFileListMapper
+import ebi.ac.uk.extended.mapping.to.ToSectionMapper
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.FILE
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -47,13 +47,13 @@ internal class AllInOneMultipartFileSubmissionTest(
 
         private lateinit var webClient: BioWebClient
         private lateinit var allInOneSubmissionHelper: AllInOneSubmissionHelper
-        private val toSubmission = ToSubmission(ToSection(ToFileList()))
+        private val toSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper()))
 
         @BeforeAll
         fun init() {
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
-            allInOneSubmissionHelper = AllInOneSubmissionHelper(submissionPath, submissionRepository, toSubmission)
+            allInOneSubmissionHelper = AllInOneSubmissionHelper(submissionPath, submissionRepository, toSubmissionMapper)
         }
 
         @Test

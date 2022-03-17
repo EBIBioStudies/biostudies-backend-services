@@ -5,8 +5,8 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.permissions
-import ebi.ac.uk.extended.mapping.to.ToFilesTable
-import ebi.ac.uk.extended.mapping.to.ToSubmission
+import ebi.ac.uk.extended.mapping.to.ToFilesTableMapper
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allFileList
@@ -14,9 +14,12 @@ import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.Permissions
 import java.io.File
 
-class PageTabUtil(private val toSubmission: ToSubmission, private val toFilesTable: ToFilesTable) {
+class PageTabUtil(
+    private val toSubmissionMapper: ToSubmissionMapper,
+    private val toFilesTableMapper: ToFilesTableMapper,
+) {
     fun generateSubPageTab(serializationService: SerializationService, sub: ExtSubmission, target: File): PageTabFiles {
-        val element = toSubmission.toSimpleSubmission(sub)
+        val element = toSubmissionMapper.toSimpleSubmission(sub)
         val permissions = sub.permissions()
         return PageTabFiles(
             json = saveTabFile(
@@ -51,7 +54,7 @@ class PageTabUtil(private val toSubmission: ToSubmission, private val toFilesTab
         fileList: ExtFileList,
     ): PageTabFiles {
         val filename = fileList.filePath
-        val files = toFilesTable.convert(fileList)
+        val files = toFilesTableMapper.convert(fileList)
 
         val json = folder.resolve("$filename.json")
         val xml = folder.resolve("$filename.xml")

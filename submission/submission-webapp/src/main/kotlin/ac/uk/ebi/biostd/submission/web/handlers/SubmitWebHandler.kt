@@ -13,7 +13,7 @@ import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ebi.ac.uk.api.security.GetOrRegisterUserRequest
-import ebi.ac.uk.extended.mapping.to.ToSubmission
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allSectionsFiles
@@ -36,13 +36,13 @@ class SubmitWebHandler(
     private val serializationService: SerializationService,
     private val userFilesService: UserFilesService,
     private val securityQueryService: ISecurityQueryService,
-    private val toSubmission: ToSubmission
+    private val toSubmissionMapper: ToSubmissionMapper
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission =
-        toSubmission.toSimpleSubmission(submissionService.submit(buildRequest(request)))
+        toSubmissionMapper.toSimpleSubmission(submissionService.submit(buildRequest(request)))
 
     fun submit(request: FileSubmitWebRequest): Submission =
-        toSubmission.toSimpleSubmission(submissionService.submit(buildRequest(request)))
+        toSubmissionMapper.toSimpleSubmission(submissionService.submit(buildRequest(request)))
 
     fun submitAsync(request: ContentSubmitWebRequest) = submissionService.submitAsync(buildRequest(request))
 

@@ -59,8 +59,8 @@ class ToExtSectionMapperTest(
         links = mutableListOf(left(link), right(linkTable)),
         sections = mutableListOf(left(subSection), right(SectionsTable(listOf(subSection))))
     )
-    private val toExtFileList: ToExtFileList = mockk()
-    private val testInstance = ToExtSectionMapper(toExtFileList)
+    private val toExtFileListMapper: ToExtFileListMapper = mockk()
+    private val testInstance = ToExtSectionMapper(toExtFileListMapper)
 
     @Test
     fun toExtSection() {
@@ -74,7 +74,7 @@ class ToExtSectionMapperTest(
             every { fileListAttribute.name } returns SectionFields.FILE_LIST.value
             every { attribute.toExtAttribute() } returns extAttribute
             every { file.toExtFile(fileSource) } returns extFile
-            every { toExtFileList.convert(fileList, fileSource) } returns extFileList
+            every { toExtFileListMapper.convert(fileList, fileSource) } returns extFileList
             every { link.toExtLink() } returns extLink
             every { fileTable.toExtTable(fileSource) } returns extFileTable
             every { linkTable.toExtTable() } returns extLinkTable

@@ -13,7 +13,7 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.extended.mapping.to.ToSubmission
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
@@ -45,7 +45,7 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
         @Autowired private val securityTestService: SecurityTestService,
         @Autowired private val submissionRepository: SubmissionQueryService,
         @Autowired private val testCollectionValidator: TestCollectionValidator,
-        @Autowired private val toSubmission: ToSubmission
+        @Autowired private val toSubmissionMapper: ToSubmissionMapper
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -255,6 +255,6 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
         }
 
         private fun getSimpleSubmission(accNo: String) =
-            toSubmission.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
+            toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
     }
 }

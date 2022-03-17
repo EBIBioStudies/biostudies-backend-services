@@ -7,9 +7,9 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import ebi.ac.uk.extended.mapping.to.ToFileList
-import ebi.ac.uk.extended.mapping.to.ToSection
-import ebi.ac.uk.extended.mapping.to.ToSubmission
+import ebi.ac.uk.extended.mapping.to.ToFileListMapper
+import ebi.ac.uk.extended.mapping.to.ToSectionMapper
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import java.io.PrintWriter
 import org.apache.commons.net.PrintCommandListener
 import org.apache.commons.net.ftp.FTPClient
@@ -41,12 +41,12 @@ class ApplicationConfig(
         bioWebClient: BioWebClient,
         serializationService: SerializationService,
         applicationProperties: ApplicationProperties,
-        toSubmission: ToSubmission,
+        toSubmissionMapper: ToSubmissionMapper,
     ): PublicOnlyExporterService =
-        PublicOnlyExporterService(bioWebClient, applicationProperties, serializationService, toSubmission)
+        PublicOnlyExporterService(bioWebClient, applicationProperties, serializationService, toSubmissionMapper)
 
     @Bean
-    fun toSubmission(): ToSubmission = ToSubmission(ToSection(ToFileList()))
+    fun toSubmission(): ToSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper()))
     @Bean
     fun exporterService(
         pmcExporterService: PmcExporterService,

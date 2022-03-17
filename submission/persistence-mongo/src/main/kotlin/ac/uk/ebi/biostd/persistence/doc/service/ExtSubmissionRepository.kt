@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
-import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmission
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
@@ -19,7 +19,7 @@ class ExtSubmissionRepository(
     private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     private val fileListDocFileRepository: FileListDocFileRepository,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
-    private val toDocSubmission: ToDocSubmission
+    private val toDocSubmissionMapper: ToDocSubmissionMapper
 ) {
     fun saveSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission {
         val docSubmission = save(submission.copy(status = ExtProcessingStatus.PROCESSING))
@@ -41,7 +41,7 @@ class ExtSubmissionRepository(
 
     private fun save(submission: ExtSubmission): DocSubmission {
         logger.info { "mapping submission ${submission.accNo} into doc submission" }
-        val (docSubmission, files) = toDocSubmission.convert(submission)
+        val (docSubmission, files) = toDocSubmissionMapper.convert(submission)
         logger.info { "mapped submission ${submission.accNo}" }
 
         logger.info { "saving submission ${docSubmission.accNo}" }

@@ -20,7 +20,7 @@ import java.io.File
 
 internal fun Either<ExtFile, ExtFileTable>.toDocFiles() = bimap(ExtFile::toDocFile, ExtFileTable::toDocFileTable)
 
-class ToDocFileList {
+class ToDocFileListMapper {
     internal fun convert(
         extFileList: ExtFileList,
         submissionId: ObjectId,
@@ -33,29 +33,31 @@ class ToDocFileList {
         val pageTabFiles = extFileList.pageTabFiles.map { it.toDocFile() }
         return Pair(DocFileList(extFileList.filePath, pageTabFiles), listFiles)
     }
+
+    @Suppress("LongParameterList")
+    private fun toFileDocListFile(
+        submissionId: ObjectId,
+        submissionAccNo: String,
+        fileName: String,
+        version: Int,
+        index: Int,
+        extFile: ExtFile
+    ): FileListDocFile =
+        FileListDocFile(
+            id = ObjectId(),
+            submissionId = submissionId,
+            submissionAccNo = submissionAccNo,
+            submissionVersion = version,
+            file = extFile.toDocFile(),
+            index = index,
+            fileListName = fileName
+        )
 }
 
-@Suppress("LongParameterList")
-private fun toFileDocListFile(
-    submissionId: ObjectId,
-    submissionAccNo: String,
-    fileName: String,
-    version: Int,
-    index: Int,
-    extFile: ExtFile
-): FileListDocFile =
-    FileListDocFile(
-        id = ObjectId(),
-        submissionId = submissionId,
-        submissionAccNo = submissionAccNo,
-        submissionVersion = version,
-        file = extFile.toDocFile(),
-        index = index,
-        fileListName = fileName
-    )
-
 private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFile() })
+
 private fun fileType(file: File): String = if (file.isDirectory) "directory" else "file"
+
 internal fun ExtFile.toDocFile(): DocFile = when (this) {
     is FireFile -> FireDocFile(
         fileName = fileName,

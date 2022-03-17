@@ -12,12 +12,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-internal class ToFileListTest(
+internal class ToFileListMapperTest(
     @MockK val file: File,
     @MockK val extFile: ExtFile
 ) {
     private val extFileList = ExtFileList("fileList", listOf(extFile))
-    private val testInstance = ToFileList()
+    private val testInstance = ToFileListMapper()
 
     @Test
     fun toExtFileList() {

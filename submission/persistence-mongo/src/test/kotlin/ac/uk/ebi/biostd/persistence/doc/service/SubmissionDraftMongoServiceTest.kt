@@ -9,9 +9,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.PROCESSING
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
-import ebi.ac.uk.extended.mapping.to.ToFileList
-import ebi.ac.uk.extended.mapping.to.ToSection
-import ebi.ac.uk.extended.mapping.to.ToSubmission
+import ebi.ac.uk.extended.mapping.to.ToFileListMapper
+import ebi.ac.uk.extended.mapping.to.ToSectionMapper
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSection
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -34,12 +34,12 @@ internal class SubmissionDraftMongoServiceTest(
     @MockK private val submissionQueryService: SubmissionQueryService,
     @MockK private val serializationService: SerializationService
 ) {
-    private val toSubmission: ToSubmission = ToSubmission(ToSection(ToFileList()))
+    private val toSubmissionMapper: ToSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper()))
     private val testInstance = SubmissionDraftMongoService(
         draftDocDataRepository,
         submissionQueryService,
         serializationService,
-        toSubmission
+        toSubmissionMapper
     )
     private val testDocDraft = DocSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, ACTIVE)
 
@@ -64,7 +64,7 @@ internal class SubmissionDraftMongoServiceTest(
         every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns null
         every { draftDocDataRepository.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDocDraft
         every {
-            serializationService.serializeSubmission(toSubmission.toSimpleSubmission(extSubmission), JsonPretty)
+            serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(extSubmission), JsonPretty)
         } returns DRAFT_CONTENT
 
         val result = testInstance.getSubmissionDraft(USER_ID, DRAFT_KEY)

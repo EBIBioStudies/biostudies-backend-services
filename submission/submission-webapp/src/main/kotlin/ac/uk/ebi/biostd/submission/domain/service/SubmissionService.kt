@@ -15,7 +15,7 @@ import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
 import ebi.ac.uk.extended.events.SubmissionRequestMessage
-import ebi.ac.uk.extended.mapping.to.ToSubmission
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -36,7 +36,7 @@ class SubmissionService(
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
     private val rabbitTemplate: RabbitTemplate,
-    private val toSubmission: ToSubmission,
+    private val toSubmissionMapper: ToSubmissionMapper,
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         val (accNo, version) = submissionSubmitter.submitAsync(rqt)
@@ -103,5 +103,5 @@ class SubmissionService(
     }
 
     private fun getSimpleSubmission(accNo: String) =
-        toSubmission.toSimpleSubmission(submissionQueryService.getExtByAccNo(accNo))
+        toSubmissionMapper.toSimpleSubmission(submissionQueryService.getExtByAccNo(accNo))
 }

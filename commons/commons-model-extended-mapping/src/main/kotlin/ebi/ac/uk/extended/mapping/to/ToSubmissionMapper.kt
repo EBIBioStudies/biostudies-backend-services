@@ -10,13 +10,13 @@ import ebi.ac.uk.model.constants.SubFields.RELEASE_DATE
 import ebi.ac.uk.model.constants.SubFields.ROOT_PATH
 import ebi.ac.uk.model.constants.SubFields.TITLE
 
-class ToSubmission(private val toSection: ToSection) {
+class ToSubmissionMapper(private val toSectionMapper: ToSectionMapper) {
     /**
      * Return a simple submission which does not contain submission secret information.
      */
     fun toSimpleSubmission(sub: ExtSubmission): Submission = Submission(
         accNo = sub.accNo,
-        section = toSection.convert(sub.section),
+        section = toSectionMapper.convert(sub.section),
         attributes = getSubmissionAttributes(sub),
         tags = sub.tags.mapTo(mutableListOf()) { Pair(it.name, it.value) }
     )

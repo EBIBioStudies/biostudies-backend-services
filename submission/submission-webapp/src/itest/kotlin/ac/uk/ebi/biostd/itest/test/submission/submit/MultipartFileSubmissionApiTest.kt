@@ -16,7 +16,7 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.extended.mapping.to.ToSubmission
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
@@ -56,7 +56,7 @@ internal class MultipartFileSubmissionApiTest(
     inner class SingleSubmissionTest(
         @Autowired private val submissionRepository: SubmissionQueryService,
         @Autowired private val securityTestService: SecurityTestService,
-        @Autowired private val toSubmission: ToSubmission
+        @Autowired private val toSubmissionMapper: ToSubmissionMapper
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -271,7 +271,7 @@ internal class MultipartFileSubmissionApiTest(
         }
 
         private fun getSimpleSubmission(accNo: String) =
-            toSubmission.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
+            toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
             val createdSub = submissionRepository.getExtByAccNo(accNo)

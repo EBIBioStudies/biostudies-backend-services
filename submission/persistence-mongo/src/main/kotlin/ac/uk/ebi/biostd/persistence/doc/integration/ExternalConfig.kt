@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
-import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmission
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.ExtSubmissionRepository
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceService
@@ -47,14 +47,14 @@ class ExternalConfig {
         draftDocDataRepository: SubmissionDraftDocDataRepository,
         fileListDocFileRepository: FileListDocFileRepository,
         toExtSubmissionMapper: ToExtSubmissionMapper,
-        toDocSubmission: ToDocSubmission,
+        toDocSubmissionMapper: ToDocSubmissionMapper,
     ): ExtSubmissionRepository {
         return ExtSubmissionRepository(
             subDataRepository,
             draftDocDataRepository,
             fileListDocFileRepository,
             toExtSubmissionMapper,
-            toDocSubmission
+            toDocSubmissionMapper
         )
     }
 }

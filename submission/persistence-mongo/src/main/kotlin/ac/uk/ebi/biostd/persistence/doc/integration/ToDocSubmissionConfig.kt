@@ -1,19 +1,21 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
-import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocFileList
-import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSection
-import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmission
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocFileListMapper
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSectionMapper
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
 class ToDocSubmissionConfig {
     @Bean
-    internal fun toDocSubmission(toDocSection: ToDocSection): ToDocSubmission = ToDocSubmission(toDocSection)
+    internal fun toDocSubmission(toDocSectionMapper: ToDocSectionMapper): ToDocSubmissionMapper =
+        ToDocSubmissionMapper(toDocSectionMapper)
 
     @Bean
-    internal fun toDocSection(toDocFileList: ToDocFileList): ToDocSection = ToDocSection(toDocFileList)
+    internal fun toDocSection(toDocFileListMapper: ToDocFileListMapper): ToDocSectionMapper =
+        ToDocSectionMapper(toDocFileListMapper)
 
     @Bean
-    internal fun toDocFileList(): ToDocFileList = ToDocFileList()
+    internal fun toDocFileList(): ToDocFileListMapper = ToDocFileListMapper()
 }

@@ -25,7 +25,7 @@ import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.extended.mapping.to.ToSubmission
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.ExtFile
@@ -74,7 +74,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository,
         @Autowired val userDataRepository: UserDataRepository,
-        @Autowired val toSubmission: ToSubmission
+        @Autowired val toSubmissionMapper: ToSubmissionMapper
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -702,6 +702,6 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         private fun getSimpleSubmission(accNo: String) =
-            toSubmission.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
+            toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
     }
 }

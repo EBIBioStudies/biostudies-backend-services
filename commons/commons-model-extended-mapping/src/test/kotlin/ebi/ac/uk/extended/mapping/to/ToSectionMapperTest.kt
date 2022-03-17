@@ -29,7 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import ebi.ac.uk.asserts.assertThat as assertEither
 
 @ExtendWith(MockKExtension::class)
-class ToSectionTest(
+class ToSectionMapperTest(
     @MockK val fileList: FileList,
     @MockK val attribute: Attribute,
     @MockK val file: File,
@@ -54,8 +54,8 @@ class ToSectionTest(
         links = listOf(left(extLink), right(extLinkTable)),
         sections = listOf(left(subExtSection), right(ExtSectionTable(listOf(subExtSection))))
     )
-    private val toFileList = mockk<ToFileList>()
-    private val testInstance = ToSection(toFileList)
+    private val toFileListMapper = mockk<ToFileListMapper>()
+    private val testInstance = ToSectionMapper(toFileListMapper)
 
     @Test
     fun toSection() {
@@ -63,12 +63,11 @@ class ToSectionTest(
             TO_ATTRIBUTE_EXTENSIONS,
             TO_FILE_EXTENSIONS,
             TO_LINK_EXTENSIONS,
-            TO_TABLE_EXTENSIONS,
-            TO_SECTION_EXTENSIONS
+            TO_TABLE_EXTENSIONS
         ) {
             every { extAttribute.toAttribute() } returns attribute
             every { extFile.toFile() } returns file
-            every { toFileList.convert(extFileList) } returns fileList
+            every { toFileListMapper.convert(extFileList) } returns fileList
             every { extLink.toLink() } returns link
             every { extFileTable.toTable() } returns fileTable
             every { extLinkTable.toTable() } returns linkTable

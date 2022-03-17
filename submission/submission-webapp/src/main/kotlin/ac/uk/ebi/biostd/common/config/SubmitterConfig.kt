@@ -19,7 +19,7 @@ import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
-import ebi.ac.uk.extended.mapping.from.ToExtFileList
+import ebi.ac.uk.extended.mapping.from.ToExtFileListMapper
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -63,10 +63,11 @@ class SubmitterConfig {
     @Configuration
     class ToExtendedConfiguration {
         @Bean
-        fun toExtSection(toExtFileList: ToExtFileList): ToExtSectionMapper = ToExtSectionMapper(toExtFileList)
+        fun toExtSection(toExtFileListMapper: ToExtFileListMapper): ToExtSectionMapper =
+            ToExtSectionMapper(toExtFileListMapper)
 
         @Bean
-        fun toExtFileList(): ToExtFileList = ToExtFileList()
+        fun toExtFileList(): ToExtFileListMapper = ToExtFileListMapper()
     }
 
     @Configuration

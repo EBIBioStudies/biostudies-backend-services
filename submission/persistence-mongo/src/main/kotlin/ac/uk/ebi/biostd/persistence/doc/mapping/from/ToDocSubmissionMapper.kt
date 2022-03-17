@@ -13,10 +13,10 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import org.bson.types.ObjectId
 
-class ToDocSubmission(private val toDocSection: ToDocSection) {
+class ToDocSubmissionMapper(private val toDocSectionMapper: ToDocSectionMapper) {
     fun convert(sub: ExtSubmission): Pair<DocSubmission, List<FileListDocFile>> {
         val submissionId = ObjectId()
-        val (docSection, fileList) = toDocSection.convert(sub.section, sub.accNo, sub.version, submissionId)
+        val (docSection, fileList) = toDocSectionMapper.convert(sub.section, sub.accNo, sub.version, submissionId)
         val docSubmission = sub.convert(submissionId, docSection)
         return Pair(docSubmission, fileList)
     }

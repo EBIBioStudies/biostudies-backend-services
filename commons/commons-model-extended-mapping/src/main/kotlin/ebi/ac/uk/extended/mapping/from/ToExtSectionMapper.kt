@@ -7,11 +7,11 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.constants.SECTION_RESERVED_ATTRIBUTES
 
-class ToExtSectionMapper(private val toExtFileList: ToExtFileList) {
+class ToExtSectionMapper(private val toExtFileListMapper: ToExtFileListMapper) {
     fun convert(sec: Section, source: FilesSource): ExtSection = ExtSection(
         type = sec.type,
         accNo = sec.accNo,
-        fileList = sec.fileList?.let { toExtFileList.convert(it, source) },
+        fileList = sec.fileList?.let { toExtFileListMapper.convert(it, source) },
         attributes = sec.attributes
             .filterNot { SECTION_RESERVED_ATTRIBUTES.contains(it.name) }.map { it.toExtAttribute() },
         files = sec.files.map { either -> either.bimap({ it.toExtFile(source) }, { it.toExtTable(source) }) },

@@ -15,11 +15,11 @@ import org.bson.types.ObjectId
 
 typealias EitherList <A, B> = List<Either<A, B>>
 
-class ToDocSection(private val toDocFileList: ToDocFileList) {
+class ToDocSectionMapper(private val toDocFileListMapper: ToDocFileListMapper) {
     internal fun convert(section: ExtSection, accNo: String, version: Int, subId: ObjectId): DocSectionData {
         val sections = section.sections.map { it.toDocSections(accNo, version, subId) }
         val (sectionFileList, sectionFiles) = section.fileList?.let {
-            toDocFileList.convert(it, subId, accNo, version)
+            toDocFileListMapper.convert(it, subId, accNo, version)
         }
         return DocSectionData(
             section = section.convert(sectionFileList, sections.subSections()),
