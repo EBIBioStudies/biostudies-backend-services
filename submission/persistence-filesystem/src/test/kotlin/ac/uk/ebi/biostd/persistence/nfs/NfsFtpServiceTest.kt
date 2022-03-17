@@ -59,20 +59,9 @@ internal class NfsFtpServiceTest(
 
     @Test
     fun `process public submission`() {
-        every { extSubmission.released } returns true
-
-        testInstance.processSubmissionFiles(extSubmission)
+        testInstance.releaseSubmissionFiles("S-BSST0", "owner@mailcom", REL_PATH)
 
         assertFolder(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile())
-    }
-
-    @Test
-    fun `process private submission`() {
-        every { extSubmission.released } returns false
-
-        testInstance.processSubmissionFiles(extSubmission)
-
-        assertThat(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile()).doesNotExist()
     }
 
     private fun assertFolder(ftpFolder: File) {

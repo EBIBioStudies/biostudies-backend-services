@@ -12,31 +12,32 @@ import java.time.ZoneOffset.UTC
 
 internal const val FILES_DIR = "Files"
 
-class ToExtSubmissionMapper {
-    internal fun toExtSubmission(submission: DocSubmission): ExtSubmission = ExtSubmission(
-        accNo = submission.accNo,
-        owner = submission.owner,
-        submitter = submission.submitter,
-        title = submission.title,
-        version = submission.version,
-        schemaVersion = submission.schemaVersion,
-        method = getMethod(submission.method),
-        status = getStatus(submission.status),
-        relPath = submission.relPath,
-        rootPath = submission.rootPath,
-        released = submission.released,
-        secretKey = submission.secretKey,
-        releaseTime = submission.releaseTime?.atOffset(UTC),
-        modificationTime = submission.modificationTime.atOffset(UTC),
-        creationTime = submission.creationTime.atOffset(UTC),
-        section = submission.section.toExtSection(),
-        attributes = submission.attributes.toExtAttributes(),
-        collections = submission.collections.map { ExtCollection(it.accNo) },
-        tags = submission.tags.map { ExtTag(it.name, it.value) },
-        stats = submission.stats.map { it.toExtStat() },
-        pageTabFiles = submission.pageTabFiles.map { it.toExtFile() },
-        storageMode = submission.storageMode
-    )
+class ToExtSubmissionMapper(private val toExtSectionMapper: ToExtSectionMapper) {
+    internal fun toExtSubmission(sub: DocSubmission, includeFileListFiles: Boolean): ExtSubmission =
+        ExtSubmission(
+            accNo = sub.accNo,
+            owner = sub.owner,
+            submitter = sub.submitter,
+            title = sub.title,
+            version = sub.version,
+            schemaVersion = sub.schemaVersion,
+            method = getMethod(sub.method),
+            status = getStatus(sub.status),
+            relPath = sub.relPath,
+            rootPath = sub.rootPath,
+            released = sub.released,
+            secretKey = sub.secretKey,
+            releaseTime = sub.releaseTime?.atOffset(UTC),
+            modificationTime = sub.modificationTime.atOffset(UTC),
+            creationTime = sub.creationTime.atOffset(UTC),
+            section = toExtSectionMapper.toExtSection(sub.section, sub.accNo, sub.version, includeFileListFiles),
+            attributes = sub.attributes.toExtAttributes(),
+            collections = sub.collections.map { ExtCollection(it.accNo) },
+            tags = sub.tags.map { ExtTag(it.name, it.value) },
+            stats = sub.stats.map { it.toExtStat() },
+            pageTabFiles = sub.pageTabFiles.map { it.toExtFile() },
+            storageMode = sub.storageMode
+        )
 
     private fun getStatus(status: DocProcessingStatus) = when (status) {
         DocProcessingStatus.PROCESSED -> ExtProcessingStatus.PROCESSED

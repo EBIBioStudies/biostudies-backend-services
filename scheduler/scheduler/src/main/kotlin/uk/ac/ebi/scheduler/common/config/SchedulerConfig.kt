@@ -58,5 +58,11 @@ internal class SchedulerConfig {
         loaderService: PmcLoaderService,
         exporterTrigger: ExporterTrigger,
         releaserTrigger: SubmissionReleaserTrigger
-    ): DailyScheduler = DailyScheduler(appProperties.dailyScheduling, exporterTrigger, loaderService, releaserTrigger)
+    ): DailyScheduler =
+        DailyScheduler(
+            appProperties.dailyScheduling,
+            exporterTrigger,
+            loaderService,
+            releaserTrigger
+        )
 }

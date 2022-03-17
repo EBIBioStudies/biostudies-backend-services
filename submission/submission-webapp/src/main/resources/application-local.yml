@@ -29,10 +29,16 @@ spring:
       max-request-size: 10240MB
 
 app:
-  submissionPath:
-  ftpPath:
-  tempDirPath:
+  submissionPath: # Absolute path to the folder to be used as submission storage
+  ftpPath: # Absolute path to the folder to be used ftp hardlinks
+  tempDirPath: # Absolute path of the temp folder to store files
+  requestFilesPath: # Base directory absolute path where request file list are stored.
+  fireTempDirPath: # Absolute path of the temp folder for FIRE storage
   instanceBaseUrl: http://localhost:8080
+  fire:
+    host: # FIRE host
+    username: # FIRE user
+    password: # FIRE password
   security:
     captchaKey: # Captcha validation token. Not required for local environment
     checkCaptcha: false
@@ -41,5 +47,3 @@ app:
     magicDirPath: # Absolute path to the folder to be used for the user/groups magic folders links
     environment: LOCAL
     requireActivation: false
-  persistence:
-    enableMongo: false

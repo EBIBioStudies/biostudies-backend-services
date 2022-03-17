@@ -10,14 +10,13 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_DIR_TYPE
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILEPATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILE_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_ID
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FULL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_MD5
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILEPATH
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FULL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_REL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_TYPE
@@ -39,11 +38,11 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         writeStringField(FILE_FILEPATH, file.filePath)
         writeStringField(FILE_REL_PATH, file.relPath)
         writeStringField(FILE_FULL_PATH, file.fullPath)
-        writeObjectField(FILE, file.file.absolutePath)
+        writeObjectField(FILE_MD5, file.md5)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.NfsFile.type)
         writeStringField(FILE_TYPE, getType(file.file))
-        writeNumberField(FILE_SIZE, FileUtils.size(file.file))
+        writeNumberField(FILE_SIZE, file.size)
         writeEndObject()
     }
 

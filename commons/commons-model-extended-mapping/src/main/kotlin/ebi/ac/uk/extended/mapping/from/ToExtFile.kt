@@ -12,7 +12,7 @@ import ebi.ac.uk.model.File
 
 internal const val TO_EXT_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.from.ToExtFileKt"
 
-fun File.toExtFile(fileSource: FilesSource): ExtFile {
+fun File.toExtFile(fileSource: FilesSource, calculateProperties: Boolean = true): ExtFile {
     return when (val file = fileSource.getFile(path)) {
         is FireBioFile -> FireFile(
             path,
@@ -32,8 +32,10 @@ fun File.toExtFile(fileSource: FilesSource): ExtFile {
         is NfsBioFile -> NfsFile(
             path,
             "Files/$path",
-            file.file.absolutePath,
             file.file,
+            file.file.absolutePath,
+            if (calculateProperties) file.md5() else "NOT_CALCULATED",
+            if (calculateProperties) file.size() else -1,
             attributes.toExtAttributes()
         )
     }

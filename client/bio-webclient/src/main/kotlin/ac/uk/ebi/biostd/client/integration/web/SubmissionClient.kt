@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.client.integration.web
 
-import ac.uk.ebi.biostd.client.dto.ExtPage
 import ac.uk.ebi.biostd.client.dto.ExtPageQuery
+import ac.uk.ebi.biostd.client.dto.ReleaseRequestDto
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ebi.ac.uk.api.ClientResponse
@@ -16,6 +16,7 @@ import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
@@ -72,9 +73,12 @@ interface SubmissionOperations {
 
     fun submitAsync(submission: String, format: SubmissionFormat = JSON, register: RegisterConfig = NonRegistration)
 
-    fun refreshSubmission(accNo: String): SubmissionResponse
     fun deleteSubmission(accNo: String)
+
     fun deleteSubmissions(submissions: List<String>)
+
+    fun releaseSubmission(request: ReleaseRequestDto)
+
     fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
 }
 
@@ -153,6 +157,8 @@ interface ExtSubmissionOperations {
         fileLists: List<File> = emptyList(),
         fileMode: FileMode = COPY
     ): ExtSubmission
+
+    fun refreshSubmission(accNo: String): ExtSubmission
 }
 
 interface PermissionOperations {

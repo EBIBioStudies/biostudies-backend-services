@@ -1,10 +1,9 @@
 package ac.uk.ebi.biostd.client.api
 
-import ac.uk.ebi.biostd.client.dto.ExtPage
 import ac.uk.ebi.biostd.client.dto.ExtPageQuery
-import ac.uk.ebi.biostd.client.extensions.map
 import ac.uk.ebi.biostd.client.integration.web.ExtSubmissionOperations
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.model.constants.FILE_LISTS
@@ -14,7 +13,6 @@ import ebi.ac.uk.util.date.toStringInstant
 import ebi.ac.uk.util.web.optionalQueryParam
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
-import org.springframework.http.ResponseEntity
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForEntity
@@ -31,34 +29,33 @@ class ExtSubmissionClient(
     private val restTemplate: RestTemplate,
     private val extSerializationService: ExtSerializationService
 ) : ExtSubmissionOperations {
-    override fun getExtSubmissions(extPageQuery: ExtPageQuery): ExtPage =
-        restTemplate
-            .getForEntity<String>(asUrl(extPageQuery))
-            .deserialized()
-
-    override fun getExtSubmissionsPage(pageUrl: String): ExtPage =
-        restTemplate
-            .getForEntity<String>(pageUrl)
-            .deserialized()
-
-    override fun getExtByAccNo(accNo: String): ExtSubmission =
-        restTemplate
-            .getForEntity<String>("$EXT_SUBMISSIONS_URL/$accNo")
-            .deserialized()
-
-    override fun getReferencedFiles(filesUrl: String): ExtFileTable {
-        return restTemplate
-            .getForEntity<String>(decode(filesUrl, UTF_8))
-            .deserialized()
+    override fun getExtSubmissions(extPageQuery: ExtPageQuery): ExtPage {
+        val response = restTemplate.getForEntity<String>(asUrl(extPageQuery)).body!!
+        return extSerializationService.deserializePage(response)
     }
 
-    override fun submitExt(extSubmission: ExtSubmission, fileLists: List<File>, fileMode: FileMode): ExtSubmission =
-        restTemplate
-            .postForEntity<String>(
-                EXT_SUBMISSIONS_URL,
-                HttpEntity(getMultipartBody(extSubmission, fileLists, fileMode))
-            )
-            .deserialized()
+    override fun getExtSubmissionsPage(pageUrl: String): ExtPage {
+        val response = restTemplate.getForEntity<String>(pageUrl).body!!
+        return extSerializationService.deserializePage(response)
+    }
+
+    override fun getExtByAccNo(accNo: String): ExtSubmission {
+        val response = restTemplate.getForEntity<String>("$EXT_SUBMISSIONS_URL/$accNo").body!!
+        return extSerializationService.deserialize(response)
+    }
+
+    override fun getReferencedFiles(filesUrl: String): ExtFileTable {
+        val response = restTemplate.getForEntity<String>(decode(filesUrl, UTF_8)).body!!
+        return extSerializationService.deserializeTable(response)
+    }
+
+    override fun submitExt(extSubmission: ExtSubmission, fileLists: List<File>, fileMode: FileMode): ExtSubmission {
+        val response = restTemplate.postForEntity<String>(
+            EXT_SUBMISSIONS_URL,
+            HttpEntity(getMultipartBody(extSubmission, fileLists, fileMode))
+        )
+        return extSerializationService.deserialize(response.body!!)
+    }
 
     override fun submitExtAsync(extSubmission: ExtSubmission, fileLists: List<File>, fileMode: FileMode) {
         restTemplate.postForEntity<String>(
@@ -67,12 +64,18 @@ class ExtSubmissionClient(
         )
     }
 
+    override fun refreshSubmission(accNo: String): ExtSubmission {
+        val response = restTemplate.postForEntity<String>("$EXT_SUBMISSIONS_URL/refresh/$accNo")
+        return extSerializationService.deserialize(response.body!!)
+    }
+
     private fun asUrl(extPageQuery: ExtPageQuery): String =
         UriComponentsBuilder.fromUriString(EXT_SUBMISSIONS_URL)
             .queryParam("offset", extPageQuery.offset)
             .queryParam("limit", extPageQuery.limit)
             .optionalQueryParam("fromRTime", extPageQuery.fromRTime?.toStringInstant())
             .optionalQueryParam("toRTime", extPageQuery.toRTime?.toStringInstant())
+            .optionalQueryParam("collection", extPageQuery.collection)
             .optionalQueryParam("released", extPageQuery.released)
             .build()
             .toUriString()
@@ -84,7 +87,4 @@ class ExtSubmissionClient(
                 .plus(FILE_MODE to fileMode.name)
                 .groupBy({ it.first }, { it.second })
         )
-
-    private inline fun <reified T> ResponseEntity<String>.deserialized(): T =
-        map { body -> extSerializationService.deserialize(body, T::class.java) }.body!!
 }

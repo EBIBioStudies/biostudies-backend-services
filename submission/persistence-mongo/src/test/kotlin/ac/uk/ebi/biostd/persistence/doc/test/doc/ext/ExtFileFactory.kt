@@ -13,7 +13,9 @@ val rootSectionFileListFile =
         filePath = ROOT_FILE_LIST_FILEPATH,
         relPath = ROOT_FILE_LIST_REL_NAME,
         fullPath = ROOT_FILE_LIST_FULL_PATH,
-        file = ROOT_FILE_LIST_FILE
+        file = ROOT_FILE_LIST_FILE,
+        md5 = "abc-md5",
+        size = 55L
     )
 
 const val SUB_FILE_LIST_FILE_NAME = "fileName2"
@@ -26,7 +28,9 @@ val subSectionFileListFile =
         filePath = SUB_FILE_LIST_FILEPATH,
         relPath = SUB_FILE_LIST_REL_PATH,
         fullPath = SUB_FILE_LIST_FULL_PATH,
-        file = SUB_FILE_LIST_FILE
+        file = SUB_FILE_LIST_FILE,
+        md5 = "abc-md5",
+        size = 55L
     )
 
 const val ROOT_SEC_FILE_NAME = "fileName3"
@@ -39,7 +43,9 @@ val rootSectionFile =
         filePath = ROOT_SEC_FILEPATH,
         relPath = ROOT_SEC_REL_PATH,
         fullPath = ROOT_SEC_FULL_PATH,
-        file = ROOT_SEC_FILE
+        file = ROOT_SEC_FILE,
+        md5 = "abc-md5",
+        size = 55L
     )
 
 const val ROOT_SEC_TABLE_FILE_NAME = "fileName4"
@@ -52,5 +58,7 @@ val rootSectionTableFile =
         filePath = ROOT_SEC_TABLE_FILEPATH,
         relPath = ROOT_SEC_TABLE_REL_PATH,
         fullPath = ROOT_SEC_TABLE_FUL_PATH,
-        file = ROOT_SEC_TABLE_FILE
+        file = ROOT_SEC_TABLE_FILE,
+        md5 = "abc-md5",
+        size = 55L
     )

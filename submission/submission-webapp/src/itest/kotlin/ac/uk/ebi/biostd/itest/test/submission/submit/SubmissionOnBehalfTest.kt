@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
@@ -58,7 +59,7 @@ internal class SubmissionOnBehalfTest(private val tempFolder: TemporaryFolder) :
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
 
-            sequenceRepository.save(ac.uk.ebi.biostd.persistence.model.Sequence("S-BSST"))
+            sequenceRepository.save(DbSequence("S-BSST"))
         }
 
         @BeforeEach

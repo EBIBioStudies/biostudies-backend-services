@@ -60,7 +60,7 @@ private fun reusePreviousFile(fireFile: FireFile, nfsFile: NfsFile) =
     )
 
 private fun FireFileProcessingConfig.saveFile(subRelPath: String, nfsFile: NfsFile): ExtFile {
-    val (filePath, relPath, _, file, attributes) = nfsFile
+    val (filePath, relPath, file, _, _, _, attributes) = nfsFile
 
     return when {
         nfsFile.file.isDirectory -> FireDirectory(filePath, relPath, file.md5(), file.size(), attributes)

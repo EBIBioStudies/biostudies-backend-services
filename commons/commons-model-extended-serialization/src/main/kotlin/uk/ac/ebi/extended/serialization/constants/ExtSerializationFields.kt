@@ -25,6 +25,13 @@ object ExtSerializationFields {
     const val FILE_FILE_TYPE = "file"
     const val FILE_DIR_TYPE = "directory"
 
+    // Ext Attributes Fields
+    const val ATTR_NAME = "name"
+    const val ATTR_VALUE = "value"
+    const val ATTR_REFERENCE = "reference"
+    const val ATTR_NAME_ATTRS = "nameAttrs"
+    const val ATTR_VAL_ATTRS = "valueAttrs"
+
     // Ext Submission Fields
     var VERSION = "version"
     var SCHEMA_VERSION = "schemaVersion"

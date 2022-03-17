@@ -14,6 +14,7 @@ include("commons:commons-transpiler")
 include("commons:commons-model-extended")
 include("commons:commons-model-extended-mapping")
 include("commons:commons-model-extended-serialization")
+include ('commons:commons-model-extended-test')
 
 include("client:bio-webclient")
 include("client:bio-webclient-demo")

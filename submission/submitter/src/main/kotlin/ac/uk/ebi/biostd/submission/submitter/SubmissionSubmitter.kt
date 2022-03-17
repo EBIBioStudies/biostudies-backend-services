@@ -1,13 +1,14 @@
 package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.json.exception.NoAttributeValueException
-import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
-import ac.uk.ebi.biostd.submission.model.SubmissionRequest
+import ac.uk.ebi.biostd.submission.model.ReleaseRequest
+import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
@@ -25,7 +26,6 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.FilesSource
@@ -55,57 +55,37 @@ class SubmissionSubmitter(
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
     private val collectionInfoService: CollectionInfoService,
-    private val submissionRequestService: SubmissionRequestService,
+    private val submissionPersistenceService: SubmissionPersistenceService,
     private val queryService: SubmissionMetaQueryService,
     private val submissionQueryService: SubmissionQueryService,
+    private val draftService: SubmissionDraftService,
     private val properties: ApplicationProperties
 ) {
-    fun submit(request: SubmissionRequest): ExtSubmission {
-        val saved = submitAsync(request)
-        return processRequest(saved.submission.accNo, saved.submission.version, saved.fileMode, saved.draftKey)
+    fun submitAsync(rqt: SubmitRequest): Pair<String, Int> {
+        logger.info { "${rqt.accNo} ${rqt.submitter.email} Processing async request $rqt" }
+        val sub = process(rqt.submission, rqt.submitter.asUser(), rqt.onBehalfUser?.asUser(), rqt.sources, rqt.method)
+        logger.info { "${sub.accNo} ${sub.submitter} Saving submission request ${sub.accNo}" }
+        return saveRequest(SubmissionRequest(sub, rqt.mode, rqt.draftKey), rqt.owner)
     }
 
-    fun submit(submission: SaveSubmissionRequest): ExtSubmission {
-        return processRequest(
-            submission.submission.accNo,
-            submission.submission.version,
-            submission.fileMode,
-            submission.draftKey
-        )
+    fun submitAsync(request: SubmissionRequest): Pair<String, Int> = saveRequest(request, request.submission.submitter)
+
+    fun processRequest(accNo: String, version: Int): ExtSubmission {
+        val saveRequest = submissionQueryService.getPendingRequest(accNo, version)
+        val submitter = saveRequest.submission.submitter
+        logger.info { "$accNo, $submitter Processing request for submission accNo='$accNo', version='$version'" }
+        return submissionPersistenceService.processSubmissionRequest(saveRequest)
     }
 
-    fun submitAsync(request: SubmissionRequest): SaveSubmissionRequest {
-        logger.info { "${request.accNo} ${request.submitter.email} Processing async request $request" }
-
-        val submission = process(
-            request.submission,
-            request.submitter.asUser(),
-            request.onBehalfUser?.asUser(),
-            request.sources,
-            request.method
-        )
-
-        logger.info { "${submission.accNo} ${submission.submitter} Saving submission request ${submission.accNo}" }
-        val rqt = submissionRequestService.saveSubmissionRequest(
-            SaveSubmissionRequest(
-                submission,
-                request.mode,
-                request.draftKey
-            )
-        )
-        return SaveSubmissionRequest(rqt, request.mode, request.draftKey)
+    fun release(request: ReleaseRequest) {
+        val (accNo, owner, relPath) = request
+        submissionPersistenceService.releaseSubmission(accNo, owner, relPath)
     }
 
-    fun submitAsync(request: SaveSubmissionRequest): ExtSubmission {
-        return submissionRequestService.saveSubmissionRequest(request)
-    }
-
-    fun processRequest(accNo: String, version: Int, fileMode: FileMode, draftKey: String?): ExtSubmission {
-        val submission = submissionQueryService.getRequest(accNo, version)
-        val saveRequest = SaveSubmissionRequest(submission, fileMode, draftKey)
-        val accNo1 = saveRequest.submission.accNo
-        logger.info { "$accNo1 ${saveRequest.submission.submitter} Processing request for submission $accNo1" }
-        return submissionRequestService.processSubmission(saveRequest)
+    private fun saveRequest(request: SubmissionRequest, owner: String): Pair<String, Int> {
+        val saved = submissionPersistenceService.saveSubmissionRequest(request)
+        request.draftKey?.let { draftService.setProcessingStatus(owner, it) }
+        return saved
     }
 
     @Suppress("TooGenericExceptionCaught")
@@ -122,6 +102,7 @@ class SubmissionSubmitter(
 
             return extSubmission
         } catch (exception: RuntimeException) {
+            logger.error(exception) { "Error processing submission request accNo='${submission.accNo}'" }
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
     }
@@ -191,7 +172,6 @@ class SubmissionSubmitter(
 
     private fun getAttributes(submission: Submission): List<ExtAttribute> {
         return submission.attributes
-            .onEach { require(it.value.isNotEmpty()) { throw NoAttributeValueException(it.value) } }
             .filterNot { SUBMISSION_RESERVED_ATTRIBUTES.contains(it.name) }
             .map { it.toExtAttribute() }
     }

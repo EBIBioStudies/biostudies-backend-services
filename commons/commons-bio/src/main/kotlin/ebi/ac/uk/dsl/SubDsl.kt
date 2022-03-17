@@ -15,7 +15,7 @@ import ebi.ac.uk.model.Submission
 
 fun Attributable.attribute(
     name: String,
-    value: String,
+    value: String?,
     ref: Boolean = false,
     valueAttrs: MutableList<AttributeDetail> = mutableListOf(),
     nameAttrs: MutableList<AttributeDetail> = mutableListOf()

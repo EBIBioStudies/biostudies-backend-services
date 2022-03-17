@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.service.process
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.paths.SubmissionFolderResolver
 
 class NfsPageTabService(
@@ -37,17 +38,17 @@ class NfsPageTabService(
 
     private fun fileListFiles(tab: PageTabFiles, name: String): List<NfsFile> {
         return listOf(
-            NfsFile("$name.json", "Files/$name.json", tab.json.absolutePath, tab.json),
-            NfsFile("$name.xml", "Files/$name.xml", tab.xml.absolutePath, tab.xml),
-            NfsFile("$name.pagetab.tsv", "Files/$name.pagetab.tsv", tab.tsv.absolutePath, tab.tsv)
+            createNfsFile("$name.json", "Files/$name.json", tab.json),
+            createNfsFile("$name.xml", "Files/$name.xml", tab.xml),
+            createNfsFile("$name.pagetab.tsv", "Files/$name.pagetab.tsv", tab.tsv),
         )
     }
 
     private fun subFiles(files: PageTabFiles): List<NfsFile> {
         return listOf(
-            NfsFile(files.json.name, files.json.name, files.json.absolutePath, files.json),
-            NfsFile(files.xml.name, files.xml.name, files.xml.absolutePath, files.xml),
-            NfsFile(files.tsv.name, files.tsv.name, files.tsv.absolutePath, files.tsv)
+            createNfsFile(files.json.name, files.json.name, files.json),
+            createNfsFile(files.xml.name, files.xml.name, files.xml),
+            createNfsFile(files.tsv.name, files.tsv.name, files.tsv)
         )
     }
 }

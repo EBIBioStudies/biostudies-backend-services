@@ -1,10 +1,13 @@
 package ac.uk.ebi.biostd.persistence.doc.db.repositories
 
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -14,9 +17,6 @@ import org.springframework.data.mongodb.repository.Query
 interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     fun findByAccNo(accNo: String): DocSubmission?
-
-    @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
-    fun getByAccNo(accNo: String): DocSubmission
 
     fun existsByAccNo(accNo: String): Boolean
 
@@ -34,19 +34,26 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
 
     @Query("{ 'stats.name': { \$eq: '?0' } }")
     fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Page<DocSubmission>
-
-    @Query("{ 'accNo': '?0' }")
-    fun getAllSubmissionsByAccNo(accNo: String): List<DocSubmission>
 }
 
-interface SubmissionRequestRepository : MongoRepository<SubmissionRequest, String> {
-    fun getByAccNoAndVersion(accNo: String, version: Int): SubmissionRequest
+fun SubmissionMongoRepository.getByAccNo(accNo: String) = findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
+
+interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, String> {
+    fun getByAccNoAndVersionAndStatus(
+        accNo: String,
+        version: Int,
+        status: SubmissionRequestStatus
+    ): DocSubmissionRequest
 }
 
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {
     fun findByUserIdAndKey(userId: String, key: String): DocSubmissionDraft?
 
-    fun findAllByUserId(userId: String, pageRequest: Pageable): List<DocSubmissionDraft>
+    fun findAllByUserIdAndStatus(
+        userId: String,
+        status: DraftStatus,
+        pageRequest: Pageable
+    ): List<DocSubmissionDraft>
 
     fun getById(id: String): DocSubmissionDraft
 
@@ -56,7 +63,15 @@ interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String
 }
 
 interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId> {
-    fun getById(id: ObjectId): FileListDocFile
+    fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(
+        accNo: String,
+        version: Int,
+        fileListName: String
+    ): List<FileListDocFile>
 
-    fun findAllBySubmissionId(submissionId: ObjectId): List<FileListDocFile>
+    fun findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
+        accNo: String,
+        version: Int,
+        fileListName: String
+    ): List<FileListDocFile>
 }

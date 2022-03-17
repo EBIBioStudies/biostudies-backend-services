@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.service
 
 import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SubFormat
-import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
 import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.FireBioFile
@@ -14,7 +13,6 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.fileListName
 import java.io.File
-import java.lang.ClassCastException
 
 internal class FileListSerializer(
     private val serializer: PagetabSerializer
@@ -44,7 +42,7 @@ internal class FileListSerializer(
 
     private fun getFilesTable(file: File): FilesTable =
         runCatching {
-            serializer.deserializeElement<FilesTable>(readAsPageTab(file), SubFormat.fromFile(file))
+            file.inputStream().use { serializer.deserializeFileList(it, SubFormat.fromFile(file)) }
         }.getOrElse {
             throw InvalidFileListException("Problem processing file list '${file.name}': ${errorMsg(it)}")
         }

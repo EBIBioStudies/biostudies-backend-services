@@ -12,7 +12,7 @@ class BioStudiesWebConsumer(
 ) {
     // TODO integration test for non utf-8 file names i.e. 干扰1.jpg
     fun getExtSubmission(url: String): ExtSubmission =
-        extSerializationService.deserialize(restTemplate.getForObject(url), ExtSubmission::class.java)
+        extSerializationService.deserialize(restTemplate.getForObject<String>(url))
 
     fun getExtUser(url: String): ExtUser = restTemplate.getForObject(url)
 }

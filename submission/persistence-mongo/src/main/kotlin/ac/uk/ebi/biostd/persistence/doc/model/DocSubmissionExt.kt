@@ -10,6 +10,7 @@ import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.ProcessingStatus
 import ebi.ac.uk.model.constants.SectionFields
 import java.time.ZoneOffset.UTC
+import java.time.temporal.ChronoUnit
 
 fun DocSubmission.asBasicSubmission(): BasicSubmission {
     return BasicSubmission(
@@ -19,9 +20,9 @@ fun DocSubmission.asBasicSubmission(): BasicSubmission {
         title = title ?: section.title,
         relPath = relPath,
         released = released,
-        creationTime = creationTime.atOffset(UTC),
-        modificationTime = modificationTime.atOffset(UTC),
-        releaseTime = releaseTime?.atOffset(UTC),
+        creationTime = creationTime.atOffset(UTC).truncatedTo(ChronoUnit.MILLIS),
+        modificationTime = modificationTime.atOffset(UTC).truncatedTo(ChronoUnit.MILLIS),
+        releaseTime = releaseTime?.atOffset(UTC)?.truncatedTo(ChronoUnit.MILLIS),
         status = status.toProcessingStatus(),
         method = method.toSubmissionMethod(),
         owner = owner
@@ -35,12 +36,21 @@ val DocSubmission.allDocSections: List<DocSection>
         .build()
         .filterNotNull()
 
+val DocSubmission.allFileLists: List<DocFileList>
+    get() = section.allFileList
+
 val DocSection.allSections: List<DocSection>
     get() = sections.flatMap { either ->
         either.fold(
             { section -> listOf(section) + section.allSections },
             { emptyList() }
         )
+    }
+
+val DocSection.allFileList: List<DocFileList>
+    get() = buildList {
+        fileList?.let { add(it) }
+        addAll(sections.mapNotNull { either -> either.fold({ it }, { null }) }.flatMap { it.allFileList })
     }
 
 private fun DocProcessingStatus.toProcessingStatus(): ProcessingStatus =

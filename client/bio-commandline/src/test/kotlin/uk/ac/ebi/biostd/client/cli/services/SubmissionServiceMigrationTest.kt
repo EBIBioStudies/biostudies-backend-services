@@ -9,6 +9,8 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -100,7 +102,17 @@ class SubmissionServiceMigrationTest(
             fileList = ExtFileList(
                 "test-file-list",
                 filesUrl = "/submissions/extended/S-BSST1/referencedFiles/test-file-list",
-                pageTabFiles = listOf(NfsFile("filePath", "relPath", referencedFile, emptyList()))
+                pageTabFiles = listOf(
+                    NfsFile(
+                        "filePath",
+                        "relPath",
+                        referencedFile,
+                        referencedFile.absolutePath,
+                        referencedFile.md5(),
+                        referencedFile.size(),
+                        emptyList()
+                    )
+                )
             )
         )
 
@@ -122,6 +134,9 @@ class SubmissionServiceMigrationTest(
                 filePath = "folder/referenced.pdf",
                 relPath = "Files/folder/referenced.pdf",
                 file = referencedFile,
+                referencedFile.absolutePath,
+                referencedFile.md5(),
+                referencedFile.size(),
                 attributes = emptyList()
             )
         )

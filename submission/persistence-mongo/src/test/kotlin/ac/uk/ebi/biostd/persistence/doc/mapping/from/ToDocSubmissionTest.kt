@@ -26,7 +26,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_TAG_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_FILENAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_FILEPATH
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.NFS_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SECTION_LINK_URL
@@ -94,8 +93,8 @@ import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
@@ -103,7 +102,6 @@ import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
-import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -121,12 +119,12 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
 
     private val nfsFileFile = tempFolder.createFile(NFS_FILENAME)
-    private val nfsFile = NfsFile(NFS_FILEPATH, NFS_REL_PATH, NFS_FULL_PATH, nfsFileFile)
+    private val extNfsFile = createNfsFile(NFS_FILEPATH, NFS_REL_PATH, nfsFileFile)
 
     private val newRootSection = rootSection.copy(
         fileList = rootSection.fileList!!.copy(
             files = listOf(newRootSectionFileListFile),
-            pageTabFiles = listOf(fireFile, fireDirectory, nfsFile)
+            pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile)
         ),
         sections = listOf(
             Either.left(newSubSection),
@@ -140,7 +138,7 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
 
     private val submission = fullExtSubmission.copy(
         section = newRootSection,
-        pageTabFiles = listOf(fireFile, fireDirectory, nfsFile)
+        pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile)
     )
 
     @Test
@@ -148,16 +146,8 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         val (docSubmission, listFiles) = submission.toDocSubmission()
 
         assertDocSubmission(docSubmission)
-        assertListFiles(listFiles, docSubmission.id)
-        assertFileReferences(docSubmission, listFiles)
+        assertListFiles(listFiles, docSubmission)
         assertThat(docSubmission.storageMode).isEqualTo(StorageMode.NFS)
-    }
-
-    private fun assertFileReferences(docSubmission: DocSubmission, listFiles: List<FileListDocFile>) {
-        assertThat(listFiles.first().id).isEqualTo(docSubmission.section.fileList?.files?.first()?.fileId)
-        assertThat(docSubmission.section.sections.first()).hasLeftValueSatisfying {
-            assertThat(listFiles.second().id).isEqualTo(it.fileList?.files?.first()?.fileId)
-        }
     }
 
     private fun assertDocSubmission(docSubmission: DocSubmission) {
@@ -200,28 +190,36 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         )
         assertThat(pageTabFiles.third()).isEqualTo(
             NfsDocFile(
-                nfsFile.fileName,
-                nfsFile.filePath,
-                nfsFile.relPath,
+                extNfsFile.fileName,
+                extNfsFile.filePath,
+                extNfsFile.relPath,
                 nfsFileFile.absolutePath,
                 listOf(),
                 nfsFileFile.md5(),
-                nfsFile.size,
+                extNfsFile.size,
                 "file"
             )
         )
     }
 
-    private fun assertListFiles(listFiles: List<FileListDocFile>, docSubmissionId: ObjectId) {
+    private fun assertListFiles(listFiles: List<FileListDocFile>, docSubmission: DocSubmission) {
         assertThat(listFiles).hasSize(2)
 
-        val listFile = listFiles[0]
-        assertThat(listFile.submissionId).isEqualTo(docSubmissionId)
+        val listFile = listFiles.first()
+        assertThat(listFile.submissionId).isEqualTo(docSubmission.id)
         assertThat(listFile.file).isEqualTo(newRootSectionFileListFile.toDocFile())
+        assertThat(listFile.fileListName).isEqualTo(ROOT_SEC_EXT_FILE_LIST_FILENAME)
+        assertThat(listFile.index).isEqualTo(0)
+        assertThat(listFile.submissionVersion).isEqualTo(docSubmission.version)
+        assertThat(listFile.submissionAccNo).isEqualTo(docSubmission.accNo)
 
         val sublistFile = listFiles[1]
-        assertThat(sublistFile.submissionId).isEqualTo(docSubmissionId)
+        assertThat(sublistFile.submissionId).isEqualTo(docSubmission.id)
         assertThat(sublistFile.file).isEqualTo(newSubSectionFileListFile.toDocFile())
+        assertThat(sublistFile.fileListName).isEqualTo(SUB_SEC_EXT_FILE_LIST_FILENAME)
+        assertThat(sublistFile.index).isEqualTo(0)
+        assertThat(sublistFile.submissionVersion).isEqualTo(docSubmission.version)
+        assertThat(sublistFile.submissionAccNo).isEqualTo(docSubmission.accNo)
     }
 
     private fun assertSimpleDocProperties(docSubmission: DocSubmission) {

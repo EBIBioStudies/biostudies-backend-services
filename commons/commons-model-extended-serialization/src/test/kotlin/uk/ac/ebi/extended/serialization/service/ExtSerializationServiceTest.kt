@@ -7,14 +7,25 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.test.AttributeFactory.defaultAttribute
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-class ExtSerializationServiceTest {
+@ExtendWith(TemporaryFolderExtension::class)
+class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
     private val testInstance = ExtSerializationService()
+    private val testFile = tempFolder.createFile("results.txt")
+    private val nfsFile = tempFolder.createFile("file.txt")
+    private val attributes = (1..4).map { defaultAttribute(name = "name$it") }
 
     @Test
     fun `serialize - deserialize`() {
@@ -43,8 +54,27 @@ class ExtSerializationServiceTest {
         )
 
         val serialized = testInstance.serialize(extSubmission)
-        val deserialized = testInstance.deserialize<ExtSubmission>(serialized)
+        val deserialized = testInstance.deserialize(serialized)
 
         assertThat(deserialized).isEqualTo(extSubmission)
     }
+
+    @Test
+    fun `serialize - deserialize fileList`() {
+        val fileList = (1..20_000).map { createNfsFile(it) }.asSequence()
+        val iterator = fileList.iterator()
+
+        testFile.outputStream().use { testInstance.serialize(fileList, it) }
+        testFile.inputStream().use { testInstance.deserialize(it).onEach { assertThat(it).isEqualTo(iterator.next()) } }
+    }
+
+    private fun createNfsFile(index: Int) = NfsFile(
+        filePath = "folder$index/file.txt",
+        relPath = "Files/folder$index/file.txt",
+        fullPath = nfsFile.absolutePath,
+        file = nfsFile,
+        attributes = (1..4).map { ExtAttribute(name = "name$it-file$index", value = "value$it-file$index") },
+        md5 = nfsFile.md5(),
+        size = nfsFile.size()
+    )
 }

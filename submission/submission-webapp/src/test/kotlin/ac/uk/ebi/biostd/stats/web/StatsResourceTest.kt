@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
-import ac.uk.ebi.biostd.persistence.model.DbSubmissionStat
+import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ebi.ac.uk.dsl.json.jsonArray
@@ -35,7 +35,7 @@ class StatsResourceTest(
     @MockK private val tempFileGenerator: TempFileGenerator,
     @MockK private val statsService: StatsDataService
 ) {
-    private val testStat = DbSubmissionStat("S-TEST123", 10, VIEWS)
+    private val testStat = SingleSubmissionStat("S-TEST123", 10, VIEWS)
     private val testInstance = StatsResource(statsFileHandler, tempFileGenerator, statsService)
     private val mvc = MockMvcBuilders.standaloneSetup(testInstance).build()
 
@@ -128,7 +128,7 @@ class StatsResourceTest(
         val incrementedStats = slot<List<SubmissionStat>>()
         val type = slot<SubmissionStatType>()
         val multipartStatsFile = slot<MultipartFile>()
-        val incrementedStat = DbSubmissionStat("S-TEST123", 20, VIEWS)
+        val incrementedStat = SingleSubmissionStat("S-TEST123", 20, VIEWS)
         val statsFile = tempFolder.createFile("increase.tsv")
         val body = jsonArray(
             jsonObj {

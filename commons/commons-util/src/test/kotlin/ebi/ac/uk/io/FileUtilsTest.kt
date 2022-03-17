@@ -11,9 +11,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Timeout
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Files.getPosixFilePermissions
+import java.util.concurrent.TimeUnit
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
@@ -253,6 +256,23 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
 
             assertThat(FileUtils.md5(folder)).isEmpty()
             assertThat(FileUtils.md5(file)).isEqualTo("FC5D029EE5D34A268F8FA016E949073B")
+        }
+
+        @Nested
+        inner class Md5Performance {
+            lateinit var file: File
+
+            @BeforeEach
+            fun beforeEach() {
+                val oneGb = (1024 * 1024 * 1024).toLong()
+                file = temporaryFolder.createFile("md5-p-test.txt", oneGb)
+            }
+
+            @Test
+            @Timeout(10_000, unit = TimeUnit.MILLISECONDS)
+            fun md5Performance() {
+                assertThat(FileUtils.md5(file)).isNotEmpty()
+            }
         }
 
         @Test

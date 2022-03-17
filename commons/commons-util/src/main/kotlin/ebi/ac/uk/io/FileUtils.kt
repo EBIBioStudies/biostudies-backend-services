@@ -7,6 +7,7 @@ import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createSymLink
 import ebi.ac.uk.io.ext.notExist
+import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Files
@@ -15,7 +16,6 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
-import java.security.MessageDigest
 import kotlin.streams.toList
 
 internal const val CHECKSUM_SIGNUM = 1
@@ -130,12 +130,7 @@ object FileUtils {
         Files.setPosixFilePermissions(path, permissions)
     }
 
-    private fun calculateMd5(file: File): String {
-        val digest = MessageDigest.getInstance(MD5_ALGORITHM)
-        file.inputStream().buffered(BUFFER_SIZE).use { it.iterator().forEach(digest::update) }
-
-        return digest.digest().joinToString("") { "%02x".format(it) }.toUpperCase()
-    }
+    private fun calculateMd5(file: File): String = file.inputStream().use { DigestUtils.md5Hex(it).uppercase() }
 }
 
 @Suppress("TooManyFunctions")

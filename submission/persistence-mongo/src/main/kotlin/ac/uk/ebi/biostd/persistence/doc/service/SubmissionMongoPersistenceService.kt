@@ -1,59 +1,82 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestService
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
-import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocSubmission
-import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.RequestFileList
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import com.mongodb.BasicDBObject
-import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
+import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.extended.model.allFileList
+import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.RWXRWX___
+import mu.KotlinLogging
+import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
+import java.nio.file.Files
+import java.nio.file.Path
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.outputStream
 import kotlin.math.absoluteValue
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("LongParameterList")
 internal class SubmissionMongoPersistenceService(
     private val subDataRepository: SubmissionDocDataRepository,
-    private val submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
-    private val draftDocDataRepository: SubmissionDraftDocDataRepository,
+    private val requestRepository: SubmissionRequestDocDataRepository,
     private val serializationService: ExtSerializationService,
     private val systemService: FileSystemService,
-    private val fileListDocFileRepository: FileListDocFileRepository,
-    private val toExtSubmissionMapper: ToExtSubmissionMapper
-) : SubmissionRequestService {
-
-    override fun saveSubmissionRequest(saveRequest: SaveSubmissionRequest): ExtSubmission {
-        val submission = saveRequest.submission
-        val newVersion = submission.copy(version = getNextVersion(submission.accNo), status = REQUESTED)
-        submissionRequestDocDataRepository.saveRequest(asRequest(newVersion))
-        return newVersion
+    private val submissionRepository: ExtSubmissionRepository,
+    private val fileListPath: Path,
+) : SubmissionPersistenceService {
+    override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
+        val version = getNextVersion(rqt.submission.accNo)
+        val extSubmission = rqt.submission.copy(version = version, status = REQUESTED)
+        return saveRequest(rqt, extSubmission)
     }
 
-    override fun processSubmission(saveRequest: SaveSubmissionRequest): ExtSubmission {
+    private fun saveRequest(rqt: SubmissionRequest, extSubmission: ExtSubmission): Pair<String, Int> {
+        requestRepository.saveRequest(asRequest(rqt, extSubmission))
+        return extSubmission.accNo to extSubmission.version
+    }
+
+    override fun processSubmissionRequest(saveRequest: SubmissionRequest): ExtSubmission {
         val (submission, fileMode, draftKey) = saveRequest
+        val processingSubmission = processFiles(submission, fileMode)
+        val savedSubmission = submissionRepository.saveSubmission(processingSubmission, draftKey)
+        requestRepository.updateStatus(SubmissionRequestStatus.PROCESSED, submission.accNo, submission.version)
 
-        // TODO populate the previousFiles field in the FilePersistenceRequest
+        if (savedSubmission.released) {
+            releaseSubmission(savedSubmission.accNo, savedSubmission.owner, savedSubmission.relPath)
+        }
+
+        return savedSubmission
+    }
+
+    override fun releaseSubmission(accNo: String, owner: String, relPath: String) {
+        logger.info { "$accNo $owner Releasing submission $accNo" }
+
+        subDataRepository.release(accNo)
+        systemService.releaseSubmissionFiles(accNo, owner, relPath)
+
+        logger.info { "$accNo $owner Finished releasing submission $accNo" }
+    }
+
+    /**
+     * Process the submission files. TODO: We need to populate previous files to avoid re creating them when using FIRE.
+     */
+    private fun processFiles(submission: ExtSubmission, fileMode: FileMode): ExtSubmission {
         val filePersistenceRequest = FilePersistenceRequest(submission, fileMode, emptyMap())
-        val processingSubmission = systemService.persistSubmissionFiles(filePersistenceRequest)
-
-        val (docSubmission, files) = processingSubmission.copy(status = PROCESSING).toDocSubmission()
-        saveSubmission(docSubmission, files, draftKey)
-        submissionRequestDocDataRepository.updateStatus(REQUEST_PROCESSED, submission.accNo, submission.version)
-
-        return toExtSubmissionMapper.toExtSubmission(docSubmission)
+        return systemService.persistSubmissionFiles(filePersistenceRequest)
     }
 
     private fun getNextVersion(accNo: String): Int {
@@ -61,31 +84,36 @@ internal class SubmissionMongoPersistenceService(
         return lastVersion.absoluteValue + 1
     }
 
-    private fun asRequest(submission: ExtSubmission): SubmissionRequest {
-        val content = serializationService.serialize(submission, Properties(includeFileListFiles = true))
-        return SubmissionRequest(
+    private fun asRequest(rqt: SubmissionRequest, submission: ExtSubmission): DocSubmissionRequest {
+        val content = serializationService.serialize(submission, Properties(includeFileListFiles = false))
+        val fileLists = getRequestFileList(submission)
+        return DocSubmissionRequest(
+            id = ObjectId(),
             accNo = submission.accNo,
             version = submission.version,
+            fileMode = rqt.fileMode,
+            draftKey = rqt.draftKey,
             status = SubmissionRequestStatus.REQUESTED,
-            submission = BasicDBObject.parse(content)
+            submission = BasicDBObject.parse(content),
+            fileList = fileLists
         )
     }
 
-    private fun saveSubmission(docSubmission: DocSubmission, files: List<FileListDocFile>, draftKey: String?) {
-        subDataRepository.save(docSubmission)
-        fileListDocFileRepository.saveAll(files)
-        updateCurrentRecords(docSubmission, draftKey)
-        subDataRepository.updateStatus(PROCESSED, docSubmission.accNo, docSubmission.version)
+    private fun getRequestFileList(sub: ExtSubmission): List<RequestFileList> {
+        val fileLists = sub.allFileList.distinctBy { it.filePath }
+        val baseFolder = getBaseFolder(sub)
+        return fileLists.map { asRequestFileList(baseFolder, it) }
     }
 
-    private fun updateCurrentRecords(submission: DocSubmission, draftKey: String?) {
-        subDataRepository.expireActiveProcessedVersions(submission.accNo)
-        deleteSubmissionDrafts(submission, draftKey)
+    private fun getBaseFolder(sub: ExtSubmission): Path {
+        val baseFolder = fileListPath.resolve(sub.accNo).resolve(sub.version.toString())
+        FileUtils.createEmptyFolder(baseFolder, RWXRWX___)
+        return baseFolder
     }
 
-    private fun deleteSubmissionDrafts(submission: DocSubmission, draftKey: String?) {
-        draftKey?.let { draftDocDataRepository.deleteByKey(draftKey) }
-        draftDocDataRepository.deleteByUserIdAndKey(submission.owner, submission.accNo)
-        draftDocDataRepository.deleteByUserIdAndKey(submission.submitter, submission.accNo)
+    private fun asRequestFileList(baseFolder: Path, fileList: ExtFileList): RequestFileList {
+        val file = Files.createFile(baseFolder.resolve(fileList.fileName))
+        file.outputStream().use { serializationService.serialize(fileList.files.asSequence(), it) }
+        return RequestFileList(fileName = fileList.fileName, filePath = file.absolutePathString())
     }
 }

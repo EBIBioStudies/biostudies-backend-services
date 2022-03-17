@@ -6,6 +6,7 @@ import Dependencies.Log4J
 import Dependencies.SpringWeb
 import Projects.BioWebClient
 import Projects.CommonsModelExtendedSerialization
+import Projects.CommonsModelExtendedTest
 import Projects.CommonsUtil
 import TestDependencies.AssertJ
 import TestDependencies.Junit
@@ -20,6 +21,7 @@ plugins {
 
 dependencies {
     api(project(BioWebClient))
+    api(project(CommonsModelExtendedTest))
     api(project(CommonsModelExtendedSerialization))
     api(project(CommonsUtil))
 

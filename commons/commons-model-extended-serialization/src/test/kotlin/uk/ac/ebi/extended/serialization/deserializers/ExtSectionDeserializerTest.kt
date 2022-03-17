@@ -1,5 +1,6 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtSection
@@ -13,7 +14,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.extensions.deserialize
 import kotlin.test.assertNotNull
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -27,7 +27,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "section"
         }.toString()
 
-        val extSection = testInstance.deserialize<ExtSection>(json)
+        val extSection = testInstance.readValue<ExtSection>(json)
         assertThat(extSection.accNo).isNull()
         assertThat(extSection.fileList).isNull()
         assertThat(extSection.files).isEmpty()
@@ -76,8 +76,9 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                     "fileName" to "section-file-inner-folders.txt"
                     "filePath" to "folder/section-file-inner-folders.txt"
                     "relPath" to "Files/folder/section-file-inner-folders.txt"
-                    "fullPath" to "root/Files/folder/section-file-inner-folders.txt"
-                    "file" to sectionFile.absolutePath
+                    "md5" to "abc-md5"
+                    "size" to 55
+                    "fullPath" to sectionFile.absolutePath
                     "extType" to "nfsFile"
                 },
                 jsonObj {
@@ -86,8 +87,9 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                             "fileName" to "section-file-table.txt"
                             "filePath" to "folder/section-file-table.txt"
                             "relPath" to "Files/folder/section-file-table.txt"
-                            "fullPath" to "root/Files/folder/section-file-table.txt"
-                            "file" to sectionFilesTable.absolutePath
+                            "fullPath" to sectionFilesTable.absolutePath
+                            "md5" to "abc-md5"
+                            "size" to 55
                             "extType" to "nfsFile"
                         }
                     )
@@ -114,7 +116,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             "extType" to "section"
         }.toString()
 
-        val extSection = testInstance.deserialize<ExtSection>(json)
+        val extSection = testInstance.readValue<ExtSection>(json)
         assertThat(extSection.accNo).isEqualTo("SECT-001")
         assertThat(extSection.type).isEqualTo("Study")
         assertThat(extSection.attributes).hasSize(1)
@@ -153,7 +155,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             assertThat(it.fileName).isEqualTo("section-file-inner-folders.txt")
             assertThat(it.filePath).isEqualTo("folder/section-file-inner-folders.txt")
             assertThat(it.relPath).isEqualTo("Files/folder/section-file-inner-folders.txt")
-            assertThat(it.fullPath).isEqualTo("root/Files/folder/section-file-inner-folders.txt")
+            assertThat(it.fullPath).isEqualTo(sectionFile.absolutePath)
             assertThat(it.file).isEqualTo(sectionFile)
         }
 
@@ -166,7 +168,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             assertThat(filesTableFile.fileName).isEqualTo("section-file-table.txt")
             assertThat(filesTableFile.filePath).isEqualTo("folder/section-file-table.txt")
             assertThat(filesTableFile.relPath).isEqualTo("Files/folder/section-file-table.txt")
-            assertThat(filesTableFile.fullPath).isEqualTo("root/Files/folder/section-file-table.txt")
+            assertThat(filesTableFile.fullPath).isEqualTo(sectionFilesTable.absolutePath)
             assertThat(filesTableFile.file).isEqualTo(sectionFilesTable)
         }
 

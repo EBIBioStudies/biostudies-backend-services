@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
-import ac.uk.ebi.biostd.persistence.common.request.SaveSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
-import ebi.ac.uk.extended.events.SubmissionRequestMessage
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -17,34 +17,44 @@ import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import mu.KotlinLogging
-import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
-import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
-import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
 import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class ExtSubmissionService(
-    private val rabbitTemplate: RabbitTemplate,
     private val submissionSubmitter: SubmissionSubmitter,
-    private val submissionRepository: SubmissionQueryService,
+    private val submissionQueryService: SubmissionQueryService,
     private val userPrivilegesService: IUserPrivilegesService,
     private val securityQueryService: ISecurityQueryService,
-    private val extSerializationService: ExtSerializationService
+    private val extSerializationService: ExtSerializationService,
+    private val eventsPublisherService: EventsPublisherService
 ) {
-    fun getExtendedSubmission(accNo: String): ExtSubmission = submissionRepository.getExtByAccNo(accNo)
+    fun getExtendedSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
 
-    fun findExtendedSubmission(accNo: String): ExtSubmission? = submissionRepository.findExtByAccNo(accNo)
+    fun findExtendedSubmission(accNo: String): ExtSubmission? = submissionQueryService.findExtByAccNo(accNo)
 
     fun getReferencedFiles(
         accNo: String,
         fileListName: String
-    ): ExtFileTable = ExtFileTable(submissionRepository.getReferencedFiles(accNo, fileListName))
+    ): ExtFileTable = ExtFileTable(submissionQueryService.getReferencedFiles(accNo, fileListName))
+
+    fun refreshSubmission(accNo: String, user: String): ExtSubmission {
+        val submission = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        val (_, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission.copy(submitter = user), COPY))
+        val refreshedSubmission = submissionSubmitter.processRequest(accNo, version)
+        eventsPublisherService.submissionsRefresh(refreshedSubmission.accNo, refreshedSubmission.owner)
+        return refreshedSubmission
+    }
+
+    fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
+        return submissionSubmitter.processRequest(accNo, version)
+    }
 
     fun submitExt(
         user: String,
@@ -53,44 +63,34 @@ class ExtSubmissionService(
         fileMode: FileMode = COPY
     ): ExtSubmission {
         val submission = processExtSubmission(user, extSubmission, fileListFiles)
-        return submissionSubmitter.submit(SaveSubmissionRequest(submission, fileMode))
+        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, fileMode))
+        return submissionSubmitter.processRequest(accNo, version)
     }
 
     fun submitExtAsync(
         user: String,
-        extSubmission: ExtSubmission,
+        sub: ExtSubmission,
         fileListFiles: List<File> = emptyList(),
         fileMode: FileMode
     ) {
-        val accNo = extSubmission.accNo
-        logger.info { "$accNo $user Received async submit request for ext submission $accNo" }
-
-        val submission = processExtSubmission(user, extSubmission, fileListFiles)
-        val newVersion = submissionSubmitter.submitAsync(SaveSubmissionRequest(submission, fileMode))
-
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE,
-            SUBMISSIONS_REQUEST_ROUTING_KEY,
-            SubmissionRequestMessage(newVersion.accNo, newVersion.version, COPY, newVersion.owner, null)
-        )
+        logger.info { "${sub.accNo} $user Received async submit request for ext submission ${sub.accNo}" }
+        val submission = processExtSubmission(user, sub, fileListFiles)
+        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, fileMode))
+        eventsPublisherService.submissionRequest(accNo, version)
     }
 
     fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
         val filter = SubmissionFilter(
             rTimeFrom = request.fromRTime?.let { OffsetDateTime.parse(request.fromRTime) },
             rTimeTo = request.toRTime?.let { OffsetDateTime.parse(request.toRTime) },
+            collection = request.collection,
             released = request.released,
             limit = request.limit,
             offset = request.offset
         )
 
-        val page = submissionRepository
-            .getExtendedSubmissions(filter)
-            .onEach { it.onFailure { logger.error { it.message ?: it.localizedMessage } } }
-            .map { it.getOrNull() }
-        val submissions = page.content.filterNotNull()
-
-        return PageImpl(submissions, page.pageable, page.totalElements)
+        val page = submissionQueryService.getExtendedSubmissions(filter)
+        return PageImpl(page.content, page.pageable, page.totalElements)
     }
 
     private fun processExtSubmission(
@@ -115,8 +115,8 @@ class ExtSubmissionService(
         sections = section.sections.map { subSec -> subSec.bimap({ processFileListFiles(it, fileList) }, { it }) }
     )
 
-    private fun deserializeFiles(fileList: File) =
-        extSerializationService.deserialize(fileList.readText(), ExtFileTable::class.java).files
+    private fun deserializeFiles(fileList: File): List<ExtFile> =
+        fileList.inputStream().use { extSerializationService.deserialize(it).toList() }
 
     private fun validateSubmission(submission: ExtSubmission) {
         validateOwner(submission.owner)
@@ -127,11 +127,11 @@ class ExtSubmissionService(
         throw SecurityException("The user '$user' is not allowed to perform this action")
     }
 
-    private fun validateOwner(email: String) = require(securityQueryService.existsByEmail(email)) {
+    private fun validateOwner(email: String) = require(securityQueryService.existsByEmail(email, false)) {
         throw UserNotFoundException(email)
     }
 
-    private fun validateCollection(accNo: String) = require(submissionRepository.existByAccNo(accNo)) {
+    private fun validateCollection(accNo: String) = require(submissionQueryService.existByAccNo(accNo)) {
         throw CollectionNotFoundException(accNo)
     }
 }
