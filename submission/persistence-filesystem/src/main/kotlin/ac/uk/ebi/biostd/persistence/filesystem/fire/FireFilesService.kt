@@ -26,7 +26,7 @@ class FireFilesService(
         val (sub, _, previousFiles) = request
         logger.info { "${sub.accNo} ${sub.owner} Persisting files of submission ${sub.accNo} on FIRE" }
 
-        cleanFtpFolder(sub)
+        cleanSubmissionFolder(sub)
         val config = FireFileProcessingConfig(sub.accNo, sub.owner, sub.relPath, fireWebClient, previousFiles)
         val processed = processFiles(sub) { config.processFile(request.submission, it) }
 
@@ -35,15 +35,16 @@ class FireFilesService(
         return processed
     }
 
-    private fun cleanFtpFolder(submission: ExtSubmission) {
+    private fun cleanSubmissionFolder(submission: ExtSubmission) {
         submissionQueryService
             .findLatestExtByAccNo(submission.accNo, includeFileListFiles = true)
             ?.allFiles()
             ?.filterIsInstance<FireFile>()
-            ?.forEach { fireFile -> unpublishFile(fireFile.fireId) }
+            ?.forEach { fireFile -> cleanFile(fireFile.fireId) }
     }
 
-    private fun unpublishFile(fireId: String) {
+    // TODO Pivotal ID # 181595553: Separate unsetting path from un-publishing once #180902516 is merged
+    private fun cleanFile(fireId: String) {
         fireWebClient.unpublish(fireId)
         fireWebClient.unsetPath(fireId)
     }
