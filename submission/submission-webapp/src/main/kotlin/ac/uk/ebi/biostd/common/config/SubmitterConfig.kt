@@ -20,7 +20,7 @@ import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
 import ebi.ac.uk.extended.mapping.from.ToExtFileList
-import ebi.ac.uk.extended.mapping.from.ToExtSection
+import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import java.nio.file.Paths
@@ -46,7 +46,7 @@ class SubmitterConfig {
         submissionQueryService: SubmissionQueryService,
         submissionDraftService: SubmissionDraftService,
         applicationProperties: ApplicationProperties,
-        toExtSection: ToExtSection,
+        toExtSectionMapper: ToExtSectionMapper,
     ) = SubmissionSubmitter(
         timesService,
         accNoService,
@@ -57,13 +57,13 @@ class SubmitterConfig {
         submissionQueryService,
         submissionDraftService,
         applicationProperties,
-        toExtSection
+        toExtSectionMapper
     )
 
     @Configuration
     class ToExtendedConfiguration {
         @Bean
-        fun toExtSection(toExtFileList: ToExtFileList): ToExtSection = ToExtSection(toExtFileList)
+        fun toExtSection(toExtFileList: ToExtFileList): ToExtSectionMapper = ToExtSectionMapper(toExtFileList)
 
         @Bean
         fun toExtFileList(): ToExtFileList = ToExtFileList()

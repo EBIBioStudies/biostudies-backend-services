@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
 import ebi.ac.uk.extended.events.SubmissionRequestMessage
+import ebi.ac.uk.extended.mapping.to.ToSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -34,7 +35,8 @@ class SubmissionService(
     private val userPrivilegesService: IUserPrivilegesService,
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
-    private val rabbitTemplate: RabbitTemplate
+    private val rabbitTemplate: RabbitTemplate,
+    private val toSubmission: ToSubmission,
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         val (accNo, version) = submissionSubmitter.submitAsync(rqt)
@@ -72,13 +74,13 @@ class SubmissionService(
     }
 
     fun getSubmissionAsJson(accNo: String): String =
-        serializationService.serializeSubmission(submissionQueryService.getSimpleByAccNo(accNo), JsonPretty)
+        serializationService.serializeSubmission(getSimpleSubmission(accNo), JsonPretty)
 
     fun getSubmissionAsXml(accNo: String): String =
-        serializationService.serializeSubmission(submissionQueryService.getSimpleByAccNo(accNo), XmlFormat)
+        serializationService.serializeSubmission(getSimpleSubmission(accNo), XmlFormat)
 
     fun getSubmissionAsTsv(accNo: String): String =
-        serializationService.serializeSubmission(submissionQueryService.getSimpleByAccNo(accNo), Tsv)
+        serializationService.serializeSubmission(getSimpleSubmission(accNo), Tsv)
 
     fun getSubmissions(
         user: SecurityUser,
@@ -99,4 +101,7 @@ class SubmissionService(
         require(userPrivilegesService.canRelease(user.email)) { throw UserCanNotRelease(request.accNo, user.email) }
         submissionSubmitter.release(request)
     }
+
+    private fun getSimpleSubmission(accNo: String) =
+        toSubmission.toSimpleSubmission(submissionQueryService.getExtByAccNo(accNo))
 }

@@ -7,9 +7,7 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.constants.SECTION_RESERVED_ATTRIBUTES
 
-internal const val TO_EXT_SECTION_EXTENSIONS = "ebi.ac.uk.extended.mapping.from.ToExtSectionKt"
-
-class ToExtSection(private val toExtFileList: ToExtFileList) {
+class ToExtSectionMapper(private val toExtFileList: ToExtFileList) {
     fun convert(sec: Section, source: FilesSource): ExtSection = ExtSection(
         type = sec.type,
         accNo = sec.accNo,
@@ -21,6 +19,6 @@ class ToExtSection(private val toExtFileList: ToExtFileList) {
         sections = sec.sections.map { either -> either.bimap({ convert(it, source) }, { toExtTable(it, source) }) }
     )
 
-    fun toExtTable(sectionsTable: SectionsTable, fileSource: FilesSource): ExtSectionTable =
+    private fun toExtTable(sectionsTable: SectionsTable, fileSource: FilesSource): ExtSectionTable =
         ExtSectionTable(sectionsTable.elements.map { convert(it, fileSource) })
 }

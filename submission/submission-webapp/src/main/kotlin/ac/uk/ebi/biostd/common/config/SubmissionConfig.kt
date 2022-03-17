@@ -40,14 +40,16 @@ class SubmissionConfig(
         userPrivilegeService: IUserPrivilegesService,
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
-        myRabbitTemplate: RabbitTemplate
+        myRabbitTemplate: RabbitTemplate,
+        toSubmission: ToSubmission
     ): SubmissionService = SubmissionService(
         subRepository,
         serializationService,
         userPrivilegeService,
         submissionSubmitter,
         eventsPublisherService,
-        myRabbitTemplate
+        myRabbitTemplate,
+        toSubmission
     )
 
     @Bean

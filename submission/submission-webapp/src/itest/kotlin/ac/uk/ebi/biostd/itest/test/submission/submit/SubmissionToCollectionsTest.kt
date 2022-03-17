@@ -13,6 +13,7 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.extended.mapping.to.ToSubmission
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
@@ -43,7 +44,8 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
     inner class SubmitToExtCollectionTest(
         @Autowired private val securityTestService: SecurityTestService,
         @Autowired private val submissionRepository: SubmissionQueryService,
-        @Autowired private val testCollectionValidator: TestCollectionValidator
+        @Autowired private val testCollectionValidator: TestCollectionValidator,
+        @Autowired private val toSubmission: ToSubmission
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -71,7 +73,7 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
                 title = "AccNo Generation Test"
                 attachTo = "Test-Project"
             }
-            assertThat(submissionRepository.getSimpleByAccNo("S-TEST0")).isEqualTo(expected)
+            assertThat(getSimpleSubmission("S-TEST0")).isEqualTo(expected)
         }
 
         @Test
@@ -91,7 +93,7 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
                 )
             ).isSuccessful()
 
-            assertThat(submissionRepository.getSimpleByAccNo("S-TEST1")).isEqualTo(
+            assertThat(getSimpleSubmission("S-TEST1")).isEqualTo(
                 submission("S-TEST1") {
                     title = "Overridden Project"
                     attachTo = "Public-Project"
@@ -108,7 +110,7 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("S-PRP0")).isEqualTo(
+            assertThat(getSimpleSubmission("S-PRP0")).isEqualTo(
                 submission("S-PRP0") {
                     title = "No Release Date To Private Project"
                     attachTo = "Private-Project"
@@ -126,7 +128,7 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("S-PRP1")).isEqualTo(
+            assertThat(getSimpleSubmission("S-PRP1")).isEqualTo(
                 submission("S-PRP1") {
                     title = "Public Submission To Private Project"
                     releaseDate = "2015-12-24"
@@ -145,7 +147,7 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("S-PUP0")).isEqualTo(
+            assertThat(getSimpleSubmission("S-PUP0")).isEqualTo(
                 submission("S-PUP0") {
                     title = "Private submission into public project"
                     releaseDate = "2050-12-24"
@@ -163,7 +165,7 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("S-PUP1")).isEqualTo(
+            assertThat(getSimpleSubmission("S-PUP1")).isEqualTo(
                 submission("S-PUP1") {
                     title = "No Release Date To Public Project"
                     attachTo = "Public-Project"
@@ -181,7 +183,7 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(testCollectionValidator.validated).isTrue
-            assertThat(submissionRepository.getSimpleByAccNo("S-VLD0")).isEqualTo(
+            assertThat(getSimpleSubmission("S-VLD0")).isEqualTo(
                 submission("S-VLD0") {
                     title = "A Validated Submission"
                     attachTo = "ValidatedCollection"
@@ -251,5 +253,8 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
             assertThat(webClient.submitSingle(failCollection, TSV)).isSuccessful()
             assertThat(webClient.submitSingle(validatedCollection, TSV)).isSuccessful()
         }
+
+        private fun getSimpleSubmission(accNo: String) =
+            toSubmission.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
     }
 }

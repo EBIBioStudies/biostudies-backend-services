@@ -29,9 +29,10 @@ import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import ebi.ac.uk.asserts.assertThat as assertEither
 
 @ExtendWith(MockKExtension::class)
-class ToExtSectionTest(
+class ToExtSectionMapperTest(
     @MockK val fileSource: FilesSource,
     @MockK val fileList: FileList,
     @MockK val attribute: Attribute,
@@ -39,7 +40,6 @@ class ToExtSectionTest(
     @MockK val fileTable: FilesTable,
     @MockK val link: Link,
     @MockK val linkTable: LinksTable,
-    @MockK val sectionTable: SectionsTable,
     @MockK val extFileList: ExtFileList,
     @MockK val extAttribute: ExtAttribute,
     @MockK val fileListAttribute: ExtAttribute,
@@ -49,6 +49,7 @@ class ToExtSectionTest(
     @MockK val extLinkTable: ExtLinkTable
 ) {
     private val subSection = Section(type = "subtype", accNo = "accNo1")
+    private val subExtSection = ExtSection(type = "subtype", accNo = "accNo1")
     private val section = Section(
         type = "type",
         accNo = "accNo",
@@ -56,10 +57,10 @@ class ToExtSectionTest(
         attributes = listOf(attribute),
         files = mutableListOf(left(file), right(fileTable)),
         links = mutableListOf(left(link), right(linkTable)),
-        sections = mutableListOf(left(subSection), right(sectionTable))
+        sections = mutableListOf(left(subSection), right(SectionsTable(listOf(subSection))))
     )
     private val toExtFileList: ToExtFileList = mockk()
-    private val testInstance = ToExtSection(toExtFileList)
+    private val testInstance = ToExtSectionMapper(toExtFileList)
 
     @Test
     fun toExtSection() {
@@ -67,8 +68,7 @@ class ToExtSectionTest(
             TO_EXT_ATTRIBUTE_EXTENSIONS,
             TO_EXT_FILE_EXTENSIONS,
             TO_EXT_LINK_EXTENSIONS,
-            TO_EXT_TABLE_EXTENSIONS,
-            TO_EXT_SECTION_EXTENSIONS
+            TO_EXT_TABLE_EXTENSIONS
         ) {
             every { attribute.name } returns "attr1"
             every { fileListAttribute.name } returns SectionFields.FILE_LIST.value
@@ -78,7 +78,6 @@ class ToExtSectionTest(
             every { link.toExtLink() } returns extLink
             every { fileTable.toExtTable(fileSource) } returns extFileTable
             every { linkTable.toExtTable() } returns extLinkTable
-            every { sectionTable.elements } returns emptyList()
 
             val sectionResult = testInstance.convert(section, fileSource)
 
@@ -90,28 +89,12 @@ class ToExtSectionTest(
             assertThat(sectionResult.files.second()).isEqualTo(right(extFileTable))
             assertThat(sectionResult.links.first()).isEqualTo(left(extLink))
             assertThat(sectionResult.links.second()).isEqualTo(right(extLinkTable))
-            assertThat(sectionResult.sections.second()).isEqualTo(right(ExtSectionTable(emptyList())))
-            sectionResult.sections.first().mapLeft {
-                assertThat(it.type).isEqualTo("subtype")
-                assertThat(it.accNo).isEqualTo("accNo1")
+            assertEither(sectionResult.sections.first()).hasLeftValueSatisfying {
+                assertThat(it).isEqualTo(subExtSection)
+            }
+            assertEither(sectionResult.sections.second()).hasRightValueSatisfying {
+                assertThat(it).isEqualTo(ExtSectionTable(listOf(subExtSection)))
             }
         }
-    }
-
-    @Test
-    fun `SectionTable toExtTable`(
-        @MockK filesSource: FilesSource,
-        @MockK section: Section,
-        @MockK sectionTable: SectionsTable,
-        @MockK extSection: ExtSection
-    ) {
-        every { sectionTable.elements } returns listOf(section)
-        every { testInstance.convert(section, filesSource) } returns extSection
-        every { testInstance.toExtTable(sectionTable, filesSource) } answers { callOriginal() }
-        every { sectionTable.elements } returns listOf()
-
-        val result = testInstance.toExtTable(sectionTable, filesSource)
-
-        assertThat(result.sections).isEmpty()
     }
 }

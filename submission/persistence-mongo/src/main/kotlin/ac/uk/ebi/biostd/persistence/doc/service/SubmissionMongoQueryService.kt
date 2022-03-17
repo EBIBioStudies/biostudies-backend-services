@@ -13,7 +13,6 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
-import ebi.ac.uk.extended.mapping.to.ToSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -38,8 +37,7 @@ internal class SubmissionMongoQueryService(
     private val requestRepository: SubmissionRequestDocDataRepository,
     private val fileListDocFileRepository: FileListDocFileRepository,
     private val serializationService: ExtSerializationService,
-    private val toExtSubmissionMapper: ToExtSubmissionMapper,
-    private val toSubmission: ToSubmission
+    private val toExtSubmissionMapper: ToExtSubmissionMapper
 ) : SubmissionQueryService {
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
 
@@ -77,8 +75,6 @@ internal class SubmissionMongoQueryService(
 
         return drafts + submissions
     }
-
-    override fun getSimpleByAccNo(accNo: String) = toSubmission.toSimpleSubmission(getExtByAccNo(accNo))
 
     private fun getSubmissions(owner: String, filter: SubmissionFilter): List<BasicSubmission> =
         when (filter.limit) {

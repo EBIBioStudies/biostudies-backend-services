@@ -25,6 +25,7 @@ import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.extended.mapping.to.ToSubmission
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.ExtFile
@@ -72,7 +73,8 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
         @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val sequenceRepository: SequenceDataRepository,
         @Autowired val tagsRefRepository: TagDataRepository,
-        @Autowired val userDataRepository: UserDataRepository
+        @Autowired val userDataRepository: UserDataRepository,
+        @Autowired val toSubmission: ToSubmission
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -100,7 +102,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("SimpleAcc1")).isEqualTo(
+            assertThat(getSimpleSubmission("SimpleAcc1")).isEqualTo(
                 submission("SimpleAcc1") {
                     title = "Simple Submission"
                 }
@@ -117,7 +119,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             val response = webClient.submitSingle(submission, TSV)
 
             assertThat(response).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo(response.body.accNo)).isEqualTo(
+            assertThat(getSimpleSubmission(response.body.accNo)).isEqualTo(
                 submission(response.body.accNo) {
                     title = "Empty AccNo"
                 }
@@ -146,7 +148,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             )
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("S-12364")).isEqualTo(
+            assertThat(getSimpleSubmission("S-12364")).isEqualTo(
                 submission("S-12364") {
                     title = "Sample Submission"
                     rootPath = "RootPathFolder"
@@ -195,7 +197,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(response).isSuccessful()
 
             val accNo = response.body.accNo
-            assertThat(submissionRepository.getSimpleByAccNo(accNo)).isEqualTo(
+            assertThat(getSimpleSubmission(accNo)).isEqualTo(
                 submission(accNo) {
                     title = "Submission Title"
                 }
@@ -235,7 +237,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("E-MTAB123")).isEqualTo(
+            assertThat(getSimpleSubmission("E-MTAB123")).isEqualTo(
                 submission("E-MTAB123") {
                     title = "Generic Submission"
                     section("Experiment") { }
@@ -255,7 +257,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }.toString()
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("S-TEST123")).isEqualTo(
+            assertThat(getSimpleSubmission("S-TEST123")).isEqualTo(
                 submission("S-TEST123") {
                     title = "Submission With Tags"
                     section("Study") {
@@ -289,7 +291,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile2.txt")), "folder")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(submissionRepository.getSimpleByAccNo("S-54896")).isEqualTo(
+            assertThat(getSimpleSubmission("S-54896")).isEqualTo(
                 submission("S-54896") {
                     title = "Sample Submission"
                     section("Study") {
@@ -698,5 +700,8 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }
             assertThat(exception.message!!.contains("Submission contains invalid files invalid file.txt"))
         }
+
+        private fun getSimpleSubmission(accNo: String) =
+            toSubmission.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
     }
 }
