@@ -3,13 +3,13 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
@@ -30,12 +30,10 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
 import org.springframework.web.client.RestTemplate
-import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Suppress("LongParameterList")
 @Configuration
-@Import(ServiceConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class)
+@Import(ServiceConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class, SerializationConfiguration::class)
 class SubmitterConfig {
     @Bean
     fun submissionSubmitter(
@@ -79,15 +77,6 @@ class SubmitterConfig {
             submissionFolder = Paths.get(appProperties.submissionPath),
             ftpFolder = Paths.get(appProperties.ftpPath)
         )
-    }
-
-    @Configuration
-    class SerializationConfiguration {
-        @Bean
-        fun serializationService(): SerializationService = SerializationConfig.serializationService()
-
-        @Bean
-        fun extSerializationService(): ExtSerializationService = ExtSerializationConfig.extSerializationService()
     }
 
     @Configuration

@@ -31,7 +31,7 @@ import uk.ac.ebi.scheduler.exporter.config.BioStudies
 class PublicOnlyExporterServiceTest(
     private val tempFolder: TemporaryFolder,
     @MockK private val bioWebClient: BioWebClient,
-    @MockK private val serializationService: SerializationService,
+    @MockK private val serializationService: SerializationService
 ) {
     private val toSubmission: ToSubmission = ToSubmission(ToSection(ToFileList()))
     private val testInstance =

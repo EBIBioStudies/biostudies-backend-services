@@ -16,8 +16,6 @@ import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoQueryService
-import ebi.ac.uk.extended.mapping.to.ToFileList
-import ebi.ac.uk.extended.mapping.to.ToSection
 import ebi.ac.uk.extended.mapping.to.ToSubmission
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -25,22 +23,24 @@ import org.springframework.context.annotation.Import
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
-@Import(MongoDbReposConfig::class)
+@Import(MongoDbReposConfig::class, SerializationConfiguration::class, ToSubmissionConfig::class)
 class MongoDbServicesConfig {
     @Bean
+    @Suppress("LongParameterList")
     internal fun submissionQueryService(
         submissionDocDataRepository: SubmissionDocDataRepository,
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
         fileListDocFileRepository: FileListDocFileRepository,
         serializationService: ExtSerializationService,
-        toExtSubmissionMapper: ToExtSubmissionMapper
+        toExtSubmissionMapper: ToExtSubmissionMapper,
+        toSubmission: ToSubmission
     ): SubmissionQueryService = SubmissionMongoQueryService(
         submissionDocDataRepository,
         submissionRequestDocDataRepository,
         fileListDocFileRepository,
         serializationService,
         toExtSubmissionMapper,
-        ToSubmission(ToSection(ToFileList()))
+        toSubmission
     )
 
     @Bean
@@ -57,12 +57,13 @@ class MongoDbServicesConfig {
     internal fun submissionDraftMongoService(
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
         submissionQueryService: SubmissionQueryService,
-        serializationService: SerializationService
+        serializationService: SerializationService,
+        toSubmission: ToSubmission
     ): SubmissionDraftService = SubmissionDraftMongoService(
         submissionDraftDocDataRepository,
         submissionQueryService,
         serializationService,
-        ToSubmission(ToSection(ToFileList()))
+        toSubmission
     )
 
     @Bean

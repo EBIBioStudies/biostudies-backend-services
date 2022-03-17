@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
+import ac.uk.ebi.biostd.persistence.doc.integration.ToSubmissionConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
@@ -24,8 +25,6 @@ import arrow.core.Either.Companion.left
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
-import ebi.ac.uk.extended.mapping.to.ToFileList
-import ebi.ac.uk.extended.mapping.to.ToSection
 import ebi.ac.uk.extended.mapping.to.ToSubmission
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -37,6 +36,9 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import java.time.Duration.ofSeconds
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.AfterEach
@@ -57,9 +59,6 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import java.time.Duration.ofSeconds
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
@@ -68,13 +67,14 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmiss
 
 @ExtendWith(MockKExtension::class, SpringExtension::class, TemporaryFolderExtension::class)
 @Testcontainers
-@SpringBootTest(classes = [MongoDbReposConfig::class])
+@SpringBootTest(classes = [MongoDbReposConfig::class, ToSubmissionConfig::class])
 internal class SubmissionMongoQueryServiceTest(
     private val tempFolder: TemporaryFolder,
     @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
     @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
+    @Autowired private val toSubmission: ToSubmission
 ) {
     private val serializationService: ExtSerializationService = extSerializationService()
     private val testInstance =
@@ -84,7 +84,7 @@ internal class SubmissionMongoQueryServiceTest(
             fileListDocFileRepository,
             serializationService,
             toExtSubmissionMapper,
-            ToSubmission(ToSection(ToFileList()))
+            toSubmission
         )
 
     @Nested

@@ -4,8 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
-import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocFileList
-import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSection
+import ac.uk.ebi.biostd.persistence.doc.integration.ToDocSubmissionConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmission
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
@@ -37,18 +36,19 @@ import uk.ac.ebi.extended.test.SubmissionFactory.SUBMITTER
 import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
 
 @Testcontainers
-@SpringBootTest(classes = [MongoDbReposConfig::class])
+@SpringBootTest(classes = [MongoDbReposConfig::class, ToDocSubmissionConfig::class])
 class ExtSubmissionRepositoryTest(
     @Autowired private val subDataRepository: SubmissionDocDataRepository,
     @Autowired private val draftDocDataRepository: SubmissionDraftDocDataRepository,
-    @Autowired private val fileListDocFileRepository: FileListDocFileRepository
+    @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
+    @Autowired private val toDocSubmission: ToDocSubmission
 ) {
     private val testInstance = ExtSubmissionRepository(
         subDataRepository,
         draftDocDataRepository,
         fileListDocFileRepository,
         ToExtSubmissionMapper(fileListDocFileRepository),
-        ToDocSubmission(ToDocSection(ToDocFileList()))
+        toDocSubmission
     )
 
     @BeforeEach
