@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.request.Md5
@@ -9,6 +10,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
@@ -16,17 +18,35 @@ import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
 private val logger = KotlinLogging.logger {}
 
-class FireFilesService(private val fireWebClient: FireWebClient) : FilesService {
+class FireFilesService(
+    private val fireWebClient: FireWebClient,
+    private val submissionQueryService: SubmissionQueryService
+) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
         val (sub, _, previousFiles) = request
         logger.info { "${sub.accNo} ${sub.owner} Persisting files of submission ${sub.accNo} on FIRE" }
 
+        cleanSubmissionFolder(sub)
         val config = FireFileProcessingConfig(sub.accNo, sub.owner, sub.relPath, fireWebClient, previousFiles)
         val processed = processFiles(sub) { config.processFile(request.submission, it) }
 
         logger.info { "${sub.accNo} ${sub.owner} Finished persisting files of submission ${sub.accNo} on FIRE" }
 
         return processed
+    }
+
+    private fun cleanSubmissionFolder(submission: ExtSubmission) {
+        submissionQueryService
+            .findLatestExtByAccNo(submission.accNo, includeFileListFiles = true)
+            ?.allFiles()
+            ?.filterIsInstance<FireFile>()
+            ?.forEach { fireFile -> cleanFile(fireFile.fireId) }
+    }
+
+    // TODO Pivotal ID # 181595553: Separate unsetting path from un-publishing once #180902516 is merged
+    private fun cleanFile(fireId: String) {
+        fireWebClient.unpublish(fireId)
+        fireWebClient.unsetPath(fireId)
     }
 }
 
@@ -65,7 +85,8 @@ private fun FireFileProcessingConfig.saveFile(subRelPath: String, nfsFile: NfsFi
     return when {
         nfsFile.file.isDirectory -> FireDirectory(filePath, relPath, file.md5(), file.size(), attributes)
         else -> {
-            val store = fireWebClient.save(nfsFile.file, nfsFile.md5, "$subRelPath/${nfsFile.relPath}")
+            val store = fireWebClient.save(nfsFile.file, nfsFile.md5)
+            fireWebClient.setPath(store.fireOid, "$subRelPath/$relPath")
             FireFile(filePath, relPath, store.fireOid, store.objectMd5, store.objectSize.toLong(), attributes)
         }
     }

@@ -47,7 +47,9 @@ class FirePageTabService(
 
     private fun saveFileListFile(file: File, subFolder: String, filePath: String): FireFile {
         val relPath = "Files/$filePath"
-        val db = fireWebClient.save(file, file.md5(), "$subFolder/$relPath")
+        val db = fireWebClient.save(file, file.md5())
+        fireWebClient.setPath(db.fireOid, "$subFolder/$relPath")
+
         return FireFile(filePath, relPath, db.fireOid, db.objectMd5, db.objectSize.toLong(), listOf())
     }
 
@@ -59,7 +61,9 @@ class FirePageTabService(
 
     private fun saveSubFile(file: File, subFolder: String): FireFile {
         val name = file.name
-        val db = fireWebClient.save(file, file.md5(), "$subFolder/$name")
+        val db = fireWebClient.save(file, file.md5())
+        fireWebClient.setPath(db.fireOid, "$subFolder/$name")
+
         return FireFile(name, name, db.fireOid, db.objectMd5, db.objectSize.toLong(), listOf())
     }
 }

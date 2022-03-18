@@ -26,7 +26,7 @@ class NfsFtpService(
     }
 
     override fun generateFtpLinks(accNo: String) {
-        val sub = submissionQueryService.getExtByAccNo(accNo)
+        val sub = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
 
         logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission $accNo over NFS" }
 

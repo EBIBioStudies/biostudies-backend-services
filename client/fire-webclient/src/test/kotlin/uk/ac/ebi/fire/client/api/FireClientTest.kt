@@ -45,12 +45,11 @@ class FireClientTest(
             template.postForObject(FIRE_OBJECTS_URL, capture(httpEntitySlot), FireFile::class.java)
         } returns fireFile
 
-        testInstance.save(file, "the-md5", "relPath")
+        testInstance.save(file, "the-md5")
 
         val httpEntity = httpEntitySlot.captured
         assertThat(httpEntity.headers[FIRE_MD5_HEADER]!!.first()).isEqualTo("the-md5")
         assertThat(httpEntity.headers[FIRE_SIZE_HEADER]!!.first()).isEqualTo(file.size().toString())
-        assertThat(httpEntity.headers[SUBMISSION_FILE_RELPATH_HEADER]!!.first()).isEqualTo("relPath")
         assertThat(httpEntity.body!![FIRE_FILE_PARAM]!!.first()).isEqualTo(FileSystemResource(file))
         verify(exactly = 1) { template.postForObject(FIRE_OBJECTS_URL, capture(httpEntitySlot), FireFile::class.java) }
     }
