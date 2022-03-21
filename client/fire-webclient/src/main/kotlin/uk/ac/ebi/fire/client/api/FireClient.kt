@@ -49,10 +49,10 @@ internal class FireClient(
     }
 
     override fun setBioMetadata(fireOid: String, accNo: String?, published: Boolean?) {
-        val body = mutableListOf<String>().apply {
+        val body = buildList {
             accNo?.let { add("\"$FIRE_BIO_ACC_NO\": \"$it\"") }
             published?.let { add("\"$FIRE_BIO_PUBLISHED\": $published") }
-        }.joinToString(",")
+        }.joinToString()
 
         template.put("$FIRE_OBJECTS_URL/$fireOid/metadata/set", HttpEntity("{ $body }", null))
     }
