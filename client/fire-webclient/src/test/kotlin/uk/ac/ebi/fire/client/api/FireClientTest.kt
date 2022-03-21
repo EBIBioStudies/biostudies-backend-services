@@ -86,7 +86,7 @@ class FireClientTest(
         testInstance.setBioMetadata("fire-oid", "S-BSST0", false)
 
         val httpEntity = httpEntitySlot.captured
-        assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\",\"$FIRE_BIO_PUBLISHED\": false }")
+        assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\", \"$FIRE_BIO_PUBLISHED\": false }")
         verify(exactly = 1) { template.put("$FIRE_OBJECTS_URL/fire-oid/metadata/set", httpEntity) }
     }
 
