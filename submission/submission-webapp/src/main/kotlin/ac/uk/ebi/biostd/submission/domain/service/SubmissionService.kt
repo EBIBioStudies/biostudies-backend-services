@@ -73,14 +73,20 @@ class SubmissionService(
         eventsPublisherService.submissionFailed(message)
     }
 
-    fun getSubmissionAsJson(accNo: String): String =
-        serializationService.serializeSubmission(getSimpleSubmission(accNo), JsonPretty)
+    fun getSubmissionAsJson(accNo: String): String {
+        val submission = submissionQueryService.getExtByAccNo(accNo)
+        return serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(submission), JsonPretty)
+    }
 
-    fun getSubmissionAsXml(accNo: String): String =
-        serializationService.serializeSubmission(getSimpleSubmission(accNo), XmlFormat)
+    fun getSubmissionAsXml(accNo: String): String {
+        val submission = submissionQueryService.getExtByAccNo(accNo)
+        return serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(submission), XmlFormat)
+    }
 
-    fun getSubmissionAsTsv(accNo: String): String =
-        serializationService.serializeSubmission(getSimpleSubmission(accNo), Tsv)
+    fun getSubmissionAsTsv(accNo: String): String {
+        val submission = submissionQueryService.getExtByAccNo(accNo)
+        return serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(submission), Tsv)
+    }
 
     fun getSubmissions(
         user: SecurityUser,
@@ -101,7 +107,4 @@ class SubmissionService(
         require(userPrivilegesService.canRelease(user.email)) { throw UserCanNotRelease(request.accNo, user.email) }
         submissionSubmitter.release(request)
     }
-
-    private fun getSimpleSubmission(accNo: String) =
-        toSubmissionMapper.toSimpleSubmission(submissionQueryService.getExtByAccNo(accNo))
 }

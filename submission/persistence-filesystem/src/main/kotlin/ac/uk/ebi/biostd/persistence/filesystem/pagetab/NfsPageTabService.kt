@@ -7,6 +7,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
+import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 
 class NfsPageTabService(
@@ -17,9 +18,10 @@ class NfsPageTabService(
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
         val submissionFolder = folderResolver.getSubFolder(sub.relPath).toFile()
+        val filesFolder = submissionFolder.resolve(FILES_PATH)
+
         val subFiles = pageTabUtil.generateSubPageTab(serializationService, sub, submissionFolder)
-        val fileListFiles =
-            pageTabUtil.generateFileListPageTab(serializationService, sub, submissionFolder.resolve("Files"))
+        val fileListFiles = pageTabUtil.generateFileListPageTab(serializationService, sub, filesFolder)
         val section = fileProcessingService.process(sub.section) { updateFileList(it, fileListFiles) }
 
         return when {
