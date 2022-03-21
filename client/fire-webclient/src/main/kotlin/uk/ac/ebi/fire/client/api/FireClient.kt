@@ -19,9 +19,12 @@ internal const val FIRE_FILE_PARAM = "file"
 internal const val FIRE_MD5_HEADER = "x-fire-md5"
 internal const val FIRE_PATH_HEADER = "x-fire-path"
 internal const val FIRE_SIZE_HEADER = "x-fire-size"
+internal const val FIRE_BIO_ACC_NO = "bio-accNo"
+internal const val FIRE_BIO_PUBLISHED = "bio-published"
 
 const val FIRE_OBJECTS_URL = "/fire/objects"
 
+@Suppress("TooManyFunctions")
 internal class FireClient(
     private val tmpDirPath: String,
     private val template: RestTemplate
@@ -38,11 +41,20 @@ internal class FireClient(
 
     override fun setPath(fireOid: String, path: String) {
         val headers = HttpHeaders().apply { set(FIRE_PATH_HEADER, path) }
-        return template.put("$FIRE_OBJECTS_URL/$fireOid/firePath", HttpEntity(null, headers))
+        template.put("$FIRE_OBJECTS_URL/$fireOid/firePath", HttpEntity(null, headers))
     }
 
     override fun unsetPath(fireOid: String) {
         template.delete("$FIRE_OBJECTS_URL/$fireOid/firePath")
+    }
+
+    override fun setBioMetadata(fireOid: String, accNo: String?, published: Boolean?) {
+        val body = buildList {
+            accNo?.let { add("\"$FIRE_BIO_ACC_NO\": \"$it\"") }
+            published?.let { add("\"$FIRE_BIO_PUBLISHED\": $published") }
+        }.joinToString()
+
+        template.put("$FIRE_OBJECTS_URL/$fireOid/metadata/set", HttpEntity("{ $body }", null))
     }
 
     override fun downloadByPath(
@@ -60,6 +72,19 @@ internal class FireClient(
         Files.write(tmpFile.toPath(), fileContent)
 
         return tmpFile
+    }
+
+    override fun findByMd5(md5: String): List<FireFile> =
+        template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/md5/$md5").toList()
+
+    override fun findByAccNo(accNo: String): List<FireFile> {
+        val body = "{ \"$FIRE_BIO_ACC_NO\": \"$accNo\" }"
+        return template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, null)).toList()
+    }
+
+    override fun findByAccNoAndPublished(accNo: String, published: Boolean): List<FireFile> {
+        val body = "{ \"$FIRE_BIO_ACC_NO\": \"$accNo\", \"$FIRE_BIO_PUBLISHED\": $published }"
+        return template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, null)).toList()
     }
 
     override fun findAllInPath(path: String): List<FireFile> {
