@@ -71,11 +71,8 @@ internal class SubmissionMongoPersistenceService(
         logger.info { "$accNo $owner Finished releasing submission $accNo" }
     }
 
-    /**
-     * Process the submission files. TODO: We need to populate previous files to avoid re creating them when using FIRE.
-     */
     private fun processFiles(submission: ExtSubmission, fileMode: FileMode): ExtSubmission {
-        val filePersistenceRequest = FilePersistenceRequest(submission, fileMode, emptyMap())
+        val filePersistenceRequest = FilePersistenceRequest(submission, fileMode)
         return systemService.persistSubmissionFiles(filePersistenceRequest)
     }
 

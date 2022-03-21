@@ -4,7 +4,10 @@ import ebi.ac.uk.io.ext.size
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
@@ -15,11 +18,11 @@ import uk.ac.ebi.fire.client.model.FireFile
 import java.io.File
 import java.nio.file.Files
 
+const val FIRE_BIO_ACC_NO = "bio-accNo"
 internal const val FIRE_FILE_PARAM = "file"
 internal const val FIRE_MD5_HEADER = "x-fire-md5"
 internal const val FIRE_PATH_HEADER = "x-fire-path"
 internal const val FIRE_SIZE_HEADER = "x-fire-size"
-internal const val FIRE_BIO_ACC_NO = "bio-accNo"
 internal const val FIRE_BIO_PUBLISHED = "bio-published"
 
 const val FIRE_OBJECTS_URL = "/fire/objects"
@@ -49,12 +52,13 @@ internal class FireClient(
     }
 
     override fun setBioMetadata(fireOid: String, accNo: String?, published: Boolean?) {
+        val headers = HttpHeaders().apply { set(CONTENT_TYPE, APPLICATION_JSON_VALUE) }
         val body = buildList {
             accNo?.let { add("\"$FIRE_BIO_ACC_NO\": \"$it\"") }
             published?.let { add("\"$FIRE_BIO_PUBLISHED\": $published") }
         }.joinToString()
 
-        template.put("$FIRE_OBJECTS_URL/$fireOid/metadata/set", HttpEntity("{ $body }", null))
+        template.put("$FIRE_OBJECTS_URL/$fireOid/metadata/set", HttpEntity("{ $body }", headers))
     }
 
     override fun downloadByPath(
@@ -78,13 +82,15 @@ internal class FireClient(
         template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/md5/$md5").toList()
 
     override fun findByAccNo(accNo: String): List<FireFile> {
+        val headers = HttpHeaders().apply { set(CONTENT_TYPE, APPLICATION_JSON_VALUE) }
         val body = "{ \"$FIRE_BIO_ACC_NO\": \"$accNo\" }"
-        return template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, null)).toList()
+        return template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, headers)).toList()
     }
 
     override fun findByAccNoAndPublished(accNo: String, published: Boolean): List<FireFile> {
+        val headers = HttpHeaders().apply { set(CONTENT_TYPE, APPLICATION_JSON_VALUE) }
         val body = "{ \"$FIRE_BIO_ACC_NO\": \"$accNo\", \"$FIRE_BIO_PUBLISHED\": $published }"
-        return template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, null)).toList()
+        return template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, headers)).toList()
     }
 
     override fun findAllInPath(path: String): List<FireFile> {

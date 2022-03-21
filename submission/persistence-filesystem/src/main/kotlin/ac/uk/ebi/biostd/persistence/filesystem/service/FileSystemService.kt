@@ -15,7 +15,7 @@ class FileSystemService(
     private val pageTabService: PageTabService,
 ) {
     fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
-        val (submission, mode, _) = request
+        val (submission, mode) = request
         val accNo = submission.accNo
         val owner = submission.owner
 

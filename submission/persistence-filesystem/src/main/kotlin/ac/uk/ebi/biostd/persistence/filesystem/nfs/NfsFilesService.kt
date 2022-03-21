@@ -28,7 +28,7 @@ class NfsFilesService(
     private val folderResolver: SubmissionFolderResolver
 ) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
-        val (sub, mode, _) = request
+        val (sub, mode) = request
         logger.info { "${sub.accNo} ${sub.owner} Processing files of submission ${sub.accNo} over NFS" }
 
         val submissionFolder = getOrCreateSubmissionFolder(sub, sub.permissions().folder)
