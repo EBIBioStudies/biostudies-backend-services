@@ -53,10 +53,11 @@ class SubmitWebHandler(
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
-                user = request.submitter,
+                submitter = request.submitter,
                 files = request.files,
                 rootPath = sub.rootPath,
-                previousFiles = extSub?.allSectionsFiles.orEmpty()
+                previousFiles = extSub?.allSectionsFiles.orEmpty(),
+                owner = request.onBehalfRequest?.let { getOnBehalfUser(it) }
             )
         )
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
@@ -78,9 +79,10 @@ class SubmitWebHandler(
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
-                user = request.submitter,
+                submitter = request.submitter,
                 files = request.files.plus(request.submission),
                 rootPath = sub.rootPath,
+                owner = request.onBehalfRequest?.let { getOnBehalfUser(it) },
                 previousFiles = extSub?.let { it.allSectionsFiles }.orEmpty()
             )
         )

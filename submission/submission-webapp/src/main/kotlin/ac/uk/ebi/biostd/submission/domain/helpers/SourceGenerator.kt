@@ -21,19 +21,28 @@ class SourceGenerator(
     ): FilesSource = ComposedFileSource(userSourcesList(user, rootPath.orEmpty()))
 
     fun submissionSources(requestSources: RequestSources): FilesSource {
-        val (user, files, rootPath, previousFiles) = requestSources
-        return ComposedFileSource(submissionSources(user, files, rootPath.orEmpty(), previousFiles))
+        val (owner, submitter, files, rootPath, previousFiles) = requestSources
+        return ComposedFileSource(submissionSources(owner, submitter, files, rootPath.orEmpty(), previousFiles))
     }
 
     private fun submissionSources(
-        user: SecurityUser?,
+        owner: SecurityUser?,
+        submitter: SecurityUser?,
         files: List<File>,
         rootPath: String,
         previousFiles: List<ExtFile>
     ): List<FilesSource> {
         val sources = mutableListOf<FilesSource>(FilesListSource(files))
 
-        user?.let { sources.addAll(userSourcesList(it, rootPath)) }
+        submitter?.let {
+            sources.add(createPathSource(it.magicFolder.path, rootPath))
+            sources.addAll(groupSources(it.groupsFolders))
+        }
+        owner?.let {
+            sources.add(createPathSource(it.magicFolder.path, rootPath))
+            sources.addAll(groupSources(it.groupsFolders))
+        }
+
         sources.add(submissionsList(previousFiles))
 
         return sources
@@ -50,8 +59,9 @@ class SourceGenerator(
 }
 
 data class RequestSources(
-    val user: SecurityUser? = null,
+    val owner: SecurityUser? = null,
+    val submitter: SecurityUser? = null,
     val files: List<File> = emptyList(),
     val rootPath: String? = null,
-    val previousFiles: List<ExtFile> = emptyList()
+    val previousFiles: List<ExtFile> = emptyList(),
 )

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.common
 
+import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.TestGroup
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
@@ -31,5 +32,9 @@ class SecurityTestService(
 
     fun addUserInGroup(testUser: TestUser, group: DbUserGroup) {
         groupService.addUserInGroup(group.name, testUser.email)
+    }
+
+    fun deleteRegularUser() {
+        userDataRepository.findByEmail(RegularUser.email)?.let { userDataRepository.delete(it) }
     }
 }
