@@ -74,16 +74,17 @@ internal class FireClient(
         return tmpFile
     }
 
-    override fun findByMd5(md5: String): List<FireFile> = template.getForObject("$FIRE_OBJECTS_URL/md5/$md5")
+    override fun findByMd5(md5: String): List<FireFile> =
+        template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/md5/$md5").toList()
 
     override fun findByAccNo(accNo: String): List<FireFile> {
         val body = "{ \"$FIRE_BIO_ACC_NO\": \"$accNo\" }"
-        return template.postForObject("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, null))
+        return template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, null)).toList()
     }
 
     override fun findByAccNoAndPublished(accNo: String, published: Boolean): List<FireFile> {
         val body = "{ \"$FIRE_BIO_ACC_NO\": \"$accNo\", \"$FIRE_BIO_PUBLISHED\": $published }"
-        return template.postForObject("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, null))
+        return template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, null)).toList()
     }
 
     override fun findAllInPath(path: String): List<FireFile> {

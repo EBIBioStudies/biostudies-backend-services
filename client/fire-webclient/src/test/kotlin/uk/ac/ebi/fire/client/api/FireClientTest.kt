@@ -126,14 +126,14 @@ class FireClientTest(
 
     @Test
     fun `find by md5`(@MockK fireFile: FireFile) {
-        every { template.getForObject<List<FireFile>>("$FIRE_OBJECTS_URL/md5/the-md5") } returns listOf(fireFile)
+        every { template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/md5/the-md5") } returns arrayOf(fireFile)
 
         val files = testInstance.findByMd5("the-md5")
 
         assertThat(files).hasSize(1)
         assertThat(files.first()).isEqualTo(fireFile)
         verify(exactly = 1) {
-            template.getForObject<List<FireFile>>("$FIRE_OBJECTS_URL/md5/the-md5")
+            template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/md5/the-md5")
         }
     }
 
@@ -141,8 +141,8 @@ class FireClientTest(
     fun `find by accNo`(@MockK fireFile: FireFile) {
         val httpEntitySlot = slot<HttpEntity<String>>()
         every {
-            template.postForObject<List<FireFile>>("$FIRE_OBJECTS_URL/metadata", capture(httpEntitySlot))
-        } returns listOf(fireFile)
+            template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", capture(httpEntitySlot))
+        } returns arrayOf(fireFile)
 
         val files = testInstance.findByAccNo("S-BSST0")
 
@@ -151,7 +151,7 @@ class FireClientTest(
         assertThat(files.first()).isEqualTo(fireFile)
         assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\" }")
         verify(exactly = 1) {
-            template.postForObject<List<FireFile>>("$FIRE_OBJECTS_URL/metadata", httpEntity)
+            template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", httpEntity)
         }
     }
 
@@ -159,8 +159,8 @@ class FireClientTest(
     fun `find by accNo and published`(@MockK fireFile: FireFile) {
         val httpEntitySlot = slot<HttpEntity<String>>()
         every {
-            template.postForObject<List<FireFile>>("$FIRE_OBJECTS_URL/metadata", capture(httpEntitySlot))
-        } returns listOf(fireFile)
+            template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", capture(httpEntitySlot))
+        } returns arrayOf(fireFile)
 
         val files = testInstance.findByAccNoAndPublished("S-BSST0", true)
 
@@ -169,7 +169,7 @@ class FireClientTest(
         assertThat(files.first()).isEqualTo(fireFile)
         assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\", \"$FIRE_BIO_PUBLISHED\": true }")
         verify(exactly = 1) {
-            template.postForObject<List<FireFile>>("$FIRE_OBJECTS_URL/metadata", httpEntity)
+            template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", httpEntity)
         }
     }
 
