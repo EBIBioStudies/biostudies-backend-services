@@ -13,11 +13,8 @@ import java.time.ZoneOffset
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtSubmissionExtensionsTest(
-    tempFolder: TemporaryFolder
+    private val tempFolder: TemporaryFolder
 ) {
-    private val innerFile = tempFolder.createFile("file.txt")
-    private val referencedFile = tempFolder.createFile("referenced.txt")
-
     @Test
     fun computedTitle() {
         val submissionTitle = testSubmission(subTitle = "submission title", secTitle = null)
@@ -31,6 +28,8 @@ class ExtSubmissionExtensionsTest(
 
     @Test
     fun `get all submission files`() {
+        val innerFile = tempFolder.createFile("file.txt")
+        val referencedFile = tempFolder.createFile("referenced.txt")
         val innerExtFile = NfsFile(
             "my-folder/file.txt",
             "Files/my-folder/file.txt",

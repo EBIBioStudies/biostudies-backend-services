@@ -16,7 +16,7 @@ import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.allSectionsFiles
+import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod.FILE
@@ -57,7 +57,7 @@ class SubmitWebHandler(
                 submitter = request.submitter,
                 files = request.files,
                 rootPath = sub.rootPath,
-                previousFiles = extSub?.allSectionsFiles.orEmpty(),
+                previousFiles = extSub?.allFiles()?.toList().orEmpty(),
                 owner = request.onBehalfRequest?.let { getOnBehalfUser(it) }
             )
         )
@@ -83,12 +83,14 @@ class SubmitWebHandler(
                 submitter = request.submitter,
                 files = request.files.plus(request.submission),
                 rootPath = sub.rootPath,
-                owner = request.onBehalfRequest?.let { getOnBehalfUser(it) },
-                previousFiles = extSub?.let { it.allSectionsFiles }.orEmpty()
+                previousFiles = extSub?.allFiles()?.toList().orEmpty(),
+                owner = request.onBehalfRequest?.let { getOnBehalfUser(it) }
             )
         )
         val submission = withAttributes(submission(request.submission, source), request.attrs)
+
         userFilesService.uploadFile(request.submitter, DIRECT_UPLOAD_PATH, request.submission)
+
         return SubmitRequest(
             submission = submission,
             submitter = request.submitter,
