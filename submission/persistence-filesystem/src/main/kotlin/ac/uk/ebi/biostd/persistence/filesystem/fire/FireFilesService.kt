@@ -15,6 +15,9 @@ import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import java.io.File
+import com.fasterxml.jackson.module.kotlin.*
+
 
 private val logger = KotlinLogging.logger {}
 
@@ -23,10 +26,17 @@ class FireFilesService(
     private val submissionQueryService: SubmissionQueryService
 ) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
-        val (sub, _, previousFiles) = request
+        var (sub, _, previousFiles) = request
         logger.info { "${sub.accNo} ${sub.owner} Persisting files of submission ${sub.accNo} on FIRE" }
 
-        cleanSubmissionFolder(sub)
+        //cleanSubmissionFolder(sub)
+        val mapper = jacksonObjectMapper()
+
+        System.getenv("OUT_OF_BAND_UPLOADS_PATH")?.let {
+            val outOfBandUploadsString = File(it).readText(Charsets.UTF_8)
+            previousFiles = mapper.readValue(outOfBandUploadsString)
+        }
+
         val config = FireFileProcessingConfig(sub.accNo, sub.owner, sub.relPath, fireWebClient, previousFiles)
         val processed = processFiles(sub) { config.processFile(request.submission, it) }
 
@@ -64,7 +74,14 @@ fun FireFileProcessingConfig.processFile(sub: ExtSubmission, file: ExtFile): Ext
 fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): ExtFile {
     logger.info { "$accNo $owner Persisting file ${nfsFile.fileName} with size ${nfsFile.file.size()} on FIRE" }
 
-    val fileFire = previousFiles[nfsFile.md5] as FireFile?
+    /**
+     * Files deleted in previous steps of the incremental submission will be replaced with an empty file
+     *  => if file actually needs to be submitted and was pushed out-of-band then md5 will match and db will get updated
+     *  otherwise, the FireFile "facade" (without underlying data) will be used, containing all the correct info and identified by path instead of md5sum
+     *      and it will get reused to update itself with the values it already has,
+     *      in order to make the FileList updates @mongo reflect the state of the fileList file instead of the submission files on disk
+     */
+    val fileFire = (previousFiles[nfsFile.md5] ?: previousFiles.values.firstOrNull { it.relPath == nfsFile.relPath }) as FireFile?
 
     return if (fileFire == null) saveFile(relPath, nfsFile) else reusePreviousFile(fileFire, nfsFile)
 }

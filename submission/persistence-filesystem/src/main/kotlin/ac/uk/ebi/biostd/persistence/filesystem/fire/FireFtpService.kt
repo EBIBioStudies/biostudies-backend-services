@@ -29,7 +29,8 @@ class FireFtpService(
     }
 
     private fun publishFile(file: FireFile, relPath: String) {
-        fireWebClient.setPath(file.fireId, "$relPath/${file.relPath}")
+        // setPath twice!! (same in FireFilesService:processFile -> .saveFile
+        //fireWebClient.setPath(file.fireId, "$relPath/${file.relPath}")
         fireWebClient.publish(file.fireId)
     }
 }
