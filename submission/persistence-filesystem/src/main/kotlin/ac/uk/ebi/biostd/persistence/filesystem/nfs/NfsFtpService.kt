@@ -19,10 +19,17 @@ class NfsFtpService(
     override fun releaseSubmissionFiles(accNo: String, owner: String, relPath: String) {
         logger.info { "$accNo $owner Publishing files of submission $accNo over NFS" }
 
-        cleanFtpFolder(relPath)
         generateLinks(relPath)
 
         logger.info { "$accNo $owner Finished publishing files of submission $accNo over NFS" }
+    }
+
+    override fun unpublishSubmissionFiles(accNo: String, owner: String, relPath: String) {
+        logger.info { "$accNo $owner Un-publishing files of submission $accNo over NFS" }
+
+        cleanFtpFolder(relPath)
+
+        logger.info { "$accNo $owner Finished un-publishing files of submission $accNo over NFS" }
     }
 
     override fun generateFtpLinks(accNo: String) {

@@ -36,4 +36,12 @@ class FileSystemService(
 
         logger.info { "$accNo $owner Finished releasing files of submission $accNo" }
     }
+
+    fun unpublishSubmissionFiles(accNo: String, owner: String, relPath: String) {
+        logger.info { "$accNo $owner Un-publishing files of submission $accNo" }
+
+        ftpService.unpublishSubmissionFiles(accNo, owner, relPath)
+
+        logger.info { "$accNo $owner Finished un-publishing files of submission $accNo" }
+    }
 }

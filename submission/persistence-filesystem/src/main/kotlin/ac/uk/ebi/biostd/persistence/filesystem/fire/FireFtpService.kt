@@ -16,19 +16,29 @@ class FireFtpService(
     override fun releaseSubmissionFiles(accNo: String, owner: String, relPath: String) {
         logger.info { "$accNo $owner Publishing files of submission $accNo over FIRE" }
 
-        cleanFtpFolder(accNo)
         generateFtpLinks(accNo)
 
         logger.info { "$accNo $owner Finished publishing files of submission $accNo over FIRE" }
     }
 
-    // TODO check FTP publishing
+    override fun unpublishSubmissionFiles(accNo: String, owner: String, relPath: String) {
+        logger.info { "$accNo $owner Un-publishing files of submission $accNo over FIRE" }
+
+        cleanFtpFolder(accNo)
+
+        logger.info { "$accNo $owner Finished un-publishing files of submission $accNo over FIRE" }
+    }
+
     override fun generateFtpLinks(accNo: String) {
-        submissionQueryService
-            .getExtByAccNo(accNo, includeFileListFiles = true)
-            .allFiles()
+        val sub = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
+
+        logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission $accNo over FIRE" }
+
+        sub.allFiles()
             .filterIsInstance<FireFile>()
             .forEach { publishFile(it.fireId) }
+
+        logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission $accNo over FIRE" }
     }
 
     private fun cleanFtpFolder(accNo: String) {

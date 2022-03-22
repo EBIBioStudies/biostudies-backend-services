@@ -53,7 +53,10 @@ internal class SubmissionMongoPersistenceService(
         val (submission, fileMode, draftKey) = saveRequest
         val processingSubmission = processFiles(submission, fileMode)
         val savedSubmission = submissionRepository.saveSubmission(processingSubmission, draftKey)
+
+        // TODO resubmission is removing the files path, page tab is fine though
         requestRepository.updateStatus(SubmissionRequestStatus.PROCESSED, submission.accNo, submission.version)
+        systemService.unpublishSubmissionFiles(savedSubmission.accNo, savedSubmission.owner, savedSubmission.relPath)
 
         if (savedSubmission.released) {
             releaseSubmission(savedSubmission.accNo, savedSubmission.owner, savedSubmission.relPath)
