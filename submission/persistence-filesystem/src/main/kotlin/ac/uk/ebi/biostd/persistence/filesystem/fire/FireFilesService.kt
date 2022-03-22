@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.request.Md5
-import ac.uk.ebi.biostd.persistence.filesystem.service.processFiles
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireDirectory
@@ -20,6 +20,7 @@ private val logger = KotlinLogging.logger {}
 
 class FireFilesService(
     private val fireWebClient: FireWebClient,
+    private val fileProcessingService: FileProcessingService,
     private val submissionQueryService: SubmissionQueryService
 ) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
@@ -28,7 +29,7 @@ class FireFilesService(
 
         cleanSubmissionFolder(sub)
         val config = FireFileProcessingConfig(sub.accNo, sub.owner, sub.relPath, fireWebClient, previousFiles)
-        val processed = processFiles(sub) { config.processFile(request.submission, it) }
+        val processed = fileProcessingService.processFiles(sub) { config.processFile(request.submission, it) }
 
         logger.info { "${sub.accNo} ${sub.owner} Finished persisting files of submission ${sub.accNo} on FIRE" }
 

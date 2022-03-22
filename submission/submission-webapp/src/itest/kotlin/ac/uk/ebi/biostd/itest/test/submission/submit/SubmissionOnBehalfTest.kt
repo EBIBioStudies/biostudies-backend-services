@@ -12,12 +12,12 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.test.clean
@@ -48,6 +48,7 @@ internal class SubmissionOnBehalfTest(private val tempFolder: TemporaryFolder) :
         @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val userDataRepository: UserDataRepository,
         @Autowired val sequenceRepository: SequenceDataRepository,
+        @Autowired val toSubmissionMapper: ToSubmissionMapper,
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -85,7 +86,7 @@ internal class SubmissionOnBehalfTest(private val tempFolder: TemporaryFolder) :
             assertThat(response).isSuccessful()
 
             val accNo = response.body.accNo
-            assertThat(submissionRepository.getSimpleByAccNo(accNo)).isEqualTo(
+            assertThat(toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))).isEqualTo(
                 submission(accNo) {
                     title = "Submission Title"
                 }

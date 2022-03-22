@@ -35,6 +35,9 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import java.time.Duration.ofSeconds
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.AfterEach
@@ -55,9 +58,6 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import java.time.Duration.ofSeconds
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute

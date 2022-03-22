@@ -106,7 +106,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
+class ToDocSubmissionMapperTest(tempFolder: TemporaryFolder) {
     private val newRootSectionFileListFile =
         rootSectionFileListFile.copy(file = tempFolder.createFile("tempFile1.txt", "content1"))
     private val newSubSectionFileListFile =
@@ -140,10 +140,11 @@ class ToDocSubmissionTest(tempFolder: TemporaryFolder) {
         section = newRootSection,
         pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile)
     )
+    private val testInstance: ToDocSubmissionMapper = ToDocSubmissionMapper(ToDocSectionMapper(ToDocFileListMapper()))
 
     @Test
     fun `to Doc Submission with a file inside the section and another file inside the inner section`() {
-        val (docSubmission, listFiles) = submission.toDocSubmission()
+        val (docSubmission, listFiles) = testInstance.convert(submission)
 
         assertDocSubmission(docSubmission)
         assertListFiles(listFiles, docSubmission)

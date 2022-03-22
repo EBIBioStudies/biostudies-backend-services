@@ -13,7 +13,7 @@ import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ebi.ac.uk.api.security.GetOrRegisterUserRequest
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allSectionsFiles
@@ -28,20 +28,21 @@ import java.io.File
 
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class SubmitWebHandler(
     private val submissionService: SubmissionService,
     private val extSubmissionService: ExtSubmissionService,
     private val sourceGenerator: SourceGenerator,
     private val serializationService: SerializationService,
     private val userFilesService: UserFilesService,
-    private val securityQueryService: ISecurityQueryService
+    private val securityQueryService: ISecurityQueryService,
+    private val toSubmissionMapper: ToSubmissionMapper
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission =
-        submissionService.submit(buildRequest(request)).toSimpleSubmission()
+        toSubmissionMapper.toSimpleSubmission(submissionService.submit(buildRequest(request)))
 
     fun submit(request: FileSubmitWebRequest): Submission =
-        submissionService.submit(buildRequest(request)).toSimpleSubmission()
+        toSubmissionMapper.toSimpleSubmission(submissionService.submit(buildRequest(request)))
 
     fun submitAsync(request: ContentSubmitWebRequest) = submissionService.submitAsync(buildRequest(request))
 

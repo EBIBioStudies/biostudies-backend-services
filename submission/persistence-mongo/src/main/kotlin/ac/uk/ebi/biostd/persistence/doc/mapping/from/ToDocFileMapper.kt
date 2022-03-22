@@ -20,36 +20,39 @@ import java.io.File
 
 internal fun Either<ExtFile, ExtFileTable>.toDocFiles() = bimap(ExtFile::toDocFile, ExtFileTable::toDocFileTable)
 
-internal fun ExtFileList.toDocFileList(
-    submissionId: ObjectId,
-    accNo: String,
-    version: Int
-): Pair<DocFileList, List<FileListDocFile>> {
-    val listFiles =
-        files.mapIndexed { index, file -> toFileDocListFile(submissionId, accNo, fileName, version, index, file) }
-    val pageTabFiles = pageTabFiles.map { it.toDocFile() }
+class ToDocFileListMapper {
+    internal fun convert(
+        extFileList: ExtFileList,
+        submissionId: ObjectId,
+        accNo: String,
+        version: Int
+    ): Pair<DocFileList, List<FileListDocFile>> {
+        val listFiles = extFileList.files.mapIndexed { index, file ->
+            toFileDocListFile(submissionId, accNo, extFileList.fileName, version, index, file)
+        }
+        val pageTabFiles = extFileList.pageTabFiles.map { it.toDocFile() }
+        return Pair(DocFileList(extFileList.filePath, pageTabFiles), listFiles)
+    }
 
-    return Pair(DocFileList(filePath, pageTabFiles), listFiles)
+    @Suppress("LongParameterList")
+    private fun toFileDocListFile(
+        submissionId: ObjectId,
+        submissionAccNo: String,
+        fileName: String,
+        version: Int,
+        index: Int,
+        extFile: ExtFile
+    ): FileListDocFile =
+        FileListDocFile(
+            id = ObjectId(),
+            submissionId = submissionId,
+            submissionAccNo = submissionAccNo,
+            submissionVersion = version,
+            file = extFile.toDocFile(),
+            index = index,
+            fileListName = fileName
+        )
 }
-
-@Suppress("LongParameterList")
-private fun toFileDocListFile(
-    submissionId: ObjectId,
-    submissionAccNo: String,
-    fileName: String,
-    version: Int,
-    index: Int,
-    extFile: ExtFile
-): FileListDocFile =
-    FileListDocFile(
-        id = ObjectId(),
-        submissionId = submissionId,
-        submissionAccNo = submissionAccNo,
-        submissionVersion = version,
-        file = extFile.toDocFile(),
-        index = index,
-        fileListName = fileName
-    )
 
 private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFile() })
 

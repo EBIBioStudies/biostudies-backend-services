@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.fire
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtSection
@@ -36,7 +37,7 @@ class FireFilesServiceTest(
     private val file = tempFolder.createFile("test.txt")
     private val testMd5 = file.md5()
     private val attribute = ExtAttribute("Type", "Test")
-    private val testInstance = FireFilesService(fireWebClient, submissionQueryService)
+    private val testInstance = FireFilesService(fireWebClient, FileProcessingService(), submissionQueryService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()

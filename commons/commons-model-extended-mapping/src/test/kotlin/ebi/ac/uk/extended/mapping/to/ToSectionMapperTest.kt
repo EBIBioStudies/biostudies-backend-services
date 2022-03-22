@@ -16,34 +16,35 @@ import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
-import ebi.ac.uk.model.SectionsTable
+import ebi.ac.uk.model.Section
 import ebi.ac.uk.util.collections.second
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import ebi.ac.uk.asserts.assertThat as assertEither
 
 @ExtendWith(MockKExtension::class)
-class ToSectionTest(
+class ToSectionMapperTest(
     @MockK val fileList: FileList,
     @MockK val attribute: Attribute,
     @MockK val file: File,
     @MockK val fileTable: FilesTable,
     @MockK val link: Link,
     @MockK val linkTable: LinksTable,
-    @MockK val sectionTable: SectionsTable,
     @MockK val extFileList: ExtFileList,
     @MockK val extAttribute: ExtAttribute,
     @MockK val extFile: ExtFile,
     @MockK val extFileTable: ExtFileTable,
     @MockK val extLink: ExtLink,
-    @MockK val extLinkTable: ExtLinkTable,
-    @MockK val extSectionTable: ExtSectionTable
+    @MockK val extLinkTable: ExtLinkTable
 ) {
-    private val subSection = ExtSection(type = "subtype", accNo = "accNo1")
+    private val subExtSection = ExtSection(type = "subtype", accNo = "accNo1")
+    private val subSection = Section(type = "subtype", accNo = "accNo1")
     private val section = ExtSection(
         type = "type",
         accNo = "accNo",
@@ -51,30 +52,28 @@ class ToSectionTest(
         attributes = listOf(extAttribute),
         files = listOf(left(extFile), right(extFileTable)),
         links = listOf(left(extLink), right(extLinkTable)),
-        sections = listOf(left(subSection), right(extSectionTable))
+        sections = listOf(left(subExtSection), right(ExtSectionTable(listOf(subExtSection))))
     )
+    private val toFileListMapper = mockk<ToFileListMapper>()
+    private val testInstance = ToSectionMapper(toFileListMapper)
 
     @Test
     fun toSection() {
         mockkStatic(
             TO_ATTRIBUTE_EXTENSIONS,
             TO_FILE_EXTENSIONS,
-            TO_LIBRARY_FILE_EXTENSIONS,
             TO_LINK_EXTENSIONS,
-            TO_TABLE_EXTENSIONS,
-            TO_SECTION_EXTENSIONS
+            TO_TABLE_EXTENSIONS
         ) {
-
             every { extAttribute.toAttribute() } returns attribute
             every { extFile.toFile() } returns file
-            every { extFileList.toFileList() } returns fileList
+            every { toFileListMapper.convert(extFileList) } returns fileList
             every { extLink.toLink() } returns link
             every { extFileTable.toTable() } returns fileTable
             every { extLinkTable.toTable() } returns linkTable
-            every { extSectionTable.toTable() } returns sectionTable
-            every { extFileList.toFileList() } returns fileList
 
-            val sectionResult = section.toSection()
+            val sectionResult = testInstance.convert(section)
+
             assertThat(sectionResult.accNo).isEqualTo(section.accNo)
             assertThat(sectionResult.type).isEqualTo(section.type)
             assertThat(sectionResult.fileList).isEqualTo(fileList)
@@ -83,10 +82,9 @@ class ToSectionTest(
             assertThat(sectionResult.files.second()).isEqualTo(right(fileTable))
             assertThat(sectionResult.links.first()).isEqualTo(left(link))
             assertThat(sectionResult.links.second()).isEqualTo(right(linkTable))
-            assertThat(sectionResult.sections.second()).isEqualTo(right(sectionTable))
-            sectionResult.sections.first().mapLeft {
-                assertThat(it.type).isEqualTo("subtype")
-                assertThat(it.accNo).isEqualTo("accNo1")
+            assertEither(sectionResult.sections.first()).hasLeftValueSatisfying { assertThat(it).isEqualTo(subSection) }
+            assertEither(sectionResult.sections.second()).hasRightValueSatisfying {
+                assertThat(it.elements.first()).isEqualTo(subSection)
             }
         }
     }

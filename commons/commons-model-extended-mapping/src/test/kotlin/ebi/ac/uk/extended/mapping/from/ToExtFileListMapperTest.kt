@@ -14,12 +14,13 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-internal class ToExtFileListTest(
+internal class ToExtFileListMapperTest(
     @MockK val fileSource: FilesSource,
     @MockK val file: File,
     @MockK val systemFile: NfsBioFile,
-    @MockK val extFile: ExtFile
+    @MockK val extFile: ExtFile,
 ) {
+    private val tesInstance = ToExtFileListMapper()
     private val fileList = FileList("fileList", listOf(file))
 
     @Test
@@ -28,7 +29,8 @@ internal class ToExtFileListTest(
             every { file.toExtFile(fileSource, false) } returns extFile
             every { fileSource.getFile(fileList.name) } returns systemFile
 
-            val extFileList = fileList.toExtFileList(fileSource)
+            val extFileList = tesInstance.convert(fileList, fileSource)
+
             assertThat(extFileList.files.first()).isEqualTo(extFile)
             assertThat(extFileList.filePath).isEqualTo(fileList.name)
         }

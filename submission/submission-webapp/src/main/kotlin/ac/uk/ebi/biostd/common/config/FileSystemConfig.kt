@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -26,9 +27,10 @@ class FileSystemConfig(
         havingValue = "false",
         matchIfMissing = true
     )
-    fun nfsFilePersistenceService(): FilesService = NfsFilesService(folderResolver)
+    fun nfsFilePersistenceService(): FilesService = NfsFilesService(folderResolver, FileProcessingService())
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
-    fun fireFileService(): FilesService = FireFilesService(fireWebClient, submissionQueryService)
+    fun fireFileService(): FilesService =
+        FireFilesService(fireWebClient, FileProcessingService(), submissionQueryService)
 }
