@@ -1,7 +1,6 @@
 package uk.ac.ebi.scheduler.exporter.service
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import ebi.ac.uk.io.FileUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -15,7 +14,6 @@ import uk.ac.ebi.scheduler.exporter.model.Links
 import uk.ac.ebi.scheduler.exporter.model.PmcData
 import uk.ac.ebi.scheduler.exporter.persistence.PmcRepository
 import uk.ac.ebi.scheduler.exporter.persistence.pageIterator
-import java.nio.file.Paths
 
 internal const val CHUNK_SIZE = 4000
 
@@ -56,7 +54,6 @@ class PmcExporterService(
         logger.info { "writing file part $part" }
         val xml = xmlWriter.writeValueAsString(Links(links))
         val path = "${appProperties.outputPath}/${String.format(appProperties.fileName, part)}"
-        FileUtils.writeContent(Paths.get(path).toFile(), xml)
         ftpClient.storeFile(path, xml.byteInputStream())
     }
 

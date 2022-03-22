@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.test
 
-import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
@@ -8,7 +7,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.assertBasicExtAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.basicDocAttribute
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
@@ -22,7 +20,7 @@ internal const val TEST_REL_PATH = "Files/folder/file.txt"
 internal const val TEST_DIRECTORY = "fire-directory.txt"
 internal const val TEST_FILEPATH_DIRECTORY = "filePath/folder/fire-directory.txt"
 internal const val TEST_FULL_PATH = "/a/full/path/file.txt"
-internal const val TEST_FILE_LIST = "file-list.tsv"
+internal const val TEST_FILE_LIST = "file-list"
 private const val TEST_MD5 = "a-test-md5"
 private const val TEST_FIRE_FILE_ID = "fireFileId"
 private const val TEST_FIRE_FILE_SIZE = 10L
@@ -66,17 +64,6 @@ internal object FileTestHelper {
         is FireFile -> assertFireFile(extFile)
         is FireDirectory -> assertFireDirectory(extFile)
         is NfsFile -> assertNfsFile(extFile, file)
-    }
-
-    fun assertExtFileList(extFileList: ExtFileList) {
-        assertThat(extFileList.filePath).isEqualTo(TEST_FILE_LIST)
-        assertThat(extFileList.files).hasSize(0)
-    }
-
-    fun assertNonEmptyExtFileList(extFileList: ExtFileList) {
-        assertThat(extFileList.filePath).isEqualTo(TEST_FILE_LIST)
-        assertThat(extFileList.files).hasSize(1)
-        assertThat(extFileList.files.first()).isEqualTo(fireDocFile.toExtFile())
     }
 
     private fun assertNfsFile(nfsFile: NfsFile, file: File) {

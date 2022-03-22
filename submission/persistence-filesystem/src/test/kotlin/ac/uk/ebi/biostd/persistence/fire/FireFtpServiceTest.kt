@@ -20,14 +20,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
-import uk.ac.ebi.fire.client.model.FireFile as ClientFireFile
 
 @ExtendWith(MockKExtension::class)
 class FireFtpServiceTest(
     @MockK(relaxUnitFun = true) private val fireWebClient: FireWebClient,
     @MockK private val submissionQueryService: SubmissionQueryService
 ) {
-    private val clientFireFile = ClientFireFile(1, "abc1", "md5", 1, "2021-09-21")
     private val fileFileList = fireFile(FILE_FILE_LIST)
     private val innerFileListFile = fireFile(INNER_FILE_FILE_LIST)
     private val extSub = createExtSubmission(fileFileList, innerFileListFile)
@@ -38,7 +36,6 @@ class FireFtpServiceTest(
 
     @BeforeEach
     fun beforeEach() {
-        every { fireWebClient.findAllInPath(extSub.relPath) } returns listOf(clientFireFile)
         every { submissionQueryService.getReferencedFiles(extSub.accNo, "fileName1") } returns listOf(fileFileList)
         every { submissionQueryService.getReferencedFiles(extSub.accNo, "fileName2") } returns listOf(innerFileListFile)
     }
@@ -47,11 +44,10 @@ class FireFtpServiceTest(
     fun `release submission files`() {
         val submission = extSub.copy(released = true)
 
-        every { submissionQueryService.getExtByAccNo(submission.accNo) } returns submission
+        every { submissionQueryService.getExtByAccNo(submission.accNo, true) } returns submission
 
         testInstance.releaseSubmissionFiles(extSub.accNo, extSub.owner, extSub.relPath)
 
-        verifyCleanFtpFolder()
         verifyFtpPublish()
     }
 
@@ -59,17 +55,11 @@ class FireFtpServiceTest(
     fun `create ftp folder`() {
         val submission = extSub.copy(released = true)
 
-        every { submissionQueryService.getExtByAccNo(submission.accNo) } returns submission
+        every { submissionQueryService.getExtByAccNo(submission.accNo, true) } returns submission
 
         testInstance.generateFtpLinks(submission.accNo)
 
-        verifyCleanFtpFolder()
         verifyFtpPublish()
-    }
-
-    private fun verifyCleanFtpFolder() = verify(exactly = 1) {
-        fireWebClient.unpublish(FILE_FILE_LIST)
-        fireWebClient.unsetPath(FILE_FILE_LIST)
     }
 
     private fun verifyFtpPublish() = verify(exactly = 1) {
@@ -109,7 +99,7 @@ class FireFtpServiceTest(
                     ExtSection(
                         type = "Study",
                         fileList = ExtFileList(
-                            "fileName2",
+                            "a/fileName2",
                             files = listOf(innerFileListFile),
                             pageTabFiles = listOf(innerFileListPageTabFile)
                         ),

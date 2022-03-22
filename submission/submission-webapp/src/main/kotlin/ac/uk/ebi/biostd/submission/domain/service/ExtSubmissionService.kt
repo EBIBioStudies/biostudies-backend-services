@@ -7,24 +7,18 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
-import ebi.ac.uk.extended.events.SubmissionRequestMessage
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
-import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import mu.KotlinLogging
-import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
-import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
-import uk.ac.ebi.events.config.SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
@@ -34,7 +28,6 @@ private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions", "LongParameterList")
 class ExtSubmissionService(
-    private val rabbitTemplate: RabbitTemplate,
     private val submissionSubmitter: SubmissionSubmitter,
     private val submissionQueryService: SubmissionQueryService,
     private val userPrivilegesService: IUserPrivilegesService,
@@ -53,13 +46,9 @@ class ExtSubmissionService(
 
     fun refreshSubmission(accNo: String, user: String): ExtSubmission {
         val submission = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        val refreshedSubmission = submitExt(user, submission, emptyList(), MOVE)
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE,
-            SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY,
-            eventsPublisherService.submissionMessage(refreshedSubmission.accNo, refreshedSubmission.owner)
-        )
-
+        val (_, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission.copy(submitter = user), COPY))
+        val refreshedSubmission = submissionSubmitter.processRequest(accNo, version)
+        eventsPublisherService.submissionsRefresh(refreshedSubmission.accNo, refreshedSubmission.owner)
         return refreshedSubmission
     }
 
@@ -87,11 +76,7 @@ class ExtSubmissionService(
         logger.info { "${sub.accNo} $user Received async submit request for ext submission ${sub.accNo}" }
         val submission = processExtSubmission(user, sub, fileListFiles)
         val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, fileMode))
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE,
-            SUBMISSIONS_REQUEST_ROUTING_KEY,
-            SubmissionRequestMessage(accNo, version)
-        )
+        eventsPublisherService.submissionRequest(accNo, version)
     }
 
     fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {

@@ -6,7 +6,6 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.util.LinkedMultiValueMap
-import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
@@ -20,22 +19,20 @@ internal const val FIRE_FILE_PARAM = "file"
 internal const val FIRE_MD5_HEADER = "x-fire-md5"
 internal const val FIRE_PATH_HEADER = "x-fire-path"
 internal const val FIRE_SIZE_HEADER = "x-fire-size"
-
-internal const val SUBMISSION_FILE_RELPATH_HEADER = "file-relpath"
+internal const val FIRE_BIO_ACC_NO = "bio-accNo"
+internal const val FIRE_BIO_PUBLISHED = "bio-published"
 
 const val FIRE_OBJECTS_URL = "/fire/objects"
 
-private typealias HttpException = HttpClientErrorException
-
+@Suppress("TooManyFunctions")
 internal class FireClient(
     private val tmpDirPath: String,
     private val template: RestTemplate
 ) : FireOperations {
-    override fun save(file: File, md5: String, relPath: String): FireFile {
+    override fun save(file: File, md5: String): FireFile {
         val headers = HttpHeaders().apply {
             set(FIRE_MD5_HEADER, md5)
             set(FIRE_SIZE_HEADER, file.size().toString())
-            set(SUBMISSION_FILE_RELPATH_HEADER, relPath)
         }
         val formData = listOf(FIRE_FILE_PARAM to FileSystemResource(file))
         val body = LinkedMultiValueMap(formData.groupBy({ it.first }, { it.second }))
@@ -44,11 +41,20 @@ internal class FireClient(
 
     override fun setPath(fireOid: String, path: String) {
         val headers = HttpHeaders().apply { set(FIRE_PATH_HEADER, path) }
-        return template.put("$FIRE_OBJECTS_URL/$fireOid/firePath", HttpEntity(null, headers))
+        template.put("$FIRE_OBJECTS_URL/$fireOid/firePath", HttpEntity(null, headers))
     }
 
     override fun unsetPath(fireOid: String) {
         template.delete("$FIRE_OBJECTS_URL/$fireOid/firePath")
+    }
+
+    override fun setBioMetadata(fireOid: String, accNo: String?, published: Boolean?) {
+        val body = buildList {
+            accNo?.let { add("\"$FIRE_BIO_ACC_NO\": \"$it\"") }
+            published?.let { add("\"$FIRE_BIO_PUBLISHED\": $published") }
+        }.joinToString()
+
+        template.put("$FIRE_OBJECTS_URL/$fireOid/metadata/set", HttpEntity("{ $body }", null))
     }
 
     override fun downloadByPath(
@@ -66,6 +72,19 @@ internal class FireClient(
         Files.write(tmpFile.toPath(), fileContent)
 
         return tmpFile
+    }
+
+    override fun findByMd5(md5: String): List<FireFile> =
+        template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/md5/$md5").toList()
+
+    override fun findByAccNo(accNo: String): List<FireFile> {
+        val body = "{ \"$FIRE_BIO_ACC_NO\": \"$accNo\" }"
+        return template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, null)).toList()
+    }
+
+    override fun findByAccNoAndPublished(accNo: String, published: Boolean): List<FireFile> {
+        val body = "{ \"$FIRE_BIO_ACC_NO\": \"$accNo\", \"$FIRE_BIO_PUBLISHED\": $published }"
+        return template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, null)).toList()
     }
 
     override fun findAllInPath(path: String): List<FireFile> {

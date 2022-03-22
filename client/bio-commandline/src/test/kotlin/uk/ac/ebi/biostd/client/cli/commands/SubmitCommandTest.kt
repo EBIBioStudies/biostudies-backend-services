@@ -102,6 +102,36 @@ internal class SubmitCommandTest(
     }
 
     @Test
+    fun `no attached files`() {
+        val mockResponse = Submission("S-TEST123")
+
+        val submission = temporaryFolder.createFile("Submission.tsv")
+
+        val request = SubmissionRequest(
+            server = "server",
+            user = "user",
+            password = "password",
+            onBehalf = null,
+            file = submission,
+            attached = emptyList(),
+            fileMode = MOVE
+        )
+        every { submissionService.submit(request) } returns mockResponse
+
+        testInstance.parse(
+            listOf(
+                "-s", "server",
+                "-u", "user",
+                "-p", "password",
+                "-i", "$rootFolder/Submission.tsv",
+                "-fm", "MOVE"
+            )
+        )
+
+        verify(exactly = 1) { submissionService.submit(request) }
+    }
+
+    @Test
     fun `invalid file mode`() {
         temporaryFolder.createFile("Submission.tsv")
         temporaryFolder.createFile("attachedFile1.tsv")

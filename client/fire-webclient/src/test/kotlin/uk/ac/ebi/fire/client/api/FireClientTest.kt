@@ -23,6 +23,7 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
+import org.springframework.web.client.postForObject
 import uk.ac.ebi.fire.client.exception.FireClientException
 import uk.ac.ebi.fire.client.model.FireFile
 
@@ -45,12 +46,11 @@ class FireClientTest(
             template.postForObject(FIRE_OBJECTS_URL, capture(httpEntitySlot), FireFile::class.java)
         } returns fireFile
 
-        testInstance.save(file, "the-md5", "relPath")
+        testInstance.save(file, "the-md5")
 
         val httpEntity = httpEntitySlot.captured
         assertThat(httpEntity.headers[FIRE_MD5_HEADER]!!.first()).isEqualTo("the-md5")
         assertThat(httpEntity.headers[FIRE_SIZE_HEADER]!!.first()).isEqualTo(file.size().toString())
-        assertThat(httpEntity.headers[SUBMISSION_FILE_RELPATH_HEADER]!!.first()).isEqualTo("relPath")
         assertThat(httpEntity.body!![FIRE_FILE_PARAM]!!.first()).isEqualTo(FileSystemResource(file))
         verify(exactly = 1) { template.postForObject(FIRE_OBJECTS_URL, capture(httpEntitySlot), FireFile::class.java) }
     }
@@ -75,6 +75,19 @@ class FireClientTest(
         testInstance.unsetPath("the-fire-oid")
 
         verify(exactly = 1) { template.delete("$FIRE_OBJECTS_URL/the-fire-oid/firePath") }
+    }
+
+    @Test
+    fun `set bio metadata`() {
+        val httpEntitySlot = slot<HttpEntity<String>>()
+
+        every { template.put("$FIRE_OBJECTS_URL/fire-oid/metadata/set", capture(httpEntitySlot)) } answers { nothing }
+
+        testInstance.setBioMetadata("fire-oid", "S-BSST0", false)
+
+        val httpEntity = httpEntitySlot.captured
+        assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\", \"$FIRE_BIO_PUBLISHED\": false }")
+        verify(exactly = 1) { template.put("$FIRE_OBJECTS_URL/fire-oid/metadata/set", httpEntity) }
     }
 
     @Test
@@ -108,6 +121,55 @@ class FireClientTest(
         assertThat(downloadedFile.absolutePath).isEqualTo("${tmpFolder.root.absolutePath}/file1.txt")
         verify(exactly = 1) {
             template.getForObject("$FIRE_OBJECTS_URL/blob/fireOId", ByteArray::class.java)
+        }
+    }
+
+    @Test
+    fun `find by md5`(@MockK fireFile: FireFile) {
+        every { template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/md5/the-md5") } returns arrayOf(fireFile)
+
+        val files = testInstance.findByMd5("the-md5")
+
+        assertThat(files).hasSize(1)
+        assertThat(files.first()).isEqualTo(fireFile)
+        verify(exactly = 1) {
+            template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/md5/the-md5")
+        }
+    }
+
+    @Test
+    fun `find by accNo`(@MockK fireFile: FireFile) {
+        val httpEntitySlot = slot<HttpEntity<String>>()
+        every {
+            template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", capture(httpEntitySlot))
+        } returns arrayOf(fireFile)
+
+        val files = testInstance.findByAccNo("S-BSST0")
+
+        val httpEntity = httpEntitySlot.captured
+        assertThat(files).hasSize(1)
+        assertThat(files.first()).isEqualTo(fireFile)
+        assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\" }")
+        verify(exactly = 1) {
+            template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", httpEntity)
+        }
+    }
+
+    @Test
+    fun `find by accNo and published`(@MockK fireFile: FireFile) {
+        val httpEntitySlot = slot<HttpEntity<String>>()
+        every {
+            template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", capture(httpEntitySlot))
+        } returns arrayOf(fireFile)
+
+        val files = testInstance.findByAccNoAndPublished("S-BSST0", true)
+
+        val httpEntity = httpEntitySlot.captured
+        assertThat(files).hasSize(1)
+        assertThat(files.first()).isEqualTo(fireFile)
+        assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\", \"$FIRE_BIO_PUBLISHED\": true }")
+        verify(exactly = 1) {
+            template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", httpEntity)
         }
     }
 

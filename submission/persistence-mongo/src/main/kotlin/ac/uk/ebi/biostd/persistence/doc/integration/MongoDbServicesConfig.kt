@@ -10,6 +10,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtFileListMapper
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.CollectionMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
@@ -47,9 +49,19 @@ class MongoDbServicesConfig {
     ): CollectionDataService = CollectionMongoDataService(submissionDocDataRepository)
 
     @Bean
-    internal fun toExtSubmissionMapper(
+    internal fun toExtFileListMapper(
         fileListDocFileRepository: FileListDocFileRepository
-    ): ToExtSubmissionMapper = ToExtSubmissionMapper(fileListDocFileRepository)
+    ): ToExtFileListMapper = ToExtFileListMapper(fileListDocFileRepository)
+
+    @Bean
+    internal fun toExtSectionMapper(
+        toExtFileListMapper: ToExtFileListMapper
+    ): ToExtSectionMapper = ToExtSectionMapper(toExtFileListMapper)
+
+    @Bean
+    internal fun toExtSubmissionMapper(
+        toExtSectionMapper: ToExtSectionMapper
+    ): ToExtSubmissionMapper = ToExtSubmissionMapper(toExtSectionMapper)
 
     @Bean
     internal fun submissionDraftMongoService(

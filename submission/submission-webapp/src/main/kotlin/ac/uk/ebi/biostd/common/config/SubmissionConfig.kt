@@ -54,7 +54,6 @@ class SubmissionConfig(
 
     @Bean
     fun extSubmissionService(
-        rabbitTemplate: RabbitTemplate,
         submissionSubmitter: SubmissionSubmitter,
         subRepository: SubmissionQueryService,
         userPrivilegeService: IUserPrivilegesService,
@@ -63,7 +62,6 @@ class SubmissionConfig(
         eventsPublisherService: EventsPublisherService
     ): ExtSubmissionService =
         ExtSubmissionService(
-            rabbitTemplate,
             submissionSubmitter,
             subRepository,
             userPrivilegeService,
