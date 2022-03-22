@@ -10,12 +10,12 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDelete
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotRelease
-import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
 import ebi.ac.uk.extended.events.SubmissionRequestMessage
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -35,7 +35,8 @@ class SubmissionService(
     private val userPrivilegesService: IUserPrivilegesService,
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
-    private val rabbitTemplate: RabbitTemplate
+    private val rabbitTemplate: RabbitTemplate,
+    private val toSubmissionMapper: ToSubmissionMapper,
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         val (accNo, version) = submissionSubmitter.submitAsync(rqt)
@@ -72,14 +73,20 @@ class SubmissionService(
         eventsPublisherService.submissionFailed(message)
     }
 
-    fun getSubmissionAsJson(accNo: String): String =
-        serializationService.serializeSubmission(submissionQueryService.getSimpleByAccNo(accNo), JsonPretty)
+    fun getSubmissionAsJson(accNo: String): String {
+        val submission = submissionQueryService.getExtByAccNo(accNo)
+        return serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(submission), JsonPretty)
+    }
 
-    fun getSubmissionAsXml(accNo: String): String =
-        serializationService.serializeSubmission(submissionQueryService.getSimpleByAccNo(accNo), XmlFormat)
+    fun getSubmissionAsXml(accNo: String): String {
+        val submission = submissionQueryService.getExtByAccNo(accNo)
+        return serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(submission), XmlFormat)
+    }
 
-    fun getSubmissionAsTsv(accNo: String): String =
-        serializationService.serializeSubmission(submissionQueryService.getSimpleByAccNo(accNo), Tsv)
+    fun getSubmissionAsTsv(accNo: String): String {
+        val submission = submissionQueryService.getExtByAccNo(accNo)
+        return serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(submission), Tsv)
+    }
 
     fun getSubmissions(
         user: SecurityUser,

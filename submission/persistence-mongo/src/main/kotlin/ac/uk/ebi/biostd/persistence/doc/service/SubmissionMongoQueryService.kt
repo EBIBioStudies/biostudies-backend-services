@@ -46,6 +46,11 @@ internal class SubmissionMongoQueryService(
         return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
     }
 
+    override fun findLatestExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
+        val findByAccNo = submissionRepo.findLatestByAccNo(accNo)
+        return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
+    }
+
     override fun getExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission {
         val submission = submissionRepo.getByAccNo(accNo)
         return toExtSubmissionMapper.toExtSubmission(submission, includeFileListFiles)

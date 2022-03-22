@@ -5,8 +5,8 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
-import ebi.ac.uk.extended.model.FileMode.valueOf
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ON_BEHALF_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
@@ -20,7 +20,9 @@ import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 import java.io.File
 
-internal class SubmitCommand(private val submissionService: SubmissionService) : CliktCommand(name = "submit") {
+internal class SubmitCommand(
+    private val submissionService: SubmissionService
+) : CliktCommand(name = "submit") {
     private val server by option("-s", "--server", help = SERVER_HELP).required()
     private val user by option("-u", "--user", help = USER_HELP).required()
     private val password by option("-p", "--password", help = PASSWORD_HELP).required()
@@ -36,8 +38,8 @@ internal class SubmitCommand(private val submissionService: SubmissionService) :
             password = password,
             onBehalf = onBehalf,
             file = input,
-            attached = attached.orEmpty().split(FILES_SEPARATOR).flatMap { getFiles(File(it)) },
-            fileMode = valueOf(fileMode)
+            attached = attached?.split(FILES_SEPARATOR)?.flatMap { getFiles(File(it)) }.orEmpty(),
+            fileMode = FileMode.valueOf(fileMode)
         )
 
         val response = submissionService.submit(request)

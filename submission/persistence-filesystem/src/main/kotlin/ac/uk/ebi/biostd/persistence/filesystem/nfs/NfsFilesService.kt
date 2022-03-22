@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.filesystem.nfs
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.permissions
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
-import ac.uk.ebi.biostd.persistence.filesystem.service.processFiles
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
@@ -25,7 +25,8 @@ import java.nio.file.attribute.PosixFilePermission
 private val logger = KotlinLogging.logger {}
 
 class NfsFilesService(
-    private val folderResolver: SubmissionFolderResolver
+    private val folderResolver: SubmissionFolderResolver,
+    private val fileProcessingService: FileProcessingService
 ) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
         val (sub, mode, _) = request
@@ -56,7 +57,7 @@ class NfsFilesService(
             permissions = permissions
         )
 
-        val processed = processFiles(sub) { config.processFile(it) }
+        val processed = fileProcessingService.processFiles(sub) { config.processFile(it) }
         moveFile(newSubTempPath, subFolder, permissions)
         return processed
     }

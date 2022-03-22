@@ -10,13 +10,13 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.submission.ext.getSimpleByAccNo
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
@@ -25,6 +25,8 @@ import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import java.io.File
+import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -39,13 +41,11 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
-import java.io.File
-import java.nio.file.Paths
 
 // TODO Fix all integration tests
 @ExtendWith(TemporaryFolderExtension::class)
 internal class MultipartFileSubmissionApiTest(
-    private val tempFolder: TemporaryFolder
+    private val tempFolder: TemporaryFolder,
 ) : BaseIntegrationTest(tempFolder) {
     @Nested
     @Import(PersistenceConfig::class)
@@ -55,7 +55,8 @@ internal class MultipartFileSubmissionApiTest(
     @DirtiesContext
     inner class SingleSubmissionTest(
         @Autowired private val submissionRepository: SubmissionQueryService,
-        @Autowired private val securityTestService: SecurityTestService
+        @Autowired private val securityTestService: SecurityTestService,
+        @Autowired private val toSubmissionMapper: ToSubmissionMapper
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -253,7 +254,7 @@ internal class MultipartFileSubmissionApiTest(
             assertThat(response).isSuccessful()
             submission.delete()
 
-            val savedSubmission = submissionRepository.getSimpleByAccNo("S-TEST6")
+            val savedSubmission = getSimpleSubmission("S-TEST6")
             assertThat(savedSubmission.attributes).hasSize(3)
             assertThat(savedSubmission["Exp"]).isEqualTo("1")
             assertThat(savedSubmission["Type"]).isEqualTo("Exp")
@@ -268,6 +269,9 @@ internal class MultipartFileSubmissionApiTest(
                 .isThrownBy { webClient.submitSingle(submission, emptyList()) }
                 .withMessageContaining("Unsupported page tab format submission.txt")
         }
+
+        private fun getSimpleSubmission(accNo: String) =
+            toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
             val createdSub = submissionRepository.getExtByAccNo(accNo)

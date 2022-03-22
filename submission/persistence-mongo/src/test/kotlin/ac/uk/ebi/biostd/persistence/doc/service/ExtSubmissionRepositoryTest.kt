@@ -3,11 +3,13 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
+import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
+import ac.uk.ebi.biostd.persistence.doc.integration.ToDocSubmissionConfig
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
-import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.TestConfig
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
@@ -35,18 +37,20 @@ import uk.ac.ebi.extended.test.SubmissionFactory.SUBMITTER
 import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
 
 @Testcontainers
-@SpringBootTest(classes = [TestConfig::class])
+@SpringBootTest(classes = [MongoDbServicesConfig::class, ToDocSubmissionConfig::class])
 class ExtSubmissionRepositoryTest(
     @Autowired private val subDataRepository: SubmissionDocDataRepository,
     @Autowired private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
     @Autowired private val toExtSectionMapper: ToExtSectionMapper,
+    @Autowired private val toDocSubmissionMapper: ToDocSubmissionMapper
 ) {
     private val testInstance = ExtSubmissionRepository(
         subDataRepository,
         draftDocDataRepository,
         fileListDocFileRepository,
-        ToExtSubmissionMapper(toExtSectionMapper)
+        ToExtSubmissionMapper(toExtSectionMapper),
+        toDocSubmissionMapper
     )
 
     @BeforeEach

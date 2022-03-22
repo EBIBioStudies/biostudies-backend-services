@@ -20,7 +20,9 @@ import org.springframework.http.HttpStatus.BAD_REQUEST
 import java.io.File
 import java.time.Instant
 
-class TestWireMockTransformer(private val folder: File) : ResponseDefinitionTransformer() {
+class TestWireMockTransformer(
+    private val folder: File
+) : ResponseDefinitionTransformer() {
     override fun getName(): String = "testWireMockTransformer"
 
     override fun transform(
@@ -31,13 +33,14 @@ class TestWireMockTransformer(private val folder: File) : ResponseDefinitionTran
     ): ResponseDefinition {
         when (request.method) {
             POST -> {
-                val file = folder.resolve(request.getHeader("file-relpath"))
-                file.parentFile.mkdirs()
+                val objectId = ObjectId.get().timestamp
+                val file = folder.resolve(objectId.toString())
                 file.createNewFile()
                 file.writeBytes(request.parts.first().body.asBytes())
+
                 return okJson(
                     jsonObj {
-                        "objectId" to ObjectId.get().timestamp
+                        "objectId" to objectId
                         "fireOid" to "fireOid-${getFileName(request)}"
                         "objectMd5" to file.md5()
                         "objectSize" to file.size()
@@ -47,7 +50,15 @@ class TestWireMockTransformer(private val folder: File) : ResponseDefinitionTran
                 ).build()
             }
             GET -> return okJson(jsonArray().toString()).build()
-            PUT -> return ResponseDefinition()
+            PUT -> {
+                val objectId = parameters!!["fireId"]
+                val relPath = folder.resolve(request.getHeader("x-fire-path"))
+                val file = folder.resolve(objectId.toString())
+                relPath.parentFile.mkdirs()
+                file.renameTo(relPath)
+
+                return ResponseDefinition()
+            }
             DELETE -> return ResponseDefinition()
             else -> throw WebClientException(BAD_REQUEST, "http method ${request.method.name} is not supported")
         }

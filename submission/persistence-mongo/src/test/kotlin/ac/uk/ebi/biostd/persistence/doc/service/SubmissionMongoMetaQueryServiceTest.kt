@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.integration.SerializationConfig
-import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionWithoutPatternException
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
@@ -9,7 +7,6 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.PropertyOverrideContextInitializer
-import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.TestConfig
 import ac.uk.ebi.biostd.persistence.doc.test.doc.RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
@@ -24,9 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Import
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -37,7 +31,6 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Files
 import java.time.Duration.ofSeconds
 import java.time.ZoneOffset.UTC
@@ -45,7 +38,7 @@ import java.time.temporal.ChronoUnit
 
 @ExtendWith(SpringExtension::class)
 @Testcontainers
-@SpringBootTest(classes = [TestConfig::class])
+@SpringBootTest(classes = [MongoDbServicesConfig::class])
 @ContextConfiguration(initializers = [PropertyOverrideContextInitializer::class])
 internal class SubmissionMongoMetaQueryServiceTest(
     @Autowired private val submissionMongoRepository: SubmissionMongoRepository,
@@ -117,17 +110,6 @@ internal class SubmissionMongoMetaQueryServiceTest(
         submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo4", version = 1, status = PROCESSED))
 
         assertThat(submissionMongoRepository.existsByAccNo("accNo5")).isFalse
-    }
-
-    @Configuration
-    @Import(MongoDbServicesConfig::class)
-    class TestConfig {
-
-        @Bean
-        fun extSerializationService(): ExtSerializationService = ExtSerializationService()
-
-        @Bean
-        fun serializationService(): SerializationService = SerializationConfig.serializationService()
     }
 
     class PropertyOverrideContextInitializer : ApplicationContextInitializer<ConfigurableApplicationContext> {

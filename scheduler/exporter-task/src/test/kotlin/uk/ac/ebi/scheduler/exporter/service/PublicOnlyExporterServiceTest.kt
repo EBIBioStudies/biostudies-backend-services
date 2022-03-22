@@ -7,7 +7,9 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ebi.ac.uk.extended.mapping.to.ToFileListMapper
+import ebi.ac.uk.extended.mapping.to.ToSectionMapper
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -16,6 +18,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
+import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -23,7 +26,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.scheduler.exporter.config.ApplicationProperties
 import uk.ac.ebi.scheduler.exporter.config.BioStudies
-import java.nio.file.Paths
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class PublicOnlyExporterServiceTest(
@@ -31,7 +33,9 @@ class PublicOnlyExporterServiceTest(
     @MockK private val bioWebClient: BioWebClient,
     @MockK private val serializationService: SerializationService
 ) {
-    private val testInstance = PublicOnlyExporterService(bioWebClient, testProperties(), serializationService)
+    private val toSubmissionMapper: ToSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper()))
+    private val testInstance =
+        PublicOnlyExporterService(bioWebClient, testProperties(), serializationService, toSubmissionMapper)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -71,7 +75,7 @@ class PublicOnlyExporterServiceTest(
         val serializedSubmission = jsonObj { "accNo" to "S-TEST123" }
 
         every {
-            serializationService.serializeSubmission(basicExtSubmission.toSimpleSubmission(), JSON_PRETTY)
+            serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(basicExtSubmission), JSON_PRETTY)
         } returns serializedSubmission.toString()
     }
 

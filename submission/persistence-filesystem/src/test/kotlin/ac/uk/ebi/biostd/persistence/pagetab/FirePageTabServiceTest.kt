@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.persistence.pagetab
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.FirePageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabFiles
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.generateFileListPageTab
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.generateSubPageTab
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtFileList
@@ -20,7 +20,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkStatic
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -32,10 +32,12 @@ import uk.ac.ebi.fire.client.model.FireFile as FireFileWeb
 class FirePageTabServiceTest(
     tempFolder: TemporaryFolder,
     @MockK private val serializationService: SerializationService,
-    @MockK private val fireWebClient: FireWebClient
+    @MockK private val fireWebClient: FireWebClient,
+    @MockK private val pageTabUtil: PageTabUtil,
 ) {
     private val fireFolder = tempFolder.root.resolve("fire-temp")
-    private val testInstance: FirePageTabService = FirePageTabService(fireFolder, serializationService, fireWebClient)
+    private val testInstance =
+        FirePageTabService(fireFolder, serializationService, fireWebClient, pageTabUtil, FileProcessingService())
 
     @Test
     fun `generate page tab`() {
@@ -48,18 +50,22 @@ class FirePageTabServiceTest(
         assertSubmissionTabFiles(result)
         assertSectionTabFiles(result.section)
         assertThatEither(result.section.sections.first()).hasLeftValueSatisfying { assertSubSectionTabFiles(it) }
+        verifySetFirePath()
     }
 
     private fun setUpGeneratePageTab(submission: ExtSubmission) {
-        mockkStatic("ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtilKt")
-
-        every { serializationService.generateSubPageTab(submission, fireFolder) } returns
-            PageTabFiles(
-                fireFolder.resolve("S-TEST123.json"),
-                fireFolder.resolve("S-TEST123.xml"),
-                fireFolder.resolve("S-TEST123.pagetab.tsv")
+        every { pageTabUtil.generateSubPageTab(serializationService, submission, fireFolder) } returns PageTabFiles(
+            fireFolder.resolve("S-TEST123.json"),
+            fireFolder.resolve("S-TEST123.xml"),
+            fireFolder.resolve("S-TEST123.pagetab.tsv")
+        )
+        every {
+            pageTabUtil.generateFileListPageTab(
+                serializationService,
+                submission,
+                fireFolder
             )
-        every { serializationService.generateFileListPageTab(submission, fireFolder) } returns mapOf(
+        } returns mapOf(
             "data/file-list2" to PageTabFiles(
                 fireFolder.resolve("data/file-list2.json"),
                 fireFolder.resolve("data/file-list2.xml"),
@@ -74,7 +80,7 @@ class FirePageTabServiceTest(
     }
 
     private fun setUpFireWebClient() {
-        every { fireWebClient.save(any(), any(), any()) } returns
+        every { fireWebClient.save(any(), any()) } returns
             FireFileWeb(1, "$FILE_LIST_JSON2-fireId", "md5", 1, "creationTime") andThen
             FireFileWeb(2, "$FILE_LIST_XML2-fireId", "md5", 1, "creationTime") andThen
             FireFileWeb(3, "$FILE_LIST_TSV2-fireId", "md5", 1, "creationTime") andThen
@@ -84,6 +90,28 @@ class FirePageTabServiceTest(
             FireFileWeb(7, "$SUB_JSON-fireId", "md5", 1, "creationTime") andThen
             FireFileWeb(8, "$SUB_XML-fireId", "md5", 1, "creationTime") andThen
             FireFileWeb(9, "$SUB_TSV-fireId", "md5", 1, "creationTime")
+
+        every { fireWebClient.setPath("$SUB_TSV-fireId", "S-TEST/123/S-TEST123/$SUB_TSV") } answers { nothing }
+        every { fireWebClient.setPath("$SUB_XML-fireId", "S-TEST/123/S-TEST123/$SUB_XML") } answers { nothing }
+        every { fireWebClient.setPath("$SUB_JSON-fireId", "S-TEST/123/S-TEST123/$SUB_JSON") } answers { nothing }
+        every {
+            fireWebClient.setPath("$FILE_LIST_TSV1-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_TSV1")
+        } answers { nothing }
+        every {
+            fireWebClient.setPath("$FILE_LIST_TSV2-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_TSV2")
+        } answers { nothing }
+        every {
+            fireWebClient.setPath("$FILE_LIST_XML1-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_XML1")
+        } answers { nothing }
+        every {
+            fireWebClient.setPath("$FILE_LIST_XML2-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_XML2")
+        } answers { nothing }
+        every {
+            fireWebClient.setPath("$FILE_LIST_JSON1-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_JSON1")
+        } answers { nothing }
+        every {
+            fireWebClient.setPath("$FILE_LIST_JSON2-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_JSON2")
+        } answers { nothing }
     }
 
     private fun sectionWithoutTabFiles() = ExtSection(
@@ -115,10 +143,24 @@ class FirePageTabServiceTest(
             )
         )
         assertThat(tabFiles.second()).isEqualTo(
-            FireFile("data/$FILE_LIST_XML1", "Files/data/$FILE_LIST_XML1", "$FILE_LIST_XML1-fireId", "md5", 1, listOf())
+            FireFile(
+                "data/$FILE_LIST_XML1",
+                "Files/data/$FILE_LIST_XML1",
+                "$FILE_LIST_XML1-fireId",
+                "md5",
+                1,
+                listOf()
+            )
         )
         assertThat(tabFiles.third()).isEqualTo(
-            FireFile("data/$FILE_LIST_TSV1", "Files/data/$FILE_LIST_TSV1", "$FILE_LIST_TSV1-fireId", "md5", 1, listOf())
+            FireFile(
+                "data/$FILE_LIST_TSV1",
+                "Files/data/$FILE_LIST_TSV1",
+                "$FILE_LIST_TSV1-fireId",
+                "md5",
+                1,
+                listOf()
+            )
         )
     }
 
@@ -154,6 +196,18 @@ class FirePageTabServiceTest(
                 listOf()
             )
         )
+    }
+
+    private fun verifySetFirePath() = verify(exactly = 1) {
+        fireWebClient.setPath("$SUB_TSV-fireId", "S-TEST/123/S-TEST123/$SUB_TSV")
+        fireWebClient.setPath("$SUB_XML-fireId", "S-TEST/123/S-TEST123/$SUB_XML")
+        fireWebClient.setPath("$SUB_JSON-fireId", "S-TEST/123/S-TEST123/$SUB_JSON")
+        fireWebClient.setPath("$FILE_LIST_TSV1-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_TSV1")
+        fireWebClient.setPath("$FILE_LIST_TSV2-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_TSV2")
+        fireWebClient.setPath("$FILE_LIST_XML1-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_XML1")
+        fireWebClient.setPath("$FILE_LIST_XML2-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_XML2")
+        fireWebClient.setPath("$FILE_LIST_JSON1-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_JSON1")
+        fireWebClient.setPath("$FILE_LIST_JSON2-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_JSON2")
     }
 
     companion object {

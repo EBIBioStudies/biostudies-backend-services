@@ -34,7 +34,7 @@ class FireResource(
         @RequestParam("md5") md5: String,
         @RequestParam("accNo") accNo: String
     ): FireFile {
-        val persisted = fireWebClient.save(tempFileGenerator.asFile(multipartFile), md5, "")
+        val persisted = fireWebClient.save(tempFileGenerator.asFile(multipartFile), md5)
         fireWebClient.setPath(persisted.fireOid, path)
         return persisted
     }

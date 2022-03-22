@@ -3,13 +3,13 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
@@ -19,21 +19,21 @@ import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
+import ebi.ac.uk.extended.mapping.from.ToExtFileListMapper
+import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import java.nio.file.Paths
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
 import org.springframework.web.client.RestTemplate
-import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import java.nio.file.Paths
 
 @Suppress("LongParameterList")
 @Configuration
-@Import(ServiceConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class)
+@Import(ServiceConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class, SerializationConfiguration::class)
 class SubmitterConfig {
     @Bean
     fun submissionSubmitter(
@@ -45,7 +45,8 @@ class SubmitterConfig {
         submissionMetadataQueryService: SubmissionMetaQueryService,
         submissionQueryService: SubmissionQueryService,
         submissionDraftService: SubmissionDraftService,
-        applicationProperties: ApplicationProperties
+        applicationProperties: ApplicationProperties,
+        toExtSectionMapper: ToExtSectionMapper,
     ) = SubmissionSubmitter(
         timesService,
         accNoService,
@@ -55,8 +56,19 @@ class SubmitterConfig {
         submissionMetadataQueryService,
         submissionQueryService,
         submissionDraftService,
-        applicationProperties
+        applicationProperties,
+        toExtSectionMapper
     )
+
+    @Configuration
+    class ToExtendedConfiguration {
+        @Bean
+        fun toExtSection(toExtFileListMapper: ToExtFileListMapper): ToExtSectionMapper =
+            ToExtSectionMapper(toExtFileListMapper)
+
+        @Bean
+        fun toExtFileList(): ToExtFileListMapper = ToExtFileListMapper()
+    }
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
@@ -69,20 +81,11 @@ class SubmitterConfig {
     }
 
     @Configuration
-    class SerializationConfiguration {
-        @Bean
-        fun serializationService(): SerializationService = SerializationConfig.serializationService()
-
-        @Bean
-        fun extSerializationService(): ExtSerializationService = ExtSerializationConfig.extSerializationService()
-    }
-
-    @Configuration
     @Suppress("MagicNumber")
     class ServiceConfig(
         private val service: PersistenceService,
         private val queryService: SubmissionMetaQueryService,
-        private val userPrivilegesService: IUserPrivilegesService
+        private val userPrivilegesService: IUserPrivilegesService,
     ) {
         @Bean
         fun accNoPatternUtil() = AccNoPatternUtil()
@@ -107,13 +110,13 @@ class SubmitterConfig {
 
         @Bean
         fun fileListValidator(
-            serializationService: SerializationService
+            serializationService: SerializationService,
         ): FileListValidator = FileListValidator(serializationService)
 
         @Bean(name = ["EuToxRiskValidator"])
         fun euToxRiskValidator(
             restTemplate: RestTemplate,
-            applicationProperties: ApplicationProperties
+            applicationProperties: ApplicationProperties,
         ): CollectionValidator = EuToxRiskValidator(restTemplate, applicationProperties.validator)
     }
 }

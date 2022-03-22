@@ -16,10 +16,13 @@ interface SubmissionPersistenceService {
     fun releaseSubmission(accNo: String, owner: String, relPath: String)
 }
 
+@Suppress("TooManyFunctions")
 interface SubmissionQueryService {
     fun existByAccNo(accNo: String): Boolean
 
     fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission?
+
+    fun findLatestExtByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission?
 
     fun getExtByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission
 
