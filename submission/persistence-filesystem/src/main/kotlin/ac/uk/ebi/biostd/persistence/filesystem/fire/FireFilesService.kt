@@ -67,9 +67,14 @@ private fun persistFireDirectory(nfsFile: NfsFile): FireDirectory {
 }
 
 private fun FireFileProcessingConfig.persistFireFile(accNo: String, subRelPath: String, nfsFile: NfsFile): FireFile {
-    val fileFire = fireWebClient.findByMd5(nfsFile.md5).firstOrNull { it.belongsToSubmission(accNo) }
+    val previousFile =
+        fireWebClient
+            .findByMd5(nfsFile.md5)
+            .firstOrNull { it.filesystemEntry == null && (it.metadata == null || it.belongsToSubmission(accNo)) }
 
-    return if (fileFire == null) persistFile(accNo, subRelPath, nfsFile) else reusePreviousFile(fileFire, nfsFile)
+    return if (previousFile == null)
+        persistFile(accNo, subRelPath, nfsFile)
+        else reusePreviousFile(previousFile, subRelPath, nfsFile)
 }
 
 private fun ClientFireFile.belongsToSubmission(accNo: String) =
@@ -77,17 +82,23 @@ private fun ClientFireFile.belongsToSubmission(accNo: String) =
 
 private fun FireFileProcessingConfig.persistFile(accNo: String, subRelPath: String, nfsFile: NfsFile): FireFile {
     val (filePath, relPath, _, _, _, _, attributes) = nfsFile
-    val fireFile = fireWebClient.persistFireFile(accNo, nfsFile.file, "$subRelPath/$relPath")
+    val fireFile = fireWebClient.persistFireFile(accNo, nfsFile.file, nfsFile.md5, "$subRelPath/$relPath")
 
     return FireFile(filePath, relPath, fireFile.fireOid, fireFile.objectMd5, fireFile.objectSize.toLong(), attributes)
 }
 
-private fun reusePreviousFile(fireFile: ClientFireFile, nfsFile: NfsFile) =
-    FireFile(
+private fun FireFileProcessingConfig.reusePreviousFile(
+    previousFile: ClientFireFile,
+    subRelPath: String,
+    nfsFile: NfsFile
+): FireFile {
+    fireWebClient.setPath(previousFile.fireOid, "$subRelPath/${nfsFile.relPath}")
+    return FireFile(
         nfsFile.filePath,
         nfsFile.relPath,
-        fireFile.fireOid,
-        fireFile.objectMd5,
-        fireFile.objectSize.toLong(),
+        previousFile.fireOid,
+        previousFile.objectMd5,
+        previousFile.objectSize.toLong(),
         nfsFile.attributes
     )
+}
