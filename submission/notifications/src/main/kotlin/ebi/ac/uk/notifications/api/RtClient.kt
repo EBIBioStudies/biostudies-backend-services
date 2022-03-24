@@ -51,6 +51,7 @@ class RtClient(
     private fun ticketComment(ticketId: String, comment: String) =
         StringBuilder("id: $ticketId\n")
             .append("Action: correspond\n")
+            .append("Status: resolved\n")
             .append("Text: ${trimContent(comment)}")
             .toString()
 
