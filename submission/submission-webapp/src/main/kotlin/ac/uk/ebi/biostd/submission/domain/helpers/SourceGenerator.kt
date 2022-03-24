@@ -23,26 +23,27 @@ class SourceGenerator(
     ): FilesSource = ComposedFileSource(userSourcesList(user, rootPath.orEmpty()))
 
     fun submissionSources(requestSources: RequestSources): FilesSource {
-        val (owner, submitter, files, submission) = requestSources
-        return ComposedFileSource(submissionSources(owner, submitter, files, submission))
+        val (owner, submitter, files, rootPath, submission) = requestSources
+        return ComposedFileSource(submissionSources(owner, submitter, files, rootPath, submission))
     }
 
     private fun submissionSources(
         owner: SecurityUser?,
         submitter: SecurityUser?,
         files: List<File>,
+        rootPath: String?,
         submission: ExtSubmission?
     ): List<FilesSource> {
         return buildList {
             add(FilesListSource(files))
 
             if (submitter != null) {
-                add(createPathSource(submitter, submission?.rootPath))
+                add(createPathSource(submitter, rootPath))
                 addAll(groupSources(submitter.groupsFolders))
             }
 
             if (owner != null) {
-                add(createPathSource(owner, submission?.rootPath))
+                add(createPathSource(owner, rootPath))
                 addAll(groupSources(owner.groupsFolders))
             }
 
@@ -71,5 +72,6 @@ data class RequestSources(
     val owner: SecurityUser? = null,
     val submitter: SecurityUser? = null,
     val files: List<File> = emptyList(),
+    val rootPath: String?,
     val submission: ExtSubmission?
 )

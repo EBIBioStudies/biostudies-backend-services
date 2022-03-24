@@ -20,6 +20,7 @@ import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod.FILE
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
+import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
@@ -55,6 +56,7 @@ class SubmitWebHandler(
                 submitter = request.submitter,
                 files = request.files,
                 owner = request.onBehalfRequest?.let { getOnBehalfUser(it) },
+                rootPath = sub.rootPath,
                 submission = extSub
             )
         )
@@ -80,6 +82,7 @@ class SubmitWebHandler(
                 submitter = request.submitter,
                 files = request.files,
                 owner = request.onBehalfRequest?.let { getOnBehalfUser(it) },
+                rootPath = sub.rootPath,
                 submission = extSub
             )
         )
