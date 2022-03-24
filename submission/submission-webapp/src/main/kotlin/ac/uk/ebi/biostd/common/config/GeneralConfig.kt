@@ -17,11 +17,13 @@ internal class GeneralConfig {
 
     @Bean
     fun fireFilesSourceFactory(
-        applicationProperties: ApplicationProperties, fireWebClient: FireWebClient
+        applicationProperties: ApplicationProperties,
+        fireWebClient: FireWebClient
     ) = FireFilesSourceFactory(applicationProperties.persistence, fireWebClient)
 
     @Bean
     fun sourceGenerator(
-        applicationProperties: ApplicationProperties, filesSourceFactory: FireFilesSourceFactory
+        applicationProperties: ApplicationProperties,
+        filesSourceFactory: FireFilesSourceFactory
     ) = SourceGenerator(applicationProperties, filesSourceFactory)
 }

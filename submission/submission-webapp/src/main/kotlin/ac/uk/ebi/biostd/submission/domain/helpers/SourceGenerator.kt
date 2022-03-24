@@ -11,7 +11,6 @@ import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
-import java.nio.file.Path
 import java.nio.file.Paths
 
 class SourceGenerator(
@@ -73,11 +72,4 @@ data class RequestSources(
     val submitter: SecurityUser? = null,
     val files: List<File> = emptyList(),
     val submission: ExtSubmission?
-)
-
-private data class SubmissionInfo(
-    val accNo: String,
-    val rootPath: String,
-    val submissionPath: Path,
-    val relPath: Path
 )

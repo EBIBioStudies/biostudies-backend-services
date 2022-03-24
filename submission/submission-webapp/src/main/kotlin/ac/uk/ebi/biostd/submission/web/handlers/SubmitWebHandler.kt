@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.web.handlers
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
@@ -36,7 +35,6 @@ class SubmitWebHandler(
     private val userFilesService: UserFilesService,
     private val securityQueryService: ISecurityQueryService,
     private val toSubmissionMapper: ToSubmissionMapper,
-    private val appProperties: ApplicationProperties
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission =
         toSubmissionMapper.toSimpleSubmission(submissionService.submit(buildRequest(request)))

@@ -17,13 +17,13 @@ import uk.ac.ebi.fire.client.model.FireFile
 import java.io.File
 import java.nio.file.Files
 
-const val FIRE_BIO_ACC_NO = "bio-accNo"
 internal const val FIRE_FILE_PARAM = "file"
 internal const val FIRE_MD5_HEADER = "x-fire-md5"
 internal const val FIRE_PATH_HEADER = "x-fire-path"
 internal const val FIRE_SIZE_HEADER = "x-fire-size"
 internal const val FIRE_BIO_PUBLISHED = "bio-published"
 
+const val FIRE_BIO_ACC_NO = "bio-accNo"
 const val FIRE_OBJECTS_URL = "/fire/objects"
 
 @Suppress("TooManyFunctions")
@@ -104,4 +104,3 @@ internal class FireClient(
         template.delete("$FIRE_OBJECTS_URL/$fireOid/publish")
     }
 }
-

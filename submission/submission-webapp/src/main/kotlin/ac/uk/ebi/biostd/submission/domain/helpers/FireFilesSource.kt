@@ -20,7 +20,6 @@ class FireFilesSourceFactory(
         if (props.enableFire) SubmissionFireFilesSource(fireWebClient, accNo, basePath) else EMPTY_FILE_SOURCE
 }
 
-
 class FireFilesSource(
     private val fireWebClient: FireWebClient
 ) : FilesSource {
@@ -31,8 +30,8 @@ class FireFilesSource(
             else -> fireWebClient.findByMd5(md5)
                 .firstOrNull()
                 ?.takeIf { it.isAvailable() }
+                ?.let { it.asFireBioFile(path, lazy { fireWebClient.downloadByFireId(it.fireOid, path).readText() }) }
         }
-            ?.let { it.asFireBioFile(path, lazy { fireWebClient.downloadByFireId(it.fireOid, path).readText() }) }
     }
 }
 

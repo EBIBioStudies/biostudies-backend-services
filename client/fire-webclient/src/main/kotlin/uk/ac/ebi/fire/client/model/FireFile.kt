@@ -19,7 +19,6 @@ fun FireFile.isAvailable(accNo: String): Boolean {
 
 fun FireFile.isAvailable(): Boolean = metadata.orEmpty().none { it.key == FIRE_BIO_ACC_NO }
 
-
 data class FileSystemEntry(
     val path: String,
     val published: Boolean
