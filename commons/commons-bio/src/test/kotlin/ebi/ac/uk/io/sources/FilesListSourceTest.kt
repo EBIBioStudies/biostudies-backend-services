@@ -1,6 +1,5 @@
 package ebi.ac.uk.io.sources
 
-import ebi.ac.uk.errors.FileNotFoundException
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.createFile
@@ -8,7 +7,6 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 
@@ -33,7 +31,6 @@ internal class FilesListSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `get non existing file`() {
-        val exception = assertThrows<FileNotFoundException> { testInstance.getFile("ghost.txt") }
-        assertThat(exception.message).isEqualTo("File not found: ghost.txt")
+        assertThat(testInstance.getFile("ghost.txt")).isNull()
     }
 }

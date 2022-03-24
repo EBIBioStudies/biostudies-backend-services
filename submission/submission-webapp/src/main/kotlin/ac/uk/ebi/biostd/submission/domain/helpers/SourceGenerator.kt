@@ -2,20 +2,16 @@ package ac.uk.ebi.biostd.submission.domain.helpers
 
 import ac.uk.ebi.biostd.submission.model.GroupSource
 import ebi.ac.uk.base.nullIfBlank
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesListSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import java.io.File
 import java.nio.file.Path
 
-class SourceGenerator(
-    private val fireWebClient: FireWebClient
-) {
+class SourceGenerator {
     fun userSources(
         user: SecurityUser,
         rootPath: String? = null
@@ -49,8 +45,6 @@ class SourceGenerator(
 
     private fun userSourcesList(user: SecurityUser, rootPath: String): List<FilesSource> =
         listOf(createPathSource(user, rootPath)).plus(groupSources(user.groupsFolders))
-
-    private fun submissionsList(listFiles: List<ExtFile>): FilesSource = ExtFileListSource(fireWebClient, listFiles)
 
     private fun createPathSource(user: SecurityUser, rootPath: String?): PathFilesSource {
         val folder = user.magicFolder.path.resolve(rootPath.orEmpty())
