@@ -62,6 +62,7 @@ class SubmitWebHandler(
                 files = request.files,
                 rootPath = sub.rootPath,
                 submissionPath = extSub?.let { submissionsFilesPath(it) },
+                subRelPath = extSub?.relPath?.let { Paths.get(it).resolve(FILES) },
                 owner = request.onBehalfRequest?.let { getOnBehalfUser(it) }
             )
         )
@@ -91,6 +92,7 @@ class SubmitWebHandler(
                 files = request.files.plus(request.submission),
                 rootPath = sub.rootPath,
                 submissionPath = extSub?.let { submissionsFilesPath(it) },
+                subRelPath = extSub?.relPath?.let { Paths.get(it).resolve(FILES) },
                 owner = request.onBehalfRequest?.let { getOnBehalfUser(it) }
             )
         )

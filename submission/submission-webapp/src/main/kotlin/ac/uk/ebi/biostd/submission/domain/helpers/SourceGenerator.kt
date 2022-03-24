@@ -61,4 +61,5 @@ data class RequestSources(
     val files: List<File> = emptyList(),
     val rootPath: String? = null,
     val submissionPath: Path? = null,
+    val subRelPath: Path? = null
 )

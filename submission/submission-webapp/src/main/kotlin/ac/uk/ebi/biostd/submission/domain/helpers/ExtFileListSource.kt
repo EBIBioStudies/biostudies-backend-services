@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.helpers
 
-import ebi.ac.uk.errors.FileNotFoundException
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
@@ -16,18 +15,18 @@ class ExtFileListSource(
     private val fireWebClient: FireWebClient,
     private val files: List<ExtFile>
 ) : FilesSource {
-    override fun getFile(path: String, md5: String?): BioFile {
-        val file = files.firstOrNull { it.fileName == path } ?: throw FileNotFoundException(path)
-        return when (file) {
-            is FireFile -> FireBioFile(
-                file.fireId,
-                file.fileName,
-                file.md5,
-                file.size,
-                lazy { fireWebClient.downloadByFireId(file.fireId, file.fileName).readText() }
-            )
-            is FireDirectory -> FireDirectoryBioFile(file.fileName, file.md5, file.size)
-            is NfsFile -> NfsBioFile(file.file)
-        }
+    override fun getFile(path: String, md5: String?): BioFile? =
+        files.firstOrNull { it.fileName == path }?.let { asBioFile(it) }
+
+    private fun asBioFile(file: ExtFile): BioFile = when (file) {
+        is FireFile -> FireBioFile(
+            file.fireId,
+            file.fileName,
+            file.md5,
+            file.size,
+            lazy { fireWebClient.downloadByFireId(file.fireId, file.fileName).readText() }
+        )
+        is FireDirectory -> FireDirectoryBioFile(file.fileName, file.md5, file.size)
+        is NfsFile -> NfsBioFile(file.file)
     }
 }
