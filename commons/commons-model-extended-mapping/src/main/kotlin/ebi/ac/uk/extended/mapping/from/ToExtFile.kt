@@ -1,5 +1,6 @@
 package ebi.ac.uk.extended.mapping.from
 
+import ebi.ac.uk.errors.FileNotFoundException
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
@@ -38,5 +39,6 @@ fun File.toExtFile(fileSource: FilesSource, calculateProperties: Boolean = true)
             if (calculateProperties) file.size() else -1,
             attributes.toExtAttributes()
         )
+        null -> throw FileNotFoundException(path)
     }
 }

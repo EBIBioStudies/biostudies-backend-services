@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.helpers
 
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.errors.FileNotFoundException
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.createNfsFile
@@ -17,7 +16,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
@@ -47,17 +45,6 @@ internal class ExtFileListSourceTest(
     private val testInstance: ExtFileListSource = ExtFileListSource(fireWebClient, files)
 
     @Test
-    fun exists() {
-        assertThat(testInstance.exists(nfsFilename)).isTrue()
-        assertThat(testInstance.exists(fireFilename)).isTrue()
-    }
-
-    @Test
-    fun `exists when don't exist`() {
-        assertThat(testInstance.exists("ghost.txt")).isFalse()
-    }
-
-    @Test
     fun `getFile when nfsBioFile`() {
         val result = testInstance.getFile(nfsFilename)
 
@@ -81,7 +68,6 @@ internal class ExtFileListSourceTest(
 
     @Test
     fun `get non existing file`() {
-        val exception = assertThrows<FileNotFoundException> { testInstance.getFile("ghost.txt") }
-        assertThat(exception.message).isEqualTo("File not found: ghost.txt")
+        assertThat(testInstance.getFile("ghost.txt")).isNull()
     }
 }

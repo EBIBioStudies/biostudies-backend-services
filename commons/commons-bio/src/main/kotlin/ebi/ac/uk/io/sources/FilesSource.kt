@@ -5,9 +5,7 @@ import ebi.ac.uk.io.ext.size
 import java.io.File
 
 interface FilesSource {
-    fun exists(filePath: String): Boolean
-
-    fun getFile(filePath: String): BioFile
+    fun getFile(path: String, md5: String? = null): BioFile?
 }
 
 sealed class BioFile {
