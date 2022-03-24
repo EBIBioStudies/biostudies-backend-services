@@ -12,7 +12,5 @@ class GroupSource(groupName: String, private val pathSource: PathFilesSource) : 
 
     constructor(groupName: String, path: Path) : this(groupName, PathFilesSource(path))
 
-    override fun exists(filePath: String): Boolean = pathSource.exists(filePath.remove(groupPattern))
-
-    override fun getFile(filePath: String): NfsBioFile = pathSource.getFile(filePath.remove(groupPattern))
+    override fun getFile(path: String, md5: String?): NfsBioFile? = pathSource.getFile(path.remove(groupPattern))
 }

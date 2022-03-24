@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.validator.filelist
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidFilesException
+import ebi.ac.uk.io.sources.BioFile
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FileList
@@ -19,6 +20,7 @@ class FileListValidatorTest(
     @MockK private val fileList: FileList,
     @MockK private val referencedFile: File,
     @MockK private val filesSource: FilesSource,
+    @MockK private val BioFile: BioFile,
     @MockK private val serializationService: SerializationService
 ) {
     private val testInstance = FileListValidator(serializationService)
@@ -32,13 +34,13 @@ class FileListValidatorTest(
 
     @Test
     fun `validate file list`() {
-        every { filesSource.exists("referenced/file/path.txt") } returns true
+        every { filesSource.getFile("referenced/file/path.txt") } returns BioFile
         testInstance.validateFileList("file-list", filesSource)
     }
 
     @Test
     fun `validate invalid file list`() {
-        every { filesSource.exists("referenced/file/path.txt") } returns false
+        every { filesSource.getFile("referenced/file/path.txt") } returns null
 
         val exception = assertThrows<InvalidFilesException> { testInstance.validateFileList("file-list", filesSource) }
         assertThat(exception.message).isEqualTo("File not uploaded: referenced/file/path.txt")

@@ -15,14 +15,9 @@ internal class PathFilesSourceTest(temporaryFolder: TemporaryFolder) {
     private val testInstance = PathFilesSource(temporaryFolder.root.toPath())
 
     @Test
-    fun exists() {
-        assertThat(testInstance.exists(file.name)).isTrue
-    }
-
-    @Test
     fun getFile() {
         val result = testInstance.getFile(file.name)
         assertThat(result).isInstanceOf(NfsBioFile::class.java)
-        assertThat(result.file).isEqualTo(file)
+        assertThat(result!!.file).isEqualTo(file)
     }
 }
