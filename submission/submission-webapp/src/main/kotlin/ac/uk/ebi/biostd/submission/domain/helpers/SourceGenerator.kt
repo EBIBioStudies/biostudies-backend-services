@@ -6,6 +6,7 @@ import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesListSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
+import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
@@ -39,7 +40,7 @@ class SourceGenerator {
             addAll(groupSources(it.groupsFolders))
         }
         submissionPath?.let {
-            add(PathFilesSource(submissionPath))
+            add(PathFilesSource(submissionPath.resolve(FILES_PATH)))
         }
     }
 

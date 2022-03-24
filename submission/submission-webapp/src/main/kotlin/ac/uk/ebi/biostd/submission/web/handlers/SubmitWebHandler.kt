@@ -80,7 +80,7 @@ class SubmitWebHandler(
     }
 
     private fun submissionsFilesPath(submission: ExtSubmission): Path =
-        Paths.get(appProperties.submissionPath).resolve(submission.relPath).resolve(FILES)
+        Paths.get(appProperties.submissionPath).resolve(submission.relPath)
 
     private fun buildRequest(request: FileSubmitWebRequest): SubmitRequest {
         val sub = serializationService.deserializeSubmission(request.submission)
