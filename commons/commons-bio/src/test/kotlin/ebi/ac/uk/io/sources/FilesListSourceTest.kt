@@ -20,20 +20,12 @@ internal class FilesListSourceTest(temporaryFolder: TemporaryFolder) {
     private val testInstance: FilesListSource = FilesListSource(files)
 
     @Test
-    fun exists() {
-        assertThat(testInstance.exists(file.name)).isTrue
-    }
-
-    @Test
-    fun `don't exist`() {
-        assertThat(testInstance.exists("ghost.txt")).isFalse
-    }
-
-    @Test
     fun getFile() {
         val result = testInstance.getFile(file.name)
         assertThat(result).isInstanceOf(NfsBioFile::class.java)
-        assertThat(result.file).isEqualTo(file)
+        assertThat(result).isNotNull()
+
+        assertThat(result!!.file).isEqualTo(file)
         assertThat(result.readContent()).isEqualTo(file.readText())
         assertThat(result.md5()).isEqualTo(file.md5())
         assertThat(result.size()).isEqualTo(file.size())

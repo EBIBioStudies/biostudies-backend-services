@@ -3,8 +3,9 @@ package ebi.ac.uk.io.sources
 import java.nio.file.Files
 import java.nio.file.Path
 
-class PathFilesSource(private val path: Path) : FilesSource {
-    override fun exists(filePath: String) = Files.exists(path.resolve(filePath))
-
-    override fun getFile(filePath: String): NfsBioFile = NfsBioFile(path.resolve(filePath).toFile())
+class PathFilesSource(private val sourcePath: Path) : FilesSource {
+    override fun getFile(path: String, md5: String?): NfsBioFile? {
+        val filePath = sourcePath.resolve(path)
+        return if (Files.exists(filePath)) NfsBioFile(filePath.toFile()) else null
+    }
 }

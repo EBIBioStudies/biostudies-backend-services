@@ -16,10 +16,8 @@ class ExtFileListSource(
     private val fireWebClient: FireWebClient,
     private val files: List<ExtFile>
 ) : FilesSource {
-    override fun exists(filePath: String): Boolean = files.any { it.fileName == filePath }
-
-    override fun getFile(filePath: String): BioFile {
-        val file = files.firstOrNull { it.fileName == filePath } ?: throw FileNotFoundException(filePath)
+    override fun getFile(path: String, md5: String?): BioFile {
+        val file = files.firstOrNull { it.fileName == path } ?: throw FileNotFoundException(path)
         return when (file) {
             is FireFile -> FireBioFile(
                 file.fireId,

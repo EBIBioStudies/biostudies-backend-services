@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.service
 import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
+import ebi.ac.uk.errors.FileNotFoundException
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.FireBioFile
 import ebi.ac.uk.io.sources.FireDirectoryBioFile
@@ -37,6 +38,7 @@ internal class FileListSerializer(
             is FireBioFile -> TODO()
             is FireDirectoryBioFile -> TODO()
             is NfsBioFile -> bioFile.file
+            null -> throw FileNotFoundException(fileList)
         }
     }
 

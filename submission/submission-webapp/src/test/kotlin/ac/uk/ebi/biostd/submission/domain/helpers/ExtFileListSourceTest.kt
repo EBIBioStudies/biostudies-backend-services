@@ -47,17 +47,6 @@ internal class ExtFileListSourceTest(
     private val testInstance: ExtFileListSource = ExtFileListSource(fireWebClient, files)
 
     @Test
-    fun exists() {
-        assertThat(testInstance.exists(nfsFilename)).isTrue()
-        assertThat(testInstance.exists(fireFilename)).isTrue()
-    }
-
-    @Test
-    fun `exists when don't exist`() {
-        assertThat(testInstance.exists("ghost.txt")).isFalse()
-    }
-
-    @Test
     fun `getFile when nfsBioFile`() {
         val result = testInstance.getFile(nfsFilename)
 
