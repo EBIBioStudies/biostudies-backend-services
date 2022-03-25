@@ -15,7 +15,7 @@ class FileSystemService(
     private val pageTabService: PageTabService,
 ) {
     fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
-        val (submission, mode, _) = request
+        val (submission, mode) = request
         val accNo = submission.accNo
         val owner = submission.owner
 
@@ -35,5 +35,13 @@ class FileSystemService(
         ftpService.releaseSubmissionFiles(accNo, owner, relPath)
 
         logger.info { "$accNo $owner Finished releasing files of submission $accNo" }
+    }
+
+    fun unpublishSubmissionFiles(accNo: String, owner: String, relPath: String) {
+        logger.info { "$accNo $owner Un-publishing files of submission $accNo" }
+
+        ftpService.unpublishSubmissionFiles(accNo, owner, relPath)
+
+        logger.info { "$accNo $owner Finished un-publishing files of submission $accNo" }
     }
 }

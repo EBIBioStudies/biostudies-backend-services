@@ -5,10 +5,7 @@ import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.FireFile
 
-typealias Md5 = String
-
 data class FilePersistenceRequest(
     val submission: ExtSubmission,
-    val mode: FileMode = COPY,
-    val previousFiles: Map<Md5, FireFile> = emptyMap()
+    val mode: FileMode = COPY
 )

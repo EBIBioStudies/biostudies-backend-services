@@ -38,9 +38,9 @@ class EitherExtTypeDeserializer : JsonDeserializer<Either<*, *>>() {
         // TODO transparent for whoever is consuming the extended model
         return when (ExtType.valueOf(extType)) {
             is Link -> Either.left(mapper.convertValue<ExtLink>(node))
-            is NfsFile -> Either.left(mapper.convertValue<ExtFile>(node))
-            is FireFile -> TODO()
-            is FireDirectory -> TODO()
+            is NfsFile,
+            is FireFile,
+            is FireDirectory -> Either.left(mapper.convertValue<ExtFile>(node))
             is Section -> Either.left(mapper.convertValue<ExtSection>(node))
             is LinksTable -> right(mapper.convertValue<ExtLinkTable>(node))
             is FilesTable -> right(mapper.convertValue<ExtFileTable>(node))

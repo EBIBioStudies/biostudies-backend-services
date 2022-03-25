@@ -23,13 +23,11 @@ class FireFilesSourceFactory(
 class FireFilesSource(
     private val fireWebClient: FireWebClient
 ) : FilesSource {
-
     override fun getFile(path: String, md5: String?): BioFile? {
         return when (md5) {
             null -> null
             else -> fireWebClient.findByMd5(md5)
-                .firstOrNull()
-                ?.takeIf { it.isAvailable() }
+                .firstOrNull{ it.isAvailable() }
                 ?.let { it.asFireBioFile(path, lazy { fireWebClient.downloadByFireId(it.fireOid, path).readText() }) }
         }
     }
@@ -40,18 +38,15 @@ private class SubmissionFireFilesSource(
     private val accNo: String,
     private val basePath: Path
 ) : FilesSource {
-
     override fun getFile(path: String, md5: String?): FireBioFile? {
         if (md5 == null) {
-            return fireWebClient.findAllInPath(basePath.resolve(path).toString())
-                .firstOrNull()
+            return fireWebClient.findByPath(basePath.resolve(path).toString())
                 ?.takeIf { it.isAvailable(accNo) }
                 ?.let { it.asFireBioFile(path, lazy { fireWebClient.downloadByFireId(it.fireOid, path).readText() }) }
         }
 
         return fireWebClient.findByMd5(md5)
-            .firstOrNull()
-            ?.takeIf { it.isAvailable(accNo) }
+            .firstOrNull { it.isAvailable(accNo) }
             ?.let { it.asFireBioFile(path, lazy { fireWebClient.downloadByFireId(it.fireOid, path).readText() }) }
     }
 }

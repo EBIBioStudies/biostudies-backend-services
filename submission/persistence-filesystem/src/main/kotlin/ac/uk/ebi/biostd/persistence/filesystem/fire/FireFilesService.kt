@@ -1,16 +1,14 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
+import ac.uk.ebi.biostd.persistence.filesystem.extensions.persistFireFile
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
-import ac.uk.ebi.biostd.persistence.filesystem.request.Md5
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.allFiles
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
@@ -20,15 +18,14 @@ private val logger = KotlinLogging.logger {}
 
 class FireFilesService(
     private val fireWebClient: FireWebClient,
-    private val fileProcessingService: FileProcessingService,
-    private val submissionQueryService: SubmissionQueryService
+    private val fileProcessingService: FileProcessingService
 ) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
-        val (sub, _, previousFiles) = request
+        val (sub, _) = request
         logger.info { "${sub.accNo} ${sub.owner} Persisting files of submission ${sub.accNo} on FIRE" }
 
-        cleanSubmissionFolder(sub)
-        val config = FireFileProcessingConfig(sub.accNo, sub.owner, sub.relPath, fireWebClient, previousFiles)
+        cleanSubmissionFolder(sub.accNo)
+        val config = FireFileProcessingConfig(sub.accNo, sub.owner, sub.relPath, fireWebClient)
         val processed = fileProcessingService.processFiles(sub) { config.processFile(request.submission, it) }
 
         logger.info { "${sub.accNo} ${sub.owner} Finished persisting files of submission ${sub.accNo} on FIRE" }
@@ -36,18 +33,10 @@ class FireFilesService(
         return processed
     }
 
-    private fun cleanSubmissionFolder(submission: ExtSubmission) {
-        submissionQueryService
-            .findLatestExtByAccNo(submission.accNo, includeFileListFiles = true)
-            ?.allFiles()
-            ?.filterIsInstance<FireFile>()
-            ?.forEach { fireFile -> cleanFile(fireFile.fireId) }
-    }
-
-    // TODO Pivotal ID # 181595553: Separate unsetting path from un-publishing once #180902516 is merged
-    private fun cleanFile(fireId: String) {
-        fireWebClient.unpublish(fireId)
-        fireWebClient.unsetPath(fireId)
+    private fun cleanSubmissionFolder(accNo: String) {
+        fireWebClient
+            .findByAccNo(accNo)
+            .forEach { fireWebClient.unsetPath(it.fireOid) }
     }
 }
 
@@ -55,40 +44,37 @@ data class FireFileProcessingConfig(
     val accNo: String,
     val owner: String,
     val relPath: String,
-    val fireWebClient: FireWebClient,
-    val previousFiles: Map<Md5, ExtFile>
+    val fireWebClient: FireWebClient
 )
 
-fun FireFileProcessingConfig.processFile(sub: ExtSubmission, file: ExtFile): ExtFile =
-    if (file is NfsFile) processNfsFile(sub.relPath, file) else file
+fun FireFileProcessingConfig.processFile(sub: ExtSubmission, file: ExtFile): ExtFile = when(file) {
+    is NfsFile -> processNfsFile(sub.relPath, file)
+    is FireFile -> reuseFireFile(file, sub.relPath)
+    is FireDirectory -> file
+}
 
 fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): ExtFile {
     logger.info { "$accNo $owner Persisting file ${nfsFile.fileName} with size ${nfsFile.file.size()} on FIRE" }
 
-    val fileFire = previousFiles[nfsFile.md5] as FireFile?
-
-    return if (fileFire == null) saveFile(relPath, nfsFile) else reusePreviousFile(fileFire, nfsFile)
+    return when {
+        nfsFile.file.isDirectory -> persistFireDirectory(nfsFile)
+        else -> persistFireFile(accNo, relPath, nfsFile)
+    }
 }
 
-private fun reusePreviousFile(fireFile: FireFile, nfsFile: NfsFile) =
-    FireFile(
-        nfsFile.filePath,
-        nfsFile.relPath,
-        fireFile.fireId,
-        fireFile.md5,
-        fireFile.size,
-        nfsFile.attributes
-    )
-
-private fun FireFileProcessingConfig.saveFile(subRelPath: String, nfsFile: NfsFile): ExtFile {
+private fun persistFireDirectory(nfsFile: NfsFile): FireDirectory {
     val (filePath, relPath, file, _, _, _, attributes) = nfsFile
+    return FireDirectory(filePath, relPath, file.md5(), file.size(), attributes)
+}
 
-    return when {
-        nfsFile.file.isDirectory -> FireDirectory(filePath, relPath, file.md5(), file.size(), attributes)
-        else -> {
-            val store = fireWebClient.save(nfsFile.file, nfsFile.md5)
-            fireWebClient.setPath(store.fireOid, "$subRelPath/$relPath")
-            FireFile(filePath, relPath, store.fireOid, store.objectMd5, store.objectSize.toLong(), attributes)
-        }
-    }
+private fun FireFileProcessingConfig.persistFireFile(accNo: String, subRelPath: String, nfsFile: NfsFile): FireFile {
+    val (filePath, relPath, _, _, _, _, attributes) = nfsFile
+    val fireFile = fireWebClient.persistFireFile(accNo, nfsFile.file, nfsFile.md5, "$subRelPath/$relPath")
+
+    return FireFile(filePath, relPath, fireFile.fireOid, fireFile.objectMd5, fireFile.objectSize.toLong(), attributes)
+}
+
+private fun FireFileProcessingConfig.reuseFireFile(fireFile: FireFile, subRelPath: String): FireFile {
+    fireWebClient.setPath(fireFile.fireId, "$subRelPath/${fireFile.relPath}")
+    return fireFile
 }

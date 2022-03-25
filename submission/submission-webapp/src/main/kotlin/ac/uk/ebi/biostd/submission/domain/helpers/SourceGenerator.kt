@@ -32,7 +32,7 @@ class SourceGenerator(
         submitter: SecurityUser?,
         files: List<File>,
         rootPath: String?,
-        submission: ExtSubmission?
+        sub: ExtSubmission?
     ): List<FilesSource> {
         return buildList {
             add(FilesListSource(files))
@@ -47,11 +47,11 @@ class SourceGenerator(
                 addAll(groupSources(owner.groupsFolders))
             }
 
-            if (submission == null)
+            if (sub == null)
                 add(fireSourceFactory.createFireSource())
             else {
-                add(PathFilesSource(Paths.get(props.submissionPath).resolve(submission.relPath).resolve(FILES_PATH)))
-                add(fireSourceFactory.createSubmissionFireSource(submission.accNo, Paths.get(submission.relPath)))
+                add(PathFilesSource(Paths.get(props.submissionPath).resolve(sub.relPath).resolve(FILES_PATH)))
+                add(fireSourceFactory.createSubmissionFireSource(sub.accNo, Paths.get("${sub.relPath}/Files")))
             }
         }
     }

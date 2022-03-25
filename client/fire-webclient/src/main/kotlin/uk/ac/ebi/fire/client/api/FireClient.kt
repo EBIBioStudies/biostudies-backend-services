@@ -96,6 +96,11 @@ internal class FireClient(
             .getOrElse { if (it is FireClientException && it.statusCode == NOT_FOUND) return emptyList() else throw it }
     }
 
+    override fun findByPath(path: String): FireFile? {
+        return runCatching { template.getForObject<FireFile>("$FIRE_OBJECTS_URL/path/$path") }
+            .getOrElse { if (it is FireClientException && it.statusCode == NOT_FOUND) return null else throw it }
+    }
+
     override fun publish(fireOid: String) {
         template.put("$FIRE_OBJECTS_URL/$fireOid/publish", null)
     }
