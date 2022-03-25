@@ -58,6 +58,12 @@ internal class NfsFtpServiceTest(
     }
 
     @Test
+    fun `unpublish submission files`() {
+        testInstance.unpublishSubmissionFiles("B-SST1", "user@mail.org", REL_PATH)
+        assertThat(folderResolver.getSubmissionFtpFolder(REL_PATH)).doesNotExist()
+    }
+
+    @Test
     fun `process public submission`() {
         testInstance.releaseSubmissionFiles("S-BSST0", "owner@mailcom", REL_PATH)
 

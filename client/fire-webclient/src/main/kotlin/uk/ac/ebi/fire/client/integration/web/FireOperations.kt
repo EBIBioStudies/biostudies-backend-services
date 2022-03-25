@@ -23,9 +23,9 @@ interface FireOperations {
 
     fun findByAccNoAndPublished(accNo: String, published: Boolean): List<FireFile>
 
-    fun findAllInPath(path: String): List<FireFile>
-
     fun findByPath(path: String): FireFile?
+
+    fun findAllInPath(path: String): List<FireFile>
 
     fun publish(fireOid: String)
 

@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService

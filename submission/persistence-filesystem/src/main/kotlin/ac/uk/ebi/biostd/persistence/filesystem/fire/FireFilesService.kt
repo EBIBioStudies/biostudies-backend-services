@@ -47,7 +47,7 @@ data class FireFileProcessingConfig(
     val fireWebClient: FireWebClient
 )
 
-fun FireFileProcessingConfig.processFile(sub: ExtSubmission, file: ExtFile): ExtFile = when(file) {
+fun FireFileProcessingConfig.processFile(sub: ExtSubmission, file: ExtFile): ExtFile = when (file) {
     is NfsFile -> processNfsFile(sub.relPath, file)
     is FireFile -> reuseFireFile(file, sub.relPath)
     is FireDirectory -> file

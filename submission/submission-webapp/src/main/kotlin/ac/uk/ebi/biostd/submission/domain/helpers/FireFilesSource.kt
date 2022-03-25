@@ -20,6 +20,7 @@ class FireFilesSourceFactory(
         if (props.enableFire) SubmissionFireFilesSource(fireWebClient, accNo, basePath) else EMPTY_FILE_SOURCE
 }
 
+// TODO unit tests
 class FireFilesSource(
     private val fireWebClient: FireWebClient
 ) : FilesSource {
@@ -27,7 +28,7 @@ class FireFilesSource(
         return when (md5) {
             null -> null
             else -> fireWebClient.findByMd5(md5)
-                .firstOrNull{ it.isAvailable() }
+                .firstOrNull { it.isAvailable() }
                 ?.let { it.asFireBioFile(path, lazy { fireWebClient.downloadByFireId(it.fireOid, path).readText() }) }
         }
     }
