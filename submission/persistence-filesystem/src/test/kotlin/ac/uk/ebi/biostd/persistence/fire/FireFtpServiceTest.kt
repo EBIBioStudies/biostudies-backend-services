@@ -17,12 +17,11 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import uk.ac.ebi.fire.client.model.FireFile as ClientFireFile
 
-@Disabled("Update according to the current code")
 @ExtendWith(MockKExtension::class)
 class FireFtpServiceTest(
     @MockK(relaxUnitFun = true) private val fireWebClient: FireWebClient,
@@ -64,11 +63,26 @@ class FireFtpServiceTest(
         verifyFtpPublish()
     }
 
+    @Test
+    fun `unpublish submission files`() {
+        val fireFile = ClientFireFile(1, "abc1", "MD5", 1, "2021-07-08")
+
+        every { fireWebClient.unpublish("abc1") } answers { nothing }
+        every { fireWebClient.setBioMetadata("abc1", published = false) } answers { nothing }
+        every { fireWebClient.findByAccNoAndPublished("S-TEST1", true) } returns listOf(fireFile)
+
+        testInstance.unpublishSubmissionFiles("S-TEST1", "owner@mail.org", "my/path")
+
+        verify(exactly = 1) {
+            fireWebClient.unpublish("abc1")
+            fireWebClient.setBioMetadata("abc1", published = false)
+        }
+    }
+
     private fun verifyFtpPublish() = verify(exactly = 1) {
-        val relPath = "${extSub.relPath}/relPath"
         fun verifyPublishFile(fireId: String) {
             fireWebClient.publish(fireId)
-            fireWebClient.setPath(fireId, relPath)
+            fireWebClient.setBioMetadata(fireId, published = true)
         }
 
         verifyPublishFile(FILE_FILE_LIST)
