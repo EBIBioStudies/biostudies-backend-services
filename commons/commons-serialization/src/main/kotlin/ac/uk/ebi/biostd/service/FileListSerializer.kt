@@ -37,7 +37,9 @@ internal class FileListSerializer(
         return when (val bioFile = source.getFile(fileList)) {
             is FireBioFile -> TODO()
             is FireDirectoryBioFile -> TODO()
-            is NfsBioFile -> bioFile.file
+            is NfsBioFile ->
+                if (bioFile.file.isFile) bioFile.file
+                else throw InvalidFileListException(fileList, "A directory can't be used as File List")
             null -> throw FileNotFoundException(fileList)
         }
     }
@@ -46,12 +48,12 @@ internal class FileListSerializer(
         runCatching {
             file.inputStream().use { serializer.deserializeFileList(it, SubFormat.fromFile(file)) }
         }.getOrElse {
-            throw InvalidFileListException("Problem processing file list '${file.name}': ${errorMsg(it)}")
+            throw InvalidFileListException(file.name, errorMsg(it))
         }
 
     private fun errorMsg(exception: Throwable) = when (exception) {
         is ClassCastException,
         is InvalidChunkSizeException -> "The provided page tab doesn't match the file list format"
-        else -> exception.message
+        else -> exception.message.orEmpty()
     }
 }
