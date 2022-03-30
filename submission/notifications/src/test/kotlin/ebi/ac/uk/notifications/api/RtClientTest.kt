@@ -59,7 +59,7 @@ class RtClientTest {
     fun `comment ticket`() {
         val url = "http://test-desk/REST/1.0/ticket/80338/comment?user=test-user&pass=123456"
         val testBody = LinkedMultiValueMap<String, String>(
-            mapOf("content" to listOf("id: 80338\nAction: correspond\nText: A comment"))
+            mapOf("content" to listOf("id: 80338\nAction: correspond\nStatus: resolved\nText: A comment"))
         )
 
         every { restTemplate.postForEntity<String>(url, testBody) } returns ResponseEntity("response", ACCEPTED)
