@@ -138,10 +138,27 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val fileList = tempFolder.createFile(fileListName)
 
         every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+
         val exception = assertThrows<InvalidFileListException> { testInstance.deserializeFileList(submission, source) }
 
         assertThat(exception.message).isEqualTo(
             "Problem processing file list 'FileList.txt': Unsupported page tab format FileList.txt"
+        )
+    }
+
+    @Test
+    fun `deserialize directory`() {
+        val fileListName = "a/directory"
+        val submission = testSubmission(fileListName)
+        val fileList = tempFolder.root.resolve(fileListName)
+
+        fileList.mkdirs()
+        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+
+        val exception = assertThrows<InvalidFileListException> { testInstance.deserializeFileList(submission, source) }
+
+        assertThat(exception.message).isEqualTo(
+            "Problem processing file list 'a/directory': A directory can't be used as File List"
         )
     }
 

@@ -1,3 +1,6 @@
 package ac.uk.ebi.biostd.exception
 
-class InvalidFileListException(message: String) : RuntimeException(message)
+class InvalidFileListException(
+    fileName: String,
+    message: String
+) : RuntimeException("Problem processing file list '$fileName': $message")
