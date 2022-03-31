@@ -36,7 +36,7 @@ class RtClient(
             .queryParam("pass", rtConfig.password)
             .build()
             .toUriString()
-        val body = LinkedMultiValueMap<String, String>(mapOf("content" to listOf(content)))
+        val body = LinkedMultiValueMap(mapOf("content" to listOf(content)))
 
         return restTemplate.postForEntity<String>(rtUrl, body).body ?: throw InvalidResponseException()
     }
@@ -51,6 +51,7 @@ class RtClient(
     private fun ticketComment(ticketId: String, comment: String) =
         StringBuilder("id: $ticketId\n")
             .append("Action: correspond\n")
+            .append("Status: resolved\n")
             .append("Text: ${trimContent(comment)}")
             .toString()
 
