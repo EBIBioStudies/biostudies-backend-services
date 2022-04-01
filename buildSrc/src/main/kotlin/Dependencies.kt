@@ -42,6 +42,7 @@ import Versions.ServletVersion
 import Versions.SpringAdminVersion
 import Versions.SpringBootVersion
 import Versions.SpringDataVersion
+import Versions.SpringSecurityVersion
 import Versions.SpringVersion
 import Versions.SpringfoxSwaggerVersion
 import Versions.WoodstoxVersion
@@ -66,7 +67,8 @@ object TestVersions {
 object Versions {
     const val SpringBootVersion = "2.2.2.RELEASE"
     const val SpringDataVersion = "2.2.3.RELEASE"
-    const val SpringVersion = "5.2.1.RELEASE"
+    const val SpringVersion = "5.2.20.RELEASE"
+    const val SpringSecurityVersion = "5.2.15.RELEASE"
     const val SpringAdminVersion = "2.3.1"
 
     const val KotlinVersion = "1.6.10"
@@ -144,7 +146,7 @@ object TestDependencies {
 object Dependencies {
     const val SpringWeb = "org.springframework:spring-web:$SpringVersion"
     const val SpringAutoConfigure = "org.springframework.boot:spring-boot-autoconfigure:$SpringBootVersion"
-    const val SpringSecurityCore = "org.springframework.security:spring-security-core:$SpringVersion"
+    const val SpringSecurityCore = "org.springframework.security:spring-security-core:$SpringSecurityVersion"
     const val SpringDataJpa = "org.springframework.data:spring-data-jpa:$SpringDataVersion"
 
     // Web related
