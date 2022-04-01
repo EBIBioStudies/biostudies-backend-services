@@ -14,6 +14,7 @@ internal object SubmissionParameters {
     const val ATTACHED_HELP = "Comma separated list of paths to the files referenced in the submission"
     const val INPUT_HELP = "Path to the file containing the submission page tab"
     const val FILE_MODE = "Indicates the mode used to process the files. Valid values are COPY or MOVE"
+    const val PREFERRED_SOURCE = "Indicates the preferred files source. Valid values are SUBMISSION or USER_SPACE"
 }
 
 internal object MigrationParameters {

@@ -11,10 +11,12 @@ import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.extended.model.FilesSource
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
+import ebi.ac.uk.model.constants.PREFERRED_SOURCE
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
@@ -123,6 +125,7 @@ class MultipartAsyncSubmitResource(
         @RequestParam(SUBMISSION) file: MultipartFile,
         @RequestParam(FILES) files: Array<MultipartFile>,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: FilesSource,
         @RequestParam(ATTRIBUTES) attributes: Array<ExtAttributeDetail>?
     ) {
         val tempFiles = tempFileGenerator.asFiles(files)
@@ -133,6 +136,7 @@ class MultipartAsyncSubmitResource(
             user = user,
             format = TSV,
             fileMode = mode,
+            preferredSource = preferredSource,
             attrs = attributes.orEmpty().associate { it.name to it.value },
             files = tempFiles
         )

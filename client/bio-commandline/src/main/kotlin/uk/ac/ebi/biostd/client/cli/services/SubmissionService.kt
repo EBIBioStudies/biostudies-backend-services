@@ -25,10 +25,13 @@ internal class SubmissionService {
 
     fun migrate(request: MigrationRequest) = performRequest { migrateRequest(request) }
 
-    private fun submitRequest(request: SubmissionRequest): Submission =
-        bioWebClient(request.server, request.user, request.password)
-            .submitSingle(request.file, request.attached, fileMode = request.fileMode)
+    private fun submitRequest(request: SubmissionRequest): Submission {
+        val (server, user, password, _, file, attached, fileMode, preferredSource) = request
+
+        return bioWebClient(server, user, password)
+            .submitSingle(file, attached, fileMode = fileMode, preferredSource = preferredSource )
             .body
+    }
 
     private fun submitAsyncRequest(request: SubmissionRequest) =
         bioWebClient(request.server, request.user, request.password)

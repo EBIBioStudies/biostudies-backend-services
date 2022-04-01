@@ -3,6 +3,9 @@ package ac.uk.ebi.biostd.submission.domain.helpers
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.submission.model.GroupSource
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FilesSource.SUBMISSION
+import ebi.ac.uk.extended.model.FilesSource.USER_SPACE
+import ebi.ac.uk.extended.model.FilesSource as PreferredFilesSource
 import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesListSource
 import ebi.ac.uk.io.sources.FilesSource
@@ -23,36 +26,48 @@ class SourceGenerator(
     ): FilesSource = ComposedFileSource(userSourcesList(user, rootPath.orEmpty()))
 
     fun submissionSources(requestSources: RequestSources): FilesSource {
-        val (owner, submitter, files, rootPath, submission) = requestSources
-        return ComposedFileSource(submissionSources(owner, submitter, files, rootPath, submission))
-    }
+        val (owner, submitter, files, rootPath, submission, preferredSource) = requestSources
 
-    private fun submissionSources(
-        owner: SecurityUser?,
-        submitter: SecurityUser?,
-        files: List<File>,
-        rootPath: String?,
-        sub: ExtSubmission?
-    ): List<FilesSource> {
-        return buildList {
+        val submissionSources = buildList {
             add(FilesListSource(files))
 
-            if (submitter != null) {
-                add(createPathSource(submitter, rootPath))
-                addAll(groupSources(submitter.groupsFolders))
+            when (preferredSource) {
+                SUBMISSION -> {
+                    addSubmissionSources(submission)
+                    addUserSources(submitter, owner, rootPath)
+                }
+                else -> {
+                    addUserSources(submitter, owner, rootPath)
+                    addSubmissionSources(submission)
+                }
             }
+        }
 
-            if (owner != null) {
-                add(createPathSource(owner, rootPath))
-                addAll(groupSources(owner.groupsFolders))
-            }
+        return ComposedFileSource(submissionSources)
+    }
 
-            if (sub == null)
-                add(fireSourceFactory.createFireSource())
-            else {
-                add(PathFilesSource(Paths.get(props.submissionPath).resolve(sub.relPath).resolve(FILES_PATH)))
-                add(fireSourceFactory.createSubmissionFireSource(sub.accNo, Paths.get("${sub.relPath}/Files")))
-            }
+    private fun MutableList<FilesSource>.addUserSources(
+        submitter: SecurityUser?,
+        owner: SecurityUser?,
+        rootPath: String?
+    ) {
+        if (submitter != null) {
+            add(createPathSource(submitter, rootPath))
+            addAll(groupSources(submitter.groupsFolders))
+        }
+
+        if (owner != null) {
+            add(createPathSource(owner, rootPath))
+            addAll(groupSources(owner.groupsFolders))
+        }
+    }
+
+    private fun MutableList<FilesSource>.addSubmissionSources(sub: ExtSubmission?) {
+        if (sub == null)
+            add(fireSourceFactory.createFireSource())
+        else {
+            add(PathFilesSource(Paths.get(props.submissionPath).resolve(sub.relPath).resolve(FILES_PATH)))
+            add(fireSourceFactory.createSubmissionFireSource(sub.accNo, Paths.get("${sub.relPath}/Files")))
         }
     }
 
@@ -73,5 +88,6 @@ data class RequestSources(
     val submitter: SecurityUser? = null,
     val files: List<File> = emptyList(),
     val rootPath: String?,
-    val submission: ExtSubmission?
+    val submission: ExtSubmission?,
+    val preferredSource: PreferredFilesSource = USER_SPACE
 )
