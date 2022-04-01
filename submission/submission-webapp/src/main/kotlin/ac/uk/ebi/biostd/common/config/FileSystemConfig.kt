@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
@@ -17,8 +16,7 @@ import uk.ac.ebi.fire.client.integration.web.FireWebClient
 @Import(value = [WebConfig::class, FilesHandlerConfig::class])
 class FileSystemConfig(
     private val fireWebClient: FireWebClient,
-    private val folderResolver: SubmissionFolderResolver,
-    private val submissionQueryService: SubmissionQueryService,
+    private val folderResolver: SubmissionFolderResolver
 ) {
     @Bean
     @ConditionalOnProperty(
@@ -32,5 +30,5 @@ class FileSystemConfig(
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
     fun fireFileService(): FilesService =
-        FireFilesService(fireWebClient, FileProcessingService(), submissionQueryService)
+        FireFilesService(fireWebClient, FileProcessingService())
 }

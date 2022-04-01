@@ -6,6 +6,12 @@ import java.io.File
 
 interface FilesSource {
     fun getFile(path: String, md5: String? = null): BioFile?
+
+    companion object {
+        val EMPTY_FILE_SOURCE: FilesSource = object : FilesSource {
+            override fun getFile(path: String, md5: String?): BioFile? = null
+        }
+    }
 }
 
 sealed class BioFile {

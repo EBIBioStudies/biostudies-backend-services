@@ -7,6 +7,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.RequestFileList
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
+import ac.uk.ebi.biostd.persistence.doc.test.OWNER
+import ac.uk.ebi.biostd.persistence.doc.test.REL_PATH
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import com.mongodb.BasicDBObject.parse
@@ -57,7 +59,6 @@ class SubmissionMongoPersistenceServiceTest(
 
     private companion object {
         const val serializedSub = "{}"
-        const val fileListSerialized = "{file-list}"
     }
 
     @Nested
@@ -73,11 +74,12 @@ class SubmissionMongoPersistenceServiceTest(
             val sequence = slot<Sequence<ExtFile>>()
 
             every { subDataRepository.getCurrentVersion(ACC_NO) } returns 1
+            every { systemService.unpublishSubmissionFiles(ACC_NO, OWNER, REL_PATH) } answers { nothing }
             every { serializationService.serialize(expectedNewVersion, Properties(false)) } returns serializedSub
             every { serializationService.serialize(capture(sequence), capture(outputStream)) } answers { nothing }
             every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } returnsArgument 0
 
-            val request = SubmissionRequest(newVersion.copy(version = 1), COPY, "draftKey")
+            val request = SubmissionRequest(newVersion, COPY, "draftKey")
             val result = testInstance.saveSubmissionRequest(request)
             assertThat(result).isEqualTo(ACC_NO to 2)
 
@@ -159,6 +161,7 @@ class SubmissionMongoPersistenceServiceTest(
         every { systemService.persistSubmissionFiles(filePersistenceRequest) } returns sub
         every { systemService.releaseSubmissionFiles(sub.accNo, sub.owner, sub.relPath) } answers { nothing }
         every { submissionRequestDocDataRepository.updateStatus(PROCESSED, sub.accNo, 1) } answers { nothing }
+        every { systemService.unpublishSubmissionFiles(sub.accNo, sub.owner, sub.relPath) } answers { nothing }
 
         val result = testInstance.processSubmissionRequest(request)
 
@@ -172,6 +175,7 @@ class SubmissionMongoPersistenceServiceTest(
             systemService.persistSubmissionFiles(filePersistenceRequest)
             systemService.persistSubmissionFiles(filePersistenceRequest)
             submissionRequestDocDataRepository.updateStatus(PROCESSED, sub.accNo, 1)
+            systemService.unpublishSubmissionFiles(sub.accNo, sub.owner, sub.relPath)
         }
     }
 
@@ -187,6 +191,7 @@ class SubmissionMongoPersistenceServiceTest(
         every { systemService.persistSubmissionFiles(filePersistenceRequest) } returns sub
         every { systemService.releaseSubmissionFiles(sub.accNo, sub.owner, sub.relPath) } answers { nothing }
         every { submissionRequestDocDataRepository.updateStatus(PROCESSED, sub.accNo, 1) } answers { nothing }
+        every { systemService.unpublishSubmissionFiles(sub.accNo, sub.owner, sub.relPath) } answers { nothing }
 
         val result = testInstance.processSubmissionRequest(request)
 
@@ -198,6 +203,7 @@ class SubmissionMongoPersistenceServiceTest(
             systemService.persistSubmissionFiles(filePersistenceRequest)
             systemService.releaseSubmissionFiles(sub.accNo, sub.owner, sub.relPath)
             submissionRequestDocDataRepository.updateStatus(PROCESSED, sub.accNo, 1)
+            systemService.unpublishSubmissionFiles(sub.accNo, sub.owner, sub.relPath)
         }
     }
 }

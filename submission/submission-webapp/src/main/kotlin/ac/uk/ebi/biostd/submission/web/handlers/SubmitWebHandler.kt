@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.web.handlers
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
@@ -21,13 +20,10 @@ import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod.FILE
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
-import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
-import java.nio.file.Path
-import java.nio.file.Paths
 
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 
@@ -40,7 +36,6 @@ class SubmitWebHandler(
     private val userFilesService: UserFilesService,
     private val securityQueryService: ISecurityQueryService,
     private val toSubmissionMapper: ToSubmissionMapper,
-    private val appProperties: ApplicationProperties
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission =
         toSubmissionMapper.toSimpleSubmission(submissionService.submit(buildRequest(request)))
@@ -60,10 +55,9 @@ class SubmitWebHandler(
             RequestSources(
                 submitter = request.submitter,
                 files = request.files,
+                owner = request.onBehalfRequest?.let { getOnBehalfUser(it) },
                 rootPath = sub.rootPath,
-                submissionPath = extSub?.let { submissionsFilesPath(it) },
-                subRelPath = extSub?.relPath?.let { Paths.get(it).resolve(FILES) },
-                owner = request.onBehalfRequest?.let { getOnBehalfUser(it) }
+                submission = extSub
             )
         )
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
@@ -79,9 +73,6 @@ class SubmitWebHandler(
         )
     }
 
-    private fun submissionsFilesPath(submission: ExtSubmission): Path =
-        Paths.get(appProperties.submissionPath).resolve(submission.relPath)
-
     private fun buildRequest(request: FileSubmitWebRequest): SubmitRequest {
         val sub = serializationService.deserializeSubmission(request.submission)
         val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.apply { requireProcessed(this) }
@@ -89,11 +80,10 @@ class SubmitWebHandler(
         val source = sourceGenerator.submissionSources(
             RequestSources(
                 submitter = request.submitter,
-                files = request.files.plus(request.submission),
+                files = request.files,
+                owner = request.onBehalfRequest?.let { getOnBehalfUser(it) },
                 rootPath = sub.rootPath,
-                submissionPath = extSub?.let { submissionsFilesPath(it) },
-                subRelPath = extSub?.relPath?.let { Paths.get(it).resolve(FILES) },
-                owner = request.onBehalfRequest?.let { getOnBehalfUser(it) }
+                submission = extSub
             )
         )
         val submission = withAttributes(submission(request.submission, source), request.attrs)

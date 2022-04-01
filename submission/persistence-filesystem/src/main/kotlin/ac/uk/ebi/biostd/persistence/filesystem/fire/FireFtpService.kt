@@ -21,15 +21,39 @@ class FireFtpService(
         logger.info { "$accNo $owner Finished publishing files of submission $accNo over FIRE" }
     }
 
-    override fun generateFtpLinks(accNo: String) {
-        val submission = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        submission.allFiles()
-            .filterIsInstance<FireFile>()
-            .forEach { publishFile(it, submission.relPath) }
+    override fun unpublishSubmissionFiles(accNo: String, owner: String, relPath: String) {
+        logger.info { "$accNo $owner Un-publishing files of submission $accNo over FIRE" }
+
+        cleanFtpFolder(accNo)
+
+        logger.info { "$accNo $owner Finished un-publishing files of submission $accNo over FIRE" }
     }
 
-    private fun publishFile(file: FireFile, relPath: String) {
-        fireWebClient.setPath(file.fireId, "$relPath/${file.relPath}")
-        fireWebClient.publish(file.fireId)
+    override fun generateFtpLinks(accNo: String) {
+        val sub = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
+
+        logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission $accNo over FIRE" }
+
+        sub.allFiles()
+            .filterIsInstance<FireFile>()
+            .forEach { publishFile(it.fireId) }
+
+        logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission $accNo over FIRE" }
+    }
+
+    private fun cleanFtpFolder(accNo: String) {
+        fireWebClient
+            .findByAccNoAndPublished(accNo, true)
+            .forEach { unpublishFile(it.fireOid) }
+    }
+
+    private fun publishFile(fireId: String) {
+        fireWebClient.publish(fireId)
+        fireWebClient.setBioMetadata(fireId, published = true)
+    }
+
+    private fun unpublishFile(fireId: String) {
+        fireWebClient.unpublish(fireId)
+        fireWebClient.setBioMetadata(fireId, published = false)
     }
 }
