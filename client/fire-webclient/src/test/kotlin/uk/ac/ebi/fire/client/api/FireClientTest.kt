@@ -14,11 +14,14 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
@@ -86,6 +89,7 @@ class FireClientTest(
         testInstance.setBioMetadata("fire-oid", "S-BSST0", false)
 
         val httpEntity = httpEntitySlot.captured
+        assertThat(httpEntity.headers[CONTENT_TYPE]!!.first()).isEqualTo(APPLICATION_JSON_VALUE)
         assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\", \"$FIRE_BIO_PUBLISHED\": false }")
         verify(exactly = 1) { template.put("$FIRE_OBJECTS_URL/fire-oid/metadata/set", httpEntity) }
     }
@@ -150,6 +154,7 @@ class FireClientTest(
         assertThat(files).hasSize(1)
         assertThat(files.first()).isEqualTo(fireFile)
         assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\" }")
+        assertThat(httpEntity.headers[CONTENT_TYPE]!!.first()).isEqualTo(APPLICATION_JSON_VALUE)
         verify(exactly = 1) {
             template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", httpEntity)
         }
@@ -167,10 +172,21 @@ class FireClientTest(
         val httpEntity = httpEntitySlot.captured
         assertThat(files).hasSize(1)
         assertThat(files.first()).isEqualTo(fireFile)
+        assertThat(httpEntity.headers[CONTENT_TYPE]!!.first()).isEqualTo(APPLICATION_JSON_VALUE)
         assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\", \"$FIRE_BIO_PUBLISHED\": true }")
         verify(exactly = 1) {
             template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", httpEntity)
         }
+    }
+
+    @Test
+    fun `find by path`(@MockK fireFile: FireFile) {
+        every { template.getForObject<FireFile>("$FIRE_OBJECTS_URL/path/my/path") } returns fireFile
+
+        val file = testInstance.findByPath("my/path")
+
+        assertThat(file).isEqualTo(fireFile)
+        verify(exactly = 1) { template.getForObject<FireFile>("$FIRE_OBJECTS_URL/path/my/path") }
     }
 
     @Test
@@ -214,6 +230,29 @@ class FireClientTest(
         verify(exactly = 1) {
             template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
         }
+    }
+
+    @Test
+    fun `find by path when FireClientException with NOT_FOUND status code`() {
+        every {
+            template.getForObject<FireFile>("$FIRE_OBJECTS_URL/path/my/path")
+        }.throws(FireClientException(NOT_FOUND, "no file found with the given path"))
+
+        val file = testInstance.findByPath("my/path")
+
+        assertThat(file).isNull()
+        verify(exactly = 1) { template.getForObject<FireFile>("$FIRE_OBJECTS_URL/path/my/path") }
+    }
+
+    @Test
+    fun `find by path when httpException without a status code other than NOT_FOUND`() {
+        every {
+            template.getForObject<FireFile>("$FIRE_OBJECTS_URL/path/my/path")
+        }.throws(HttpClientErrorException(HttpStatus.BAD_REQUEST))
+
+        assertThrows<HttpClientErrorException> { testInstance.findByPath("my/path") }
+
+        verify(exactly = 1) { template.getForObject<FireFile>("$FIRE_OBJECTS_URL/path/my/path") }
     }
 
     @Test

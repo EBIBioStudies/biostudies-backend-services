@@ -82,7 +82,6 @@ class SubmissionConfig(
         userFilesService: UserFilesService,
         securityQueryService: ISecurityQueryService,
         extSubmissionService: ExtSubmissionService,
-        applicationProperties: ApplicationProperties
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
@@ -92,7 +91,6 @@ class SubmissionConfig(
             userFilesService,
             securityQueryService,
             ToSubmissionMapper(ToSectionMapper(ToFileListMapper())),
-            applicationProperties
         )
 
     @Bean

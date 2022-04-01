@@ -11,7 +11,7 @@ interface FireOperations {
 
     fun unsetPath(fireOid: String)
 
-    fun setBioMetadata(fireOid: String, accNo: String?, published: Boolean?)
+    fun setBioMetadata(fireOid: String, accNo: String? = null, published: Boolean? = null)
 
     fun downloadByPath(path: String): File
 
@@ -22,6 +22,8 @@ interface FireOperations {
     fun findByAccNo(accNo: String): List<FireFile>
 
     fun findByAccNoAndPublished(accNo: String, published: Boolean): List<FireFile>
+
+    fun findByPath(path: String): FireFile?
 
     fun findAllInPath(path: String): List<FireFile>
 
