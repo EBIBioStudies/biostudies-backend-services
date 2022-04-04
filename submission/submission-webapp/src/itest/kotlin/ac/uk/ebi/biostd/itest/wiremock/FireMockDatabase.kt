@@ -31,20 +31,23 @@ class FireMockDatabase(
         records[fireOid] = record.copy(path = path)
         val fireFile = dbFolder.resolve(fireOid)
 
-        if (record.published) {
-            Files.delete(ftpFolder.resolve(record.path!!).toPath())
-            Files.copy(fireFile.toPath(), getOrCreateFtpFolder(path).toPath())
+        if (record.path != null) {
+            Files.deleteIfExists(submissionFolder.resolve(record.path).toPath())
+            Files.deleteIfExists(ftpFolder.resolve(record.path).toPath())
         }
 
         Files.copy(fireFile.toPath(), getOrCreateSubFolder(path).toPath())
+        if (record.published) Files.copy(fireFile.toPath(), getOrCreateFtpFolder(path).toPath())
     }
 
     fun unsetPath(fireOid: String) {
         val record = records.getValue(fireOid)
-        records[fireOid] = record.copy(published = false, path = null)
+        records[fireOid] = record.copy(path = null)
 
-        if (record.published) Files.delete(ftpFolder.resolve(record.path!!).toPath())
-        Files.delete(submissionFolder.resolve(record.path!!).toPath())
+        if (record.path != null) {
+            Files.deleteIfExists(ftpFolder.resolve(record.path).toPath())
+            Files.delete(submissionFolder.resolve(record.path).toPath())
+        }
     }
 
     fun updateMetadata(fireOid: String, entries: List<MetadataEntry>) {
@@ -57,9 +60,11 @@ class FireMockDatabase(
         val file = records.getValue(fireOid)
         records[fireOid] = file.copy(published = true)
 
-        val source = submissionFolder.resolve(file.path!!)
-        val target = getOrCreateFtpFolder(file.path)
-        Files.copy(source.toPath(), target.toPath())
+        if (file.path != null) {
+            val source = submissionFolder.resolve(file.path)
+            val target = getOrCreateFtpFolder(file.path)
+            Files.copy(source.toPath(), target.toPath())
+        }
     }
 
     fun unpublish(fireOid: String) {
