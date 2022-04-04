@@ -24,18 +24,6 @@ fun <T> List<T>.replace(element: T, predicate: (T) -> Boolean): List<T> {
 }
 
 /**
- * Replace the given element by the element matching predicate.
- */
-fun <T> MutableList<T>.replaceItem(predicate: (T) -> Boolean, element: T): MutableList<T> {
-    val index = indexOf(predicate)
-    if (index != null) {
-        this[index] = element
-    }
-
-    return this
-}
-
-/**
  * Return the index of first element which predicate evaluation is true. Null if element is not found.
  */
 inline fun <T> List<T>.indexOf(predicate: (T) -> Boolean): Int? {
