@@ -40,7 +40,7 @@ internal fun <T> jsonHttpEntityOf(value: T): HttpEntity<T> {
 private fun getConverters(converters: List<HttpMessageConverter<*>>): List<HttpMessageConverter<*>> {
     return converters
         .filterNot { it is MappingJackson2XmlHttpMessageConverter }
-        .replace({ it is StringHttpMessageConverter }, StringHttpMessageConverter(UTF_8))
+        .replace(StringHttpMessageConverter(UTF_8)) { it is StringHttpMessageConverter }
 }
 
 /**

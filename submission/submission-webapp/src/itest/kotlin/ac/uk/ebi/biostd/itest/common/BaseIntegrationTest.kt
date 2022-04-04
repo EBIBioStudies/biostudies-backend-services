@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.itest.common
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.entities.TestUser
+import ac.uk.ebi.biostd.itest.wiremock.TestWireMockTransformer
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.post
@@ -14,11 +15,13 @@ import ebi.ac.uk.db.MYSQL_VERSION
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.fire.client.api.FIRE_OBJECTS_URL
+import java.io.File
 import java.time.Duration.ofSeconds
 
 private const val CHARACTER_SET = "utf8mb4"
@@ -35,14 +38,20 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         .withInitScript("Schema.sql")
         .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
-    private val wireMockTransformer = TestWireMockTransformer(tempFolder.createDirectory("submission"))
-    private val fireWireMock = WireMockServer(WireMockConfiguration().dynamicPort().extensions(wireMockTransformer))
+    private val wireTransformer = TestWireMockTransformer.create(File(submissionPath), File(ftpPath), File(fireFolder))
+    private val fireWireMock = WireMockServer(WireMockConfiguration().dynamicPort().extensions(wireTransformer))
+
+    val fireFolder
+        get() = "${tempFolder.root.absolutePath}/fire-db"
 
     val submissionPath
         get() = "${tempFolder.root.absolutePath}/submission"
 
     val fireTempFolder
-        get() = "${System.getProperty("app.tempDirPath")}/fire-temp"
+        get() = "${tempFolder.root.absolutePath}/fire-temp"
+
+    val ftpPath
+        get() = "${tempFolder.root.absolutePath}/ftpPath"
 
     val enableFire
         get() = System.getProperty("enableFire").toBoolean()
@@ -65,6 +74,11 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         fireWireMock.stop()
     }
 
+    @BeforeEach
+    fun beforeEach() {
+        wireTransformer.cleanDb()
+    }
+
     protected fun getWebClient(serverPort: Int, user: TestUser): BioWebClient {
         val securityClient = SecurityWebClient.create("http://localhost:$serverPort")
         return securityClient.getAuthenticatedClient(user.email, user.password)
@@ -78,7 +92,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         fireWireMock.stubFor(
             post(urlMatching(FIRE_OBJECTS_URL))
                 .withBasicAuth(FIRE_USERNAME, FIRE_PASSWORD)
-                .willReturn(aResponse().withTransformers(wireMockTransformer.name))
+                .willReturn(aResponse().withTransformers(wireTransformer.name))
         )
         fireWireMock.start()
 
@@ -103,7 +117,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
     private fun setUpApplicationProperties() {
         val tempDirPath = tempFolder.createDirectory("tmp")
         System.setProperty("app.submissionPath", submissionPath)
-        System.setProperty("app.ftpPath", "${tempFolder.root.absolutePath}/ftpPath")
+        System.setProperty("app.ftpPath", ftpPath)
         System.setProperty("app.fireTempDirPath", fireTempFolder)
         System.setProperty("app.tempDirPath", tempDirPath.absolutePath)
         System.setProperty("app.requestFilesPath", tempFolder.createDirectory("request-files").absolutePath)

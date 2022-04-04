@@ -12,12 +12,24 @@ fun <T> List<T>.destructure(): Pair<T, List<T>> = first() to drop(1)
 /**
  * Replace the given element by the element matching predicate.
  */
-fun <T> List<T>.replace(predicate: (T) -> Boolean, element: T): List<T> {
+fun <T> List<T>.replace(element: T, predicate: (T) -> Boolean): List<T> {
     val index = indexOf(predicate)
     if (index != null) {
         val list = toMutableList()
         list[index] = element
         return list
+    }
+
+    return this
+}
+
+/**
+ * Replace the given element by the element matching predicate.
+ */
+fun <T> MutableList<T>.replaceItem(predicate: (T) -> Boolean, element: T): MutableList<T> {
+    val index = indexOf(predicate)
+    if (index != null) {
+        this[index] = element
     }
 
     return this

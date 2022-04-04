@@ -6,9 +6,7 @@ import java.io.File
 
 internal fun FireWebClient.persistFireFile(accNo: String, file: File, md5: String, path: String): FireFile {
     val fireFile = save(file, md5)
-
     setBioMetadata(fireFile.fireOid, accNo, published = false)
     setPath(fireFile.fireOid, path)
-
     return fireFile
 }
