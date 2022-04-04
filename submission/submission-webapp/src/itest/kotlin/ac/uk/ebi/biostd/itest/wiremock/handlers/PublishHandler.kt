@@ -17,5 +17,3 @@ class PublishHandler(
         return ResponseDefinition.ok()
     }
 }
-
-

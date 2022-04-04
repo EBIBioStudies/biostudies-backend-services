@@ -104,5 +104,4 @@ class FireMockDatabase(
     }
 }
 
-
 data class DbRecord(val file: FireFile, val path: String?, val published: Boolean)

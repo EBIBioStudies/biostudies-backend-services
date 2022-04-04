@@ -10,4 +10,3 @@ interface RequestHandler {
 
     fun handle(rqt: Request): ResponseDefinition
 }
-
