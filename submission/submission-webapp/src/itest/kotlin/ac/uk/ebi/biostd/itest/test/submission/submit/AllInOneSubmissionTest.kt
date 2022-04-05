@@ -70,7 +70,7 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
         }
 
         @Test
-        fun `submit all in one Json submission`() {
+        fun `submit all in one JSON submission`() {
             val (submission, fileList, files, subFileList) = submissionSpecJson(tempFolder, "S-EPMC125")
             webClient.uploadFile(fileList)
             subFileList?.let { webClient.uploadFile(it.file, it.folder) }
