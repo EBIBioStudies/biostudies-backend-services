@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.itest.common
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.entities.TestUser
-import ac.uk.ebi.biostd.itest.wiremock.TestWireMockTransformer
+import ac.uk.ebi.biostd.itest.wiremock.TestWireMockTransformer.Companion.newTransformer
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.post
@@ -21,7 +21,7 @@ import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.fire.client.api.FIRE_OBJECTS_URL
-import java.io.File
+import java.nio.file.Paths
 import java.time.Duration.ofSeconds
 
 private const val CHARACTER_SET = "utf8mb4"
@@ -38,7 +38,7 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
         .withInitScript("Schema.sql")
         .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
-    private val wireTransformer = TestWireMockTransformer.create(File(submissionPath), File(ftpPath), File(fireFolder))
+    private val wireTransformer = newTransformer(Paths.get(submissionPath), Paths.get(ftpPath), Paths.get(fireFolder))
     private val fireWireMock = WireMockServer(WireMockConfiguration().dynamicPort().extensions(wireTransformer))
 
     val fireFolder
@@ -55,8 +55,6 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
 
     val enableFire
         get() = System.getProperty("enableFire").toBoolean()
-
-    val mongoMode = System.getProperty("itest.mode") == "mongo"
 
     @BeforeAll
     fun beforeAll() {

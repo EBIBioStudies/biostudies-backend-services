@@ -17,7 +17,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer
 import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.http.ResponseDefinition
 import org.springframework.http.HttpStatus
-import java.io.File
+import java.nio.file.Path
 
 class TestWireMockTransformer private constructor(
     private val db: FireMockDatabase,
@@ -41,10 +41,10 @@ class TestWireMockTransformer private constructor(
     fun cleanDb() = db.cleanAll()
 
     companion object {
-        fun create(
-            subFolder: File,
-            ftpFolder: File,
-            dbFolder: File,
+        fun newTransformer(
+            subFolder: Path,
+            ftpFolder: Path,
+            dbFolder: Path,
         ): TestWireMockTransformer {
             val fireDatabase = FireMockDatabase(subFolder, ftpFolder, dbFolder)
             return TestWireMockTransformer(

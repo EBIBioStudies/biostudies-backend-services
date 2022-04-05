@@ -1,18 +1,20 @@
 package ac.uk.ebi.biostd.itest.wiremock
 
 import ebi.ac.uk.base.orFalse
+import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import uk.ac.ebi.fire.client.model.FireFile
 import uk.ac.ebi.fire.client.model.MetadataEntry
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.Path
 import java.time.Instant
 
 class FireMockDatabase(
-    private val submissionFolder: File,
-    private val ftpFolder: File,
-    private val dbFolder: File
+    private val submissionFolder: Path,
+    private val ftpFolder: Path,
+    private val dbFolder: Path
 ) {
 
     private val records: MutableMap<String, DbRecord> = mutableMapOf()
@@ -32,12 +34,12 @@ class FireMockDatabase(
         val fireFile = dbFolder.resolve(fireOid)
 
         if (record.path != null) {
-            Files.deleteIfExists(submissionFolder.resolve(record.path).toPath())
-            Files.deleteIfExists(ftpFolder.resolve(record.path).toPath())
+            Files.deleteIfExists(submissionFolder.resolve(record.path))
+            Files.deleteIfExists(ftpFolder.resolve(record.path))
         }
 
-        Files.copy(fireFile.toPath(), getOrCreateSubFolder(path).toPath())
-        if (record.published) Files.copy(fireFile.toPath(), getOrCreateFtpFolder(path).toPath())
+        Files.copy(fireFile, getOrCreateSubFolder(path))
+        if (record.published) Files.copy(fireFile, getOrCreateFtpFolder(path))
     }
 
     fun unsetPath(fireOid: String) {
@@ -45,8 +47,8 @@ class FireMockDatabase(
         records[fireOid] = record.copy(path = null)
 
         if (record.path != null) {
-            Files.deleteIfExists(ftpFolder.resolve(record.path).toPath())
-            Files.delete(submissionFolder.resolve(record.path).toPath())
+            Files.deleteIfExists(ftpFolder.resolve(record.path))
+            Files.delete(submissionFolder.resolve(record.path))
         }
     }
 
@@ -60,17 +62,17 @@ class FireMockDatabase(
         val file = records.getValue(fireOid)
         records[fireOid] = file.copy(published = true)
 
-        if (file.path != null) {
+        if (file.path != null && file.published.not()) {
             val source = submissionFolder.resolve(file.path)
             val target = getOrCreateFtpFolder(file.path)
-            Files.copy(source.toPath(), target.toPath())
+            Files.copy(source, target)
         }
     }
 
     fun unpublish(fireOid: String) {
         val record = records.getValue(fireOid)
         records[fireOid] = record.copy(published = false)
-        if (record.path != null) Files.delete(ftpFolder.resolve(record.path).toPath())
+        if (record.path != null) Files.delete(ftpFolder.resolve(record.path))
     }
 
     fun findByMetadata(entries: List<MetadataEntry>): List<FireFile> =
@@ -80,7 +82,12 @@ class FireMockDatabase(
 
     fun findByPath(path: String): FireFile? = records.values.firstOrNull { it.path == path }?.file
 
-    fun cleanAll() = records.clear()
+    fun cleanAll() {
+        FileUtils.deleteFile(submissionFolder.toFile())
+        FileUtils.deleteFile(ftpFolder.toFile())
+        FileUtils.deleteFile(dbFolder.toFile())
+        records.clear()
+    }
 
     private fun merge(metadata: List<MetadataEntry>, newKeys: List<MetadataEntry>): List<MetadataEntry> {
         val current = metadata.associateBy { it.key }.toMutableMap()
@@ -89,22 +96,22 @@ class FireMockDatabase(
     }
 
     private fun saveFile(data: ByteArray, fireOid: String): File {
-        val file = dbFolder.resolve(fireOid)
+        val file = dbFolder.resolve(fireOid).toFile()
         file.parentFile.mkdirs()
         file.createNewFile()
         file.writeBytes(data)
         return file
     }
 
-    private fun getOrCreateSubFolder(relPath: String): File {
+    private fun getOrCreateSubFolder(relPath: String): Path {
         val file = submissionFolder.resolve(relPath)
-        file.parentFile.mkdirs()
+        file.parent.toFile().mkdirs()
         return file
     }
 
-    private fun getOrCreateFtpFolder(path: String): File {
+    private fun getOrCreateFtpFolder(path: String): Path {
         val file = ftpFolder.resolve(path)
-        file.parentFile.mkdirs()
+        file.parent.toFile().mkdirs()
         return file
     }
 }
