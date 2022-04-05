@@ -60,9 +60,9 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
 
     @BeforeAll
     fun beforeAll() {
-        if (mongoMode) setUpMongo()
         if (enableFire) setupFire()
 
+        setUpMongo()
         setUpMySql()
         setUpApplicationProperties()
     }

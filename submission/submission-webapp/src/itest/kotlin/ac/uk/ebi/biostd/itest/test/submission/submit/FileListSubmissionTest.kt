@@ -182,24 +182,22 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             val createdSub = submissionRepository.getExtByAccNo(accNo)
             val subFolder = "$submissionPath/${createdSub.relPath}"
 
-            if (mongoMode) {
-                if (enableFire) {
-                    val submissionTabFiles = createdSub.pageTabFiles as List<FireFile>
-                    assertThat(submissionTabFiles).hasSize(3)
-                    assertThat(submissionTabFiles).isEqualTo(submissionFireTabFiles(accNo, subFolder))
+            if (enableFire) {
+                val submissionTabFiles = createdSub.pageTabFiles as List<FireFile>
+                assertThat(submissionTabFiles).hasSize(3)
+                assertThat(submissionTabFiles).isEqualTo(submissionFireTabFiles(accNo, subFolder))
 
-                    val fileListTabFiles = createdSub.section.fileList!!.pageTabFiles as List<FireFile>
-                    assertThat(fileListTabFiles).hasSize(3)
-                    assertThat(fileListTabFiles).isEqualTo(fileListFireTabFiles(subFolder))
-                } else {
-                    val submissionTabFiles = createdSub.pageTabFiles as List<NfsFile>
-                    assertThat(submissionTabFiles).hasSize(3)
-                    assertThat(submissionTabFiles).isEqualTo(submissionNfsTabFiles(accNo, subFolder))
+                val fileListTabFiles = createdSub.section.fileList!!.pageTabFiles as List<FireFile>
+                assertThat(fileListTabFiles).hasSize(3)
+                assertThat(fileListTabFiles).isEqualTo(fileListFireTabFiles(subFolder))
+            } else {
+                val submissionTabFiles = createdSub.pageTabFiles as List<NfsFile>
+                assertThat(submissionTabFiles).hasSize(3)
+                assertThat(submissionTabFiles).isEqualTo(submissionNfsTabFiles(accNo, subFolder))
 
-                    val fileListTabFiles = createdSub.section.fileList!!.pageTabFiles as List<NfsFile>
-                    assertThat(fileListTabFiles).hasSize(3)
-                    assertThat(fileListTabFiles).isEqualTo(fileListNfsTabFiles(subFolder))
-                }
+                val fileListTabFiles = createdSub.section.fileList!!.pageTabFiles as List<NfsFile>
+                assertThat(fileListTabFiles).hasSize(3)
+                assertThat(fileListTabFiles).isEqualTo(fileListNfsTabFiles(subFolder))
             }
 
             assertThat(Paths.get("$subFolder/Files/$testFile")).exists()
