@@ -4,10 +4,10 @@ import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ebi.ac.uk.errors.FileNotFoundException
+import ebi.ac.uk.extended.model.ExtFireFile
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.FireBioFile
-import ebi.ac.uk.io.sources.FireDirectoryBioFile
-import ebi.ac.uk.io.sources.NfsBioFile
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
@@ -34,12 +34,10 @@ internal class FileListSerializer(
     }
 
     private fun getFile(fileList: String, source: FilesSource): File {
-        return when (val bioFile = source.getFile(fileList)) {
-            is FireBioFile -> TODO()
-            is FireDirectoryBioFile -> TODO()
-            is NfsBioFile ->
-                if (bioFile.file.isFile) bioFile.file
-                else throw InvalidFileListException(fileList, "A directory can't be used as File List")
+        return when (val file = source.getFile(fileList)) {
+            is ExtFireFile -> TODO()
+            is FireDirectory -> TODO()
+            is NfsFile -> if (file.file.isFile) file.file else throw InvalidFileListException.dirFileList(fileList)
             null -> throw FileNotFoundException(fileList)
         }
     }

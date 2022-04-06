@@ -31,7 +31,7 @@ sealed class ExtFile {
         get() = filePath.substringAfterLast("/")
 }
 
-data class FireFile(
+data class ExtFireFile(
     override val filePath: String,
     override val relPath: String,
     val fireId: String,

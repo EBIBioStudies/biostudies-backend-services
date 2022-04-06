@@ -1,4 +1,5 @@
 @file:Suppress("LongParameterList", "MagicNumber")
+
 package uk.ac.ebi.extended.test
 
 import uk.ac.ebi.extended.test.SectionFactory.defaultSection
@@ -19,7 +20,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.ext.md5
@@ -135,7 +136,7 @@ object FireFileFactory {
         md5: String = MD5,
         size: Long = SIZE,
         attributes: List<ExtAttribute> = ATTRIBUTES,
-    ) = FireFile(
+    ) = ExtFireFile(
         filePath = filePath,
         relPath = relPath,
         fireId = fireId,

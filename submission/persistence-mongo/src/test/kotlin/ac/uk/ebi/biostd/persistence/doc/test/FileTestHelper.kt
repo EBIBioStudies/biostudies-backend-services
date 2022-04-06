@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.assertBasicExtA
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.basicDocAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import java.io.File
@@ -61,7 +61,7 @@ internal object FileTestHelper {
     val docFileList = DocFileList(TEST_FILE_LIST)
 
     fun assertExtFile(extFile: ExtFile, file: File) = when (extFile) {
-        is FireFile -> assertFireFile(extFile)
+        is ExtFireFile -> assertFireFile(extFile)
         is FireDirectory -> assertFireDirectory(extFile)
         is NfsFile -> assertNfsFile(extFile, file)
     }
@@ -77,7 +77,7 @@ internal object FileTestHelper {
         assertBasicExtAttribute(nfsFile.attributes.first())
     }
 
-    private fun assertFireFile(fireFile: FireFile) {
+    private fun assertFireFile(fireFile: ExtFireFile) {
         assertThat(fireFile.fileName).isEqualTo(TEST_FILENAME)
         assertThat(fireFile.filePath).isEqualTo(TEST_FILEPATH)
         assertThat(fireFile.relPath).isEqualTo(TEST_REL_PATH)

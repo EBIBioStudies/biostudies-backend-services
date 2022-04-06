@@ -2,7 +2,7 @@ package ebi.ac.uk.extended.mapping.to
 
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
@@ -51,7 +51,7 @@ internal class ToFileTest(
 
     @Test
     fun `from fire file`() {
-        val fireFile = FireFile("folder/my-file", "Files/folder/my-file", "fireId", "md5", 12, listOf(extAttribute))
+        val fireFile = ExtFireFile("folder/my-file", "Files/folder/my-file", "fireId", "md5", 12, listOf(extAttribute))
         assertFile(fireFile.toFile())
     }
 

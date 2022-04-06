@@ -4,7 +4,7 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
@@ -63,7 +63,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun `serialize fire file`() {
-        val extFile = FireFile(
+        val extFile = ExtFireFile(
             filePath = "folder/fire-file.txt",
             relPath = "Files/folder/fire-file.txt",
             fireId = "fireId",

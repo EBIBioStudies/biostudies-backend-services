@@ -2,7 +2,7 @@ package ebi.ac.uk.extended.mapping.to
 
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.ext.size
@@ -15,13 +15,13 @@ internal const val TO_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.to.ToFileKt"
 fun ExtFile.toFile(): File =
     when (this) {
         is NfsFile -> File(filePath, file.size(), type, attributes.mapTo(mutableListOf()) { it.toAttribute() })
-        is FireFile -> File(filePath, size, type, attributes.mapTo(mutableListOf()) { it.toAttribute() })
+        is ExtFireFile -> File(filePath, size, type, attributes.mapTo(mutableListOf()) { it.toAttribute() })
         is FireDirectory -> File(filePath, size, type, attributes.mapTo(mutableListOf()) { it.toAttribute() })
     }
 
 private val ExtFile.type
     get() = when (this) {
         is NfsFile -> if (FileUtils.isDirectory(file)) DIR_TYPE.value else FILE_TYPE.value
-        is FireFile -> FILE_TYPE.value
+        is ExtFireFile -> FILE_TYPE.value
         is FireDirectory -> DIR_TYPE.value
     }

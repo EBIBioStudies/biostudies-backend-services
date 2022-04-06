@@ -1,10 +1,13 @@
 package ac.uk.ebi.biostd.submission.domain.helpers
 
 import ac.uk.ebi.biostd.common.properties.PersistenceProperties
-import ebi.ac.uk.io.sources.BioFile
+import ebi.ac.uk.extended.mapping.from.toExtAttributes
+import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.FilesSource.Companion.EMPTY_FILE_SOURCE
-import ebi.ac.uk.io.sources.FireBioFile
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import uk.ac.ebi.fire.client.model.FireFile
 import uk.ac.ebi.fire.client.model.isAvailable
@@ -20,16 +23,18 @@ class FireFilesSourceFactory(
         if (props.enableFire) SubmissionFireFilesSource(fireWebClient, accNo, basePath) else EMPTY_FILE_SOURCE
 }
 
-// TODO unit tests
 class FireFilesSource(
     private val fireWebClient: FireWebClient
 ) : FilesSource {
-    override fun getFile(path: String, md5: String?): BioFile? {
+    override fun getFile(
+        path: String,
+        md5: String?,
+        attributes: List<Attribute>,
+        calculateProperties: Boolean
+    ): ExtFile? {
         return when (md5) {
             null -> null
-            else -> fireWebClient.findByMd5(md5)
-                .firstOrNull { it.isAvailable() }
-                ?.let { it.asFireBioFile(path, lazy { fireWebClient.downloadByFireId(it.fireOid, path).readText() }) }
+            else -> fireWebClient.findByMd5(md5).firstOrNull { it.isAvailable() }?.asFireBioFile(path, attributes)
         }
     }
 }
@@ -39,18 +44,28 @@ private class SubmissionFireFilesSource(
     private val accNo: String,
     private val basePath: Path
 ) : FilesSource {
-    override fun getFile(path: String, md5: String?): FireBioFile? {
+    override fun getFile(
+        path: String,
+        md5: String?,
+        attributes: List<Attribute>,
+        calculateProperties: Boolean
+    ): ExtFile? {
         if (md5 == null) {
             return fireWebClient.findByPath(basePath.resolve(path).toString())
                 ?.takeIf { it.isAvailable(accNo) }
-                ?.let { it.asFireBioFile(path, lazy { fireWebClient.downloadByFireId(it.fireOid, path).readText() }) }
+                ?.asFireBioFile(path, attributes)
         }
 
-        return fireWebClient.findByMd5(md5)
-            .firstOrNull { it.isAvailable(accNo) }
-            ?.let { it.asFireBioFile(path, lazy { fireWebClient.downloadByFireId(it.fireOid, path).readText() }) }
+        return fireWebClient.findByMd5(md5).firstOrNull { it.isAvailable(accNo) }?.asFireBioFile(path, attributes)
     }
 }
 
-fun FireFile.asFireBioFile(path: String, readContent: Lazy<String>): FireBioFile =
-    FireBioFile(fireOid, path, objectMd5, objectSize.toLong(), readContent)
+fun FireFile.asFireBioFile(path: String, attributes: List<Attribute>): ExtFireFile =
+    ExtFireFile(
+        filePath = path,
+        relPath = "Files/$path",
+        fireId = fireOid,
+        md5 = objectMd5,
+        size = objectSize.toLong(),
+        attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
+    )

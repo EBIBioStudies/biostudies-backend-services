@@ -19,7 +19,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -162,7 +162,7 @@ class ExtSubmissionSerializerTest {
                 section = ExtSection(type = "Study"),
                 stats = listOf(ExtStat("component", "web")),
                 pageTabFiles = listOf(
-                    FireFile("S-TEST1", "S-TEST1", "fireId", "md5", 1L, listOf()),
+                    ExtFireFile("S-TEST1", "S-TEST1", "fireId", "md5", 1L, listOf()),
                     FireDirectory("S-TEST1", "S-TEST1", "md5", 2L, listOf()),
                     NfsFile("S-TEST1", "S-TEST1", File("anyPath"), "/test//S-TEST1", "md5", 55, listOf())
                 )
@@ -183,7 +183,7 @@ object DummyExtFileSerializer : JsonSerializer<ExtFile>() {
     override fun serialize(extFile: ExtFile, gen: JsonGenerator, serializers: SerializerProvider?) {
         gen.writeStartObject()
         when (extFile) {
-            is FireFile -> gen.writeStringField(ExtSerializationFields.EXT_TYPE, "fireFile")
+            is ExtFireFile -> gen.writeStringField(ExtSerializationFields.EXT_TYPE, "fireFile")
             is FireDirectory -> gen.writeStringField(ExtSerializationFields.EXT_TYPE, "fireDirectory")
             is NfsFile -> gen.writeStringField(ExtSerializationFields.EXT_TYPE, "nfsFile")
         }

@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.persistence.filesystem.fire
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
-import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.extended.model.allFiles
 import mu.KotlinLogging
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
@@ -35,7 +35,7 @@ class FireFtpService(
         logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission $accNo over FIRE" }
 
         sub.allFiles()
-            .filterIsInstance<FireFile>()
+            .filterIsInstance<ExtFireFile>()
             .forEach { publishFile(it.fireId) }
 
         logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission $accNo over FIRE" }

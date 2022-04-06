@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.service.Section
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.io.ext.md5
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import java.io.File
@@ -58,11 +58,18 @@ class FirePageTabService(
         saveFileListFile(accNo, pageTab.tsv, subFolder, "$fileListName.pagetab.tsv")
     )
 
-    private fun saveFileListFile(accNo: String, file: File, subFolder: String, filePath: String): FireFile {
+    private fun saveFileListFile(accNo: String, file: File, subFolder: String, filePath: String): ExtFireFile {
         val relPath = "Files/$filePath"
         val fireFile = fireWebClient.persistFireFile(accNo, file, file.md5(), "$subFolder/$relPath")
 
-        return FireFile(filePath, relPath, fireFile.fireOid, fireFile.objectMd5, fireFile.objectSize.toLong(), listOf())
+        return ExtFireFile(
+            filePath,
+            relPath,
+            fireFile.fireOid,
+            fireFile.objectMd5,
+            fireFile.objectSize.toLong(),
+            listOf()
+        )
     }
 
     private fun subExtFiles(accNo: String, pageTab: PageTabFiles, subFolder: String): List<ExtFile> = listOf(
@@ -71,9 +78,9 @@ class FirePageTabService(
         saveSubFile(accNo, pageTab.tsv, subFolder)
     )
 
-    private fun saveSubFile(accNo: String, file: File, subFolder: String): FireFile {
+    private fun saveSubFile(accNo: String, file: File, subFolder: String): ExtFireFile {
         val fName = file.name
         val fireFile = fireWebClient.persistFireFile(accNo, file, file.md5(), "$subFolder/$fName")
-        return FireFile(fName, fName, fireFile.fireOid, fireFile.objectMd5, fireFile.objectSize.toLong(), listOf())
+        return ExtFireFile(fName, fName, fireFile.fireOid, fireFile.objectMd5, fireFile.objectSize.toLong(), listOf())
     }
 }

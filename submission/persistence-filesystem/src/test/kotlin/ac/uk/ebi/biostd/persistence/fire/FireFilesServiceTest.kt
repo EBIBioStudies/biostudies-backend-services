@@ -8,7 +8,7 @@ import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.test.basicExtSubmission
@@ -94,7 +94,8 @@ class FireFilesServiceTest(
 
     @Test
     fun `process submission when new file is FireFile`() {
-        val fireFile = FireFile("new-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
+        val fireFile =
+            ExtFireFile("new-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
         val section = ExtSection(type = "Study", files = listOf(left(fireFile)))
         val submission = basicExtSubmission.copy(section = section)
         val request = FilePersistenceRequest(submission)
@@ -123,7 +124,7 @@ class FireFilesServiceTest(
     private fun assertFireFile(processed: ExtSubmission, filePath: String) {
         assertThat(processed.section.files).hasSize(1)
         processed.section.files.first().ifLeft {
-            it as FireFile
+            it as ExtFireFile
             assertThat(it.fileName).isEqualTo("test.txt")
             assertThat(it.filePath).isEqualTo(filePath)
             assertThat(it.relPath).isEqualTo("Files/folder/test.txt")

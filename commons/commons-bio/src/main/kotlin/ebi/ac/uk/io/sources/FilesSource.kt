@@ -1,15 +1,27 @@
 package ebi.ac.uk.io.sources
 
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.model.Attribute
 import java.io.File
 
 interface FilesSource {
-    fun getFile(path: String, md5: String? = null): BioFile?
+    fun getFile(
+        path: String,
+        md5: String? = null,
+        attributes: List<Attribute> = emptyList(),
+        calculateProperties: Boolean = false
+    ): ExtFile?
 
     companion object {
         val EMPTY_FILE_SOURCE: FilesSource = object : FilesSource {
-            override fun getFile(path: String, md5: String?): BioFile? = null
+            override fun getFile(
+                path: String,
+                md5: String?,
+                attributes: List<Attribute>,
+                calculateProperties: Boolean
+            ): ExtFile? = null
         }
     }
 }

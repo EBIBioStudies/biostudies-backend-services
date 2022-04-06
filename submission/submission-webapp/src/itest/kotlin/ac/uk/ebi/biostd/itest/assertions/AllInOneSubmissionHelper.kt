@@ -10,7 +10,7 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
-import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
@@ -76,7 +76,7 @@ internal class AllInOneSubmissionHelper(
     }
 
     private fun `assertFireTabFiles`(submission: ExtSubmission, accNo: String, subFolder: String) {
-        val submissionTabFiles = submission.pageTabFiles as List<FireFile>
+        val submissionTabFiles = submission.pageTabFiles as List<ExtFireFile>
         assertThat(submissionTabFiles).hasSize(3)
 
         val jsonTabFile = submissionTabFiles.first()
@@ -103,8 +103,9 @@ internal class AllInOneSubmissionHelper(
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
+
     private fun `assertFireFileListTabFiles`(submission: ExtSubmission, subFolder: String) {
-        val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<FireFile>
+        val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<ExtFireFile>
         assertThat(fileListTabFiles).hasSize(3)
 
         val jsonTabFile = fileListTabFiles.first()
@@ -131,9 +132,10 @@ internal class AllInOneSubmissionHelper(
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
+
     private fun `assertFireSubFileListTabFiles`(submission: ExtSubmission, subFolder: String) {
         val subFileListTabFiles =
-            (submission.section.sections.first() as Either.Left).a.fileList!!.pageTabFiles as List<FireFile>
+            (submission.section.sections.first() as Either.Left).a.fileList!!.pageTabFiles as List<ExtFireFile>
         assertThat(subFileListTabFiles).hasSize(3)
 
         val jsonTabFile = subFileListTabFiles.first()

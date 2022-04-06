@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.extended.model.NfsFile
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
@@ -48,8 +48,8 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
         )
     }
 
-    private fun fireFile(node: JsonNode, mapper: ObjectMapper): FireFile {
-        return FireFile(
+    private fun fireFile(node: JsonNode, mapper: ObjectMapper): ExtFireFile {
+        return ExtFireFile(
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
             fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),

@@ -9,12 +9,12 @@ import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.extended.model.NfsFile
 import java.nio.file.Paths
 
 internal fun DocFile.toExtFile(): ExtFile = when (this) {
-    is FireDocFile -> FireFile(filePath, relPath, fireId, md5, fileSize, attributes.toExtAttributes())
+    is FireDocFile -> ExtFireFile(filePath, relPath, fireId, md5, fileSize, attributes.toExtAttributes())
     is FireDocDirectory -> FireDirectory(filePath, relPath, md5, fileSize, attributes.toExtAttributes())
     is NfsDocFile -> NfsFile(
         filePath,
