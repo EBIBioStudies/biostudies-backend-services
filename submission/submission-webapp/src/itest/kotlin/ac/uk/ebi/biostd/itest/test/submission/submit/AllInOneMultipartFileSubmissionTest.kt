@@ -53,7 +53,8 @@ internal class AllInOneMultipartFileSubmissionTest(
         fun init() {
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
-            allInOneSubmissionHelper = AllInOneSubmissionHelper(submissionPath, submissionRepository, toSubmissionMapper)
+            allInOneSubmissionHelper =
+                AllInOneSubmissionHelper(submissionPath, submissionRepository, toSubmissionMapper)
         }
 
         @Test
@@ -66,9 +67,8 @@ internal class AllInOneMultipartFileSubmissionTest(
             webClient.submitSingle(submission, emptyList())
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124", method = FILE)
-            if (mongoMode)
-                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
-                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
+            if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
+            else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
         }
 
         @Test
@@ -81,9 +81,9 @@ internal class AllInOneMultipartFileSubmissionTest(
             webClient.submitSingle(submission, emptyList())
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125", method = FILE)
-            if (mongoMode)
-                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC125")
-                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC125")
+
+            if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC125")
+            else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC125")
         }
 
         @Test
@@ -96,9 +96,8 @@ internal class AllInOneMultipartFileSubmissionTest(
             webClient.submitSingle(submission, emptyList())
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126", method = FILE)
-            if (mongoMode)
-                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC126")
-                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC126")
+            if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC126")
+            else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC126")
         }
     }
 }

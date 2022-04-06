@@ -61,6 +61,7 @@ class FireFilesServiceTest(
 
         every { fireWebClient.unpublish("dda2") } answers { nothing }
         every { fireWebClient.unsetPath("dda2") } answers { nothing }
+        every { fireWebClient.findByPath("S-TEST/123/S-TEST123/Files/folder/test.txt") } returns null
 
         val processed = testInstance.persistSubmissionFiles(FilePersistenceRequest(submission))
 
@@ -79,6 +80,7 @@ class FireFilesServiceTest(
         val section = ExtSection(type = "Study", files = listOf(left(nfsFile)))
         val submission = basicExtSubmission.copy(section = section)
         val request = FilePersistenceRequest(submission)
+        every { fireWebClient.findByPath("S-TEST/123/S-TEST123/Files/folder/test.txt") } returns null
 
         val processed = testInstance.persistSubmissionFiles(request)
 
