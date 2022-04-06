@@ -9,8 +9,8 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.ext.md5
-import java.io.File
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import java.io.File
 
 class FirePageTabService(
     private val fireTempFolder: File,
@@ -72,9 +72,8 @@ class FirePageTabService(
     )
 
     private fun saveSubFile(accNo: String, file: File, subFolder: String): FireFile {
-        val name = file.name
-        val fireFile = fireWebClient.persistFireFile(accNo, file, file.md5(), "$subFolder/$name")
-
-        return FireFile(name, name, fireFile.fireOid, fireFile.objectMd5, fireFile.objectSize.toLong(), listOf())
+        val fName = file.name
+        val fireFile = fireWebClient.persistFireFile(accNo, file, file.md5(), "$subFolder/$fName")
+        return FireFile(fName, fName, fireFile.fireOid, fireFile.objectMd5, fireFile.objectSize.toLong(), listOf())
     }
 }

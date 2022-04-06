@@ -12,7 +12,7 @@ class ToExtSectionMapper(private val toExtFileListMapper: ToExtFileListMapper) {
         type = sec.type,
         accNo = sec.accNo,
         fileList = sec.fileList?.let { toExtFileListMapper.convert(it, source) },
-        attributes = sec.attributes.filterNot { SECTION_RESERVED_ATTRS.contains(it.name) }.map { it.toExtAttribute() },
+        attributes = sec.attributes.toExtAttributes(SECTION_RESERVED_ATTRS),
         files = sec.files.map { either -> either.bimap({ it.toExtFile(source) }, { it.toExtTable(source) }) },
         links = sec.links.map { either -> either.bimap({ it.toExtLink() }, { it.toExtTable() }) },
         sections = sec.sections.map { either -> either.bimap({ convert(it, source) }, { toExtTable(it, source) }) }

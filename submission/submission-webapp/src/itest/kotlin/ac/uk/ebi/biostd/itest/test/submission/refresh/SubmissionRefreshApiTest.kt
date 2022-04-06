@@ -27,6 +27,7 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
@@ -239,7 +240,16 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
             val updatedSub = submissionDocRepository.getSubmission(ACC_NO, 2)
             val files = updatedSub.section.files
             assertThat(files).hasSize(3)
-            assertThat(files.third()).hasLeftValueSatisfying { assertThat(it).isEqualTo(docFile) }
+            if (enableFire) assertThat(files.third()).hasLeftValueSatisfying {
+                require(it is FireDocFile)
+                assertThat(it.fileName).isEqualTo(file.name)
+                assertThat(it.filePath).isEqualTo(file.path)
+                assertThat(it.relPath).isEqualTo("relPath")
+                assertThat(it.fireId).isNotNull()
+                assertThat(it.md5).isEqualTo(file.md5())
+                assertThat(it.fileSize).isEqualTo(file.size())
+            }
+            else assertThat(files.third()).hasLeftValueSatisfying { assertThat(it).isEqualTo(docFile) }
         }
     }
 

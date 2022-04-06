@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
-import ac.uk.ebi.biostd.persistence.filesystem.extensions.persistFireFile
+import ac.uk.ebi.biostd.persistence.filesystem.extensions.getOrPersist
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.model.ExtFile
@@ -68,9 +68,10 @@ private fun persistFireDirectory(nfsFile: NfsFile): FireDirectory {
 }
 
 private fun FireFileProcessingConfig.persistFireFile(accNo: String, subRelPath: String, nfsFile: NfsFile): FireFile {
-    val (filePath, relPath, _, _, _, _, attributes) = nfsFile
-    val fireFile = fireWebClient.persistFireFile(accNo, nfsFile.file, nfsFile.md5, "$subRelPath/$relPath")
-
+    val filePath = nfsFile.filePath
+    val relPath = nfsFile.relPath
+    val attributes = nfsFile.attributes
+    val fireFile = fireWebClient.getOrPersist(accNo, nfsFile.file, nfsFile.md5, "$subRelPath/$relPath")
     return FireFile(filePath, relPath, fireFile.fireOid, fireFile.objectMd5, fireFile.objectSize.toLong(), attributes)
 }
 
