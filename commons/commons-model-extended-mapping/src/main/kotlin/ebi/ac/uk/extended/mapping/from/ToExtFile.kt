@@ -28,6 +28,7 @@ fun File.toExtFile(fileSource: FilesSource, calculateProperties: Boolean = true)
         is FireDirectoryBioFile -> FireDirectory(
             path,
             "Files/$path",
+            file.fireId,
             file.md5,
             file.size,
             attributes.toExtAttributes(FILES_RESERVED_ATTRS)

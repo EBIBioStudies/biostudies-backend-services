@@ -114,6 +114,7 @@ data class FireDocDirectory(
     override val fileName: String,
     override val filePath: String,
     override val relPath: String,
+    val fireId: String,
     override val attributes: List<DocAttribute>,
     override val md5: String,
     override val fileSize: Long

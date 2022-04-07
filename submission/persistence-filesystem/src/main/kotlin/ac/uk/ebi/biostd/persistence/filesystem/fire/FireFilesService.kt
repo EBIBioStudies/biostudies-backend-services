@@ -12,11 +12,14 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
+import org.zeroturnaround.zip.ZipUtil
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import java.nio.file.Path
 
 private val logger = KotlinLogging.logger {}
 
 class FireFilesService(
+    private val fireTempDirPath: Path,
     private val fireWebClient: FireWebClient,
     private val fileProcessingService: FileProcessingService
 ) : FilesService {
@@ -25,7 +28,7 @@ class FireFilesService(
         logger.info { "${sub.accNo} ${sub.owner} Persisting files of submission ${sub.accNo} on FIRE" }
 
         cleanSubmissionFolder(sub.accNo)
-        val config = FireFileProcessingConfig(sub.accNo, sub.owner, sub.relPath, fireWebClient)
+        val config = FireFileProcessingConfig(sub.accNo, sub.owner, sub.relPath, fireTempDirPath, fireWebClient)
         val processed = fileProcessingService.processFiles(sub) { config.processFile(request.submission, it) }
 
         logger.info { "${sub.accNo} ${sub.owner} Finished persisting files of submission ${sub.accNo} on FIRE" }
@@ -43,7 +46,8 @@ class FireFilesService(
 data class FireFileProcessingConfig(
     val accNo: String,
     val owner: String,
-    val relPath: String,
+    val subRelPath: String,
+    val fireTempDirPath: Path,
     val fireWebClient: FireWebClient
 )
 
@@ -62,9 +66,15 @@ fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): 
     }
 }
 
-private fun persistFireDirectory(nfsFile: NfsFile): FireDirectory {
+private fun FireFileProcessingConfig.persistFireDirectory(nfsFile: NfsFile): FireDirectory {
     val (filePath, relPath, file, _, _, _, attributes) = nfsFile
-    return FireDirectory(filePath, relPath, file.md5(), file.size(), attributes)
+    val compressed = fireTempDirPath.resolve(file.name).toFile()
+
+    ZipUtil.pack(file, compressed)
+
+    val fireDir = fireWebClient.getOrPersist(accNo, compressed, compressed.md5(), "$subRelPath/$relPath")
+
+    return FireDirectory(filePath, relPath, fireDir.fireOid, fireDir.objectMd5, fireDir.objectSize.toLong(), attributes)
 }
 
 private fun FireFileProcessingConfig.persistFireFile(accNo: String, subRelPath: String, nfsFile: NfsFile): FireFile {

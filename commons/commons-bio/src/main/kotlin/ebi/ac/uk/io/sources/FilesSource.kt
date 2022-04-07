@@ -42,6 +42,7 @@ class FireBioFile(
 }
 
 class FireDirectoryBioFile(
+    val fireId: String,
     val fileName: String,
     val md5: String,
     val size: Long

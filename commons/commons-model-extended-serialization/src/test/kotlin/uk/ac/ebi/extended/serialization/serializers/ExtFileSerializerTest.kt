@@ -104,16 +104,18 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun `serialize fire directory`() {
         val extFile = FireDirectory(
-            filePath = "folder/fire-directory.txt",
-            relPath = "Files/folder/fire-directory.txt",
+            filePath = "folder",
+            relPath = "Files/folder",
+            fireId = "dirFireId",
             md5 = "fireDirMd5",
             size = 12,
             attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true))
         )
         val expectedJson = jsonObj {
-            "fileName" to "fire-directory.txt"
-            "filePath" to "folder/fire-directory.txt"
-            "relPath" to "Files/folder/fire-directory.txt"
+            "fileName" to "folder"
+            "filePath" to "folder"
+            "relPath" to "Files/folder"
+            "fireId" to "dirFireId"
             "attributes" to jsonArray(
                 jsonObj {
                     "name" to "Type"

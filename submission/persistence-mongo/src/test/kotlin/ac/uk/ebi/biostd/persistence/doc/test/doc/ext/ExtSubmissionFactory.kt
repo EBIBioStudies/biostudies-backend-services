@@ -8,7 +8,6 @@ import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
 import java.io.File
 import java.time.OffsetDateTime
@@ -41,10 +40,10 @@ const val EXT_STAT_NAME = "component"
 const val EXT_STAT_VALUE = "1"
 val extStat = ExtStat(EXT_STAT_NAME, EXT_STAT_VALUE)
 
-const val FIRE_FILE_FILENAME = "fireFileFileName"
 const val FIRE_FILE_FILEPATH = "fireFileFilePath/fireFileFileName"
 const val FIRE_FILE_REL_PATH = "fireFileRelPath"
 const val FIRE_FILE_FIRE_ID = "fireFileFireID"
+const val FIRE_DIR_FIRE_ID = "fireDirFireID"
 const val FIRE_FILE_MD5 = "fireFileMd5"
 const val FIRE_FILE_SIZE = 1L
 val fireFile = FireFile(
@@ -56,7 +55,6 @@ val fireFile = FireFile(
     listOf()
 )
 
-const val FIRE_DIRECTORY_FILENAME = "fireDirectoryFileName"
 const val FIRE_DIRECTORY_FILEPATH = "fireDirectoryFilePath/fireDirectoryFileName"
 const val FIRE_DIRECTORY_REL_PATH = "fireDirectoryRelPath"
 const val FIRE_DIRECTORY_MD5 = "fireDirectoryMd5"
@@ -64,6 +62,7 @@ const val FIRE_DIRECTORY_SIZE = 2L
 val fireDirectory = FireDirectory(
     FIRE_DIRECTORY_FILEPATH,
     FIRE_DIRECTORY_REL_PATH,
+    FIRE_DIR_FIRE_ID,
     FIRE_DIRECTORY_MD5,
     FIRE_DIRECTORY_SIZE,
     listOf()
@@ -77,7 +76,6 @@ const val MD5 = "abcmd5"
 const val SIZE = 55L
 
 val NFS_FILE = File(NFS_FILENAME)
-val nfsFile = NfsFile(NFS_FILEPATH, NFS_REL_PATH, NFS_FILE, NFS_FULL_PATH, MD5, SIZE, listOf())
 
 val fullExtSubmission = ExtSubmission(
     accNo = SUBMISSION_ACC_NO,

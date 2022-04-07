@@ -43,6 +43,7 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
                 fileName = fileName,
                 filePath = filePath,
                 relPath = relPath,
+                fireId = source.getString(FIRE_FILE_DOC_ID),
                 attributes = attributes,
                 md5 = md5,
                 fileSize = fileSize

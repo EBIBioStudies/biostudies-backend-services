@@ -63,10 +63,11 @@ internal class ToExtFileTest(private val tempFolder: TemporaryFolder) {
     fun `fire directory to ext file`(
         @MockK fileSource: FilesSource
     ) {
-        every { fileSource.getFile("folder/file.txt") } returns FireDirectoryBioFile("file.txt", "md5", 12)
+        every { fileSource.getFile("folder/file.txt") } returns FireDirectoryBioFile("dirFireId", "file.txt", "md5", 12)
 
         val extFile = file.toExtFile(fileSource) as FireDirectory
 
+        assertThat(extFile.fireId).isEqualTo("dirFireId")
         assertThat(extFile.fileName).isEqualTo("file.txt")
         assertThat(extFile.filePath).isEqualTo(file.path)
         assertThat(extFile.relPath).isEqualTo("Files/${file.path}")

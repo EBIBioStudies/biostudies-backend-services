@@ -185,8 +185,13 @@ class ToDocSubmissionMapperTest(tempFolder: TemporaryFolder) {
         )
         assertThat(pageTabFiles.second()).isEqualTo(
             FireDocDirectory(
-                fireDirectory.fileName, fireDirectory.filePath,
-                fireDirectory.relPath, listOf(), fireDirectory.md5, fireDirectory.size
+                fireDirectory.fileName,
+                fireDirectory.filePath,
+                fireDirectory.relPath,
+                fireDirectory.fireId,
+                listOf(),
+                fireDirectory.md5,
+                fireDirectory.size
             )
         )
         assertThat(pageTabFiles.third()).isEqualTo(

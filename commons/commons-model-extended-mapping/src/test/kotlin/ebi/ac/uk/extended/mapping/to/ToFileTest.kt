@@ -52,12 +52,15 @@ internal class ToFileTest(
     @Test
     fun `from fire file`() {
         val fireFile = FireFile("folder/my-file", "Files/folder/my-file", "fireId", "md5", 12, listOf(extAttribute))
+
         assertFile(fireFile.toFile())
     }
 
     @Test
     fun `from fire directory`() {
-        val fireDirectory = FireDirectory("folder/my-file", "Files/folder/my-file", "md5", 12, listOf(extAttribute))
+        val fireDirectory =
+            FireDirectory("folder/my-file", "Files/folder/my-file", "fireDirId", "md5", 12, listOf(extAttribute))
+
         assertFile(fireDirectory.toFile())
     }
 
