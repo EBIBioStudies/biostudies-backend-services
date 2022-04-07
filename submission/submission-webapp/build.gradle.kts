@@ -126,6 +126,9 @@ dependencies {
     testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)
     testImplementation(TestContainerJUnit)
+
+    // KB For JSON Schema validation
+    implementation("net.pwall.json:json-kotlin-schema:0.32")
 }
 
 apply(from = "$rootDir/gradle/itest.gradle.kts")

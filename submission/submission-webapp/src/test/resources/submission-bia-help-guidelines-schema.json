@@ -1,0 +1,233 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://www.ebi.ac.uk/~kola/schemas/submission",
+    "title": "Submission page tab",
+    "description": "JSON schema to validate pagetabs for submitting to BIA. This schema is based on the fields reference on the BIA website ( https://www.ebi.ac.uk/bioimage-archive/help-submission-form/ )",
+
+    "$ref": "#/$defs/rootElement",
+
+
+    "$defs": {
+        "rootElement": {
+            "title": "Root element of a submission",
+            "description": "Every submission must have one and only one root element, which must contain one section [CHECK!!!]- the root section",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "title": "Type of element - for root element MUST be 'submission'",
+                    "const": "submission"
+                },
+                "accno": {
+                    "type": "string",
+                    "title": "Accession number of study",
+                    "description": "Of the form S-BIADxxx where x's are integers. Empty string to let app assign a new accno",
+                    "pattern": "(^$|^S-BIAD[0-9]*$)"
+                },
+                "attributes": { "$ref": "#/$defs/rootElementAttributes" },
+                "section": { "$ref": "#/$defs/section" }
+            },
+            "required": ["type", "section"]
+        },
+        "rootElementAttributes": {
+            "title": "Attributes for root element",
+            "description": "This has special required attributes",
+            "type": "array",
+            "items": { 
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "const": "RootPath"
+                            },
+                            "value": {
+                                "type": "string",
+                                "minLength": 3
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "const": "AttachTo"
+                            },
+                            "value": {
+                                "type": "string",
+                                "minLength": 3
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "const": "Title"
+                            },
+                            "value": {
+                                "type": "string",
+                                "minLength": 25
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "const": "ReleaseDate"
+                            },
+                            "value": {
+                                "type": "string",
+                                "format": "date"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "const": "Description"
+                            },
+                            "value": {
+                                "type": "string",
+                                "minLength": 3
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "const": "Study Type"
+                            },
+                            "value": {
+                                "type": "string",
+                                "minLength": 3
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "description": "Need to check this with Matthew and Liviu - if more than one organism specified produces multiple objects with key - 'Organism' e.g. see ( https://wwwdev.ebi.ac.uk/biostudies/files/S-BIAD86/S-BIAD86.json )",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "const": "Organism"
+                            },
+                            "value": {
+                                "type": "string",
+                                "minLength": 3
+                            }
+                        }
+                    },
+                    {"$ref": "#/$defs/contact"},
+                    {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "pattern": "^((?!([R|r][E|e][L|l][E|e][A|a][S|s][E|e][D|d][A|a][T|t][E|e])|([T|t][I|i][T|t][L|l][E|e])|([R|r][O|o][O|o][T|t][P|p][A|a][T|t][H|h])|([A|a][T|t][T|t][A|a][C|c][H|h][T|t][O|o])).)*$"
+                            },
+                            "value": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                ]
+            },
+            "additionalItems": { "$ref": "#/$defs/attribute" },
+            "minItems": 1
+        },
+        "section": {
+            "title": "A section (other than the root)",
+            "description": "A generic section in the pagetab - may contain other sections",
+            "type": "object",
+            "properties": {
+                "accno": {
+                    "title": "An internal reference for the section",
+                    "type": "string"
+                },
+                "attributes": { "$ref": "#/$defs/sectionAttributes" }
+            }
+        },
+        "sectionAttributes": {
+            "title": "Attributes for sections",
+            "description": "Allows assigining attributes to sections",
+            "type": "array",
+            "items": { "$ref": "#/$defs/attribute" },
+            "minItems": 1
+        },
+        "attribute": {
+            "title": "Element representing an attribute",
+            "description": "Name/value pair with optional name/value qualifiers",
+            "type": "object",
+            "properties": {
+                "name": { "type": "string" },
+                "value": { "type": "string"},
+                "isReference": { "type": "boolean" },
+                "nmqual": { "$ref": "#/$defs/attribute-qualifier" },
+                "valqual": { "$ref": "#/$defs/attribute-qualifier" }
+            },
+            "required": ["name", "value"],
+            "additionalProperties": false
+        },
+        "attribute-qualifier": {
+            "title": "attribute_qualifier",
+            "description": "Allows annotation of attributes with name/value pairs",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                },
+                "required": ["name", "value"]
+            },
+            "minItems": 1
+        },
+        "contact": {
+            "title": "contact",
+            "description": "The contact(s) for the study",
+            "type": "object",
+            "properties": {
+                "Name": {
+                    "type": "string",
+                    "description": "Name of the contact person",
+                    "minLength": 3
+                },
+                "Organisation": {
+                    "type": "string",
+                    "description": "Organisation the contact person is affiliated to, in the scope of the submission - I assume this is mandatory...",
+                    "minLength": 3
+                },
+                "E-mail": {
+                    "type": "string",
+                    "description": "Contact e-mail address",
+                    "format": "email",
+                    "minLength": 3
+                },
+                "ORCID": {
+                    "type": "string",
+                    "description": "ORCID identifying the contact",
+                    "pattern": "[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}"
+                },
+                "Role": {
+                    "type": "string",
+                    "description": "The role of the registered contact, regarding the submission"
+                }
+            }
+        }
+    }
+}
