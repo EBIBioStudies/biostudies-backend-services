@@ -13,8 +13,6 @@ interface FireOperations {
 
     fun setBioMetadata(fireOid: String, accNo: String? = null, published: Boolean? = null)
 
-    fun downloadByPath(path: String): File
-
     fun downloadByFireId(fireOid: String, fileName: String): File
 
     fun findByMd5(md5: String): List<FireFile>
