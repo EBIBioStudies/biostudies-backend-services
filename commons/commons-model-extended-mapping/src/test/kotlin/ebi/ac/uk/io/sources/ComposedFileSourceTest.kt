@@ -1,5 +1,6 @@
 package ebi.ac.uk.io.sources
 
+import ebi.ac.uk.extended.model.ExtFile
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class ComposedFileSourceTest(
     @MockK private val oneFileSource: FilesSource,
     @MockK private val anotherFileSource: FilesSource,
-    @MockK private val file: BioFile,
+    @MockK private val file: ExtFile,
 ) {
     private val testInstance = ComposedFileSource(listOf(oneFileSource, anotherFileSource))
     private val filePath = "path/to/a/file.txt"

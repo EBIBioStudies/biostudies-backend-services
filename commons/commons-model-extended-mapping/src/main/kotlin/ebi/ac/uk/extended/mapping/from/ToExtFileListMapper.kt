@@ -13,7 +13,7 @@ class ToExtFileListMapper {
     private fun toExtFiles(fileSource: FilesSource, files: List<File>): List<ExtFile> {
         return files
             .asSequence()
-            .map { it.toExtFile(fileSource, false) }
+            .map { it.toExtFile(fileSource) }
             .toList()
     }
 }

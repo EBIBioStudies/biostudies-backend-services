@@ -6,10 +6,9 @@ import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.test.basicExtSubmission as basicExtSub
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -20,7 +19,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
-import uk.ac.ebi.fire.client.model.FireFile as ClientFireFile
+import ebi.ac.uk.test.basicExtSubmission as basicExtSub
+import uk.ac.ebi.fire.client.model.FireApiFile as ClientFireFile
 
 @ExtendWith(MockKExtension::class)
 class FireFtpServiceTest(

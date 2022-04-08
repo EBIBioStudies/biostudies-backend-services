@@ -4,7 +4,7 @@ import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
-import uk.ac.ebi.fire.client.model.FireFile
+import uk.ac.ebi.fire.client.model.FireApiFile
 import uk.ac.ebi.fire.client.model.MetadataEntry
 import java.io.File
 import java.nio.file.Files
@@ -19,11 +19,11 @@ class FireMockDatabase(
 
     private val records: MutableMap<String, DbRecord> = mutableMapOf()
 
-    fun saveFile(fileName: String, data: ByteArray): FireFile {
+    fun saveFile(fileName: String, data: ByteArray): FireApiFile {
         val objectId = Instant.now().nano
         val fireOid = "${objectId}_${fileName.replace("\\s".toRegex(), "_")}"
         val file = saveFile(data, fireOid)
-        val fireFile = FireFile(objectId, fireOid, file.md5(), file.size(), Instant.now().toString())
+        val fireFile = FireApiFile(objectId, fireOid, file.md5(), file.size(), Instant.now().toString())
         records[fireOid] = DbRecord(fireFile, null, false)
         return fireFile
     }
@@ -75,12 +75,12 @@ class FireMockDatabase(
         if (record.path != null) Files.delete(ftpFolder.resolve(record.path))
     }
 
-    fun findByMetadata(entries: List<MetadataEntry>): List<FireFile> =
+    fun findByMetadata(entries: List<MetadataEntry>): List<FireApiFile> =
         records.values.map { it.file }.filter { it.metadata?.containsAll(entries).orFalse() }
 
-    fun findByMd5(md5: String): FireFile? = records.values.map { it.file }.firstOrNull { it.objectMd5 == md5 }
+    fun findByMd5(md5: String): FireApiFile? = records.values.map { it.file }.firstOrNull { it.objectMd5 == md5 }
 
-    fun findByPath(path: String): FireFile? = records.values.firstOrNull { it.path == path }?.file
+    fun findByPath(path: String): FireApiFile? = records.values.firstOrNull { it.path == path }?.file
 
     fun cleanAll() {
         FileUtils.deleteFile(submissionFolder.toFile())
@@ -116,4 +116,4 @@ class FireMockDatabase(
     }
 }
 
-data class DbRecord(val file: FireFile, val path: String?, val published: Boolean)
+data class DbRecord(val file: FireApiFile, val path: String?, val published: Boolean)
