@@ -8,7 +8,6 @@ class FilesListSource(private val files: List<File>) : FilesSource {
     override fun getFile(
         path: String,
         md5: String?,
-        attributes: List<Attribute>,
-        calculateProperties: Boolean
-    ): ExtFile? = files.firstOrNull { it.name == path }?.let { create(path, it, calculateProperties, attributes) }
+        attributes: List<Attribute>
+    ): ExtFile? = files.firstOrNull { it.name == path }?.let { create(path, it, attributes) }
 }

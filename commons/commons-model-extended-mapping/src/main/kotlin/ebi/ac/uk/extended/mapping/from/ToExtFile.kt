@@ -9,5 +9,5 @@ import ebi.ac.uk.model.extensions.md5
 internal const val TO_EXT_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.from.ToExtFileKt"
 
 // TODO: remove function as it only call source internally. Only keep to reduce impact or initial refactor.
-fun File.toExtFile(fileSource: FilesSource, calculateProperties: Boolean = true): ExtFile =
-    fileSource.getFile(path, md5, attributes, calculateProperties) ?: throw FileNotFoundException(path)
+fun File.toExtFile(fileSource: FilesSource): ExtFile =
+    fileSource.getFile(path, md5, attributes) ?: throw FileNotFoundException(path)

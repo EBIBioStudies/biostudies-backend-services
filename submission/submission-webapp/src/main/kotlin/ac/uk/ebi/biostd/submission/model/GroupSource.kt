@@ -16,7 +16,6 @@ class GroupSource(groupName: String, private val pathSource: PathFilesSource) : 
     override fun getFile(
         path: String,
         md5: String?,
-        attributes: List<Attribute>,
-        calculateProperties: Boolean
-    ): ExtFile? = pathSource.getFile(path.remove(groupPattern), md5, attributes, calculateProperties)
+        attributes: List<Attribute>
+    ): ExtFile? = pathSource.getFile(path.remove(groupPattern), md5, attributes)
 }

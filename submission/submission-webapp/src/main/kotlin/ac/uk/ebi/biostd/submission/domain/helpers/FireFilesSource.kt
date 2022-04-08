@@ -29,8 +29,7 @@ class FireFilesSource(
     override fun getFile(
         path: String,
         md5: String?,
-        attributes: List<Attribute>,
-        calculateProperties: Boolean
+        attributes: List<Attribute>
     ): ExtFile? {
         return when (md5) {
             null -> null
@@ -47,8 +46,7 @@ private class SubmissionFireFilesSource(
     override fun getFile(
         path: String,
         md5: String?,
-        attributes: List<Attribute>,
-        calculateProperties: Boolean
+        attributes: List<Attribute>
     ): ExtFile? {
         if (md5 == null) {
             return fireWebClient.findByPath(basePath.resolve(path).toString())
