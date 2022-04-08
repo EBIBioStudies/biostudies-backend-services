@@ -13,7 +13,7 @@ import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
 import uk.ac.ebi.fire.client.exception.FireClientException
 import uk.ac.ebi.fire.client.integration.web.FireOperations
-import uk.ac.ebi.fire.client.model.FireFile
+import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 import java.nio.file.Files
 
@@ -31,7 +31,7 @@ internal class FireClient(
     private val tmpDirPath: String,
     private val template: RestTemplate
 ) : FireOperations {
-    override fun save(file: File, md5: String): FireFile {
+    override fun save(file: File, md5: String): FireApiFile {
         val headers = HttpHeaders().apply {
             set(FIRE_MD5_HEADER, md5)
             set(FIRE_SIZE_HEADER, file.size().toString())
@@ -76,28 +76,32 @@ internal class FireClient(
         return tmpFile
     }
 
-    override fun findByMd5(md5: String): List<FireFile> =
-        template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/md5/$md5").toList()
+    override fun findByMd5(md5: String): List<FireApiFile> =
+        template.getForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/md5/$md5").toList()
 
-    override fun findByAccNo(accNo: String): List<FireFile> {
+    override fun findByAccNo(accNo: String): List<FireApiFile> {
         val headers = HttpHeaders().apply { set(CONTENT_TYPE, APPLICATION_JSON_VALUE) }
         val body = "{ \"$FIRE_BIO_ACC_NO\": \"$accNo\" }"
-        return template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, headers)).toList()
+        return template.postForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, headers))
+            .toList()
     }
 
-    override fun findByAccNoAndPublished(accNo: String, published: Boolean): List<FireFile> {
+    override fun findByAccNoAndPublished(accNo: String, published: Boolean): List<FireApiFile> {
         val headers = HttpHeaders().apply { set(CONTENT_TYPE, APPLICATION_JSON_VALUE) }
         val body = "{ \"$FIRE_BIO_ACC_NO\": \"$accNo\", \"$FIRE_BIO_PUBLISHED\": $published }"
-        return template.postForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, headers)).toList()
+        return template.postForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/metadata", HttpEntity(body, headers))
+            .toList()
     }
 
-    override fun findByPath(path: String): FireFile? {
-        return runCatching { template.getForObject<FireFile>("$FIRE_OBJECTS_URL/path/$path") }
+    override fun findByPath(path: String): FireApiFile? {
+        return runCatching { template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/$path") }
             .getOrElse { if (it is FireClientException && it.statusCode == NOT_FOUND) return null else throw it }
     }
 
-    override fun findAllInPath(path: String): List<FireFile> {
-        return runCatching { template.getForObject<Array<FireFile>>("$FIRE_OBJECTS_URL/entries/path/$path").toList() }
+    override fun findAllInPath(path: String): List<FireApiFile> {
+        return runCatching {
+            template.getForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/entries/path/$path").toList()
+        }
             .getOrElse { if (it is FireClientException && it.statusCode == NOT_FOUND) return emptyList() else throw it }
     }
 

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
-import uk.ac.ebi.fire.client.model.FireFile
+import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 
 /**
@@ -33,7 +33,7 @@ class FireResource(
         @RequestParam("path") path: String,
         @RequestParam("md5") md5: String,
         @RequestParam("accNo") accNo: String
-    ): FireFile {
+    ): FireApiFile {
         val persisted = fireWebClient.save(tempFileGenerator.asFile(multipartFile), md5)
         fireWebClient.setPath(persisted.fireOid, path)
         return persisted

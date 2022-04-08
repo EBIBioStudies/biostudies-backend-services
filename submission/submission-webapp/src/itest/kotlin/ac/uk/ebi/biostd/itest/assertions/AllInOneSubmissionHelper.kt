@@ -7,19 +7,19 @@ import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionXml
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import arrow.core.Either
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
+import org.assertj.core.api.Assertions.assertThat
 import java.io.File
 import java.nio.file.Paths
-import org.assertj.core.api.Assertions.assertThat
 
 internal class AllInOneSubmissionHelper(
     private val submissionPath: String,
@@ -103,6 +103,7 @@ internal class AllInOneSubmissionHelper(
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
+
     private fun `assertFireFileListTabFiles`(submission: ExtSubmission, subFolder: String) {
         val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<FireFile>
         assertThat(fileListTabFiles).hasSize(3)
@@ -131,6 +132,7 @@ internal class AllInOneSubmissionHelper(
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
+
     private fun `assertFireSubFileListTabFiles`(submission: ExtSubmission, subFolder: String) {
         val subFileListTabFiles =
             (submission.section.sections.first() as Either.Left).a.fileList!!.pageTabFiles as List<FireFile>

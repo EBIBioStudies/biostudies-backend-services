@@ -1,5 +1,6 @@
 package ebi.ac.uk.io.sources
 
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -17,7 +18,8 @@ internal class PathFilesSourceTest(temporaryFolder: TemporaryFolder) {
     @Test
     fun getFile() {
         val result = testInstance.getFile(file.name)
-        assertThat(result).isInstanceOf(NfsBioFile::class.java)
-        assertThat(result!!.file).isEqualTo(file)
+
+        assertThat(result).isInstanceOf(NfsFile::class.java)
+        assertThat((result as NfsFile).file).isEqualTo(file)
     }
 }
