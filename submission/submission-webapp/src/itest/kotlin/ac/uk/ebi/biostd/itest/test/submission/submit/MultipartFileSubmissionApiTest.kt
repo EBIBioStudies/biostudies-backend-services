@@ -17,9 +17,9 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.ExtFireFile
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
@@ -300,7 +300,7 @@ internal class MultipartFileSubmissionApiTest(
         }
 
         private fun `assertFireSubFiles`(submission: ExtSubmission, accNo: String, subFolder: String) {
-            val submissionTabFiles = submission.pageTabFiles as List<ExtFireFile>
+            val submissionTabFiles = submission.pageTabFiles as List<FireFile>
             assertThat(submissionTabFiles).hasSize(3)
 
             val jsonTabFile = submissionTabFiles.first()
@@ -329,7 +329,7 @@ internal class MultipartFileSubmissionApiTest(
         }
 
         private fun `assertFireFileListFiles`(submission: ExtSubmission, accNo: String, subFolder: String) {
-            val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<ExtFireFile>
+            val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<FireFile>
             assertThat(fileListTabFiles).hasSize(3)
 
             val jsonTabFile = fileListTabFiles.first()

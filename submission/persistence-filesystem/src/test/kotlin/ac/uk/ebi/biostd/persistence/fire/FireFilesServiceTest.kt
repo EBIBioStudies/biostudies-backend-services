@@ -5,10 +5,10 @@ import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.test.basicExtSubmission
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
-import uk.ac.ebi.fire.client.model.FireFile as ClientFireFile
+import uk.ac.ebi.fire.client.model.FireApiFile as ClientFireFile
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FireFilesServiceTest(
@@ -95,7 +95,7 @@ class FireFilesServiceTest(
     @Test
     fun `process submission when new file is FireFile`() {
         val fireFile =
-            ExtFireFile("new-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
+            FireFile("new-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
         val section = ExtSection(type = "Study", files = listOf(left(fireFile)))
         val submission = basicExtSubmission.copy(section = section)
         val request = FilePersistenceRequest(submission)
@@ -124,7 +124,7 @@ class FireFilesServiceTest(
     private fun assertFireFile(processed: ExtSubmission, filePath: String) {
         assertThat(processed.section.files).hasSize(1)
         processed.section.files.first().ifLeft {
-            it as ExtFireFile
+            it as FireFile
             assertThat(it.fileName).isEqualTo("test.txt")
             assertThat(it.filePath).isEqualTo(filePath)
             assertThat(it.relPath).isEqualTo("Files/folder/test.txt")

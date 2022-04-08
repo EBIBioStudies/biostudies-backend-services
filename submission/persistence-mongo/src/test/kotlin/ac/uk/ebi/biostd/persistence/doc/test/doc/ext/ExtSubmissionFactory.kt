@@ -1,14 +1,14 @@
 package ac.uk.ebi.biostd.persistence.doc.test.doc.ext
 
 import ebi.ac.uk.extended.model.ExtCollection
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.ExtFireFile
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
 import java.io.File
 import java.time.OffsetDateTime
@@ -47,7 +47,7 @@ const val FIRE_FILE_REL_PATH = "fireFileRelPath"
 const val FIRE_FILE_FIRE_ID = "fireFileFireID"
 const val FIRE_FILE_MD5 = "fireFileMd5"
 const val FIRE_FILE_SIZE = 1L
-val fireFile = ExtFireFile(
+val fireFile = FireFile(
     FIRE_FILE_FILEPATH,
     FIRE_FILE_REL_PATH,
     FIRE_FILE_FIRE_ID,

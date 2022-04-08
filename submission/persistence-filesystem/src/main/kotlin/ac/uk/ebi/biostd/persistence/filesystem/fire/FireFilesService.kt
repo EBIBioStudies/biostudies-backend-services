@@ -5,10 +5,10 @@ import ac.uk.ebi.biostd.persistence.filesystem.extensions.getOrPersist
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.ExtFireFile
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
@@ -49,7 +49,7 @@ data class FireFileProcessingConfig(
 
 fun FireFileProcessingConfig.processFile(sub: ExtSubmission, file: ExtFile): ExtFile = when (file) {
     is NfsFile -> processNfsFile(sub.relPath, file)
-    is ExtFireFile -> reuseFireFile(file, sub.relPath)
+    is FireFile -> reuseFireFile(file, sub.relPath)
     is FireDirectory -> file
 }
 
@@ -67,12 +67,16 @@ private fun persistFireDirectory(nfsFile: NfsFile): FireDirectory {
     return FireDirectory(filePath, relPath, file.md5(), file.size(), attributes)
 }
 
-private fun FireFileProcessingConfig.persistFireFile(accNo: String, subRelPath: String, nfsFile: NfsFile): ExtFireFile {
+private fun FireFileProcessingConfig.persistFireFile(
+    accNo: String,
+    subRelPath: String,
+    nfsFile: NfsFile
+): FireFile {
     val filePath = nfsFile.filePath
     val relPath = nfsFile.relPath
     val attributes = nfsFile.attributes
     val fireFile = fireWebClient.getOrPersist(accNo, nfsFile.file, nfsFile.md5, "$subRelPath/$relPath")
-    return ExtFireFile(
+    return FireFile(
         filePath,
         relPath,
         fireFile.fireOid,
@@ -82,7 +86,7 @@ private fun FireFileProcessingConfig.persistFireFile(accNo: String, subRelPath: 
     )
 }
 
-private fun FireFileProcessingConfig.reuseFireFile(fireFile: ExtFireFile, subRelPath: String): ExtFireFile {
+private fun FireFileProcessingConfig.reuseFireFile(fireFile: FireFile, subRelPath: String): FireFile {
     fireWebClient.setPath(fireFile.fireId, "$subRelPath/${fireFile.relPath}")
     return fireFile
 }

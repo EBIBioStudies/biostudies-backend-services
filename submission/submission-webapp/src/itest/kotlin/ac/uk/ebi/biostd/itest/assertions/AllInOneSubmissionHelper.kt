@@ -7,19 +7,19 @@ import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionXml
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import arrow.core.Either
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
-import ebi.ac.uk.extended.model.ExtFireFile
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
+import org.assertj.core.api.Assertions.assertThat
 import java.io.File
 import java.nio.file.Paths
-import org.assertj.core.api.Assertions.assertThat
 
 internal class AllInOneSubmissionHelper(
     private val submissionPath: String,
@@ -76,7 +76,7 @@ internal class AllInOneSubmissionHelper(
     }
 
     private fun `assertFireTabFiles`(submission: ExtSubmission, accNo: String, subFolder: String) {
-        val submissionTabFiles = submission.pageTabFiles as List<ExtFireFile>
+        val submissionTabFiles = submission.pageTabFiles as List<FireFile>
         assertThat(submissionTabFiles).hasSize(3)
 
         val jsonTabFile = submissionTabFiles.first()
@@ -105,7 +105,7 @@ internal class AllInOneSubmissionHelper(
     }
 
     private fun `assertFireFileListTabFiles`(submission: ExtSubmission, subFolder: String) {
-        val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<ExtFireFile>
+        val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<FireFile>
         assertThat(fileListTabFiles).hasSize(3)
 
         val jsonTabFile = fileListTabFiles.first()
@@ -135,7 +135,7 @@ internal class AllInOneSubmissionHelper(
 
     private fun `assertFireSubFileListTabFiles`(submission: ExtSubmission, subFolder: String) {
         val subFileListTabFiles =
-            (submission.section.sections.first() as Either.Left).a.fileList!!.pageTabFiles as List<ExtFireFile>
+            (submission.section.sections.first() as Either.Left).a.fileList!!.pageTabFiles as List<FireFile>
         assertThat(subFileListTabFiles).hasSize(3)
 
         val jsonTabFile = subFileListTabFiles.first()

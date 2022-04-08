@@ -12,7 +12,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.ExtFireFile
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.size
 import org.bson.types.ObjectId
@@ -59,7 +59,7 @@ private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFil
 private fun fileType(file: File): String = if (file.isDirectory) "directory" else "file"
 
 internal fun ExtFile.toDocFile(): DocFile = when (this) {
-    is ExtFireFile -> FireDocFile(
+    is FireFile -> FireDocFile(
         fileName = fileName,
         filePath = filePath,
         relPath = relPath,

@@ -31,7 +31,7 @@ sealed class ExtFile {
         get() = filePath.substringAfterLast("/")
 }
 
-data class ExtFireFile(
+data class FireFile(
     override val filePath: String,
     override val relPath: String,
     val fireId: String,
@@ -59,7 +59,12 @@ data class NfsFile(
 ) : ExtFile()
 
 @Deprecated(message = "Only for testing. Prefer default class constructor to avoid computation of md5 and size.")
-fun createNfsFile(filePath: String, relpath: String, file: File, attributes: List<ExtAttribute> = listOf()): NfsFile =
+fun createNfsFile(
+    filePath: String,
+    relpath: String,
+    file: File,
+    attributes: List<ExtAttribute> = listOf()
+): NfsFile =
     NfsFile(filePath, relpath, file, file.absolutePath, file.md5(), file.size(), attributes)
 
 data class ExtFileList(

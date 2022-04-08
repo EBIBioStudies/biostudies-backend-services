@@ -1,7 +1,6 @@
-package ebi.ac.uk.extended.mapping.sources
+package ebi.ac.uk.io.sources
 
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.io.sources.PathFilesSource
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension

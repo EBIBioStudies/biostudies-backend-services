@@ -4,8 +4,8 @@ import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ebi.ac.uk.errors.FileNotFoundException
-import ebi.ac.uk.extended.model.ExtFireFile
 import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.FileList
@@ -35,7 +35,7 @@ internal class FileListSerializer(
 
     private fun getFile(fileList: String, source: FilesSource): File {
         return when (val file = source.getFile(fileList)) {
-            is ExtFireFile -> TODO()
+            is FireFile -> TODO()
             is FireDirectory -> TODO()
             is NfsFile -> if (file.file.isFile) file.file else throw InvalidFileListException.dirFileList(fileList)
             null -> throw FileNotFoundException(fileList)
@@ -43,11 +43,8 @@ internal class FileListSerializer(
     }
 
     private fun getFilesTable(file: File): FilesTable =
-        runCatching {
-            file.inputStream().use { serializer.deserializeFileList(it, SubFormat.fromFile(file)) }
-        }.getOrElse {
-            throw InvalidFileListException(file.name, errorMsg(it))
-        }
+        runCatching { file.inputStream().use { serializer.deserializeFileList(it, SubFormat.fromFile(file)) } }
+            .getOrElse { throw InvalidFileListException(file.name, errorMsg(it)) }
 
     private fun errorMsg(exception: Throwable) = when (exception) {
         is ClassCastException,

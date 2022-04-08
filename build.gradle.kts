@@ -31,7 +31,7 @@ allprojects {
             targetCompatibility = "11"
             kotlinOptions {
                 jvmTarget = "11"
-                freeCompilerArgs = freeCompilerArgs + arrayOf("-Xjvm-default=enable")
+                freeCompilerArgs = freeCompilerArgs + arrayOf("-Xjvm-default=enable", "-opt-in=kotlin.RequiresOptIn")
             }
         }
 

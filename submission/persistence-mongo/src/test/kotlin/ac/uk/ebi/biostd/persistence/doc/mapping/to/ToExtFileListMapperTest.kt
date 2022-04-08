@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
-class ToExtFileListMapperTest(private val temporaryFolder: TemporaryFolder) {
+class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
     private val fileListDocFileRepository: FileListDocFileRepository = mockk()
     private val testInstance = ToExtFileListMapper(fileListDocFileRepository)
     private val fileNfs = temporaryFolder.createDirectory("folder").createNewFile("nfsFileFile.txt")
