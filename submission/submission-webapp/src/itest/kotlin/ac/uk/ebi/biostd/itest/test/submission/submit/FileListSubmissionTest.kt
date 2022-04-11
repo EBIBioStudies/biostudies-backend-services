@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
@@ -14,6 +15,8 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -179,6 +182,41 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             assertThatExceptionOfType(WebClientException::class.java)
                 .isThrownBy { webClient.submitSingle(submission, JSON, listOf(fileList)) }
                 .withMessageContaining("Unsupported page tab format FileList.txt")
+        }
+
+        @Test
+        fun `list referenced files`() {
+            val referencedFile = tempFolder.createFile("referenced.txt")
+            val submission = tsv {
+                line("Submission", "S-TEST6")
+                line("Title", "Submission With Inner File List")
+                line()
+
+                line("Study")
+                line("File List", "folder/inner-file-list.tsv")
+                line()
+            }.toString()
+
+            val fileList = tempFolder.createFile(
+                "inner-file-list.tsv",
+                tsv {
+                    line("Files", "GEN")
+                    line("referenced.txt", "ABC")
+                }.toString()
+            )
+
+            webClient.uploadFile(fileList, "folder")
+            assertThat(webClient.submitSingle(submission, TSV, listOf(referencedFile))).isSuccessful()
+
+            val extSubmission = webClient.getExtByAccNo("S-TEST6")
+            val referencedFiles = webClient.getReferencedFiles(extSubmission.section.fileList!!.filesUrl!!).files
+
+            assertThat(referencedFiles).hasSize(1)
+            val referenced = referencedFiles.first()
+            assertThat(referenced.filePath).isEqualTo("referenced.txt")
+            assertThat(referenced.relPath).isEqualTo("Files/referenced.txt")
+            assertThat(referenced.attributes).isEqualTo(listOf(ExtAttribute("GEN", "ABC")))
+            assertThat(referenced.md5).isEqualTo(referencedFile.md5())
         }
 
         private fun assertSubmissionFiles(accNo: String, testFile: String) {
