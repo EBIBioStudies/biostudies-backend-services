@@ -11,6 +11,7 @@ import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import uk.ac.ebi.fire.client.model.isAvailable
+import java.io.File
 import java.nio.file.Path
 
 class FireFilesSourceFactory(
@@ -24,9 +25,9 @@ class FireFilesSourceFactory(
 }
 
 class FireFilesSource(
-    private val fireWebClient: FireWebClient
+    private val fireWebClient: FireWebClient,
 ) : FilesSource {
-    override fun getFile(
+    override fun getExtFile(
         path: String,
         md5: String?,
         attributes: List<Attribute>
@@ -36,6 +37,13 @@ class FireFilesSource(
             else -> fireWebClient.findByMd5(md5).firstOrNull { it.isAvailable() }?.asFireBioFile(path, attributes)
         }
     }
+
+    override fun getFile(path: String, md5: String?): File? {
+        return when (md5) {
+            null -> null
+            else -> fireWebClient.downloadByMd5(md5)
+        }
+    }
 }
 
 private class SubmissionFireFilesSource(
@@ -43,7 +51,7 @@ private class SubmissionFireFilesSource(
     private val accNo: String,
     private val basePath: Path
 ) : FilesSource {
-    override fun getFile(
+    override fun getExtFile(
         path: String,
         md5: String?,
         attributes: List<Attribute>
@@ -56,6 +64,9 @@ private class SubmissionFireFilesSource(
 
         return fireWebClient.findByMd5(md5).firstOrNull { it.isAvailable(accNo) }?.asFireBioFile(path, attributes)
     }
+
+    override fun getFile(path: String, md5: String?): File? =
+        if (md5 == null) fireWebClient.downloadByPath(path) else fireWebClient.downloadByMd5(md5)
 }
 
 fun FireApiFile.asFireBioFile(path: String, attributes: List<Attribute>): FireFile =

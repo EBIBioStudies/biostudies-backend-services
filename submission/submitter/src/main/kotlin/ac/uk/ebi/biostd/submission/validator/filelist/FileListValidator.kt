@@ -12,7 +12,7 @@ class FileListValidator(
         serializationService
             .deserializeFileList(fileName, filesSource)
             .referencedFiles
-            .filter { filesSource.getFile(it.path) == null }
+            .filter { filesSource.getExtFile(it.path) == null }
             .ifNotEmpty { throw InvalidFilesException(it) }
     }
 }

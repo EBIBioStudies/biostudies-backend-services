@@ -5,7 +5,7 @@ class InvalidFileListException(
     message: String
 ) : RuntimeException("Problem processing file list '$fileName': $message") {
     companion object {
-        fun dirFileList(fileName: String) =
+        fun directoryCanBeFileList(fileName: String) =
             InvalidFileListException(fileName, "A directory can't be used as File List")
     }
 }
