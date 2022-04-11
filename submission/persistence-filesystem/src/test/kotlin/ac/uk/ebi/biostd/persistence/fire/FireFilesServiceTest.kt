@@ -5,10 +5,10 @@ import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createNewFile
@@ -29,9 +29,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 import kotlin.io.path.exists
-import uk.ac.ebi.fire.client.model.FireFile as ClientFireFile
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FireFilesServiceTest(
@@ -49,7 +49,7 @@ class FireFilesServiceTest(
 
     @BeforeEach
     fun beforeEach() {
-        val fireFile = ClientFireFile(1, "abc1", testMd5, 1, "2021-07-08")
+        val fireFile = FireApiFile(1, "abc1", testMd5, 1, "2021-07-08")
         every { fireWebClient.save(file, testMd5) } returns fireFile
         every { fireWebClient.unsetPath("abc1") } answers { nothing }
         every { fireWebClient.findByAccNo(basicExtSubmission.accNo) } returns listOf(fireFile)
@@ -103,7 +103,7 @@ class FireFilesServiceTest(
         val fileSlot = slot<File>()
         val md5Slot = slot<String>()
         val folder = tempFolder.createDirectory("folder")
-        val fireFile = ClientFireFile(1, "abc1", "folderMd5", 1, "2021-07-08")
+        val fireFile = FireApiFile(1, "abc1", "folderMd5", 1, "2021-07-08")
 
         folder.createNewFile("test.txt")
         every { fireWebClient.save(capture(fileSlot), capture(md5Slot)) } returns fireFile
@@ -128,7 +128,8 @@ class FireFilesServiceTest(
 
     @Test
     fun `process submission when new file is FireFile`() {
-        val fireFile = FireFile("new-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
+        val fireFile =
+            FireFile("new-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
         val section = ExtSection(type = "Study", files = listOf(left(fireFile)))
         val submission = basicExtSubmission.copy(section = section)
         val request = FilePersistenceRequest(submission)

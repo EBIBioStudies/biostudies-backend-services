@@ -5,10 +5,10 @@ import ac.uk.ebi.biostd.persistence.filesystem.extensions.getOrPersist
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
@@ -77,12 +77,23 @@ private fun FireFileProcessingConfig.persistFireDirectory(nfsFile: NfsFile): Fir
     return FireDirectory(filePath, relPath, fireDir.fireOid, fireDir.objectMd5, fireDir.objectSize.toLong(), attributes)
 }
 
-private fun FireFileProcessingConfig.persistFireFile(accNo: String, subRelPath: String, nfsFile: NfsFile): FireFile {
+private fun FireFileProcessingConfig.persistFireFile(
+    accNo: String,
+    subRelPath: String,
+    nfsFile: NfsFile
+): FireFile {
     val filePath = nfsFile.filePath
     val relPath = nfsFile.relPath
     val attributes = nfsFile.attributes
     val fireFile = fireWebClient.getOrPersist(accNo, nfsFile.file, nfsFile.md5, "$subRelPath/$relPath")
-    return FireFile(filePath, relPath, fireFile.fireOid, fireFile.objectMd5, fireFile.objectSize.toLong(), attributes)
+    return FireFile(
+        filePath,
+        relPath,
+        fireFile.fireOid,
+        fireFile.objectMd5,
+        fireFile.objectSize.toLong(),
+        attributes
+    )
 }
 
 private fun FireFileProcessingConfig.reuseFireFile(fireFile: FireFile, subRelPath: String): FireFile {

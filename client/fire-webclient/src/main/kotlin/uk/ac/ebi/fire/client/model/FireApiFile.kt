@@ -2,7 +2,7 @@ package uk.ac.ebi.fire.client.model
 
 import uk.ac.ebi.fire.client.api.FIRE_BIO_ACC_NO
 
-data class FireFile(
+data class FireApiFile(
     val objectId: Number,
     val fireOid: String,
     val objectMd5: String,
@@ -12,12 +12,12 @@ data class FireFile(
     val filesystemEntry: FileSystemEntry? = null
 )
 
-fun FireFile.isAvailable(accNo: String): Boolean {
+fun FireApiFile.isAvailable(accNo: String): Boolean {
     val meta = metadata.orEmpty()
     return meta.none { it.key == FIRE_BIO_ACC_NO } || meta.contains(MetadataEntry(FIRE_BIO_ACC_NO, accNo))
 }
 
-fun FireFile.isAvailable(): Boolean = metadata.orEmpty().none { it.key == FIRE_BIO_ACC_NO }
+fun FireApiFile.isAvailable(): Boolean = metadata.orEmpty().none { it.key == FIRE_BIO_ACC_NO }
 
 data class FileSystemEntry(
     val path: String,

@@ -5,9 +5,9 @@ import ac.uk.ebi.biostd.persistence.filesystem.extensions.persistFireFile
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.persistence.filesystem.service.Section
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.ext.md5
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import java.io.File
@@ -62,7 +62,14 @@ class FirePageTabService(
         val relPath = "Files/$filePath"
         val fireFile = fireWebClient.persistFireFile(accNo, file, file.md5(), "$subFolder/$relPath")
 
-        return FireFile(filePath, relPath, fireFile.fireOid, fireFile.objectMd5, fireFile.objectSize.toLong(), listOf())
+        return FireFile(
+            filePath,
+            relPath,
+            fireFile.fireOid,
+            fireFile.objectMd5,
+            fireFile.objectSize.toLong(),
+            listOf()
+        )
     }
 
     private fun subExtFiles(accNo: String, pageTab: PageTabFiles, subFolder: String): List<ExtFile> = listOf(

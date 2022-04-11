@@ -8,10 +8,10 @@ import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import ebi.ac.uk.asserts.assertThat as assertThatEither
-import uk.ac.ebi.fire.client.model.FireFile as FireFileWeb
+import uk.ac.ebi.fire.client.model.FireApiFile as FireFileWeb
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class FirePageTabServiceTest(

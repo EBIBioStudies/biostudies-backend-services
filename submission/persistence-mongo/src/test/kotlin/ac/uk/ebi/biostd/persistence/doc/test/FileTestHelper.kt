@@ -11,8 +11,8 @@ import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
-import java.io.File
 import org.assertj.core.api.Assertions.assertThat
+import java.io.File
 
 internal const val TEST_FILENAME = "file.txt"
 internal const val TEST_FILEPATH = "folder/file.txt"

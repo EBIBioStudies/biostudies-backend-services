@@ -22,7 +22,6 @@ dependencies {
     implementation(KotlinStdLib)
 
     testApi(project(CommonsTest))
-
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }
