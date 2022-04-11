@@ -38,12 +38,8 @@ class FireFilesSource(
         }
     }
 
-    override fun getFile(path: String, md5: String?): File? {
-        return when (md5) {
-            null -> null
-            else -> fireWebClient.downloadByMd5(md5)
-        }
-    }
+    override fun getFile(path: String, md5: String?): File? =
+        if (md5 == null) null else fireWebClient.downloadByMd5(md5)
 }
 
 private class SubmissionFireFilesSource(

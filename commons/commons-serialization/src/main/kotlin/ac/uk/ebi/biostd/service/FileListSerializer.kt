@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.service
 
 import ac.uk.ebi.biostd.exception.InvalidFileListException
-import ac.uk.ebi.biostd.exception.InvalidFileListException.Companion.directoryCanBeFileList
+import ac.uk.ebi.biostd.exception.InvalidFileListException.Companion.directoryCantBeFileList
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ebi.ac.uk.errors.FileNotFoundException
@@ -34,7 +34,7 @@ internal class FileListSerializer(
     private fun getFile(fileList: String, source: FilesSource): File {
         return when (val file = source.getFile(fileList)) {
             null -> throw FileNotFoundException(fileList)
-            else -> if (file.isFile) file else throw directoryCanBeFileList(fileList)
+            else -> if (file.isFile) file else throw directoryCantBeFileList(fileList)
         }
     }
 
