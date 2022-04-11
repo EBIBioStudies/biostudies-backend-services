@@ -36,7 +36,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTRIBUTE_REFERENC
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTRIBUTE_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTR_NAME_ATTRS
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_ATTR_VALUE_ATTRS
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_EXT_FILE_LIST_FILENAME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_EXT_FILE_LIST_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_FILE_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.ROOT_SEC_LINK_ATTRIBUTE_NAME
@@ -70,7 +70,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_TITLE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_EXT_FILE_LIST_FILENAME
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_EXT_FILE_LIST_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ACC_NO3
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ATTR_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUB_SEC_TABLE_ATTR_NAME_ATTRS
@@ -106,7 +106,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
-class ToDocSubmissionMapperTest(tempFolder: TemporaryFolder) {
+class ToDocSubmissionMapperTest(
+    tempFolder: TemporaryFolder
+) {
     private val newRootSectionFileListFile =
         rootSectionFileListFile.copy(file = tempFolder.createFile("tempFile1.txt", "content1"))
     private val newSubSectionFileListFile =
@@ -209,7 +211,7 @@ class ToDocSubmissionMapperTest(tempFolder: TemporaryFolder) {
         val listFile = listFiles.first()
         assertThat(listFile.submissionId).isEqualTo(docSubmission.id)
         assertThat(listFile.file).isEqualTo(newRootSectionFileListFile.toDocFile())
-        assertThat(listFile.fileListName).isEqualTo(ROOT_SEC_EXT_FILE_LIST_FILENAME)
+        assertThat(listFile.fileListName).isEqualTo(ROOT_SEC_EXT_FILE_LIST_PATH)
         assertThat(listFile.index).isEqualTo(0)
         assertThat(listFile.submissionVersion).isEqualTo(docSubmission.version)
         assertThat(listFile.submissionAccNo).isEqualTo(docSubmission.accNo)
@@ -217,7 +219,7 @@ class ToDocSubmissionMapperTest(tempFolder: TemporaryFolder) {
         val sublistFile = listFiles[1]
         assertThat(sublistFile.submissionId).isEqualTo(docSubmission.id)
         assertThat(sublistFile.file).isEqualTo(newSubSectionFileListFile.toDocFile())
-        assertThat(sublistFile.fileListName).isEqualTo(SUB_SEC_EXT_FILE_LIST_FILENAME)
+        assertThat(sublistFile.fileListName).isEqualTo(SUB_SEC_EXT_FILE_LIST_PATH)
         assertThat(sublistFile.index).isEqualTo(0)
         assertThat(sublistFile.submissionVersion).isEqualTo(docSubmission.version)
         assertThat(sublistFile.submissionAccNo).isEqualTo(docSubmission.accNo)
@@ -244,7 +246,7 @@ class ToDocSubmissionMapperTest(tempFolder: TemporaryFolder) {
     private fun assertRootSection(docSection: DocSection) {
         assertThat(docSection.accNo).isEqualTo(ROOT_SEC_ACC_NO)
         assertThat(docSection.type).isEqualTo(ROOT_SEC_TYPE)
-        assertThat(docSection.fileList?.fileName).isEqualTo(ROOT_SEC_EXT_FILE_LIST_FILENAME)
+        assertThat(docSection.fileList?.fileName).isEqualTo(ROOT_SEC_EXT_FILE_LIST_PATH)
 
         assertRootSectionAttribute(docSection.attributes.first())
         assertInnerSections(docSection.sections)
@@ -312,7 +314,7 @@ class ToDocSubmissionMapperTest(tempFolder: TemporaryFolder) {
         assertThat(docSections.first()).hasLeftValueSatisfying {
             assertThat(it.accNo).isEqualTo(SUB_SEC_ACC_NO)
             assertThat(it.type).isEqualTo(SUB_SEC_TYPE)
-            assertThat(it.fileList?.fileName).isEqualTo(SUB_SEC_EXT_FILE_LIST_FILENAME)
+            assertThat(it.fileList?.fileName).isEqualTo(SUB_SEC_EXT_FILE_LIST_PATH)
         }
 
         assertThat(docSections.second()).hasRightValueSatisfying {
