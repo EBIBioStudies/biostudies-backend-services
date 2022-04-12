@@ -15,7 +15,8 @@ data class ApplicationProperties(
     val security: SecurityProperties,
     val fire: FireProperties,
     val validator: ValidatorProperties,
-    val persistence: PersistenceProperties
+    val persistence: PersistenceProperties,
+    val jsonSchemaValidationPath: String
 )
 
 data class FireProperties(

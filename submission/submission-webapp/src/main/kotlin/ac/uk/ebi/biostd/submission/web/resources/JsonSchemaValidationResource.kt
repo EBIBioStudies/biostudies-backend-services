@@ -8,15 +8,22 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/jsonschema-validation")
-class JsonSchemaValidationResource(private val jsonSchemaValidationService: JsonSchemaValidationService) {
+class JsonSchemaValidationResource {
+    private val jsonSchemaValidationService: JsonSchemaValidationService
+
+    constructor(jsonSchemaValidationService: JsonSchemaValidationService) {
+        this.jsonSchemaValidationService = jsonSchemaValidationService
+    }
+
     @PostMapping(
-        //produces = [APPLICATION_JSON_VALUE]
+        produces = [APPLICATION_JSON_VALUE]
     )
     fun validate(
         @RequestBody toValidate: String
-    ) : String {
+    ) : BasicOutput {
         val output = jsonSchemaValidationService.validateBasic(toValidate)
+
         System.out.println("Validation output: ${output}")
-        return output.toString()
+        return output
     }
 }

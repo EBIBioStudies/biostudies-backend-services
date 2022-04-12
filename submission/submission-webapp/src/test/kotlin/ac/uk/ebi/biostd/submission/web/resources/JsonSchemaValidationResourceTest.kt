@@ -9,6 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.servlet.function.RequestPredicates.param
 
@@ -16,6 +18,7 @@ import org.springframework.web.servlet.function.RequestPredicates.param
 public class JsonSchemaValidationResourceTest(
     //@MockK private val jsonSchemaValidationService: JsonSchemaValidationService
 ) {
+    private val jsonSchemaValidationService = JsonSchemaValidationService("src/test/resources/submission-bia-help-guidelines-schema.json")
     private val mvc = MockMvcBuilders
         .standaloneSetup(JsonSchemaValidationResource(jsonSchemaValidationService))
         .build()
@@ -26,8 +29,6 @@ public class JsonSchemaValidationResourceTest(
             content = """{ "toValidate": "test.json" }"""
         }.andExpect {
             status { isOk }
-        }
+        }.andExpect { jsonPath("\$.valid").value(true) }
     }
-
-
 }
