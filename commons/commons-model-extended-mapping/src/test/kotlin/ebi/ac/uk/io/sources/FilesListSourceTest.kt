@@ -17,7 +17,7 @@ internal class FilesListSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun getFile() {
-        val result = testInstance.getFile(file.name)
+        val result = testInstance.getExtFile(file.name)
         assertThat(result).isInstanceOf(NfsFile::class.java)
         assertThat(result).isNotNull()
 
@@ -27,6 +27,6 @@ internal class FilesListSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `get non existing file`() {
-        assertThat(testInstance.getFile("ghost.txt")).isNull()
+        assertThat(testInstance.getExtFile("ghost.txt")).isNull()
     }
 }

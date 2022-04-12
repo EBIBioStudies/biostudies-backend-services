@@ -28,4 +28,7 @@ interface FireOperations {
     fun publish(fireOid: String)
 
     fun unpublish(fireOid: String)
+
+    fun downloadByMd5(md5: String): File? =
+        findByMd5(md5).firstOrNull()?.let { downloadByFireId(it.fireOid, it.objectMd5) }
 }

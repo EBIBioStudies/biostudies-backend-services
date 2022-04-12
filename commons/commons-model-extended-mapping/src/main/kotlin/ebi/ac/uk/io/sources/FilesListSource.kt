@@ -5,9 +5,8 @@ import ebi.ac.uk.model.Attribute
 import java.io.File
 
 class FilesListSource(private val files: List<File>) : FilesSource {
-    override fun getFile(
-        path: String,
-        md5: String?,
-        attributes: List<Attribute>
-    ): ExtFile? = files.firstOrNull { it.name == path }?.let { create(path, it, attributes) }
+    override fun getExtFile(path: String, md5: String?, attributes: List<Attribute>): ExtFile? =
+        files.firstOrNull { it.name == path }?.let { create(path, it, attributes) }
+
+    override fun getFile(path: String, md5: String?): File? = files.firstOrNull { it.name == path }
 }

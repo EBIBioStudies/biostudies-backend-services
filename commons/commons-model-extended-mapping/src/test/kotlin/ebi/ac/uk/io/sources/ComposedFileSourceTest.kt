@@ -23,23 +23,23 @@ internal class ComposedFileSourceTest(
 
         @Test
         fun whenOne() {
-            every { oneFileSource.getFile(filePath) } returns file
-            every { anotherFileSource.getFile(filePath) } returns null
-            assertThat(testInstance.getFile(filePath)).isEqualTo(file)
+            every { oneFileSource.getExtFile(filePath) } returns file
+            every { anotherFileSource.getExtFile(filePath) } returns null
+            assertThat(testInstance.getExtFile(filePath)).isEqualTo(file)
         }
 
         @Test
         fun whenAnother() {
-            every { oneFileSource.getFile(filePath) } returns null
-            every { anotherFileSource.getFile(filePath) } returns file
-            assertThat(testInstance.getFile(filePath)).isEqualTo(file)
+            every { oneFileSource.getExtFile(filePath) } returns null
+            every { anotherFileSource.getExtFile(filePath) } returns file
+            assertThat(testInstance.getExtFile(filePath)).isEqualTo(file)
         }
 
         @Test
         fun whenNone() {
-            every { oneFileSource.getFile(filePath) } returns null
-            every { anotherFileSource.getFile(filePath) } returns null
-            assertThat(testInstance.getFile(filePath)).isNull()
+            every { oneFileSource.getExtFile(filePath) } returns null
+            every { anotherFileSource.getExtFile(filePath) } returns null
+            assertThat(testInstance.getExtFile(filePath)).isNull()
         }
     }
 }
