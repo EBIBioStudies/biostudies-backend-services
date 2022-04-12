@@ -60,6 +60,10 @@ internal class FireClient(
         template.put("$FIRE_OBJECTS_URL/$fireOid/metadata/set", HttpEntity("{ $body }", headers))
     }
 
+    override fun downloadByPath(
+        path: String
+    ): File = downloadFireFile(path.substringAfterLast("/"), "$FIRE_OBJECTS_URL/blob/path/$path")
+
     override fun downloadByFireId(
         fireOid: String,
         fileName: String
