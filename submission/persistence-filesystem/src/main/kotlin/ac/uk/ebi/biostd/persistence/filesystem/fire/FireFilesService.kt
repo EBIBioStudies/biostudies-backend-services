@@ -15,7 +15,6 @@ import mu.KotlinLogging
 import org.zeroturnaround.zip.ZipUtil
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
 
 private val logger = KotlinLogging.logger {}
@@ -30,7 +29,9 @@ class FireFilesService(
         logger.info { "${sub.accNo} ${sub.owner} Persisting files of submission ${sub.accNo} on FIRE" }
 
         cleanSubmissionFolder(sub.accNo)
-        val config = FireFileProcessingConfig(sub.accNo, sub.version, sub.owner, sub.relPath, fireTempDirPath, fireWebClient)
+        val config = FireFileProcessingConfig(
+            sub.accNo, sub.version, sub.owner, sub.relPath, fireTempDirPath, fireWebClient
+        )
         val processed = fileProcessingService.processFiles(sub) { config.processFile(request.submission, it) }
 
         logger.info { "${sub.accNo} ${sub.owner} Finished persisting files of submission ${sub.accNo} on FIRE" }
@@ -71,7 +72,7 @@ private fun FireFileProcessingConfig.persistFireDirectory(nfsFile: NfsFile): Fir
     val tempFolder = fireTempDirPath.resolve("$accNo/$version").toFile().apply { mkdirs() }
     val target = tempFolder.resolve(file.name)
     val compressed = if (target.exists()) target else compressDirectory(file, target)
-    val fireDir = fireWebClient.getOrPersist(accNo, compressed, compressed.md5(), "$subRelPath/$relPath")
+    val fireDir = fireWebClient.getOrPersist(accNo, compressed, compressed.md5(), "$subRelPath/$relPath.zip")
 
     return FireDirectory(filePath, relPath, fireDir.fireOid, fireDir.objectMd5, fireDir.objectSize.toLong(), attributes)
 }

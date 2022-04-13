@@ -107,8 +107,8 @@ class FireFilesServiceTest(
 
         folder.createNewFile("test.txt")
         every { fireWebClient.save(capture(fileSlot), capture(md5Slot)) } returns fireFile
-        every { fireWebClient.findByPath("S-TEST/123/S-TEST123/Files/folder") } returns null
-        every { fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/Files/folder") } answers { nothing }
+        every { fireWebClient.findByPath("S-TEST/123/S-TEST123/Files/folder.zip") } returns null
+        every { fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/Files/folder.zip") } answers { nothing }
 
         val nfsFile = createNfsFile("folder", "Files/folder", folder, listOf(attribute))
         val section = ExtSection(type = "Study", files = listOf(left(nfsFile)))
@@ -118,11 +118,11 @@ class FireFilesServiceTest(
         val processed = testInstance.persistSubmissionFiles(request)
 
         assertFireDirectory(processed)
-        assertThat(fireTempFolder.resolve("folder").exists()).isTrue
+        assertThat(fireTempFolder.resolve("S-TEST123/1/folder").exists()).isTrue
         verify(exactly = 1) {
             fireWebClient.save(fileSlot.captured, md5Slot.captured)
             fireWebClient.setBioMetadata("abc1", basicExtSubmission.accNo, false)
-            fireWebClient.setPath("abc1", "S-TEST/123/S-TEST123/Files/folder")
+            fireWebClient.setPath("abc1", "S-TEST/123/S-TEST123/Files/folder.zip")
         }
     }
 
