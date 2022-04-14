@@ -10,8 +10,8 @@ import ebi.ac.uk.util.regex.getGroup
 import uk.ac.ebi.fire.client.model.MetadataEntry
 
 class SaveMetadataHandler(
-    private val objectMapper: ObjectMapper = ObjectMapper(),
-    private val fireDB: FireMockDatabase
+    private val fireDB: FireMockDatabase,
+    private val objectMapper: ObjectMapper = ObjectMapper()
 ) : RequestHandler {
     override val requestMethod: RequestMethod = RequestMethod.PUT
     override val urlPattern: Regex = "/fire/objects/(.*)/metadata/set".toRegex()
