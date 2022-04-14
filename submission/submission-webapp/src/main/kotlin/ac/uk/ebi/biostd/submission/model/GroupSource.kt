@@ -13,9 +13,9 @@ class GroupSource(groupName: String, private val pathSource: PathFilesSource) : 
 
     constructor(groupName: String, path: Path) : this(groupName, PathFilesSource(path))
 
-    override fun getFile(
+    override fun getExtFile(
         path: String,
         md5: String?,
         attributes: List<Attribute>
-    ): ExtFile? = pathSource.getFile(path.remove(groupPattern), md5, attributes)
+    ): ExtFile? = pathSource.getExtFile(path.remove(groupPattern), md5, attributes)
 }

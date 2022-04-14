@@ -10,4 +10,4 @@ internal const val TO_EXT_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.from.ToE
 
 // TODO: remove function as it only call source internally. Only keep to reduce impact or initial refactor.
 fun File.toExtFile(fileSource: FilesSource): ExtFile =
-    fileSource.getFile(path, md5, attributes) ?: throw FileNotFoundException(path)
+    fileSource.getExtFile(path, md5, attributes) ?: throw FileNotFoundException(path)
