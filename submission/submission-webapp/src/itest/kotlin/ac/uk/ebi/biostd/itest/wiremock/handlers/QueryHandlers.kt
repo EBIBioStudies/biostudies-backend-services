@@ -36,8 +36,8 @@ class PathQueryHandler(
 }
 
 class QueryMetadataHandler(
-    private val objectMapper: ObjectMapper = ObjectMapper(),
-    private val fireDB: FireMockDatabase
+    private val fireDB: FireMockDatabase,
+    private val objectMapper: ObjectMapper = ObjectMapper()
 ) : RequestHandler {
     override val requestMethod: RequestMethod = RequestMethod.POST
     override val urlPattern: Regex = "/fire/objects/metadata".toRegex()

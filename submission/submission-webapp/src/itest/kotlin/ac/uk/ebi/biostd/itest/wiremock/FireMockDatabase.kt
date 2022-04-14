@@ -16,7 +16,6 @@ class FireMockDatabase(
     private val ftpFolder: Path,
     private val dbFolder: Path
 ) {
-
     private val records: MutableMap<String, DbRecord> = mutableMapOf()
 
     fun saveFile(fileName: String, data: ByteArray): FireApiFile {
@@ -81,6 +80,8 @@ class FireMockDatabase(
     fun findByMd5(md5: String): FireApiFile? = records.values.map { it.file }.firstOrNull { it.objectMd5 == md5 }
 
     fun findByPath(path: String): FireApiFile? = records.values.firstOrNull { it.path == path }?.file
+
+    fun downloadByPath(path: String): File = submissionFolder.resolve(path).toFile()
 
     fun cleanAll() {
         FileUtils.deleteFile(submissionFolder.toFile())
