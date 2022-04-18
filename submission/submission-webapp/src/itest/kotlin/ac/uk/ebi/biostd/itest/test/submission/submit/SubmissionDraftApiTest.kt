@@ -39,7 +39,6 @@ internal class SubmissionDraftApiTest : DummyBaseIntegrationTest() {
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = RANDOM_PORT)
     @Transactional
-    @DirtiesContext
     inner class SubmissionDraftTest(
         @Autowired val securityTestService: SecurityTestService,
         @Autowired val dataService: UserDataService
@@ -52,7 +51,6 @@ internal class SubmissionDraftApiTest : DummyBaseIntegrationTest() {
         @BeforeAll
         fun init() {
             tempFolder.clean()
-
             securityTestService.deleteSuperUser()
 
             securityUser = securityTestService.registerUser(SuperUser)

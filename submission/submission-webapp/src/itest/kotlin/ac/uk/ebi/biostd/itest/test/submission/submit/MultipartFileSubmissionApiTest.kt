@@ -49,7 +49,6 @@ internal class MultipartFileSubmissionApiTest : DummyBaseIntegrationTest() {
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @Transactional
-    @DirtiesContext
     inner class SingleSubmissionTest(
         @Autowired private val submissionRepository: SubmissionQueryService,
         @Autowired private val securityTestService: SecurityTestService,

@@ -39,7 +39,6 @@ internal class SubmissionToCollectionsTest : DummyBaseIntegrationTest() {
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-    @DirtiesContext
     inner class SubmitToExtCollectionTest(
         @Autowired private val securityTestService: SecurityTestService,
         @Autowired private val submissionRepository: SubmissionQueryService,
@@ -54,7 +53,6 @@ internal class SubmissionToCollectionsTest : DummyBaseIntegrationTest() {
         @BeforeAll
         fun init() {
             tempFolder.clean()
-
             securityTestService.deleteSuperUser()
 
             securityTestService.registerUser(SuperUser)

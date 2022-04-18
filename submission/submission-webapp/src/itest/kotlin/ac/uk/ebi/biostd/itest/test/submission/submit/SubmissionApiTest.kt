@@ -74,7 +74,6 @@ internal class SubmissionApiTest : DummyBaseIntegrationTest() {
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-    @DirtiesContext
     inner class SubmissionApiTest(
         @Autowired val securityTestService: SecurityTestService,
         @Autowired val submissionRepository: SubmissionQueryService,
@@ -91,7 +90,6 @@ internal class SubmissionApiTest : DummyBaseIntegrationTest() {
         @BeforeAll
         fun init() {
             tempFolder.clean()
-
             sequenceRepository.deleteAll()
             tagsRefRepository.deleteAll()
             securityTestService.deleteSuperUser()

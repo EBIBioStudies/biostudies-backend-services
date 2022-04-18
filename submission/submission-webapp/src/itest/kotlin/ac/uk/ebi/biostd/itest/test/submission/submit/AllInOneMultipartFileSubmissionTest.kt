@@ -40,7 +40,6 @@ internal class AllInOneMultipartFileSubmissionTest: DummyBaseIntegrationTest() {
     @Import(PersistenceConfig::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @Transactional
-    @DirtiesContext
     inner class SingleSubmissionTest(
         @Autowired var securityTestService: SecurityTestService,
         @Autowired val submissionRepository: SubmissionQueryService

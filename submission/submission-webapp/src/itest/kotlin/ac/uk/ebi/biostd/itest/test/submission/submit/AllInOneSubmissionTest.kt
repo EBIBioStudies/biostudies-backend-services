@@ -35,7 +35,6 @@ internal class AllInOneSubmissionTest : DummyBaseIntegrationTest() {
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-    @DirtiesContext
     inner class SingleSubmissionTest(
         @Autowired val submissionRepository: SubmissionQueryService,
         @Autowired val securityTestService: SecurityTestService,

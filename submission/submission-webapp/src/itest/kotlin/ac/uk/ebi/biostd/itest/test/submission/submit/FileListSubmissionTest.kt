@@ -50,7 +50,6 @@ internal class FileListSubmissionTest : DummyBaseIntegrationTest() {
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @Transactional
-    @DirtiesContext
     inner class MixedFormatFileListSubmissionTest(
         @Autowired private val securityTestService: SecurityTestService,
         @Autowired private val submissionRepository: SubmissionQueryService,
