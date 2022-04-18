@@ -3,9 +3,12 @@ package ac.uk.ebi.biostd.itest.test.submission.query
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -27,16 +30,18 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.net.URLEncoder.encode
+import org.springframework.transaction.annotation.Transactional
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : DummyBaseIntegrationTest() {
     @Nested
-    @Import(PersistenceConfig::class)
+    @Import(PersistenceConfig::class, MongoDbReposConfig::class)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class SingleSubmissionTest(
-        @Autowired val securityTestService: SecurityTestService
+        @Autowired val securityTestService: SecurityTestService,
+        @Autowired val submissionMongoRepository: SubmissionDocDataRepository
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -45,6 +50,9 @@ internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : 
 
         @BeforeAll
         fun init() {
+            submissionMongoRepository.deleteAll()
+            securityTestService.deleteSuperUser()
+
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
 

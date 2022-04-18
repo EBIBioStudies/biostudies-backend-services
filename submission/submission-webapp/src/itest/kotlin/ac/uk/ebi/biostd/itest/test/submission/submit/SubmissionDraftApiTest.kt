@@ -5,17 +5,21 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.data.service.UserDataService
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import java.io.File
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -29,8 +33,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 
-@ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmissionDraftApiTest : DummyBaseIntegrationTest() {
     @Nested
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -47,10 +50,24 @@ internal class SubmissionDraftApiTest(tempFolder: TemporaryFolder) : BaseIntegra
 
         @BeforeAll
         fun init() {
+            val remainingDirectories = setOf("submission", "request-files", "dropbox", "magic", "tmp")
+            tempFolder.listFiles()?.forEach {
+                if (it.isFile) {
+                    it.delete()
+                } else {
+                    if (it.name in remainingDirectories) it.cleanDirectory() else it.deleteRecursively()
+                }
+            }
+
+            securityTestService.deleteSuperUser()
+
             securityUser = securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
         }
-
+        private fun File.cleanDirectory(): File {
+            listFiles()?.forEach { it.deleteRecursively() }
+            return this
+        }
         @Test
         fun `get draft submission when draft does not exist but submission does`() {
             val pageTab = jsonObj { "accno" to "ABC-123"; "type" to "Study" }.toString()

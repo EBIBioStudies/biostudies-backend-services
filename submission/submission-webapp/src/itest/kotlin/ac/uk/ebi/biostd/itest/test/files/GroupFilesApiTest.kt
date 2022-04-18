@@ -2,13 +2,16 @@ package ac.uk.ebi.biostd.itest.test.files
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.TestGroup.testGroupDescription
 import ac.uk.ebi.biostd.itest.entities.TestGroup.testGroupName
+import ac.uk.ebi.biostd.itest.listener.ITestListener
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
+import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -27,9 +30,10 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import java.nio.file.Paths
+import org.springframework.transaction.annotation.Transactional
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class GroupFilesApiTest() : DummyBaseIntegrationTest() {
     @Nested
     @Import(SubmitterConfig::class)
     @ExtendWith(SpringExtension::class)
@@ -44,6 +48,8 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @BeforeAll
         fun init() {
+            securityTestService.deleteSuperUser()
+
             securityTestService.registerUser(SuperUser)
 
             webClient = getWebClient(serverPort, SuperUser)
@@ -52,7 +58,7 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @BeforeEach
         fun beforeEach() {
-            tempFolder.clean()
+            tempFolder.listFiles()?.forEach { it.delete() }
         }
 
         @Test
@@ -66,7 +72,7 @@ internal class GroupFilesApiTest(private val tempFolder: TemporaryFolder) : Base
         }
 
         private fun testUserFilesGroup(path: String = "") {
-            val file = tempFolder.createFile("FileList1.txt", "An example content")
+            val file = tempFolder.createNewFile("FileList1.txt", "An example content")
             webClient.uploadGroupFiles(testGroupName, listOf(file), path)
 
             val files = webClient.listGroupFiles(testGroupName, path)

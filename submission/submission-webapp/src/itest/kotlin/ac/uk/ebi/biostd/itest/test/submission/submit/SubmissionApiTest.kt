@@ -6,11 +6,14 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
+import ac.uk.ebi.biostd.itest.listener.ITestListener
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.submissionPath
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
@@ -35,6 +38,8 @@ import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.io.ext.createDirectory
+import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.test.clean
@@ -60,9 +65,10 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import kotlin.test.assertFailsWith
+import org.junit.jupiter.api.AfterAll
+import org.springframework.transaction.annotation.Transactional
 
-@ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmissionApiTest : DummyBaseIntegrationTest() {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
@@ -83,16 +89,38 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @BeforeAll
         fun init() {
+            val remainingDirectories = setOf("submission", "request-files", "dropbox", "magic", "tmp")
+            tempFolder.listFiles()?.forEach {
+                if (it.isFile) {
+                    it.delete()
+                } else {
+                    if (it.name in remainingDirectories) it.cleanDirectory() else it.deleteRecursively()
+                }
+            }
+            sequenceRepository.deleteAll()
+            tagsRefRepository.deleteAll()
+            securityTestService.deleteSuperUser()
+
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
 
             sequenceRepository.save(DbSequence("S-BSST"))
             tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
         }
-
+        private fun File.cleanDirectory(): File {
+            listFiles()?.forEach { it.deleteRecursively() }
+            return this
+        }
         @BeforeEach
         fun beforeEach() {
-            tempFolder.clean()
+            val remainingDirectories = setOf("submission", "request-files", "dropbox", "magic", "tmp")
+            tempFolder.listFiles()?.forEach {
+                if (it.isFile) {
+                    it.delete()
+                } else {
+                    if (it.name in remainingDirectories) it.cleanDirectory() else it.deleteRecursively()
+                }
+            }
         }
 
         @Test
@@ -143,7 +171,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             tempFolder.createDirectory("RootPathFolder")
             webClient.uploadFiles(
-                listOf(tempFolder.createFile("RootPathFolder/DataFile5.txt", "An example content")),
+                listOf(tempFolder.createNewFile("RootPathFolder/DataFile5.txt", "An example content")),
                 "RootPathFolder"
             )
 
@@ -173,7 +201,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
                 line()
             }.toString()
 
-            webClient.uploadFiles(listOf(tempFolder.createFile("DataFile7.txt")), rootPath)
+            webClient.uploadFiles(listOf(tempFolder.createNewFile("DataFile7.txt")), rootPath)
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
             webClient.deleteFile(dataFile, rootPath)
@@ -183,6 +211,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @Test
         fun `submission with on behalf another user`() {
+            securityTestService.deleteRegularUser()
             createUser(RegularUser, serverPort)
 
             val submission = tsv {
@@ -287,8 +316,8 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             }.toString()
 
             webClient.addUserInGroup(webClient.createGroup(groupName, "group-desc").name, SuperUser.email)
-            webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile1.txt")))
-            webClient.uploadGroupFiles(groupName, listOf(tempFolder.createFile("GroupFile2.txt")), "folder")
+            webClient.uploadGroupFiles(groupName, listOf(tempFolder.createNewFile("GroupFile1.txt")))
+            webClient.uploadGroupFiles(groupName, listOf(tempFolder.createNewFile("GroupFile2.txt")), "folder")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
             assertThat(getSimpleSubmission("S-54896")).isEqualTo(
@@ -336,12 +365,12 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             webClient.uploadFiles(
                 listOf(
-                    tempFolder.createFile("fileSubSection.txt", "content"),
-                    tempFolder.createFile("file-list.tsv", fileListContent),
-                    tempFolder.createFile("file section.doc"),
+                    tempFolder.createNewFile("fileSubSection.txt", "content"),
+                    tempFolder.createNewFile("file-list.tsv", fileListContent),
+                    tempFolder.createNewFile("file section.doc"),
                 )
             )
-            webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf")), "a")
+            webClient.uploadFiles(listOf(tempFolder.createNewFile("fileFileList.pdf")), "a")
 
             val response = webClient.submitSingle(submission(), TSV)
 
@@ -354,7 +383,7 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
             assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).hasContent("content")
             assertThat(File("$submissionPath/${submitted.relPath}/Files/a/fileFileList.pdf")).exists()
 
-            val changedFile = tempFolder.root.resolve("fileSubSection.txt").apply { writeText("newContent") }
+            val changedFile = tempFolder.resolve("fileSubSection.txt").apply { writeText("newContent") }
             webClient.uploadFiles(listOf(changedFile))
 
             val reSubmitResponse = webClient.submitSingle(submission(accNo), TSV)
@@ -402,12 +431,12 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
             webClient.uploadFiles(
                 listOf(
-                    tempFolder.createFile("fileSubSection.txt", "content"),
-                    tempFolder.createFile("file-list.tsv", fileListContent),
-                    tempFolder.createFile("file section.doc"),
+                    tempFolder.createNewFile("fileSubSection.txt", "content"),
+                    tempFolder.createNewFile("file-list.tsv", fileListContent),
+                    tempFolder.createNewFile("file section.doc"),
                 )
             )
-            webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf")), "a")
+            webClient.uploadFiles(listOf(tempFolder.createNewFile("fileFileList.pdf")), "a")
 
             val response = webClient.submitSingle(submission(), TSV)
             val accNo = response.body.accNo
@@ -703,5 +732,10 @@ internal class SubmissionApiTest(private val tempFolder: TemporaryFolder) : Base
 
         private fun getSimpleSubmission(accNo: String) =
             toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
+
+        private fun File.createOrReplaceFile(name: String): File {
+            if (exists()) delete()
+            return createNewFile(name)
+        }
     }
 }

@@ -2,14 +2,16 @@ package ac.uk.ebi.biostd.itest.factory
 
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
+import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
+import java.io.File
 
-fun submissionSpecJson(tempFolder: TemporaryFolder, accNo: String): SubmissionSpec = SubmissionSpec(
-    submission = tempFolder.createFile("submission.json", allInOneSubmissionJson(accNo).toString()),
-    fileList = tempFolder.createFile("file-list.json", fileList().toString()),
+fun submissionSpecJson(tempFolder: File, accNo: String): SubmissionSpec = SubmissionSpec(
+    submission = tempFolder.createNewFile("submission.json", allInOneSubmissionJson(accNo).toString()),
+    fileList = tempFolder.createNewFile("file-list.json", fileList().toString()),
     files = submissionsFiles(tempFolder),
-    subFileList = SubmissionFile(tempFolder.createFile("file-list2.json", fileList2().toString()), "sub-folder")
+    subFileList = SubmissionFile(tempFolder.createNewFile("file-list2.json", fileList2().toString()), "sub-folder")
 )
 
 fun allInOneSubmissionJson(accNo: String) = jsonObj {

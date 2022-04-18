@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.itest.test.submission.refresh
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
@@ -72,9 +72,10 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDate
 import java.time.ZoneOffset.UTC
+import org.springframework.transaction.annotation.Transactional
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder) : DummyBaseIntegrationTest() {
     @Nested
     @Import(MongoDbConfig::class, PersistenceConfig::class, MongoDbReposConfig::class)
     @ExtendWith(SpringExtension::class)
@@ -134,6 +135,10 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
 
         @BeforeAll
         fun init() {
+            sequenceRepository.deleteAll()
+            tagsRefRepository.deleteAll()
+            securityTestService.deleteSuperUser()
+
             sequenceRepository.save(DbSequence("S-BSST"))
             tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
 

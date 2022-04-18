@@ -4,22 +4,24 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.common.TestCollectionValidator
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.submission
+import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.test.createFile
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import java.io.File
+import java.util.Collections.singletonMap
+import kotlin.test.assertFailsWith
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
@@ -31,11 +33,8 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.util.Collections.singletonMap
-import kotlin.test.assertFailsWith
 
-@ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmissionToCollectionsTest : DummyBaseIntegrationTest() {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
@@ -45,7 +44,7 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
         @Autowired private val securityTestService: SecurityTestService,
         @Autowired private val submissionRepository: SubmissionQueryService,
         @Autowired private val testCollectionValidator: TestCollectionValidator,
-        @Autowired private val toSubmissionMapper: ToSubmissionMapper
+        @Autowired private val toSubmissionMapper: ToSubmissionMapper,
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -54,10 +53,26 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
 
         @BeforeAll
         fun init() {
+            val remainingDirectories = setOf("submission", "request-files", "dropbox", "magic", "tmp")
+            tempFolder.listFiles()?.forEach {
+                if (it.isFile) {
+                    it.delete()
+                } else {
+                    if (it.name in remainingDirectories) it.cleanDirectory() else it.deleteRecursively()
+                }
+            }
+
+            securityTestService.deleteSuperUser()
+
             securityTestService.registerUser(SuperUser)
 
             webClient = getWebClient(serverPort, SuperUser)
             setUpCollections()
+        }
+
+        private fun File.cleanDirectory(): File {
+            listFiles()?.forEach { it.deleteRecursively() }
+            return this
         }
 
         @Test
@@ -78,7 +93,7 @@ internal class SubmissionToCollectionsTest(private val tempFolder: TemporaryFold
 
         @Test
         fun `direct submission overriding collection`() {
-            val submissionFile = tempFolder.createFile(
+            val submissionFile = tempFolder.createNewFile(
                 "submission.tsv",
                 tsv {
                     line("Submission", "S-TEST1")

@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.itest.test.security
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -29,7 +29,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class PermissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class PermissionApiTest(tempFolder: TemporaryFolder) : DummyBaseIntegrationTest() {
 
     @Nested
     @ExtendWith(SpringExtension::class)
@@ -41,7 +41,6 @@ internal class PermissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
         @Autowired private val accessTagRepository: AccessTagDataRepo,
         @Autowired private val accessPermissionRepository: AccessPermissionRepository,
         @Autowired private val securityTestService: SecurityTestService
-
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -51,6 +50,13 @@ internal class PermissionApiTest(tempFolder: TemporaryFolder) : BaseIntegrationT
 
         @BeforeAll
         fun init() {
+            accessPermissionRepository.deleteAll()
+            accessTagRepository.deleteAll()
+            userDataRepository.deleteAll()
+            securityTestService.deleteSuperUser()
+            securityTestService.deleteRegularUser()
+
+
             securityTestService.registerUser(SuperUser)
             securityTestService.registerUser(RegularUser)
 

@@ -6,18 +6,23 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.assertions.AllInOneSubmissionHelper
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.submissionSpecJson
 import ac.uk.ebi.biostd.itest.factory.submissionSpecTsv
 import ac.uk.ebi.biostd.itest.factory.submissionSpecXml
+import ac.uk.ebi.biostd.itest.listener.ITestListener
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.submissionPath
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import java.io.File
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -28,9 +33,9 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.transaction.annotation.Transactional
 
-@ExtendWith(TemporaryFolderExtension::class)
-internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class AllInOneSubmissionTest : DummyBaseIntegrationTest() {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
@@ -49,9 +54,23 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
 
         @BeforeAll
         fun init() {
+            val remainingDirectories = setOf("submission", "request-files", "dropbox", "magic", "tmp")
+            tempFolder.listFiles()?.forEach {
+                if (it.isFile) {
+                    it.delete()
+                } else {
+                    if (it.name in remainingDirectories) it.cleanDirectory() else it.deleteRecursively()
+                }
+            }
+            securityTestService.deleteSuperUser()
+
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
             allInOneSubmissionHelper = AllInOneSubmissionHelper(submissionPath, submissionRepository, toSubmissionMapper)
+        }
+        private fun File.cleanDirectory(): File {
+            listFiles()?.forEach { it.deleteRecursively() }
+            return this
         }
 
         @Test

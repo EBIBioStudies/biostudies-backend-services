@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
@@ -29,9 +29,10 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.transaction.annotation.Transactional
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class ExtCollectionSubmitTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class ExtCollectionSubmitTest() : DummyBaseIntegrationTest() {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
@@ -50,6 +51,10 @@ internal class ExtCollectionSubmitTest(tempFolder: TemporaryFolder) : BaseIntegr
 
         @BeforeAll
         fun init() {
+            securityTestService.deleteSuperUser()
+            tagsDataRepository.deleteAll()
+            sequenceRepository.deleteAll()
+
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
         }

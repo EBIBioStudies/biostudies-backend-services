@@ -4,13 +4,15 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.DefaultUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -33,9 +35,9 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class SubmitPermissionTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmitPermissionTest(tempFolder: TemporaryFolder) : DummyBaseIntegrationTest() {
     @Nested
-    @Import(PersistenceConfig::class)
+    @Import(PersistenceConfig::class, MongoDbReposConfig::class)
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
@@ -43,7 +45,8 @@ internal class SubmitPermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
         @Autowired private val securityTestService: SecurityTestService,
         @Autowired private val userDataRepository: UserDataRepository,
         @Autowired private val tagsDataRepository: AccessTagDataRepo,
-        @Autowired private val accessPermissionRepository: AccessPermissionRepository
+        @Autowired private val accessPermissionRepository: AccessPermissionRepository,
+        @Autowired private val submissionDocDataRepository: SubmissionDocDataRepository
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -61,6 +64,13 @@ internal class SubmitPermissionTest(tempFolder: TemporaryFolder) : BaseIntegrati
 
         @BeforeAll
         fun init() {
+            accessPermissionRepository.deleteAll()
+            tagsDataRepository.deleteAll()
+            userDataRepository.deleteAll()
+            submissionDocDataRepository.deleteAll()
+            securityTestService.deleteSuperUser()
+            securityTestService.deleteRegularUser()
+
             securityTestService.registerUser(SuperUser)
             securityTestService.registerUser(RegularUser)
 

@@ -1,9 +1,12 @@
 package ac.uk.ebi.biostd.itest.test.submission.query
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionDraftRepository
+import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.WebSubmissionDraft
 import ebi.ac.uk.util.collections.second
@@ -18,19 +21,22 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionDraftListApiTest(tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmissionDraftListApiTest(tempFolder: TemporaryFolder) : DummyBaseIntegrationTest() {
     @Nested
     @ExtendWith(SpringExtension::class)
+    @Import(MongoDbReposConfig::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @Transactional
     @DirtiesContext
     inner class SubmissionDraftListTest(
-        @Autowired val securityTestService: SecurityTestService
+        @Autowired val securityTestService: SecurityTestService,
+        @Autowired val submissionDraftRepository: SubmissionDraftDocDataRepository
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -40,6 +46,9 @@ internal class SubmissionDraftListApiTest(tempFolder: TemporaryFolder) : BaseInt
 
         @BeforeAll
         fun init() {
+            submissionDraftRepository.deleteAll()
+            securityTestService.deleteSuperUser()
+
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
             testDrafts = createDrafts()

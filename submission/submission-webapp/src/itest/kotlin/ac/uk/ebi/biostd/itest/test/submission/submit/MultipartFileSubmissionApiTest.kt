@@ -6,9 +6,11 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.submissionPath
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.excel.excel
@@ -20,11 +22,9 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
+import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.test.createFile
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import java.io.File
 import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
@@ -42,11 +42,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 
-// TODO Fix all integration tests
-@ExtendWith(TemporaryFolderExtension::class)
-internal class MultipartFileSubmissionApiTest(
-    private val tempFolder: TemporaryFolder,
-) : BaseIntegrationTest(tempFolder) {
+internal class MultipartFileSubmissionApiTest : DummyBaseIntegrationTest() {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
@@ -56,7 +52,7 @@ internal class MultipartFileSubmissionApiTest(
     inner class SingleSubmissionTest(
         @Autowired private val submissionRepository: SubmissionQueryService,
         @Autowired private val securityTestService: SecurityTestService,
-        @Autowired private val toSubmissionMapper: ToSubmissionMapper
+        @Autowired private val toSubmissionMapper: ToSubmissionMapper,
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -65,13 +61,28 @@ internal class MultipartFileSubmissionApiTest(
 
         @BeforeAll
         fun init() {
+            val remainingDirectories = setOf("submission", "request-files", "dropbox", "magic", "tmp")
+            tempFolder.listFiles()?.forEach {
+                if (it.isFile) {
+                    it.delete()
+                } else {
+                    if (it.name in remainingDirectories) it.cleanDirectory() else it.deleteRecursively()
+                }
+            }
+            securityTestService.deleteSuperUser()
+
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
         }
 
+        private fun File.cleanDirectory(): File {
+            listFiles()?.forEach { it.deleteRecursively() }
+            return this
+        }
+
         @Test
         fun `XLS submission`() {
-            val excelPageTab = excel(File("${tempFolder.root.absolutePath}/ExcelSubmission.xlsx")) {
+            val excelPageTab = excel(File("${tempFolder.absolutePath}/ExcelSubmission.xlsx")) {
                 sheet("page tab") {
                     row {
                         cell("Submission")
@@ -98,7 +109,7 @@ internal class MultipartFileSubmissionApiTest(
                 }
             }
 
-            val fileList = excel(File("${tempFolder.root.absolutePath}/FileList.xlsx")) {
+            val fileList = excel(File("${tempFolder.absolutePath}/FileList.xlsx")) {
                 sheet("page tab") {
                     row {
                         cell("Files")
@@ -111,7 +122,8 @@ internal class MultipartFileSubmissionApiTest(
                 }
             }
 
-            val response = webClient.submitSingle(excelPageTab, listOf(fileList, tempFolder.createFile("SomeFile.txt")))
+            val response =
+                webClient.submitSingle(excelPageTab, listOf(fileList, tempFolder.createNewFile("SomeFile.txt")))
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-EXC123", "SomeFile.txt")
             fileList.delete()
@@ -130,7 +142,7 @@ internal class MultipartFileSubmissionApiTest(
                 line()
             }.toString()
 
-            val fileList = tempFolder.createFile(
+            val fileList = tempFolder.createNewFile(
                 "FileList.tsv",
                 tsv {
                     line("Files", "GEN")
@@ -138,7 +150,8 @@ internal class MultipartFileSubmissionApiTest(
                 }.toString()
             )
 
-            val response = webClient.submitSingle(submission, TSV, listOf(fileList, tempFolder.createFile("File1.txt")))
+            val response =
+                webClient.submitSingle(submission, TSV, listOf(fileList, tempFolder.createNewFile("File1.txt")))
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST1", "File1.txt")
             fileList.delete()
@@ -168,7 +181,7 @@ internal class MultipartFileSubmissionApiTest(
                 }
             }.toString()
 
-            val fileList = tempFolder.createFile(
+            val fileList = tempFolder.createNewFile(
                 "FileList.json",
                 jsonArray({
                     "path" to "File2.txt"
@@ -180,7 +193,7 @@ internal class MultipartFileSubmissionApiTest(
             )
 
             val response =
-                webClient.submitSingle(submission, JSON, listOf(fileList, tempFolder.createFile("File2.txt")))
+                webClient.submitSingle(submission, JSON, listOf(fileList, tempFolder.createNewFile("File2.txt")))
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST2", "File2.txt")
             fileList.delete()
@@ -213,7 +226,7 @@ internal class MultipartFileSubmissionApiTest(
                 }
             }.toString()
 
-            val fileList = tempFolder.createFile(
+            val fileList = tempFolder.createNewFile(
                 "FileList.xml",
                 xml("table") {
                     "file" {
@@ -228,7 +241,8 @@ internal class MultipartFileSubmissionApiTest(
                 }.toString()
             )
 
-            val response = webClient.submitSingle(submission, XML, listOf(fileList, tempFolder.createFile("File3.txt")))
+            val response =
+                webClient.submitSingle(submission, XML, listOf(fileList, tempFolder.createNewFile("File3.txt")))
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-TEST3", "File3.txt")
             fileList.delete()
@@ -236,7 +250,7 @@ internal class MultipartFileSubmissionApiTest(
 
         @Test
         fun `direct submission with overriden attributes`() {
-            val submission = tempFolder.createFile(
+            val submission = tempFolder.createNewFile(
                 "submission.tsv",
                 tsv {
                     line("Submission", "S-TEST6")
@@ -263,7 +277,7 @@ internal class MultipartFileSubmissionApiTest(
 
         @Test
         fun `invalid format file`() {
-            val submission = tempFolder.createFile("submission.txt", "invalid file")
+            val submission = tempFolder.createNewFile("submission.txt", "invalid file")
 
             assertThatExceptionOfType(WebClientException::class.java)
                 .isThrownBy { webClient.submitSingle(submission, emptyList()) }

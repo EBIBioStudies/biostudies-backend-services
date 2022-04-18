@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.itest.test.user
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -23,12 +23,13 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.transaction.annotation.Transactional
 
 private const val GROUP_NAME = "Bio-test-group"
 private const val GROUP_DESC = "Bio-test-group description"
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class UserGroupsApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class UserGroupsApiTest(private val tempFolder: TemporaryFolder) : DummyBaseIntegrationTest() {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
@@ -45,6 +46,9 @@ internal class UserGroupsApiTest(private val tempFolder: TemporaryFolder) : Base
 
         @BeforeAll
         fun init() {
+            securityTestService.deleteSuperUser()
+            securityTestService.deleteRegularUser()
+
             securityTestService.registerUser(SuperUser)
             securityTestService.registerUser(RegularUser)
             superWebClient = getWebClient(serverPort, SuperUser)

@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -32,9 +32,10 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.transaction.annotation.Transactional
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : DummyBaseIntegrationTest() {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
@@ -46,6 +47,7 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
         @Autowired private val submissionRepository: SubmissionQueryService,
         @Autowired private val tagsDataRepository: AccessTagDataRepo,
         @Autowired private val accessPermissionRepository: AccessPermissionRepository
+
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -55,6 +57,12 @@ internal class DeletePermissionTest(private val tempFolder: TemporaryFolder) : B
 
         @BeforeAll
         fun init() {
+            accessPermissionRepository.deleteAll()
+            tagsDataRepository.deleteAll()
+            userDataRepository.deleteAll()
+            securityTestService.deleteSuperUser()
+            securityTestService.deleteRegularUser()
+
             securityTestService.registerUser(SuperUser)
             securityTestService.registerUser(RegularUser)
 

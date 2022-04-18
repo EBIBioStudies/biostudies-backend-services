@@ -4,9 +4,12 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.submissionPath
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.excel.excel
@@ -17,13 +20,17 @@ import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
+import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import java.io.File
+import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -35,11 +42,8 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
-import java.io.File
-import java.nio.file.Paths
 
-@ExtendWith(TemporaryFolderExtension::class)
-internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class FileListSubmissionTest : DummyBaseIntegrationTest() {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
@@ -48,7 +52,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
     @DirtiesContext
     inner class MixedFormatFileListSubmissionTest(
         @Autowired private val securityTestService: SecurityTestService,
-        @Autowired private val submissionRepository: SubmissionQueryService
+        @Autowired private val submissionRepository: SubmissionQueryService,
     ) {
         @LocalServerPort
         private var serverPort: Int = 0
@@ -57,10 +61,23 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
 
         @BeforeAll
         fun init() {
+            val remainingDirectories = setOf("submission", "request-files", "dropbox", "magic", "tmp")
+            tempFolder.listFiles()?.forEach {
+                if (it.isFile) {
+                    it.delete()
+                } else {
+                    if (it.name in remainingDirectories) it.cleanDirectory() else it.deleteRecursively()
+                }
+            }
+            securityTestService.deleteSuperUser()
+
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
         }
-
+        private fun File.cleanDirectory(): File {
+            listFiles()?.forEach { it.deleteRecursively() }
+            return this
+        }
         @Test
         fun `JSON submission with TSV file list`() {
             val submission = jsonObj {
@@ -85,7 +102,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                 }
             }.toString()
 
-            val fileList = tempFolder.createFile(
+            val fileList = tempFolder.createNewFile(
                 "FileList.tsv",
                 tsv {
                     line("Files", "GEN")
@@ -94,7 +111,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             )
 
             val response = webClient.submitSingle(
-                submission, JSON, listOf(fileList, tempFolder.createFile("File4.txt"))
+                submission, JSON, listOf(fileList, tempFolder.createNewFile("File4.txt"))
             )
 
             assertThat(response).isSuccessful()
@@ -126,7 +143,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
                 }
             }.toString()
 
-            val fileList = excel(File("${tempFolder.root.absolutePath}/FileList.xlsx")) {
+            val fileList = excel(File("${tempFolder.absolutePath}/FileList.xlsx")) {
                 sheet("page tab") {
                     row {
                         cell("Files")
@@ -140,7 +157,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             }
 
             val response = webClient.submitSingle(
-                submission, JSON, listOf(fileList, tempFolder.createFile("File5.txt"))
+                submission, JSON, listOf(fileList, tempFolder.createNewFile("File5.txt"))
             )
 
             assertThat(response).isSuccessful()
@@ -150,7 +167,7 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
 
         @Test
         fun `JSON submission with invalid file list format`() {
-            val fileList = tempFolder.createFile("FileList.txt", "Invalid file list")
+            val fileList = tempFolder.createNewFile("FileList.txt", "Invalid file list")
             val submission = jsonObj {
                 "accno" to "S-TEST5"
                 "attributes" to jsonArray({

@@ -4,10 +4,12 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
+import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
@@ -18,12 +20,15 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import java.io.File
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -35,9 +40,9 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.transaction.annotation.Transactional
 
-@ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionOnBehalfTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
+internal class SubmissionOnBehalfTest : DummyBaseIntegrationTest() {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
@@ -57,6 +62,14 @@ internal class SubmissionOnBehalfTest(private val tempFolder: TemporaryFolder) :
 
         @BeforeAll
         fun init() {
+            val remainingDirectories = setOf("submission", "request-files", "dropbox", "magic", "tmp")
+            tempFolder.listFiles()?.forEach {
+                if (it.isFile) {
+                    it.delete()
+                } else {
+                    if (it.name in remainingDirectories) it.cleanDirectory() else it.deleteRecursively()
+                }
+            }
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
 
@@ -65,10 +78,12 @@ internal class SubmissionOnBehalfTest(private val tempFolder: TemporaryFolder) :
 
         @BeforeEach
         fun beforeEach() {
-            tempFolder.clean()
             securityTestService.deleteRegularUser()
         }
-
+        private fun File.cleanDirectory(): File {
+            listFiles()?.forEach { it.deleteRecursively() }
+            return this
+        }
         @Test
         fun `submission on behalf another user`() {
             createUser(RegularUser, serverPort)
@@ -119,8 +134,8 @@ internal class SubmissionOnBehalfTest(private val tempFolder: TemporaryFolder) :
             securityTestService.registerUser(RegularUser)
             val regularClient = getWebClient(serverPort, RegularUser)
 
-            regularClient.uploadFile(tempFolder.createFile("ownerFile.txt"))
-            webClient.uploadFile(tempFolder.createFile("submitterFile.txt"))
+            regularClient.uploadFile(tempFolder.createNewFile("ownerFile.txt"))
+            webClient.uploadFile(tempFolder.createNewFile("submitterFile.txt"))
 
             val submission = tsv {
                 line("Submission")
@@ -145,7 +160,7 @@ internal class SubmissionOnBehalfTest(private val tempFolder: TemporaryFolder) :
             assertThat(response).isSuccessful()
 
             val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
-            val filesFolder = tempFolder.root.resolve("submission/$subRelPath/Files")
+            val filesFolder = tempFolder.resolve("submission/$subRelPath/Files")
             assertThat(filesFolder.resolve("ownerFile.txt")).exists()
             assertThat(filesFolder.resolve("submitterFile.txt")).exists()
         }
@@ -178,7 +193,7 @@ internal class SubmissionOnBehalfTest(private val tempFolder: TemporaryFolder) :
             assertThat(response).isSuccessful()
 
             val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
-            val testFile = tempFolder.root.resolve("submission/$subRelPath/Files/file.txt")
+            val testFile = tempFolder.resolve("submission/$subRelPath/Files/file.txt")
             assertThat(testFile).exists()
             assertThat(testFile).hasContent("submitter data")
         }
