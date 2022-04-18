@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.data.service.UserDataService
 import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.listener.ITestListener
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
@@ -50,24 +51,14 @@ internal class SubmissionDraftApiTest : DummyBaseIntegrationTest() {
 
         @BeforeAll
         fun init() {
-            val remainingDirectories = setOf("submission", "request-files", "dropbox", "magic", "tmp")
-            tempFolder.listFiles()?.forEach {
-                if (it.isFile) {
-                    it.delete()
-                } else {
-                    if (it.name in remainingDirectories) it.cleanDirectory() else it.deleteRecursively()
-                }
-            }
+            tempFolder.clean()
 
             securityTestService.deleteSuperUser()
 
             securityUser = securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
         }
-        private fun File.cleanDirectory(): File {
-            listFiles()?.forEach { it.deleteRecursively() }
-            return this
-        }
+
         @Test
         fun `get draft submission when draft does not exist but submission does`() {
             val pageTab = jsonObj { "accno" to "ABC-123"; "type" to "Study" }.toString()

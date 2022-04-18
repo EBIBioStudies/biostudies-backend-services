@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
@@ -89,14 +90,8 @@ internal class SubmissionApiTest : DummyBaseIntegrationTest() {
 
         @BeforeAll
         fun init() {
-            val remainingDirectories = setOf("submission", "request-files", "dropbox", "magic", "tmp")
-            tempFolder.listFiles()?.forEach {
-                if (it.isFile) {
-                    it.delete()
-                } else {
-                    if (it.name in remainingDirectories) it.cleanDirectory() else it.deleteRecursively()
-                }
-            }
+            tempFolder.clean()
+
             sequenceRepository.deleteAll()
             tagsRefRepository.deleteAll()
             securityTestService.deleteSuperUser()
@@ -107,20 +102,10 @@ internal class SubmissionApiTest : DummyBaseIntegrationTest() {
             sequenceRepository.save(DbSequence("S-BSST"))
             tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
         }
-        private fun File.cleanDirectory(): File {
-            listFiles()?.forEach { it.deleteRecursively() }
-            return this
-        }
+
         @BeforeEach
         fun beforeEach() {
-            val remainingDirectories = setOf("submission", "request-files", "dropbox", "magic", "tmp")
-            tempFolder.listFiles()?.forEach {
-                if (it.isFile) {
-                    it.delete()
-                } else {
-                    if (it.name in remainingDirectories) it.cleanDirectory() else it.deleteRecursively()
-                }
-            }
+            tempFolder.clean()
         }
 
         @Test

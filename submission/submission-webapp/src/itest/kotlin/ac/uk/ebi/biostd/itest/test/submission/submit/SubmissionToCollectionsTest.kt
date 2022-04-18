@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.common.TestCollectionValidator
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
@@ -19,7 +20,6 @@ import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
-import java.io.File
 import java.util.Collections.singletonMap
 import kotlin.test.assertFailsWith
 import org.assertj.core.api.Assertions.assertThat
@@ -53,14 +53,7 @@ internal class SubmissionToCollectionsTest : DummyBaseIntegrationTest() {
 
         @BeforeAll
         fun init() {
-            val remainingDirectories = setOf("submission", "request-files", "dropbox", "magic", "tmp")
-            tempFolder.listFiles()?.forEach {
-                if (it.isFile) {
-                    it.delete()
-                } else {
-                    if (it.name in remainingDirectories) it.cleanDirectory() else it.deleteRecursively()
-                }
-            }
+            tempFolder.clean()
 
             securityTestService.deleteSuperUser()
 
@@ -68,11 +61,6 @@ internal class SubmissionToCollectionsTest : DummyBaseIntegrationTest() {
 
             webClient = getWebClient(serverPort, SuperUser)
             setUpCollections()
-        }
-
-        private fun File.cleanDirectory(): File {
-            listFiles()?.forEach { it.deleteRecursively() }
-            return this
         }
 
         @Test
