@@ -43,6 +43,7 @@ data class FireFile(
 data class FireDirectory(
     override val filePath: String,
     override val relPath: String,
+    val fireId: String,
     override val md5: String,
     val size: Long,
     override val attributes: List<ExtAttribute>

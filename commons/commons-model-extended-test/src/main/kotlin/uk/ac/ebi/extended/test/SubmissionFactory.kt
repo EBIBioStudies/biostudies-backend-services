@@ -157,17 +157,20 @@ object FireDirectoryFactory {
     fun defaultFireDirectory(
         filePath: String = FILE_PATH,
         relPath: String = REL_PATH,
+        fireId: String = FIRE_ID,
         md5: String = MD5,
         size: Long = SIZE,
         attributes: List<ExtAttribute> = ATTRIBUTES,
     ) = FireDirectory(
         filePath = filePath,
         relPath = relPath,
+        fireId = fireId,
         md5 = md5,
         size = size,
         attributes = attributes
     )
 
+    const val FIRE_ID = "dirFireId"
     const val FILE_PATH = "folder/file.txt"
     const val REL_PATH = "Files/folder/file.txt"
     const val MD5 = "md5"

@@ -56,7 +56,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
         val pageTabFireFile =
             FireFile("folder/fileFileName", "Files/folder/fileFileName", "fireId", "fileMd5", 1, listOf())
         val pageTabFireDirectory =
-            FireDirectory("folder/dirFileName", "Files/folder/dirFileName", "dirMd5", 2, listOf())
+            FireDirectory("folder/dirFileName", "Files/folder/dirFileName", "dirFireId", "dirMd5", 2, listOf())
 
         val allInOneSection = ExtSection(
             accNo = "SECT-001",
@@ -144,6 +144,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                         "fileName" to pageTabFireDirectory.fileName
                         "filePath" to pageTabFireDirectory.filePath
                         "relPath" to pageTabFireDirectory.relPath
+                        "fireId" to pageTabFireDirectory.fireId
                         "attributes" to jsonArray()
                         "extType" to "fireDirectory"
                         "type" to "directory"

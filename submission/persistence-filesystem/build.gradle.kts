@@ -2,6 +2,7 @@ import Dependencies.Arrow
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
+import Dependencies.ZipUtil
 import Projects.CommonsBio
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedMapping
@@ -25,6 +26,7 @@ dependencies {
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(KotlinLogging)
+    implementation(ZipUtil)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
