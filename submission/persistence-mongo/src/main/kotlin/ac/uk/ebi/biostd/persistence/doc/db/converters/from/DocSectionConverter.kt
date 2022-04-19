@@ -16,7 +16,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_SECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TABLE_SECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_DIRECTORY_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
@@ -51,13 +50,12 @@ class DocSectionConverter(
     }
 
     private fun toEitherFiles(doc: Document) = when (val clazz = doc.getString(CLASS_FIELD)) {
-        NFS_DOC_FILE_CLASS, FIRE_DOC_FILE_CLASS, FIRE_DOC_DIRECTORY_CLASS -> Either.left(docFileConverter.convert(doc))
+        NFS_DOC_FILE_CLASS, FIRE_DOC_FILE_CLASS -> Either.left(docFileConverter.convert(doc))
         DOC_FILE_TABLE_CLASS -> Either.right(docFileTableConverter.convert(doc))
         else -> throw IllegalStateException(
             """Expecting $clazz to be one of
                 [$NFS_DOC_FILE_CLASS,
                 $FIRE_DOC_FILE_CLASS,
-                $FIRE_DOC_DIRECTORY_CLASS,
                 $DOC_FILE_TABLE_CLASS]
             """.trimIndent()
         )

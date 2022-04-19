@@ -92,11 +92,13 @@ class FireClientTest(
 
         every { template.put("$FIRE_OBJECTS_URL/fire-oid/metadata/set", capture(httpEntitySlot)) } answers { nothing }
 
-        testInstance.setBioMetadata("fire-oid", "S-BSST0", false)
+        testInstance.setBioMetadata("fire-oid", "S-BSST0", "file", false)
 
         val httpEntity = httpEntitySlot.captured
         assertThat(httpEntity.headers[CONTENT_TYPE]!!.first()).isEqualTo(APPLICATION_JSON_VALUE)
-        assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\", \"$FIRE_BIO_PUBLISHED\": false }")
+        assertThat(httpEntity.body).isEqualTo(
+            "{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\", \"$FIRE_BIO_FILE_TYPE\": \"file\", \"$FIRE_BIO_PUBLISHED\": false }"
+        )
         verify(exactly = 1) { template.put("$FIRE_OBJECTS_URL/fire-oid/metadata/set", httpEntity) }
     }
 

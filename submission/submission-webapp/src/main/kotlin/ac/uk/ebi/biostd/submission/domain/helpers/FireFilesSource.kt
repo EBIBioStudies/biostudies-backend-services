@@ -3,11 +3,15 @@ package ac.uk.ebi.biostd.submission.domain.helpers
 import ac.uk.ebi.biostd.common.properties.PersistenceProperties
 import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileType
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.FilesSource.Companion.EMPTY_FILE_SOURCE
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
+import uk.ac.ebi.fire.client.api.FIRE_BIO_FILE_TYPE
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import uk.ac.ebi.fire.client.model.isAvailable
@@ -73,5 +77,12 @@ fun FireApiFile.asFireBioFile(path: String, attributes: List<Attribute>): FireFi
         fireId = fireOid,
         md5 = objectMd5,
         size = objectSize.toLong(),
+        type = fileType,
         attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
     )
+
+private val FireApiFile.fileType: ExtFileType
+    get(): ExtFileType {
+        val type = metadata!!.first { it.key == FIRE_BIO_FILE_TYPE }.value
+        return if (type == FILE.value) FILE else DIR
+    }

@@ -3,7 +3,8 @@ package uk.ac.ebi.extended.serialization.serializers
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
@@ -69,6 +70,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
             fireId = "fireId",
             md5 = "fireFileMd5",
             size = 13,
+            type = FILE,
             attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true))
         )
         val expectedJson = jsonObj {
@@ -103,12 +105,13 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun `serialize fire directory`() {
-        val extFile = FireDirectory(
+        val extFile = FireFile(
             filePath = "folder",
             relPath = "Files/folder",
             fireId = "dirFireId",
             md5 = "fireDirMd5",
             size = 12,
+            type = DIR,
             attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true))
         )
         val expectedJson = jsonObj {

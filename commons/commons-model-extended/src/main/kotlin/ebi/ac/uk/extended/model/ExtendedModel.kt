@@ -1,6 +1,8 @@
 package ebi.ac.uk.extended.model
 
 import arrow.core.Either
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import java.io.File
@@ -9,6 +11,8 @@ import java.time.OffsetDateTime
 enum class ExtSubmissionMethod { FILE, PAGE_TAB, UNKNOWN }
 
 enum class ExtProcessingStatus { PROCESSED, PROCESSING, REQUESTED }
+
+enum class ExtFileType(val value: String) { FILE("file"), DIR("directory") }
 
 data class ExtTag(val name: String, val value: String)
 
@@ -26,6 +30,7 @@ sealed class ExtFile {
     abstract val relPath: String
     abstract val attributes: List<ExtAttribute>
     abstract val md5: String
+    abstract val type: ExtFileType
 
     val fileName: String
         get() = filePath.substringAfterLast("/")
@@ -37,15 +42,7 @@ data class FireFile(
     val fireId: String,
     override val md5: String,
     val size: Long,
-    override val attributes: List<ExtAttribute>
-) : ExtFile()
-
-data class FireDirectory(
-    override val filePath: String,
-    override val relPath: String,
-    val fireId: String,
-    override val md5: String,
-    val size: Long,
+    override val type: ExtFileType,
     override val attributes: List<ExtAttribute>
 ) : ExtFile()
 
@@ -57,7 +54,10 @@ data class NfsFile(
     override val md5: String,
     val size: Long,
     override val attributes: List<ExtAttribute> = listOf()
-) : ExtFile()
+) : ExtFile() {
+    override val type: ExtFileType
+        get() = if (file.isFile) FILE else DIR
+}
 
 @Deprecated(message = "Only for testing. Prefer default class constructor to avoid computation of md5 and size.")
 fun createNfsFile(

@@ -9,7 +9,8 @@ import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
@@ -142,6 +143,7 @@ object FireFileFactory {
         fireId = fireId,
         md5 = md5,
         size = size,
+        type = FILE,
         attributes = attributes
     )
 
@@ -161,12 +163,13 @@ object FireDirectoryFactory {
         md5: String = MD5,
         size: Long = SIZE,
         attributes: List<ExtAttribute> = ATTRIBUTES,
-    ) = FireDirectory(
+    ) = FireFile(
         filePath = filePath,
         relPath = relPath,
         fireId = fireId,
         md5 = md5,
         size = size,
+        type = DIR,
         attributes = attributes
     )
 

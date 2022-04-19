@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.ExtFileType
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
@@ -32,33 +34,22 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
 
         return when (val type = ExtType.valueOf(node.getNode<TextNode>(EXT_TYPE).textValue())) {
             is ExtType.NfsFile -> nfsFile(node, mapper)
-            is ExtType.FireFile -> fireFile(node, mapper)
-            is ExtType.FireDirectory -> fireDirectory(node, mapper)
+            is ExtType.FireFile -> fireFile(node, mapper, FILE)
+            is ExtType.FireDirectory -> fireFile(node, mapper, DIR)
             else -> throw InvalidExtTypeException(type.type)
         }
     }
 
-    private fun fireDirectory(node: JsonNode, mapper: ObjectMapper): FireDirectory {
-        return FireDirectory(
+    private fun fireFile(node: JsonNode, mapper: ObjectMapper, type: ExtFileType): FireFile =
+        FireFile(
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
             fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<NumericNode>(FILE_SIZE).longValue(),
+            type = type,
             attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }
         )
-    }
-
-    private fun fireFile(node: JsonNode, mapper: ObjectMapper): FireFile {
-        return FireFile(
-            filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
-            relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
-            fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
-            md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
-            size = node.getNode<NumericNode>(FILE_SIZE).longValue(),
-            attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }
-        )
-    }
 
     private fun nfsFile(node: JsonNode, mapper: ObjectMapper): NfsFile {
         val fullPath = node.getNode<TextNode>(FILE_FULL_PATH).textValue()

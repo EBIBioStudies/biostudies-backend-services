@@ -5,7 +5,8 @@ import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -53,7 +54,7 @@ class FireFilesServiceTest(
         every { fireWebClient.save(file, testMd5) } returns fireFile
         every { fireWebClient.unsetPath("abc1") } answers { nothing }
         every { fireWebClient.findByAccNo(basicExtSubmission.accNo) } returns listOf(fireFile)
-        every { fireWebClient.setBioMetadata("abc1", basicExtSubmission.accNo, false) } answers { nothing }
+        every { fireWebClient.setBioMetadata("abc1", basicExtSubmission.accNo, "file", false) } answers { nothing }
         every {
             fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/Files/folder/test.txt")
         } answers { nothing }
@@ -75,7 +76,7 @@ class FireFilesServiceTest(
         verify(exactly = 1) {
             fireWebClient.unsetPath("abc1")
             fireWebClient.save(file, testMd5)
-            fireWebClient.setBioMetadata("abc1", basicExtSubmission.accNo, false)
+            fireWebClient.setBioMetadata("abc1", basicExtSubmission.accNo, "file", false)
             fireWebClient.setPath("abc1", "S-TEST/123/S-TEST123/Files/folder/test.txt")
         }
     }
@@ -93,7 +94,7 @@ class FireFilesServiceTest(
         assertFireFile(processed, "new-folder/test.txt")
         verify(exactly = 1) {
             fireWebClient.save(file, testMd5)
-            fireWebClient.setBioMetadata("abc1", basicExtSubmission.accNo, false)
+            fireWebClient.setBioMetadata("abc1", basicExtSubmission.accNo, "file", false)
             fireWebClient.setPath("abc1", "S-TEST/123/S-TEST123/Files/folder/test.txt")
         }
     }
@@ -109,6 +110,7 @@ class FireFilesServiceTest(
         every { fireWebClient.save(capture(fileSlot), capture(md5Slot)) } returns fireFile
         every { fireWebClient.findByPath("S-TEST/123/S-TEST123/Files/folder.zip") } returns null
         every { fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/Files/folder.zip") } answers { nothing }
+        every { fireWebClient.setBioMetadata("abc1", basicExtSubmission.accNo, "directory", false) } answers { nothing }
 
         val nfsFile = createNfsFile("folder", "Files/folder", folder, listOf(attribute))
         val section = ExtSection(type = "Study", files = listOf(left(nfsFile)))
@@ -121,15 +123,15 @@ class FireFilesServiceTest(
         assertThat(fireTempFolder.resolve("S-TEST123/1/folder").exists()).isTrue
         verify(exactly = 1) {
             fireWebClient.save(fileSlot.captured, md5Slot.captured)
-            fireWebClient.setBioMetadata("abc1", basicExtSubmission.accNo, false)
             fireWebClient.setPath("abc1", "S-TEST/123/S-TEST123/Files/folder.zip")
+            fireWebClient.setBioMetadata("abc1", basicExtSubmission.accNo, "directory", false)
         }
     }
 
     @Test
     fun `process submission when new file is FireFile`() {
         val fireFile =
-            FireFile("new-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, listOf(attribute))
+            FireFile("new-folder/test.txt", "Files/folder/test.txt", "abc1", testMd5, 1, FILE, listOf(attribute))
         val section = ExtSection(type = "Study", files = listOf(left(fireFile)))
         val submission = basicExtSubmission.copy(section = section)
         val request = FilePersistenceRequest(submission)
@@ -137,7 +139,7 @@ class FireFilesServiceTest(
         assertThat(testInstance.persistSubmissionFiles(request)).isEqualTo(submission)
         verify(exactly = 0) {
             fireWebClient.save(file, testMd5)
-            fireWebClient.setBioMetadata("abc1", basicExtSubmission.accNo, false)
+            fireWebClient.setBioMetadata("abc1", basicExtSubmission.accNo, "file", false)
         }
         verify(exactly = 1) {
             fireWebClient.setPath("abc1", "S-TEST/123/S-TEST123/Files/folder/test.txt")
@@ -146,11 +148,12 @@ class FireFilesServiceTest(
 
     @Test
     fun `process submission when new file is a fire directory`() {
-        val fireDirectory =
-            FireDirectory("new-folder/the-folder", "Files/new-folder/the-folder", "abc", testMd5, 1, listOf(attribute))
+        val fireDirectory = FireFile("folder.zip", "Files/folder.zip", "abc1", testMd5, 1, DIR, listOf(attribute))
         val section = ExtSection(type = "Study", files = listOf(left(fireDirectory)))
         val submission = basicExtSubmission.copy(section = section)
         val request = FilePersistenceRequest(submission)
+
+        every { fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/Files/folder.zip") } answers { nothing }
 
         assertThat(testInstance.persistSubmissionFiles(request)).isEqualTo(submission)
     }
@@ -165,6 +168,7 @@ class FireFilesServiceTest(
             assertThat(it.fireId).isEqualTo("abc1")
             assertThat(it.md5).isEqualTo(testMd5)
             assertThat(it.size).isEqualTo(1)
+            assertThat(it.type).isEqualTo(FILE)
             assertThat(it.attributes).containsExactly(attribute)
         }
     }
@@ -172,13 +176,14 @@ class FireFilesServiceTest(
     private fun assertFireDirectory(processed: ExtSubmission) {
         assertThat(processed.section.files).hasSize(1)
         processed.section.files.first().ifLeft {
-            it as FireDirectory
+            it as FireFile
             assertThat(it.fileName).isEqualTo("folder")
             assertThat(it.filePath).isEqualTo("folder")
             assertThat(it.relPath).isEqualTo("Files/folder")
             assertThat(it.fireId).isEqualTo("abc1")
             assertThat(it.md5).isEqualTo("folderMd5")
             assertThat(it.size).isEqualTo(1)
+            assertThat(it.type).isEqualTo(DIR)
             assertThat(it.attributes).containsExactly(attribute)
         }
     }

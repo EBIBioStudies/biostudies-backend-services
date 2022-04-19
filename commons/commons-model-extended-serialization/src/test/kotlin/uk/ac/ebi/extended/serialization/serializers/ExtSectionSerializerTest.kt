@@ -8,7 +8,8 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
@@ -54,9 +55,9 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
 
         val fileNfs = tempFolder.createFile("fileNfs.txt")
         val pageTabFireFile =
-            FireFile("folder/fileFileName", "Files/folder/fileFileName", "fireId", "fileMd5", 1, listOf())
+            FireFile("folder/fileFileName", "Files/folder/fileFileName", "fireId", "fileMd5", 1, FILE, listOf())
         val pageTabFireDirectory =
-            FireDirectory("folder/dirFileName", "Files/folder/dirFileName", "dirFireId", "dirMd5", 2, listOf())
+            FireFile("folder/dirFileName", "Files/folder/dirFileName", "dirFireId", "dirMd5", 2, DIR, listOf())
 
         val allInOneSection = ExtSection(
             accNo = "SECT-001",

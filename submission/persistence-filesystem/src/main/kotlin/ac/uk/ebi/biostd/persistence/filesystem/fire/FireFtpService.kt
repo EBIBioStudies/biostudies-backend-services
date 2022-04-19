@@ -2,8 +2,6 @@ package ac.uk.ebi.biostd.persistence.filesystem.fire
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.allFiles
 import mu.KotlinLogging
@@ -37,8 +35,8 @@ class FireFtpService(
         logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission $accNo over FIRE" }
 
         sub.allFiles()
-            .filter { it is FireFile || it is FireDirectory }
-            .forEach(::publishFile)
+            .filterIsInstance<FireFile>()
+            .forEach { publishFile(it.fireId) }
 
         logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission $accNo over FIRE" }
     }
@@ -49,8 +47,7 @@ class FireFtpService(
             .forEach { unpublishFile(it.fireOid) }
     }
 
-    private fun publishFile(extFile: ExtFile) {
-        val fireId = if (extFile is FireFile) extFile.fireId else (extFile as FireDirectory).fireId
+    private fun publishFile(fireId: String) {
         fireWebClient.publish(fireId)
         fireWebClient.setBioMetadata(fireId, published = true)
     }

@@ -14,7 +14,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.COLLECTION_ACC_NO
@@ -182,18 +181,20 @@ class ToDocSubmissionMapperTest(
                 fireFile.fireId,
                 listOf(),
                 fireFile.md5,
-                fireFile.size
+                fireFile.size,
+                fireFile.type.value
             )
         )
         assertThat(pageTabFiles.second()).isEqualTo(
-            FireDocDirectory(
+            FireDocFile(
                 fireDirectory.fileName,
                 fireDirectory.filePath,
                 fireDirectory.relPath,
                 fireDirectory.fireId,
                 listOf(),
                 fireDirectory.md5,
-                fireDirectory.size
+                fireDirectory.size,
+                fireDirectory.type.value
             )
         )
         assertThat(pageTabFiles.third()).isEqualTo(
