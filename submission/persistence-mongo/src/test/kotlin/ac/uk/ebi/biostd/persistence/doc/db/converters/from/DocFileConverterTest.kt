@@ -109,6 +109,7 @@ internal class DocFileConverterTest(
         this[FILE_DOC_FILENAME] = "fire-directory"
         this[FILE_DOC_FILEPATH] = "filePath"
         this[FILE_DOC_REL_PATH] = "relPath"
+        this[FIRE_FILE_DOC_ID] = "dirFireId"
         this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
         this[FILE_DOC_MD5] = "md5"
         this[FILE_DOC_SIZE] = 10L

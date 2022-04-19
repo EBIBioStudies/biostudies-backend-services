@@ -42,6 +42,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
         return FireDirectory(
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
+            fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<NumericNode>(FILE_SIZE).longValue(),
             attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }

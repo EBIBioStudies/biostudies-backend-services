@@ -39,7 +39,7 @@ class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {
         val file = temporaryFolder.createFile("file.txt")
         val nfsFile = NfsFile("filePath", "relPath", file, file.absolutePath, file.md5(), file.size())
         val fireFile = FireFile("filePath", "relPath", "fireId", "md5", 1L, listOf())
-        val fireDirectory = FireDirectory("filePath", "relPath", "md5", 1L, listOf())
+        val fireDirectory = FireDirectory("filePath", "relPath", "dirFireId", "md5", 1L, listOf())
 
         val extSection = ExtSection(
             type = "section",

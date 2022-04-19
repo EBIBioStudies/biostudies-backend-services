@@ -72,6 +72,7 @@ internal fun ExtFile.toDocFile(): DocFile = when (this) {
         fileName = fileName,
         filePath = filePath,
         relPath = relPath,
+        fireId = fireId,
         attributes = attributes.map { it.toDocAttribute() },
         md5 = md5,
         fileSize = size,
