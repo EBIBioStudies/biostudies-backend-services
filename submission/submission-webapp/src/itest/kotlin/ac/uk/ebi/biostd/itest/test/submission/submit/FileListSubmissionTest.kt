@@ -4,11 +4,12 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.common.clean
+import ac.uk.ebi.biostd.itest.common.enableFire
+import ac.uk.ebi.biostd.itest.common.getWebClient
+import ac.uk.ebi.biostd.itest.common.mongoMode
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.listener.ITestListener
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
@@ -24,14 +25,10 @@ import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.test.createFile
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import java.io.File
 import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -40,11 +37,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 
-internal class FileListSubmissionTest : DummyBaseIntegrationTest() {
+internal class FileListSubmissionTest {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)

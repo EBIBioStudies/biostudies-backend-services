@@ -3,11 +3,10 @@ package ac.uk.ebi.biostd.itest.test.submission.query
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
@@ -30,10 +29,9 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.net.URLEncoder.encode
-import org.springframework.transaction.annotation.Transactional
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) : DummyBaseIntegrationTest() {
+internal class SubmissionListApiTest(private val tempFolder: TemporaryFolder) {
     @Nested
     @Import(PersistenceConfig::class, MongoDbReposConfig::class)
     @ExtendWith(SpringExtension::class)

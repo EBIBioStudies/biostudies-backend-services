@@ -2,19 +2,15 @@ package ac.uk.ebi.biostd.itest.test.files
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
-import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.TestGroup.testGroupDescription
 import ac.uk.ebi.biostd.itest.entities.TestGroup.testGroupName
-import ac.uk.ebi.biostd.itest.listener.ITestListener
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.io.ext.createNewFile
-import ebi.ac.uk.test.clean
-import ebi.ac.uk.test.createFile
-import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -30,10 +26,8 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import java.nio.file.Paths
-import org.springframework.transaction.annotation.Transactional
 
-@ExtendWith(TemporaryFolderExtension::class)
-internal class GroupFilesApiTest() : DummyBaseIntegrationTest() {
+internal class GroupFilesApiTest {
     @Nested
     @Import(SubmitterConfig::class)
     @ExtendWith(SpringExtension::class)

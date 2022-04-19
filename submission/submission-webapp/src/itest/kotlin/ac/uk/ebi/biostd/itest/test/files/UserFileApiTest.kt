@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.itest.test.files
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
@@ -23,12 +23,11 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import java.nio.file.Paths
-import org.springframework.transaction.annotation.Transactional
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class UserFileApiTest(
     private val localFolder: TemporaryFolder
-) : DummyBaseIntegrationTest() {
+) {
     @Nested
     @ExtendWith(SpringExtension::class)
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

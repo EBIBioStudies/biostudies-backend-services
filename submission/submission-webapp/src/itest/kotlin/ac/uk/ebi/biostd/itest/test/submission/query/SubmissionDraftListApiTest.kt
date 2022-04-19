@@ -1,11 +1,10 @@
 package ac.uk.ebi.biostd.itest.test.submission.query
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionDraftRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.WebSubmissionDraft
@@ -26,8 +25,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 
-@ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionDraftListApiTest(tempFolder: TemporaryFolder) : DummyBaseIntegrationTest() {
+internal class SubmissionDraftListApiTest()  {
     @Nested
     @ExtendWith(SpringExtension::class)
     @Import(MongoDbReposConfig::class)

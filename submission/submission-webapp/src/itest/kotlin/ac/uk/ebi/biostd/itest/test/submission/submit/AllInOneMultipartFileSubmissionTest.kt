@@ -3,14 +3,15 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.assertions.AllInOneSubmissionHelper
-import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.common.clean
+import ac.uk.ebi.biostd.itest.common.enableFire
+import ac.uk.ebi.biostd.itest.common.getWebClient
+import ac.uk.ebi.biostd.itest.common.mongoMode
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.submissionSpecJson
 import ac.uk.ebi.biostd.itest.factory.submissionSpecTsv
 import ac.uk.ebi.biostd.itest.factory.submissionSpecXml
-import ac.uk.ebi.biostd.itest.listener.ITestListener
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
@@ -18,10 +19,6 @@ import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.FILE
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import java.io.File
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -34,7 +31,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 
-internal class AllInOneMultipartFileSubmissionTest: DummyBaseIntegrationTest() {
+internal class AllInOneMultipartFileSubmissionTest {
     @Nested
     @ExtendWith(SpringExtension::class)
     @Import(PersistenceConfig::class)

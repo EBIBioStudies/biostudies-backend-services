@@ -6,9 +6,11 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.assertions.AllInOneSubmissionHelper
-import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.common.clean
+import ac.uk.ebi.biostd.itest.common.enableFire
+import ac.uk.ebi.biostd.itest.common.getWebClient
+import ac.uk.ebi.biostd.itest.common.mongoMode
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.submissionSpecJson
 import ac.uk.ebi.biostd.itest.factory.submissionSpecTsv
@@ -27,10 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
-internal class AllInOneSubmissionTest : DummyBaseIntegrationTest() {
+internal class AllInOneSubmissionTest {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)

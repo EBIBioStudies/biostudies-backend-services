@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.itest.test.user
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.DummyBaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ebi.ac.uk.test.clean
@@ -23,13 +23,12 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.transaction.annotation.Transactional
 
 private const val GROUP_NAME = "Bio-test-group"
 private const val GROUP_DESC = "Bio-test-group description"
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class UserGroupsApiTest(private val tempFolder: TemporaryFolder) : DummyBaseIntegrationTest() {
+internal class UserGroupsApiTest(private val tempFolder: TemporaryFolder) {
     @Nested
     @Import(PersistenceConfig::class)
     @ExtendWith(SpringExtension::class)
