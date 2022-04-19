@@ -62,7 +62,8 @@ private class SubmissionFireFilesSource(
     }
 
     override fun getFile(path: String, md5: String?): File? =
-        if (md5 == null) fireWebClient.downloadByPath(path) else fireWebClient.downloadByMd5(md5)
+        if (md5 == null) fireWebClient.downloadByPath(basePath.resolve(path).toString())
+        else fireWebClient.downloadByMd5(md5)
 }
 
 fun FireApiFile.asFireBioFile(path: String, attributes: List<Attribute>): FireFile =
