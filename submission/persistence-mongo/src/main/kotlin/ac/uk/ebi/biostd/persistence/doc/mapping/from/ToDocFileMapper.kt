@@ -43,7 +43,7 @@ class ToDocFileListMapper(
         accNo: String,
         version: Int
     ): List<FileListDocFile> =
-        serializationService.deserialize(stream)
+        serializationService.deserializeList(stream)
             .mapIndexed { idx, file -> FileListDocFile(ObjectId(), subId, file.toDocFile(), path, idx, version, accNo) }
             .toList()
 

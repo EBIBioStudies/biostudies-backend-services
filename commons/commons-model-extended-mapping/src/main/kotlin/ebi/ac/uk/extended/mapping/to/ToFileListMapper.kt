@@ -10,7 +10,7 @@ class ToFileListMapper(
 ) {
     fun convert(fileList: ExtFileList): FileList {
         val fileStream = fileList.file.inputStream()
-        val files = fileStream.use { stream -> serializationService.deserialize(stream).map { it.toFile() } }
+        val files = fileStream.use { stream -> serializationService.deserializeList(stream).map { it.toFile() } }
         return FileList(fileList.filePath, files.toList())
     }
 }

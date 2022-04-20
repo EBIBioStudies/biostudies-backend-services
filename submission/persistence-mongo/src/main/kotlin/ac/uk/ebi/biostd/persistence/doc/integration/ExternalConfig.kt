@@ -11,7 +11,6 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.ExtSubmissionRepository
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
-import kotlin.io.path.Path
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -35,8 +34,7 @@ class ExternalConfig {
             submissionRequestDocDataRepository,
             serializationService,
             systemService,
-            submissionRepository,
-            Path(properties.requestFilesPath)
+            submissionRepository
         )
     }
 

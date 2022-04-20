@@ -28,10 +28,11 @@ class FileSystemConfig(
         havingValue = "false",
         matchIfMissing = true
     )
-    fun nfsFilePersistenceService(): FilesService = NfsFilesService(folderResolver, FileProcessingService())
+    fun nfsFilePersistenceService(fileProcessingService: FileProcessingService): FilesService =
+        NfsFilesService(folderResolver, fileProcessingService)
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
-    fun fireFileService(): FilesService =
-        FireFilesService(Paths.get(applicationProperties.fireTempDirPath), fireWebClient, FileProcessingService())
+    fun fireFileService(fileProcessingService: FileProcessingService): FilesService =
+        FireFilesService(Paths.get(applicationProperties.requestFilesPath), fireWebClient, fileProcessingService)
 }
