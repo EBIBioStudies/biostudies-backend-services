@@ -10,7 +10,6 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import java.io.PrintWriter
 import org.apache.commons.net.PrintCommandListener
 import org.apache.commons.net.ftp.FTPClient
 import org.springframework.context.annotation.Bean
@@ -22,6 +21,7 @@ import uk.ac.ebi.scheduler.exporter.persistence.PmcRepository
 import uk.ac.ebi.scheduler.exporter.service.ExporterService
 import uk.ac.ebi.scheduler.exporter.service.PmcExporterService
 import uk.ac.ebi.scheduler.exporter.service.PublicOnlyExporterService
+import java.io.PrintWriter
 
 internal const val BUFFER_SIZE = 1024 * 1024
 
@@ -46,7 +46,14 @@ class ApplicationConfig(
         PublicOnlyExporterService(bioWebClient, applicationProperties, serializationService, toSubmissionMapper)
 
     @Bean
-    fun toSubmission(): ToSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper()))
+    fun toSubmissionMapper(toSectionMapper: ToSectionMapper): ToSubmissionMapper = ToSubmissionMapper(toSectionMapper)
+
+    @Bean
+    fun toSectionMapper(toFileListMapper: ToFileListMapper) = ToSectionMapper(toFileListMapper)
+
+    @Bean
+    fun toFileListMapper(serializationService: ExtSerializationService) = ToFileListMapper(serializationService)
+
     @Bean
     fun exporterService(
         pmcExporterService: PmcExporterService,

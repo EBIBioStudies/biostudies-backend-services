@@ -48,13 +48,6 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
 
         val encodedPath = encodePath("/$FILE_LIST_URL/$parentAccNo/referencedFiles/${fileList.filePath}", UTF_8)
         gen.writeStringField(FILES_URL, encodedPath)
-
-        if (includeFileListFiles) {
-            gen.writeArrayFieldStart(FILES)
-            fileList.files.forEach { gen.writeObject(it) }
-            gen.writeEndArray()
-        }
-
         gen.writeObjectField(PAGE_TAB_FILES, fileList.pageTabFiles)
         gen.writeEndObject()
     }

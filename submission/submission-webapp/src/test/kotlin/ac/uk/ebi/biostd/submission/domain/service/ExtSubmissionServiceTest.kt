@@ -51,7 +51,6 @@ class ExtSubmissionServiceTest(
             submissionRepository,
             userPrivilegesService,
             securityQueryService,
-            extSerializationService,
             eventsPublisherService
         )
 

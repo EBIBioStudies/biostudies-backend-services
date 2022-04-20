@@ -20,12 +20,12 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
-import java.time.Instant
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.Instant
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ExtendWith(MockKExtension::class)
@@ -34,7 +34,7 @@ internal class SubmissionDraftMongoServiceTest(
     @MockK private val submissionQueryService: SubmissionQueryService,
     @MockK private val serializationService: SerializationService
 ) {
-    private val toSubmissionMapper: ToSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper()))
+    private val toSubmissionMapper: ToSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper(TODO())))
     private val testInstance = SubmissionDraftMongoService(
         draftDocDataRepository,
         submissionQueryService,

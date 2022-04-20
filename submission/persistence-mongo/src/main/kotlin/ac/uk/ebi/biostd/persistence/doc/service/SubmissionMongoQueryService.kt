@@ -15,18 +15,20 @@ import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.replace
+import ebi.ac.uk.extended.model.replaceFileList
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.io.use
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
 import java.io.InputStream
+import java.io.OutputStream
 import kotlin.math.max
 
 private val logger = KotlinLogging.logger {}
@@ -91,20 +93,26 @@ internal class SubmissionMongoQueryService(
         val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, REQUESTED)
         val fileLists = request.fileList.associate { it.fileName to File(it.filePath) }
         val submission = serializationService.deserialize(request.submission.toString())
-        val fullSubmission = submission.copy(section = submission.section.replace { loadFiles(it, fileLists) })
+        val fullSubmission = submission.copy(section = submission.section.replaceFileList { loadFiles(it, fileLists) })
         return SubmissionRequest(submission = fullSubmission, fileMode = request.fileMode, draftKey = request.draftKey)
     }
 
     private fun loadFiles(fileList: ExtFileList, fileMap: Map<String, File>): ExtFileList {
         val fileListFile = fileMap.getValue(fileList.fileName)
-        val files = fileListFile.inputStream().use { getFiles(it) }
-        return fileList.copy(files = files)
+        return fileList.copy(file = copyFile(fileListFile, fileList.file))
     }
 
-    private fun getFiles(inputStream: InputStream): List<ExtFile> = serializationService.deserialize(inputStream)
-        .onEachIndexed { index, file -> logger.info { "mapping file ${file.filePath}, ${index + 1}" } }
-        .map { extFile -> loadFileAttributes(extFile) }
-        .toList()
+    private fun copyFile(inputFile: File, outputFile: File): File {
+        use(inputFile.inputStream(), outputFile.outputStream()) { input, output -> loadFiles(input, output) }
+        return outputFile
+    }
+
+    private fun loadFiles(input: InputStream, output: OutputStream) {
+        val files = serializationService.deserialize(input)
+            .onEachIndexed { index, file -> logger.info { "mapping file ${file.filePath}, ${index + 1}" } }
+            .map { extFile -> loadFileAttributes(extFile) }
+        serializationService.serialize(files, output)
+    }
 
     private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {
         is FireDirectory -> file

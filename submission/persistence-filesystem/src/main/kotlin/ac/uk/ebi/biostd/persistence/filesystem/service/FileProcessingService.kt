@@ -7,8 +7,15 @@ import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.io.use
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.io.File
 
-class FileProcessingService {
+class FileProcessingService(
+    private val serializationService: ExtSerializationService,
+    private val fileResolver: ExtFilesResolver,
+) {
     /**
      * Allow to process the given section, and it subsections by updating a specific attribute or modified data
      * structure.
@@ -33,21 +40,46 @@ class FileProcessingService {
     fun processFiles(
         submission: ExtSubmission,
         processFile: (file: ExtFile) -> ExtFile,
-    ): ExtSubmission = submission.copy(section = processSectionFiles(submission.section, processFile))
+    ): ExtSubmission = submission.copy(
+        section = processSectionFiles(
+            submission.accNo,
+            submission.version,
+            submission.section,
+            processFile
+        )
+    )
 
     private fun processSectionFiles(
+        subAccNo: String,
+        subVersion: Int,
         section: ExtSection,
         processFile: (file: ExtFile) -> ExtFile,
     ): ExtSection = section.copy(
         files = section.files.map { processFiles(it, processFile) },
-        fileList = section.fileList?.let { processFileList(it, processFile) },
-        sections = section.sections.map { processSections(it, processFile) }
+        fileList = section.fileList?.let { processFileList(subAccNo, subVersion, it, processFile) },
+        sections = section.sections.map { processSections(it, subAccNo, subVersion, processFile) }
     )
 
     private fun processFileList(
+        subAccNo: String,
+        subVersion: Int,
         fileList: ExtFileList,
         processFile: (file: ExtFile) -> ExtFile,
-    ) = fileList.copy(files = fileList.files.map { processFile(it) })
+    ): ExtFileList {
+        val newFileList = fileResolver.createEmptyFile(subAccNo, subVersion, fileList.fileName)
+        return fileList.copy(file = copyFile(fileList.file, newFileList, processFile))
+    }
+
+    private fun copyFile(inputFile: File, outputFile: File, processFile: (file: ExtFile) -> ExtFile): File {
+        use(
+            inputFile.inputStream(),
+            outputFile.outputStream()
+        ) { input, output ->
+            serializationService.serialize(serializationService.deserialize(input).map { processFile(it) }, output)
+        }
+
+        return outputFile
+    }
 
     private fun processFiles(
         either: Either<ExtFile, ExtFileTable>,
@@ -59,9 +91,11 @@ class FileProcessingService {
 
     private fun processSections(
         subSection: Either<ExtSection, ExtSectionTable>,
+        subAccNo: String,
+        subVersion: Int,
         processFile: (file: ExtFile) -> ExtFile,
     ) = subSection.bimap(
-        { processSectionFiles(it, processFile) },
-        { it.copy(sections = it.sections.map { subSect -> processSectionFiles(subSect, processFile) }) }
+        { processSectionFiles(subAccNo, subVersion, it, processFile) },
+        { it.copy(sections = it.sections.map { sub -> processSectionFiles(subAccNo, subVersion, sub, processFile) }) }
     )
 }

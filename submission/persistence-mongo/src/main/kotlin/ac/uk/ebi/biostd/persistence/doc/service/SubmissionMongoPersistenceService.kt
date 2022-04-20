@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import com.mongodb.BasicDBObject
-import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
@@ -21,10 +20,7 @@ import mu.KotlinLogging
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
-import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.outputStream
 import kotlin.math.absoluteValue
 
 private val logger = KotlinLogging.logger {}
@@ -100,7 +96,7 @@ internal class SubmissionMongoPersistenceService(
     private fun getRequestFileList(sub: ExtSubmission): List<RequestFileList> {
         val fileLists = sub.allFileList.distinctBy { it.filePath }
         val baseFolder = getBaseFolder(sub)
-        return fileLists.map { asRequestFileList(baseFolder, it) }
+        return fileLists.map { RequestFileList(fileName = it.fileName, filePath = it.file.absolutePath) }
     }
 
     private fun getBaseFolder(sub: ExtSubmission): Path {
@@ -109,9 +105,4 @@ internal class SubmissionMongoPersistenceService(
         return baseFolder
     }
 
-    private fun asRequestFileList(baseFolder: Path, fileList: ExtFileList): RequestFileList {
-        val file = Files.createFile(baseFolder.resolve(fileList.fileName))
-        file.outputStream().use { serializationService.serialize(fileList.files.asSequence(), it) }
-        return RequestFileList(fileName = fileList.fileName, filePath = file.absolutePathString())
-    }
 }

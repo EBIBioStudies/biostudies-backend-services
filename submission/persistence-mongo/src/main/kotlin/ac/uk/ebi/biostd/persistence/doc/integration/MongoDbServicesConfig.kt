@@ -22,6 +22,7 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
@@ -50,8 +51,10 @@ class MongoDbServicesConfig {
 
     @Bean
     internal fun toExtFileListMapper(
-        fileListDocFileRepository: FileListDocFileRepository
-    ): ToExtFileListMapper = ToExtFileListMapper(fileListDocFileRepository)
+        fileListDocFileRepository: FileListDocFileRepository,
+        extSerializationService: ExtSerializationService,
+        extFilesResolver: ExtFilesResolver,
+    ): ToExtFileListMapper = ToExtFileListMapper(fileListDocFileRepository, extSerializationService, extFilesResolver)
 
     @Bean
     internal fun toExtSectionMapper(

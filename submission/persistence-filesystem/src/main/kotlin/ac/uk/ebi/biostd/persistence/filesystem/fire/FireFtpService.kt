@@ -5,14 +5,16 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.allFiles
 import mu.KotlinLogging
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.allSubmissionFiles
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
 private val logger = KotlinLogging.logger {}
 
 class FireFtpService(
     private val fireWebClient: FireWebClient,
+    private val serializationService: ExtSerializationService,
     private val submissionQueryService: SubmissionQueryService
 ) : FtpService {
     override fun releaseSubmissionFiles(accNo: String, owner: String, relPath: String) {
@@ -36,9 +38,9 @@ class FireFtpService(
 
         logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission $accNo over FIRE" }
 
-        sub.allFiles()
-            .filter { it is FireFile || it is FireDirectory }
-            .forEach(::publishFile)
+        serializationService.allSubmissionFiles(sub)
+            .filterIsInstance<FireFile>()
+            .forEach { publishFile(it) }
 
         logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission $accNo over FIRE" }
     }
