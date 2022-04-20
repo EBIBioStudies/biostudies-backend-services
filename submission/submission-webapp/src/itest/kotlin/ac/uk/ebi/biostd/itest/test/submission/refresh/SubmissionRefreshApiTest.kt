@@ -52,10 +52,11 @@ import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import java.time.LocalDate
+import java.time.ZoneOffset.UTC
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
@@ -70,181 +71,175 @@ import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.query.Update.update
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.time.LocalDate
-import java.time.ZoneOffset.UTC
 
-@ExtendWith(TemporaryFolderExtension::class)
-internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)  {
-    @Nested
-    @Import(MongoDbConfig::class, PersistenceConfig::class, MongoDbReposConfig::class)
-    @ExtendWith(SpringExtension::class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-    @DirtiesContext
-    @EnabledIfSystemProperty(named = "itest.mode", matches = "mongo")
-    inner class RefreshSubmissionTest(
-        @Autowired val mongoTemplate: MongoTemplate,
-        @Autowired val tagsRefRepository: TagDataRepository,
-        @Autowired val securityTestService: SecurityTestService,
-        @Autowired val sequenceRepository: SequenceDataRepository,
-        @Autowired val submissionRepository: SubmissionQueryService,
-        @Autowired val submissionDocRepository: SubmissionDocDataRepository,
-        @Autowired val submissionRequestRepository: SubmissionRequestDocDataRepository,
-        @Autowired val fileListRepository: FileListDocFileDocDataRepository
-    ) {
-        @LocalServerPort
-        private var serverPort: Int = 0
-        private lateinit var webClient: BioWebClient
+@Import(MongoDbConfig::class, PersistenceConfig::class, MongoDbReposConfig::class)
+@ExtendWith(SpringExtension::class, TemporaryFolderExtension::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext
+@EnabledIfSystemProperty(named = "itest.mode", matches = "mongo")
+class SubmissionRefreshApiTest(
+    @Autowired val mongoTemplate: MongoTemplate,
+    @Autowired val tagsRefRepository: TagDataRepository,
+    @Autowired val securityTestService: SecurityTestService,
+    @Autowired val sequenceRepository: SequenceDataRepository,
+    @Autowired val submissionRepository: SubmissionQueryService,
+    @Autowired val submissionDocRepository: SubmissionDocDataRepository,
+    @Autowired val submissionRequestRepository: SubmissionRequestDocDataRepository,
+    @Autowired val fileListRepository: FileListDocFileDocDataRepository,
+    @LocalServerPort val serverPort: Int,
+    private val tempFolder: TemporaryFolder,
+) {
+    private lateinit var webClient: BioWebClient
 
-        private val newReleaseDate = LocalDate.now(UTC).atStartOfDay().atOffset(UTC).plusDays(1)
-        private val testSubmission = submission(ACC_NO) {
-            title = SUBTITLE
-            releaseDate = RELEASE_DATE_STRING
-            rootPath = ROOT_PATH
-            attribute(ATTR_NAME, ATTR_VALUE)
+    private val newReleaseDate = LocalDate.now(UTC).atStartOfDay().atOffset(UTC).plusDays(1)
+    private val testSubmission = submission(ACC_NO) {
+        title = SUBTITLE
+        releaseDate = RELEASE_DATE_STRING
+        rootPath = ROOT_PATH
+        attribute(ATTR_NAME, ATTR_VALUE)
 
-            section("Study") {
-                file("refresh-file.txt") {
-                    attribute("type", "regular")
-                }
-
-                file("refresh-file.txt") {
-                    attribute("type", "duplicated")
-                }
-
-                fileList = FileList(
-                    FILE_LIST_NAME,
-                    listOf(
-                        File(
-                            "$FILE_LIST_FILE_NAME.txt",
-                            attributes = listOf(Attribute(FILE_ATTR_NAME, FILE_ATTR_VALUE))
-                        )
-                    )
-                )
+        section("Study") {
+            file("refresh-file.txt") {
+                attribute("type", "regular")
             }
-        }
-        val refreshFile = tempFolder.createFile(TEST_FILE_NAME, "file content")
-        val fileList = tempFolder.createFile(
-            "$FILE_LIST_NAME.pagetab.tsv",
-            tsv {
-                line("Files", FILE_ATTR_NAME)
-                line("$FILE_LIST_FILE_NAME.txt", FILE_ATTR_VALUE)
-            }.toString()
-        )
-        val fileListFile = tempFolder.createFile("$FILE_LIST_FILE_NAME.txt", "content fileList file")
 
-        @BeforeAll
-        fun init() {
-            sequenceRepository.deleteAll()
-            tagsRefRepository.deleteAll()
-            securityTestService.deleteSuperUser()
+            file("refresh-file.txt") {
+                attribute("type", "duplicated")
+            }
 
-            sequenceRepository.save(DbSequence("S-BSST"))
-            tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
-
-            securityTestService.registerUser(SuperUser)
-            webClient = getWebClient(serverPort, SuperUser)
-        }
-
-        @BeforeEach
-        fun beforeEach() {
-            fileListRepository.deleteAll()
-            submissionDocRepository.deleteAll()
-            submissionRequestRepository.deleteAll()
-
-            webClient.submitSingle(testSubmission, TSV, listOf(refreshFile, fileList, fileListFile))
-        }
-
-        @Test
-        fun `refresh when submission title is updated`() {
-            val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1)))
-            val update = update(SUB_TITLE, NEW_SUBTITLE)
-            mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
-
-            webClient.refreshSubmission(ACC_NO)
-
-            val submission = submissionRepository.getExtByAccNo(ACC_NO)
-            assertThat(submission.title).isEqualTo(NEW_SUBTITLE)
-        }
-
-        @Test
-        fun `refresh when submission release date is updated`() {
-            val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1)))
-            val update = update(SUB_RELEASE_TIME, newReleaseDate.toInstant())
-            mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
-
-            webClient.refreshSubmission(ACC_NO)
-
-            val submission = submissionRepository.getExtByAccNo(ACC_NO)
-            assertThat(submission.releaseTime).isEqualTo(newReleaseDate)
-        }
-
-        @Test
-        fun `refresh when submission attribute is updated`() {
-            val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1)))
-            val update = update(SUB_ATTRIBUTES, listOf(DocAttribute(ATTR_NAME, NEW_ATTR_VALUE)))
-            mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
-
-            webClient.refreshSubmission(ACC_NO)
-
-            val submission = submissionRepository.getExtByAccNo(ACC_NO)
-            assertThat(submission.attributes).isEqualTo(listOf(ExtAttribute(ATTR_NAME, NEW_ATTR_VALUE)))
-        }
-
-        @Test
-        fun `refresh when submission fileListFile attribute is updated`() {
-            val docSubmission = mongoTemplate.findOne(
-                Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1))),
-                DocSubmission::class.java
-            )!!
-            val query = Query(
-                where(FILE_LIST_DOC_FILE_SUBMISSION_ID).`is`(docSubmission.id)
-                    .andOperator(
-                        where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO).`is`(ACC_NO)
-                            .andOperator(where(FILE_LIST_DOC_FILE_SUBMISSION_VERSION).`is`(1))
+            fileList = FileList(
+                FILE_LIST_NAME,
+                listOf(
+                    File(
+                        "$FILE_LIST_FILE_NAME.txt",
+                        attributes = listOf(Attribute(FILE_ATTR_NAME, FILE_ATTR_VALUE))
                     )
-            )
-            val update = update(
-                "$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_ATTRIBUTES",
-                listOf(DocAttribute(FILE_ATTR_NAME, FILE_NEW_ATTR_VALUE))
-            )
-            mongoTemplate.updateFirst(query, update, FileListDocFile::class.java)
-
-            webClient.refreshSubmission(ACC_NO)
-
-            val files = fileListRepository
-                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(ACC_NO, 1, "$FILE_LIST_NAME.pagetab")
-            assertThat(files).hasSize(1)
-            assertThat(files.first().file.attributes)
-                .isEqualTo(listOf(DocAttribute(FILE_ATTR_NAME, FILE_NEW_ATTR_VALUE)))
-        }
-
-        @Test
-        fun `refresh when file section is added`() {
-            val sub = submissionRepository.getExtByAccNo(ACC_NO)
-            assertThat(sub.section.files).hasSize(2)
-            val file = tempFolder.createFile("addFile.txt", "file content")
-            val docFile =
-                NfsDocFile(
-                    file.name,
-                    file.path,
-                    "relPath",
-                    file.absolutePath,
-                    listOf(),
-                    file.md5(),
-                    file.size(),
-                    "file"
                 )
-            val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1)))
-            val update = Update().push("$SUB_SECTION.$SEC_FILES", docFile)
-            mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
-
-            webClient.refreshSubmission(ACC_NO)
-
-            val updatedSub = submissionDocRepository.getSubmission(ACC_NO, 2)
-            val files = updatedSub.section.files
-            assertThat(files).hasSize(3)
-            assertThat(files.third()).hasLeftValueSatisfying { assertThat(it).isEqualTo(docFile) }
+            )
         }
+    }
+    val refreshFile = tempFolder.createFile(TEST_FILE_NAME, "file content")
+    val fileList = tempFolder.createFile(
+        "$FILE_LIST_NAME.pagetab.tsv",
+        tsv {
+            line("Files", FILE_ATTR_NAME)
+            line("$FILE_LIST_FILE_NAME.txt", FILE_ATTR_VALUE)
+        }.toString()
+    )
+    val fileListFile = tempFolder.createFile("$FILE_LIST_FILE_NAME.txt", "content fileList file")
+
+    @BeforeAll
+    fun init() {
+        sequenceRepository.deleteAll()
+        tagsRefRepository.deleteAll()
+        securityTestService.deleteSuperUser()
+
+        sequenceRepository.save(DbSequence("S-BSST"))
+        tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
+
+        securityTestService.registerUser(SuperUser)
+        webClient = getWebClient(serverPort, SuperUser)
+    }
+
+    @BeforeEach
+    fun beforeEach() {
+        fileListRepository.deleteAll()
+        submissionDocRepository.deleteAll()
+        submissionRequestRepository.deleteAll()
+
+        webClient.submitSingle(testSubmission, TSV, listOf(refreshFile, fileList, fileListFile))
+    }
+
+    @Test
+    fun `refresh when submission title is updated`() {
+        val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1)))
+        val update = update(SUB_TITLE, NEW_SUBTITLE)
+        mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
+
+        webClient.refreshSubmission(ACC_NO)
+
+        val submission = submissionRepository.getExtByAccNo(ACC_NO)
+        assertThat(submission.title).isEqualTo(NEW_SUBTITLE)
+    }
+
+    @Test
+    fun `refresh when submission release date is updated`() {
+        val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1)))
+        val update = update(SUB_RELEASE_TIME, newReleaseDate.toInstant())
+        mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
+
+        webClient.refreshSubmission(ACC_NO)
+
+        val submission = submissionRepository.getExtByAccNo(ACC_NO)
+        assertThat(submission.releaseTime).isEqualTo(newReleaseDate)
+    }
+
+    @Test
+    fun `refresh when submission attribute is updated`() {
+        val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1)))
+        val update = update(SUB_ATTRIBUTES, listOf(DocAttribute(ATTR_NAME, NEW_ATTR_VALUE)))
+        mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
+
+        webClient.refreshSubmission(ACC_NO)
+
+        val submission = submissionRepository.getExtByAccNo(ACC_NO)
+        assertThat(submission.attributes).isEqualTo(listOf(ExtAttribute(ATTR_NAME, NEW_ATTR_VALUE)))
+    }
+
+    @Test
+    fun `refresh when submission fileListFile attribute is updated`() {
+        val docSubmission = mongoTemplate.findOne(
+            Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1))),
+            DocSubmission::class.java
+        )!!
+        val query = Query(
+            where(FILE_LIST_DOC_FILE_SUBMISSION_ID).`is`(docSubmission.id)
+                .andOperator(
+                    where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO).`is`(ACC_NO)
+                        .andOperator(where(FILE_LIST_DOC_FILE_SUBMISSION_VERSION).`is`(1))
+                )
+        )
+        val update = update(
+            "$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_ATTRIBUTES",
+            listOf(DocAttribute(FILE_ATTR_NAME, FILE_NEW_ATTR_VALUE))
+        )
+        mongoTemplate.updateFirst(query, update, FileListDocFile::class.java)
+
+        webClient.refreshSubmission(ACC_NO)
+
+        val files = fileListRepository
+            .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(ACC_NO, 1, "$FILE_LIST_NAME.pagetab")
+        assertThat(files).hasSize(1)
+        assertThat(files.first().file.attributes)
+            .isEqualTo(listOf(DocAttribute(FILE_ATTR_NAME, FILE_NEW_ATTR_VALUE)))
+    }
+
+    @Test
+    fun `refresh when file section is added`() {
+        val sub = submissionRepository.getExtByAccNo(ACC_NO)
+        assertThat(sub.section.files).hasSize(2)
+        val file = tempFolder.createFile("addFile.txt", "file content")
+        val docFile =
+            NfsDocFile(
+                file.name,
+                file.path,
+                "relPath",
+                file.absolutePath,
+                listOf(),
+                file.md5(),
+                file.size(),
+                "file"
+            )
+        val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1)))
+        val update = Update().push("$SUB_SECTION.$SEC_FILES", docFile)
+        mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
+
+        webClient.refreshSubmission(ACC_NO)
+
+        val updatedSub = submissionDocRepository.getSubmission(ACC_NO, 2)
+        val files = updatedSub.section.files
+        assertThat(files).hasSize(3)
+        assertThat(files.third()).hasLeftValueSatisfying { assertThat(it).isEqualTo(docFile) }
     }
 
     private companion object {

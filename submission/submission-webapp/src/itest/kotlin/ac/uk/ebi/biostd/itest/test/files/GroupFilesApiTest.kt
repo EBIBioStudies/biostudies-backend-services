@@ -11,11 +11,11 @@ import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.io.ext.createNewFile
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import java.io.File
+import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,65 +24,59 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.io.File
-import java.nio.file.Paths
 
-internal class GroupFilesApiTest {
-    @Nested
-    @Import(SubmitterConfig::class)
-    @ExtendWith(SpringExtension::class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-    @DirtiesContext
-    inner class GroupFilesApi(
-        @Autowired val securityTestService: SecurityTestService
+@Import(SubmitterConfig::class)
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext
+class GroupFilesApiTest(
+    @Autowired val securityTestService: SecurityTestService,
+    @LocalServerPort val serverPort: Int
     ) {
-        @LocalServerPort
-        private var serverPort: Int = 0
-        private lateinit var webClient: BioWebClient
+    private lateinit var webClient: BioWebClient
 
-        @BeforeAll
-        fun init() {
-            securityTestService.deleteSuperUser()
+    @BeforeAll
+    fun init() {
+        securityTestService.deleteSuperUser()
 
-            securityTestService.registerUser(SuperUser)
+        securityTestService.registerUser(SuperUser)
 
-            webClient = getWebClient(serverPort, SuperUser)
-            webClient.addUserInGroup(webClient.createGroup(testGroupName, testGroupDescription).name, SuperUser.email)
-        }
+        webClient = getWebClient(serverPort, SuperUser)
+        webClient.addUserInGroup(webClient.createGroup(testGroupName, testGroupDescription).name, SuperUser.email)
+    }
 
-        @BeforeEach
-        fun beforeEach() {
-            tempFolder.listFiles()?.forEach { it.delete() }
-        }
+    @BeforeEach
+    fun beforeEach() {
+        tempFolder.listFiles()?.forEach { it.delete() }
+    }
 
-        @Test
-        fun `upload download delete file and retrieve in user root folder`() {
-            testUserFilesGroup()
-        }
+    @Test
+    fun `upload download delete file and retrieve in user root folder`() {
+        testUserFilesGroup()
+    }
 
-        @Test
-        fun `upload download delete file and retrieve in user folder`() {
-            testUserFilesGroup("test-folder")
-        }
+    @Test
+    fun `upload download delete file and retrieve in user folder`() {
+        testUserFilesGroup("test-folder")
+    }
 
-        private fun testUserFilesGroup(path: String = "") {
-            val file = tempFolder.createNewFile("FileList1.txt", "An example content")
-            webClient.uploadGroupFiles(testGroupName, listOf(file), path)
+    private fun testUserFilesGroup(path: String = "") {
+        val file = tempFolder.createNewFile("FileList1.txt", "An example content")
+        webClient.uploadGroupFiles(testGroupName, listOf(file), path)
 
-            val files = webClient.listGroupFiles(testGroupName, path)
-            assertThat(files).hasSize(1)
-            assertFile(files.first(), webClient.downloadGroupFile(testGroupName, file.name, path), file, path)
+        val files = webClient.listGroupFiles(testGroupName, path)
+        assertThat(files).hasSize(1)
+        assertFile(files.first(), webClient.downloadGroupFile(testGroupName, file.name, path), file, path)
 
-            webClient.deleteGroupFile(testGroupName, "FileList1.txt", path)
-            assertThat(webClient.listGroupFiles(testGroupName, path)).isEmpty()
-        }
+        webClient.deleteGroupFile(testGroupName, "FileList1.txt", path)
+        assertThat(webClient.listGroupFiles(testGroupName, path)).isEmpty()
+    }
 
-        private fun assertFile(resultFile: UserFile, downloadFile: File, file: File, path: String) {
-            assertThat(resultFile.name).isEqualTo(file.name)
-            assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
-            assertThat(resultFile.path).isEqualTo(Paths.get("groups").resolve(testGroupName).resolve(path).toString())
-            assertThat(resultFile.size).isEqualTo(file.length())
-            assertThat(file).hasContent(downloadFile.readText())
-        }
+    private fun assertFile(resultFile: UserFile, downloadFile: File, file: File, path: String) {
+        assertThat(resultFile.name).isEqualTo(file.name)
+        assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
+        assertThat(resultFile.path).isEqualTo(Paths.get("groups").resolve(testGroupName).resolve(path).toString())
+        assertThat(resultFile.size).isEqualTo(file.length())
+        assertThat(file).hasContent(downloadFile.readText())
     }
 }

@@ -15,7 +15,6 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -26,78 +25,72 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
-internal class PermissionApiTest() {
-
-    @Nested
-    @ExtendWith(SpringExtension::class)
-    @Import(PersistenceConfig::class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-    @DirtiesContext
-    inner class GivePermissionToUser(
-        @Autowired private val userDataRepository: UserDataRepository,
-        @Autowired private val accessTagRepository: AccessTagDataRepo,
-        @Autowired private val accessPermissionRepository: AccessPermissionRepository,
-        @Autowired private val securityTestService: SecurityTestService
+@ExtendWith(SpringExtension::class)
+@Import(PersistenceConfig::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext
+class PermissionApiTest(
+    @Autowired private val userDataRepository: UserDataRepository,
+    @Autowired private val accessTagRepository: AccessTagDataRepo,
+    @Autowired private val accessPermissionRepository: AccessPermissionRepository,
+    @Autowired private val securityTestService: SecurityTestService,
+    @LocalServerPort val serverPort: Int
     ) {
-        @LocalServerPort
-        private var serverPort: Int = 0
+    private lateinit var superWebClient: BioWebClient
+    private lateinit var regularWebClient: BioWebClient
 
-        private lateinit var superWebClient: BioWebClient
-        private lateinit var regularWebClient: BioWebClient
-
-        @BeforeAll
-        fun init() {
-            accessPermissionRepository.deleteAll()
-            accessTagRepository.deleteAll()
-            userDataRepository.deleteAll()
-            securityTestService.deleteSuperUser()
-            securityTestService.deleteRegularUser()
+    @BeforeAll
+    fun init() {
+        accessPermissionRepository.deleteAll()
+        accessTagRepository.deleteAll()
+        userDataRepository.deleteAll()
+        securityTestService.deleteSuperUser()
+        securityTestService.deleteRegularUser()
 
 
-            securityTestService.registerUser(SuperUser)
-            securityTestService.registerUser(RegularUser)
+        securityTestService.registerUser(SuperUser)
+        securityTestService.registerUser(RegularUser)
 
-            superWebClient = getWebClient(serverPort, SuperUser)
-            regularWebClient = getWebClient(serverPort, RegularUser)
+        superWebClient = getWebClient(serverPort, SuperUser)
+        regularWebClient = getWebClient(serverPort, RegularUser)
 
-            accessTagRepository.save(dbAccessTag)
+        accessTagRepository.save(dbAccessTag)
+    }
+
+    @BeforeEach
+    fun beforeEach() {
+        userDataRepository.save(dbUser)
+    }
+
+    @Test
+    fun `give permission to a user by superUser`() {
+        superWebClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
+
+        val permissions = accessPermissionRepository.findAll()
+
+        assertThat(permissions).hasSize(1)
+        assertThat(permissions.first().user.email).isEqualTo(dbUser.email)
+        assertThat(permissions.first().accessTag.name).isEqualTo(dbAccessTag.name)
+    }
+
+    @Test
+    fun `trying to give permission to a user by regularUser`() {
+        assertThrows<WebClientException> {
+            regularWebClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
         }
+    }
 
-        @BeforeEach
-        fun beforeEach() {
-            userDataRepository.save(dbUser)
+    @Test
+    fun `trying to give permission to non-existent user`() {
+        assertThrows<WebClientException>("The user $fakeUser does not exist") {
+            superWebClient.givePermissionToUser(fakeUser, dbAccessTag.name, "READ")
         }
+    }
 
-        @Test
-        fun `give permission to a user by superUser`() {
-            superWebClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
-
-            val permissions = accessPermissionRepository.findAll()
-
-            assertThat(permissions).hasSize(1)
-            assertThat(permissions.first().user.email).isEqualTo(dbUser.email)
-            assertThat(permissions.first().accessTag.name).isEqualTo(dbAccessTag.name)
-        }
-
-        @Test
-        fun `trying to give permission to a user by regularUser`() {
-            assertThrows<WebClientException> {
-                regularWebClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
-            }
-        }
-
-        @Test
-        fun `trying to give permission to non-existent user`() {
-            assertThrows<WebClientException>("The user $fakeUser does not exist") {
-                superWebClient.givePermissionToUser(fakeUser, dbAccessTag.name, "READ")
-            }
-        }
-
-        @Test
-        fun `trying to give permission to a user but non-existent accessTag`() {
-            assertThrows<WebClientException>("The accessTag $fakeAccessTag does not exist") {
-                superWebClient.givePermissionToUser(dbUser.email, fakeAccessTag, "READ")
-            }
+    @Test
+    fun `trying to give permission to a user but non-existent accessTag`() {
+        assertThrows<WebClientException>("The accessTag $fakeAccessTag does not exist") {
+            superWebClient.givePermissionToUser(dbUser.email, fakeAccessTag, "READ")
         }
     }
 

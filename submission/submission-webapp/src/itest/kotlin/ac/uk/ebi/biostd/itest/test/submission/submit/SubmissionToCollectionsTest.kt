@@ -24,7 +24,6 @@ import java.util.Collections.singletonMap
 import kotlin.test.assertFailsWith
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -33,228 +32,206 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
-internal class SubmissionToCollectionsTest {
-    @Nested
-    @Import(PersistenceConfig::class)
-    @ExtendWith(SpringExtension::class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-    inner class SubmitToExtCollectionTest(
-        @Autowired private val securityTestService: SecurityTestService,
-        @Autowired private val submissionRepository: SubmissionQueryService,
-        @Autowired private val testCollectionValidator: TestCollectionValidator,
-        @Autowired private val toSubmissionMapper: ToSubmissionMapper,
-    ) {
-        @LocalServerPort
-        private var serverPort: Int = 0
+@Import(PersistenceConfig::class)
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class SubmissionToCollectionsTest(
+    @Autowired private val securityTestService: SecurityTestService,
+    @Autowired private val submissionRepository: SubmissionQueryService,
+    @Autowired private val testCollectionValidator: TestCollectionValidator,
+    @Autowired private val toSubmissionMapper: ToSubmissionMapper,
+    @LocalServerPort val serverPort: Int
+) {
+    private lateinit var webClient: BioWebClient
 
-        private lateinit var webClient: BioWebClient
+    @BeforeAll
+    fun init() {
+        tempFolder.clean()
+        securityTestService.deleteSuperUser()
 
-        @BeforeAll
-        fun init() {
-            tempFolder.clean()
-            securityTestService.deleteSuperUser()
+        securityTestService.registerUser(SuperUser)
 
-            securityTestService.registerUser(SuperUser)
-
-            webClient = getWebClient(serverPort, SuperUser)
-            setUpCollections()
-        }
-
-        @Test
-        fun `accNo generation from collection template`() {
-            val submission = tsv {
-                line("Submission")
-                line("AttachTo", "Test-Project")
-                line("Title", "AccNo Generation Test")
-            }.toString()
-
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            val expected = submission("S-TEST0") {
-                title = "AccNo Generation Test"
-                attachTo = "Test-Project"
-            }
-            assertThat(getSimpleSubmission("S-TEST0")).isEqualTo(expected)
-        }
-
-        @Test
-        fun `direct submission overriding collection`() {
-            val submissionFile = tempFolder.createNewFile(
-                "submission.tsv",
-                tsv {
-                    line("Submission", "S-TEST1")
-                    line("AttachTo", "Test-Project")
-                    line("Title", "Overridden Project")
-                }.toString()
-            )
-
-            assertThat(
-                webClient.submitSingle(
-                    submissionFile, emptyList(), singletonMap("AttachTo", "Public-Project")
-                )
-            ).isSuccessful()
-
-            assertThat(getSimpleSubmission("S-TEST1")).isEqualTo(
-                submission("S-TEST1") {
-                    title = "Overridden Project"
-                    attachTo = "Public-Project"
-                }
-            )
-        }
-
-        @Test
-        fun `no release date to private collection`() {
-            val submission = tsv {
-                line("Submission", "S-PRP0")
-                line("AttachTo", "Private-Project")
-                line("Title", "No Release Date To Private Project")
-            }.toString()
-
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(getSimpleSubmission("S-PRP0")).isEqualTo(
-                submission("S-PRP0") {
-                    title = "No Release Date To Private Project"
-                    attachTo = "Private-Project"
-                }
-            )
-        }
-
-        @Test
-        fun `public submission to private collection`() {
-            val submission = tsv {
-                line("Submission", "S-PRP1")
-                line("AttachTo", "Private-Project")
-                line("ReleaseDate", "2015-12-24")
-                line("Title", "Public Submission To Private Project")
-            }.toString()
-
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(getSimpleSubmission("S-PRP1")).isEqualTo(
-                submission("S-PRP1") {
-                    title = "Public Submission To Private Project"
-                    releaseDate = "2015-12-24"
-                    attachTo = "Private-Project"
-                }
-            )
-        }
-
-        @Test
-        fun `private submission to public collection`() {
-            val submission = tsv {
-                line("Submission", "S-PUP0")
-                line("AttachTo", "Public-Project")
-                line("ReleaseDate", "2050-12-24")
-                line("Title", "Private submission into public project")
-            }.toString()
-
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(getSimpleSubmission("S-PUP0")).isEqualTo(
-                submission("S-PUP0") {
-                    title = "Private submission into public project"
-                    releaseDate = "2050-12-24"
-                    attachTo = "Public-Project"
-                }
-            )
-        }
-
-        @Test
-        fun `no release date to public collection`() {
-            val submission = tsv {
-                line("Submission", "S-PUP1")
-                line("AttachTo", "Public-Project")
-                line("Title", "No Release Date To Public Project")
-            }.toString()
-
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(getSimpleSubmission("S-PUP1")).isEqualTo(
-                submission("S-PUP1") {
-                    title = "No Release Date To Public Project"
-                    attachTo = "Public-Project"
-                }
-            )
-        }
-
-        @Test
-        fun `submit to collection with validator`() {
-            val submission = tsv {
-                line("Submission", "S-VLD0")
-                line("AttachTo", "ValidatedCollection")
-                line("Title", "A Validated Submission")
-            }.toString()
-
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-            assertThat(testCollectionValidator.validated).isTrue
-            assertThat(getSimpleSubmission("S-VLD0")).isEqualTo(
-                submission("S-VLD0") {
-                    title = "A Validated Submission"
-                    attachTo = "ValidatedCollection"
-                }
-            )
-        }
-
-        @Test
-        fun `submit to collection with failling validator`() {
-            val submission = tsv {
-                line("Submission", "S-FLC0")
-                line("AttachTo", "FailCollection")
-                line("Title", "A Fail Submission")
-            }.toString()
-
-            val exception = assertFailsWith<WebClientException> { webClient.submitSingle(submission, TSV) }
-            assertThat(exception.message!!.contains("Testing failure"))
-        }
-
-        private fun setUpCollections() {
-            val testProject = tsv {
-                line("Submission", "Test-Project")
-                line("AccNoTemplate", "!{S-TEST}")
-                line()
-
-                line("Project")
-            }.toString()
-
-            val privateProject = tsv {
-                line("Submission", "Private-Project")
-                line("AccNoTemplate", "!{S-PRP}")
-                line()
-
-                line("Project")
-            }.toString()
-
-            val publicProject = tsv {
-                line("Submission", "Public-Project")
-                line("AccNoTemplate", "!{S-PUP}")
-                line("ReleaseDate", "2018-09-21")
-                line()
-
-                line("Project")
-            }.toString()
-
-            val validatedCollection = tsv {
-                line("Submission", "ValidatedCollection")
-                line("AccNoTemplate", "!{S-VLD}")
-                line("CollectionValidator", "TestCollectionValidator")
-                line()
-
-                line("Project")
-            }.toString()
-
-            val failCollection = tsv {
-                line("Submission", "FailCollection")
-                line("AccNoTemplate", "!{S-FLC}")
-                line("CollectionValidator", "FailCollectionValidator")
-                line()
-
-                line("Project")
-            }.toString()
-
-            assertThat(webClient.submitSingle(testProject, TSV)).isSuccessful()
-            assertThat(webClient.submitSingle(publicProject, TSV)).isSuccessful()
-            assertThat(webClient.submitSingle(privateProject, TSV)).isSuccessful()
-            assertThat(webClient.submitSingle(failCollection, TSV)).isSuccessful()
-            assertThat(webClient.submitSingle(validatedCollection, TSV)).isSuccessful()
-        }
-
-        private fun getSimpleSubmission(accNo: String) =
-            toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
+        webClient = getWebClient(serverPort, SuperUser)
+        setUpCollections()
     }
+
+    @Test
+    fun `accNo generation from collection template`() {
+        val submission = tsv {
+            line("Submission")
+            line("AttachTo", "Test-Project")
+            line("Title", "AccNo Generation Test")
+        }.toString()
+
+        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+        val expected = submission("S-TEST0") {
+            title = "AccNo Generation Test"
+            attachTo = "Test-Project"
+        }
+        assertThat(getSimpleSubmission("S-TEST0")).isEqualTo(expected)
+    }
+
+    @Test
+    fun `direct submission overriding collection`() {
+        val submissionFile = tempFolder.createNewFile("submission.tsv", tsv {
+            line("Submission", "S-TEST1")
+            line("AttachTo", "Test-Project")
+            line("Title", "Overridden Project")
+        }.toString())
+
+        assertThat(webClient.submitSingle(submissionFile,
+            emptyList(),
+            singletonMap("AttachTo", "Public-Project"))).isSuccessful()
+
+        assertThat(getSimpleSubmission("S-TEST1")).isEqualTo(submission("S-TEST1") {
+            title = "Overridden Project"
+            attachTo = "Public-Project"
+        })
+    }
+
+    @Test
+    fun `no release date to private collection`() {
+        val submission = tsv {
+            line("Submission", "S-PRP0")
+            line("AttachTo", "Private-Project")
+            line("Title", "No Release Date To Private Project")
+        }.toString()
+
+        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+        assertThat(getSimpleSubmission("S-PRP0")).isEqualTo(submission("S-PRP0") {
+            title = "No Release Date To Private Project"
+            attachTo = "Private-Project"
+        })
+    }
+
+    @Test
+    fun `public submission to private collection`() {
+        val submission = tsv {
+            line("Submission", "S-PRP1")
+            line("AttachTo", "Private-Project")
+            line("ReleaseDate", "2015-12-24")
+            line("Title", "Public Submission To Private Project")
+        }.toString()
+
+        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+        assertThat(getSimpleSubmission("S-PRP1")).isEqualTo(submission("S-PRP1") {
+            title = "Public Submission To Private Project"
+            releaseDate = "2015-12-24"
+            attachTo = "Private-Project"
+        })
+    }
+
+    @Test
+    fun `private submission to public collection`() {
+        val submission = tsv {
+            line("Submission", "S-PUP0")
+            line("AttachTo", "Public-Project")
+            line("ReleaseDate", "2050-12-24")
+            line("Title", "Private submission into public project")
+        }.toString()
+
+        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+        assertThat(getSimpleSubmission("S-PUP0")).isEqualTo(submission("S-PUP0") {
+            title = "Private submission into public project"
+            releaseDate = "2050-12-24"
+            attachTo = "Public-Project"
+        })
+    }
+
+    @Test
+    fun `no release date to public collection`() {
+        val submission = tsv {
+            line("Submission", "S-PUP1")
+            line("AttachTo", "Public-Project")
+            line("Title", "No Release Date To Public Project")
+        }.toString()
+
+        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+        assertThat(getSimpleSubmission("S-PUP1")).isEqualTo(submission("S-PUP1") {
+            title = "No Release Date To Public Project"
+            attachTo = "Public-Project"
+        })
+    }
+
+    @Test
+    fun `submit to collection with validator`() {
+        val submission = tsv {
+            line("Submission", "S-VLD0")
+            line("AttachTo", "ValidatedCollection")
+            line("Title", "A Validated Submission")
+        }.toString()
+
+        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+        assertThat(testCollectionValidator.validated).isTrue
+        assertThat(getSimpleSubmission("S-VLD0")).isEqualTo(submission("S-VLD0") {
+            title = "A Validated Submission"
+            attachTo = "ValidatedCollection"
+        })
+    }
+
+    @Test
+    fun `submit to collection with failling validator`() {
+        val submission = tsv {
+            line("Submission", "S-FLC0")
+            line("AttachTo", "FailCollection")
+            line("Title", "A Fail Submission")
+        }.toString()
+
+        val exception = assertFailsWith<WebClientException> { webClient.submitSingle(submission, TSV) }
+        assertThat(exception.message!!.contains("Testing failure"))
+    }
+
+    private fun setUpCollections() {
+        val testProject = tsv {
+            line("Submission", "Test-Project")
+            line("AccNoTemplate", "!{S-TEST}")
+            line()
+
+            line("Project")
+        }.toString()
+
+        val privateProject = tsv {
+            line("Submission", "Private-Project")
+            line("AccNoTemplate", "!{S-PRP}")
+            line()
+
+            line("Project")
+        }.toString()
+
+        val publicProject = tsv {
+            line("Submission", "Public-Project")
+            line("AccNoTemplate", "!{S-PUP}")
+            line("ReleaseDate", "2018-09-21")
+            line()
+
+            line("Project")
+        }.toString()
+
+        val validatedCollection = tsv {
+            line("Submission", "ValidatedCollection")
+            line("AccNoTemplate", "!{S-VLD}")
+            line("CollectionValidator", "TestCollectionValidator")
+            line()
+
+            line("Project")
+        }.toString()
+
+        val failCollection = tsv {
+            line("Submission", "FailCollection")
+            line("AccNoTemplate", "!{S-FLC}")
+            line("CollectionValidator", "FailCollectionValidator")
+            line()
+
+            line("Project")
+        }.toString()
+
+        assertThat(webClient.submitSingle(testProject, TSV)).isSuccessful()
+        assertThat(webClient.submitSingle(publicProject, TSV)).isSuccessful()
+        assertThat(webClient.submitSingle(privateProject, TSV)).isSuccessful()
+        assertThat(webClient.submitSingle(failCollection, TSV)).isSuccessful()
+        assertThat(webClient.submitSingle(validatedCollection, TSV)).isSuccessful()
+    }
+
+    private fun getSimpleSubmission(accNo: String) =
+        toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
 }

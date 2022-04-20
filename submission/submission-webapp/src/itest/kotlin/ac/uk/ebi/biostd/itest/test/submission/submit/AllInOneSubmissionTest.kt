@@ -22,7 +22,6 @@ import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,76 +30,72 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
-internal class AllInOneSubmissionTest {
-    @Nested
-    @Import(PersistenceConfig::class)
-    @ExtendWith(SpringExtension::class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-    inner class SingleSubmissionTest(
-        @Autowired val submissionRepository: SubmissionQueryService,
-        @Autowired val securityTestService: SecurityTestService,
-    ) {
-        @LocalServerPort
-        private var serverPort: Int = 0
+@Import(PersistenceConfig::class)
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class AllInOneSubmissionTest(
+    @Autowired val submissionRepository: SubmissionQueryService,
+    @Autowired val securityTestService: SecurityTestService,
+    @LocalServerPort val serverPort: Int
+) {
 
-        private lateinit var webClient: BioWebClient
-        private lateinit var allInOneSubmissionHelper: AllInOneSubmissionHelper
-        private val toSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper()))
+    private lateinit var webClient: BioWebClient
+    private lateinit var allInOneSubmissionHelper: AllInOneSubmissionHelper
+    private val toSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper()))
 
-        @BeforeAll
-        fun init() {
-            tempFolder.clean()
-            securityTestService.deleteSuperUser()
+    @BeforeAll
+    fun init() {
+        tempFolder.clean()
+        securityTestService.deleteSuperUser()
 
-            securityTestService.registerUser(SuperUser)
-            webClient = getWebClient(serverPort, SuperUser)
-            allInOneSubmissionHelper =
-                AllInOneSubmissionHelper(submissionPath, submissionRepository, toSubmissionMapper)
-        }
+        securityTestService.registerUser(SuperUser)
+        webClient = getWebClient(serverPort, SuperUser)
+        allInOneSubmissionHelper =
+            AllInOneSubmissionHelper(submissionPath, submissionRepository, toSubmissionMapper)
+    }
 
-        @Test
-        fun `submit all in one TSV submission`() {
-            val (submission, fileList, files, subFileList) = submissionSpecTsv(tempFolder, "S-EPMC124")
-            webClient.uploadFile(fileList)
-            subFileList?.let { webClient.uploadFile(it.file, it.folder) }
-            files.forEach { webClient.uploadFile(it.file, it.folder) }
+    @Test
+    fun `submit all in one TSV submission`() {
+        val (submission, fileList, files, subFileList) = submissionSpecTsv(tempFolder, "S-EPMC124")
+        webClient.uploadFile(fileList)
+        subFileList?.let { webClient.uploadFile(it.file, it.folder) }
+        files.forEach { webClient.uploadFile(it.file, it.folder) }
 
-            webClient.submitSingle(submission.readText(), TSV)
+        webClient.submitSingle(submission.readText(), TSV)
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
-            if (mongoMode)
-                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
-                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
-        }
+        allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
+        if (mongoMode)
+            if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
+            else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
+    }
 
-        @Test
-        fun `submit all in one Json submission`() {
-            val (submission, fileList, files, subFileList) = submissionSpecJson(tempFolder, "S-EPMC125")
-            webClient.uploadFile(fileList)
-            subFileList?.let { webClient.uploadFile(it.file, it.folder) }
-            files.forEach { webClient.uploadFile(it.file, it.folder) }
+    @Test
+    fun `submit all in one Json submission`() {
+        val (submission, fileList, files, subFileList) = submissionSpecJson(tempFolder, "S-EPMC125")
+        webClient.uploadFile(fileList)
+        subFileList?.let { webClient.uploadFile(it.file, it.folder) }
+        files.forEach { webClient.uploadFile(it.file, it.folder) }
 
-            webClient.submitSingle(submission.readText(), JSON)
+        webClient.submitSingle(submission.readText(), JSON)
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
-            if (mongoMode)
-                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC125")
-                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC125")
-        }
+        allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
+        if (mongoMode)
+            if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC125")
+            else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC125")
+    }
 
-        @Test
-        fun `submit all in one XML submission`() {
-            val (submission, fileList, files, subFileList) = submissionSpecXml(tempFolder, "S-EPMC126")
-            webClient.uploadFile(fileList)
-            subFileList?.let { webClient.uploadFile(it.file, it.folder) }
-            files.forEach { webClient.uploadFile(it.file, it.folder) }
+    @Test
+    fun `submit all in one XML submission`() {
+        val (submission, fileList, files, subFileList) = submissionSpecXml(tempFolder, "S-EPMC126")
+        webClient.uploadFile(fileList)
+        subFileList?.let { webClient.uploadFile(it.file, it.folder) }
+        files.forEach { webClient.uploadFile(it.file, it.folder) }
 
-            webClient.submitSingle(submission.readText(), XML)
+        webClient.submitSingle(submission.readText(), XML)
 
-            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126")
-            if (mongoMode)
-                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC126")
-                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC126")
-        }
+        allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126")
+        if (mongoMode)
+            if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC126")
+            else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC126")
     }
 }

@@ -27,7 +27,6 @@ import ebi.ac.uk.model.extensions.title
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,150 +35,145 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
-internal class SubmissionOnBehalfTest {
-    @Nested
-    @Import(PersistenceConfig::class)
-    @ExtendWith(SpringExtension::class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-    inner class OnBehalfTest(
-        @Autowired val securityTestService: SecurityTestService,
-        @Autowired val submissionRepository: SubmissionQueryService,
-        @Autowired val userDataRepository: UserDataRepository,
-        @Autowired val sequenceRepository: SequenceDataRepository,
-        @Autowired val toSubmissionMapper: ToSubmissionMapper,
-    ) {
-        @LocalServerPort
-        private var serverPort: Int = 0
+@Import(PersistenceConfig::class)
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class SubmissionOnBehalfTest(
+    @Autowired val securityTestService: SecurityTestService,
+    @Autowired val submissionRepository: SubmissionQueryService,
+    @Autowired val userDataRepository: UserDataRepository,
+    @Autowired val sequenceRepository: SequenceDataRepository,
+    @Autowired val toSubmissionMapper: ToSubmissionMapper,
+    @LocalServerPort val serverPort: Int
+) {
+    private lateinit var webClient: BioWebClient
 
-        private lateinit var webClient: BioWebClient
+    @BeforeAll
+    fun init() {
+        tempFolder.clean()
 
-        @BeforeAll
-        fun init() {
-            tempFolder.clean()
+        securityTestService.registerUser(SuperUser)
+        webClient = getWebClient(serverPort, SuperUser)
 
-            securityTestService.registerUser(SuperUser)
-            webClient = getWebClient(serverPort, SuperUser)
+        sequenceRepository.save(DbSequence("S-BSST"))
+    }
 
-            sequenceRepository.save(DbSequence("S-BSST"))
-        }
+    @BeforeEach
+    fun beforeEach() {
+        securityTestService.deleteRegularUser()
+    }
 
-        @BeforeEach
-        fun beforeEach() {
-            securityTestService.deleteRegularUser()
-        }
+    @Test
+    fun `submission on behalf another user`() {
+        createUser(RegularUser, serverPort)
 
-        @Test
-        fun `submission on behalf another user`() {
-            createUser(RegularUser, serverPort)
+        val submission = tsv {
+            line("Submission")
+            line("Title", "Submission Title")
+        }.toString()
 
-            val submission = tsv {
-                line("Submission")
-                line("Title", "Submission Title")
-            }.toString()
+        val onBehalfClient = SecurityWebClient
+            .create("http://localhost:$serverPort")
+            .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            val onBehalfClient = SecurityWebClient
-                .create("http://localhost:$serverPort")
-                .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+        val response = onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)
+        assertThat(response).isSuccessful()
 
-            val response = onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)
-            assertThat(response).isSuccessful()
+        val accNo = response.body.accNo
+        assertThat(toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))).isEqualTo(
+            submission(accNo) {
+                title = "Submission Title"
+            }
+        )
+    }
 
-            val accNo = response.body.accNo
-            assertThat(toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))).isEqualTo(
-                submission(accNo) {
-                    title = "Submission Title"
-                }
-            )
-        }
+    @Test
+    fun `submission on behalf new user`() {
+        val username = "Jhon doe"
+        val email = "jhon@doe.email.com"
 
-        @Test
-        fun `submission on behalf new user`() {
-            val username = "Jhon doe"
-            val email = "jhon@doe.email.com"
+        val submission = tsv {
+            line("Submission")
+            line("Title", "Submission Title")
+        }.toString()
 
-            val submission = tsv {
-                line("Submission")
-                line("Title", "Submission Title")
-            }.toString()
+        val response = webClient.submitSingle(submission, SubmissionFormat.TSV, UserRegistration(username, email))
+        val saved = submissionRepository.getExtByAccNo(response.body.accNo)
 
-            val response = webClient.submitSingle(submission, SubmissionFormat.TSV, UserRegistration(username, email))
-            val saved = submissionRepository.getExtByAccNo(response.body.accNo)
+        assertThat(saved.owner).isEqualTo(email)
+        assertThat(saved.submitter).isEqualTo(SuperUser.email)
+        val newUser = userDataRepository.findByEmail(email)
+        assertThat(newUser).isNotNull()
+        assertThat(newUser!!.active).isFalse()
+        assertThat(newUser!!.notificationsEnabled).isFalse()
+    }
 
-            assertThat(saved.owner).isEqualTo(email)
-            assertThat(saved.submitter).isEqualTo(SuperUser.email)
-            val newUser = userDataRepository.findByEmail(email)
-            assertThat(newUser).isNotNull()
-            assertThat(newUser!!.active).isFalse()
-            assertThat(newUser!!.notificationsEnabled).isFalse()
-        }
+    @Test
+    fun `submission on behalf created user with files in his folder`() {
+        securityTestService.registerUser(RegularUser)
+        val regularClient = getWebClient(serverPort, RegularUser)
 
-        @Test
-        fun `submission on behalf created user with files in his folder`() {
-            securityTestService.registerUser(RegularUser)
-            val regularClient = getWebClient(serverPort, RegularUser)
+        regularClient.uploadFile(tempFolder.createNewFile("ownerFile.txt"))
+        webClient.uploadFile(tempFolder.createNewFile("submitterFile.txt"))
 
-            regularClient.uploadFile(tempFolder.createNewFile("ownerFile.txt"))
-            webClient.uploadFile(tempFolder.createNewFile("submitterFile.txt"))
+        val submission = tsv {
+            line("Submission")
+            line("Title", "Submission Title")
+            line()
 
-            val submission = tsv {
-                line("Submission")
-                line("Title", "Submission Title")
-                line()
+            line("Study")
+            line()
 
-                line("Study")
-                line()
+            line("File", "ownerFile.txt")
+            line()
 
-                line("File", "ownerFile.txt")
-                line()
+            line("File", "submitterFile.txt")
+            line()
+        }.toString()
 
-                line("File", "submitterFile.txt")
-                line()
-            }.toString()
+        val onBehalfClient = SecurityWebClient
+            .create("http://localhost:$serverPort")
+            .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            val onBehalfClient = SecurityWebClient
-                .create("http://localhost:$serverPort")
-                .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+        val response = onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)
+        assertThat(response).isSuccessful()
 
-            val response = onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)
-            assertThat(response).isSuccessful()
+        val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
+        val filesFolder = tempFolder.resolve("submission/$subRelPath/Files")
+        assertThat(filesFolder.resolve("ownerFile.txt")).exists()
+        assertThat(filesFolder.resolve("submitterFile.txt")).exists()
+    }
 
-            val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
-            val filesFolder = tempFolder.resolve("submission/$subRelPath/Files")
-            assertThat(filesFolder.resolve("ownerFile.txt")).exists()
-            assertThat(filesFolder.resolve("submitterFile.txt")).exists()
-        }
+    @Test
+    fun `submission on behalf when owner and submitter has the same file`() {
+        securityTestService.registerUser(RegularUser)
+        val regularClient = getWebClient(serverPort, RegularUser)
 
-        @Test
-        fun `submission on behalf when owner and submitter has the same file`() {
-            securityTestService.registerUser(RegularUser)
-            val regularClient = getWebClient(serverPort, RegularUser)
+        regularClient.uploadFile(tempFolder.createDirectory("a").createNewFile("file.txt", "owner data"))
+        webClient.uploadFile(tempFolder.createDirectory("b").createNewFile("file.txt", "submitter data"))
 
-            regularClient.uploadFile(tempFolder.createDirectory("a").createNewFile("file.txt", "owner data"))
-            webClient.uploadFile(tempFolder.createDirectory("b").createNewFile("file.txt", "submitter data"))
+        val submission = tsv {
+            line("Submission")
+            line("Title", "Submission Title")
+            line()
 
-            val submission = tsv {
-                line("Submission")
-                line("Title", "Submission Title")
-                line()
+            line("Study")
+            line()
 
-                line("Study")
-                line()
+            line("File", "file.txt")
+            line()
+        }.toString()
 
-                line("File", "file.txt")
-                line()
-            }.toString()
+        val onBehalfClient = SecurityWebClient
+            .create("http://localhost:$serverPort")
+            .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-            val onBehalfClient = SecurityWebClient
-                .create("http://localhost:$serverPort")
-                .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+        val response = onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)
+        assertThat(response).isSuccessful()
 
-            val response = onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)
-            assertThat(response).isSuccessful()
-
-            val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
-            val testFile = tempFolder.resolve("submission/$subRelPath/Files/file.txt")
-            assertThat(testFile).exists()
-            assertThat(testFile).hasContent("submitter data")
-        }
+        val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
+        val testFile = tempFolder.resolve("submission/$subRelPath/Files/file.txt")
+        assertThat(testFile).exists()
+        assertThat(testFile).hasContent("submitter data")
     }
 }
