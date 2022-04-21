@@ -4,8 +4,8 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
@@ -19,8 +19,7 @@ import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
-import ebi.ac.uk.extended.mapping.from.toExtAttribute
-import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -147,7 +146,7 @@ class SubmissionSubmitter(
             tags = submission.tags.map { ExtTag(it.first, it.second) },
             collections = tags.map { ExtCollection(it) },
             section = toExtSectionMapper.convert(submission.section, source),
-            attributes = getAttributes(submission),
+            attributes = submission.attributes.toExtAttributes(SUBMISSION_RESERVED_ATTRIBUTES),
             storageMode = if (properties.persistence.enableFire) FIRE else NFS
         )
     }
@@ -169,12 +168,6 @@ class SubmissionSubmitter(
     private fun getCollectionInfo(user: User, sub: Submission, accNo: String, isNew: Boolean): CollectionResponse? {
         val request = CollectionRequest(user.email, sub.section.type, sub.accNoTemplate, accNo, isNew)
         return collectionInfoService.process(request)
-    }
-
-    private fun getAttributes(submission: Submission): List<ExtAttribute> {
-        return submission.attributes
-            .filterNot { SUBMISSION_RESERVED_ATTRIBUTES.contains(it.name) }
-            .map { it.toExtAttribute() }
     }
 
     private fun getAccNumber(sub: Submission, isNew: Boolean, user: User, parentPattern: String?): AccNumber {

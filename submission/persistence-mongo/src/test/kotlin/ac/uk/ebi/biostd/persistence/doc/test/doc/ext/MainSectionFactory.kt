@@ -15,14 +15,14 @@ const val ROOT_SEC_TYPE = "Study1"
 const val SUB_SEC_TYPE = "Study2"
 const val SUB_SEC_TABLE_TYPE = "Study3"
 
-const val ROOT_SEC_EXT_FILE_LIST_FILENAME = "listFileName1"
-const val SUB_SEC_EXT_FILE_LIST_FILENAME = "listFileName2"
+const val ROOT_SEC_EXT_FILE_LIST_PATH = "listFileName1"
+const val SUB_SEC_EXT_FILE_LIST_PATH = "folder/listFileName2"
 
 val subSection = ExtSection(
     accNo = SUB_SEC_ACC_NO,
     type = SUB_SEC_TYPE,
     fileList = ExtFileList(
-        filePath = SUB_SEC_EXT_FILE_LIST_FILENAME,
+        filePath = SUB_SEC_EXT_FILE_LIST_PATH,
         files = listOf(subSectionFileListFile)
     )
 )
@@ -49,7 +49,7 @@ val rootSection = ExtSection(
     accNo = ROOT_SEC_ACC_NO,
     type = ROOT_SEC_TYPE,
     fileList = ExtFileList(
-        filePath = ROOT_SEC_EXT_FILE_LIST_FILENAME,
+        filePath = ROOT_SEC_EXT_FILE_LIST_PATH,
         files = listOf(rootSectionFileListFile)
     ),
     attributes = listOf(rootSectionAttribute),

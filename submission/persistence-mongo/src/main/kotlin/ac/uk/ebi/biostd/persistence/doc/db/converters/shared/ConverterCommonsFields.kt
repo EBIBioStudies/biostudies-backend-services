@@ -52,7 +52,6 @@ object FireDocFileFields {
 object DocFileListFields {
     val DOC_FILE_LIST_CLASS: String = DocFileList::class.java.canonicalName
     const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
-    const val FILE_LIST_DOC_FILES = "files"
     const val FILE_LIST_DOC_PAGE_TAB_FILES = "pageTabFiles"
 }
 

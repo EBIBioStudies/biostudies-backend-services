@@ -12,7 +12,6 @@ import ebi.ac.uk.dsl.filesTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.NfsBioFile
 import ebi.ac.uk.model.File
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.Submission
@@ -56,7 +55,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val fileList = tempFolder.createFile(fileListName, "test file list")
         val inputStream = slot<InputStream>()
 
-        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { source.getFile(fileListName) } returns fileList
         every { serializer.deserializeFileList(capture(inputStream), JSON) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
@@ -72,7 +71,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val fileList = tempFolder.createFile(fileListName, "test file list")
         val inputStream = slot<InputStream>()
 
-        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { source.getFile(fileListName) } returns fileList
         every { serializer.deserializeFileList(capture(inputStream), TSV) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
@@ -88,7 +87,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val fileList = tempFolder.createFile(fileListName, "test file list")
         val inputStream = slot<InputStream>()
 
-        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { source.getFile(fileListName) } returns fileList
         every { serializer.deserializeFileList(capture(inputStream), XML) } returns filesTable
 
         testInstance.deserializeFileList(submission, source)
@@ -108,7 +107,8 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         tempFile.writeText("test file list")
 
         mockkObject(ExcelReader)
-        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+
+        every { source.getFile(fileListName) } returns fileList
         every { asTsv(fileList) } returns tempFile
         every { serializer.deserializeFileList(capture(inputStream), XlsxTsv) } returns filesTable
 
@@ -124,7 +124,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val fileList = tempFolder.createFile(fileListName, "test file list")
         val inputStream = slot<InputStream>()
 
-        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { source.getFile(fileListName) } returns fileList
         every { serializer.deserializeFileList(capture(inputStream), TSV) } returns filesTable
 
         assertFileList(testInstance.deserializeFileList(fileListName, source), fileListName)
@@ -137,7 +137,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val submission = testSubmission(fileListName)
         val fileList = tempFolder.createFile(fileListName)
 
-        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { source.getFile(fileListName) } returns fileList
 
         val exception = assertThrows<InvalidFileListException> { testInstance.deserializeFileList(submission, source) }
 
@@ -153,7 +153,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val fileList = tempFolder.root.resolve(fileListName)
 
         fileList.mkdirs()
-        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { source.getFile(fileListName) } returns fileList
 
         val exception = assertThrows<InvalidFileListException> { testInstance.deserializeFileList(submission, source) }
 
@@ -168,7 +168,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val fileList = tempFolder.createFile(fileListName, "test file list")
         val inputStream = slot<InputStream>()
 
-        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { source.getFile(fileListName) } returns fileList
         every { serializer.deserializeFileList(capture(inputStream), TSV) } throws InvalidChunkSizeException()
 
         val exception = assertThrows<InvalidFileListException> {
@@ -186,7 +186,7 @@ class FileListSerializerTest(private val tempFolder: TemporaryFolder) {
         val fileList = tempFolder.createFile(fileListName, "test file list")
         val inputStream = slot<InputStream>()
 
-        every { source.getFile(fileListName) } returns NfsBioFile(fileList)
+        every { source.getFile(fileListName) } returns fileList
         every { serializer.deserializeFileList(capture(inputStream), TSV) } throws ClassCastException()
 
         val exception = assertThrows<InvalidFileListException> {

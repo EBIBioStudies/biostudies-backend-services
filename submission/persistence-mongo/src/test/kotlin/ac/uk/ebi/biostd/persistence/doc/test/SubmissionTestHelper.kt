@@ -31,7 +31,7 @@ internal const val STAT_VALUE = 123L
 internal const val REL_PATH = "S-TEST/123/S-TEST123"
 
 val fireDocFile = FireDocFile("filename", "filePath", "relPath", "fireId", listOf(), "md5", 1L)
-val fireDocDirectory = FireDocDirectory("filename", "filePath", "relPath", listOf(), "md5", 1L)
+val fireDocDirectory = FireDocDirectory("filename", "filePath", "relPath", "dirFireId", listOf(), "md5", 1L)
 val nfsDocFile = NfsDocFile("filename", "filePath", "relPath", "fileAbsPath", listOf(), "md5", 1L, "fileType")
 
 object SubmissionTestHelper {

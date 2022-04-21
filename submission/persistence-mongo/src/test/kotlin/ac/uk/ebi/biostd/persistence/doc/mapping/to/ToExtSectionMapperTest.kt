@@ -30,7 +30,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
-class ToExtSectionMapperTest(private val temporaryFolder: TemporaryFolder) {
+class ToExtSectionMapperTest(
+    temporaryFolder: TemporaryFolder
+) {
     private val sectionFile =
         temporaryFolder.root.resolve("submissions/S-TEST/123/S-TEST123/$FILES_DIR/$TEST_FILENAME").apply { mkdirs() }
     private val extFileList = mockk<ExtFileList>()

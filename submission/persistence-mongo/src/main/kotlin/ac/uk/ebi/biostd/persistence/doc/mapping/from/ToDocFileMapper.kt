@@ -28,7 +28,7 @@ class ToDocFileListMapper {
         version: Int
     ): Pair<DocFileList, List<FileListDocFile>> {
         val listFiles = extFileList.files.mapIndexed { index, file ->
-            toFileDocListFile(submissionId, accNo, extFileList.fileName, version, index, file)
+            toFileDocListFile(submissionId, accNo, extFileList.filePath, version, index, file)
         }
         val pageTabFiles = extFileList.pageTabFiles.map { it.toDocFile() }
         return Pair(DocFileList(extFileList.filePath, pageTabFiles), listFiles)
@@ -72,6 +72,7 @@ internal fun ExtFile.toDocFile(): DocFile = when (this) {
         fileName = fileName,
         filePath = filePath,
         relPath = relPath,
+        fireId = fireId,
         attributes = attributes.map { it.toDocAttribute() },
         md5 = md5,
         fileSize = size,

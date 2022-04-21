@@ -43,6 +43,7 @@ data class FireFile(
 data class FireDirectory(
     override val filePath: String,
     override val relPath: String,
+    val fireId: String,
     override val md5: String,
     val size: Long,
     override val attributes: List<ExtAttribute>
@@ -59,7 +60,12 @@ data class NfsFile(
 ) : ExtFile()
 
 @Deprecated(message = "Only for testing. Prefer default class constructor to avoid computation of md5 and size.")
-fun createNfsFile(filePath: String, relpath: String, file: File, attributes: List<ExtAttribute> = listOf()): NfsFile =
+fun createNfsFile(
+    filePath: String,
+    relpath: String,
+    file: File,
+    attributes: List<ExtAttribute> = listOf()
+): NfsFile =
     NfsFile(filePath, relpath, file, file.absolutePath, file.md5(), file.size(), attributes)
 
 data class ExtFileList(

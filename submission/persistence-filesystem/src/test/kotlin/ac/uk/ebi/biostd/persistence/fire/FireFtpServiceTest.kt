@@ -6,10 +6,10 @@ import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.test.basicExtSubmission as basicExtSub
+import ebi.ac.uk.extended.model.FireDirectory
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -20,7 +20,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
-import uk.ac.ebi.fire.client.model.FireFile as ClientFireFile
+import ebi.ac.uk.test.basicExtSubmission as basicExtSub
+import uk.ac.ebi.fire.client.model.FireApiFile as ClientFireFile
 
 @ExtendWith(MockKExtension::class)
 class FireFtpServiceTest(
@@ -94,12 +95,14 @@ class FireFtpServiceTest(
         verifyPublishFile(INNER_FILE)
         verifyPublishFile(INNER_FILE_TABLE)
         verifyPublishFile(SUB_FILE_PAGE_TAB)
+        verifyPublishFile(FIRE_DIR)
     }
 
     private fun createExtSubmission(
         fileFileList: FireFile,
         innerFileListFile: FireFile
     ): ExtSubmission {
+        val fireDir = fireDir()
         val filePageTab = fireFile(FILE_PAGE_TAB)
         val file = fireFile(FILE)
         val fileTable = fireFile(FILE_TABLE)
@@ -109,7 +112,7 @@ class FireFtpServiceTest(
         val section = ExtSection(
             type = "Study",
             fileList = ExtFileList("fileName1", files = listOf(fileFileList), pageTabFiles = listOf(filePageTab)),
-            files = listOf(left(file), right(ExtFileTable(fileTable))),
+            files = listOf(left(file), left(fireDir), right(ExtFileTable(fileTable))),
             sections = listOf(
                 left(
                     ExtSection(
@@ -127,6 +130,8 @@ class FireFtpServiceTest(
         return basicExtSub.copy(section = section, pageTabFiles = listOf(fireFile(fireId = SUB_FILE_PAGE_TAB)))
     }
 
+    private fun fireDir() = FireDirectory("folder", "Files/Folder", FIRE_DIR, "dir-md5", 2L, listOf())
+
     private fun fireFile(fireId: String) = FireFile("a/test.txt", "relPath", fireId, "md5", 1, listOf())
 
     private companion object {
@@ -139,5 +144,6 @@ class FireFtpServiceTest(
         const val INNER_FILE = "abc7"
         const val INNER_FILE_TABLE = "abc8"
         const val SUB_FILE_PAGE_TAB = "abc9"
+        const val FIRE_DIR = "abc10"
     }
 }

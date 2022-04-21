@@ -88,7 +88,7 @@ class ExtSubmissionRepositoryTest(
         val fileListDocFile = fileListDocFiles.first()
         assertThat(fileListDocFile.file).isEqualTo(defaultFireFile().toDocFile())
         assertThat(fileListDocFile.submissionId).isEqualTo(savedSubmission.id)
-        assertThat(fileListDocFile.fileListName).isEqualTo(FILE_PATH.substringAfterLast("/"))
+        assertThat(fileListDocFile.fileListName).isEqualTo(FILE_PATH)
         assertThat(fileListDocFile.index).isEqualTo(0)
         assertThat(fileListDocFile.submissionVersion).isEqualTo(savedSubmission.version)
         assertThat(fileListDocFile.submissionAccNo).isEqualTo(submission.accNo)

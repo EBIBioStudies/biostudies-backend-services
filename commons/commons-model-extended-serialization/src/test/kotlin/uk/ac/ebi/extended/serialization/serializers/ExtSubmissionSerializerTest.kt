@@ -12,15 +12,15 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -163,7 +163,7 @@ class ExtSubmissionSerializerTest {
                 stats = listOf(ExtStat("component", "web")),
                 pageTabFiles = listOf(
                     FireFile("S-TEST1", "S-TEST1", "fireId", "md5", 1L, listOf()),
-                    FireDirectory("S-TEST1", "S-TEST1", "md5", 2L, listOf()),
+                    FireDirectory("S-TEST1", "S-TEST1", "dirFireId", "md5", 2L, listOf()),
                     NfsFile("S-TEST1", "S-TEST1", File("anyPath"), "/test//S-TEST1", "md5", 55, listOf())
                 )
             )

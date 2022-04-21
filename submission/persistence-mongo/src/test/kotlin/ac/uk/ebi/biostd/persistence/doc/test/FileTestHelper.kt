@@ -11,8 +11,8 @@ import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
-import java.io.File
 import org.assertj.core.api.Assertions.assertThat
+import java.io.File
 
 internal const val TEST_FILENAME = "file.txt"
 internal const val TEST_FILEPATH = "folder/file.txt"
@@ -23,6 +23,7 @@ internal const val TEST_FULL_PATH = "/a/full/path/file.txt"
 internal const val TEST_FILE_LIST = "file-list"
 private const val TEST_MD5 = "a-test-md5"
 private const val TEST_FIRE_FILE_ID = "fireFileId"
+private const val TEST_FIRE_DIR_ID = "fireDirId"
 private const val TEST_FIRE_FILE_SIZE = 10L
 private const val FILE_TYPE = "file"
 private const val SIZE = 30L
@@ -54,6 +55,7 @@ internal object FileTestHelper {
             fileName = TEST_DIRECTORY,
             filePath = TEST_FILEPATH_DIRECTORY,
             relPath = TEST_REL_PATH,
+            fireId = TEST_FIRE_DIR_ID,
             attributes = listOf(basicDocAttribute),
             md5 = TEST_MD5,
             fileSize = TEST_FIRE_FILE_SIZE,
@@ -88,13 +90,14 @@ internal object FileTestHelper {
         assertBasicExtAttribute(fireFile.attributes.first())
     }
 
-    private fun assertFireDirectory(fireFile: FireDirectory) {
-        assertThat(fireFile.fileName).isEqualTo(TEST_DIRECTORY)
-        assertThat(fireFile.filePath).isEqualTo(TEST_FILEPATH_DIRECTORY)
-        assertThat(fireFile.relPath).isEqualTo(TEST_REL_PATH)
-        assertThat(fireFile.md5).isEqualTo(TEST_MD5)
-        assertThat(fireFile.size).isEqualTo(TEST_FIRE_FILE_SIZE)
-        assertThat(fireFile.attributes).hasSize(1)
-        assertBasicExtAttribute(fireFile.attributes.first())
+    private fun assertFireDirectory(fireDirectory: FireDirectory) {
+        assertThat(fireDirectory.fileName).isEqualTo(TEST_DIRECTORY)
+        assertThat(fireDirectory.filePath).isEqualTo(TEST_FILEPATH_DIRECTORY)
+        assertThat(fireDirectory.relPath).isEqualTo(TEST_REL_PATH)
+        assertThat(fireDirectory.fireId).isEqualTo(TEST_FIRE_DIR_ID)
+        assertThat(fireDirectory.md5).isEqualTo(TEST_MD5)
+        assertThat(fireDirectory.size).isEqualTo(TEST_FIRE_FILE_SIZE)
+        assertThat(fireDirectory.attributes).hasSize(1)
+        assertBasicExtAttribute(fireDirectory.attributes.first())
     }
 }

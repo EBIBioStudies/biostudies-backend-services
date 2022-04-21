@@ -87,6 +87,7 @@ internal class FileConverterTest(
             fileName = "fire-directory",
             filePath = FILE_DOC_FILEPATH,
             relPath = FILE_DOC_REL_PATH,
+            fireId = "dirFireId",
             attributes = listOf(docAttribute),
             md5 = FILE_DOC_MD5,
             fileSize = 10L
@@ -97,6 +98,7 @@ internal class FileConverterTest(
         assertThat(result[FILE_DOC_FILENAME]).isEqualTo("fire-directory")
         assertThat(result[FILE_DOC_FILEPATH]).isEqualTo("filePath")
         assertThat(result[FILE_DOC_REL_PATH]).isEqualTo("relPath")
+        assertThat(result[FIRE_FILE_DOC_ID]).isEqualTo("dirFireId")
         assertThat(result[FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
         assertThat(result[FILE_DOC_SIZE]).isEqualTo(10L)

@@ -1,7 +1,7 @@
 @file:Suppress("LongParameterList", "MagicNumber")
+
 package uk.ac.ebi.extended.test
 
-import uk.ac.ebi.extended.test.SectionFactory.defaultSection
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtAttributeDetail
@@ -9,8 +9,11 @@ import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
@@ -18,12 +21,10 @@ import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import uk.ac.ebi.extended.test.SectionFactory.defaultSection
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
@@ -156,17 +157,20 @@ object FireDirectoryFactory {
     fun defaultFireDirectory(
         filePath: String = FILE_PATH,
         relPath: String = REL_PATH,
+        fireId: String = FIRE_ID,
         md5: String = MD5,
         size: Long = SIZE,
         attributes: List<ExtAttribute> = ATTRIBUTES,
     ) = FireDirectory(
         filePath = filePath,
         relPath = relPath,
+        fireId = fireId,
         md5 = md5,
         size = size,
         attributes = attributes
     )
 
+    const val FIRE_ID = "dirFireId"
     const val FILE_PATH = "folder/file.txt"
     const val REL_PATH = "Files/folder/file.txt"
     const val MD5 = "md5"

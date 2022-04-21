@@ -38,6 +38,7 @@ class FileConverter(private val attributeConverter: AttributeConverter) : Conver
             }
             is FireDocDirectory -> {
                 file[classField] = FIRE_DOC_DIRECTORY_CLASS
+                file[FIRE_FILE_DOC_ID] = docFile.fireId
             }
             is NfsDocFile -> {
                 file[classField] = NFS_DOC_FILE_CLASS
