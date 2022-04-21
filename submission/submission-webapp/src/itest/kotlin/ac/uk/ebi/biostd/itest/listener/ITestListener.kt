@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.itest.listener
 
-import ac.uk.ebi.biostd.itest.common.SpecificMySQLContainer
 import ac.uk.ebi.biostd.itest.common.TestWireMockTransformer
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
@@ -17,6 +16,7 @@ import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestPlan
 import org.springframework.util.StopWatch
 import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.fire.client.api.FIRE_OBJECTS_URL
@@ -32,11 +32,7 @@ class ITestListener : TestExecutionListener {
     private val mongoContainer: MongoDBContainer =
         MongoDBContainer(DockerImageName.parse(MONGO_VERSION)).withStartupCheckStrategy(
             MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
-    private val mysqlContainer =
-        SpecificMySQLContainer(MYSQL_VERSION)
-            .withCommand("mysqld --character-set-server=$CHARACTER_SET --collation-server=$COLLATION")
-            .withInitScript("Schema.sql")
-            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+
 
     override fun testPlanExecutionStarted(testPlan: TestPlan) {
         stopWatch.start()
@@ -70,7 +66,7 @@ class ITestListener : TestExecutionListener {
 
     private fun mySqlSetup() {
         mysqlContainer.start()
-        System.setProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
+         System.setProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
         System.setProperty("spring.datasource.username", mysqlContainer.username)
         System.setProperty("spring.datasource.password", mysqlContainer.password)
     }
@@ -105,10 +101,17 @@ class ITestListener : TestExecutionListener {
         val tempFolder: File = Files.createTempDirectory("tempFolder").toFile()
         private val wireMockTransformer = TestWireMockTransformer(tempFolder.createDirectory("submission"))
         private val fireWireMock = WireMockServer(WireMockConfiguration().dynamicPort().extensions(wireMockTransformer))
-
+        val mysqlContainer =
+            SpecificMySQLContainer(MYSQL_VERSION)
+                .withCommand("mysqld --character-set-server=$CHARACTER_SET --collation-server=$COLLATION")
+                .withInitScript("Schema.sql")
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
         private val fireTempFolder
             get() = "${System.getProperty("app.tempDirPath")}/fire-temp"
         val submissionPath
             get() = "${tempFolder.absolutePath}/submission"
     }
 }
+
+class SpecificMySQLContainer(image: String) : MySQLContainer<SpecificMySQLContainer>(image)
+

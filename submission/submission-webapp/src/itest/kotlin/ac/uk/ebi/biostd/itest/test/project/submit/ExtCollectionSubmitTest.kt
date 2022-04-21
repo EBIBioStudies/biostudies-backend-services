@@ -5,9 +5,13 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ebi.ac.uk.asserts.assertThat
@@ -36,15 +40,19 @@ class ExtCollectionSubmitTest(
     @Autowired val tagsDataRepository: AccessTagDataRepo,
     @Autowired val submissionRepository: SubmissionQueryService,
     @Autowired val sequenceRepository: SequenceDataRepository,
+    @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @LocalServerPort val serverPort: Int
     ) {
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
     fun init() {
-        securityTestService.deleteSuperUser()
-        tagsDataRepository.deleteAll()
+        tempFolder.clean()
+
         sequenceRepository.deleteAll()
+        accessPermissionRepository.deleteAll()
+        tagsDataRepository.deleteAll()
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)

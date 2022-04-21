@@ -4,12 +4,16 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
+import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ebi.ac.uk.test.clean
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -27,21 +31,27 @@ private const val GROUP_NAME = "Bio-test-group"
 private const val GROUP_DESC = "Bio-test-group description"
 
 @Import(PersistenceConfig::class)
-@ExtendWith(SpringExtension::class, TemporaryFolderExtension::class)
+@ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 class UserGroupsApiTest(
     @Autowired private val securityTestService: SecurityTestService,
-    @LocalServerPort val serverPort: Int,
-    private val tempFolder: TemporaryFolder,
+    @Autowired val sequenceRepository: SequenceDataRepository,
+    @Autowired private val accessPermissionRepository: AccessPermissionRepository,
+    @Autowired private val tagsDataRepository: AccessTagDataRepo,
+    @LocalServerPort val serverPort: Int
 ) {
     private lateinit var superWebClient: BioWebClient
     private lateinit var regularWebClient: BioWebClient
 
     @BeforeAll
     fun init() {
-        securityTestService.deleteSuperUser()
-        securityTestService.deleteRegularUser()
+        tempFolder.clean()
+
+        sequenceRepository.deleteAll()
+        accessPermissionRepository.deleteAll()
+        tagsDataRepository.deleteAll()
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         securityTestService.registerUser(RegularUser)

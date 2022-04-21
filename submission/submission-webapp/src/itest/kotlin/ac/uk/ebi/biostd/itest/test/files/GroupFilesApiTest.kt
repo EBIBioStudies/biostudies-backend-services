@@ -3,17 +3,23 @@ package ac.uk.ebi.biostd.itest.test.files
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.SubmitterConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.TestGroup.testGroupDescription
 import ac.uk.ebi.biostd.itest.entities.TestGroup.testGroupName
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
+import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.io.ext.createNewFile
 import java.io.File
 import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,13 +37,23 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @DirtiesContext
 class GroupFilesApiTest(
     @Autowired val securityTestService: SecurityTestService,
+    @Autowired private val tagsDataRepository: AccessTagDataRepo,
+    @Autowired val sequenceRepository: SequenceDataRepository,
+    @Autowired private val accessPermissionRepository: AccessPermissionRepository,
+    @Autowired private val groupRepository: UserGroupDataRepository,
     @LocalServerPort val serverPort: Int
     ) {
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
     fun init() {
-        securityTestService.deleteSuperUser()
+        tempFolder.clean()
+
+        sequenceRepository.deleteAll()
+        groupRepository.deleteAll()
+        accessPermissionRepository.deleteAll()
+        tagsDataRepository.deleteAll()
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
 
@@ -47,7 +63,7 @@ class GroupFilesApiTest(
 
     @BeforeEach
     fun beforeEach() {
-        tempFolder.listFiles()?.forEach { it.delete() }
+        tempFolder.clean()
     }
 
     @Test

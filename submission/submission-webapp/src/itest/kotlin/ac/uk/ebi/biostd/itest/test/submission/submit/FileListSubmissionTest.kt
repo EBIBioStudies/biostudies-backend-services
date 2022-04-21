@@ -48,13 +48,12 @@ class FileListSubmissionTest(
     @Autowired private val submissionRepository: SubmissionQueryService,
     @LocalServerPort val serverPort: Int
 ) {
-
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
     fun init() {
         tempFolder.clean()
-        securityTestService.deleteSuperUser()
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)

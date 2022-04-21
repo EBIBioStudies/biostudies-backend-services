@@ -5,18 +5,22 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.common.createUser
 import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.DefaultUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
+import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
@@ -42,6 +46,7 @@ class SubmitPermissionTest(
     @Autowired private val tagsDataRepository: AccessTagDataRepo,
     @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @Autowired private val submissionDocDataRepository: SubmissionDocDataRepository,
+    @Autowired val sequenceRepository: SequenceDataRepository,
     @LocalServerPort val serverPort: Int
     ) {
     private val project = tsv {
@@ -57,12 +62,13 @@ class SubmitPermissionTest(
 
     @BeforeAll
     fun init() {
+        tempFolder.clean()
+
+        sequenceRepository.deleteAll()
         accessPermissionRepository.deleteAll()
         tagsDataRepository.deleteAll()
-        userDataRepository.deleteAll()
         submissionDocDataRepository.deleteAll()
-        securityTestService.deleteSuperUser()
-        securityTestService.deleteRegularUser()
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         securityTestService.registerUser(RegularUser)

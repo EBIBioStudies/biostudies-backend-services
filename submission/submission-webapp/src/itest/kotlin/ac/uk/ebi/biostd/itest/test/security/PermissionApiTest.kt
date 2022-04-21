@@ -4,15 +4,22 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import com.mongodb.client.model.BsonField
+import com.mongodb.client.model.Updates
 import org.assertj.core.api.Assertions.assertThat
+import org.bson.Document
+import org.bson.conversions.Bson
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -22,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
@@ -41,12 +49,11 @@ class PermissionApiTest(
 
     @BeforeAll
     fun init() {
+        tempFolder.clean()
+
         accessPermissionRepository.deleteAll()
         accessTagRepository.deleteAll()
-        userDataRepository.deleteAll()
-        securityTestService.deleteSuperUser()
-        securityTestService.deleteRegularUser()
-
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         securityTestService.registerUser(RegularUser)

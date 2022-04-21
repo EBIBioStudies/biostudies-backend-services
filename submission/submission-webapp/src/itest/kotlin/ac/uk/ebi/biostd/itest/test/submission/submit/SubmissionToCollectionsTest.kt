@@ -11,6 +11,9 @@ import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
+import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
@@ -39,6 +42,9 @@ class SubmissionToCollectionsTest(
     @Autowired private val securityTestService: SecurityTestService,
     @Autowired private val submissionRepository: SubmissionQueryService,
     @Autowired private val testCollectionValidator: TestCollectionValidator,
+    @Autowired private val tagsDataRepository: AccessTagDataRepo,
+    @Autowired val sequenceRepository: SequenceDataRepository,
+    @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @Autowired private val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int
 ) {
@@ -47,7 +53,11 @@ class SubmissionToCollectionsTest(
     @BeforeAll
     fun init() {
         tempFolder.clean()
-        securityTestService.deleteSuperUser()
+
+        sequenceRepository.deleteAll()
+        accessPermissionRepository.deleteAll()
+        tagsDataRepository.deleteAll()
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
 

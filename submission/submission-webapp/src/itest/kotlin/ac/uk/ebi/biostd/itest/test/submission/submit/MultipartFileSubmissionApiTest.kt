@@ -15,6 +15,9 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
@@ -49,17 +52,23 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class MultipartFileSubmissionApiTest(
     @Autowired private val submissionRepository: SubmissionQueryService,
+    @Autowired val sequenceRepository: SequenceDataRepository,
+    @Autowired val tagsRefRepository: TagDataRepository,
+    @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @Autowired private val securityTestService: SecurityTestService,
     @Autowired private val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int
 ) {
-
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
     fun init() {
         tempFolder.clean()
-        securityTestService.deleteSuperUser()
+
+        sequenceRepository.deleteAll()
+        accessPermissionRepository.deleteAll()
+        tagsRefRepository.deleteAll()
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
@@ -246,9 +255,9 @@ class MultipartFileSubmissionApiTest(
         val submission = tempFolder.createNewFile("submission.txt", "invalid file")
 
         assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
-                webClient.submitSingle(submission,
-                    emptyList())
-            }.withMessageContaining("Unsupported page tab format submission.txt")
+            webClient.submitSingle(submission,
+                emptyList())
+        }.withMessageContaining("Unsupported page tab format submission.txt")
     }
 
     private fun getSimpleSubmission(accNo: String) =

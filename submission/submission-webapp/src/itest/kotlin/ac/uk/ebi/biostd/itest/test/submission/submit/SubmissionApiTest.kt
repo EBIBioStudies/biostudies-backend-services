@@ -16,8 +16,10 @@ import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -66,8 +68,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 class SubmissionApiTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val submissionRepository: SubmissionQueryService,
+    @Autowired val submissionDocDataRepository: SubmissionDocDataRepository,
     @Autowired val sequenceRepository: SequenceDataRepository,
     @Autowired val tagsRefRepository: TagDataRepository,
+    @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @Autowired val userDataRepository: UserDataRepository,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int
@@ -77,9 +81,12 @@ class SubmissionApiTest(
     @BeforeAll
     fun init() {
         tempFolder.clean()
+
         sequenceRepository.deleteAll()
+        accessPermissionRepository.deleteAll()
         tagsRefRepository.deleteAll()
-        securityTestService.deleteSuperUser()
+        submissionDocDataRepository.deleteAll()
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)

@@ -3,7 +3,12 @@ package ac.uk.ebi.biostd.itest.test.security
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
+import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ebi.ac.uk.api.security.RegisterRequest
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -20,13 +25,22 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @DirtiesContext
 class SecurityApiTest(
     @Autowired var securityTestService: SecurityTestService,
+    @Autowired private val accessTagRepository: AccessTagDataRepo,
+    @Autowired private val accessPermissionRepository: AccessPermissionRepository,
+    @Autowired private val sequenceDataRepository: SequenceDataRepository,
     @LocalServerPort val serverPort: Int
     ) {
     private lateinit var webClient: SecurityWebClient
 
     @BeforeAll
     fun init() {
-        securityTestService.deleteSuperUser()
+        tempFolder.clean()
+
+        sequenceDataRepository.deleteAll()
+        accessPermissionRepository.deleteAll()
+        accessTagRepository.deleteAll()
+        securityTestService.deleteAllDbUsers()
+
         webClient = SecurityWebClient.create("http://localhost:$serverPort")
     }
 

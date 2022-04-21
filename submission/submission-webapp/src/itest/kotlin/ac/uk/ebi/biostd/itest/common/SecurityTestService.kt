@@ -14,9 +14,8 @@ import ebi.ac.uk.security.service.SecurityService
 class SecurityTestService(
     private val securityService: SecurityService,
     private val userDataRepository: UserDataRepository,
-    private val groupService: IGroupService,
+    private val groupService: IGroupService
 ) {
-
     fun registerUser(testUser: TestUser): SecurityUser {
         val user = securityService.registerUser(testUser.asRegisterRequest())
         if (testUser.superUser) {
@@ -42,6 +41,10 @@ class SecurityTestService(
 
     fun deleteSuperUser() {
         userDataRepository.findByEmail(SuperUser.email)?.let { userDataRepository.delete(it) }
+    }
+
+    fun deleteAllDbUsers() {
+        userDataRepository.deleteAll()
     }
 
     fun deleteDefaultUser() {

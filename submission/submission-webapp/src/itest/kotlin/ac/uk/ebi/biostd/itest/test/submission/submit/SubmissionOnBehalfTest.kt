@@ -13,6 +13,8 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.model.DbSequence
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.dto.UserRegistration
@@ -42,7 +44,9 @@ class SubmissionOnBehalfTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val submissionRepository: SubmissionQueryService,
     @Autowired val userDataRepository: UserDataRepository,
+    @Autowired private val tagsDataRepository: AccessTagDataRepo,
     @Autowired val sequenceRepository: SequenceDataRepository,
+    @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int
 ) {
@@ -51,6 +55,11 @@ class SubmissionOnBehalfTest(
     @BeforeAll
     fun init() {
         tempFolder.clean()
+
+        sequenceRepository.deleteAll()
+        accessPermissionRepository.deleteAll()
+        tagsDataRepository.deleteAll()
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)

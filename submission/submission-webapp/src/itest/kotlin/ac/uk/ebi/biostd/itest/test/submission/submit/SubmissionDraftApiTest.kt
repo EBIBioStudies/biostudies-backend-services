@@ -10,6 +10,9 @@ import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
+import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -33,6 +36,9 @@ import org.springframework.transaction.annotation.Transactional
 class SubmissionDraftApiTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val dataService: UserDataService,
+    @Autowired private val tagsDataRepository: AccessTagDataRepo,
+    @Autowired val sequenceRepository: SequenceDataRepository,
+    @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @LocalServerPort val serverPort: Int
 ) {
     private lateinit var securityUser: SecurityUser
@@ -41,7 +47,11 @@ class SubmissionDraftApiTest(
     @BeforeAll
     fun init() {
         tempFolder.clean()
-        securityTestService.deleteSuperUser()
+
+        sequenceRepository.deleteAll()
+        accessPermissionRepository.deleteAll()
+        tagsDataRepository.deleteAll()
+        securityTestService.deleteAllDbUsers()
 
         securityUser = securityTestService.registerUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)

@@ -2,8 +2,11 @@ package ac.uk.ebi.biostd.itest.test.submission.query
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ebi.ac.uk.dsl.json.jsonObj
@@ -37,8 +40,10 @@ class SubmissionDraftListApiTest(
 
     @BeforeAll
     fun init() {
+        tempFolder.clean()
+
         submissionDraftRepository.deleteAll()
-        securityTestService.deleteSuperUser()
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)

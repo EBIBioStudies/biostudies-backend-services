@@ -5,21 +5,23 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
+import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.test.createFile
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import ebi.ac.uk.io.ext.createNewFile
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -33,7 +35,7 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @Import(PersistenceConfig::class)
-@ExtendWith(SpringExtension::class, TemporaryFolderExtension::class)
+@ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 class DeletePermissionTest(
@@ -41,20 +43,21 @@ class DeletePermissionTest(
     @Autowired private val userDataRepository: UserDataRepository,
     @Autowired private val submissionRepository: SubmissionQueryService,
     @Autowired private val tagsDataRepository: AccessTagDataRepo,
+    @Autowired val sequenceRepository: SequenceDataRepository,
     @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @LocalServerPort val serverPort: Int,
-    private val tempFolder: TemporaryFolder
     ) {
     private lateinit var superUserWebClient: BioWebClient
     private lateinit var regularUserWebClient: BioWebClient
 
     @BeforeAll
     fun init() {
+        tempFolder.clean()
+
+        sequenceRepository.deleteAll()
         accessPermissionRepository.deleteAll()
         tagsDataRepository.deleteAll()
-        userDataRepository.deleteAll()
-        securityTestService.deleteSuperUser()
-        securityTestService.deleteRegularUser()
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         securityTestService.registerUser(RegularUser)
@@ -165,7 +168,7 @@ class DeletePermissionTest(
 
             line("Project")
         }.toString()
-        val projectFile = tempFolder.createFile("a-project.tsv", project)
+        val projectFile = tempFolder.createNewFile("a-project.tsv", project)
 
         assertThat(superUserWebClient.submitSingle(projectFile, emptyList())).isSuccessful()
 

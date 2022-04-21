@@ -2,20 +2,18 @@ package ac.uk.ebi.biostd.itest.test.files
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
-import ebi.ac.uk.test.clean
-import ebi.ac.uk.test.createFile
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import ebi.ac.uk.io.ext.createNewFile
 import java.io.File
 import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,19 +22,20 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
-@ExtendWith(SpringExtension::class, TemporaryFolderExtension::class)
+@ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 class UserFileApiTest(
     @Autowired val securityTestService: SecurityTestService,
-    @LocalServerPort val serverPort: Int,
-    private val localFolder: TemporaryFolder
+    @LocalServerPort val serverPort: Int
 ) {
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
     fun init() {
-        securityTestService.deleteSuperUser()
+        tempFolder.clean()
+
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
@@ -44,7 +43,7 @@ class UserFileApiTest(
 
     @BeforeEach
     fun beforeEach() {
-        localFolder.clean()
+        tempFolder.clean()
     }
 
     @Test
@@ -63,7 +62,7 @@ class UserFileApiTest(
     }
 
     private fun testUserFilesGroup(path: String = "") {
-        val file = localFolder.createFile("FileList1.txt", "An example content")
+        val file = tempFolder.createNewFile("FileList1.txt", "An example content")
         webClient.uploadFiles(listOf(file), relativePath = path)
 
         val files = webClient.listUserFiles(relativePath = path)

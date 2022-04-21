@@ -38,15 +38,15 @@ class AllInOneSubmissionTest(
     @Autowired val securityTestService: SecurityTestService,
     @LocalServerPort val serverPort: Int
 ) {
-
     private lateinit var webClient: BioWebClient
     private lateinit var allInOneSubmissionHelper: AllInOneSubmissionHelper
     private val toSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper()))
 
     @BeforeAll
     fun init() {
-        tempFolder.clean()
-        securityTestService.deleteSuperUser()
+         tempFolder.clean()
+
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)

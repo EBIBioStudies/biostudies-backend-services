@@ -4,18 +4,21 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
+import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
+import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
-import ebi.ac.uk.test.createFile
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import java.net.URLEncoder.encode
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -30,21 +33,28 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @Import(PersistenceConfig::class, MongoDbReposConfig::class)
-@ExtendWith(SpringExtension::class, TemporaryFolderExtension::class)
+@ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 class SubmissionListApiTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val submissionMongoRepository: SubmissionDocDataRepository,
+    @Autowired private val tagsDataRepository: AccessTagDataRepo,
+    @Autowired val sequenceRepository: SequenceDataRepository,
+    @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @LocalServerPort val serverPort: Int,
-    private val tempFolder: TemporaryFolder
-    ) {
+) {
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
     fun init() {
+        tempFolder.clean()
+
+        sequenceRepository.deleteAll()
+        accessPermissionRepository.deleteAll()
+        tagsDataRepository.deleteAll()
         submissionMongoRepository.deleteAll()
-        securityTestService.deleteSuperUser()
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
@@ -54,7 +64,7 @@ class SubmissionListApiTest(
         }
 
         for (idx in 21..30) {
-            val submission = tempFolder.createFile("submission$idx.tsv", getSimpleSubmission(idx))
+            val submission = tempFolder.createNewFile("submission$idx.tsv", getSimpleSubmission(idx))
             assertThat(webClient.submitSingle(submission, emptyList())).isSuccessful()
         }
     }

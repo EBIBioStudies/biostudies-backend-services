@@ -3,14 +3,18 @@ package ac.uk.ebi.biostd.itest.test.project.query
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.DefaultUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
+import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
@@ -34,6 +38,7 @@ class ProjectsListTest(
     @Autowired val tagsDataRepository: AccessTagDataRepo,
     @Autowired val accessPermissionRepository: AccessPermissionRepository,
     @Autowired val securityTestService: SecurityTestService,
+    @Autowired val sequenceRepository: SequenceDataRepository,
     @LocalServerPort val serverPort: Int
     ) {
     private lateinit var superUserWebClient: BioWebClient
@@ -41,9 +46,12 @@ class ProjectsListTest(
 
     @BeforeAll
     fun init() {
-        securityTestService.deleteSuperUser()
-        tagsDataRepository.deleteAll()
+        tempFolder.clean()
+
+        sequenceRepository.deleteAll()
         accessPermissionRepository.deleteAll()
+        tagsDataRepository.deleteAll()
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         securityTestService.registerUser(RegularUser)

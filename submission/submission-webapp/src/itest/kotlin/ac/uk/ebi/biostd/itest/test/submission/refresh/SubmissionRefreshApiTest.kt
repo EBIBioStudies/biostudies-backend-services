@@ -4,8 +4,11 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.listener.ITestListener
+import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
@@ -30,6 +33,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
+import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ebi.ac.uk.asserts.assertThat
@@ -40,6 +44,7 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.model.Attribute
@@ -48,10 +53,7 @@ import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.third
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import java.time.LocalDate
 import java.time.ZoneOffset.UTC
 import org.assertj.core.api.Assertions.assertThat
@@ -73,21 +75,21 @@ import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @Import(MongoDbConfig::class, PersistenceConfig::class, MongoDbReposConfig::class)
-@ExtendWith(SpringExtension::class, TemporaryFolderExtension::class)
+@ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext
 @EnabledIfSystemProperty(named = "itest.mode", matches = "mongo")
 class SubmissionRefreshApiTest(
     @Autowired val mongoTemplate: MongoTemplate,
-    @Autowired val tagsRefRepository: TagDataRepository,
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val sequenceRepository: SequenceDataRepository,
+    @Autowired val accessPermissionRepository: AccessPermissionRepository,
+    @Autowired val tagsRefRepository: TagDataRepository,
     @Autowired val submissionRepository: SubmissionQueryService,
     @Autowired val submissionDocRepository: SubmissionDocDataRepository,
     @Autowired val submissionRequestRepository: SubmissionRequestDocDataRepository,
     @Autowired val fileListRepository: FileListDocFileDocDataRepository,
     @LocalServerPort val serverPort: Int,
-    private val tempFolder: TemporaryFolder,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -118,21 +120,27 @@ class SubmissionRefreshApiTest(
             )
         }
     }
-    val refreshFile = tempFolder.createFile(TEST_FILE_NAME, "file content")
-    val fileList = tempFolder.createFile(
-        "$FILE_LIST_NAME.pagetab.tsv",
-        tsv {
-            line("Files", FILE_ATTR_NAME)
-            line("$FILE_LIST_FILE_NAME.txt", FILE_ATTR_VALUE)
-        }.toString()
-    )
-    val fileListFile = tempFolder.createFile("$FILE_LIST_FILE_NAME.txt", "content fileList file")
+    val refreshFile: java.io.File
+        get() = tempFolder.createNewFile(TEST_FILE_NAME, "file content")
+    val fileList: java.io.File
+        get() = tempFolder.createNewFile(
+            "$FILE_LIST_NAME.pagetab.tsv",
+            tsv {
+                line("Files", FILE_ATTR_NAME)
+                line("$FILE_LIST_FILE_NAME.txt", FILE_ATTR_VALUE)
+            }.toString()
+        )
+    val fileListFile: java.io.File
+        get() = tempFolder.createNewFile("$FILE_LIST_FILE_NAME.txt", "content fileList file")
 
     @BeforeAll
     fun init() {
+        tempFolder.clean()
+
         sequenceRepository.deleteAll()
+        accessPermissionRepository.deleteAll()
         tagsRefRepository.deleteAll()
-        securityTestService.deleteSuperUser()
+        securityTestService.deleteAllDbUsers()
 
         sequenceRepository.save(DbSequence("S-BSST"))
         tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
@@ -218,7 +226,7 @@ class SubmissionRefreshApiTest(
     fun `refresh when file section is added`() {
         val sub = submissionRepository.getExtByAccNo(ACC_NO)
         assertThat(sub.section.files).hasSize(2)
-        val file = tempFolder.createFile("addFile.txt", "file content")
+        val file = tempFolder.createNewFile("addFile.txt", "file content")
         val docFile =
             NfsDocFile(
                 file.name,

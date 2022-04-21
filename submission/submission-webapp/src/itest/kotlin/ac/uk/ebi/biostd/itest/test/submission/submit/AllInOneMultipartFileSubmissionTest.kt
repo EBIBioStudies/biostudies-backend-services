@@ -39,7 +39,6 @@ class AllInOneMultipartFileSubmissionTest(
     @Autowired val submissionRepository: SubmissionQueryService,
     @LocalServerPort val serverPort: Int
 ) {
-
     private lateinit var webClient: BioWebClient
     private lateinit var allInOneSubmissionHelper: AllInOneSubmissionHelper
     private val toSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper()))
@@ -47,7 +46,8 @@ class AllInOneMultipartFileSubmissionTest(
     @BeforeAll
     fun init() {
         tempFolder.clean()
-        securityTestService.deleteSuperUser()
+
+        securityTestService.deleteAllDbUsers()
 
         securityTestService.registerUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
