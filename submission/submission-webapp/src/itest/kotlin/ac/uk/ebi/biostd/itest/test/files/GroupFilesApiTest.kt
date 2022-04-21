@@ -19,7 +19,6 @@ import ebi.ac.uk.io.ext.createNewFile
 import java.io.File
 import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -42,7 +41,7 @@ class GroupFilesApiTest(
     @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @Autowired private val groupRepository: UserGroupDataRepository,
     @LocalServerPort val serverPort: Int
-    ) {
+) {
     private lateinit var webClient: BioWebClient
 
     @BeforeAll

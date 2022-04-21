@@ -83,20 +83,29 @@ class SubmissionToCollectionsTest(
 
     @Test
     fun `direct submission overriding collection`() {
-        val submissionFile = tempFolder.createNewFile("submission.tsv", tsv {
-            line("Submission", "S-TEST1")
-            line("AttachTo", "Test-Project")
-            line("Title", "Overridden Project")
-        }.toString())
+        val submissionFile = tempFolder.createNewFile(
+            "submission.tsv",
+            tsv {
+                line("Submission", "S-TEST1")
+                line("AttachTo", "Test-Project")
+                line("Title", "Overridden Project")
+            }.toString()
+        )
 
-        assertThat(webClient.submitSingle(submissionFile,
-            emptyList(),
-            singletonMap("AttachTo", "Public-Project"))).isSuccessful()
+        assertThat(
+            webClient.submitSingle(
+                submissionFile,
+                emptyList(),
+                singletonMap("AttachTo", "Public-Project")
+            )
+        ).isSuccessful()
 
-        assertThat(getSimpleSubmission("S-TEST1")).isEqualTo(submission("S-TEST1") {
-            title = "Overridden Project"
-            attachTo = "Public-Project"
-        })
+        assertThat(getSimpleSubmission("S-TEST1")).isEqualTo(
+            submission("S-TEST1") {
+                title = "Overridden Project"
+                attachTo = "Public-Project"
+            }
+        )
     }
 
     @Test
@@ -108,10 +117,12 @@ class SubmissionToCollectionsTest(
         }.toString()
 
         assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-        assertThat(getSimpleSubmission("S-PRP0")).isEqualTo(submission("S-PRP0") {
-            title = "No Release Date To Private Project"
-            attachTo = "Private-Project"
-        })
+        assertThat(getSimpleSubmission("S-PRP0")).isEqualTo(
+            submission("S-PRP0") {
+                title = "No Release Date To Private Project"
+                attachTo = "Private-Project"
+            }
+        )
     }
 
     @Test
@@ -124,11 +135,13 @@ class SubmissionToCollectionsTest(
         }.toString()
 
         assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-        assertThat(getSimpleSubmission("S-PRP1")).isEqualTo(submission("S-PRP1") {
-            title = "Public Submission To Private Project"
-            releaseDate = "2015-12-24"
-            attachTo = "Private-Project"
-        })
+        assertThat(getSimpleSubmission("S-PRP1")).isEqualTo(
+            submission("S-PRP1") {
+                title = "Public Submission To Private Project"
+                releaseDate = "2015-12-24"
+                attachTo = "Private-Project"
+            }
+        )
     }
 
     @Test
@@ -141,11 +154,13 @@ class SubmissionToCollectionsTest(
         }.toString()
 
         assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-        assertThat(getSimpleSubmission("S-PUP0")).isEqualTo(submission("S-PUP0") {
-            title = "Private submission into public project"
-            releaseDate = "2050-12-24"
-            attachTo = "Public-Project"
-        })
+        assertThat(getSimpleSubmission("S-PUP0")).isEqualTo(
+            submission("S-PUP0") {
+                title = "Private submission into public project"
+                releaseDate = "2050-12-24"
+                attachTo = "Public-Project"
+            }
+        )
     }
 
     @Test
@@ -157,10 +172,12 @@ class SubmissionToCollectionsTest(
         }.toString()
 
         assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-        assertThat(getSimpleSubmission("S-PUP1")).isEqualTo(submission("S-PUP1") {
-            title = "No Release Date To Public Project"
-            attachTo = "Public-Project"
-        })
+        assertThat(getSimpleSubmission("S-PUP1")).isEqualTo(
+            submission("S-PUP1") {
+                title = "No Release Date To Public Project"
+                attachTo = "Public-Project"
+            }
+        )
     }
 
     @Test
@@ -173,10 +190,12 @@ class SubmissionToCollectionsTest(
 
         assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
         assertThat(testCollectionValidator.validated).isTrue
-        assertThat(getSimpleSubmission("S-VLD0")).isEqualTo(submission("S-VLD0") {
-            title = "A Validated Submission"
-            attachTo = "ValidatedCollection"
-        })
+        assertThat(getSimpleSubmission("S-VLD0")).isEqualTo(
+            submission("S-VLD0") {
+                title = "A Validated Submission"
+                attachTo = "ValidatedCollection"
+            }
+        )
     }
 
     @Test

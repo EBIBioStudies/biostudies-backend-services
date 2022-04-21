@@ -44,7 +44,7 @@ class AllInOneSubmissionTest(
 
     @BeforeAll
     fun init() {
-         tempFolder.clean()
+        tempFolder.clean()
 
         securityTestService.deleteAllDbUsers()
 

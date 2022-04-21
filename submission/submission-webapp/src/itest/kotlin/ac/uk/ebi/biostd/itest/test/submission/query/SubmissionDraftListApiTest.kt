@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.listener.ITestListener
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
@@ -34,7 +33,7 @@ class SubmissionDraftListApiTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val submissionDraftRepository: SubmissionDraftDocDataRepository,
     @LocalServerPort val serverPort: Int
-    ) {
+) {
     private lateinit var webClient: BioWebClient
     private lateinit var testDrafts: List<WebSubmissionDraft>
 

@@ -20,7 +20,6 @@ import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.FILE
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired

@@ -135,10 +135,13 @@ class MultipartFileSubmissionApiTest(
             line()
         }.toString()
 
-        val fileList = tempFolder.createNewFile("FileList.tsv", tsv {
-            line("Files", "GEN")
-            line("File1.txt", "ABC")
-        }.toString())
+        val fileList = tempFolder.createNewFile(
+            "FileList.tsv",
+            tsv {
+                line("Files", "GEN")
+                line("File1.txt", "ABC")
+            }.toString()
+        )
 
         val response = webClient.submitSingle(submission, TSV, listOf(fileList, tempFolder.createNewFile("File1.txt")))
         assertThat(response).isSuccessful()
@@ -167,13 +170,16 @@ class MultipartFileSubmissionApiTest(
             }
         }.toString()
 
-        val fileList = tempFolder.createNewFile("FileList.json", jsonArray({
-            "path" to "File2.txt"
-            "attributes" to jsonArray({
-                "name" to "GEN"
-                "value" to "ABC"
-            })
-        }).toString())
+        val fileList = tempFolder.createNewFile(
+            "FileList.json",
+            jsonArray({
+                "path" to "File2.txt"
+                "attributes" to jsonArray({
+                    "name" to "GEN"
+                    "value" to "ABC"
+                })
+            }).toString()
+        )
 
         val response = webClient.submitSingle(submission, JSON, listOf(fileList, tempFolder.createNewFile("File2.txt")))
         assertThat(response).isSuccessful()
@@ -208,17 +214,20 @@ class MultipartFileSubmissionApiTest(
             }
         }.toString()
 
-        val fileList = tempFolder.createNewFile("FileList.xml", xml("table") {
-            "file" {
-                "path" { -"File3.txt" }
-                "attributes" {
-                    "attribute" {
-                        "name" { -"GEN" }
-                        "value" { -"ABC" }
+        val fileList = tempFolder.createNewFile(
+            "FileList.xml",
+            xml("table") {
+                "file" {
+                    "path" { -"File3.txt" }
+                    "attributes" {
+                        "attribute" {
+                            "name" { -"GEN" }
+                            "value" { -"ABC" }
+                        }
                     }
                 }
-            }
-        }.toString())
+            }.toString()
+        )
 
         val response = webClient.submitSingle(submission, XML, listOf(fileList, tempFolder.createNewFile("File3.txt")))
         assertThat(response).isSuccessful()
@@ -228,16 +237,19 @@ class MultipartFileSubmissionApiTest(
 
     @Test
     fun `direct submission with overriden attributes`() {
-        val submission = tempFolder.createNewFile("submission.tsv", tsv {
-            line("Submission", "S-TEST6")
-            line("Title", "Test Submission")
-            line("Type", "Test")
-            line()
+        val submission = tempFolder.createNewFile(
+            "submission.tsv",
+            tsv {
+                line("Submission", "S-TEST6")
+                line("Title", "Test Submission")
+                line("Type", "Test")
+                line()
 
-            line("Study", "SECT-001")
-            line("Title", "Root Section")
-            line()
-        }.toString())
+                line("Study", "SECT-001")
+                line("Title", "Root Section")
+                line()
+            }.toString()
+        )
 
         val response = webClient.submitSingle(submission, emptyList(), hashMapOf(("Type" to "Exp"), ("Exp" to "1")))
         assertThat(response).isSuccessful()
@@ -255,8 +267,10 @@ class MultipartFileSubmissionApiTest(
         val submission = tempFolder.createNewFile("submission.txt", "invalid file")
 
         assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
-            webClient.submitSingle(submission,
-                emptyList())
+            webClient.submitSingle(
+                submission,
+                emptyList()
+            )
         }.withMessageContaining("Unsupported page tab format submission.txt")
     }
 
@@ -302,9 +316,11 @@ class MultipartFileSubmissionApiTest(
         val jsonFile = File("$subFolder/$accNo.json")
         val xmlFile = File("$subFolder/$accNo.xml")
         val tsvFile = File("$subFolder/$accNo.pagetab.tsv")
-        return listOf(FireFile(jsonName, jsonName, "fireOid-$jsonName", jsonFile.md5(), jsonFile.size(), listOf()),
+        return listOf(
+            FireFile(jsonName, jsonName, "fireOid-$jsonName", jsonFile.md5(), jsonFile.size(), listOf()),
             FireFile(xmlName, xmlName, "fireOid-$xmlName", xmlFile.md5(), xmlFile.size(), listOf()),
-            FireFile(tsvName, tsvName, "fireOid-$tsvName", tsvFile.md5(), tsvFile.size(), listOf()))
+            FireFile(tsvName, tsvName, "fireOid-$tsvName", tsvFile.md5(), tsvFile.size(), listOf())
+        )
     }
 
     private fun fileListFireTabFiles(subFolder: String): List<FireFile> {
@@ -314,18 +330,22 @@ class MultipartFileSubmissionApiTest(
         val json = File("$subFolder/Files/$jsonName")
         val xml = File("$subFolder/Files/FileList.xml")
         val tsv = File("$subFolder/Files/FileList.pagetab.tsv")
-        return listOf(FireFile(jsonName, "Files/$jsonName", "fireOid-$jsonName", json.md5(), json.size(), listOf()),
+        return listOf(
+            FireFile(jsonName, "Files/$jsonName", "fireOid-$jsonName", json.md5(), json.size(), listOf()),
             FireFile(xmlName, "Files/$xmlName", "fireOid-$xmlName", xml.md5(), xml.size(), listOf()),
-            FireFile(tsvName, "Files/$tsvName", "fireOid-$tsvName", tsv.md5(), tsv.size(), listOf()))
+            FireFile(tsvName, "Files/$tsvName", "fireOid-$tsvName", tsv.md5(), tsv.size(), listOf())
+        )
     }
 
     private fun submissionNfsTabFiles(accNo: String, subFolder: String): List<NfsFile> {
         val jsonPath = "$subFolder/$accNo.json"
         val xmlPath = "$subFolder/$accNo.xml"
         val tsvPath = "$subFolder/$accNo.pagetab.tsv"
-        return listOf(createNfsFile("$accNo.json", "$accNo.json", File(jsonPath)),
+        return listOf(
+            createNfsFile("$accNo.json", "$accNo.json", File(jsonPath)),
             createNfsFile("$accNo.xml", "$accNo.xml", File(xmlPath)),
-            createNfsFile("$accNo.pagetab.tsv", "$accNo.pagetab.tsv", File(tsvPath)))
+            createNfsFile("$accNo.pagetab.tsv", "$accNo.pagetab.tsv", File(tsvPath))
+        )
     }
 
     private fun fileListNfsTabFiles(subFolder: String): List<NfsFile> {
@@ -335,8 +355,10 @@ class MultipartFileSubmissionApiTest(
         val jsonFile = File(subFolder).resolve("Files/$jsonName")
         val xmlFile = File(subFolder).resolve("Files/$xmlName")
         val tsvFile = File(subFolder).resolve("Files/$tsvName")
-        return listOf(createNfsFile(jsonName, "Files/$jsonName", jsonFile),
+        return listOf(
+            createNfsFile(jsonName, "Files/$jsonName", jsonFile),
             createNfsFile(xmlName, "Files/$xmlName", xmlFile),
-            createNfsFile(tsvName, "Files/$tsvName", tsvFile))
+            createNfsFile(tsvName, "Files/$tsvName", tsvFile)
+        )
     }
 }

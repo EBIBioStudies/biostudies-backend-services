@@ -1,8 +1,6 @@
 package ac.uk.ebi.biostd.itest.factory
 
 import ebi.ac.uk.io.ext.createNewFile
-import ebi.ac.uk.test.createFile
-import io.github.glytching.junit.extension.folder.TemporaryFolder
 import java.io.File
 import org.redundent.kotlin.xml.xml
 

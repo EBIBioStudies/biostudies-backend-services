@@ -10,7 +10,6 @@ import ebi.ac.uk.db.MYSQL_VERSION
 import ebi.ac.uk.io.ext.createDirectory
 import java.io.File
 import java.nio.file.Files
-import java.time.Duration
 import java.time.Duration.ofSeconds
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestPlan
@@ -31,8 +30,8 @@ class ITestListener : TestExecutionListener {
     private val stopWatch = StopWatch("ITests")
     private val mongoContainer: MongoDBContainer =
         MongoDBContainer(DockerImageName.parse(MONGO_VERSION)).withStartupCheckStrategy(
-            MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
-
+            MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME))
+        )
 
     override fun testPlanExecutionStarted(testPlan: TestPlan) {
         stopWatch.start()
@@ -66,7 +65,7 @@ class ITestListener : TestExecutionListener {
 
     private fun mySqlSetup() {
         mysqlContainer.start()
-         System.setProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
+        System.setProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
         System.setProperty("spring.datasource.username", mysqlContainer.username)
         System.setProperty("spring.datasource.password", mysqlContainer.password)
     }
@@ -114,4 +113,3 @@ class ITestListener : TestExecutionListener {
 }
 
 class SpecificMySQLContainer(image: String) : MySQLContainer<SpecificMySQLContainer>(image)
-

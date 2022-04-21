@@ -29,7 +29,7 @@ class SecurityApiTest(
     @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @Autowired private val sequenceDataRepository: SequenceDataRepository,
     @LocalServerPort val serverPort: Int
-    ) {
+) {
     private lateinit var webClient: SecurityWebClient
 
     @BeforeAll

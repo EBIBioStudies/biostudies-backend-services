@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.itest.factory
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.test.createOrReplaceFile
-import io.github.glytching.junit.extension.folder.TemporaryFolder
 import java.io.File
 
 data class SubmissionSpec(

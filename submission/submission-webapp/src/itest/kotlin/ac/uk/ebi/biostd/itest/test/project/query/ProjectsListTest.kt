@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.DefaultUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.listener.ITestListener
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
@@ -40,7 +39,7 @@ class ProjectsListTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val sequenceRepository: SequenceDataRepository,
     @LocalServerPort val serverPort: Int
-    ) {
+) {
     private lateinit var superUserWebClient: BioWebClient
     private lateinit var regularUserWebClient: BioWebClient
 

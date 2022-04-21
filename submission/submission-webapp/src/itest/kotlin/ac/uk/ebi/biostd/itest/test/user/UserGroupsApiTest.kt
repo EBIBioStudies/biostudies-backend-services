@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.itest.common.clean
 import ac.uk.ebi.biostd.itest.common.getWebClient
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.listener.ITestListener
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -80,25 +79,31 @@ class UserGroupsApiTest(
     @Test
     fun `trying to add a user to unexisting group`() {
         assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
-                superWebClient.addUserInGroup(nonExistentGroupName,
-                    SuperUser.email)
-            }.withMessageContaining("The group $nonExistentGroupName does not exists")
+            superWebClient.addUserInGroup(
+                nonExistentGroupName,
+                SuperUser.email
+            )
+        }.withMessageContaining("The group $nonExistentGroupName does not exists")
     }
 
     @Test
     fun `trying to add a user that does not exist`() {
         assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
-                superWebClient.addUserInGroup(GROUP_NAME,
-                    nonExistentUser)
-            }.withMessageContaining("The user $nonExistentUser does not exists")
+            superWebClient.addUserInGroup(
+                GROUP_NAME,
+                nonExistentUser
+            )
+        }.withMessageContaining("The user $nonExistentUser does not exists")
     }
 
     @Test
     fun `trying to add a user by regularUser`() {
         assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
-                regularWebClient.addUserInGroup(GROUP_NAME,
-                    nonExistentUser)
-            }.withMessageContaining("Access is denied")
+            regularWebClient.addUserInGroup(
+                GROUP_NAME,
+                nonExistentUser
+            )
+        }.withMessageContaining("Access is denied")
     }
 
     companion object {

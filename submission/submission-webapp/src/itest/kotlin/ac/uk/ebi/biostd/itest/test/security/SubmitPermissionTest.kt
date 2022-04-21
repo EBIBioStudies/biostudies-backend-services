@@ -12,7 +12,6 @@ import ac.uk.ebi.biostd.itest.entities.DefaultUser
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
-import ac.uk.ebi.biostd.itest.listener.ITestListener
 import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
@@ -48,7 +47,7 @@ class SubmitPermissionTest(
     @Autowired private val submissionDocDataRepository: SubmissionDocDataRepository,
     @Autowired val sequenceRepository: SequenceDataRepository,
     @LocalServerPort val serverPort: Int
-    ) {
+) {
     private val project = tsv {
         line("Submission", "AProject")
         line("AccNoTemplate", "!{S-APR}")

@@ -3,8 +3,6 @@ package ac.uk.ebi.biostd.itest.factory
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createNewFile
-import ebi.ac.uk.test.createFile
-import io.github.glytching.junit.extension.folder.TemporaryFolder
 import java.io.File
 
 fun submissionSpecTsv(tempFolder: File, accNo: String): SubmissionSpec = SubmissionSpec(
