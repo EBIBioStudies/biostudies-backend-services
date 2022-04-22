@@ -53,9 +53,8 @@ class FileListSubmissionTest(
     @BeforeAll
     fun init() {
         tempFolder.clean()
-        securityTestService.deleteAllDbUsers()
 
-        securityTestService.registerUser(SuperUser)
+        securityTestService.ensureRegisterUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
     }
 

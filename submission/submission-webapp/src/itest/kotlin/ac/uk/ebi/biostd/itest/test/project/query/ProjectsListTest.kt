@@ -50,11 +50,10 @@ class ProjectsListTest(
         sequenceRepository.deleteAll()
         accessPermissionRepository.deleteAll()
         tagsDataRepository.deleteAll()
-        securityTestService.deleteAllDbUsers()
 
-        securityTestService.registerUser(SuperUser)
-        securityTestService.registerUser(RegularUser)
-        securityTestService.registerUser(DefaultUser)
+        securityTestService.ensureRegisterUser(SuperUser)
+        securityTestService.ensureRegisterUser(RegularUser)
+        securityTestService.ensureRegisterUser(DefaultUser)
 
         superUserWebClient = getWebClient(serverPort, SuperUser)
         regularUserWebClient = getWebClient(serverPort, RegularUser)

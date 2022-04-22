@@ -42,9 +42,8 @@ class SubmissionDraftListApiTest(
         tempFolder.clean()
 
         submissionDraftRepository.deleteAll()
-        securityTestService.deleteAllDbUsers()
 
-        securityTestService.registerUser(SuperUser)
+        securityTestService.ensureRegisterUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
         testDrafts = createDrafts()
     }

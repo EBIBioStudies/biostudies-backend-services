@@ -16,7 +16,6 @@ import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -41,7 +40,6 @@ class SubmissionDraftApiTest(
     @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @LocalServerPort val serverPort: Int
 ) {
-    private lateinit var securityUser: SecurityUser
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
@@ -51,9 +49,8 @@ class SubmissionDraftApiTest(
         sequenceRepository.deleteAll()
         accessPermissionRepository.deleteAll()
         tagsDataRepository.deleteAll()
-        securityTestService.deleteAllDbUsers()
 
-        securityUser = securityTestService.registerUser(SuperUser)
+        securityTestService.ensureRegisterUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
     }
 
@@ -118,7 +115,7 @@ class SubmissionDraftApiTest(
 
         webClient.deleteSubmissionDraft("ABC-128")
 
-        assertThat(dataService.getUserData(securityUser.email, "ABC-128")).isNull()
+        assertThat(dataService.getUserData(SuperUser.email, "ABC-128")).isNull()
     }
 
     @Test
@@ -142,7 +139,7 @@ class SubmissionDraftApiTest(
 
         // TODO this approach must be improved once the testing for async submissions are in place
         Thread.sleep(10000)
-        assertThat(dataService.getUserData(securityUser.email, "ABC-129")).isNull()
-        assertThat(dataService.getUserData(securityUser.email, draftResponse.key)).isNull()
+        assertThat(dataService.getUserData(SuperUser.email, "ABC-129")).isNull()
+        assertThat(dataService.getUserData(SuperUser.email, draftResponse.key)).isNull()
     }
 }

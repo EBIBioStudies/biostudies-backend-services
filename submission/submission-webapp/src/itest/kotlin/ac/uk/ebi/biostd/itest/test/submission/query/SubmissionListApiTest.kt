@@ -54,9 +54,8 @@ class SubmissionListApiTest(
         accessPermissionRepository.deleteAll()
         tagsDataRepository.deleteAll()
         submissionMongoRepository.deleteAll()
-        securityTestService.deleteAllDbUsers()
 
-        securityTestService.registerUser(SuperUser)
+        securityTestService.ensureRegisterUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
 
         for (idx in 11..20) {

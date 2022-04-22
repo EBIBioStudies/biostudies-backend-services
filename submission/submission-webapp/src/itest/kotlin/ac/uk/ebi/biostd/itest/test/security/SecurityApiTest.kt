@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ebi.ac.uk.api.security.RegisterRequest
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -42,6 +43,11 @@ class SecurityApiTest(
         securityTestService.deleteAllDbUsers()
 
         webClient = SecurityWebClient.create("http://localhost:$serverPort")
+    }
+
+    @AfterAll
+    fun afterAll() {
+        securityTestService.deleteAllDbUsers()
     }
 
     @Test

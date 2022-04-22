@@ -57,9 +57,8 @@ class SubmissionToCollectionsTest(
         sequenceRepository.deleteAll()
         accessPermissionRepository.deleteAll()
         tagsDataRepository.deleteAll()
-        securityTestService.deleteAllDbUsers()
 
-        securityTestService.registerUser(SuperUser)
+        securityTestService.ensureRegisterUser(SuperUser)
 
         webClient = getWebClient(serverPort, SuperUser)
         setUpCollections()

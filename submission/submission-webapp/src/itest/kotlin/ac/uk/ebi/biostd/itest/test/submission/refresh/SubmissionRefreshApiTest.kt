@@ -139,12 +139,11 @@ class SubmissionRefreshApiTest(
         sequenceRepository.deleteAll()
         accessPermissionRepository.deleteAll()
         tagsRefRepository.deleteAll()
-        securityTestService.deleteAllDbUsers()
 
         sequenceRepository.save(DbSequence("S-BSST"))
         tagsRefRepository.save(DbTag(classifier = "classifier", name = "tag"))
 
-        securityTestService.registerUser(SuperUser)
+        securityTestService.ensureRegisterUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
     }
 

@@ -69,8 +69,8 @@ class SubmitPermissionTest(
         submissionDocDataRepository.deleteAll()
         securityTestService.deleteAllDbUsers()
 
-        securityTestService.registerUser(SuperUser)
-        securityTestService.registerUser(RegularUser)
+        securityTestService.ensureRegisterUser(SuperUser)
+        securityTestService.ensureRegisterUser(RegularUser)
 
         superUserWebClient = getWebClient(serverPort, SuperUser)
         regularUserWebClient = getWebClient(serverPort, RegularUser)

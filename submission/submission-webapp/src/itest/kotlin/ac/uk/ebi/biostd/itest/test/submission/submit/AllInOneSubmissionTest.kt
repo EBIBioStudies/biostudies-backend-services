@@ -46,9 +46,7 @@ class AllInOneSubmissionTest(
     fun init() {
         tempFolder.clean()
 
-        securityTestService.deleteAllDbUsers()
-
-        securityTestService.registerUser(SuperUser)
+        securityTestService.ensureRegisterUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
         allInOneSubmissionHelper =
             AllInOneSubmissionHelper(submissionPath, submissionRepository, toSubmissionMapper)

@@ -49,12 +49,12 @@ class GroupFilesApiTest(
         tempFolder.clean()
 
         sequenceRepository.deleteAll()
-        groupRepository.deleteAll()
         accessPermissionRepository.deleteAll()
         tagsDataRepository.deleteAll()
         securityTestService.deleteAllDbUsers()
+        groupRepository.deleteAll()
 
-        securityTestService.registerUser(SuperUser)
+        securityTestService.ensureRegisterUser(SuperUser)
 
         webClient = getWebClient(serverPort, SuperUser)
         webClient.addUserInGroup(webClient.createGroup(testGroupName, testGroupDescription).name, SuperUser.email)

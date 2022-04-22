@@ -68,9 +68,8 @@ class MultipartFileSubmissionApiTest(
         sequenceRepository.deleteAll()
         accessPermissionRepository.deleteAll()
         tagsRefRepository.deleteAll()
-        securityTestService.deleteAllDbUsers()
 
-        securityTestService.registerUser(SuperUser)
+        securityTestService.ensureRegisterUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
     }
 

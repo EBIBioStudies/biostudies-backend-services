@@ -47,10 +47,9 @@ class PermissionApiTest(
 
         accessPermissionRepository.deleteAll()
         accessTagRepository.deleteAll()
-        securityTestService.deleteAllDbUsers()
 
-        securityTestService.registerUser(SuperUser)
-        securityTestService.registerUser(RegularUser)
+        securityTestService.ensureRegisterUser(SuperUser)
+        securityTestService.ensureRegisterUser(RegularUser)
 
         superWebClient = getWebClient(serverPort, SuperUser)
         regularWebClient = getWebClient(serverPort, RegularUser)

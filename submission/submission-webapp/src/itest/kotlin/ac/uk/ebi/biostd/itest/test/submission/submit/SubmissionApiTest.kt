@@ -86,9 +86,8 @@ class SubmissionApiTest(
         accessPermissionRepository.deleteAll()
         tagsRefRepository.deleteAll()
         submissionDocDataRepository.deleteAll()
-        securityTestService.deleteAllDbUsers()
 
-        securityTestService.registerUser(SuperUser)
+        securityTestService.ensureRegisterUser(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
 
         sequenceRepository.save(DbSequence("S-BSST"))

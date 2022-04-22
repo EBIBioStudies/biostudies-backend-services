@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.itest.listener.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
+import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import ebi.ac.uk.test.clean
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
@@ -38,6 +39,7 @@ class UserGroupsApiTest(
     @Autowired val sequenceRepository: SequenceDataRepository,
     @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @Autowired private val tagsDataRepository: AccessTagDataRepo,
+    @Autowired private val groupRepository: UserGroupDataRepository,
     @LocalServerPort val serverPort: Int
 ) {
     private lateinit var superWebClient: BioWebClient
@@ -51,9 +53,10 @@ class UserGroupsApiTest(
         accessPermissionRepository.deleteAll()
         tagsDataRepository.deleteAll()
         securityTestService.deleteAllDbUsers()
+        groupRepository.deleteAll()
 
-        securityTestService.registerUser(SuperUser)
-        securityTestService.registerUser(RegularUser)
+        securityTestService.ensureRegisterUser(SuperUser)
+        securityTestService.ensureRegisterUser(RegularUser)
         superWebClient = getWebClient(serverPort, SuperUser)
         regularWebClient = getWebClient(serverPort, RegularUser)
 
