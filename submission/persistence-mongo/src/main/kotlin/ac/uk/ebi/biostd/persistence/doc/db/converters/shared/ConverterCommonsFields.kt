@@ -41,6 +41,7 @@ object NfsDocFileFields {
     val NFS_DOC_FILE_CLASS: String = NfsDocFile::class.java.canonicalName
     const val NFS_FILE_FULL_PATH = "fullPath"
     const val NFS_FILE_TYPE = "type"
+    const val NFS_FILE_SOURCE = "source"
 }
 
 object FireDocFileFields {

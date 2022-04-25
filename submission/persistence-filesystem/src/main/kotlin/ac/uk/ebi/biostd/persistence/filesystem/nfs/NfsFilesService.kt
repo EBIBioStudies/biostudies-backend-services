@@ -5,9 +5,11 @@ import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensi
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileOrigin.SUBMISSION
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
@@ -64,7 +66,7 @@ class NfsFilesService(
 
     private fun NfsFileProcessingConfig.processFile(file: ExtFile): NfsFile {
         val nfsFile = file as NfsFile
-        return if (mode == COPY) nfsCopy(nfsFile) else nfsMove(nfsFile)
+        return if (file.source == SUBMISSION || mode == MOVE) nfsMove(nfsFile) else nfsCopy(nfsFile)
     }
 
     private fun getOrCreateSubmissionFolder(submission: ExtSubmission, permissions: Set<PosixFilePermission>): File {

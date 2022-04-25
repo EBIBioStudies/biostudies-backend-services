@@ -10,8 +10,8 @@ import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ebi.ac.uk.api.ClientResponse
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.extended.model.FilesSource
-import ebi.ac.uk.extended.model.FilesSource.USER_SPACE
+import ebi.ac.uk.extended.model.ExtFileOrigin
+import ebi.ac.uk.extended.model.ExtFileOrigin.USER_SPACE
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILES
@@ -41,7 +41,7 @@ internal class MultiPartSubmissionClient(
         files: List<File>,
         attrs: Map<String, String>,
         fileMode: FileMode,
-        preferredSource: FilesSource
+        preferredSource: ExtFileOrigin
     ): SubmissionResponse {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
         val multiPartBody = getMultipartBody(files, fileMode, preferredSource, FileSystemResource(submission)).apply {
@@ -89,7 +89,7 @@ internal class MultiPartSubmissionClient(
         setSubmissionType(format.submissionType)
     }
 
-    private fun getMultipartBody(files: List<File>, fileMode: FileMode, preferredSource: FilesSource, submission: Any) =
+    private fun getMultipartBody(files: List<File>, fileMode: FileMode, preferredSource: ExtFileOrigin, submission: Any) =
         LinkedMultiValueMap(
             files.map { FILES to FileSystemResource(it) }
                 .plus(SUBMISSION to submission)

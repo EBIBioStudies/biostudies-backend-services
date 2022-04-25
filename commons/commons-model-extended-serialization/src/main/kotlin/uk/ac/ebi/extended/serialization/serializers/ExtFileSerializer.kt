@@ -9,6 +9,7 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_ORIGIN
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_DIR_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILEPATH
@@ -41,8 +42,10 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         writeObjectField(FILE_MD5, file.md5)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.NfsFile.type)
+        writeStringField(EXT_ORIGIN, file.source.name)
         writeStringField(FILE_TYPE, getType(file.file))
         writeNumberField(FILE_SIZE, file.size)
+
         writeEndObject()
     }
 

@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.extended.model.FilesSource
+import ebi.ac.uk.extended.model.ExtFileOrigin
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 
@@ -43,7 +43,7 @@ class ContentSubmitWebRequest(
 @Suppress("LongParameterList")
 class FileSubmitWebRequest(
     val submission: File,
-    val preferredSource: FilesSource,
+    val preferredSource: ExtFileOrigin,
     onBehalfRequest: OnBehalfRequest?,
     user: SecurityUser,
     format: SubFormat,
