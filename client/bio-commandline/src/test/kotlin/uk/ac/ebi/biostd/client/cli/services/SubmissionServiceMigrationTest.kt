@@ -102,7 +102,7 @@ class SubmissionServiceMigrationTest(
             type = "Study",
             fileList = ExtFileList(
                 "test-file-list",
-                file = uk.ac.ebi.extended.serialization.service.createFileList(emptyList()),
+                file = createFileList(emptyList()),
                 filesUrl = "/submissions/extended/S-BSST1/referencedFiles/test-file-list",
                 pageTabFiles = listOf(
                     NfsFile(

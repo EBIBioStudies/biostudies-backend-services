@@ -140,9 +140,7 @@ class FirePageTabServiceTest(
         type = "Study1",
         fileList = ExtFileList(
             "data/file-list1",
-            file = uk.ac.ebi.extended.serialization.service.createFileList(
-                emptyList()
-            )
+            file = createFileList(emptyList())
         ),
         sections = listOf(
             left(
@@ -150,9 +148,7 @@ class FirePageTabServiceTest(
                     type = "Study2",
                     fileList = ExtFileList(
                         "data/file-list2",
-                        file = uk.ac.ebi.extended.serialization.service.createFileList(
-                            emptyList()
-                        )
+                        file = createFileList(emptyList())
                     )
                 )
             ),

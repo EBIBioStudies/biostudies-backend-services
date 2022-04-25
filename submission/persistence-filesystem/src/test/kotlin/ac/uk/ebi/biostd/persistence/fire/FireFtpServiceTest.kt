@@ -114,7 +114,7 @@ class FireFtpServiceTest(
             type = "Study",
             fileList = ExtFileList(
                 "fileName1",
-                file = uk.ac.ebi.extended.serialization.service.createFileList(listOf(fileFileList)),
+                file = createFileList(listOf(fileFileList)),
                 pageTabFiles = listOf(filePageTab)
             ),
             files = listOf(left(file), left(fireDir()), right(ExtFileTable(fileTable))),
@@ -124,7 +124,7 @@ class FireFtpServiceTest(
                         type = "Study",
                         fileList = ExtFileList(
                             "a/fileName2",
-                            file = uk.ac.ebi.extended.serialization.service.createFileList(listOf(innerFileListFile)),
+                            file = createFileList(listOf(innerFileListFile)),
                             pageTabFiles = listOf(innerFileListPageTabFile)
                         ),
                         files = listOf(left(innerFile), right(ExtFileTable(innerFileTable)))
