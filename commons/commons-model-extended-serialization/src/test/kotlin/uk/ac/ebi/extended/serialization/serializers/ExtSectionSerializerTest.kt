@@ -131,7 +131,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
             "fileList" to jsonObj {
                 "fileName" to "file-list"
                 "filesUrl" to "/submissions/extended/S-BSST1/referencedFiles/file-list"
-                "file" to allInOneSection.fileList?.file?.absolutePath
+                "file" to allInOneSection.fileList!!.file.absolutePath
                 "pageTabFiles" to jsonArray(
                     jsonObj {
                         "fileName" to pageTabFireFile.fileName

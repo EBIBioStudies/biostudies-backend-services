@@ -18,9 +18,7 @@ fun File.createDirectory(name: String): File = Files.createDirectory(toPath().re
 
 fun File.createNewFile(name: String): File = resolve(name).apply { createNewFile() }
 
-fun File.createTempFile(prefix: String, suffix: String): File {
-    return Files.createTempFile(toPath(), prefix, suffix).toFile()
-}
+fun File.createTempFile(prefix: String, suffix: String): File = Files.createTempFile(toPath(), prefix, suffix).toFile()
 
 fun File.createNewFile(name: String, text: String): File {
     val file = resolve(name)

@@ -94,23 +94,25 @@ internal class SubmissionMongoQueryService(
     override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
         val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, REQUESTED)
         val stored = serializationService.deserialize(request.submission.toString())
-        val full = stored.copy(section = stored.section.replaceFileList { calculate(accNo, version, it) })
+        val full = stored.copy(section = stored.section.replaceFileList { calculate(stored, it) })
         return SubmissionRequest(full, request.fileMode, request.draftKey)
     }
 
-    private fun calculate(accNo: String, version: Int, fileList: ExtFileList): ExtFileList {
-        val newFileList = resolver.createEmptyFile(accNo, version, fileList.fileName)
-        return fileList.copy(file = copyFile(fileList.file, newFileList))
+    private fun calculate(sub: ExtSubmission, fileList: ExtFileList): ExtFileList {
+        val newFileList = resolver.createEmptyFile(sub.accNo, sub.version, fileList.fileName)
+        return fileList.copy(file = copyFile(sub.accNo, sub.submitter, fileList.file, newFileList))
     }
 
-    private fun copyFile(inputFile: File, outputFile: File): File {
-        use(inputFile.inputStream(), outputFile.outputStream()) { input, output -> loadFiles(input, output) }
-        return outputFile
+    private fun copyFile(accNo: String, submitter: String, source: File, target: File): File {
+        use(source.inputStream(), target.outputStream()) { input, output -> copy(accNo, submitter, input, output) }
+        return target
     }
 
-    private fun loadFiles(input: InputStream, output: OutputStream) {
+    private fun copy(accNo: String, submitter: String, input: InputStream, output: OutputStream) {
         val files = serializationService.deserializeList(input)
-            .onEachIndexed { index, file -> logger.info { "mapping file ${file.filePath}, ${index + 1}" } }
+            .onEachIndexed { idx, file ->
+                logger.info { "accNo=$accNo, submitter=$submitter mapping file ${file.filePath}, ${idx + 1}" }
+            }
             .map { extFile -> loadFileAttributes(extFile) }
         serializationService.serialize(files, output)
     }

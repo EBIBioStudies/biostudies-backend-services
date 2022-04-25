@@ -71,10 +71,9 @@ class SubmissionSubmitter(
     fun submitAsync(request: SubmissionRequest): Pair<String, Int> = saveRequest(request, request.submission.submitter)
 
     fun processRequest(accNo: String, version: Int): ExtSubmission {
-        val saveRequest = submissionQueryService.getPendingRequest(accNo, version)
-        val submitter = saveRequest.submission.submitter
-        logger.info { "$accNo, $submitter Processing request for submission accNo='$accNo', version='$version'" }
-        return submissionPersistenceService.processSubmissionRequest(saveRequest)
+        val rqt = submissionQueryService.getPendingRequest(accNo, version)
+        logger.info { "$accNo, ${rqt.submission.submitter} processing submission accNo='$accNo', version='$version'" }
+        return submissionPersistenceService.processSubmissionRequest(rqt)
     }
 
     fun release(request: ReleaseRequest) {
