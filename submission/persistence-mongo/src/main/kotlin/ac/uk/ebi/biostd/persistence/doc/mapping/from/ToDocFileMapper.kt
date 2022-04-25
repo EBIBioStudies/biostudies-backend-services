@@ -14,7 +14,6 @@ import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.io.ext.size
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
@@ -75,10 +74,10 @@ internal fun ExtFile.toDocFile(): DocFile = when (this) {
         fileName = fileName,
         filePath = filePath,
         relPath = relPath,
-        fullPath = file.absolutePath,
+        fullPath = fullPath,
         fileType = fileType(file),
         attributes = attributes.map { it.toDocAttribute() },
         md5 = md5,
-        fileSize = file.size(),
+        fileSize = size,
     )
 }

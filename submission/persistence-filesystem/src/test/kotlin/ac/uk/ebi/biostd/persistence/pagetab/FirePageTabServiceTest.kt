@@ -138,12 +138,22 @@ class FirePageTabServiceTest(
 
     private fun sectionWithoutTabFiles() = ExtSection(
         type = "Study1",
-        fileList = ExtFileList("data/file-list1", file = createFileList(emptyList())),
+        fileList = ExtFileList(
+            "data/file-list1",
+            file = uk.ac.ebi.extended.serialization.service.createFileList(
+                emptyList()
+            )
+        ),
         sections = listOf(
             left(
                 ExtSection(
                     type = "Study2",
-                    fileList = ExtFileList("data/file-list2", file = createFileList(emptyList()))
+                    fileList = ExtFileList(
+                        "data/file-list2",
+                        file = uk.ac.ebi.extended.serialization.service.createFileList(
+                            emptyList()
+                        )
+                    )
                 )
             ),
             right(ExtSectionTable(listOf(ExtSection(type = "Study3"))))

@@ -102,14 +102,12 @@ import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.createFileList
 
 @ExtendWith(TemporaryFolderExtension::class)
-@Disabled
 class ToDocSubmissionMapperTest(
     tempFolder: TemporaryFolder
 ) {
@@ -353,7 +351,7 @@ class ToDocSubmissionMapperTest(
             assertThat((docFile.a as NfsDocFile).fileName).isEqualTo(ROOT_SEC_FILE_NAME)
             assertThat((docFile.a as NfsDocFile).filePath).isEqualTo(ROOT_SEC_FILEPATH)
             assertThat((docFile.a as NfsDocFile).relPath).isEqualTo(ROOT_SEC_REL_PATH)
-            assertThat((docFile.a as NfsDocFile).fullPath).isEqualTo(newRootSectionFile.file.path)
+            assertThat((docFile.a as NfsDocFile).fullPath).isEqualTo(newRootSectionFile.fullPath)
         }
 
         val docFileTable = docFiles.second()
@@ -363,7 +361,7 @@ class ToDocSubmissionMapperTest(
             assertThat(innerNfsDocFile.fileName).isEqualTo(ROOT_SEC_TABLE_FILE_NAME)
             assertThat(innerNfsDocFile.filePath).isEqualTo(ROOT_SEC_TABLE_FILEPATH)
             assertThat(innerNfsDocFile.relPath).isEqualTo(ROOT_SEC_TABLE_REL_PATH)
-            assertThat(innerNfsDocFile.fullPath).isEqualTo(newRootSectionTableFile.file.path)
+            assertThat(innerNfsDocFile.fullPath).isEqualTo(newRootSectionTableFile.fullPath)
         }
     }
 }

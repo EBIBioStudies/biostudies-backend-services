@@ -30,6 +30,7 @@ dependencies {
     implementation(KotlinLogging)
     implementation(ZipUtil)
 
+    testImplementation(testFixtures(project(CommonsModelExtendedSerialization)))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

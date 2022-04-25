@@ -22,15 +22,21 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.files
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
-@Disabled
 class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
     private val fileListDocFileRepository: FileListDocFileRepository = mockk()
-    private val testInstance = ToExtFileListMapper(fileListDocFileRepository, TODO(), TODO())
+    private val extSerializationService = ExtSerializationService()
+    private val testInstance = ToExtFileListMapper(
+        fileListDocFileRepository,
+        extSerializationService,
+        ExtFilesResolver(temporaryFolder.createDirectory("ext-files"))
+    )
     private val fileNfs = temporaryFolder.createDirectory("folder").createNewFile("nfsFileFile.txt")
     private val nfsDocFile = NfsDocFile(
         fileNfs.name,
@@ -66,9 +72,11 @@ class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
         val extFileList = testInstance.toExtFileList(fileList, "S-TEST123", 1, true)
 
         assertThat(extFileList.filePath).isEqualTo(TEST_FILE_LIST)
-        // assertThat(extFileList.files).hasSize(1)
-        // assertThat(extFileList.files.first()).isEqualTo(fireDocFile.toExtFile())
         assertPageTabs(extFileList.pageTabFiles)
+
+        val files = extSerializationService.files(extFileList.file)
+        assertThat(files).hasSize(1)
+        assertThat(files.first()).isEqualTo(fireDocFile.toExtFile())
     }
 
     @Test
@@ -78,7 +86,7 @@ class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
         val extFileList = testInstance.toExtFileList(fileList, "S-TEST123", 1, false)
 
         assertThat(extFileList.filePath).isEqualTo(TEST_FILE_LIST)
-        // assertThat(extFileList.files).hasSize(0)
+        assertThat(extSerializationService.files(extFileList.file)).isEmpty()
         assertPageTabs(extFileList.pageTabFiles)
         verify { fileListDocFileRepository wasNot called }
     }

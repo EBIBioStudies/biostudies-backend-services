@@ -43,6 +43,15 @@ fun extSectionWithFileList(files: List<File>, referencedFiles: List<File>) =
         files = files.map { left(createNfsFile(it.name, "relPath", it, emptyList())) },
         fileList = ExtFileList(
             "fileList",
-            file = createFileList(referencedFiles.map { createNfsFile(it.name, "relPath", it, emptyList()) })
+            file = createFileList(
+                referencedFiles.map {
+                    createNfsFile(
+                        it.name,
+                        "relPath",
+                        it,
+                        emptyList()
+                    )
+                }
+            )
         )
     )

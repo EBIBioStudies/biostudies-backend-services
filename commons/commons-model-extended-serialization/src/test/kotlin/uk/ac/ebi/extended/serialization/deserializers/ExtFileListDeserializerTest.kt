@@ -12,7 +12,7 @@ import uk.ac.ebi.extended.serialization.serializers.FILE_LIST_URL
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.createFileList
 
-class ExtFileListDeserializerTest() {
+class ExtFileListDeserializerTest {
     private val testInstance = ExtSerializationService.mapper
 
     @Test

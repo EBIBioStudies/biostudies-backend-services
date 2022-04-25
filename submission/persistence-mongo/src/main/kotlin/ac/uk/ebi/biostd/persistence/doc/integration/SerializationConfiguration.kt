@@ -14,7 +14,4 @@ class SerializationConfiguration {
 
     @Bean
     fun extSerializationService(): ExtSerializationService = ExtSerializationConfig.extSerializationService()
-
-    /*@Bean
-    fun filesResolver(props: ApplicationProperties): ExtFilesResolver = ExtFilesResolver(File(props.requestFilesPath))*/
 }
