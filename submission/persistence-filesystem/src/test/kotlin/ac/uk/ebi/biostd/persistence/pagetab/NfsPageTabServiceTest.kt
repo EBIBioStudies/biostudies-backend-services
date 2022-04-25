@@ -22,11 +22,14 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import java.nio.file.Paths
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.createFileList
+import java.nio.file.Paths
 import ebi.ac.uk.asserts.assertThat as assertThatEither
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
@@ -37,8 +40,10 @@ class NfsPageTabServiceTest(
 ) {
     private val rootPath = tempFolder.root
     private val folderResolver = SubmissionFolderResolver(Paths.get("$rootPath/submission"), Paths.get("$rootPath/ftp"))
+    private val fileProcessingService =
+        FileProcessingService(ExtSerializationService(), ExtFilesResolver(tempFolder.createDirectory("ext-files")))
     private val testInstance =
-        NfsPageTabService(folderResolver, serializationService, pageTabUtil, FileProcessingService())
+        NfsPageTabService(folderResolver, serializationService, pageTabUtil, fileProcessingService)
     private val subFolder = tempFolder.root.resolve("submission/S-TEST/123/S-TEST123")
 
     @BeforeEach
@@ -86,9 +91,9 @@ class NfsPageTabServiceTest(
 
     private fun sectionWithoutTabFiles() = ExtSection(
         type = "Study1",
-        fileList = ExtFileList("file-list1"),
+        fileList = ExtFileList("file-list1", createFileList(emptyList())),
         sections = listOf(
-            left(ExtSection(type = "Study2", fileList = ExtFileList("file-list2"))),
+            left(ExtSection(type = "Study2", fileList = ExtFileList("file-list2", createFileList(emptyList())))),
             Either.right(ExtSectionTable(listOf(ExtSection(type = "Study3"))))
         )
     )

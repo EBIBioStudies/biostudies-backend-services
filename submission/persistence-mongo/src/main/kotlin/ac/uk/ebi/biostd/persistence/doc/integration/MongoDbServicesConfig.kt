@@ -36,12 +36,14 @@ class MongoDbServicesConfig {
         fileListDocFileRepository: FileListDocFileRepository,
         serializationService: ExtSerializationService,
         toExtSubmissionMapper: ToExtSubmissionMapper,
+        resolver: ExtFilesResolver,
     ): SubmissionQueryService = SubmissionMongoQueryService(
         submissionDocDataRepository,
         submissionRequestDocDataRepository,
         fileListDocFileRepository,
         serializationService,
         toExtSubmissionMapper,
+        resolver
     )
 
     @Bean

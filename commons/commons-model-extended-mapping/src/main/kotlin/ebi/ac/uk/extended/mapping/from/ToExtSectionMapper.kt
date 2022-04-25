@@ -18,7 +18,8 @@ class ToExtSectionMapper(private val toExtFileListMapper: ToExtFileListMapper) {
         sections = sec.sections.map { either ->
             either.bimap(
                 { convert(subAccNo, version, it, source) },
-                { toExtTable(subAccNo, version, it, source) })
+                { toExtTable(subAccNo, version, it, source) }
+            )
         }
     )
 

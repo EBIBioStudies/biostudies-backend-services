@@ -26,6 +26,7 @@ import java.io.PrintWriter
 internal const val BUFFER_SIZE = 1024 * 1024
 
 @Configuration
+@Suppress("TooManyFunctions")
 class ApplicationConfig(
     private val pmcRepository: PmcRepository,
 ) {
@@ -79,10 +80,9 @@ class ApplicationConfig(
     }
 
     @Bean
-    fun xmlWriter(): XmlMapper =
-        XmlMapper(
-            JacksonXmlModule().apply { setDefaultUseWrapper(false) }
-        ).apply { enable(INDENT_OUTPUT) }
+    fun xmlWriter(): XmlMapper = XmlMapper(
+        JacksonXmlModule().apply { setDefaultUseWrapper(false) }
+    ).apply { enable(INDENT_OUTPUT) }
 
     @Bean
     fun serializationService(): SerializationService = SerializationConfig.serializationService()

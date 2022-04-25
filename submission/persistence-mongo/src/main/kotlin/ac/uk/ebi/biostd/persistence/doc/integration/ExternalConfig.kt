@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
@@ -27,7 +26,6 @@ class ExternalConfig {
         serializationService: ExtSerializationService,
         systemService: FileSystemService,
         submissionRepository: ExtSubmissionRepository,
-        properties: ApplicationProperties,
     ): SubmissionPersistenceService {
         return SubmissionMongoPersistenceService(
             submissionDocDataRepository,

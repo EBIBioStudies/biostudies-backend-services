@@ -46,7 +46,6 @@ class ToDocFileListMapper(
         serializationService.deserializeList(stream)
             .mapIndexed { idx, file -> FileListDocFile(ObjectId(), subId, file.toDocFile(), path, idx, version, accNo) }
             .toList()
-
 }
 
 private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFile() })

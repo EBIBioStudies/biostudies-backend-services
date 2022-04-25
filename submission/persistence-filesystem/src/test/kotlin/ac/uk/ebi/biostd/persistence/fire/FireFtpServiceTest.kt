@@ -6,10 +6,10 @@ import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -19,6 +19,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.createFileList
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import ebi.ac.uk.test.basicExtSubmission as basicExtSub
 import uk.ac.ebi.fire.client.model.FireApiFile as ClientFireFile
@@ -31,7 +33,7 @@ class FireFtpServiceTest(
     private val fileFileList = fireFile(FILE_FILE_LIST)
     private val innerFileListFile = fireFile(INNER_FILE_FILE_LIST)
     private val extSub = createExtSubmission(fileFileList, innerFileListFile)
-    private val testInstance = FireFtpService(fireWebClient, submissionQueryService)
+    private val testInstance = FireFtpService(fireWebClient, ExtSerializationService(), submissionQueryService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -102,7 +104,6 @@ class FireFtpServiceTest(
         fileFileList: FireFile,
         innerFileListFile: FireFile
     ): ExtSubmission {
-        val fireDir = fireDir()
         val filePageTab = fireFile(FILE_PAGE_TAB)
         val file = fireFile(FILE)
         val fileTable = fireFile(FILE_TABLE)
@@ -111,15 +112,19 @@ class FireFtpServiceTest(
         val innerFileTable = fireFile(INNER_FILE_TABLE)
         val section = ExtSection(
             type = "Study",
-            fileList = ExtFileList("fileName1", files = listOf(fileFileList), pageTabFiles = listOf(filePageTab)),
-            files = listOf(left(file), left(fireDir), right(ExtFileTable(fileTable))),
+            fileList = ExtFileList(
+                "fileName1",
+                file = createFileList(listOf(fileFileList)),
+                pageTabFiles = listOf(filePageTab)
+            ),
+            files = listOf(left(file), left(fireDir()), right(ExtFileTable(fileTable))),
             sections = listOf(
                 left(
                     ExtSection(
                         type = "Study",
                         fileList = ExtFileList(
                             "a/fileName2",
-                            files = listOf(innerFileListFile),
+                            file = createFileList(listOf(innerFileListFile)),
                             pageTabFiles = listOf(innerFileListPageTabFile)
                         ),
                         files = listOf(left(innerFile), right(ExtFileTable(innerFileTable)))
@@ -131,7 +136,6 @@ class FireFtpServiceTest(
     }
 
     private fun fireDir() = FireDirectory("folder", "Files/Folder", FIRE_DIR, "dir-md5", 2L, listOf())
-
     private fun fireFile(fireId: String) = FireFile("a/test.txt", "relPath", fireId, "md5", 1, listOf())
 
     private companion object {

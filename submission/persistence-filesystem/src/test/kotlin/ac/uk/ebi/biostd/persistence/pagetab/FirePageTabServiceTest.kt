@@ -8,10 +8,10 @@ import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtFileList
-import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
@@ -24,6 +24,9 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.createFileList
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import ebi.ac.uk.asserts.assertThat as assertThatEither
 import uk.ac.ebi.fire.client.model.FireApiFile as FireFileWeb
@@ -36,8 +39,16 @@ class FirePageTabServiceTest(
     @MockK private val pageTabUtil: PageTabUtil,
 ) {
     private val fireFolder = tempFolder.root.resolve("fire-temp")
+    private val fileProcessingService =
+        FileProcessingService(ExtSerializationService(), ExtFilesResolver(tempFolder.createDirectory("ext-files")))
     private val testInstance =
-        FirePageTabService(fireFolder, serializationService, fireWebClient, pageTabUtil, FileProcessingService())
+        FirePageTabService(
+            fireFolder,
+            serializationService,
+            fireWebClient,
+            pageTabUtil,
+            fileProcessingService
+        )
 
     @Test
     fun `generate page tab`() {
@@ -127,9 +138,14 @@ class FirePageTabServiceTest(
 
     private fun sectionWithoutTabFiles() = ExtSection(
         type = "Study1",
-        fileList = ExtFileList("data/file-list1"),
+        fileList = ExtFileList("data/file-list1", file = createFileList(emptyList())),
         sections = listOf(
-            left(ExtSection(type = "Study2", fileList = ExtFileList("data/file-list2"))),
+            left(
+                ExtSection(
+                    type = "Study2",
+                    fileList = ExtFileList("data/file-list2", file = createFileList(emptyList()))
+                )
+            ),
             right(ExtSectionTable(listOf(ExtSection(type = "Study3"))))
         )
     )

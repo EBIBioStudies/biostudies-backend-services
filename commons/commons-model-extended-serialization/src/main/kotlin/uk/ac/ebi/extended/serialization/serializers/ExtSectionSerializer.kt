@@ -10,6 +10,7 @@ import org.springframework.web.util.UriUtils.encodePath
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ACC_NO
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES_URL
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_LIST
@@ -19,21 +20,20 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.PAGE_TA
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTIONS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
-import uk.ac.ebi.extended.serialization.service.Properties
 import java.nio.charset.StandardCharsets.UTF_8
 
 const val FILE_LIST_URL = "submissions/extended"
 
 class ExtSectionSerializer : JsonSerializer<ExtSection>() {
     override fun serialize(section: ExtSection, gen: JsonGenerator, serializers: SerializerProvider) {
-        serialize(section, gen, gen.outputTarget as Properties)
+        serialize(section, gen)
     }
 
-    private fun serialize(section: ExtSection, gen: JsonGenerator, prop: Properties) {
+    private fun serialize(section: ExtSection, gen: JsonGenerator) {
         gen.writeStartObject()
         gen.writeStringField(ACC_NO, section.accNo)
         gen.writeStringField(TYPE, section.type)
-        section.fileList?.let { writeFileList(it, gen, prop.includeFileListFiles) } ?: gen.writeNullField(FILE_LIST)
+        section.fileList?.let { writeFileList(it, gen) } ?: gen.writeNullField(FILE_LIST)
         gen.writeObjectField(ATTRIBUTES, section.attributes)
         writeEitherList(SECTIONS, section.sections, gen)
         writeEitherList(FILES, section.files, gen)
@@ -42,15 +42,17 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
         gen.writeEndObject()
     }
 
-    private fun writeFileList(fileList: ExtFileList, gen: JsonGenerator, includeFileListFiles: Boolean) {
+    private fun writeFileList(fileList: ExtFileList, gen: JsonGenerator) {
         gen.writeObjectFieldStart(FILE_LIST)
         gen.writeStringField(FILE_NAME, fileList.filePath)
-
-        val encodedPath = encodePath("/$FILE_LIST_URL/$parentAccNo/referencedFiles/${fileList.filePath}", UTF_8)
-        gen.writeStringField(FILES_URL, encodedPath)
+        gen.writeStringField(FILES_URL, fileUrl(fileList))
+        gen.writeStringField(FILE, fileList.file.absolutePath)
         gen.writeObjectField(PAGE_TAB_FILES, fileList.pageTabFiles)
         gen.writeEndObject()
     }
+
+    private fun fileUrl(fileList: ExtFileList): String =
+        encodePath("/$FILE_LIST_URL/$parentAccNo/referencedFiles/${fileList.filePath}", UTF_8)
 
     private fun writeEitherList(fieldName: String, list: List<Either<*, *>>, gen: JsonGenerator) {
         gen.writeArrayFieldStart(fieldName)

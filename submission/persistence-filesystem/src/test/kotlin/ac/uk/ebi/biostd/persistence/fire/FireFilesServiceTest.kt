@@ -5,10 +5,10 @@ import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createNewFile
@@ -28,6 +28,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
@@ -42,7 +44,9 @@ class FireFilesServiceTest(
     private val file = tempFolder.createFile("test.txt")
     private val testMd5 = file.md5()
     private val attribute = ExtAttribute("Type", "Test")
-    private val testInstance = FireFilesService(fireTempFolder, fireWebClient, FileProcessingService())
+    private val processingService =
+        FileProcessingService(ExtSerializationService(), ExtFilesResolver(tempFolder.createDirectory("ext-files")))
+    private val testInstance = FireFilesService(fireTempFolder, fireWebClient, processingService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()

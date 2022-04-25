@@ -20,6 +20,7 @@ import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.WebExtPage
 import uk.ac.ebi.extended.serialization.deserializers.EitherExtTypeDeserializer
+import uk.ac.ebi.extended.serialization.deserializers.ExtAttributeDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileListDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFilesTableDeserializer
@@ -27,6 +28,7 @@ import uk.ac.ebi.extended.serialization.deserializers.ExtLinkDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtLinksTableDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtSectionsTableDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.OffsetDateTimeDeserializer
+import uk.ac.ebi.extended.serialization.serializers.ExtAttributeSerializer
 import uk.ac.ebi.extended.serialization.serializers.ExtFileSerializer
 import uk.ac.ebi.extended.serialization.serializers.ExtFilesTableSerializer
 import uk.ac.ebi.extended.serialization.serializers.ExtLinkSerializer
@@ -42,19 +44,17 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.io.StringWriter
 import java.time.OffsetDateTime
-import uk.ac.ebi.extended.serialization.deserializers.ExtAttributeDeserializer
-import uk.ac.ebi.extended.serialization.serializers.ExtAttributeSerializer
 
 data class Properties(val includeFileListFiles: Boolean) : StringWriter()
 
-class ExtSerializationService {
+class ExtSerializationService private constructor(val mapper: ObjectMapper) {
     fun serialize(sub: ExtSubmission, props: Properties = Properties(false)): String = serializeElement(sub, props)
     fun serialize(files: Sequence<ExtFile>, stream: OutputStream) = mapper.serializeList(files, stream)
     fun serialize(table: ExtFileTable): String = serializeElement(table)
     fun serialize(extPage: WebExtPage): String = serializeElement(extPage)
 
-    fun deserialize(stream: InputStream): Sequence<ExtFile> = mapper.deserializeList(stream)
     fun deserialize(value: String): ExtSubmission = mapper.readValue(value)
+    fun deserializeList(stream: InputStream): Sequence<ExtFile> = mapper.deserializeList(stream)
     fun deserializePage(value: String): ExtPage = mapper.readValue(value)
     fun deserializeTable(value: String): ExtFileTable = mapper.readValue(value)
 
@@ -67,7 +67,10 @@ class ExtSerializationService {
     }
 
     companion object {
+        operator fun invoke(): ExtSerializationService = instance
+
         val mapper = createMapper()
+        private val instance = ExtSerializationService(mapper)
 
         private fun createMapper(): ObjectMapper {
             val module = SimpleModule().apply {

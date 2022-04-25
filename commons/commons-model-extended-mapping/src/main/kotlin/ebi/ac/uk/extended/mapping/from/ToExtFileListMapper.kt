@@ -14,9 +14,9 @@ class ToExtFileListMapper(
     private val extFilesResolver: ExtFilesResolver,
 ) {
     fun convert(accNo: String, version: Int, fileList: FileList, fileSource: FilesSource): ExtFileList {
-        val fileName = fileList.canonicalName
         val extFiles = fileList.referencedFiles.map { it.toExtFile(fileSource) }
-        return ExtFileList(fileName, toExtFiles(accNo, version, fileName, extFiles))
+        val name = fileList.canonicalName
+        return ExtFileList(name, toExtFiles(accNo, version, name, extFiles))
     }
 
     private fun toExtFiles(accNo: String, version: Int, fileName: String, files: List<ExtFile>): File {

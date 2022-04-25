@@ -75,7 +75,7 @@ class FileProcessingService(
             inputFile.inputStream(),
             outputFile.outputStream()
         ) { input, output ->
-            serializationService.serialize(serializationService.deserialize(input).map { processFile(it) }, output)
+            serializationService.serialize(serializationService.deserializeList(input).map { processFile(it) }, output)
         }
 
         return outputFile

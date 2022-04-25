@@ -25,6 +25,7 @@ import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.io.use
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
 import java.io.InputStream
@@ -39,7 +40,8 @@ internal class SubmissionMongoQueryService(
     private val requestRepository: SubmissionRequestDocDataRepository,
     private val fileListDocFileRepository: FileListDocFileRepository,
     private val serializationService: ExtSerializationService,
-    private val toExtSubmissionMapper: ToExtSubmissionMapper
+    private val toExtSubmissionMapper: ToExtSubmissionMapper,
+    private val resolver: ExtFilesResolver
 ) : SubmissionQueryService {
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
 
@@ -91,15 +93,14 @@ internal class SubmissionMongoQueryService(
 
     override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
         val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, REQUESTED)
-        val fileLists = request.fileList.associate { it.fileName to File(it.filePath) }
-        val submission = serializationService.deserialize(request.submission.toString())
-        val fullSubmission = submission.copy(section = submission.section.replaceFileList { loadFiles(it, fileLists) })
-        return SubmissionRequest(submission = fullSubmission, fileMode = request.fileMode, draftKey = request.draftKey)
+        val stored = serializationService.deserialize(request.submission.toString())
+        val full = stored.copy(section = stored.section.replaceFileList { calculate(accNo, version, it) })
+        return SubmissionRequest(full, request.fileMode, request.draftKey)
     }
 
-    private fun loadFiles(fileList: ExtFileList, fileMap: Map<String, File>): ExtFileList {
-        val fileListFile = fileMap.getValue(fileList.fileName)
-        return fileList.copy(file = copyFile(fileListFile, fileList.file))
+    private fun calculate(accNo: String, version: Int, fileList: ExtFileList): ExtFileList {
+        val newFileList = resolver.createEmptyFile(accNo, version, fileList.fileName)
+        return fileList.copy(file = copyFile(fileList.file, newFileList))
     }
 
     private fun copyFile(inputFile: File, outputFile: File): File {
@@ -108,7 +109,7 @@ internal class SubmissionMongoQueryService(
     }
 
     private fun loadFiles(input: InputStream, output: OutputStream) {
-        val files = serializationService.deserialize(input)
+        val files = serializationService.deserializeList(input)
             .onEachIndexed { index, file -> logger.info { "mapping file ${file.filePath}, ${index + 1}" } }
             .map { extFile -> loadFileAttributes(extFile) }
         serializationService.serialize(files, output)

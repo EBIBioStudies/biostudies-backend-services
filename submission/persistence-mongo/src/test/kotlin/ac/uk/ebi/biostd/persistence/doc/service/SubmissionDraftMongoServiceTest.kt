@@ -9,8 +9,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.PROCESSING
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
-import ebi.ac.uk.extended.mapping.to.ToFileListMapper
-import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSection
 import io.mockk.clearAllMocks
@@ -32,9 +30,10 @@ import java.time.Instant
 internal class SubmissionDraftMongoServiceTest(
     @MockK private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     @MockK private val submissionQueryService: SubmissionQueryService,
-    @MockK private val serializationService: SerializationService
+    @MockK private val serializationService: SerializationService,
+    @MockK private val toSubmissionMapper: ToSubmissionMapper,
 ) {
-    private val toSubmissionMapper: ToSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper(TODO())))
+
     private val testInstance = SubmissionDraftMongoService(
         draftDocDataRepository,
         submissionQueryService,
