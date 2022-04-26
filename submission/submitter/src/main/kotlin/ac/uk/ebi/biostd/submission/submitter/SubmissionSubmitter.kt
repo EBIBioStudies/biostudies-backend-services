@@ -71,10 +71,9 @@ class SubmissionSubmitter(
     fun submitAsync(request: SubmissionRequest): Pair<String, Int> = saveRequest(request, request.submission.submitter)
 
     fun processRequest(accNo: String, version: Int): ExtSubmission {
-        val saveRequest = submissionQueryService.getPendingRequest(accNo, version)
-        val submitter = saveRequest.submission.submitter
-        logger.info { "$accNo, $submitter Processing request for submission accNo='$accNo', version='$version'" }
-        return submissionPersistenceService.processSubmissionRequest(saveRequest)
+        val rqt = submissionQueryService.getPendingRequest(accNo, version)
+        logger.info { "$accNo, ${rqt.submission.submitter} processing submission accNo='$accNo', version='$version'" }
+        return submissionPersistenceService.processSubmissionRequest(rqt)
     }
 
     fun release(request: ReleaseRequest) {
@@ -114,6 +113,7 @@ class SubmissionSubmitter(
         source: FilesSource,
         method: SubmissionMethod
     ): ExtSubmission {
+        val version = DEFAULT_VERSION
         val previousVersion = queryService.findLatestBasicByAccNo(submission.accNo)
         val isNew = previousVersion == null
         val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(submission.attachTo)
@@ -131,7 +131,7 @@ class SubmissionSubmitter(
             accNo = accNoString,
             owner = ownerEmail,
             submitter = submitter.email,
-            version = DEFAULT_VERSION,
+            version = version,
             schemaVersion = DEFAULT_SCHEMA_VERSION,
             method = getMethod(method),
             title = submission.title,
@@ -145,7 +145,7 @@ class SubmissionSubmitter(
             creationTime = createTime,
             tags = submission.tags.map { ExtTag(it.first, it.second) },
             collections = tags.map { ExtCollection(it) },
-            section = toExtSectionMapper.convert(submission.section, source),
+            section = toExtSectionMapper.convert(submission.accNo, version, submission.section, source),
             attributes = submission.attributes.toExtAttributes(SUBMISSION_RESERVED_ATTRIBUTES),
             storageMode = if (properties.persistence.enableFire) FIRE else NFS
         )

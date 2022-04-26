@@ -11,10 +11,10 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
-import java.time.Duration
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -35,9 +35,10 @@ import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO
 import uk.ac.ebi.extended.test.SubmissionFactory.OWNER
 import uk.ac.ebi.extended.test.SubmissionFactory.SUBMITTER
 import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
+import java.time.Duration
 
 @Testcontainers
-@SpringBootTest(classes = [MongoDbServicesConfig::class, ToDocSubmissionConfig::class])
+@SpringBootTest(classes = [MongoDbServicesConfig::class, ToDocSubmissionConfig::class, TestConfig::class])
 class ExtSubmissionRepositoryTest(
     @Autowired private val subDataRepository: SubmissionDocDataRepository,
     @Autowired private val draftDocDataRepository: SubmissionDraftDocDataRepository,
@@ -75,7 +76,10 @@ class ExtSubmissionRepositoryTest(
 
         val result = testInstance.saveSubmission(submission, draftKey = "draftKey")
 
-        assertThat(result.section).isEqualTo(section.copy(fileList = defaultFileList(filesUrl = null)))
+        assertThat(result.section).isEqualToIgnoringGivenFields(
+            section.copy(fileList = defaultFileList(filesUrl = null)),
+            "fileList"
+        )
         assertThat(result.status).isEqualTo(PROCESSING)
 
         assertThat(subDataRepository.getSubmission(submission.accNo, -1)).isNotNull()

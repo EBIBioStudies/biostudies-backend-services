@@ -11,7 +11,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import java.io.File
 import java.nio.file.Paths
 
 @Configuration
@@ -28,10 +30,14 @@ class FileSystemConfig(
         havingValue = "false",
         matchIfMissing = true
     )
-    fun nfsFilePersistenceService(): FilesService = NfsFilesService(folderResolver, FileProcessingService())
+    fun nfsFilePersistenceService(fileProcessingService: FileProcessingService): FilesService =
+        NfsFilesService(folderResolver, fileProcessingService)
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
-    fun fireFileService(): FilesService =
-        FireFilesService(Paths.get(applicationProperties.fireTempDirPath), fireWebClient, FileProcessingService())
+    fun fireFileService(fileProcessingService: FileProcessingService): FilesService =
+        FireFilesService(Paths.get(applicationProperties.requestFilesPath), fireWebClient, fileProcessingService)
+
+    @Bean
+    fun extFilesResolver() = ExtFilesResolver(File(applicationProperties.requestFilesPath))
 }
