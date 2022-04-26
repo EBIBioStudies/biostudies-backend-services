@@ -103,6 +103,8 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.createFileList
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ToDocSubmissionMapperTest(
@@ -117,14 +119,14 @@ class ToDocSubmissionMapperTest(
         rootSectionTableFile.copy(file = tempFolder.createFile("tempFile4.txt", "content4"))
 
     private val newSubSection =
-        subSection.copy(fileList = subSection.fileList!!.copy(files = listOf(newSubSectionFileListFile)))
+        subSection.copy(fileList = subSection.fileList!!.copy(file = createFileList(listOf(newSubSectionFileListFile))))
 
     private val nfsFileFile = tempFolder.createFile(NFS_FILENAME)
     private val extNfsFile = createNfsFile(NFS_FILEPATH, NFS_REL_PATH, nfsFileFile)
 
     private val newRootSection = rootSection.copy(
         fileList = rootSection.fileList!!.copy(
-            files = listOf(newRootSectionFileListFile),
+            file = createFileList(listOf(newRootSectionFileListFile)),
             pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile)
         ),
         sections = listOf(
@@ -141,7 +143,8 @@ class ToDocSubmissionMapperTest(
         section = newRootSection,
         pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile)
     )
-    private val testInstance: ToDocSubmissionMapper = ToDocSubmissionMapper(ToDocSectionMapper(ToDocFileListMapper()))
+    private val testInstance: ToDocSubmissionMapper =
+        ToDocSubmissionMapper(ToDocSectionMapper(ToDocFileListMapper(ExtSerializationService())))
 
     @Test
     fun `to Doc Submission with a file inside the section and another file inside the inner section`() {
@@ -349,7 +352,7 @@ class ToDocSubmissionMapperTest(
             assertThat((docFile.a as NfsDocFile).fileName).isEqualTo(ROOT_SEC_FILE_NAME)
             assertThat((docFile.a as NfsDocFile).filePath).isEqualTo(ROOT_SEC_FILEPATH)
             assertThat((docFile.a as NfsDocFile).relPath).isEqualTo(ROOT_SEC_REL_PATH)
-            assertThat((docFile.a as NfsDocFile).fullPath).isEqualTo(newRootSectionFile.file.path)
+            assertThat((docFile.a as NfsDocFile).fullPath).isEqualTo(newRootSectionFile.fullPath)
         }
 
         val docFileTable = docFiles.second()
@@ -359,7 +362,7 @@ class ToDocSubmissionMapperTest(
             assertThat(innerNfsDocFile.fileName).isEqualTo(ROOT_SEC_TABLE_FILE_NAME)
             assertThat(innerNfsDocFile.filePath).isEqualTo(ROOT_SEC_TABLE_FILEPATH)
             assertThat(innerNfsDocFile.relPath).isEqualTo(ROOT_SEC_TABLE_REL_PATH)
-            assertThat(innerNfsDocFile.fullPath).isEqualTo(newRootSectionTableFile.file.path)
+            assertThat(innerNfsDocFile.fullPath).isEqualTo(newRootSectionTableFile.fullPath)
         }
     }
 }

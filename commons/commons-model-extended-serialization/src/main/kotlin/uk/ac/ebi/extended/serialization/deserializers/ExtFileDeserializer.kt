@@ -53,14 +53,11 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
 
     private fun nfsFile(node: JsonNode, mapper: ObjectMapper): NfsFile {
         val fullPath = node.getNode<TextNode>(FILE_FULL_PATH).textValue()
-        val file = Paths.get(fullPath).toFile()
-        require(file.exists()) { "File not found $fullPath" }
-
         return NfsFile(
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
             fullPath = fullPath,
-            file = file,
+            file = Paths.get(fullPath).toFile(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<NumericNode>(FILE_SIZE).longValue(),
             attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }

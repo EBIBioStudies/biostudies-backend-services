@@ -12,6 +12,10 @@ import Projects.JsonLibrary
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
+plugins {
+    `java-test-fixtures`
+}
+
 dependencies {
     api(project(CommonsModelExtended))
     api(project(CommonsModelExtendedTest))
@@ -28,4 +32,6 @@ dependencies {
     testApi(project(CommonsTest))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
+
+    testFixturesApi(Arrow)
 }

@@ -2,7 +2,6 @@ package ebi.ac.uk.extended.model
 
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
-import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
@@ -34,27 +33,6 @@ class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {
         assertThat(sec2).isEqualTo(ExtSection(type = "subSubSec1"))
         assertThat(sec3).isEqualTo(ExtSection(type = "subSec2"))
         assertThat(sec4).isEqualTo(ExtSection(type = "subSec3"))
-    }
-
-    @Test
-    fun allReferencedFiles() {
-        val file = temporaryFolder.createFile("file.txt")
-        val nfsFile = NfsFile("filePath", "relPath", file, file.absolutePath, file.md5(), file.size())
-        val fireFile = FireFile("filePath", "relPath", "fireId", "md5", 1L, FILE, listOf())
-        val fireDirectory = FireFile("filePath", "relPath", "dirFireId", "md5", 1L, DIR, listOf())
-
-        val extSection = ExtSection(
-            type = "section",
-            fileList = ExtFileList("fileListName", listOf(nfsFile, fireFile, fireDirectory))
-        )
-
-        val result = extSection.allReferencedFiles
-
-        assertThat(result.size).isEqualTo(3)
-        val (file1, file2, file3) = result
-        assertThat(file1).isEqualTo(nfsFile)
-        assertThat(file2).isEqualTo(fireFile)
-        assertThat(file3).isEqualTo(fireDirectory)
     }
 
     @Test

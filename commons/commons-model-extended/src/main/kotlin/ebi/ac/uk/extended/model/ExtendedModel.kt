@@ -56,7 +56,7 @@ data class NfsFile(
     override val attributes: List<ExtAttribute> = listOf()
 ) : ExtFile() {
     override val type: ExtFileType
-        get() = if (file.isFile) FILE else DIR
+        get() = if (file.isDirectory) DIR else FILE
 }
 
 @Deprecated(message = "Only for testing. Prefer default class constructor to avoid computation of md5 and size.")
@@ -70,7 +70,7 @@ fun createNfsFile(
 
 data class ExtFileList(
     val filePath: String,
-    val files: List<ExtFile> = listOf(),
+    val file: File,
     val filesUrl: String? = null,
     val pageTabFiles: List<ExtFile> = listOf()
 ) {

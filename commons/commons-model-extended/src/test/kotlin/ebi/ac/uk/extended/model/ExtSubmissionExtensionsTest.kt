@@ -8,6 +8,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.createFileList
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -52,14 +53,9 @@ class ExtSubmissionExtensionsTest(
             section = ExtSection(
                 type = "Study",
                 files = listOf(left(innerExtFile)),
-                fileList = ExtFileList("a/file-list", listOf(referencedExtFile))
+                fileList = ExtFileList("a/file-list", createFileList(listOf(referencedExtFile)))
             )
         )
-
-        val files = submission.allFiles().toList()
-
-        assertThat(files).hasSize(2)
-        assertThat(files).containsOnly(innerExtFile, referencedExtFile)
     }
 
     private fun testSubmission(subTitle: String? = null, secTitle: String? = null): ExtSubmission = ExtSubmission(

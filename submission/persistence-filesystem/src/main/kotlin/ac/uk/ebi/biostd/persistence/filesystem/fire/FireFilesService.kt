@@ -91,7 +91,7 @@ private fun FireFileProcessingConfig.persistFireFile(
     val filePath = nfsFile.filePath
     val relPath = nfsFile.relPath
     val attributes = nfsFile.attributes
-    val fireFile = fireWebClient.getOrPersist(accNo, nfsFile.file, FILE, nfsFile.md5, "$subRelPath/$relPath")
+    val fireFile = fireWebClient.getOrPersist(accNo, nfsFile.file, FILE, nfsFile.file.md5(), "$subRelPath/$relPath")
 
     return FireFile(
         filePath,

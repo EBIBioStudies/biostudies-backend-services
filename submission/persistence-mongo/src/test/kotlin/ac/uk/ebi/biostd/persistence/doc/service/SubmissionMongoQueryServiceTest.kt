@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.REQUESTED as DOC_REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
@@ -35,9 +34,6 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import java.time.Duration.ofSeconds
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.AfterEach
@@ -57,7 +53,12 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.time.Duration.ofSeconds
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.REQUESTED as DOC_REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
@@ -75,13 +76,15 @@ internal class SubmissionMongoQueryServiceTest(
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository
 ) {
     private val serializationService: ExtSerializationService = extSerializationService()
+    private val fileResolver = ExtFilesResolver(tempFolder.createDirectory("ext-files"))
     private val testInstance =
         SubmissionMongoQueryService(
             submissionRepo,
             requestRepository,
             fileListDocFileRepository,
             serializationService,
-            toExtSubmissionMapper
+            toExtSubmissionMapper,
+            fileResolver,
         )
 
     @AfterEach
@@ -453,7 +456,6 @@ internal class SubmissionMongoQueryServiceTest(
             fileMode = FileMode.COPY,
             draftKey = null,
             submission = BasicDBObject.parse(serializationService.serialize(submission)),
-            fileList = emptyList()
         )
     }
 

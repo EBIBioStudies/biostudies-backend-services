@@ -15,7 +15,6 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
@@ -130,16 +129,5 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extFile.type).isEqualTo(DIR)
         assertThat(extFile.attributes.first().name).isEqualTo("Type")
         assertThat(extFile.attributes.first().value).isEqualTo("Data")
-    }
-
-    @Test
-    fun `invalid file`() {
-        val json = jsonObj {
-            "fullPath" to "/i/dont/exist/file.txt"
-            "fileName" to "file.txt"
-            "extType" to "nfsFile"
-        }.toString()
-
-        assertThrows<IllegalArgumentException> { testInstance.readValue<ExtFile>(json) }
     }
 }

@@ -23,13 +23,15 @@ import ebi.ac.uk.extended.mapping.from.ToExtFileListMapper
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
-import java.nio.file.Paths
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
 import org.springframework.web.client.RestTemplate
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.nio.file.Paths
 
 @Suppress("LongParameterList")
 @Configuration
@@ -67,7 +69,11 @@ class SubmitterConfig {
             ToExtSectionMapper(toExtFileListMapper)
 
         @Bean
-        fun toExtFileList(): ToExtFileListMapper = ToExtFileListMapper()
+        fun toExtFileList(
+            serializationService: ExtSerializationService,
+            extFilesResolver: ExtFilesResolver
+        ): ToExtFileListMapper =
+            ToExtFileListMapper(serializationService, extFilesResolver)
     }
 
     @Configuration
