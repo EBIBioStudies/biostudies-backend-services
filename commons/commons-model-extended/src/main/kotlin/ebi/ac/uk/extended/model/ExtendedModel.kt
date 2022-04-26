@@ -70,7 +70,7 @@ fun createNfsFile(
 
 data class ExtFileList(
     val filePath: String,
-    val files: List<ExtFile> = listOf(),
+    val file: File,
     val filesUrl: String? = null,
     val pageTabFiles: List<ExtFile> = listOf()
 ) {

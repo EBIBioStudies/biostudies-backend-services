@@ -65,7 +65,8 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
         val iterator = fileList.iterator()
 
         testFile.outputStream().use { testInstance.serialize(fileList, it) }
-        testFile.inputStream().use { testInstance.deserialize(it).onEach { assertThat(it).isEqualTo(iterator.next()) } }
+        testFile.inputStream()
+            .use { testInstance.deserializeList(it).onEach { assertThat(it).isEqualTo(iterator.next()) } }
     }
 
     private fun createNfsFile(index: Int) = NfsFile(

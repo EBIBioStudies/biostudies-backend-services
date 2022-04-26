@@ -3,6 +3,7 @@ import Dependencies.Guava
 import Dependencies.JacksonKotlin
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
+import Projects.CommonsModelExtendedSerialization
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import TestDependencies.BaseTestCompileDependencies
@@ -20,4 +21,5 @@ dependencies {
     testApi(project(CommonsTest))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
+    testImplementation(testFixtures(project(CommonsModelExtendedSerialization)))
 }

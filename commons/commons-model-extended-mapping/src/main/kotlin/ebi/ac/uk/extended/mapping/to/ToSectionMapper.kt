@@ -5,8 +5,6 @@ import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 
-internal const val TO_SECTION_EXTENSIONS = "ebi.ac.uk.extended.mapping.to.ToSectionKt"
-
 class ToSectionMapper(private val toFileListMapper: ToFileListMapper) {
     fun convert(sec: ExtSection): Section = Section(
         type = sec.type,
