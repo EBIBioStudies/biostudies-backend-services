@@ -16,10 +16,3 @@ val ExtSubmission.isCollection
 
 val ExtSubmission.computedTitle
     get(): String? = title ?: section.title
-
-fun ExtSubmission.allFiles(): Sequence<ExtFile> = allFileListFiles().plus(allSectionsFiles).plus(pageTabFiles)
-
-fun ExtSubmission.allFileListFiles(): Sequence<ExtFile> =
-    allFileList
-        .flatMap { it.files + it.pageTabFiles }
-        .asSequence()

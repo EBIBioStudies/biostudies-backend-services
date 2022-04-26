@@ -13,8 +13,6 @@ import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
-import ebi.ac.uk.extended.mapping.to.ToFileListMapper
-import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -23,7 +21,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.events.service.EventsPublisherService
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.net.URI
 
 @Configuration
@@ -58,7 +55,6 @@ class SubmissionConfig(
         subRepository: SubmissionQueryService,
         userPrivilegeService: IUserPrivilegesService,
         securityQueryService: ISecurityQueryService,
-        extSerializationService: ExtSerializationService,
         eventsPublisherService: EventsPublisherService
     ): ExtSubmissionService =
         ExtSubmissionService(
@@ -66,7 +62,6 @@ class SubmissionConfig(
             subRepository,
             userPrivilegeService,
             securityQueryService,
-            extSerializationService,
             eventsPublisherService
         )
 
@@ -82,6 +77,7 @@ class SubmissionConfig(
         userFilesService: UserFilesService,
         securityQueryService: ISecurityQueryService,
         extSubmissionService: ExtSubmissionService,
+        toSubmissionMapper: ToSubmissionMapper,
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
@@ -90,7 +86,7 @@ class SubmissionConfig(
             serializationService,
             userFilesService,
             securityQueryService,
-            ToSubmissionMapper(ToSectionMapper(ToFileListMapper())),
+            toSubmissionMapper,
         )
 
     @Bean

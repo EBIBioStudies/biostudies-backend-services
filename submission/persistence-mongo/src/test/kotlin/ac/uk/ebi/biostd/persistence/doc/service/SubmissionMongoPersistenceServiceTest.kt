@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
-import ac.uk.ebi.biostd.persistence.doc.model.RequestFileList
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.test.OWNER
@@ -12,7 +11,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.REL_PATH
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import com.mongodb.BasicDBObject.parse
-import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.FileMode.COPY
@@ -36,7 +34,6 @@ import uk.ac.ebi.extended.test.SectionFactory.defaultSection
 import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO
 import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
 import java.io.OutputStream
-import kotlin.io.path.ExperimentalPathApi
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionMongoPersistenceServiceTest(
@@ -47,14 +44,12 @@ class SubmissionMongoPersistenceServiceTest(
     @MockK val submissionRepository: ExtSubmissionRepository,
     val temporaryFolder: TemporaryFolder
 ) {
-    @OptIn(ExperimentalPathApi::class)
     private val testInstance = SubmissionMongoPersistenceService(
         subDataRepository,
         submissionRequestDocDataRepository,
         serializationService,
         systemService,
         submissionRepository,
-        temporaryFolder.root.toPath()
     )
 
     private companion object {
@@ -75,17 +70,13 @@ class SubmissionMongoPersistenceServiceTest(
 
             every { subDataRepository.getCurrentVersion(ACC_NO) } returns 1
             every { systemService.unpublishSubmissionFiles(ACC_NO, OWNER, REL_PATH) } answers { nothing }
-            every { serializationService.serialize(expectedNewVersion, Properties(false)) } returns serializedSub
+            every { serializationService.serialize(expectedNewVersion, Properties(true)) } returns serializedSub
             every { serializationService.serialize(capture(sequence), capture(outputStream)) } answers { nothing }
             every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } returnsArgument 0
 
-            val request = SubmissionRequest(newVersion, COPY, "draftKey")
-            val result = testInstance.saveSubmissionRequest(request)
+            val result = testInstance.saveSubmissionRequest(SubmissionRequest(newVersion, COPY, "draftKey"))
+
             assertThat(result).isEqualTo(ACC_NO to 2)
-
-            val expectedFile = temporaryFolder.root.resolve(ACC_NO).resolve("2").resolve(fileList.fileName)
-            assertThat(expectedFile.readText()).isEqualTo(EMPTY)
-
             val saved = subRequestSlot.captured
             assertThat(saved.accNo).isEqualTo(ACC_NO)
             assertThat(saved.version).isEqualTo(2)
@@ -93,7 +84,6 @@ class SubmissionMongoPersistenceServiceTest(
             assertThat(saved.draftKey).isEqualTo("draftKey")
             assertThat(saved.status).isEqualTo(REQUESTED)
             assertThat(saved.submission).isEqualTo(parse(serializedSub))
-            assertThat(saved.fileList).containsExactly(RequestFileList(fileList.fileName, expectedFile.absolutePath))
         }
 
         @Test
@@ -103,7 +93,7 @@ class SubmissionMongoPersistenceServiceTest(
             val request = SubmissionRequest(defaultSubmission(version = 1), COPY, "draftKey")
 
             every { subDataRepository.getCurrentVersion(ACC_NO) } returns -2
-            every { serializationService.serialize(newVersion, Properties(false)) } returns serializedSub
+            every { serializationService.serialize(newVersion, Properties(true)) } returns serializedSub
             every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } returnsArgument 0
 
             val result = testInstance.saveSubmissionRequest(request)
@@ -117,7 +107,6 @@ class SubmissionMongoPersistenceServiceTest(
                 "draftKey",
                 REQUESTED,
                 parse(serializedSub),
-                emptyList()
             )
             assertThat(subRequestSlot.captured).isEqualToIgnoringGivenFields(submissionRequest, "id")
         }
@@ -129,7 +118,7 @@ class SubmissionMongoPersistenceServiceTest(
             val request = SubmissionRequest(defaultSubmission(version = 1), COPY, "draftKey")
 
             every { subDataRepository.getCurrentVersion(ACC_NO) } returns null
-            every { serializationService.serialize(newVersion, Properties(false)) } returns serializedSub
+            every { serializationService.serialize(newVersion, Properties(true)) } returns serializedSub
             every { submissionRequestDocDataRepository.saveRequest(capture(subRequestSlot)) } returnsArgument 0
 
             val result = testInstance.saveSubmissionRequest(request)
@@ -143,7 +132,6 @@ class SubmissionMongoPersistenceServiceTest(
                 "draftKey",
                 REQUESTED,
                 parse(serializedSub),
-                emptyList()
             )
             assertThat(subRequestSlot.captured).isEqualToIgnoringGivenFields(submissionRequest, "id")
         }

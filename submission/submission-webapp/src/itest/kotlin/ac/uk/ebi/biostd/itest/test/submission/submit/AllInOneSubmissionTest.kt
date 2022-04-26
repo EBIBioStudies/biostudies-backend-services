@@ -13,8 +13,6 @@ import ac.uk.ebi.biostd.itest.factory.submissionSpecJson
 import ac.uk.ebi.biostd.itest.factory.submissionSpecTsv
 import ac.uk.ebi.biostd.itest.factory.submissionSpecXml
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ebi.ac.uk.extended.mapping.to.ToFileListMapper
-import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -37,22 +35,21 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class SingleSubmissionTest(
-        @Autowired val submissionRepository: SubmissionQueryService,
-        @Autowired val securityTestService: SecurityTestService
+        @Autowired val subRepository: SubmissionQueryService,
+        @Autowired val securityTestService: SecurityTestService,
+        @Autowired val toSubmissionMapper: ToSubmissionMapper
     ) {
+
         @LocalServerPort
         private var serverPort: Int = 0
-
         private lateinit var webClient: BioWebClient
         private lateinit var allInOneSubmissionHelper: AllInOneSubmissionHelper
-        private val toSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper()))
 
         @BeforeAll
         fun init() {
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
-            allInOneSubmissionHelper =
-                AllInOneSubmissionHelper(submissionPath, submissionRepository, toSubmissionMapper)
+            allInOneSubmissionHelper = AllInOneSubmissionHelper(submissionPath, subRepository, toSubmissionMapper)
         }
 
         @Test

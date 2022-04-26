@@ -9,11 +9,8 @@ import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
@@ -21,9 +18,13 @@ import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import uk.ac.ebi.extended.serialization.service.createFileList
 import uk.ac.ebi.extended.test.SectionFactory.defaultSection
 import java.io.File
 import java.time.OffsetDateTime
@@ -210,7 +211,7 @@ object FileListFactory {
         pageTabFiles: List<ExtFile> = PAGE_TAG_FILES,
     ) = ExtFileList(
         filePath = filePath,
-        files = files,
+        file = createFileList(files),
         filesUrl = filesUrl,
         pageTabFiles = pageTabFiles
     )
