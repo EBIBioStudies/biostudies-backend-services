@@ -20,8 +20,8 @@ import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
-import ebi.ac.uk.extended.model.ExtFileOrigin
-import ebi.ac.uk.extended.model.ExtFileOrigin.USER_SPACE
+import ebi.ac.uk.io.sources.FileOrigin
+import ebi.ac.uk.io.sources.FileOrigin.USER_SPACE
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.Group
 import ebi.ac.uk.model.Submission
@@ -104,7 +104,7 @@ interface MultipartSubmissionOperations {
         files: List<File>,
         attrs: Map<String, String> = emptyMap(),
         fileMode: FileMode = COPY,
-        preferredSource: ExtFileOrigin = USER_SPACE
+        preferredSource: FileOrigin = USER_SPACE
     ): SubmissionResponse
 }
 

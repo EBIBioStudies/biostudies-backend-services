@@ -3,9 +3,10 @@ package ac.uk.ebi.biostd.submission.domain.helpers
 import ac.uk.ebi.biostd.common.properties.PersistenceProperties
 import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileOrigin
-import ebi.ac.uk.extended.model.ExtFileOrigin.SUBMISSION
 import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.io.sources.FileOrigin
+import ebi.ac.uk.io.sources.FileOrigin.FIRE
+import ebi.ac.uk.io.sources.FileOrigin.SUBMISSION
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.FilesSource.Companion.EMPTY_FILE_SOURCE
 import ebi.ac.uk.model.Attribute
@@ -29,20 +30,12 @@ class FireFilesSourceFactory(
 class FireFilesSource(
     private val fireWebClient: FireWebClient,
 ) : FilesSource {
-    override val filesOrigin: ExtFileOrigin
-        get() = SUBMISSION
+    override val filesOrigin: FileOrigin
+        get() = FIRE
 
-    override fun getExtFile(
-        path: String,
-        md5: String?,
-        attributes: List<Attribute>,
-        preferredOrigin: ExtFileOrigin
-    ): ExtFile? {
-        return when (md5) {
-            null -> null
-            else -> fireWebClient.findByMd5(md5).firstOrNull { it.isAvailable() }?.asFireFile(path, attributes)
-        }
-    }
+    override fun getExtFile(path: String, md5: String?, attributes: List<Attribute>): ExtFile? =
+        if (md5 == null) null
+        else fireWebClient.findByMd5(md5).firstOrNull { it.isAvailable() }?.asFireFile(path, attributes)
 
     override fun getFile(path: String, md5: String?): File? =
         if (md5 == null) null else fireWebClient.downloadByMd5(md5)
@@ -53,15 +46,10 @@ private class SubmissionFireFilesSource(
     private val accNo: String,
     private val basePath: Path
 ) : FilesSource {
-    override val filesOrigin: ExtFileOrigin
+    override val filesOrigin: FileOrigin
         get() = SUBMISSION
 
-    override fun getExtFile(
-        path: String,
-        md5: String?,
-        attributes: List<Attribute>,
-        preferredOrigin: ExtFileOrigin
-    ): ExtFile? {
+    override fun getExtFile(path: String, md5: String?, attributes: List<Attribute>): ExtFile? {
         if (md5 == null) {
             return fireWebClient.findByPath(basePath.resolve(path).toString())
                 ?.takeIf { it.isAvailable(accNo) }

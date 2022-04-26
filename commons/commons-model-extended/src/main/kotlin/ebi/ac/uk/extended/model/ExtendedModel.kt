@@ -1,7 +1,6 @@
 package ebi.ac.uk.extended.model
 
 import arrow.core.Either
-import ebi.ac.uk.extended.model.ExtFileOrigin.USER_SPACE
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import java.io.File
@@ -10,8 +9,6 @@ import java.time.OffsetDateTime
 enum class ExtSubmissionMethod { FILE, PAGE_TAB, UNKNOWN }
 
 enum class ExtProcessingStatus { PROCESSED, PROCESSING, REQUESTED }
-
-enum class ExtFileOrigin { MIXED, GROUP_SPACE, SUBMISSION, USER_SPACE }
 
 data class ExtTag(val name: String, val value: String)
 
@@ -59,8 +56,7 @@ data class NfsFile(
     val fullPath: String,
     override val md5: String,
     val size: Long,
-    override val attributes: List<ExtAttribute> = listOf(),
-    val source: ExtFileOrigin = USER_SPACE
+    override val attributes: List<ExtAttribute> = listOf()
 ) : ExtFile()
 
 @Deprecated(message = "Only for testing. Prefer default class constructor to avoid computation of md5 and size.")

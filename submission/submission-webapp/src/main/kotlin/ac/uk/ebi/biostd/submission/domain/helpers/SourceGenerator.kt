@@ -3,10 +3,10 @@ package ac.uk.ebi.biostd.submission.domain.helpers
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.submission.model.GroupSource
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.ExtFileOrigin.SUBMISSION
-import ebi.ac.uk.extended.model.ExtFileOrigin.USER_SPACE
-import ebi.ac.uk.extended.model.ExtFileOrigin as PreferredFilesSource
 import ebi.ac.uk.io.sources.ComposedFileSource
+import ebi.ac.uk.io.sources.FileOrigin
+import ebi.ac.uk.io.sources.FileOrigin.SUBMISSION
+import ebi.ac.uk.io.sources.FileOrigin.USER_SPACE
 import ebi.ac.uk.io.sources.FilesListSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
@@ -30,7 +30,6 @@ class SourceGenerator(
 
         val submissionSources = buildList {
             add(FilesListSource(files, USER_SPACE))
-
             addUserSources(submitter, owner, rootPath)
             addSubmissionSources(submission)
         }
@@ -83,5 +82,5 @@ data class RequestSources(
     val files: List<File> = emptyList(),
     val rootPath: String?,
     val submission: ExtSubmission?,
-    val preferredSource: PreferredFilesSource = USER_SPACE
+    val preferredSource: FileOrigin = USER_SPACE
 )

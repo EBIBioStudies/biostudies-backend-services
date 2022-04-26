@@ -57,8 +57,7 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
                 attributes = attributes,
                 md5 = md5,
                 fileSize = fileSize,
-                fileType = source.getString(NFS_FILE_TYPE),
-                source = source.getString(NFS_FILE_SOURCE)
+                fileType = source.getString(NFS_FILE_TYPE)
             )
             else -> throw InvalidClassNameDocFileException(source.getString(classField))
         }

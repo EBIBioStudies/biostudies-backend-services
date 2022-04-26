@@ -1,7 +1,6 @@
 package ebi.ac.uk.io.sources
 
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileOrigin
 import ebi.ac.uk.model.Attribute
 import java.io.File
 import java.nio.file.Files
@@ -9,14 +8,13 @@ import java.nio.file.Path
 
 class PathFilesSource(
     private val sourcePath: Path,
-    override val filesOrigin: ExtFileOrigin
+    override val filesOrigin: FileOrigin
 ) : FilesSource {
     override fun getExtFile(
         path: String,
         md5: String?,
-        attributes: List<Attribute>,
-        preferredOrigin: ExtFileOrigin
-    ): ExtFile? = findFile(path)?.let { create(path, it, attributes, filesOrigin) }
+        attributes: List<Attribute>
+    ): ExtFile? = findFile(path)?.let { create(path, it, attributes) }
 
     override fun getFile(path: String, md5: String?): File? = findFile(path)
 

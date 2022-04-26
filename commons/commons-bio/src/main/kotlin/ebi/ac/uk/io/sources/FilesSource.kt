@@ -1,34 +1,25 @@
 package ebi.ac.uk.io.sources
 
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileOrigin
-import ebi.ac.uk.extended.model.ExtFileOrigin.USER_SPACE
+import ebi.ac.uk.io.sources.FileOrigin.EMPTY_SOURCE
 import ebi.ac.uk.model.Attribute
 import java.io.File
 
-interface FilesSource {
-    abstract val filesOrigin: ExtFileOrigin
+enum class FileOrigin { EMPTY_SOURCE, MIXED, FIRE, GROUP_SPACE, SUBMISSION, USER_SPACE }
 
-    fun getExtFile(
-        path: String,
-        md5: String? = null,
-        attributes: List<Attribute> = emptyList(),
-        preferredOrigin: ExtFileOrigin = USER_SPACE
-    ): ExtFile?
+interface FilesSource {
+    val filesOrigin: FileOrigin
+
+    fun getExtFile(path: String, md5: String? = null, attributes: List<Attribute> = emptyList()): ExtFile?
 
     fun getFile(path: String, md5: String? = null): File?
 
     companion object {
         val EMPTY_FILE_SOURCE: FilesSource = object : FilesSource {
-            override val filesOrigin: ExtFileOrigin
-                get() = USER_SPACE
+            override val filesOrigin: FileOrigin
+                get() = EMPTY_SOURCE
 
-            override fun getExtFile(
-                path: String,
-                md5: String?,
-                attributes: List<Attribute>,
-                preferredOrigin: ExtFileOrigin
-            ): ExtFile? = null
+            override fun getExtFile(path: String, md5: String?, attributes: List<Attribute>): ExtFile? = null
 
             override fun getFile(path: String, md5: String?): File? = null
         }

@@ -1,7 +1,7 @@
 package uk.ac.ebi.biostd.client.cli.dto
 
 import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.extended.model.ExtFileOrigin
+import ebi.ac.uk.io.sources.FileOrigin
 import java.io.File
 
 internal data class SubmissionRequest(
@@ -12,5 +12,5 @@ internal data class SubmissionRequest(
     val file: File,
     val attached: List<File>,
     val fileMode: FileMode,
-    val preferredSource: ExtFileOrigin
+    val preferredSource: FileOrigin
 )

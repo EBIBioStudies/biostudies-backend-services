@@ -11,7 +11,7 @@ import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.extended.model.ExtFileOrigin
+import ebi.ac.uk.io.sources.FileOrigin
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILES
@@ -134,7 +134,7 @@ class MultipartSubmitResource(
         @RequestParam(SUBMISSION) file: MultipartFile,
         @RequestParam(FILES) files: Array<MultipartFile>,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
-        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: ExtFileOrigin,
+        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: FileOrigin,
         @RequestParam(ATTRIBUTES) attributes: Array<ExtAttributeDetail>?,
     ): Submission {
         val tempFiles = tempFileGenerator.asFiles(files)

@@ -8,12 +8,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileOrigin
 import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_ORIGIN
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILEPATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_ID
@@ -74,7 +72,6 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             file = file,
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<NumericNode>(FILE_SIZE).longValue(),
-            source = ExtFileOrigin.valueOf(node.getNode<TextNode>(EXT_ORIGIN).textValue()),
             attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }
         )
     }

@@ -23,26 +23,28 @@ data class NfsFileProcessingConfig(
 
 fun NfsFileProcessingConfig.nfsCopy(extFile: NfsFile): NfsFile {
     val file = extFile.file
+    val md5 = extFile.file.md5()
     val target = targetFolder.resolve(extFile.filePath)
     val subFile = subFolder.resolve(extFile.filePath)
 
     logger.info { "$accNo $owner Copying file $file with size ${extFile.size} into ${target.absolutePath}" }
 
     when {
-        target.notExist() && subFile.exists() && subFile.md5() == extFile.md5 -> moveFile(subFile, target, permissions)
+        target.notExist() && subFile.exists() && subFile.md5() == md5 -> moveFile(subFile, target, permissions)
         target.notExist() -> copyOrReplaceFile(file, target, permissions)
     }
 
-    return extFile.copy(fullPath = subFile.absolutePath, file = subFile)
+    return extFile.copy(fullPath = subFile.absolutePath, file = subFile, md5 = md5)
 }
 
 fun NfsFileProcessingConfig.nfsMove(extFile: NfsFile): NfsFile {
     val file = extFile.file
+    val md5 = extFile.file.md5()
     val target = targetFolder.resolve(extFile.filePath)
     val subFile = subFolder.resolve(extFile.filePath)
 
     logger.info { "$accNo $owner Moving file $file with size ${extFile.size} into ${target.absolutePath}" }
     if (target.notExist()) moveFile(extFile.file, target, permissions)
 
-    return extFile.copy(fullPath = subFile.absolutePath, file = subFile)
+    return extFile.copy(fullPath = subFile.absolutePath, file = subFile, md5 = md5)
 }

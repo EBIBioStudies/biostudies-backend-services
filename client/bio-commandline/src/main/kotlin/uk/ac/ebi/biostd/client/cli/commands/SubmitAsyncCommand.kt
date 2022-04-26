@@ -7,8 +7,8 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
-import ebi.ac.uk.extended.model.ExtFileOrigin
-import ebi.ac.uk.extended.model.ExtFileOrigin.USER_SPACE
+import ebi.ac.uk.io.sources.FileOrigin
+import ebi.ac.uk.io.sources.FileOrigin.USER_SPACE
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ON_BEHALF_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
@@ -44,7 +44,7 @@ internal class SubmitAsyncCommand(
             file = input,
             attached = attached?.split(FILES_SEPARATOR)?.flatMap { getFiles(File(it)) }.orEmpty(),
             fileMode = FileMode.valueOf(fileMode),
-            preferredSource = ExtFileOrigin.valueOf(preferredSource)
+            preferredSource = FileOrigin.valueOf(preferredSource)
         )
 
         submissionService.submitAsync(request)

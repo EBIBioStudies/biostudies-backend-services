@@ -45,7 +45,6 @@ class FileConverter(private val attributeConverter: AttributeConverter) : Conver
                 file[classField] = NFS_DOC_FILE_CLASS
                 file[NFS_FILE_FULL_PATH] = docFile.fullPath
                 file[NFS_FILE_TYPE] = docFile.fileType
-                file[NFS_FILE_SOURCE] = docFile.source
             }
         }
 
