@@ -5,14 +5,15 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
 import com.github.ajalt.clikt.core.PrintMessage
+import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
-import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.model.Submission
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkObject
+import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
@@ -20,6 +21,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 
@@ -33,11 +36,13 @@ internal class SubmissionServiceTest {
     @BeforeEach
     fun beforeEach() = mockkObject(SecurityWebClient)
 
-    @Test
-    fun `submit copying files`() {
+    @ParameterizedTest
+    @EnumSource(FileMode::class)
+    fun submit(fileMode: FileMode) {
+        val slot = slot<FileMode>()
         every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
         every {
-            bioWebClient.submitSingle(submissionRequest.file, submissionRequest.attached, fileMode = COPY).body
+            bioWebClient.submitSingle(submissionRequest.file, submissionRequest.attached, fileMode = capture(slot)).body
         } returns submission
 
         val submitted = testInstance.submit(submissionRequest)
@@ -45,53 +50,24 @@ internal class SubmissionServiceTest {
         assertThat(submitted).isEqualTo(submission)
         verify(exactly = 1) {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.submitSingle(submissionRequest.file, submissionRequest.attached, fileMode = COPY)
+            bioWebClient.submitSingle(submissionRequest.file, submissionRequest.attached, fileMode = slot.captured)
         }
     }
 
-    @Test
-    fun `submit moving files`() {
+    @ParameterizedTest
+    @EnumSource(FileMode::class)
+    fun `submit async`() {
+        val slot = slot<FileMode>()
         every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
         every {
-            bioWebClient.submitSingle(submissionRequest.file, submissionRequest.attached, fileMode = MOVE).body
-        } returns submission
-
-        val submitted = testInstance.submit(submissionRequest.copy(fileMode = MOVE))
-
-        assertThat(submitted).isEqualTo(submission)
-        verify(exactly = 1) {
-            create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.submitSingle(submissionRequest.file, submissionRequest.attached, fileMode = MOVE)
-        }
-    }
-
-    @Test
-    fun `submit async copying files`() {
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
-        every {
-            bioWebClient.asyncSubmitSingle(submissionRequest.file, submissionRequest.attached, fileMode = COPY)
+            bioWebClient.asyncSubmitSingle(submissionRequest.file, submissionRequest.attached, fileMode = capture(slot))
         } answers { nothing }
 
         testInstance.submitAsync(submissionRequest)
 
         verify(exactly = 1) {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.asyncSubmitSingle(submissionRequest.file, submissionRequest.attached, fileMode = COPY)
-        }
-    }
-
-    @Test
-    fun `submit async moving files`() {
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
-        every {
-            bioWebClient.asyncSubmitSingle(submissionRequest.file, submissionRequest.attached, fileMode = MOVE)
-        } answers { nothing }
-
-        testInstance.submitAsync(submissionRequest.copy(fileMode = MOVE))
-
-        verify(exactly = 1) {
-            create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.asyncSubmitSingle(submissionRequest.file, submissionRequest.attached, fileMode = MOVE)
+            bioWebClient.asyncSubmitSingle(submissionRequest.file, submissionRequest.attached, fileMode = slot.captured)
         }
     }
 
