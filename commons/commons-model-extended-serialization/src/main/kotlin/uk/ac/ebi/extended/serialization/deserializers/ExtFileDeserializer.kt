@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType
-import ebi.ac.uk.extended.model.ExtFileType.DIR
-import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES

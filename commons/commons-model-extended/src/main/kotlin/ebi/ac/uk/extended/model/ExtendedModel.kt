@@ -17,7 +17,7 @@ enum class ExtFileType(val value: String) {
     DIR("directory");
 
     companion object {
-        fun fromString(value: String): ExtFileType = when(value) {
+        fun fromString(value: String): ExtFileType = when (value) {
             FILE.value -> FILE
             DIR.value -> DIR
             else -> throw IllegalArgumentException("Unknown ExtFileType '$value'")

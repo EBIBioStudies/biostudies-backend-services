@@ -1,6 +1,7 @@
 package ebi.ac.uk.extended.model
 
-import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.md5
@@ -31,6 +32,7 @@ class ExtFileTest(private val temporaryFolder: TemporaryFolder) {
         assertThat(extFile.fileName).isEqualTo("file.txt")
         assertThat(extFile.md5).isEqualTo(file.md5())
         assertThat(extFile.size).isEqualTo(file.size())
+        assertThat(extFile.type).isEqualTo(FILE)
     }
 
     @Test
@@ -46,6 +48,22 @@ class ExtFileTest(private val temporaryFolder: TemporaryFolder) {
         assertThat(extFile.fileName).isEqualTo("file.txt")
         assertThat(extFile.md5).isEqualTo(file.md5())
         assertThat(extFile.size).isEqualTo(file.size())
+    }
+
+    @Test
+    fun `extFile with directory`() {
+        val file = temporaryFolder.createDirectory("folder")
+        val extFile = NfsFile(
+            "folder", "Files/folder", file, file.absolutePath,
+            file.md5(),
+            file.size(),
+            listOf()
+        )
+
+        assertThat(extFile.fileName).isEqualTo("folder")
+        assertThat(extFile.md5).isEqualTo(file.md5())
+        assertThat(extFile.size).isEqualTo(file.size())
+        assertThat(extFile.type).isEqualTo(DIR)
     }
 
     @ParameterizedTest

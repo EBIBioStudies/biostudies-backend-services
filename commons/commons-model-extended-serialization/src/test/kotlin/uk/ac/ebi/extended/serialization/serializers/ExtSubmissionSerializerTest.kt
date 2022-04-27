@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TYPE
+import uk.ac.ebi.extended.serialization.constants.ExtType
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -126,7 +127,7 @@ class ExtSubmissionSerializerTest {
                         "extType" to "fireFile"
                     },
                     jsonObj {
-                        "extType" to "fireDirectory"
+                        "extType" to "fireFile"
                     },
                     jsonObj {
                         "extType" to "nfsFile"
@@ -185,16 +186,9 @@ object DummyExtFileSerializer : JsonSerializer<ExtFile>() {
     override fun serialize(extFile: ExtFile, gen: JsonGenerator, serializers: SerializerProvider?) {
         gen.writeStartObject()
         when (extFile) {
-            is FireFile -> writeFireExtType(gen, extFile)
-            is NfsFile -> gen.writeStringField(EXT_TYPE, "nfsFile")
+            is FireFile -> gen.writeStringField(EXT_TYPE, ExtType.FireFile.type)
+            is NfsFile -> gen.writeStringField(EXT_TYPE, ExtType.NfsFile.type)
         }
         gen.writeEndObject()
-    }
-
-    private fun writeFireExtType(gen: JsonGenerator, fireFile: FireFile) {
-        when (fireFile.type) {
-            FILE -> gen.writeStringField(EXT_TYPE, "fireFile")
-            DIR -> gen.writeStringField(EXT_TYPE, "fireDirectory")
-        }
     }
 }

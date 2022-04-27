@@ -151,7 +151,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                         "relPath" to pageTabFireDirectory.relPath
                         "fireId" to pageTabFireDirectory.fireId
                         "attributes" to jsonArray()
-                        "extType" to "fireDirectory"
+                        "extType" to "fireFile"
                         "type" to "directory"
                         "md5" to pageTabFireDirectory.md5
                         "size" to pageTabFireDirectory.size

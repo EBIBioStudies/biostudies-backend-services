@@ -4,8 +4,6 @@ import ac.uk.ebi.biostd.common.properties.PersistenceProperties
 import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType
-import ebi.ac.uk.extended.model.ExtFileType.DIR
-import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.FilesSource.Companion.EMPTY_FILE_SOURCE
