@@ -2,6 +2,7 @@ package ebi.ac.uk.extended.model
 
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -39,7 +40,7 @@ class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {
         val tmpFile = temporaryFolder.createFile("file.txt")
         val nfsFile = NfsFile("filePath", "relPath", tmpFile, tmpFile.absolutePath, tmpFile.md5(), tmpFile.size())
 
-        val fireFile = FireFile("filePath", "relPath", "fireId", "md5", 1, listOf())
+        val fireFile = FireFile("filePath", "relPath", "fireId", "md5", 1, FILE, listOf())
 
         val tmpFile2 = temporaryFolder.createFile("file2.txt")
         val nfsFile2 =

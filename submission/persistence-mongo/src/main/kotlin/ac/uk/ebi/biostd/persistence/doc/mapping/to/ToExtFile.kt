@@ -2,20 +2,27 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
-import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import java.nio.file.Paths
 
 internal fun DocFile.toExtFile(): ExtFile = when (this) {
-    is FireDocFile -> FireFile(filePath, relPath, fireId, md5, fileSize, attributes.toExtAttributes())
-    is FireDocDirectory -> FireDirectory(filePath, relPath, fireId, md5, fileSize, attributes.toExtAttributes())
+    is FireDocFile -> FireFile(
+        filePath,
+        relPath,
+        fireId,
+        md5,
+        fileSize,
+        if (fileType == FILE.value) FILE else DIR,
+        attributes.toExtAttributes()
+    )
     is NfsDocFile -> NfsFile(
         filePath,
         relPath,

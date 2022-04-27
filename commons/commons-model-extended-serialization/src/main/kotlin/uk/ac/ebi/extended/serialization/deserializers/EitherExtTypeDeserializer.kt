@@ -18,7 +18,6 @@ import ebi.ac.uk.extended.model.ExtSectionTable
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
 import uk.ac.ebi.extended.serialization.constants.ExtType.FilesTable
-import uk.ac.ebi.extended.serialization.constants.ExtType.FireDirectory
 import uk.ac.ebi.extended.serialization.constants.ExtType.FireFile
 import uk.ac.ebi.extended.serialization.constants.ExtType.Link
 import uk.ac.ebi.extended.serialization.constants.ExtType.LinksTable
@@ -39,8 +38,7 @@ class EitherExtTypeDeserializer : JsonDeserializer<Either<*, *>>() {
         return when (ExtType.valueOf(extType)) {
             is Link -> Either.left(mapper.convertValue<ExtLink>(node))
             is NfsFile,
-            is FireFile,
-            is FireDirectory -> Either.left(mapper.convertValue<ExtFile>(node))
+            is FireFile -> Either.left(mapper.convertValue<ExtFile>(node))
             is Section -> Either.left(mapper.convertValue<ExtSection>(node))
             is LinksTable -> right(mapper.convertValue<ExtLinkTable>(node))
             is FilesTable -> right(mapper.convertValue<ExtFileTable>(node))

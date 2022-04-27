@@ -16,7 +16,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.replaceFileList
@@ -118,7 +117,6 @@ internal class SubmissionMongoQueryService(
     }
 
     private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {
-        is FireDirectory -> file
         is FireFile -> file
         is NfsFile -> file.copy(md5 = file.file.md5(), size = file.file.size())
     }
