@@ -135,7 +135,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
                     "valueAttrs" to jsonArray()
                 }
             )
-            "extType" to "fireDirectory"
+            "extType" to "fireFile"
             "type" to "directory"
             "md5" to "fireDirMd5"
             "size" to 12

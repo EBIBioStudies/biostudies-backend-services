@@ -1,3 +1,5 @@
+package ebi.ac.uk.extended.model
+
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createNewFile
@@ -7,7 +9,10 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtFileTest(private val temporaryFolder: TemporaryFolder) {
@@ -41,5 +46,17 @@ class ExtFileTest(private val temporaryFolder: TemporaryFolder) {
         assertThat(extFile.fileName).isEqualTo("file.txt")
         assertThat(extFile.md5).isEqualTo(file.md5())
         assertThat(extFile.size).isEqualTo(file.size())
+    }
+
+    @ParameterizedTest
+    @EnumSource(ExtFileType::class)
+    fun `ext file type from string`(extFileType: ExtFileType) {
+        assertThat(ExtFileType.fromString(extFileType.value)).isEqualTo(extFileType)
+    }
+
+    @Test
+    fun `invalid ext file type`() {
+        val exception = assertThrows<IllegalArgumentException> { ExtFileType.fromString("invalid") }
+        assertThat(exception.message).isEqualTo("Unknown ExtFileType 'invalid'")
     }
 }

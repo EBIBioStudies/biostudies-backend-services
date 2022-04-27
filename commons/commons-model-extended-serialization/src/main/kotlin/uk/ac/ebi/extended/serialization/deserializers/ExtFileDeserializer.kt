@@ -21,6 +21,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FU
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_MD5
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_REL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_SIZE
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtType
 import uk.ac.ebi.extended.serialization.exception.InvalidExtTypeException
 import uk.ac.ebi.serialization.extensions.convertOrDefault
@@ -34,20 +35,19 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
 
         return when (val type = ExtType.valueOf(node.getNode<TextNode>(EXT_TYPE).textValue())) {
             is ExtType.NfsFile -> nfsFile(node, mapper)
-            is ExtType.FireFile -> fireFile(node, mapper, FILE)
-            is ExtType.FireDirectory -> fireFile(node, mapper, DIR)
+            is ExtType.FireFile -> fireFile(node, mapper)
             else -> throw InvalidExtTypeException(type.type)
         }
     }
 
-    private fun fireFile(node: JsonNode, mapper: ObjectMapper, type: ExtFileType): FireFile =
+    private fun fireFile(node: JsonNode, mapper: ObjectMapper): FireFile =
         FireFile(
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
             fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<NumericNode>(FILE_SIZE).longValue(),
-            type = type,
+            type = ExtFileType.fromString(node.getNode<TextNode>(FILE_TYPE).textValue()),
             attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }
         )
 

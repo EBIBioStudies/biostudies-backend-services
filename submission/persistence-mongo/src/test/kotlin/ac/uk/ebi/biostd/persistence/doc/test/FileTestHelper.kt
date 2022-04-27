@@ -68,6 +68,15 @@ internal object FileTestHelper {
         is NfsFile -> assertNfsFile(extFile, file)
     }
 
+    fun assertFireDirectory(fireFile: FireFile) {
+        assertFireFileBasicAttributes(fireFile)
+        assertThat(fireFile.type).isEqualTo(DIR)
+        assertThat(fireFile.fileName).isEqualTo(TEST_DIRECTORY)
+        assertThat(fireFile.filePath).isEqualTo(TEST_FILEPATH_DIRECTORY)
+        assertThat(fireFile.relPath).isEqualTo(TEST_REL_PATH)
+        assertThat(fireFile.fireId).isEqualTo(TEST_FIRE_DIR_ID)
+    }
+
     private fun assertNfsFile(nfsFile: NfsFile, file: File) {
         assertThat(nfsFile.fileName).isEqualTo(TEST_FILENAME)
         assertThat(nfsFile.filePath).isEqualTo(TEST_FILEPATH)
@@ -80,18 +89,15 @@ internal object FileTestHelper {
     }
 
     private fun assertFireFile(fireFile: FireFile) {
-        if (fireFile.type == FILE) {
-            assertThat(fireFile.fileName).isEqualTo(TEST_FILENAME)
-            assertThat(fireFile.filePath).isEqualTo(TEST_FILEPATH)
-            assertThat(fireFile.relPath).isEqualTo(TEST_REL_PATH)
-            assertThat(fireFile.fireId).isEqualTo(TEST_FIRE_FILE_ID)
-        } else {
-            assertThat(fireFile.fileName).isEqualTo(TEST_DIRECTORY)
-            assertThat(fireFile.filePath).isEqualTo(TEST_FILEPATH_DIRECTORY)
-            assertThat(fireFile.relPath).isEqualTo(TEST_REL_PATH)
-            assertThat(fireFile.fireId).isEqualTo(TEST_FIRE_DIR_ID)
-        }
+        assertFireFileBasicAttributes(fireFile)
+        assertThat(fireFile.type).isEqualTo(FILE)
+        assertThat(fireFile.fileName).isEqualTo(TEST_FILENAME)
+        assertThat(fireFile.filePath).isEqualTo(TEST_FILEPATH)
+        assertThat(fireFile.relPath).isEqualTo(TEST_REL_PATH)
+        assertThat(fireFile.fireId).isEqualTo(TEST_FIRE_FILE_ID)
+    }
 
+    private fun assertFireFileBasicAttributes(fireFile: FireFile) {
         assertThat(fireFile.md5).isEqualTo(TEST_MD5)
         assertThat(fireFile.size).isEqualTo(TEST_FIRE_FILE_SIZE)
         assertThat(fireFile.attributes).hasSize(1)

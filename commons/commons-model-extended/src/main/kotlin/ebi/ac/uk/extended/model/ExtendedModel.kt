@@ -12,7 +12,18 @@ enum class ExtSubmissionMethod { FILE, PAGE_TAB, UNKNOWN }
 
 enum class ExtProcessingStatus { PROCESSED, PROCESSING, REQUESTED }
 
-enum class ExtFileType(val value: String) { FILE("file"), DIR("directory") }
+enum class ExtFileType(val value: String) {
+    FILE("file"),
+    DIR("directory");
+
+    companion object {
+        fun fromString(value: String): ExtFileType = when(value) {
+            FILE.value -> FILE
+            DIR.value -> DIR
+            else -> throw IllegalArgumentException("Unknown ExtFileType '$value'")
+        }
+    }
+}
 
 data class ExtTag(val name: String, val value: String)
 

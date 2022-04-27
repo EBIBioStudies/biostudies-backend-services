@@ -111,7 +111,7 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
                     "value" to "Data"
                 }
             )
-            "extType" to "fireDirectory"
+            "extType" to "fireFile"
             "type" to "directory"
             "size" to 20
             "md5" to "fireDirectoryMd5"

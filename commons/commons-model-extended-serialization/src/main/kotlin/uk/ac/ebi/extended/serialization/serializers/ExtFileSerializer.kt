@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
@@ -48,13 +47,10 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         writeStringField(FILE_REL_PATH, file.relPath)
         writeStringField(FILE_FIRE_ID, file.fireId)
         writeObjectField(ATTRIBUTES, file.attributes)
-        writeStringField(EXT_TYPE, file.extType)
+        writeStringField(EXT_TYPE, ExtType.FireFile.type)
         writeStringField(FILE_TYPE, file.type.value)
         writeStringField(FILE_MD5, file.md5)
         writeNumberField(FILE_SIZE, file.size)
         writeEndObject()
     }
-
-    private val FireFile.extType: String
-        get() = if (type == FILE) ExtType.FireFile.type else ExtType.FireDirectory.type
 }
