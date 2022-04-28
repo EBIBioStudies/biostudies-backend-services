@@ -7,8 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.ExtFileType.DIR
-import ebi.ac.uk.extended.model.ExtFileType.FILE
+import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import java.nio.file.Paths
@@ -20,7 +19,7 @@ internal fun DocFile.toExtFile(): ExtFile = when (this) {
         fireId,
         md5,
         fileSize,
-        if (fileType == FILE.value) FILE else DIR,
+        ExtFileType.fromString(fileType),
         attributes.toExtAttributes()
     )
     is NfsDocFile -> NfsFile(
