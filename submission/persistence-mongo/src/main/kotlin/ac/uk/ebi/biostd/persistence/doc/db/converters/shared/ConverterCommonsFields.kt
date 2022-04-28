@@ -13,7 +13,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
-import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 
@@ -35,24 +34,22 @@ object DocFileFields {
     const val FILE_DOC_ATTRIBUTES = "attributes"
     const val FILE_DOC_MD5 = "md5"
     const val FILE_DOC_SIZE = "fileSize"
+    const val FILE_DOC_TYPE = "type"
 }
 
 object NfsDocFileFields {
     val NFS_DOC_FILE_CLASS: String = NfsDocFile::class.java.canonicalName
     const val NFS_FILE_FULL_PATH = "fullPath"
-    const val NFS_FILE_TYPE = "type"
 }
 
 object FireDocFileFields {
     val FIRE_DOC_FILE_CLASS: String = FireDocFile::class.java.canonicalName
-    val FIRE_DOC_DIRECTORY_CLASS: String = FireDocDirectory::class.java.canonicalName
     const val FIRE_FILE_DOC_ID = "fireId"
 }
 
 object DocFileListFields {
     val DOC_FILE_LIST_CLASS: String = DocFileList::class.java.canonicalName
     const val FILE_LIST_DOC_FILE_FILENAME = "fileName"
-    const val FILE_LIST_DOC_FILES = "files"
     const val FILE_LIST_DOC_PAGE_TAB_FILES = "pageTabFiles"
 }
 

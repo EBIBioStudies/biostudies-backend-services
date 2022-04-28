@@ -1,8 +1,6 @@
 package uk.ac.ebi.scheduler.exporter.service
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -25,9 +23,8 @@ import uk.ac.ebi.scheduler.exporter.model.PmcData
 import uk.ac.ebi.scheduler.exporter.persistence.PmcRepository
 import java.io.ByteArrayInputStream
 
-@ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
+@ExtendWith(MockKExtension::class)
 class PmcExporterServiceTest(
-    private val tempFolder: TemporaryFolder,
     @MockK private val ftpClient: FTPClient,
     @MockK private val xmlWriter: XmlMapper,
     @MockK private val pmcRepository: PmcRepository,
@@ -38,7 +35,7 @@ class PmcExporterServiceTest(
     @BeforeEach
     fun beforeEach() {
         every { appProperties.fileName } returns "TestLinks.part%03d.xml"
-        every { appProperties.outputPath } returns tempFolder.root.absolutePath
+        every { appProperties.outputPath } returns "test/links"
     }
 
     @Test
@@ -52,9 +49,7 @@ class PmcExporterServiceTest(
             setUpFtpClient()
             every { xmlWriter.writeValueAsString(capture(linksSlot)) } returns "serialized"
             every { pmcRepository.findAllPmc(capture(pageableSlot)) } returns PageImpl(listOf(pmcData))
-            every {
-                ftpClient.storeFile("${tempFolder.root.absolutePath}/TestLinks.part001.xml", capture(xmlSlot))
-            } returns true
+            every { ftpClient.storeFile("test/links/TestLinks.part001.xml", capture(xmlSlot)) } returns true
 
             testInstance.exportPmcLinks()
 
@@ -73,7 +68,7 @@ class PmcExporterServiceTest(
 
             verify(exactly = 1) {
                 pmcRepository.findAllPmc(pageable)
-                ftpClient.storeFile("${tempFolder.root.absolutePath}/TestLinks.part001.xml", xml)
+                ftpClient.storeFile("test/links/TestLinks.part001.xml", xml)
             }
         }
     }

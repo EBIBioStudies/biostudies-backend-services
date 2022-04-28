@@ -12,7 +12,8 @@ val SUBMISSION_RESERVED_ATTRIBUTES = setOf(
     SubFields.ROOT_PATH.value
 )
 
-val SECTION_RESERVED_ATTRIBUTES = setOf(SectionFields.FILE_LIST.value)
+val SECTION_RESERVED_ATTRS = setOf(SectionFields.FILE_LIST.value)
+val FILES_RESERVED_ATTRS = setOf(FileFields.MD5.value)
 
 interface Fields {
     val value: String?
@@ -108,6 +109,7 @@ enum class FileFields(override val value: String) : Fields {
     TYPE("type"),
     FILE_TYPE("file"),
     DIR_TYPE("directory"),
+    MD5("md5"),
     ATTRIBUTES(ATTRIBUTES_FIELD);
 
     override fun toString(): String {

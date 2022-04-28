@@ -3,7 +3,8 @@ package uk.ac.ebi.extended.serialization.serializers
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
@@ -69,6 +70,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
             fireId = "fireId",
             md5 = "fireFileMd5",
             size = 13,
+            type = FILE,
             attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true))
         )
         val expectedJson = jsonObj {
@@ -103,17 +105,20 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun `serialize fire directory`() {
-        val extFile = FireDirectory(
-            filePath = "folder/fire-directory.txt",
-            relPath = "Files/folder/fire-directory.txt",
+        val extFile = FireFile(
+            filePath = "folder",
+            relPath = "Files/folder",
+            fireId = "dirFireId",
             md5 = "fireDirMd5",
             size = 12,
+            type = DIR,
             attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true))
         )
         val expectedJson = jsonObj {
-            "fileName" to "fire-directory.txt"
-            "filePath" to "folder/fire-directory.txt"
-            "relPath" to "Files/folder/fire-directory.txt"
+            "fileName" to "folder"
+            "filePath" to "folder"
+            "relPath" to "Files/folder"
+            "fireId" to "dirFireId"
             "attributes" to jsonArray(
                 jsonObj {
                     "name" to "Type"
@@ -130,7 +135,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
                     "valueAttrs" to jsonArray()
                 }
             )
-            "extType" to "fireDirectory"
+            "extType" to "fireFile"
             "type" to "directory"
             "md5" to "fireDirMd5"
             "size" to 12

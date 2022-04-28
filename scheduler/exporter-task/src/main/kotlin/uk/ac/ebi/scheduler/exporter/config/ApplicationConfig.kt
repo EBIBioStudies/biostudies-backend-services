@@ -7,6 +7,9 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import ebi.ac.uk.extended.mapping.to.ToFileListMapper
+import ebi.ac.uk.extended.mapping.to.ToSectionMapper
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.apache.commons.net.PrintCommandListener
 import org.apache.commons.net.ftp.FTPClient
 import org.springframework.context.annotation.Bean
@@ -23,33 +26,45 @@ import java.io.PrintWriter
 internal const val BUFFER_SIZE = 1024 * 1024
 
 @Configuration
+@Suppress("TooManyFunctions")
 class ApplicationConfig(
-    private val pmcRepository: PmcRepository
+    private val pmcRepository: PmcRepository,
 ) {
     @Bean
     fun pmcExporterService(
         xmlWriter: XmlMapper,
         ftpClient: FTPClient,
-        applicationProperties: ApplicationProperties
+        applicationProperties: ApplicationProperties,
     ): PmcExporterService = PmcExporterService(pmcRepository, xmlWriter, ftpClient, applicationProperties)
 
     @Bean
     fun publicOnlyExporterService(
         bioWebClient: BioWebClient,
         serializationService: SerializationService,
-        applicationProperties: ApplicationProperties
-    ): PublicOnlyExporterService = PublicOnlyExporterService(bioWebClient, applicationProperties, serializationService)
+        applicationProperties: ApplicationProperties,
+        toSubmissionMapper: ToSubmissionMapper,
+    ): PublicOnlyExporterService =
+        PublicOnlyExporterService(bioWebClient, applicationProperties, serializationService, toSubmissionMapper)
+
+    @Bean
+    fun toSubmissionMapper(toSectionMapper: ToSectionMapper): ToSubmissionMapper = ToSubmissionMapper(toSectionMapper)
+
+    @Bean
+    fun toSectionMapper(toFileListMapper: ToFileListMapper) = ToSectionMapper(toFileListMapper)
+
+    @Bean
+    fun toFileListMapper(serializationService: ExtSerializationService) = ToFileListMapper(serializationService)
 
     @Bean
     fun exporterService(
         pmcExporterService: PmcExporterService,
-        publicOnlyExporterService: PublicOnlyExporterService
+        publicOnlyExporterService: PublicOnlyExporterService,
     ): ExporterService = ExporterService(pmcExporterService, publicOnlyExporterService)
 
     @Bean
     fun exporterExecutor(
         exporterService: ExporterService,
-        applicationProperties: ApplicationProperties
+        applicationProperties: ApplicationProperties,
     ): ExporterExecutor = ExporterExecutor(exporterService, applicationProperties)
 
     @Bean
@@ -65,10 +80,9 @@ class ApplicationConfig(
     }
 
     @Bean
-    fun xmlWriter(): XmlMapper =
-        XmlMapper(
-            JacksonXmlModule().apply { setDefaultUseWrapper(false) }
-        ).apply { enable(INDENT_OUTPUT) }
+    fun xmlWriter(): XmlMapper = XmlMapper(
+        JacksonXmlModule().apply { setDefaultUseWrapper(false) }
+    ).apply { enable(INDENT_OUTPUT) }
 
     @Bean
     fun serializationService(): SerializationService = SerializationConfig.serializationService()

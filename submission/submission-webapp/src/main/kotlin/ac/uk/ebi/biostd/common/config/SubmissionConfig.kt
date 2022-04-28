@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -20,7 +21,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.events.service.EventsPublisherService
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.net.URI
 
 @Configuration
@@ -37,33 +37,31 @@ class SubmissionConfig(
         userPrivilegeService: IUserPrivilegesService,
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
-        myRabbitTemplate: RabbitTemplate
+        myRabbitTemplate: RabbitTemplate,
+        toSubmissionMapper: ToSubmissionMapper
     ): SubmissionService = SubmissionService(
         subRepository,
         serializationService,
         userPrivilegeService,
         submissionSubmitter,
         eventsPublisherService,
-        myRabbitTemplate
+        myRabbitTemplate,
+        toSubmissionMapper
     )
 
     @Bean
     fun extSubmissionService(
-        rabbitTemplate: RabbitTemplate,
         submissionSubmitter: SubmissionSubmitter,
         subRepository: SubmissionQueryService,
         userPrivilegeService: IUserPrivilegesService,
         securityQueryService: ISecurityQueryService,
-        extSerializationService: ExtSerializationService,
         eventsPublisherService: EventsPublisherService
     ): ExtSubmissionService =
         ExtSubmissionService(
-            rabbitTemplate,
             submissionSubmitter,
             subRepository,
             userPrivilegeService,
             securityQueryService,
-            extSerializationService,
             eventsPublisherService
         )
 
@@ -78,7 +76,8 @@ class SubmissionConfig(
         submissionService: SubmissionService,
         userFilesService: UserFilesService,
         securityQueryService: ISecurityQueryService,
-        extSubmissionService: ExtSubmissionService
+        extSubmissionService: ExtSubmissionService,
+        toSubmissionMapper: ToSubmissionMapper,
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
@@ -86,7 +85,8 @@ class SubmissionConfig(
             sourceGenerator,
             serializationService,
             userFilesService,
-            securityQueryService
+            securityQueryService,
+            toSubmissionMapper,
         )
 
     @Bean

@@ -14,6 +14,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.createFileList
 import kotlin.test.assertNotNull
 
 @ExtendWith(TemporaryFolderExtension::class)
@@ -46,6 +47,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             "fileList" to jsonObj {
                 "fileName" to "file-list.json"
                 "path" to "file-list.json"
+                "file" to createFileList(emptyList()).absolutePath
                 "filesUrl" to "submissions/extended/S-BSST1/referencedFiles/file-list"
             }
             "attributes" to jsonArray(
@@ -127,7 +129,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertNotNull(extFileList)
         assertThat(extFileList.filePath).isEqualTo("file-list.json")
         assertThat(extFileList.filesUrl).isEqualTo("submissions/extended/S-BSST1/referencedFiles/file-list")
-        assertThat(extFileList.files).isEmpty()
+        assertThat(extFileList.file).hasContent("[]")
 
         val innerSections = extSection.sections
         assertThat(innerSections).hasSize(2)

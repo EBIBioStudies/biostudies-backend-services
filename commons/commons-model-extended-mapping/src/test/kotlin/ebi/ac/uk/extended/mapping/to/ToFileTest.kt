@@ -1,7 +1,7 @@
 package ebi.ac.uk.extended.mapping.to
 
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
@@ -26,11 +26,11 @@ internal class ToFileTest(
     @MockK val attribute: Attribute,
     tempFolder: TemporaryFolder
 ) {
-    private var file = tempFolder.createFile("my-file", "test content")
+    private var file = tempFolder.createFile("myFile", "test content")
     private val extFile =
         NfsFile(
-            "folder/my-file",
-            "Files/folder/my-file",
+            "folder/myFile",
+            "Files/folder/myFile",
             file,
             file.absolutePath,
             file.md5(),
@@ -51,14 +51,8 @@ internal class ToFileTest(
 
     @Test
     fun `from fire file`() {
-        val fireFile = FireFile("folder/my-file", "Files/folder/my-file", "fireId", "md5", 12, listOf(extAttribute))
+        val fireFile = FireFile("folder/myFile", "Files/folder/myFile", "fireId", "md5", 12, FILE, listOf(extAttribute))
         assertFile(fireFile.toFile())
-    }
-
-    @Test
-    fun `from fire directory`() {
-        val fireDirectory = FireDirectory("folder/my-file", "Files/folder/my-file", "md5", 12, listOf(extAttribute))
-        assertFile(fireDirectory.toFile())
     }
 
     private fun assertFile(file: File) {

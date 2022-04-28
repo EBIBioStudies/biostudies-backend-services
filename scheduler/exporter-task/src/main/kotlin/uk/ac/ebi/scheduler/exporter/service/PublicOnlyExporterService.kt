@@ -4,12 +4,12 @@ import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.extensions.getExtSubmissionsAsSequence
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import com.fasterxml.jackson.core.JsonEncoding.UTF8
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.isCollection
 import mu.KotlinLogging
@@ -24,7 +24,8 @@ internal const val SUBMISSIONS = "submissions"
 class PublicOnlyExporterService(
     private val bioWebClient: BioWebClient,
     private val appProperties: ApplicationProperties,
-    private val serializationService: SerializationService
+    private val serializationService: SerializationService,
+    private val toSubmissionMapper: ToSubmissionMapper
 ) {
     private lateinit var jsonWriter: JsonGenerator
 
@@ -50,9 +51,8 @@ class PublicOnlyExporterService(
     private fun writeSubmission(extSubmission: ExtSubmission) {
         if (extSubmission.isCollection.not()) {
             logger.info { "Exporting public submission '${extSubmission.accNo}'" }
-            jsonWriter.writeRawValue(
-                serializationService.serializeSubmission(extSubmission.toSimpleSubmission(), SubFormat.JSON_PRETTY)
-            )
+            val simpleSubmission = toSubmissionMapper.toSimpleSubmission(extSubmission)
+            jsonWriter.writeRawValue(serializationService.serializeSubmission(simpleSubmission, JSON_PRETTY))
         }
     }
 

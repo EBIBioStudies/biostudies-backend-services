@@ -1,18 +1,30 @@
 package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
-import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
-import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocFile
-import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
+import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper
+import ac.uk.ebi.biostd.persistence.doc.test.OWNER
+import ac.uk.ebi.biostd.persistence.doc.test.PROJECT_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.test.REL_PATH
+import ac.uk.ebi.biostd.persistence.doc.test.ROOT_PATH
+import ac.uk.ebi.biostd.persistence.doc.test.SECRET_KEY
+import ac.uk.ebi.biostd.persistence.doc.test.STAT_TYPE
+import ac.uk.ebi.biostd.persistence.doc.test.STAT_VALUE
+import ac.uk.ebi.biostd.persistence.doc.test.SUBMITTER
+import ac.uk.ebi.biostd.persistence.doc.test.SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.test.SUB_SCHEMA_VERSION
+import ac.uk.ebi.biostd.persistence.doc.test.SUB_TITLE
+import ac.uk.ebi.biostd.persistence.doc.test.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.docSection
-import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.assertExtSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
-import ac.uk.ebi.biostd.persistence.doc.test.TEST_FILENAME
-import arrow.core.Either.Companion.left
-import ebi.ac.uk.io.ext.createDirectory
+import ac.uk.ebi.biostd.persistence.doc.test.TAG_NAME
+import ac.uk.ebi.biostd.persistence.doc.test.TAG_VALUE
+import ebi.ac.uk.extended.model.ExtProcessingStatus
+import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionMethod
+import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
@@ -21,73 +33,108 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import org.bson.types.ObjectId
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import ac.uk.ebi.biostd.persistence.doc.test.fireDocDirectory as subFireDocDirectory
-import ac.uk.ebi.biostd.persistence.doc.test.fireDocFile as subFireDocFile
+import java.io.File
+import java.time.ZoneOffset
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
-    private val baseFolder = temporaryFolder.createDirectory("submissions")
-    private val testFolder = baseFolder.createDirectory("S-TEST")
-    private val innerFolder = testFolder.createDirectory("123")
-    private val submissionFolder = innerFolder.createDirectory("S-TEST123")
-    private val filesFolder = submissionFolder.createDirectory(FILES_DIR)
-    private val sectionFile = filesFolder.createNewFile(TEST_FILENAME)
-    private val listFilesRepo = mockk<FileListDocFileRepository>()
-    private val testInstance = ToExtSubmissionMapper(listFilesRepo)
+    private val extSection = mockk<ExtSection>()
+    private val toExtSectionMapper: ToExtSectionMapper = mockk()
+    private val testInstance = ToExtSubmissionMapper(toExtSectionMapper)
     private val fileNfs = temporaryFolder.createDirectory("folder").createNewFile("nfsFileFile.txt")
-
-    @Test
-    fun `to ext Submission without FileListFiles`() {
-        val extSubmission = testInstance.toExtSubmission(docSubmission(), includeFileListFiles = false)
-
-        assertExtSubmission(extSubmission, sectionFile, fileNfs, includeFileListFiles = false)
-    }
+    private val subNfsDocFile =
+        NfsDocFile(
+            fileNfs.name,
+            "filePath",
+            "relPath",
+            fileNfs.absolutePath,
+            listOf(),
+            fileNfs.md5(),
+            fileNfs.size(),
+            "file"
+        )
 
     @Test
     fun `to ext Submission including FileListFiles`() {
-        every {
-            listFilesRepo.findAllBySubmissionAccNoAndSubmissionVersionAndFileListName("S-TEST123", 1, "file-list.tsv")
-        } returns listOf(fileListDocFile)
-        val extSubmission = testInstance.toExtSubmission(docSubmission(), includeFileListFiles = true)
+        every { toExtSectionMapper.toExtSection(docSection, "S-TEST123", 1, true) } returns extSection
+        val submission = docSubmission.copy(
+            section = docSection,
+            pageTabFiles = listOf(subNfsDocFile)
+        )
 
-        assertExtSubmission(extSubmission, sectionFile, fileNfs, includeFileListFiles = true)
+        val extSubmission = testInstance.toExtSubmission(submission, includeFileListFiles = true)
+
+        assertExtSubmission(extSubmission, fileNfs)
+        assertThat(extSubmission.section).isEqualTo(extSection)
     }
 
-    private val fileListDocFile = FileListDocFile(
-        id = ObjectId(),
-        submissionId = ObjectId(),
-        file = fireDocFile,
-        fileListName = "file-list.tsv",
-        index = 0,
-        submissionVersion = 1,
-        submissionAccNo = "S-TEST123"
-    )
-
-    private fun docSubmission(): DocSubmission {
-        val testNfsDocFile =
-            nfsDocFile.copy(fullPath = sectionFile.absolutePath, md5 = sectionFile.md5(), fileSize = sectionFile.size())
-        val testFireDocFile = fireDocFile
-        val subNfsDocFile =
-            NfsDocFile(
-                fileNfs.name,
-                "filePath",
-                "relPath",
-                fileNfs.absolutePath,
-                listOf(),
-                fileNfs.md5(),
-                fileNfs.size(),
-                "file"
-            )
-
-        return docSubmission.copy(
-            section = docSection.copy(
-                files = listOf(left(testNfsDocFile), left(testFireDocFile)),
-                fileList = docFileList
-            ),
-            pageTabFiles = listOf(subFireDocFile, subFireDocDirectory, subNfsDocFile)
+    @Test
+    fun `to ext Submission without FileListFiles`() {
+        every { toExtSectionMapper.toExtSection(docSection, "S-TEST123", 1, false) } returns extSection
+        val submission = docSubmission.copy(
+            section = docSection,
+            pageTabFiles = listOf(subNfsDocFile)
         )
+
+        val extSubmission = testInstance.toExtSubmission(submission, includeFileListFiles = false)
+
+        assertExtSubmission(extSubmission, fileNfs)
+        assertThat(extSubmission.section).isEqualTo(extSection)
+    }
+
+    private fun assertExtSubmission(
+        extSubmission: ExtSubmission,
+        nfsFileFile: File,
+    ) {
+        assertBasicProperties(extSubmission)
+        assertAttributes(extSubmission)
+        assertTags(extSubmission)
+        assertStats(extSubmission)
+        assertProject(extSubmission)
+        assertThat(extSubmission.pageTabFiles.first()).isEqualTo(createNfsFile("filePath", "relPath", nfsFileFile))
+    }
+
+    private fun assertBasicProperties(extSubmission: ExtSubmission) {
+        assertThat(extSubmission.accNo).isEqualTo(SUB_ACC_NO)
+        assertThat(extSubmission.version).isEqualTo(SUB_VERSION)
+        assertThat(extSubmission.schemaVersion).isEqualTo(SUB_SCHEMA_VERSION)
+        assertThat(extSubmission.owner).isEqualTo(OWNER)
+        assertThat(extSubmission.submitter).isEqualTo(SUBMITTER)
+        assertThat(extSubmission.title).isEqualTo(SUB_TITLE)
+        assertThat(extSubmission.method).isEqualTo(ExtSubmissionMethod.PAGE_TAB)
+        assertThat(extSubmission.relPath).isEqualTo(REL_PATH)
+        assertThat(extSubmission.rootPath).isEqualTo(ROOT_PATH)
+        assertThat(extSubmission.released).isFalse
+        assertThat(extSubmission.secretKey).isEqualTo(SECRET_KEY)
+        assertThat(extSubmission.status).isEqualTo(ExtProcessingStatus.PROCESSED)
+        assertThat(extSubmission.releaseTime).isEqualTo(SubmissionTestHelper.time.atOffset(ZoneOffset.UTC))
+        assertThat(extSubmission.modificationTime).isEqualTo(SubmissionTestHelper.time.atOffset(ZoneOffset.UTC))
+        assertThat(extSubmission.creationTime).isEqualTo(SubmissionTestHelper.time.atOffset(ZoneOffset.UTC))
+        assertThat(extSubmission.storageMode).isEqualTo(StorageMode.NFS)
+    }
+
+    private fun assertAttributes(extSubmission: ExtSubmission) {
+        assertThat(extSubmission.attributes).hasSize(1)
+        AttributeTestHelper.assertFullExtAttribute(extSubmission.attributes.first())
+    }
+
+    private fun assertTags(extSubmission: ExtSubmission) {
+        assertThat(extSubmission.tags).hasSize(1)
+        assertThat(extSubmission.tags.first().name).isEqualTo(TAG_NAME)
+        assertThat(extSubmission.tags.first().value).isEqualTo(TAG_VALUE)
+    }
+
+    private fun assertStats(extSubmission: ExtSubmission) {
+        assertThat(extSubmission.stats).hasSize(1)
+        assertThat(extSubmission.stats.first().name).isEqualTo(STAT_TYPE)
+        assertThat(extSubmission.stats.first().value).isEqualTo(STAT_VALUE.toString())
+    }
+
+    private fun assertProject(extSubmission: ExtSubmission) {
+        assertThat(extSubmission.collections).hasSize(1)
+        assertThat(extSubmission.collections.first().accNo).isEqualTo(PROJECT_ACC_NO)
     }
 }

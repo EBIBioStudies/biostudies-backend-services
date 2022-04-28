@@ -16,7 +16,6 @@ data class DocSubmissionRequest(
     val draftKey: String?,
     val status: SubmissionRequestStatus,
     val submission: DBObject,
-    val fileList: List<RequestFileList>
 )
 
 data class RequestFileList(val fileName: String, val filePath: String)

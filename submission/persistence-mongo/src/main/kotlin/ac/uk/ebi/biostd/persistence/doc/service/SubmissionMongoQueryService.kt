@@ -16,17 +16,19 @@ import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.replace
+import ebi.ac.uk.extended.model.replaceFileList
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.io.use
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
 import java.io.InputStream
+import java.io.OutputStream
 import kotlin.math.max
 
 private val logger = KotlinLogging.logger {}
@@ -37,12 +39,18 @@ internal class SubmissionMongoQueryService(
     private val requestRepository: SubmissionRequestDocDataRepository,
     private val fileListDocFileRepository: FileListDocFileRepository,
     private val serializationService: ExtSerializationService,
-    private val toExtSubmissionMapper: ToExtSubmissionMapper
+    private val toExtSubmissionMapper: ToExtSubmissionMapper,
+    private val resolver: ExtFilesResolver
 ) : SubmissionQueryService {
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
 
     override fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
         val findByAccNo = submissionRepo.findByAccNo(accNo)
+        return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
+    }
+
+    override fun findLatestExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
+        val findByAccNo = submissionRepo.findLatestByAccNo(accNo)
         return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
     }
 
@@ -84,25 +92,31 @@ internal class SubmissionMongoQueryService(
 
     override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
         val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, REQUESTED)
-        val fileLists = request.fileList.associate { it.fileName to File(it.filePath) }
-        val submission = serializationService.deserialize(request.submission.toString())
-        val fullSubmission = submission.copy(section = submission.section.replace { loadFiles(it, fileLists) })
-        return SubmissionRequest(submission = fullSubmission, fileMode = request.fileMode, draftKey = request.draftKey)
+        val stored = serializationService.deserialize(request.submission.toString())
+        val full = stored.copy(section = stored.section.replaceFileList { calculate(stored, it) })
+        return SubmissionRequest(full, request.fileMode, request.draftKey)
     }
 
-    private fun loadFiles(fileList: ExtFileList, fileMap: Map<String, File>): ExtFileList {
-        val fileListFile = fileMap.getValue(fileList.fileName)
-        val files = fileListFile.inputStream().use { getFiles(it) }
-        return fileList.copy(files = files)
+    private fun calculate(sub: ExtSubmission, fileList: ExtFileList): ExtFileList {
+        val newFileList = resolver.createEmptyFile(sub.accNo, sub.version, fileList.fileName)
+        return fileList.copy(file = copyFile(sub.accNo, sub.submitter, fileList.file, newFileList))
     }
 
-    private fun getFiles(inputStream: InputStream): List<ExtFile> = serializationService.deserialize(inputStream)
-        .onEachIndexed { index, file -> logger.info { "mapping file ${file.filePath}, ${index + 1}" } }
-        .map { extFile -> loadFileAttributes(extFile) }
-        .toList()
+    private fun copyFile(accNo: String, submitter: String, source: File, target: File): File {
+        use(source.inputStream(), target.outputStream()) { input, output -> copy(accNo, submitter, input, output) }
+        return target
+    }
+
+    private fun copy(accNo: String, submitter: String, input: InputStream, output: OutputStream) {
+        val files = serializationService.deserializeList(input)
+            .onEachIndexed { idx, file ->
+                logger.info { "accNo=$accNo, submitter=$submitter mapping file ${file.filePath}, ${idx + 1}" }
+            }
+            .map { extFile -> loadFileAttributes(extFile) }
+        serializationService.serialize(files, output)
+    }
 
     private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {
-        is FireDirectory -> file
         is FireFile -> file
         is NfsFile -> file.copy(md5 = file.file.md5(), size = file.file.size())
     }

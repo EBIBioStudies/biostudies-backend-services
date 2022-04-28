@@ -17,7 +17,7 @@ internal class ListExtensionsTest {
     fun replace() {
         val list = listOf(1, 2, 3)
 
-        val result = list.replace({ it == 1 }, 2)
+        val result = list.replace(2) { it == 1 }
 
         assertThat(result).isEqualTo(listOf(2, 2, 3))
     }

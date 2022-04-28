@@ -11,7 +11,6 @@ class SecurityWebClient private constructor(
     private val baseUrl: String,
     private val restTemplate: RestTemplate
 ) : SecurityOperations {
-
     override fun getAuthenticatedClient(user: String, password: String, onBehalf: String?): BioWebClient =
         when (onBehalf) {
             null -> BioWebClient.create(baseUrl, login(LoginRequest(user, password)).sessid)
@@ -28,6 +27,7 @@ class SecurityWebClient private constructor(
     override fun checkUser(checkUserRequest: CheckUserRequest) {
         restTemplate.postForLocation("/auth/check-user", jsonHttpEntityOf(checkUserRequest))
     }
+
     companion object {
         fun create(baseUrl: String) = SecurityWebClient(baseUrl, template(baseUrl))
     }

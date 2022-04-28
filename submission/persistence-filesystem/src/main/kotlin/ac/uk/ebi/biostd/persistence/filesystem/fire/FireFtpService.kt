@@ -2,18 +2,17 @@ package ac.uk.ebi.biostd.persistence.filesystem.fire
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.allFileList
-import ebi.ac.uk.extended.model.allSectionsFiles
 import mu.KotlinLogging
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.forEachSubmissionFile
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 
 private val logger = KotlinLogging.logger {}
 
 class FireFtpService(
     private val fireWebClient: FireWebClient,
+    private val serializationService: ExtSerializationService,
     private val submissionQueryService: SubmissionQueryService
 ) : FtpService {
     override fun releaseSubmissionFiles(accNo: String, owner: String, relPath: String) {
@@ -24,45 +23,36 @@ class FireFtpService(
         logger.info { "$accNo $owner Finished publishing files of submission $accNo over FIRE" }
     }
 
-    // TODO the referenced files should be retrieved from the database for this endpoint
-    // TODO fileList.flatMap { submissionQueryService.getReferencedFiles(sub.accNo, it.fileName) + it.pageTabFiles }
+    override fun unpublishSubmissionFiles(accNo: String, owner: String, relPath: String) {
+        logger.info { "$accNo $owner Un-publishing files of submission $accNo over FIRE" }
+
+        cleanFtpFolder(accNo)
+
+        logger.info { "$accNo $owner Finished un-publishing files of submission $accNo over FIRE" }
+    }
+
     override fun generateFtpLinks(accNo: String) {
-        val submission = submissionQueryService.getExtByAccNo(accNo)
-        cleanFtpFolder(submission.relPath)
-        publishFiles(submission)
+        val sub = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
+
+        logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission $accNo over FIRE" }
+
+        serializationService.forEachSubmissionFile(sub) { if (it is FireFile) publishFile(it.fireId) }
+        logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission $accNo over FIRE" }
     }
 
-    private fun publishFiles(submission: ExtSubmission) =
-        allFiles(submission)
-            .filterIsInstance<FireFile>()
-            .forEach { publishFile(it, submission.relPath) }
-
-    private fun allFiles(sub: ExtSubmission): Sequence<ExtFile> =
-        allFileListFiles(sub).plus(sub.allSectionsFiles).plus(sub.pageTabFiles)
-
-    /**
-     * Returns all file list files. Note that sequence is used instead regular iterable to avoid loading all submission
-     * files before start processing.
-     */
-    private fun allFileListFiles(extSubmission: ExtSubmission): Sequence<ExtFile> =
-        extSubmission
-            .allFileList
-            .flatMap { it.files + it.pageTabFiles }
-            .asSequence()
-
-    private fun publishFile(file: FireFile, relPath: String) {
-        fireWebClient.setPath(file.fireId, "$relPath/${file.relPath}")
-        fireWebClient.publish(file.fireId)
-    }
-
-    private fun cleanFtpFolder(relPath: String) {
+    private fun cleanFtpFolder(accNo: String) {
         fireWebClient
-            .findAllInPath(relPath)
-            .forEach { unpublishFile(it.fireOid) }
+            .findByAccNoAndPublished(accNo, true)
+            .forEach { unPublishFile(it.fireOid) }
     }
 
-    private fun unpublishFile(fireId: String) {
+    private fun publishFile(fireId: String) {
+        fireWebClient.publish(fireId)
+        fireWebClient.setBioMetadata(fireId, published = true)
+    }
+
+    private fun unPublishFile(fireId: String) {
         fireWebClient.unpublish(fireId)
-        fireWebClient.unsetPath(fireId)
+        fireWebClient.setBioMetadata(fireId, published = false)
     }
 }

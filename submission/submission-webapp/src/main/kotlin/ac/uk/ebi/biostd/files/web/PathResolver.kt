@@ -19,9 +19,9 @@ class PathDescriptorResolver : HandlerMethodArgumentResolver {
 
     override fun resolveArgument(
         parameter: MethodParameter,
-        mavContainer: ModelAndViewContainer,
+        mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
-        binderFactory: WebDataBinderFactory
+        binderFactory: WebDataBinderFactory?
     ): Any {
         val path = getPath(getServletRequest(webRequest))
             .remove(userPath)

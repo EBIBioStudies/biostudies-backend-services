@@ -13,10 +13,9 @@ import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ebi.ac.uk.api.security.GetOrRegisterUserRequest
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.allSectionsFiles
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod.FILE
@@ -28,20 +27,21 @@ import java.io.File
 
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 class SubmitWebHandler(
     private val submissionService: SubmissionService,
     private val extSubmissionService: ExtSubmissionService,
     private val sourceGenerator: SourceGenerator,
     private val serializationService: SerializationService,
     private val userFilesService: UserFilesService,
-    private val securityQueryService: ISecurityQueryService
+    private val securityQueryService: ISecurityQueryService,
+    private val toSubmissionMapper: ToSubmissionMapper,
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission =
-        submissionService.submit(buildRequest(request)).toSimpleSubmission()
+        toSubmissionMapper.toSimpleSubmission(submissionService.submit(buildRequest(request)))
 
     fun submit(request: FileSubmitWebRequest): Submission =
-        submissionService.submit(buildRequest(request)).toSimpleSubmission()
+        toSubmissionMapper.toSimpleSubmission(submissionService.submit(buildRequest(request)))
 
     fun submitAsync(request: ContentSubmitWebRequest) = submissionService.submitAsync(buildRequest(request))
 
@@ -53,10 +53,11 @@ class SubmitWebHandler(
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
-                user = request.submitter,
+                submitter = request.submitter,
                 files = request.files,
+                owner = request.onBehalfRequest?.let { getOnBehalfUser(it) },
                 rootPath = sub.rootPath,
-                previousFiles = extSub?.allSectionsFiles.orEmpty()
+                submission = extSub
             )
         )
         val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
@@ -78,14 +79,17 @@ class SubmitWebHandler(
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
-                user = request.submitter,
-                files = request.files.plus(request.submission),
+                submitter = request.submitter,
+                files = request.files,
+                owner = request.onBehalfRequest?.let { getOnBehalfUser(it) },
                 rootPath = sub.rootPath,
-                previousFiles = extSub?.let { it.allSectionsFiles }.orEmpty()
+                submission = extSub
             )
         )
         val submission = withAttributes(submission(request.submission, source), request.attrs)
+
         userFilesService.uploadFile(request.submitter, DIRECT_UPLOAD_PATH, request.submission)
+
         return SubmitRequest(
             submission = submission,
             submitter = request.submitter,

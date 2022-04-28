@@ -8,11 +8,12 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.extended.model.FireDirectory
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
+import uk.ac.ebi.extended.serialization.service.createFileList
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
@@ -54,23 +56,25 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
 
         val fileNfs = tempFolder.createFile("fileNfs.txt")
         val pageTabFireFile =
-            FireFile("folder/fileFileName", "Files/folder/fileFileName", "fireId", "fileMd5", 1, listOf())
+            FireFile("folder/fileFileName", "Files/folder/fileFileName", "fireId", "fileMd5", 1, FILE, listOf())
         val pageTabFireDirectory =
-            FireDirectory("folder/dirFileName", "Files/folder/dirFileName", "dirMd5", 2, listOf())
+            FireFile("folder/dirFileName", "Files/folder/dirFileName", "dirFireId", "dirMd5", 2, DIR, listOf())
 
         val allInOneSection = ExtSection(
             accNo = "SECT-001",
             type = "Study",
             fileList = ExtFileList(
                 "file-list",
-                listOf(
-                    NfsFile(
-                        "folder/ref-file.txt",
-                        "Files/folder/ref-file.txt",
-                        referencedFile,
-                        referencedFile.absolutePath,
-                        referencedFile.md5(),
-                        referencedFile.size(),
+                createFileList(
+                    listOf(
+                        NfsFile(
+                            "folder/ref-file.txt",
+                            "Files/folder/ref-file.txt",
+                            referencedFile,
+                            referencedFile.absolutePath,
+                            referencedFile.md5(),
+                            referencedFile.size(),
+                        )
                     )
                 ),
                 pageTabFiles = listOf(
@@ -128,6 +132,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
             "fileList" to jsonObj {
                 "fileName" to "file-list"
                 "filesUrl" to "/submissions/extended/S-BSST1/referencedFiles/file-list"
+                "file" to allInOneSection.fileList!!.file.absolutePath
                 "pageTabFiles" to jsonArray(
                     jsonObj {
                         "fileName" to pageTabFireFile.fileName
@@ -144,8 +149,9 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                         "fileName" to pageTabFireDirectory.fileName
                         "filePath" to pageTabFireDirectory.filePath
                         "relPath" to pageTabFireDirectory.relPath
+                        "fireId" to pageTabFireDirectory.fireId
                         "attributes" to jsonArray()
-                        "extType" to "fireDirectory"
+                        "extType" to "fireFile"
                         "type" to "directory"
                         "md5" to pageTabFireDirectory.md5
                         "size" to pageTabFireDirectory.size

@@ -50,6 +50,24 @@ class FileSystemServiceTest(
         }
     }
 
+    @Test
+    fun `release submission`() {
+        every { ftpService.releaseSubmissionFiles("S-BSST1", "owner@mail.com", "rel-path") } answers { nothing }
+
+        testInstance.releaseSubmissionFiles("S-BSST1", "owner@mail.com", "rel-path")
+
+        verify(exactly = 1) { ftpService.releaseSubmissionFiles("S-BSST1", "owner@mail.com", "rel-path") }
+    }
+
+    @Test
+    fun `un-publish submission`() {
+        every { ftpService.unpublishSubmissionFiles("S-BSST1", "owner@mail.com", "rel-path") } answers { nothing }
+
+        testInstance.unpublishSubmissionFiles("S-BSST1", "owner@mail.com", "rel-path")
+
+        verify(exactly = 1) { ftpService.unpublishSubmissionFiles("S-BSST1", "owner@mail.com", "rel-path") }
+    }
+
     private fun setUpSubmission() {
         every { submission.accNo } returns "S-TEST123"
         every { submission.owner } returns "user@mail.org"

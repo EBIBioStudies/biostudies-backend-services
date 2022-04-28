@@ -1,11 +1,21 @@
 package ebi.ac.uk.extended.model
 
+import arrow.core.Either.Companion.left
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.createFileList
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-class ExtSubmissionExtensionsTest {
+@ExtendWith(TemporaryFolderExtension::class)
+class ExtSubmissionExtensionsTest(
+    private val tempFolder: TemporaryFolder
+) {
     @Test
     fun computedTitle() {
         val submissionTitle = testSubmission(subTitle = "submission title", secTitle = null)
@@ -15,6 +25,47 @@ class ExtSubmissionExtensionsTest {
         assertThat(submissionTitle.computedTitle).isEqualTo("submission title")
         assertThat(submissionNoTitleSecTitle.computedTitle).isEqualTo("section title")
         assertThat(submissionNoTitleNoSecTitle.computedTitle).isNull()
+    }
+
+    @Test
+    fun `get all submission files`() {
+        val innerFile = tempFolder.createFile("file.txt")
+        val referencedFile = tempFolder.createFile("referenced.txt")
+        val innerExtFile = NfsFile(
+            "my-folder/file.txt",
+            "Files/my-folder/file.txt",
+            innerFile,
+            innerFile.absolutePath,
+            innerFile.md5(),
+            innerFile.size(),
+            listOf()
+        )
+        val referencedExtFile = NfsFile(
+            "my-folder/referenced.txt",
+            "Files/my-folder/referenced.txt",
+            referencedFile,
+            referencedFile.absolutePath,
+            referencedFile.md5(),
+            referencedFile.size(),
+            listOf()
+        )
+        val fileList = ExtFileList("a/file-list", createFileList(listOf(referencedExtFile)))
+        val submission = testSubmission("Test Submission").copy(
+            section = ExtSection(
+                type = "Study",
+                files = listOf(left(innerExtFile)),
+                fileList = fileList,
+                sections = listOf(left(ExtSection(type = "Exp")))
+            )
+        )
+
+        val sectionFiles = submission.allSectionsFiles
+        assertThat(sectionFiles).hasSize(1)
+        assertThat(sectionFiles.first()).isEqualTo(innerExtFile)
+
+        val fileLists = submission.allFileList
+        assertThat(fileLists).hasSize(1)
+        assertThat(fileLists.first()).isEqualTo(fileList)
     }
 
     private fun testSubmission(subTitle: String? = null, secTitle: String? = null): ExtSubmission = ExtSubmission(

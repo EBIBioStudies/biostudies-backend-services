@@ -6,22 +6,25 @@ import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionTsv
 import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionXml
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import arrow.core.Either
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.util.collections.second
+import ebi.ac.uk.util.collections.third
 import org.assertj.core.api.Assertions.assertThat
 import java.io.File
 import java.nio.file.Paths
 
 internal class AllInOneSubmissionHelper(
     private val submissionPath: String,
-    private val submissionRepository: SubmissionQueryService
+    private val submissionRepository: SubmissionQueryService,
+    private val toSubmissionMapper: ToSubmissionMapper
 ) {
 
     internal fun assertSavedSubmission(
@@ -32,7 +35,7 @@ internal class AllInOneSubmissionHelper(
 
         assertThat(extendedSubmission.status).isEqualTo(ExtProcessingStatus.PROCESSED)
         assertThat(extendedSubmission.method).isEqualTo(method)
-        assertThat(extendedSubmission.toSimpleSubmission()).isEqualTo(allInOneSubmission(accNo))
+        assertThat(toSubmissionMapper.toSimpleSubmission(extendedSubmission)).isEqualTo(allInOneSubmission(accNo))
         assertSubmissionFiles(extendedSubmission)
     }
 
@@ -67,46 +70,97 @@ internal class AllInOneSubmissionHelper(
         val submission = submissionRepository.getExtByAccNo(accNo)
         val subFolder = "$submissionPath/${submission.relPath}"
 
+        assertFireTabFiles(submission, accNo, subFolder)
+        assertFireFileListTabFiles(submission, subFolder)
+        assertFireSubFileListTabFiles(submission, subFolder)
+    }
+
+    private fun `assertFireTabFiles`(submission: ExtSubmission, accNo: String, subFolder: String) {
         val submissionTabFiles = submission.pageTabFiles as List<FireFile>
         assertThat(submissionTabFiles).hasSize(3)
-        assertThat(submissionTabFiles).isEqualTo(submissionFireTabFiles(accNo, subFolder))
 
+        val jsonTabFile = submissionTabFiles.first()
+        val jsonFile = File("$subFolder/$accNo.json")
+        assertThat(jsonTabFile.filePath).isEqualTo("$accNo.json")
+        assertThat(jsonTabFile.relPath).isEqualTo("$accNo.json")
+        assertThat(jsonTabFile.fireId).endsWith("_$accNo.json")
+        assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
+        assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
+
+        val xmlTabFile = submissionTabFiles.second()
+        val xmlFile = File("$subFolder/$accNo.xml")
+        assertThat(xmlTabFile.filePath).isEqualTo("$accNo.xml")
+        assertThat(xmlTabFile.relPath).isEqualTo("$accNo.xml")
+        assertThat(xmlTabFile.fireId).endsWith("_$accNo.xml")
+        assertThat(xmlTabFile.md5).isEqualTo(xmlFile.md5())
+        assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
+
+        val tsvTabFile = submissionTabFiles.third()
+        val tsvFile = File("$subFolder/$accNo.pagetab.tsv")
+        assertThat(tsvTabFile.filePath).isEqualTo("$accNo.pagetab.tsv")
+        assertThat(tsvTabFile.relPath).isEqualTo("$accNo.pagetab.tsv")
+        assertThat(tsvTabFile.fireId).endsWith("_$accNo.pagetab.tsv")
+        assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
+        assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
+    }
+
+    private fun `assertFireFileListTabFiles`(submission: ExtSubmission, subFolder: String) {
         val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<FireFile>
         assertThat(fileListTabFiles).hasSize(3)
-        assertThat(fileListTabFiles).isEqualTo(fireTabFiles(subFolder, "file-list"))
 
+        val jsonTabFile = fileListTabFiles.first()
+        val jsonFile = File("$subFolder/Files/file-list.json")
+        assertThat(jsonTabFile.filePath).isEqualTo("file-list.json")
+        assertThat(jsonTabFile.relPath).isEqualTo("Files/file-list.json")
+        assertThat(jsonTabFile.fireId).endsWith("file-list.json")
+        assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
+        assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
+
+        val xmlTabFile = fileListTabFiles.second()
+        val xmlFile = File("$subFolder/Files/file-list.xml")
+        assertThat(xmlTabFile.filePath).isEqualTo("file-list.xml")
+        assertThat(xmlTabFile.relPath).isEqualTo("Files/file-list.xml")
+        assertThat(xmlTabFile.fireId).endsWith("file-list.xml")
+        assertThat(xmlTabFile.md5).isEqualTo(xmlFile.md5())
+        assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
+
+        val tsvTabFile = fileListTabFiles.third()
+        val tsvFile = File("$subFolder/Files/file-list.pagetab.tsv")
+        assertThat(tsvTabFile.filePath).isEqualTo("file-list.pagetab.tsv")
+        assertThat(tsvTabFile.relPath).isEqualTo("Files/file-list.pagetab.tsv")
+        assertThat(tsvTabFile.fireId).endsWith("_file-list.pagetab.tsv")
+        assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
+        assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
+    }
+
+    private fun `assertFireSubFileListTabFiles`(submission: ExtSubmission, subFolder: String) {
         val subFileListTabFiles =
             (submission.section.sections.first() as Either.Left).a.fileList!!.pageTabFiles as List<FireFile>
         assertThat(subFileListTabFiles).hasSize(3)
-        assertThat(subFileListTabFiles).isEqualTo(fireTabFiles(subFolder, "sub-folder/file-list2"))
-    }
 
-    private fun submissionFireTabFiles(accNo: String, subFolder: String): List<FireFile> {
-        val jsonName = "$accNo.json"
-        val xmlName = "$accNo.xml"
-        val tsvName = "$accNo.pagetab.tsv"
-        val json = File("$subFolder/$accNo.json")
-        val xml = File("$subFolder/$accNo.xml")
-        val tsv = File("$subFolder/$accNo.pagetab.tsv")
-        return listOf(
-            FireFile(jsonName, jsonName, "fireOid-$jsonName", json.md5(), json.size(), listOf()),
-            FireFile(xmlName, xmlName, "fireOid-$xmlName", xml.md5(), xml.size(), listOf()),
-            FireFile(tsvName, tsvName, "fireOid-$tsvName", tsv.md5(), tsv.size(), listOf())
-        )
-    }
+        val jsonTabFile = subFileListTabFiles.first()
+        val jsonFile = File("$subFolder/Files/sub-folder/file-list2.json")
+        assertThat(jsonTabFile.filePath).isEqualTo("sub-folder/file-list2.json")
+        assertThat(jsonTabFile.relPath).isEqualTo("Files/sub-folder/file-list2.json")
+        assertThat(jsonTabFile.fireId).endsWith("_file-list2.json")
+        assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
+        assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
 
-    private fun fireTabFiles(subFolder: String, list: String): List<FireFile> {
-        val name = list.substringAfterLast("/")
-        val path = "Files/$list"
-        val json = File("$subFolder/$path.json")
-        val xml = File("$subFolder/$path.xml")
-        val tsv = File("$subFolder/$path.pagetab.tsv")
-        val TSV = "pagetab.tsv"
-        return listOf(
-            FireFile("$list.json", "$path.json", "fireOid-$name.json", json.md5(), json.size(), listOf()),
-            FireFile("$list.xml", "$path.xml", "fireOid-$name.xml", xml.md5(), xml.size(), listOf()),
-            FireFile("$list.$TSV", "$path.$TSV", "fireOid-$name.$TSV", tsv.md5(), tsv.size(), listOf())
-        )
+        val xmlTabFile = subFileListTabFiles.second()
+        val xmlFile = File("$subFolder/Files/sub-folder/file-list2.xml")
+        assertThat(xmlTabFile.filePath).isEqualTo("sub-folder/file-list2.xml")
+        assertThat(xmlTabFile.relPath).isEqualTo("Files/sub-folder/file-list2.xml")
+        assertThat(xmlTabFile.fireId).endsWith("_file-list2.xml")
+        assertThat(xmlTabFile.md5).isEqualTo(xmlFile.md5())
+        assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
+
+        val tsvTabFile = subFileListTabFiles.third()
+        val tsvFile = File("$subFolder/Files/sub-folder/file-list2.pagetab.tsv")
+        assertThat(tsvTabFile.filePath).isEqualTo("sub-folder/file-list2.pagetab.tsv")
+        assertThat(tsvTabFile.relPath).isEqualTo("Files/sub-folder/file-list2.pagetab.tsv")
+        assertThat(tsvTabFile.fireId).endsWith("_file-list2.pagetab.tsv")
+        assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
+        assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
 
     private fun submissionNfsTabFiles(accNo: String, submissionFolderPath: String): List<NfsFile> {

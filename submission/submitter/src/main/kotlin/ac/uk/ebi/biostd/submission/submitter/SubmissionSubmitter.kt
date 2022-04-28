@@ -4,8 +4,8 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
@@ -18,9 +18,8 @@ import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.base.orFalse
-import ebi.ac.uk.extended.mapping.from.toExtAttribute
-import ebi.ac.uk.extended.mapping.from.toExtSection
-import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
+import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -59,7 +58,8 @@ class SubmissionSubmitter(
     private val queryService: SubmissionMetaQueryService,
     private val submissionQueryService: SubmissionQueryService,
     private val draftService: SubmissionDraftService,
-    private val properties: ApplicationProperties
+    private val properties: ApplicationProperties,
+    private val toExtSectionMapper: ToExtSectionMapper
 ) {
     fun submitAsync(rqt: SubmitRequest): Pair<String, Int> {
         logger.info { "${rqt.accNo} ${rqt.submitter.email} Processing async request $rqt" }
@@ -71,10 +71,9 @@ class SubmissionSubmitter(
     fun submitAsync(request: SubmissionRequest): Pair<String, Int> = saveRequest(request, request.submission.submitter)
 
     fun processRequest(accNo: String, version: Int): ExtSubmission {
-        val saveRequest = submissionQueryService.getPendingRequest(accNo, version)
-        val submitter = saveRequest.submission.submitter
-        logger.info { "$accNo, $submitter Processing request for submission accNo='$accNo', version='$version'" }
-        return submissionPersistenceService.processSubmissionRequest(saveRequest)
+        val rqt = submissionQueryService.getPendingRequest(accNo, version)
+        logger.info { "$accNo, ${rqt.submission.submitter} processing submission accNo='$accNo', version='$version'" }
+        return submissionPersistenceService.processSubmissionRequest(rqt)
     }
 
     fun release(request: ReleaseRequest) {
@@ -114,6 +113,7 @@ class SubmissionSubmitter(
         source: FilesSource,
         method: SubmissionMethod
     ): ExtSubmission {
+        val version = DEFAULT_VERSION
         val previousVersion = queryService.findLatestBasicByAccNo(submission.accNo)
         val isNew = previousVersion == null
         val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(submission.attachTo)
@@ -131,7 +131,7 @@ class SubmissionSubmitter(
             accNo = accNoString,
             owner = ownerEmail,
             submitter = submitter.email,
-            version = DEFAULT_VERSION,
+            version = version,
             schemaVersion = DEFAULT_SCHEMA_VERSION,
             method = getMethod(method),
             title = submission.title,
@@ -145,8 +145,8 @@ class SubmissionSubmitter(
             creationTime = createTime,
             tags = submission.tags.map { ExtTag(it.first, it.second) },
             collections = tags.map { ExtCollection(it) },
-            section = submission.section.toExtSection(source),
-            attributes = getAttributes(submission),
+            section = toExtSectionMapper.convert(submission.accNo, version, submission.section, source),
+            attributes = submission.attributes.toExtAttributes(SUBMISSION_RESERVED_ATTRIBUTES),
             storageMode = if (properties.persistence.enableFire) FIRE else NFS
         )
     }
@@ -168,12 +168,6 @@ class SubmissionSubmitter(
     private fun getCollectionInfo(user: User, sub: Submission, accNo: String, isNew: Boolean): CollectionResponse? {
         val request = CollectionRequest(user.email, sub.section.type, sub.accNoTemplate, accNo, isNew)
         return collectionInfoService.process(request)
-    }
-
-    private fun getAttributes(submission: Submission): List<ExtAttribute> {
-        return submission.attributes
-            .filterNot { SUBMISSION_RESERVED_ATTRIBUTES.contains(it.name) }
-            .map { it.toExtAttribute() }
     }
 
     private fun getAccNumber(sub: Submission, isNew: Boolean, user: User, parentPattern: String?): AccNumber {

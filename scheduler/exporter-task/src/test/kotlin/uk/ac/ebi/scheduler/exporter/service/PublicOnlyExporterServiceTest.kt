@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -29,9 +29,11 @@ import java.nio.file.Paths
 class PublicOnlyExporterServiceTest(
     private val tempFolder: TemporaryFolder,
     @MockK private val bioWebClient: BioWebClient,
-    @MockK private val serializationService: SerializationService
+    @MockK private val serializationService: SerializationService,
+    @MockK private val toSubmissionMapper: ToSubmissionMapper,
 ) {
-    private val testInstance = PublicOnlyExporterService(bioWebClient, testProperties(), serializationService)
+    private val testInstance =
+        PublicOnlyExporterService(bioWebClient, testProperties(), serializationService, toSubmissionMapper)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -71,7 +73,10 @@ class PublicOnlyExporterServiceTest(
         val serializedSubmission = jsonObj { "accNo" to "S-TEST123" }
 
         every {
-            serializationService.serializeSubmission(basicExtSubmission.toSimpleSubmission(), JSON_PRETTY)
+            serializationService.serializeSubmission(
+                toSubmissionMapper.toSimpleSubmission(basicExtSubmission),
+                JSON_PRETTY
+            )
         } returns serializedSubmission.toString()
     }
 

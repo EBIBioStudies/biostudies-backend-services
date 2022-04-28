@@ -50,11 +50,17 @@ internal class NfsFtpServiceTest(
 
     @Test
     fun `create ftp folder`() {
-        every { submissionQueryService.getExtByAccNo("S-BSST0") } returns extSubmission
+        every { submissionQueryService.getExtByAccNo("S-BSST0", true) } returns extSubmission
 
         testInstance.generateFtpLinks("S-BSST0")
 
         assertFolder(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile())
+    }
+
+    @Test
+    fun `unpublish submission files`() {
+        testInstance.unpublishSubmissionFiles("B-SST1", "user@mail.org", REL_PATH)
+        assertThat(folderResolver.getSubmissionFtpFolder(REL_PATH)).doesNotExist()
     }
 
     @Test

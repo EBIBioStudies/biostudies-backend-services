@@ -7,7 +7,10 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.persistence.filesystem.extSubmissionWithFileList
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
-import ebi.ac.uk.extended.mapping.to.toSimpleSubmission
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
+import ebi.ac.uk.extended.mapping.to.ToFileListMapper
+import ebi.ac.uk.extended.mapping.to.ToSectionMapper
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
@@ -31,6 +34,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.file.Files.getPosixFilePermissions
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -42,10 +47,13 @@ class NfsFilesServiceTest(
     @MockK private val mockSerializationService: SerializationService
 ) {
     private lateinit var extSubmission: ExtSubmission
-
     private val rootPath = tempFolder.root.toPath()
+
+    private val toSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper(ExtSerializationService())))
     private val folderResolver = SubmissionFolderResolver(Paths.get("$rootPath/submission"), Paths.get("$rootPath/ftp"))
-    private val testInstance = NfsFilesService(folderResolver)
+    private val fileResolver: ExtFilesResolver = ExtFilesResolver(tempFolder.createDirectory("extended-files"))
+    private val testInstance =
+        NfsFilesService(folderResolver, FileProcessingService(ExtSerializationService(), fileResolver))
 
     @BeforeEach
     fun beforeEach() {
@@ -56,7 +64,7 @@ class NfsFilesServiceTest(
         val sectionFolder = tempFolder.createDirectory("fileDirectory")
         extSubmission = extSubmissionWithFileList(listOf(file1, file1, sectionFolder), listOf(file2, file1))
 
-        val simpleSubmission = extSubmission.toSimpleSubmission()
+        val simpleSubmission = toSubmissionMapper.toSimpleSubmission(extSubmission)
         sectionFolder.createNewFile("file3.txt", "folder-file-content")
 
         every { mockSerializationService.serializeSubmission(simpleSubmission, XML) } returns ""

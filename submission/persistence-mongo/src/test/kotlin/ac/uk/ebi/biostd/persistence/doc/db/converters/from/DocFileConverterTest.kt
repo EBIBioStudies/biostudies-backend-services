@@ -6,17 +6,16 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_DIRECTORY_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_FULL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
-import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.fireDocFileClass
 import ac.uk.ebi.biostd.persistence.doc.model.nfsDocFileClass
+import ebi.ac.uk.extended.model.ExtFileType.DIR
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -72,13 +71,14 @@ internal class DocFileConverterTest(
 
         val result = testInstance.convert(createFireDirectoryDoc())
 
-        require(result is FireDocDirectory)
+        require(result is FireDocFile)
         assertThat(result.fileName).isEqualTo("fire-directory")
         assertThat(result.filePath).isEqualTo("filePath")
         assertThat(result.relPath).isEqualTo("relPath")
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
         assertThat(result.md5).isEqualTo("md5")
         assertThat(result.fileSize).isEqualTo(10L)
+        assertThat(result.fileType).isEqualTo(DIR.value)
     }
 
     private fun createNfsFileDoc() = Document().apply {
@@ -90,7 +90,7 @@ internal class DocFileConverterTest(
         this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
         this[FILE_DOC_MD5] = "md5"
         this[FILE_DOC_SIZE] = 10L
-        this[NFS_FILE_TYPE] = "file"
+        this[FILE_DOC_TYPE] = "file"
     }
 
     private fun createFireFileDoc() = Document().apply {
@@ -102,15 +102,18 @@ internal class DocFileConverterTest(
         this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
         this[FILE_DOC_MD5] = "md5"
         this[FILE_DOC_SIZE] = 10L
+        this[FILE_DOC_TYPE] = "file"
     }
 
     private fun createFireDirectoryDoc() = Document().apply {
-        this[CommonsConverter.classField] = FIRE_DOC_DIRECTORY_CLASS
+        this[CommonsConverter.classField] = fireDocFileClass
         this[FILE_DOC_FILENAME] = "fire-directory"
         this[FILE_DOC_FILEPATH] = "filePath"
         this[FILE_DOC_REL_PATH] = "relPath"
+        this[FIRE_FILE_DOC_ID] = "dirFireId"
         this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
         this[FILE_DOC_MD5] = "md5"
         this[FILE_DOC_SIZE] = 10L
+        this[FILE_DOC_TYPE] = "directory"
     }
 }

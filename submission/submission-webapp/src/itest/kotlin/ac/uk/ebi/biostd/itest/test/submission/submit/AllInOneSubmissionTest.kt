@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.itest.factory.submissionSpecJson
 import ac.uk.ebi.biostd.itest.factory.submissionSpecTsv
 import ac.uk.ebi.biostd.itest.factory.submissionSpecXml
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.junit.jupiter.api.BeforeAll
@@ -34,12 +35,13 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
     @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
     @DirtiesContext
     inner class SingleSubmissionTest(
-        @Autowired val submissionRepository: SubmissionQueryService,
-        @Autowired val securityTestService: SecurityTestService
+        @Autowired val subRepository: SubmissionQueryService,
+        @Autowired val securityTestService: SecurityTestService,
+        @Autowired val toSubmissionMapper: ToSubmissionMapper
     ) {
+
         @LocalServerPort
         private var serverPort: Int = 0
-
         private lateinit var webClient: BioWebClient
         private lateinit var allInOneSubmissionHelper: AllInOneSubmissionHelper
 
@@ -47,7 +49,7 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
         fun init() {
             securityTestService.registerUser(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
-            allInOneSubmissionHelper = AllInOneSubmissionHelper(submissionPath, submissionRepository)
+            allInOneSubmissionHelper = AllInOneSubmissionHelper(submissionPath, subRepository, toSubmissionMapper)
         }
 
         @Test
@@ -60,13 +62,12 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
             webClient.submitSingle(submission.readText(), TSV)
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
-            if (mongoMode)
-                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
-                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
+            if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
+            else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
         }
 
         @Test
-        fun `submit all in one Json submission`() {
+        fun `submit all in one JSON submission`() {
             val (submission, fileList, files, subFileList) = submissionSpecJson(tempFolder, "S-EPMC125")
             webClient.uploadFile(fileList)
             subFileList?.let { webClient.uploadFile(it.file, it.folder) }
@@ -75,9 +76,8 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
             webClient.submitSingle(submission.readText(), JSON)
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
-            if (mongoMode)
-                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC125")
-                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC125")
+            if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC125")
+            else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC125")
         }
 
         @Test
@@ -90,9 +90,8 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
             webClient.submitSingle(submission.readText(), XML)
 
             allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126")
-            if (mongoMode)
-                if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC126")
-                else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC126")
+            if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC126")
+            else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC126")
         }
     }
 }

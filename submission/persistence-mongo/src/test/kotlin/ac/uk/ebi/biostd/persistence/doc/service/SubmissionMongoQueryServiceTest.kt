@@ -53,10 +53,12 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.REQUESTED as DOC_REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
@@ -74,14 +76,22 @@ internal class SubmissionMongoQueryServiceTest(
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository
 ) {
     private val serializationService: ExtSerializationService = extSerializationService()
+    private val fileResolver = ExtFilesResolver(tempFolder.createDirectory("ext-files"))
     private val testInstance =
         SubmissionMongoQueryService(
             submissionRepo,
             requestRepository,
             fileListDocFileRepository,
             serializationService,
-            toExtSubmissionMapper
+            toExtSubmissionMapper,
+            fileResolver,
         )
+
+    @AfterEach
+    fun afterEach() {
+        submissionRepo.deleteAll()
+        fileListDocFileRepository.deleteAll()
+    }
 
     @Nested
     inner class ExpireSubmissions {
@@ -101,6 +111,34 @@ internal class SubmissionMongoQueryServiceTest(
 
             assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
             assertThat(submissionRepo.findByAccNo("S-BSST101")).isNull()
+        }
+    }
+
+    @Nested
+    inner class FindSubmissions {
+        @Test
+        fun `find latest by accNo`() {
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = -1, status = PROCESSED))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 2, status = PROCESSED))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 3, status = DOC_REQUESTED))
+
+            val result = submissionRepo.findLatestByAccNo("S-BSST1")
+            assertThat(result).isNotNull
+            assertThat(result!!.version).isEqualTo(2)
+            assertThat(result.status).isEqualTo(PROCESSED)
+        }
+
+        @Test
+        fun `find latest by accNo for new submission`() {
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST2", version = 1, status = DOC_REQUESTED))
+            assertThat(submissionRepo.findLatestByAccNo("S-BSST2")).isNull()
+        }
+
+        @Test
+        fun `find latest by accNo for submission with old expired version`() {
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -1, status = PROCESSED))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = 2, status = DOC_REQUESTED))
+            assertThat(submissionRepo.findLatestByAccNo("S-BSST3")).isNull()
         }
     }
 
@@ -134,12 +172,6 @@ internal class SubmissionMongoQueryServiceTest(
         fun beforeEach() {
             submissionRepo.save(submission)
             fileListDocFileRepository.save(fileListFile)
-        }
-
-        @AfterEach
-        fun afterEach() {
-            submissionRepo.deleteAll()
-            fileListDocFileRepository.deleteAll()
         }
 
         @Test
@@ -424,7 +456,6 @@ internal class SubmissionMongoQueryServiceTest(
             fileMode = FileMode.COPY,
             draftKey = null,
             submission = BasicDBObject.parse(serializationService.serialize(submission)),
-            fileList = emptyList()
         )
     }
 

@@ -3,11 +3,15 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
-import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
+import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
+import ac.uk.ebi.biostd.persistence.doc.integration.ToDocSubmissionConfig
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
+import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
@@ -34,17 +38,20 @@ import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
 import java.time.Duration
 
 @Testcontainers
-@SpringBootTest(classes = [MongoDbReposConfig::class])
+@SpringBootTest(classes = [MongoDbServicesConfig::class, ToDocSubmissionConfig::class, TestConfig::class])
 class ExtSubmissionRepositoryTest(
     @Autowired private val subDataRepository: SubmissionDocDataRepository,
     @Autowired private val draftDocDataRepository: SubmissionDraftDocDataRepository,
-    @Autowired private val fileListDocFileRepository: FileListDocFileRepository
+    @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
+    @Autowired private val toExtSectionMapper: ToExtSectionMapper,
+    @Autowired private val toDocSubmissionMapper: ToDocSubmissionMapper
 ) {
     private val testInstance = ExtSubmissionRepository(
         subDataRepository,
         draftDocDataRepository,
         fileListDocFileRepository,
-        ToExtSubmissionMapper(fileListDocFileRepository)
+        ToExtSubmissionMapper(toExtSectionMapper),
+        toDocSubmissionMapper
     )
 
     @BeforeEach
@@ -69,7 +76,10 @@ class ExtSubmissionRepositoryTest(
 
         val result = testInstance.saveSubmission(submission, draftKey = "draftKey")
 
-        assertThat(result.section).isEqualTo(section.copy(fileList = defaultFileList(filesUrl = null)))
+        assertThat(result.section).isEqualToIgnoringGivenFields(
+            section.copy(fileList = defaultFileList(filesUrl = null)),
+            "fileList"
+        )
         assertThat(result.status).isEqualTo(PROCESSING)
 
         assertThat(subDataRepository.getSubmission(submission.accNo, -1)).isNotNull()
@@ -82,7 +92,7 @@ class ExtSubmissionRepositoryTest(
         val fileListDocFile = fileListDocFiles.first()
         assertThat(fileListDocFile.file).isEqualTo(defaultFireFile().toDocFile())
         assertThat(fileListDocFile.submissionId).isEqualTo(savedSubmission.id)
-        assertThat(fileListDocFile.fileListName).isEqualTo(FILE_PATH.substringAfterLast("/"))
+        assertThat(fileListDocFile.fileListName).isEqualTo(FILE_PATH)
         assertThat(fileListDocFile.index).isEqualTo(0)
         assertThat(fileListDocFile.submissionVersion).isEqualTo(savedSubmission.version)
         assertThat(fileListDocFile.submissionAccNo).isEqualTo(submission.accNo)

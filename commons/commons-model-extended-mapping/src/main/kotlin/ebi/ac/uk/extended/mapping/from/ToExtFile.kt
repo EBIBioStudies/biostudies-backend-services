@@ -1,42 +1,13 @@
 package ebi.ac.uk.extended.mapping.from
 
+import ebi.ac.uk.errors.FileNotFoundException
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.FireDirectory
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.FireBioFile
-import ebi.ac.uk.io.sources.FireDirectoryBioFile
-import ebi.ac.uk.io.sources.NfsBioFile
 import ebi.ac.uk.model.File
+import ebi.ac.uk.model.extensions.md5
 
 internal const val TO_EXT_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.from.ToExtFileKt"
 
-fun File.toExtFile(fileSource: FilesSource, calculateProperties: Boolean = true): ExtFile {
-    return when (val file = fileSource.getFile(path)) {
-        is FireBioFile -> FireFile(
-            path,
-            "Files/$path",
-            file.fireId,
-            file.md5,
-            file.size(),
-            attributes.toExtAttributes()
-        )
-        is FireDirectoryBioFile -> FireDirectory(
-            path,
-            "Files/$path",
-            file.md5,
-            file.size,
-            attributes.toExtAttributes()
-        )
-        is NfsBioFile -> NfsFile(
-            path,
-            "Files/$path",
-            file.file,
-            file.file.absolutePath,
-            if (calculateProperties) file.md5() else "NOT_CALCULATED",
-            if (calculateProperties) file.size() else -1,
-            attributes.toExtAttributes()
-        )
-    }
-}
+// TODO: remove function as it only call source internally. Only keep to reduce impact or initial refactor.
+fun File.toExtFile(fileSource: FilesSource): ExtFile =
+    fileSource.getExtFile(path, md5, attributes) ?: throw FileNotFoundException(path)
