@@ -24,10 +24,10 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.createFileList
+import uk.ac.ebi.extended.serialization.service.createExtFileList
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import uk.ac.ebi.serialization.common.FilesResolver
 import ebi.ac.uk.asserts.assertThat as assertThatEither
 import uk.ac.ebi.fire.client.model.FireApiFile as FireFileWeb
 
@@ -40,7 +40,7 @@ class FirePageTabServiceTest(
 ) {
     private val fireFolder = tempFolder.root.resolve("fire-temp")
     private val fileProcessingService =
-        FileProcessingService(ExtSerializationService(), ExtFilesResolver(tempFolder.createDirectory("ext-files")))
+        FileProcessingService(ExtSerializationService(), FilesResolver(tempFolder.createDirectory("ext-files")))
     private val testInstance =
         FirePageTabService(
             fireFolder,
@@ -140,7 +140,7 @@ class FirePageTabServiceTest(
         type = "Study1",
         fileList = ExtFileList(
             "data/file-list1",
-            file = createFileList(emptyList())
+            file = createExtFileList(emptyList())
         ),
         sections = listOf(
             left(
@@ -148,7 +148,7 @@ class FirePageTabServiceTest(
                     type = "Study2",
                     fileList = ExtFileList(
                         "data/file-list2",
-                        file = createFileList(emptyList())
+                        file = createExtFileList(emptyList())
                     )
                 )
             ),

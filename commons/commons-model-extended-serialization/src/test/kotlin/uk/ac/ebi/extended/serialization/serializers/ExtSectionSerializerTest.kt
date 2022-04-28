@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
-import uk.ac.ebi.extended.serialization.service.createFileList
+import uk.ac.ebi.extended.serialization.service.createExtFileList
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
@@ -64,7 +64,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
             type = "Study",
             fileList = ExtFileList(
                 "file-list",
-                createFileList(
+                createExtFileList(
                     listOf(
                         NfsFile(
                             "folder/ref-file.txt",

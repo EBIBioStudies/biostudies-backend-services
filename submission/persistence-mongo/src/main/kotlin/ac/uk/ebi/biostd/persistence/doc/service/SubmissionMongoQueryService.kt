@@ -25,8 +25,8 @@ import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.io.use
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
-import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -41,7 +41,7 @@ internal class SubmissionMongoQueryService(
     private val fileListDocFileRepository: FileListDocFileRepository,
     private val serializationService: ExtSerializationService,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
-    private val resolver: ExtFilesResolver
+    private val resolver: FilesResolver
 ) : SubmissionQueryService {
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
 
@@ -99,7 +99,7 @@ internal class SubmissionMongoQueryService(
     }
 
     private fun calculate(sub: ExtSubmission, fileList: ExtFileList): ExtFileList {
-        val newFileList = resolver.createEmptyFile(sub.accNo, sub.version, fileList.fileName)
+        val newFileList = resolver.createExtEmptyFile(sub.accNo, sub.version, fileList.fileName)
         return fileList.copy(file = copyFile(sub.accNo, sub.submitter, fileList.file, newFileList))
     }
 

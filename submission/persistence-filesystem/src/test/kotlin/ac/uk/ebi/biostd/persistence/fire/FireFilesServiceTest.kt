@@ -28,10 +28,10 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import uk.ac.ebi.fire.client.model.FireApiFile
+import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 import kotlin.io.path.exists
 
@@ -45,7 +45,7 @@ class FireFilesServiceTest(
     private val testMd5 = file.md5()
     private val attribute = ExtAttribute("Type", "Test")
     private val processingService =
-        FileProcessingService(ExtSerializationService(), ExtFilesResolver(tempFolder.createDirectory("ext-files")))
+        FileProcessingService(ExtSerializationService(), FilesResolver(tempFolder.createDirectory("ext-files")))
     private val testInstance = FireFilesService(fireTempFolder, fireWebClient, processingService)
 
     @AfterEach

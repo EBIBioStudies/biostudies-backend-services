@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.createFileList
+import uk.ac.ebi.extended.serialization.service.createExtFileList
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import ebi.ac.uk.test.basicExtSubmission as basicExtSub
 import uk.ac.ebi.fire.client.model.FireApiFile as ClientFireFile
@@ -114,7 +114,7 @@ class FireFtpServiceTest(
             type = "Study",
             fileList = ExtFileList(
                 "fileName1",
-                file = createFileList(listOf(fileFileList)),
+                file = createExtFileList(listOf(fileFileList)),
                 pageTabFiles = listOf(filePageTab)
             ),
             files = listOf(left(file), left(fireDir()), right(ExtFileTable(fileTable))),
@@ -124,7 +124,7 @@ class FireFtpServiceTest(
                         type = "Study",
                         fileList = ExtFileList(
                             "a/fileName2",
-                            file = createFileList(listOf(innerFileListFile)),
+                            file = createExtFileList(listOf(innerFileListFile)),
                             pageTabFiles = listOf(innerFileListPageTabFile)
                         ),
                         files = listOf(left(innerFile), right(ExtFileTable(innerFileTable)))

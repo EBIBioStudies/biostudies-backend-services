@@ -10,14 +10,14 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES_U
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
 import uk.ac.ebi.extended.serialization.serializers.FILE_LIST_URL
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.createFileList
+import uk.ac.ebi.extended.serialization.service.createExtFileList
 
 class ExtFileListDeserializerTest {
     private val testInstance = ExtSerializationService.mapper
 
     @Test
     fun deserialize() {
-        val file = createFileList(emptyList())
+        val file = createExtFileList(emptyList())
         val json = jsonObj {
             FILE_NAME to "file-list"
             FILES_URL to "$FILE_LIST_URL/S-BSST1/referencedFiles/file-list"

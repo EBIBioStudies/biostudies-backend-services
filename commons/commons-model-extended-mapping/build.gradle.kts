@@ -6,6 +6,7 @@ import Dependencies.KotlinStdLib
 import Projects.CommonsBio
 import Projects.CommonsModelExtendedSerialization
 import Projects.CommonsModelExtendedTest
+import Projects.CommonsSerialization
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import TestDependencies.BaseTestCompileDependencies
@@ -16,6 +17,7 @@ dependencies {
     api(project(CommonsBio))
     api(project(CommonsModelExtendedSerialization))
     api(project(CommonsModelExtendedTest))
+    api(project(CommonsSerialization))
 
     implementation(Arrow)
     implementation(KotlinLogging)

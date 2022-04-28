@@ -22,8 +22,8 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.serialization.common.FilesResolver
 
 @Configuration
 @Import(MongoDbReposConfig::class, SerializationConfiguration::class, ToSubmissionConfig::class)
@@ -36,7 +36,7 @@ class MongoDbServicesConfig {
         fileListDocFileRepository: FileListDocFileRepository,
         serializationService: ExtSerializationService,
         toExtSubmissionMapper: ToExtSubmissionMapper,
-        resolver: ExtFilesResolver,
+        resolver: FilesResolver,
     ): SubmissionQueryService = SubmissionMongoQueryService(
         submissionDocDataRepository,
         submissionRequestDocDataRepository,
@@ -55,7 +55,7 @@ class MongoDbServicesConfig {
     internal fun toExtFileListMapper(
         fileListDocFileRepository: FileListDocFileRepository,
         extSerializationService: ExtSerializationService,
-        extFilesResolver: ExtFilesResolver,
+        extFilesResolver: FilesResolver,
     ): ToExtFileListMapper = ToExtFileListMapper(fileListDocFileRepository, extSerializationService, extFilesResolver)
 
     @Bean

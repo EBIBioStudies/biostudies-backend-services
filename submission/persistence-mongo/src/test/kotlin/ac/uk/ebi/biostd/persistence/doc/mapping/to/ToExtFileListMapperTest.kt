@@ -24,9 +24,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.files
+import uk.ac.ebi.serialization.common.FilesResolver
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
@@ -35,7 +35,7 @@ class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
     private val testInstance = ToExtFileListMapper(
         fileListDocFileRepository,
         extSerializationService,
-        ExtFilesResolver(temporaryFolder.createDirectory("ext-files"))
+        FilesResolver(temporaryFolder.createDirectory("ext-files"))
     )
     private val fileNfs = temporaryFolder.createDirectory("folder").createNewFile("nfsFileFile.txt")
     private val nfsDocFile = NfsDocFile(

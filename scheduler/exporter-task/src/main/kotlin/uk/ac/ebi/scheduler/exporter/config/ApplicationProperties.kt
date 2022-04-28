@@ -11,6 +11,7 @@ class ApplicationProperties {
     lateinit var fileName: String
     lateinit var outputPath: String
     lateinit var mode: ExporterMode
+    lateinit var tmpFilesPath: String
 
     @NestedConfigurationProperty
     var bioStudies: BioStudies = BioStudies()

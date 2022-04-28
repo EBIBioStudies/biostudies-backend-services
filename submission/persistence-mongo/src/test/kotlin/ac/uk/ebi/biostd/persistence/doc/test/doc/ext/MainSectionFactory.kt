@@ -7,7 +7,7 @@ import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
-import uk.ac.ebi.extended.serialization.service.createFileList
+import uk.ac.ebi.extended.serialization.service.createExtFileList
 
 const val ROOT_SEC_ACC_NO = "accNo-1"
 const val SUB_SEC_ACC_NO = "accNo-2"
@@ -24,7 +24,7 @@ val subSection = ExtSection(
     type = SUB_SEC_TYPE,
     fileList = ExtFileList(
         filePath = SUB_SEC_EXT_FILE_LIST_PATH,
-        file = createFileList(listOf(subSectionFileListFile)),
+        file = createExtFileList(listOf(subSectionFileListFile)),
     )
 )
 
@@ -51,7 +51,7 @@ val rootSection = ExtSection(
     type = ROOT_SEC_TYPE,
     fileList = ExtFileList(
         filePath = ROOT_SEC_EXT_FILE_LIST_PATH,
-        file = createFileList(listOf(rootSectionFileListFile))
+        file = createExtFileList(listOf(rootSectionFileListFile))
     ),
     attributes = listOf(rootSectionAttribute),
     sections = listOf(

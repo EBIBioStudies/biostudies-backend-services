@@ -11,7 +11,7 @@ import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import ac.uk.ebi.biostd.xml.XmlStreamSerializer
-import ebi.ac.uk.model.FilesTable
+import ebi.ac.uk.model.File
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.util.file.ExcelReader.asTsv
 import java.io.InputStream
@@ -36,20 +36,20 @@ internal class PagetabSerializer(
         is TsvFormat -> tsvSerializer.deserializeSubmission(submission)
     }
 
-    fun serializeFileList(filesTable: FilesTable, format: SubFormat, outputStream: OutputStream) {
+    fun serializeFileList(files: Sequence<File>, format: SubFormat, outputStream: OutputStream) {
         when (format) {
-            XmlFormat -> xmlStreamSerializer.serializeFileList(filesTable.elements.asSequence(), outputStream)
-            JsonPretty, PlainJson -> jsonSerializer.serializeFileList(filesTable.elements.asSequence(), outputStream)
-            is TsvFormat -> tsvSerializer.serializeFileList(filesTable.elements.asSequence(), outputStream)
+            XmlFormat -> xmlStreamSerializer.serializeFileList(files, outputStream)
+            JsonPretty, PlainJson -> jsonSerializer.serializeFileList(files, outputStream)
+            is TsvFormat -> tsvSerializer.serializeFileList(files, outputStream)
         }
     }
 
-    fun deserializeFileList(input: InputStream, format: SubFormat): FilesTable {
+    fun deserializeFileList(input: InputStream, format: SubFormat): Sequence<File> {
         return when (format) {
-            XmlFormat -> FilesTable(xmlStreamSerializer.deserializeFileList(input).toList())
-            is JsonFormat -> FilesTable(jsonSerializer.deserializeFileList(input).toList())
-            is XlsxTsv -> FilesTable(asTsv(input).inputStream().use { tsvSerializer.deserializeFileList(it).toList() })
-            is TsvFormat -> FilesTable(tsvSerializer.deserializeFileList(input).toList())
+            XmlFormat -> xmlStreamSerializer.deserializeFileList(input)
+            is JsonFormat -> jsonSerializer.deserializeFileList(input)
+            is XlsxTsv -> asTsv(input).inputStream().use { tsvSerializer.deserializeFileList(it) }
+            is TsvFormat -> tsvSerializer.deserializeFileList(input)
         }
     }
 }

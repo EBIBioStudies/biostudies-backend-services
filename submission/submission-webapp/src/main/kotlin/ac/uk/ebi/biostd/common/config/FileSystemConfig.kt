@@ -11,8 +11,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 import java.nio.file.Paths
 
@@ -39,5 +39,5 @@ class FileSystemConfig(
         FireFilesService(Paths.get(applicationProperties.requestFilesPath), fireWebClient, fileProcessingService)
 
     @Bean
-    fun extFilesResolver() = ExtFilesResolver(File(applicationProperties.requestFilesPath))
+    fun extFilesResolver() = FilesResolver(File(applicationProperties.requestFilesPath))
 }

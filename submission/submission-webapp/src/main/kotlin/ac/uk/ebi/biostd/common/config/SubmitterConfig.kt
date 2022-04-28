@@ -29,8 +29,8 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
 import org.springframework.web.client.RestTemplate
-import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.serialization.common.FilesResolver
 import java.nio.file.Paths
 
 @Suppress("LongParameterList")
@@ -70,10 +70,11 @@ class SubmitterConfig {
 
         @Bean
         fun toExtFileList(
-            serializationService: ExtSerializationService,
-            extFilesResolver: ExtFilesResolver
+            extSerializationService: ExtSerializationService,
+            serializationService: SerializationService,
+            filesResolver: FilesResolver
         ): ToExtFileListMapper =
-            ToExtFileListMapper(serializationService, extFilesResolver)
+            ToExtFileListMapper(extSerializationService, serializationService, filesResolver)
     }
 
     @Configuration

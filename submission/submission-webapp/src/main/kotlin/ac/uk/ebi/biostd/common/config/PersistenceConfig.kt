@@ -14,16 +14,16 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
-import ebi.ac.uk.extended.mapping.to.ToFilesTableMapper
+import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 
 @Configuration
@@ -55,8 +55,8 @@ class PersistenceConfig(
         NfsPageTabService(folderResolver, serializationService, pageTabUtil, fileProcessingService)
 
     @Bean
-    fun pageTabUtil(toSubmissionMapper: ToSubmissionMapper, toFilesTableMapper: ToFilesTableMapper): PageTabUtil =
-        PageTabUtil(toSubmissionMapper, toFilesTableMapper)
+    fun pageTabUtil(toSubmissionMapper: ToSubmissionMapper, toFileListMapper: ToFileListMapper): PageTabUtil =
+        PageTabUtil(toSubmissionMapper, toFileListMapper)
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
@@ -82,6 +82,6 @@ class PersistenceConfig(
     ): FileSystemService = FileSystemService(ftpService, filesService, pageTabService)
 
     @Bean
-    fun fileProcessingService(serializationService: ExtSerializationService, fileResolver: ExtFilesResolver) =
+    fun fileProcessingService(serializationService: ExtSerializationService, fileResolver: FilesResolver) =
         FileProcessingService(serializationService, fileResolver)
 }

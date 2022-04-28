@@ -8,7 +8,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.createNfsFile
-import uk.ac.ebi.extended.serialization.service.createFileList
+import uk.ac.ebi.extended.serialization.service.createExtFileList
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -43,7 +43,7 @@ fun extSectionWithFileList(files: List<File>, referencedFiles: List<File>) =
         files = files.map { left(createNfsFile(it.name, "relPath", it, emptyList())) },
         fileList = ExtFileList(
             "fileList",
-            file = createFileList(
+            file = createExtFileList(
                 referencedFiles.map {
                     createNfsFile(
                         it.name,
