@@ -3,11 +3,11 @@ package ac.uk.ebi.biostd.persistence.doc.test.doc.ext
 import ebi.ac.uk.extended.model.NfsFile
 import java.io.File
 
-const val ROOT_FILE_LIST_FILE_NAME = "fileName1"
+const val ROOT_FILE_LIST_FILE_NAME = "fileName1.txt"
 const val ROOT_FILE_LIST_FILEPATH = "filePath1/fileName1"
 const val ROOT_FILE_LIST_REL_NAME = "relPath1"
 const val ROOT_FILE_LIST_FULL_PATH = "fullPath1"
-val ROOT_FILE_LIST_FILE = File("somePath1")
+val ROOT_FILE_LIST_FILE = File(ROOT_FILE_LIST_FILE_NAME)
 val rootSectionFileListFile =
     NfsFile(
         filePath = ROOT_FILE_LIST_FILEPATH,
@@ -18,11 +18,11 @@ val rootSectionFileListFile =
         size = 55L
     )
 
-const val SUB_FILE_LIST_FILE_NAME = "fileName2"
-const val SUB_FILE_LIST_FILEPATH = "filePath2/fileName2"
+const val SUB_FILE_LIST_FILE_NAME = "fileName2.txt"
+const val SUB_FILE_LIST_FILEPATH = "filePath2/fileName2.txt"
 const val SUB_FILE_LIST_REL_PATH = "relPath2"
 const val SUB_FILE_LIST_FULL_PATH = "fullPath2"
-val SUB_FILE_LIST_FILE = File("somePath2")
+val SUB_FILE_LIST_FILE = File(SUB_FILE_LIST_FILE_NAME)
 val subSectionFileListFile =
     NfsFile(
         filePath = SUB_FILE_LIST_FILEPATH,

@@ -24,6 +24,7 @@ internal const val FIRE_SIZE_HEADER = "x-fire-size"
 internal const val FIRE_BIO_PUBLISHED = "bio-published"
 
 const val FIRE_BIO_ACC_NO = "bio-accNo"
+const val FIRE_BIO_FILE_TYPE = "bio-file-type"
 const val FIRE_OBJECTS_URL = "/fire/objects"
 
 @Suppress("TooManyFunctions")
@@ -50,10 +51,11 @@ internal class FireClient(
         template.delete("$FIRE_OBJECTS_URL/$fireOid/firePath")
     }
 
-    override fun setBioMetadata(fireOid: String, accNo: String?, published: Boolean?) {
+    override fun setBioMetadata(fireOid: String, accNo: String?, fileType: String?, published: Boolean?) {
         val headers = HttpHeaders().apply { set(CONTENT_TYPE, APPLICATION_JSON_VALUE) }
         val body = buildList {
             accNo?.let { add("\"$FIRE_BIO_ACC_NO\": \"$it\"") }
+            fileType?.let { add("\"$FIRE_BIO_FILE_TYPE\": \"$it\"") }
             published?.let { add("\"$FIRE_BIO_PUBLISHED\": $published") }
         }.joinToString()
 

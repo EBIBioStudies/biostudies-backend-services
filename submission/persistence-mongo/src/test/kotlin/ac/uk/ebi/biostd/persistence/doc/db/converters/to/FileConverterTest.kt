@@ -6,13 +6,14 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_FULL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
-import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -53,7 +54,7 @@ internal class FileConverterTest(
         assertThat(result[FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
         assertThat(result[FILE_DOC_SIZE]).isEqualTo(10L)
-        assertThat(result[NFS_FILE_TYPE]).isEqualTo("file")
+        assertThat(result[FILE_DOC_TYPE]).isEqualTo("file")
     }
 
     @Test
@@ -66,7 +67,8 @@ internal class FileConverterTest(
             fireId = FIRE_FILE_DOC_ID,
             attributes = listOf(docAttribute),
             md5 = FILE_DOC_MD5,
-            fileSize = 10L
+            fileSize = 10L,
+            fileType = FILE.value
         )
 
         val result = testInstance.convert(file)
@@ -78,19 +80,21 @@ internal class FileConverterTest(
         assertThat(result[FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
         assertThat(result[FILE_DOC_SIZE]).isEqualTo(10L)
+        assertThat(result[FILE_DOC_TYPE]).isEqualTo(FILE.value)
     }
 
     @Test
     fun `converter from fire doc directory`() {
         every { attributeConverter.convert(docAttribute) } returns document
-        val file = FireDocDirectory(
+        val file = FireDocFile(
             fileName = "fire-directory",
             filePath = FILE_DOC_FILEPATH,
             relPath = FILE_DOC_REL_PATH,
             fireId = "dirFireId",
             attributes = listOf(docAttribute),
             md5 = FILE_DOC_MD5,
-            fileSize = 10L
+            fileSize = 10L,
+            fileType = DIR.value
         )
 
         val result = testInstance.convert(file)
@@ -102,5 +106,6 @@ internal class FileConverterTest(
         assertThat(result[FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
         assertThat(result[FILE_DOC_SIZE]).isEqualTo(10L)
+        assertThat(result[FILE_DOC_TYPE]).isEqualTo(DIR.value)
     }
 }

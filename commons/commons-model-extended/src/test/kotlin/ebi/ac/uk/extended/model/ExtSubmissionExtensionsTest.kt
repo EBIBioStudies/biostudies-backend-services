@@ -49,13 +49,23 @@ class ExtSubmissionExtensionsTest(
             referencedFile.size(),
             listOf()
         )
+        val fileList = ExtFileList("a/file-list", createExtFileList(listOf(referencedExtFile)))
         val submission = testSubmission("Test Submission").copy(
             section = ExtSection(
                 type = "Study",
                 files = listOf(left(innerExtFile)),
-                fileList = ExtFileList("a/file-list", createExtFileList(listOf(referencedExtFile)))
+                fileList = ExtFileList("a/file-list", createExtFileList(listOf(referencedExtFile))),
+                sections = listOf(left(ExtSection(type = "Exp")))
             )
         )
+
+        val sectionFiles = submission.allSectionsFiles
+        assertThat(sectionFiles).hasSize(1)
+        assertThat(sectionFiles.first()).isEqualTo(innerExtFile)
+
+        val fileLists = submission.allFileList
+        assertThat(fileLists).hasSize(1)
+        assertThat(fileLists.first()).isEqualTo(fileList)
     }
 
     private fun testSubmission(subTitle: String? = null, secTitle: String? = null): ExtSubmission = ExtSubmission(

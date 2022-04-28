@@ -6,15 +6,13 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_MD5
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_DIRECTORY_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_FULL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
-import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import org.bson.Document
@@ -28,6 +26,7 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
         val attributes = source.getDocList(FILE_DOC_ATTRIBUTES).map { docAttributeConverter.convert(it) }
         val md5 = source.getString(FILE_DOC_MD5)
         val fileSize = source.getLong(FILE_DOC_SIZE)
+        val fileType = source.getString(FILE_DOC_TYPE)
 
         return when (source.getString(classField)) {
             FIRE_DOC_FILE_CLASS -> FireDocFile(
@@ -37,16 +36,8 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
                 fireId = source.getString(FIRE_FILE_DOC_ID),
                 attributes = attributes,
                 md5 = md5,
-                fileSize = fileSize
-            )
-            FIRE_DOC_DIRECTORY_CLASS -> FireDocDirectory(
-                fileName = fileName,
-                filePath = filePath,
-                relPath = relPath,
-                fireId = source.getString(FIRE_FILE_DOC_ID),
-                attributes = attributes,
-                md5 = md5,
-                fileSize = fileSize
+                fileSize = fileSize,
+                fileType = fileType
             )
             NFS_DOC_FILE_CLASS -> NfsDocFile(
                 fileName = fileName,
@@ -56,7 +47,7 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
                 attributes = attributes,
                 md5 = md5,
                 fileSize = fileSize,
-                fileType = source.getString(NFS_FILE_TYPE)
+                fileType = fileType
             )
             else -> throw InvalidClassNameDocFileException(source.getString(classField))
         }

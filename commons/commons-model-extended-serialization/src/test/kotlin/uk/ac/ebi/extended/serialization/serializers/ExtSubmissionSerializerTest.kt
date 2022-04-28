@@ -12,7 +12,8 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
@@ -26,7 +27,9 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TYPE
+import uk.ac.ebi.extended.serialization.constants.ExtType
 import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -124,7 +127,7 @@ class ExtSubmissionSerializerTest {
                         "extType" to "fireFile"
                     },
                     jsonObj {
-                        "extType" to "fireDirectory"
+                        "extType" to "fireFile"
                     },
                     jsonObj {
                         "extType" to "nfsFile"
@@ -162,8 +165,8 @@ class ExtSubmissionSerializerTest {
                 section = ExtSection(type = "Study"),
                 stats = listOf(ExtStat("component", "web")),
                 pageTabFiles = listOf(
-                    FireFile("S-TEST1", "S-TEST1", "fireId", "md5", 1L, listOf()),
-                    FireDirectory("S-TEST1", "S-TEST1", "dirFireId", "md5", 2L, listOf()),
+                    FireFile("S-TEST1", "S-TEST1", "fireId", "md5", 1L, FILE, listOf()),
+                    FireFile("S-TEST1", "S-TEST1", "dirFireId", "md5", 2L, DIR, listOf()),
                     NfsFile("S-TEST1", "S-TEST1", File("anyPath"), "/test//S-TEST1", "md5", 55, listOf())
                 )
             )
@@ -174,7 +177,7 @@ class ExtSubmissionSerializerTest {
 object DummySectionSerializer : JsonSerializer<ExtSection>() {
     override fun serialize(section: ExtSection, gen: JsonGenerator, serializers: SerializerProvider?) {
         gen.writeStartObject()
-        gen.writeStringField(ExtSerializationFields.TYPE, section.type)
+        gen.writeStringField(TYPE, section.type)
         gen.writeEndObject()
     }
 }
@@ -183,9 +186,8 @@ object DummyExtFileSerializer : JsonSerializer<ExtFile>() {
     override fun serialize(extFile: ExtFile, gen: JsonGenerator, serializers: SerializerProvider?) {
         gen.writeStartObject()
         when (extFile) {
-            is FireFile -> gen.writeStringField(ExtSerializationFields.EXT_TYPE, "fireFile")
-            is FireDirectory -> gen.writeStringField(ExtSerializationFields.EXT_TYPE, "fireDirectory")
-            is NfsFile -> gen.writeStringField(ExtSerializationFields.EXT_TYPE, "nfsFile")
+            is FireFile -> gen.writeStringField(EXT_TYPE, ExtType.FireFile.type)
+            is NfsFile -> gen.writeStringField(EXT_TYPE, ExtType.NfsFile.type)
         }
         gen.writeEndObject()
     }
