@@ -17,7 +17,7 @@ class ExtFileListDeserializerTest {
 
     @Test
     fun deserialize() {
-        val file = createExtFileList(emptyList())
+        val file = createExtFileList()
         val json = jsonObj {
             FILE_NAME to "file-list"
             FILES_URL to "$FILE_LIST_URL/S-BSST1/referencedFiles/file-list"

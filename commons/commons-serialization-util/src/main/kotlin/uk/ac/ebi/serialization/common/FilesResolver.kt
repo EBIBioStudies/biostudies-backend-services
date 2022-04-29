@@ -25,12 +25,12 @@ class FilesResolver(private val basePath: File) {
             .resolve(now.get(YEAR).toString())
             .resolve(now.get(MONTH_OF_YEAR).toString())
             .resolve(now.get(DAY_OF_MONTH).toString())
-            .resolve(*keys)
+            .resolveMany(*keys)
         path.mkdirs()
         return path
     }
 
-    private fun File.resolve(vararg keys: String): File {
+    private fun File.resolveMany(vararg keys: String): File {
         var file: File = this
         for (key in keys) {
             file = file.resolve(key)

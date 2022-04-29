@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
@@ -29,8 +29,8 @@ class TableJsonSerializerTest {
     )
     private val filesTable = FilesTable(
         listOf(
-            File(path = "file1", size = 11L, type = FileFields.FILE.value, attributes = listOf(attribute)),
-            File(path = "file2", size = 12L, type = FileFields.FILE.value)
+            BioFile(path = "file1", size = 11L, type = FileFields.FILE.value, attributes = listOf(attribute)),
+            BioFile(path = "file2", size = 12L, type = FileFields.FILE.value)
         )
     )
     private val sectionTable = SectionsTable(

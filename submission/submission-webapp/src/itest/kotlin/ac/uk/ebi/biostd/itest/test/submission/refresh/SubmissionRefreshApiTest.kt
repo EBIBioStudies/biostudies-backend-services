@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.itest.test.submission.refresh
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
+import ac.uk.ebi.biostd.createFileList
 import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -43,6 +44,8 @@ import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
@@ -112,14 +115,12 @@ internal class SubmissionRefreshApiTest(private val tempFolder: TemporaryFolder)
 
                 fileList = FileList(
                     FILE_LIST_NAME,
-                    TODO(),
-                    /*
-                    listOf(
-                        File(
+                    createFileList(
+                        BioFile(
                             "$FILE_LIST_FILE_NAME.txt",
                             attributes = listOf(Attribute(FILE_ATTR_NAME, FILE_ATTR_VALUE))
                         )
-                    )*/
+                    )
                 )
             }
         }

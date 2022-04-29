@@ -66,15 +66,13 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
             fileList = ExtFileList(
                 "file-list",
                 createExtFileList(
-                    listOf(
-                        NfsFile(
-                            "folder/ref-file.txt",
-                            "Files/folder/ref-file.txt",
-                            referencedFile,
-                            referencedFile.absolutePath,
-                            referencedFile.md5(),
-                            referencedFile.size(),
-                        )
+                    NfsFile(
+                        "folder/ref-file.txt",
+                        "Files/folder/ref-file.txt",
+                        referencedFile,
+                        referencedFile.absolutePath,
+                        referencedFile.md5(),
+                        referencedFile.size(),
                     )
                 ),
                 pageTabFiles = listOf(

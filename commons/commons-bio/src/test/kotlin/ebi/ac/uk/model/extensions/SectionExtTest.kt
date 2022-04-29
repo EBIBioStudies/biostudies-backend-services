@@ -4,7 +4,7 @@ import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.sectionsTable
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
@@ -20,8 +20,8 @@ class SectionExtTest {
         val files = section.allFiles()
 
         assertThat(files).hasSize(2)
-        assertThat(files.first()).isEqualTo(File("File1.txt"))
-        assertThat(files.second()).isEqualTo(File("File2.txt"))
+        assertThat(files.first()).isEqualTo(BioFile("File1.txt"))
+        assertThat(files.second()).isEqualTo(BioFile("File2.txt"))
     }
 
     @Test

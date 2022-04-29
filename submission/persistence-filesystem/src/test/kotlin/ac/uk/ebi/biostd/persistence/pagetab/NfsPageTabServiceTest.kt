@@ -91,14 +91,14 @@ class NfsPageTabServiceTest(
 
     private fun sectionWithoutTabFiles() = ExtSection(
         type = "Study1",
-        fileList = ExtFileList("file-list1", createExtFileList(emptyList())),
+        fileList = ExtFileList("file-list1", createExtFileList()),
         sections = listOf(
             left(
                 ExtSection(
                     type = "Study2",
                     fileList = ExtFileList(
                         "file-list2",
-                        createExtFileList(emptyList())
+                        createExtFileList()
                     )
                 )
             ),

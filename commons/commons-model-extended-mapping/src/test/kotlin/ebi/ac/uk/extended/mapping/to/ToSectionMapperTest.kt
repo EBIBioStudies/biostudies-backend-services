@@ -11,7 +11,7 @@ import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
@@ -32,7 +32,7 @@ import ebi.ac.uk.asserts.assertThat as assertEither
 class ToSectionMapperTest(
     @MockK val fileList: FileList,
     @MockK val attribute: Attribute,
-    @MockK val file: File,
+    @MockK val file: BioFile,
     @MockK val fileTable: FilesTable,
     @MockK val link: Link,
     @MockK val linkTable: LinksTable,

@@ -5,7 +5,7 @@ import ebi.ac.uk.dsl.filesTable
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.util.collections.second
@@ -126,8 +126,8 @@ class SubExtTest {
         val allFiles = submission.allFiles()
 
         assertThat(allFiles).hasSize(2)
-        assertThat(allFiles.first()).isEqualTo(File("File1.txt"))
-        assertThat(allFiles.second()).isEqualTo(File("DataFile1.csv"))
+        assertThat(allFiles.first()).isEqualTo(BioFile("File1.txt"))
+        assertThat(allFiles.second()).isEqualTo(BioFile("DataFile1.csv"))
     }
 
     @Test

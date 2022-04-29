@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Paths
-import ebi.ac.uk.model.File as SubmissionFile
+import ebi.ac.uk.model.BioFile as SubmissionFile
 
 /**
  * In charge of download PMC files.

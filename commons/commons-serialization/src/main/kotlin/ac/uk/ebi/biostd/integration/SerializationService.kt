@@ -1,5 +1,8 @@
 package ac.uk.ebi.biostd.integration
 
+import ac.uk.ebi.biostd.service.FileListSerializer
+import ac.uk.ebi.biostd.service.PageTabSerializationService
+import ac.uk.ebi.biostd.service.PagetabSerializer
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
@@ -12,7 +15,7 @@ interface SerializationService {
 
     fun serializeFileList(table: FilesTable, format: SubFormat, file: File): File
 
-    fun serializeFileList(files: Sequence<ebi.ac.uk.model.File>, targetFormat: SubFormat, outputStream: OutputStream)
+    fun serializeFileList(files: Sequence<ebi.ac.uk.model.BioFile>, targetFormat: SubFormat, outputStream: OutputStream)
 
     fun deserializeSubmission(content: String, format: SubFormat): Submission
 
@@ -22,5 +25,17 @@ interface SerializationService {
 
     fun deserializeSubmission(file: File, source: FilesSource): Submission
 
-    fun deserializeFileList(inputStream: InputStream): Sequence<ebi.ac.uk.model.File>
+    fun deserializeFileList(inputStream: InputStream, SubFormat: SubFormat): Sequence<ebi.ac.uk.model.BioFile>
+
+    companion object {
+        operator fun invoke(): SerializationService = instance
+
+        private val instance = create()
+        private fun create(): SerializationService {
+            return PageTabSerializationService(
+                PagetabSerializer(),
+                FileListSerializer(PagetabSerializer())
+            )
+        }
+    }
 }

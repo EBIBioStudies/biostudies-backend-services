@@ -7,7 +7,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -17,7 +17,7 @@ class FileDeserializerTest {
 
     @Test
     fun `deserialize no value`() {
-        val exception = assertThrows<IllegalStateException> { testInstance.readValue<File>("{}") }
+        val exception = assertThrows<IllegalStateException> { testInstance.readValue<BioFile>("{}") }
 
         assertThat(exception.message).isEqualTo("Expecting to find property with 'path' in node '{}'")
     }
@@ -29,7 +29,7 @@ class FileDeserializerTest {
         }.toString()
 
         val node = "{\"path\":[1,2,3]}"
-        val exception = assertThrows<IllegalArgumentException> { testInstance.readValue<File>(invalidJson) }
+        val exception = assertThrows<IllegalArgumentException> { testInstance.readValue<BioFile>(invalidJson) }
         assertThat(exception.message).isEqualTo(
             "Expecting node: '$node', property: 'path' to be of type 'TextNode' but 'ArrayNode' was found instead"
         )
@@ -41,7 +41,7 @@ class FileDeserializerTest {
             "path" to ""
         }.toString()
 
-        val exception = assertThrows<InvalidElementException> { testInstance.readValue<File>(invalidJson) }
+        val exception = assertThrows<InvalidElementException> { testInstance.readValue<BioFile>(invalidJson) }
         assertThat(exception.message).isEqualTo("$REQUIRED_FILE_PATH. Element was not created.")
     }
 
@@ -55,8 +55,8 @@ class FileDeserializerTest {
             })
         }.toString()
 
-        val file = testInstance.readValue<File>(fileJson)
-        val expected = File("/path/file.txt", attributes = listOf(Attribute("attr name", "attr value")))
+        val file = testInstance.readValue<BioFile>(fileJson)
+        val expected = BioFile("/path/file.txt", attributes = listOf(Attribute("attr name", "attr value")))
 
         assertThat(file).isEqualTo(expected)
     }
@@ -67,9 +67,9 @@ class FileDeserializerTest {
             "path" to "/path/file.txt"
         }.toString()
 
-        val file = testInstance.readValue<File>(fileJson)
+        val file = testInstance.readValue<BioFile>(fileJson)
 
-        assertThat(file).isEqualTo(File("/path/file.txt"))
+        assertThat(file).isEqualTo(BioFile("/path/file.txt"))
     }
 
     @Test
@@ -84,8 +84,8 @@ class FileDeserializerTest {
             "type" to "file"
         }.toString()
 
-        val file = testInstance.readValue<File>(fileJson)
-        val expected = File("/path/file.txt", attributes = listOf(Attribute("attr name", "attr value")))
+        val file = testInstance.readValue<BioFile>(fileJson)
+        val expected = BioFile("/path/file.txt", attributes = listOf(Attribute("attr name", "attr value")))
 
         assertThat(file).isEqualTo(expected)
     }

@@ -34,7 +34,7 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
@@ -454,6 +454,7 @@ class TsvDeserializerTest {
                     assertThat(linkAttributes.second()).isEqualTo(Attribute("Null Attribute", null))
                 }
             }
+
             val submission = submissionWithRootSection().apply {
                 line("Links", "Empty Attribute", "(TermId)", "[Ontology]", "Null Attribute")
                 line("Link1", "", "EFO_0002768", "EFO")
@@ -468,7 +469,7 @@ class TsvDeserializerTest {
 
         @Test
         fun `files table with empty-null attribute`() {
-            fun assertFilesTable(files: MutableList<Either<File, FilesTable>>) {
+            fun assertFilesTable(files: MutableList<Either<BioFile, FilesTable>>) {
                 assertThat(files).hasSize(1)
                 assertEither(files.first()).hasRightValueSatisfying {
                     assertThat(it.elements).hasSize(1)
@@ -486,6 +487,7 @@ class TsvDeserializerTest {
                     assertThat(attributes.second()).isEqualTo(Attribute("Null Attribute", null))
                 }
             }
+
             val submission = submissionWithRootSection().apply {
                 line("Files", "Empty Attribute", "(TermId)", "[Ontology]", "Null Attribute")
                 line("testFile.txt", "", "EFO_0002768", "EFO")
@@ -526,6 +528,7 @@ class TsvDeserializerTest {
                     )
                 }
             }
+
             val submission = submissionWithRootSection().apply {
                 line("Data[]", "Empty Attr", "(TermId)", "[NullValue]", "Null Attr", "(NullName)", "[Ontology]")
                 line("DT-1", "", "EFO_0002768", "", "", "", "EFO")

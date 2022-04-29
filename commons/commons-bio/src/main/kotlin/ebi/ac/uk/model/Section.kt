@@ -11,12 +11,12 @@ class Section(
     var accNo: String? = null,
     var fileList: FileList? = null,
     var sections: MutableList<Either<Section, SectionsTable>> = mutableListOf(),
-    var files: MutableList<Either<File, FilesTable>> = mutableListOf(),
+    var files: MutableList<Either<BioFile, FilesTable>> = mutableListOf(),
     var links: MutableList<Either<Link, LinksTable>> = mutableListOf(),
     var parentAccNo: String? = null,
     override var attributes: List<Attribute> = listOf()
 ) : Attributable {
-    fun addFile(file: File) = files.addLeft(file)
+    fun addFile(file: BioFile) = files.addLeft(file)
     fun addLink(link: Link) = links.addLeft(link)
     fun addSection(section: Section) = sections.addLeft(section.apply { parentAccNo = this@Section.accNo })
 

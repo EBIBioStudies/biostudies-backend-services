@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.itest.factory
 import com.jayway.jsonpath.matchers.JsonPathMatchers.isJson
 import com.jayway.jsonpath.matchers.JsonPathMatchers.withJsonPath
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
@@ -68,7 +68,7 @@ private fun assertJsonLink(json: String, path: String, link: Link) {
 private fun assertJsonFilesTable(json: String, path: String, filesTable: FilesTable) =
     filesTable.elements.forEachIndexed { idx, file -> assertJsonFile(json, "$path[$idx]", file) }
 
-private fun assertJsonFile(json: String, path: String, file: File) {
+private fun assertJsonFile(json: String, path: String, file: BioFile) {
     assertThat(json, isJson(withJsonPath("$path.type", equalTo("file"))))
     assertThat(json, isJson(withJsonPath("$path.path", equalTo(file.path))))
     assertThat(json, isJson(withJsonPath("$path.size", equalTo(file.size.toInt()))))

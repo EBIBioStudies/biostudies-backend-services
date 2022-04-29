@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.tsv.serialization
 
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Header
 import ebi.ac.uk.model.Link
@@ -22,7 +22,7 @@ class TsvSerializer {
         when (element) {
             is Submission -> addSubmission(builder, element)
             is Section -> addSection(builder, element, element.parentAccNo)
-            is File -> addFile(builder, element)
+            is BioFile -> addFile(builder, element)
             is Link -> addLink(builder, element)
             is FilesTable -> addTable(builder, element, FILES_TABLE.toString())
             is LinksTable -> addTable(builder, element, LINKS_TABLE.toString())
@@ -65,7 +65,7 @@ class TsvSerializer {
     private fun getHeader(table: SectionsTable, parentAccNo: String? = null) =
         "${table.elements.first().type}[${if (parentAccNo.isNotBlank()) "$parentAccNo" else ""}]"
 
-    private fun addFile(builder: TsvBuilder, file: File) {
+    private fun addFile(builder: TsvBuilder, file: BioFile) {
         builder.addSeparator()
         builder.addSecFile(file)
         builder.addAttributes(file.attributes)

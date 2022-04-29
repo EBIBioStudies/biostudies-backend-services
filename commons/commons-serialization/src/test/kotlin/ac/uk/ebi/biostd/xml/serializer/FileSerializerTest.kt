@@ -4,14 +4,14 @@ import ac.uk.ebi.biostd.test.FILE_NAME
 import ac.uk.ebi.biostd.test.simpleFile
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import org.junit.jupiter.api.Test
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.assertj.XmlAssert.assertThat
 
 class FileSerializerTest {
     private val file = simpleFile()
-    private val xmlMapper = XmlMapper(JacksonXmlModule().apply { addSerializer(File::class.java, FileSerializer()) })
+    private val xmlMapper = XmlMapper(JacksonXmlModule().apply { addSerializer(BioFile::class.java, FileSerializer()) })
 
     @Test
     fun serializeXml() {

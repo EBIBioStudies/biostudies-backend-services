@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.tsv
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
 import ac.uk.ebi.biostd.tsv.deserialization.stream.FileListTsvStreamDeserializer
 import ac.uk.ebi.biostd.tsv.serialization.TsvSerializer
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Submission
 import java.io.InputStream
 import java.io.OutputStream
@@ -18,11 +18,11 @@ internal class TsvSerializer(
     fun deserializeSubmission(pageTab: String): Submission = tsvDeserializer.deserialize(pageTab)
 
     fun serializeFileList(
-        files: Sequence<File>,
+        files: Sequence<BioFile>,
         outputStream: OutputStream
     ) = streamSerializer.serializeFileList(files, outputStream)
 
     fun deserializeFileList(
         inputStream: InputStream
-    ): Sequence<File> = streamSerializer.deserializeFileList(inputStream)
+    ): Sequence<BioFile> = streamSerializer.deserializeFileList(inputStream)
 }

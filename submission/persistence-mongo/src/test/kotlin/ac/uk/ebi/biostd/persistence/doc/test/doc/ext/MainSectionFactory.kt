@@ -24,7 +24,7 @@ val subSection = ExtSection(
     type = SUB_SEC_TYPE,
     fileList = ExtFileList(
         filePath = SUB_SEC_EXT_FILE_LIST_PATH,
-        file = createExtFileList(listOf(subSectionFileListFile)),
+        file = createExtFileList(subSectionFileListFile),
     )
 )
 
@@ -51,7 +51,7 @@ val rootSection = ExtSection(
     type = ROOT_SEC_TYPE,
     fileList = ExtFileList(
         filePath = ROOT_SEC_EXT_FILE_LIST_PATH,
-        file = createExtFileList(listOf(rootSectionFileListFile))
+        file = createExtFileList(rootSectionFileListFile)
     ),
     attributes = listOf(rootSectionAttribute),
     sections = listOf(

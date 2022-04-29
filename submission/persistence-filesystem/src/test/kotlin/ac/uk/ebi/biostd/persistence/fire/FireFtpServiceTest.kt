@@ -8,9 +8,9 @@ import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FireFile
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -23,8 +23,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.createExtFileList
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
-import ebi.ac.uk.test.basicExtSubmission as basicExtSub
 import uk.ac.ebi.fire.client.model.FireApiFile
+import ebi.ac.uk.test.basicExtSubmission as basicExtSub
 
 @ExtendWith(MockKExtension::class)
 class FireFtpServiceTest(
@@ -115,7 +115,7 @@ class FireFtpServiceTest(
             type = "Study",
             fileList = ExtFileList(
                 "fileName1",
-                file = createExtFileList(listOf(fileFileList)),
+                file = createExtFileList(fileFileList),
                 pageTabFiles = listOf(filePageTab)
             ),
             files = listOf(left(file), left(fireDir()), right(ExtFileTable(fileTable))),
@@ -125,7 +125,7 @@ class FireFtpServiceTest(
                         type = "Study",
                         fileList = ExtFileList(
                             "a/fileName2",
-                            file = createExtFileList(listOf(innerFileListFile)),
+                            file = createExtFileList(innerFileListFile),
                             pageTabFiles = listOf(innerFileListPageTabFile)
                         ),
                         files = listOf(left(innerFile), right(ExtFileTable(innerFileTable)))

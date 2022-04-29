@@ -11,7 +11,7 @@ import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.tsv.TsvSerializer
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import ac.uk.ebi.biostd.xml.XmlStreamSerializer
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.util.file.ExcelReader.asTsv
 import java.io.InputStream
@@ -36,7 +36,7 @@ internal class PagetabSerializer(
         is TsvFormat -> tsvSerializer.deserializeSubmission(submission)
     }
 
-    fun serializeFileList(files: Sequence<File>, format: SubFormat, outputStream: OutputStream) {
+    fun serializeFileList(files: Sequence<BioFile>, format: SubFormat, outputStream: OutputStream) {
         when (format) {
             XmlFormat -> xmlStreamSerializer.serializeFileList(files, outputStream)
             JsonPretty, PlainJson -> jsonSerializer.serializeFileList(files, outputStream)
@@ -44,7 +44,7 @@ internal class PagetabSerializer(
         }
     }
 
-    fun deserializeFileList(input: InputStream, format: SubFormat): Sequence<File> {
+    fun deserializeFileList(input: InputStream, format: SubFormat): Sequence<BioFile> {
         return when (format) {
             XmlFormat -> xmlStreamSerializer.deserializeFileList(input)
             is JsonFormat -> jsonSerializer.deserializeFileList(input)

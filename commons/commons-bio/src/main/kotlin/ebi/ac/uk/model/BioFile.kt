@@ -4,7 +4,7 @@ import ebi.ac.uk.model.constants.FileFields.FILE_TYPE
 import java.util.Objects.equals
 import java.util.Objects.hash
 
-class File(
+class BioFile(
     var path: String,
     var size: Long = 0,
     var type: String = FILE_TYPE.value,
@@ -12,7 +12,7 @@ class File(
 ) : Attributable {
 
     override fun equals(other: Any?): Boolean {
-        if (other !is File) return false
+        if (other !is BioFile) return false
         if (this === other) return true
 
         return equals(this.path, other.path)

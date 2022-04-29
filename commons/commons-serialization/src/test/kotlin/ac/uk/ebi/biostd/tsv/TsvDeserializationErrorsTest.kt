@@ -16,7 +16,7 @@ import ac.uk.ebi.biostd.validation.SerializationException
 import ebi.ac.uk.dsl.tsv.Tsv
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Submission
 import org.assertj.core.api.Assertions.assertThat
@@ -52,12 +52,12 @@ class TsvDeserializationErrorsTest {
             line()
         }.toString()
 
-        assertThrows<ClassCastException> { deserializer.deserializeElement<File>(tsv) }
+        assertThrows<ClassCastException> { deserializer.deserializeElement<BioFile>(tsv) }
     }
 
     @Test
     fun `empty single element`() {
-        assertThrows<InvalidChunkSizeException> { deserializer.deserializeElement<File>("") }
+        assertThrows<InvalidChunkSizeException> { deserializer.deserializeElement<BioFile>("") }
     }
 
     @Test
@@ -83,7 +83,7 @@ class TsvDeserializationErrorsTest {
             line()
         }.toString()
 
-        val exception = assertThrows<InvalidElementException> { deserializer.deserializeElement<File>(tsv) }
+        val exception = assertThrows<InvalidElementException> { deserializer.deserializeElement<BioFile>(tsv) }
         assertThat(exception.message).isEqualTo("$REQUIRED_FILE_PATH. Element was not created.")
     }
 

@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.itest.factory
 
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
@@ -64,7 +64,7 @@ private fun assertXmlLink(xml: String, xPath: String, link: Link) {
 private fun assertXmlLinksTable(xml: String, xPath: String, linksTable: LinksTable) =
     linksTable.elements.forEachIndexed { idx, link -> assertXmlLink(xml, "$xPath/link[${idx + 1}]", link) }
 
-private fun assertXmlFile(xml: String, xPath: String, file: File) {
+private fun assertXmlFile(xml: String, xPath: String, file: BioFile) {
     assertThat(xml, hasXPath("$xPath/path", equalTo(file.path)))
     assertThat(xml, hasXPath("$xPath/@size", equalTo(file.size.toString())))
     assertXmlAttributes(xml, xPath, file.attributes)

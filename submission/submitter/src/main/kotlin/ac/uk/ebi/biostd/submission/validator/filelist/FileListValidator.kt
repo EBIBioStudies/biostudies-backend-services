@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.validator.filelist
 
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.submission.exceptions.InvalidFilesException
 import ebi.ac.uk.errors.FileNotFoundException
 import ebi.ac.uk.io.sources.FilesSource
@@ -17,12 +18,12 @@ class FileListValidator(
      */
     fun validateFileList(fileName: String, filesSource: FilesSource) {
         val file = filesSource.getFile(fileName) ?: throw FileNotFoundException(fileName)
-        file.inputStream().use { validateFileList(it, filesSource) }
+        file.inputStream().use { validateFileList(it, SubFormat.fromFile(file), filesSource) }
     }
 
-    private fun validateFileList(inputStream: InputStream, filesSource: FilesSource) {
+    private fun validateFileList(inputStream: InputStream, format: SubFormat, filesSource: FilesSource) {
         serializationService
-            .deserializeFileList(inputStream)
+            .deserializeFileList(inputStream, format)
             .filter { filesSource.getExtFile(it.path) == null }
             .take(fileListLimit)
             .toList()

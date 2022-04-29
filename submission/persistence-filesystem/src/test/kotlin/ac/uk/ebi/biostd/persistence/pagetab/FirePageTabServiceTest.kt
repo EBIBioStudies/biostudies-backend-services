@@ -9,10 +9,10 @@ import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
@@ -145,7 +145,7 @@ class FirePageTabServiceTest(
         type = "Study1",
         fileList = ExtFileList(
             "data/file-list1",
-            file = createExtFileList(emptyList())
+            file = createExtFileList()
         ),
         sections = listOf(
             left(
@@ -153,7 +153,7 @@ class FirePageTabServiceTest(
                     type = "Study2",
                     fileList = ExtFileList(
                         "data/file-list2",
-                        file = createExtFileList(emptyList())
+                        file = createExtFileList()
                     )
                 )
             ),

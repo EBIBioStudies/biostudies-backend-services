@@ -3,7 +3,7 @@ package ebi.ac.uk.dsl
 import arrow.core.Either
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
@@ -94,7 +94,7 @@ class SubDslTest {
     @Test
     fun `section with a file`() {
         val section = section("Study") { file("File1.txt") }
-        assertThat(section).isEqualTo(Section("Study", files = mutableListOf(Either.left(File("File1.txt")))))
+        assertThat(section).isEqualTo(Section("Study", files = mutableListOf(Either.left(BioFile("File1.txt")))))
     }
 
     @Test
@@ -107,7 +107,7 @@ class SubDslTest {
 
         assertThat(section).isEqualTo(
             Section(
-                "Study", files = mutableListOf(Either.Right(FilesTable(listOf(File("File1.txt")))))
+                "Study", files = mutableListOf(Either.Right(FilesTable(listOf(BioFile("File1.txt")))))
             )
         )
     }
@@ -149,7 +149,7 @@ class SubDslTest {
             attribute("Attr1", "ABC")
         }
 
-        assertThat(file).isEqualTo(File("File1.txt", 4, "file", listOf(Attribute("Attr1", "ABC"))))
+        assertThat(file).isEqualTo(BioFile("File1.txt", 4, "file", listOf(Attribute("Attr1", "ABC"))))
     }
 
     @Test
@@ -158,7 +158,7 @@ class SubDslTest {
             file("File1.txt")
         }
 
-        assertThat(filesTable).isEqualTo(FilesTable(listOf(File("File1.txt"))))
+        assertThat(filesTable).isEqualTo(FilesTable(listOf(BioFile("File1.txt"))))
     }
 
     @Test

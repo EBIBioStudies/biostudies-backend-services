@@ -2,7 +2,7 @@ package ac.uk.ebi.transpiler.mapper
 
 import ac.uk.ebi.transpiler.factory.filesTableTemplate
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -40,7 +40,7 @@ class FilesTableTemplateMapperTest(private val temporaryFolder: TemporaryFolder)
     }
 
     private fun createFile(path: String, vararg attributes: String) =
-        File(
+        BioFile(
             path,
             attributes = listOf(
                 Attribute("Plate", attributes[0]),

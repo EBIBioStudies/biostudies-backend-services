@@ -32,7 +32,7 @@ import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
@@ -45,10 +45,10 @@ import ebi.ac.uk.model.constants.LinkFields
 import ebi.ac.uk.model.constants.SectionFields
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.util.collections.ifRight
-import java.io.StringReader
-import javax.xml.parsers.DocumentBuilderFactory
 import org.xml.sax.InputSource
 import uk.ac.ebi.serialization.serializers.EitherSerializer
+import java.io.StringReader
+import javax.xml.parsers.DocumentBuilderFactory
 
 internal class XmlSerializer {
     fun <T> serialize(element: T): String = mapper.writeValueAsString(element)
@@ -66,7 +66,7 @@ internal class XmlSerializer {
         val submissionDeserializer = SubmissionStandaloneXmlDeserializer(attributeDeserializer, sectionDeserializer)
 
         when (type) {
-            File::class.java -> deserialized = mapper.readValue(element, File::class.java)
+            BioFile::class.java -> deserialized = mapper.readValue(element, BioFile::class.java)
             Link::class.java -> deserialized = mapper.readValue(element, Link::class.java)
             Section::class.java -> deserialized = sectionDeserializer.deserialize(xml)
             Submission::class.java -> deserialized = submissionDeserializer.deserialize(xml)
@@ -89,14 +89,14 @@ internal class XmlSerializer {
                 addSerializer(Attribute::class.java, AttributeSerializer())
                 addSerializer(Either::class.java, EitherSerializer())
                 addSerializer(Link::class.java, LinkSerializer())
-                addSerializer(File::class.java, FileSerializer())
+                addSerializer(BioFile::class.java, FileSerializer())
                 addSerializer(Table::class.java, TableSerializer())
 
                 addDeserializer(Submission::class.java, SubmissionXmlDeserializer())
                 addDeserializer(Section::class.java, SectionXmlDeserializer())
                 addDeserializer(Attribute::class.java, AttributeXmlStreamDeserializer())
                 addDeserializer(Link::class.java, LinkXmlDeserializer())
-                addDeserializer(File::class.java, FileXmlStreamDeserializer())
+                addDeserializer(BioFile::class.java, FileXmlStreamDeserializer())
             }
 
             return XmlMapper(module).apply {
@@ -116,14 +116,14 @@ internal class XmlSerializer {
             .parse(InputSource(StringReader(value))).documentElement
 }
 
-class FileXmlStreamDeserializer : StdDeserializer<File>(File::class.java) {
-    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): File {
+class FileXmlStreamDeserializer : StdDeserializer<BioFile>(BioFile::class.java) {
+    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): BioFile {
         val mapper = p.codec as XmlMapper
         val node = p.readValueAsTree<TreeNode>()
         val path = (node.get(FileFields.PATH.value) as TextNode).textValue().trim()
         require(path.isNotBlank()) { throw InvalidElementException(REQUIRED_FILE_PATH) }
 
-        return File(
+        return BioFile(
             path = path,
             attributes = mapper.convertArray(node, "attributes", "attribute", Array<Attribute>::class.java).toList()
         )

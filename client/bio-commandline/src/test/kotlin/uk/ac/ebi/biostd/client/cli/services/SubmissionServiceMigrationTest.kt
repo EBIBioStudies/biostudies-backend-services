@@ -102,7 +102,7 @@ class SubmissionServiceMigrationTest(
             type = "Study",
             fileList = ExtFileList(
                 "test-file-list",
-                file = createExtFileList(emptyList()),
+                file = createExtFileList(),
                 filesUrl = "/submissions/extended/S-BSST1/referencedFiles/test-file-list",
                 pageTabFiles = listOf(
                     NfsFile(

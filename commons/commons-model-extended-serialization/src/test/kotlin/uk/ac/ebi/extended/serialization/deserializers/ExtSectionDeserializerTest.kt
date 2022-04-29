@@ -47,7 +47,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
             "fileList" to jsonObj {
                 "fileName" to "file-list.json"
                 "path" to "file-list.json"
-                "file" to createExtFileList(emptyList()).absolutePath
+                "file" to createExtFileList().absolutePath
                 "filesUrl" to "submissions/extended/S-BSST1/referencedFiles/file-list"
             }
             "attributes" to jsonArray(

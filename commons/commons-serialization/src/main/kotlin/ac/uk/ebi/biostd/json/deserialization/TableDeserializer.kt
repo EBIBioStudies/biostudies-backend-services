@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
@@ -27,6 +27,6 @@ internal abstract class TableDeserializer<T : Any, S : Table<T>>(
 }
 
 internal class LinksTableJsonDeserializer : TableDeserializer<Link, LinksTable>(Link::class.java, ::LinksTable)
-internal class FilesTableJsonDeserializer : TableDeserializer<File, FilesTable>(File::class.java, ::FilesTable)
+internal class FilesTableJsonDeserializer : TableDeserializer<BioFile, FilesTable>(BioFile::class.java, ::FilesTable)
 internal class SectionsTableJsonDeserializer :
     TableDeserializer<Section, SectionsTable>(Section::class.java, ::SectionsTable)

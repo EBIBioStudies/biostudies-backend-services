@@ -3,6 +3,7 @@ import Dependencies.CommonsCsv
 import Dependencies.Guava
 import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
+import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Projects.CommonsBio
@@ -19,6 +20,10 @@ import TestDependencies.Woodstox
 import TestDependencies.XmlUnitAssertJ
 import TestDependencies.XmlUnitCore
 
+plugins {
+    `java-test-fixtures`
+}
+
 dependencies {
     api(project(CommonsBio))
     api(project(CommonsSerializationUtil))
@@ -28,6 +33,7 @@ dependencies {
     api(project(JsonLibrary))
 
     implementation(KotlinReflect)
+    implementation(KotlinLogging)
     implementation(KotlinStdLib)
     implementation(Arrow)
     implementation(Guava)

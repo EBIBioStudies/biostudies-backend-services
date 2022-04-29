@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.json.JsonSerializer
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
@@ -97,8 +97,8 @@ class TableJsonDeserializerTest {
     fun `deserialize table of files`() {
         val expectedTable = FilesTable(
             mutableListOf(
-                File(path = "file1", attributes = mutableListOf(testAttribute)),
-                File(path = "file2")
+                BioFile(path = "file1", attributes = mutableListOf(testAttribute)),
+                BioFile(path = "file2")
             )
         )
 

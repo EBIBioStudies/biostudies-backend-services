@@ -119,14 +119,14 @@ class ToDocSubmissionMapperTest(
         rootSectionTableFile.copy(file = tempFolder.createFile("tempFile4.txt", "content4"))
 
     private val newSubSection =
-        subSection.copy(fileList = subSection.fileList!!.copy(file = createExtFileList(listOf(newSubSectionFileListFile))))
+        subSection.copy(fileList = subSection.fileList!!.copy(file = createExtFileList(newSubSectionFileListFile)))
 
     private val nfsFileFile = tempFolder.createFile(NFS_FILENAME)
     private val extNfsFile = createNfsFile(NFS_FILEPATH, NFS_REL_PATH, nfsFileFile)
 
     private val newRootSection = rootSection.copy(
         fileList = rootSection.fileList!!.copy(
-            file = createExtFileList(listOf(newRootSectionFileListFile)),
+            file = createExtFileList(newRootSectionFileListFile),
             pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile)
         ),
         sections = listOf(

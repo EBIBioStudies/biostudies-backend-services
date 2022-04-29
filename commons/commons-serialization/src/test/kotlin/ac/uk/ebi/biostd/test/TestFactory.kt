@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.test
 
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.Section
 
@@ -12,7 +12,7 @@ internal const val FILE_NAME = "file name"
 internal const val FILE_TYPE = "file type"
 internal const val FILE_SIZE = 55L
 
-fun simpleFile() = File(path = FILE_NAME)
+fun simpleFile() = BioFile(path = FILE_NAME)
 
 internal const val SEC_ACC_NO = "sec 123"
 internal const val SEC_TYPE = "sec type"

@@ -49,12 +49,12 @@ class ExtSubmissionExtensionsTest(
             referencedFile.size(),
             listOf()
         )
-        val fileList = ExtFileList("a/file-list", createExtFileList(listOf(referencedExtFile)))
+        val fileList = ExtFileList("a/file-list", createExtFileList(referencedExtFile))
         val submission = testSubmission("Test Submission").copy(
             section = ExtSection(
                 type = "Study",
                 files = listOf(left(innerExtFile)),
-                fileList = ExtFileList("a/file-list", createExtFileList(listOf(referencedExtFile))),
+                fileList = ExtFileList("a/file-list", createExtFileList(referencedExtFile)),
                 sections = listOf(left(ExtSection(type = "Exp")))
             )
         )
