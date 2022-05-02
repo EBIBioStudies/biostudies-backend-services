@@ -52,14 +52,44 @@ public class JsonSchemaValidationResourceTest(
     }
 
     @Test
-    fun `fails to validate json with custom schema`() {
+    fun `validate json with custom schema`() {
         val customSchema = MockMultipartFile(
             "schema", "custom-schema.json", "application/json",
             """{ "test": "schema"}""".toByteArray(charset("UTF8")))
+        val toValidate = MockMultipartFile(
+            "toValidate", "to-validate.json", "application/json",
+            """
+                {
+                    "type": "submission",
+                    "title": "Test Submission"
+                }
+            """.trimIndent().toByteArray(charset("UTF8"))
+        )
         mvc.multipart( "/jsonschema-validation/custom-schema") {
             header("${SUBMISSION_TYPE}", "${ APPLICATION_JSON}")
             file(customSchema)
-            content = """{ "SchemaValidationFilePath": "custom-schema.json" }"""
+            file(toValidate)
+        }.andExpect {
+            status { isOk }
+        }.andExpect { jsonPath("\$.valid").value(false) }
+    }
+
+    @Test
+    fun `validate pagetab with custom schema`() {
+        val customSchema = MockMultipartFile(
+            "schema", "custom-schema.json", "application/json",
+            """{ "test": "schema"}""".toByteArray(charset("UTF8")))
+        val toValidate = MockMultipartFile(
+            "toValidate", "to-validate.tsv", "text/plain",
+            """
+                Submission
+                Title   Test Submission
+            """.trimIndent().toByteArray(charset("UTF8"))
+        )
+        mvc.multipart( "/jsonschema-validation/custom-schema") {
+            header("${SUBMISSION_TYPE}", "${TEXT_PLAIN}")
+            file(customSchema)
+            file(toValidate)
         }.andExpect {
             status { isOk }
         }.andExpect { jsonPath("\$.valid").value(false) }
