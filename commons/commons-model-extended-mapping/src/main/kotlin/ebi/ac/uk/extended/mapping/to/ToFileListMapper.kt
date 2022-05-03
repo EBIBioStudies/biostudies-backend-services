@@ -18,15 +18,15 @@ class ToFileListMapper(
 ) {
     fun convert(fileList: ExtFileList): FileList = FileList(fileList.filePath, emptyFile(fileList.fileName))
 
+    fun serialize(fileList: ExtFileList, targetFormat: SubFormat, file: File): File {
+        toFile(fileList.file, targetFormat, file)
+        return file
+    }
+
     private fun emptyFile(fileName: String): File {
         val targetFile = filesResolver.createEmptyFile(fileName = fileName)
         targetFile.outputStream().use { serializationService.serializeFileList(emptySequence(), SubFormat.JSON, it) }
         return targetFile
-    }
-
-    fun convert(fileList: ExtFileList, targetFormat: SubFormat, file: File): File {
-        toFile(fileList.file, targetFormat, file)
-        return file
     }
 
     private fun toFile(source: File, targetFormat: SubFormat, target: File): File {

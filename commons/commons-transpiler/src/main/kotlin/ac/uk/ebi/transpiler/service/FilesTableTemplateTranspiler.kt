@@ -44,7 +44,7 @@ class FilesTableTemplateTranspiler(
 
         val filesTable = templateMapper.map(tableTemplate, filesPath, basePath)
         val file = Files.createTempFile("tempFile.txt", "")
-        serializationService.serializeFileList(filesTable, format, file.toFile())
+        serializationService.serializeTable(filesTable, format, file.toFile())
         return file.readText()
     }
 }

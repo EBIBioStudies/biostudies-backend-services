@@ -47,7 +47,7 @@ class FilesTableTemplateTranspilerTest(
         every { templateProcessor.process(testTemplate, testBaseColumns) } returns testFilesTableTemplate
         every { templateValidator.validate(testFilesTableTemplate, testFilesPath) }.answers { nothing }
         every { templateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder) } returns testFilesTable
-        every { serializationService.serializeFileList(testFilesTable, TSV, capture(slotTempFile)) } returns testFile
+        every { serializationService.serializeTable(testFilesTable, TSV, capture(slotTempFile)) } returns testFile
     }
 
     @Test
@@ -59,7 +59,7 @@ class FilesTableTemplateTranspilerTest(
             templateProcessor.process(testTemplate, testBaseColumns)
             templateValidator.validate(testFilesTableTemplate, testFilesPath)
             templateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder)
-            serializationService.serializeFileList(testFilesTable, Tsv, slotTempFile.captured)
+            serializationService.serializeTable(testFilesTable, Tsv, slotTempFile.captured)
         }
     }
 }

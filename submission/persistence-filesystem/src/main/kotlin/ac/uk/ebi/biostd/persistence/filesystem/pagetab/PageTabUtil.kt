@@ -59,9 +59,9 @@ class PageTabUtil(
         val xml = folder.resolve("$filename.xml").apply { createNewFile() }
         val tsv = folder.resolve("$filename.pagetab.tsv").apply { createNewFile() }
         return PageTabFiles(
-            json = toFilesTableMapper.convert(fileList, JSON_PRETTY, json),
-            xml = toFilesTableMapper.convert(fileList, XML, xml),
-            tsv = toFilesTableMapper.convert(fileList, TSV, tsv)
+            json = toFilesTableMapper.serialize(fileList, JSON_PRETTY, json),
+            xml = toFilesTableMapper.serialize(fileList, XML, xml),
+            tsv = toFilesTableMapper.serialize(fileList, TSV, tsv)
         )
     }
 

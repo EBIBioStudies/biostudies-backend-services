@@ -14,7 +14,7 @@ import java.io.OutputStream
 interface SerializationService {
     fun serializeSubmission(submission: Submission, format: SubFormat): String
 
-    fun serializeFileList(table: FilesTable, format: SubFormat, file: File): File
+    fun serializeTable(table: FilesTable, format: SubFormat, file: File): File
 
     fun serializeFileList(files: Sequence<BioFile>, targetFormat: SubFormat, outputStream: OutputStream)
 
