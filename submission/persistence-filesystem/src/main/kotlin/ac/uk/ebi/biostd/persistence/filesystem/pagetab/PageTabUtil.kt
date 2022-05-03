@@ -15,10 +15,11 @@ import ebi.ac.uk.io.Permissions
 import java.io.File
 
 class PageTabUtil(
+    private val serializationService: SerializationService,
     private val toSubmissionMapper: ToSubmissionMapper,
     private val toFilesTableMapper: ToFileListMapper,
 ) {
-    fun generateSubPageTab(serializationService: SerializationService, sub: ExtSubmission, target: File): PageTabFiles {
+    fun generateSubPageTab(sub: ExtSubmission, target: File): PageTabFiles {
         val element = toSubmissionMapper.toSimpleSubmission(sub)
         val permissions = sub.permissions()
         return PageTabFiles(
@@ -41,7 +42,6 @@ class PageTabUtil(
     }
 
     fun generateFileListPageTab(
-        serializationService: SerializationService,
         sub: ExtSubmission,
         target: File,
     ): Map<String, PageTabFiles> = sub

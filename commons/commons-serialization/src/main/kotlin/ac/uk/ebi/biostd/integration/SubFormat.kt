@@ -19,7 +19,6 @@ sealed class SubFormat {
         fun fromFile(file: File): SubFormat {
             return when (file.extension) {
                 "tsv" -> TsvFormat.Tsv
-                "xlsx" -> TsvFormat.XlsxTsv
                 "xml" -> XmlFormat
                 "json" -> PlainJson
                 else -> throw InvalidExtensionException(file.name)
@@ -36,7 +35,7 @@ sealed class SubFormat {
 
     sealed class TsvFormat : SubFormat() {
         object Tsv : TsvFormat()
-        object XlsxTsv : TsvFormat()
+        // object XlsxTsv : TsvFormat()
     }
 
     sealed class JsonFormat : SubFormat() {

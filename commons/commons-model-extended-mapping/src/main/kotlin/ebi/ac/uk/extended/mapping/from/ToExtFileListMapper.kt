@@ -33,5 +33,4 @@ class ToExtFileListMapper(
         val sourceFiles = serializationService.deserializeFileList(input, format).map { it.toExtFile(fileSource) }
         extSerializationService.serialize(sourceFiles, target)
     }
-
 }

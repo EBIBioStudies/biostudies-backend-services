@@ -24,8 +24,10 @@ internal class PageTabSerializationService(
     override fun deserializeSubmission(content: String, format: SubFormat, source: FilesSource): Submission =
         fileListSerializer.deserializeFileList(serializer.deserializeSubmission(content, format), source)
 
-    override fun deserializeSubmission(file: File): Submission =
-        deserializeSubmission(readAsPageTab(file).readText(), SubFormat.fromFile(file))
+    override fun deserializeSubmission(file: File): Submission {
+        val pagetabFile = readAsPageTab(file)
+        return deserializeSubmission(pagetabFile.readText(), SubFormat.fromFile(pagetabFile))
+    }
 
     override fun deserializeSubmission(file: File, source: FilesSource): Submission =
         fileListSerializer.deserializeFileList(deserializeSubmission(file), source)

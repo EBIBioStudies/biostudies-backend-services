@@ -52,11 +52,11 @@ class PersistenceConfig(
         matchIfMissing = true
     )
     fun nfsPageTabService(pageTabUtil: PageTabUtil, fileProcessingService: FileProcessingService): PageTabService =
-        NfsPageTabService(folderResolver, serializationService, pageTabUtil, fileProcessingService)
+        NfsPageTabService(folderResolver, pageTabUtil, fileProcessingService)
 
     @Bean
     fun pageTabUtil(toSubmissionMapper: ToSubmissionMapper, toFileListMapper: ToFileListMapper): PageTabUtil =
-        PageTabUtil(toSubmissionMapper, toFileListMapper)
+        PageTabUtil(serializationService, toSubmissionMapper, toFileListMapper)
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
@@ -68,7 +68,6 @@ class PersistenceConfig(
     fun firePageTabService(pageTabUtil: PageTabUtil, fileProcessingService: FileProcessingService): PageTabService =
         FirePageTabService(
             File(properties.fireTempDirPath),
-            serializationService,
             fireWebClient,
             pageTabUtil,
             fileProcessingService

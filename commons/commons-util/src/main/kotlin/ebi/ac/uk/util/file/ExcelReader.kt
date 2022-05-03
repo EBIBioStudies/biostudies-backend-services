@@ -11,10 +11,10 @@ const val ROW_CACHE_SIZE = 1000
 
 object ExcelReader {
 
-    fun asTsv(file: File): File = file.inputStream().use { asTsv(it) }
+    fun asTsv(file: File): File = file.inputStream().use { asTsv(it, file.name) }
 
-    fun asTsv(inputStream: InputStream): File {
-        val tempFile = File.createTempFile("temporalFileName", ".tmp")
+    private fun asTsv(inputStream: InputStream, name: String): File {
+        val tempFile = File.createTempFile(name, ".tsv")
         val reader = StreamingReader.builder().rowCacheSize(ROW_CACHE_SIZE).bufferSize(BUFFER_SIZE).open(inputStream)
         val writer = BufferedWriter(FileWriter(tempFile))
         reader.use { it.getSheetAt(0).asTsvList().forEach { line -> writer.write("$line\n") } }

@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.PlainJson
 import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat
-import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
 import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
 import ac.uk.ebi.biostd.json.JsonSerializer
 import ac.uk.ebi.biostd.tsv.TsvSerializer
@@ -13,7 +12,6 @@ import ac.uk.ebi.biostd.xml.XmlSerializer
 import ac.uk.ebi.biostd.xml.XmlStreamSerializer
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.util.file.ExcelReader.asTsv
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -48,7 +46,6 @@ internal class PagetabSerializer(
         return when (format) {
             XmlFormat -> xmlStreamSerializer.deserializeFileList(input)
             is JsonFormat -> jsonSerializer.deserializeFileList(input)
-            is XlsxTsv -> asTsv(input).inputStream().use { tsvSerializer.deserializeFileList(it) }
             is TsvFormat -> tsvSerializer.deserializeFileList(input)
         }
     }

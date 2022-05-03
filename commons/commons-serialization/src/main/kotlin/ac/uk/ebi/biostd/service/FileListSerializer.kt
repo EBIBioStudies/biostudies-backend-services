@@ -11,6 +11,7 @@ import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.fileListName
+import ebi.ac.uk.util.file.ExcelReader.asTsv
 import mu.KotlinLogging
 import java.io.File
 import java.io.InputStream
@@ -50,7 +51,11 @@ internal class FileListSerializer(
     private fun getFile(fileList: String, source: FilesSource): File =
         when (val file = source.getFile(fileList)) {
             null -> throw FileNotFoundException(fileList)
-            else -> if (file.isFile) file else throw directoryCantBeFileList(fileList)
+            else -> when {
+                file.isFile.not() -> throw directoryCantBeFileList(fileList)
+                file.extension == "xlsx" -> asTsv(file)
+                else -> file
+            }
         }
 
     private fun errorMsg(exception: Throwable) = when (exception) {

@@ -43,7 +43,7 @@ class NfsPageTabServiceTest(
     private val fileProcessingService =
         FileProcessingService(ExtSerializationService(), FilesResolver(tempFolder.createDirectory("ext-files")))
     private val testInstance =
-        NfsPageTabService(folderResolver, serializationService, pageTabUtil, fileProcessingService)
+        NfsPageTabService(folderResolver, pageTabUtil, fileProcessingService)
     private val subFolder = tempFolder.root.resolve("submission/S-TEST/123/S-TEST123")
 
     @BeforeEach
@@ -64,14 +64,13 @@ class NfsPageTabServiceTest(
     }
 
     private fun setUpGeneratePageTab(submission: ExtSubmission) {
-        every { pageTabUtil.generateSubPageTab(serializationService, submission, subFolder) } returns PageTabFiles(
+        every { pageTabUtil.generateSubPageTab(submission, subFolder) } returns PageTabFiles(
             subFolder.createNewFile("S-TEST123.json"),
             subFolder.createNewFile("S-TEST123.xml"),
             subFolder.createNewFile("S-TEST123.pagetab.tsv"),
         )
         every {
             pageTabUtil.generateFileListPageTab(
-                serializationService,
                 submission,
                 subFolder.resolve("Files")
             )

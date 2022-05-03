@@ -54,7 +54,7 @@ class ExtSubmissionExtensionsTest(
             section = ExtSection(
                 type = "Study",
                 files = listOf(left(innerExtFile)),
-                fileList = ExtFileList("a/file-list", createExtFileList(referencedExtFile)),
+                fileList = fileList,
                 sections = listOf(left(ExtSection(type = "Exp")))
             )
         )

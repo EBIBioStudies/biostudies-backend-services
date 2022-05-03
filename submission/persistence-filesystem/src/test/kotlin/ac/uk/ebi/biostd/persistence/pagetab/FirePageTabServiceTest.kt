@@ -45,7 +45,6 @@ class FirePageTabServiceTest(
     private val testInstance =
         FirePageTabService(
             fireFolder,
-            serializationService,
             fireWebClient,
             pageTabUtil,
             fileProcessingService
@@ -67,14 +66,13 @@ class FirePageTabServiceTest(
     }
 
     private fun setUpGeneratePageTab(submission: ExtSubmission) {
-        every { pageTabUtil.generateSubPageTab(serializationService, submission, fireFolder) } returns PageTabFiles(
+        every { pageTabUtil.generateSubPageTab(submission, fireFolder) } returns PageTabFiles(
             fireFolder.resolve("S-TEST123.json"),
             fireFolder.resolve("S-TEST123.xml"),
             fireFolder.resolve("S-TEST123.pagetab.tsv")
         )
         every {
             pageTabUtil.generateFileListPageTab(
-                serializationService,
                 submission,
                 fireFolder
             )

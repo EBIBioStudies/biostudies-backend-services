@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
-import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.persistence.filesystem.service.Section
 import ebi.ac.uk.extended.model.ExtSection
@@ -12,7 +11,6 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 
 class NfsPageTabService(
     private val folderResolver: SubmissionFolderResolver,
-    private val serializationService: SerializationService,
     private val pageTabUtil: PageTabUtil,
     private val fileProcessingService: FileProcessingService
 ) : PageTabService {
@@ -20,8 +18,8 @@ class NfsPageTabService(
         val submissionFolder = folderResolver.getSubFolder(sub.relPath).toFile()
         val filesFolder = submissionFolder.resolve(FILES_PATH)
 
-        val subFiles = pageTabUtil.generateSubPageTab(serializationService, sub, submissionFolder)
-        val fileListFiles = pageTabUtil.generateFileListPageTab(serializationService, sub, filesFolder)
+        val subFiles = pageTabUtil.generateSubPageTab(sub, submissionFolder)
+        val fileListFiles = pageTabUtil.generateFileListPageTab(sub, filesFolder)
         val section = fileProcessingService.process(sub.section) { updateFileList(it, fileListFiles) }
 
         return when {
