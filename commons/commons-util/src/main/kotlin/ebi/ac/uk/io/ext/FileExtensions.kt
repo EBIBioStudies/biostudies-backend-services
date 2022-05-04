@@ -27,6 +27,15 @@ fun File.createNewFile(name: String, text: String): File {
     return file
 }
 
+fun File.resolveMany(vararg keys: String): File {
+    var file: File = this
+    for (key in keys) {
+        file = file.resolve(key)
+    }
+
+    return file
+}
+
 fun File.gZipTo(target: File) {
     FileOutputStream(target).use { GZIPOutputStream(it).bufferedWriter().use { writer -> writer.write(readText()) } }
 }

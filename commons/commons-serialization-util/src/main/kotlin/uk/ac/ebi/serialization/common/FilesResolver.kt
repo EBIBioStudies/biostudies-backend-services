@@ -1,6 +1,7 @@
 package uk.ac.ebi.serialization.common
 
 import ebi.ac.uk.io.ext.createTempFile
+import ebi.ac.uk.io.ext.resolveMany
 import java.io.File
 import java.time.LocalDate
 import java.time.temporal.ChronoField.DAY_OF_MONTH
@@ -28,14 +29,5 @@ class FilesResolver(private val basePath: File) {
             .resolveMany(*keys)
         path.mkdirs()
         return path
-    }
-
-    private fun File.resolveMany(vararg keys: String): File {
-        var file: File = this
-        for (key in keys) {
-            file = file.resolve(key)
-        }
-
-        return file
     }
 }
