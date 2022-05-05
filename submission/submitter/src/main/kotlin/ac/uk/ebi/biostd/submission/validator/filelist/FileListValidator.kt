@@ -13,7 +13,7 @@ class FileListValidator(
 ) {
 
     /**
-     * Validate the given file list by deserializing file and checking each file presence using the given file source.
+     * Validates the given file list by deserializing it and checking each file presence using the given file source.
      * Note that in case of missing files only first 1000 are reported.
      */
     fun validateFileList(fileName: String, filesSource: FilesSource) {

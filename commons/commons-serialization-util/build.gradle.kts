@@ -17,7 +17,6 @@ dependencies {
     implementation(Woodstox)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
-    implementation("org.junit.jupiter:junit-jupiter:5.8.1")
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
