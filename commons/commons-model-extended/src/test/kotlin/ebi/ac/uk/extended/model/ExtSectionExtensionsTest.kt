@@ -2,6 +2,7 @@ package ebi.ac.uk.extended.model
 
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -35,32 +36,11 @@ class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     @Test
-    fun allReferencedFiles() {
-        val file = temporaryFolder.createFile("file.txt")
-        val nfsFile = NfsFile("filePath", "relPath", file, file.absolutePath, file.md5(), file.size())
-        val fireFile = FireFile("filePath", "relPath", "fireId", "md5", 1L, listOf())
-        val fireDirectory = FireDirectory("filePath", "relPath", "dirFireId", "md5", 1L, listOf())
-
-        val extSection = ExtSection(
-            type = "section",
-            fileList = ExtFileList("fileListName", listOf(nfsFile, fireFile, fireDirectory))
-        )
-
-        val result = extSection.allReferencedFiles
-
-        assertThat(result.size).isEqualTo(3)
-        val (file1, file2, file3) = result
-        assertThat(file1).isEqualTo(nfsFile)
-        assertThat(file2).isEqualTo(fireFile)
-        assertThat(file3).isEqualTo(fireDirectory)
-    }
-
-    @Test
     fun allFiles() {
         val tmpFile = temporaryFolder.createFile("file.txt")
         val nfsFile = NfsFile("filePath", "relPath", tmpFile, tmpFile.absolutePath, tmpFile.md5(), tmpFile.size())
 
-        val fireFile = FireFile("filePath", "relPath", "fireId", "md5", 1, listOf())
+        val fireFile = FireFile("filePath", "relPath", "fireId", "md5", 1, FILE, listOf())
 
         val tmpFile2 = temporaryFolder.createFile("file2.txt")
         val nfsFile2 =

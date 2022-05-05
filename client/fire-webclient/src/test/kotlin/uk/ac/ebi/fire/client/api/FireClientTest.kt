@@ -1,5 +1,6 @@
 package uk.ac.ebi.fire.client.api
 
+import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -89,14 +90,19 @@ class FireClientTest(
     @Test
     fun `set bio metadata`() {
         val httpEntitySlot = slot<HttpEntity<String>>()
+        val expectedMetadata = jsonObj {
+            FIRE_BIO_ACC_NO to "S-BSST0"
+            FIRE_BIO_FILE_TYPE to "file"
+            FIRE_BIO_PUBLISHED to false
+        }.toString()
 
         every { template.put("$FIRE_OBJECTS_URL/fire-oid/metadata/set", capture(httpEntitySlot)) } answers { nothing }
 
-        testInstance.setBioMetadata("fire-oid", "S-BSST0", false)
+        testInstance.setBioMetadata("fire-oid", "S-BSST0", "file", false)
 
         val httpEntity = httpEntitySlot.captured
+        assertThat(httpEntity.body).isEqualToIgnoringWhitespace(expectedMetadata)
         assertThat(httpEntity.headers[CONTENT_TYPE]!!.first()).isEqualTo(APPLICATION_JSON_VALUE)
-        assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\", \"$FIRE_BIO_PUBLISHED\": false }")
         verify(exactly = 1) { template.put("$FIRE_OBJECTS_URL/fire-oid/metadata/set", httpEntity) }
     }
 
@@ -169,6 +175,11 @@ class FireClientTest(
     @Test
     fun `find by accNo and published`(@MockK fireFile: FireApiFile) {
         val httpEntitySlot = slot<HttpEntity<String>>()
+        val expectedMetadata = jsonObj {
+            FIRE_BIO_ACC_NO to "S-BSST0"
+            FIRE_BIO_PUBLISHED to true
+        }.toString()
+
         every {
             template.postForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/metadata", capture(httpEntitySlot))
         } returns arrayOf(fireFile)
@@ -178,8 +189,8 @@ class FireClientTest(
         val httpEntity = httpEntitySlot.captured
         assertThat(files).hasSize(1)
         assertThat(files.first()).isEqualTo(fireFile)
+        assertThat(httpEntity.body).isEqualToIgnoringWhitespace(expectedMetadata)
         assertThat(httpEntity.headers[CONTENT_TYPE]!!.first()).isEqualTo(APPLICATION_JSON_VALUE)
-        assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\", \"$FIRE_BIO_PUBLISHED\": true }")
         verify(exactly = 1) {
             template.postForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/metadata", httpEntity)
         }

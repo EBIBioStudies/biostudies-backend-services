@@ -32,6 +32,7 @@ dependencies {
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
 
+    testImplementation(testFixtures(project(CommonsModelExtendedSerialization)))
     testImplementation(Junit)
     testImplementation(JunitExtensions)
     testImplementation(AssertJ)

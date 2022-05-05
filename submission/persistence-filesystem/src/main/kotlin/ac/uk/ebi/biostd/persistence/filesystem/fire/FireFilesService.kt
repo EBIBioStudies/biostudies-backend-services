@@ -5,7 +5,8 @@ import ac.uk.ebi.biostd.persistence.filesystem.extensions.getOrPersist
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.FireDirectory
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -58,7 +59,6 @@ data class FireFileProcessingConfig(
 fun FireFileProcessingConfig.processFile(sub: ExtSubmission, file: ExtFile): ExtFile = when (file) {
     is NfsFile -> processNfsFile(sub.relPath, file)
     is FireFile -> reuseFireFile(file, sub.relPath)
-    is FireDirectory -> file
 }
 
 fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): ExtFile {
@@ -67,14 +67,14 @@ fun FireFileProcessingConfig.processNfsFile(relPath: String, nfsFile: NfsFile): 
     return if (nfsFile.file.isDirectory) persistFireDirectory(nfsFile) else persistFireFile(accNo, relPath, nfsFile)
 }
 
-private fun FireFileProcessingConfig.persistFireDirectory(nfsFile: NfsFile): FireDirectory {
+private fun FireFileProcessingConfig.persistFireDirectory(nfsFile: NfsFile): FireFile {
     val (filePath, relPath, file, _, _, _, attributes) = nfsFile
     val tempFolder = fireTempDirPath.resolve("$accNo/$version").toFile().apply { mkdirs() }
     val target = tempFolder.resolve(file.name)
     val compressed = if (target.exists()) target else compressDirectory(file, target)
-    val fireDir = fireWebClient.getOrPersist(accNo, compressed, compressed.md5(), "$subRelPath/$relPath.zip")
+    val fireDir = fireWebClient.getOrPersist(accNo, compressed, DIR, compressed.md5(), "$subRelPath/$relPath.zip")
 
-    return FireDirectory(filePath, relPath, fireDir.fireOid, fireDir.objectMd5, fireDir.objectSize.toLong(), attributes)
+    return FireFile(filePath, relPath, fireDir.fireOid, fireDir.objectMd5, fireDir.objectSize.toLong(), DIR, attributes)
 }
 
 private fun compressDirectory(directory: File, target: File): File {
@@ -91,7 +91,7 @@ private fun FireFileProcessingConfig.persistFireFile(
     val filePath = nfsFile.filePath
     val relPath = nfsFile.relPath
     val attributes = nfsFile.attributes
-    val fireFile = fireWebClient.getOrPersist(accNo, nfsFile.file, nfsFile.file.md5(), "$subRelPath/$relPath")
+    val fireFile = fireWebClient.getOrPersist(accNo, nfsFile.file, FILE, nfsFile.file.md5(), "$subRelPath/$relPath")
 
     return FireFile(
         filePath,
@@ -99,6 +99,7 @@ private fun FireFileProcessingConfig.persistFireFile(
         fireFile.fireOid,
         fireFile.objectMd5,
         fireFile.objectSize.toLong(),
+        FILE,
         attributes
     )
 }

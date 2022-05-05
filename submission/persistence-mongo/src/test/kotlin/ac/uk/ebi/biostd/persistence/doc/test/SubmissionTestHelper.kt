@@ -6,11 +6,12 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
-import ac.uk.ebi.biostd.persistence.doc.model.FireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.fullDocAttribute
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.docSection
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.StorageMode
 import java.time.Instant
 import org.bson.types.ObjectId
@@ -30,8 +31,8 @@ internal const val STAT_TYPE = "VIEWS"
 internal const val STAT_VALUE = 123L
 internal const val REL_PATH = "S-TEST/123/S-TEST123"
 
-val fireDocFile = FireDocFile("filename", "filePath", "relPath", "fireId", listOf(), "md5", 1L)
-val fireDocDirectory = FireDocDirectory("filename", "filePath", "relPath", "dirFireId", listOf(), "md5", 1L)
+val fireDocFile = FireDocFile("filename", "filePath", "relPath", "fireId", listOf(), "md5", 1L, FILE.value)
+val fireDocDirectory = FireDocFile("filename", "filePath", "relPath", "dirFireId", listOf(), "md5", 1L, DIR.value)
 val nfsDocFile = NfsDocFile("filename", "filePath", "relPath", "fileAbsPath", listOf(), "md5", 1L, "fileType")
 
 object SubmissionTestHelper {

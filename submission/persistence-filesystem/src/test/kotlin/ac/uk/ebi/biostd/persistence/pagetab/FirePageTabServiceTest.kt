@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtFileList
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
@@ -24,6 +25,9 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.createFileList
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import ebi.ac.uk.asserts.assertThat as assertThatEither
 import uk.ac.ebi.fire.client.model.FireApiFile as FireFileWeb
@@ -36,8 +40,16 @@ class FirePageTabServiceTest(
     @MockK private val pageTabUtil: PageTabUtil,
 ) {
     private val fireFolder = tempFolder.root.resolve("fire-temp")
+    private val fileProcessingService =
+        FileProcessingService(ExtSerializationService(), ExtFilesResolver(tempFolder.createDirectory("ext-files")))
     private val testInstance =
-        FirePageTabService(fireFolder, serializationService, fireWebClient, pageTabUtil, FileProcessingService())
+        FirePageTabService(
+            fireFolder,
+            serializationService,
+            fireWebClient,
+            pageTabUtil,
+            fileProcessingService
+        )
 
     @Test
     fun `generate page tab`() {
@@ -92,15 +104,19 @@ class FirePageTabServiceTest(
             FireFileWeb(8, "$SUB_XML-fireId", "md5", 1, "creationTime") andThen
             FireFileWeb(9, "$SUB_TSV-fireId", "md5", 1, "creationTime")
 
-        every { fireWebClient.setBioMetadata("$SUB_TSV-fireId", "S-TEST123", false) } answers { nothing }
-        every { fireWebClient.setBioMetadata("$SUB_XML-fireId", "S-TEST123", false) } answers { nothing }
-        every { fireWebClient.setBioMetadata("$SUB_JSON-fireId", "S-TEST123", false) } answers { nothing }
-        every { fireWebClient.setBioMetadata("$FILE_LIST_TSV1-fireId", "S-TEST123", false) } answers { nothing }
-        every { fireWebClient.setBioMetadata("$FILE_LIST_TSV2-fireId", "S-TEST123", false) } answers { nothing }
-        every { fireWebClient.setBioMetadata("$FILE_LIST_XML1-fireId", "S-TEST123", false) } answers { nothing }
-        every { fireWebClient.setBioMetadata("$FILE_LIST_XML2-fireId", "S-TEST123", false) } answers { nothing }
-        every { fireWebClient.setBioMetadata("$FILE_LIST_JSON1-fireId", "S-TEST123", false) } answers { nothing }
-        every { fireWebClient.setBioMetadata("$FILE_LIST_JSON2-fireId", "S-TEST123", false) } answers { nothing }
+        every { fireWebClient.setBioMetadata("$SUB_TSV-fireId", "S-TEST123", "file", false) } answers { nothing }
+        every { fireWebClient.setBioMetadata("$SUB_XML-fireId", "S-TEST123", "file", false) } answers { nothing }
+        every { fireWebClient.setBioMetadata("$SUB_JSON-fireId", "S-TEST123", "file", false) } answers { nothing }
+        every { fireWebClient.setBioMetadata("$FILE_LIST_TSV1-fireId", "S-TEST123", "file", false) } answers { nothing }
+        every { fireWebClient.setBioMetadata("$FILE_LIST_TSV2-fireId", "S-TEST123", "file", false) } answers { nothing }
+        every { fireWebClient.setBioMetadata("$FILE_LIST_XML1-fireId", "S-TEST123", "file", false) } answers { nothing }
+        every { fireWebClient.setBioMetadata("$FILE_LIST_XML2-fireId", "S-TEST123", "file", false) } answers { nothing }
+        every {
+            fireWebClient.setBioMetadata("$FILE_LIST_JSON1-fireId", "S-TEST123", "file", false)
+        } answers { nothing }
+        every {
+            fireWebClient.setBioMetadata("$FILE_LIST_JSON2-fireId", "S-TEST123", "file", false)
+        } answers { nothing }
 
         every { fireWebClient.setPath("$SUB_TSV-fireId", "S-TEST/123/S-TEST123/$SUB_TSV") } answers { nothing }
         every { fireWebClient.setPath("$SUB_XML-fireId", "S-TEST/123/S-TEST123/$SUB_XML") } answers { nothing }
@@ -127,18 +143,29 @@ class FirePageTabServiceTest(
 
     private fun sectionWithoutTabFiles() = ExtSection(
         type = "Study1",
-        fileList = ExtFileList("data/file-list1"),
+        fileList = ExtFileList(
+            "data/file-list1",
+            file = createFileList(emptyList())
+        ),
         sections = listOf(
-            left(ExtSection(type = "Study2", fileList = ExtFileList("data/file-list2"))),
+            left(
+                ExtSection(
+                    type = "Study2",
+                    fileList = ExtFileList(
+                        "data/file-list2",
+                        file = createFileList(emptyList())
+                    )
+                )
+            ),
             right(ExtSectionTable(listOf(ExtSection(type = "Study3"))))
         )
     )
 
     private fun assertSubmissionTabFiles(submission: ExtSubmission) {
-        val tabFiles = submission.pageTabFiles
-        assertThat(tabFiles.first()).isEqualTo(FireFile(SUB_JSON, SUB_JSON, "$SUB_JSON-fireId", "md5", 1, listOf()))
-        assertThat(tabFiles.second()).isEqualTo(FireFile(SUB_XML, SUB_XML, "$SUB_XML-fireId", "md5", 1, listOf()))
-        assertThat(tabFiles.third()).isEqualTo(FireFile(SUB_TSV, SUB_TSV, "$SUB_TSV-fireId", "md5", 1, listOf()))
+        val files = submission.pageTabFiles
+        assertThat(files.first()).isEqualTo(FireFile(SUB_JSON, SUB_JSON, "$SUB_JSON-fireId", "md5", 1, FILE, listOf()))
+        assertThat(files.second()).isEqualTo(FireFile(SUB_XML, SUB_XML, "$SUB_XML-fireId", "md5", 1, FILE, listOf()))
+        assertThat(files.third()).isEqualTo(FireFile(SUB_TSV, SUB_TSV, "$SUB_TSV-fireId", "md5", 1, FILE, listOf()))
     }
 
     private fun assertSectionTabFiles(section: ExtSection) {
@@ -150,6 +177,7 @@ class FirePageTabServiceTest(
                 "$FILE_LIST_JSON1-fireId",
                 "md5",
                 1,
+                FILE,
                 listOf()
             )
         )
@@ -160,6 +188,7 @@ class FirePageTabServiceTest(
                 "$FILE_LIST_XML1-fireId",
                 "md5",
                 1,
+                FILE,
                 listOf()
             )
         )
@@ -170,6 +199,7 @@ class FirePageTabServiceTest(
                 "$FILE_LIST_TSV1-fireId",
                 "md5",
                 1,
+                FILE,
                 listOf()
             )
         )
@@ -184,6 +214,7 @@ class FirePageTabServiceTest(
                 "$FILE_LIST_JSON2-fireId",
                 "md5",
                 1,
+                FILE,
                 listOf()
             )
         )
@@ -194,6 +225,7 @@ class FirePageTabServiceTest(
                 "$FILE_LIST_XML2-fireId",
                 "md5",
                 1,
+                FILE,
                 listOf()
             )
         )
@@ -204,6 +236,7 @@ class FirePageTabServiceTest(
                 "$FILE_LIST_TSV2-fireId",
                 "md5",
                 1,
+                FILE,
                 listOf()
             )
         )
@@ -222,15 +255,15 @@ class FirePageTabServiceTest(
     }
 
     private fun verifySetBioMetadata() = verify(exactly = 1) {
-        fireWebClient.setBioMetadata("$SUB_TSV-fireId", "S-TEST123", false)
-        fireWebClient.setBioMetadata("$SUB_XML-fireId", "S-TEST123", false)
-        fireWebClient.setBioMetadata("$SUB_JSON-fireId", "S-TEST123", false)
-        fireWebClient.setBioMetadata("$FILE_LIST_TSV1-fireId", "S-TEST123", false)
-        fireWebClient.setBioMetadata("$FILE_LIST_TSV2-fireId", "S-TEST123", false)
-        fireWebClient.setBioMetadata("$FILE_LIST_XML1-fireId", "S-TEST123", false)
-        fireWebClient.setBioMetadata("$FILE_LIST_XML2-fireId", "S-TEST123", false)
-        fireWebClient.setBioMetadata("$FILE_LIST_JSON1-fireId", "S-TEST123", false)
-        fireWebClient.setBioMetadata("$FILE_LIST_JSON2-fireId", "S-TEST123", false)
+        fireWebClient.setBioMetadata("$SUB_TSV-fireId", "S-TEST123", "file", false)
+        fireWebClient.setBioMetadata("$SUB_XML-fireId", "S-TEST123", "file", false)
+        fireWebClient.setBioMetadata("$SUB_JSON-fireId", "S-TEST123", "file", false)
+        fireWebClient.setBioMetadata("$FILE_LIST_TSV1-fireId", "S-TEST123", "file", false)
+        fireWebClient.setBioMetadata("$FILE_LIST_TSV2-fireId", "S-TEST123", "file", false)
+        fireWebClient.setBioMetadata("$FILE_LIST_XML1-fireId", "S-TEST123", "file", false)
+        fireWebClient.setBioMetadata("$FILE_LIST_XML2-fireId", "S-TEST123", "file", false)
+        fireWebClient.setBioMetadata("$FILE_LIST_JSON1-fireId", "S-TEST123", "file", false)
+        fireWebClient.setBioMetadata("$FILE_LIST_JSON2-fireId", "S-TEST123", "file", false)
     }
 
     companion object {

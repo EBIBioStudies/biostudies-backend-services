@@ -8,6 +8,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.createFileList
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -48,18 +49,23 @@ class ExtSubmissionExtensionsTest(
             referencedFile.size(),
             listOf()
         )
+        val fileList = ExtFileList("a/file-list", createFileList(listOf(referencedExtFile)))
         val submission = testSubmission("Test Submission").copy(
             section = ExtSection(
                 type = "Study",
                 files = listOf(left(innerExtFile)),
-                fileList = ExtFileList("a/file-list", listOf(referencedExtFile))
+                fileList = fileList,
+                sections = listOf(left(ExtSection(type = "Exp")))
             )
         )
 
-        val files = submission.allFiles().toList()
+        val sectionFiles = submission.allSectionsFiles
+        assertThat(sectionFiles).hasSize(1)
+        assertThat(sectionFiles.first()).isEqualTo(innerExtFile)
 
-        assertThat(files).hasSize(2)
-        assertThat(files).containsOnly(innerExtFile, referencedExtFile)
+        val fileLists = submission.allFileList
+        assertThat(fileLists).hasSize(1)
+        assertThat(fileLists.first()).isEqualTo(fileList)
     }
 
     private fun testSubmission(subTitle: String? = null, secTitle: String? = null): ExtSubmission = ExtSubmission(

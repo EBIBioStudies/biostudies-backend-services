@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.PropertyOverrideContextInitializer
+import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
 import ac.uk.ebi.biostd.persistence.doc.test.doc.RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
@@ -38,7 +39,7 @@ import java.time.temporal.ChronoUnit
 
 @ExtendWith(SpringExtension::class)
 @Testcontainers
-@SpringBootTest(classes = [MongoDbServicesConfig::class])
+@SpringBootTest(classes = [MongoDbServicesConfig::class, TestConfig::class])
 @ContextConfiguration(initializers = [PropertyOverrideContextInitializer::class])
 internal class SubmissionMongoMetaQueryServiceTest(
     @Autowired private val submissionMongoRepository: SubmissionMongoRepository,

@@ -14,17 +14,17 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
-import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToFilesTableMapper
-import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
-import java.io.File
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import java.io.File
 
 @Configuration
 @Import(value = [SqlPersistenceConfig::class, FileSystemConfig::class])
@@ -51,26 +51,27 @@ class PersistenceConfig(
         havingValue = "false",
         matchIfMissing = true
     )
-    fun nfsPageTabService(pageTabUtil: PageTabUtil): PageTabService =
-        NfsPageTabService(folderResolver, serializationService, pageTabUtil, FileProcessingService())
+    fun nfsPageTabService(pageTabUtil: PageTabUtil, fileProcessingService: FileProcessingService): PageTabService =
+        NfsPageTabService(folderResolver, serializationService, pageTabUtil, fileProcessingService)
 
     @Bean
-    fun pageTabUtil(): PageTabUtil =
-        PageTabUtil(ToSubmissionMapper(ToSectionMapper(ToFileListMapper())), ToFilesTableMapper(ToFileListMapper()))
-
-    @Bean
-    @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
-    fun fireFtpService(): FtpService = FireFtpService(fireWebClient, submissionQueryService)
+    fun pageTabUtil(toSubmissionMapper: ToSubmissionMapper, toFilesTableMapper: ToFilesTableMapper): PageTabUtil =
+        PageTabUtil(toSubmissionMapper, toFilesTableMapper)
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
-    fun firePageTabService(pageTabUtil: PageTabUtil): PageTabService =
+    fun fireFtpService(serializationService: ExtSerializationService): FtpService =
+        FireFtpService(fireWebClient, serializationService, submissionQueryService)
+
+    @Bean
+    @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
+    fun firePageTabService(pageTabUtil: PageTabUtil, fileProcessingService: FileProcessingService): PageTabService =
         FirePageTabService(
             File(properties.fireTempDirPath),
             serializationService,
             fireWebClient,
             pageTabUtil,
-            FileProcessingService()
+            fileProcessingService
         )
 
     @Bean
@@ -79,4 +80,8 @@ class PersistenceConfig(
         filesService: FilesService,
         pageTabService: PageTabService
     ): FileSystemService = FileSystemService(ftpService, filesService, pageTabService)
+
+    @Bean
+    fun fileProcessingService(serializationService: ExtSerializationService, fileResolver: ExtFilesResolver) =
+        FileProcessingService(serializationService, fileResolver)
 }

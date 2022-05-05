@@ -74,12 +74,12 @@ class ToExtSectionMapperTest(
             every { fileListAttribute.name } returns SectionFields.FILE_LIST.value
             every { attribute.toExtAttribute() } returns extAttribute
             every { file.toExtFile(fileSource) } returns extFile
-            every { toExtFileListMapper.convert(fileList, fileSource) } returns extFileList
+            every { toExtFileListMapper.convert(SUB_ACC, SUB_VERSION, fileList, fileSource) } returns extFileList
             every { link.toExtLink() } returns extLink
             every { fileTable.toExtTable(fileSource) } returns extFileTable
             every { linkTable.toExtTable() } returns extLinkTable
 
-            val sectionResult = testInstance.convert(section, fileSource)
+            val sectionResult = testInstance.convert(SUB_ACC, SUB_VERSION, section, fileSource)
 
             assertThat(sectionResult.accNo).isEqualTo(section.accNo)
             assertThat(sectionResult.type).isEqualTo(section.type)
@@ -96,5 +96,10 @@ class ToExtSectionMapperTest(
                 assertThat(it).isEqualTo(ExtSectionTable(listOf(subExtSection)))
             }
         }
+    }
+
+    companion object {
+        val SUB_ACC = "sub-acc"
+        val SUB_VERSION = 10
     }
 }

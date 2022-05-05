@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -20,7 +19,6 @@ import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import uk.ac.ebi.events.service.EventsPublisherService
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.File
 import java.time.OffsetDateTime
 
@@ -32,7 +30,6 @@ class ExtSubmissionService(
     private val submissionQueryService: SubmissionQueryService,
     private val userPrivilegesService: IUserPrivilegesService,
     private val securityQueryService: ISecurityQueryService,
-    private val extSerializationService: ExtSerializationService,
     private val eventsPublisherService: EventsPublisherService
 ) {
     fun getExtendedSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
@@ -111,12 +108,9 @@ class ExtSubmissionService(
         section: ExtSection,
         fileList: Map<String, File>
     ): ExtSection = section.copy(
-        fileList = section.fileList?.let { it.copy(files = deserializeFiles(fileList.getValue(it.fileName))) },
+        fileList = section.fileList?.let { it.copy(file = fileList.getValue(it.fileName)) },
         sections = section.sections.map { subSec -> subSec.bimap({ processFileListFiles(it, fileList) }, { it }) }
     )
-
-    private fun deserializeFiles(fileList: File): List<ExtFile> =
-        fileList.inputStream().use { extSerializationService.deserialize(it).toList() }
 
     private fun validateSubmission(submission: ExtSubmission) {
         validateOwner(submission.owner)

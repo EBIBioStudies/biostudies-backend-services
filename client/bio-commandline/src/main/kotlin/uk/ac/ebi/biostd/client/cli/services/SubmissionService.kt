@@ -11,7 +11,7 @@ import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSe
 import java.io.File
 
 /**
- * In charge of perform submission command line operations.
+ * In charge of performing submission command line operations.
  */
 @Suppress("TooManyFunctions")
 internal class SubmissionService {
@@ -26,15 +26,15 @@ internal class SubmissionService {
     fun migrate(request: MigrationRequest) = performRequest { migrateRequest(request) }
 
     private fun submitRequest(request: SubmissionRequest): Submission {
-        val (server, user, password, _, file, attached, fileMode, preferredSource) = request
+        val (server, user, password, onBehalf, file, attached, fileMode, preferredSource) = request
 
-        return bioWebClient(server, user, password)
+        return bioWebClient(server, user, password, onBehalf)
             .submitSingle(file, attached, fileMode = fileMode, preferredSource = preferredSource )
             .body
     }
 
     private fun submitAsyncRequest(request: SubmissionRequest) =
-        bioWebClient(request.server, request.user, request.password)
+        bioWebClient(request.server, request.user, request.password, request.onBehalf)
             .asyncSubmitSingle(request.file, request.attached, fileMode = request.fileMode)
 
     private fun deleteRequest(request: DeletionRequest) =

@@ -8,8 +8,8 @@ import org.springframework.boot.context.properties.ConstructorBinding
 data class ApplicationProperties(
     val tempDirPath: String,
     val fireTempDirPath: String,
-    val requestFilesPath: String,
     val submissionPath: String,
+    val requestFilesPath: String,
     val ftpPath: String,
     val instanceBaseUrl: String,
     val security: SecurityProperties,

@@ -11,7 +11,7 @@ interface FireOperations {
 
     fun unsetPath(fireOid: String)
 
-    fun setBioMetadata(fireOid: String, accNo: String? = null, published: Boolean? = null)
+    fun setBioMetadata(fireOid: String, accNo: String? = null, fileType: String? = null, published: Boolean? = null)
 
     fun downloadByPath(path: String): File
 
