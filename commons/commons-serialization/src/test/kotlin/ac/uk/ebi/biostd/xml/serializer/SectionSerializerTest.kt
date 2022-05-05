@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.xml.serializer
 
+import ac.uk.ebi.biostd.createFileList
 import ac.uk.ebi.biostd.test.FILE_NAME
 import ac.uk.ebi.biostd.test.FILE_SIZE
 import ac.uk.ebi.biostd.test.FILE_TYPE
@@ -22,7 +23,7 @@ class SectionSerializerTest {
     private val testInstance = XmlSerializer.mapper
     private val section = section(TYPE) {
         accNo = ACC_NO
-        fileList = FileList(FILE_LIST_NAME)
+        fileList = FileList(FILE_LIST_NAME, createFileList())
         link(LINK_URL)
         file(FILE_NAME) {
             type = FILE_TYPE

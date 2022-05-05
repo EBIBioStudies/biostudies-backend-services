@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.xml.deserializer.exception.UnexpectedXmlPageTabElementEx
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
@@ -63,12 +63,12 @@ class XmlDeserializerTest {
             "path" { -"file1.txt" }
         }.toString()
 
-        assertThat(testInstance.deserialize(xml, File::class.java)).isEqualTo(File("file1.txt"))
+        assertThat(testInstance.deserialize(xml, BioFile::class.java)).isEqualTo(BioFile("file1.txt"))
     }
 
     @Test
     fun `deserialize files table`() {
-        val expected = FilesTable(listOf(File("file1.txt")))
+        val expected = FilesTable(listOf(BioFile("file1.txt")))
         val xml = xml("table") {
             "file" {
                 "path" { -"file1.txt" }

@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ac.uk.ebi.biostd.xml.XmlSerializer
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -25,8 +25,8 @@ class FileStandaloneXmlDeserializerTest {
             }
         }.toString()
 
-        assertThat(testInstance.readValue(xmlFile, File::class.java)).isEqualTo(
-            File("file1.txt", attributes = mutableListOf(Attribute("attr1", "attr 1 value")))
+        assertThat(testInstance.readValue(xmlFile, BioFile::class.java)).isEqualTo(
+            BioFile("file1.txt", attributes = mutableListOf(Attribute("attr1", "attr 1 value")))
         )
     }
 
@@ -36,7 +36,7 @@ class FileStandaloneXmlDeserializerTest {
             "path" { -"file1.txt" }
         }.toString()
 
-        assertThat(testInstance.readValue(xmlFile, File::class.java)).isEqualTo(File("file1.txt"))
+        assertThat(testInstance.readValue(xmlFile, BioFile::class.java)).isEqualTo(BioFile("file1.txt"))
     }
 
     @Test
@@ -45,7 +45,7 @@ class FileStandaloneXmlDeserializerTest {
             "path" { -"" }
         }.toString()
 
-        val exception = assertThrows<InvalidElementException> { testInstance.readValue(xmlFile, File::class.java) }
+        val exception = assertThrows<InvalidElementException> { testInstance.readValue(xmlFile, BioFile::class.java) }
         assertThat(exception.message).isEqualTo("$REQUIRED_FILE_PATH. Element was not created.")
     }
 }

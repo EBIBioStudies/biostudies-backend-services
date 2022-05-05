@@ -7,7 +7,7 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -55,7 +55,7 @@ internal class ToFileTest(
         assertFile(fireFile.toFile())
     }
 
-    private fun assertFile(file: File) {
+    private fun assertFile(file: BioFile) {
         assertThat(file.attributes).containsExactly(attribute)
         assertThat(file.size).isEqualTo(12L)
         assertThat(file.path).isEqualTo(extFile.filePath)

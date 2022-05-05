@@ -9,7 +9,7 @@ import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ac.uk.ebi.biostd.validation.REQUIRED_LINK_URL
 import ebi.ac.uk.base.isNotBlank
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
@@ -41,12 +41,12 @@ internal class LinkChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 }
 
 class FileChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
-    fun asFile(): File {
+    fun asFile(): BioFile {
         val fileName = header.findSecond()
         require(fileName.isNotBlank()) { throw InvalidElementException(REQUIRED_FILE_PATH) }
 
         val attributes = toAttributes(lines)
-        return File(fileName!!, attributes = attributes)
+        return BioFile(fileName!!, attributes = attributes)
     }
 }
 
@@ -55,7 +55,7 @@ internal class LinksTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 }
 
 internal class FileTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
-    fun asTable() = FilesTable(asTable(this) { name, attributes -> File(name, attributes = attributes) })
+    fun asTable() = FilesTable(asTable(this) { name, attributes -> BioFile(name, attributes = attributes) })
 }
 
 internal sealed class SectionTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {

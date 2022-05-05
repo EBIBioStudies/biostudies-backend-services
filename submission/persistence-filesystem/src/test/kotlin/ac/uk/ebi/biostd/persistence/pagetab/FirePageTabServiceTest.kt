@@ -9,10 +9,10 @@ import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
@@ -25,10 +25,10 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.createFileList
+import uk.ac.ebi.extended.serialization.service.createExtFileList
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import uk.ac.ebi.serialization.common.FilesResolver
 import ebi.ac.uk.asserts.assertThat as assertThatEither
 import uk.ac.ebi.fire.client.model.FireApiFile as FireFileWeb
 
@@ -41,11 +41,10 @@ class FirePageTabServiceTest(
 ) {
     private val fireFolder = tempFolder.root.resolve("fire-temp")
     private val fileProcessingService =
-        FileProcessingService(ExtSerializationService(), ExtFilesResolver(tempFolder.createDirectory("ext-files")))
+        FileProcessingService(ExtSerializationService(), FilesResolver(tempFolder.createDirectory("ext-files")))
     private val testInstance =
         FirePageTabService(
             fireFolder,
-            serializationService,
             fireWebClient,
             pageTabUtil,
             fileProcessingService
@@ -67,14 +66,13 @@ class FirePageTabServiceTest(
     }
 
     private fun setUpGeneratePageTab(submission: ExtSubmission) {
-        every { pageTabUtil.generateSubPageTab(serializationService, submission, fireFolder) } returns PageTabFiles(
+        every { pageTabUtil.generateSubPageTab(submission, fireFolder) } returns PageTabFiles(
             fireFolder.resolve("S-TEST123.json"),
             fireFolder.resolve("S-TEST123.xml"),
             fireFolder.resolve("S-TEST123.pagetab.tsv")
         )
         every {
             pageTabUtil.generateFileListPageTab(
-                serializationService,
                 submission,
                 fireFolder
             )
@@ -145,7 +143,7 @@ class FirePageTabServiceTest(
         type = "Study1",
         fileList = ExtFileList(
             "data/file-list1",
-            file = createFileList(emptyList())
+            file = createExtFileList()
         ),
         sections = listOf(
             left(
@@ -153,7 +151,7 @@ class FirePageTabServiceTest(
                     type = "Study2",
                     fileList = ExtFileList(
                         "data/file-list2",
-                        file = createFileList(emptyList())
+                        file = createExtFileList()
                     )
                 )
             ),

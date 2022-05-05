@@ -8,7 +8,7 @@ import ebi.ac.uk.dsl.link
 import ebi.ac.uk.dsl.linksTable
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
@@ -26,7 +26,7 @@ class TsvSingleElementDeserializationTest {
             line()
         }.toString()
 
-        assertThat(deserializer.deserializeElement<File>(tsv)).isEqualToComparingFieldByField(
+        assertThat(deserializer.deserializeElement<BioFile>(tsv)).isEqualToComparingFieldByField(
             file("File1.txt") {
                 attribute("Attr", "Value")
             }

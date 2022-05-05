@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.xml
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import java.io.InputStream
 import java.io.OutputStream
 import javax.xml.stream.XMLInputFactory
@@ -16,7 +16,7 @@ import javax.xml.stream.XMLStreamConstants.START_ELEMENT
 import javax.xml.stream.XMLStreamReader
 
 class XmlStreamSerializer {
-    fun deserializeFileList(inputStream: InputStream): Sequence<File> {
+    fun deserializeFileList(inputStream: InputStream): Sequence<BioFile> {
         val reader = XMLInputFactory.newFactory().createXMLStreamReader(inputStream)
 
         reader.requireEvent(START_DOCUMENT) { "expecting xml document start" }
@@ -34,7 +34,7 @@ class XmlStreamSerializer {
         }
     }
 
-    fun serializeFileList(fileList: Sequence<File>, outputStream: OutputStream) {
+    fun serializeFileList(fileList: Sequence<BioFile>, outputStream: OutputStream) {
         val streamWriter = XMLOutputFactory.newFactory().createXMLStreamWriter(outputStream)
 
         streamWriter.writeStartDocument()

@@ -27,7 +27,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
-import uk.ac.ebi.extended.serialization.service.createFileList
+import uk.ac.ebi.extended.serialization.service.createExtFileList
 import java.io.File
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
@@ -102,7 +102,7 @@ class SubmissionServiceMigrationTest(
             type = "Study",
             fileList = ExtFileList(
                 "test-file-list",
-                file = createFileList(emptyList()),
+                file = createExtFileList(),
                 filesUrl = "/submissions/extended/S-BSST1/referencedFiles/test-file-list",
                 pageTabFiles = listOf(
                     NfsFile(

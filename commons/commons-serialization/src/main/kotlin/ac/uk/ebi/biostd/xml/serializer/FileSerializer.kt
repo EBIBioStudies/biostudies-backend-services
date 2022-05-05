@@ -7,12 +7,12 @@ import ac.uk.ebi.biostd.xml.common.writeXmlField
 import ac.uk.ebi.biostd.xml.common.writeXmlObj
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.constants.FileFields
 
-class FileSerializer : XmlStdSerializer<File>(File::class.java) {
+class FileSerializer : XmlStdSerializer<BioFile>(BioFile::class.java) {
 
-    override fun serializeXml(value: File, gen: ToXmlGenerator, provider: SerializerProvider) {
+    override fun serializeXml(value: BioFile, gen: ToXmlGenerator, provider: SerializerProvider) {
         with(gen) {
             writeXmlObj(FileFields.FILE) {
                 writeXmlAttr(FileFields.SIZE, value.size)

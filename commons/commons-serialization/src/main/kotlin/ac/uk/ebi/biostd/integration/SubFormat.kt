@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.PlainJson
 import java.io.File
 
-sealed class SubFormat {
+sealed class SubFormat(private val description: String) {
     companion object {
         fun valueOf(format: String): SubFormat {
             return when (format) {
@@ -19,7 +19,6 @@ sealed class SubFormat {
         fun fromFile(file: File): SubFormat {
             return when (file.extension) {
                 "tsv" -> TsvFormat.Tsv
-                "xlsx" -> TsvFormat.XlsxTsv
                 "xml" -> XmlFormat
                 "json" -> PlainJson
                 else -> throw InvalidExtensionException(file.name)
@@ -32,14 +31,15 @@ sealed class SubFormat {
         val JSON: PlainJson get() = PlainJson
     }
 
-    object XmlFormat : SubFormat()
+    override fun toString(): String = description
 
-    sealed class TsvFormat : SubFormat() {
+    object XmlFormat : SubFormat("XML")
+
+    sealed class TsvFormat : SubFormat("TSV") {
         object Tsv : TsvFormat()
-        object XlsxTsv : TsvFormat()
     }
 
-    sealed class JsonFormat : SubFormat() {
+    sealed class JsonFormat : SubFormat("JSON") {
         object PlainJson : JsonFormat()
         object JsonPretty : JsonFormat()
     }

@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.client.integration.web
 import ac.uk.ebi.biostd.client.api.SubmissionClientImpl
 import ac.uk.ebi.biostd.client.interceptor.OnBehalfInterceptor
 import ac.uk.ebi.biostd.client.interceptor.TokenInterceptor
-import ac.uk.ebi.biostd.integration.SerializationConfig
+import ac.uk.ebi.biostd.integration.SerializationService
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 
 class BioWebClient internal constructor(
@@ -13,7 +13,7 @@ class BioWebClient internal constructor(
         fun create(baseUrl: String, token: String): BioWebClient = BioWebClient(
             SubmissionClientImpl(
                 createRestTemplate(baseUrl, token),
-                SerializationConfig.serializationService(),
+                SerializationService(),
                 ExtSerializationConfig.extSerializationService()
             )
         )
@@ -25,7 +25,7 @@ class BioWebClient internal constructor(
         ): BioWebClient = BioWebClient(
             SubmissionClientImpl(
                 createRestTemplate(baseUrl, token, onBehalf),
-                SerializationConfig.serializationService(),
+                SerializationService(),
                 ExtSerializationConfig.extSerializationService()
             )
         )

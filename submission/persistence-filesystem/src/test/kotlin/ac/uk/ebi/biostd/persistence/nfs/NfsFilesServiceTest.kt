@@ -34,8 +34,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.serialization.common.FilesResolver
 import java.nio.file.Files.getPosixFilePermissions
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -49,9 +49,11 @@ class NfsFilesServiceTest(
     private lateinit var extSubmission: ExtSubmission
     private val rootPath = tempFolder.root.toPath()
 
-    private val toSubmissionMapper = ToSubmissionMapper(ToSectionMapper(ToFileListMapper(ExtSerializationService())))
     private val folderResolver = SubmissionFolderResolver(Paths.get("$rootPath/submission"), Paths.get("$rootPath/ftp"))
-    private val fileResolver: ExtFilesResolver = ExtFilesResolver(tempFolder.createDirectory("extended-files"))
+    private val fileResolver = FilesResolver(tempFolder.createDirectory("extended-files"))
+    private val toFileListMapper = ToFileListMapper(SerializationService(), ExtSerializationService(), fileResolver)
+    private val toSubmissionMapper = ToSubmissionMapper(ToSectionMapper(toFileListMapper))
+
     private val testInstance =
         NfsFilesService(folderResolver, FileProcessingService(ExtSerializationService(), fileResolver))
 

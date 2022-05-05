@@ -24,7 +24,7 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
-import uk.ac.ebi.extended.serialization.service.createFileList
+import uk.ac.ebi.extended.serialization.service.createExtFileList
 import uk.ac.ebi.extended.test.SectionFactory.defaultSection
 import java.io.File
 import java.time.OffsetDateTime
@@ -187,7 +187,7 @@ object FileListFactory {
         pageTabFiles: List<ExtFile> = PAGE_TAG_FILES,
     ) = ExtFileList(
         filePath = filePath,
-        file = createFileList(files),
+        file = createExtFileList(files),
         filesUrl = filesUrl,
         pageTabFiles = pageTabFiles
     )

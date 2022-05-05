@@ -24,7 +24,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
@@ -45,10 +45,10 @@ internal class JsonSerializer {
         else mapper.writeValueAsString(element)
     }
 
-    fun serializeFileList(fileList: Sequence<File>, outputStream: OutputStream) =
+    fun serializeFileList(fileList: Sequence<BioFile>, outputStream: OutputStream) =
         mapper.serializeList(fileList, outputStream)
 
-    fun deserializeFileList(inputStream: InputStream): Sequence<File> = mapper.deserializeList(inputStream)
+    fun deserializeFileList(inputStream: InputStream): Sequence<BioFile> = mapper.deserializeList(inputStream)
 
     inline fun <reified T> deserialize(value: String) = mapper.readValue<T>(value)
 
@@ -62,7 +62,7 @@ internal class JsonSerializer {
                 addSerializer(Submission::class.java, SubmissionJsonSerializer())
                 addSerializer(Section::class.java, SectionJsonSerializer())
                 addSerializer(Link::class.java, LinkJsonSerializer())
-                addSerializer(File::class.java, FileJsonSerializer())
+                addSerializer(BioFile::class.java, FileJsonSerializer())
                 addSerializer(Attribute::class.java, AttributeJsonSerializer())
                 addSerializer(Either::class.java, EitherSerializer())
                 addSerializer(Table::class.java, TableJsonSerializer())
@@ -70,7 +70,7 @@ internal class JsonSerializer {
                 addDeserializer(Submission::class.java, SubmissionJsonDeserializer())
                 addDeserializer(Section::class.java, SectionJsonDeserializer())
                 addDeserializer(Link::class.java, LinkJsonDeserializer())
-                addDeserializer(File::class.java, FileJsonDeserializer())
+                addDeserializer(BioFile::class.java, FileJsonDeserializer())
                 addDeserializer(Attribute::class.java, AttributeJsonDeserializer())
                 addDeserializer(AttributeDetail::class.java, AttributeDetailJsonDeserializer())
                 addDeserializer(Either::class.java, EitherDeserializer())

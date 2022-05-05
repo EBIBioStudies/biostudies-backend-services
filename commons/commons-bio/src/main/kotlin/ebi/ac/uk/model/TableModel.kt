@@ -85,8 +85,8 @@ class LinksTable(links: List<Link> = emptyList()) : Table<Link>(links) {
     }
 }
 
-class FilesTable(files: List<File> = emptyList()) : Table<File>(files) {
-    override fun toTableRow(t: File) = object : Row<File>(t) {
+class FilesTable(files: List<BioFile> = emptyList()) : Table<BioFile>(files) {
+    override fun toTableRow(t: BioFile) = object : Row<BioFile>(t) {
         override val id = t.path
         override val attributes = t.attributes
     }

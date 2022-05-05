@@ -7,13 +7,13 @@ import ac.uk.ebi.biostd.json.common.writeObj
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.databind.ser.std.StdSerializer
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.constants.FileFields
 
-internal class FileJsonSerializer : StdSerializer<File>(File::class.java) {
-    override fun isEmpty(provider: SerializerProvider, value: File): Boolean = value.path.isEmpty()
+internal class FileJsonSerializer : StdSerializer<BioFile>(BioFile::class.java) {
+    override fun isEmpty(provider: SerializerProvider, value: BioFile): Boolean = value.path.isEmpty()
 
-    override fun serialize(file: File, gen: JsonGenerator, provider: SerializerProvider) {
+    override fun serialize(file: BioFile, gen: JsonGenerator, provider: SerializerProvider) {
         gen.writeObj {
             writeJsonString(FileFields.PATH, file.path)
             writeJsonNumber(FileFields.SIZE.value, file.size)

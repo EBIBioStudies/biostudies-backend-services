@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.xml.serializer
 
-import uk.ac.ebi.serialization.serializers.EitherSerializer
 import ac.uk.ebi.biostd.test.FILE_NAME
 import ac.uk.ebi.biostd.test.LINK_URL
 import ac.uk.ebi.biostd.test.SEC_ACC_NO
@@ -16,7 +15,7 @@ import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.sectionsTable
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
@@ -26,12 +25,13 @@ import ebi.ac.uk.model.Table
 import org.junit.jupiter.api.Test
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.assertj.XmlAssert.assertThat
+import uk.ac.ebi.serialization.serializers.EitherSerializer
 
 class TableSerializerTest {
 
     private val xmlMapper = XmlMapper(
         JacksonXmlModule().apply {
-            addSerializer(File::class.java, FileSerializer())
+            addSerializer(BioFile::class.java, FileSerializer())
             addSerializer(Link::class.java, LinkSerializer())
             addSerializer(Table::class.java, TableSerializer())
             addSerializer(Either::class.java, EitherSerializer())

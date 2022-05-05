@@ -1,8 +1,6 @@
 package ac.uk.ebi.biostd.service
 
 import ac.uk.ebi.biostd.exception.EmptyPageTabFileException
-import ac.uk.ebi.biostd.integration.SubFormat
-import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.XlsxTsv
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.util.file.ExcelReader.asTsv
 import java.io.File
@@ -10,6 +8,6 @@ import java.io.File
 object PageTabFileReader {
     fun readAsPageTab(file: File): File {
         require(file.size() > 0) { throw EmptyPageTabFileException(file.name) }
-        return if (SubFormat.fromFile(file) == XlsxTsv) asTsv(file) else file
+        return if (file.extension == "xlsx") asTsv(file) else file
     }
 }

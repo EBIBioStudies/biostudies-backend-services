@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.xml
 
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -17,7 +17,7 @@ internal class XmlStreamSerializerTest(
     @Test
     fun `serialize - deserialize FileList`() {
         val fileSystem = temporaryFolder.createFile("serialization.xml")
-        val files = (1..20_000).map { File("folder$it/file.txt", attributes = attributes(it)) }
+        val files = (1..20_000).map { BioFile("folder$it/file.txt", attributes = attributes(it)) }
         val iterator = files.iterator()
 
         fileSystem.outputStream().use { testInstance.serializeFileList(files.asSequence(), it) }

@@ -1,14 +1,14 @@
 package ebi.ac.uk.model.builders
 
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 
 class FileBuilder {
     var path: String = ""
     var attributes: List<Attribute> = emptyList()
 
-    fun build(): File {
+    fun build(): BioFile {
         require(path.isNotBlank()) { "File Path is required" }
-        return File(path, attributes = attributes)
+        return BioFile(path, attributes = attributes)
     }
 }

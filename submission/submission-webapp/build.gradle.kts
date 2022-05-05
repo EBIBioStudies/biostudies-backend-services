@@ -111,6 +111,8 @@ dependencies {
     implementation(KotlinLogging)
 
     testImplementation(project(ClientBioWebClient))
+    testImplementation(testFixtures(project(CommonsSerialization)))
+
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
     testImplementation(SpringBootStarterTest)

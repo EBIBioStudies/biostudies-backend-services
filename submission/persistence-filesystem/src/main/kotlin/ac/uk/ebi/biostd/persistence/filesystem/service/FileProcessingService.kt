@@ -8,13 +8,13 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.use
-import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 
 class FileProcessingService(
     private val serializationService: ExtSerializationService,
-    private val fileResolver: ExtFilesResolver,
+    private val fileResolver: FilesResolver,
 ) {
     /**
      * Allow to process the given section, and it subsections by updating a specific attribute or modified data
@@ -66,7 +66,7 @@ class FileProcessingService(
         fileList: ExtFileList,
         processFile: (file: ExtFile) -> ExtFile,
     ): ExtFileList {
-        val newFileList = fileResolver.createEmptyFile(subAccNo, subVersion, fileList.fileName)
+        val newFileList = fileResolver.createExtEmptyFile(subAccNo, subVersion, fileList.fileName)
         return fileList.copy(file = copyFile(fileList.file, newFileList, processFile))
     }
 

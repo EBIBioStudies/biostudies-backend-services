@@ -2,7 +2,6 @@ package uk.ac.ebi.scheduler.exporter.config
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
-import ac.uk.ebi.biostd.integration.SerializationConfig
 import ac.uk.ebi.biostd.integration.SerializationService
 import com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
@@ -21,6 +20,8 @@ import uk.ac.ebi.scheduler.exporter.persistence.PmcRepository
 import uk.ac.ebi.scheduler.exporter.service.ExporterService
 import uk.ac.ebi.scheduler.exporter.service.PmcExporterService
 import uk.ac.ebi.scheduler.exporter.service.PublicOnlyExporterService
+import uk.ac.ebi.serialization.common.FilesResolver
+import java.io.File
 import java.io.PrintWriter
 
 internal const val BUFFER_SIZE = 1024 * 1024
@@ -53,7 +54,16 @@ class ApplicationConfig(
     fun toSectionMapper(toFileListMapper: ToFileListMapper) = ToSectionMapper(toFileListMapper)
 
     @Bean
-    fun toFileListMapper(serializationService: ExtSerializationService) = ToFileListMapper(serializationService)
+    fun folderResolver(applicationProperties: ApplicationProperties): FilesResolver {
+        return FilesResolver(File(applicationProperties.tmpFilesPath))
+    }
+
+    @Bean
+    fun toFileListMapper(
+        serializationService: SerializationService,
+        extSerializationService: ExtSerializationService,
+        resolver: FilesResolver
+    ) = ToFileListMapper(serializationService, extSerializationService, resolver)
 
     @Bean
     fun exporterService(
@@ -85,7 +95,7 @@ class ApplicationConfig(
     ).apply { enable(INDENT_OUTPUT) }
 
     @Bean
-    fun serializationService(): SerializationService = SerializationConfig.serializationService()
+    fun serializationService(): SerializationService = SerializationService()
 
     @Bean
     fun extSerializationService(): ExtSerializationService = ExtSerializationConfig.extSerializationService()

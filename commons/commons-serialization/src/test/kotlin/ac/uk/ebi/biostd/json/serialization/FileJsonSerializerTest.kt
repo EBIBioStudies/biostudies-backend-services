@@ -8,7 +8,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.constants.FileFields
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
@@ -17,7 +17,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode
 class FileJsonSerializerTest {
 
     private val testInstance = createSerializer()
-    val file = File(
+    val file = BioFile(
         path = "folder1/file.txt",
         size = 10L,
         type = FileFields.FILE.value,
@@ -46,7 +46,7 @@ class FileJsonSerializerTest {
     companion object {
         fun createSerializer(): ObjectMapper {
             val module = SimpleModule()
-            module.addSerializer(File::class.java, FileJsonSerializer())
+            module.addSerializer(BioFile::class.java, FileJsonSerializer())
 
             return jacksonObjectMapper().apply {
                 registerModule(module)

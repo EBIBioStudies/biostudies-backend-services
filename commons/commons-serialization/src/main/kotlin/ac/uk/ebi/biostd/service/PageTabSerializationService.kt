@@ -4,10 +4,12 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.model.FileList
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 
 internal class PageTabSerializationService(
     private val serializer: PagetabSerializer,
@@ -22,17 +24,27 @@ internal class PageTabSerializationService(
     override fun deserializeSubmission(content: String, format: SubFormat, source: FilesSource): Submission =
         fileListSerializer.deserializeFileList(serializer.deserializeSubmission(content, format), source)
 
-    override fun deserializeSubmission(file: File): Submission =
-        deserializeSubmission(readAsPageTab(file).readText(), SubFormat.fromFile(file))
+    override fun deserializeSubmission(file: File): Submission {
+        val pagetabFile = readAsPageTab(file)
+        return deserializeSubmission(pagetabFile.readText(), SubFormat.fromFile(pagetabFile))
+    }
 
     override fun deserializeSubmission(file: File, source: FilesSource): Submission =
         fileListSerializer.deserializeFileList(deserializeSubmission(file), source)
 
-    override fun serializeFileList(table: FilesTable, format: SubFormat, file: File): File {
-        file.outputStream().use { serializer.serializeFileList(table, format, it) }
+    override fun deserializeFileList(inputStream: InputStream, format: SubFormat): Sequence<BioFile> =
+        fileListSerializer.deserializeFileList(inputStream, format)
+
+    override fun serializeTable(table: FilesTable, format: SubFormat, file: File): File {
+        file.outputStream().use { serializer.serializeFileList(table.elements.asSequence(), format, it) }
         return file
     }
 
-    override fun deserializeFileList(fileName: String, source: FilesSource): FileList =
-        fileListSerializer.deserializeFileList(fileName, source)
+    override fun serializeFileList(
+        files: Sequence<BioFile>,
+        targetFormat: SubFormat,
+        outputStream: OutputStream
+    ) {
+        serializer.serializeFileList(files, targetFormat, outputStream)
+    }
 }

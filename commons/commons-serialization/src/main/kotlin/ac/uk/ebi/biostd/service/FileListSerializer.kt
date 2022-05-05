@@ -6,17 +6,25 @@ import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ebi.ac.uk.errors.FileNotFoundException
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FileList
-import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.fileListName
+import ebi.ac.uk.util.file.ExcelReader.asTsv
+import mu.KotlinLogging
 import java.io.File
+import java.io.InputStream
+
+private val logger = KotlinLogging.logger {}
 
 internal class FileListSerializer(
-    private val serializer: PagetabSerializer
+    private val serializer: PagetabSerializer,
 ) {
-    internal fun deserializeFileList(fileName: String, source: FilesSource): FileList = getFileList(fileName, source)
+
+    internal fun deserializeFileList(inputStream: InputStream, format: SubFormat): Sequence<BioFile> {
+        return serializer.deserializeFileList(inputStream, format)
+    }
 
     internal fun deserializeFileList(submission: Submission, source: FilesSource): Submission {
         submission.allSections()
@@ -26,21 +34,29 @@ internal class FileListSerializer(
         return submission
     }
 
-    private fun getFileList(fileList: String, source: FilesSource): FileList {
-        val filesTable = getFilesTable(getFile(fileList, source))
-        return FileList(fileList, filesTable.elements)
+    private fun getFileList(name: String, fileSource: FilesSource): FileList {
+        val file = getFile(name, fileSource)
+        file.inputStream().use { checkFileList(name, SubFormat.fromFile(file), it) }
+        return FileList(name, file)
     }
 
-    private fun getFile(fileList: String, source: FilesSource): File {
-        return when (val file = source.getFile(fileList)) {
-            null -> throw FileNotFoundException(fileList)
-            else -> if (file.isFile) file else throw directoryCantBeFileList(fileList)
+    private fun checkFileList(name: String, format: SubFormat, stream: InputStream) {
+        runCatching {
+            serializer.deserializeFileList(stream, format).forEach { logger.debug { "read file ${it.path}" } }
+        }.getOrElse {
+            throw InvalidFileListException(name, errorMsg(it))
         }
     }
 
-    private fun getFilesTable(file: File): FilesTable =
-        runCatching { file.inputStream().use { serializer.deserializeFileList(it, SubFormat.fromFile(file)) } }
-            .getOrElse { throw InvalidFileListException(file.name, errorMsg(it)) }
+    private fun getFile(fileList: String, source: FilesSource): File =
+        when (val file = source.getFile(fileList)) {
+            null -> throw FileNotFoundException(fileList)
+            else -> when {
+                file.isFile.not() -> throw directoryCantBeFileList(fileList)
+                file.extension == "xlsx" -> asTsv(file)
+                else -> file
+            }
+        }
 
     private fun errorMsg(exception: Throwable) = when (exception) {
         is ClassCastException,

@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -46,17 +46,17 @@ class FileListTsvStreamDeserializerTest(
         assertThat(files).hasSize(2)
 
         assertThat(files.first()).isEqualTo(
-            File("file1.txt", attributes = listOf(Attribute("Attr1", "A"), Attribute("Attr2", "B")))
+            BioFile("file1.txt", attributes = listOf(Attribute("Attr1", "A"), Attribute("Attr2", "B")))
         )
         assertThat(files.second()).isEqualTo(
-            File("file2.txt", attributes = listOf(Attribute("Attr1", "C"), Attribute("Attr2", "D")))
+            BioFile("file2.txt", attributes = listOf(Attribute("Attr1", "C"), Attribute("Attr2", "D")))
         )
     }
 
     @Test
     fun `serialize - deserialize FileList`() {
         val files = (1..20_000).map {
-            File("folder/file$it.txt", attributes = listOf(Attribute("Attr1", "A$it"), Attribute("Attr2", "B$it")))
+            BioFile("folder/file$it.txt", attributes = listOf(Attribute("Attr1", "A$it"), Attribute("Attr2", "B$it")))
         }.asSequence()
         val iterator = files.iterator()
 

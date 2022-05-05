@@ -53,8 +53,8 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
-import uk.ac.ebi.extended.serialization.service.ExtFilesResolver
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.serialization.common.FilesResolver
 import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -76,7 +76,7 @@ internal class SubmissionMongoQueryServiceTest(
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository
 ) {
     private val serializationService: ExtSerializationService = extSerializationService()
-    private val fileResolver = ExtFilesResolver(tempFolder.createDirectory("ext-files"))
+    private val fileResolver = FilesResolver(tempFolder.createDirectory("ext-files"))
     private val testInstance =
         SubmissionMongoQueryService(
             submissionRepo,

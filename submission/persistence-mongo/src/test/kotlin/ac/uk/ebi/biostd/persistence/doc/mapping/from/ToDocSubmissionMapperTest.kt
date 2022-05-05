@@ -104,7 +104,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.createFileList
+import uk.ac.ebi.extended.serialization.service.createExtFileList
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ToDocSubmissionMapperTest(
@@ -119,14 +119,14 @@ class ToDocSubmissionMapperTest(
         rootSectionTableFile.copy(file = tempFolder.createFile("tempFile4.txt", "content4"))
 
     private val newSubSection =
-        subSection.copy(fileList = subSection.fileList!!.copy(file = createFileList(listOf(newSubSectionFileListFile))))
+        subSection.copy(fileList = subSection.fileList!!.copy(file = createExtFileList(newSubSectionFileListFile)))
 
     private val nfsFileFile = tempFolder.createFile(NFS_FILENAME)
     private val extNfsFile = createNfsFile(NFS_FILEPATH, NFS_REL_PATH, nfsFileFile)
 
     private val newRootSection = rootSection.copy(
         fileList = rootSection.fileList!!.copy(
-            file = createFileList(listOf(newRootSectionFileListFile)),
+            file = createExtFileList(newRootSectionFileListFile),
             pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile)
         ),
         sections = listOf(

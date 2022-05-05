@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.json
 
 import ac.uk.ebi.biostd.test.createVenousBloodMonocyte
 import ebi.ac.uk.model.Attribute
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Submission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -30,7 +30,7 @@ class JsonSerializerTest(
     fun `serialize - deserialize FileList`() {
         val jsonSerializer = JsonSerializer()
         val fileSystem = temporaryFolder.createFile("serialization.json")
-        val files = (1..20_000).map { File("folder$it/file.txt", size = 0L, attributes = attributes(it)) }
+        val files = (1..20_000).map { BioFile("folder$it/file.txt", size = 0L, attributes = attributes(it)) }
         val iterator = files.iterator()
 
         fileSystem.outputStream().use { jsonSerializer.serializeFileList(files.asSequence(), it) }

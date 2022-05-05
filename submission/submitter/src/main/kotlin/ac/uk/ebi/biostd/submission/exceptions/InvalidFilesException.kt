@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.submission.exceptions
 
-import ebi.ac.uk.model.File
+import ebi.ac.uk.model.BioFile
 
 /**
  * Generated when a submission includes a reference to a file which is not present.
  */
-class InvalidFilesException(private val invalidFiles: List<File>) : RuntimeException() {
+class InvalidFilesException(private val invalidFiles: List<BioFile>) : RuntimeException() {
 
     override val message: String
         get() = invalidFiles.joinToString(
