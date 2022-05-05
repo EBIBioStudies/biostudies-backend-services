@@ -7,6 +7,7 @@ import uk.ac.ebi.biostd.client.cli.commands.GrantPermissionCommand
 import uk.ac.ebi.biostd.client.cli.commands.MigrateCommand
 import uk.ac.ebi.biostd.client.cli.commands.SubmitAsyncCommand
 import uk.ac.ebi.biostd.client.cli.commands.SubmitCommand
+import uk.ac.ebi.biostd.client.cli.commands.ValidateFileListCommand
 import uk.ac.ebi.biostd.client.cli.services.SecurityService
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
@@ -25,7 +26,8 @@ fun main(args: Array<String>) {
             SubmitAsyncCommand(service),
             DeleteCommand(service),
             MigrateCommand(service),
-            GrantPermissionCommand(securityService)
+            GrantPermissionCommand(securityService),
+            ValidateFileListCommand(service)
         )
         .main(args)
 }

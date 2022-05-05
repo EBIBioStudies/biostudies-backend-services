@@ -25,6 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
+import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 
 @ExtendWith(MockKExtension::class)
 internal class SubmissionServiceTest {
@@ -124,6 +125,19 @@ internal class SubmissionServiceTest {
             .withMessage("WebClientException: $ERROR_MESSAGE")
     }
 
+    @Test
+    fun `validate file list`() {
+        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns bioWebClient
+        every { bioWebClient.validateFileList(validateFileList.fileListPath) } answers { nothing }
+
+        testInstance.validateFileList(validateFileList)
+
+        verify(exactly = 1) {
+            create(SERVER).getAuthenticatedClient(USER, PASSWORD, null)
+            bioWebClient.validateFileList(validateFileList.fileListPath)
+        }
+    }
+
     private companion object {
         private const val ACC_NO = "S-BSST0"
         private const val ERROR_MESSAGE = "error message"
@@ -131,6 +145,7 @@ internal class SubmissionServiceTest {
         private const val PASSWORD = "password"
         private const val SERVER = "server"
         private const val USER = "user"
+        private const val FILE_LIST_PATH = "file-list.json"
 
         val webClientException: WebClientException = mockk()
         val submission: Submission = mockk()
@@ -152,6 +167,14 @@ internal class SubmissionServiceTest {
             password = PASSWORD,
             onBehalf = ON_BEHALF,
             accNoList = listOf(ACC_NO)
+        )
+
+        var validateFileList = ValidateFileListRequest(
+            server = SERVER,
+            user = USER,
+            password = PASSWORD,
+            onBehalf = null,
+            fileListPath = FILE_LIST_PATH
         )
     }
 }

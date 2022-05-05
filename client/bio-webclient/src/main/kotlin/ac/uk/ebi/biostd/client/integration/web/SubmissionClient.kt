@@ -80,6 +80,8 @@ interface SubmissionOperations {
     fun releaseSubmission(request: ReleaseRequestDto)
 
     fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
+
+    fun validateFileList(fileListPath: String)
 }
 
 interface MultipartSubmissionOperations {
