@@ -67,6 +67,7 @@ app:
     host: # FIRE host
     username: # FIRE user
     password: # FIRE password
+    version: # FIRE version
   security:
     captchaKey: # Captcha validation token
     checkCaptcha: false

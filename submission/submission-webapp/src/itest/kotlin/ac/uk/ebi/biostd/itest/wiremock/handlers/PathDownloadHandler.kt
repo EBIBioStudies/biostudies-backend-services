@@ -13,7 +13,7 @@ class PathDownloadHandler(
     private val fireDB: FireMockDatabase
 ) : RequestHandler {
     override val requestMethod: RequestMethod = GET
-    override val urlPattern: Regex = "/fire/objects/blob/path/(.*)".toRegex()
+    override val urlPattern: Regex = "$FIRE_BASE_URL/blob/path/(.*)".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {
         val file = fireDB.downloadByPath(urlPattern.getGroup(rqt.url, 1))

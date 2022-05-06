@@ -6,6 +6,8 @@ import org.springframework.web.util.DefaultUriBuilderFactory
 import uk.ac.ebi.fire.client.api.FireClient
 import uk.ac.ebi.fire.client.exception.FireWebClientErrorHandler
 
+const val FIRE_API_BASE = "fire"
+
 class FireWebClient private constructor(
     private val fireClient: FireClient
 ) : FireOperations by fireClient {
@@ -13,13 +15,15 @@ class FireWebClient private constructor(
         fun create(
             tmpDirPath: String,
             fireHost: String,
+            fireVersion: String,
             username: String,
             password: String
-        ): FireWebClient = FireWebClient(FireClient(tmpDirPath, createRestTemplate(fireHost, username, password)))
+        ): FireWebClient =
+            FireWebClient(FireClient(tmpDirPath, createRestTemplate(fireHost, fireVersion, username, password)))
 
-        private fun createRestTemplate(fireHost: String, username: String, password: String) =
+        private fun createRestTemplate(fireHost: String, fireVersion: String, username: String, password: String) =
             RestTemplate().apply {
-                uriTemplateHandler = DefaultUriBuilderFactory(fireHost)
+                uriTemplateHandler = DefaultUriBuilderFactory("$fireHost/$FIRE_API_BASE/$fireVersion")
                 errorHandler = FireWebClientErrorHandler()
                 clientHttpRequestInitializers.add(FireAuthRequestInitializer(username, password))
                 requestFactory = SimpleClientHttpRequestFactory().apply {
