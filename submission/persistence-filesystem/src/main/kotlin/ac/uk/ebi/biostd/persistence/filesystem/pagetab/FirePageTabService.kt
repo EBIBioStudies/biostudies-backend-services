@@ -54,7 +54,7 @@ class FirePageTabService(
     private fun fileListFiles(accNo: String, pageTab: PageTabFiles, subFolder: String, fileListName: String) = listOf(
         saveFileListFile(accNo, pageTab.json, subFolder, "$fileListName.json"),
         saveFileListFile(accNo, pageTab.xml, subFolder, "$fileListName.xml"),
-        saveFileListFile(accNo, pageTab.tsv, subFolder, "$fileListName.pagetab.tsv")
+        saveFileListFile(accNo, pageTab.tsv, subFolder, "$fileListName.tsv")
     )
 
     private fun saveFileListFile(accNo: String, file: File, subFolder: String, filePath: String): FireFile {

@@ -34,7 +34,7 @@ class PageTabUtil(
                 permissions
             ),
             tsv = saveTabFile(
-                target.resolve("${sub.accNo}.pagetab.tsv"),
+                target.resolve("${sub.accNo}.tsv"),
                 serializationService.serializeSubmission(element, TSV),
                 permissions
             ),
@@ -57,7 +57,7 @@ class PageTabUtil(
         folder.resolve(filename).parentFile.mkdirs()
         val json = folder.resolve("$filename.json").apply { createNewFile() }
         val xml = folder.resolve("$filename.xml").apply { createNewFile() }
-        val tsv = folder.resolve("$filename.pagetab.tsv").apply { createNewFile() }
+        val tsv = folder.resolve("$filename.tsv").apply { createNewFile() }
         return PageTabFiles(
             json = toFilesTableMapper.serialize(fileList, JSON_PRETTY, json),
             xml = toFilesTableMapper.serialize(fileList, XML, xml),

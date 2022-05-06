@@ -43,7 +43,7 @@ class NfsPageTabService(
         return listOf(
             createNfsFile("$name.json", "Files/$name.json", tab.json),
             createNfsFile("$name.xml", "Files/$name.xml", tab.xml),
-            createNfsFile("$name.pagetab.tsv", "Files/$name.pagetab.tsv", tab.tsv),
+            createNfsFile("$name.tsv", "Files/$name.tsv", tab.tsv),
         )
     }
 

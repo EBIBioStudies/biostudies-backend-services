@@ -59,7 +59,7 @@ class TsvSerializer {
 
     private fun sectionAttributes(section: Section): List<Attribute> = when (val fileList = section.fileList) {
         null -> section.attributes
-        else -> section.attributes.plus(Attribute(FILE_LIST.value, "${fileList.name}.pagetab.tsv"))
+        else -> section.attributes.plus(Attribute(FILE_LIST.value, "${fileList.name}.tsv"))
     }
 
     private fun getHeader(table: SectionsTable, parentAccNo: String? = null) =
