@@ -3,6 +3,11 @@
     - build-test
   script: gradle deployBioCommandLine -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/cli/dev
 
+.deploy-beta-bio-commandline:
+  dependencies:
+    - build-test
+  script: gradle deployBioCommandLine -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/cli/beta
+
 auto-deploy-dev-bio-commandline:
   extends: .deploy-dev-bio-commandline
   stage: auto-deploy-dev-bio-commandline
@@ -10,17 +15,22 @@ auto-deploy-dev-bio-commandline:
     refs:
       - master
 
+auto-deploy-beta-bio-commandline:
+  extends: .deploy-beta-bio-commandline
+  stage: auto-deploy-beta-bio-commandline
+  only:
+    refs:
+      - beta
+
 deploy-dev-bio-commandline:
   extends: .deploy-dev-bio-commandline
   stage: deploy-dev-bio-commandline
   when: manual
 
 deploy-beta-bio-commandline:
+  extends: .deploy-beta-bio-commandline
   stage: deploy-beta-bio-commandline
   when: manual
-  dependencies:
-    - build-test
-  script: gradle deployBioCommandLine -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/cli/beta
 
 deploy-prod-bio-commandline:
   stage: deploy-prod-bio-commandline
