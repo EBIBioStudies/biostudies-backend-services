@@ -4,6 +4,8 @@ import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.http.RequestMethod
 import com.github.tomakehurst.wiremock.http.ResponseDefinition
 
+internal const val FIRE_BASE_URL = "/fire/v\\d*.\\d*/objects"
+
 interface RequestHandler {
     val requestMethod: RequestMethod
     val urlPattern: Regex
