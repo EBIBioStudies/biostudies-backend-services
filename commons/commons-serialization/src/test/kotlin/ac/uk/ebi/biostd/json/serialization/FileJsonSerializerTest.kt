@@ -15,7 +15,6 @@ import org.skyscreamer.jsonassert.JSONAssert
 import org.skyscreamer.jsonassert.JSONCompareMode
 
 class FileJsonSerializerTest {
-
     private val testInstance = createSerializer()
     val file = BioFile(
         path = "folder1/file.txt",

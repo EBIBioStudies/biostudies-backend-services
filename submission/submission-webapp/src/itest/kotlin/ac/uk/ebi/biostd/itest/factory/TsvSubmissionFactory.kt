@@ -54,39 +54,40 @@ fun assertAllInOneSubmissionTsv(tsv: String, accNo: String) {
     val expectedRootSectionFile = tsv {
         line("File", "DataFile1.txt")
         line("Description", "Data File 1")
+        line("md5", "D41D8CD98F00B204E9800998ECF8427E")
         line()
     }
-    assertTsvBlock(lines, 16, 18, expectedRootSectionFile)
+    assertTsvBlock(lines, 16, 19, expectedRootSectionFile)
 
     val expectedRootSectionFilesTable = tsv {
-        line("Files", "Description", "Type")
-        line("DataFile2.txt", "Data File 2", "Data")
-        line("Folder1/DataFile3.txt", "Data File 3", "Data")
-        line("Folder1/Folder2/DataFile4.txt", "Data File 4", "Data")
+        line("Files", "Description", "Type", "md5")
+        line("DataFile2.txt", "Data File 2", "Data", "D41D8CD98F00B204E9800998ECF8427E")
+        line("Folder1/DataFile3.txt", "Data File 3", "Data", "D41D8CD98F00B204E9800998ECF8427E")
+        line("Folder1/Folder2/DataFile4.txt", "Data File 4", "Data", "D41D8CD98F00B204E9800998ECF8427E")
         line()
     }
-    assertTsvBlock(lines, 19, 23, expectedRootSectionFilesTable)
+    assertTsvBlock(lines, 20, 24, expectedRootSectionFilesTable)
 
     val expectedSubsection = tsv {
         line("Stranded Total RNA-Seq", "SUBSECT-001", "SECT-001")
         line("File List", "sub-folder/file-list2.pagetab.tsv")
         line()
     }
-    assertTsvBlock(lines, 24, 26, expectedSubsection)
+    assertTsvBlock(lines, 25, 27, expectedSubsection)
 
     val expectedSubsectionLinksTable = tsv {
         line("Links", "Type", "Assay type", "(TermId)", "[Ontology]")
         line("EGAD00001001282", "EGA", "RNA-Seq", "EFO_0002768", "EFO")
         line()
     }
-    assertTsvBlock(lines, 27, 29, expectedSubsectionLinksTable)
+    assertTsvBlock(lines, 28, 30, expectedSubsectionLinksTable)
 
     val expectedSubsectionsTable = tsv {
         line("Data[SECT-001]", "Title", "Description")
         line("DT-1", "Group 1 Transcription Data", "The data for zygotic transcription in mammals group 1")
         line()
     }
-    assertTsvBlock(lines, 30, 32, expectedSubsectionsTable)
+    assertTsvBlock(lines, 31, 33, expectedSubsectionsTable)
 }
 
 private fun assertTsvBlock(lines: List<String>, from: Int, to: Int, expected: Tsv) {
