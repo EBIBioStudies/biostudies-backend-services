@@ -6,7 +6,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory
 import uk.ac.ebi.fire.client.api.FireClient
 import uk.ac.ebi.fire.client.exception.FireWebClientErrorHandler
 
-const val FIRE_API_BASE = "fire"
+private const val FIRE_API_BASE = "fire"
 
 class FireWebClient private constructor(
     private val fireClient: FireClient
