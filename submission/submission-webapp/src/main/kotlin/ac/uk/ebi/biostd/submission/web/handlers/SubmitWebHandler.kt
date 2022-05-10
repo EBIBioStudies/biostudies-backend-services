@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.web.handlers
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.helpers.RequestSources
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
@@ -11,8 +12,6 @@ import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionExce
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
-import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
-import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -21,8 +20,6 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod.FILE
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
 import ebi.ac.uk.model.extensions.rootPath
-import ebi.ac.uk.security.integration.components.ISecurityQueryService
-import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
@@ -34,8 +31,8 @@ class SubmitWebHandler(
     private val sourceGenerator: SourceGenerator,
     private val serializationService: SerializationService,
     private val userFilesService: UserFilesService,
-    private val securityQueryService: ISecurityQueryService,
     private val toSubmissionMapper: ToSubmissionMapper,
+    private val onBehalfUtils: OnBehalfUtils
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission =
         toSubmissionMapper.toSimpleSubmission(submissionService.submit(buildRequest(request)))
@@ -55,7 +52,7 @@ class SubmitWebHandler(
             RequestSources(
                 submitter = request.submitter,
                 files = request.files,
-                owner = request.onBehalfRequest?.let { getOnBehalfUser(it) },
+                owner = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
                 rootPath = sub.rootPath,
                 submission = extSub
             )
@@ -65,7 +62,7 @@ class SubmitWebHandler(
         return SubmitRequest(
             submission = submission,
             submitter = request.submitter,
-            onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
+            onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
             method = PAGE_TAB,
             sources = source,
             mode = request.fileMode,
@@ -81,7 +78,7 @@ class SubmitWebHandler(
             RequestSources(
                 submitter = request.submitter,
                 files = request.files,
-                owner = request.onBehalfRequest?.let { getOnBehalfUser(it) },
+                owner = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
                 rootPath = sub.rootPath,
                 submission = extSub
             )
@@ -93,21 +90,11 @@ class SubmitWebHandler(
         return SubmitRequest(
             submission = submission,
             submitter = request.submitter,
-            onBehalfUser = request.onBehalfRequest?.let { getOnBehalfUser(it) },
+            onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
             sources = source,
             method = FILE,
             mode = request.fileMode
         )
-    }
-
-    private fun getOnBehalfUser(onBehalfRequest: OnBehalfRequest): SecurityUser {
-        val request = onBehalfRequest.asRegisterRequest()
-        return if (request.register) registerInactive(request) else securityQueryService.getUser(request.userEmail)
-    }
-
-    private fun registerInactive(registerRequest: GetOrRegisterUserRequest): SecurityUser {
-        requireNotNull(registerRequest.userName) { "A valid user name must be provided for registration" }
-        return securityQueryService.getOrCreateInactive(registerRequest.userEmail, registerRequest.userName!!)
     }
 
     private fun withAttributes(submission: Submission, attrs: Map<String, String?>): Submission {

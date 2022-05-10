@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.factory.TestSuperUser
 import ac.uk.ebi.biostd.resolvers.TestBioUserResolver
+import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
 import ebi.ac.uk.io.sources.FilesSource
@@ -20,11 +21,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 @ExtendWith(MockKExtension::class)
 class FileListResourceTest(
     @MockK private val sourceGenerator: SourceGenerator,
-    @MockK private val fileListValidator: FileListValidator
+    @MockK private val fileListValidator: FileListValidator,
+    @MockK private val onBehalfUtils: OnBehalfUtils
 ) {
     private val bioUserResolver = TestBioUserResolver()
     private val mvc = MockMvcBuilders
-        .standaloneSetup(FileListResource(sourceGenerator, fileListValidator))
+        .standaloneSetup(FileListResource(sourceGenerator, fileListValidator, onBehalfUtils))
         .setCustomArgumentResolvers(bioUserResolver)
         .build()
 
@@ -38,7 +40,7 @@ class FileListResourceTest(
         val user = TestSuperUser.asSecurityUser()
         bioUserResolver.securityUser = user
 
-        every { sourceGenerator.userSources(user) } returns filesSource
+        every { sourceGenerator.userSources(user, null, null) } returns filesSource
         every { fileListValidator.validateFileList("file-list", filesSource) } answers { nothing }
 
         mvc.post("/submissions/fileLists/validate") {
@@ -48,7 +50,7 @@ class FileListResourceTest(
         }
 
         verify(exactly = 1) {
-            sourceGenerator.userSources(user)
+            sourceGenerator.userSources(user, null, null)
             fileListValidator.validateFileList("file-list", filesSource)
         }
     }

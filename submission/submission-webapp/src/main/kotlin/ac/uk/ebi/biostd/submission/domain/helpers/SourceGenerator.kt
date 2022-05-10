@@ -19,8 +19,19 @@ class SourceGenerator(
 ) {
     fun userSources(
         user: SecurityUser,
-        rootPath: String? = null
-    ): FilesSource = ComposedFileSource(userSourcesList(user, rootPath.orEmpty()))
+        rootPath: String? = null,
+        onBehalfUser: SecurityUser?
+    ): FilesSource {
+        return ComposedFileSource(
+            buildList {
+                if (onBehalfUser !== null) {
+                    addAll(userSourcesList(onBehalfUser, rootPath.orEmpty()))
+                }
+
+                addAll(userSourcesList(user, rootPath.orEmpty()))
+            }
+        )
+    }
 
     fun submissionSources(requestSources: RequestSources): FilesSource {
         val (owner, submitter, files, rootPath, submission) = requestSources
