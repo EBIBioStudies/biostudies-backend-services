@@ -2,10 +2,10 @@ package ac.uk.ebi.biostd.itest.factory
 
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
-import ebi.ac.uk.test.createFile
-import io.github.glytching.junit.extension.folder.TemporaryFolder
+import ebi.ac.uk.io.ext.createFile
+import java.io.File
 
-fun submissionSpecJson(tempFolder: TemporaryFolder, accNo: String): SubmissionSpec = SubmissionSpec(
+fun submissionSpecJson(tempFolder: File, accNo: String): SubmissionSpec = SubmissionSpec(
     submission = tempFolder.createFile("submission.json", allInOneSubmissionJson(accNo).toString()),
     fileList = tempFolder.createFile("file-list.json", fileList().toString()),
     files = submissionsFiles(tempFolder),

@@ -5,9 +5,12 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
+import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.excel.excel
@@ -16,347 +19,337 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.createNfsFile
+import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import java.io.File
 import java.nio.file.Paths
 
-@ExtendWith(TemporaryFolderExtension::class)
-internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
-    @Nested
-    @Import(PersistenceConfig::class)
-    @ExtendWith(SpringExtension::class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-    @Transactional
-    @DirtiesContext
-    inner class MixedFormatFileListSubmissionTest(
-        @Autowired private val securityTestService: SecurityTestService,
-        @Autowired private val submissionRepository: SubmissionQueryService
-    ) {
-        @LocalServerPort
-        private var serverPort: Int = 0
+@Import(PersistenceConfig::class)
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Transactional
+class FileListSubmissionTest(
+    @Autowired private val securityTestService: SecurityTestService,
+    @Autowired private val submissionRepository: SubmissionQueryService,
+    @LocalServerPort val serverPort: Int,
+) {
 
-        private lateinit var webClient: BioWebClient
+    private lateinit var webClient: BioWebClient
 
-        @BeforeAll
-        fun init() {
-            securityTestService.registerUser(SuperUser)
-            webClient = getWebClient(serverPort, SuperUser)
-        }
+    @BeforeAll
+    fun init() {
+        securityTestService.ensureRegisterUser(SuperUser)
+        webClient = getWebClient(serverPort, SuperUser)
+    }
 
-        @Test
-        fun `JSON submission with TSV file list`() {
-            val submission = jsonObj {
-                "accno" to "S-TEST4"
-                "attributes" to jsonArray({
-                    "name" to "Title"
-                    "value" to "Test Submission"
-                })
-                "section" to {
-                    "accno" to "SECT-001"
-                    "type" to "Study"
-                    "attributes" to jsonArray(
-                        {
-                            "name" to "Title"
-                            "value" to "Root Section"
-                        },
-                        {
-                            "name" to "File List"
-                            "value" to "FileList.tsv"
-                        }
-                    )
-                }
-            }.toString()
-
-            val fileList = tempFolder.createFile(
-                "FileList.tsv",
-                tsv {
-                    line("Files", "GEN")
-                    line("File4.txt", "ABC")
-                }.toString()
-            )
-
-            val response = webClient.submitSingle(
-                submission, JSON, listOf(fileList, tempFolder.createFile("File4.txt"))
-            )
-
-            assertThat(response).isSuccessful()
-            assertSubmissionFiles("S-TEST4", "File4.txt", "FileList")
-            fileList.delete()
-        }
-
-        @Test
-        fun `JSON submission with XSL file list`() {
-            val submission = jsonObj {
-                "accno" to "S-TEST5"
-                "attributes" to jsonArray({
-                    "name" to "Title"
-                    "value" to "Test Submission"
-                })
-                "section" to {
-                    "accno" to "SECT-001"
-                    "type" to "Study"
-                    "attributes" to jsonArray(
-                        {
-                            "name" to "Title"
-                            "value" to "Root Section"
-                        },
-                        {
-                            "name" to "File List"
-                            "value" to "FileList.xlsx"
-                        }
-                    )
-                }
-            }.toString()
-
-            val fileList = excel(File("${tempFolder.root.absolutePath}/FileList.xlsx")) {
-                sheet("page tab") {
-                    row {
-                        cell("Files")
-                        cell("GEN")
+    @Test
+    fun `JSON submission with TSV file list`() {
+        val submission = jsonObj {
+            "accno" to "S-TEST4"
+            "attributes" to jsonArray({
+                "name" to "Title"
+                "value" to "Test Submission"
+            })
+            "section" to {
+                "accno" to "SECT-001"
+                "type" to "Study"
+                "attributes" to jsonArray(
+                    {
+                        "name" to "Title"
+                        "value" to "Root Section"
+                    },
+                    {
+                        "name" to "File List"
+                        "value" to "FileList.tsv"
                     }
-                    row {
-                        cell("File5.txt")
-                        cell("ABC")
+                )
+            }
+        }.toString()
+
+        val fileList = tempFolder.createFile(
+            "FileList.tsv",
+            tsv {
+                line("Files", "GEN")
+                line("File4.txt", "ABC")
+            }.toString()
+        )
+
+        val response = webClient.submitSingle(
+            submission, JSON, listOf(fileList, tempFolder.createFile("File4.txt"))
+        )
+
+        assertThat(response).isSuccessful()
+        assertSubmissionFiles("S-TEST4", "File4.txt", "FileList")
+        fileList.delete()
+    }
+
+    @Test
+    fun `JSON submission with XSL file list`() {
+        val submission = jsonObj {
+            "accno" to "S-TEST5"
+            "attributes" to jsonArray({
+                "name" to "Title"
+                "value" to "Test Submission"
+            })
+            "section" to {
+                "accno" to "SECT-001"
+                "type" to "Study"
+                "attributes" to jsonArray(
+                    {
+                        "name" to "Title"
+                        "value" to "Root Section"
+                    },
+                    {
+                        "name" to "File List"
+                        "value" to "FileList.xlsx"
                     }
+                )
+            }
+        }.toString()
+
+        val fileList = excel(File("${tempFolder.absolutePath}/FileList.xlsx")) {
+            sheet("page tab") {
+                row {
+                    cell("Files")
+                    cell("GEN")
+                }
+                row {
+                    cell("File5.txt")
+                    cell("ABC")
                 }
             }
-
-            val response = webClient.submitSingle(
-                submission, JSON, listOf(fileList, tempFolder.createFile("File5.txt"))
-            )
-
-            assertThat(response).isSuccessful()
-            assertSubmissionFiles("S-TEST5", "File5.txt", "FileList")
-            fileList.delete()
         }
 
-        @Test
-        fun `JSON submission with invalid file list format`() {
-            val fileList = tempFolder.createFile("FileList.txt", "Invalid file list")
-            val submission = jsonObj {
-                "accno" to "S-TEST5"
-                "attributes" to jsonArray({
-                    "name" to "Title"
-                    "value" to "Test Submission"
-                })
-                "section" to {
-                    "accno" to "SECT-001"
-                    "type" to "Study"
-                    "attributes" to jsonArray(
-                        {
-                            "name" to "Title"
-                            "value" to "Root Section"
-                        },
-                        {
-                            "name" to "File List"
-                            "value" to "FileList.txt"
-                        }
-                    )
-                }
-            }.toString()
+        val response = webClient.submitSingle(
+            submission, JSON, listOf(fileList, tempFolder.createFile("File5.txt"))
+        )
 
-            assertThatExceptionOfType(WebClientException::class.java)
-                .isThrownBy { webClient.submitSingle(submission, JSON, listOf(fileList)) }
-                .withMessageContaining("Unsupported page tab format FileList.txt")
-        }
+        assertThat(response).isSuccessful()
+        assertSubmissionFiles("S-TEST5", "File5.txt", "FileList")
+        fileList.delete()
+    }
 
-        @Test
-        fun `list referenced files`() {
-            val referencedFile = tempFolder.createFile("referenced.txt")
-            val submission = tsv {
-                line("Submission", "S-TEST6")
-                line("Title", "Submission With Inner File List")
-                line()
-
-                line("Study")
-                line("File List", "folder/inner-file-list.tsv")
-                line()
-            }.toString()
-
-            val fileList = tempFolder.createFile(
-                "inner-file-list.tsv",
-                tsv {
-                    line("Files", "GEN")
-                    line("referenced.txt", "ABC")
-                }.toString()
-            )
-
-            webClient.uploadFile(fileList, "folder")
-            assertThat(webClient.submitSingle(submission, TSV, listOf(referencedFile))).isSuccessful()
-
-            val extSubmission = webClient.getExtByAccNo("S-TEST6")
-            val referencedFiles = webClient.getReferencedFiles(extSubmission.section.fileList!!.filesUrl!!).files
-
-            assertThat(referencedFiles).hasSize(1)
-            val referenced = referencedFiles.first()
-            assertThat(referenced.filePath).isEqualTo("referenced.txt")
-            assertThat(referenced.relPath).isEqualTo("Files/referenced.txt")
-            assertThat(referenced.attributes).isEqualTo(listOf(ExtAttribute("GEN", "ABC")))
-            assertThat(referenced.md5).isEqualTo(referencedFile.md5())
-        }
-
-        @Test
-        fun `reuse previous version file list`() {
-            val referencedFile = tempFolder.createFile("File7.txt")
-            fun submission(fileList: String) = tsv {
-                line("Submission", "S-TEST7")
-                line("Title", "Reuse Previous Version File List")
-                line()
-
-                line("Study")
-                line("File List", fileList)
-                line()
-            }.toString()
-
-            val fileList = tempFolder.createFile(
-                "reusable-file-list.tsv",
-                tsv {
-                    line("Files", "GEN")
-                    line("File7.txt", "ABC")
-                }.toString()
-            )
-
-            val firstVersion = submission("reusable-file-list.tsv")
-            assertThat(webClient.submitSingle(firstVersion, TSV, listOf(fileList, referencedFile))).isSuccessful()
-            assertSubmissionFiles("S-TEST7", "File7.txt", "reusable-file-list")
-            fileList.delete()
-
-            val secondVersion = submission("reusable-file-list.json")
-            assertThat(webClient.submitSingle(secondVersion, TSV)).isSuccessful()
-            assertSubmissionFiles("S-TEST7", "File7.txt", "reusable-file-list")
-        }
-
-        private fun assertSubmissionFiles(accNo: String, testFile: String, fileListName: String) {
-            val createdSub = submissionRepository.getExtByAccNo(accNo)
-            val subFolder = "$submissionPath/${createdSub.relPath}"
-
-            if (enableFire) {
-                assertFireSubFiles(createdSub, accNo, subFolder)
-                assertFireFileListFiles(createdSub, fileListName, subFolder)
-            } else {
-                val submissionTabFiles = createdSub.pageTabFiles as List<NfsFile>
-                assertThat(submissionTabFiles).hasSize(3)
-                assertThat(submissionTabFiles).isEqualTo(submissionNfsTabFiles(accNo, subFolder))
-
-                val fileListTabFiles = createdSub.section.fileList!!.pageTabFiles as List<NfsFile>
-                assertThat(fileListTabFiles).hasSize(3)
-                assertThat(fileListTabFiles).isEqualTo(fileListNfsTabFiles(fileListName, subFolder))
+    @Test
+    fun `JSON submission with invalid file list format`() {
+        val fileList = tempFolder.createFile("FileList.txt", "Invalid file list")
+        val submission = jsonObj {
+            "accno" to "S-TEST5"
+            "attributes" to jsonArray({
+                "name" to "Title"
+                "value" to "Test Submission"
+            })
+            "section" to {
+                "accno" to "SECT-001"
+                "type" to "Study"
+                "attributes" to jsonArray(
+                    {
+                        "name" to "Title"
+                        "value" to "Root Section"
+                    },
+                    {
+                        "name" to "File List"
+                        "value" to "FileList.txt"
+                    }
+                )
             }
+        }.toString()
 
-            assertThat(Paths.get("$subFolder/Files/$testFile")).exists()
-            assertThat(Paths.get("$subFolder/Files/$fileListName.xml")).exists()
-            assertThat(Paths.get("$subFolder/Files/$fileListName.json")).exists()
-            assertThat(Paths.get("$subFolder/Files/$fileListName.pagetab.tsv")).exists()
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { webClient.submitSingle(submission, JSON, listOf(fileList)) }
+            .withMessageContaining("Unsupported page tab format FileList.txt")
+    }
 
-            assertThat(Paths.get("$subFolder/${createdSub.accNo}.xml")).exists()
-            assertThat(Paths.get("$subFolder/${createdSub.accNo}.json")).exists()
-            assertThat(Paths.get("$subFolder/${createdSub.accNo}.pagetab.tsv")).exists()
-        }
+    @Test
+    fun `list referenced files`() {
+        val referencedFile = tempFolder.createFile("referenced.txt")
+        val submission = tsv {
+            line("Submission", "S-TEST6")
+            line("Title", "Submission With Inner File List")
+            line()
 
-        private fun assertFireSubFiles(submission: ExtSubmission, accNo: String, subFolder: String) {
-            val submissionTabFiles = submission.pageTabFiles as List<FireFile>
+            line("Study")
+            line("File List", "folder/inner-file-list.tsv")
+            line()
+        }.toString()
+
+        val fileList = tempFolder.createFile(
+            "inner-file-list.tsv",
+            tsv {
+                line("Files", "GEN")
+                line("referenced.txt", "ABC")
+            }.toString()
+        )
+
+        webClient.uploadFile(fileList, "folder")
+        assertThat(webClient.submitSingle(submission, TSV, listOf(referencedFile))).isSuccessful()
+
+        val extSubmission = webClient.getExtByAccNo("S-TEST6")
+        val referencedFiles = webClient.getReferencedFiles(extSubmission.section.fileList!!.filesUrl!!).files
+
+        assertThat(referencedFiles).hasSize(1)
+        val referenced = referencedFiles.first()
+        assertThat(referenced.filePath).isEqualTo("referenced.txt")
+        assertThat(referenced.relPath).isEqualTo("Files/referenced.txt")
+        assertThat(referenced.attributes).isEqualTo(listOf(ExtAttribute("GEN", "ABC")))
+        assertThat(referenced.md5).isEqualTo(referencedFile.md5())
+    }
+
+    @Test
+    fun `reuse previous version file list`() {
+        val referencedFile = tempFolder.createFile("File7.txt")
+        fun submission(fileList: String) = tsv {
+            line("Submission", "S-TEST7")
+            line("Title", "Reuse Previous Version File List")
+            line()
+
+            line("Study")
+            line("File List", fileList)
+            line()
+        }.toString()
+
+        val fileList = tempFolder.createFile(
+            "reusable-file-list.tsv",
+            tsv {
+                line("Files", "GEN")
+                line("File7.txt", "ABC")
+            }.toString()
+        )
+
+        val firstVersion = submission("reusable-file-list.tsv")
+        assertThat(webClient.submitSingle(firstVersion, TSV, listOf(fileList, referencedFile))).isSuccessful()
+        assertSubmissionFiles("S-TEST7", "File7.txt", "reusable-file-list")
+        fileList.delete()
+
+        val secondVersion = submission("reusable-file-list.json")
+        assertThat(webClient.submitSingle(secondVersion, TSV)).isSuccessful()
+        assertSubmissionFiles("S-TEST7", "File7.txt", "reusable-file-list")
+    }
+
+    private fun assertSubmissionFiles(accNo: String, testFile: String, fileListName: String) {
+        val createdSub = submissionRepository.getExtByAccNo(accNo)
+        val subFolder = "$submissionPath/${createdSub.relPath}"
+
+        if (enableFire) {
+            assertFireSubFiles(createdSub, accNo, subFolder)
+            assertFireFileListFiles(createdSub, fileListName, subFolder)
+        } else {
+            val submissionTabFiles = createdSub.pageTabFiles as List<NfsFile>
             assertThat(submissionTabFiles).hasSize(3)
+            assertThat(submissionTabFiles).isEqualTo(submissionNfsTabFiles(accNo, subFolder))
 
-            val jsonTabFile = submissionTabFiles.first()
-            val jsonFile = File("$subFolder/$accNo.json")
-            assertThat(jsonTabFile.filePath).isEqualTo("$accNo.json")
-            assertThat(jsonTabFile.relPath).isEqualTo("$accNo.json")
-            assertThat(jsonTabFile.fireId).isNotNull()
-            assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
-            assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
-
-            val xmlTabFile = submissionTabFiles.second()
-            val xmlFile = File("$subFolder/$accNo.xml")
-            assertThat(xmlTabFile.filePath).isEqualTo("$accNo.xml")
-            assertThat(xmlTabFile.relPath).isEqualTo("$accNo.xml")
-            assertThat(xmlTabFile.fireId).isNotNull()
-            assertThat(xmlTabFile.md5).isEqualTo(xmlFile.md5())
-            assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
-
-            val tsvTabFile = submissionTabFiles.third()
-            val tsvFile = File("$subFolder/$accNo.pagetab.tsv")
-            assertThat(tsvTabFile.filePath).isEqualTo("$accNo.pagetab.tsv")
-            assertThat(tsvTabFile.relPath).isEqualTo("$accNo.pagetab.tsv")
-            assertThat(tsvTabFile.fireId).isNotNull()
-            assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
-            assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
-        }
-
-        private fun assertFireFileListFiles(sub: ExtSubmission, fileListName: String, subFolder: String) {
-            val fileListTabFiles = sub.section.fileList!!.pageTabFiles as List<FireFile>
+            val fileListTabFiles = createdSub.section.fileList!!.pageTabFiles as List<NfsFile>
             assertThat(fileListTabFiles).hasSize(3)
-
-            val jsonTabFile = fileListTabFiles.first()
-            val jsonFile = File("$subFolder/Files/$fileListName.json")
-            assertThat(jsonTabFile.filePath).isEqualTo("$fileListName.json")
-            assertThat(jsonTabFile.relPath).isEqualTo("Files/$fileListName.json")
-            assertThat(jsonTabFile.fireId).isNotNull()
-            assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
-            assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
-
-            val xmlTabFile = fileListTabFiles.second()
-            val xmlFile = File("$subFolder/Files/$fileListName.xml")
-            assertThat(xmlTabFile.filePath).isEqualTo("$fileListName.xml")
-            assertThat(xmlTabFile.relPath).isEqualTo("Files/$fileListName.xml")
-            assertThat(xmlTabFile.fireId).isNotNull()
-            assertThat(xmlTabFile.md5).isEqualTo(xmlFile.md5())
-            assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
-
-            val tsvTabFile = fileListTabFiles.third()
-            val tsvFile = File("$subFolder/Files/$fileListName.pagetab.tsv")
-            assertThat(tsvTabFile.filePath).isEqualTo("$fileListName.pagetab.tsv")
-            assertThat(tsvTabFile.relPath).isEqualTo("Files/$fileListName.pagetab.tsv")
-            assertThat(tsvTabFile.fireId).isNotNull()
-            assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
-            assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
+            assertThat(fileListTabFiles).isEqualTo(fileListNfsTabFiles(fileListName, subFolder))
         }
 
-        private fun submissionNfsTabFiles(accNo: String, subFolder: String): List<NfsFile> {
-            val jsonPath = "$subFolder/$accNo.json"
-            val xmlPath = "$subFolder/$accNo.xml"
-            val tsvPath = "$subFolder/$accNo.pagetab.tsv"
-            return listOf(
-                createNfsFile("$accNo.json", "$accNo.json", File(jsonPath)),
-                createNfsFile("$accNo.xml", "$accNo.xml", File(xmlPath)),
-                createNfsFile("$accNo.pagetab.tsv", "$accNo.pagetab.tsv", File(tsvPath))
-            )
-        }
+        assertThat(Paths.get("$subFolder/Files/$testFile")).exists()
+        assertThat(Paths.get("$subFolder/Files/$fileListName.xml")).exists()
+        assertThat(Paths.get("$subFolder/Files/$fileListName.json")).exists()
+        assertThat(Paths.get("$subFolder/Files/$fileListName.pagetab.tsv")).exists()
 
-        private fun fileListNfsTabFiles(fileListName: String, subFolder: String): List<NfsFile> {
-            val jsonName = "$fileListName.json"
-            val xmlName = "$fileListName.xml"
-            val tsvName = "$fileListName.pagetab.tsv"
-            val jsonFile = File(subFolder).resolve("Files/$jsonName")
-            val xmlFile = File(subFolder).resolve("Files/$xmlName")
-            val tsvFile = File(subFolder).resolve("Files/$tsvName")
-            return listOf(
-                createNfsFile(jsonName, "Files/$jsonName", jsonFile),
-                createNfsFile(xmlName, "Files/$xmlName", xmlFile),
-                createNfsFile(tsvName, "Files/$tsvName", tsvFile)
-            )
-        }
+        assertThat(Paths.get("$subFolder/${createdSub.accNo}.xml")).exists()
+        assertThat(Paths.get("$subFolder/${createdSub.accNo}.json")).exists()
+        assertThat(Paths.get("$subFolder/${createdSub.accNo}.pagetab.tsv")).exists()
+    }
+
+    private fun assertFireSubFiles(submission: ExtSubmission, accNo: String, subFolder: String) {
+        val submissionTabFiles = submission.pageTabFiles as List<FireFile>
+        assertThat(submissionTabFiles).hasSize(3)
+
+        val jsonTabFile = submissionTabFiles.first()
+        val jsonFile = File("$subFolder/$accNo.json")
+        assertThat(jsonTabFile.filePath).isEqualTo("$accNo.json")
+        assertThat(jsonTabFile.relPath).isEqualTo("$accNo.json")
+        assertThat(jsonTabFile.fireId).isNotNull()
+        assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
+        assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
+
+        val xmlTabFile = submissionTabFiles.second()
+        val xmlFile = File("$subFolder/$accNo.xml")
+        assertThat(xmlTabFile.filePath).isEqualTo("$accNo.xml")
+        assertThat(xmlTabFile.relPath).isEqualTo("$accNo.xml")
+        assertThat(xmlTabFile.fireId).isNotNull()
+        assertThat(xmlTabFile.md5).isEqualTo(xmlFile.md5())
+        assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
+
+        val tsvTabFile = submissionTabFiles.third()
+        val tsvFile = File("$subFolder/$accNo.pagetab.tsv")
+        assertThat(tsvTabFile.filePath).isEqualTo("$accNo.pagetab.tsv")
+        assertThat(tsvTabFile.relPath).isEqualTo("$accNo.pagetab.tsv")
+        assertThat(tsvTabFile.fireId).isNotNull()
+        assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
+        assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
+    }
+
+    private fun assertFireFileListFiles(sub: ExtSubmission, fileListName: String, subFolder: String) {
+        val fileListTabFiles = sub.section.fileList!!.pageTabFiles as List<FireFile>
+        assertThat(fileListTabFiles).hasSize(3)
+
+        val jsonTabFile = fileListTabFiles.first()
+        val jsonFile = File("$subFolder/Files/$fileListName.json")
+        assertThat(jsonTabFile.filePath).isEqualTo("$fileListName.json")
+        assertThat(jsonTabFile.relPath).isEqualTo("Files/$fileListName.json")
+        assertThat(jsonTabFile.fireId).isNotNull()
+        assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
+        assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
+
+        val xmlTabFile = fileListTabFiles.second()
+        val xmlFile = File("$subFolder/Files/$fileListName.xml")
+        assertThat(xmlTabFile.filePath).isEqualTo("$fileListName.xml")
+        assertThat(xmlTabFile.relPath).isEqualTo("Files/$fileListName.xml")
+        assertThat(xmlTabFile.fireId).isNotNull()
+        assertThat(xmlTabFile.md5).isEqualTo(xmlFile.md5())
+        assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
+
+        val tsvTabFile = fileListTabFiles.third()
+        val tsvFile = File("$subFolder/Files/$fileListName.pagetab.tsv")
+        assertThat(tsvTabFile.filePath).isEqualTo("$fileListName.pagetab.tsv")
+        assertThat(tsvTabFile.relPath).isEqualTo("Files/$fileListName.pagetab.tsv")
+        assertThat(tsvTabFile.fireId).isNotNull()
+        assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
+        assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
+    }
+
+    private fun submissionNfsTabFiles(accNo: String, subFolder: String): List<NfsFile> {
+        val jsonPath = "$subFolder/$accNo.json"
+        val xmlPath = "$subFolder/$accNo.xml"
+        val tsvPath = "$subFolder/$accNo.pagetab.tsv"
+        return listOf(
+            createNfsFile("$accNo.json", "$accNo.json", File(jsonPath)),
+            createNfsFile("$accNo.xml", "$accNo.xml", File(xmlPath)),
+            createNfsFile("$accNo.pagetab.tsv", "$accNo.pagetab.tsv", File(tsvPath))
+        )
+    }
+
+    private fun fileListNfsTabFiles(fileListName: String, subFolder: String): List<NfsFile> {
+        val jsonName = "$fileListName.json"
+        val xmlName = "$fileListName.xml"
+        val tsvName = "$fileListName.pagetab.tsv"
+        val jsonFile = File(subFolder).resolve("Files/$jsonName")
+        val xmlFile = File(subFolder).resolve("Files/$xmlName")
+        val tsvFile = File(subFolder).resolve("Files/$tsvName")
+        return listOf(
+            createNfsFile(jsonName, "Files/$jsonName", jsonFile),
+            createNfsFile(xmlName, "Files/$xmlName", xmlFile),
+            createNfsFile(tsvName, "Files/$tsvName", tsvFile)
+        )
     }
 }

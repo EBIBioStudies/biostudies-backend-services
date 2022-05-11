@@ -7,11 +7,11 @@ import ac.uk.ebi.biostd.itest.factory.assertAllInOneSubmissionXml
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import arrow.core.Either
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
@@ -22,7 +22,7 @@ import java.io.File
 import java.nio.file.Paths
 
 internal class AllInOneSubmissionHelper(
-    private val submissionPath: String,
+    private val submissionPath: File,
     private val submissionRepository: SubmissionQueryService,
     private val toSubmissionMapper: ToSubmissionMapper
 ) {
@@ -40,7 +40,7 @@ internal class AllInOneSubmissionHelper(
     }
 
     private fun assertSubmissionFiles(submission: ExtSubmission) {
-        val submissionFolderPath = "$submissionPath/${submission.relPath}"
+        val submissionFolderPath = submissionPath.resolve(submission.relPath)
         val accNo = submission.accNo
 
         assertAllInOneSubmissionXml(getSubFileContent("$submissionFolderPath/$accNo.xml"), accNo)

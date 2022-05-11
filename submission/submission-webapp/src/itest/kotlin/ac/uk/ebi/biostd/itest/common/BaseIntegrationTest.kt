@@ -24,10 +24,10 @@ import uk.ac.ebi.fire.client.api.FIRE_OBJECTS_URL
 import java.nio.file.Paths
 import java.time.Duration.ofSeconds
 
-private const val CHARACTER_SET = "utf8mb4"
-private const val COLLATION = "utf8mb4_unicode_ci"
-private const val FIRE_USERNAME = "fireUsername"
-private const val FIRE_PASSWORD = "firePassword"
+const val CHARACTER_SET = "utf8mb4"
+const val COLLATION = "utf8mb4_unicode_ci"
+const val FIRE_USERNAME = "fireUsername"
+const val FIRE_PASSWORD = "firePassword"
 
 internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder) {
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
@@ -126,4 +126,4 @@ internal open class BaseIntegrationTest(private val tempFolder: TemporaryFolder)
     }
 }
 
-internal class SpecificMySQLContainer(image: String) : MySQLContainer<SpecificMySQLContainer>(image)
+class SpecificMySQLContainer(image: String) : MySQLContainer<SpecificMySQLContainer>(image)
