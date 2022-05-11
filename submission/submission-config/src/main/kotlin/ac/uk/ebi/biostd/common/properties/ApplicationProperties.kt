@@ -20,6 +20,7 @@ data class ApplicationProperties(
 
 data class FireProperties(
     val host: String,
+    val version: String,
     val username: String,
     val password: String
 )

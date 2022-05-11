@@ -28,6 +28,7 @@ app:
     host:
     username:
     password:
+    version: v1.1
   security:
     tokenHash: biostd-test
     environment: TEST

@@ -25,7 +25,7 @@ internal const val FIRE_BIO_PUBLISHED = "bio-published"
 
 const val FIRE_BIO_ACC_NO = "bio-accNo"
 const val FIRE_BIO_FILE_TYPE = "bio-file-type"
-const val FIRE_OBJECTS_URL = "/fire/objects"
+const val FIRE_OBJECTS_URL = "/objects"
 
 @Suppress("TooManyFunctions")
 internal class FireClient(

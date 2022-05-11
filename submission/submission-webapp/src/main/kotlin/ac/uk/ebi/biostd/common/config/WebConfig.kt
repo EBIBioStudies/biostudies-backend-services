@@ -43,6 +43,7 @@ internal class WebConfig(
         FireWebClient.create(
             properties.fireTempDirPath,
             properties.fire.host,
+            properties.fire.version,
             properties.fire.username,
             properties.fire.password
         )

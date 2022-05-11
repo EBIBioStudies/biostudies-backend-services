@@ -10,7 +10,7 @@ class PublishHandler(
     private val fireDB: FireMockDatabase,
 ) : RequestHandler {
     override val requestMethod: RequestMethod = RequestMethod.PUT
-    override val urlPattern: Regex = "/fire/objects/(.*)/publish".toRegex()
+    override val urlPattern: Regex = "$FIRE_BASE_URL/(.*)/publish".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {
         fireDB.publish(urlPattern.getGroup(rqt.url, 1))
