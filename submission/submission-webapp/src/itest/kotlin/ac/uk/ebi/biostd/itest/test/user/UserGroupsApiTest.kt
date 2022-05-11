@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
-import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
@@ -77,5 +77,12 @@ class UserGroupsApiTest(
     companion object {
         const val nonExistentGroupName = "fakeGroup"
         const val nonExistentUser = "fakeEmail"
+    }
+
+    object SuperUser : TestUser {
+        override val username = "Super User Group Test"
+        override val email = "gr-test-biostudies-mgmt@ebi.ac.uk"
+        override val password = "12345"
+        override val superUser = true
     }
 }
