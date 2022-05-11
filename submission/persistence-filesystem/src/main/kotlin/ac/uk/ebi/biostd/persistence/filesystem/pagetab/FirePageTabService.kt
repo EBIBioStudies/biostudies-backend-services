@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
+import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.persistFireFile
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.persistence.filesystem.service.Section
@@ -16,7 +17,8 @@ class FirePageTabService(
     private val fireTempFolder: File,
     private val fireWebClient: FireWebClient,
     private val pageTabUtil: PageTabUtil,
-    private val fileProcessingService: FileProcessingService
+    private val fileProcessingService: FileProcessingService,
+    private val tsvPagetabExtension: TsvPagetabExtension
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
         val subFiles = pageTabUtil.generateSubPageTab(sub, fireTempFolder)
@@ -54,7 +56,7 @@ class FirePageTabService(
     private fun fileListFiles(accNo: String, pageTab: PageTabFiles, subFolder: String, fileListName: String) = listOf(
         saveFileListFile(accNo, pageTab.json, subFolder, "$fileListName.json"),
         saveFileListFile(accNo, pageTab.xml, subFolder, "$fileListName.xml"),
-        saveFileListFile(accNo, pageTab.tsv, subFolder, "$fileListName.tsv")
+        saveFileListFile(accNo, pageTab.tsv, subFolder, "$fileListName.${tsvPagetabExtension.tsvExtension()}")
     )
 
     private fun saveFileListFile(accNo: String, file: File, subFolder: String, filePath: String): FireFile {

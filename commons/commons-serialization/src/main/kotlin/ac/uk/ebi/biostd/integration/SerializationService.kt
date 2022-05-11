@@ -1,8 +1,11 @@
 package ac.uk.ebi.biostd.integration
 
+import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ac.uk.ebi.biostd.service.FileListSerializer
 import ac.uk.ebi.biostd.service.PageTabSerializationService
 import ac.uk.ebi.biostd.service.PagetabSerializer
+import ac.uk.ebi.biostd.tsv.TsvSerializer
+import ac.uk.ebi.biostd.tsv.serialization.TsvSerializer as TsvSerialization
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
@@ -32,10 +35,14 @@ interface SerializationService {
         operator fun invoke(): SerializationService = instance
 
         private val instance = create()
+
         private fun create(): SerializationService {
+            val tsvSerializer = TsvSerializer(tsvSerializer = TsvSerialization(TsvPagetabExtension()))
+            val pageTabSerializer = PagetabSerializer(tsvSerializer = tsvSerializer)
+
             return PageTabSerializationService(
-                PagetabSerializer(),
-                FileListSerializer(PagetabSerializer())
+                pageTabSerializer,
+                FileListSerializer(pageTabSerializer)
             )
         }
     }
