@@ -7,6 +7,7 @@ import ebi.ac.uk.model.Submission
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
+import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
 import java.io.File
 
@@ -24,6 +25,8 @@ internal class SubmissionService {
     fun delete(request: DeletionRequest) = performRequest { deleteRequest(request) }
 
     fun migrate(request: MigrationRequest) = performRequest { migrateRequest(request) }
+
+    fun validateFileList(request: ValidateFileListRequest) = performRequest { validateFileListRequest(request) }
 
     private fun submitRequest(request: SubmissionRequest): Submission =
         bioWebClient(request.server, request.user, request.password, request.onBehalf)
@@ -53,4 +56,8 @@ internal class SubmissionService {
 
     private fun migratedSubmission(submission: ExtSubmission, targetOwner: String?) =
         if (targetOwner == null) submission else submission.copy(owner = targetOwner)
+
+    private fun validateFileListRequest(request: ValidateFileListRequest) =
+        bioWebClient(request.server, request.user, request.password, request.onBehalf)
+            .validateFileList(request.fileListPath)
 }
