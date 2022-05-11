@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.pagetab
 
 import ac.uk.ebi.biostd.common.TsvPagetabExtension
-import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.FirePageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabFiles
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
