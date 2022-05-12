@@ -2,6 +2,7 @@ package uk.ac.ebi.scheduler.exporter.config
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
+import ac.uk.ebi.biostd.common.SerializationConfig
 import ac.uk.ebi.biostd.integration.SerializationService
 import com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule
@@ -95,7 +96,7 @@ class ApplicationConfig(
     ).apply { enable(INDENT_OUTPUT) }
 
     @Bean
-    fun serializationService(): SerializationService = SerializationService()
+    fun serializationService(): SerializationService = SerializationConfig.serializationService()
 
     @Bean
     fun extSerializationService(): ExtSerializationService = ExtSerializationConfig.extSerializationService()

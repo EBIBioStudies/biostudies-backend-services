@@ -1,5 +1,6 @@
 package ac.uk.ebi.transpiler.service
 
+import ac.uk.ebi.biostd.common.SerializationConfig
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.transpiler.mapper.FilesTableTemplateMapper
@@ -16,7 +17,7 @@ class FilesTableTemplateTranspiler(
     private val templateProcessor: FilesTableTemplateProcessor = FilesTableTemplateProcessor(),
     private val templateValidator: FilesTableTemplateValidator = FilesTableTemplateValidator(),
     private val templateMapper: FilesTableTemplateMapper = FilesTableTemplateMapper(),
-    private val serializationService: SerializationService = SerializationService()
+    private val serializationService: SerializationService = SerializationConfig.serializationService()
 ) {
     /**
      * Transforms a files table template to its corresponding files table page tab representation in the desired format.

@@ -124,9 +124,17 @@ interface MultipartAsyncSubmissionOperations {
 }
 
 interface SecurityOperations {
-    fun getAuthenticatedClient(user: String, password: String, onBehalf: String? = null): BioWebClient
+    fun getAuthenticatedClient(
+        user: String,
+        password: String,
+        onBehalf: String? = null,
+        enableTsvFeature: Boolean = false
+    ): BioWebClient
+
     fun login(loginRequest: LoginRequest): UserProfile
+
     fun registerUser(registerRequest: RegisterRequest)
+
     fun checkUser(checkUserRequest: CheckUserRequest)
 }
 
