@@ -39,7 +39,6 @@ internal class AllInOneSubmissionTest(private val tempFolder: TemporaryFolder) :
         @Autowired val securityTestService: SecurityTestService,
         @Autowired val toSubmissionMapper: ToSubmissionMapper
     ) {
-
         @LocalServerPort
         private var serverPort: Int = 0
         private lateinit var webClient: BioWebClient

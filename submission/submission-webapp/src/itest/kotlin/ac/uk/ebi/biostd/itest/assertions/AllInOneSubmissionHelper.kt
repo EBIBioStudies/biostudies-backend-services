@@ -45,7 +45,7 @@ internal class AllInOneSubmissionHelper(
 
         assertAllInOneSubmissionXml(getSubFileContent("$submissionFolderPath/$accNo.xml"), accNo)
         assertAllInOneSubmissionJson(getSubFileContent("$submissionFolderPath/$accNo.json"), accNo)
-        assertAllInOneSubmissionTsv(getSubFileContent("$submissionFolderPath/$accNo.pagetab.tsv"), accNo)
+        assertAllInOneSubmissionTsv(getSubFileContent("$submissionFolderPath/$accNo.tsv"), accNo)
     }
 
     fun assertSubmissionFilesRecordsNfs(accNo: String) {
@@ -96,10 +96,10 @@ internal class AllInOneSubmissionHelper(
         assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
 
         val tsvTabFile = submissionTabFiles.third()
-        val tsvFile = File("$subFolder/$accNo.pagetab.tsv")
-        assertThat(tsvTabFile.filePath).isEqualTo("$accNo.pagetab.tsv")
-        assertThat(tsvTabFile.relPath).isEqualTo("$accNo.pagetab.tsv")
-        assertThat(tsvTabFile.fireId).endsWith("_$accNo.pagetab.tsv")
+        val tsvFile = File("$subFolder/$accNo.tsv")
+        assertThat(tsvTabFile.filePath).isEqualTo("$accNo.tsv")
+        assertThat(tsvTabFile.relPath).isEqualTo("$accNo.tsv")
+        assertThat(tsvTabFile.fireId).endsWith("_$accNo.tsv")
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
@@ -125,10 +125,10 @@ internal class AllInOneSubmissionHelper(
         assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
 
         val tsvTabFile = fileListTabFiles.third()
-        val tsvFile = File("$subFolder/Files/file-list.pagetab.tsv")
-        assertThat(tsvTabFile.filePath).isEqualTo("file-list.pagetab.tsv")
-        assertThat(tsvTabFile.relPath).isEqualTo("Files/file-list.pagetab.tsv")
-        assertThat(tsvTabFile.fireId).endsWith("_file-list.pagetab.tsv")
+        val tsvFile = File("$subFolder/Files/file-list.tsv")
+        assertThat(tsvTabFile.filePath).isEqualTo("file-list.tsv")
+        assertThat(tsvTabFile.relPath).isEqualTo("Files/file-list.tsv")
+        assertThat(tsvTabFile.fireId).endsWith("_file-list.tsv")
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
@@ -155,10 +155,10 @@ internal class AllInOneSubmissionHelper(
         assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
 
         val tsvTabFile = subFileListTabFiles.third()
-        val tsvFile = File("$subFolder/Files/sub-folder/file-list2.pagetab.tsv")
-        assertThat(tsvTabFile.filePath).isEqualTo("sub-folder/file-list2.pagetab.tsv")
-        assertThat(tsvTabFile.relPath).isEqualTo("Files/sub-folder/file-list2.pagetab.tsv")
-        assertThat(tsvTabFile.fireId).endsWith("_file-list2.pagetab.tsv")
+        val tsvFile = File("$subFolder/Files/sub-folder/file-list2.tsv")
+        assertThat(tsvTabFile.filePath).isEqualTo("sub-folder/file-list2.tsv")
+        assertThat(tsvTabFile.relPath).isEqualTo("Files/sub-folder/file-list2.tsv")
+        assertThat(tsvTabFile.fireId).endsWith("_file-list2.tsv")
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
@@ -166,12 +166,12 @@ internal class AllInOneSubmissionHelper(
     private fun submissionNfsTabFiles(accNo: String, submissionFolderPath: String): List<NfsFile> {
         val jsonFile = File("$submissionFolderPath/$accNo.json")
         val xmlFile = File("$submissionFolderPath/$accNo.xml")
-        val tsvFile = File("$submissionFolderPath/$accNo.pagetab.tsv")
+        val tsvFile = File("$submissionFolderPath/$accNo.tsv")
 
         return listOf(
             createNfsFile("$accNo.json", "$accNo.json", jsonFile),
             createNfsFile("$accNo.xml", "$accNo.xml", xmlFile),
-            createNfsFile("$accNo.pagetab.tsv", "$accNo.pagetab.tsv", tsvFile)
+            createNfsFile("$accNo.tsv", "$accNo.tsv", tsvFile)
         )
     }
 
@@ -179,11 +179,11 @@ internal class AllInOneSubmissionHelper(
         val path = "Files/$list"
         val json = File("$subFolder/$path.json")
         val xml = File("$subFolder/$path.xml")
-        val tsv = File("$subFolder/$path.pagetab.tsv")
+        val tsv = File("$subFolder/$path.tsv")
         return listOf(
             createNfsFile("$list.json", "$path.json", json),
             createNfsFile("$list.xml", "$path.xml", xml),
-            createNfsFile("$list.pagetab.tsv", "$path.pagetab.tsv", tsv)
+            createNfsFile("$list.tsv", "$path.tsv", tsv)
         )
     }
 

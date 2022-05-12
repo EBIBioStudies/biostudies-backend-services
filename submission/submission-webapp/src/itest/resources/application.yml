@@ -39,3 +39,5 @@ app:
     smtp:
   validator:
     euToxRiskValidationApi: # EU-ToxRisk validation API
+  featureFlags:
+    tsvPagetabExtension: true

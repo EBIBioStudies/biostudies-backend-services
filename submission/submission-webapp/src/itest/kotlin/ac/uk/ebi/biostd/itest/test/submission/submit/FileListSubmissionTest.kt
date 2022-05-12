@@ -269,11 +269,11 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             assertThat(Paths.get("$subFolder/Files/$testFile")).exists()
             assertThat(Paths.get("$subFolder/Files/$fileListName.xml")).exists()
             assertThat(Paths.get("$subFolder/Files/$fileListName.json")).exists()
-            assertThat(Paths.get("$subFolder/Files/$fileListName.pagetab.tsv")).exists()
+            assertThat(Paths.get("$subFolder/Files/$fileListName.tsv")).exists()
 
             assertThat(Paths.get("$subFolder/${createdSub.accNo}.xml")).exists()
             assertThat(Paths.get("$subFolder/${createdSub.accNo}.json")).exists()
-            assertThat(Paths.get("$subFolder/${createdSub.accNo}.pagetab.tsv")).exists()
+            assertThat(Paths.get("$subFolder/${createdSub.accNo}.tsv")).exists()
         }
 
         private fun assertFireSubFiles(submission: ExtSubmission, accNo: String, subFolder: String) {
@@ -297,9 +297,9 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
 
             val tsvTabFile = submissionTabFiles.third()
-            val tsvFile = File("$subFolder/$accNo.pagetab.tsv")
-            assertThat(tsvTabFile.filePath).isEqualTo("$accNo.pagetab.tsv")
-            assertThat(tsvTabFile.relPath).isEqualTo("$accNo.pagetab.tsv")
+            val tsvFile = File("$subFolder/$accNo.tsv")
+            assertThat(tsvTabFile.filePath).isEqualTo("$accNo.tsv")
+            assertThat(tsvTabFile.relPath).isEqualTo("$accNo.tsv")
             assertThat(tsvTabFile.fireId).isNotNull()
             assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
             assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
@@ -326,9 +326,9 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
             assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
 
             val tsvTabFile = fileListTabFiles.third()
-            val tsvFile = File("$subFolder/Files/$fileListName.pagetab.tsv")
-            assertThat(tsvTabFile.filePath).isEqualTo("$fileListName.pagetab.tsv")
-            assertThat(tsvTabFile.relPath).isEqualTo("Files/$fileListName.pagetab.tsv")
+            val tsvFile = File("$subFolder/Files/$fileListName.tsv")
+            assertThat(tsvTabFile.filePath).isEqualTo("$fileListName.tsv")
+            assertThat(tsvTabFile.relPath).isEqualTo("Files/$fileListName.tsv")
             assertThat(tsvTabFile.fireId).isNotNull()
             assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
             assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
@@ -337,18 +337,18 @@ internal class FileListSubmissionTest(private val tempFolder: TemporaryFolder) :
         private fun submissionNfsTabFiles(accNo: String, subFolder: String): List<NfsFile> {
             val jsonPath = "$subFolder/$accNo.json"
             val xmlPath = "$subFolder/$accNo.xml"
-            val tsvPath = "$subFolder/$accNo.pagetab.tsv"
+            val tsvPath = "$subFolder/$accNo.tsv"
             return listOf(
                 createNfsFile("$accNo.json", "$accNo.json", File(jsonPath)),
                 createNfsFile("$accNo.xml", "$accNo.xml", File(xmlPath)),
-                createNfsFile("$accNo.pagetab.tsv", "$accNo.pagetab.tsv", File(tsvPath))
+                createNfsFile("$accNo.tsv", "$accNo.tsv", File(tsvPath))
             )
         }
 
         private fun fileListNfsTabFiles(fileListName: String, subFolder: String): List<NfsFile> {
             val jsonName = "$fileListName.json"
             val xmlName = "$fileListName.xml"
-            val tsvName = "$fileListName.pagetab.tsv"
+            val tsvName = "$fileListName.tsv"
             val jsonFile = File(subFolder).resolve("Files/$jsonName")
             val xmlFile = File(subFolder).resolve("Files/$xmlName")
             val tsvFile = File(subFolder).resolve("Files/$tsvName")

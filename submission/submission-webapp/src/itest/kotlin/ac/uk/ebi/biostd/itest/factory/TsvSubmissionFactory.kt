@@ -39,7 +39,7 @@ fun assertAllInOneSubmissionTsv(tsv: String, accNo: String) {
         line("Tissue type", "venous blood")
         line("(Tissue)", "Blood")
         line("[Ontology]", "UBERON")
-        line("File List", "file-list.pagetab.tsv")
+        line("File List", "file-list.tsv")
         line()
     }
     assertTsvBlock(lines, 5, 12, expectedRootSection)
@@ -69,7 +69,7 @@ fun assertAllInOneSubmissionTsv(tsv: String, accNo: String) {
 
     val expectedSubsection = tsv {
         line("Stranded Total RNA-Seq", "SUBSECT-001", "SECT-001")
-        line("File List", "sub-folder/file-list2.pagetab.tsv")
+        line("File List", "sub-folder/file-list2.tsv")
         line()
     }
     assertTsvBlock(lines, 24, 26, expectedSubsection)

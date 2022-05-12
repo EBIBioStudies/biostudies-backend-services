@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
+import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
@@ -51,12 +52,22 @@ class PersistenceConfig(
         havingValue = "false",
         matchIfMissing = true
     )
-    fun nfsPageTabService(pageTabUtil: PageTabUtil, fileProcessingService: FileProcessingService): PageTabService =
-        NfsPageTabService(folderResolver, pageTabUtil, fileProcessingService)
+    fun nfsPageTabService(
+        pageTabUtil: PageTabUtil,
+        fileProcessingService: FileProcessingService,
+        tsvPagetabExtension: TsvPagetabExtension
+    ): PageTabService =
+        NfsPageTabService(folderResolver, pageTabUtil, fileProcessingService, tsvPagetabExtension)
 
     @Bean
-    fun pageTabUtil(toSubmissionMapper: ToSubmissionMapper, toFileListMapper: ToFileListMapper): PageTabUtil =
-        PageTabUtil(serializationService, toSubmissionMapper, toFileListMapper)
+    fun pageTabUtil(
+        toSubmissionMapper: ToSubmissionMapper,
+        toFileListMapper: ToFileListMapper,
+        tsvPagetabExtension: TsvPagetabExtension
+    ): PageTabUtil = PageTabUtil(serializationService, toSubmissionMapper, toFileListMapper, tsvPagetabExtension)
+
+    @Bean
+    fun tsvPagetabExtension(): TsvPagetabExtension = TsvPagetabExtension(properties.featureFlags.tsvPagetabExtension)
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
@@ -65,12 +76,17 @@ class PersistenceConfig(
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
-    fun firePageTabService(pageTabUtil: PageTabUtil, fileProcessingService: FileProcessingService): PageTabService =
+    fun firePageTabService(
+        pageTabUtil: PageTabUtil,
+        fileProcessingService: FileProcessingService,
+        tsvPagetabExtension: TsvPagetabExtension
+    ): PageTabService =
         FirePageTabService(
             File(properties.fireTempDirPath),
             fireWebClient,
             pageTabUtil,
-            fileProcessingService
+            fileProcessingService,
+            tsvPagetabExtension
         )
 
     @Bean
