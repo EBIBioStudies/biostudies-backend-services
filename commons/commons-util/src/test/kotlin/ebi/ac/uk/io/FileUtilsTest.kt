@@ -3,6 +3,7 @@ package ebi.ac.uk.io
 import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createNewFile
+import ebi.ac.uk.io.ext.newFile
 import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -71,10 +72,10 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             @Test
             fun whenTargetFolderExists() {
                 val tempDir = temporaryFolder.createDirectory("directory")
-                tempDir.createNewFile("two.txt")
+                tempDir.newFile("two.txt")
 
                 val targetDirectory = temporaryFolder.createDirectory("target-directory")
-                targetDirectory.createNewFile("one.txt")
+                targetDirectory.newFile("one.txt")
 
                 FileUtils.copyOrReplaceFile(tempDir, targetDirectory, Permissions(RW_______, RWX______))
 
@@ -89,7 +90,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             @Test
             fun whenNoTargetFolder() {
                 val tempDir = temporaryFolder.createDirectory("directory")
-                tempDir.createNewFile("two.txt")
+                tempDir.newFile("two.txt")
                 val target = temporaryFolder.root.resolve("target")
 
                 FileUtils.copyOrReplaceFile(tempDir, target, Permissions(RW_______, RWX______))
@@ -171,10 +172,10 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             @Test
             fun whenTargetFolderExists() {
                 val tempDir = temporaryFolder.createDirectory("directory")
-                tempDir.createNewFile("two.txt")
+                tempDir.newFile("two.txt")
 
                 val targetDirectory = temporaryFolder.createDirectory("target-directory")
-                targetDirectory.createNewFile("one.txt")
+                targetDirectory.newFile("one.txt")
 
                 FileUtils.moveFile(tempDir, targetDirectory, Permissions(RW_______, RWX______))
 
@@ -189,7 +190,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             @Test
             fun whenNoTargetFolder() {
                 val tempDir = temporaryFolder.createDirectory("directory")
-                tempDir.createNewFile("two.txt")
+                tempDir.newFile("two.txt")
                 val target = temporaryFolder.root.resolve("target")
 
                 FileUtils.moveFile(tempDir, target, Permissions(RW_______, RWX______))

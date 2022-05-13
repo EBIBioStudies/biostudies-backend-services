@@ -12,7 +12,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.createNfsFile
-import ebi.ac.uk.io.ext.createNewFile
+import ebi.ac.uk.io.ext.newFile
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.second
@@ -69,9 +69,9 @@ class NfsPageTabServiceTest(
 
     private fun setUpGeneratePageTab(submission: ExtSubmission) {
         every { pageTabUtil.generateSubPageTab(submission, subFolder) } returns PageTabFiles(
-            subFolder.createNewFile("S-TEST123.json"),
-            subFolder.createNewFile("S-TEST123.xml"),
-            subFolder.createNewFile("S-TEST123.tsv"),
+            subFolder.newFile("S-TEST123.json"),
+            subFolder.newFile("S-TEST123.xml"),
+            subFolder.newFile("S-TEST123.tsv"),
         )
         every {
             pageTabUtil.generateFileListPageTab(
@@ -80,14 +80,14 @@ class NfsPageTabServiceTest(
             )
         } returns mapOf(
             "file-list2" to PageTabFiles(
-                subFolder.createNewFile("Files/file-list2.json"),
-                subFolder.createNewFile("Files/file-list2.xml"),
-                subFolder.createNewFile("Files/file-list2.tsv")
+                subFolder.newFile("Files/file-list2.json"),
+                subFolder.newFile("Files/file-list2.xml"),
+                subFolder.newFile("Files/file-list2.tsv")
             ),
             "file-list1" to PageTabFiles(
-                subFolder.createNewFile("Files/file-list1.json"),
-                subFolder.createNewFile("Files/file-list1.xml"),
-                subFolder.createNewFile("Files/file-list1.tsv")
+                subFolder.newFile("Files/file-list1.json"),
+                subFolder.newFile("Files/file-list1.xml"),
+                subFolder.newFile("Files/file-list1.tsv")
             )
         )
     }

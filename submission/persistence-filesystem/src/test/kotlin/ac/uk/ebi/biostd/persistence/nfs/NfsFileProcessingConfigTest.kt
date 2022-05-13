@@ -9,7 +9,7 @@ import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
-import ebi.ac.uk.io.ext.createNewFile
+import ebi.ac.uk.io.ext.newFile
 import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -35,7 +35,7 @@ class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
     @BeforeEach
     fun beforeEach() {
         folder = tempFolder.createDirectory("folder")
-        file = folder.createNewFile("test.txt")
+        file = folder.newFile("test.txt")
         subFolder = tempFolder.createDirectory("subFolder")
         targetFolder = tempFolder.createDirectory("target")
         extFile = createNfsFile("folder/test.txt", "Files/folder/test.txt", file)
