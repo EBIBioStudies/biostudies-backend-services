@@ -88,4 +88,4 @@ app:
   validator:
     euToxRiskValidationApi: # EU-ToxRisk validation API
   featureFlags:
-    tsvPagetabExtension: true
+    tsvPagetabExtension: false

@@ -13,7 +13,7 @@ class BioWebClient internal constructor(
         fun create(
             baseUrl: String,
             token: String,
-            enableTsvExtFeature: Boolean = false
+            enableTsvExtFeature: Boolean
         ): BioWebClient = BioWebClient(
             SubmissionClientImpl(
                 createRestTemplate(baseUrl, token),
@@ -26,7 +26,7 @@ class BioWebClient internal constructor(
             baseUrl: String,
             token: String,
             onBehalf: String,
-            enableTsvExtFeature: Boolean = false
+            enableTsvExtFeature: Boolean
         ): BioWebClient = BioWebClient(
             SubmissionClientImpl(
                 createRestTemplate(baseUrl, token, onBehalf),

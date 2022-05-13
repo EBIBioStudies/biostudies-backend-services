@@ -15,7 +15,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class SimpleSubmissionTsvParserTest {
-    private val testInstance: TsvSerializer = TsvSerializer(TsvPagetabExtension())
+    private val testInstance: TsvSerializer = TsvSerializer(TsvPagetabExtension(false))
 
     @Test
     fun parseSimpleSubmission() {
