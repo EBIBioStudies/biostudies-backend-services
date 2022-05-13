@@ -5,12 +5,17 @@ remotes {
     }
 
     beta {
-        host = 'biostudy-dev.ebi.ac.uk'
+        host = 'biostudies-beta.ebi.ac.uk'
         user = 'ma-svc'
     }
 
     prod {
         host = 'biostudy-prod.ebi.ac.uk'
+        user = 'ma-svc'
+    }
+
+    ae {
+        host = 'biostudies-async'
         user = 'ma-svc'
     }
 }

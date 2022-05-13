@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.pagetab
 
-import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.FirePageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabFiles
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
@@ -35,7 +35,6 @@ import uk.ac.ebi.fire.client.model.FireApiFile as FireFileWeb
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class FirePageTabServiceTest(
     tempFolder: TemporaryFolder,
-    @MockK private val serializationService: SerializationService,
     @MockK private val fireWebClient: FireWebClient,
     @MockK private val pageTabUtil: PageTabUtil,
 ) {
@@ -47,7 +46,8 @@ class FirePageTabServiceTest(
             fireFolder,
             fireWebClient,
             pageTabUtil,
-            fileProcessingService
+            fileProcessingService,
+            TsvPagetabExtension(featureEnabled = true)
         )
 
     @Test
@@ -69,7 +69,7 @@ class FirePageTabServiceTest(
         every { pageTabUtil.generateSubPageTab(submission, fireFolder) } returns PageTabFiles(
             fireFolder.resolve("S-TEST123.json"),
             fireFolder.resolve("S-TEST123.xml"),
-            fireFolder.resolve("S-TEST123.pagetab.tsv")
+            fireFolder.resolve("S-TEST123.tsv")
         )
         every {
             pageTabUtil.generateFileListPageTab(
@@ -80,12 +80,12 @@ class FirePageTabServiceTest(
             "data/file-list2" to PageTabFiles(
                 fireFolder.resolve("data/file-list2.json"),
                 fireFolder.resolve("data/file-list2.xml"),
-                fireFolder.resolve("data/file-list2.pagetab.tsv")
+                fireFolder.resolve("data/file-list2.tsv")
             ),
             "data/file-list1" to PageTabFiles(
                 fireFolder.resolve("data/file-list1.json"),
                 fireFolder.resolve("data/file-list1.xml"),
-                fireFolder.resolve("data/file-list1.pagetab.tsv")
+                fireFolder.resolve("data/file-list1.tsv")
             )
         )
     }
@@ -267,14 +267,14 @@ class FirePageTabServiceTest(
     companion object {
         const val SUB_JSON = "S-TEST123.json"
         const val SUB_XML = "S-TEST123.xml"
-        const val SUB_TSV = "S-TEST123.pagetab.tsv"
+        const val SUB_TSV = "S-TEST123.tsv"
 
         const val FILE_LIST_JSON1 = "file-list1.json"
         const val FILE_LIST_XML1 = "file-list1.xml"
-        const val FILE_LIST_TSV1 = "file-list1.pagetab.tsv"
+        const val FILE_LIST_TSV1 = "file-list1.tsv"
 
         const val FILE_LIST_JSON2 = "file-list2.json"
         const val FILE_LIST_XML2 = "file-list2.xml"
-        const val FILE_LIST_TSV2 = "file-list2.pagetab.tsv"
+        const val FILE_LIST_TSV2 = "file-list2.tsv"
     }
 }

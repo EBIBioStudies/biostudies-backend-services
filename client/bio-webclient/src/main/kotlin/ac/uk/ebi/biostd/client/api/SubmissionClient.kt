@@ -16,9 +16,12 @@ import ebi.ac.uk.api.dto.RegisterConfig
 import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.constants.FILE_LIST_NAME
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForEntity
@@ -60,6 +63,15 @@ internal class SubmissionClient(
     override fun releaseSubmission(request: ReleaseRequestDto) {
         template.put("$SUBMISSIONS_URL/release", request)
     }
+
+    override fun validateFileList(fileListPath: String) {
+        val headers = HttpHeaders().apply { contentType = APPLICATION_FORM_URLENCODED }
+        val formData = listOf(FILE_LIST_NAME to fileListPath)
+        val body = LinkedMultiValueMap(formData.groupBy({ it.first }, { it.second }))
+
+        template.postForEntity<Void>("$SUBMISSIONS_URL/fileLists/validate", HttpEntity(body, headers))
+    }
+
 
     private fun submitSingle(request: HttpEntity<String>, register: RegisterConfig): SubmissionResponse {
         return template

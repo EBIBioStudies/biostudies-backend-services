@@ -14,7 +14,7 @@ class SaveMetadataHandler(
     private val objectMapper: ObjectMapper = ObjectMapper()
 ) : RequestHandler {
     override val requestMethod: RequestMethod = RequestMethod.PUT
-    override val urlPattern: Regex = "/fire/objects/(.*)/metadata/set".toRegex()
+    override val urlPattern: Regex = "$FIRE_BASE_URL/(.*)/metadata/set".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {
         val fireId = urlPattern.getGroup(rqt.url, 1)

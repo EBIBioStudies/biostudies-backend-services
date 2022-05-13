@@ -15,11 +15,13 @@ data class ApplicationProperties(
     val security: SecurityProperties,
     val fire: FireProperties,
     val validator: ValidatorProperties,
-    val persistence: PersistenceProperties
+    val persistence: PersistenceProperties,
+    val featureFlags: FeatureFlags
 )
 
 data class FireProperties(
     val host: String,
+    val version: String,
     val username: String,
     val password: String
 )
@@ -30,4 +32,8 @@ data class ValidatorProperties(
 
 class PersistenceProperties(
     val enableFire: Boolean = false
+)
+
+class FeatureFlags(
+    val tsvPagetabExtension: Boolean = false
 )

@@ -13,7 +13,7 @@ class Md5QueryHandler(
     private val fireDB: FireMockDatabase
 ) : RequestHandler {
     override val requestMethod: RequestMethod = RequestMethod.GET
-    override val urlPattern: Regex = "/fire/objects/md5/(.*)".toRegex()
+    override val urlPattern: Regex = "$FIRE_BASE_URL/md5/(.*)".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {
         val md5 = urlPattern.getGroup(rqt.url, 1)
@@ -27,7 +27,7 @@ class PathQueryHandler(
     private val fireDB: FireMockDatabase
 ) : RequestHandler {
     override val requestMethod: RequestMethod = RequestMethod.GET
-    override val urlPattern: Regex = "/fire/objects/path/(.*)".toRegex()
+    override val urlPattern: Regex = "$FIRE_BASE_URL/path/(.*)".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {
         val path = urlPattern.getGroup(rqt.url, 1)
@@ -42,7 +42,7 @@ class QueryMetadataHandler(
     private val objectMapper: ObjectMapper = ObjectMapper()
 ) : RequestHandler {
     override val requestMethod: RequestMethod = RequestMethod.POST
-    override val urlPattern: Regex = "/fire/objects/metadata".toRegex()
+    override val urlPattern: Regex = "$FIRE_BASE_URL/metadata".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {
         val keys = objectMapper.readValue<Map<String, String>>(rqt.body).map { MetadataEntry(it.key, it.value) }

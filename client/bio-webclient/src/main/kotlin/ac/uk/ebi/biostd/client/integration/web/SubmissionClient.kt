@@ -80,6 +80,8 @@ interface SubmissionOperations {
     fun releaseSubmission(request: ReleaseRequestDto)
 
     fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
+
+    fun validateFileList(fileListPath: String)
 }
 
 interface MultipartSubmissionOperations {
@@ -124,9 +126,17 @@ interface MultipartAsyncSubmissionOperations {
 }
 
 interface SecurityOperations {
-    fun getAuthenticatedClient(user: String, password: String, onBehalf: String? = null): BioWebClient
+    fun getAuthenticatedClient(
+        user: String,
+        password: String,
+        onBehalf: String? = null,
+        enableTsvFeature: Boolean = false
+    ): BioWebClient
+
     fun login(loginRequest: LoginRequest): UserProfile
+
     fun registerUser(registerRequest: RegisterRequest)
+
     fun checkUser(checkUserRequest: CheckUserRequest)
 }
 

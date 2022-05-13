@@ -1,5 +1,6 @@
 package ac.uk.ebi.pmc.config
 
+import ac.uk.ebi.biostd.common.SerializationConfig
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.pmc.PmcTaskExecutor
 import ac.uk.ebi.pmc.client.PmcApi
@@ -36,13 +37,12 @@ import org.springframework.context.annotation.Import
 )
 @EnableConfigurationProperties
 class AppConfig {
-
     @Bean
     fun pmcTaskExecutor(properties: PmcImporterProperties, notificationSender: NotificationsSender) =
         PmcTaskExecutor(properties, notificationSender)
 
     @Bean
-    fun serializationService() = SerializationService()
+    fun serializationService() = SerializationConfig.serializationService()
 
     @Bean
     fun inputFilesDocService(inputFileRepository: InputFileRepository) = InputFilesDocService(inputFileRepository)
