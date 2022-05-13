@@ -58,14 +58,6 @@ class PageTabUtil(
         )
     }
 
-    /*
-    // TODO: create file with permission first
-    private fun File.newFile(fileName: String): File {
-        val file = resolve(fileName)
-        file.createNewFile()
-        return file
-    }*/
-
     private fun createFolderStructure(folder: File, fileListPath: String) {
         val file = folder.resolve(fileListPath).parentFile
         file.mkdirs()
