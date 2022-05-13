@@ -72,7 +72,6 @@ internal class SubmissionClient(
         template.postForEntity<Void>("$SUBMISSIONS_URL/fileLists/validate", HttpEntity(body, headers))
     }
 
-
     private fun submitSingle(request: HttpEntity<String>, register: RegisterConfig): SubmissionResponse {
         return template
             .postForEntity<String>(buildUrl(register), request)
