@@ -77,7 +77,7 @@ internal class FireServiceTest(
             assertThat(folder.type).isEqualTo(ExtFileType.DIR)
             assertThat(folder.attributes).isEqualTo(nfsFile.attributes)
 
-            val zipArtifact = ZipFile(fileSlot.captured);
+            val zipArtifact = ZipFile(fileSlot.captured)
             assertThat(zipArtifact.entries().nextElement().name).isEqualTo("test.txt")
         }
     }
