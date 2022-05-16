@@ -24,4 +24,6 @@ interface SerializationService {
     fun deserializeSubmission(file: File, source: FilesSource): Submission
 
     fun deserializeFileList(inputStream: InputStream, format: SubFormat): Sequence<BioFile>
+
+    fun deserializeFileList(fileListName: String, source: FilesSource): Sequence<BioFile>
 }

@@ -21,9 +21,13 @@ private val logger = KotlinLogging.logger {}
 internal class FileListSerializer(
     private val serializer: PagetabSerializer,
 ) {
-
     internal fun deserializeFileList(inputStream: InputStream, format: SubFormat): Sequence<BioFile> {
         return serializer.deserializeFileList(inputStream, format)
+    }
+
+    internal fun deserializeFileList(fileListName: String, source: FilesSource): Sequence<BioFile> {
+        val file = getFile(fileListName, source)
+        return serializer.deserializeFileList(file.inputStream(), SubFormat.fromFile(file))
     }
 
     internal fun deserializeFileList(submission: Submission, source: FilesSource): Submission {
