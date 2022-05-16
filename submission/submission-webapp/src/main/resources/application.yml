@@ -87,3 +87,5 @@ app:
     migration-package: ac.uk.ebi.biostd.persistence.doc.migrations
   validator:
     euToxRiskValidationApi: # EU-ToxRisk validation API
+  featureFlags:
+    tsvPagetabExtension: false

@@ -30,7 +30,7 @@ class UserFileApiTest(
 
     @BeforeAll
     fun init() {
-        securityTestService.ensureRegisterUser(FilesUser)
+        securityTestService.ensureUserRegistration(FilesUser)
         webClient = getWebClient(serverPort, FilesUser)
     }
 

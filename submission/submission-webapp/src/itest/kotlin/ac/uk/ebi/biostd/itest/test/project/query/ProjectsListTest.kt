@@ -38,9 +38,9 @@ class ProjectsListTest(
 
     @BeforeAll
     fun init() {
-        securityTestService.ensureRegisterUser(ProjectUser)
-        securityTestService.ensureRegisterUser(RegularUser)
-        securityTestService.ensureRegisterUser(DefaultUser)
+        securityTestService.ensureUserRegistration(ProjectUser)
+        securityTestService.ensureUserRegistration(RegularUser)
+        securityTestService.ensureUserRegistration(DefaultUser)
 
         superUserWebClient = getWebClient(serverPort, ProjectUser)
         regularUserWebClient = getWebClient(serverPort, RegularUser)

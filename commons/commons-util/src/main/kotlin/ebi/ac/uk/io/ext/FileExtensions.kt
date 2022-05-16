@@ -19,7 +19,7 @@ fun File.md5() = FileUtils.md5(this)
 
 fun File.createDirectory(name: String): File = Files.createDirectory(toPath().resolve(name)).toFile()
 
-fun File.createNewFile(name: String): File = resolve(name).apply { createNewFile() }
+fun File.newFile(name: String): File = resolve(name).apply { createNewFile() }
 
 fun File.createTempFile(prefix: String, suffix: String): File = Files.createTempFile(toPath(), prefix, suffix).toFile()
 
@@ -47,7 +47,7 @@ fun File.gZipTo(target: File) {
  * Creates a file with the given content in the temporary folder.
  */
 fun File.createFile(fileName: String, content: String, charset: Charset = Charsets.UTF_8): File {
-    val file = createNewFile(fileName)
+    val file = newFile(fileName)
     file.writeText(content, charset)
     return file
 }
@@ -56,7 +56,7 @@ fun File.createFile(fileName: String, content: String, charset: Charset = Charse
  * Creates a file with the given content in the temporary folder.
  */
 fun File.createFile(fileName: String): File {
-    return createNewFile(fileName)
+    return newFile(fileName)
 }
 
 /**
@@ -65,5 +65,5 @@ fun File.createFile(fileName: String): File {
 fun File.createOrReplaceFile(fileName: String): File {
     val file = resolve(fileName)
     if (file.exists()) file.delete()
-    return createNewFile(fileName)
+    return newFile(fileName)
 }

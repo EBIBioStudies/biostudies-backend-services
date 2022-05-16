@@ -25,8 +25,8 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.createNfsFile
-import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.newFile
 import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -44,7 +44,7 @@ class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
     private val extSection = mockk<ExtSection>()
     private val toExtSectionMapper: ToExtSectionMapper = mockk()
     private val testInstance = ToExtSubmissionMapper(toExtSectionMapper)
-    private val fileNfs = temporaryFolder.createDirectory("folder").createNewFile("nfsFileFile.txt")
+    private val fileNfs = temporaryFolder.createDirectory("folder").newFile("nfsFileFile.txt")
     private val subNfsDocFile =
         NfsDocFile(
             fileNfs.name,

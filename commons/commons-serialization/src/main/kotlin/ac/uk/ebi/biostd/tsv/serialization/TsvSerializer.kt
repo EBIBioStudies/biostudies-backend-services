@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.tsv.serialization
 
+import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
@@ -15,7 +16,9 @@ import ebi.ac.uk.model.constants.SectionFields.FILE_LIST
 import ebi.ac.uk.model.constants.TableFields.FILES_TABLE
 import ebi.ac.uk.model.constants.TableFields.LINKS_TABLE
 
-class TsvSerializer {
+class TsvSerializer(
+    private val tsvPagetabExt: TsvPagetabExtension
+) {
     fun <T> serialize(element: T): String {
         val builder = TsvBuilder()
 
@@ -59,7 +62,7 @@ class TsvSerializer {
 
     private fun sectionAttributes(section: Section): List<Attribute> = when (val fileList = section.fileList) {
         null -> section.attributes
-        else -> section.attributes.plus(Attribute(FILE_LIST.value, "${fileList.name}.pagetab.tsv"))
+        else -> section.attributes.plus(Attribute(FILE_LIST.value, "${fileList.name}.${tsvPagetabExt.tsvExtension()}"))
     }
 
     private fun getHeader(table: SectionsTable, parentAccNo: String? = null) =

@@ -19,7 +19,7 @@ internal class PagetabSerializer(
     private val jsonSerializer: JsonSerializer = JsonSerializer(),
     private val xmlSerializer: XmlSerializer = XmlSerializer(),
     private val xmlStreamSerializer: XmlStreamSerializer = XmlStreamSerializer(),
-    private val tsvSerializer: TsvSerializer = TsvSerializer()
+    private val tsvSerializer: TsvSerializer
 ) {
     fun serializeSubmission(submission: Submission, format: SubFormat): String = when (format) {
         XmlFormat -> xmlSerializer.serialize(submission)

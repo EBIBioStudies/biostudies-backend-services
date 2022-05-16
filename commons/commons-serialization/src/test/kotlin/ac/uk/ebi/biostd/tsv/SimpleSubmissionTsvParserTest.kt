@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.tsv
 
+import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ac.uk.ebi.biostd.test.createVenousBloodMonocyte
 import ac.uk.ebi.biostd.tsv.serialization.ACC_NO_KEY
 import ac.uk.ebi.biostd.tsv.serialization.ROOT_PATH_KEY
@@ -14,7 +15,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class SimpleSubmissionTsvParserTest {
-    private val testInstance: TsvSerializer = TsvSerializer()
+    private val testInstance: TsvSerializer = TsvSerializer(TsvPagetabExtension(false))
 
     @Test
     fun parseSimpleSubmission() {

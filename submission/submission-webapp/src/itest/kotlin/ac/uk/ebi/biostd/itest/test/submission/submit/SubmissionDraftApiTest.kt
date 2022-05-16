@@ -36,7 +36,7 @@ class SubmissionDraftApiTest(
 
     @BeforeAll
     fun init() {
-        securityTestService.ensureRegisterUser(SuperUser)
+        securityTestService.ensureUserRegistration(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
     }
 

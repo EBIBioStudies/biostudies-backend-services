@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.nfs
 
+import ac.uk.ebi.biostd.common.SerializationConfig
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
@@ -51,7 +52,8 @@ class NfsFilesServiceTest(
 
     private val folderResolver = SubmissionFolderResolver(Paths.get("$rootPath/submission"), Paths.get("$rootPath/ftp"))
     private val fileResolver = FilesResolver(tempFolder.createDirectory("extended-files"))
-    private val toFileListMapper = ToFileListMapper(SerializationService(), ExtSerializationService(), fileResolver)
+    private val toFileListMapper =
+        ToFileListMapper(SerializationConfig.serializationService(), ExtSerializationService(), fileResolver)
     private val toSubmissionMapper = ToSubmissionMapper(ToSectionMapper(toFileListMapper))
 
     private val testInstance =

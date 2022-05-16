@@ -8,8 +8,8 @@ import ac.uk.ebi.biostd.persistence.doc.test.TEST_FILE_LIST
 import ac.uk.ebi.biostd.persistence.doc.test.fireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.test.fireDocFile
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.newFile
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
@@ -37,7 +37,7 @@ class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
         extSerializationService,
         FilesResolver(temporaryFolder.createDirectory("ext-files"))
     )
-    private val fileNfs = temporaryFolder.createDirectory("folder").createNewFile("nfsFileFile.txt")
+    private val fileNfs = temporaryFolder.createDirectory("folder").newFile("nfsFileFile.txt")
     private val nfsDocFile = NfsDocFile(
         fileNfs.name,
         "filePath",

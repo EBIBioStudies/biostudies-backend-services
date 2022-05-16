@@ -108,6 +108,15 @@ class SubmissionRefreshApiTest(
                 )
             )
         }
+        val refreshFile = tempFolder.createFile(TEST_FILE_NAME, "file content")
+        val fileList = tempFolder.createFile(
+            "$FILE_LIST_NAME.tsv",
+            tsv {
+                line("Files", FILE_ATTR_NAME)
+                line("$FILE_LIST_FILE_NAME.txt", FILE_ATTR_VALUE)
+            }.toString()
+        )
+        val fileListFile = tempFolder.createFile("$FILE_LIST_FILE_NAME.txt", "content fileList file")
     }
     val refreshFile = tempFolder.createFile(TEST_FILE_NAME, "file content")
     val fileList = tempFolder.createFile(
@@ -121,7 +130,7 @@ class SubmissionRefreshApiTest(
 
     @BeforeAll
     fun init() {
-        securityTestService.ensureRegisterUser(SuperUser)
+        securityTestService.ensureUserRegistration(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
     }
 

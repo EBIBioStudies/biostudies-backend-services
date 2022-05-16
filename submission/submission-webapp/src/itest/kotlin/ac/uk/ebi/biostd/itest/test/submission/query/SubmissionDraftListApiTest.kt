@@ -32,7 +32,7 @@ class SubmissionDraftListApiTest(
 
     @BeforeAll
     fun init() {
-        securityTestService.ensureRegisterUser(DraftUser)
+        securityTestService.ensureUserRegistration(DraftUser)
         webClient = getWebClient(serverPort, DraftUser)
         testDrafts = createDrafts()
     }

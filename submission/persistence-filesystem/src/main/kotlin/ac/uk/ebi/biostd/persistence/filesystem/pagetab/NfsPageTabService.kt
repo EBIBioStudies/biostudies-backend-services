@@ -1,24 +1,36 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
+import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.persistence.filesystem.service.Section
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.createNfsFile
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
+import mu.KotlinLogging
+import java.io.File
+
+private val logger = KotlinLogging.logger {}
 
 class NfsPageTabService(
     private val folderResolver: SubmissionFolderResolver,
     private val pageTabUtil: PageTabUtil,
-    private val fileProcessingService: FileProcessingService
+    private val fileProcessingService: FileProcessingService,
+    private val tsvExtension: TsvPagetabExtension
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
+        logger.info { "${sub.accNo} ${sub.owner} Generating page tab files" }
+
         val submissionFolder = folderResolver.getSubFolder(sub.relPath).toFile()
         val filesFolder = submissionFolder.resolve(FILES_PATH)
 
+        logger.info { "${sub.accNo} ${sub.owner} Generating submission page tab files" }
         val subFiles = pageTabUtil.generateSubPageTab(sub, submissionFolder)
+
+        logger.info { "${sub.accNo} ${sub.owner} Generating submission file list page tab files" }
         val fileListFiles = pageTabUtil.generateFileListPageTab(sub, filesFolder)
         val section = fileProcessingService.process(sub.section) { updateFileList(it, fileListFiles) }
 
@@ -39,19 +51,24 @@ class NfsPageTabService(
         }
     }
 
-    private fun fileListFiles(tab: PageTabFiles, name: String): List<NfsFile> {
+    private fun fileListFiles(files: PageTabFiles, name: String): List<NfsFile> {
+        val (json, xml, tsv) = files
         return listOf(
-            createNfsFile("$name.json", "Files/$name.json", tab.json),
-            createNfsFile("$name.xml", "Files/$name.xml", tab.xml),
-            createNfsFile("$name.pagetab.tsv", "Files/$name.pagetab.tsv", tab.tsv),
+            createNfsFile("$name.json", json),
+            createNfsFile("$name.xml", xml),
+            createNfsFile("$name.${tsvExtension.tsvExtension()}", tsv),
         )
     }
 
+    private fun createNfsFile(name: String, file: File): NfsFile =
+        NfsFile(name, "Files/$name", file, file.absolutePath, file.md5(), file.size())
+
     private fun subFiles(files: PageTabFiles): List<NfsFile> {
+        val (json, xml, tsv) = files
         return listOf(
-            createNfsFile(files.json.name, files.json.name, files.json),
-            createNfsFile(files.xml.name, files.xml.name, files.xml),
-            createNfsFile(files.tsv.name, files.tsv.name, files.tsv)
+            NfsFile(json.name, json.name, json, json.absolutePath, json.md5(), json.size()),
+            NfsFile(xml.name, xml.name, xml, xml.absolutePath, xml.md5(), xml.size()),
+            NfsFile(tsv.name, tsv.name, tsv, tsv.absolutePath, tsv.md5(), tsv.size())
         )
     }
 }

@@ -51,8 +51,8 @@ class SubmitPermissionTest(
 
     @BeforeAll
     fun init() {
-        securityTestService.ensureRegisterUser(SuperUser)
-        securityTestService.ensureRegisterUser(ExistingUser)
+        securityTestService.ensureUserRegistration(SuperUser)
+        securityTestService.ensureUserRegistration(ExistingUser)
 
         superUserWebClient = getWebClient(serverPort, SuperUser)
         regularUserWebClient = getWebClient(serverPort, ExistingUser)

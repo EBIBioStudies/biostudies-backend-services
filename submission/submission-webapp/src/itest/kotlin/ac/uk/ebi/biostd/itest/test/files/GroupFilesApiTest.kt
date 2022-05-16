@@ -35,7 +35,7 @@ class GroupFilesApiTest(
 
     @BeforeAll
     fun init() {
-        securityTestService.ensureRegisterUser(SuperUser)
+        securityTestService.ensureUserRegistration(SuperUser)
 
         webClient = getWebClient(serverPort, SuperUser)
         webClient.addUserInGroup(webClient.createGroup(testGroupName, testGroupDescription).name, SuperUser.email)

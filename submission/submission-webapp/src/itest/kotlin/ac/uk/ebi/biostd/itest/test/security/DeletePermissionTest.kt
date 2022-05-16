@@ -46,8 +46,8 @@ class DeletePermissionTest(
 
     @BeforeAll
     fun init() {
-        securityTestService.ensureRegisterUser(SuperUser)
-        securityTestService.ensureRegisterUser(RegularUser)
+        securityTestService.ensureUserRegistration(SuperUser)
+        securityTestService.ensureUserRegistration(RegularUser)
 
         superUserWebClient = getWebClient(serverPort, SuperUser)
         regularUserWebClient = getWebClient(serverPort, RegularUser)

@@ -3,10 +3,12 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
-import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
-import ac.uk.ebi.biostd.persistence.doc.integration.ToDocSubmissionConfig
+import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocFileListMapper
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtFileListMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
@@ -27,6 +29,7 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
 import uk.ac.ebi.extended.test.FileListFactory.FILE_PATH
 import uk.ac.ebi.extended.test.FileListFactory.defaultFileList
 import uk.ac.ebi.extended.test.FireFileFactory.defaultFireFile
@@ -35,23 +38,28 @@ import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO
 import uk.ac.ebi.extended.test.SubmissionFactory.OWNER
 import uk.ac.ebi.extended.test.SubmissionFactory.SUBMITTER
 import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
+import uk.ac.ebi.serialization.common.FilesResolver
 import java.time.Duration
 
 @Testcontainers
-@SpringBootTest(classes = [MongoDbServicesConfig::class, ToDocSubmissionConfig::class, TestConfig::class])
+@SpringBootTest(classes = [MongoDbReposConfig::class, TestConfig::class])
 class ExtSubmissionRepositoryTest(
+    @Autowired private val filesResolver: FilesResolver,
     @Autowired private val subDataRepository: SubmissionDocDataRepository,
     @Autowired private val draftDocDataRepository: SubmissionDraftDocDataRepository,
-    @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
-    @Autowired private val toExtSectionMapper: ToExtSectionMapper,
-    @Autowired private val toDocSubmissionMapper: ToDocSubmissionMapper
+    @Autowired private val fileListDocFileRepository: FileListDocFileRepository
 ) {
+    private val extSerializationService = extSerializationService()
+    private val toFileListMapper = ToExtFileListMapper(fileListDocFileRepository, extSerializationService, filesResolver)
+    private val toExtSectionMapper = ToExtSectionMapper(toFileListMapper)
+    private val toDocFileListMapper = ToDocFileListMapper(extSerializationService)
+    private val toDocSectionMapper = ToDocSectionMapper(toDocFileListMapper)
     private val testInstance = ExtSubmissionRepository(
         subDataRepository,
         draftDocDataRepository,
         fileListDocFileRepository,
         ToExtSubmissionMapper(toExtSectionMapper),
-        toDocSubmissionMapper
+        ToDocSubmissionMapper(toDocSectionMapper)
     )
 
     @BeforeEach

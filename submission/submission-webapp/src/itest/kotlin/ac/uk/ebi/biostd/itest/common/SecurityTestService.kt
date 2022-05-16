@@ -26,7 +26,7 @@ class SecurityTestService(
         return user
     }
 
-    fun ensureRegisterUser(testUser: TestUser) {
+    fun ensureUserRegistration(testUser: TestUser) {
         if (userDataRepository.existsByEmail(testUser.email).not()) registerUser(testUser)
     }
 

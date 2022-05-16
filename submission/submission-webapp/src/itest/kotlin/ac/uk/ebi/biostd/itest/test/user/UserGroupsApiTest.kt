@@ -34,8 +34,8 @@ class UserGroupsApiTest(
 
     @BeforeAll
     fun init() {
-        securityTestService.ensureRegisterUser(SuperUser)
-        securityTestService.ensureRegisterUser(RegularUser)
+        securityTestService.ensureUserRegistration(SuperUser)
+        securityTestService.ensureUserRegistration(RegularUser)
         superWebClient = getWebClient(serverPort, SuperUser)
         regularWebClient = getWebClient(serverPort, RegularUser)
 

@@ -12,8 +12,8 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.createDirectory
-import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.newFile
 import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.ifLeft
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -110,7 +110,7 @@ class FireFilesServiceTest(
         val folder = tempFolder.createDirectory("folder")
         val fireFile = FireApiFile(1, "abc1", "folderMd5", 1, "2021-07-08")
 
-        folder.createNewFile("test.txt")
+        folder.newFile("test.txt")
         every { fireWebClient.save(capture(fileSlot), capture(md5Slot)) } returns fireFile
         every { fireWebClient.findByPath("S-TEST/123/S-TEST123/Files/folder.zip") } returns null
         every { fireWebClient.setPath("abc1", "${basicExtSubmission.relPath}/Files/folder.zip") } answers { nothing }

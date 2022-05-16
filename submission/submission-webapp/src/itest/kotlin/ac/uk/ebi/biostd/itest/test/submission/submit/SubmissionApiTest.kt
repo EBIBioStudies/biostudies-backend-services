@@ -75,7 +75,7 @@ class SubmissionApiTest(
 
     @BeforeAll
     fun init() {
-        securityTestService.ensureRegisterUser(SuperUser)
+        securityTestService.ensureUserRegistration(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
 
         sequenceRepository.save(DbSequence("S-BSST"))
@@ -170,7 +170,7 @@ class SubmissionApiTest(
 
     @Test
     fun `submission with on behalf another user`() {
-        securityTestService.ensureRegisterUser(RegularUser)
+        securityTestService.ensureUserRegistration(RegularUser)
 
         val submission = tsv {
             line("Submission")
