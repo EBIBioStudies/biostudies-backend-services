@@ -8,5 +8,5 @@ interface TestUser {
     val password: String
     val superUser: Boolean
 
-    fun asRegisterRequest(): RegisterRequest
+    fun asRegisterRequest(): RegisterRequest = RegisterRequest(username, email, password)
 }

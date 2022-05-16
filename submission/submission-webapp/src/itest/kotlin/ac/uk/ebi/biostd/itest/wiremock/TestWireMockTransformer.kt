@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.itest.wiremock
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
-import ac.uk.ebi.biostd.itest.wiremock.handlers.PathDownloadHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.FileSaveHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.Md5QueryHandler
+import ac.uk.ebi.biostd.itest.wiremock.handlers.PathDownloadHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.PathQueryHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.PublishHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.QueryMetadataHandler
@@ -20,12 +20,12 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition
 import org.springframework.http.HttpStatus
 import java.nio.file.Path
 
-class TestWireMockTransformer private constructor(
+class TestWireMockTransformer constructor(
     private val db: FireMockDatabase,
     private val handlers: List<RequestHandler>
 ) :
     ResponseDefinitionTransformer() {
-    override fun getName(): String = "testWireMockTransformer"
+    override fun getName(): String = Companion.name
 
     override fun transform(
         request: Request,
@@ -42,6 +42,8 @@ class TestWireMockTransformer private constructor(
     fun cleanDb() = db.cleanAll()
 
     companion object {
+        val name = "testWireMockTransformer"
+
         fun newTransformer(
             subFolder: Path,
             ftpFolder: Path,

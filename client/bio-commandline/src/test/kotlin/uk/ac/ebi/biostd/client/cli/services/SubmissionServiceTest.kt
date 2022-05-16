@@ -21,8 +21,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
@@ -37,9 +35,8 @@ internal class SubmissionServiceTest {
     @BeforeEach
     fun beforeEach() = mockkObject(SecurityWebClient)
 
-    @ParameterizedTest
-    @EnumSource(FileMode::class)
-    fun submit(fileMode: FileMode) {
+    @Test
+    fun submit() {
         val slot = slot<FileMode>()
         every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
         every {
@@ -55,8 +52,7 @@ internal class SubmissionServiceTest {
         }
     }
 
-    @ParameterizedTest
-    @EnumSource(FileMode::class)
+    @Test
     fun `submit async`() {
         val slot = slot<FileMode>()
         every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
