@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionWithoutPatternException
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
-import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
+import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbQueryConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.PropertyOverrideContextInitializer
@@ -39,7 +39,7 @@ import java.time.temporal.ChronoUnit
 
 @ExtendWith(SpringExtension::class)
 @Testcontainers
-@SpringBootTest(classes = [MongoDbServicesConfig::class, TestConfig::class])
+@SpringBootTest(classes = [MongoDbQueryConfig::class, TestConfig::class])
 @ContextConfiguration(initializers = [PropertyOverrideContextInitializer::class])
 internal class SubmissionMongoMetaQueryServiceTest(
     @Autowired private val submissionMongoRepository: SubmissionMongoRepository,

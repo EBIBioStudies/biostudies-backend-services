@@ -9,7 +9,7 @@ import java.io.InputStream
 import java.io.OutputStream
 
 internal class TsvSerializer(
-    private val tsvSerializer: TsvSerializer = TsvSerializer(),
+    private val tsvSerializer: TsvSerializer,
     private val tsvDeserializer: TsvDeserializer = TsvDeserializer(),
     private val streamSerializer: FileListTsvStreamDeserializer = FileListTsvStreamDeserializer()
 ) {

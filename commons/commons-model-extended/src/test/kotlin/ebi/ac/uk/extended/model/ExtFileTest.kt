@@ -3,8 +3,8 @@ package ebi.ac.uk.extended.model
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.io.ext.createDirectory
-import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.newFile
 import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -19,7 +19,7 @@ import org.junit.jupiter.params.provider.EnumSource
 class ExtFileTest(private val temporaryFolder: TemporaryFolder) {
     @Test
     fun `extFile with file inside folder`() {
-        val file = temporaryFolder.createDirectory("Files").createDirectory("my-folder").createNewFile("file.txt")
+        val file = temporaryFolder.createDirectory("Files").createDirectory("my-folder").newFile("file.txt")
         val extFile = NfsFile(
             "/my-folder/file.txt", "Files/my-folder/file.txt",
             file,
@@ -37,7 +37,7 @@ class ExtFileTest(private val temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `extFile with simple file`() {
-        val file = temporaryFolder.createDirectory("Files").createNewFile("file.txt")
+        val file = temporaryFolder.createDirectory("Files").newFile("file.txt")
         val extFile = NfsFile(
             "file.txt", "Files/file.txt", file, file.absolutePath,
             file.md5(),

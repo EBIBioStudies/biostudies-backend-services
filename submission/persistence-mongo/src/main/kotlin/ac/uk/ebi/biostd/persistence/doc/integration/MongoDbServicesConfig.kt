@@ -16,7 +16,6 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.CollectionMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoService
-import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoQueryService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
@@ -26,7 +25,12 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.common.FilesResolver
 
 @Configuration
-@Import(MongoDbReposConfig::class, SerializationConfiguration::class, ToSubmissionConfig::class)
+@Import(
+    MongoDbReposConfig::class,
+    MongoDbQueryConfig::class,
+    SerializationConfiguration::class,
+    ToSubmissionConfig::class
+)
 class MongoDbServicesConfig {
     @Bean
     @Suppress("LongParameterList")
@@ -80,11 +84,6 @@ class MongoDbServicesConfig {
         serializationService,
         toSubmissionMapper
     )
-
-    @Bean
-    internal fun submissionMongoMetaQueryService(
-        submissionDocDataRepository: SubmissionDocDataRepository
-    ): SubmissionMongoMetaQueryService = SubmissionMongoMetaQueryService(submissionDocDataRepository)
 
     @Bean
     internal fun statsDataService(
