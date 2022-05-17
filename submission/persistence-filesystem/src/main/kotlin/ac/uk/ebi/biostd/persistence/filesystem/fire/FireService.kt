@@ -6,11 +6,14 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
+import mu.KotlinLogging
 import org.zeroturnaround.zip.ZipUtil
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 import java.nio.file.Files
+
+private val logger = KotlinLogging.logger {}
 
 class FireService(
     private val fireWebClient: FireWebClient,
@@ -36,14 +39,14 @@ class FireService(
         return fireFile
     }
 
-    private fun getOrPersist(sub: ExtSubmission, nfsFile: NfsFile): FireFile {
-        return when (val record = fireWebClient.findByPath("${sub.relPath}/${nfsFile.relPath}")) {
+    private fun getOrPersist(sub: ExtSubmission, nfsFile: NfsFile): FireFile =
+        when (val record = fireWebClient.findByPath("${sub.relPath}/${nfsFile.relPath}")) {
             null -> if (nfsFile.file.isDirectory) saveDirectory(sub, nfsFile) else saveFile(sub, nfsFile)
             else -> asFireFile(nfsFile, record, nfsFile.type)
         }
-    }
 
     private fun saveFile(sub: ExtSubmission, nfsFile: NfsFile): FireFile {
+        logger.info { "${sub.accNo} ${sub.owner} Persisting file ${nfsFile.fileName} on FIRE" }
         val fireFile = fireWebClient.save(nfsFile.file, nfsFile.md5)
         fireWebClient.setBioMetadata(fireFile.fireOid, sub.accNo, nfsFile.type.value, published = false)
         fireWebClient.setPath(fireFile.fireOid, "${sub.relPath}/${nfsFile.relPath}")
@@ -51,6 +54,7 @@ class FireService(
     }
 
     private fun saveDirectory(sub: ExtSubmission, nfsFile: NfsFile): FireFile {
+        logger.info { "${sub.accNo} ${sub.owner} Persisting ${nfsFile.fileName}.zip on FIRE" }
         val directory = compress(sub, nfsFile.file)
         val fireFile = fireWebClient.save(directory, directory.md5())
         fireWebClient.setBioMetadata(fireFile.fireOid, sub.accNo, nfsFile.type.value, published = false)
