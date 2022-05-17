@@ -37,11 +37,6 @@ internal class PageTabSerializationService(
         format: SubFormat
     ): Sequence<BioFile> = fileListSerializer.deserializeFileList(inputStream, format)
 
-    override fun deserializeFileList(
-        fileListName: String,
-        source: FilesSource
-    ): Sequence<BioFile> = fileListSerializer.deserializeFileList(fileListName, source)
-
     override fun serializeTable(table: FilesTable, format: SubFormat, file: File): File {
         file.outputStream().use { serializer.serializeFileList(table.elements.asSequence(), format, it) }
         return file

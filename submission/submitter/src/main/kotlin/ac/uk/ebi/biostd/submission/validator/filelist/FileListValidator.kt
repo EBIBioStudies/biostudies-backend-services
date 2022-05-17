@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.submission.validator.filelist
 
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.biostd.service.PageTabFileReader.getFileListFile
 import ac.uk.ebi.biostd.submission.exceptions.InvalidFilesException
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.util.collections.ifNotEmpty
@@ -13,10 +15,18 @@ class FileListValidator(
      * Note that in case of missing files only first 1000 are reported.
      */
     fun validateFileList(fileName: String, filesSource: FilesSource) {
-        serializationService
-            .deserializeFileList(fileName, filesSource)
-            .filter { filesSource.getExtFile(it.path) == null }
-            .toList()
-            .ifNotEmpty { throw InvalidFilesException(it) }
+        val fileListFile = getFileListFile(fileName, filesSource)
+        fileListFile.inputStream().use { inputStream ->
+            serializationService
+                .deserializeFileList(inputStream, SubFormat.fromFile(fileListFile))
+                .filter { filesSource.getExtFile(it.path) == null }
+                .take(fileListLimit)
+                .toList()
+                .ifNotEmpty { throw InvalidFilesException(it) }
+        }
+    }
+
+    companion object {
+        private const val fileListLimit = 1000
     }
 }
