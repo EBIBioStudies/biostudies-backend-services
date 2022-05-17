@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import uk.ac.ebi.fire.client.integration.web.FireOperations
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 
@@ -35,7 +35,7 @@ class PersistenceConfig(
     private val properties: ApplicationProperties,
     private val serializationService: SerializationService,
     private val submissionQueryService: SubmissionQueryService,
-    private val fireWebClient: FireWebClient
+    private val fireOperations: FireOperations
 ) {
     @Bean
     @ConditionalOnProperty(
@@ -73,7 +73,7 @@ class PersistenceConfig(
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
     fun fireFtpService(serializationService: ExtSerializationService): FtpService =
-        FireFtpService(fireWebClient, serializationService, submissionQueryService)
+        FireFtpService(fireOperations, serializationService, submissionQueryService)
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
@@ -84,7 +84,7 @@ class PersistenceConfig(
     ): PageTabService =
         FirePageTabService(
             File(properties.fireTempDirPath),
-            fireWebClient,
+            fireOperations,
             pageTabUtil,
             fileProcessingService,
             tsvPagetabExtension
@@ -92,7 +92,7 @@ class PersistenceConfig(
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
-    fun fireService(): FireService = FireService(fireWebClient, File(properties.fireTempDirPath))
+    fun fireService(): FireService = FireService(fireOperations, File(properties.fireTempDirPath))
 
     @Bean
     fun fileSystemService(

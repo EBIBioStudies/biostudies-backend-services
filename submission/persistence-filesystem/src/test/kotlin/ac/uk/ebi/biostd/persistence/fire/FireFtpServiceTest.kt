@@ -22,19 +22,19 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.createExtFileList
-import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import uk.ac.ebi.fire.client.integration.web.FireOperations
 import uk.ac.ebi.fire.client.model.FireApiFile
 import ebi.ac.uk.test.basicExtSubmission as basicExtSub
 
 @ExtendWith(MockKExtension::class)
 class FireFtpServiceTest(
-    @MockK(relaxUnitFun = true) private val fireWebClient: FireWebClient,
+    @MockK(relaxUnitFun = true) private val fireOperations: FireOperations,
     @MockK private val submissionQueryService: SubmissionQueryService
 ) {
     private val fileFileList = fireFile(FILE_FILE_LIST)
     private val innerFileListFile = fireFile(INNER_FILE_FILE_LIST)
     private val extSub = createExtSubmission(fileFileList, innerFileListFile)
-    private val testInstance = FireFtpService(fireWebClient, ExtSerializationService(), submissionQueryService)
+    private val testInstance = FireFtpService(fireOperations, ExtSerializationService(), submissionQueryService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -71,22 +71,22 @@ class FireFtpServiceTest(
     fun `unpublish submission files`() {
         val fireFile = FireApiFile(1, "abc1", "MD5", 1, "2021-07-08")
 
-        every { fireWebClient.unpublish("abc1") } answers { nothing }
-        every { fireWebClient.setBioMetadata("abc1", published = false) } answers { nothing }
-        every { fireWebClient.findByAccNoAndPublished("S-TEST1", true) } returns listOf(fireFile)
+        every { fireOperations.unpublish("abc1") } answers { nothing }
+        every { fireOperations.setBioMetadata("abc1", published = false) } answers { nothing }
+        every { fireOperations.findByAccNoAndPublished("S-TEST1", true) } returns listOf(fireFile)
 
         testInstance.unpublishSubmissionFiles("S-TEST1", "owner@mail.org", "my/path")
 
         verify(exactly = 1) {
-            fireWebClient.unpublish("abc1")
-            fireWebClient.setBioMetadata("abc1", published = false)
+            fireOperations.unpublish("abc1")
+            fireOperations.setBioMetadata("abc1", published = false)
         }
     }
 
     private fun verifyFtpPublish() = verify(exactly = 1) {
         fun verifyPublishFile(fireId: String) {
-            fireWebClient.publish(fireId)
-            fireWebClient.setBioMetadata(fireId, published = true)
+            fireOperations.publish(fireId)
+            fireOperations.setBioMetadata(fireId, published = true)
         }
 
         verifyPublishFile(FILE_FILE_LIST)

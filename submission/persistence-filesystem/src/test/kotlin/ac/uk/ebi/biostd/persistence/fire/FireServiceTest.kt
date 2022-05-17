@@ -19,18 +19,18 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import uk.ac.ebi.fire.client.integration.web.FireOperations
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 import java.util.zip.ZipFile
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class FireServiceTest(
-    @MockK private val webClient: FireWebClient,
+    @MockK private val fireOperations: FireOperations,
     private val tempFolder: TemporaryFolder,
 ) {
     private val submission = basicExtSubmission
-    private val testInstance = FireService(webClient, tempFolder.createDirectory("fire-temp"))
+    private val testInstance = FireService(fireOperations, tempFolder.createDirectory("fire-temp"))
 
     @Test
     fun `Get or persist when fire file`() {
@@ -44,7 +44,7 @@ internal class FireServiceTest(
             attributes = listOf(ExtAttribute("Type", "Test"))
         )
 
-        every { webClient.setPath("abc1", "${submission.relPath}/Files/folder/test.txt") } answers { nothing }
+        every { fireOperations.setPath("abc1", "${submission.relPath}/Files/folder/test.txt") } answers { nothing }
 
         val response = testInstance.getOrPersist(submission, fireFile)
 
@@ -61,10 +61,10 @@ internal class FireServiceTest(
 
         @Test
         fun `Get or persist when nfs folder`() {
-            every { webClient.save(capture(fileSlot), capture(md5Slot)) } returns fireFile
-            every { webClient.setPath("abc1", "${submission.relPath}/Files/folder.zip") } answers { nothing }
-            every { webClient.setBioMetadata("abc1", submission.accNo, "directory", false) } answers { nothing }
-            every { webClient.findByPath("S-TEST/123/S-TEST123/Files/folder") } returns null
+            every { fireOperations.save(capture(fileSlot), capture(md5Slot)) } returns fireFile
+            every { fireOperations.setPath("abc1", "${submission.relPath}/Files/folder.zip") } answers { nothing }
+            every { fireOperations.setBioMetadata("abc1", submission.accNo, "directory", false) } answers { nothing }
+            every { fireOperations.findByPath("S-TEST/123/S-TEST123/Files/folder") } returns null
 
             val folder = testInstance.getOrPersist(submission, nfsFile)
 
@@ -91,10 +91,10 @@ internal class FireServiceTest(
 
         @Test
         fun `Get or persist when nfs file`() {
-            every { webClient.setPath("abc1", "${submission.relPath}/Files/folder/test.txt") } answers { nothing }
-            every { webClient.setBioMetadata("abc1", submission.accNo, "file", false) } answers { nothing }
-            every { webClient.findByPath("S-TEST/123/S-TEST123/Files/folder/test.txt") } returns null
-            every { webClient.save(file, file.md5()) } returns fireFile
+            every { fireOperations.setPath("abc1", "${submission.relPath}/Files/folder/test.txt") } answers { nothing }
+            every { fireOperations.setBioMetadata("abc1", submission.accNo, "file", false) } answers { nothing }
+            every { fireOperations.findByPath("S-TEST/123/S-TEST123/Files/folder/test.txt") } returns null
+            every { fireOperations.save(file, file.md5()) } returns fireFile
 
             val response = testInstance.getOrPersist(submission, nfsFile)
 
@@ -103,7 +103,7 @@ internal class FireServiceTest(
 
         @Test
         fun `Get or persist when nfs file already persisted`() {
-            every { webClient.findByPath("S-TEST/123/S-TEST123/Files/folder/test.txt") } returns fireFile
+            every { fireOperations.findByPath("S-TEST/123/S-TEST123/Files/folder/test.txt") } returns fireFile
 
             val response = testInstance.getOrPersist(submission, nfsFile)
 

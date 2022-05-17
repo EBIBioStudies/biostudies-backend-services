@@ -106,8 +106,9 @@ class ITestListener : TestExecutionListener {
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         private fun createFireApiMock(submissionDir: File, ftpDir: File, fireDir: File): WireMockServer {
-            val wireMockTransformer = newTransformer(submissionDir.toPath(), ftpDir.toPath(), fireDir.toPath())
-            return WireMockServer(WireMockConfiguration().dynamicPort().extensions(wireMockTransformer))
+            val failFactor = System.getenv("ITEST_FAIL_FACTOR")?.toInt()
+            val transformer = newTransformer(submissionDir.toPath(), ftpDir.toPath(), fireDir.toPath(), failFactor)
+            return WireMockServer(WireMockConfiguration().dynamicPort().extensions(transformer))
         }
 
         private fun File.createDirectory(path: String): File {

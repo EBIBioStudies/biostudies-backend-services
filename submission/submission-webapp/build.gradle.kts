@@ -33,6 +33,7 @@ import SpringBootDependencies.SpringBootStarterSecurity
 import SpringBootDependencies.SpringBootStarterTest
 import SpringBootDependencies.SpringBootStarterValidation
 import SpringBootDependencies.SpringBootStarterWeb
+import SpringBootDependencies.SpringRetry
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.JsonPathAssert
@@ -93,6 +94,7 @@ dependencies {
     implementation(SpringBootStarterSecurity)
     implementation(SpringBootStarterActuator)
     implementation(SpringBootStarterValidation)
+    implementation(SpringRetry)
 
     // Registers the application in the Spring Dashboard
     implementation(SpringBootStartedAdminClient)

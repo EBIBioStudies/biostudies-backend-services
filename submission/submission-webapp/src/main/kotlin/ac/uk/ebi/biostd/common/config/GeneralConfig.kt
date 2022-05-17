@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import uk.ac.ebi.fire.client.integration.web.FireOperations
 
 @Configuration
 @EnableConfigurationProperties(ApplicationProperties::class)
@@ -18,8 +18,8 @@ internal class GeneralConfig {
     @Bean
     fun fireFilesSourceFactory(
         applicationProperties: ApplicationProperties,
-        fireWebClient: FireWebClient
-    ) = FireFilesSourceFactory(applicationProperties.persistence, fireWebClient)
+        fireOperations: FireOperations
+    ) = FireFilesSourceFactory(applicationProperties.persistence, fireOperations)
 
     @Bean
     fun sourceGenerator(

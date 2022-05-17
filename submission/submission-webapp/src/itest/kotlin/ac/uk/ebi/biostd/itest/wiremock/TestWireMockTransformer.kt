@@ -18,10 +18,13 @@ import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer
 import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.http.ResponseDefinition
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import java.nio.file.Path
+import kotlin.random.Random
 
 class TestWireMockTransformer constructor(
     private val db: FireMockDatabase,
+    private val failFactor: Int?,
     private val handlers: List<RequestHandler>
 ) :
     ResponseDefinitionTransformer() {
@@ -31,27 +34,33 @@ class TestWireMockTransformer constructor(
         request: Request,
         responseDefinition: ResponseDefinition?,
         files: FileSource?,
-        parameters: Parameters?
+        parameters: Parameters?,
     ): ResponseDefinition {
+        failIfApply()
         return handlers
             .firstOrNull { it.urlPattern.matches(request.url) && it.requestMethod == request.method }
             ?.handle(request)
             ?: throw WebClientException(HttpStatus.BAD_REQUEST, "http method ${request.method.name} is not supported")
     }
 
-    fun cleanDb() = db.cleanAll()
+    private fun failIfApply() {
+        if (failFactor == null) return
+        if (Random.nextInt(0, failFactor) == 0) throw WebClientException(INTERNAL_SERVER_ERROR, "Simulated Error")
+    }
 
     companion object {
-        val name = "testWireMockTransformer"
+        const val name = "testWireMockTransformer"
 
         fun newTransformer(
             subFolder: Path,
             ftpFolder: Path,
             dbFolder: Path,
+            failFactor: Int?,
         ): TestWireMockTransformer {
             val fireDatabase = FireMockDatabase(subFolder, ftpFolder, dbFolder)
             return TestWireMockTransformer(
                 fireDatabase,
+                failFactor,
                 listOf(
                     Md5QueryHandler(fireDatabase),
                     PathQueryHandler(fireDatabase),

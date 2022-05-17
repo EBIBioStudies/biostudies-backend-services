@@ -215,6 +215,7 @@ object SpringBootDependencies {
     const val SpringBootConfigurationProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterActuator = "org.springframework.boot:spring-boot-starter-actuator"
     const val SpringBootStarterValidation = "org.springframework.boot:spring-boot-starter-validation"
+    const val SpringRetry = "org.springframework.retry:spring-retry:1.3.3"
     const val SpringBootStarterDataJpa = "org.springframework.boot:spring-boot-starter-data-jpa"
     const val SpringBootStarterConfigProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterSecurity = "org.springframework.boot:spring-boot-starter-security"

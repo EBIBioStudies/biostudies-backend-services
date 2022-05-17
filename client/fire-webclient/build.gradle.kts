@@ -1,10 +1,12 @@
 import Dependencies.JSONOrg
+import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWeb
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.JsonLibrary
+import SpringBootDependencies.SpringRetry
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
@@ -15,6 +17,8 @@ dependencies {
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
     implementation(SpringWeb)
+    implementation(KotlinLogging)
+    implementation(SpringRetry)
 
     testApi(project(CommonsTest))
     testApi(project(JsonLibrary))
