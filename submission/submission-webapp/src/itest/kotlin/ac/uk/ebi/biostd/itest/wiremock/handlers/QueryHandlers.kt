@@ -17,8 +17,9 @@ class Md5QueryHandler(
 
     override fun handle(rqt: Request): ResponseDefinition {
         val md5 = urlPattern.getGroup(rqt.url, 1)
-        val fireObject = fireDB.findByMd5(md5)
-        return ResponseDefinition.okForJson(fireObject)
+        val matches = fireDB.findByMd5(md5)
+
+        return ResponseDefinition.okForJson(matches)
     }
 }
 
@@ -31,6 +32,7 @@ class PathQueryHandler(
     override fun handle(rqt: Request): ResponseDefinition {
         val path = urlPattern.getGroup(rqt.url, 1)
         val fireObject = fireDB.findByPath(path)
+
         return if (fireObject == null) ResponseDefinition.notFound() else ResponseDefinition.okForJson(fireObject)
     }
 }
@@ -45,6 +47,7 @@ class QueryMetadataHandler(
     override fun handle(rqt: Request): ResponseDefinition {
         val keys = objectMapper.readValue<Map<String, String>>(rqt.body).map { MetadataEntry(it.key, it.value) }
         val matches = fireDB.findByMetadata(keys)
+
         return ResponseDefinition.okForJson(matches)
     }
 }
