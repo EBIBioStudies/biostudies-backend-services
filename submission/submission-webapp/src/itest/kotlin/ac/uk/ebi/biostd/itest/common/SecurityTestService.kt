@@ -15,7 +15,7 @@ class SecurityTestService(
     private val groupService: IGroupService
 ) {
 
-    fun registerUser(testUser: TestUser): SecurityUser {
+    private fun registerUser(testUser: TestUser): SecurityUser {
         val user = securityService.registerUser(testUser.asRegisterRequest())
         if (testUser.superUser) {
             val dbUser = userDataRepository.getByEmail(user.email)
@@ -24,6 +24,10 @@ class SecurityTestService(
         }
 
         return user
+    }
+
+    fun ensureUserRegistration(testUser: TestUser) {
+        if (userDataRepository.existsByEmail(testUser.email).not()) registerUser(testUser)
     }
 
     fun createTestGroup(): DbUserGroup {

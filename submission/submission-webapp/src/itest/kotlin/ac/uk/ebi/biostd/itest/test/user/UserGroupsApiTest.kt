@@ -3,96 +3,86 @@ package ac.uk.ebi.biostd.itest.test.user
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
-import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ebi.ac.uk.test.clean
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import ac.uk.ebi.biostd.itest.entities.TestUser
+import ac.uk.ebi.biostd.itest.itest.getWebClient
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 private const val GROUP_NAME = "Bio-test-group"
 private const val GROUP_DESC = "Bio-test-group description"
 
-@ExtendWith(TemporaryFolderExtension::class)
-internal class UserGroupsApiTest(private val tempFolder: TemporaryFolder) : BaseIntegrationTest(tempFolder) {
-    @Nested
-    @Import(PersistenceConfig::class)
-    @ExtendWith(SpringExtension::class)
-    @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-    @DirtiesContext
-    inner class GroupsApi(
-        @Autowired private val securityTestService: SecurityTestService
-    ) {
-        @LocalServerPort
-        private var serverPort: Int = 0
+@Import(PersistenceConfig::class)
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class UserGroupsApiTest(
+    @Autowired private val securityTestService: SecurityTestService,
+    @LocalServerPort val serverPort: Int,
+) {
 
-        private lateinit var superWebClient: BioWebClient
-        private lateinit var regularWebClient: BioWebClient
+    private lateinit var superWebClient: BioWebClient
+    private lateinit var regularWebClient: BioWebClient
 
-        @BeforeAll
-        fun init() {
-            securityTestService.registerUser(SuperUser)
-            securityTestService.registerUser(RegularUser)
-            superWebClient = getWebClient(serverPort, SuperUser)
-            regularWebClient = getWebClient(serverPort, RegularUser)
+    @BeforeAll
+    fun init() {
+        securityTestService.ensureUserRegistration(SuperUser)
+        securityTestService.ensureUserRegistration(RegularUser)
+        superWebClient = getWebClient(serverPort, SuperUser)
+        regularWebClient = getWebClient(serverPort, RegularUser)
 
-            superWebClient.addUserInGroup(superWebClient.createGroup(GROUP_NAME, GROUP_DESC).name, SuperUser.email)
+        superWebClient.addUserInGroup(superWebClient.createGroup(GROUP_NAME, GROUP_DESC).name, SuperUser.email)
+    }
+
+    @Test
+    fun `get user groups`() {
+        val groups = superWebClient.getGroups()
+
+        assertThat(groups).hasSize(1)
+        assertThat(groups.first()).satisfies {
+            assertThat(it.description).isEqualTo(GROUP_DESC)
+            assertThat(it.name).isEqualTo(GROUP_NAME)
         }
+    }
 
-        @BeforeEach
-        fun beforeEach() {
-            tempFolder.clean()
-        }
+    @Test
+    fun `trying to add a user to unexisting group`() {
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { superWebClient.addUserInGroup(nonExistentGroupName, SuperUser.email) }
+            .withMessageContaining("The group $nonExistentGroupName does not exists")
+    }
 
-        @Test
-        fun `get user groups`() {
-            val groups = superWebClient.getGroups()
+    @Test
+    fun `trying to add a user that does not exist`() {
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { superWebClient.addUserInGroup(GROUP_NAME, nonExistentUser) }
+            .withMessageContaining("The user $nonExistentUser does not exists")
+    }
 
-            assertThat(groups).hasSize(1)
-            assertThat(groups.first()).satisfies {
-                assertThat(it.description).isEqualTo(GROUP_DESC)
-                assertThat(it.name).isEqualTo(GROUP_NAME)
-            }
-        }
-
-        @Test
-        fun `trying to add a user to unexisting group`() {
-            assertThatExceptionOfType(WebClientException::class.java)
-                .isThrownBy { superWebClient.addUserInGroup(nonExistentGroupName, SuperUser.email) }
-                .withMessageContaining("The group $nonExistentGroupName does not exists")
-        }
-
-        @Test
-        fun `trying to add a user that does not exist`() {
-            assertThatExceptionOfType(WebClientException::class.java)
-                .isThrownBy { superWebClient.addUserInGroup(GROUP_NAME, nonExistentUser) }
-                .withMessageContaining("The user $nonExistentUser does not exists")
-        }
-
-        @Test
-        fun `trying to add a user by regularUser`() {
-            assertThatExceptionOfType(WebClientException::class.java)
-                .isThrownBy { regularWebClient.addUserInGroup(GROUP_NAME, nonExistentUser) }
-                .withMessageContaining("Access is denied")
-        }
+    @Test
+    fun `trying to add a user by regularUser`() {
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { regularWebClient.addUserInGroup(GROUP_NAME, nonExistentUser) }
+            .withMessageContaining("Access is denied")
     }
 
     companion object {
         const val nonExistentGroupName = "fakeGroup"
         const val nonExistentUser = "fakeEmail"
+    }
+
+    object SuperUser : TestUser {
+        override val username = "Super User Group Test"
+        override val email = "gr-test-biostudies-mgmt@ebi.ac.uk"
+        override val password = "12345"
+        override val superUser = true
     }
 }

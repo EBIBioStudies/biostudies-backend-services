@@ -1,10 +1,10 @@
 package ac.uk.ebi.biostd.itest.factory
 
-import ebi.ac.uk.test.createFile
-import io.github.glytching.junit.extension.folder.TemporaryFolder
+import ebi.ac.uk.io.ext.createFile
 import org.redundent.kotlin.xml.xml
+import java.io.File
 
-fun submissionSpecXml(tempFolder: TemporaryFolder, accNo: String): SubmissionSpec = SubmissionSpec(
+fun submissionSpecXml(tempFolder: File, accNo: String): SubmissionSpec = SubmissionSpec(
     submission = tempFolder.createFile("submission.xml", allInOneSubmissionXml(accNo).toString()),
     fileList = tempFolder.createFile("file-list.xml", fileList().toString()),
     files = submissionsFiles(tempFolder),

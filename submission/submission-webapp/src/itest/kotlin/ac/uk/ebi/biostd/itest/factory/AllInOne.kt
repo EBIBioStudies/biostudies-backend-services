@@ -1,8 +1,7 @@
 package ac.uk.ebi.biostd.itest.factory
 
 import ebi.ac.uk.base.EMPTY
-import ebi.ac.uk.test.createOrReplaceFile
-import io.github.glytching.junit.extension.folder.TemporaryFolder
+import ebi.ac.uk.io.ext.createOrReplaceFile
 import java.io.File
 
 data class SubmissionSpec(
@@ -14,7 +13,7 @@ data class SubmissionSpec(
 
 data class SubmissionFile(val file: File, val folder: String = EMPTY)
 
-fun submissionsFiles(tempFolder: TemporaryFolder): List<SubmissionFile> = listOf(
+fun submissionsFiles(tempFolder: File): List<SubmissionFile> = listOf(
     SubmissionFile(tempFolder.createOrReplaceFile("DataFile1.txt")),
     SubmissionFile(tempFolder.createOrReplaceFile("DataFile2.txt")),
     SubmissionFile(tempFolder.createOrReplaceFile("DataFile3.txt"), "Folder1"),

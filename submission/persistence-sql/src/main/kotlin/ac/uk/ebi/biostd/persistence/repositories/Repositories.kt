@@ -61,6 +61,7 @@ interface UserGroupDataRepository : JpaRepository<DbUserGroup, Long> {
 }
 
 interface AccessPermissionRepository : JpaRepository<DbAccessPermission, Long> {
+    fun findAllByUserEmail(email: String): List<DbAccessPermission>
     fun findAllByUserEmailAndAccessType(email: String, accessType: AccessType): List<DbAccessPermission>
     fun existsByUserEmailAndAccessTypeAndAccessTagName(user: String, type: AccessType, accessTag: String): Boolean
 }
