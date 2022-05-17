@@ -4,10 +4,11 @@ import org.springframework.retry.support.RetryTemplate
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 
-class RetryWebClient(
-    private val fileOperations: FireOperations,
+@Suppress("TooManyFunctions")
+internal class RetryWebClient(
+    private val fileOperations: FireClient,
     private val retryTemplate: RetryTemplate
-) : FireOperations {
+) : FireClient {
     override fun save(file: File, md5: String): FireApiFile =
         retryTemplate.execute<FireApiFile, Exception> { fileOperations.save(file, md5) }
 

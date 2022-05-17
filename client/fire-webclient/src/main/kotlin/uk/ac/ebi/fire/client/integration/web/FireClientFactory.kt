@@ -12,12 +12,16 @@ private const val FIRE_API_BASE = "fire"
 
 class FireClientFactory private constructor() {
     companion object {
-        fun create(tmpDirPath: String, config: FireConfig): FireOperations {
+        fun create(tmpDirPath: String, config: FireConfig): uk.ac.ebi.fire.client.integration.web.FireClient {
             val restTemplate = createRestTemplate(config.fireHost, config.fireVersion, config.username, config.password)
             return FireClient(tmpDirPath, restTemplate)
         }
 
-        fun create(tmpDirPath: String, fireConfig: FireConfig, retryConfig: RetryConfig): FireOperations =
+        fun create(
+            tmpDirPath: String,
+            fireConfig: FireConfig,
+            retryConfig: RetryConfig
+        ): uk.ac.ebi.fire.client.integration.web.FireClient =
             RetryWebClient(
                 create(tmpDirPath, fireConfig),
                 createRetryTemplate(retryConfig)

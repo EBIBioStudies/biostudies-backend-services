@@ -23,9 +23,9 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.integration.web.FireClientFactory
 import uk.ac.ebi.fire.client.integration.web.FireConfig
-import uk.ac.ebi.fire.client.integration.web.FireOperations
 import uk.ac.ebi.fire.client.integration.web.RetryConfig
 import kotlin.time.Duration.Companion.hours
 
@@ -43,7 +43,7 @@ internal class WebConfig(
     fun principalResolver() = AuthenticationPrincipalArgumentResolver()
 
     @Bean
-    fun fireOperations(properties: ApplicationProperties): FireOperations =
+    fun fireOperations(properties: ApplicationProperties): FireClient =
         FireClientFactory.create(
             properties.fireTempDirPath,
             FireConfig(

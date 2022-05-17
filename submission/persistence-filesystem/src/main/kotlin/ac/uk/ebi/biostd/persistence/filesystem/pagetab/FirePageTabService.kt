@@ -10,12 +10,12 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.ext.md5
-import uk.ac.ebi.fire.client.integration.web.FireOperations
+import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
 class FirePageTabService(
     private val fireTempFolder: File,
-    private val fireOperations: FireOperations,
+    private val fireClient: FireClient,
     private val pageTabUtil: PageTabUtil,
     private val fileProcessingService: FileProcessingService,
     private val tsvPagetabExtension: TsvPagetabExtension
@@ -61,7 +61,7 @@ class FirePageTabService(
 
     private fun saveFileListFile(accNo: String, file: File, subFolder: String, filePath: String): FireFile {
         val relPath = "Files/$filePath"
-        val fireFile = fireOperations.persistFireFile(accNo, file, FILE, file.md5(), "$subFolder/$relPath")
+        val fireFile = fireClient.persistFireFile(accNo, file, FILE, file.md5(), "$subFolder/$relPath")
 
         return FireFile(
             filePath,
@@ -82,7 +82,7 @@ class FirePageTabService(
 
     private fun saveSubFile(accNo: String, file: File, subFolder: String): FireFile {
         val fName = file.name
-        val saved = fireOperations.persistFireFile(accNo, file, FILE, file.md5(), "$subFolder/$fName")
+        val saved = fireClient.persistFireFile(accNo, file, FILE, file.md5(), "$subFolder/$fName")
 
         return FireFile(fName, fName, saved.fireOid, saved.objectMd5, saved.objectSize.toLong(), FILE, listOf())
     }

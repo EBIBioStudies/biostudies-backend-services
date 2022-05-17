@@ -1,11 +1,11 @@
 package ac.uk.ebi.biostd.persistence.filesystem.extensions
 
 import ebi.ac.uk.extended.model.ExtFileType
-import uk.ac.ebi.fire.client.integration.web.FireOperations
+import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 
-internal fun FireOperations.getOrPersist(
+internal fun FireClient.getOrPersist(
     accNo: String,
     file: File,
     type: ExtFileType,
@@ -13,7 +13,7 @@ internal fun FireOperations.getOrPersist(
     path: String
 ): FireApiFile = findByPath(path) ?: persistFireFile(accNo, file, type, md5, path)
 
-internal fun FireOperations.persistFireFile(
+internal fun FireClient.persistFireFile(
     accNo: String,
     file: File,
     type: ExtFileType,

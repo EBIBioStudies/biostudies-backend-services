@@ -6,12 +6,12 @@ import ebi.ac.uk.extended.model.FireFile
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.forEachSubmissionFile
-import uk.ac.ebi.fire.client.integration.web.FireOperations
+import uk.ac.ebi.fire.client.integration.web.FireClient
 
 private val logger = KotlinLogging.logger {}
 
 class FireFtpService(
-    private val fireOperations: FireOperations,
+    private val fireClient: FireClient,
     private val serializationService: ExtSerializationService,
     private val submissionQueryService: SubmissionQueryService
 ) : FtpService {
@@ -41,18 +41,18 @@ class FireFtpService(
     }
 
     private fun cleanFtpFolder(accNo: String) {
-        fireOperations
+        fireClient
             .findByAccNoAndPublished(accNo, true)
             .forEach { unPublishFile(it.fireOid) }
     }
 
     private fun publishFile(fireId: String) {
-        fireOperations.publish(fireId)
-        fireOperations.setBioMetadata(fireId, published = true)
+        fireClient.publish(fireId)
+        fireClient.setBioMetadata(fireId, published = true)
     }
 
     private fun unPublishFile(fireId: String) {
-        fireOperations.unpublish(fireId)
-        fireOperations.setBioMetadata(fireId, published = false)
+        fireClient.unpublish(fireId)
+        fireClient.setBioMetadata(fireId, published = false)
     }
 }
