@@ -22,7 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class FireFilesServiceTest(
     @MockK private val fireService: FireService,
     @MockK private val fileProcessingService: FileProcessingService,
-    private val tempFolder: TemporaryFolder,
+    tempFolder: TemporaryFolder,
 ) {
     private val submission = basicExtSubmission
     private val fireFile = FireFile("test.txt", "Files/test.txt", "abc1", "md5", 1, ExtFileType.FILE, emptyList())
