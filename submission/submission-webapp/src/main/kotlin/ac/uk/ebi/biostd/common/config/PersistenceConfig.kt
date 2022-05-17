@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
+import ac.uk.ebi.biostd.persistence.filesystem.fire.FireService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.FirePageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.NfsPageTabService
@@ -88,6 +89,10 @@ class PersistenceConfig(
             fileProcessingService,
             tsvPagetabExtension
         )
+
+    @Bean
+    @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
+    fun fireService(): FireService = FireService(fireWebClient, File(properties.fireTempDirPath))
 
     @Bean
     fun fileSystemService(
