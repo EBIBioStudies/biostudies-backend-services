@@ -32,11 +32,11 @@ import uk.ac.ebi.fire.client.exception.FireClientException
 import uk.ac.ebi.fire.client.model.FireApiFile
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
-class FireClientTest(
+class FireWebClientTest(
     private val tmpFolder: TemporaryFolder,
     @MockK private val template: RestTemplate
 ) {
-    private val testInstance = FireClient(tmpFolder.root.absolutePath, template)
+    private val testInstance = FireWebClient(tmpFolder.root.absolutePath, template)
 
     @AfterEach
     fun afterEach() = clearAllMocks()

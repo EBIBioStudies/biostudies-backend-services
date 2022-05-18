@@ -5,7 +5,7 @@ import org.springframework.retry.support.RetryTemplate
 import org.springframework.retry.support.RetryTemplateBuilder
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.DefaultUriBuilderFactory
-import uk.ac.ebi.fire.client.api.FireClient
+import uk.ac.ebi.fire.client.api.FireWebClient
 import uk.ac.ebi.fire.client.exception.FireWebClientErrorHandler
 
 private const val FIRE_API_BASE = "fire"
@@ -14,7 +14,7 @@ class FireClientFactory private constructor() {
     companion object {
         fun create(tmpDirPath: String, config: FireConfig): uk.ac.ebi.fire.client.integration.web.FireClient {
             val restTemplate = createRestTemplate(config.fireHost, config.fireVersion, config.username, config.password)
-            return FireClient(tmpDirPath, restTemplate)
+            return FireWebClient(tmpDirPath, restTemplate)
         }
 
         fun create(

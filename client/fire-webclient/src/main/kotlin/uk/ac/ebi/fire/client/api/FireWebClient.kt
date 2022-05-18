@@ -28,7 +28,7 @@ const val FIRE_BIO_FILE_TYPE = "bio-file-type"
 const val FIRE_OBJECTS_URL = "/objects"
 
 @Suppress("TooManyFunctions")
-internal class FireClient(
+internal class FireWebClient(
     private val tmpDirPath: String,
     private val template: RestTemplate
 ) : FireClient {
