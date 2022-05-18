@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
 import uk.ac.ebi.fire.client.exception.FireClientException
-import uk.ac.ebi.fire.client.integration.web.FireOperations
+import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 import java.nio.file.Files
@@ -28,10 +28,10 @@ const val FIRE_BIO_FILE_TYPE = "bio-file-type"
 const val FIRE_OBJECTS_URL = "/objects"
 
 @Suppress("TooManyFunctions")
-internal class FireClient(
+internal class FireWebClient(
     private val tmpDirPath: String,
     private val template: RestTemplate
-) : FireOperations {
+) : FireClient {
     override fun save(file: File, md5: String): FireApiFile {
         val headers = HttpHeaders().apply {
             set(FIRE_MD5_HEADER, md5)

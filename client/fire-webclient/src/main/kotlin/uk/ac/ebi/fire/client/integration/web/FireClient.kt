@@ -4,7 +4,7 @@ import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 
 @Suppress("TooManyFunctions")
-interface FireOperations {
+interface FireClient {
     fun save(file: File, md5: String): FireApiFile
 
     fun setPath(fireOid: String, path: String)

@@ -5,6 +5,7 @@ variables:
   DOCKER_HOST: "tcp://docker:2375"
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
+  ITEST_FAIL_FACTOR: "8"
 
 include:
   - local: '/ci/submitter.yml'
@@ -66,9 +67,11 @@ build-test:
       - submission/submission-handlers/build/libs/submission-handlers-1.0.0.jar
 
 mongo-nfs-itest:
+  needs: ["build-test"]
   stage: mongo-nfs-itest
   script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mongo -PenableFire=false --rerun-tasks --stacktrace
 
 mongo-fire-itest:
+  needs: ["build-test"]
   stage: mongo-fire-itest
   script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mongo -PenableFire=true --rerun-tasks --stacktrace

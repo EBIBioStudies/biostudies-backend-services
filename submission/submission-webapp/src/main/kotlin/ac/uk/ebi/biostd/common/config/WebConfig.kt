@@ -23,7 +23,11 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.fire.client.integration.web.FireWebClient
+import uk.ac.ebi.fire.client.integration.web.FireClient
+import uk.ac.ebi.fire.client.integration.web.FireClientFactory
+import uk.ac.ebi.fire.client.integration.web.FireConfig
+import uk.ac.ebi.fire.client.integration.web.RetryConfig
+import kotlin.time.Duration.Companion.hours
 
 @Configuration
 @Suppress("MagicNumber")
@@ -39,13 +43,21 @@ internal class WebConfig(
     fun principalResolver() = AuthenticationPrincipalArgumentResolver()
 
     @Bean
-    fun fireWebClient(properties: ApplicationProperties): FireWebClient =
-        FireWebClient.create(
+    fun fireOperations(properties: ApplicationProperties): FireClient =
+        FireClientFactory.create(
             properties.fireTempDirPath,
-            properties.fire.host,
-            properties.fire.version,
-            properties.fire.username,
-            properties.fire.password
+            FireConfig(
+                fireHost = properties.fire.host,
+                fireVersion = properties.fire.version,
+                username = properties.fire.username,
+                password = properties.fire.password
+            ),
+            RetryConfig(
+                maxAttempts = 20,
+                initialInterval = 100,
+                multiplier = 2.0,
+                maxInterval = 2.hours.inWholeMilliseconds,
+            )
         )
 
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
