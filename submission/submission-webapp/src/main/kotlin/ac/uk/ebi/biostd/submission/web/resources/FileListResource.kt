@@ -27,15 +27,7 @@ class FileListResource(
         @RequestParam(FILE_LIST_NAME) fileListName: String,
     ) {
         val onBehalfUser = onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) }
-        var filesSource = ComposedFileSource(
-            buildList {
-                if (onBehalfUser !== null) {
-                    addAll(sourceGenerator.userSourcesList(onBehalfUser, ""))
-                }
-
-                addAll(sourceGenerator.userSourcesList(user, ""))
-            }
-        )
+        var filesSource = sourceGenerator.submitterSources(user, onBehalfUser)
 
         fileListValidator.validateFileList(fileListName, filesSource)
     }

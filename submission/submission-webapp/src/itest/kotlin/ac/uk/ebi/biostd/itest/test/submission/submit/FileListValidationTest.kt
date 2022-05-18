@@ -8,19 +8,18 @@ import ac.uk.ebi.biostd.itest.common.BaseIntegrationTest
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
+import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.*
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.annotation.DirtiesContext
@@ -43,8 +42,13 @@ internal class FileListValidationTest(private val tempFolder: TemporaryFolder) :
 
         @BeforeAll
         fun init() {
-            securityTestService.registerUser(SuperUser)
+            securityTestService.ensureUserRegistration(SuperUser)
             webClient = getWebClient(serverPort, SuperUser)
+        }
+
+        @AfterEach
+        fun afterEach() {
+            tempFolder.clean()
         }
 
         @Test
@@ -62,9 +66,34 @@ internal class FileListValidationTest(private val tempFolder: TemporaryFolder) :
         }
 
         @Test
+        fun `unsupported file list format`() {
+            val fileList = tempFolder.createFile("image.jpg")
+
+            webClient.uploadFile(fileList)
+
+            val exception = Assertions.assertThrows(WebClientException::class.java) {
+                webClient.validateFileList(fileList.name)
+            }
+
+            assertThat(exception.statusCode).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+            assertThat(exception).hasMessageContaining("Unsupported page tab format image.jpg")
+        }
+
+        @Test
+        fun `valid file list`() {
+            val fileListFile = tempFolder.createFile("Plate1.tif")
+            val fileList = tempFolder.createFile("FileList.json", getFileListContent().toString())
+
+            webClient.uploadFiles(listOf(fileListFile, fileList))
+
+            Assertions.assertDoesNotThrow {
+                webClient.validateFileList(fileList.name)
+            }
+        }
+
+        @Test
         fun `file list with missing files`() {
-            val fileListContent = jsonObj { "path" to "Plate1.tif"; "size" to 290; "type" to "file" };
-            val fileList = tempFolder.createFile("FileList.json", listOf(fileListContent).toString())
+            val fileList = tempFolder.createFile("FileList.json", getFileListContent().toString())
 
             webClient.uploadFile(fileList)
 
@@ -77,35 +106,8 @@ internal class FileListValidationTest(private val tempFolder: TemporaryFolder) :
         }
 
         @Test
-        fun `unsupported file list format`() {
-            val fileList = tempFolder.createFile("image.jpg")
-
-            webClient.uploadFile(fileList)
-
-            val exception = Assertions.assertThrows(WebClientException::class.java) {
-                webClient.validateFileList(fileList.name)
-            }
-
-            assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
-            assertThat(exception).hasMessageContaining("Unsupported page tab format image.jpg")
-        }
-
-        @Test
-        fun `valid file list`() {
-            val fileListFile = tempFolder.createFile("Plate1.tif")
-            val fileListContent = jsonObj { "path" to fileListFile.name; "size" to 290; "type" to "file" };
-            val fileList = tempFolder.createFile("FileList.json", listOf(fileListContent).toString())
-
-            webClient.uploadFiles(listOf(fileListFile, fileList))
-
-            Assertions.assertDoesNotThrow {
-                webClient.validateFileList(fileList.name)
-            }
-        }
-
-        @Test
-        fun `validate file list on behalf another user`() {
-            createUser(RegularUser, serverPort)
+        fun `empty file list on behalf another user`() {
+            securityTestService.ensureUserRegistration(RegularUser)
 
             val fileList = tempFolder.createFile("FileList.json")
             webClient.uploadFile(fileList)
@@ -120,5 +122,25 @@ internal class FileListValidationTest(private val tempFolder: TemporaryFolder) :
             assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
             assertThat(exception).hasMessageContaining("Expected content to be an array")
         }
+
+        @Test
+        fun `valid file list on behalf another user`() {
+            val fileListFile = tempFolder.createFile("Plate1.tif")
+            val fileList = tempFolder.createFile("FileList.json", getFileListContent().toString())
+
+            webClient.uploadFiles(listOf(fileListFile, fileList))
+
+            Assertions.assertDoesNotThrow {
+                webClient.validateFileList(fileList.name)
+            }
+        }
+
+        private fun getFileListContent() = jsonArray(
+            jsonObj {
+                "path" to "Plate1.tif"
+                "size" to 290
+                "type" to "file"
+            }
+        )
     }
 }
