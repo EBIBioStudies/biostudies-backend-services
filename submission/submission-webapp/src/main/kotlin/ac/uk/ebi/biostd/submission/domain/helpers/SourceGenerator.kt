@@ -27,6 +27,19 @@ class SourceGenerator(
         return ComposedFileSource(submissionSources(owner, submitter, files, rootPath, submission))
     }
 
+    fun submitterSources(user: SecurityUser, onBehalfUser: SecurityUser? = null) = ComposedFileSource(
+        buildList {
+            if (onBehalfUser !== null) {
+                addAll(userSourcesList(onBehalfUser, ""))
+            }
+
+            addAll(userSourcesList(user, ""))
+        }
+    )
+
+    private fun userSourcesList(user: SecurityUser, rootPath: String): List<FilesSource> =
+        listOf(createPathSource(user, rootPath)).plus(groupSources(user.groupsFolders))
+
     private fun submissionSources(
         owner: SecurityUser?,
         submitter: SecurityUser?,
@@ -57,9 +70,6 @@ class SourceGenerator(
             }
         }
     }
-
-    private fun userSourcesList(user: SecurityUser, rootPath: String): List<FilesSource> =
-        listOf(createPathSource(user, rootPath)).plus(groupSources(user.groupsFolders))
 
     private fun createPathSource(user: SecurityUser, rootPath: String?): PathFilesSource {
         val folder = user.magicFolder.path.resolve(rootPath.orEmpty())
