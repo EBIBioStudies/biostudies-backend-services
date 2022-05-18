@@ -77,7 +77,7 @@ class FireMockDatabase(
     fun findByMetadata(entries: List<MetadataEntry>): List<FireApiFile> =
         records.values.map { it.file }.filter { it.metadata?.containsAll(entries).orFalse() }
 
-    fun findByMd5(md5: String): FireApiFile? = records.values.map { it.file }.firstOrNull { it.objectMd5 == md5 }
+    fun findByMd5(md5: String): List<FireApiFile> = records.values.map { it.file }.filter { it.objectMd5 == md5 }
 
     fun findByPath(path: String): FireApiFile? = records.values.firstOrNull { it.path == path }?.file
 
