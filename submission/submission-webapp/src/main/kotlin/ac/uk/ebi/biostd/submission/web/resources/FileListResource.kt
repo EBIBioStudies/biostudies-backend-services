@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
-import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.model.constants.FILE_LIST_NAME
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.bind.annotation.PostMapping
