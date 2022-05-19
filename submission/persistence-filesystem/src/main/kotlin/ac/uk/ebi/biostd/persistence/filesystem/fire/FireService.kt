@@ -19,7 +19,6 @@ class FireService(
     private val fireClient: FireClient,
     private val fireTempDirPath: File,
 ) {
-
     fun getOrPersist(sub: ExtSubmission, file: ExtFile): FireFile {
         return when (file) {
             is FireFile -> reuseFireFile(sub, file)

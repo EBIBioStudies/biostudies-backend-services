@@ -25,7 +25,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireClient
-import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 
 @Configuration
@@ -100,8 +99,4 @@ class PersistenceConfig(
         filesService: FilesService,
         pageTabService: PageTabService
     ): FileSystemService = FileSystemService(ftpService, filesService, pageTabService)
-
-    @Bean
-    fun fileProcessingService(serializationService: ExtSerializationService, fileResolver: FilesResolver) =
-        FileProcessingService(serializationService, fileResolver)
 }

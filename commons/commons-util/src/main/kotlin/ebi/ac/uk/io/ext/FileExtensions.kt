@@ -8,6 +8,7 @@ import java.io.FileOutputStream
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
+import kotlin.text.Charsets.UTF_8
 
 fun File.notExist() = Files.exists(toPath()).not()
 
@@ -46,7 +47,7 @@ fun File.gZipTo(target: File) {
 /**
  * Creates a file with the given content in the temporary folder.
  */
-fun File.createFile(fileName: String, content: String, charset: Charset = Charsets.UTF_8): File {
+fun File.createFile(fileName: String, content: String, charset: Charset = UTF_8): File {
     val file = newFile(fileName)
     file.writeText(content, charset)
     return file
@@ -60,10 +61,19 @@ fun File.createFile(fileName: String): File {
 }
 
 /**
- * Creates a file with the given name or replaces it if already exist.
+ * Creates a file with the given name or replaces it if already exists.
  */
 fun File.createOrReplaceFile(fileName: String): File {
     val file = resolve(fileName)
     if (file.exists()) file.delete()
     return newFile(fileName)
+}
+
+/**
+ * Creates a file with the given name and content or replaces it if it already exists.
+ */
+fun File.createOrReplaceFile(fileName: String, content: String, charset: Charset = UTF_8): File {
+    val file = createFile(fileName)
+    file.writeText(content, charset)
+    return file
 }

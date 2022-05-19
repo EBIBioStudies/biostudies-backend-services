@@ -20,6 +20,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either.Companion.left
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
@@ -54,7 +55,6 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.common.FilesResolver
 import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -70,13 +70,13 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmiss
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 internal class SubmissionMongoQueryServiceTest(
     private val tempFolder: TemporaryFolder,
+    @MockK private val fileProcessingService: FileProcessingService,
     @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
     @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository
 ) {
     private val serializationService: ExtSerializationService = extSerializationService()
-    private val fileResolver = FilesResolver(tempFolder.createDirectory("ext-files"))
     private val testInstance =
         SubmissionMongoQueryService(
             submissionRepo,
@@ -84,7 +84,7 @@ internal class SubmissionMongoQueryServiceTest(
             fileListDocFileRepository,
             serializationService,
             toExtSubmissionMapper,
-            fileResolver,
+            fileProcessingService
         )
 
     @AfterEach

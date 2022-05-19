@@ -33,23 +33,23 @@ fun allInOneSubmission(accNo: String) = submission(accNo) {
         }
 
         file("DataFile1.txt") {
-            size = 0
+            size = 9
             attribute("Description", "Data File 1")
         }
 
         filesTable {
             file("DataFile2.txt") {
-                size = 0
+                size = 9
                 attribute("Description", "Data File 2")
                 attribute("Type", "Data")
             }
             file("Folder1/DataFile3.txt") {
-                size = 0
+                size = 9
                 attribute("Description", "Data File 3")
                 attribute("Type", "Data")
             }
             file("Folder1/Folder2/DataFile4.txt") {
-                size = 0
+                size = 9
                 attribute("Description", "Data File 4")
                 attribute("Type", "Data")
             }
@@ -95,23 +95,23 @@ fun allInOneRootSectionLink() = link("AF069309") {
 }
 
 fun allInOneRootSectionFile() = file("DataFile1.txt") {
-    size = 0
+    size = 9
     attribute("Description", "Data File 1")
 }
 
 fun allInOneRootSectionFilesTable() = filesTable {
     file("DataFile2.txt") {
-        size = 0
+        size = 9
         attribute("Description", "Data File 2")
         attribute("Type", "Data")
     }
     file("Folder1/DataFile3.txt") {
-        size = 0
+        size = 9
         attribute("Description", "Data File 3")
         attribute("Type", "Data")
     }
     file("Folder1/Folder2/DataFile4.txt") {
-        size = 0
+        size = 9
         attribute("Description", "Data File 4")
         attribute("Type", "Data")
     }
