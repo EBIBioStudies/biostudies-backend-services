@@ -54,16 +54,16 @@ fun assertAllInOneSubmissionTsv(tsv: String, accNo: String) {
     val expectedRootSectionFile = tsv {
         line("File", "DataFile1.txt")
         line("Description", "Data File 1")
-        line("md5", "D41D8CD98F00B204E9800998ECF8427E")
+        line("md5", "9297AB3FBD56B42F6566284119238125")
         line()
     }
     assertTsvBlock(lines, 16, 19, expectedRootSectionFile)
 
     val expectedRootSectionFilesTable = tsv {
         line("Files", "Description", "Type", "md5")
-        line("DataFile2.txt", "Data File 2", "Data", "D41D8CD98F00B204E9800998ECF8427E")
-        line("Folder1/DataFile3.txt", "Data File 3", "Data", "D41D8CD98F00B204E9800998ECF8427E")
-        line("Folder1/Folder2/DataFile4.txt", "Data File 4", "Data", "D41D8CD98F00B204E9800998ECF8427E")
+        line("DataFile2.txt", "Data File 2", "Data", "6685CD62B95F2C58818CB20E7292168B")
+        line("Folder1/DataFile3.txt", "Data File 3", "Data", "BFFD51760CD2C6B531756EFAC72110C3")
+        line("Folder1/Folder2/DataFile4.txt", "Data File 4", "Data", "D5F2C23B4E2DDD8FA4D6A5AD72265330")
         line()
     }
     assertTsvBlock(lines, 20, 24, expectedRootSectionFilesTable)

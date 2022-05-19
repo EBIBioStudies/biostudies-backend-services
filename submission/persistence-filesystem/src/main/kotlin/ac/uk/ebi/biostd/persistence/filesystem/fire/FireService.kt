@@ -19,7 +19,6 @@ class FireService(
     private val fireClient: FireClient,
     private val fireTempDirPath: File,
 ) {
-
     fun getOrPersist(sub: ExtSubmission, file: ExtFile): FireFile {
         return when (file) {
             is FireFile -> reuseFireFile(sub, file)
@@ -47,7 +46,7 @@ class FireService(
 
     private fun saveFile(sub: ExtSubmission, nfsFile: NfsFile): FireFile {
         logger.info { "${sub.accNo} ${sub.owner} Persisting file ${nfsFile.fileName} on FIRE" }
-        val fireFile = fireClient.save(nfsFile.file, nfsFile.md5)
+        val fireFile = fireClient.save(nfsFile.file, nfsFile.file.md5())
         fireClient.setBioMetadata(fireFile.fireOid, sub.accNo, nfsFile.type.value, published = false)
         fireClient.setPath(fireFile.fireOid, "${sub.relPath}/${nfsFile.relPath}")
         return asFireFile(nfsFile, fireFile, ExtFileType.FILE)

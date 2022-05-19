@@ -29,15 +29,6 @@ fun TemporaryFolder.createFile(fileName: String, content: String, charset: Chars
 }
 
 /**
- * Creates a file with the given name or replaces it if already exist.
- */
-fun TemporaryFolder.createOrReplaceFile(fileName: String): File {
-    val file = root.resolve(fileName)
-    if (file.exists()) file.delete()
-    return createFile(fileName)
-}
-
-/**
  * Creates a file with the given name and content or replaces it if already exist.
  */
 fun TemporaryFolder.deleteFile(fileName: String) {
