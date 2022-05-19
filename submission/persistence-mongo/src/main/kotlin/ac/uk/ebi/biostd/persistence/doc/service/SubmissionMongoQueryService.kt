@@ -13,8 +13,13 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.max
@@ -25,7 +30,8 @@ internal class SubmissionMongoQueryService(
     private val requestRepository: SubmissionRequestDocDataRepository,
     private val fileListDocFileRepository: FileListDocFileRepository,
     private val serializationService: ExtSerializationService,
-    private val toExtSubmissionMapper: ToExtSubmissionMapper
+    private val toExtSubmissionMapper: ToExtSubmissionMapper,
+    private val fileProcessingService: FileProcessingService
 ) : SubmissionQueryService {
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
 
@@ -77,9 +83,14 @@ internal class SubmissionMongoQueryService(
 
     override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
         val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, REQUESTED)
-        val submission = serializationService.deserialize(request.submission.toString())
+        val stored = serializationService.deserialize(request.submission.toString())
+        val full = fileProcessingService.processFiles(stored) { loadFileAttributes(it) }
+        return SubmissionRequest(full, request.fileMode, request.draftKey)
+    }
 
-        return SubmissionRequest(submission, request.fileMode, request.draftKey)
+    private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {
+        is FireFile -> file
+        is NfsFile -> file.copy(md5 = file.file.md5(), size = file.file.size())
     }
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =

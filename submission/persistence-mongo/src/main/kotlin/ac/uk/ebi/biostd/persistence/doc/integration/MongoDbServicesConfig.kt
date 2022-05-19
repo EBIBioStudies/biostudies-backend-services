@@ -17,6 +17,7 @@ import ac.uk.ebi.biostd.persistence.doc.service.CollectionMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoQueryService
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -39,13 +40,15 @@ class MongoDbServicesConfig {
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
         fileListDocFileRepository: FileListDocFileRepository,
         serializationService: ExtSerializationService,
-        toExtSubmissionMapper: ToExtSubmissionMapper
+        toExtSubmissionMapper: ToExtSubmissionMapper,
+        fileProcessingService: FileProcessingService
     ): SubmissionQueryService = SubmissionMongoQueryService(
         submissionDocDataRepository,
         submissionRequestDocDataRepository,
         fileListDocFileRepository,
         serializationService,
-        toExtSubmissionMapper
+        toExtSubmissionMapper,
+        fileProcessingService
     )
 
     @Bean
@@ -87,4 +90,8 @@ class MongoDbServicesConfig {
     internal fun statsDataService(
         submissionStatsDataRepository: SubmissionStatsDataRepository
     ): StatsDataService = StatsMongoDataService(submissionStatsDataRepository)
+
+    @Bean
+    fun fileProcessingService(serializationService: ExtSerializationService, fileResolver: FilesResolver) =
+        FileProcessingService(serializationService, fileResolver)
 }
