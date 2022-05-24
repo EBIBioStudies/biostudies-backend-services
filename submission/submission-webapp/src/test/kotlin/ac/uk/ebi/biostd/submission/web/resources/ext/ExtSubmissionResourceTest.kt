@@ -8,13 +8,13 @@ import ac.uk.ebi.biostd.submission.converters.ExtPageSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
-import ebi.ac.uk.extended.model.WebExtPage
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.WebExtPage
 import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.SUBMISSION
 import io.mockk.clearAllMocks
@@ -44,7 +44,7 @@ class ExtSubmissionResourceTest(
     private val bioUserResolver = TestBioUserResolver()
     private val mvc = MockMvcBuilders
         .standaloneSetup(
-            ExtSubmissionResource(extPageMapper, tempFileGenerator, extSubmissionService, extSerializationService)
+            ExtSubmissionResource(extPageMapper, extSubmissionService, extSerializationService)
         )
         .setMessageConverters(
             ExtFileTableConverter(extSerializationService),
@@ -98,7 +98,6 @@ class ExtSubmissionResourceTest(
         }
 
         verify(exactly = 1) {
-            tempFileGenerator.asFiles(fileLists.captured)
             extSerializationService.serialize(extSubmission)
             extSubmissionService.submitExt(user.email, extSubmission)
             extSerializationService.deserialize(submissionJson)
@@ -125,7 +124,6 @@ class ExtSubmissionResourceTest(
         }
 
         verify(exactly = 1) {
-            tempFileGenerator.asFiles(fileLists.captured)
             extSubmissionService.submitExtAsync(user.email, extSubmission, fileMode = COPY)
             extSerializationService.deserialize(submissionJson)
         }

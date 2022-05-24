@@ -48,6 +48,17 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                 "fileName" to "file-list.json"
                 "path" to "file-list.json"
                 "file" to createExtFileList().absolutePath
+                "pageTabFiles" to jsonArray(
+                    jsonObj {
+                        "fileName" to "file-list.xml"
+                        "filePath" to "file-list.xml"
+                        "relPath" to "Files/file-list.xml"
+                        "md5" to "abc-md5"
+                        "size" to 55
+                        "fullPath" to tempFolder.createFile("file-list.xml").absolutePath
+                        "extType" to "nfsFile"
+                    }
+                )
                 "filesUrl" to "submissions/extended/S-BSST1/referencedFiles/file-list"
             }
             "attributes" to jsonArray(
@@ -130,6 +141,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         assertThat(extFileList.filePath).isEqualTo("file-list.json")
         assertThat(extFileList.filesUrl).isEqualTo("submissions/extended/S-BSST1/referencedFiles/file-list")
         assertThat(extFileList.file).hasContent("[]")
+        assertThat(extFileList.pageTabFiles).isEmpty()
 
         val innerSections = extSection.sections
         assertThat(innerSections).hasSize(2)

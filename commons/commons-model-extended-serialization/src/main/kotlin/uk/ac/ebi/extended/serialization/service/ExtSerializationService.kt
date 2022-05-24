@@ -26,6 +26,7 @@ import uk.ac.ebi.extended.serialization.deserializers.ExtFileListDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFilesTableDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtLinkDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtLinksTableDeserializer
+import uk.ac.ebi.extended.serialization.deserializers.ExtSectionDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtSectionsTableDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.OffsetDateTimeDeserializer
 import uk.ac.ebi.extended.serialization.serializers.ExtAttributeSerializer
@@ -74,6 +75,7 @@ class ExtSerializationService private constructor(val mapper: ObjectMapper) {
 
         private fun createMapper(): ObjectMapper {
             val module = SimpleModule().apply {
+                addDeserializer(ExtSection::class.java, ExtSectionDeserializer())
                 addDeserializer(Either::class.java, EitherExtTypeDeserializer())
                 addDeserializer(ExtAttribute::class.java, ExtAttributeDeserializer())
                 addDeserializer(ExtFile::class.java, ExtFileDeserializer())

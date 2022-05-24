@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtFileTable
-import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
@@ -19,7 +18,6 @@ import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import uk.ac.ebi.events.service.EventsPublisherService
-import java.io.File
 import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
@@ -32,14 +30,14 @@ class ExtSubmissionService(
     private val securityQueryService: ISecurityQueryService,
     private val eventsPublisherService: EventsPublisherService
 ) {
-    fun getExtendedSubmission(accNo: String): ExtSubmission = submissionQueryService.getExtByAccNo(accNo)
+    fun getExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission =
+        submissionQueryService.getExtByAccNo(accNo, includeFileListFiles)
 
-    fun findExtendedSubmission(accNo: String): ExtSubmission? = submissionQueryService.findExtByAccNo(accNo)
+    fun findExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission? =
+        submissionQueryService.findExtByAccNo(accNo, includeFileListFiles)
 
-    fun getReferencedFiles(
-        accNo: String,
-        fileListName: String
-    ): ExtFileTable = ExtFileTable(submissionQueryService.getReferencedFiles(accNo, fileListName))
+    fun getReferencedFiles(accNo: String, fileListName: String): ExtFileTable =
+        ExtFileTable(submissionQueryService.getReferencedFiles(accNo, fileListName))
 
     fun refreshSubmission(accNo: String, user: String): ExtSubmission {
         val submission = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
@@ -56,10 +54,9 @@ class ExtSubmissionService(
     fun submitExt(
         user: String,
         extSubmission: ExtSubmission,
-        fileListFiles: List<File> = emptyList(),
         fileMode: FileMode = COPY
     ): ExtSubmission {
-        val submission = processExtSubmission(user, extSubmission, fileListFiles)
+        val submission = processExtSubmission(user, extSubmission)
         val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, fileMode))
         return submissionSubmitter.processRequest(accNo, version)
     }
@@ -67,11 +64,10 @@ class ExtSubmissionService(
     fun submitExtAsync(
         user: String,
         sub: ExtSubmission,
-        fileListFiles: List<File> = emptyList(),
         fileMode: FileMode
     ) {
         logger.info { "${sub.accNo} $user Received async submit request for ext submission ${sub.accNo}" }
-        val submission = processExtSubmission(user, sub, fileListFiles)
+        val submission = processExtSubmission(user, sub)
         val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, fileMode))
         eventsPublisherService.submissionRequest(accNo, version)
     }
@@ -93,24 +89,11 @@ class ExtSubmissionService(
     private fun processExtSubmission(
         user: String,
         extSubmission: ExtSubmission,
-        fileListFiles: List<File>
     ): ExtSubmission {
         validateSubmitter(user)
         validateSubmission(extSubmission)
-
-        return extSubmission.copy(
-            submitter = user,
-            section = processFileListFiles(extSubmission.section, fileListFiles.associateBy { it.nameWithoutExtension })
-        )
+        return extSubmission.copy(submitter = user, section = extSubmission.section)
     }
-
-    private fun processFileListFiles(
-        section: ExtSection,
-        fileList: Map<String, File>
-    ): ExtSection = section.copy(
-        fileList = section.fileList?.let { it.copy(file = fileList.getValue(it.fileName)) },
-        sections = section.sections.map { subSec -> subSec.bimap({ processFileListFiles(it, fileList) }, { it }) }
-    )
 
     private fun validateSubmission(submission: ExtSubmission) {
         validateOwner(submission.owner)

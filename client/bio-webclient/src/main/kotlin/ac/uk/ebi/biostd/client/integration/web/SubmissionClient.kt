@@ -159,15 +159,10 @@ interface DraftSubmissionOperations {
 interface ExtSubmissionOperations {
     fun getExtSubmissions(extPageQuery: ExtPageQuery): ExtPage
     fun getExtSubmissionsPage(pageUrl: String): ExtPage
-    fun getExtByAccNo(accNo: String): ExtSubmission
+    fun getExtByAccNo(accNo: String, includeFileList: Boolean = false): ExtSubmission
     fun getReferencedFiles(filesUrl: String): ExtFileTable
-    fun submitExtAsync(extSubmission: ExtSubmission, fileLists: List<File> = emptyList(), fileMode: FileMode = COPY)
-    fun submitExt(
-        extSubmission: ExtSubmission,
-        fileLists: List<File> = emptyList(),
-        fileMode: FileMode = COPY
-    ): ExtSubmission
-
+    fun submitExtAsync(extSubmission: ExtSubmission, fileMode: FileMode = COPY)
+    fun submitExt(extSubmission: ExtSubmission, fileMode: FileMode = COPY): ExtSubmission
     fun refreshSubmission(accNo: String): ExtSubmission
 }
 
