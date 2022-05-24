@@ -101,6 +101,7 @@ class ExtSubmissionService(
         )
     }
 
+    @Suppress("ThrowsCount")
     private fun validateSubmission(sub: ExtSubmission, user: String) {
         if (privilegesService.canSubmitExtended(user).not()) throw UnauthorizedOperation(user)
         if (securityService.existsByEmail(sub.owner, false).not()) throw UserNotFoundException(sub.owner)
@@ -110,5 +111,4 @@ class ExtSubmissionService(
                 if (submissionQueryService.existByAccNo(it.accNo).not()) throw CollectionNotFoundException(it.accNo)
             }
     }
-
 }
