@@ -29,12 +29,14 @@ internal class SubmissionService {
     private fun deleteRequest(request: DeletionRequest) =
         bioWebClient(request.server, request.user, request.password).deleteSubmissions(request.accNoList)
 
-    private fun migrateRequest(request: MigrationRequest) {
-        val sourceClient = bioWebClient(request.source, request.sourceUser, request.sourcePassword)
-        val targetClient = bioWebClient(request.target, request.targetUser, request.targetPassword)
-        when (request.async) {
-            true -> targetClient.submitExtAsync(sourceClient.getExtByAccNo(request.accNo, true), request.fileMode)
-            false -> targetClient.submitExt(sourceClient.getExtByAccNo(request.accNo, true), request.fileMode)
+    private fun migrateRequest(rqt: MigrationRequest) {
+        val sourceClient = bioWebClient(rqt.source, rqt.sourceUser, rqt.sourcePassword)
+        val targetClient = bioWebClient(rqt.target, rqt.targetUser, rqt.targetPassword)
+        val source = sourceClient.getExtByAccNo(rqt.accNo, true)
+        val submission = if (rqt.targetOwner != null) source.copy(owner = rqt.targetOwner) else source
+        when (rqt.async) {
+            true -> targetClient.submitExtAsync(submission, rqt.fileMode)
+            false -> targetClient.submitExt(submission, rqt.fileMode)
         }
     }
 

@@ -71,12 +71,13 @@ class SubmissionServiceMigrationTest(
 
     @Test
     fun `migrate async`() {
-        every { targetClient.submitExtAsync(extSubmission) } answers { nothing }
+        val expected = extSubmission.copy(owner = "newOwner")
+        every { targetClient.submitExtAsync(expected) } answers { nothing }
 
         testInstance.migrate(migrationRequest.copy(targetOwner = "newOwner", async = true))
 
-        verify(exactly = 0) { targetClient.submitExt(extSubmission) }
-        verify(exactly = 1) { targetClient.submitExtAsync(extSubmission) }
+        verify(exactly = 0) { targetClient.submitExt(expected) }
+        verify(exactly = 1) { targetClient.submitExtAsync(expected) }
     }
 
     private fun extSubmissionWithFileList(): ExtSubmission {
