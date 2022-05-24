@@ -47,7 +47,6 @@ class SubmissionServiceMigrationTest(
         targetOwner = null,
         async = false,
         fileMode = COPY,
-        tempFolder = tempFolder.root.absolutePath
     )
 
     @AfterEach

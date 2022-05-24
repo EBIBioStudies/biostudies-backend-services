@@ -31,7 +31,6 @@ internal class MigrateCommandTest(
                 "-t", "http://biostudy-bia.ebi.ac.uk",
                 "-tu", "admin_user@ebi.ac.uk",
                 "-tp", "78910",
-                "-tf", "/tmp"
             )
         )
 
@@ -55,9 +54,8 @@ internal class MigrateCommandTest(
                 "-t", "http://biostudy-bia.ebi.ac.uk",
                 "-tu", "admin_user@ebi.ac.uk",
                 "-tp", "78910",
-                "-tf", "/tmp",
                 "-to", "Juan",
-                "--async"
+                "--async",
             )
         )
 
@@ -76,6 +74,5 @@ internal class MigrateCommandTest(
         assertThat(request.target).isEqualTo("http://biostudy-bia.ebi.ac.uk")
         assertThat(request.targetUser).isEqualTo("admin_user@ebi.ac.uk")
         assertThat(request.targetPassword).isEqualTo("78910")
-        assertThat(request.tempFolder).isEqualTo("/tmp")
     }
 }

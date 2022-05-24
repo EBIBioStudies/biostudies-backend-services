@@ -38,11 +38,9 @@ class ExtSectionDeserializer : JsonDeserializer<ExtSection>() {
         )
     }
 
-    private fun deserialize(node: JsonNode): ExtFileList {
-        return ExtFileList(
-            file = File(node.getNode<TextNode>(FILE).textValue()),
-            filePath = node.getNode<TextNode>(FILE_NAME).textValue(),
-            filesUrl = node.getNode<TextNode>(FILES_URL).textValue(),
-        )
-    }
+    private fun deserialize(node: JsonNode): ExtFileList = ExtFileList(
+        file = File(node.getNode<TextNode>(FILE).textValue()),
+        filePath = node.getNode<TextNode>(FILE_NAME).textValue(),
+        filesUrl = node.getNode<TextNode>(FILES_URL).textValue(),
+    )
 }

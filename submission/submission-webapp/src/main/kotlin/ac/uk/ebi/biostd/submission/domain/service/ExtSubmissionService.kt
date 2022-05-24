@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
@@ -11,9 +12,12 @@ import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -26,8 +30,9 @@ private val logger = KotlinLogging.logger {}
 class ExtSubmissionService(
     private val submissionSubmitter: SubmissionSubmitter,
     private val submissionQueryService: SubmissionQueryService,
-    private val userPrivilegesService: IUserPrivilegesService,
-    private val securityQueryService: ISecurityQueryService,
+    private val privilegesService: IUserPrivilegesService,
+    private val securityService: ISecurityQueryService,
+    private val properties: ApplicationProperties,
     private val eventsPublisherService: EventsPublisherService
 ) {
     fun getExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission =
@@ -53,10 +58,11 @@ class ExtSubmissionService(
 
     fun submitExt(
         user: String,
-        extSubmission: ExtSubmission,
+        sub: ExtSubmission,
         fileMode: FileMode = COPY
     ): ExtSubmission {
-        val submission = processExtSubmission(user, extSubmission)
+        logger.info { "${sub.accNo} $user Received submit request for ext submission ${sub.accNo}" }
+        val submission = processSubmission(user, sub)
         val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, fileMode))
         return submissionSubmitter.processRequest(accNo, version)
     }
@@ -67,7 +73,7 @@ class ExtSubmissionService(
         fileMode: FileMode
     ) {
         logger.info { "${sub.accNo} $user Received async submit request for ext submission ${sub.accNo}" }
-        val submission = processExtSubmission(user, sub)
+        val submission = processSubmission(user, sub)
         val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, fileMode))
         eventsPublisherService.submissionRequest(accNo, version)
     }
@@ -86,29 +92,23 @@ class ExtSubmissionService(
         return PageImpl(page.content, page.pageable, page.totalElements)
     }
 
-    private fun processExtSubmission(
-        user: String,
-        extSubmission: ExtSubmission,
-    ): ExtSubmission {
-        validateSubmitter(user)
-        validateSubmission(extSubmission)
-        return extSubmission.copy(submitter = user, section = extSubmission.section)
+    private fun processSubmission(user: String, extSubmission: ExtSubmission): ExtSubmission {
+        validateSubmission(extSubmission, user)
+        return extSubmission.copy(
+            submitter = user,
+            modificationTime = OffsetDateTime.now(),
+            storageMode = if (properties.persistence.enableFire) FIRE else NFS
+        )
     }
 
-    private fun validateSubmission(submission: ExtSubmission) {
-        validateOwner(submission.owner)
-        if (submission.isCollection.not()) submission.collections.forEach { validateCollection(it.accNo) }
+    private fun validateSubmission(sub: ExtSubmission, user: String) {
+        if (privilegesService.canSubmitExtended(user).not()) throw UnauthorizedOperation(user)
+        if (securityService.existsByEmail(sub.owner, false).not()) throw UserNotFoundException(sub.owner)
+
+        if (sub.isCollection.not())
+            sub.collections.forEach {
+                if (submissionQueryService.existByAccNo(it.accNo).not()) throw CollectionNotFoundException(it.accNo)
+            }
     }
 
-    private fun validateSubmitter(user: String) = require(userPrivilegesService.canSubmitExtended(user)) {
-        throw SecurityException("The user '$user' is not allowed to perform this action")
-    }
-
-    private fun validateOwner(email: String) = require(securityQueryService.existsByEmail(email, false)) {
-        throw UserNotFoundException(email)
-    }
-
-    private fun validateCollection(accNo: String) = require(submissionQueryService.existByAccNo(accNo)) {
-        throw CollectionNotFoundException(accNo)
-    }
 }
