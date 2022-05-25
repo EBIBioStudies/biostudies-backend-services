@@ -60,13 +60,13 @@ class SourceGenerator(
                 addAll(groupSources(owner.groupsFolders))
             }
 
-            if (props.persistence.enableFire) {
-                if (sub == null) add(fireSourceFactory.createFireSource())
-                else add(fireSourceFactory.createSubmissionFireSource(sub.accNo, Paths.get("${sub.relPath}/Files")))
+            if (props.persistence.enableFire && sub == null) {
+                add(fireSourceFactory.createFireSource())
             }
 
-            if (props.persistence.enableFire.not() && sub != null) {
+            if (sub != null) {
                 add(PathFilesSource(Paths.get(props.submissionPath).resolve(sub.relPath).resolve(FILES_PATH)))
+                add(fireSourceFactory.createSubmissionFireSource(sub.accNo, Paths.get("${sub.relPath}/Files")))
             }
         }
     }
