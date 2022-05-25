@@ -106,9 +106,10 @@ class ExtSubmissionService(
         if (privilegesService.canSubmitExtended(user).not()) throw UnauthorizedOperation(user)
         if (securityService.existsByEmail(sub.owner, false).not()) throw UserNotFoundException(sub.owner)
 
-        if (sub.isCollection.not())
+        if (sub.isCollection.not()) {
             sub.collections.forEach {
                 if (submissionQueryService.existByAccNo(it.accNo).not()) throw CollectionNotFoundException(it.accNo)
             }
+        }
     }
 }
