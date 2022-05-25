@@ -4,11 +4,8 @@ import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.model.constants.FILE_LISTS
 import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.SUBMISSION
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -19,20 +16,17 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.ResponseEntity
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestTemplate
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 
-@ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
+@ExtendWith(MockKExtension::class)
 class ExtSubmissionClientTest(
-    private val tempFolder: TemporaryFolder,
     @MockK private val restTemplate: RestTemplate,
     @MockK private val extSerializationService: ExtSerializationService
 ) {
@@ -97,12 +91,13 @@ class ExtSubmissionClientTest(
         @MockK extSubmission: ExtSubmission
     ) {
         val response: ResponseEntity<String> = ResponseEntity("ExtSubmission", OK)
+        val expectedUrl = "$EXT_SUBMISSIONS_URL/S-TEST123?includeFileList=false"
 
-        every { restTemplate.getForEntity("$EXT_SUBMISSIONS_URL/S-TEST123", String::class.java) } returns response
+        every { restTemplate.getForEntity(expectedUrl, String::class.java) } returns response
         every { extSerializationService.deserialize("ExtSubmission") } returns extSubmission
 
         testInstance.getExtByAccNo("S-TEST123")
-        verify(exactly = 1) { restTemplate.getForEntity("$EXT_SUBMISSIONS_URL/S-TEST123", String::class.java) }
+        verify(exactly = 1) { restTemplate.getForEntity(expectedUrl, String::class.java) }
         verify(exactly = 1) { extSerializationService.deserialize("ExtSubmission") }
     }
 
@@ -125,18 +120,17 @@ class ExtSubmissionClientTest(
     fun `submit ext submission`(
         @MockK extSubmission: ExtSubmission
     ) {
-        val entity = slot<HttpEntity<String>>()
-        val fileList = tempFolder.createFile("file-list.tsv")
+        val entity = slot<HttpEntity<LinkedMultiValueMap<String, Any>>>()
         val response: ResponseEntity<String> = ResponseEntity("ExtSubmission", OK)
 
         every { extSerializationService.serialize(extSubmission) } returns "ExtSubmission"
         every { extSerializationService.deserialize("ExtSubmission") } returns extSubmission
         every { restTemplate.postForEntity(EXT_SUBMISSIONS_URL, capture(entity), String::class.java) } returns response
 
-        testInstance.submitExt(extSubmission, listOf(fileList))
+        testInstance.submitExt(extSubmission)
 
         val captured = entity.captured
-        assertHttpEntity(captured, fileList)
+        assertHttpEntity(captured)
         verify(exactly = 1) { extSerializationService.serialize(extSubmission) }
         verify(exactly = 1) { extSerializationService.deserialize("ExtSubmission") }
         verify(exactly = 1) { restTemplate.postForEntity(EXT_SUBMISSIONS_URL, captured, String::class.java) }
@@ -146,8 +140,7 @@ class ExtSubmissionClientTest(
     fun `submit async ext submission`(
         @MockK extSubmission: ExtSubmission
     ) {
-        val entity = slot<HttpEntity<String>>()
-        val fileList = tempFolder.createFile("async-file-list.tsv")
+        val entity = slot<HttpEntity<LinkedMultiValueMap<String, Any>>>()
         val response: ResponseEntity<String> = ResponseEntity("ExtSubmission", OK)
 
         every { extSerializationService.serialize(extSubmission) } returns "ExtSubmission"
@@ -155,19 +148,19 @@ class ExtSubmissionClientTest(
             restTemplate.postForEntity("$EXT_SUBMISSIONS_URL/async", capture(entity), String::class.java)
         } returns response
 
-        testInstance.submitExtAsync(extSubmission, listOf(fileList))
+        testInstance.submitExtAsync(extSubmission)
 
         val captured = entity.captured
-        assertHttpEntity(captured, fileList)
+        assertHttpEntity(captured)
         verify(exactly = 1) { extSerializationService.serialize(extSubmission) }
         verify(exactly = 1) { restTemplate.postForEntity("$EXT_SUBMISSIONS_URL/async", captured, String::class.java) }
     }
 
-    private fun assertHttpEntity(entity: HttpEntity<String>, fileList: File) {
-        val body = entity.body as LinkedMultiValueMap<String, Any>
-        assertThat(body).hasSize(3)
-        assertThat(body[FILE_LISTS]).hasSize(1)
-        assertThat((body[FILE_LISTS]?.first() as FileSystemResource).file).isEqualTo(fileList)
+    private fun assertHttpEntity(entity: HttpEntity<LinkedMultiValueMap<String, Any>>) {
+        val body = entity.body
+
+        assertThat(body).isNotNull()
+        assertThat(body).hasSize(2)
         assertThat(body[SUBMISSION]).hasSize(1)
         assertThat(body[SUBMISSION]?.first()).isEqualTo("ExtSubmission")
         assertThat(body[FILE_MODE]).hasSize(1)

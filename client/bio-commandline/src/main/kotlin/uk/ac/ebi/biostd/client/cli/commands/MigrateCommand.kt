@@ -16,7 +16,6 @@ import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_OWNER
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_PASSWORD
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_USER
-import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TEMP_FOLDER
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.FILE_MODE
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
@@ -33,7 +32,6 @@ internal class MigrateCommand(private val submissionService: SubmissionService) 
     private val targetUser by option("-tu", "--targetUser", help = TARGET_USER).required()
     private val targetPassword by option("-tp", "--targetPassword", help = TARGET_PASSWORD).required()
     private val targetOwner by option("-to", "--targetOwner", help = TARGET_OWNER)
-    private val tempFolder by option("-tf", "--tempFolder", help = TEMP_FOLDER).required()
     private val fileMode by option("-fm", "--fileMode", help = FILE_MODE).default(COPY.name)
     private val async by option("-as", "--async", help = ASYNC).flag(default = false)
 
@@ -55,7 +53,6 @@ internal class MigrateCommand(private val submissionService: SubmissionService) 
         targetUser,
         targetPassword,
         targetOwner,
-        tempFolder,
         FileMode.valueOf(fileMode),
         async
     )

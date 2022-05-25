@@ -11,7 +11,6 @@ internal data class MigrationRequest(
     val targetUser: String,
     val targetPassword: String,
     val targetOwner: String?,
-    val tempFolder: String,
     val fileMode: FileMode,
     val async: Boolean
 )

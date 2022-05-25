@@ -19,16 +19,13 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
-import io.mockk.slot
 import io.mockk.verify
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.extended.serialization.service.createExtFileList
-import java.io.File
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionServiceMigrationTest(
@@ -50,7 +47,6 @@ class SubmissionServiceMigrationTest(
         targetOwner = null,
         async = false,
         fileMode = COPY,
-        tempFolder = tempFolder.root.absolutePath
     )
 
     @AfterEach
@@ -63,38 +59,24 @@ class SubmissionServiceMigrationTest(
     }
 
     @Test
-    fun `migrate sync with no target Owner`() {
-        val filesSlot = slot<List<File>>()
-
-        every { targetClient.submitExt(extSubmission, capture(filesSlot)) } returns extSubmission
+    fun `migrate sync`() {
+        every { targetClient.submitExt(extSubmission) } returns extSubmission
 
         testInstance.migrate(migrationRequest)
 
-        val files = filesSlot.captured
-        verifyMigration(files)
-        verify(exactly = 1) { targetClient.submitExt(extSubmission, files) }
-        verify(exactly = 0) { targetClient.submitExtAsync(extSubmission, files) }
+        verify(exactly = 1) { targetClient.submitExt(extSubmission) }
+        verify(exactly = 0) { targetClient.submitExtAsync(extSubmission) }
     }
 
     @Test
-    fun `migrate async with target Owner`() {
-        val filesSlot = slot<List<File>>()
-        val migrated = extSubmission.copy(owner = "newOwner")
-
-        every { targetClient.submitExtAsync(migrated, capture(filesSlot)) } answers { nothing }
+    fun `migrate async`() {
+        val expected = extSubmission.copy(owner = "newOwner")
+        every { targetClient.submitExtAsync(expected) } answers { nothing }
 
         testInstance.migrate(migrationRequest.copy(targetOwner = "newOwner", async = true))
 
-        val files = filesSlot.captured
-        verifyMigration(files)
-        verify(exactly = 0) { targetClient.submitExt(migrated, files) }
-        verify(exactly = 1) { targetClient.submitExtAsync(migrated, files) }
-    }
-
-    private fun verifyMigration(files: List<File>) {
-        assertThat(files).hasSize(1)
-        assertThat(files.first().name).isEqualTo("test-file-list")
-        verify(exactly = 1) { sourceClient.getExtByAccNo("S-BSST1") }
+        verify(exactly = 0) { targetClient.submitExt(expected) }
+        verify(exactly = 1) { targetClient.submitExtAsync(expected) }
     }
 
     private fun extSubmissionWithFileList(): ExtSubmission {
@@ -128,7 +110,7 @@ class SubmissionServiceMigrationTest(
     }
 
     private fun setUpExtSubmissionClient() {
-        every { sourceClient.getExtByAccNo("S-BSST1") } returns extSubmission
+        every { sourceClient.getExtByAccNo("S-BSST1", true) } returns extSubmission
         every {
             sourceClient.getReferencedFiles("/submissions/extended/S-BSST1/referencedFiles/test-file-list")
         } returns ExtFileTable(

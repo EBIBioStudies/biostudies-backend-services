@@ -25,7 +25,7 @@ class UserWithActivationKeyNotFoundException :
 class UserAlreadyRegister(email: String) :
     SecurityException("There is a user already registered with the email address '$email'.")
 
-class UnauthorizedOperation(message: String) : SecurityException(message)
+class UnauthorizedOperation(user: String) : SecurityException("The user '$user' is not allowed to perform this action")
 
 class InvalidSseConfiguration(message: String) : SecurityException(message)
 

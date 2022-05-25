@@ -56,6 +56,7 @@ class SubmissionConfig(
         subRepository: SubmissionQueryService,
         userPrivilegeService: IUserPrivilegesService,
         securityQueryService: ISecurityQueryService,
+        properties: ApplicationProperties,
         eventsPublisherService: EventsPublisherService
     ): ExtSubmissionService =
         ExtSubmissionService(
@@ -63,6 +64,7 @@ class SubmissionConfig(
             subRepository,
             userPrivilegeService,
             securityQueryService,
+            properties,
             eventsPublisherService
         )
 
