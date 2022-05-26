@@ -13,6 +13,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import ebi.ac.uk.db.MYSQL_SCHEMA
 import ebi.ac.uk.db.MYSQL_VERSION
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestPlan
@@ -25,7 +26,6 @@ import java.nio.file.Files
 import java.time.Duration.ofSeconds
 
 class ITestListener : TestExecutionListener {
-
     override fun testPlanExecutionStarted(testPlan: TestPlan) {
         mongoSetup()
         mySqlSetup()
@@ -66,7 +66,7 @@ class ITestListener : TestExecutionListener {
     }
 
     private fun appPropertiesSetup() {
-        System.setProperty("app.submissionPath", submissionPath.absolutePath)
+        System.setProperty("app.submissionPath", nfsSubmissionPath.absolutePath)
         System.setProperty("app.ftpPath", ftpPath.absolutePath)
         System.setProperty("app.fireTempDirPath", fireTempFolder.absolutePath)
         System.setProperty("app.tempDirPath", tempDirPath.absolutePath)
@@ -78,9 +78,10 @@ class ITestListener : TestExecutionListener {
 
     companion object {
         private val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()
+        private val nfsSubmissionPath = testAppFolder.createDirectory("submission")
+        private val fireSubmissionPath = testAppFolder.createDirectory("submission-fire")
+        private val firePath = testAppFolder.createDirectory("fire-db")
 
-        internal val submissionPath = testAppFolder.createDirectory("submission")
-        internal val firePath = testAppFolder.createDirectory("fire-db")
         internal val fireTempFolder = testAppFolder.createDirectory("fire-temp")
         internal val ftpPath = testAppFolder.createDirectory("ftpPath")
         internal val tempDirPath = testAppFolder.createDirectory("tempDirPath")
@@ -89,31 +90,34 @@ class ITestListener : TestExecutionListener {
         internal val magicDirPath = testAppFolder.createDirectory("magic")
         internal val dropboxPath = testAppFolder.createDirectory("dropbox")
 
-        private val mongoContainer = createMongoContainer(MONGO_VERSION)
-        private val mysqlContainer = createMysqlContainer(MYSQL_VERSION, "Schema.sql")
-        private val fireApiMock = createFireApiMock(submissionPath, ftpPath, firePath)
+        private val mongoContainer = createMongoContainer()
+        private val mysqlContainer = createMysqlContainer()
+        private val fireApiMock = createFireApiMock(ftpPath)
 
         val enableFire get() = System.getProperty("enableFire").toBoolean()
+        val submissionPath get() = if (enableFire) fireSubmissionPath else nfsSubmissionPath
 
-        private fun createMongoContainer(version: String): MongoDBContainer =
-            MongoDBContainer(parse(version))
+        private fun createMongoContainer(): MongoDBContainer =
+            MongoDBContainer(parse(MONGO_VERSION))
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
-        private fun createMysqlContainer(version: String, schema: String): SpecificMySQLContainer =
-            SpecificMySQLContainer(version)
+        private fun createMysqlContainer(): SpecificMySQLContainer =
+            SpecificMySQLContainer(MYSQL_VERSION)
                 .withCommand("mysqld --character-set-server=$CHARACTER_SET --collation-server=$COLLATION")
-                .withInitScript(schema)
+                .withInitScript(MYSQL_SCHEMA)
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
-        private fun createFireApiMock(submissionDir: File, ftpDir: File, fireDir: File): WireMockServer {
-            val failFactor = System.getenv("ITEST_FAIL_FACTOR")?.toInt()
-            val transformer = newTransformer(submissionDir.toPath(), ftpDir.toPath(), fireDir.toPath(), failFactor)
+        private fun createFireApiMock(ftpDir: File): WireMockServer {
+            val factor = System.getenv("ITEST_FAIL_FACTOR")?.toInt()
+            val transformer = newTransformer(fireSubmissionPath.toPath(), ftpDir.toPath(), firePath.toPath(), factor)
+
             return WireMockServer(WireMockConfiguration().dynamicPort().extensions(transformer))
         }
 
         private fun File.createDirectory(path: String): File {
             val file = resolve(path)
             file.mkdir()
+
             return file
         }
     }
