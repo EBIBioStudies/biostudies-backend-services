@@ -107,18 +107,37 @@ class FireWebClientTest(
     }
 
     @Test
-    fun `download by path`() {
+    fun `download by path`(
+        @MockK fireFile: FireApiFile
+    ) {
         val file = tmpFolder.createFile("test.txt", "test content")
 
+        every { template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/S-BSST1/file1.txt") } returns fireFile
         every {
             template.getForObject("$FIRE_OBJECTS_URL/blob/path/S-BSST1/file1.txt", ByteArray::class.java)
         } returns file.readBytes()
 
-        val downloadedFile = testInstance.downloadByPath("S-BSST1/file1.txt")
+        val downloadedFile = testInstance.downloadByPath("S-BSST1/file1.txt")!!
 
         assertThat(downloadedFile.readText()).isEqualTo("test content")
         assertThat(downloadedFile.absolutePath).isEqualTo("${tmpFolder.root.absolutePath}/file1.txt")
         verify(exactly = 1) {
+            template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/S-BSST1/file1.txt")
+            template.getForObject("$FIRE_OBJECTS_URL/blob/path/S-BSST1/file1.txt", ByteArray::class.java)
+        }
+    }
+
+    @Test
+    fun `download by path not found`() {
+        every {
+            template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/S-BSST1/file1.txt")
+        } throws FireClientException(NOT_FOUND, "file not found")
+
+        assertThat(testInstance.downloadByPath("S-BSST1/file1.txt")).isNull()
+        verify(exactly = 1) {
+            template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/S-BSST1/file1.txt")
+        }
+        verify(exactly = 0) {
             template.getForObject("$FIRE_OBJECTS_URL/blob/path/S-BSST1/file1.txt", ByteArray::class.java)
         }
     }

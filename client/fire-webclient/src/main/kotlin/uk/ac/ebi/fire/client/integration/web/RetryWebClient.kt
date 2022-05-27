@@ -21,8 +21,8 @@ internal class RetryWebClient(
     override fun setBioMetadata(fireOid: String, accNo: String?, fileType: String?, published: Boolean?): Unit =
         retryTemplate.execute<Unit, Exception> { fireClient.setBioMetadata(fireOid, accNo, fileType, published) }
 
-    override fun downloadByPath(path: String): File =
-        retryTemplate.execute<File, Exception> { fireClient.downloadByPath(path) }
+    override fun downloadByPath(path: String): File? =
+        retryTemplate.execute<File?, Exception> { fireClient.downloadByPath(path) }
 
     override fun downloadByFireId(fireOid: String, fileName: String): File =
         retryTemplate.execute<File, Exception> { fireClient.downloadByFireId(fireOid, fileName) }
