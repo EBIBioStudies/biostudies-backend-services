@@ -5,7 +5,7 @@ remotes {
     }
 
     beta {
-        host = 'biostudies-beta.ebi.ac.uk'
+        host = 'biostudy-dev.ebi.ac.uk'
         user = 'ma-svc'
     }
 

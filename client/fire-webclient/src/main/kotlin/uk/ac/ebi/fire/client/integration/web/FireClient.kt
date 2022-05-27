@@ -13,7 +13,7 @@ interface FireClient {
 
     fun setBioMetadata(fireOid: String, accNo: String? = null, fileType: String? = null, published: Boolean? = null)
 
-    fun downloadByPath(path: String): File
+    fun downloadByPath(path: String): File?
 
     fun downloadByFireId(fireOid: String, fileName: String): File
 

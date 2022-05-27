@@ -68,7 +68,9 @@ class SubmissionSubmitter(
         return saveRequest(SubmissionRequest(sub, rqt.mode, rqt.draftKey), rqt.owner)
     }
 
-    fun submitAsync(request: SubmissionRequest): Pair<String, Int> = saveRequest(request, request.submission.submitter)
+    fun submitAsync(request: SubmissionRequest): Pair<String, Int> {
+        return saveRequest(request, request.submission.submitter)
+    }
 
     fun processRequest(accNo: String, version: Int): ExtSubmission {
         val rqt = submissionQueryService.getPendingRequest(accNo, version)
