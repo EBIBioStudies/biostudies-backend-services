@@ -11,8 +11,10 @@ import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
 import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILE_MODE
+import ebi.ac.uk.model.constants.PREFERRED_SOURCE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping(value = ["submissions/drafts"], produces = [APPLICATION_JSON_VALUE])
 @PreAuthorize("isAuthenticated()")
+@Suppress("LongParameterList")
 internal class SubmissionDraftResource(
     private val submitWebHandler: SubmitWebHandler,
     private val draftService: SubmissionDraftService
@@ -85,6 +88,7 @@ internal class SubmissionDraftResource(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: PreferredSource,
         @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?
     ) {
         val submission = draftService.getSubmissionDraft(user.email, key).content
@@ -96,7 +100,8 @@ internal class SubmissionDraftResource(
             format = JSON_PRETTY,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = emptyList()
+            files = emptyList(),
+            preferredSource = preferredSource
         )
 
         submitWebHandler.submitAsync(request)

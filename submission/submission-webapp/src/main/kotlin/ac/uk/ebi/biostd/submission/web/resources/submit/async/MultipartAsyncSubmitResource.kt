@@ -11,10 +11,12 @@ import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
+import ebi.ac.uk.model.constants.PREFERRED_SOURCE
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
@@ -47,6 +49,7 @@ class MultipartAsyncSubmitResource(
         @RequestParam(SUBMISSION) content: String,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
+        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: PreferredSource,
         @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?
     ) {
         val tempFiles = tempFileGenerator.asFiles(files.orEmpty())
@@ -57,7 +60,8 @@ class MultipartAsyncSubmitResource(
             format = JSON,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = tempFiles
+            files = tempFiles,
+            preferredSource = preferredSource
         )
         submitWebHandler.submitAsync(contentWebRequest)
     }
@@ -71,6 +75,7 @@ class MultipartAsyncSubmitResource(
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) content: String,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: PreferredSource,
         @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?,
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?
     ) {
@@ -82,7 +87,8 @@ class MultipartAsyncSubmitResource(
             format = XML,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = tempFiles
+            files = tempFiles,
+            preferredSource = preferredSource
         )
         submitWebHandler.submitAsync(contentWebRequest)
     }
@@ -96,6 +102,7 @@ class MultipartAsyncSubmitResource(
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) content: String,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: PreferredSource,
         @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?,
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?
     ) {
@@ -107,7 +114,8 @@ class MultipartAsyncSubmitResource(
             format = TSV,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = tempFiles
+            files = tempFiles,
+            preferredSource = preferredSource
         )
         submitWebHandler.submitAsync(contentWebRequest)
     }
@@ -123,6 +131,7 @@ class MultipartAsyncSubmitResource(
         @RequestParam(SUBMISSION) file: MultipartFile,
         @RequestParam(FILES) files: Array<MultipartFile>,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: PreferredSource,
         @RequestParam(ATTRIBUTES) attributes: Array<ExtAttributeDetail>?
     ) {
         val tempFiles = tempFileGenerator.asFiles(files)
@@ -134,7 +143,8 @@ class MultipartAsyncSubmitResource(
             format = TSV,
             fileMode = mode,
             attrs = attributes.orEmpty().associate { it.name to it.value },
-            files = tempFiles
+            files = tempFiles,
+            preferredSource = preferredSource
         )
         submitWebHandler.submitAsync(contentWebRequest)
     }

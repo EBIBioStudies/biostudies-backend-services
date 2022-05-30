@@ -11,11 +11,13 @@ import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
+import ebi.ac.uk.model.constants.PREFERRED_SOURCE
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
@@ -49,6 +51,7 @@ class MultipartSubmitResource(
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) content: String,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: PreferredSource,
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?
     ): Submission {
@@ -60,7 +63,8 @@ class MultipartSubmitResource(
             format = JSON,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = tempFiles
+            files = tempFiles,
+            preferredSource = preferredSource
         )
 
         return submitWebHandler.submit(contentWebRequest)
@@ -76,6 +80,7 @@ class MultipartSubmitResource(
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) content: String,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: PreferredSource,
         @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?,
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?
     ): Submission {
@@ -87,7 +92,8 @@ class MultipartSubmitResource(
             format = XML,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = tempFiles
+            files = tempFiles,
+            preferredSource = preferredSource
         )
 
         return submitWebHandler.submit(contentWebRequest)
@@ -103,6 +109,7 @@ class MultipartSubmitResource(
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) content: String,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: PreferredSource,
         @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?,
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?
     ): Submission {
@@ -114,7 +121,8 @@ class MultipartSubmitResource(
             format = TSV,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = tempFiles
+            files = tempFiles,
+            preferredSource = preferredSource
         )
 
         return submitWebHandler.submit(contentWebRequest)
@@ -132,6 +140,7 @@ class MultipartSubmitResource(
         @RequestParam(SUBMISSION) file: MultipartFile,
         @RequestParam(FILES) files: Array<MultipartFile>,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: PreferredSource,
         @RequestParam(ATTRIBUTES) attributes: Array<ExtAttributeDetail>?
     ): Submission {
         val tempFiles = tempFileGenerator.asFiles(files)
@@ -144,7 +153,8 @@ class MultipartSubmitResource(
             format = TSV,
             fileMode = mode,
             attrs = attributes.orEmpty().associate { it.name to it.value },
-            files = tempFiles
+            files = tempFiles,
+            preferredSource = preferredSource
         )
 
         return submitWebHandler.submit(contentWebRequest)

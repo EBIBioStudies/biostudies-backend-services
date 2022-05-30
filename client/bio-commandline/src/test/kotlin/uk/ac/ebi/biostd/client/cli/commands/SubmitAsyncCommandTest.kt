@@ -4,6 +4,8 @@ import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.FileMode.MOVE
+import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
+import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -47,7 +49,8 @@ internal class SubmitAsyncCommandTest(
             onBehalf = null,
             file = submission,
             attached = listOf(attachedFile1, attachedFile2),
-            fileMode = COPY
+            fileMode = COPY,
+            preferredSource = USER_SPACE
         )
         every { submissionService.submitAsync(request) } answers { nothing }
 
@@ -77,7 +80,8 @@ internal class SubmitAsyncCommandTest(
             onBehalf = null,
             file = submission,
             attached = listOf(attachedFile1, attachedFile2),
-            fileMode = MOVE
+            fileMode = MOVE,
+            preferredSource = SUBMISSION
         )
         every { submissionService.submitAsync(request) } answers { nothing }
 
@@ -88,7 +92,8 @@ internal class SubmitAsyncCommandTest(
                 "-p", "password",
                 "-i", "$rootFolder/Submission.tsv",
                 "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
-                "-fm", "MOVE"
+                "-fm", "MOVE",
+                "-ps", "SUBMISSION"
             )
         )
 
@@ -106,7 +111,8 @@ internal class SubmitAsyncCommandTest(
             onBehalf = null,
             file = submission,
             attached = emptyList(),
-            fileMode = COPY
+            fileMode = COPY,
+            preferredSource = USER_SPACE
         )
         every { submissionService.submitAsync(request) } answers { nothing }
 

@@ -5,15 +5,14 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
 import com.github.ajalt.clikt.core.PrintMessage
-import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.Submission
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkObject
-import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
@@ -37,10 +36,14 @@ internal class SubmissionServiceTest {
 
     @Test
     fun submit() {
-        val slot = slot<FileMode>()
         every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
         every {
-            bioWebClient.submitSingle(submissionRequest.file, submissionRequest.attached, fileMode = capture(slot)).body
+            bioWebClient.submitSingle(
+                submissionRequest.file,
+                submissionRequest.attached,
+                fileMode = COPY,
+                preferredSource = SUBMISSION
+            ).body
         } returns submission
 
         val submitted = testInstance.submit(submissionRequest)
@@ -48,23 +51,37 @@ internal class SubmissionServiceTest {
         assertThat(submitted).isEqualTo(submission)
         verify(exactly = 1) {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.submitSingle(submissionRequest.file, submissionRequest.attached, fileMode = slot.captured)
+            bioWebClient.submitSingle(
+                submissionRequest.file,
+                submissionRequest.attached,
+                fileMode = COPY,
+                preferredSource = SUBMISSION
+            )
         }
     }
 
     @Test
     fun `submit async`() {
-        val slot = slot<FileMode>()
         every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
         every {
-            bioWebClient.asyncSubmitSingle(submissionRequest.file, submissionRequest.attached, fileMode = capture(slot))
+            bioWebClient.asyncSubmitSingle(
+                submissionRequest.file,
+                submissionRequest.attached,
+                fileMode = COPY,
+                preferredSource = SUBMISSION
+            )
         } answers { nothing }
 
         testInstance.submitAsync(submissionRequest)
 
         verify(exactly = 1) {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.asyncSubmitSingle(submissionRequest.file, submissionRequest.attached, fileMode = slot.captured)
+            bioWebClient.asyncSubmitSingle(
+                submissionRequest.file,
+                submissionRequest.attached,
+                fileMode = COPY,
+                preferredSource = SUBMISSION
+            )
         }
     }
 
@@ -154,7 +171,8 @@ internal class SubmissionServiceTest {
             onBehalf = ON_BEHALF,
             file = mockk(),
             attached = listOf(mockk()),
-            fileMode = COPY
+            fileMode = COPY,
+            preferredSource = SUBMISSION
         )
 
         val deletionRequest = DeletionRequest(

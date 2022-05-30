@@ -7,6 +7,9 @@ import ebi.ac.uk.io.sources.ComposedFileSource
 import ebi.ac.uk.io.sources.FilesListSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
+import ebi.ac.uk.io.sources.PreferredSource
+import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
+import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -17,57 +20,61 @@ class SourceGenerator(
     private val props: ApplicationProperties,
     private val fireSourceFactory: FireFilesSourceFactory,
 ) {
-    fun userSources(
-        user: SecurityUser,
-        rootPath: String? = null
-    ): FilesSource = ComposedFileSource(userSourcesList(user, rootPath.orEmpty()))
-
     fun submissionSources(requestSources: RequestSources): FilesSource {
-        val (owner, submitter, files, rootPath, submission) = requestSources
-        return ComposedFileSource(submissionSources(owner, submitter, files, rootPath, submission))
+        val (owner, submitter, files, rootPath, submission, preferredSource) = requestSources
+        val sources = buildList {
+            add(FilesListSource(files))
+
+            when (preferredSource) {
+                SUBMISSION -> {
+                    addSubmissionSources(submission, this)
+                    addUserSources(rootPath, owner, submitter, this)
+                }
+                USER_SPACE -> {
+                    addUserSources(rootPath, owner, submitter, this)
+                    addSubmissionSources(submission, this)
+                }
+            }
+        }
+
+        return ComposedFileSource(sources)
     }
 
-    fun submitterSources(user: SecurityUser, onBehalfUser: SecurityUser? = null) = ComposedFileSource(
+    fun submitterSources(
+        user: SecurityUser,
+        onBehalfUser: SecurityUser? = null,
+        rootPath: String? = null
+    ): FilesSource = ComposedFileSource(
         buildList {
-            if (onBehalfUser !== null) {
-                addAll(userSourcesList(onBehalfUser, ""))
-            }
-
-            addAll(userSourcesList(user, ""))
+            addUserSources(rootPath, user, onBehalfUser, this)
         }
     )
 
-    private fun userSourcesList(user: SecurityUser, rootPath: String): List<FilesSource> =
-        listOf(createPathSource(user, rootPath)).plus(groupSources(user.groupsFolders))
-
-    private fun submissionSources(
+    private fun addUserSources(
+        rootPath: String?,
         owner: SecurityUser?,
         submitter: SecurityUser?,
-        files: List<File>,
-        rootPath: String?,
-        sub: ExtSubmission?
-    ): List<FilesSource> {
-        return buildList {
-            add(FilesListSource(files))
+        sources: MutableList<FilesSource>
+    ) {
+        if (submitter != null) {
+            sources.add(createPathSource(submitter, rootPath))
+            sources.addAll(groupSources(submitter.groupsFolders))
+        }
 
-            if (submitter != null) {
-                add(createPathSource(submitter, rootPath))
-                addAll(groupSources(submitter.groupsFolders))
-            }
+        if (owner != null) {
+            sources.add(createPathSource(owner, rootPath))
+            sources.addAll(groupSources(owner.groupsFolders))
+        }
+    }
 
-            if (owner != null) {
-                add(createPathSource(owner, rootPath))
-                addAll(groupSources(owner.groupsFolders))
-            }
+    private fun addSubmissionSources(sub: ExtSubmission?, sources: MutableList<FilesSource>) {
+        if (props.persistence.enableFire && sub == null) {
+            sources.add(fireSourceFactory.createFireSource())
+        }
 
-            if (props.persistence.enableFire && sub == null) {
-                add(fireSourceFactory.createFireSource())
-            }
-
-            if (sub != null) {
-                add(fireSourceFactory.createSubmissionFireSource(sub.accNo, Paths.get("${sub.relPath}/Files")))
-                add(PathFilesSource(Paths.get(props.submissionPath).resolve(sub.relPath).resolve(FILES_PATH)))
-            }
+        if (sub != null) {
+            sources.add(fireSourceFactory.createSubmissionFireSource(sub.accNo, Paths.get("${sub.relPath}/Files")))
+            sources.add(PathFilesSource(Paths.get(props.submissionPath).resolve(sub.relPath).resolve(FILES_PATH)))
         }
     }
 
@@ -85,5 +92,6 @@ data class RequestSources(
     val submitter: SecurityUser? = null,
     val files: List<File> = emptyList(),
     val rootPath: String?,
-    val submission: ExtSubmission?
+    val submission: ExtSubmission?,
+    val preferredSource: PreferredSource
 )

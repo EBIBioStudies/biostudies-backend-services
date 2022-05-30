@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 
@@ -24,6 +25,7 @@ sealed class SubmitWebRequest(
     val format: SubFormat,
     val fileMode: FileMode,
     val files: List<File>,
+    val preferredSource: PreferredSource,
     val attrs: Map<String, String?>
 )
 
@@ -35,9 +37,10 @@ class ContentSubmitWebRequest(
     user: SecurityUser,
     format: SubFormat,
     fileMode: FileMode,
+    preferredSource: PreferredSource,
     attrs: Map<String, String?> = emptyMap(),
     files: List<File> = emptyList()
-) : SubmitWebRequest(user, onBehalfRequest, format, fileMode, files, attrs)
+) : SubmitWebRequest(user, onBehalfRequest, format, fileMode, files, preferredSource, attrs)
 
 @Suppress("LongParameterList")
 class FileSubmitWebRequest(
@@ -46,6 +49,7 @@ class FileSubmitWebRequest(
     user: SecurityUser,
     format: SubFormat,
     fileMode: FileMode,
+    preferredSource: PreferredSource,
     attrs: Map<String, String?> = emptyMap(),
     files: List<File> = emptyList()
-) : SubmitWebRequest(user, onBehalfRequest, format, fileMode, files, attrs)
+) : SubmitWebRequest(user, onBehalfRequest, format, fileMode, files, preferredSource, attrs)

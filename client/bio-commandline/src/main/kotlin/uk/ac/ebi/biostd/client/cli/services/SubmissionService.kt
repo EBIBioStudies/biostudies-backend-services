@@ -12,19 +12,29 @@ import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 @Suppress("TooManyFunctions")
 internal class SubmissionService {
     fun submit(request: SubmissionRequest): Submission = performRequest { submitRequest(request) }
+
     fun submitAsync(request: SubmissionRequest) = performRequest { submitAsyncRequest(request) }
+
     fun delete(request: DeletionRequest) = performRequest { deleteRequest(request) }
+
     fun migrate(request: MigrationRequest) = performRequest { migrateRequest(request) }
+
     fun validateFileList(request: ValidateFileListRequest) = performRequest { validateFileListRequest(request) }
 
-    private fun submitRequest(request: SubmissionRequest): Submission =
-        bioWebClient(request.server, request.user, request.password, request.onBehalf)
-            .submitSingle(request.file, request.attached, fileMode = request.fileMode)
-            .body
+    private fun submitRequest(request: SubmissionRequest): Submission {
+        val (server, user, password, onBehalf, file, attached, fileMode, preferredSource) = request
 
-    private fun submitAsyncRequest(request: SubmissionRequest) =
-        bioWebClient(request.server, request.user, request.password, request.onBehalf)
-            .asyncSubmitSingle(request.file, request.attached, fileMode = request.fileMode)
+        return bioWebClient(server, user, password, onBehalf)
+            .submitSingle(file, attached, fileMode = fileMode, preferredSource = preferredSource)
+            .body
+    }
+
+    private fun submitAsyncRequest(request: SubmissionRequest) {
+        val (server, user, password, onBehalf, file, attached, fileMode, preferredSource) = request
+
+        bioWebClient(server, user, password, onBehalf)
+            .asyncSubmitSingle(file, attached, fileMode = fileMode, preferredSource = preferredSource)
+    }
 
     private fun deleteRequest(request: DeletionRequest) =
         bioWebClient(request.server, request.user, request.password).deleteSubmissions(request.accNoList)

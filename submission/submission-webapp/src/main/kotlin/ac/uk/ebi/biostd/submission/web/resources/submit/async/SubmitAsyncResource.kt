@@ -8,9 +8,11 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import ebi.ac.uk.model.constants.FILE_MODE
+import ebi.ac.uk.model.constants.PREFERRED_SOURCE
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.model.constants.TEXT_XML
@@ -37,6 +39,7 @@ class SubmitAsyncResource(private val submitWebHandler: SubmitWebHandler) {
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: PreferredSource,
         @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?,
         @RequestBody submission: String
     ) {
@@ -47,7 +50,8 @@ class SubmitAsyncResource(private val submitWebHandler: SubmitWebHandler) {
             format = XML,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = emptyList()
+            files = emptyList(),
+            preferredSource = preferredSource
         )
         submitWebHandler.submitAsync(request)
     }
@@ -61,6 +65,7 @@ class SubmitAsyncResource(private val submitWebHandler: SubmitWebHandler) {
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: PreferredSource,
         @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?,
         @RequestBody submission: String
     ) {
@@ -71,7 +76,8 @@ class SubmitAsyncResource(private val submitWebHandler: SubmitWebHandler) {
             format = TSV,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = emptyList()
+            files = emptyList(),
+            preferredSource = preferredSource
         )
         submitWebHandler.submitAsync(request)
     }
@@ -84,6 +90,7 @@ class SubmitAsyncResource(private val submitWebHandler: SubmitWebHandler) {
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
+        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: PreferredSource,
         @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?,
         @RequestBody submission: String
     ) {
@@ -94,7 +101,8 @@ class SubmitAsyncResource(private val submitWebHandler: SubmitWebHandler) {
             format = JSON_PRETTY,
             fileMode = mode,
             attrs = attributes.orEmpty(),
-            files = emptyList()
+            files = emptyList(),
+            preferredSource = preferredSource
         )
         submitWebHandler.submitAsync(request)
     }

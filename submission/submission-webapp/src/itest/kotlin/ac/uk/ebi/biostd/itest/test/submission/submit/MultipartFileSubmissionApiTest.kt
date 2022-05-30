@@ -23,6 +23,7 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.allSectionsFiles
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.md5
@@ -256,6 +257,70 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
+    fun `resubmission with SUBMISSION preferred source`() {
+        fun submission(fileList: String) = tsv {
+            line("Submission", "S-TEST7")
+            line("Title", "Preferred Source Submission")
+            line()
+
+            line("Study", "SECT-001")
+            line("Title", "Root Section")
+            line("File List", fileList)
+            line()
+
+            line("File", "File4.txt")
+
+            line()
+        }.toString()
+
+        val fileList = tempFolder.createFile(
+            "FileList.tsv",
+            tsv {
+                line("Files", "GEN")
+                line("File5.txt", "ABC")
+            }.toString()
+        )
+
+        val file4 = tempFolder.createFile("File4.txt", "content 4")
+        val file5 = tempFolder.createFile("File5.txt", "content 5")
+        assertThat(webClient.submitSingle(submission("FileList.tsv"), TSV, listOf(fileList, file4, file5))).isSuccessful()
+
+        val firstVersion = submissionRepository.getExtByAccNo("S-TEST7")
+        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-TEST7", "FileList")
+        val subFilesPath = "$submissionPath/${firstVersion.relPath}/Files"
+        val innerFile = Paths.get("$subFilesPath/File4.txt")
+        val referencedFile = Paths.get("$subFilesPath/File5.txt")
+
+        assertThat(innerFile).exists()
+        assertThat(innerFile.toFile().readText()).isEqualTo("content 4")
+        assertThat(referencedFile).exists()
+        assertThat(referencedFile.toFile().readText()).isEqualTo("content 5")
+
+        file4.delete()
+        file5.delete()
+        fileList.delete()
+
+        tempFolder.createFile("File4.txt", "content 4 updated")
+
+        assertThat(webClient.submitSingle(submission("FileList.json"), TSV, emptyList())).isSuccessful()
+        assertThat(innerFile.toFile().readText()).isEqualTo("content 4")
+        assertThat(referencedFile.toFile().readText()).isEqualTo("content 5")
+
+        if (enableFire) {
+            val secondVersion = submissionRepository.getExtByAccNo("S-TEST7")
+            val secondVersionReferencedFiles = submissionRepository.getReferencedFiles("S-TEST7", "FileList")
+
+            val firstVersionFireId = (firstVersion.allSectionsFiles.first() as FireFile).fireId
+            val secondVersionFireId = (secondVersion.allSectionsFiles.first() as FireFile).fireId
+            assertThat(firstVersionFireId).isEqualTo(secondVersionFireId)
+
+            val firstVersionReferencedFireId = (firstVersionReferencedFiles.first() as FireFile).fireId
+            val secondVersionReferencedFireId = (secondVersionReferencedFiles.first() as FireFile).fireId
+            assertThat(firstVersionReferencedFireId).isEqualTo(secondVersionReferencedFireId)
+        }
+    }
+
+    @Test
     fun `invalid format file`() {
         val submission = tempFolder.createFile("submission.txt", "invalid file")
 
@@ -270,7 +335,7 @@ class MultipartFileSubmissionApiTest(
 
         if (enableFire) {
             assertFireSubFiles(createdSub, accNo, subFolder)
-            assertFireFileListFiles(createdSub, accNo, subFolder)
+            assertFireFileListFiles(createdSub, subFolder)
         } else {
             val submissionTabFiles = createdSub.pageTabFiles as List<NfsFile>
             assertThat(submissionTabFiles).hasSize(3)
@@ -291,7 +356,7 @@ class MultipartFileSubmissionApiTest(
         assertThat(Paths.get("$subFolder/${createdSub.accNo}.tsv")).exists()
     }
 
-    private fun `assertFireSubFiles`(submission: ExtSubmission, accNo: String, subFolder: String) {
+    private fun assertFireSubFiles(submission: ExtSubmission, accNo: String, subFolder: String) {
         val submissionTabFiles = submission.pageTabFiles as List<FireFile>
         assertThat(submissionTabFiles).hasSize(3)
 
@@ -320,7 +385,7 @@ class MultipartFileSubmissionApiTest(
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
 
-    private fun `assertFireFileListFiles`(submission: ExtSubmission, accNo: String, subFolder: String) {
+    private fun assertFireFileListFiles(submission: ExtSubmission, subFolder: String) {
         val fileListTabFiles = submission.section.fileList!!.pageTabFiles as List<FireFile>
         assertThat(fileListTabFiles).hasSize(3)
 

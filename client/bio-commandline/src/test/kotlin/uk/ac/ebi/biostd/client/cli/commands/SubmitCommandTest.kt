@@ -4,6 +4,8 @@ import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.FileMode.MOVE
+import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
+import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -51,7 +53,8 @@ internal class SubmitCommandTest(
             onBehalf = null,
             file = submission,
             attached = listOf(attachedFile1, attachedFile2),
-            fileMode = COPY
+            fileMode = COPY,
+            preferredSource = USER_SPACE
         )
         every { submissionService.submit(request) } returns mockResponse
 
@@ -83,7 +86,8 @@ internal class SubmitCommandTest(
             onBehalf = null,
             file = submission,
             attached = listOf(attachedFile1, attachedFile2),
-            fileMode = MOVE
+            fileMode = MOVE,
+            preferredSource = SUBMISSION
         )
         every { submissionService.submit(request) } returns mockResponse
 
@@ -94,7 +98,8 @@ internal class SubmitCommandTest(
                 "-p", "password",
                 "-i", "$rootFolder/Submission.tsv",
                 "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
-                "-fm", "MOVE"
+                "-fm", "MOVE",
+                "-ps", "SUBMISSION"
             )
         )
 
@@ -114,7 +119,8 @@ internal class SubmitCommandTest(
             onBehalf = null,
             file = submission,
             attached = emptyList(),
-            fileMode = MOVE
+            fileMode = MOVE,
+            preferredSource = USER_SPACE
         )
         every { submissionService.submit(request) } returns mockResponse
 
@@ -146,6 +152,26 @@ internal class SubmitCommandTest(
                     "-i", "$rootFolder/Submission.tsv",
                     "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
                     "-fm", "INVALID"
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `invalid preferred source`() {
+        temporaryFolder.createFile("Submission.tsv")
+        temporaryFolder.createFile("attachedFile1.tsv")
+        temporaryFolder.createFile("attachedFile2.tsv")
+
+        assertThrows<IllegalArgumentException> {
+            testInstance.parse(
+                listOf(
+                    "-s", "server",
+                    "-u", "user",
+                    "-p", "password",
+                    "-i", "$rootFolder/Submission.tsv",
+                    "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
+                    "-ps", "INVALID"
                 )
             )
         }

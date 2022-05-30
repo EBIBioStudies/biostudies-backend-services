@@ -5,9 +5,11 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.MultipartAsyncSubmissionOperations
 import ac.uk.ebi.biostd.integration.SerializationService
 import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.FILE_MODE
+import ebi.ac.uk.model.constants.PREFERRED_SOURCE
 import ebi.ac.uk.model.constants.SUBMISSION
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
@@ -28,10 +30,11 @@ class MultiPartAsyncSubmissionClient(
         submission: File,
         files: List<File>,
         attrs: Map<String, String>,
-        fileMode: FileMode
+        fileMode: FileMode,
+        preferredSource: PreferredSource
     ) {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
-        val multiPartBody = getMultipartBody(files, fileMode, FileSystemResource(submission))
+        val multiPartBody = getMultipartBody(files, fileMode, preferredSource, FileSystemResource(submission))
         attrs.entries.forEach { multiPartBody.add(it.key, it.value) }
         template.postForEntity<String>("$SUBMIT_URL/direct", (HttpEntity(multiPartBody, headers)))
     }
@@ -40,10 +43,11 @@ class MultiPartAsyncSubmissionClient(
         submission: String,
         format: SubmissionFormat,
         files: List<File>,
-        fileMode: FileMode
+        fileMode: FileMode,
+        preferredSource: PreferredSource
     ) {
         val headers = createHeaders(format)
-        val body = getMultipartBody(files, fileMode, submission)
+        val body = getMultipartBody(files, fileMode, preferredSource, submission)
         template.postForEntity<String>(SUBMIT_URL, HttpEntity(body, headers))
     }
 
@@ -51,11 +55,12 @@ class MultiPartAsyncSubmissionClient(
         submission: Submission,
         format: SubmissionFormat,
         files: List<File>,
-        fileMode: FileMode
+        fileMode: FileMode,
+        preferredSource: PreferredSource
     ) {
         val headers = createHeaders(format)
         val serializedSubmission = serializationService.serializeSubmission(submission, format.asSubFormat())
-        val body = getMultipartBody(files, fileMode, serializedSubmission)
+        val body = getMultipartBody(files, fileMode, preferredSource, serializedSubmission)
         template.postForEntity<String>(SUBMIT_URL, HttpEntity(body, headers))
     }
 
@@ -65,11 +70,16 @@ class MultiPartAsyncSubmissionClient(
         setSubmissionType(format.submissionType)
     }
 
-    private fun getMultipartBody(files: List<File>, fileMode: FileMode, submission: Any) =
-        LinkedMultiValueMap(
-            files.map { FILES to FileSystemResource(it) }
-                .plus(SUBMISSION to submission)
-                .plus(FILE_MODE to fileMode.name)
-                .groupBy({ it.first }, { it.second })
-        )
+    private fun getMultipartBody(
+        files: List<File>,
+        fileMode: FileMode,
+        preferredSource: PreferredSource,
+        submission: Any
+    ) = LinkedMultiValueMap(
+        files.map { FILES to FileSystemResource(it) }
+            .plus(SUBMISSION to submission)
+            .plus(FILE_MODE to fileMode.name)
+            .plus(PREFERRED_SOURCE to preferredSource.name)
+            .groupBy({ it.first }, { it.second })
+    )
 }

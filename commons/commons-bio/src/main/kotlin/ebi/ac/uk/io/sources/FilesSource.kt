@@ -4,6 +4,8 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.model.Attribute
 import java.io.File
 
+enum class PreferredSource { SUBMISSION, USER_SPACE }
+
 interface FilesSource {
     fun getExtFile(path: String, md5: String? = null, attributes: List<Attribute> = emptyList()): ExtFile?
     fun getFile(path: String, md5: String? = null): File?
