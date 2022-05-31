@@ -33,7 +33,6 @@ internal class FileListTsvStreamDeserializer {
         writer.write("Files".plus(TAB).plus(attrsNames.joinToString(TAB.toString())))
         writer.newLine()
         writeAttributesValues(firstFile, writer)
-        writer.newLine()
     }
 
     private fun writeAttributesValues(file: BioFile, writer: BufferedWriter) {
