@@ -29,13 +29,13 @@ internal class SubmissionMongoPersistenceService(
     private val systemService: FileSystemService,
     private val submissionRepository: ExtSubmissionRepository,
 ) : SubmissionPersistenceService {
-    override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
-        val version = getNextVersion(rqt.submission.accNo)
-        val extSubmission = rqt.submission.copy(version = version, status = REQUESTED)
-        return saveRequest(rqt, extSubmission)
+
+    override fun getNextVersion(accNo: String): Int {
+        val lastVersion = subDataRepository.getCurrentVersion(accNo) ?: 0
+        return lastVersion.absoluteValue + 1
     }
 
-    override fun savePlainSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
+    override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
         val extSubmission = rqt.submission.copy(status = REQUESTED)
         return saveRequest(rqt, extSubmission)
     }
@@ -71,11 +71,6 @@ internal class SubmissionMongoPersistenceService(
     private fun processFiles(submission: ExtSubmission, fileMode: FileMode): ExtSubmission {
         val filePersistenceRequest = FilePersistenceRequest(submission, fileMode)
         return systemService.persistSubmissionFiles(filePersistenceRequest)
-    }
-
-    private fun getNextVersion(accNo: String): Int {
-        val lastVersion = subDataRepository.getCurrentVersion(accNo) ?: 0
-        return lastVersion.absoluteValue + 1
     }
 
     private fun asRequest(rqt: SubmissionRequest, submission: ExtSubmission): DocSubmissionRequest {

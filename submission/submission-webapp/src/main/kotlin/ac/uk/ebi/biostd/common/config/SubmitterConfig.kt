@@ -64,7 +64,8 @@ class SubmitterConfig {
 
     @Bean
     fun submissionSubmitter(
-        submissionSubmitter: ExtSubmissionSubmitter,
+        extSubmissionSubmitter: ExtSubmissionSubmitter,
+        persistenceService: SubmissionPersistenceService,
         timesService: TimesService,
         accNoService: AccNoService,
         parentInfoService: ParentInfoService,
@@ -73,7 +74,8 @@ class SubmitterConfig {
         properties: ApplicationProperties,
         toExtSectionMapper: ToExtSectionMapper
     ) = SubmissionSubmitter(
-        submissionSubmitter,
+        extSubmissionSubmitter,
+        persistenceService,
         timesService,
         accNoService,
         parentInfoService,

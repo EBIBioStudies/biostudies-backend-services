@@ -15,7 +15,7 @@ interface SubmissionPersistenceService {
 
     fun releaseSubmission(accNo: String, owner: String, relPath: String)
 
-    fun savePlainSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
+    fun getNextVersion(accNo: String): Int
 }
 
 @Suppress("TooManyFunctions")

@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
@@ -30,6 +31,7 @@ private val logger = KotlinLogging.logger {}
 class ExtSubmissionService(
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val submissionQueryService: SubmissionQueryService,
+    private val persistenceService: SubmissionPersistenceService,
     private val privilegesService: IUserPrivilegesService,
     private val securityService: ISecurityQueryService,
     private val properties: ApplicationProperties,
@@ -45,11 +47,10 @@ class ExtSubmissionService(
         ExtFileTable(submissionQueryService.getReferencedFiles(accNo, fileListName))
 
     fun refreshSubmission(accNo: String, user: String): ExtSubmission {
-        val submission = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        val (_, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission.copy(submitter = user), COPY))
-        val refreshedSubmission = submissionSubmitter.processRequest(accNo, version)
-        eventsPublisherService.submissionsRefresh(refreshedSubmission.accNo, refreshedSubmission.owner)
-        return refreshedSubmission
+        val sub = submissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        val response = submitExt(user, sub, COPY)
+        eventsPublisherService.submissionsRefresh(sub.accNo, sub.owner)
+        return response
     }
 
     fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
@@ -96,6 +97,7 @@ class ExtSubmissionService(
         validateSubmission(extSubmission, user)
         return extSubmission.copy(
             submitter = user,
+            version = persistenceService.getNextVersion(extSubmission.accNo),
             modificationTime = OffsetDateTime.now(),
             storageMode = if (properties.persistence.enableFire) FIRE else NFS
         )

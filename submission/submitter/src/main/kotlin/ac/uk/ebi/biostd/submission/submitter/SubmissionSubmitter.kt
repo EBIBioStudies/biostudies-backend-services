@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.submitter
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -39,12 +40,13 @@ import mu.KotlinLogging
 import java.time.OffsetDateTime
 import java.util.UUID
 
-private const val DEFAULT_VERSION = 1
 private const val DEFAULT_SCHEMA_VERSION = "1.0"
 private val logger = KotlinLogging.logger {}
 
+@Suppress("LongParameterList")
 class SubmissionSubmitter(
     private val submissionSubmitter: ExtSubmissionSubmitter,
+    private val persistenceService: SubmissionPersistenceService,
     private val timesService: TimesService,
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
@@ -53,7 +55,6 @@ class SubmissionSubmitter(
     private val properties: ApplicationProperties,
     private val toExtSectionMapper: ToExtSectionMapper
 ) {
-
     fun submit(rqt: SubmitRequest): ExtSubmission {
         val submission = process(rqt)
         val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, rqt.mode, rqt.draftKey))
@@ -87,7 +88,6 @@ class SubmissionSubmitter(
         source: FilesSource,
         method: SubmissionMethod
     ): ExtSubmission {
-        val version = DEFAULT_VERSION
         val previousVersion = queryService.findLatestBasicByAccNo(submission.accNo)
         val isNew = previousVersion == null
         val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(submission.attachTo)
@@ -95,6 +95,7 @@ class SubmissionSubmitter(
         val released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
         val accNo = getAccNumber(submission, isNew, submitter, parentPattern)
         val accNoString = accNo.toString()
+        val version = persistenceService.getNextVersion(accNoString)
         val collectionInfo = getCollectionInfo(submitter, submission, accNoString, isNew)
         val secretKey = previousVersion?.secretKey ?: UUID.randomUUID().toString()
         val relPath = accNoService.getRelPath(accNo)
@@ -152,5 +153,4 @@ class SubmissionSubmitter(
 
     private fun getTimes(sub: Submission, creationTime: OffsetDateTime?, parentReleaseTime: OffsetDateTime?) =
         timesService.getTimes(TimesRequest(sub.accNo, sub.releaseDate, creationTime, parentReleaseTime))
-
 }

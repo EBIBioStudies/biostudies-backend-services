@@ -14,7 +14,7 @@ import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 
 class ExtSubmissionSubmitter(
-    private val submissionPersistenceService: SubmissionPersistenceService,
+    private val persistenceService: SubmissionPersistenceService,
     private val draftService: SubmissionDraftService,
     private val requestProcessor: RequestProcessor,
 ) {
@@ -24,16 +24,16 @@ class ExtSubmissionSubmitter(
 
     fun processRequest(accNo: String, version: Int): ExtSubmission {
         val sub = requestProcessor.loadRequest(accNo, version)
-        return submissionPersistenceService.processSubmissionRequest(sub)
+        return persistenceService.processSubmissionRequest(sub)
     }
 
     fun release(request: ReleaseRequest) {
         val (accNo, owner, relPath) = request
-        submissionPersistenceService.releaseSubmission(accNo, owner, relPath)
+        persistenceService.releaseSubmission(accNo, owner, relPath)
     }
 
     private fun saveRequest(request: SubmissionRequest, owner: String): Pair<String, Int> {
-        val saved = submissionPersistenceService.saveSubmissionRequest(request)
+        val saved = persistenceService.saveSubmissionRequest(request)
         request.draftKey?.let { draftService.setProcessingStatus(owner, it) }
         return saved
     }
@@ -48,7 +48,7 @@ class RequestProcessor(
     internal fun loadRequest(accNo: String, version: Int): SubmissionRequest {
         val rqt = submissionQueryService.getPendingRequest(accNo, version)
         val full = fileProcessingService.processFiles(rqt.submission) { loadFileAttributes(it) }
-        submissionPersistenceService.savePlainSubmissionRequest(SubmissionRequest(full, rqt.fileMode, rqt.draftKey))
+        submissionPersistenceService.saveSubmissionRequest(SubmissionRequest(full, rqt.fileMode, rqt.draftKey))
         return submissionQueryService.getPendingRequest(accNo, version)
     }
 

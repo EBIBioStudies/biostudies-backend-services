@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
@@ -54,6 +55,7 @@ class SubmissionConfig(
     fun extSubmissionService(
         submissionSubmitter: ExtSubmissionSubmitter,
         subRepository: SubmissionQueryService,
+        persistenceService: SubmissionPersistenceService,
         userPrivilegeService: IUserPrivilegesService,
         securityQueryService: ISecurityQueryService,
         properties: ApplicationProperties,
@@ -62,6 +64,7 @@ class SubmissionConfig(
         ExtSubmissionService(
             submissionSubmitter,
             subRepository,
+            persistenceService,
             userPrivilegeService,
             securityQueryService,
             properties,
