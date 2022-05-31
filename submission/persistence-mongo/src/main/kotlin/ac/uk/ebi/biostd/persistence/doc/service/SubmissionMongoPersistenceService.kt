@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import com.mongodb.BasicDBObject
@@ -34,6 +35,11 @@ internal class SubmissionMongoPersistenceService(
         return saveRequest(rqt, extSubmission)
     }
 
+    override fun savePlainSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
+        val extSubmission = rqt.submission.copy(status = REQUESTED)
+        return saveRequest(rqt, extSubmission)
+    }
+
     private fun saveRequest(rqt: SubmissionRequest, extSubmission: ExtSubmission): Pair<String, Int> {
         requestRepository.saveRequest(asRequest(rqt, extSubmission))
         return extSubmission.accNo to extSubmission.version
@@ -43,7 +49,7 @@ internal class SubmissionMongoPersistenceService(
         val (submission, fileMode, draftKey) = saveRequest
         val processingSubmission = processFiles(submission, fileMode)
         val savedSubmission = submissionRepository.saveSubmission(processingSubmission, draftKey)
-        requestRepository.updateStatus(SubmissionRequestStatus.PROCESSED, submission.accNo, submission.version)
+        requestRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
         systemService.unpublishSubmissionFiles(savedSubmission.accNo, savedSubmission.owner, savedSubmission.relPath)
 
         if (savedSubmission.released) {
@@ -75,7 +81,7 @@ internal class SubmissionMongoPersistenceService(
     private fun asRequest(rqt: SubmissionRequest, submission: ExtSubmission): DocSubmissionRequest {
         val content = serializationService.serialize(submission, Properties(includeFileListFiles = true))
         return DocSubmissionRequest(
-            id = ObjectId(),
+            id = getId(submission),
             accNo = submission.accNo,
             version = submission.version,
             fileMode = rqt.fileMode,
@@ -83,5 +89,14 @@ internal class SubmissionMongoPersistenceService(
             status = SubmissionRequestStatus.REQUESTED,
             submission = BasicDBObject.parse(content),
         )
+    }
+
+    private fun getId(sub: ExtSubmission): ObjectId {
+        val request = requestRepository.findByAccNoAndVersionAndStatus(
+            sub.accNo,
+            sub.version,
+            SubmissionRequestStatus.REQUESTED
+        )
+        return request?.id ?: ObjectId()
     }
 }

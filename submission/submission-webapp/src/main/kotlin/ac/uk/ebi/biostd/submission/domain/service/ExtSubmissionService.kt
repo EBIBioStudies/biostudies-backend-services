@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
-import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -28,7 +28,7 @@ private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions", "LongParameterList")
 class ExtSubmissionService(
-    private val submissionSubmitter: SubmissionSubmitter,
+    private val submissionSubmitter: ExtSubmissionSubmitter,
     private val submissionQueryService: SubmissionQueryService,
     private val privilegesService: IUserPrivilegesService,
     private val securityService: ISecurityQueryService,

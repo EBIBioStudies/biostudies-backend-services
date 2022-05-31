@@ -14,6 +14,8 @@ interface SubmissionPersistenceService {
     fun processSubmissionRequest(saveRequest: SubmissionRequest): ExtSubmission
 
     fun releaseSubmission(accNo: String, owner: String, relPath: String)
+
+    fun savePlainSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 }
 
 @Suppress("TooManyFunctions")

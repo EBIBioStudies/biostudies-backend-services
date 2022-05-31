@@ -2,12 +2,8 @@ package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
-import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.AccNoServiceRequest
@@ -25,15 +21,14 @@ import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.StorageMode.FIRE
-import ebi.ac.uk.extended.model.StorageMode.NFS
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.User
 import ebi.ac.uk.model.constants.SUBMISSION_RESERVED_ATTRIBUTES
-import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
+import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.extensions.accNoTemplate
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
@@ -44,71 +39,48 @@ import mu.KotlinLogging
 import java.time.OffsetDateTime
 import java.util.UUID
 
-private val logger = KotlinLogging.logger {}
 private const val DEFAULT_VERSION = 1
 private const val DEFAULT_SCHEMA_VERSION = "1.0"
+private val logger = KotlinLogging.logger {}
 
-@Suppress("TooManyFunctions", "LongParameterList")
 class SubmissionSubmitter(
+    private val submissionSubmitter: ExtSubmissionSubmitter,
     private val timesService: TimesService,
     private val accNoService: AccNoService,
     private val parentInfoService: ParentInfoService,
     private val collectionInfoService: CollectionInfoService,
-    private val submissionPersistenceService: SubmissionPersistenceService,
     private val queryService: SubmissionMetaQueryService,
-    private val submissionQueryService: SubmissionQueryService,
-    private val draftService: SubmissionDraftService,
     private val properties: ApplicationProperties,
     private val toExtSectionMapper: ToExtSectionMapper
 ) {
-    fun submitAsync(rqt: SubmitRequest): Pair<String, Int> {
-        logger.info { "${rqt.accNo} ${rqt.submitter.email} Processing async request $rqt" }
-        val sub = process(rqt.submission, rqt.submitter.asUser(), rqt.onBehalfUser?.asUser(), rqt.sources, rqt.method)
-        logger.info { "${sub.accNo} ${sub.submitter} Saving submission request ${sub.accNo}" }
-        return saveRequest(SubmissionRequest(sub, rqt.mode, rqt.draftKey), rqt.owner)
+
+    fun submit(rqt: SubmitRequest): ExtSubmission {
+        val submission = process(rqt)
+        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, rqt.mode, rqt.draftKey))
+        submissionSubmitter.processRequest(accNo, version)
+        return submission
     }
 
-    fun submitAsync(request: SubmissionRequest): Pair<String, Int> {
-        return saveRequest(request, request.submission.submitter)
-    }
-
-    fun processRequest(accNo: String, version: Int): ExtSubmission {
-        val rqt = submissionQueryService.getPendingRequest(accNo, version)
-        logger.info { "$accNo, ${rqt.submission.submitter} processing submission accNo='$accNo', version='$version'" }
-        return submissionPersistenceService.processSubmissionRequest(rqt)
-    }
-
-    fun release(request: ReleaseRequest) {
-        val (accNo, owner, relPath) = request
-        submissionPersistenceService.releaseSubmission(accNo, owner, relPath)
-    }
-
-    private fun saveRequest(request: SubmissionRequest, owner: String): Pair<String, Int> {
-        val saved = submissionPersistenceService.saveSubmissionRequest(request)
-        request.draftKey?.let { draftService.setProcessingStatus(owner, it) }
-        return saved
+    fun submitAsync(rqt: SubmitRequest): ExtSubmission {
+        val submission = process(rqt)
+        submissionSubmitter.submitAsync(SubmissionRequest(submission, rqt.mode, rqt.draftKey))
+        return submission
     }
 
     @Suppress("TooGenericExceptionCaught")
-    private fun process(
-        submission: Submission,
-        submitter: User,
-        onBehalfUser: User?,
-        source: FilesSource,
-        method: SubmissionMethod
-    ): ExtSubmission {
+    private fun process(rqt: SubmitRequest): ExtSubmission {
         try {
-            val extSubmission = processSubmission(submission, submitter, onBehalfUser, source, method)
-            parentInfoService.executeCollectionValidators(extSubmission)
-
-            return extSubmission
+            val (sub, submitter, sources, method, _, onBehalfUser, _) = rqt
+            val submission = process(sub, submitter.asUser(), onBehalfUser?.asUser(), sources, method)
+            parentInfoService.executeCollectionValidators(submission)
+            return submission
         } catch (exception: RuntimeException) {
-            logger.error(exception) { "Error processing submission request accNo='${submission.accNo}'" }
+            logger.error(exception) { "Error processing submission request accNo='${rqt.submission.accNo}'" }
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
     }
 
-    private fun processSubmission(
+    private fun process(
         submission: Submission,
         submitter: User,
         onBehalfUser: User?,
@@ -149,7 +121,7 @@ class SubmissionSubmitter(
             collections = tags.map { ExtCollection(it) },
             section = toExtSectionMapper.convert(submission.accNo, version, submission.section, source),
             attributes = submission.attributes.toExtAttributes(SUBMISSION_RESERVED_ATTRIBUTES),
-            storageMode = if (properties.persistence.enableFire) FIRE else NFS
+            storageMode = if (properties.persistence.enableFire) StorageMode.FIRE else StorageMode.NFS
         )
     }
 
@@ -162,7 +134,7 @@ class SubmissionSubmitter(
     }
 
     private fun getTags(parentTags: List<String>, collection: CollectionResponse?): List<String> {
-        val tags = parentTags.filter { it != PUBLIC_ACCESS_TAG.value }.toMutableList()
+        val tags = parentTags.filter { it != SubFields.PUBLIC_ACCESS_TAG.value }.toMutableList()
         if (collection != null) tags.add(collection.accessTag)
         return tags
     }
@@ -180,4 +152,5 @@ class SubmissionSubmitter(
 
     private fun getTimes(sub: Submission, creationTime: OffsetDateTime?, parentReleaseTime: OffsetDateTime?) =
         timesService.getTimes(TimesRequest(sub.accNo, sub.releaseDate, creationTime, parentReleaseTime))
+
 }

@@ -24,6 +24,11 @@ class EventsPublisherService(
     fun securityNotification(notification: SecurityNotification) =
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SECURITY_NOTIFICATIONS_ROUTING_KEY, notification)
 
+    fun submissionRequested(accNo: String, version: Int) =
+        rabbitTemplate.convertAndSend(
+            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, SubmissionRequestMessage(accNo, version)
+        )
+
     fun submissionSubmitted(submission: ExtSubmission) =
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, submissionMessage(submission.accNo, submission.owner)
@@ -39,18 +44,15 @@ class EventsPublisherService(
 
     fun submissionsRefresh(accNo: String, owner: String) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE,
-            SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY,
-            submissionMessage(accNo, owner)
+            BIOSTUDIES_EXCHANGE, SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY, submissionMessage(accNo, owner)
         )
 
-    fun submissionRequest(accNo: String, version: Int) = rabbitTemplate.convertAndSend(
-        BIOSTUDIES_EXCHANGE,
-        SUBMISSIONS_REQUEST_ROUTING_KEY,
-        SubmissionRequestMessage(accNo, version)
-    )
+    fun submissionRequest(accNo: String, version: Int) =
+        rabbitTemplate.convertAndSend(
+            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, SubmissionRequestMessage(accNo, version)
+        )
 
-    fun submissionMessage(accNo: String, owner: String): SubmissionMessage {
+    private fun submissionMessage(accNo: String, owner: String): SubmissionMessage {
         return SubmissionMessage(
             accNo = accNo,
             pagetabUrl = "${eventsProperties.instanceBaseUrl}/submissions/$accNo.json",

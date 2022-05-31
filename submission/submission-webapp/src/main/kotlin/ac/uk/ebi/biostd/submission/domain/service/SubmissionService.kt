@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDelete
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotRelease
 import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
+import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
 import ebi.ac.uk.extended.events.SubmissionRequestMessage
@@ -21,9 +22,6 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitListener
-import org.springframework.amqp.rabbit.core.RabbitTemplate
-import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
-import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
 import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
@@ -33,25 +31,23 @@ class SubmissionService(
     private val submissionQueryService: SubmissionQueryService,
     private val serializationService: SerializationService,
     private val userPrivilegesService: IUserPrivilegesService,
+    private val extSubmissionSubmitter: ExtSubmissionSubmitter,
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
-    private val rabbitTemplate: RabbitTemplate,
     private val toSubmissionMapper: ToSubmissionMapper,
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
-        val (accNo, version) = submissionSubmitter.submitAsync(rqt)
-        return processSubmission(accNo, version)
+        logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request for submission ${rqt.accNo}" }
+        val submission = submissionSubmitter.submit(rqt)
+        eventsPublisherService.submissionSubmitted(submission)
+        return submission
     }
 
     fun submitAsync(rqt: SubmitRequest) {
         logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request for submission ${rqt.accNo}" }
 
         val (accNo, version) = submissionSubmitter.submitAsync(rqt)
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE,
-            SUBMISSIONS_REQUEST_ROUTING_KEY,
-            SubmissionRequestMessage(accNo, version)
-        )
+        eventsPublisherService.submissionRequested(accNo, version)
     }
 
     @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "1-2")
@@ -62,7 +58,7 @@ class SubmissionService(
     }
 
     private fun processSubmission(accNo: String, version: Int): ExtSubmission {
-        val processed = submissionSubmitter.processRequest(accNo, version)
+        val processed = extSubmissionSubmitter.processRequest(accNo, version)
         eventsPublisherService.submissionSubmitted(processed)
         return processed
     }
@@ -105,6 +101,6 @@ class SubmissionService(
 
     fun releaseSubmission(request: ReleaseRequest, user: SecurityUser) {
         require(userPrivilegesService.canRelease(user.email)) { throw UserCanNotRelease(request.accNo, user.email) }
-        submissionSubmitter.release(request)
+        extSubmissionSubmitter.release(request)
     }
 }

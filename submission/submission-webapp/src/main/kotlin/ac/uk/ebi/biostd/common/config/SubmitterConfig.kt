@@ -10,10 +10,13 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesService
+import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.submitter.RequestProcessor
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
@@ -38,27 +41,45 @@ import java.nio.file.Paths
 @Import(ServiceConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class, SerializationConfiguration::class)
 class SubmitterConfig {
     @Bean
+    fun requestProcessor(
+        submissionPersistenceService: SubmissionPersistenceService,
+        submissionQueryService: SubmissionQueryService,
+        fileProcessingService: FileProcessingService,
+    ): RequestProcessor = RequestProcessor(
+        submissionPersistenceService,
+        submissionQueryService,
+        fileProcessingService
+    )
+
+    @Bean
+    fun extSubmissionSubmitter(
+        persistenceService: SubmissionPersistenceService,
+        submissionDraftService: SubmissionDraftService,
+        requestProcessor: RequestProcessor,
+    ) = ExtSubmissionSubmitter(
+        persistenceService,
+        submissionDraftService,
+        requestProcessor,
+    )
+
+    @Bean
     fun submissionSubmitter(
+        submissionSubmitter: ExtSubmissionSubmitter,
         timesService: TimesService,
         accNoService: AccNoService,
         parentInfoService: ParentInfoService,
         collectionInfoService: CollectionInfoService,
-        persistenceService: SubmissionPersistenceService,
-        submissionMetadataQueryService: SubmissionMetaQueryService,
-        submissionQueryService: SubmissionQueryService,
-        submissionDraftService: SubmissionDraftService,
-        applicationProperties: ApplicationProperties,
-        toExtSectionMapper: ToExtSectionMapper,
+        queryService: SubmissionMetaQueryService,
+        properties: ApplicationProperties,
+        toExtSectionMapper: ToExtSectionMapper
     ) = SubmissionSubmitter(
+        submissionSubmitter,
         timesService,
         accNoService,
         parentInfoService,
         collectionInfoService,
-        persistenceService,
-        submissionMetadataQueryService,
-        submissionQueryService,
-        submissionDraftService,
-        applicationProperties,
+        queryService,
+        properties,
         toExtSectionMapper
     )
 

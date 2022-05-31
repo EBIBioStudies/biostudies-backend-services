@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.CollectionService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
+import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
@@ -17,7 +18,6 @@ import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
-import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -36,23 +36,23 @@ class SubmissionConfig(
         subRepository: SubmissionQueryService,
         serializationService: SerializationService,
         userPrivilegeService: IUserPrivilegesService,
+        extSubmissionSubmitter: ExtSubmissionSubmitter,
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
-        myRabbitTemplate: RabbitTemplate,
         toSubmissionMapper: ToSubmissionMapper
     ): SubmissionService = SubmissionService(
         subRepository,
         serializationService,
         userPrivilegeService,
+        extSubmissionSubmitter,
         submissionSubmitter,
         eventsPublisherService,
-        myRabbitTemplate,
         toSubmissionMapper
     )
 
     @Bean
     fun extSubmissionService(
-        submissionSubmitter: SubmissionSubmitter,
+        submissionSubmitter: ExtSubmissionSubmitter,
         subRepository: SubmissionQueryService,
         userPrivilegeService: IUserPrivilegesService,
         securityQueryService: ISecurityQueryService,

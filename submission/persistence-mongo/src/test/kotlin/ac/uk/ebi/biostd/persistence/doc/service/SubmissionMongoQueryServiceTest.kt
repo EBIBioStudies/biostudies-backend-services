@@ -20,7 +20,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either.Companion.left
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
@@ -70,7 +69,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmiss
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 internal class SubmissionMongoQueryServiceTest(
     private val tempFolder: TemporaryFolder,
-    @MockK private val fileProcessingService: FileProcessingService,
     @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
     @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
@@ -84,7 +82,6 @@ internal class SubmissionMongoQueryServiceTest(
             fileListDocFileRepository,
             serializationService,
             toExtSubmissionMapper,
-            fileProcessingService
         )
 
     @AfterEach

@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
-import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
@@ -37,7 +37,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 @ExtendWith(MockKExtension::class)
 class ExtSubmissionServiceTest(
-    @MockK private val submissionSubmitter: SubmissionSubmitter,
+    @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
     @MockK private val submissionRepository: SubmissionQueryService,
     @MockK private val userPrivilegesService: IUserPrivilegesService,
     @MockK private val securityQueryService: ISecurityQueryService,
