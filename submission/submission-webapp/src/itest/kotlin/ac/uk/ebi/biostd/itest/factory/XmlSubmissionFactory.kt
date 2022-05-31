@@ -9,7 +9,75 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.redundent.kotlin.xml.XmlVersion.V10
+import org.redundent.kotlin.xml.xml
 import org.xmlunit.matchers.EvaluateXPathMatcher.hasXPath
+
+internal val expectedAllInOneXmlFileList = xml("table") {
+    "file" {
+        attribute("size", 9)
+        "path" { -"DataFile5.txt" }
+        "type" { -"file" }
+        "attributes" {
+            "attribute" {
+                "name" { -"Type" }
+                "value" { -"referenced" }
+            }
+            "attribute" {
+                "name" { -"md5" }
+                "value" { -"3F57CF2A5D7C2E6E46B52D26EA72621C" }
+            }
+        }
+    }
+    "file" {
+        attribute("size", 9)
+        "path" { -"Folder1/DataFile6.txt" }
+        "type" { -"file" }
+        "attributes" {
+            "attribute" {
+                "name" { -"Type" }
+                "value" { -"referenced" }
+            }
+            "attribute" {
+                "name" { -"md5" }
+                "value" { -"838559E92C5A52DEF29B9484C32DDCBB" }
+            }
+        }
+    }
+}
+
+internal val expectedAllInOneXmlInnerFileList = xml("table") {
+    "file" {
+        attribute("size", 9)
+        "path" { -"DataFile7.txt" }
+        "type" { -"file" }
+        "attributes" {
+            "attribute" {
+                "name" { -"Type" }
+                "value" { -"referenced" }
+            }
+            "attribute" {
+                "name" { -"md5" }
+                "value" { -"8723FD7A2E31D56966F94616ADF799B1" }
+            }
+        }
+    }
+    "file" {
+        attribute("size", 9)
+        "path" { -"Folder1/DataFile8.txt" }
+        "type" { -"file" }
+        "attributes" {
+            "attribute" {
+                "name" { -"Type" }
+                "value" { -"referenced" }
+            }
+            "attribute" {
+                "name" { -"md5" }
+                "value" { -"51F996F04CF87844A8BBFCD9E440AAEC" }
+            }
+        }
+    }
+}
 
 fun assertAllInOneSubmissionXml(xml: String, accNo: String) {
     assertThat(xml, hasXPath("//submission/@accno", equalTo(accNo)))

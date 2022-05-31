@@ -93,3 +93,17 @@ fun assertAllInOneSubmissionTsv(tsv: String, accNo: String) {
 private fun assertTsvBlock(lines: List<String>, from: Int, to: Int, expected: Tsv) {
     assertThat(lines.subList(from - 1, to).joinToString("\n")).isEqualTo(expected.toString())
 }
+
+internal val expectedAllInOneTsvFileList = tsv {
+    line("Files", "Type", "md5")
+    line("DataFile5.txt", "referenced", "3F57CF2A5D7C2E6E46B52D26EA72621C")
+    line("Folder1/DataFile6.txt", "referenced", "838559E92C5A52DEF29B9484C32DDCBB")
+    line()
+}
+
+internal val expectedAllInOneTsvInnerFileList = tsv {
+    line("Files", "Type", "md5")
+    line("DataFile7.txt", "referenced", "8723FD7A2E31D56966F94616ADF799B1")
+    line("Folder1/DataFile8.txt", "referenced", "51F996F04CF87844A8BBFCD9E440AAEC")
+    line()
+}
