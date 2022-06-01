@@ -9,7 +9,6 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
-import org.redundent.kotlin.xml.XmlVersion.V10
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.matchers.EvaluateXPathMatcher.hasXPath
 

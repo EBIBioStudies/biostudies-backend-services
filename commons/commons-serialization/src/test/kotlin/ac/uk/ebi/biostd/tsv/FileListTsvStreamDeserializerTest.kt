@@ -55,20 +55,11 @@ class FileListTsvStreamDeserializerTest(
 
     @Test
     fun `serialize - deserialize FileList`() {
-        fun bioFile(it: Int) =
+        var idx = 0
+        fun bioFile(it: Int): BioFile =
             BioFile("folder/file$it.txt", attributes = listOf(Attribute("Attr1", "A$it"), Attribute("Attr2", "B$it")))
 
-        var idx = -1
-        val files = object : Sequence<BioFile> {
-            override fun iterator(): Iterator<BioFile> = object : Iterator<BioFile> {
-                override fun hasNext(): Boolean = idx < 20_000
-
-                override fun next(): BioFile {
-                    idx++
-                    return bioFile(idx)
-                }
-            }
-        }
+        val files = sequence { yield(bioFile(idx++)) }
 
         fileSystem.outputStream().use { testInstance.serializeFileList(files, it) }
 
