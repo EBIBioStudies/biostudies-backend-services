@@ -55,8 +55,8 @@ class AllInOneSubmissionTest(
         webClient.submitSingle(submission.readText(), TSV)
 
         allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
-        if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
-        else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
+        if (enableFire) allInOneSubmissionHelper.assertFirePagetabFiles("S-EPMC124")
+        else allInOneSubmissionHelper.assertNfsPagetabFiles("S-EPMC124")
     }
 
     @Test
@@ -69,8 +69,8 @@ class AllInOneSubmissionTest(
         webClient.submitSingle(submission.readText(), JSON)
 
         allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
-        if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC125")
-        else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC125")
+        if (enableFire) allInOneSubmissionHelper.assertFirePagetabFiles("S-EPMC125")
+        else allInOneSubmissionHelper.assertNfsPagetabFiles("S-EPMC125")
     }
 
     @Test
@@ -83,7 +83,7 @@ class AllInOneSubmissionTest(
         webClient.submitSingle(submission.readText(), XML)
 
         allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126")
-        if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC126")
-        else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC126")
+        if (enableFire) allInOneSubmissionHelper.assertFirePagetabFiles("S-EPMC126")
+        else allInOneSubmissionHelper.assertNfsPagetabFiles("S-EPMC126")
     }
 }
