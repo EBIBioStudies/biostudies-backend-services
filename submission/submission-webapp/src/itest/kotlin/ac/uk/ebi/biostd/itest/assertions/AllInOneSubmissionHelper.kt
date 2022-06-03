@@ -13,7 +13,6 @@ import ac.uk.ebi.biostd.itest.factory.expectedAllInOneXmlInnerFileList
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import arrow.core.Either
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.FireFile
@@ -41,7 +40,6 @@ internal class AllInOneSubmissionHelper(
     ) {
         val extendedSubmission = submissionRepository.getExtByAccNo(accNo)
 
-        assertThat(extendedSubmission.status).isEqualTo(ExtProcessingStatus.PROCESSED)
         assertThat(extendedSubmission.method).isEqualTo(method)
         assertThat(toSubmissionMapper.toSimpleSubmission(extendedSubmission)).isEqualTo(allInOneSubmission(accNo))
         assertSubmissionFiles(extendedSubmission)

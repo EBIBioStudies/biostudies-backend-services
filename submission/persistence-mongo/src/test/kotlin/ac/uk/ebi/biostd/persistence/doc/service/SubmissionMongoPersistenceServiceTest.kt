@@ -64,7 +64,7 @@ class SubmissionMongoPersistenceServiceTest(
 
             val fileList = defaultFileList(files = listOf(defaultNfsFile()))
             val newVersion = defaultSubmission(version = 1, section = defaultSection(fileList = fileList))
-            val expectedNewVersion = newVersion.copy(version = 2, status = ExtProcessingStatus.REQUESTED)
+            val expectedNewVersion = newVersion.copy(version = 2)
             val outputStream = slot<OutputStream>()
             val sequence = slot<Sequence<ExtFile>>()
 

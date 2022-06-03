@@ -17,14 +17,12 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SCHEMA_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECRET_KEY
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
@@ -79,7 +77,6 @@ internal class SubmissionConverterTest(
         assertThat(result[SUB_ROOT_PATH]).isEqualTo(submissionRootPath)
         assertThat(result[SUB_RELEASED]).isEqualTo(submissionReleased)
         assertThat(result[SUB_SECRET_KEY]).isEqualTo(submissionSecretKey)
-        assertThat(result[SUB_STATUS]).isEqualTo(DocProcessingStatus.PROCESSED.value)
         assertThat(result[SUB_RELEASE_TIME]).isEqualTo(submissionReleaseTime)
         assertThat(result[SUB_MODIFICATION_TIME]).isEqualTo(submissionModificationTime)
         assertThat(result[SUB_CREATION_TIME]).isEqualTo(submissionCreationTime)
@@ -121,7 +118,6 @@ internal class SubmissionConverterTest(
             rootPath = submissionRootPath,
             released = submissionReleased,
             secretKey = submissionSecretKey,
-            status = DocProcessingStatus.PROCESSED,
             releaseTime = submissionReleaseTime,
             modificationTime = submissionModificationTime,
             creationTime = submissionCreationTime,

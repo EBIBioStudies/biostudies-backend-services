@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.persistence.doc.test.doc
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttributeDetail
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
@@ -64,7 +63,6 @@ internal val testDocSubmission: DocSubmission
         rootPath = ROOT_PATH,
         released = false,
         secretKey = SECRET_KEY,
-        status = PROCESSED,
         releaseTime = RELEASE_TIME.truncatedTo(ChronoUnit.MILLIS),
         modificationTime = MODIFICATION_TIME.truncatedTo(ChronoUnit.MILLIS),
         creationTime = CREATION_TIME.truncatedTo(ChronoUnit.MILLIS),

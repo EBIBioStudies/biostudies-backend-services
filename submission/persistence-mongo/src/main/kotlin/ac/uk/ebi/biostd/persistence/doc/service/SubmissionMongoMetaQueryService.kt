@@ -1,13 +1,14 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.CollectionWithoutPatternException
 import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
-import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
-import ac.uk.ebi.biostd.persistence.common.exception.CollectionWithoutPatternException
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.constants.SubFields.ACC_NO_TEMPLATE
 import ebi.ac.uk.model.constants.SubFields.COLLECTION_VALIDATOR
@@ -25,7 +26,7 @@ class SubmissionMongoMetaQueryService(
     }
 
     override fun findLatestBasicByAccNo(accNo: String): BasicSubmission? =
-        submissionRepository.findFirstByAccNoOrderByVersionDesc(accNo)?.asBasicSubmission()
+        submissionRepository.findFirstByAccNoOrderByVersionDesc(accNo)?.asBasicSubmission(PROCESSED)
 
     override fun getAccessTags(accNo: String): List<String> =
         submissionRepository.getCollections(accNo).map { it.accNo }

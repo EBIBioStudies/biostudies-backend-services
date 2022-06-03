@@ -3,12 +3,12 @@ package ac.uk.ebi.biostd.persistence.doc.test.doc.ext
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.StorageMode
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -86,7 +86,6 @@ val fullExtSubmission = ExtSubmission(
     rootPath = SUBMISSION_ROOT_PATH,
     released = SUBMISSION_RELEASED,
     secretKey = SUBMISSION_SECRET_KEY,
-    status = SUBMISSION_STATUS,
     releaseTime = RELEASE_TIME,
     modificationTime = MODIFICATION_TIME,
     creationTime = CREATION_TIME,

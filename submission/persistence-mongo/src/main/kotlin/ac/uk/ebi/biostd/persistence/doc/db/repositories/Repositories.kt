@@ -18,7 +18,7 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     fun findByAccNo(accNo: String): DocSubmission?
 
-    @Query("{ 'accNo': '?0', 'version': { \$gte: 0 }, 'status': 'PROCESSED' }")
+    @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     fun findLatestByAccNo(accNo: String): DocSubmission?
 
     fun existsByAccNo(accNo: String): Boolean
@@ -47,6 +47,11 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
         version: Int,
         status: SubmissionRequestStatus
     ): DocSubmissionRequest
+
+    fun existsByAccNoAndStatusIn(
+        accNo: String,
+        status: Set<SubmissionRequestStatus>
+    ): Boolean
 }
 
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {

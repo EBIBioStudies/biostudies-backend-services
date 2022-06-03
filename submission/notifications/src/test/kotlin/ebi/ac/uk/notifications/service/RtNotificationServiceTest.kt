@@ -2,7 +2,6 @@ package ebi.ac.uk.notifications.service
 
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtCollection
-import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
@@ -302,7 +301,6 @@ internal class RtNotificationServiceTest(
         rootPath = "/a/root/path",
         released = released,
         secretKey = "a-secret-key",
-        status = ExtProcessingStatus.PROCESSED,
         releaseTime = releaseTime,
         modificationTime = OffsetDateTime.of(2019, 9, 20, 10, 30, 34, 15, ZoneOffset.UTC),
         creationTime = OffsetDateTime.of(2019, 9, 19, 10, 30, 34, 15, ZoneOffset.UTC),

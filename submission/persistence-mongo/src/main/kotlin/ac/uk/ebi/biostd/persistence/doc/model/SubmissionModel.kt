@@ -32,7 +32,6 @@ data class DocSubmission(
     val rootPath: String?,
     val released: Boolean,
     val secretKey: String,
-    val status: DocProcessingStatus,
     val releaseTime: Instant?,
     val modificationTime: Instant,
     val creationTime: Instant,

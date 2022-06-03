@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.persistence.filesystem
 
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtFileList
-import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
@@ -27,7 +26,6 @@ fun extSubmissionWithFileList(files: List<File>, referencedFiles: List<File>) =
         rootPath = null,
         released = false,
         secretKey = "a-secret-key",
-        status = ExtProcessingStatus.PROCESSED,
         releaseTime = null,
         modificationTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC),
         creationTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, ZoneOffset.UTC),
