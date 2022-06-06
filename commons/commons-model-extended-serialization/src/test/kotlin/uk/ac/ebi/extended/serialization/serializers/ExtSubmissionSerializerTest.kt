@@ -14,14 +14,13 @@ import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -80,7 +79,6 @@ class ExtSubmissionSerializerTest {
                 "rootPath" to "/a/root/path"
                 "released" to released
                 "secretKey" to "a-secret-key"
-                "status" to ExtProcessingStatus.PROCESSED
                 "releaseTime" to "2019-09-21T10:30:34.000000015Z"
                 "modificationTime" to "2020-09-21T10:30:34.000000015Z"
                 "creationTime" to "2018-09-21T10:30:34.000000015Z"
@@ -155,7 +153,6 @@ class ExtSubmissionSerializerTest {
                 rootPath = "/a/root/path",
                 released = released,
                 secretKey = "a-secret-key",
-                status = ExtProcessingStatus.PROCESSED,
                 releaseTime = releaseTime,
                 modificationTime = modificationTime,
                 creationTime = creationTime,

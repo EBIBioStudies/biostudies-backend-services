@@ -14,7 +14,6 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.ExtCollection
-import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -63,7 +62,6 @@ class ExtCollectionSubmitTest(
         val submittedProject = submissionRepository.getExtByAccNo("PrivateProject")
         assertThat(submittedProject.accNo).isEqualTo("PrivateProject")
         assertThat(submittedProject.title).isEqualTo("A Private Project")
-        assertThat(submittedProject.status).isEqualTo(PROCESSED)
 
         assertThat(submittedProject.collections).hasSize(1)
         assertThat(submittedProject.collections.first().accNo).isEqualTo("PrivateProject")
@@ -89,7 +87,6 @@ class ExtCollectionSubmitTest(
         val submittedProject = submissionRepository.getExtByAccNo("PublicProject")
         assertThat(submittedProject.accNo).isEqualTo("PublicProject")
         assertThat(submittedProject.title).isEqualTo("Public Project")
-        assertThat(submittedProject.status).isEqualTo(PROCESSED)
         assertThat(submittedProject.collections).containsExactly(ExtCollection("PublicProject"))
         assertThat(tagsDataRepository.existsByName("PublicProject")).isTrue
         assertThat(sequenceRepository.existsByPrefix("S-PUB-EXT")).isTrue

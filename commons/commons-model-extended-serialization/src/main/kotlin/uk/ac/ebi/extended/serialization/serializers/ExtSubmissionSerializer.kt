@@ -13,18 +13,17 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.CREATIO
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.METHOD
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.MOD_TIME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.OWNER
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.PAGE_TAB_FILES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.RELEASED
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.RELEASE_TIME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.REL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ROOT_PATH
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SCHEMA_VERSION
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECRET_KEY
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTION
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.STATS
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.STATUS
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SUBMITTER
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.PAGE_TAB_FILES
-import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SCHEMA_VERSION
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.STORAGE_MODE
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SUBMITTER
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TAGS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TITLE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.VERSION
@@ -45,7 +44,6 @@ class ExtSubmissionSerializer : JsonSerializer<ExtSubmission>() {
         gen.writeStringField(ROOT_PATH, submission.rootPath)
         gen.writeBooleanField(RELEASED, submission.released)
         gen.writeStringField(SECRET_KEY, submission.secretKey)
-        gen.writeObjectField(STATUS, submission.status)
         gen.writeObjectField(RELEASE_TIME, submission.releaseTime)
         gen.writeObjectField(MOD_TIME, submission.modificationTime)
         gen.writeObjectField(CREATION_TIME, submission.creationTime)

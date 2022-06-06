@@ -35,6 +35,9 @@ class ExtSubmissionService(
     private val properties: ApplicationProperties,
     private val eventsPublisherService: EventsPublisherService
 ) {
+
+    fun hasPendingRequest(accNo: String): Boolean = submissionQueryService.hasPendingRequest(accNo)
+
     fun getExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission =
         submissionQueryService.getExtByAccNo(accNo, includeFileListFiles)
 

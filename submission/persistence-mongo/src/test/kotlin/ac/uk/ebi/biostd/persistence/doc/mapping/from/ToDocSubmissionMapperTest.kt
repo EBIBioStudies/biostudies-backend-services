@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
@@ -246,7 +245,6 @@ class ToDocSubmissionMapperTest(
         assertThat(docSubmission.rootPath).isEqualTo(SUBMISSION_ROOT_PATH)
         assertThat(docSubmission.released).isEqualTo(SUBMISSION_RELEASED)
         assertThat(docSubmission.secretKey).isEqualTo(SUBMISSION_SECRET_KEY)
-        assertThat(docSubmission.status).isEqualTo(DocProcessingStatus.PROCESSED)
         assertThat(docSubmission.releaseTime).isEqualTo(RELEASE_TIME.toInstant())
         assertThat(docSubmission.modificationTime).isEqualTo(MODIFICATION_TIME.toInstant())
         assertThat(docSubmission.creationTime).isEqualTo(CREATION_TIME.toInstant())

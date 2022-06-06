@@ -11,6 +11,7 @@ data class SubmissionFilter(
     val keywords: String? = null,
     val released: Boolean? = null,
     val collection: String? = null,
+    val notIncludeAccNo: Set<String>? = null,
     override val limit: Int = 15,
     override val offset: Long = 0
 ) : PaginationFilter(limit, offset)

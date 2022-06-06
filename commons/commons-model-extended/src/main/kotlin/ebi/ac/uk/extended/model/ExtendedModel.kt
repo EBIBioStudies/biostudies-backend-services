@@ -129,7 +129,6 @@ data class ExtSubmission(
     val rootPath: String?,
     val released: Boolean,
     val secretKey: String,
-    val status: ExtProcessingStatus,
     val releaseTime: OffsetDateTime?,
     val modificationTime: OffsetDateTime,
     val creationTime: OffsetDateTime,
