@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -24,7 +23,6 @@ private val logger = KotlinLogging.logger {}
 class ExtSubmissionService(
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val queryService: SubmissionPersistenceQueryService,
-    private val persistenceService: SubmissionPersistenceService,
     private val privilegesService: IUserPrivilegesService,
     private val securityService: ISecurityQueryService,
     private val properties: ApplicationProperties,

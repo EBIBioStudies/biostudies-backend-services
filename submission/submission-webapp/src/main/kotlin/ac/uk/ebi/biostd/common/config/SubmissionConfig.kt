@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.CollectionService
@@ -61,23 +60,21 @@ class SubmissionConfig(
 
     @Bean
     fun extSubmissionQueryService(
-        submissionPersistenceQueryService: SubmissionPersistenceQueryService
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
     ): ExtSubmissionQueryService = ExtSubmissionQueryService(submissionPersistenceQueryService)
 
     @Bean
     fun extSubmissionService(
         submissionSubmitter: ExtSubmissionSubmitter,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
-        persistenceService: SubmissionPersistenceService,
         userPrivilegeService: IUserPrivilegesService,
         securityQueryService: ISecurityQueryService,
         properties: ApplicationProperties,
-        eventsPublisherService: EventsPublisherService
+        eventsPublisherService: EventsPublisherService,
     ): ExtSubmissionService =
         ExtSubmissionService(
             submissionSubmitter,
             submissionPersistenceQueryService,
-            persistenceService,
             userPrivilegeService,
             securityQueryService,
             properties,
@@ -87,7 +84,7 @@ class SubmissionConfig(
     @Bean
     fun projectService(
         collectionSqlDataService: CollectionDataService,
-        userPrivilegeService: IUserPrivilegesService
+        userPrivilegeService: IUserPrivilegesService,
     ): CollectionService = CollectionService(collectionSqlDataService, userPrivilegeService)
 
     @Bean
@@ -96,7 +93,7 @@ class SubmissionConfig(
         userFilesService: UserFilesService,
         extSubmissionQueryService: ExtSubmissionQueryService,
         toSubmissionMapper: ToSubmissionMapper,
-        onBehalfUtils: OnBehalfUtils
+        onBehalfUtils: OnBehalfUtils,
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
@@ -111,7 +108,7 @@ class SubmissionConfig(
     @Bean
     fun submissionHandler(
         submissionService: SubmissionService,
-        submissionQueryService: SubmissionQueryService
+        submissionQueryService: SubmissionQueryService,
     ): SubmissionsWebHandler = SubmissionsWebHandler(submissionService, submissionQueryService)
 
     @Bean
