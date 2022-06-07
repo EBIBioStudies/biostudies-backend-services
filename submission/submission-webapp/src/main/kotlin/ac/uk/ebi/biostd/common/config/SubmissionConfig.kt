@@ -4,12 +4,14 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.CollectionService
+import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
@@ -30,31 +32,42 @@ import java.net.URI
 @Import(value = [PersistenceConfig::class, SecurityBeansConfig::class])
 class SubmissionConfig(
     private val sourceGenerator: SourceGenerator,
-    private val serializationService: SerializationService
+    private val serializationService: SerializationService,
 ) {
+
+    @Bean
+    fun submissionQueryService(
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+        serializationService: SerializationService,
+        toSubmissionMapper: ToSubmissionMapper,
+    ): SubmissionQueryService = SubmissionQueryService(
+        submissionPersistenceQueryService, serializationService, toSubmissionMapper
+    )
+
     @Bean
     fun submissionService(
-        subRepository: SubmissionQueryService,
-        serializationService: SerializationService,
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         userPrivilegeService: IUserPrivilegesService,
         extSubmissionSubmitter: ExtSubmissionSubmitter,
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
-        toSubmissionMapper: ToSubmissionMapper
     ): SubmissionService = SubmissionService(
-        subRepository,
-        serializationService,
+        submissionPersistenceQueryService,
         userPrivilegeService,
         extSubmissionSubmitter,
         submissionSubmitter,
         eventsPublisherService,
-        toSubmissionMapper
     )
+
+    @Bean
+    fun extSubmissionQueryService(
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService
+    ): ExtSubmissionQueryService = ExtSubmissionQueryService(submissionPersistenceQueryService)
 
     @Bean
     fun extSubmissionService(
         submissionSubmitter: ExtSubmissionSubmitter,
-        subRepository: SubmissionQueryService,
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         persistenceService: SubmissionPersistenceService,
         userPrivilegeService: IUserPrivilegesService,
         securityQueryService: ISecurityQueryService,
@@ -63,7 +76,7 @@ class SubmissionConfig(
     ): ExtSubmissionService =
         ExtSubmissionService(
             submissionSubmitter,
-            subRepository,
+            submissionPersistenceQueryService,
             persistenceService,
             userPrivilegeService,
             securityQueryService,
@@ -81,13 +94,13 @@ class SubmissionConfig(
     fun submitHandler(
         submissionService: SubmissionService,
         userFilesService: UserFilesService,
-        extSubmissionService: ExtSubmissionService,
+        extSubmissionQueryService: ExtSubmissionQueryService,
         toSubmissionMapper: ToSubmissionMapper,
         onBehalfUtils: OnBehalfUtils
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
-            extSubmissionService,
+            extSubmissionQueryService,
             sourceGenerator,
             serializationService,
             userFilesService,
@@ -96,8 +109,10 @@ class SubmissionConfig(
         )
 
     @Bean
-    fun submissionHandler(submissionService: SubmissionService): SubmissionsWebHandler =
-        SubmissionsWebHandler(submissionService)
+    fun submissionHandler(
+        submissionService: SubmissionService,
+        submissionQueryService: SubmissionQueryService
+    ): SubmissionsWebHandler = SubmissionsWebHandler(submissionService, submissionQueryService)
 
     @Bean
     fun extPageMapper(properties: ApplicationProperties) = ExtendedPageMapper(URI.create(properties.instanceBaseUrl))

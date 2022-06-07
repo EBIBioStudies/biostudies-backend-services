@@ -19,7 +19,7 @@ interface SubmissionPersistenceService {
 }
 
 @Suppress("TooManyFunctions")
-interface SubmissionQueryService {
+interface SubmissionPersistenceQueryService {
     fun existByAccNo(accNo: String): Boolean
 
     fun hasPendingRequest(accNo: String): Boolean

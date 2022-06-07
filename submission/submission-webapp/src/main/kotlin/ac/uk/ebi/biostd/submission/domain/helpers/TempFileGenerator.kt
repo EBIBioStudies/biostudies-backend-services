@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.domain.service
+package ac.uk.ebi.biostd.submission.domain.helpers
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import org.apache.commons.io.FilenameUtils

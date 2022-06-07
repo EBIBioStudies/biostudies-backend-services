@@ -9,7 +9,7 @@ import ac.uk.ebi.biostd.itest.common.TestCollectionValidator
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
@@ -36,7 +36,7 @@ import kotlin.test.assertFailsWith
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionToCollectionsTest(
     @Autowired private val securityTestService: SecurityTestService,
-    @Autowired private val submissionRepository: SubmissionQueryService,
+    @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired private val testCollectionValidator: TestCollectionValidator,
     @Autowired private val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int,

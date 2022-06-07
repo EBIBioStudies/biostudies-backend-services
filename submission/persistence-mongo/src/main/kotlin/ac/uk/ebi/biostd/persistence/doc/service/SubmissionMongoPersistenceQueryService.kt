@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
@@ -14,18 +14,20 @@ import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.max
 
 @Suppress("TooManyFunctions")
-internal class SubmissionMongoQueryService(
+internal class SubmissionMongoPersistenceQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
     private val requestRepository: SubmissionRequestDocDataRepository,
     private val fileListDocFileRepository: FileListDocFileRepository,
     private val serializationService: ExtSerializationService,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
-) : SubmissionQueryService {
+) : SubmissionPersistenceQueryService {
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
 
     override fun hasPendingRequest(accNo: String): Boolean =

@@ -13,7 +13,7 @@ import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
@@ -63,7 +63,7 @@ import kotlin.test.assertFailsWith
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionApiTest(
     @Autowired val securityTestService: SecurityTestService,
-    @Autowired val submissionRepository: SubmissionQueryService,
+    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val sequenceRepository: SequenceDataRepository,
     @Autowired val tagsRefRepository: TagDataRepository,
     @Autowired val userDataRepository: UserDataRepository,

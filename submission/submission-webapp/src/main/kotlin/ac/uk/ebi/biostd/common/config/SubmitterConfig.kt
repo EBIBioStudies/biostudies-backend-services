@@ -7,8 +7,8 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -43,11 +43,11 @@ class SubmitterConfig {
     @Bean
     fun requestProcessor(
         submissionPersistenceService: SubmissionPersistenceService,
-        submissionQueryService: SubmissionQueryService,
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         fileProcessingService: FileProcessingService,
     ): RequestProcessor = RequestProcessor(
         submissionPersistenceService,
-        submissionQueryService,
+        submissionPersistenceQueryService,
         fileProcessingService
     )
 

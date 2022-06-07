@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.submission.converters.BioUser
-import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
+import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest

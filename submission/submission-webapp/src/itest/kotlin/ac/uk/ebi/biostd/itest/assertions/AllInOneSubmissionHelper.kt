@@ -10,7 +10,7 @@ import ac.uk.ebi.biostd.itest.factory.expectedAllInOneTsvFileList
 import ac.uk.ebi.biostd.itest.factory.expectedAllInOneTsvInnerFileList
 import ac.uk.ebi.biostd.itest.factory.expectedAllInOneXmlFileList
 import ac.uk.ebi.biostd.itest.factory.expectedAllInOneXmlInnerFileList
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import arrow.core.Either
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -30,7 +30,7 @@ import java.nio.file.Paths
 
 internal class AllInOneSubmissionHelper(
     private val submissionPath: File,
-    private val submissionRepository: SubmissionQueryService,
+    private val submissionRepository: SubmissionPersistenceQueryService,
     private val toSubmissionMapper: ToSubmissionMapper
 ) {
 

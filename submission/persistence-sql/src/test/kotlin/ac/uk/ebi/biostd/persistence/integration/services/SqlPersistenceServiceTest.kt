@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.integration.services
 
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.SequenceNotFoundException
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -21,14 +21,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class SqlPersistenceServiceTest(
     @MockK private val sequenceRepository: SequenceDataRepository,
     @MockK private val accessTagsDataRepository: AccessTagDataRepo,
-    @MockK private val submissionQueryService: SubmissionQueryService
+    @MockK private val submissionPersistenceQueryService: SubmissionPersistenceQueryService
 ) {
     private val lockExecutor = MockLockExecutor()
     private val testInstance = SqlPersistenceService(
         sequenceRepository,
         accessTagsDataRepository,
         lockExecutor,
-        submissionQueryService
+        submissionPersistenceQueryService
     )
 
     @AfterEach
@@ -39,7 +39,7 @@ internal class SqlPersistenceServiceTest(
         val sequence = DbSequence("S-BSST")
 
         mockSequenceRepository(sequence)
-        every { submissionQueryService.existByAccNo("S-BSST0") } returns false
+        every { submissionPersistenceQueryService.existByAccNo("S-BSST0") } returns false
 
         assertThat(testInstance.getSequenceNextValue("S-BSST")).isEqualTo(0)
         verify(exactly = 1) { sequenceRepository.save(sequence) }
@@ -50,9 +50,9 @@ internal class SqlPersistenceServiceTest(
         val sequence = DbSequence("S-BSST")
 
         mockSequenceRepository(sequence)
-        every { submissionQueryService.existByAccNo("S-BSST0") } returns true
-        every { submissionQueryService.existByAccNo("S-BSST1") } returns true
-        every { submissionQueryService.existByAccNo("S-BSST2") } returns false
+        every { submissionPersistenceQueryService.existByAccNo("S-BSST0") } returns true
+        every { submissionPersistenceQueryService.existByAccNo("S-BSST1") } returns true
+        every { submissionPersistenceQueryService.existByAccNo("S-BSST2") } returns false
 
         assertThat(testInstance.getSequenceNextValue("S-BSST")).isEqualTo(2)
         verify(exactly = 1) { sequenceRepository.save(sequence) }

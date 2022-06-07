@@ -74,7 +74,7 @@ internal class SubmissionMongoQueryServiceTest(
 ) {
     private val serializationService: ExtSerializationService = extSerializationService()
     private val testInstance =
-        SubmissionMongoQueryService(
+        SubmissionMongoPersistenceQueryService(
             submissionRepo,
             requestRepository,
             fileListDocFileRepository,

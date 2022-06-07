@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
-import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
+import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE

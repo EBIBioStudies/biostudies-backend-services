@@ -10,7 +10,7 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -36,7 +36,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 class DeletePermissionTest(
     @Autowired private val securityTestService: SecurityTestService,
     @Autowired private val userDataRepository: UserDataRepository,
-    @Autowired private val submissionRepository: SubmissionQueryService,
+    @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired private val tagsDataRepository: AccessTagDataRepo,
     @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @LocalServerPort val serverPort: Int,

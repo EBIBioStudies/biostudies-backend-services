@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -16,7 +16,7 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.CollectionMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoService
-import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoQueryService
+import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
@@ -41,7 +41,7 @@ class MongoDbServicesConfig {
         fileListDocFileRepository: FileListDocFileRepository,
         serializationService: ExtSerializationService,
         toExtSubmissionMapper: ToExtSubmissionMapper,
-    ): SubmissionQueryService = SubmissionMongoQueryService(
+    ): SubmissionPersistenceQueryService = SubmissionMongoPersistenceQueryService(
         submissionDocDataRepository,
         submissionRequestDocDataRepository,
         fileListDocFileRepository,
@@ -74,12 +74,12 @@ class MongoDbServicesConfig {
     @Bean
     internal fun submissionDraftMongoService(
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
-        submissionQueryService: SubmissionQueryService,
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         serializationService: SerializationService,
         toSubmissionMapper: ToSubmissionMapper
     ): SubmissionDraftService = SubmissionDraftMongoService(
         submissionDraftDocDataRepository,
-        submissionQueryService,
+        submissionPersistenceQueryService,
         serializationService,
         toSubmissionMapper
     )

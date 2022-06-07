@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.nfs
 
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.FileUtils
@@ -29,7 +29,7 @@ private const val REL_PATH = "My/Path/To/Submission"
 internal class NfsFtpServiceTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val extSubmission: ExtSubmission,
-    @MockK private val submissionQueryService: SubmissionQueryService
+    @MockK private val submissionPersistenceQueryService: SubmissionPersistenceQueryService
 ) {
     private lateinit var expectedDirectory: File
     private lateinit var expectedFile1: File
@@ -39,7 +39,7 @@ internal class NfsFtpServiceTest(
         temporaryFolder.root.toPath().resolve("submission"),
         temporaryFolder.root.toPath().resolve("ftp")
     )
-    private val testInstance = NfsFtpService(folderResolver, submissionQueryService)
+    private val testInstance = NfsFtpService(folderResolver, submissionPersistenceQueryService)
 
     @BeforeEach
     fun beforeEach() {
@@ -50,7 +50,7 @@ internal class NfsFtpServiceTest(
 
     @Test
     fun `create ftp folder`() {
-        every { submissionQueryService.getExtByAccNo("S-BSST0", true) } returns extSubmission
+        every { submissionPersistenceQueryService.getExtByAccNo("S-BSST0", true) } returns extSubmission
 
         testInstance.generateFtpLinks("S-BSST0")
 

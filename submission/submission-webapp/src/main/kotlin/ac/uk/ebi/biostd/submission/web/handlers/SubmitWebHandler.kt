@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.helpers.RequestSources
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
-import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
@@ -25,7 +25,7 @@ private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 @Suppress("TooManyFunctions", "LongParameterList")
 class SubmitWebHandler(
     private val submissionService: SubmissionService,
-    private val extSubmissionService: ExtSubmissionService,
+    private val extSubmissionService: ExtSubmissionQueryService,
     private val sourceGenerator: SourceGenerator,
     private val serializationService: SerializationService,
     private val userFilesService: UserFilesService,

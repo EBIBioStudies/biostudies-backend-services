@@ -1,13 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.common.config.SUBMISSION_REQUEST_QUEUE
-import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
-import ac.uk.ebi.biostd.integration.SubFormat.TsvFormat.Tsv
-import ac.uk.ebi.biostd.integration.SubFormat.XmlFormat
-import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDelete
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotRelease
 import ac.uk.ebi.biostd.submission.model.ReleaseRequest
@@ -16,7 +10,6 @@ import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
 import ebi.ac.uk.extended.events.SubmissionRequestMessage
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -26,15 +19,12 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("TooManyFunctions", "LongParameterList")
 class SubmissionService(
-    private val submissionQueryService: SubmissionQueryService,
-    private val serializationService: SerializationService,
+    private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
     private val userPrivilegesService: IUserPrivilegesService,
     private val extSubmissionSubmitter: ExtSubmissionSubmitter,
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
-    private val toSubmissionMapper: ToSubmissionMapper,
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request for submission ${rqt.accNo}" }
@@ -69,34 +59,14 @@ class SubmissionService(
         eventsPublisherService.submissionFailed(message)
     }
 
-    fun getSubmissionAsJson(accNo: String): String {
-        val submission = submissionQueryService.getExtByAccNo(accNo)
-        return serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(submission), JsonPretty)
-    }
-
-    fun getSubmissionAsXml(accNo: String): String {
-        val submission = submissionQueryService.getExtByAccNo(accNo)
-        return serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(submission), XmlFormat)
-    }
-
-    fun getSubmissionAsTsv(accNo: String): String {
-        val submission = submissionQueryService.getExtByAccNo(accNo)
-        return serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(submission), Tsv)
-    }
-
-    fun getSubmissions(
-        user: SecurityUser,
-        filter: SubmissionFilter
-    ): List<BasicSubmission> = submissionQueryService.getSubmissionsByUser(user.email, filter)
-
     fun deleteSubmission(accNo: String, user: SecurityUser) {
         require(userPrivilegesService.canDelete(user.email, accNo)) { throw UserCanNotDelete(accNo, user.email) }
-        submissionQueryService.expireSubmission(accNo)
+        submissionPersistenceQueryService.expireSubmission(accNo)
     }
 
     fun deleteSubmissions(submissions: List<String>, user: SecurityUser) {
         submissions.forEach { require(userPrivilegesService.canDelete(user.email, it)) }
-        submissionQueryService.expireSubmissions(submissions)
+        submissionPersistenceQueryService.expireSubmissions(submissions)
     }
 
     fun releaseSubmission(request: ReleaseRequest, user: SecurityUser) {

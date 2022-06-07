@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ebi.ac.uk.extended.model.ExtFile
@@ -41,15 +41,15 @@ class ExtSubmissionSubmitter(
 
 class RequestProcessor(
     private val submissionPersistenceService: SubmissionPersistenceService,
-    private val submissionQueryService: SubmissionQueryService,
+    private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
     private val fileProcessingService: FileProcessingService,
 ) {
 
     internal fun loadRequest(accNo: String, version: Int): SubmissionRequest {
-        val rqt = submissionQueryService.getPendingRequest(accNo, version)
+        val rqt = submissionPersistenceQueryService.getPendingRequest(accNo, version)
         val full = fileProcessingService.processFiles(rqt.submission) { loadFileAttributes(it) }
         submissionPersistenceService.saveSubmissionRequest(SubmissionRequest(full, rqt.fileMode, rqt.draftKey))
-        return submissionQueryService.getPendingRequest(accNo, version)
+        return submissionPersistenceQueryService.getPendingRequest(accNo, version)
     }
 
     private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {
