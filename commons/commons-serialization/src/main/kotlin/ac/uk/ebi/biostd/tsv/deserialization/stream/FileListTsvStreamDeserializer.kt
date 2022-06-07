@@ -15,7 +15,7 @@ import java.io.OutputStream
 internal class FileListTsvStreamDeserializer {
     fun serializeFileList(files: Sequence<BioFile>, fileList: OutputStream) {
         val writer = fileList.bufferedWriter()
-        writeHeaderNames(files.first(), writer)
+        processFirstFile(files.first(), writer)
         files.forEach { file -> writeAttributesValues(file, writer) }
         writer.close()
     }
@@ -28,10 +28,11 @@ internal class FileListTsvStreamDeserializer {
         return reader.lineSequence().mapIndexed { index, row -> deserializeRow(index + 1, row.split(TAB), headers) }
     }
 
-    private fun writeHeaderNames(firstFile: BioFile, writer: BufferedWriter) {
+    private fun processFirstFile(firstFile: BioFile, writer: BufferedWriter) {
         val attrsNames = firstFile.attributes.map { it.name }
         writer.write("Files".plus(TAB).plus(attrsNames.joinToString(TAB.toString())))
         writer.newLine()
+        writeAttributesValues(firstFile, writer)
     }
 
     private fun writeAttributesValues(file: BioFile, writer: BufferedWriter) {

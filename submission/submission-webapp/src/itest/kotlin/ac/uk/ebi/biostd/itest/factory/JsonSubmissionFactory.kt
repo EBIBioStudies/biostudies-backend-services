@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.itest.factory
 
 import com.jayway.jsonpath.matchers.JsonPathMatchers.isJson
 import com.jayway.jsonpath.matchers.JsonPathMatchers.withJsonPath
+import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
@@ -11,6 +12,68 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+
+internal val expectedAllInOneJsonFileList = jsonArray(
+    {
+        "path" to "DataFile5.txt"
+        "size" to 9
+        "attributes" to jsonArray(
+            {
+                "name" to "Type"
+                "value" to "referenced"
+            }, {
+            "name" to "md5"
+            "value" to "3F57CF2A5D7C2E6E46B52D26EA72621C"
+        }
+        )
+        "type" to "file"
+    },
+    {
+        "path" to "Folder1/DataFile6.txt"
+        "size" to 9
+        "attributes" to jsonArray(
+            {
+                "name" to "Type"
+                "value" to "referenced"
+            }, {
+            "name" to "md5"
+            "value" to "838559E92C5A52DEF29B9484C32DDCBB"
+        }
+        )
+        "type" to "file"
+    }
+)
+
+internal val expectedAllInOneJsonInnerFileList = jsonArray(
+    {
+        "path" to "DataFile7.txt"
+        "size" to 9
+        "attributes" to jsonArray(
+            {
+                "name" to "Type"
+                "value" to "referenced"
+            }, {
+            "name" to "md5"
+            "value" to "8723FD7A2E31D56966F94616ADF799B1"
+        }
+        )
+        "type" to "file"
+    },
+    {
+        "path" to "Folder1/DataFile8.txt"
+        "size" to 9
+        "attributes" to jsonArray(
+            {
+                "name" to "Type"
+                "value" to "referenced"
+            }, {
+            "name" to "md5"
+            "value" to "51F996F04CF87844A8BBFCD9E440AAEC"
+        }
+        )
+        "type" to "file"
+    }
+)
 
 fun assertAllInOneSubmissionJson(json: String, accNo: String) {
     assertThat(json, isJson(withJsonPath("$.accno", equalTo(accNo))))

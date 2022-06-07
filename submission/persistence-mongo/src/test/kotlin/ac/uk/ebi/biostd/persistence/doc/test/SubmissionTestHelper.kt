@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.test
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
@@ -13,8 +12,8 @@ import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.docSection
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.StorageMode
-import java.time.Instant
 import org.bson.types.ObjectId
+import java.time.Instant
 
 internal const val SUB_ACC_NO = "S-TEST123"
 internal const val SUB_VERSION = 1
@@ -52,7 +51,6 @@ object SubmissionTestHelper {
         rootPath = ROOT_PATH,
         released = false,
         secretKey = SECRET_KEY,
-        status = PROCESSED,
         releaseTime = time,
         modificationTime = time,
         creationTime = time,

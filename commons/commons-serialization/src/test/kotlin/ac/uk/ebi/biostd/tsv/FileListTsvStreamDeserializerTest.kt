@@ -25,7 +25,7 @@ class FileListTsvStreamDeserializerTest(
 ) {
     private val testInstance = FileListTsvStreamDeserializer()
     private val tsvFile = tempFolder.createFile(TSV_FILE_LIST)
-    private val fileSystem = tempFolder.createFile("testFile.txt")
+    private val fileSystem = tempFolder.createFile("testFile.tsv")
 
     @BeforeEach
     fun beforeEach() {
@@ -55,16 +55,17 @@ class FileListTsvStreamDeserializerTest(
 
     @Test
     fun `serialize - deserialize FileList`() {
-        val files = (1..20_000).map {
+        var idx = 0
+        fun bioFile(it: Int): BioFile =
             BioFile("folder/file$it.txt", attributes = listOf(Attribute("Attr1", "A$it"), Attribute("Attr2", "B$it")))
-        }.asSequence()
-        val iterator = files.iterator()
+
+        val files = sequence { yield(bioFile(idx++)) }
 
         fileSystem.outputStream().use { testInstance.serializeFileList(files, it) }
 
         fileSystem.inputStream().use {
-            testInstance.deserializeFileList(it).forEach { file ->
-                assertThat(file).isEqualToComparingFieldByField(iterator.next())
+            testInstance.deserializeFileList(it).forEachIndexed { idx, file ->
+                assertThat(file).isEqualToComparingFieldByField(bioFile(idx))
             }
         }
     }

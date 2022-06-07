@@ -18,7 +18,6 @@ import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtCollection
-import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
@@ -114,7 +113,6 @@ class SubmissionSubmitter(
             rootPath = submission.rootPath,
             released = released,
             secretKey = secretKey,
-            status = ExtProcessingStatus.PROCESSED,
             releaseTime = releaseTime,
             modificationTime = modTime,
             creationTime = createTime,

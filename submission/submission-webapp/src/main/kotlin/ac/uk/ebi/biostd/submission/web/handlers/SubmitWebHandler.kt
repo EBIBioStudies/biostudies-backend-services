@@ -13,8 +13,6 @@ import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod.FILE
@@ -46,7 +44,8 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: ContentSubmitWebRequest): SubmitRequest {
         val sub = serializationService.deserializeSubmission(request.submission, request.format)
-        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.also { requireProcessed(it) }
+        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)
+        requireNotProcessing(sub.accNo)
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
@@ -72,7 +71,8 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: FileSubmitWebRequest): SubmitRequest {
         val sub = serializationService.deserializeSubmission(request.submission)
-        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.apply { requireProcessed(this) }
+        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)
+        requireNotProcessing(sub.accNo)
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
@@ -108,6 +108,7 @@ class SubmitWebHandler(
     private fun submission(subFile: File, source: FilesSource) =
         serializationService.deserializeSubmission(subFile, source)
 
-    private fun requireProcessed(sub: ExtSubmission) =
-        require(sub.status == PROCESSED) { throw ConcurrentProcessingSubmissionException(sub.accNo) }
+    private fun requireNotProcessing(accNo: String) = require(extSubmissionService.hasPendingRequest(accNo).not()) {
+        throw ConcurrentProcessingSubmissionException(accNo)
+    }
 }

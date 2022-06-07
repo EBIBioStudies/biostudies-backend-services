@@ -1,10 +1,8 @@
 package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ebi.ac.uk.extended.model.ExtCollection
-import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
@@ -22,7 +20,6 @@ class ToExtSubmissionMapper(private val toExtSectionMapper: ToExtSectionMapper) 
             version = sub.version,
             schemaVersion = sub.schemaVersion,
             method = getMethod(sub.method),
-            status = getStatus(sub.status),
             relPath = sub.relPath,
             rootPath = sub.rootPath,
             released = sub.released,
@@ -38,12 +35,6 @@ class ToExtSubmissionMapper(private val toExtSectionMapper: ToExtSectionMapper) 
             pageTabFiles = sub.pageTabFiles.map { it.toExtFile() },
             storageMode = sub.storageMode
         )
-
-    private fun getStatus(status: DocProcessingStatus) = when (status) {
-        DocProcessingStatus.PROCESSED -> ExtProcessingStatus.PROCESSED
-        DocProcessingStatus.PROCESSING -> ExtProcessingStatus.PROCESSING
-        DocProcessingStatus.REQUESTED -> ExtProcessingStatus.REQUESTED
-    }
 
     private fun getMethod(method: DocSubmissionMethod) = when (method) {
         DocSubmissionMethod.FILE -> ExtSubmissionMethod.FILE

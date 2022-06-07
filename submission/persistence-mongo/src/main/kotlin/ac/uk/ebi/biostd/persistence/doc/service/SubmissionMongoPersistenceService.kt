@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import com.mongodb.BasicDBObject
-import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import mu.KotlinLogging
@@ -36,7 +35,8 @@ internal class SubmissionMongoPersistenceService(
     }
 
     override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
-        val extSubmission = rqt.submission.copy(status = REQUESTED)
+        val version = getNextVersion(rqt.submission.accNo)
+        val extSubmission = rqt.submission.copy(version = version)
         return saveRequest(rqt, extSubmission)
     }
 

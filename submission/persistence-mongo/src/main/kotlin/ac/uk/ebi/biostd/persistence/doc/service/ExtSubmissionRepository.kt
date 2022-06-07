@@ -5,9 +5,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 
@@ -22,10 +20,8 @@ class ExtSubmissionRepository(
     private val toDocSubmissionMapper: ToDocSubmissionMapper
 ) {
     fun saveSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission {
-        val docSubmission = save(submission.copy(status = ExtProcessingStatus.PROCESSING))
-        updateCurrentRecords(docSubmission.accNo, docSubmission.owner, docSubmission.submitter, draftKey)
-        subDataRepository.updateStatus(DocProcessingStatus.PROCESSED, docSubmission.accNo, docSubmission.version)
-        return toExtSubmissionMapper.toExtSubmission(docSubmission, false)
+        updateCurrentRecords(submission.accNo, submission.owner, submission.submitter, draftKey)
+        return toExtSubmissionMapper.toExtSubmission(saveSubmission(submission), false)
     }
 
     private fun updateCurrentRecords(accNo: String, owner: String, submitter: String, draftKey: String?) {
@@ -39,7 +35,7 @@ class ExtSubmissionRepository(
         draftDocDataRepository.deleteByUserIdAndKey(submitter, accNo)
     }
 
-    private fun save(submission: ExtSubmission): DocSubmission {
+    private fun saveSubmission(submission: ExtSubmission): DocSubmission {
         logger.info { "mapping submission ${submission.accNo} into doc submission" }
         val (docSubmission, files) = toDocSubmissionMapper.convert(submission)
         logger.info { "mapped submission ${submission.accNo}" }
