@@ -28,7 +28,7 @@ class ExtSubmissionService(
     private val privilegesService: IUserPrivilegesService,
     private val securityService: ISecurityQueryService,
     private val properties: ApplicationProperties,
-    private val eventsPublisherService: EventsPublisherService
+    private val eventsPublisherService: EventsPublisherService,
 ) {
     fun refreshSubmission(accNo: String, user: String): ExtSubmission {
         val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
@@ -44,7 +44,7 @@ class ExtSubmissionService(
     fun submitExt(
         user: String,
         sub: ExtSubmission,
-        fileMode: FileMode = FileMode.COPY
+        fileMode: FileMode = FileMode.COPY,
     ): ExtSubmission {
         logger.info { "${sub.accNo} $user Received submit request for ext submission ${sub.accNo}" }
         val submission = processSubmission(user, sub)
@@ -55,7 +55,7 @@ class ExtSubmissionService(
     fun submitExtAsync(
         user: String,
         sub: ExtSubmission,
-        fileMode: FileMode
+        fileMode: FileMode,
     ) {
         logger.info { "${sub.accNo} $user Received async submit request for ext submission ${sub.accNo}" }
         val submission = processSubmission(user, sub)
@@ -67,7 +67,6 @@ class ExtSubmissionService(
         validateSubmission(extSubmission, user)
         return extSubmission.copy(
             submitter = user,
-            version = persistenceService.getNextVersion(extSubmission.accNo),
             modificationTime = OffsetDateTime.now(),
             storageMode = if (properties.persistence.enableFire) StorageMode.FIRE else StorageMode.NFS
         )

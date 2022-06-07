@@ -76,7 +76,7 @@ internal class SubmissionMongoPersistenceService(
     private fun asRequest(rqt: SubmissionRequest, submission: ExtSubmission): DocSubmissionRequest {
         val content = serializationService.serialize(submission, Properties(includeFileListFiles = true))
         return DocSubmissionRequest(
-            id = getId(submission),
+            id = ObjectId(),
             accNo = submission.accNo,
             version = submission.version,
             fileMode = rqt.fileMode,
@@ -84,14 +84,5 @@ internal class SubmissionMongoPersistenceService(
             status = SubmissionRequestStatus.REQUESTED,
             submission = BasicDBObject.parse(content),
         )
-    }
-
-    private fun getId(sub: ExtSubmission): ObjectId {
-        val request = requestRepository.findByAccNoAndVersionAndStatus(
-            sub.accNo,
-            sub.version,
-            SubmissionRequestStatus.REQUESTED
-        )
-        return request?.id ?: ObjectId()
     }
 }
