@@ -15,7 +15,7 @@ import java.time.Instant
 
 class SubmissionDraftMongoService(
     private val draftDocDataRepository: SubmissionDraftDocDataRepository,
-    private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+    private val queryService: SubmissionPersistenceQueryService,
     private val serializationService: SerializationService,
     private val toSubmissionMapper: ToSubmissionMapper,
 ) : SubmissionDraftService {
@@ -47,7 +47,7 @@ class SubmissionDraftMongoService(
         draftDocDataRepository.setStatus(userEmail, key, PROCESSING)
 
     private fun create(userEmail: String, key: String): DocSubmissionDraft {
-        val submission = toSubmissionMapper.toSimpleSubmission(submissionPersistenceQueryService.getExtByAccNo(key))
+        val submission = toSubmissionMapper.toSimpleSubmission(queryService.getExtByAccNo(key))
         val content = serializationService.serializeSubmission(submission, JsonPretty)
         return draftDocDataRepository.createDraft(userEmail, key, content)
     }

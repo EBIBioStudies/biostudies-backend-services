@@ -51,7 +51,7 @@ class MongoDbServicesConfig {
 
     @Bean
     internal fun projectDataService(
-        submissionDocDataRepository: SubmissionDocDataRepository
+        submissionDocDataRepository: SubmissionDocDataRepository,
     ): CollectionDataService = CollectionMongoDataService(submissionDocDataRepository)
 
     @Bean
@@ -63,12 +63,12 @@ class MongoDbServicesConfig {
 
     @Bean
     internal fun toExtSectionMapper(
-        toExtFileListMapper: ToExtFileListMapper
+        toExtFileListMapper: ToExtFileListMapper,
     ): ToExtSectionMapper = ToExtSectionMapper(toExtFileListMapper)
 
     @Bean
     internal fun toExtSubmissionMapper(
-        toExtSectionMapper: ToExtSectionMapper
+        toExtSectionMapper: ToExtSectionMapper,
     ): ToExtSubmissionMapper = ToExtSubmissionMapper(toExtSectionMapper)
 
     @Bean
@@ -76,7 +76,7 @@ class MongoDbServicesConfig {
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         serializationService: SerializationService,
-        toSubmissionMapper: ToSubmissionMapper
+        toSubmissionMapper: ToSubmissionMapper,
     ): SubmissionDraftService = SubmissionDraftMongoService(
         submissionDraftDocDataRepository,
         submissionPersistenceQueryService,
@@ -86,7 +86,7 @@ class MongoDbServicesConfig {
 
     @Bean
     internal fun statsDataService(
-        submissionStatsDataRepository: SubmissionStatsDataRepository
+        submissionStatsDataRepository: SubmissionStatsDataRepository,
     ): StatsDataService = StatsMongoDataService(submissionStatsDataRepository)
 
     @Bean

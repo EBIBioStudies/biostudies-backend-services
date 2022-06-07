@@ -40,7 +40,6 @@ class ExtSubmissionSubmitter(
 }
 
 class RequestProcessor(
-    private val submissionPersistenceService: SubmissionPersistenceService,
     private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
     private val fileProcessingService: FileProcessingService,
 ) {
@@ -48,8 +47,7 @@ class RequestProcessor(
     internal fun loadRequest(accNo: String, version: Int): SubmissionRequest {
         val rqt = submissionPersistenceQueryService.getPendingRequest(accNo, version)
         val full = fileProcessingService.processFiles(rqt.submission) { loadFileAttributes(it) }
-        submissionPersistenceService.saveSubmissionRequest(SubmissionRequest(full, rqt.fileMode, rqt.draftKey))
-        return submissionPersistenceQueryService.getPendingRequest(accNo, version)
+        return SubmissionRequest(full, rqt.fileMode, rqt.draftKey)
     }
 
     private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {

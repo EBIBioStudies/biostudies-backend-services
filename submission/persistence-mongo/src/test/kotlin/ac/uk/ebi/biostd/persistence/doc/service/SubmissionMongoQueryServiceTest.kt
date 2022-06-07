@@ -70,7 +70,7 @@ internal class SubmissionMongoQueryServiceTest(
     @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
     @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
-    @Autowired private val requestRepository: SubmissionRequestDocDataRepository
+    @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
 ) {
     private val serializationService: ExtSerializationService = extSerializationService()
     private val testInstance =

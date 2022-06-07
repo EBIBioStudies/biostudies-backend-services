@@ -42,11 +42,9 @@ import java.nio.file.Paths
 class SubmitterConfig {
     @Bean
     fun requestProcessor(
-        submissionPersistenceService: SubmissionPersistenceService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         fileProcessingService: FileProcessingService,
     ): RequestProcessor = RequestProcessor(
-        submissionPersistenceService,
         submissionPersistenceQueryService,
         fileProcessingService
     )
@@ -72,7 +70,7 @@ class SubmitterConfig {
         collectionInfoService: CollectionInfoService,
         queryService: SubmissionMetaQueryService,
         properties: ApplicationProperties,
-        toExtSectionMapper: ToExtSectionMapper
+        toExtSectionMapper: ToExtSectionMapper,
     ) = SubmissionSubmitter(
         extSubmissionSubmitter,
         persistenceService,
@@ -95,7 +93,7 @@ class SubmitterConfig {
         fun toExtFileList(
             extSerializationService: ExtSerializationService,
             serializationService: SerializationService,
-            filesResolver: FilesResolver
+            filesResolver: FilesResolver,
         ): ToExtFileListMapper =
             ToExtFileListMapper(extSerializationService, serializationService, filesResolver)
     }
