@@ -29,7 +29,7 @@ private const val REL_PATH = "My/Path/To/Submission"
 internal class NfsFtpServiceTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val extSubmission: ExtSubmission,
-    @MockK private val submissionPersistenceQueryService: SubmissionPersistenceQueryService
+    @MockK private val queryService: SubmissionPersistenceQueryService
 ) {
     private lateinit var expectedDirectory: File
     private lateinit var expectedFile1: File
@@ -39,7 +39,7 @@ internal class NfsFtpServiceTest(
         temporaryFolder.root.toPath().resolve("submission"),
         temporaryFolder.root.toPath().resolve("ftp")
     )
-    private val testInstance = NfsFtpService(folderResolver, submissionPersistenceQueryService)
+    private val testInstance = NfsFtpService(folderResolver, queryService)
 
     @BeforeEach
     fun beforeEach() {
@@ -50,7 +50,7 @@ internal class NfsFtpServiceTest(
 
     @Test
     fun `create ftp folder`() {
-        every { submissionPersistenceQueryService.getExtByAccNo("S-BSST0", true) } returns extSubmission
+        every { queryService.getExtByAccNo("S-BSST0", true) } returns extSubmission
 
         testInstance.generateFtpLinks("S-BSST0")
 

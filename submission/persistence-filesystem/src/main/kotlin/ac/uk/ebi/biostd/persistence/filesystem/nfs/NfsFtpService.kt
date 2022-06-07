@@ -14,7 +14,7 @@ private val logger = KotlinLogging.logger {}
 
 class NfsFtpService(
     private val folderResolver: SubmissionFolderResolver,
-    private val submissionPersistenceQueryService: SubmissionPersistenceQueryService
+    private val queryService: SubmissionPersistenceQueryService
 ) : FtpService {
     override fun releaseSubmissionFiles(accNo: String, owner: String, relPath: String) {
         logger.info { "$accNo $owner Publishing files of submission $accNo over NFS" }
@@ -33,7 +33,7 @@ class NfsFtpService(
     }
 
     override fun generateFtpLinks(accNo: String) {
-        val sub = submissionPersistenceQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
 
         logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission $accNo over NFS" }
 

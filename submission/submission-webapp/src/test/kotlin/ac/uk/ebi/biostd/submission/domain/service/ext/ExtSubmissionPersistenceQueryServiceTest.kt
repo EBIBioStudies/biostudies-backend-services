@@ -21,14 +21,14 @@ import org.springframework.data.domain.Pageable
 
 @ExtendWith(MockKExtension::class)
 internal class ExtSubmissionPersistenceQueryServiceTest(
-    @MockK private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+    @MockK private val queryService: SubmissionPersistenceQueryService,
 ) {
-    private val testInstance = ExtSubmissionQueryService(submissionPersistenceQueryService)
+    private val testInstance = ExtSubmissionQueryService(queryService)
 
     @Test
     fun `get ext submission`() {
         val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
-        every { submissionPersistenceQueryService.getExtByAccNo("S-TEST123") } returns extSubmission
+        every { queryService.getExtByAccNo("S-TEST123") } returns extSubmission
 
         val submission = testInstance.getExtendedSubmission("S-TEST123")
         assertThat(submission).isEqualTo(extSubmission)
@@ -48,7 +48,7 @@ internal class ExtSubmissionPersistenceQueryServiceTest(
         val pageable = Pageable.unpaged()
         val page = PageImpl(mutableListOf(extSubmission), pageable, 2L)
 
-        every { submissionPersistenceQueryService.getExtendedSubmissions(capture(filter)) } returns page
+        every { queryService.getExtendedSubmissions(capture(filter)) } returns page
 
         val result = testInstance.getExtendedSubmissions(request)
         assertThat(result.content).hasSize(1)
@@ -60,14 +60,14 @@ internal class ExtSubmissionPersistenceQueryServiceTest(
         assertThat(submissionFilter.released).isTrue
         assertThat(submissionFilter.rTimeTo).isEqualTo("2020-09-21T15:00:00Z")
         assertThat(submissionFilter.rTimeFrom).isEqualTo("2019-09-21T15:00:00Z")
-        verify(exactly = 1) { submissionPersistenceQueryService.getExtendedSubmissions(submissionFilter) }
+        verify(exactly = 1) { queryService.getExtendedSubmissions(submissionFilter) }
     }
 
     @Test
     fun `get referenced files`(
         @MockK extFile: ExtFile
     ) {
-        every { submissionPersistenceQueryService.getReferencedFiles("S-BSST1", "file-list") } returns listOf(extFile)
+        every { queryService.getReferencedFiles("S-BSST1", "file-list") } returns listOf(extFile)
 
         assertThat(testInstance.getReferencedFiles("S-BSST1", "file-list").files).containsExactly(extFile)
     }

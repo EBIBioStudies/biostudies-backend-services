@@ -20,7 +20,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 private val logger = KotlinLogging.logger {}
 
 class SubmissionService(
-    private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+    private val queryService: SubmissionPersistenceQueryService,
     private val userPrivilegesService: IUserPrivilegesService,
     private val extSubmissionSubmitter: ExtSubmissionSubmitter,
     private val submissionSubmitter: SubmissionSubmitter,
@@ -61,12 +61,12 @@ class SubmissionService(
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
         require(userPrivilegesService.canDelete(user.email, accNo)) { throw UserCanNotDelete(accNo, user.email) }
-        submissionPersistenceQueryService.expireSubmission(accNo)
+        queryService.expireSubmission(accNo)
     }
 
     fun deleteSubmissions(submissions: List<String>, user: SecurityUser) {
         submissions.forEach { require(userPrivilegesService.canDelete(user.email, it)) }
-        submissionPersistenceQueryService.expireSubmissions(submissions)
+        queryService.expireSubmissions(submissions)
     }
 
     fun releaseSubmission(request: ReleaseRequest, user: SecurityUser) {

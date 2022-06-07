@@ -23,7 +23,7 @@ private val logger = KotlinLogging.logger {}
 @Suppress("LongParameterList")
 class ExtSubmissionService(
     private val submissionSubmitter: ExtSubmissionSubmitter,
-    private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+    private val queryService: SubmissionPersistenceQueryService,
     private val persistenceService: SubmissionPersistenceService,
     private val privilegesService: IUserPrivilegesService,
     private val securityService: ISecurityQueryService,
@@ -31,7 +31,7 @@ class ExtSubmissionService(
     private val eventsPublisherService: EventsPublisherService
 ) {
     fun refreshSubmission(accNo: String, user: String): ExtSubmission {
-        val sub = submissionPersistenceQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
         val response = submitExt(user, sub, FileMode.COPY)
         eventsPublisherService.submissionsRefresh(sub.accNo, sub.owner)
         return response
@@ -80,9 +80,7 @@ class ExtSubmissionService(
 
         if (sub.isCollection.not()) {
             sub.collections.forEach {
-                if (submissionPersistenceQueryService.existByAccNo(it.accNo)
-                    .not()
-                ) throw CollectionNotFoundException(it.accNo)
+                if (queryService.existByAccNo(it.accNo).not()) throw CollectionNotFoundException(it.accNo)
             }
         }
     }

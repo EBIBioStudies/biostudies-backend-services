@@ -29,14 +29,14 @@ import java.time.Instant
 @ExtendWith(MockKExtension::class)
 internal class SubmissionDraftMongoServiceTest(
     @MockK private val draftDocDataRepository: SubmissionDraftDocDataRepository,
-    @MockK private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+    @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val serializationService: SerializationService,
     @MockK private val toSubmissionMapper: ToSubmissionMapper,
 ) {
 
     private val testInstance = SubmissionDraftMongoService(
         draftDocDataRepository,
-        submissionPersistenceQueryService,
+        queryService,
         serializationService,
         toSubmissionMapper
     )
@@ -59,7 +59,7 @@ internal class SubmissionDraftMongoServiceTest(
     @Test
     fun `get draft when doesn't exist`() {
         val extSubmission = fullExtSubmission.copy(section = ExtSection(type = "Study"))
-        every { submissionPersistenceQueryService.getExtByAccNo(DRAFT_KEY) } returns extSubmission
+        every { queryService.getExtByAccNo(DRAFT_KEY) } returns extSubmission
         every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns null
         every { draftDocDataRepository.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDocDraft
         every {

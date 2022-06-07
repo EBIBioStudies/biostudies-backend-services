@@ -29,22 +29,22 @@ import ebi.ac.uk.test.basicExtSubmission as basicExtSub
 @ExtendWith(MockKExtension::class)
 class FireFtpServiceTest(
     @MockK(relaxUnitFun = true) private val fireClient: FireClient,
-    @MockK private val submissionPersistenceQueryService: SubmissionPersistenceQueryService
+    @MockK private val queryService: SubmissionPersistenceQueryService
 ) {
     private val fileFileList = fireFile(FILE_FILE_LIST)
     private val innerFileListFile = fireFile(INNER_FILE_FILE_LIST)
     private val extSub = createExtSubmission(fileFileList, innerFileListFile)
-    private val testInstance = FireFtpService(fireClient, ExtSerializationService(), submissionPersistenceQueryService)
+    private val testInstance = FireFtpService(fireClient, ExtSerializationService(), queryService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
 
     @BeforeEach
     fun beforeEach() {
-        every { submissionPersistenceQueryService.getReferencedFiles(extSub.accNo, "fileName1") } returns listOf(
+        every { queryService.getReferencedFiles(extSub.accNo, "fileName1") } returns listOf(
             fileFileList
         )
-        every { submissionPersistenceQueryService.getReferencedFiles(extSub.accNo, "fileName2") } returns listOf(
+        every { queryService.getReferencedFiles(extSub.accNo, "fileName2") } returns listOf(
             innerFileListFile
         )
     }
@@ -53,7 +53,7 @@ class FireFtpServiceTest(
     fun `release submission files`() {
         val submission = extSub.copy(released = true)
 
-        every { submissionPersistenceQueryService.getExtByAccNo(submission.accNo, true) } returns submission
+        every { queryService.getExtByAccNo(submission.accNo, true) } returns submission
 
         testInstance.releaseSubmissionFiles(extSub.accNo, extSub.owner, extSub.relPath)
 
@@ -64,7 +64,7 @@ class FireFtpServiceTest(
     fun `create ftp folder`() {
         val submission = extSub.copy(released = true)
 
-        every { submissionPersistenceQueryService.getExtByAccNo(submission.accNo, true) } returns submission
+        every { queryService.getExtByAccNo(submission.accNo, true) } returns submission
 
         testInstance.generateFtpLinks(submission.accNo)
 

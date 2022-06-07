@@ -21,14 +21,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class SqlPersistenceServiceTest(
     @MockK private val sequenceRepository: SequenceDataRepository,
     @MockK private val accessTagsDataRepository: AccessTagDataRepo,
-    @MockK private val submissionPersistenceQueryService: SubmissionPersistenceQueryService
+    @MockK private val queryService: SubmissionPersistenceQueryService
 ) {
     private val lockExecutor = MockLockExecutor()
     private val testInstance = SqlPersistenceService(
         sequenceRepository,
         accessTagsDataRepository,
         lockExecutor,
-        submissionPersistenceQueryService
+        queryService
     )
 
     @AfterEach
@@ -39,7 +39,7 @@ internal class SqlPersistenceServiceTest(
         val sequence = DbSequence("S-BSST")
 
         mockSequenceRepository(sequence)
-        every { submissionPersistenceQueryService.existByAccNo("S-BSST0") } returns false
+        every { queryService.existByAccNo("S-BSST0") } returns false
 
         assertThat(testInstance.getSequenceNextValue("S-BSST")).isEqualTo(0)
         verify(exactly = 1) { sequenceRepository.save(sequence) }
@@ -50,9 +50,9 @@ internal class SqlPersistenceServiceTest(
         val sequence = DbSequence("S-BSST")
 
         mockSequenceRepository(sequence)
-        every { submissionPersistenceQueryService.existByAccNo("S-BSST0") } returns true
-        every { submissionPersistenceQueryService.existByAccNo("S-BSST1") } returns true
-        every { submissionPersistenceQueryService.existByAccNo("S-BSST2") } returns false
+        every { queryService.existByAccNo("S-BSST0") } returns true
+        every { queryService.existByAccNo("S-BSST1") } returns true
+        every { queryService.existByAccNo("S-BSST2") } returns false
 
         assertThat(testInstance.getSequenceNextValue("S-BSST")).isEqualTo(2)
         verify(exactly = 1) { sequenceRepository.save(sequence) }
