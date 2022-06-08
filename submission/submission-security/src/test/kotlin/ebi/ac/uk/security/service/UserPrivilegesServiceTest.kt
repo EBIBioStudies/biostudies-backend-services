@@ -1,16 +1,20 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.common.model.AccessType
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -37,6 +41,9 @@ class UserPrivilegesServiceTest(
         initSubmissionQueries()
     }
 
+    @AfterEach
+    fun afterEach() = clearAllMocks()
+
     @Test
     fun `super user provides acc no`() {
         assertThat(testInstance.canProvideAccNo("superuser@mail.com")).isTrue
@@ -44,8 +51,28 @@ class UserPrivilegesServiceTest(
 
     @Test
     fun `regular user provides acc no`() {
-        every { superuser.superuser } returns false
-        assertThat(testInstance.canProvideAccNo("superuser@mail.com")).isFalse
+        assertThat(testInstance.canProvideAccNo("author@mail.com")).isFalse
+    }
+
+    @Test
+    fun `super user submits to collection`() {
+        assertThat(testInstance.canSubmitToCollection("superuser@mail.com", "A-Collection")).isTrue
+    }
+
+    @Test
+    fun `regular user without permissions submits to collection`() {
+        every { userPermissionsService.hasPermission("author@mail.com", "A-Collection", ADMIN) } returns false
+        every { userPermissionsService.hasPermission("author@mail.com", "A-Collection", ATTACH) } returns false
+
+        assertThat(testInstance.canSubmitToCollection("author@mail.com", "A-Collection")).isFalse
+    }
+
+    @Test
+    fun `regular user with permissions submits to collection`() {
+        every { userPermissionsService.hasPermission("author@mail.com", "A-Collection", ADMIN) } returns false
+        every { userPermissionsService.hasPermission("author@mail.com", "A-Collection", ATTACH) } returns true
+
+        assertThat(testInstance.canSubmitToCollection("author@mail.com", "A-Collection")).isTrue
     }
 
     @Test
@@ -64,7 +91,7 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `author user with tag resubmits a submission that is in a project`(
+    fun `author user with tag access resubmits a submission that is in a collection`(
         @MockK basicSubmission: BasicSubmission
     ) {
         every { basicSubmission.owner } returns "author@mail.com"
@@ -93,10 +120,8 @@ class UserPrivilegesServiceTest(
 
     @Test
     fun `other author user deletes submission with tag`() {
-        every { queryService.getAccessTags("accNo") } returns listOf("A-Project")
-        every {
-            userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Project", AccessType.DELETE)
-        } returns true
+        every { queryService.getAccessTags("accNo") } returns listOf("A-Collection")
+        every { userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Collection", DELETE) } returns true
 
         assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isTrue
     }

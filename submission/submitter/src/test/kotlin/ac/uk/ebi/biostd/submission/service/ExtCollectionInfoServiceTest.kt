@@ -36,7 +36,7 @@ class ExtCollectionInfoServiceTest(
     fun beforeEach() {
         initContext()
         initAccNoUtil()
-        every { privilegesService.canSubmitProjects("user@test.org") } returns true
+        every { privilegesService.canSubmitCollections("user@test.org") } returns true
     }
 
     @Test
@@ -58,7 +58,7 @@ class ExtCollectionInfoServiceTest(
 
     @Test
     fun `user cant submit collections`() {
-        every { privilegesService.canSubmitProjects("user@test.org") } returns false
+        every { privilegesService.canSubmitCollections("user@test.org") } returns false
 
         val request = CollectionRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
         val exception = assertThrows<UserCanNotSubmitProjectsException> { testInstance.process(request) }
