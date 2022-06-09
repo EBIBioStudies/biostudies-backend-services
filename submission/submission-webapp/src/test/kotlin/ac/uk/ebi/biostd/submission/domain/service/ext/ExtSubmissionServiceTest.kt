@@ -1,17 +1,14 @@
-package ac.uk.ebi.biostd.submission.domain.service
+package ac.uk.ebi.biostd.submission.domain.service.ext
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
-import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
+import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtCollection
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.PROJECT_TYPE
 import ebi.ac.uk.extended.model.StorageMode.FIRE
@@ -31,18 +28,16 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.Pageable
 import uk.ac.ebi.events.service.EventsPublisherService
 
 @ExtendWith(MockKExtension::class)
 class ExtSubmissionServiceTest(
-    @MockK private val submissionSubmitter: SubmissionSubmitter,
-    @MockK private val submissionRepository: SubmissionQueryService,
+    @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
+    @MockK private val submissionRepository: SubmissionPersistenceQueryService,
     @MockK private val userPrivilegesService: IUserPrivilegesService,
     @MockK private val securityQueryService: ISecurityQueryService,
     @MockK private val properties: ApplicationProperties,
-    @MockK private val eventsPublisherService: EventsPublisherService
+    @MockK private val eventsPublisher: EventsPublisherService,
 ) {
     private val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
     private val testInstance =
@@ -52,7 +47,7 @@ class ExtSubmissionServiceTest(
             userPrivilegesService,
             securityQueryService,
             properties,
-            eventsPublisherService
+            eventsPublisher
         )
 
     @AfterEach
@@ -65,41 +60,7 @@ class ExtSubmissionServiceTest(
         every { userPrivilegesService.canSubmitExtended("user@mail.com") } returns true
         every { securityQueryService.existsByEmail("owner@email.org", false) } returns true
         every { userPrivilegesService.canSubmitExtended("regular@mail.com") } returns false
-    }
-
-    @Test
-    fun `get ext submission`() {
-        val submission = testInstance.getExtendedSubmission("S-TEST123")
-        assertThat(submission).isEqualTo(extSubmission)
-    }
-
-    @Test
-    fun `filtering extended submissions`(@MockK extSubmission: ExtSubmission) {
-        val filter = slot<SubmissionFilter>()
-        val request = ExtPageRequest(
-            fromRTime = "2019-09-21T15:00:00Z",
-            toRTime = "2020-09-21T15:00:00Z",
-            released = true,
-            offset = 1,
-            limit = 2
-        )
-
-        val pageable = Pageable.unpaged()
-        val page = PageImpl(mutableListOf(extSubmission), pageable, 2L)
-
-        every { submissionRepository.getExtendedSubmissions(capture(filter)) } returns page
-
-        val result = testInstance.getExtendedSubmissions(request)
-        assertThat(result.content).hasSize(1)
-        assertThat(result.content.first()).isEqualTo(extSubmission)
-        assertThat(result.pageable).isEqualTo(pageable)
-        assertThat(result.totalElements).isEqualTo(2L)
-
-        val submissionFilter = filter.captured
-        assertThat(submissionFilter.released).isTrue
-        assertThat(submissionFilter.rTimeTo).isEqualTo("2020-09-21T15:00:00Z")
-        assertThat(submissionFilter.rTimeFrom).isEqualTo("2019-09-21T15:00:00Z")
-        verify(exactly = 1) { submissionRepository.getExtendedSubmissions(submissionFilter) }
+        every { properties.persistence.enableFire } returns true
     }
 
     @Test
@@ -132,9 +93,7 @@ class ExtSubmissionServiceTest(
         every { properties.persistence.enableFire } returns true
         every { submissionSubmitter.processRequest(extSubmission.accNo, 1) } returns extSubmission
         every { submissionSubmitter.submitAsync(capture(requestSlot)) } returns (extSubmission.accNo to 1)
-        every {
-            eventsPublisherService.submissionRequest(extSubmission.accNo, extSubmission.version)
-        } answers { nothing }
+        every { eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version) } answers { nothing }
 
         testInstance.submitExtAsync("user@mail.com", extSubmission, fileMode = COPY)
 
@@ -148,7 +107,7 @@ class ExtSubmissionServiceTest(
         verify(exactly = 1) {
             submissionRepository.existByAccNo("ArrayExpress")
             securityQueryService.existsByEmail("owner@email.org", false)
-            eventsPublisherService.submissionRequest(extSubmission.accNo, extSubmission.version)
+            eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version)
         }
     }
 
@@ -156,9 +115,7 @@ class ExtSubmissionServiceTest(
     fun `refresh submission`() {
         val submissionRequestSlot = slot<SubmissionRequest>()
         every { submissionRepository.getExtByAccNo("S-TEST123", true) } returns extSubmission
-        every {
-            eventsPublisherService.submissionsRefresh(extSubmission.accNo, extSubmission.owner)
-        } answers { nothing }
+        every { eventsPublisher.submissionsRefresh(extSubmission.accNo, extSubmission.owner) } answers { nothing }
         every { submissionSubmitter.processRequest(extSubmission.accNo, 1) } returns extSubmission
         every { submissionSubmitter.submitAsync(capture(submissionRequestSlot)) } returns (extSubmission.accNo to 1)
 
@@ -169,7 +126,7 @@ class ExtSubmissionServiceTest(
             submissionRepository.getExtByAccNo(extSubmission.accNo, true)
             submissionSubmitter.submitAsync(submissionRequest)
             submissionSubmitter.processRequest(extSubmission.accNo, 1)
-            eventsPublisherService.submissionsRefresh(extSubmission.accNo, extSubmission.owner)
+            eventsPublisher.submissionsRefresh(extSubmission.accNo, extSubmission.owner)
         }
     }
 
@@ -224,14 +181,5 @@ class ExtSubmissionServiceTest(
 
         verify(exactly = 0) { submissionRepository.existByAccNo("ArrayExpress") }
         verify(exactly = 1) { securityQueryService.existsByEmail("owner@email.org", false) }
-    }
-
-    @Test
-    fun `get referenced files`(
-        @MockK extFile: ExtFile
-    ) {
-        every { submissionRepository.getReferencedFiles("S-BSST1", "file-list") } returns listOf(extFile)
-
-        assertThat(testInstance.getReferencedFiles("S-BSST1", "file-list").files).containsExactly(extFile)
     }
 }

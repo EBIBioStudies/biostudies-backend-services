@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.integration.config
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.integration.services.SqlPersistenceService
 import ac.uk.ebi.biostd.persistence.integration.services.UserSqlPermissionsService
@@ -29,13 +29,13 @@ open class SqlPersistenceConfig {
         sequenceRepository: SequenceDataRepository,
         accessTagsDataRepository: AccessTagDataRepo,
         lockExecutor: LockExecutor,
-        submissionQueryService: SubmissionQueryService
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService
     ): PersistenceService =
         SqlPersistenceService(
             sequenceRepository,
             accessTagsDataRepository,
             lockExecutor,
-            submissionQueryService
+            submissionPersistenceQueryService
         )
 
     @Bean

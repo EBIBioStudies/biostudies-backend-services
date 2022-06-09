@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.integration.services
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.SequenceNotFoundException
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbSequence
@@ -14,7 +14,7 @@ internal open class SqlPersistenceService(
     private val sequenceRepository: SequenceDataRepository,
     private val accessTagsDataRepository: AccessTagDataRepo,
     private val lockExecutor: LockExecutor,
-    private val submissionQueryService: SubmissionQueryService
+    private val submissionPersistenceQueryService: SubmissionPersistenceQueryService
 ) : PersistenceService {
     override fun sequenceAccNoPatternExists(pattern: String): Boolean = sequenceRepository.existsByPrefix(pattern)
 
@@ -26,7 +26,7 @@ internal open class SqlPersistenceService(
     override fun getSequenceNextValue(pattern: String): Long = lockExecutor.executeLocking(pattern) {
         val sequence = sequenceRepository.findByPrefix(pattern) ?: throw SequenceNotFoundException(pattern)
         var next = sequence.counter.count + 1
-        while (submissionQueryService.existByAccNo("${sequence.prefix}$next")) next++
+        while (submissionPersistenceQueryService.existByAccNo("${sequence.prefix}$next")) next++
 
         sequence.counter.count = next
         sequenceRepository.save(sequence).counter.count

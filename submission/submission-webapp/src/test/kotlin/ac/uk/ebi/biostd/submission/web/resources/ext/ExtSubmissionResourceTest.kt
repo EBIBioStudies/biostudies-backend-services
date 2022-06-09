@@ -6,8 +6,9 @@ import ac.uk.ebi.biostd.resolvers.TestBioUserResolver
 import ac.uk.ebi.biostd.submission.converters.ExtFileTableConverter
 import ac.uk.ebi.biostd.submission.converters.ExtPageSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
+import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
+import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
-import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -39,12 +40,18 @@ class ExtSubmissionResourceTest(
     @MockK private val tempFileGenerator: TempFileGenerator,
     @MockK private val extSubmissionService: ExtSubmissionService,
     @MockK private val extPageMapper: ExtendedPageMapper,
-    @MockK private val extSerializationService: ExtSerializationService
+    @MockK private val extSerializationService: ExtSerializationService,
+    @MockK private val extSubmissionQueryService: ExtSubmissionQueryService
 ) {
     private val bioUserResolver = TestBioUserResolver()
     private val mvc = MockMvcBuilders
         .standaloneSetup(
-            ExtSubmissionResource(extPageMapper, extSubmissionService, extSerializationService)
+            ExtSubmissionResource(
+                extPageMapper,
+                extSubmissionService,
+                extSubmissionQueryService,
+                extSerializationService
+            )
         )
         .setMessageConverters(
             ExtFileTableConverter(extSerializationService),
@@ -62,7 +69,7 @@ class ExtSubmissionResourceTest(
         val submissionJson = jsonObj { "accNo" to "S-TEST123" }.toString()
         bioUserResolver.securityUser = TestSuperUser.asSecurityUser()
         every { extSerializationService.serialize(extSubmission) } returns submissionJson
-        every { extSubmissionService.getExtendedSubmission("S-TEST123") } returns extSubmission
+        every { extSubmissionQueryService.getExtendedSubmission("S-TEST123") } returns extSubmission
 
         mvc.get("/submissions/extended/S-TEST123")
             .andExpect {
@@ -72,7 +79,7 @@ class ExtSubmissionResourceTest(
 
         verify(exactly = 1) {
             extSerializationService.serialize(extSubmission)
-            extSubmissionService.getExtendedSubmission("S-TEST123")
+            extSubmissionQueryService.getExtendedSubmission("S-TEST123")
         }
     }
 
@@ -136,7 +143,7 @@ class ExtSubmissionResourceTest(
         val filesJson = jsonObj { "files" to "ext-file-table" }.toString()
 
         every { extSerializationService.serialize(extFileTable) } returns filesJson
-        every { extSubmissionService.getReferencedFiles("S-TEST123", "file-list") } returns extFileTable
+        every { extSubmissionQueryService.getReferencedFiles("S-TEST123", "file-list") } returns extFileTable
 
         mvc.get("/submissions/extended/S-TEST123/referencedFiles/file-list")
             .andExpect {
@@ -146,7 +153,7 @@ class ExtSubmissionResourceTest(
 
         verify(exactly = 1) {
             extSerializationService.serialize(extFileTable)
-            extSubmissionService.getReferencedFiles("S-TEST123", "file-list")
+            extSubmissionQueryService.getReferencedFiles("S-TEST123", "file-list")
         }
     }
 
@@ -157,7 +164,7 @@ class ExtSubmissionResourceTest(
         val filesJson = jsonObj { "files" to "ext-file-table" }.toString()
 
         every { extSerializationService.serialize(extFileTable) } returns filesJson
-        every { extSubmissionService.getReferencedFiles("S-TEST123", "my/folder/file-list") } returns extFileTable
+        every { extSubmissionQueryService.getReferencedFiles("S-TEST123", "my/folder/file-list") } returns extFileTable
 
         mvc.get("/submissions/extended/S-TEST123/referencedFiles/my/folder/file-list")
             .andExpect {
@@ -167,7 +174,7 @@ class ExtSubmissionResourceTest(
 
         verify(exactly = 1) {
             extSerializationService.serialize(extFileTable)
-            extSubmissionService.getReferencedFiles("S-TEST123", "my/folder/file-list")
+            extSubmissionQueryService.getReferencedFiles("S-TEST123", "my/folder/file-list")
         }
     }
 
@@ -187,7 +194,7 @@ class ExtSubmissionResourceTest(
 
         every { extSerializationService.serialize(webExtPage) } returns response
         every { extPageMapper.asExtPage(pageable, capture(extPageRequestSlot)) } returns webExtPage
-        every { extSubmissionService.getExtendedSubmissions(capture(extPageRequestSlot)) } returns pageable
+        every { extSubmissionQueryService.getExtendedSubmissions(capture(extPageRequestSlot)) } returns pageable
 
         mvc.get("/submissions/extended?limit=1&offset=0&fromRTime=2019-09-21T15:03:45Z&toRTime=2019-09-22T15:03:45Z")
             .andExpect {
@@ -200,7 +207,7 @@ class ExtSubmissionResourceTest(
         verify(exactly = 1) {
             extSerializationService.serialize(webExtPage)
             extPageMapper.asExtPage(pageable, extPageRequest)
-            extSubmissionService.getExtendedSubmissions(extPageRequest)
+            extSubmissionQueryService.getExtendedSubmissions(extPageRequest)
         }
     }
 

@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import com.mongodb.BasicDBObject
@@ -27,6 +28,12 @@ internal class SubmissionMongoPersistenceService(
     private val systemService: FileSystemService,
     private val submissionRepository: ExtSubmissionRepository,
 ) : SubmissionPersistenceService {
+
+    override fun getNextVersion(accNo: String): Int {
+        val lastVersion = subDataRepository.getCurrentVersion(accNo) ?: 0
+        return lastVersion.absoluteValue + 1
+    }
+
     override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
         val version = getNextVersion(rqt.submission.accNo)
         val extSubmission = rqt.submission.copy(version = version)
@@ -42,7 +49,7 @@ internal class SubmissionMongoPersistenceService(
         val (submission, fileMode, draftKey) = saveRequest
         val processingSubmission = processFiles(submission, fileMode)
         val savedSubmission = submissionRepository.saveSubmission(processingSubmission, draftKey)
-        requestRepository.updateStatus(SubmissionRequestStatus.PROCESSED, submission.accNo, submission.version)
+        requestRepository.updateStatus(PROCESSED, submission.accNo, submission.version)
         systemService.unpublishSubmissionFiles(savedSubmission.accNo, savedSubmission.owner, savedSubmission.relPath)
 
         if (savedSubmission.released) {
@@ -64,11 +71,6 @@ internal class SubmissionMongoPersistenceService(
     private fun processFiles(submission: ExtSubmission, fileMode: FileMode): ExtSubmission {
         val filePersistenceRequest = FilePersistenceRequest(submission, fileMode)
         return systemService.persistSubmissionFiles(filePersistenceRequest)
-    }
-
-    private fun getNextVersion(accNo: String): Int {
-        val lastVersion = subDataRepository.getCurrentVersion(accNo) ?: 0
-        return lastVersion.absoluteValue + 1
     }
 
     private fun asRequest(rqt: SubmissionRequest, submission: ExtSubmission): DocSubmissionRequest {

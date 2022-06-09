@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
-import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.model.constants.TEXT_XML
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/submissions")
-class SubmissionsResource(private val submissionService: SubmissionService) {
+class SubmissionsResource(private val submissionService: SubmissionQueryService) {
     @GetMapping("/{accNo}.json", produces = [APPLICATION_JSON])
     @ResponseBody
     fun asJson(@PathVariable accNo: String) = submissionService.getSubmissionAsJson(accNo)
