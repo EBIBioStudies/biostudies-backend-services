@@ -21,7 +21,8 @@ import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
-import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.Submission
@@ -52,7 +53,7 @@ class SubmissionSubmitter(
     private val collectionInfoService: CollectionInfoService,
     private val queryService: SubmissionMetaQueryService,
     private val properties: ApplicationProperties,
-    private val toExtSectionMapper: ToExtSectionMapper
+    private val toExtSectionMapper: ToExtSectionMapper,
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         val submission = process(rqt)
@@ -85,7 +86,7 @@ class SubmissionSubmitter(
         submitter: User,
         onBehalfUser: User?,
         source: FilesSource,
-        method: SubmissionMethod
+        method: SubmissionMethod,
     ): ExtSubmission {
         val previousVersion = queryService.findLatestBasicByAccNo(submission.accNo)
         val isNew = previousVersion == null
@@ -120,7 +121,7 @@ class SubmissionSubmitter(
             collections = tags.map { ExtCollection(it) },
             section = toExtSectionMapper.convert(submission.accNo, version, submission.section, source),
             attributes = submission.attributes.toExtAttributes(SUBMISSION_RESERVED_ATTRIBUTES),
-            storageMode = if (properties.persistence.enableFire) StorageMode.FIRE else StorageMode.NFS
+            storageMode = if (properties.persistence.enableFire) FIRE else NFS
         )
     }
 

@@ -16,7 +16,7 @@ import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
-import ac.uk.ebi.biostd.submission.submitter.RequestProcessor
+import ac.uk.ebi.biostd.submission.submitter.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
@@ -44,7 +44,7 @@ class SubmitterConfig {
     fun requestProcessor(
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         fileProcessingService: FileProcessingService,
-    ): RequestProcessor = RequestProcessor(
+    ): SubmissionRequestProcessor = SubmissionRequestProcessor(
         submissionPersistenceQueryService,
         fileProcessingService
     )
@@ -53,7 +53,7 @@ class SubmitterConfig {
     fun extSubmissionSubmitter(
         persistenceService: SubmissionPersistenceService,
         submissionDraftService: SubmissionDraftService,
-        requestProcessor: RequestProcessor,
+        requestProcessor: SubmissionRequestProcessor,
     ) = ExtSubmissionSubmitter(
         persistenceService,
         submissionDraftService,

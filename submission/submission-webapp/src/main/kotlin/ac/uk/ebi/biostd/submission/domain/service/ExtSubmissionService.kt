@@ -8,7 +8,8 @@ import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -66,7 +67,7 @@ class ExtSubmissionService(
         return extSubmission.copy(
             submitter = user,
             modificationTime = OffsetDateTime.now(),
-            storageMode = if (properties.persistence.enableFire) StorageMode.FIRE else StorageMode.NFS
+            storageMode = if (properties.persistence.enableFire) FIRE else NFS
         )
     }
 
