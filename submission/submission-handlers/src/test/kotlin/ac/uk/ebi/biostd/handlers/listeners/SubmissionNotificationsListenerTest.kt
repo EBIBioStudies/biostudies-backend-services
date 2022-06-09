@@ -2,6 +2,8 @@ package ac.uk.ebi.biostd.handlers.listeners
 
 import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
+import ac.uk.ebi.biostd.handlers.config.BIOSTUDIES_EXCHANGE
+import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.SystemNotification
 import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
@@ -19,22 +21,31 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.amqp.rabbit.core.RabbitTemplate
 
 @ExtendWith(MockKExtension::class)
 class SubmissionNotificationsListenerTest(
     @MockK private val submitter: ExtUser,
     @MockK private val submission: ExtSubmission,
     @MockK private val message: SubmissionMessage,
+    @MockK private val rabbitTemplate: RabbitTemplate,
     @MockK private val webConsumer: BioStudiesWebConsumer,
     @MockK private val notificationsSender: NotificationsSender,
     @MockK private val rtNotificationService: RtNotificationService,
-    @MockK private val notificationProperties: NotificationProperties
+    @MockK private val notificationProperties: NotificationProperties,
 ) {
     private val testInstance =
-        SubmissionNotificationsListener(webConsumer, notificationsSender, rtNotificationService, notificationProperties)
+        SubmissionNotificationsListener(
+            rabbitTemplate,
+            webConsumer,
+            notificationsSender,
+            rtNotificationService,
+            notificationProperties
+        )
 
     @BeforeEach
     fun beforeEach() {
+        mockRabbit()
         mockMessage()
         mockSubmitter()
         every { notificationProperties.uiUrl } returns "ui-url"
@@ -51,8 +62,13 @@ class SubmissionNotificationsListenerTest(
     fun `receive submission message`() {
         testInstance.receiveSubmissionMessage(message)
 
-        verify(exactly = 1) { webConsumer.getExtSubmission("ext-tab-url") }
-        verify(exactly = 1) { rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url") }
+        verify(exactly = 1) {
+            webConsumer.getExtSubmission("ext-tab-url")
+            rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url")
+        }
+        verify(exactly = 0) {
+            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
+        }
     }
 
     @Test
@@ -61,16 +77,24 @@ class SubmissionNotificationsListenerTest(
 
         testInstance.receiveSubmissionMessage(message)
 
-        verify(exactly = 0) { webConsumer.getExtSubmission("ext-tab-url") }
-        verify(exactly = 0) { rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url") }
+        verify(exactly = 0) {
+            webConsumer.getExtSubmission("ext-tab-url")
+            rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url")
+            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
+        }
     }
 
     @Test
     fun `receive submission release message`() {
         testInstance.receiveSubmissionReleaseMessage(message)
 
-        verify(exactly = 1) { webConsumer.getExtSubmission("ext-tab-url") }
-        verify(exactly = 1) { rtNotificationService.notifySubmissionRelease(submission, "Dr Owner", "ui-url") }
+        verify(exactly = 1) {
+            webConsumer.getExtSubmission("ext-tab-url")
+            rtNotificationService.notifySubmissionRelease(submission, "Dr Owner", "ui-url")
+        }
+        verify(exactly = 0) {
+            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
+        }
     }
 
     @Test
@@ -79,8 +103,11 @@ class SubmissionNotificationsListenerTest(
 
         testInstance.receiveSubmissionReleaseMessage(message)
 
-        verify(exactly = 0) { webConsumer.getExtSubmission("ext-tab-url") }
-        verify(exactly = 0) { rtNotificationService.notifySubmissionRelease(submission, "Dr Owner", "ui-url") }
+        verify(exactly = 0) {
+            webConsumer.getExtSubmission("ext-tab-url")
+            rtNotificationService.notifySubmissionRelease(submission, "Dr Owner", "ui-url")
+            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
+        }
     }
 
     @Test
@@ -95,7 +122,25 @@ class SubmissionNotificationsListenerTest(
         verify(exactly = 1) { notificationsSender.send(notificationSlot.captured) }
     }
 
+    @Test
+    fun `notification failed`() {
+        val errorNotificationSlot = slot<SystemNotification>()
+
+        every { webConsumer.getExtSubmission("ext-tab-url") } throws Exception()
+        every { notificationsSender.send(capture(errorNotificationSlot)) } answers { nothing }
+
+        testInstance.receiveSubmissionReleaseMessage(message)
+
+        verify(exactly = 0) { rtNotificationService.notifySubmissionRelease(submission, "Dr Owner", "ui-url") }
+        verify(exactly = 1) {
+            webConsumer.getExtSubmission("ext-tab-url")
+            notificationsSender.send(errorNotificationSlot.captured)
+            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
+        }
+    }
+
     private fun mockMessage() {
+        every { message.accNo } returns "S-BSST1"
         every { message.extTabUrl } returns "ext-tab-url"
         every { message.extUserUrl } returns "ext-user-url"
     }
@@ -103,5 +148,11 @@ class SubmissionNotificationsListenerTest(
     private fun mockSubmitter() {
         every { submitter.fullName } returns "Dr Owner"
         every { submitter.notificationsEnabled } returns true
+    }
+
+    private fun mockRabbit() {
+        every {
+            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
+        } answers { nothing }
     }
 }
