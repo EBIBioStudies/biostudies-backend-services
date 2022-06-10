@@ -45,7 +45,7 @@ internal class SubmissionDocDataRepositoryTest {
         @Test
         fun `release submission`() {
             testInstance.save(testDocSubmission.copy(accNo = "S-BIAD1", version = 1, released = false))
-            testInstance.release("S-BIAD1")
+            testInstance.setAsRelease("S-BIAD1")
 
             assertThat(testInstance.getByAccNo(accNo = "S-BIAD1").released).isTrue
         }

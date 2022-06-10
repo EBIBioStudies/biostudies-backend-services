@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.ExtSubmissionRepository
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -24,14 +23,12 @@ class ExternalConfig {
         submissionDocDataRepository: SubmissionDocDataRepository,
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
         serializationService: ExtSerializationService,
-        systemService: FileSystemService,
         submissionRepository: ExtSubmissionRepository,
     ): SubmissionPersistenceService {
         return SubmissionMongoPersistenceService(
             submissionDocDataRepository,
             submissionRequestDocDataRepository,
             serializationService,
-            systemService,
             submissionRepository
         )
     }

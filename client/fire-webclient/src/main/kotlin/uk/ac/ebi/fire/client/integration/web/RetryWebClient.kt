@@ -7,7 +7,7 @@ import java.io.File
 @Suppress("TooManyFunctions")
 internal class RetryWebClient(
     private val fireClient: FireClient,
-    private val retryTemplate: RetryTemplate
+    private val retryTemplate: RetryTemplate,
 ) : FireClient {
     override fun save(file: File, md5: String): FireApiFile =
         retryTemplate.execute<FireApiFile, Exception> { fireClient.save(file, md5) }

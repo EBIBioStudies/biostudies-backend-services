@@ -14,11 +14,14 @@ data class SecurityUser(
     val magicFolder: MagicFolder,
     val groupsFolders: List<GroupMagicFolder>,
     val permissions: Set<SecurityPermission>,
-    val notificationsEnabled: Boolean
+    val notificationsEnabled: Boolean,
 ) {
     fun asUser() = User(id, email, secret, fullName, notificationsEnabled)
 }
 
 data class SecurityPermission(val accessType: AccessType, val accessTag: String)
-data class MagicFolder(val relativePath: Path, val path: Path)
+data class MagicFolder(val relativePath: Path, val path: Path) {
+    fun resolve(subPath: String) = path.resolve(subPath)
+}
+
 data class GroupMagicFolder(val groupName: String, val path: Path, val description: String? = null)

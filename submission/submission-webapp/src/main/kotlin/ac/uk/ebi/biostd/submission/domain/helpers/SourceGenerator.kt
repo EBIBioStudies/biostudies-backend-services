@@ -8,7 +8,6 @@ import ebi.ac.uk.io.sources.FilesListSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
 import ebi.ac.uk.paths.FILES_PATH
-import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 import java.nio.file.Paths
@@ -17,11 +16,6 @@ class SourceGenerator(
     private val props: ApplicationProperties,
     private val fireSourceFactory: FireFilesSourceFactory,
 ) {
-    fun userSources(
-        user: SecurityUser,
-        rootPath: String? = null
-    ): FilesSource = ComposedFileSource(userSourcesList(user, rootPath.orEmpty()))
-
     fun submissionSources(requestSources: RequestSources): FilesSource {
         val (owner, submitter, files, rootPath, submission) = requestSources
         return ComposedFileSource(submissionSources(owner, submitter, files, rootPath, submission))
@@ -30,34 +24,33 @@ class SourceGenerator(
     fun submitterSources(user: SecurityUser, onBehalfUser: SecurityUser? = null) = ComposedFileSource(
         buildList {
             if (onBehalfUser !== null) {
-                addAll(userSourcesList(onBehalfUser, ""))
+                add(PathFilesSource(onBehalfUser.magicFolder.resolve(null.orEmpty())))
+                addAll(onBehalfUser.groupsFolders.map { GroupSource(it.groupName, it.path) })
             }
 
-            addAll(userSourcesList(user, ""))
+            add(PathFilesSource(user.magicFolder.resolve(null.orEmpty())))
+            addAll(user.groupsFolders.map { GroupSource(it.groupName, it.path) })
         }
     )
-
-    private fun userSourcesList(user: SecurityUser, rootPath: String): List<FilesSource> =
-        listOf(createPathSource(user, rootPath)).plus(groupSources(user.groupsFolders))
 
     private fun submissionSources(
         owner: SecurityUser?,
         submitter: SecurityUser?,
         files: List<File>,
         rootPath: String?,
-        sub: ExtSubmission?
+        sub: ExtSubmission?,
     ): List<FilesSource> {
         return buildList {
             add(FilesListSource(files))
 
             if (submitter != null) {
-                add(createPathSource(submitter, rootPath))
-                addAll(groupSources(submitter.groupsFolders))
+                add(PathFilesSource(submitter.magicFolder.resolve(rootPath.orEmpty())))
+                addAll(submitter.groupsFolders.map { GroupSource(it.groupName, it.path) })
             }
 
             if (owner != null) {
-                add(createPathSource(owner, rootPath))
-                addAll(groupSources(owner.groupsFolders))
+                add(PathFilesSource(owner.magicFolder.resolve(rootPath.orEmpty())))
+                addAll(owner.groupsFolders.map { GroupSource(it.groupName, it.path) })
             }
 
             if (props.persistence.enableFire && sub == null) {
@@ -71,13 +64,6 @@ class SourceGenerator(
         }
     }
 
-    private fun createPathSource(user: SecurityUser, rootPath: String?): PathFilesSource {
-        val folder = user.magicFolder.path.resolve(rootPath.orEmpty())
-        return PathFilesSource(folder)
-    }
-
-    private fun groupSources(groups: List<GroupMagicFolder>): List<GroupSource> =
-        groups.map { GroupSource(it.groupName, it.path) }
 }
 
 data class RequestSources(
@@ -85,5 +71,5 @@ data class RequestSources(
     val submitter: SecurityUser? = null,
     val files: List<File> = emptyList(),
     val rootPath: String?,
-    val submission: ExtSubmission?
+    val submission: ExtSubmission?,
 )
