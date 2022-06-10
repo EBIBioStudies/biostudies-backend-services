@@ -1,20 +1,17 @@
 package ac.uk.ebi.biostd.data.web
 
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
+import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.converters.BioUser
+import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
+import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
-import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
+import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
 import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
-import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.io.sources.PreferredSource
-import ebi.ac.uk.model.constants.ATTRIBUTES
-import ebi.ac.uk.model.constants.FILE_MODE
-import ebi.ac.uk.model.constants.PREFERRED_SOURCE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
@@ -26,7 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
@@ -36,7 +32,8 @@ import org.springframework.web.bind.annotation.RestController
 @Suppress("LongParameterList")
 internal class SubmissionDraftResource(
     private val submitWebHandler: SubmitWebHandler,
-    private val draftService: SubmissionDraftService
+    private val draftService: SubmissionDraftService,
+    private val submitRequestBuilder: SubmitRequestBuilder,
 ) {
     @GetMapping
     @ResponseBody
@@ -82,29 +79,21 @@ internal class SubmissionDraftResource(
         @RequestBody content: String
     ): ResponseSubmissionDraft = draftService.createSubmissionDraft(user.email, content).asResponseDraft()
 
+    // TODO include automatic deployment for prod
+    // TODO improve the name for the resources as we have submission, submissions, submit
+    // TODO update the docs both here and confluence (check the todo list in the calendar)
     @PostMapping("/{key}/submit")
     fun submitDraft(
         @PathVariable key: String,
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
-        @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
-        @RequestParam(PREFERRED_SOURCE, defaultValue = "USER_SPACE") preferredSource: PreferredSource,
-        @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?
+        @ModelAttribute parameters: SubmissionRequestParameters,
     ) {
         val submission = draftService.getSubmissionDraft(user.email, key).content
-        val request = ContentSubmitWebRequest(
-            submission = submission,
-            draftKey = key,
-            onBehalfRequest = onBehalfRequest,
-            user = user,
-            format = JSON_PRETTY,
-            fileMode = mode,
-            attrs = attributes.orEmpty(),
-            files = emptyList(),
-            preferredSource = preferredSource
-        )
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.JSON_PRETTY, emptyArray(), parameters)
+        val request = submitRequestBuilder.buildContentRequest(submission, buildRequest)
 
-        submitWebHandler.submitAsync(request)
+        return submitWebHandler.submitAsync(request)
     }
 }
 

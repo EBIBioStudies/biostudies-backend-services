@@ -19,6 +19,7 @@ import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.ATTACHED_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.INPUT_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.FILE_MODE
 import uk.ac.ebi.biostd.client.cli.common.getFiles
+import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 import java.io.File
@@ -36,11 +37,9 @@ internal class SubmitCommand(
     private val preferredSource by option("-ps", "--preferredSource", help = PREFERRED_SOURCE).default(USER_SPACE.name)
 
     override fun run() {
+        val securityConfig = SecurityConfig(server, user, password, onBehalf)
         val request = SubmissionRequest(
-            server = server,
-            user = user,
-            password = password,
-            onBehalf = onBehalf,
+            securityConfig = securityConfig,
             file = input,
             attached = attached?.split(FILES_SEPARATOR)?.flatMap { getFiles(File(it)) }.orEmpty(),
             fileMode = FileMode.valueOf(fileMode),

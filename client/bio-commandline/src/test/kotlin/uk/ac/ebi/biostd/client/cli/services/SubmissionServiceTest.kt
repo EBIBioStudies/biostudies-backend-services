@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
+import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 
@@ -163,32 +164,18 @@ internal class SubmissionServiceTest {
         val webClientException: WebClientException = mockk()
         val submission: Submission = mockk()
         val bioWebClient: BioWebClient = mockk()
+        val securityConfig = SecurityConfig(SERVER, USER, PASSWORD, ON_BEHALF)
 
         val submissionRequest = SubmissionRequest(
-            server = SERVER,
-            user = USER,
-            password = PASSWORD,
-            onBehalf = ON_BEHALF,
+            securityConfig,
             file = mockk(),
             attached = listOf(mockk()),
             fileMode = COPY,
             preferredSource = SUBMISSION
         )
 
-        val deletionRequest = DeletionRequest(
-            server = SERVER,
-            user = USER,
-            password = PASSWORD,
-            onBehalf = ON_BEHALF,
-            accNoList = listOf(ACC_NO)
-        )
+        val deletionRequest = DeletionRequest(securityConfig, accNoList = listOf(ACC_NO))
 
-        var validateFileList = ValidateFileListRequest(
-            server = SERVER,
-            user = USER,
-            password = PASSWORD,
-            onBehalf = null,
-            fileListPath = FILE_LIST_PATH
-        )
+        val validateFileList = ValidateFileListRequest(securityConfig, FILE_LIST_PATH)
     }
 }

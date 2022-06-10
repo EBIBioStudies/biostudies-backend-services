@@ -6,6 +6,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.junit.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
@@ -31,12 +32,7 @@ internal class ValidateFileListCommandTest(
         const val user = "user"
         const val password = "password"
         const val fileListPath = "file-list.json"
-        val validateRequest = ValidateFileListRequest(
-            server = server,
-            user = user,
-            password = password,
-            onBehalf = null,
-            fileListPath = fileListPath
-        )
+        private val securityConfig = SecurityConfig(server, user, password)
+        val validateRequest = ValidateFileListRequest(securityConfig, fileListPath)
     }
 }

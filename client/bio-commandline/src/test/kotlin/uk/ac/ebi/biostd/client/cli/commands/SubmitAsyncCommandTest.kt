@@ -19,6 +19,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
@@ -42,15 +43,13 @@ internal class SubmitAsyncCommandTest(
         val attachedFile1 = temporaryFolder.createFile("attachedFile1.tsv")
         val attachedFile2 = temporaryFolder.createFile("attachedFile2.tsv")
 
+        val securityConfig = SecurityConfig("server", "user", "password")
         val request = SubmissionRequest(
-            server = "server",
-            user = "user",
-            password = "password",
-            onBehalf = null,
+            securityConfig,
             file = submission,
             attached = listOf(attachedFile1, attachedFile2),
             fileMode = COPY,
-            preferredSource = USER_SPACE
+            preferredSource = USER_SPACE,
         )
         every { submissionService.submitAsync(request) } answers { nothing }
 
@@ -73,15 +72,13 @@ internal class SubmitAsyncCommandTest(
         val attachedFile1 = temporaryFolder.createFile("attachedFile1.tsv")
         val attachedFile2 = temporaryFolder.createFile("attachedFile2.tsv")
 
+        val securityConfig = SecurityConfig("server", "user", "password")
         val request = SubmissionRequest(
-            server = "server",
-            user = "user",
-            password = "password",
-            onBehalf = null,
+            securityConfig,
             file = submission,
             attached = listOf(attachedFile1, attachedFile2),
             fileMode = MOVE,
-            preferredSource = SUBMISSION
+            preferredSource = SUBMISSION,
         )
         every { submissionService.submitAsync(request) } answers { nothing }
 
@@ -104,15 +101,13 @@ internal class SubmitAsyncCommandTest(
     fun `no attached files`() {
         val submission = temporaryFolder.createFile("Submission.tsv")
 
+        val securityConfig = SecurityConfig("server", "user", "password")
         val request = SubmissionRequest(
-            server = "server",
-            user = "user",
-            password = "password",
-            onBehalf = null,
+            securityConfig,
             file = submission,
             attached = emptyList(),
             fileMode = COPY,
-            preferredSource = USER_SPACE
+            preferredSource = USER_SPACE,
         )
         every { submissionService.submitAsync(request) } answers { nothing }
 

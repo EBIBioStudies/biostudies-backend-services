@@ -18,6 +18,7 @@ import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_PASSWORD
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_USER
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.FILE_MODE
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
+import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 /**
@@ -36,24 +37,22 @@ internal class MigrateCommand(private val submissionService: SubmissionService) 
     private val async by option("-as", "--async", help = ASYNC).flag(default = false)
 
     override fun run() {
-        submissionService.migrate(migrationRequest())
+        val sourceSecurityConfig = SecurityConfig(source, sourceUser, sourcePassword)
+        val targetSecurityConfig = SecurityConfig(target, targetUser, targetPassword)
+        val migrationRequest = MigrationRequest(
+            accNo,
+            sourceSecurityConfig,
+            targetSecurityConfig,
+            targetOwner,
+            FileMode.valueOf(fileMode),
+            async
+        )
+
+        submissionService.migrate(migrationRequest)
 
         when (async) {
             true -> echo("SUCCESS: Submission with AccNo '$accNo' migration from $source to $target is in the queue")
             else -> echo("SUCCESS: Submission with AccNo '$accNo' was migrated from $source to $target")
         }
     }
-
-    private fun migrationRequest() = MigrationRequest(
-        accNo,
-        source,
-        sourceUser,
-        sourcePassword,
-        target,
-        targetUser,
-        targetPassword,
-        targetOwner,
-        FileMode.valueOf(fileMode),
-        async
-    )
 }

@@ -22,7 +22,8 @@ internal class SubmissionService {
     fun validateFileList(request: ValidateFileListRequest) = performRequest { validateFileListRequest(request) }
 
     private fun submitRequest(request: SubmissionRequest): Submission {
-        val (server, user, password, onBehalf, file, attached, fileMode, preferredSource) = request
+        val (server, user, password, onBehalf) = request.securityConfig
+        val (_, file, attached, fileMode, preferredSource) = request
 
         return bioWebClient(server, user, password, onBehalf)
             .submitSingle(file, attached, fileMode = fileMode, preferredSource = preferredSource)
@@ -30,27 +31,36 @@ internal class SubmissionService {
     }
 
     private fun submitAsyncRequest(request: SubmissionRequest) {
-        val (server, user, password, onBehalf, file, attached, fileMode, preferredSource) = request
+        val (server, user, password, onBehalf) = request.securityConfig
+        val (_, file, attached, fileMode, preferredSource) = request
 
         bioWebClient(server, user, password, onBehalf)
             .asyncSubmitSingle(file, attached, fileMode = fileMode, preferredSource = preferredSource)
     }
 
-    private fun deleteRequest(request: DeletionRequest) =
-        bioWebClient(request.server, request.user, request.password).deleteSubmissions(request.accNoList)
+    private fun deleteRequest(request: DeletionRequest) {
+        val (server, user, password) = request.securityConfig
+
+        bioWebClient(server, user, password).deleteSubmissions(request.accNoList)
+    }
 
     private fun migrateRequest(rqt: MigrationRequest) {
-        val sourceClient = bioWebClient(rqt.source, rqt.sourceUser, rqt.sourcePassword)
-        val targetClient = bioWebClient(rqt.target, rqt.targetUser, rqt.targetPassword)
+        val sourceConfig = rqt.sourceSecurityConfig
+        val targetConfig = rqt.targetSecurityConfig
+        val sourceClient = bioWebClient(sourceConfig.server, sourceConfig.user, sourceConfig.password)
+        val targetClient = bioWebClient(targetConfig.server, targetConfig.user, targetConfig.password)
         val source = sourceClient.getExtByAccNo(rqt.accNo, true)
         val submission = if (rqt.targetOwner != null) source.copy(owner = rqt.targetOwner) else source
+
         when (rqt.async) {
             true -> targetClient.submitExtAsync(submission, rqt.fileMode)
             false -> targetClient.submitExt(submission, rqt.fileMode)
         }
     }
 
-    private fun validateFileListRequest(request: ValidateFileListRequest) =
-        bioWebClient(request.server, request.user, request.password, request.onBehalf)
-            .validateFileList(request.fileListPath)
+    private fun validateFileListRequest(request: ValidateFileListRequest) {
+        val (server, user, password, onBehalf) = request.securityConfig
+
+        bioWebClient(server, user, password, onBehalf).validateFileList(request.fileListPath)
+    }
 }

@@ -10,6 +10,7 @@ import uk.ac.ebi.biostd.client.cli.common.GrantPermissionParameters.ACCESS_TAG_N
 import uk.ac.ebi.biostd.client.cli.common.GrantPermissionParameters.ACCESS_TYPE
 import uk.ac.ebi.biostd.client.cli.common.GrantPermissionParameters.TARGET_USER
 import uk.ac.ebi.biostd.client.cli.dto.PermissionRequest
+import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.SecurityService
 
 internal class GrantPermissionCommand(
@@ -23,18 +24,10 @@ internal class GrantPermissionCommand(
     private val accessTagName by option("-atn", "--accessTagName", help = ACCESS_TAG_NAME).required()
 
     override fun run() {
-        val request = permissionRequest()
+        val securityConfig = SecurityConfig(server, user, password)
+        val request = PermissionRequest(securityConfig, accessType, targetUser, accessTagName)
 
         securityService.grantPermission(request)
         echo("The user $targetUser has been granted permission to $accessType in the collection $accessTagName")
     }
-
-    private fun permissionRequest() = PermissionRequest(
-        server = server,
-        user = user,
-        password = password,
-        accessType = accessType,
-        targetUser = targetUser,
-        accessTagName = accessTagName
-    )
 }

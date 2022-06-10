@@ -5,12 +5,9 @@ import ebi.ac.uk.io.sources.PreferredSource
 import java.io.File
 
 internal data class SubmissionRequest(
-    val server: String,
-    val user: String,
-    val password: String,
-    val onBehalf: String?,
+    val securityConfig: SecurityConfig,
     val file: File,
     val attached: List<File>,
     val fileMode: FileMode,
-    val preferredSource: PreferredSource
+    val preferredSource: PreferredSource,
 )

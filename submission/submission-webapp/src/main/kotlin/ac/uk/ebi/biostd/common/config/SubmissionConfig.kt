@@ -10,8 +10,10 @@ import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.service.CollectionService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
+import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -91,6 +93,11 @@ class SubmissionConfig(
             toSubmissionMapper,
             onBehalfUtils
         )
+
+    @Bean
+    fun submitRequestBuilder(
+        tempFileGenerator: TempFileGenerator
+    ): SubmitRequestBuilder = SubmitRequestBuilder(tempFileGenerator)
 
     @Bean
     fun submissionHandler(submissionService: SubmissionService): SubmissionsWebHandler =

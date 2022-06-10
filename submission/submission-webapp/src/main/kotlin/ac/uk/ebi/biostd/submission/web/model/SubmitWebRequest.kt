@@ -3,9 +3,13 @@ package ac.uk.ebi.biostd.submission.web.model
 import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.base.orFalse
+import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.FileMode
+import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.io.sources.PreferredSource
+import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import org.springframework.web.multipart.MultipartFile
 import java.io.File
 
 class OnBehalfRequest(
@@ -18,38 +22,41 @@ class OnBehalfRequest(
     }
 }
 
-@Suppress("LongParameterList")
-sealed class SubmitWebRequest(
-    val submitter: SecurityUser,
-    val onBehalfRequest: OnBehalfRequest?,
+data class SubmissionRequestParameters(
+    val fileMode: FileMode = COPY,
+    val preferredSource: PreferredSource = USER_SPACE,
+    val attributes: List<ExtAttributeDetail> = emptyList(),
+)
+
+data class SubmissionConfig(
     val format: SubFormat,
+    val submitter: SecurityUser,
+    val attrs: List<ExtAttributeDetail>,
+)
+
+data class SubmissionFilesConfig(
     val fileMode: FileMode,
     val files: List<File>,
     val preferredSource: PreferredSource,
-    val attrs: Map<String, String?>
 )
 
-@Suppress("LongParameterList")
+sealed class SubmitWebRequest(
+    val submissionConfig: SubmissionConfig,
+    val onBehalfRequest: OnBehalfRequest?,
+    val filesConfig: SubmissionFilesConfig,
+)
+
 class ContentSubmitWebRequest(
     val submission: String,
     val draftKey: String? = null,
+    submissionConfig: SubmissionConfig,
     onBehalfRequest: OnBehalfRequest?,
-    user: SecurityUser,
-    format: SubFormat,
-    fileMode: FileMode,
-    preferredSource: PreferredSource,
-    attrs: Map<String, String?> = emptyMap(),
-    files: List<File> = emptyList()
-) : SubmitWebRequest(user, onBehalfRequest, format, fileMode, files, preferredSource, attrs)
+    filesConfig: SubmissionFilesConfig,
+) : SubmitWebRequest(submissionConfig, onBehalfRequest, filesConfig)
 
-@Suppress("LongParameterList")
 class FileSubmitWebRequest(
     val submission: File,
+    submissionConfig: SubmissionConfig,
     onBehalfRequest: OnBehalfRequest?,
-    user: SecurityUser,
-    format: SubFormat,
-    fileMode: FileMode,
-    preferredSource: PreferredSource,
-    attrs: Map<String, String?> = emptyMap(),
-    files: List<File> = emptyList()
-) : SubmitWebRequest(user, onBehalfRequest, format, fileMode, files, preferredSource, attrs)
+    filesConfig: SubmissionFilesConfig,
+) : SubmitWebRequest(submissionConfig, onBehalfRequest, filesConfig)
