@@ -30,4 +30,3 @@ class SubmissionRequestLoader(
         is NfsFile -> file.copy(md5 = file.file.md5(), size = file.file.size())
     }
 }
-
