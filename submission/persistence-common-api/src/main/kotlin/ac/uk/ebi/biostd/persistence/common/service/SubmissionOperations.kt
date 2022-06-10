@@ -10,9 +10,13 @@ import org.springframework.data.domain.Page
 
 interface SubmissionPersistenceService {
     fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
+
     fun getNextVersion(accNo: String): Int
+
     fun saveSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission
+
     fun setAsReleased(accNo: String)
+
     fun updateRequestAsProcessed(accNo: String, version: Int)
 }
 
