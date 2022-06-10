@@ -10,6 +10,8 @@ import mu.KotlinLogging
 import org.zeroturnaround.zip.ZipUtil
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
+import uk.ac.ebi.fire.client.model.hasNoPath
+import uk.ac.ebi.fire.client.model.isAvailable
 import java.io.File
 import java.nio.file.Files
 
@@ -38,11 +40,23 @@ class FireService(
         return fireFile
     }
 
-    private fun getOrPersist(sub: ExtSubmission, nfsFile: NfsFile): FireFile =
-        when (val record = fireClient.findByPath("${sub.relPath}/${nfsFile.relPath}")) {
-            null -> if (nfsFile.file.isDirectory) saveDirectory(sub, nfsFile) else saveFile(sub, nfsFile)
-            else -> asFireFile(nfsFile, record, nfsFile.type)
+    private fun getOrPersist(sub: ExtSubmission, file: NfsFile): FireFile =
+        when (val record = findFile(sub, file)) {
+            null -> if (file.file.isDirectory) saveDirectory(sub, file) else saveFile(sub, file)
+            else -> asFireFile(file, record, file.type)
         }
+
+    /**
+     * Try to find the fire file for the current nfs file. Some considerations:
+     *
+     * 1. We search by md5 and check that does not bellow to another accNo (another submission), we also ensure file
+     * has no path (submitted in the same submission in a different path).
+     * 2. We search by path in the case it has been already submitted by the current submission.
+     */
+    private fun findFile(sub: ExtSubmission, file: NfsFile): FireApiFile? {
+        val fireFile = fireClient.findByMd5(file.md5).firstOrNull { it.isAvailable(sub.accNo) && it.hasNoPath() }
+        return fireFile ?: fireClient.findByPath("${sub.relPath}/${file.relPath}")
+    }
 
     private fun saveFile(sub: ExtSubmission, nfsFile: NfsFile): FireFile {
         logger.info { "${sub.accNo} ${sub.owner} Persisting file ${nfsFile.fileName} on FIRE" }

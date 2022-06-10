@@ -65,6 +65,7 @@ internal class FireServiceTest(
             every { fireClient.setPath("abc1", "${submission.relPath}/Files/folder.zip") } answers { nothing }
             every { fireClient.setBioMetadata("abc1", submission.accNo, "directory", false) } answers { nothing }
             every { fireClient.findByPath("S-TEST/123/S-TEST123/Files/folder") } returns null
+            every { fireClient.findByMd5(folder.md5()) } returns emptyList()
 
             val folder = testInstance.getOrPersist(submission, nfsFile)
 
@@ -94,6 +95,7 @@ internal class FireServiceTest(
             every { fireClient.setPath("abc1", "${submission.relPath}/Files/folder/test.txt") } answers { nothing }
             every { fireClient.setBioMetadata("abc1", submission.accNo, "file", false) } answers { nothing }
             every { fireClient.findByPath("S-TEST/123/S-TEST123/Files/folder/test.txt") } returns null
+            every { fireClient.findByMd5(nfsFile.md5) } returns emptyList()
             every { fireClient.save(file, file.md5()) } returns fireFile
 
             val response = testInstance.getOrPersist(submission, nfsFile)
@@ -102,8 +104,18 @@ internal class FireServiceTest(
         }
 
         @Test
-        fun `Get or persist when nfs file already persisted`() {
+        fun `Get or persist when nfs file already persisted by path`() {
+            every { fireClient.findByMd5(nfsFile.md5) } returns emptyList()
             every { fireClient.findByPath("S-TEST/123/S-TEST123/Files/folder/test.txt") } returns fireFile
+
+            val response = testInstance.getOrPersist(submission, nfsFile)
+
+            assertFireFile(response)
+        }
+
+        @Test
+        fun `Get or persist when nfs file already persisted by md5`() {
+            every { fireClient.findByMd5(nfsFile.md5) } returns listOf(fireFile)
 
             val response = testInstance.getOrPersist(submission, nfsFile)
 

@@ -5,20 +5,12 @@ import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 
-internal fun FireClient.getOrPersist(
-    accNo: String,
-    file: File,
-    type: ExtFileType,
-    md5: String,
-    path: String
-): FireApiFile = findByPath(path) ?: persistFireFile(accNo, file, type, md5, path)
-
 internal fun FireClient.persistFireFile(
     accNo: String,
     file: File,
     type: ExtFileType,
     md5: String,
-    path: String
+    path: String,
 ): FireApiFile {
     val fireFile = save(file, md5)
     setBioMetadata(fireFile.fireOid, accNo, type.value, published = false)

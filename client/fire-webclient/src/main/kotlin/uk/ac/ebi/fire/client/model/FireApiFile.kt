@@ -9,8 +9,10 @@ data class FireApiFile(
     val objectSize: Number,
     val createTime: String,
     val metadata: List<MetadataEntry>? = null,
-    val filesystemEntry: FileSystemEntry? = null
+    val filesystemEntry: FileSystemEntry? = null,
 )
+
+fun FireApiFile.hasNoPath(): Boolean = filesystemEntry?.path == null
 
 fun FireApiFile.isAvailable(accNo: String): Boolean {
     val meta = metadata.orEmpty()
@@ -21,12 +23,12 @@ fun FireApiFile.isAvailable(): Boolean = metadata.orEmpty().none { it.key == FIR
 
 data class FileSystemEntry(
     val path: String,
-    val published: Boolean
+    val published: Boolean,
 )
 
 data class MetadataEntry(
     val key: String,
-    val value: String
+    val value: String,
 ) {
     override fun toString(): String = "\"${key}\": \"${value}\""
 }
