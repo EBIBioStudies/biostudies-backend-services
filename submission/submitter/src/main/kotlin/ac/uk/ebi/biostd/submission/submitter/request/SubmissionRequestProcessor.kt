@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
@@ -19,7 +18,7 @@ class SubmissionRequestProcessor(
         val (sub, fileMode, draftKey) = saveRequest
         logger.info { "${sub.accNo} ${sub.owner} processing request accNo='${sub.accNo}', version='${sub.version}'" }
 
-        val processingSubmission = processFiles(sub, fileMode)
+        val processingSubmission = systemService.persistSubmissionFiles(FilePersistenceRequest(sub, fileMode))
         val savedSubmission = submissionPersistenceService.saveSubmission(processingSubmission, draftKey)
         submissionPersistenceService.updateRequestAsProcessed(sub.accNo, sub.version)
         systemService.unpublishSubmissionFiles(savedSubmission.accNo, savedSubmission.owner, savedSubmission.relPath)
@@ -41,8 +40,4 @@ class SubmissionRequestProcessor(
         logger.info { "$accNo $owner released submission $accNo" }
     }
 
-    private fun processFiles(submission: ExtSubmission, fileMode: FileMode): ExtSubmission {
-        val filePersistenceRequest = FilePersistenceRequest(submission, fileMode)
-        return systemService.persistSubmissionFiles(filePersistenceRequest)
-    }
 }
