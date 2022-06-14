@@ -42,7 +42,26 @@ parameters:
     type: string
   - in: query
     name: name
-    description: Name that will be used to create the new user in case the "sse" parameter is set to true.
+    description: Name that will be used to create the new user in case the "register" parameter is set to true.
+    required: false
+    type: string
+  - in: query
+    name: fileMode
+    description: |
+      Indicates whether the files in the submission should be copied or moved from the user folder.
+      The files will be copied by default. Accepted values:
+      * COPY
+      * MOVE
+    required: false
+    type: string
+  - in: query
+    name: preferredSource
+    description: Indicates the preferred files source. Valid values are SUBMISSION or USER_SPACE.
+  - in: query
+    name: attributes
+    description: |
+      List of attributes that allow overriding any value at the submission level in the submitted page tab. The
+      values should be passed in the key=value format i.e. title=new title
     required: false
     type: string
 
@@ -56,20 +75,6 @@ requestBody:
           submission:
             description: Submission page tab in the chosen format
             required: true
-            type: string
-          fileMode:
-            description: |
-              Indicates whether the files in the submission should be copied or moved from the user folder.
-              The files will be copied by default. Accepted values:
-              * COPY
-              * MOVE
-            required: false
-            type: string
-          attributes:
-            description:
-              List of attributes that allow overriding any value at the submission level in the submitted page tab. The
-              values should be passed in the key=value format i.e. title=new title
-            required: false
             type: string
     multipart/form-data:
       schema:

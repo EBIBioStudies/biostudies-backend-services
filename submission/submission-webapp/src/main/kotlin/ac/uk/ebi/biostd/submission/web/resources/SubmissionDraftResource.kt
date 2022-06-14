@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.data.web
+package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
@@ -79,9 +79,6 @@ internal class SubmissionDraftResource(
         @RequestBody content: String
     ): ResponseSubmissionDraft = draftService.createSubmissionDraft(user.email, content).asResponseDraft()
 
-    // TODO include automatic deployment for prod
-    // TODO improve the name for the resources as we have submission, submissions, submit
-    // TODO update the docs both here and confluence (check the todo list in the calendar)
     @PostMapping("/{key}/submit")
     fun submitDraft(
         @PathVariable key: String,

@@ -141,13 +141,13 @@ internal class SubmissionServiceTest {
 
     @Test
     fun `validate file list`() {
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns bioWebClient
+        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF, false) } returns bioWebClient
         every { bioWebClient.validateFileList(validateFileList.fileListPath) } answers { nothing }
 
         testInstance.validateFileList(validateFileList)
 
         verify(exactly = 1) {
-            create(SERVER).getAuthenticatedClient(USER, PASSWORD, null)
+            create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF, false)
             bioWebClient.validateFileList(validateFileList.fileListPath)
         }
     }

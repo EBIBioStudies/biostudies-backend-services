@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.web.resources
+package ac.uk.ebi.biostd.submission.web.resources.submit.sync
 
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.submission.converters.BioUser

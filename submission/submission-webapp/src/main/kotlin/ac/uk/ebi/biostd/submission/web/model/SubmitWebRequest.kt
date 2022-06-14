@@ -9,7 +9,6 @@ import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import org.springframework.web.multipart.MultipartFile
 import java.io.File
 
 class OnBehalfRequest(

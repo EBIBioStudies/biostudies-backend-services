@@ -9,7 +9,6 @@ import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
-import ebi.ac.uk.model.constants.PREFERRED_SOURCE
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ON_BEHALF_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
@@ -18,6 +17,7 @@ import uk.ac.ebi.biostd.client.cli.common.FILES_SEPARATOR
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.ATTACHED_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.INPUT_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.FILE_MODE
+import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.PREFERRED_SOURCE
 import uk.ac.ebi.biostd.client.cli.common.getFiles
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
