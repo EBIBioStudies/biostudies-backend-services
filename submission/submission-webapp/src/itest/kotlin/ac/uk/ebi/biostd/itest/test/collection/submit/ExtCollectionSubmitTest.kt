@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.itest.test.project.submit
+package ac.uk.ebi.biostd.itest.test.collection.submit
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV

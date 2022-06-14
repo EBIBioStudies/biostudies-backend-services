@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 class CollectionResource(private val collectionService: CollectionService) {
     @GetMapping
     @ResponseBody
-    fun getUserProjects(@BioUser user: SecurityUser): List<Collection> =
-        collectionService.getAllowedProjects(user, ATTACH)
+    fun getUserCollections(
+        @BioUser user: SecurityUser
+    ): List<Collection> = collectionService.getAllowedCollections(user, ATTACH)
 }

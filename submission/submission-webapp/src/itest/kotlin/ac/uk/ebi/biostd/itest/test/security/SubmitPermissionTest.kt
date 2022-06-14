@@ -154,6 +154,36 @@ class SubmitPermissionTest(
         assertThat(regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
     }
 
+    @Test
+    fun `resubmit with collection admin permission`() {
+        val project = tsv {
+            line("Submission", "TestCollection5")
+            line("AccNoTemplate", "!{S-TCLT}")
+            line()
+
+            line("Project")
+        }.toString()
+
+        val submission = tsv {
+            line("Submission")
+            line("AttachTo", "TestCollection5")
+            line("Title", "Test Submission")
+        }.toString()
+
+        assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
+        superUserWebClient.givePermissionToUser(ExistingUser.email, "TestCollection5", ADMIN.name)
+
+        assertThat(regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+
+        val resubmission = tsv {
+            line("Submission", "S-TCLT0")
+            line("AttachTo", "TestCollection5")
+            line("Title", "Test Resubmission")
+        }.toString()
+
+        assertThat(regularUserWebClient.submitSingle(resubmission, SubmissionFormat.TSV)).isSuccessful()
+    }
+
     private fun setAttachPermission(testUser: TestUser, collection: String) =
         superUserWebClient.givePermissionToUser(testUser.email, collection, ATTACH.name)
 
