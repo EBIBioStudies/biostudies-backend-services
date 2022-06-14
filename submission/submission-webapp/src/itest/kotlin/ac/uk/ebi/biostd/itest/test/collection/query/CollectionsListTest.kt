@@ -114,6 +114,7 @@ class CollectionsListTest(
     }
 
     object CollectionUser : TestUser {
+
         override val username = "Collection Admin"
         override val email = "collection-biostudies-mgmt@ebi.ac.uk"
         override val password = "12345"

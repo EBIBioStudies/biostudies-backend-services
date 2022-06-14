@@ -12,7 +12,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.itest.test.security.SubmitPermissionTest.ExistingUser
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -33,7 +33,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class DeletePermissionTest(
     @Autowired private val securityTestService: SecurityTestService,
-    @Autowired private val submissionRepository: SubmissionQueryService,
+    @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var superUserWebClient: BioWebClient

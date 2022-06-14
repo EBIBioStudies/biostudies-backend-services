@@ -52,6 +52,12 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
         accNo: String,
         status: Set<SubmissionRequestStatus>
     ): Boolean
+
+    fun findByAccNoAndVersionAndStatus(
+        accNo: String,
+        version: Int,
+        status: SubmissionRequestStatus
+    ): DocSubmissionRequest?
 }
 
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {

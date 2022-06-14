@@ -15,7 +15,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -30,7 +30,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AllInOneSubmissionTest(
-    @Autowired val subRepository: SubmissionQueryService,
+    @Autowired val subRepository: SubmissionPersistenceQueryService,
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int

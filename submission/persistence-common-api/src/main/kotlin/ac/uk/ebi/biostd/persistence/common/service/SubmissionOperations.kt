@@ -14,10 +14,12 @@ interface SubmissionPersistenceService {
     fun processSubmissionRequest(saveRequest: SubmissionRequest): ExtSubmission
 
     fun releaseSubmission(accNo: String, owner: String, relPath: String)
+
+    fun getNextVersion(accNo: String): Int
 }
 
 @Suppress("TooManyFunctions")
-interface SubmissionQueryService {
+interface SubmissionPersistenceQueryService {
     fun existByAccNo(accNo: String): Boolean
 
     fun hasPendingRequest(accNo: String): Boolean

@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
@@ -29,14 +29,14 @@ import java.time.Instant
 @ExtendWith(MockKExtension::class)
 internal class SubmissionDraftMongoServiceTest(
     @MockK private val draftDocDataRepository: SubmissionDraftDocDataRepository,
-    @MockK private val submissionQueryService: SubmissionQueryService,
+    @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val serializationService: SerializationService,
     @MockK private val toSubmissionMapper: ToSubmissionMapper,
 ) {
 
     private val testInstance = SubmissionDraftMongoService(
         draftDocDataRepository,
-        submissionQueryService,
+        queryService,
         serializationService,
         toSubmissionMapper
     )
@@ -59,7 +59,7 @@ internal class SubmissionDraftMongoServiceTest(
     @Test
     fun `get draft when doesn't exist`() {
         val extSubmission = fullExtSubmission.copy(section = ExtSection(type = "Study"))
-        every { submissionQueryService.getExtByAccNo(DRAFT_KEY) } returns extSubmission
+        every { queryService.getExtByAccNo(DRAFT_KEY) } returns extSubmission
         every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns null
         every { draftDocDataRepository.createDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDocDraft
         every {

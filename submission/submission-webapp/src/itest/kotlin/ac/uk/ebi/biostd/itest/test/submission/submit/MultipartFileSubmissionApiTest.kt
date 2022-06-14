@@ -12,7 +12,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
@@ -49,7 +49,7 @@ import java.nio.file.Paths
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
 class MultipartFileSubmissionApiTest(
-    @Autowired private val submissionRepository: SubmissionQueryService,
+    @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired private val securityTestService: SecurityTestService,
     @Autowired private val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int,

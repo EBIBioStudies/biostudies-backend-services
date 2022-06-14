@@ -9,7 +9,7 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_FILES
@@ -74,7 +74,7 @@ import java.time.ZoneOffset.UTC
 class SubmissionRefreshApiTest(
     @Autowired val mongoTemplate: MongoTemplate,
     @Autowired val securityTestService: SecurityTestService,
-    @Autowired val submissionRepository: SubmissionQueryService,
+    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val submissionDocRepository: SubmissionDocDataRepository,
     @Autowired val submissionRequestRepository: SubmissionRequestDocDataRepository,
     @Autowired val fileListRepository: FileListDocFileDocDataRepository,

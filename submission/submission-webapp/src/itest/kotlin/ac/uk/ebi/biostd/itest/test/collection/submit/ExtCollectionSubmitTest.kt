@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ebi.ac.uk.asserts.assertThat
@@ -32,7 +32,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 class ExtCollectionSubmitTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val tagsDataRepository: AccessTagDataRepo,
-    @Autowired val submissionRepository: SubmissionQueryService,
+    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val sequenceRepository: SequenceDataRepository,
     @LocalServerPort val serverPort: Int,
 ) {

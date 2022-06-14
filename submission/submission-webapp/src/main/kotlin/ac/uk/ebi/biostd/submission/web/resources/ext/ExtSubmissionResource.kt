@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.web.resources.ext
 
 import ac.uk.ebi.biostd.files.web.common.FileListPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
+import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.base.orFalse
@@ -28,6 +29,7 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 class ExtSubmissionResource(
     private val extPageMapper: ExtendedPageMapper,
     private val extSubmissionService: ExtSubmissionService,
+    private val extSubmissionQueryService: ExtSubmissionQueryService,
     private val extSerializationService: ExtSerializationService
 ) {
     @GetMapping("/{accNo}")
@@ -35,13 +37,13 @@ class ExtSubmissionResource(
         @PathVariable accNo: String,
         @RequestParam(name = "includeFileList", required = false) includeFileList: Boolean?
     ): ExtSubmission =
-        extSubmissionService.getExtendedSubmission(accNo, includeFileList.orFalse())
+        extSubmissionQueryService.getExtendedSubmission(accNo, includeFileList.orFalse())
 
     @GetMapping("/{accNo}/referencedFiles/**")
     fun getReferencedFiles(
         @PathVariable accNo: String,
         fileListPath: FileListPath
-    ): ExtFileTable = extSubmissionService.getReferencedFiles(accNo, fileListPath.path)
+    ): ExtFileTable = extSubmissionQueryService.getReferencedFiles(accNo, fileListPath.path)
 
     @PostMapping("/refresh/{accNo}")
     fun refreshSubmission(
@@ -81,5 +83,5 @@ class ExtSubmissionResource(
 
     @GetMapping
     fun submissions(@ModelAttribute request: ExtPageRequest): WebExtPage =
-        extPageMapper.asExtPage(extSubmissionService.getExtendedSubmissions(request), request)
+        extPageMapper.asExtPage(extSubmissionQueryService.getExtendedSubmissions(request), request)
 }

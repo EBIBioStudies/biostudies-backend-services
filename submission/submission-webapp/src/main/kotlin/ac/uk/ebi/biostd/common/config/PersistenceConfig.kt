@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.common.config
 import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
@@ -33,7 +33,7 @@ class PersistenceConfig(
     private val folderResolver: SubmissionFolderResolver,
     private val properties: ApplicationProperties,
     private val serializationService: SerializationService,
-    private val submissionQueryService: SubmissionQueryService,
+    private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
     private val fireClient: FireClient
 ) {
     @Bean
@@ -43,7 +43,7 @@ class PersistenceConfig(
         havingValue = "false",
         matchIfMissing = true
     )
-    fun nfsFtpService(): FtpService = NfsFtpService(folderResolver, submissionQueryService)
+    fun nfsFtpService(): FtpService = NfsFtpService(folderResolver, submissionPersistenceQueryService)
 
     @Bean
     @ConditionalOnProperty(
@@ -72,7 +72,7 @@ class PersistenceConfig(
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
     fun fireFtpService(serializationService: ExtSerializationService): FtpService =
-        FireFtpService(fireClient, serializationService, submissionQueryService)
+        FireFtpService(fireClient, serializationService, submissionPersistenceQueryService)
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
