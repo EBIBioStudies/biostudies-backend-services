@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
-internal const val ACC_NO_TEMPLATE_REQUIRED = "The AccNoTemplate property is required for projects"
+internal const val ACC_NO_TEMPLATE_REQUIRED = "The AccNoTemplate property is required for collections"
 internal const val ACC_NO_TEMPLATE_INVALID = "The given AccNoTemplate is invalid. Expected pattern is !{TEMPLATE}"
 
 class CollectionInfoService(
@@ -21,7 +21,10 @@ class CollectionInfoService(
 
         if (subType != "Project") return null
 
-        require(privilegesService.canSubmitProjects(submitter)) { throw UserCanNotSubmitProjectsException(submitter) }
+        require(privilegesService.canSubmitCollections(submitter)) {
+            throw UserCanNotSubmitProjectsException(submitter)
+        }
+
         validatePattern(template)
 
         val accNoPattern = accNoUtil.getPattern(template!!)
