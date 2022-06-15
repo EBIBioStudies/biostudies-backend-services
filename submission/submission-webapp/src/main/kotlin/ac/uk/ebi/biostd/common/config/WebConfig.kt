@@ -53,7 +53,7 @@ internal class WebConfig(
                 password = properties.fire.password
             ),
             RetryConfig(
-                maxAttempts = 1,
+                maxAttempts = 20,
                 initialInterval = 100,
                 multiplier = 2.0,
                 maxInterval = 2.hours.inWholeMilliseconds,

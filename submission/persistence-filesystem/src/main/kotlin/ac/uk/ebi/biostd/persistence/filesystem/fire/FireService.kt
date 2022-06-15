@@ -23,9 +23,12 @@ class FireService(
 ) {
 
     fun cleanFtp(sub: ExtSubmission) {
+        logger.info { "Clean FTP files (unset path) of files in submission ${sub.accNo}" }
         client
             .findByAccNo(sub.accNo)
+            .apply { logger.info { "Found $size files in submission ${sub.accNo}" } }
             .forEach { client.unsetPath(it.fireOid) }
+        logger.info { "Finish clean FTP files (unset path) of files in submission ${sub.accNo}" }
     }
 
     /**
