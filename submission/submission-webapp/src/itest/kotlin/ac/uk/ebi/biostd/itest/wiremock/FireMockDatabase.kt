@@ -117,4 +117,3 @@ class FireMockDatabase(
 data class DbRecord(val file: FireApiFile, val path: String?, val published: Boolean) {
     fun toFile(): FireApiFile = file.copy(filesystemEntry = FileSystemEntry(path, published))
 }
-

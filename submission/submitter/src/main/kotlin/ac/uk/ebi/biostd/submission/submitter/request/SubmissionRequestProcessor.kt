@@ -39,5 +39,4 @@ class SubmissionRequestProcessor(
 
         logger.info { "$accNo $owner released submission $accNo" }
     }
-
 }

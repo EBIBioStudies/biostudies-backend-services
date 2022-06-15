@@ -46,7 +46,7 @@ class FireService(
 
     @Suppress("ReturnCount")
     private fun fromNfsFile(sub: ExtSubmission, file: NfsFile, expectedPath: String): FireFile {
-        val fireFile = client.findByMd5(file.md5).firstOrNull()
+        val fireFile = client.findByMd5(file.md5).firstOrNull { it.isAvailable(sub.accNo) }
         if (fireFile != null) {
             if (fireFile.path == null) return saveFile(sub, fireFile.fireOid, file, expectedPath)
             if (fireFile.path == expectedPath) return asFireFile(file, fireFile.fireOid)
@@ -56,12 +56,15 @@ class FireService(
         return saveFile(sub, newFile.fireOid, file, expectedPath)
     }
 
+    @Suppress("ReturnCount")
     private fun fromFireFile(sub: ExtSubmission, file: FireFile, expectedPath: String): FireFile {
         val fireFile = client.findByMd5(file.md5).first()
-        if (fireFile.isAvailable(sub.accNo) && fireFile.path == expectedPath)
-            return asFireFile(file, fireFile.fireOid)
+        if (fireFile.isAvailable(sub.accNo)) {
+            if (fireFile.path == null) return saveFile(sub, fireFile.fireOid, file, expectedPath)
+            if (fireFile.path == expectedPath) return asFireFile(file, fireFile.fireOid)
+        }
 
-        val downloadFile = client.downloadByFireId(fireFile.fireOid, file.md5)
+        val downloadFile = client.downloadByFireId(fireFile.fireOid, file.fileName)
         val saved = client.save(downloadFile, file.md5)
         return saveFile(sub, saved.fireOid, file, expectedPath)
     }
