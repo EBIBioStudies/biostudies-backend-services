@@ -34,7 +34,7 @@ import kotlin.time.Duration.Companion.hours
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 internal class WebConfig(
     private val serializationService: SerializationService,
-    private val extSerializationService: ExtSerializationService
+    private val extSerializationService: ExtSerializationService,
 ) : WebMvcConfigurer {
     @Bean
     fun submitterResolver() = BioUserResolver(principalResolver())
@@ -53,7 +53,7 @@ internal class WebConfig(
                 password = properties.fire.password
             ),
             RetryConfig(
-                maxAttempts = 20,
+                maxAttempts = 1,
                 initialInterval = 100,
                 multiplier = 2.0,
                 maxInterval = 2.hours.inWholeMilliseconds,

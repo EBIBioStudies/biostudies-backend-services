@@ -22,8 +22,8 @@ class FireFilesSourceFactory(
 ) {
     fun createFireSource(): FilesSource = if (props.enableFire) FireFilesSource(fireClient) else EMPTY_FILE_SOURCE
 
-    fun createSubmissionFireSource(accNo: String, basePath: Path): FilesSource =
-        if (props.enableFire) SubmissionFireFilesSource(fireClient, accNo, basePath) else EMPTY_FILE_SOURCE
+    fun createSubmissionFireSource(accNo: String, subPath: Path): FilesSource =
+        if (props.enableFire) SubmissionFireFilesSource(fireClient, accNo, subPath) else EMPTY_FILE_SOURCE
 }
 
 class FireFilesSource(
@@ -47,7 +47,7 @@ class FireFilesSource(
 private class SubmissionFireFilesSource(
     private val fireClient: FireClient,
     private val accNo: String,
-    private val basePath: Path,
+    private val subPath: Path,
 ) : FilesSource {
     override fun getExtFile(
         path: String,
@@ -55,7 +55,7 @@ private class SubmissionFireFilesSource(
         attributes: List<Attribute>,
     ): ExtFile? {
         if (md5 == null) {
-            return fireClient.findByPath(basePath.resolve(path).toString())
+            return fireClient.findByPath(subPath.resolve(path).toString())
                 ?.takeIf { it.isAvailable(accNo) }
                 ?.asFireFile(path, attributes)
         }
@@ -64,7 +64,7 @@ private class SubmissionFireFilesSource(
     }
 
     override fun getFile(path: String, md5: String?): File? =
-        if (md5 == null) fireClient.downloadByPath(basePath.resolve(path).toString())
+        if (md5 == null) fireClient.downloadByPath(subPath.resolve(path).toString())
         else fireClient.downloadByMd5(md5)
 }
 

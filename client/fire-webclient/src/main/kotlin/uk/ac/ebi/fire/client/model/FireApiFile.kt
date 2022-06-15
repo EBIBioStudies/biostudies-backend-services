@@ -12,7 +12,10 @@ data class FireApiFile(
     val filesystemEntry: FileSystemEntry? = null,
 )
 
-fun FireApiFile.hasNoPath(): Boolean = filesystemEntry?.path == null
+val FireApiFile.path: String?
+    get() {
+        return filesystemEntry?.path
+    }
 
 fun FireApiFile.isAvailable(accNo: String): Boolean {
     val meta = metadata.orEmpty()
@@ -21,8 +24,13 @@ fun FireApiFile.isAvailable(accNo: String): Boolean {
 
 fun FireApiFile.isAvailable(): Boolean = metadata.orEmpty().none { it.key == FIRE_BIO_ACC_NO }
 
+enum class FileType(val key: String) {
+    FILE("file"),
+    DIR("directory")
+}
+
 data class FileSystemEntry(
-    val path: String,
+    val path: String?,
     val published: Boolean,
 )
 

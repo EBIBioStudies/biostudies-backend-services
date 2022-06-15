@@ -11,6 +11,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.ext.md5
 import uk.ac.ebi.fire.client.integration.web.FireClient
+import uk.ac.ebi.fire.client.model.FileType
 import java.io.File
 
 class FirePageTabService(
@@ -18,7 +19,7 @@ class FirePageTabService(
     private val fireClient: FireClient,
     private val pageTabUtil: PageTabUtil,
     private val fileProcessingService: FileProcessingService,
-    private val tsvPagetabExtension: TsvPagetabExtension
+    private val tsvPagetabExtension: TsvPagetabExtension,
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
         val subFiles = pageTabUtil.generateSubPageTab(sub, fireTempFolder)
@@ -41,7 +42,7 @@ class FirePageTabService(
         accNo: String,
         sec: ExtSection,
         path: String,
-        pageTabFiles: Map<String, PageTabFiles>
+        pageTabFiles: Map<String, PageTabFiles>,
     ): Section {
         return when (val lst = sec.fileList) {
             null -> Section(false, sec)
@@ -61,7 +62,7 @@ class FirePageTabService(
 
     private fun saveFileListFile(accNo: String, file: File, subFolder: String, filePath: String): FireFile {
         val relPath = "Files/$filePath"
-        val fireFile = fireClient.persistFireFile(accNo, file, FILE, file.md5(), "$subFolder/$relPath")
+        val fireFile = fireClient.persistFireFile(accNo, file, FileType.FILE, file.md5(), "$subFolder/$relPath")
 
         return FireFile(
             filePath,
@@ -82,7 +83,7 @@ class FirePageTabService(
 
     private fun saveSubFile(accNo: String, file: File, subFolder: String): FireFile {
         val fName = file.name
-        val saved = fireClient.persistFireFile(accNo, file, FILE, file.md5(), "$subFolder/$fName")
+        val saved = fireClient.persistFireFile(accNo, file, FileType.FILE, file.md5(), "$subFolder/$fName")
 
         return FireFile(fName, fName, saved.fireOid, saved.objectMd5, saved.objectSize.toLong(), FILE, listOf())
     }

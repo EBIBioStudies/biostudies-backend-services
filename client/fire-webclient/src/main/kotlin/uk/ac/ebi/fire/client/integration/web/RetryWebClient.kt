@@ -2,6 +2,7 @@ package uk.ac.ebi.fire.client.integration.web
 
 import mu.KotlinLogging
 import org.springframework.retry.support.RetryTemplate
+import uk.ac.ebi.fire.client.model.FileType
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 
@@ -40,7 +41,7 @@ internal class RetryWebClient(
         template.execute(opt) { fireClient.unsetPath(fireOid) }
     }
 
-    override fun setBioMetadata(fireOid: String, accNo: String?, fileType: String?, published: Boolean?) {
+    override fun setBioMetadata(fireOid: String, accNo: String?, fileType: FileType?, published: Boolean?) {
         val opt = "metadata update  fireOid='$fireOid', accNo='$accNo', fileType='$fileType', published='$published'"
         template.execute(opt) { fireClient.setBioMetadata(fireOid, accNo, fileType, published) }
     }

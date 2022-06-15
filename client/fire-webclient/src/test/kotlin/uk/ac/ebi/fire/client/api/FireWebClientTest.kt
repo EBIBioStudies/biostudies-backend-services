@@ -29,12 +29,13 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
 import uk.ac.ebi.fire.client.exception.FireClientException
+import uk.ac.ebi.fire.client.model.FileType
 import uk.ac.ebi.fire.client.model.FireApiFile
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FireWebClientTest(
     private val tmpFolder: TemporaryFolder,
-    @MockK private val template: RestTemplate
+    @MockK private val template: RestTemplate,
 ) {
     private val testInstance = FireWebClient(tmpFolder.root.absolutePath, template)
 
@@ -98,7 +99,7 @@ class FireWebClientTest(
 
         every { template.put("$FIRE_OBJECTS_URL/fire-oid/metadata/set", capture(httpEntitySlot)) } answers { nothing }
 
-        testInstance.setBioMetadata("fire-oid", "S-BSST0", "file", false)
+        testInstance.setBioMetadata("fire-oid", "S-BSST0", FileType.FILE, false)
 
         val httpEntity = httpEntitySlot.captured
         assertThat(httpEntity.body).isEqualToIgnoringWhitespace(expectedMetadata)
@@ -108,7 +109,7 @@ class FireWebClientTest(
 
     @Test
     fun `download by path`(
-        @MockK fireFile: FireApiFile
+        @MockK fireFile: FireApiFile,
     ) {
         val file = tmpFolder.createFile("test.txt", "test content")
 
