@@ -1,0 +1,130 @@
+package ac.uk.ebi.biostd.itest.test.collection.query
+
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
+import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.entities.DefaultUser
+import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.entities.TestUser
+import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
+import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.test.context.junit.jupiter.SpringExtension
+
+@ExtendWith(SpringExtension::class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class CollectionsListTest(
+    @LocalServerPort val serverPort: Int,
+    @Autowired val securityTestService: SecurityTestService,
+) {
+    private lateinit var superUserWebClient: BioWebClient
+    private lateinit var regularUserWebClient: BioWebClient
+    private lateinit var defaultUserWebClient: BioWebClient
+    private lateinit var collectionAdminUserWebClient: BioWebClient
+
+    @BeforeAll
+    fun init() {
+        setUpUsers()
+        registerCollections()
+        setUpPermissions()
+    }
+
+    @Test
+    fun `list collections for super user`() {
+        val collections = superUserWebClient.getCollections()
+
+        assertThat(collections).hasSizeGreaterThanOrEqualTo(2)
+        assertThat(collections).anyMatch { it.accno == "SampleCollection" }
+        assertThat(collections).anyMatch { it.accno == "DefaultCollection" }
+    }
+
+    @Test
+    fun `list collections for regular user`() {
+        val collections = regularUserWebClient.getCollections()
+
+        assertThat(collections).hasSizeGreaterThanOrEqualTo(2)
+        assertThat(collections).anyMatch { it.accno == "SampleCollection" }
+        assertThat(collections).anyMatch { it.accno == "DefaultCollection" }
+    }
+
+    @Test
+    fun `list collections for default user`() {
+        val collections = defaultUserWebClient.getCollections()
+
+        assertThat(collections).hasSize(1)
+        assertThat(collections.first().accno).isEqualTo("DefaultCollection")
+    }
+
+    @Test
+    fun `list collections for collection admin user`() {
+        val collections = collectionAdminUserWebClient.getCollections()
+
+        assertThat(collections).hasSizeGreaterThanOrEqualTo(2)
+        assertThat(collections).anyMatch { it.accno == "SampleCollection" }
+        assertThat(collections).anyMatch { it.accno == "DefaultCollection" }
+    }
+
+    private fun registerCollections() {
+        val sampleCollection = tsv {
+            line("Submission", "SampleCollection")
+            line("AccNoTemplate", "!{S-SAMP}")
+            line()
+
+            line("Project")
+        }.toString()
+
+        val defaultCollection = tsv {
+            line("Submission", "DefaultCollection")
+            line("AccNoTemplate", "!{S-DFLT}")
+            line()
+
+            line("Project")
+        }.toString()
+
+        assertThat(superUserWebClient.submitSingle(sampleCollection, TSV)).isSuccessful()
+        assertThat(superUserWebClient.submitSingle(defaultCollection, TSV)).isSuccessful()
+    }
+
+    private fun setUpUsers() {
+        securityTestService.ensureUserRegistration(SuperUser)
+        securityTestService.ensureUserRegistration(RegularUser)
+        securityTestService.ensureUserRegistration(DefaultUser)
+        securityTestService.ensureUserRegistration(CollectionUser)
+
+        superUserWebClient = getWebClient(serverPort, SuperUser)
+        regularUserWebClient = getWebClient(serverPort, RegularUser)
+        defaultUserWebClient = getWebClient(serverPort, DefaultUser)
+        collectionAdminUserWebClient = getWebClient(serverPort, CollectionUser)
+    }
+
+    private fun setUpPermissions() {
+        superUserWebClient.givePermissionToUser(DefaultUser.email, "DefaultCollection", ATTACH.name)
+        superUserWebClient.givePermissionToUser(RegularUser.email, "SampleCollection", ATTACH.name)
+        superUserWebClient.givePermissionToUser(CollectionUser.email, "SampleCollection", ADMIN.name)
+    }
+
+    object CollectionUser : TestUser {
+
+        override val username = "Collection Admin"
+        override val email = "collection-biostudies-mgmt@ebi.ac.uk"
+        override val password = "12345"
+        override val superUser = false
+    }
+
+    object RegularUser : TestUser {
+        override val username = "Regular Collection User"
+        override val email = "regular-collection-biostudies-mgmt@ebi.ac.uk"
+        override val password = "12345"
+        override val superUser = false
+    }
+}

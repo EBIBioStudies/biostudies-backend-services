@@ -21,12 +21,12 @@ internal class UserPrivilegesService(
 ) : IUserPrivilegesService {
     override fun canProvideAccNo(email: String) = isSuperUser(email)
 
-    override fun canSubmitProjects(email: String) = isSuperUser(email)
+    override fun canSubmitCollections(email: String) = isSuperUser(email)
 
     override fun canSubmitExtended(submitter: String): Boolean = isSuperUser(submitter)
 
-    override fun canSubmitToProject(submitter: String, project: String): Boolean =
-        isSuperUser(submitter).or(hasPermissions(submitter, listOf(project), ATTACH))
+    override fun canSubmitToCollection(submitter: String, collection: String): Boolean =
+        isSuperUser(submitter) || hasPermissions(submitter, listOf(collection), ATTACH)
 
     override fun allowedCollections(email: String, accessType: AccessType): List<String> = when {
         isSuperUser(email) -> tagsDataRepository.findAll().map { it.name }
@@ -38,14 +38,14 @@ internal class UserPrivilegesService(
     }
 
     override fun canResubmit(submitter: String, accNo: String) =
-        isSuperUser(submitter)
-            .or(isAuthor(getOwner(accNo), submitter))
-            .or(hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), UPDATE))
+        isSuperUser(submitter) ||
+            isAuthor(getOwner(accNo), submitter) ||
+            hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), UPDATE)
 
     override fun canDelete(submitter: String, accNo: String) =
-        isSuperUser(submitter)
-            .or(isAuthor(getOwner(accNo), submitter))
-            .or(hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), DELETE))
+        isSuperUser(submitter) ||
+            isAuthor(getOwner(accNo), submitter) ||
+            hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), DELETE)
 
     override fun canRelease(email: String): Boolean = isSuperUser(email)
 
@@ -55,6 +55,7 @@ internal class UserPrivilegesService(
     }
 
     private fun isSuperUser(email: String) = getUser(email).superuser
+
     private fun isAuthor(author: String?, email: String) = author == email
 
     private fun getUser(email: String) = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
