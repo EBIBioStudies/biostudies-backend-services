@@ -1,3 +1,7 @@
+logging:
+  level:
+    root: info
+
 spring:
   datasource:
   jpa:
@@ -41,3 +45,4 @@ app:
     euToxRiskValidationApi: # EU-ToxRisk validation API
   featureFlags:
     tsvPagetabExtension: true
+
