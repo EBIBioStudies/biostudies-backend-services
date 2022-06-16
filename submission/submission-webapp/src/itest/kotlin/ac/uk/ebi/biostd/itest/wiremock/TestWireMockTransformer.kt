@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.itest.wiremock
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
+import ac.uk.ebi.biostd.itest.wiremock.handlers.DownloadHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.FileSaveHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.Md5QueryHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.PathDownloadHandler
@@ -22,10 +23,9 @@ import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import java.nio.file.Path
 import kotlin.random.Random
 
-class TestWireMockTransformer constructor(
-    private val db: FireMockDatabase,
+class TestWireMockTransformer(
     private val failFactor: Int?,
-    private val handlers: List<RequestHandler>
+    private val handlers: List<RequestHandler>,
 ) :
     ResponseDefinitionTransformer() {
     override fun getName(): String = Companion.name
@@ -59,7 +59,6 @@ class TestWireMockTransformer constructor(
         ): TestWireMockTransformer {
             val fireDatabase = FireMockDatabase(subFolder, ftpFolder, dbFolder)
             return TestWireMockTransformer(
-                fireDatabase,
                 failFactor,
                 listOf(
                     Md5QueryHandler(fireDatabase),
@@ -71,7 +70,8 @@ class TestWireMockTransformer constructor(
                     SetPathHandler(fireDatabase),
                     UnSetPathHandler(fireDatabase),
                     PublishHandler(fireDatabase),
-                    UnPublishHandler(fireDatabase)
+                    UnPublishHandler(fireDatabase),
+                    DownloadHandler(fireDatabase)
                 )
             )
         }

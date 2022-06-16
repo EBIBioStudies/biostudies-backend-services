@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 class FileListResource(
     private val sourceGenerator: SourceGenerator,
     private val fileListValidator: FileListValidator,
-    private val onBehalfUtils: OnBehalfUtils
+    private val onBehalfUtils: OnBehalfUtils,
 ) {
     @PostMapping("/validate")
     fun validateFileList(
@@ -26,8 +26,7 @@ class FileListResource(
         @RequestParam(FILE_LIST_NAME) fileListName: String,
     ) {
         val onBehalfUser = onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) }
-        var filesSource = sourceGenerator.submitterSources(user, onBehalfUser)
-
+        val filesSource = sourceGenerator.submitterSources(user, onBehalfUser)
         fileListValidator.validateFileList(fileListName, filesSource)
     }
 }

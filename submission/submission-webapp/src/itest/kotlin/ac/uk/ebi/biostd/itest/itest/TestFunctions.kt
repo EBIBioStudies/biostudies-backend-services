@@ -8,3 +8,8 @@ fun getWebClient(serverPort: Int, user: TestUser): BioWebClient =
     SecurityWebClient
         .create("http://localhost:$serverPort")
         .getAuthenticatedClient(user.email, user.password)
+
+fun getWebClient(serverPort: Int, user: TestUser, onBehalf: TestUser): BioWebClient =
+    SecurityWebClient
+        .create("http://localhost:$serverPort")
+        .getAuthenticatedClient(user.email, user.password, onBehalf.email)

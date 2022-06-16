@@ -9,8 +9,11 @@ data class FireApiFile(
     val objectSize: Number,
     val createTime: String,
     val metadata: List<MetadataEntry>? = null,
-    val filesystemEntry: FileSystemEntry? = null
+    val filesystemEntry: FileSystemEntry? = null,
 )
+
+val FireApiFile.path: String?
+    get() = filesystemEntry?.path
 
 fun FireApiFile.isAvailable(accNo: String): Boolean {
     val meta = metadata.orEmpty()
@@ -19,14 +22,19 @@ fun FireApiFile.isAvailable(accNo: String): Boolean {
 
 fun FireApiFile.isAvailable(): Boolean = metadata.orEmpty().none { it.key == FIRE_BIO_ACC_NO }
 
+enum class FileType(val key: String) {
+    FILE("file"),
+    DIR("directory")
+}
+
 data class FileSystemEntry(
-    val path: String,
-    val published: Boolean
+    val path: String?,
+    val published: Boolean,
 )
 
 data class MetadataEntry(
     val key: String,
-    val value: String
+    val value: String,
 ) {
     override fun toString(): String = "\"${key}\": \"${value}\""
 }

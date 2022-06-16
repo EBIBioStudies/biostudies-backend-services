@@ -1,64 +1,81 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
+import ac.uk.ebi.biostd.persistence.filesystem.extensions.fireType
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileType
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.io.ext.md5
 import mu.KotlinLogging
 import org.zeroturnaround.zip.ZipUtil
 import uk.ac.ebi.fire.client.integration.web.FireClient
-import uk.ac.ebi.fire.client.model.FireApiFile
+import uk.ac.ebi.fire.client.model.isAvailable
+import uk.ac.ebi.fire.client.model.path
 import java.io.File
 import java.nio.file.Files
 
 private val logger = KotlinLogging.logger {}
 
 class FireService(
-    private val fireClient: FireClient,
+    private val client: FireClient,
     private val fireTempDirPath: File,
 ) {
-    fun getOrPersist(sub: ExtSubmission, file: ExtFile): FireFile {
-        return when (file) {
-            is FireFile -> reuseFireFile(sub, file)
-            is NfsFile -> getOrPersist(sub, file)
-        }
-    }
 
     fun cleanFtp(sub: ExtSubmission) {
-        fireClient
+        logger.info { "Started cleaning FTP files (unset path) of files in submission ${sub.accNo}" }
+        client
             .findByAccNo(sub.accNo)
-            .forEach { fireClient.unsetPath(it.fireOid) }
+            .apply { logger.info { "Found $size files in submission ${sub.accNo}" } }
+            .forEach { client.unsetPath(it.fireOid) }
+        logger.info { "Finished cleaning FTP files (unset path) of files in submission ${sub.accNo}" }
     }
 
-    private fun reuseFireFile(sub: ExtSubmission, fireFile: FireFile): FireFile {
-        val newPath = "${sub.relPath}/${fireFile.relPath}"
-        fireClient.setPath(fireFile.fireId, newPath)
-        return fireFile
+    /**
+     * Get or persist the given ext file from FIRE. Note that this method assumes that all the fire files belonging to
+     * previous submission versions have been unpublished and any file with a path is assumed to be already used.
+     *
+     * For both FIRE and NFS, the file is searched by md5, and the system checks that it does not belong to another
+     * submission. The method also ensures that the file has no path (i.e. it was submitted in the same submission in a
+     * different path) and if so, even if the file exists in FIRE, it gets duplicated to ensure consistency.
+     */
+    fun getOrPersist(sub: ExtSubmission, file: ExtFile): FireFile = when (file) {
+        is FireFile -> fromFireFile(sub, file, "${sub.relPath}/${file.relPath}")
+        is NfsFile -> when (file.type) {
+            FILE -> fromNfsFile(sub, file, "${sub.relPath}/${file.relPath}")
+            DIR -> fromNfsFile(sub, file.copy(file = compress(sub, file.file)), "${sub.relPath}/${file.relPath}.zip")
+        }
     }
 
-    private fun getOrPersist(sub: ExtSubmission, nfsFile: NfsFile): FireFile =
-        when (val record = fireClient.findByPath("${sub.relPath}/${nfsFile.relPath}")) {
-            null -> if (nfsFile.file.isDirectory) saveDirectory(sub, nfsFile) else saveFile(sub, nfsFile)
-            else -> asFireFile(nfsFile, record, nfsFile.type)
+    @Suppress("ReturnCount")
+    private fun fromNfsFile(sub: ExtSubmission, file: NfsFile, expectedPath: String): FireFile {
+        val fireFile = client.findByMd5(file.md5).firstOrNull { it.isAvailable(sub.accNo) }
+        if (fireFile != null) {
+            if (fireFile.path == null) return saveFile(sub, fireFile.fireOid, file, expectedPath)
+            if (fireFile.path == expectedPath) return asFireFile(file, fireFile.fireOid)
         }
 
-    private fun saveFile(sub: ExtSubmission, nfsFile: NfsFile): FireFile {
-        logger.info { "${sub.accNo} ${sub.owner} Persisting file ${nfsFile.fileName} on FIRE" }
-        val fireFile = fireClient.save(nfsFile.file, nfsFile.md5)
-        fireClient.setBioMetadata(fireFile.fireOid, sub.accNo, nfsFile.type.value, published = false)
-        fireClient.setPath(fireFile.fireOid, "${sub.relPath}/${nfsFile.relPath}")
-        return asFireFile(nfsFile, fireFile, ExtFileType.FILE)
+        val newFile = client.save(file.file, file.md5)
+        return saveFile(sub, newFile.fireOid, file, expectedPath)
     }
 
-    private fun saveDirectory(sub: ExtSubmission, nfsFile: NfsFile): FireFile {
-        logger.info { "${sub.accNo} ${sub.owner} Persisting ${nfsFile.fileName}.zip on FIRE" }
-        val directory = compress(sub, nfsFile.file)
-        val fireFile = fireClient.save(directory, directory.md5())
-        fireClient.setBioMetadata(fireFile.fireOid, sub.accNo, nfsFile.type.value, published = false)
-        fireClient.setPath(fireFile.fireOid, "${sub.relPath}/${nfsFile.relPath}.zip")
-        return asFireFile(nfsFile, fireFile, ExtFileType.DIR)
+    @Suppress("ReturnCount")
+    private fun fromFireFile(sub: ExtSubmission, file: FireFile, expectedPath: String): FireFile {
+        val fireFile = client.findByMd5(file.md5).first()
+        if (fireFile.isAvailable(sub.accNo)) {
+            if (fireFile.path == null) return saveFile(sub, fireFile.fireOid, file, expectedPath)
+            if (fireFile.path == expectedPath) return asFireFile(file, fireFile.fireOid)
+        }
+
+        val downloadFile = client.downloadByFireId(fireFile.fireOid, file.fileName)
+        val saved = client.save(downloadFile, file.md5)
+        return saveFile(sub, saved.fireOid, file, expectedPath)
+    }
+
+    private fun saveFile(sub: ExtSubmission, fireOid: String, file: ExtFile, path: String): FireFile {
+        client.setBioMetadata(fireOid, sub.accNo, file.fireType, published = false)
+        client.setPath(fireOid, path)
+        return asFireFile(file, fireOid)
     }
 
     private fun compress(sub: ExtSubmission, file: File): File {
@@ -71,13 +88,13 @@ class FireService(
         return target
     }
 
-    private fun asFireFile(nfsFile: NfsFile, fireFile: FireApiFile, type: ExtFileType): FireFile = FireFile(
-        filePath = nfsFile.filePath,
-        relPath = nfsFile.relPath,
-        fireId = fireFile.fireOid,
-        md5 = fireFile.objectMd5,
-        size = fireFile.objectSize.toLong(),
-        type = type,
-        attributes = nfsFile.attributes
+    private fun asFireFile(file: ExtFile, fireId: String): FireFile = FireFile(
+        filePath = file.filePath,
+        relPath = file.relPath,
+        fireId = fireId,
+        md5 = file.md5,
+        size = file.size,
+        type = file.type,
+        attributes = file.attributes
     )
 }

@@ -119,10 +119,7 @@ class SubmissionOnBehalfTest(
             line()
         }.toString()
 
-        val onBehalfClient = SecurityWebClient
-            .create("http://localhost:$serverPort")
-            .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
-
+        val onBehalfClient = getWebClient(serverPort, SuperUser, onBehalf = RegularUser)
         val response = onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)
         assertThat(response).isSuccessful()
 

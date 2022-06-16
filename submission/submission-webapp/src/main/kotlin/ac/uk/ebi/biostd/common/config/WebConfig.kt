@@ -34,7 +34,7 @@ import kotlin.time.Duration.Companion.hours
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 internal class WebConfig(
     private val serializationService: SerializationService,
-    private val extSerializationService: ExtSerializationService
+    private val extSerializationService: ExtSerializationService,
 ) : WebMvcConfigurer {
     @Bean
     fun submitterResolver() = BioUserResolver(principalResolver())

@@ -20,7 +20,7 @@ class FireClientFactory private constructor() {
         fun create(
             tmpDirPath: String,
             fireConfig: FireConfig,
-            retryConfig: RetryConfig
+            retryConfig: RetryConfig,
         ): FireClient =
             RetryWebClient(
                 create(tmpDirPath, fireConfig),
@@ -50,12 +50,12 @@ data class FireConfig(
     val fireHost: String,
     val fireVersion: String,
     val username: String,
-    val password: String
+    val password: String,
 )
 
 data class RetryConfig(
     val maxAttempts: Int,
     val initialInterval: Long,
     val multiplier: Double,
-    val maxInterval: Long
+    val maxInterval: Long,
 )

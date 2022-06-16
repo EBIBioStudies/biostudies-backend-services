@@ -45,9 +45,9 @@ private const val SUB_ALIAS = "submission"
 @Suppress("SpreadOperator", "TooManyFunctions")
 class SubmissionDocDataRepository(
     private val submissionRepository: SubmissionMongoRepository,
-    private val mongoTemplate: MongoTemplate
+    private val mongoTemplate: MongoTemplate,
 ) : SubmissionMongoRepository by submissionRepository {
-    fun release(accNo: String) {
+    fun setAsRelease(accNo: String) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
         mongoTemplate.updateFirst(query, update(SUB_RELEASED, true), DocSubmission::class.java)
     }
@@ -175,10 +175,10 @@ class SubmissionDocDataRepository(
 
 data class Result(
     val id: String,
-    val maxVersion: Int
+    val maxVersion: Int,
 )
 
 data class CountResult(
     val id: String?,
-    val submissions: Long
+    val submissions: Long,
 )

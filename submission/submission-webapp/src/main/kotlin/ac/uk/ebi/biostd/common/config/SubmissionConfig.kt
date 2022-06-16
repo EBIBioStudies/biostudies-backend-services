@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
-import ac.uk.ebi.biostd.submission.domain.service.CollectionService
+import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService

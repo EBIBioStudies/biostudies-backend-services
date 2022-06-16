@@ -33,7 +33,7 @@ data class ExtAttributeDetail(val name: String, val value: String?)
 
 data class ExtLink(
     val url: String,
-    val attributes: List<ExtAttribute> = listOf()
+    val attributes: List<ExtAttribute> = listOf(),
 )
 
 sealed class ExtFile {
@@ -42,6 +42,7 @@ sealed class ExtFile {
     abstract val attributes: List<ExtAttribute>
     abstract val md5: String
     abstract val type: ExtFileType
+    abstract val size: Long
 
     val fileName: String
         get() = filePath.substringAfterLast("/")
@@ -52,9 +53,9 @@ data class FireFile(
     override val relPath: String,
     val fireId: String,
     override val md5: String,
-    val size: Long,
+    override val size: Long,
     override val type: ExtFileType,
-    override val attributes: List<ExtAttribute>
+    override val attributes: List<ExtAttribute>,
 ) : ExtFile()
 
 data class NfsFile(
@@ -63,8 +64,8 @@ data class NfsFile(
     val file: File,
     val fullPath: String,
     override val md5: String,
-    val size: Long,
-    override val attributes: List<ExtAttribute> = listOf()
+    override val size: Long,
+    override val attributes: List<ExtAttribute> = listOf(),
 ) : ExtFile() {
     override val type: ExtFileType
         get() = if (file.isDirectory) DIR else FILE
@@ -75,7 +76,7 @@ fun createNfsFile(
     filePath: String,
     relpath: String,
     file: File,
-    attributes: List<ExtAttribute> = listOf()
+    attributes: List<ExtAttribute> = listOf(),
 ): NfsFile =
     NfsFile(filePath, relpath, file, file.absolutePath, file.md5(), file.size(), attributes)
 
@@ -83,7 +84,7 @@ data class ExtFileList(
     val filePath: String,
     val file: File,
     val filesUrl: String? = null,
-    val pageTabFiles: List<ExtFile> = listOf()
+    val pageTabFiles: List<ExtFile> = listOf(),
 ) {
     val fileName: String
         get() = filePath.substringAfterLast("/")
@@ -102,7 +103,7 @@ data class ExtAttribute(
     val value: String?,
     val reference: Boolean = false,
     val nameAttrs: List<ExtAttributeDetail> = listOf(),
-    val valueAttrs: List<ExtAttributeDetail> = listOf()
+    val valueAttrs: List<ExtAttributeDetail> = listOf(),
 )
 
 data class ExtSection(
@@ -112,7 +113,7 @@ data class ExtSection(
     val attributes: List<ExtAttribute> = listOf(),
     val sections: List<Either<ExtSection, ExtSectionTable>> = listOf(),
     val files: List<Either<ExtFile, ExtFileTable>> = listOf(),
-    val links: List<Either<ExtLink, ExtLinkTable>> = listOf()
+    val links: List<Either<ExtLink, ExtLinkTable>> = listOf(),
 )
 
 data class ExtAccessTag(val name: String)
@@ -138,7 +139,7 @@ data class ExtSubmission(
     val collections: List<ExtCollection> = listOf(),
     val stats: List<ExtStat> = listOf(),
     val pageTabFiles: List<ExtFile> = listOf(),
-    val storageMode: StorageMode
+    val storageMode: StorageMode,
 )
 
 enum class StorageMode(val value: String) {
@@ -162,5 +163,5 @@ data class ExtUser(
     val email: String,
     val fullName: String,
     val login: String?,
-    val notificationsEnabled: Boolean
+    val notificationsEnabled: Boolean,
 )

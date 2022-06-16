@@ -4,11 +4,14 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.model.ReleaseRequest
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ebi.ac.uk.extended.model.ExtSubmission
 
 class ExtSubmissionSubmitter(
     private val persistenceService: SubmissionPersistenceService,
     private val draftService: SubmissionDraftService,
+    private val requestLoader: SubmissionRequestLoader,
     private val requestProcessor: SubmissionRequestProcessor,
 ) {
     fun submitAsync(request: SubmissionRequest): Pair<String, Int> {
@@ -16,13 +19,13 @@ class ExtSubmissionSubmitter(
     }
 
     fun processRequest(accNo: String, version: Int): ExtSubmission {
-        val sub = requestProcessor.loadRequest(accNo, version)
-        return persistenceService.processSubmissionRequest(sub)
+        val sub = requestLoader.loadRequest(accNo, version)
+        return requestProcessor.processRequest(sub)
     }
 
     fun release(request: ReleaseRequest) {
         val (accNo, owner, relPath) = request
-        persistenceService.releaseSubmission(accNo, owner, relPath)
+        requestProcessor.releaseSubmission(accNo, owner, relPath)
     }
 
     private fun saveRequest(request: SubmissionRequest, owner: String): Pair<String, Int> {

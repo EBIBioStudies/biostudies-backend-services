@@ -325,10 +325,10 @@ class SubmissionApiTest(
             listOf(
                 tempFolder.createFile("fileSubSection.txt", "content"),
                 tempFolder.createFile("file-list.tsv", fileListContent),
-                tempFolder.createFile("file section.doc"),
+                tempFolder.createFile("file section.doc", "doc content"),
             )
         )
-        webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf")), "a")
+        webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf", "pdf content")), "a")
 
         val response = webClient.submitSingle(submission(), TSV)
 
@@ -336,10 +336,9 @@ class SubmissionApiTest(
         val accNo = response.body.accNo
         val submitted = submissionRepository.getExtByAccNo(accNo)
         assertThat(submitted.version).isEqualTo(1)
-        assertThat(File("$submissionPath/${submitted.relPath}/Files/file section.doc")).exists()
-        assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).exists()
+        assertThat(File("$submissionPath/${submitted.relPath}/Files/file section.doc")).hasContent("doc content")
         assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).hasContent("content")
-        assertThat(File("$submissionPath/${submitted.relPath}/Files/a/fileFileList.pdf")).exists()
+        assertThat(File("$submissionPath/${submitted.relPath}/Files/a/fileFileList.pdf")).hasContent("pdf content")
 
         val changedFile = tempFolder.resolve("fileSubSection.txt").apply { writeText("newContent") }
         webClient.uploadFiles(listOf(changedFile))
@@ -350,7 +349,6 @@ class SubmissionApiTest(
         val resubmitted = submissionRepository.getExtByAccNo(accNo)
         assertThat(resubmitted.version).isEqualTo(2)
         assertThat(File("$submissionPath/${resubmitted.relPath}/Files/file section.doc")).exists()
-        assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).exists()
         assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).hasContent("newContent")
         assertThat(File("$submissionPath/${resubmitted.relPath}/Files/a/fileFileList.pdf")).exists()
     }
