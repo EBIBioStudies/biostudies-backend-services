@@ -13,9 +13,7 @@ data class FireApiFile(
 )
 
 val FireApiFile.path: String?
-    get() {
-        return filesystemEntry?.path
-    }
+    get() = filesystemEntry?.path
 
 fun FireApiFile.isAvailable(accNo: String): Boolean {
     val meta = metadata.orEmpty()

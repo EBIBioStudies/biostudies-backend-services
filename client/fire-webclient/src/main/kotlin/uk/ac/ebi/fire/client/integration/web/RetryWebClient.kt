@@ -42,7 +42,7 @@ internal class RetryWebClient(
     }
 
     override fun setBioMetadata(fireOid: String, accNo: String?, fileType: FileType?, published: Boolean?) {
-        val opt = "metadata update  fireOid='$fireOid', accNo='$accNo', fileType='$fileType', published='$published'"
+        val opt = "Metadata update fireOid='$fireOid', accNo='$accNo', fileType='$fileType', published='$published'"
         template.execute(opt) { fireClient.setBioMetadata(fireOid, accNo, fileType, published) }
     }
 

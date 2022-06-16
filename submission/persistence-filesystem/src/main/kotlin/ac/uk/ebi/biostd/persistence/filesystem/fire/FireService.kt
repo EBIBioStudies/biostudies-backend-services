@@ -23,21 +23,21 @@ class FireService(
 ) {
 
     fun cleanFtp(sub: ExtSubmission) {
-        logger.info { "Clean FTP files (unset path) of files in submission ${sub.accNo}" }
+        logger.info { "Started cleaning FTP files (unset path) of files in submission ${sub.accNo}" }
         client
             .findByAccNo(sub.accNo)
             .apply { logger.info { "Found $size files in submission ${sub.accNo}" } }
             .forEach { client.unsetPath(it.fireOid) }
-        logger.info { "Finish clean FTP files (unset path) of files in submission ${sub.accNo}" }
+        logger.info { "Finished cleaning FTP files (unset path) of files in submission ${sub.accNo}" }
     }
 
     /**
-     * Get or persist the given ext file. Note that this method assumes all previous submission versions  fire files has
-     * been unpublished and any file with path is assumed to be already used.
+     * Get or persist the given ext file from FIRE. Note that this method assumes that all the fire files belonging to
+     * previous submission versions have been unpublished and any file with a path is assumed to be already used.
      *
-     * For both fire and nfs file, fire file is search by md5 and system checks that it does not bellow to another
-     * accNo (another submission), we also ensure file has no path (submitted in the same submission in a different
-     * path). If so even is file exists in fire we duplicated.
+     * For both FIRE and NFS, the file is searched by md5, and the system checks that it does not belong to another
+     * submission. The method also ensures that the file has no path (i.e. it was submitted in the same submission in a
+     * different path) and if so, even if the file exists in FIRE, it gets duplicated to ensure consistency.
      */
     fun getOrPersist(sub: ExtSubmission, file: ExtFile): FireFile = when (file) {
         is FireFile -> fromFireFile(sub, file, "${sub.relPath}/${file.relPath}")
