@@ -6,7 +6,7 @@ const val FILE_LIST_NAME = "fileListName"
 const val ATTRIBUTES = "attributes"
 const val SUBMISSION = "submission"
 const val FILE_MODE = "fileMode"
-const val PREFERRED_SOURCE = "preferredSource"
+const val PREFERRED_SOURCES = "preferredSources"
 
 const val APPLICATION_JSON = "application/json"
 const val TEXT_XML = "text/xml"

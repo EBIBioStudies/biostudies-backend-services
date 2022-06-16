@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
+import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.PrintMessage
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
@@ -39,12 +40,7 @@ internal class SubmissionServiceTest {
     fun submit() {
         every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
         every {
-            bioWebClient.submitSingle(
-                submissionRequest.file,
-                submissionRequest.attached,
-                fileMode = COPY,
-                preferredSource = SUBMISSION
-            ).body
+            bioWebClient.submitSingle(submissionRequest.submissionFile, submissionRequest.filesConfig).body
         } returns submission
 
         val submitted = testInstance.submit(submissionRequest)
@@ -53,10 +49,8 @@ internal class SubmissionServiceTest {
         verify(exactly = 1) {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
             bioWebClient.submitSingle(
-                submissionRequest.file,
-                submissionRequest.attached,
-                fileMode = COPY,
-                preferredSource = SUBMISSION
+                submissionRequest.submissionFile,
+                submissionRequest.filesConfig
             )
         }
     }
@@ -65,12 +59,7 @@ internal class SubmissionServiceTest {
     fun `submit async`() {
         every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
         every {
-            bioWebClient.asyncSubmitSingle(
-                submissionRequest.file,
-                submissionRequest.attached,
-                fileMode = COPY,
-                preferredSource = SUBMISSION
-            )
+            bioWebClient.asyncSubmitSingle(submissionRequest.submissionFile, submissionRequest.filesConfig)
         } answers { nothing }
 
         testInstance.submitAsync(submissionRequest)
@@ -78,10 +67,8 @@ internal class SubmissionServiceTest {
         verify(exactly = 1) {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
             bioWebClient.asyncSubmitSingle(
-                submissionRequest.file,
-                submissionRequest.attached,
-                fileMode = COPY,
-                preferredSource = SUBMISSION
+                submissionRequest.submissionFile,
+                submissionRequest.filesConfig
             )
         }
     }
@@ -161,21 +148,16 @@ internal class SubmissionServiceTest {
         private const val USER = "user"
         private const val FILE_LIST_PATH = "file-list.json"
 
-        val webClientException: WebClientException = mockk()
-        val submission: Submission = mockk()
-        val bioWebClient: BioWebClient = mockk()
-        val securityConfig = SecurityConfig(SERVER, USER, PASSWORD, ON_BEHALF)
+        private val webClientException: WebClientException = mockk()
+        private val submission: Submission = mockk()
+        private val bioWebClient: BioWebClient = mockk()
+        private val securityConfig = SecurityConfig(SERVER, USER, PASSWORD, ON_BEHALF)
+        private val filesConfig = SubmissionFilesConfig(listOf(mockk()), COPY, listOf(SUBMISSION))
 
-        val submissionRequest = SubmissionRequest(
-            securityConfig,
-            file = mockk(),
-            attached = listOf(mockk()),
-            fileMode = COPY,
-            preferredSource = SUBMISSION
-        )
+        private val submissionRequest = SubmissionRequest(mockk(), securityConfig, filesConfig)
 
-        val deletionRequest = DeletionRequest(securityConfig, accNoList = listOf(ACC_NO))
+        private val deletionRequest = DeletionRequest(securityConfig, accNoList = listOf(ACC_NO))
 
-        val validateFileList = ValidateFileListRequest(securityConfig, FILE_LIST_PATH)
+        private val validateFileList = ValidateFileListRequest(securityConfig, FILE_LIST_PATH)
     }
 }

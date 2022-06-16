@@ -8,6 +8,7 @@ import ebi.ac.uk.io.sources.FilesListSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathFilesSource
 import ebi.ac.uk.io.sources.PreferredSource
+import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.paths.FILES_PATH
@@ -21,19 +22,13 @@ class SourceGenerator(
     private val fireSourceFactory: FireFilesSourceFactory,
 ) {
     fun submissionSources(requestSources: RequestSources): FilesSource {
-        val (owner, submitter, files, rootPath, submission, preferredSource) = requestSources
         val sources = buildList {
-            add(FilesListSource(files))
+            add(FilesListSource(requestSources.files))
 
-            when (preferredSource) {
-                SUBMISSION -> {
-                    addSubmissionSources(submission, this)
-                    addUserSources(rootPath, owner, submitter, this)
-                }
-                USER_SPACE -> {
-                    addUserSources(rootPath, owner, submitter, this)
-                    addSubmissionSources(submission, this)
-                }
+            if (requestSources.preferredSources.isEmpty()) {
+                addDefaultFileSources(requestSources, this)
+            } else {
+                requestSources.preferredSources.forEach { addFileSource(it, requestSources, this) }
             }
         }
 
@@ -49,6 +44,28 @@ class SourceGenerator(
             addUserSources(rootPath, user, onBehalfUser, this)
         }
     )
+
+    private fun addFileSource(
+        type: PreferredSource,
+        requestSources: RequestSources,
+        sources: MutableList<FilesSource>
+    ) {
+        val (owner, submitter, _, rootPath, submission, _) = requestSources
+
+        when (type) {
+            FIRE -> addFireSources(sources)
+            USER_SPACE -> addUserSources(rootPath, owner, submitter, sources)
+            SUBMISSION -> addSubmissionSources(submission, sources)
+        }
+    }
+
+    private fun addDefaultFileSources(requestSources: RequestSources, sources: MutableList<FilesSource>) {
+        val (owner, submitter, _, rootPath, submission, _) = requestSources
+
+        addUserSources(rootPath, owner, submitter, sources)
+        addSubmissionSources(submission, sources)
+        addFireSources(sources)
+    }
 
     private fun addUserSources(
         rootPath: String?,
@@ -68,13 +85,15 @@ class SourceGenerator(
     }
 
     private fun addSubmissionSources(sub: ExtSubmission?, sources: MutableList<FilesSource>) {
-        if (props.persistence.enableFire && sub == null) {
-            sources.add(fireSourceFactory.createFireSource())
-        }
-
         if (sub != null) {
             sources.add(fireSourceFactory.createSubmissionFireSource(sub.accNo, Paths.get("${sub.relPath}/Files")))
             sources.add(PathFilesSource(Paths.get(props.submissionPath).resolve(sub.relPath).resolve(FILES_PATH)))
+        }
+    }
+
+    private fun addFireSources(sources: MutableList<FilesSource>) {
+        if (props.persistence.enableFire) {
+            sources.add(fireSourceFactory.createFireSource())
         }
     }
 
@@ -93,5 +112,5 @@ data class RequestSources(
     val files: List<File> = emptyList(),
     val rootPath: String?,
     val submission: ExtSubmission?,
-    val preferredSource: PreferredSource
+    val preferredSources: List<PreferredSource>
 )

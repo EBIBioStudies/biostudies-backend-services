@@ -6,9 +6,6 @@ import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 
-/**
- * In charge of performing submission command line operations.
- */
 @Suppress("TooManyFunctions")
 internal class SubmissionService {
     fun submit(request: SubmissionRequest): Submission = performRequest { submitRequest(request) }
@@ -23,19 +20,17 @@ internal class SubmissionService {
 
     private fun submitRequest(request: SubmissionRequest): Submission {
         val (server, user, password, onBehalf) = request.securityConfig
-        val (_, file, attached, fileMode, preferredSource) = request
 
         return bioWebClient(server, user, password, onBehalf)
-            .submitSingle(file, attached, fileMode = fileMode, preferredSource = preferredSource)
+            .submitSingle(request.submissionFile, request.filesConfig)
             .body
     }
 
     private fun submitAsyncRequest(request: SubmissionRequest) {
         val (server, user, password, onBehalf) = request.securityConfig
-        val (_, file, attached, fileMode, preferredSource) = request
 
         bioWebClient(server, user, password, onBehalf)
-            .asyncSubmitSingle(file, attached, fileMode = fileMode, preferredSource = preferredSource)
+            .asyncSubmitSingle(request.submissionFile, request.filesConfig)
     }
 
     private fun deleteRequest(request: DeletionRequest) {

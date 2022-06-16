@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.itest.test.security
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
@@ -157,7 +158,8 @@ class DeletePermissionTest(
         }.toString()
         val projectFile = tempFolder.createFile("a-project.tsv", project)
 
-        assertThat(superUserWebClient.submitSingle(projectFile, emptyList())).isSuccessful()
+        val filesConfig = SubmissionFilesConfig(emptyList())
+        assertThat(superUserWebClient.submitSingle(projectFile, filesConfig)).isSuccessful()
 
         val accessTag = tagsDataRepository.getByName("AProject")
         val user = userDataRepository.getByEmailAndActive(RegularUser.email, active = true)

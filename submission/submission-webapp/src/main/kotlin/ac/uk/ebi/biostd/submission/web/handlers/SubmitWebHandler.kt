@@ -58,7 +58,7 @@ class SubmitWebHandler(
                 owner = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
                 rootPath = sub.rootPath,
                 submission = extSub,
-                preferredSource = preferredSource
+                preferredSources = preferredSource
             )
         )
         val submission = withAttributes(submission(request.submission, format, source), attrs)
@@ -87,7 +87,7 @@ class SubmitWebHandler(
                 owner = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
                 rootPath = sub.rootPath,
                 submission = extSub,
-                preferredSource = preferredSource
+                preferredSources = preferredSource
             )
         )
         val submission = withAttributes(submission(request.submission, source), attrs)

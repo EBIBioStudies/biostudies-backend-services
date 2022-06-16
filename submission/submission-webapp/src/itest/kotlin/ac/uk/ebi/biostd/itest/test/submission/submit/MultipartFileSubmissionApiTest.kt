@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -28,6 +29,7 @@ import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
 import org.assertj.core.api.Assertions.assertThat
@@ -106,7 +108,8 @@ class MultipartFileSubmissionApiTest(
             }
         }
 
-        val response = webClient.submitSingle(excelPageTab, listOf(fileList, tempFolder.createFile("SomeFile.txt")))
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("SomeFile.txt")))
+        val response = webClient.submitSingle(excelPageTab, filesConfig)
         assertThat(response).isSuccessful()
         assertSubmissionFiles("S-EXC123", "SomeFile.txt")
         fileList.delete()
@@ -133,7 +136,8 @@ class MultipartFileSubmissionApiTest(
             }.toString()
         )
 
-        val response = webClient.submitSingle(submission, TSV, listOf(fileList, tempFolder.createFile("File1.txt")))
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File1.txt")))
+        val response = webClient.submitSingle(submission, TSV, filesConfig)
         assertThat(response).isSuccessful()
         assertSubmissionFiles("S-TEST1", "File1.txt")
         fileList.delete()
@@ -174,8 +178,8 @@ class MultipartFileSubmissionApiTest(
             }).toString()
         )
 
-        val response =
-            webClient.submitSingle(submission, JSON, listOf(fileList, tempFolder.createFile("File2.txt")))
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File2.txt")))
+        val response = webClient.submitSingle(submission, JSON, filesConfig)
         assertThat(response).isSuccessful()
         assertSubmissionFiles("S-TEST2", "File2.txt")
         fileList.delete()
@@ -223,7 +227,8 @@ class MultipartFileSubmissionApiTest(
             }.toString()
         )
 
-        val response = webClient.submitSingle(submission, XML, listOf(fileList, tempFolder.createFile("File3.txt")))
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File3.txt")))
+        val response = webClient.submitSingle(submission, XML, filesConfig)
         assertThat(response).isSuccessful()
         assertSubmissionFiles("S-TEST3", "File3.txt")
         fileList.delete()
@@ -245,7 +250,8 @@ class MultipartFileSubmissionApiTest(
             }.toString()
         )
 
-        val response = webClient.submitSingle(submission, emptyList(), hashMapOf(("Type" to "Exp"), ("Exp" to "1")))
+        val filesConfig = SubmissionFilesConfig(emptyList())
+        val response = webClient.submitSingle(submission, filesConfig, hashMapOf(("Type" to "Exp"), ("Exp" to "1")))
         assertThat(response).isSuccessful()
         submission.delete()
 
@@ -283,7 +289,8 @@ class MultipartFileSubmissionApiTest(
 
         val file4 = tempFolder.createFile("File4.txt", "content 4")
         val file5 = tempFolder.createFile("File5.txt", "content 5")
-        assertThat(webClient.submitSingle(submission("FileList.tsv"), TSV, listOf(fileList, file4, file5))).isSuccessful()
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, file4, file5))
+        assertThat(webClient.submitSingle(submission("FileList.tsv"), TSV, filesConfig)).isSuccessful()
 
         val firstVersion = submissionRepository.getExtByAccNo("S-TEST7")
         val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-TEST7", "FileList")
@@ -302,7 +309,8 @@ class MultipartFileSubmissionApiTest(
 
         tempFolder.createFile("File4.txt", "content 4 updated")
 
-        assertThat(webClient.submitSingle(submission("FileList.json"), TSV, emptyList())).isSuccessful()
+        val reSubmissionFilesConfig = SubmissionFilesConfig(emptyList(), preferredSources = listOf(SUBMISSION))
+        assertThat(webClient.submitSingle(submission("FileList.json"), TSV, reSubmissionFilesConfig)).isSuccessful()
         assertThat(innerFile.toFile().readText()).isEqualTo("content 4")
         assertThat(referencedFile.toFile().readText()).isEqualTo("content 5")
 
@@ -323,9 +331,10 @@ class MultipartFileSubmissionApiTest(
     @Test
     fun `invalid format file`() {
         val submission = tempFolder.createFile("submission.txt", "invalid file")
+        val filesConfig = SubmissionFilesConfig(emptyList())
 
         assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { webClient.submitSingle(submission, emptyList()) }
+            .isThrownBy { webClient.submitSingle(submission, filesConfig) }
             .withMessageContaining("Unsupported page tab format submission.txt")
     }
 

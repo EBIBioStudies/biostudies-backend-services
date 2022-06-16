@@ -7,7 +7,6 @@ import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.io.sources.PreferredSource
-import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 
@@ -16,14 +15,13 @@ class OnBehalfRequest(
     private val userName: String?,
     private val register: Boolean?
 ) {
-    fun asRegisterRequest(): GetOrRegisterUserRequest {
-        return GetOrRegisterUserRequest(register.orFalse(), userEmail, userName)
-    }
+    fun asRegisterRequest(): GetOrRegisterUserRequest =
+        GetOrRegisterUserRequest(register.orFalse(), userEmail, userName)
 }
 
 data class SubmissionRequestParameters(
     val fileMode: FileMode = COPY,
-    val preferredSource: PreferredSource = USER_SPACE,
+    val preferredSources: List<PreferredSource> = emptyList(),
     val attributes: List<ExtAttributeDetail> = emptyList(),
 )
 
@@ -36,7 +34,7 @@ data class SubmissionConfig(
 data class SubmissionFilesConfig(
     val fileMode: FileMode,
     val files: List<File>,
-    val preferredSource: PreferredSource,
+    val preferredSources: List<PreferredSource>,
 )
 
 sealed class SubmitWebRequest(

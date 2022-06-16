@@ -21,7 +21,6 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.io.sources.PreferredSource
-import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.Group
 import ebi.ac.uk.model.Submission
@@ -40,6 +39,12 @@ interface SubmissionClient :
     PermissionOperations
 
 typealias SubmissionResponse = ClientResponse<Submission>
+
+data class SubmissionFilesConfig(
+    val files: List<File>,
+    val fileMode: FileMode = COPY,
+    val preferredSources: List<PreferredSource> = emptyList(),
+)
 
 interface FilesOperations {
     fun uploadFiles(files: List<File>, relativePath: String = EMPTY)
@@ -90,25 +95,19 @@ interface MultipartSubmissionOperations {
     fun submitSingle(
         submission: String,
         format: SubmissionFormat,
-        files: List<File>,
-        fileMode: FileMode = COPY,
-        preferredSource: PreferredSource = USER_SPACE
+        filesConfig: SubmissionFilesConfig,
     ): SubmissionResponse
 
     fun submitSingle(
         submission: Submission,
         format: SubmissionFormat,
-        files: List<File>,
-        fileMode: FileMode = COPY,
-        preferredSource: PreferredSource = USER_SPACE
+        filesConfig: SubmissionFilesConfig,
     ): SubmissionResponse
 
     fun submitSingle(
         submission: File,
-        files: List<File>,
+        filesConfig: SubmissionFilesConfig,
         attrs: Map<String, String> = emptyMap(),
-        fileMode: FileMode = COPY,
-        preferredSource: PreferredSource = USER_SPACE
     ): SubmissionResponse
 }
 
@@ -116,25 +115,19 @@ interface MultipartAsyncSubmissionOperations {
     fun asyncSubmitSingle(
         submission: String,
         format: SubmissionFormat,
-        files: List<File>,
-        fileMode: FileMode = COPY,
-        preferredSource: PreferredSource = USER_SPACE
+        filesConfig: SubmissionFilesConfig,
     )
 
     fun asyncSubmitSingle(
         submission: Submission,
         format: SubmissionFormat,
-        files: List<File>,
-        fileMode: FileMode = COPY,
-        preferredSource: PreferredSource = USER_SPACE
+        filesConfig: SubmissionFilesConfig,
     )
 
     fun asyncSubmitSingle(
         submission: File,
-        files: List<File>,
+        filesConfig: SubmissionFilesConfig,
         attrs: Map<String, String> = emptyMap(),
-        fileMode: FileMode = COPY,
-        preferredSource: PreferredSource = USER_SPACE
     )
 }
 

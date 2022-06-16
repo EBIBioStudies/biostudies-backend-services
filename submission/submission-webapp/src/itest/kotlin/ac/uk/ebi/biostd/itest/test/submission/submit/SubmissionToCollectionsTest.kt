@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.common.TestCollectionValidator
@@ -77,11 +78,9 @@ class SubmissionToCollectionsTest(
             }.toString()
         )
 
-        assertThat(
-            webClient.submitSingle(
-                submissionFile, emptyList(), singletonMap("AttachTo", "Public-Project")
-            )
-        ).isSuccessful()
+        val filesConfig = SubmissionFilesConfig(emptyList())
+        val attributes = singletonMap("AttachTo", "Public-Project")
+        assertThat(webClient.submitSingle(submissionFile, filesConfig, attributes)).isSuccessful()
 
         assertThat(getSimpleSubmission("S-TEST1")).isEqualTo(
             submission("S-TEST1") {
