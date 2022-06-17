@@ -80,4 +80,7 @@ fun FireApiFile.asFireFile(path: String, attributes: List<Attribute>): FireFile 
     )
 
 private val FireApiFile.fileType: ExtFileType
-    get(): ExtFileType = ExtFileType.fromString(metadata!!.first { it.key == FIRE_BIO_FILE_TYPE }.value)
+    get(): ExtFileType {
+        val fileType = metadata?.firstOrNull { it.key == FIRE_BIO_FILE_TYPE }
+        return fileType?.let { ExtFileType.fromString(it.value) } ?: ExtFileType.FILE
+    }
