@@ -10,12 +10,10 @@ import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.itest.test.security.SubmitPermissionTest.ExistingUser
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
-import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
-import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
-import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
-import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -36,22 +34,17 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class DeletePermissionTest(
     @Autowired private val securityTestService: SecurityTestService,
-    @Autowired private val userDataRepository: UserDataRepository,
-    @Autowired private val submissionRepository: SubmissionQueryService,
-    @Autowired private val tagsDataRepository: AccessTagDataRepo,
-    @Autowired private val accessPermissionRepository: AccessPermissionRepository,
+    @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var superUserWebClient: BioWebClient
     private lateinit var regularUserWebClient: BioWebClient
+    private lateinit var existingUserWebClient: BioWebClient
 
     @BeforeAll
     fun init() {
-        securityTestService.ensureUserRegistration(SuperUser)
-        securityTestService.ensureUserRegistration(RegularUser)
-
-        superUserWebClient = getWebClient(serverPort, SuperUser)
-        regularUserWebClient = getWebClient(serverPort, RegularUser)
+        setUpTestUsers()
+        setUpTestCollection()
     }
 
     @Test
@@ -89,12 +82,12 @@ class DeletePermissionTest(
         val submission = tsv {
             line("Submission", "SimpleAcc3")
             line("Title", "Simple Submission")
-            line("AttachTo", "AProject")
+            line("AttachTo", "ACollection")
             line()
         }.toString()
 
-        setUpPermissions()
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
+        superUserWebClient.givePermissionToUser(RegularUser.email, "ACollection", DELETE.name)
 
         regularUserWebClient.deleteSubmission("SimpleAcc3")
         assertDeletedSubmission("SimpleAcc3")
@@ -114,6 +107,22 @@ class DeletePermissionTest(
 
         val resubmitted = submissionRepository.getExtByAccNo("SimpleAcc4")
         assertThat(resubmitted.version).isEqualTo(2)
+    }
+
+    @Test
+    fun `delete with collection admin user`() {
+        val submission = tsv {
+            line("Submission", "SimpleAcc5")
+            line("Title", "Simple Submission")
+            line("AttachTo", "ACollection")
+            line()
+        }.toString()
+
+        assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
+        superUserWebClient.givePermissionToUser(ExistingUser.email, "ACollection", ADMIN.name)
+
+        existingUserWebClient.deleteSubmission("SimpleAcc5")
+        assertDeletedSubmission("SimpleAcc5")
     }
 
     @Test
@@ -148,22 +157,27 @@ class DeletePermissionTest(
         assertThat(deletedSubmission.version).isEqualTo(version)
     }
 
-    private fun setUpPermissions() {
+    private fun setUpTestCollection() {
         val project = tsv {
-            line("Submission", "AProject")
+            line("Submission", "ACollection")
             line("AccNoTemplate", "!{S-APR}")
             line()
 
             line("Project")
         }.toString()
-        val projectFile = tempFolder.createFile("a-project.tsv", project)
+        val collectionFile = tempFolder.createFile("a-collection.tsv", project)
 
         val filesConfig = SubmissionFilesConfig(emptyList())
-        assertThat(superUserWebClient.submitSingle(projectFile, filesConfig)).isSuccessful()
+        assertThat(superUserWebClient.submitSingle(collectionFile, filesConfig)).isSuccessful()
+    }
 
-        val accessTag = tagsDataRepository.getByName("AProject")
-        val user = userDataRepository.getByEmailAndActive(RegularUser.email, active = true)
-        val accessPermission = DbAccessPermission(accessType = DELETE, user = user, accessTag = accessTag)
-        accessPermissionRepository.save(accessPermission)
+    private fun setUpTestUsers() {
+        securityTestService.ensureUserRegistration(SuperUser)
+        securityTestService.ensureUserRegistration(RegularUser)
+        securityTestService.ensureUserRegistration(ExistingUser)
+
+        superUserWebClient = getWebClient(serverPort, SuperUser)
+        regularUserWebClient = getWebClient(serverPort, RegularUser)
+        existingUserWebClient = getWebClient(serverPort, ExistingUser)
     }
 }

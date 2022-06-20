@@ -11,12 +11,11 @@ import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
@@ -60,7 +59,7 @@ import kotlin.test.assertFailsWith
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionApiTest(
     @Autowired val securityTestService: SecurityTestService,
-    @Autowired val submissionRepository: SubmissionQueryService,
+    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val sequenceRepository: SequenceDataRepository,
     @Autowired val tagsRefRepository: TagDataRepository,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
@@ -277,10 +276,10 @@ class SubmissionApiTest(
             listOf(
                 tempFolder.createFile("fileSubSection.txt", "content"),
                 tempFolder.createFile("file-list.tsv", fileListContent),
-                tempFolder.createFile("file section.doc"),
+                tempFolder.createFile("file section.doc", "doc content"),
             )
         )
-        webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf")), "a")
+        webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf", "pdf content")), "a")
 
         val response = webClient.submitSingle(submission(), TSV)
 
@@ -288,10 +287,9 @@ class SubmissionApiTest(
         val accNo = response.body.accNo
         val submitted = submissionRepository.getExtByAccNo(accNo)
         assertThat(submitted.version).isEqualTo(1)
-        assertThat(File("$submissionPath/${submitted.relPath}/Files/file section.doc")).exists()
-        assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).exists()
+        assertThat(File("$submissionPath/${submitted.relPath}/Files/file section.doc")).hasContent("doc content")
         assertThat(File("$submissionPath/${submitted.relPath}/Files/fileSubSection.txt")).hasContent("content")
-        assertThat(File("$submissionPath/${submitted.relPath}/Files/a/fileFileList.pdf")).exists()
+        assertThat(File("$submissionPath/${submitted.relPath}/Files/a/fileFileList.pdf")).hasContent("pdf content")
 
         val changedFile = tempFolder.resolve("fileSubSection.txt").apply { writeText("newContent") }
         webClient.uploadFiles(listOf(changedFile))
@@ -302,7 +300,6 @@ class SubmissionApiTest(
         val resubmitted = submissionRepository.getExtByAccNo(accNo)
         assertThat(resubmitted.version).isEqualTo(2)
         assertThat(File("$submissionPath/${resubmitted.relPath}/Files/file section.doc")).exists()
-        assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).exists()
         assertThat(File("$submissionPath/${resubmitted.relPath}/Files/fileSubSection.txt")).hasContent("newContent")
         assertThat(File("$submissionPath/${resubmitted.relPath}/Files/a/fileFileList.pdf")).exists()
     }

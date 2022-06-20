@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.common.exception.CollectionWithoutPatternExc
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbQueryConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.PropertyOverrideContextInitializer
 import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
 import ac.uk.ebi.biostd.persistence.doc.test.doc.RELEASE_TIME
@@ -51,7 +50,6 @@ internal class SubmissionMongoMetaQueryServiceTest(
             testDocSubmission.copy(
                 accNo = "EuToxRisk",
                 version = 1,
-                status = PROCESSED,
                 attributes = listOf(
                     DocAttribute(ACC_NO_TEMPLATE.value, "!{S-TOX}"),
                     DocAttribute(COLLECTION_VALIDATOR.value, "EuToxRiskValidator")
@@ -78,7 +76,6 @@ internal class SubmissionMongoMetaQueryServiceTest(
             testDocSubmission.copy(
                 accNo = "PatternLess",
                 version = 1,
-                status = PROCESSED,
                 attributes = listOf(DocAttribute(COLLECTION_VALIDATOR.value, "PatternLessValidator"))
             )
         )
@@ -89,9 +86,9 @@ internal class SubmissionMongoMetaQueryServiceTest(
 
     @Test
     fun findLatestBasicByAccNo() {
-        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = 1, status = PROCESSED))
-        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = -2, status = PROCESSED))
-        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = 4, status = PROCESSED))
+        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = 1))
+        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = -2))
+        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = 4))
 
         val lastVersion = testInstance.findLatestBasicByAccNo("accNo2")
 
@@ -101,14 +98,14 @@ internal class SubmissionMongoMetaQueryServiceTest(
 
     @Test
     fun `exists by AccNo when exists`() {
-        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo3", version = 1, status = PROCESSED))
+        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo3", version = 1))
 
         assertThat(submissionMongoRepository.existsByAccNo("accNo3")).isTrue
     }
 
     @Test
     fun `exist by AccNo when don't exists`() {
-        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo4", version = 1, status = PROCESSED))
+        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo4", version = 1))
 
         assertThat(submissionMongoRepository.existsByAccNo("accNo5")).isFalse
     }

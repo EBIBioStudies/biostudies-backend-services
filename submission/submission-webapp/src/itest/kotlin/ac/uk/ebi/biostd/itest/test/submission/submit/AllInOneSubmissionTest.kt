@@ -15,7 +15,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -30,7 +30,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AllInOneSubmissionTest(
-    @Autowired val subRepository: SubmissionQueryService,
+    @Autowired val subRepository: SubmissionPersistenceQueryService,
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int
@@ -55,8 +55,8 @@ class AllInOneSubmissionTest(
         webClient.submitSingle(submission.readText(), TSV)
 
         allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
-        if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC124")
-        else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC124")
+        if (enableFire) allInOneSubmissionHelper.assertFirePagetabFiles("S-EPMC124")
+        else allInOneSubmissionHelper.assertNfsPagetabFiles("S-EPMC124")
     }
 
     @Test
@@ -69,8 +69,8 @@ class AllInOneSubmissionTest(
         webClient.submitSingle(submission.readText(), JSON)
 
         allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
-        if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC125")
-        else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC125")
+        if (enableFire) allInOneSubmissionHelper.assertFirePagetabFiles("S-EPMC125")
+        else allInOneSubmissionHelper.assertNfsPagetabFiles("S-EPMC125")
     }
 
     @Test
@@ -83,7 +83,7 @@ class AllInOneSubmissionTest(
         webClient.submitSingle(submission.readText(), XML)
 
         allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126")
-        if (enableFire) allInOneSubmissionHelper.assertSubmissionFilesRecordsFire("S-EPMC126")
-        else allInOneSubmissionHelper.assertSubmissionFilesRecordsNfs("S-EPMC126")
+        if (enableFire) allInOneSubmissionHelper.assertFirePagetabFiles("S-EPMC126")
+        else allInOneSubmissionHelper.assertNfsPagetabFiles("S-EPMC126")
     }
 }

@@ -10,7 +10,7 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.asserts.assertThat
@@ -37,7 +37,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionOnBehalfTest(
     @Autowired val securityTestService: SecurityTestService,
-    @Autowired val submissionRepository: SubmissionQueryService,
+    @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val userDataRepository: UserDataRepository,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int,
@@ -119,10 +119,7 @@ class SubmissionOnBehalfTest(
             line()
         }.toString()
 
-        val onBehalfClient = SecurityWebClient
-            .create("http://localhost:$serverPort")
-            .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
-
+        val onBehalfClient = getWebClient(serverPort, SuperUser, onBehalf = RegularUser)
         val response = onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)
         assertThat(response).isSuccessful()
 

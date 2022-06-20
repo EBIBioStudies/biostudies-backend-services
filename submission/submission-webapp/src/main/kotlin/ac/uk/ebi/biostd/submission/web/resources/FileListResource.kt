@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 class FileListResource(
     private val sourceGenerator: SourceGenerator,
     private val fileListValidator: FileListValidator,
-    private val onBehalfUtils: OnBehalfUtils
+    private val onBehalfUtils: OnBehalfUtils,
 ) {
     @PostMapping("/validate")
     fun validateFileList(

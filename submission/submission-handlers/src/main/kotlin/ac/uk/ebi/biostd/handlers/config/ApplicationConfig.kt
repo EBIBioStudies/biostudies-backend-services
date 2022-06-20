@@ -10,6 +10,7 @@ import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.notifications.integration.NotificationConfig
 import ebi.ac.uk.notifications.service.RtNotificationService
 import ebi.ac.uk.notifications.service.SecurityNotificationService
+import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -26,11 +27,13 @@ class Listeners {
 
     @Bean
     fun notificationsListener(
+        rabbitTemplate: RabbitTemplate,
         webConsumer: BioStudiesWebConsumer,
         notificationsSender: NotificationsSender,
         applicationProperties: ApplicationProperties,
         rtNotificationService: RtNotificationService
     ): SubmissionNotificationsListener = SubmissionNotificationsListener(
+        rabbitTemplate,
         webConsumer,
         notificationsSender,
         rtNotificationService,

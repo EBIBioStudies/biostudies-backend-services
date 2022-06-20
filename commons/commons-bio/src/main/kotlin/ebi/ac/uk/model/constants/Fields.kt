@@ -108,7 +108,6 @@ enum class FileFields(override val value: String) : Fields {
     SIZE("size"),
     TYPE("type"),
     FILE_TYPE("file"),
-    DIR_TYPE("directory"),
     MD5("md5"),
     ATTRIBUTES(ATTRIBUTES_FIELD);
 

@@ -2,7 +2,6 @@ package uk.ac.ebi.extended.serialization.service
 
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtCollection
-import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
@@ -43,7 +42,6 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
             rootPath = "/a/root/path",
             released = false,
             secretKey = "a-secret-key",
-            status = PROCESSED,
             releaseTime = time,
             modificationTime = time,
             creationTime = time,

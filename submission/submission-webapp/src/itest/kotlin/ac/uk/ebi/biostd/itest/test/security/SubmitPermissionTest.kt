@@ -9,11 +9,8 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
-import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
-import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
-import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
-import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -32,14 +29,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmitPermissionTest(
     @Autowired private val securityTestService: SecurityTestService,
-    @Autowired private val userDataRepository: UserDataRepository,
-    @Autowired private val tagsDataRepository: AccessTagDataRepo,
-    @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @LocalServerPort val serverPort: Int,
 ) {
-
-    private val project = tsv {
-        line("Submission", "AProject")
+    private val collection = tsv {
+        line("Submission", "ACollection")
         line("AccNoTemplate", "!{S-APR}")
         line()
 
@@ -59,22 +52,22 @@ class SubmitPermissionTest(
     }
 
     @Test
-    fun `create project with superuser`() {
-        assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
+    fun `create collection with superuser`() {
+        assertThat(superUserWebClient.submitSingle(collection, SubmissionFormat.TSV)).isSuccessful()
     }
 
     @Test
-    fun `create project with regular user`() {
+    fun `create collection with regular user`() {
         assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
-            regularUserWebClient.submitSingle(project, SubmissionFormat.TSV)
+            regularUserWebClient.submitSingle(collection, SubmissionFormat.TSV)
         }
     }
 
     @Test
     fun `submit without attach permission`() {
         val project = tsv {
-            line("Submission", "TestProject")
-            line("AccNoTemplate", "!{S-TPR}")
+            line("Submission", "TestCollection")
+            line("AccNoTemplate", "!{S-CLL}")
             line()
 
             line("Project")
@@ -82,7 +75,7 @@ class SubmitPermissionTest(
 
         val submission = tsv {
             line("Submission")
-            line("AttachTo", "TestProject")
+            line("AttachTo", "TestCollection")
             line("Title", "Test Submission")
         }.toString()
 
@@ -90,15 +83,15 @@ class SubmitPermissionTest(
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV) }
             .withMessageContaining(
-                "The user register_user@ebi.ac.uk is not allowed to submit to TestProject project"
+                "The user register_user@ebi.ac.uk is not allowed to submit to TestCollection project"
             )
     }
 
     @Test
     fun `submit with attach permission access tag`() {
         val project = tsv {
-            line("Submission", "TestProject2")
-            line("AccNoTemplate", "!{S-TPRJ}")
+            line("Submission", "TestCollection2")
+            line("AccNoTemplate", "!{S-COLL}")
             line()
 
             line("Project")
@@ -106,12 +99,12 @@ class SubmitPermissionTest(
 
         val submission = tsv {
             line("Submission")
-            line("AttachTo", "TestProject2")
+            line("AttachTo", "TestCollection2")
             line("Title", "Test Submission")
         }.toString()
 
         assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
-        setAttachPermission(ExistingUser, "TestProject2")
+        setAttachPermission(ExistingUser, "TestCollection2")
 
         assertThat(regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
     }
@@ -119,8 +112,8 @@ class SubmitPermissionTest(
     @Test
     fun `registering user and submit to default project`() {
         val project = tsv {
-            line("Submission", "TestProject3")
-            line("AccNoTemplate", "!{S-PROJ}")
+            line("Submission", "TestCollection3")
+            line("AccNoTemplate", "!{S-CLC}")
             line()
 
             line("Project")
@@ -128,23 +121,71 @@ class SubmitPermissionTest(
 
         val submission = tsv {
             line("Submission")
-            line("AttachTo", "TestProject3")
+            line("AttachTo", "TestCollection3")
             line("Title", "Test Submission")
         }.toString()
 
         create("http://localhost:$serverPort").registerUser(NewUser.asRegisterRequest())
         assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
 
-        setAttachPermission(NewUser, "TestProject3")
+        setAttachPermission(NewUser, "TestCollection3")
         assertThat(getWebClient(serverPort, NewUser).submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
     }
 
-    private fun setAttachPermission(testUser: TestUser, project: String) {
-        val accessTag = tagsDataRepository.getByName(project)
-        val user = userDataRepository.getByEmailAndActive(testUser.email, active = true)
-        val attachPermission = DbAccessPermission(accessType = ATTACH, user = user, accessTag = accessTag)
-        accessPermissionRepository.save(attachPermission)
+    @Test
+    fun `submit with collection admin permission`() {
+        val project = tsv {
+            line("Submission", "TestCollection4")
+            line("AccNoTemplate", "!{S-CLCT}")
+            line()
+
+            line("Project")
+        }.toString()
+
+        val submission = tsv {
+            line("Submission")
+            line("AttachTo", "TestCollection4")
+            line("Title", "Test Submission")
+        }.toString()
+
+        assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
+        superUserWebClient.givePermissionToUser(ExistingUser.email, "TestCollection4", ADMIN.name)
+
+        assertThat(regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
     }
+
+    @Test
+    fun `resubmit with collection admin permission`() {
+        val project = tsv {
+            line("Submission", "TestCollection5")
+            line("AccNoTemplate", "!{S-TCLT}")
+            line()
+
+            line("Project")
+        }.toString()
+
+        val submission = tsv {
+            line("Submission")
+            line("AttachTo", "TestCollection5")
+            line("Title", "Test Submission")
+        }.toString()
+
+        assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
+        superUserWebClient.givePermissionToUser(ExistingUser.email, "TestCollection5", ADMIN.name)
+
+        assertThat(regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+
+        val resubmission = tsv {
+            line("Submission", "S-TCLT0")
+            line("AttachTo", "TestCollection5")
+            line("Title", "Test Resubmission")
+        }.toString()
+
+        assertThat(regularUserWebClient.submitSingle(resubmission, SubmissionFormat.TSV)).isSuccessful()
+    }
+
+    private fun setAttachPermission(testUser: TestUser, collection: String) =
+        superUserWebClient.givePermissionToUser(testUser.email, collection, ATTACH.name)
 
     object ExistingUser : TestUser {
         override val username = "Register User"

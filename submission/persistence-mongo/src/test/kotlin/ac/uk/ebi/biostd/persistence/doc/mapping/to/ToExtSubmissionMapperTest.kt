@@ -19,7 +19,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.TAG_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.TAG_VALUE
-import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
@@ -109,7 +108,6 @@ class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
         assertThat(extSubmission.rootPath).isEqualTo(ROOT_PATH)
         assertThat(extSubmission.released).isFalse
         assertThat(extSubmission.secretKey).isEqualTo(SECRET_KEY)
-        assertThat(extSubmission.status).isEqualTo(ExtProcessingStatus.PROCESSED)
         assertThat(extSubmission.releaseTime).isEqualTo(SubmissionTestHelper.time.atOffset(ZoneOffset.UTC))
         assertThat(extSubmission.modificationTime).isEqualTo(SubmissionTestHelper.time.atOffset(ZoneOffset.UTC))
         assertThat(extSubmission.creationTime).isEqualTo(SubmissionTestHelper.time.atOffset(ZoneOffset.UTC))

@@ -7,14 +7,19 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesService
+import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
@@ -38,27 +43,56 @@ import java.nio.file.Paths
 @Import(ServiceConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class, SerializationConfiguration::class)
 class SubmitterConfig {
     @Bean
+    fun requestLoader(
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+        fileProcessingService: FileProcessingService,
+    ): SubmissionRequestLoader = SubmissionRequestLoader(
+        submissionPersistenceQueryService,
+        fileProcessingService
+    )
+
+    @Bean
+    fun requestProcessor(
+        systemService: FileSystemService,
+        submissionPersistenceService: SubmissionPersistenceService,
+    ): SubmissionRequestProcessor = SubmissionRequestProcessor(
+        systemService,
+        submissionPersistenceService
+    )
+
+    @Bean
+    fun extSubmissionSubmitter(
+        persistenceService: SubmissionPersistenceService,
+        submissionDraftService: SubmissionDraftService,
+        requestLoader: SubmissionRequestLoader,
+        requestProcessor: SubmissionRequestProcessor,
+    ) = ExtSubmissionSubmitter(
+        persistenceService,
+        submissionDraftService,
+        requestLoader,
+        requestProcessor
+    )
+
+    @Bean
     fun submissionSubmitter(
+        extSubmissionSubmitter: ExtSubmissionSubmitter,
+        persistenceService: SubmissionPersistenceService,
         timesService: TimesService,
         accNoService: AccNoService,
         parentInfoService: ParentInfoService,
         collectionInfoService: CollectionInfoService,
-        persistenceService: SubmissionPersistenceService,
-        submissionMetadataQueryService: SubmissionMetaQueryService,
-        submissionQueryService: SubmissionQueryService,
-        submissionDraftService: SubmissionDraftService,
-        applicationProperties: ApplicationProperties,
+        queryService: SubmissionMetaQueryService,
+        properties: ApplicationProperties,
         toExtSectionMapper: ToExtSectionMapper,
     ) = SubmissionSubmitter(
+        extSubmissionSubmitter,
+        persistenceService,
         timesService,
         accNoService,
         parentInfoService,
         collectionInfoService,
-        persistenceService,
-        submissionMetadataQueryService,
-        submissionQueryService,
-        submissionDraftService,
-        applicationProperties,
+        queryService,
+        properties,
         toExtSectionMapper
     )
 
@@ -72,7 +106,7 @@ class SubmitterConfig {
         fun toExtFileList(
             extSerializationService: ExtSerializationService,
             serializationService: SerializationService,
-            filesResolver: FilesResolver
+            filesResolver: FilesResolver,
         ): ToExtFileListMapper =
             ToExtFileListMapper(extSerializationService, serializationService, filesResolver)
     }

@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
@@ -20,16 +19,15 @@ import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either.Companion.left
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
-import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.model.constants.ProcessingStatus
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -58,7 +56,6 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.REQUESTED as DOC_REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
@@ -70,21 +67,19 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmiss
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 internal class SubmissionMongoQueryServiceTest(
     private val tempFolder: TemporaryFolder,
-    @MockK private val fileProcessingService: FileProcessingService,
     @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
     @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
-    @Autowired private val requestRepository: SubmissionRequestDocDataRepository
+    @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
 ) {
     private val serializationService: ExtSerializationService = extSerializationService()
     private val testInstance =
-        SubmissionMongoQueryService(
+        SubmissionMongoPersistenceQueryService(
             submissionRepo,
             requestRepository,
             fileListDocFileRepository,
             serializationService,
             toExtSubmissionMapper,
-            fileProcessingService
         )
 
     @AfterEach
@@ -97,7 +92,7 @@ internal class SubmissionMongoQueryServiceTest(
     inner class ExpireSubmissions {
         @Test
         fun `expire submission`() {
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 1))
             testInstance.expireSubmission("S-BSST1")
 
             assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
@@ -105,8 +100,8 @@ internal class SubmissionMongoQueryServiceTest(
 
         @Test
         fun `expire submissions`() {
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 1, status = PROCESSED))
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST101", version = 1, status = PROCESSED))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 1))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST101", version = 1))
             testInstance.expireSubmissions(listOf("S-BSST1", "S-BSST101"))
 
             assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
@@ -118,26 +113,18 @@ internal class SubmissionMongoQueryServiceTest(
     inner class FindSubmissions {
         @Test
         fun `find latest by accNo`() {
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = -1, status = PROCESSED))
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 2, status = PROCESSED))
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 3, status = DOC_REQUESTED))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = -1))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 2))
 
             val result = submissionRepo.findLatestByAccNo("S-BSST1")
             assertThat(result).isNotNull
             assertThat(result!!.version).isEqualTo(2)
-            assertThat(result.status).isEqualTo(PROCESSED)
-        }
-
-        @Test
-        fun `find latest by accNo for new submission`() {
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST2", version = 1, status = DOC_REQUESTED))
-            assertThat(submissionRepo.findLatestByAccNo("S-BSST2")).isNull()
         }
 
         @Test
         fun `find latest by accNo for submission with old expired version`() {
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -1, status = PROCESSED))
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = 2, status = DOC_REQUESTED))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -1))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -2))
             assertThat(submissionRepo.findLatestByAccNo("S-BSST3")).isNull()
         }
     }
@@ -215,7 +202,7 @@ internal class SubmissionMongoQueryServiceTest(
         fun `filtered by accNo`() {
             val subRequest = extSubmission.copy(accNo = "accNo1", version = 2, title = "title1", section = section)
             val savedRequest = saveAsRequest(subRequest, REQUESTED)
-            submissionRepo.save(docSubmission.copy(accNo = "accNo1", status = PROCESSED))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo1"))
 
             var result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
@@ -223,21 +210,21 @@ internal class SubmissionMongoQueryServiceTest(
             )
 
             assertThat(result).hasSize(1)
-            assertThat(result.first()).isEqualTo(savedRequest.asBasicSubmission())
+            assertThat(result.first()).isEqualTo(savedRequest.asBasicSubmission(PROCESSING))
 
             result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
                 SubmissionFilter(accNo = "accNo1", limit = 2)
             )
             assertThat(result).hasSize(1)
-            assertThat(result.first()).isEqualTo(savedRequest.asBasicSubmission())
+            assertThat(result.first()).isEqualTo(savedRequest.asBasicSubmission(PROCESSING))
         }
 
         @Test
         fun `filtered by keyword on submission title`() {
             saveAsRequest(extSubmission.copy(accNo = "acc1", title = "title", section = section), REQUESTED)
             saveAsRequest(extSubmission.copy(accNo = "acc2", title = "wrongT1tl3", section = section), REQUESTED)
-            submissionRepo.save(docSubmission.copy(accNo = "acc3", title = "title", status = PROCESSED))
+            submissionRepo.save(docSubmission.copy(accNo = "acc3", title = "title"))
 
             val result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
@@ -258,8 +245,8 @@ internal class SubmissionMongoQueryServiceTest(
 
             saveAsRequest(extSubmission.copy(accNo = "acc1", section = extSectionMatch), REQUESTED)
             saveAsRequest(extSubmission.copy(accNo = "acc2", section = extSectionMismatch), REQUESTED)
-            submissionRepo.save(docSubmission.copy(accNo = "acc3", section = docSectionMatch, status = PROCESSED))
-            submissionRepo.save(docSubmission.copy(accNo = "acc4", section = docSectionNoMatch, status = PROCESSED))
+            submissionRepo.save(docSubmission.copy(accNo = "acc3", section = docSectionMatch))
+            submissionRepo.save(docSubmission.copy(accNo = "acc4", section = docSectionNoMatch))
 
             val result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
@@ -279,7 +266,7 @@ internal class SubmissionMongoQueryServiceTest(
 
             saveAsRequest(extSubmission.copy(accNo = "accNo1", section = section1), REQUESTED)
             saveAsRequest(extSubmission.copy(accNo = "accNo2", section = section2), REQUESTED)
-            submissionRepo.save(docSubmission.copy(accNo = "accNo3", status = PROCESSED, section = docSection1))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo3", section = docSection1))
 
             val result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
@@ -305,7 +292,7 @@ internal class SubmissionMongoQueryServiceTest(
                 REQUESTED
             )
             submissionRepo.save(
-                docSubmission.copy(accNo = "accNo3", releaseTime = matchDate.toInstant(), status = PROCESSED)
+                docSubmission.copy(accNo = "accNo3", releaseTime = matchDate.toInstant())
             )
 
             val result = testInstance.getSubmissionsByUser(
@@ -332,7 +319,7 @@ internal class SubmissionMongoQueryServiceTest(
                 REQUESTED
             )
             submissionRepo.save(
-                docSubmission.copy(accNo = "accNo3", releaseTime = matchDate.toInstant(), status = PROCESSED)
+                docSubmission.copy(accNo = "accNo3", releaseTime = matchDate.toInstant())
             )
 
             val result = testInstance.getSubmissionsByUser(
@@ -349,7 +336,7 @@ internal class SubmissionMongoQueryServiceTest(
         fun `filtered by released`() {
             saveAsRequest(extSubmission.copy(accNo = "accNo1", released = true, section = section), REQUESTED)
             saveAsRequest(extSubmission.copy(accNo = "accNo2", released = false, section = section), REQUESTED)
-            submissionRepo.save(docSubmission.copy(accNo = "accNo3", released = true, status = PROCESSED))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo3", released = true))
 
             val result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
@@ -368,7 +355,6 @@ internal class SubmissionMongoQueryServiceTest(
                     accNo = "accNo1",
                     version = 1,
                     title = "title",
-                    status = ExtProcessingStatus.REQUESTED,
                     section = section.copy(type = "type1"),
                     released = false,
                     releaseTime = OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
@@ -383,7 +369,6 @@ internal class SubmissionMongoQueryServiceTest(
                     section = docSection.copy(type = "type1"),
                     released = false,
                     releaseTime = OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC).toInstant(),
-                    status = PROCESSED
                 )
             )
 
@@ -407,14 +392,14 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(request.title).isEqualTo("title")
             assertThat(request.releaseTime).isEqualTo(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
             assertThat(request.released).isEqualTo(false)
-            assertThat(request.status).isEqualTo(ProcessingStatus.REQUESTED)
+            assertThat(request.status).isEqualTo(PROCESSING)
         }
 
         @Test
         fun `get greatest version submission`() {
-            val sub1 = submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = 3, status = PROCESSED))
-            submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = -2, status = PROCESSED))
-            submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = -1, status = PROCESSED))
+            val sub1 = submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = 3))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = -2))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = -1))
 
             val result = testInstance.getSubmissionsByUser(
                 SUBMISSION_OWNER,
@@ -422,7 +407,7 @@ internal class SubmissionMongoQueryServiceTest(
             )
 
             assertThat(result).hasSize(1)
-            assertThat(result.first()).isEqualTo(sub1.asBasicSubmission())
+            assertThat(result.first()).isEqualTo(sub1.asBasicSubmission(PROCESSED))
         }
 
         @Test

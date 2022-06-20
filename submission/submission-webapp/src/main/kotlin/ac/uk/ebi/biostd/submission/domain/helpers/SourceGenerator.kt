@@ -12,7 +12,6 @@ import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.paths.FILES_PATH
-import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 import java.nio.file.Paths
@@ -74,13 +73,13 @@ class SourceGenerator(
         sources: MutableList<FilesSource>
     ) {
         if (submitter != null) {
-            sources.add(createPathSource(submitter, rootPath))
-            sources.addAll(groupSources(submitter.groupsFolders))
+            sources.add(PathFilesSource(submitter.magicFolder.resolve(rootPath.orEmpty())))
+            sources.addAll(submitter.groupsFolders.map { GroupSource(it.groupName, it.path) })
         }
 
         if (owner != null) {
-            sources.add(createPathSource(owner, rootPath))
-            sources.addAll(groupSources(owner.groupsFolders))
+            sources.add(PathFilesSource(owner.magicFolder.resolve(rootPath.orEmpty())))
+            sources.addAll(owner.groupsFolders.map { GroupSource(it.groupName, it.path) })
         }
     }
 
@@ -96,14 +95,6 @@ class SourceGenerator(
             sources.add(fireSourceFactory.createFireSource())
         }
     }
-
-    private fun createPathSource(user: SecurityUser, rootPath: String?): PathFilesSource {
-        val folder = user.magicFolder.path.resolve(rootPath.orEmpty())
-        return PathFilesSource(folder)
-    }
-
-    private fun groupSources(groups: List<GroupMagicFolder>): List<GroupSource> =
-        groups.map { GroupSource(it.groupName, it.path) }
 }
 
 data class RequestSources(

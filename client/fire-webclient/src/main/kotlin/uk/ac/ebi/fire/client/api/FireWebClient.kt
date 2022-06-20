@@ -13,6 +13,7 @@ import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
 import uk.ac.ebi.fire.client.exception.FireClientException
 import uk.ac.ebi.fire.client.integration.web.FireClient
+import uk.ac.ebi.fire.client.model.FileType
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 import java.nio.file.Files
@@ -30,7 +31,7 @@ const val FIRE_OBJECTS_URL = "/objects"
 @Suppress("TooManyFunctions")
 internal class FireWebClient(
     private val tmpDirPath: String,
-    private val template: RestTemplate
+    private val template: RestTemplate,
 ) : FireClient {
     override fun save(file: File, md5: String): FireApiFile {
         val headers = HttpHeaders().apply {
@@ -51,11 +52,11 @@ internal class FireWebClient(
         template.delete("$FIRE_OBJECTS_URL/$fireOid/firePath")
     }
 
-    override fun setBioMetadata(fireOid: String, accNo: String?, fileType: String?, published: Boolean?) {
+    override fun setBioMetadata(fireOid: String, accNo: String?, fileType: FileType?, published: Boolean?) {
         val headers = HttpHeaders().apply { set(CONTENT_TYPE, APPLICATION_JSON_VALUE) }
         val body = buildList {
             accNo?.let { add("\"$FIRE_BIO_ACC_NO\": \"$it\"") }
-            fileType?.let { add("\"$FIRE_BIO_FILE_TYPE\": \"$it\"") }
+            fileType?.let { add("\"$FIRE_BIO_FILE_TYPE\": \"${it.key}\"") }
             published?.let { add("\"$FIRE_BIO_PUBLISHED\": $published") }
         }.joinToString()
 
@@ -63,20 +64,20 @@ internal class FireWebClient(
     }
 
     override fun downloadByPath(
-        path: String
+        path: String,
     ): File? = findByPath(path)?.let {
         downloadFireFile(path.substringAfterLast("/"), "$FIRE_OBJECTS_URL/blob/path/$path")
     }
 
     override fun downloadByFireId(
         fireOid: String,
-        fileName: String
+        fileName: String,
     ): File = downloadFireFile(fileName, "$FIRE_OBJECTS_URL/blob/$fireOid")
 
     private fun downloadFireFile(fileName: String, downloadUrl: String): File {
         val tmpFile = File(tmpDirPath, fileName)
-        val fileContent = template.getForObject<ByteArray>(downloadUrl)
-        Files.write(tmpFile.toPath(), fileContent)
+        val fileContent = template.getForObject<ByteArray?>(downloadUrl)
+        Files.write(tmpFile.toPath(), fileContent ?: byteArrayOf())
         return tmpFile
     }
 

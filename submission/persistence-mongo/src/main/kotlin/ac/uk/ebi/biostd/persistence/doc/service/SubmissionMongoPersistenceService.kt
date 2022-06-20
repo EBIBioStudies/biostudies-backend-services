@@ -6,12 +6,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
-import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
+import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED
 import com.mongodb.BasicDBObject
-import ebi.ac.uk.extended.model.ExtProcessingStatus.REQUESTED
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode
 import mu.KotlinLogging
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -25,12 +22,17 @@ internal class SubmissionMongoPersistenceService(
     private val subDataRepository: SubmissionDocDataRepository,
     private val requestRepository: SubmissionRequestDocDataRepository,
     private val serializationService: ExtSerializationService,
-    private val systemService: FileSystemService,
     private val submissionRepository: ExtSubmissionRepository,
 ) : SubmissionPersistenceService {
+
+    override fun getNextVersion(accNo: String): Int {
+        val lastVersion = subDataRepository.getCurrentVersion(accNo) ?: 0
+        return lastVersion.absoluteValue + 1
+    }
+
     override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
         val version = getNextVersion(rqt.submission.accNo)
-        val extSubmission = rqt.submission.copy(version = version, status = REQUESTED)
+        val extSubmission = rqt.submission.copy(version = version)
         return saveRequest(rqt, extSubmission)
     }
 
@@ -39,37 +41,15 @@ internal class SubmissionMongoPersistenceService(
         return extSubmission.accNo to extSubmission.version
     }
 
-    override fun processSubmissionRequest(saveRequest: SubmissionRequest): ExtSubmission {
-        val (submission, fileMode, draftKey) = saveRequest
-        val processingSubmission = processFiles(submission, fileMode)
-        val savedSubmission = submissionRepository.saveSubmission(processingSubmission, draftKey)
-        requestRepository.updateStatus(SubmissionRequestStatus.PROCESSED, submission.accNo, submission.version)
-        systemService.unpublishSubmissionFiles(savedSubmission.accNo, savedSubmission.owner, savedSubmission.relPath)
+    override fun saveSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission =
+        submissionRepository.saveSubmission(submission, draftKey)
 
-        if (savedSubmission.released) {
-            releaseSubmission(savedSubmission.accNo, savedSubmission.owner, savedSubmission.relPath)
-        }
-
-        return savedSubmission
+    override fun updateRequestAsProcessed(accNo: String, version: Int) {
+        requestRepository.updateStatus(PROCESSED, accNo, version)
     }
 
-    override fun releaseSubmission(accNo: String, owner: String, relPath: String) {
-        logger.info { "$accNo $owner Releasing submission $accNo" }
-
-        subDataRepository.release(accNo)
-        systemService.releaseSubmissionFiles(accNo, owner, relPath)
-
-        logger.info { "$accNo $owner Finished releasing submission $accNo" }
-    }
-
-    private fun processFiles(submission: ExtSubmission, fileMode: FileMode): ExtSubmission {
-        val filePersistenceRequest = FilePersistenceRequest(submission, fileMode)
-        return systemService.persistSubmissionFiles(filePersistenceRequest)
-    }
-
-    private fun getNextVersion(accNo: String): Int {
-        val lastVersion = subDataRepository.getCurrentVersion(accNo) ?: 0
-        return lastVersion.absoluteValue + 1
+    override fun setAsReleased(accNo: String) {
+        subDataRepository.setAsRelease(accNo)
     }
 
     private fun asRequest(rqt: SubmissionRequest, submission: ExtSubmission): DocSubmissionRequest {

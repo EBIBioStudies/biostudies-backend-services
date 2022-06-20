@@ -4,14 +4,14 @@ import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 
 class CollectionMongoDataService(
     private val submissionDocDataRepository: SubmissionDocDataRepository
 ) : CollectionDataService {
 
-    override fun findCollectionsByAccessTags(tags: List<String>): List<BasicSubmission> {
-        return submissionDocDataRepository
+    override fun findCollectionsByAccessTags(tags: List<String>): List<BasicSubmission> =
+        submissionDocDataRepository
             .getByAccNoInAndVersionGreaterThan(tags, 0)
-            .map { it.asBasicSubmission() }
-    }
+            .map { it.asBasicSubmission(PROCESSED) }
 }

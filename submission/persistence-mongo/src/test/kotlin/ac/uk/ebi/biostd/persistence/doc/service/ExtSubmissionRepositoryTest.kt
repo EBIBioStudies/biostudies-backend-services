@@ -11,12 +11,10 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtFileListMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
-import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSING
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -50,7 +48,8 @@ class ExtSubmissionRepositoryTest(
     @Autowired private val fileListDocFileRepository: FileListDocFileRepository
 ) {
     private val extSerializationService = extSerializationService()
-    private val toFileListMapper = ToExtFileListMapper(fileListDocFileRepository, extSerializationService, filesResolver)
+    private val toFileListMapper =
+        ToExtFileListMapper(fileListDocFileRepository, extSerializationService, filesResolver)
     private val toExtSectionMapper = ToExtSectionMapper(toFileListMapper)
     private val toDocFileListMapper = ToDocFileListMapper(extSerializationService)
     private val toDocSectionMapper = ToDocSectionMapper(toDocFileListMapper)
@@ -74,7 +73,7 @@ class ExtSubmissionRepositoryTest(
         val section = defaultSection(fileList = defaultFileList(files = listOf(defaultFireFile())))
         val submission = defaultSubmission(section = section, version = 2)
 
-        subDataRepository.save(docSubmission.copy(accNo = ACC_NO, status = PROCESSED, version = 1))
+        subDataRepository.save(docSubmission.copy(accNo = ACC_NO, version = 1))
         assertThat(subDataRepository.findAll()).hasSize(1)
 
         draftDocDataRepository.saveDraft("someone", "draftKey", "content")
@@ -88,11 +87,9 @@ class ExtSubmissionRepositoryTest(
             section.copy(fileList = defaultFileList(filesUrl = null)),
             "fileList"
         )
-        assertThat(result.status).isEqualTo(PROCESSING)
 
         assertThat(subDataRepository.getSubmission(submission.accNo, -1)).isNotNull()
         val savedSubmission = subDataRepository.getSubmission(submission.accNo, 2)
-        assertThat(savedSubmission.status).isEqualTo(PROCESSED)
         assertThat(subDataRepository.findAll()).hasSize(2)
 
         val fileListDocFiles = fileListDocFileRepository.findAll()

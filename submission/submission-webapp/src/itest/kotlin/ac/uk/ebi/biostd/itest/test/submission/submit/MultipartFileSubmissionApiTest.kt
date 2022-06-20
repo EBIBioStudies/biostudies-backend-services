@@ -11,14 +11,12 @@ import ac.uk.ebi.biostd.itest.common.FIRE_PASSWORD
 import ac.uk.ebi.biostd.itest.common.FIRE_USERNAME
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.itest.ITestListener
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.fireApiMock
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
@@ -44,6 +42,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.redundent.kotlin.xml.xml
 import org.springframework.beans.factory.annotation.Autowired
@@ -63,7 +62,7 @@ import java.nio.file.Paths
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
 class MultipartFileSubmissionApiTest(
-    @Autowired private val submissionRepository: SubmissionQueryService,
+    @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired private val securityTestService: SecurityTestService,
     @Autowired private val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int,
@@ -338,8 +337,8 @@ class MultipartFileSubmissionApiTest(
         }
     }
 
-    // TODO finish this, fire file not found
     @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
     fun `submission with FIRE source only`() {
         val testTempFireDir = tempFolder.createDirectory("test-fire-tmp")
         val file7 = tempFolder.createFile("File7.txt", "content 7")
@@ -382,40 +381,22 @@ class MultipartFileSubmissionApiTest(
         val filesConfig = SubmissionFilesConfig(listOf(fileList), preferredSources = listOf(FIRE))
         assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
 
-//        val firstVersion = submissionRepository.getExtByAccNo("S-TEST7")
-//        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-TEST7", "FileList")
-//        val subFilesPath = "$submissionPath/${firstVersion.relPath}/Files"
-//        val innerFile = Paths.get("$subFilesPath/File4.txt")
-//        val referencedFile = Paths.get("$subFilesPath/File5.txt")
-//
-//        assertThat(innerFile).exists()
-//        assertThat(innerFile.toFile().readText()).isEqualTo("content 4")
-//        assertThat(referencedFile).exists()
-//        assertThat(referencedFile.toFile().readText()).isEqualTo("content 5")
-//
-//        file7.delete()
-//        file8.delete()
-//        fileList.delete()
-//
-//        tempFolder.createFile("File4.txt", "content 4 updated")
-//
-//        val reSubFilesConfig = SubmissionFilesConfig(emptyList(), preferredSources = listOf(SUBMISSION, USER_SPACE))
-//        assertThat(webClient.submitSingle(submission("FileList.json"), TSV, reSubFilesConfig)).isSuccessful()
-//        assertThat(innerFile.toFile().readText()).isEqualTo("content 4")
-//        assertThat(referencedFile.toFile().readText()).isEqualTo("content 5")
-//
-//        if (enableFire) {
-//            val secondVersion = submissionRepository.getExtByAccNo("S-TEST7")
-//            val secondVersionReferencedFiles = submissionRepository.getReferencedFiles("S-TEST7", "FileList")
-//
-//            val firstVersionFireId = (firstVersion.allSectionsFiles.first() as FireFile).fireId
-//            val secondVersionFireId = (secondVersion.allSectionsFiles.first() as FireFile).fireId
-//            assertThat(firstVersionFireId).isEqualTo(secondVersionFireId)
-//
-//            val firstVersionReferencedFireId = (firstVersionReferencedFiles.first() as FireFile).fireId
-//            val secondVersionReferencedFireId = (secondVersionReferencedFiles.first() as FireFile).fireId
-//            assertThat(firstVersionReferencedFireId).isEqualTo(secondVersionReferencedFireId)
-//        }
+        val persistedSubmission = submissionRepository.getExtByAccNo("S-TEST8")
+        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-TEST8", "FileList")
+        val subFilesPath = "$submissionPath/${persistedSubmission.relPath}/Files"
+        val innerFile = Paths.get("$subFilesPath/File8.txt")
+        val referencedFile = Paths.get("$subFilesPath/File7.txt")
+
+        assertThat(innerFile).exists()
+        assertThat(innerFile.toFile().readText()).isEqualTo("content 8")
+        assertThat(referencedFile).exists()
+        assertThat(referencedFile.toFile().readText()).isEqualTo("content 7")
+
+        val innerFileFireId = (persistedSubmission.allSectionsFiles.first() as FireFile).fireId
+        assertThat(innerFileFireId).isEqualTo(fireFile8.fireOid)
+
+        val referencedFileFireId = (firstVersionReferencedFiles.first() as FireFile).fireId
+        assertThat(referencedFileFireId).isEqualTo(fireFile7.fireOid)
     }
 
     @Test

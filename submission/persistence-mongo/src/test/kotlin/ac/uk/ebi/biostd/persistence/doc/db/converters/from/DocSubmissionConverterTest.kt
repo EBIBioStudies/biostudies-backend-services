@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
-import ac.uk.ebi.biostd.persistence.doc.model.DocProcessingStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
@@ -62,7 +61,6 @@ internal class DocSubmissionConverterTest(
         assertThat(result.rootPath).isEqualTo(subRootPath)
         assertThat(result.released).isEqualTo(subReleased)
         assertThat(result.secretKey).isEqualTo(subSecretKey)
-        assertThat(result.status).isEqualTo(DocProcessingStatus.fromString(subStatus))
         assertThat(result.releaseTime).isEqualTo(subReleaseTime.toInstant())
         assertThat(result.modificationTime).isEqualTo(subModificationTime.toInstant())
         assertThat(result.creationTime).isEqualTo(subCreationTime.toInstant())

@@ -31,7 +31,7 @@ class AccNoService(
     }
 
     private fun checkCanSubmitToProject(project: String?, submitter: String) {
-        if (project != null && privilegesService.canSubmitToProject(submitter, project).not())
+        if (project != null && privilegesService.canSubmitToCollection(submitter, project).not())
             throw UserCanNotSubmitToProjectException(submitter, project)
     }
 

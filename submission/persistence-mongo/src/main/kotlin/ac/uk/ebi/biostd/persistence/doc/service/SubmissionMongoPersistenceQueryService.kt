@@ -3,37 +3,35 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.max
 
 @Suppress("TooManyFunctions")
-internal class SubmissionMongoQueryService(
+internal class SubmissionMongoPersistenceQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
     private val requestRepository: SubmissionRequestDocDataRepository,
     private val fileListDocFileRepository: FileListDocFileRepository,
     private val serializationService: ExtSerializationService,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
-    private val fileProcessingService: FileProcessingService
-) : SubmissionQueryService {
+) : SubmissionPersistenceQueryService {
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
+
+    override fun hasPendingRequest(accNo: String): Boolean =
+        requestRepository.existsByAccNoAndStatusIn(accNo, setOf(REQUESTED))
 
     override fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
         val findByAccNo = submissionRepo.findByAccNo(accNo)
@@ -65,39 +63,32 @@ internal class SubmissionMongoQueryService(
 
     override fun getSubmissionsByUser(owner: String, filter: SubmissionFilter): List<BasicSubmission> {
         val (requestsCount, requests) = requestRepository.findActiveRequest(filter, owner)
-        val offset = max(0, filter.offset - requestsCount)
-        val limit = filter.limit - requests.size
-        val submissionFilter = filter.copy(limit = limit, offset = offset)
-        val drafts = requests.map { it.asBasicSubmission() }
-        val draftsKeys = drafts.associateBy { it.accNo }
-        val submissions = getSubmissions(owner, submissionFilter).filter { draftsKeys.containsKey(it.accNo).not() }
+        val submissionFilter = filter.copy(
+            limit = filter.limit - requests.size,
+            offset = max(0, filter.offset - requestsCount),
+            notIncludeAccNo = requests.map { it.accNo }.toSet()
+        )
 
-        return drafts + submissions
+        return requests
+            .map { serializationService.deserialize(it.submission.toString()) }
+            .map { it.asBasicSubmission(PROCESSING) }
+            .plus(findSubmissions(owner, submissionFilter))
     }
 
-    private fun getSubmissions(owner: String, filter: SubmissionFilter): List<BasicSubmission> =
+    private fun findSubmissions(owner: String, filter: SubmissionFilter): List<BasicSubmission> =
         when (filter.limit) {
             0 -> emptyList()
-            else -> submissionRepo.getSubmissions(filter, owner).map { it.asBasicSubmission() }
+            else -> submissionRepo.getSubmissions(filter, owner).map { it.asBasicSubmission(PROCESSED) }
         }
 
     override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
         val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, REQUESTED)
         val stored = serializationService.deserialize(request.submission.toString())
-        val full = fileProcessingService.processFiles(stored) { loadFileAttributes(it) }
-        return SubmissionRequest(full, request.fileMode, request.draftKey)
-    }
-
-    private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {
-        is FireFile -> file
-        is NfsFile -> file.copy(md5 = file.file.md5(), size = file.file.size())
+        return SubmissionRequest(stored, request.fileMode, request.draftKey)
     }
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =
         fileListDocFileRepository
             .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(accNo, 0, fileListName)
             .map { it.file.toExtFile() }
-
-    private fun DocSubmissionRequest.asBasicSubmission() =
-        serializationService.deserialize(submission.toString()).asBasicSubmission()
 }

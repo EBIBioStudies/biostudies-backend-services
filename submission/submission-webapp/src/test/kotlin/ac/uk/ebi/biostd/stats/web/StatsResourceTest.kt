@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
-import ac.uk.ebi.biostd.submission.domain.service.TempFileGenerator
+import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import io.github.glytching.junit.extension.folder.TemporaryFolder

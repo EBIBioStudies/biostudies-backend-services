@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.submission.converters.BioUser
-import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.model.SubmissionFilterRequest
 import ac.uk.ebi.biostd.submission.web.model.asFilter
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/submissions")
 class SubmissionQueryResource(
-    private val submissionService: SubmissionService,
+    private val submissionService: SubmissionQueryService,
     private val submissionsWebHandler: SubmissionsWebHandler,
 ) {
     @GetMapping("/{accNo}.json", produces = [APPLICATION_JSON])

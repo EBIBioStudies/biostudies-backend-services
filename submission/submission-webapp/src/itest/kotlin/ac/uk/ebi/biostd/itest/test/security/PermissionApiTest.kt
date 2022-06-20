@@ -94,7 +94,7 @@ class PermissionApiTest(
             passwordDigest = ByteArray(1)
         )
         val dbAccessTag = DbAccessTag(id = 2, name = "accessTagName")
-        val fakeUser = "fakeUser"
-        val fakeAccessTag = "fakeAccessTag"
+        const val fakeUser = "fakeUser"
+        const val fakeAccessTag = "fakeAccessTag"
     }
 }

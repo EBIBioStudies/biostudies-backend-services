@@ -1,5 +1,6 @@
 package uk.ac.ebi.fire.client.integration.web
 
+import uk.ac.ebi.fire.client.model.FileType
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 
@@ -11,7 +12,7 @@ interface FireClient {
 
     fun unsetPath(fireOid: String)
 
-    fun setBioMetadata(fireOid: String, accNo: String? = null, fileType: String? = null, published: Boolean? = null)
+    fun setBioMetadata(fireOid: String, accNo: String? = null, fileType: FileType? = null, published: Boolean? = null)
 
     fun downloadByPath(path: String): File?
 

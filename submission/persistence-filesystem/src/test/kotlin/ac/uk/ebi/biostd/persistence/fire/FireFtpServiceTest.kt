@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.fire
 
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
@@ -29,27 +29,31 @@ import ebi.ac.uk.test.basicExtSubmission as basicExtSub
 @ExtendWith(MockKExtension::class)
 class FireFtpServiceTest(
     @MockK(relaxUnitFun = true) private val fireClient: FireClient,
-    @MockK private val submissionQueryService: SubmissionQueryService
+    @MockK private val queryService: SubmissionPersistenceQueryService
 ) {
     private val fileFileList = fireFile(FILE_FILE_LIST)
     private val innerFileListFile = fireFile(INNER_FILE_FILE_LIST)
     private val extSub = createExtSubmission(fileFileList, innerFileListFile)
-    private val testInstance = FireFtpService(fireClient, ExtSerializationService(), submissionQueryService)
+    private val testInstance = FireFtpService(fireClient, ExtSerializationService(), queryService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
 
     @BeforeEach
     fun beforeEach() {
-        every { submissionQueryService.getReferencedFiles(extSub.accNo, "fileName1") } returns listOf(fileFileList)
-        every { submissionQueryService.getReferencedFiles(extSub.accNo, "fileName2") } returns listOf(innerFileListFile)
+        every { queryService.getReferencedFiles(extSub.accNo, "fileName1") } returns listOf(
+            fileFileList
+        )
+        every { queryService.getReferencedFiles(extSub.accNo, "fileName2") } returns listOf(
+            innerFileListFile
+        )
     }
 
     @Test
     fun `release submission files`() {
         val submission = extSub.copy(released = true)
 
-        every { submissionQueryService.getExtByAccNo(submission.accNo, true) } returns submission
+        every { queryService.getExtByAccNo(submission.accNo, true) } returns submission
 
         testInstance.releaseSubmissionFiles(extSub.accNo, extSub.owner, extSub.relPath)
 
@@ -60,7 +64,7 @@ class FireFtpServiceTest(
     fun `create ftp folder`() {
         val submission = extSub.copy(released = true)
 
-        every { submissionQueryService.getExtByAccNo(submission.accNo, true) } returns submission
+        every { queryService.getExtByAccNo(submission.accNo, true) } returns submission
 
         testInstance.generateFtpLinks(submission.accNo)
 

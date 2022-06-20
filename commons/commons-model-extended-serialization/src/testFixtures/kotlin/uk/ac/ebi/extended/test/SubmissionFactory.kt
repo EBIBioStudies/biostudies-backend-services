@@ -65,7 +65,6 @@ object SubmissionFactory {
         rootPath = rootPath,
         released = released,
         secretKey = secretKey,
-        status = status,
         releaseTime = releaseTime,
         modificationTime = modificationTime,
         creationTime = creationTime,

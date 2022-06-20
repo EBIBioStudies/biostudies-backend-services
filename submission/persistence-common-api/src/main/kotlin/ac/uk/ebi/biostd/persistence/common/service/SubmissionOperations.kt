@@ -11,14 +11,20 @@ import org.springframework.data.domain.Page
 interface SubmissionPersistenceService {
     fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 
-    fun processSubmissionRequest(saveRequest: SubmissionRequest): ExtSubmission
+    fun getNextVersion(accNo: String): Int
 
-    fun releaseSubmission(accNo: String, owner: String, relPath: String)
+    fun saveSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission
+
+    fun setAsReleased(accNo: String)
+
+    fun updateRequestAsProcessed(accNo: String, version: Int)
 }
 
 @Suppress("TooManyFunctions")
-interface SubmissionQueryService {
+interface SubmissionPersistenceQueryService {
     fun existByAccNo(accNo: String): Boolean
+
+    fun hasPendingRequest(accNo: String): Boolean
 
     fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission?
 
