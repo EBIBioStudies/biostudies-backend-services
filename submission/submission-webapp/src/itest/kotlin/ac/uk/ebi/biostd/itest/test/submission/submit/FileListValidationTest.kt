@@ -27,7 +27,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @Import(PersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class FileListValidationTest(@Autowired private val securityTestService: SecurityTestService, @LocalServerPort val serverPort: Int) {
+class FileListValidationTest(
+    @Autowired private val securityTestService: SecurityTestService,
+    @LocalServerPort val serverPort: Int
+) {
     private lateinit var webClient: BioWebClient
 
     @BeforeAll

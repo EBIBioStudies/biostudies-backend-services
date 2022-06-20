@@ -8,13 +8,11 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class TestConfig {
-
     @Bean
     fun securityTestService(
         userDataRepository: UserDataRepository,
         securityService: SecurityService,
-        groupService: IGroupService
-    ) = SecurityTestService(securityService, userDataRepository, groupService)
+    ) = SecurityTestService(securityService, userDataRepository)
 
     @Bean(name = ["TestCollectionValidator"])
     fun testCollectionValidator(): TestCollectionValidator = TestCollectionValidator()

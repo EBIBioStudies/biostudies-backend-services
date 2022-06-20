@@ -63,7 +63,6 @@ class SubmissionApiTest(
     @Autowired val submissionRepository: SubmissionQueryService,
     @Autowired val sequenceRepository: SequenceDataRepository,
     @Autowired val tagsRefRepository: TagDataRepository,
-    @Autowired val userDataRepository: UserDataRepository,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int,
 ) {

@@ -7,9 +7,14 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
+import ac.uk.ebi.biostd.itest.common.FIRE_PASSWORD
+import ac.uk.ebi.biostd.itest.common.FIRE_USERNAME
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.fireApiMock
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
@@ -26,10 +31,13 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.allSectionsFiles
 import ebi.ac.uk.extended.model.createNfsFile
+import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
+import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
 import org.assertj.core.api.Assertions.assertThat
@@ -44,6 +52,9 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import uk.ac.ebi.fire.client.integration.web.FireClientFactory
+import uk.ac.ebi.fire.client.integration.web.FireConfig
+import uk.ac.ebi.fire.client.integration.web.RetryConfig
 import java.io.File
 import java.nio.file.Paths
 
@@ -57,7 +68,6 @@ class MultipartFileSubmissionApiTest(
     @Autowired private val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int,
 ) {
-
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
@@ -263,7 +273,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `resubmission with SUBMISSION preferred source`() {
+    fun `resubmission with SUBMISSION file source as priority over USER_SPACE`() {
         fun submission(fileList: String) = tsv {
             line("Submission", "S-TEST7")
             line("Title", "Preferred Source Submission")
@@ -309,8 +319,8 @@ class MultipartFileSubmissionApiTest(
 
         tempFolder.createFile("File4.txt", "content 4 updated")
 
-        val reSubmissionFilesConfig = SubmissionFilesConfig(emptyList(), preferredSources = listOf(SUBMISSION))
-        assertThat(webClient.submitSingle(submission("FileList.json"), TSV, reSubmissionFilesConfig)).isSuccessful()
+        val reSubFilesConfig = SubmissionFilesConfig(emptyList(), preferredSources = listOf(SUBMISSION, USER_SPACE))
+        assertThat(webClient.submitSingle(submission("FileList.json"), TSV, reSubFilesConfig)).isSuccessful()
         assertThat(innerFile.toFile().readText()).isEqualTo("content 4")
         assertThat(referencedFile.toFile().readText()).isEqualTo("content 5")
 
@@ -326,6 +336,86 @@ class MultipartFileSubmissionApiTest(
             val secondVersionReferencedFireId = (secondVersionReferencedFiles.first() as FireFile).fireId
             assertThat(firstVersionReferencedFireId).isEqualTo(secondVersionReferencedFireId)
         }
+    }
+
+    // TODO finish this, fire file not found
+    @Test
+    fun `submission with FIRE source only`() {
+        val testTempFireDir = tempFolder.createDirectory("test-fire-tmp")
+        val file7 = tempFolder.createFile("File7.txt", "content 7")
+        val file8 = tempFolder.createFile("File8.txt", "content 8")
+        val file7Md5 = file7.md5()
+        val file8Md5 = file8.md5()
+
+        val fireConfig = FireConfig(fireApiMock.baseUrl(), "v1.1", FIRE_USERNAME, FIRE_PASSWORD)
+        val retryConfig = RetryConfig(1, 1, 1.1, 2)
+        val fireClient = FireClientFactory.create(testTempFireDir.absolutePath, fireConfig, retryConfig)
+
+        val fireFile7 = fireClient.save(file7, file7Md5)
+        val fireFile8 = fireClient.save(file8, file8Md5)
+
+        val submission = tsv {
+            line("Submission", "S-TEST8")
+            line("Title", "FIRE Only File Source Submission")
+            line()
+
+            line("Study", "SECT-001")
+            line("Title", "Root Section")
+            line("File List", "FileList.tsv")
+            line()
+
+            line("File", "File8.txt")
+            line("md5", file8Md5)
+            line()
+
+            line()
+        }.toString()
+
+        val fileList = tempFolder.createFile(
+            "FileList.tsv",
+            tsv {
+                line("Files", "GEN", "md5")
+                line("File7.txt", "ABC", file7Md5)
+            }.toString()
+        )
+
+        val filesConfig = SubmissionFilesConfig(listOf(fileList), preferredSources = listOf(FIRE))
+        assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
+
+//        val firstVersion = submissionRepository.getExtByAccNo("S-TEST7")
+//        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-TEST7", "FileList")
+//        val subFilesPath = "$submissionPath/${firstVersion.relPath}/Files"
+//        val innerFile = Paths.get("$subFilesPath/File4.txt")
+//        val referencedFile = Paths.get("$subFilesPath/File5.txt")
+//
+//        assertThat(innerFile).exists()
+//        assertThat(innerFile.toFile().readText()).isEqualTo("content 4")
+//        assertThat(referencedFile).exists()
+//        assertThat(referencedFile.toFile().readText()).isEqualTo("content 5")
+//
+//        file7.delete()
+//        file8.delete()
+//        fileList.delete()
+//
+//        tempFolder.createFile("File4.txt", "content 4 updated")
+//
+//        val reSubFilesConfig = SubmissionFilesConfig(emptyList(), preferredSources = listOf(SUBMISSION, USER_SPACE))
+//        assertThat(webClient.submitSingle(submission("FileList.json"), TSV, reSubFilesConfig)).isSuccessful()
+//        assertThat(innerFile.toFile().readText()).isEqualTo("content 4")
+//        assertThat(referencedFile.toFile().readText()).isEqualTo("content 5")
+//
+//        if (enableFire) {
+//            val secondVersion = submissionRepository.getExtByAccNo("S-TEST7")
+//            val secondVersionReferencedFiles = submissionRepository.getReferencedFiles("S-TEST7", "FileList")
+//
+//            val firstVersionFireId = (firstVersion.allSectionsFiles.first() as FireFile).fireId
+//            val secondVersionFireId = (secondVersion.allSectionsFiles.first() as FireFile).fireId
+//            assertThat(firstVersionFireId).isEqualTo(secondVersionFireId)
+//
+//            val firstVersionReferencedFireId = (firstVersionReferencedFiles.first() as FireFile).fireId
+//            val secondVersionReferencedFireId = (secondVersionReferencedFiles.first() as FireFile).fireId
+//            assertThat(firstVersionReferencedFireId).isEqualTo(secondVersionReferencedFireId)
+//        }
     }
 
     @Test

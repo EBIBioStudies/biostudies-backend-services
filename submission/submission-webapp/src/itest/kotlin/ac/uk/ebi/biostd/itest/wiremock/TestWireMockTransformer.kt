@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import java.nio.file.Path
 import kotlin.random.Random
 
+// TODO db is not used?
 class TestWireMockTransformer constructor(
     private val db: FireMockDatabase,
     private val failFactor: Int?,
