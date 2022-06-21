@@ -20,11 +20,20 @@ class EitherExtensionsTest {
     }
 
     @Test
-    fun mapLeft() {
+    fun reduceLeft() {
         val list = listOf(Either.left(1), Either.right(5))
 
         val result = list.reduceLeft { it }
 
         assertThat(result).containsOnly(1)
+    }
+
+    @Test
+    fun mapLeft() {
+        val list = listOf(Either.left(3), Either.right(5))
+
+        val result = list.mapLeft { it * 2 }
+
+        assertThat(result).containsOnly(Either.left(6), Either.right(5))
     }
 }

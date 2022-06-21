@@ -42,6 +42,6 @@ fun <A : Any, B, C> List<Either<A, B>>.reduceLeft(mapFunc: (A) -> C): List<C> =
 /**
  * Map left values of a list of either.
  *
- * @return a list of [C] which his the result of computation of left side Eithers in list.
+ * @return a list of [Either<C, B>] which his left side is the result of map function application.
  */
 fun <A : Any, B, C> List<Either<A, B>>.mapLeft(mapFunc: (A) -> C): List<Either<C, B>> = map { it.mapLeft(mapFunc) }
