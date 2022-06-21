@@ -9,6 +9,6 @@ import ebi.ac.uk.model.LinksTable
 internal const val TO_EXT_TABLE_EXTENSIONS = "ebi.ac.uk.extended.mapping.from.ToExtTableKt"
 
 fun FilesTable.toExtTable(fileSource: FilesSource): ExtFileTable =
-    ExtFileTable(elements.map { it.toExtFile(fileSource) })
+    ExtFileTable(elements.map { fileSource.toExtFile(it) })
 
 fun LinksTable.toExtTable(): ExtLinkTable = ExtLinkTable(elements.map { it.toExtLink() })

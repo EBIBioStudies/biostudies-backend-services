@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.extended.model.ExtFile
@@ -17,6 +16,7 @@ import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class FireFilesServiceTest(
@@ -34,8 +34,8 @@ internal class FireFilesServiceTest(
         every { fireService.cleanFtp(submission) } answers { nothing }
         every { fireService.getOrPersist(submission, nfsFile) } answers { fireFile }
         every { fileProcessingService.processFiles(submission, any()) } answers {
-            val function: (file: ExtFile) -> ExtFile = secondArg()
-            function(nfsFile)
+            val function: (file: ExtFile, index: Int) -> ExtFile = secondArg()
+            function(nfsFile, 1)
             submission.copy(section = submission.section.copy(files = listOf(Either.left(fireFile))))
         }
 

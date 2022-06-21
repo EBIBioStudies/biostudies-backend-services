@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.persistence.filesystem.extSubmissionWithFileList
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -36,6 +35,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.nio.file.Files.getPosixFilePermissions
 import java.nio.file.Path
@@ -45,7 +45,7 @@ import java.nio.file.attribute.PosixFilePermission
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class NfsFilesServiceTest(
     private val tempFolder: TemporaryFolder,
-    @MockK private val mockSerializationService: SerializationService
+    @MockK private val mockSerializationService: SerializationService,
 ) {
     private lateinit var extSubmission: ExtSubmission
     private val rootPath = tempFolder.root.toPath()
@@ -106,7 +106,7 @@ class NfsFilesServiceTest(
         extSubmission: ExtSubmission,
         mode: FileMode,
         expectedFilePermissions: Set<PosixFilePermission>,
-        expectedFolderPermissions: Set<PosixFilePermission>
+        expectedFolderPermissions: Set<PosixFilePermission>,
     ) {
         testInstance.persistSubmissionFiles(FilePersistenceRequest(extSubmission, mode))
 

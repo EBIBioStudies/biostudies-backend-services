@@ -31,10 +31,17 @@ fun <A, B> Either<A, B>.ifLeft(function: (A) -> Unit) = fold(function, {})
 fun <A, B> Either<A, B>.ifRight(function: (B) -> Unit) = fold({}, function)
 
 /**
- * Map a list of either into the simple list type by transforming only left side elements, right side are discarded.
+ * Reduce the list of either into the simple list type by transforming only left side elements, right side are
+ * discarded.
  *
  * @return a list of [C] which his the result of computation of left side Eithers in list.
  */
-fun <A : Any, B, C> List<Either<A, B>>.mapLeft(mapFunc: (A) -> C): List<C> {
-    return mapNotNull { either -> either.fold({ it }, { null }) }.map { mapFunc(it) }
-}
+fun <A : Any, B, C> List<Either<A, B>>.reduceLeft(mapFunc: (A) -> C): List<C> =
+    mapNotNull { either -> either.fold({ it }, { null }) }.map { mapFunc(it) }
+
+/**
+ * Map left values of a list of either.
+ *
+ * @return a list of [C] which his the result of computation of left side Eithers in list.
+ */
+fun <A : Any, B, C> List<Either<A, B>>.mapLeft(mapFunc: (A) -> C): List<Either<C, B>> = map { it.mapLeft(mapFunc) }

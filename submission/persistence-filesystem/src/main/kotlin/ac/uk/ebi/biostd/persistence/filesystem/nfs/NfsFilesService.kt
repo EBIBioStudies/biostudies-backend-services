@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.persistence.filesystem.nfs
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.permissions
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
@@ -19,6 +18,7 @@ import ebi.ac.uk.io.RWX______
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import mu.KotlinLogging
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import java.io.File
 import java.nio.file.attribute.PosixFilePermission
 
@@ -26,7 +26,7 @@ private val logger = KotlinLogging.logger {}
 
 class NfsFilesService(
     private val folderResolver: SubmissionFolderResolver,
-    private val fileProcessingService: FileProcessingService
+    private val fileProcessingService: FileProcessingService,
 ) : FilesService {
     override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
         val (sub, mode) = request
@@ -44,7 +44,7 @@ class NfsFilesService(
         mode: FileMode,
         sub: ExtSubmission,
         subFolder: File,
-        permissions: Permissions
+        permissions: Permissions,
     ): ExtSubmission {
         val newSubTempPath = createTempFolder(subFolder, sub.accNo)
 
@@ -57,7 +57,10 @@ class NfsFilesService(
             permissions = permissions
         )
 
-        val processed = fileProcessingService.processFiles(sub) { config.processFile(it) }
+        val processed = fileProcessingService.processFiles(sub) { file, index ->
+            logger.debug { "${sub.accNo}, ${sub.version} Processing file $index, path='${file.filePath}'" }
+            config.processFile(file)
+        }
         moveFile(newSubTempPath, subFolder, permissions)
         return processed
     }
@@ -75,6 +78,6 @@ class NfsFilesService(
 
     private fun createTempFolder(
         submissionFolder: File,
-        accNo: String
+        accNo: String,
     ): File = reCreateFolder(submissionFolder.parentFile.resolve("${accNo}_temp"), RWX______)
 }
