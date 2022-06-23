@@ -24,6 +24,7 @@ ssh.settings {
     knownHosts = allowAnyHosts
     identity = System.getenv("BS_SVC_SSH_KEY")
     logging = "stdout"
+    fileTransfer = "scp"
 }
 
 task deploySubmitter {
