@@ -8,14 +8,14 @@ variables:
   ITEST_FAIL_FACTOR: "8"
 
 include:
-  - local: '/ci/submitter.yml'
-  - local: '/ci/pmc-processor.yml'
-  - local: '/ci/exporter.yml'
-  - local: '/ci/submission-releaser.yml'
-  - local: '/ci/scheduler.yml'
-  - local: '/ci/bio-admin.yml'
+#  - local: '/ci/submitter.yml'
+#  - local: '/ci/pmc-processor.yml'
+#  - local: '/ci/exporter.yml'
+#  - local: '/ci/submission-releaser.yml'
+#  - local: '/ci/scheduler.yml'
+#  - local: '/ci/bio-admin.yml'
   - local: '/ci/bio-commandline.yml'
-  - local: '/ci/submission-handlers.yml'
+#  - local: '/ci/submission-handlers.yml'
 
 stages:
   - build-test
@@ -67,12 +67,12 @@ build-test:
 #      - submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
 #      - submission/submission-handlers/build/libs/submission-handlers-1.0.0.jar
 
-mongo-nfs-itest:
-  needs: ["build-test"]
-  stage: mongo-nfs-itest
-  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mongo -PenableFire=false --rerun-tasks --stacktrace
-
-mongo-fire-itest:
-  needs: ["build-test"]
-  stage: mongo-fire-itest
-  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mongo -PenableFire=true --rerun-tasks --stacktrace
+#mongo-nfs-itest:
+#  needs: ["build-test"]
+#  stage: mongo-nfs-itest
+#  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mongo -PenableFire=false --rerun-tasks --stacktrace
+#
+#mongo-fire-itest:
+#  needs: ["build-test"]
+#  stage: mongo-fire-itest
+#  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mongo -PenableFire=true --rerun-tasks --stacktrace
