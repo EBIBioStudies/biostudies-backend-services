@@ -19,52 +19,53 @@ include:
 
 stages:
   - build-test
-  - mongo-nfs-itest
-  - mongo-fire-itest
+#  - mongo-nfs-itest
+#  - mongo-fire-itest
   - auto-deploy-dev-bio-commandline
   - auto-deploy-beta-bio-commandline
-  - auto-deploy-dev-submitter
-  - auto-deploy-beta-submitter
-  - auto-deploy-dev-handlers
-  - auto-deploy-beta-handlers
-  - deploy-dev-submitter
-  - deploy-beta-submitter
-  - deploy-prod-submitter
-  - deploy-ae-submitter
-  - deploy-dev-pmc
-  - deploy-beta-pmc
-  - deploy-prod-pmc
-  - deploy-dev-exporter-task
-  - deploy-beta-exporter-task
-  - deploy-prod-exporter-task
-  - deploy-dev-releaser-task
-  - deploy-beta-releaser-task
-  - deploy-prod-releaser-task
-  - deploy-dev-scheduler
-  - deploy-beta-scheduler
-  - deploy-prod-scheduler
-  - deploy-bio-admin
+#  - auto-deploy-dev-submitter
+#  - auto-deploy-beta-submitter
+#  - auto-deploy-dev-handlers
+#  - auto-deploy-beta-handlers
+#  - deploy-dev-submitter
+#  - deploy-beta-submitter
+#  - deploy-prod-submitter
+#  - deploy-ae-submitter
+#  - deploy-dev-pmc
+#  - deploy-beta-pmc
+#  - deploy-prod-pmc
+#  - deploy-dev-exporter-task
+#  - deploy-beta-exporter-task
+#  - deploy-prod-exporter-task
+#  - deploy-dev-releaser-task
+#  - deploy-beta-releaser-task
+#  - deploy-prod-releaser-task
+#  - deploy-dev-scheduler
+#  - deploy-beta-scheduler
+#  - deploy-prod-scheduler
+#  - deploy-bio-admin
   - deploy-dev-bio-commandline
   - deploy-beta-bio-commandline
-  - deploy-prod-bio-commandline
-  - deploy-dev-handlers
-  - deploy-beta-handlers
-  - deploy-prod-handlers
-  - deploy-ae-handlers
+#  - deploy-prod-bio-commandline
+#  - deploy-dev-handlers
+#  - deploy-beta-handlers
+#  - deploy-prod-handlers
+#  - deploy-ae-handlers
 
 build-test:
   stage: build-test
-  script: gradle clean build test -x itest -x jacocoTestCoverageVerification buildArtifacts --stacktrace
+#  script: gradle clean build test -x itest -x jacocoTestCoverageVerification buildArtifacts --stacktrace
+  script: gradle clean client:bio-commandline:shadowJar
   artifacts:
     paths:
-      - bio-admin/build/libs/bio-admin-1.0.0.jar
+#      - bio-admin/build/libs/bio-admin-1.0.0.jar
       - client/bio-commandline/build/libs/BioStudiesCLI-2.0.jar
-      - scheduler/scheduler/build/libs/scheduler-1.0.0.jar
-      - scheduler/pmc-processor-task/build/libs/pmc-processor-task-1.0.0.jar
-      - scheduler/exporter-task/build/libs/exporter-task-1.0.0.jar
-      - scheduler/submission-releaser-task/build/libs/submission-releaser-task-1.0.0.jar
-      - submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
-      - submission/submission-handlers/build/libs/submission-handlers-1.0.0.jar
+#      - scheduler/scheduler/build/libs/scheduler-1.0.0.jar
+#      - scheduler/pmc-processor-task/build/libs/pmc-processor-task-1.0.0.jar
+#      - scheduler/exporter-task/build/libs/exporter-task-1.0.0.jar
+#      - scheduler/submission-releaser-task/build/libs/submission-releaser-task-1.0.0.jar
+#      - submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
+#      - submission/submission-handlers/build/libs/submission-handlers-1.0.0.jar
 
 mongo-nfs-itest:
   needs: ["build-test"]
