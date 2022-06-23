@@ -71,6 +71,7 @@ class SubmissionSubmitter(
     @Suppress("TooGenericExceptionCaught")
     private fun process(rqt: SubmitRequest): ExtSubmission {
         try {
+            logger.info { "${rqt.accNo} ${rqt.owner} Processing submission request accNo='${rqt.accNo}'" }
             val (sub, submitter, sources, method, _, onBehalfUser, _) = rqt
             val submission = process(sub, submitter.asUser(), onBehalfUser?.asUser(), sources, method)
             parentInfoService.executeCollectionValidators(submission)

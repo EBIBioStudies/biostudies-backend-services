@@ -14,12 +14,14 @@ private val logger = KotlinLogging.logger {}
  * @param opt the function description.
  * @param func the function to be performed.
  */
-private fun <T> RetryTemplate.execute(opt: String, func: () -> T): T =
-    execute<T, Exception> {
+private fun <T> RetryTemplate.execute(opt: String, func: () -> T): T {
+    logger.debug(opt) { "Executing operation: $opt" }
+    return execute<T, Exception> {
         runCatching { func() }
             .onFailure { error -> logger.error(error) { "Fail to perform operation: $opt, ${it.retryCount + 1}" } }
             .getOrThrow()
     }
+}
 
 @Suppress("TooManyFunctions")
 internal class RetryWebClient(

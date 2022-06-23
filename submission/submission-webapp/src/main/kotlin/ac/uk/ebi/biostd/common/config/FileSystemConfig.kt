@@ -6,12 +6,12 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 
@@ -19,7 +19,7 @@ import java.io.File
 @Import(value = [WebConfig::class, FilesHandlerConfig::class])
 class FileSystemConfig(
     private val folderResolver: SubmissionFolderResolver,
-    private val applicationProperties: ApplicationProperties
+    private val applicationProperties: ApplicationProperties,
 ) {
     @Bean
     @ConditionalOnProperty(

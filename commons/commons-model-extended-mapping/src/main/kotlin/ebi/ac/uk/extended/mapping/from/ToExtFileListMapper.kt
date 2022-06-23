@@ -7,11 +7,14 @@ import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.use
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.canonicalName
+import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
+
+private val logger = KotlinLogging.logger {}
 
 class ToExtFileListMapper(
     private val extSerializationService: ExtSerializationService,
@@ -21,16 +24,18 @@ class ToExtFileListMapper(
     fun convert(accNo: String, version: Int, fileList: FileList, fileSource: FilesSource): ExtFileList {
         val name = fileList.canonicalName
         val target = filesResolver.createExtEmptyFile(accNo, version, name)
-        return ExtFileList(name, toExtFile(fileList.file, SubFormat.fromFile(fileList.file), target, fileSource))
+        return ExtFileList(name, toExtFile(accNo, fileList.file, SubFormat.fromFile(fileList.file), target, fileSource))
     }
 
-    private fun toExtFile(source: File, format: SubFormat, target: File, fileSource: FilesSource): File {
+    private fun toExtFile(accNo: String, source: File, format: SubFormat, target: File, fileSource: FilesSource): File {
+        logger.info { "$accNo, Started mapping/check file list ${source.name} of submission '$accNo'" }
         use(source.inputStream(), target.outputStream()) { input, output -> copy(input, format, output, fileSource) }
+        logger.info { "$accNo, Finished mapping/check file list ${source.name} of submission '$accNo'" }
         return target
     }
 
     private fun copy(input: InputStream, format: SubFormat, target: OutputStream, fileSource: FilesSource) {
-        val sourceFiles = serializationService.deserializeFileList(input, format).map { it.toExtFile(fileSource) }
+        val sourceFiles = serializationService.deserializeFileList(input, format).map { fileSource.toExtFile(it) }
         extSerializationService.serialize(sourceFiles, target)
     }
 }

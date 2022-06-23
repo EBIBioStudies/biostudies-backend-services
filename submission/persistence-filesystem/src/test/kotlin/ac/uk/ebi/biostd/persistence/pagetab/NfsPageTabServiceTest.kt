@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.NfsPageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabFiles
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtFileList
@@ -27,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.extended.serialization.service.createExtFileList
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.nio.file.Paths

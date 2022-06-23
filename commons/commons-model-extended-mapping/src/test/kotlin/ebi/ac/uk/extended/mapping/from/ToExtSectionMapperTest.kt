@@ -46,7 +46,7 @@ class ToExtSectionMapperTest(
     @MockK val extFile: ExtFile,
     @MockK val extFileTable: ExtFileTable,
     @MockK val extLink: ExtLink,
-    @MockK val extLinkTable: ExtLinkTable
+    @MockK val extLinkTable: ExtLinkTable,
 ) {
     private val subSection = Section(type = "subtype", accNo = "accNo1")
     private val subExtSection = ExtSection(type = "subtype", accNo = "accNo1")
@@ -73,7 +73,7 @@ class ToExtSectionMapperTest(
             every { attribute.name } returns "attr1"
             every { fileListAttribute.name } returns SectionFields.FILE_LIST.value
             every { attribute.toExtAttribute() } returns extAttribute
-            every { file.toExtFile(fileSource) } returns extFile
+            every { fileSource.toExtFile(file) } returns extFile
             every { toExtFileListMapper.convert(SUB_ACC, SUB_VERSION, fileList, fileSource) } returns extFileList
             every { link.toExtLink() } returns extLink
             every { fileTable.toExtTable(fileSource) } returns extFileTable

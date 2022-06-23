@@ -10,7 +10,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.util.collections.component1
 import ebi.ac.uk.util.collections.component2
-import ebi.ac.uk.util.collections.mapLeft
+import ebi.ac.uk.util.collections.reduceLeft
 import org.bson.types.ObjectId
 
 typealias EitherList <A, B> = List<Either<A, B>>
@@ -31,7 +31,7 @@ class ToDocSectionMapper(private val toDocFileListMapper: ToDocFileListMapper) {
         map { either -> either.mapLeft { it.section } }
 
     private fun EitherList<DocSectionData, DocSectionTable>.subSectionsFiles(): List<FileListDocFile> =
-        mapLeft { it.fileListFiles }.flatten()
+        reduceLeft { it.fileListFiles }.flatten()
 
     private fun ExtSection.convert(
         fileList: DocFileList?,

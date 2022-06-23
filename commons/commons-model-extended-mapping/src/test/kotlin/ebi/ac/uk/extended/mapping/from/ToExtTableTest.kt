@@ -22,10 +22,10 @@ class ToExtTableTest {
         @MockK filesSource: FilesSource,
         @MockK file: BioFile,
         @MockK fileTable: FilesTable,
-        @MockK extFile: ExtFile
+        @MockK extFile: ExtFile,
     ) {
         mockkStatic(TO_EXT_FILE_EXTENSIONS) {
-            every { file.toExtFile(filesSource) } returns extFile
+            every { filesSource.toExtFile(file) } returns extFile
             every { fileTable.elements } returns listOf(file)
 
             val result = fileTable.toExtTable(filesSource)
@@ -38,7 +38,7 @@ class ToExtTableTest {
     fun `LinkTable toExtTable`(
         @MockK tableLink: Link,
         @MockK linkTable: LinksTable,
-        @MockK extLink: ExtLink
+        @MockK extLink: ExtLink,
     ) {
         mockkStatic(TO_EXT_LINK_EXTENSIONS) {
             every { tableLink.toExtLink() } returns extLink

@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.submitter.request
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
@@ -10,6 +9,7 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
 
 private val logger = KotlinLogging.logger {}
 
@@ -26,13 +26,11 @@ class SubmissionRequestLoader(
         return SubmissionRequest(full, rqt.fileMode, rqt.draftKey)
     }
 
-    private fun processRequest(sub: ExtSubmission): ExtSubmission {
-        var filesCount = 0
-        return fileProcessingService.processFiles(sub) {
-            logger.debug { "${sub.accNo}, ${sub.version} Loading file ${++filesCount}, path='${it.filePath}'" }
-            loadFileAttributes(it)
+    private fun processRequest(sub: ExtSubmission): ExtSubmission =
+        fileProcessingService.processFiles(sub) { file, index ->
+            logger.debug { "${sub.accNo}, ${sub.version} Loading file $index, path='${file.filePath}'" }
+            loadFileAttributes(file)
         }
-    }
 
     private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {
         is FireFile -> file
