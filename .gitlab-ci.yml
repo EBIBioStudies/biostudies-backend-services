@@ -46,7 +46,7 @@ stages:
 #  - deploy-bio-admin
   - deploy-dev-bio-commandline
   - deploy-beta-bio-commandline
-#  - deploy-prod-bio-commandline
+  - deploy-prod-bio-commandline
 #  - deploy-dev-handlers
 #  - deploy-beta-handlers
 #  - deploy-prod-handlers
