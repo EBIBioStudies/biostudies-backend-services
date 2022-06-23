@@ -28,9 +28,9 @@ class ToExtFileListMapper(
     }
 
     private fun toExtFile(accNo: String, source: File, format: SubFormat, target: File, fileSource: FilesSource): File {
-        logger.info { "$accNo, Start mapping/check file list ${source.name} of submission '$accNo'" }
+        logger.info { "$accNo, Started mapping/check file list ${source.name} of submission '$accNo'" }
         use(source.inputStream(), target.outputStream()) { input, output -> copy(input, format, output, fileSource) }
-        logger.info { "$accNo, Finish mapping/check file list ${source.name} of submission '$accNo'" }
+        logger.info { "$accNo, Finished mapping/check file list ${source.name} of submission '$accNo'" }
         return target
     }
 

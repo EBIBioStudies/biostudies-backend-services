@@ -41,13 +41,13 @@ class FirePageTabService(
         pageTabFiles: Map<String, PageTabFiles>,
     ): TrackSection {
         return when (val lst = sec.fileList) {
-            null -> TrackSection(false, sec)
+            null -> TrackSection(changed = false, section = sec)
             else -> {
                 val name = lst.filePath
                 val files = pageTabFiles.getValue(name)
                 TrackSection(
-                    true,
-                    sec.copy(fileList = lst.copy(pageTabFiles = fileListFiles(accNo, files, path, name)))
+                    changed = true,
+                    section = sec.copy(fileList = lst.copy(pageTabFiles = fileListFiles(accNo, files, path, name)))
                 )
             }
         }
