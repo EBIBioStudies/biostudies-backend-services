@@ -5,8 +5,8 @@ remotes {
     }
 
     beta {
-        host = 'biostudies-beta.ebi.ac.uk'
-        user = 'bs-svc'
+        host = System.getenv("BETA_SERVER")
+        user = System.getenv("BS_USER")
     }
 
     prod {
@@ -108,35 +108,43 @@ task updateReleaserArtifact {
 }
 
 task deployArtifact {
+    doFirst {
+        project.ext.remoteDeployPath = "${System.getenv("APPS_PATH")}/$deployPath"
+    }
+
     doLast {
         ssh.run {
             session(remotes[env]) {
-                put from: "$rootDir/$artifactPath/$artifactName", into: "$deployPath/$artifactName"
+                put from: "$rootDir/$artifactPath/$artifactName", into: "$remoteDeployPath/$artifactName"
             }
         }
     }
 }
 
 task deploy {
+    doFirst {
+        project.ext.remoteDeployPath = "${System.getenv("APPS_PATH")}/$deployPath"
+    }
+
     doLast {
         ssh.run {
             session(remotes[env]) {
-                put from: "$rootDir/$artifactPath/$artifactName", into: "$deployPath/$artifactName"
-                put from: "$rootDir/ci/update.sh", into: "$deployPath/update.sh"
+                put from: "$rootDir/$artifactPath/$artifactName", into: "$remoteDeployPath/$artifactName"
+                put from: "$rootDir/ci/update.sh", into: "$remoteDeployPath/update.sh"
 
-                execute "sed -i -e 's~APP_PATH~$deployPath~g' $deployPath/update.sh"
-                execute "sed -i -e 's~APP_PORT~$appPort~g' $deployPath/update.sh"
-                execute "sed -i -e 's~APP_NAME~$artifactName~g' $deployPath/update.sh"
-                execute "sed -i -e 's~DEBUG_PORT~$debugPort~g' $deployPath/update.sh"
+                execute "sed -i -e 's~APP_PATH~$remoteDeployPath~g' $remoteDeployPath/update.sh"
+                execute "sed -i -e 's~APP_PORT~$appPort~g' $remoteDeployPath/update.sh"
+                execute "sed -i -e 's~APP_NAME~$artifactName~g' $remoteDeployPath/update.sh"
+                execute "sed -i -e 's~DEBUG_PORT~$debugPort~g' $remoteDeployPath/update.sh"
 
                 if (project.hasProperty("jvmParams")) {
-                    execute "sed -i -e 's~JVM_PARAMS~$jvmParams~g' $deployPath/update.sh"
+                    execute "sed -i -e 's~JVM_PARAMS~$jvmParams~g' $remoteDeployPath/update.sh"
                 } else {
-                    execute "sed -i -e 's~JVM_PARAMS~~g' $deployPath/update.sh"
+                    execute "sed -i -e 's~JVM_PARAMS~~g' $remoteDeployPath/update.sh"
                 }
 
-                execute "chmod +x $deployPath/update.sh"
-                execute "sh $deployPath/update.sh"
+                execute "chmod +x $remoteDeployPath/update.sh"
+                execute "sh $remoteDeployPath/update.sh"
             }
         }
     }

@@ -6,7 +6,7 @@
 .deploy-beta-bio-commandline:
   dependencies:
     - build-test
-  script: gradle deployBioCommandLine -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/cli/beta
+  script: gradle deployBioCommandLine -Penv=beta -PdeployPath=cli/beta
 
 auto-deploy-dev-bio-commandline:
   extends: .deploy-dev-bio-commandline

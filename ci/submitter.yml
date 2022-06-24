@@ -6,7 +6,7 @@
 .deploy-beta-submitter:
   dependencies:
     - build-test
-  script: gradle deploySubmitter -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/submitter/beta -PjvmParams=-Xmx12g
+  script: gradle deploySubmitter -Penv=beta -PdeployPath=submitter/beta -PjvmParams=-Xmx12g
 
 auto-deploy-dev-submitter:
   extends: .deploy-dev-submitter

@@ -6,7 +6,7 @@
 .deploy-beta-handlers:
   dependencies:
     - build-test
-  script: gradle deployHandlers -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/handlers/beta
+  script: gradle deployHandlers -Penv=beta -PdeployPath=handlers/beta
 
 auto-deploy-dev-handlers:
   extends: .deploy-dev-handlers
