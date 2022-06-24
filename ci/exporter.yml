@@ -3,18 +3,18 @@ deploy-dev-exporter-task:
   when: manual
   dependencies:
     - build-test
-  script: gradle updateExporterArtifact -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/dev/apps
+  script: gradle updateExporterArtifact -Penv=dev -PdeployPath=scheduler/dev/apps
 
 deploy-beta-exporter-task:
   stage: deploy-beta-exporter-task
   when: manual
   dependencies:
     - build-test
-  script: gradle updateExporterArtifact -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/beta/apps
+  script: gradle updateExporterArtifact -Penv=beta -PdeployPath=scheduler/beta/apps
 
 deploy-prod-exporter-task:
   stage: deploy-prod-exporter-task
   when: manual
   dependencies:
     - build-test
-  script: gradle updateExporterArtifact -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/prod/apps
+  script: gradle updateExporterArtifact -Penv=prod -PdeployPath=scheduler/prod/apps

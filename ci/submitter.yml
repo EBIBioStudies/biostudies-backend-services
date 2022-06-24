@@ -1,12 +1,22 @@
 .deploy-dev-submitter:
   dependencies:
     - build-test
-  script: gradle deploySubmitter -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/submitter/dev
+  script: gradle deploySubmitter -Penv=dev -PdeployPath=submitter/dev
 
 .deploy-beta-submitter:
   dependencies:
     - build-test
   script: gradle deploySubmitter -Penv=beta -PdeployPath=submitter/beta -PjvmParams=-Xmx12g
+
+.deploy-prod-submitter:
+  dependencies:
+    - build-test
+  script: gradle deploySubmitter -Penv=prod -PdeployPath=submitter/prod -PjvmParams=-Xmx16g
+
+.deploy-sandbox-submitter:
+  dependencies:
+    - build-test
+  script: gradle deploySubmitter -Penv=ae -PdeployPath=submitter/ae -PjvmParams=-Xmx16g
 
 auto-deploy-dev-submitter:
   extends: .deploy-dev-submitter
@@ -22,6 +32,20 @@ auto-deploy-beta-submitter:
     refs:
       - beta
 
+auto-deploy-prod-submitter:
+  extends: .deploy-prod-submitter
+  stage: auto-deploy-prod-submitter
+  only:
+    refs:
+      - prod
+
+auto-deploy-sandbox-submitter:
+  extends: .deploy-sandbox-submitter
+  stage: auto-deploy-sandbox-submitter
+  only:
+    refs:
+      - prod
+
 deploy-dev-submitter:
   extends: .deploy-dev-submitter
   stage: deploy-dev-submitter
@@ -33,15 +57,11 @@ deploy-beta-submitter:
   when: manual
 
 deploy-prod-submitter:
+  extends: .deploy-prod-submitter
   stage: deploy-prod-submitter
   when: manual
-  dependencies:
-    - build-test
-  script: gradle deploySubmitter -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/submitter/prod -PjvmParams=-Xmx16g
 
-deploy-ae-submitter:
-  stage: deploy-ae-submitter
+deploy-sandbox-submitter:
+  extends: .deploy-sandbox-submitter
+  stage: deploy-sandbox-submitter
   when: manual
-  dependencies:
-    - build-test
-  script: gradle deploySubmitter -Penv=ae -PdeployPath=/nfs/biostudies/.adm/apps/submitter/ae -PjvmParams=-Xmx16g

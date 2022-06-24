@@ -3,18 +3,18 @@ deploy-dev-submission-releaser-task:
   when: manual
   dependencies:
     - build-test
-  script: gradle updateReleaserArtifact -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/dev/apps
+  script: gradle updateReleaserArtifact -Penv=dev -PdeployPath=scheduler/dev/apps
 
 deploy-beta-submission-releaser-task:
   stage: deploy-beta-releaser-task
   when: manual
   dependencies:
     - build-test
-  script: gradle updateReleaserArtifact -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/beta/apps
+  script: gradle updateReleaserArtifact -Penv=beta -PdeployPath=scheduler/beta/apps
 
 deploy-prod-submission-releaser-task:
   stage: deploy-prod-releaser-task
   when: manual
   dependencies:
     - build-test
-  script: gradle updateReleaserArtifact -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/scheduler/prod/apps
+  script: gradle updateReleaserArtifact -Penv=prod -PdeployPath=scheduler/prod/apps

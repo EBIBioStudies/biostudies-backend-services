@@ -1,7 +1,7 @@
 remotes {
     dev {
-        host = 'biostudy-bia.ebi.ac.uk'
-        user = 'ma-svc'
+        host = System.getenv("DEV_SERVER")
+        user = System.getenv("BS_USER")
     }
 
     beta {
@@ -10,13 +10,13 @@ remotes {
     }
 
     prod {
-        host = 'biostudy-prod.ebi.ac.uk'
-        user = 'ma-svc'
+        host = System.getenv("PROD_SERVER")
+        user = System.getenv("BS_USER")
     }
 
-    ae {
-        host = 'biostudies-async'
-        user = 'ma-svc'
+    sandbox {
+        host = System.getenv("SANDBOX_SERVER")
+        user = System.getenv("BS_USER")
     }
 }
 
