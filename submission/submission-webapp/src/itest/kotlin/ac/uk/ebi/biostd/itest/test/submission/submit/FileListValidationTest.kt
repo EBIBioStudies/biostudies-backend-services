@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
-import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ebi.ac.uk.dsl.json.jsonArray
@@ -144,4 +144,12 @@ class FileListValidationTest(
             "type" to "file"
         }
     )
+
+    object SuperUser : TestUser {
+        override val username = "Super User File List Validation"
+        override val email = "biostudies-mgmt-filelist-v@ebi.ac.uk"
+        override val password = "12345"
+        override val superUser = true
+    }
+
 }
