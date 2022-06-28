@@ -4,8 +4,8 @@ import ac.uk.ebi.biostd.exception.EmptyPageTabFileException
 import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.service.PageTabFileReader.getFileListFile
 import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
-import ebi.ac.uk.errors.FileNotFoundException
-import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.errors.FilesProcessingException
+import ebi.ac.uk.io.sources.FilesSources
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.file.ExcelReader
 import ebi.ac.uk.util.file.ExcelReader.asTsv
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class PageTabFileReaderTest(
-    private val tempFolder: TemporaryFolder
+    private val tempFolder: TemporaryFolder,
 ) {
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -62,7 +62,7 @@ class PageTabFileReaderTest(
 
     @Test
     fun `get file list file`(
-        @MockK filesSource: FilesSource
+        @MockK filesSource: FilesSources,
     ) {
         val fileList = tempFolder.createFile("file-list.tsv")
 
@@ -73,7 +73,7 @@ class PageTabFileReaderTest(
 
     @Test
     fun `get xlsx file list file`(
-        @MockK filesSource: FilesSource
+        @MockK filesSource: FilesSources,
     ) {
         val fileList = tempFolder.createFile("file-list.xlsx")
         val tsvFileList = tempFolder.createFile("converted-file-list.tsv")
@@ -86,7 +86,7 @@ class PageTabFileReaderTest(
 
     @Test
     fun `get directory list file`(
-        @MockK filesSource: FilesSource
+        @MockK filesSource: FilesSources,
     ) {
         val fileList = tempFolder.createDirectory("file-list")
 
@@ -99,11 +99,10 @@ class PageTabFileReaderTest(
 
     @Test
     fun `file list not found`(
-        @MockK filesSource: FilesSource
+        @MockK filesSource: FilesSources,
     ) {
         every { filesSource.getFile("file-list.xml") } returns null
 
-        val exception = assertThrows<FileNotFoundException> { getFileListFile("file-list.xml", filesSource) }
-        assertThat(exception.message).isEqualTo("File not found: file-list.xml")
+        assertThrows<FilesProcessingException> { getFileListFile("file-list.xml", filesSource) }
     }
 }

@@ -16,14 +16,11 @@ internal class GeneralConfig {
     fun tempFileGenerator(properties: ApplicationProperties) = TempFileGenerator(properties)
 
     @Bean
-    fun fireFilesSourceFactory(
-        applicationProperties: ApplicationProperties,
-        fireClient: FireClient
-    ) = FireFilesSourceFactory(applicationProperties.persistence, fireClient)
+    fun fireFilesSourceFactory(fireClient: FireClient) = FireFilesSourceFactory(fireClient)
 
     @Bean
     fun sourceGenerator(
         applicationProperties: ApplicationProperties,
-        filesSourceFactory: FireFilesSourceFactory
+        filesSourceFactory: FireFilesSourceFactory,
     ) = SourceGenerator(applicationProperties, filesSourceFactory)
 }

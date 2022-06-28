@@ -21,7 +21,7 @@ data class SecurityUser(
 
 data class SecurityPermission(val accessType: AccessType, val accessTag: String)
 data class MagicFolder(val relativePath: Path, val path: Path) {
-    fun resolve(subPath: String) = path.resolve(subPath)
+    fun resolve(subPath: String): Path = path.resolve(subPath)
 }
 
 data class GroupMagicFolder(val groupName: String, val path: Path, val description: String? = null)

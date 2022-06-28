@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.service
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
-import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.FilesSources
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
@@ -13,7 +13,7 @@ import java.io.OutputStream
 
 internal class PageTabSerializationService(
     private val serializer: PagetabSerializer,
-    private val fileListSerializer: FileListSerializer
+    private val fileListSerializer: FileListSerializer,
 ) : SerializationService {
     override fun serializeSubmission(submission: Submission, format: SubFormat) =
         serializer.serializeSubmission(submission, format)
@@ -21,7 +21,7 @@ internal class PageTabSerializationService(
     override fun deserializeSubmission(content: String, format: SubFormat): Submission =
         serializer.deserializeSubmission(content, format)
 
-    override fun deserializeSubmission(content: String, format: SubFormat, source: FilesSource): Submission =
+    override fun deserializeSubmission(content: String, format: SubFormat, source: FilesSources): Submission =
         fileListSerializer.deserializeFileList(serializer.deserializeSubmission(content, format), source)
 
     override fun deserializeSubmission(file: File): Submission {
@@ -29,12 +29,12 @@ internal class PageTabSerializationService(
         return deserializeSubmission(pagetabFile.readText(), SubFormat.fromFile(pagetabFile))
     }
 
-    override fun deserializeSubmission(file: File, source: FilesSource): Submission =
+    override fun deserializeSubmission(file: File, source: FilesSources): Submission =
         fileListSerializer.deserializeFileList(deserializeSubmission(file), source)
 
     override fun deserializeFileList(
         inputStream: InputStream,
-        format: SubFormat
+        format: SubFormat,
     ): Sequence<BioFile> = fileListSerializer.deserializeFileList(inputStream, format)
 
     override fun serializeTable(table: FilesTable, format: SubFormat, file: File): File {
@@ -45,7 +45,7 @@ internal class PageTabSerializationService(
     override fun serializeFileList(
         files: Sequence<BioFile>,
         targetFormat: SubFormat,
-        outputStream: OutputStream
+        outputStream: OutputStream,
     ) {
         serializer.serializeFileList(files, targetFormat, outputStream)
     }

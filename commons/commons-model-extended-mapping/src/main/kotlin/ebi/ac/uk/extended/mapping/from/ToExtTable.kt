@@ -2,13 +2,13 @@ package ebi.ac.uk.extended.mapping.from
 
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLinkTable
-import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.FilesSources
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.LinksTable
 
 internal const val TO_EXT_TABLE_EXTENSIONS = "ebi.ac.uk.extended.mapping.from.ToExtTableKt"
 
-fun FilesTable.toExtTable(fileSource: FilesSource): ExtFileTable =
+fun FilesTable.toExtTable(fileSource: FilesSources): ExtFileTable =
     ExtFileTable(elements.map { fileSource.toExtFile(it) })
 
 fun LinksTable.toExtTable(): ExtLinkTable = ExtLinkTable(elements.map { it.toExtLink() })

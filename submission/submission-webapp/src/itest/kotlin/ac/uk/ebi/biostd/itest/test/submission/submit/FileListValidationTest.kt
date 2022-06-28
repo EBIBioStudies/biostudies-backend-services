@@ -12,22 +12,27 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.io.ext.createFile
-import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.http.HttpStatus
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.skyscreamer.jsonassert.JSONAssert.assertEquals
+import org.skyscreamer.jsonassert.JSONCompareMode
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
+import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @Import(PersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class FileListValidationTest(@Autowired private val securityTestService: SecurityTestService, @LocalServerPort val serverPort: Int) {
+class FileListValidationTest(
+    @Autowired private val securityTestService: SecurityTestService,
+    @LocalServerPort val serverPort: Int,
+) {
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
@@ -42,10 +47,7 @@ class FileListValidationTest(@Autowired private val securityTestService: Securit
 
         webClient.uploadFile(fileList)
 
-        val exception = Assertions.assertThrows(WebClientException::class.java) {
-            webClient.validateFileList(fileList.name)
-        }
-
+        val exception = assertThrows(WebClientException::class.java) { webClient.validateFileList(fileList.name) }
         assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
         assertThat(exception).hasMessageContaining("Expected content to be an array")
 
@@ -58,7 +60,7 @@ class FileListValidationTest(@Autowired private val securityTestService: Securit
 
         webClient.uploadFile(fileList)
 
-        val exception = Assertions.assertThrows(WebClientException::class.java) {
+        val exception = assertThrows(WebClientException::class.java) {
             webClient.validateFileList(fileList.name)
         }
 
@@ -74,10 +76,7 @@ class FileListValidationTest(@Autowired private val securityTestService: Securit
         val fileList = tempFolder.createFile("FileList.json", getFileListContent().toString())
 
         webClient.uploadFiles(listOf(fileListFile, fileList))
-
-        Assertions.assertDoesNotThrow {
-            webClient.validateFileList(fileList.name)
-        }
+        webClient.validateFileList(fileList.name)
 
         webClient.deleteFile(fileListFile.name)
         webClient.deleteFile(fileList.name)
@@ -89,13 +88,23 @@ class FileListValidationTest(@Autowired private val securityTestService: Securit
 
         webClient.uploadFile(fileList)
 
-        val exception = Assertions.assertThrows(WebClientException::class.java) {
-            webClient.validateFileList(fileList.name)
+        val exception = assertThrows(WebClientException::class.java) { webClient.validateFileList(fileList.name) }
+        assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+        val expectedError = jsonObj {
+            "log" to jsonObj {
+                "level" to "ERROR"
+                "message" to """
+                        The following files could not be found:
+                          - Plate1.tif
+                        List of available sources:
+                          - biostudies-mgmt@ebi.ac.uk user files
+                """.trimIndent()
+                "subnodes" to jsonArray()
+            }
+            "status" to "FAIL"
         }
 
-        assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
-        assertThat(exception).hasMessageContaining("File not uploaded: Plate1.tif")
-
+        assertEquals(expectedError.toString(), exception.message, JSONCompareMode.LENIENT)
         webClient.deleteFile(fileList.name)
     }
 
@@ -109,10 +118,7 @@ class FileListValidationTest(@Autowired private val securityTestService: Securit
         val onBehalfClient = SecurityWebClient.create("http://localhost:$serverPort")
             .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-        val exception = Assertions.assertThrows(WebClientException::class.java) {
-            onBehalfClient.validateFileList(fileList.name)
-        }
-
+        val exception = assertThrows(WebClientException::class.java) { onBehalfClient.validateFileList(fileList.name) }
         assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
         assertThat(exception).hasMessageContaining("Expected content to be an array")
 
@@ -125,10 +131,7 @@ class FileListValidationTest(@Autowired private val securityTestService: Securit
         val fileList = tempFolder.createFile("FileList.json", getFileListContent().toString())
 
         webClient.uploadFiles(listOf(fileListFile, fileList))
-
-        Assertions.assertDoesNotThrow {
-            webClient.validateFileList(fileList.name)
-        }
+        webClient.validateFileList(fileList.name)
 
         webClient.deleteFile(fileListFile.name)
         webClient.deleteFile(fileList.name)

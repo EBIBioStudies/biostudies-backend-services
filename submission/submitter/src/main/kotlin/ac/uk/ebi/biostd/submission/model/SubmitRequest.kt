@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.model
 
 import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.FilesSources
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -9,11 +9,11 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 data class SubmitRequest(
     val submission: Submission,
     val submitter: SecurityUser,
-    val sources: FilesSource,
+    val sources: FilesSources,
     val method: SubmissionMethod,
     val mode: FileMode,
     val onBehalfUser: SecurityUser? = null,
-    val draftKey: String? = null
+    val draftKey: String? = null,
 ) {
     val accNo: String = submission.accNo.ifBlank { "PENDING_ACC_NO" }
 

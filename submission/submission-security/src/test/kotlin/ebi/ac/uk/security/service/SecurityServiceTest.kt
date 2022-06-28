@@ -63,7 +63,7 @@ internal class SecurityServiceTest(
     @MockK private val securityProps: SecurityProperties,
     @MockK private val securityUtil: SecurityUtil,
     @MockK private val captchaVerifier: CaptchaVerifier,
-    @MockK private val eventsPublisherService: EventsPublisherService
+    @MockK private val eventsPublisherService: EventsPublisherService,
 ) {
     private val testInstance: SecurityService = SecurityService(
         userRepository,

@@ -9,4 +9,5 @@ class FilesListSource(private val files: List<File>) : FilesSource {
         files.firstOrNull { it.name == path }?.let { create(path, it, attributes) }
 
     override fun getFile(path: String, md5: String?): File? = files.firstOrNull { it.name == path }
+    override fun description(): String = "Request files [${files.joinToString { it.name }}]"
 }

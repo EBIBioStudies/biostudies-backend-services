@@ -10,7 +10,7 @@ import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.FilesSources
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FileList
@@ -33,7 +33,7 @@ import ebi.ac.uk.asserts.assertThat as assertEither
 
 @ExtendWith(MockKExtension::class)
 class ToExtSectionMapperTest(
-    @MockK val fileSource: FilesSource,
+    @MockK val fileSources: FilesSources,
     @MockK val fileList: FileList,
     @MockK val attribute: Attribute,
     @MockK val file: BioFile,
@@ -73,13 +73,13 @@ class ToExtSectionMapperTest(
             every { attribute.name } returns "attr1"
             every { fileListAttribute.name } returns SectionFields.FILE_LIST.value
             every { attribute.toExtAttribute() } returns extAttribute
-            every { fileSource.toExtFile(file) } returns extFile
-            every { toExtFileListMapper.convert(SUB_ACC, SUB_VERSION, fileList, fileSource) } returns extFileList
+            every { fileSources.toExtFile(file) } returns extFile
+            every { toExtFileListMapper.convert(SUB_ACC, SUB_VERSION, fileList, fileSources) } returns extFileList
             every { link.toExtLink() } returns extLink
-            every { fileTable.toExtTable(fileSource) } returns extFileTable
+            every { fileTable.toExtTable(fileSources) } returns extFileTable
             every { linkTable.toExtTable() } returns extLinkTable
 
-            val sectionResult = testInstance.convert(SUB_ACC, SUB_VERSION, section, fileSource)
+            val sectionResult = testInstance.convert(SUB_ACC, SUB_VERSION, section, fileSources)
 
             assertThat(sectionResult.accNo).isEqualTo(section.accNo)
             assertThat(sectionResult.type).isEqualTo(section.type)
