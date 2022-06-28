@@ -37,8 +37,8 @@ class FileListValidationTest(
 
     @BeforeAll
     fun init() {
-        securityTestService.ensureUserRegistration(SuperUser)
-        webClient = getWebClient(serverPort, SuperUser)
+        securityTestService.ensureUserRegistration(RegUser)
+        webClient = getWebClient(serverPort, RegUser)
     }
 
     @Test
@@ -97,7 +97,7 @@ class FileListValidationTest(
                         The following files could not be found:
                           - Plate1.tif
                         List of available sources:
-                          - biostudies-mgmt@ebi.ac.uk user files
+                          - biostudies-mgmt-filelist-v@ebi.ac.uk user files
                 """.trimIndent()
                 "subnodes" to jsonArray()
             }
@@ -116,7 +116,7 @@ class FileListValidationTest(
         webClient.uploadFile(fileList)
 
         val onBehalfClient = SecurityWebClient.create("http://localhost:$serverPort")
-            .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+            .getAuthenticatedClient(RegUser.email, RegUser.password, RegularUser.email)
 
         val exception = assertThrows(WebClientException::class.java) { onBehalfClient.validateFileList(fileList.name) }
         assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -145,11 +145,11 @@ class FileListValidationTest(
         }
     )
 
-    object SuperUser : TestUser {
-        override val username = "Super User File List Validation"
+    object RegUser : TestUser {
+        override val username = "User File List Validation"
         override val email = "biostudies-mgmt-filelist-v@ebi.ac.uk"
         override val password = "12345"
-        override val superUser = true
+        override val superUser = false
     }
 
 }
