@@ -1,7 +1,7 @@
 INSERT INTO User (
   activationKey,
   active,
-  auxProfileInfo,
+  orcid,
   email,
   fullName,
   keyTime,

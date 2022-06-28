@@ -166,6 +166,7 @@ open class SecurityService(
     private fun asUser(registerRequest: RegisterRequest) = DbUser(
         email = registerRequest.email,
         fullName = registerRequest.name,
+        orcid = registerRequest.orcid,
         secret = securityUtil.newKey(),
         notificationsEnabled = registerRequest.notificationsEnabled,
         passwordDigest = securityUtil.getPasswordDigest(registerRequest.password)
