@@ -44,7 +44,7 @@ open class SecurityService(
     private val securityProps: SecurityProperties,
     private val profileService: ProfileService,
     private val captchaVerifier: CaptchaVerifier,
-    private val eventsPublisherService: EventsPublisherService
+    private val eventsPublisherService: EventsPublisherService,
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo {
         val user = userRepository.getActiveByLoginOrEmail(request.login)

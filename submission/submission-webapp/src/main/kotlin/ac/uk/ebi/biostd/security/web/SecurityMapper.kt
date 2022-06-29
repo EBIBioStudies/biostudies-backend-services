@@ -6,7 +6,6 @@ import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.security.integration.model.api.SecurityPermission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
-import java.util.ArrayList
 
 class SecurityMapper {
 

@@ -13,7 +13,7 @@ import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod.FILE
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
@@ -30,7 +30,7 @@ class SubmitWebHandler(
     private val serializationService: SerializationService,
     private val userFilesService: UserFilesService,
     private val toSubmissionMapper: ToSubmissionMapper,
-    private val onBehalfUtils: OnBehalfUtils
+    private val onBehalfUtils: OnBehalfUtils,
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission =
         toSubmissionMapper.toSimpleSubmission(submissionService.submit(buildRequest(request)))
@@ -51,7 +51,7 @@ class SubmitWebHandler(
             RequestSources(
                 submitter = request.submitter,
                 files = request.files,
-                owner = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
+                onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
                 rootPath = sub.rootPath,
                 submission = extSub
             )
@@ -78,7 +78,7 @@ class SubmitWebHandler(
             RequestSources(
                 submitter = request.submitter,
                 files = request.files,
-                owner = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
+                onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
                 rootPath = sub.rootPath,
                 submission = extSub
             )
@@ -102,10 +102,10 @@ class SubmitWebHandler(
         return submission
     }
 
-    private fun submission(content: String, format: SubFormat, source: FilesSource) =
+    private fun submission(content: String, format: SubFormat, source: FileSourcesList) =
         serializationService.deserializeSubmission(content, format, source)
 
-    private fun submission(subFile: File, source: FilesSource) =
+    private fun submission(subFile: File, source: FileSourcesList) =
         serializationService.deserializeSubmission(subFile, source)
 
     private fun requireNotProcessing(accNo: String) = require(extSubmissionService.hasPendingRequest(accNo).not()) {

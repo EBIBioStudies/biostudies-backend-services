@@ -10,10 +10,15 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class)
-internal class PathFilesSourceTest(temporaryFolder: TemporaryFolder) {
+internal class PathSourceTest(temporaryFolder: TemporaryFolder) {
 
     private val file: File = temporaryFolder.createFile("abc.txt", "the content of file")
-    private val testInstance = PathFilesSource(temporaryFolder.root.toPath())
+    private val testInstance = PathSource("Example description", temporaryFolder.root.toPath())
+
+    @Test
+    fun description() {
+        assertThat(testInstance.description).isEqualTo("Example description")
+    }
 
     @Test
     fun getFile() {

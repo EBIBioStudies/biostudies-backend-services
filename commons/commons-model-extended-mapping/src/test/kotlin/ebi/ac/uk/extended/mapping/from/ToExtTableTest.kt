@@ -2,7 +2,7 @@ package ebi.ac.uk.extended.mapping.from
 
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtLink
-import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ToExtTableTest {
     @Test
     fun `FileTable toExtTable`(
-        @MockK filesSource: FilesSource,
+        @MockK filesSource: FileSourcesList,
         @MockK file: BioFile,
         @MockK fileTable: FilesTable,
         @MockK extFile: ExtFile,

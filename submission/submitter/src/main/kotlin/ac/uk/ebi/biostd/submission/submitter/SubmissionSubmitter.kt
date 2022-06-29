@@ -23,7 +23,7 @@ import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
-import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
@@ -86,7 +86,7 @@ class SubmissionSubmitter(
         submission: Submission,
         submitter: User,
         onBehalfUser: User?,
-        source: FilesSource,
+        source: FileSourcesList,
         method: SubmissionMethod,
     ): ExtSubmission {
         val previousVersion = queryService.findLatestBasicByAccNo(submission.accNo)

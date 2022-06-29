@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.integration
 
-import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
@@ -17,11 +17,11 @@ interface SerializationService {
 
     fun deserializeSubmission(content: String, format: SubFormat): Submission
 
-    fun deserializeSubmission(content: String, format: SubFormat, source: FilesSource): Submission
+    fun deserializeSubmission(content: String, format: SubFormat, source: FileSourcesList): Submission
 
     fun deserializeSubmission(file: File): Submission
 
-    fun deserializeSubmission(file: File, source: FilesSource): Submission
+    fun deserializeSubmission(file: File, source: FileSourcesList): Submission
 
     fun deserializeFileList(inputStream: InputStream, format: SubFormat): Sequence<BioFile>
 }
