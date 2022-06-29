@@ -1,22 +1,22 @@
 .deploy-dev-handlers:
   dependencies:
     - build-test
-  script: gradle deployHandlers -Penv=dev -PdeployPath=handlers/dev
+  script: gradle deployHandlers -Penv=dev -PdeployPath=$APPS_PATH/handlers/dev
 
 .deploy-beta-handlers:
   dependencies:
     - build-test
-  script: gradle deployHandlers -Penv=beta -PdeployPath=handlers/beta
+  script: gradle deployHandlers -Penv=beta -PdeployPath=$APPS_PATH/handlers/beta
 
 .deploy-prod-handlers:
   dependencies:
     - build-test
-  script: gradle deployHandlers -Penv=prod -PdeployPath=handlers/prod
+  script: gradle deployHandlers -Penv=prod -PdeployPath=$APPS_PATH/handlers/prod
 
 .deploy-sandbox-handlers:
   dependencies:
     - build-test
-  script: gradle deployHandlers -Penv=ae -PdeployPath=handlers/sandbox
+  script: gradle deployHandlers -Penv=ae -PdeployPath=$APPS_PATH/handlers/sandbox
 
 auto-deploy-dev-handlers:
   extends: .deploy-dev-handlers

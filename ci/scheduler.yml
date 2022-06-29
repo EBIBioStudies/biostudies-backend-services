@@ -3,18 +3,18 @@ deploy-dev-scheduler:
   when: manual
   dependencies:
     - build-test
-  script: gradle deployScheduler -Penv=dev -PdeployPath=scheduler/dev
+  script: gradle deployScheduler -Penv=dev -PdeployPath=$APPS_PATH/scheduler/dev
 
 deploy-beta-scheduler:
   stage: deploy-beta-scheduler
   when: manual
   dependencies:
     - build-test
-  script: gradle deployScheduler -Penv=beta -PdeployPath=scheduler/beta
+  script: gradle deployScheduler -Penv=beta -PdeployPath=$APPS_PATH/scheduler/beta
 
 deploy-prod-scheduler:
   stage: deploy-prod-scheduler
   when: manual
   dependencies:
     - build-test
-  script: gradle deployScheduler -Penv=prod -PdeployPath=scheduler/prod
+  script: gradle deployScheduler -Penv=prod -PdeployPath=$APPS_PATH/scheduler/prod
