@@ -10,7 +10,7 @@ import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.io.sources.FilesSources
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FileList
@@ -33,7 +33,6 @@ import ebi.ac.uk.asserts.assertThat as assertEither
 
 @ExtendWith(MockKExtension::class)
 class ToExtSectionMapperTest(
-    @MockK val fileSources: FilesSources,
     @MockK val fileList: FileList,
     @MockK val attribute: Attribute,
     @MockK val file: BioFile,
@@ -48,6 +47,7 @@ class ToExtSectionMapperTest(
     @MockK val extLink: ExtLink,
     @MockK val extLinkTable: ExtLinkTable,
 ) {
+    private val fileSources = mockk<FileSourcesList>(relaxed = true)
     private val subSection = Section(type = "subtype", accNo = "accNo1")
     private val subExtSection = ExtSection(type = "subtype", accNo = "accNo1")
     private val section = Section(

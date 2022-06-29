@@ -17,7 +17,7 @@ internal class PathSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun description() {
-        assertThat(testInstance.description()).isEqualTo("Example description")
+        assertThat(testInstance.description).isEqualTo("Example description")
     }
 
     @Test

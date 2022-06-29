@@ -13,7 +13,7 @@ import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.io.sources.FilesSources
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod.FILE
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
@@ -102,10 +102,10 @@ class SubmitWebHandler(
         return submission
     }
 
-    private fun submission(content: String, format: SubFormat, source: FilesSources) =
+    private fun submission(content: String, format: SubFormat, source: FileSourcesList) =
         serializationService.deserializeSubmission(content, format, source)
 
-    private fun submission(subFile: File, source: FilesSources) =
+    private fun submission(subFile: File, source: FileSourcesList) =
         serializationService.deserializeSubmission(subFile, source)
 
     private fun requireNotProcessing(accNo: String) = require(extSubmissionService.hasPendingRequest(accNo).not()) {

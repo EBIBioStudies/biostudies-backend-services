@@ -5,7 +5,8 @@ import ebi.ac.uk.model.Attribute
 import java.io.File
 
 interface FilesSource {
+    val description: String
+
     fun getExtFile(path: String, md5: String? = null, attributes: List<Attribute> = emptyList()): ExtFile?
     fun getFile(path: String, md5: String? = null): File?
-    fun description(): String
 }

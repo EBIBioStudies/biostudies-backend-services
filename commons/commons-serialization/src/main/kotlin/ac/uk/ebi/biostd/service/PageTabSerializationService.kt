@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.service
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.service.PageTabFileReader.readAsPageTab
-import ebi.ac.uk.io.sources.FilesSources
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
@@ -21,7 +21,7 @@ internal class PageTabSerializationService(
     override fun deserializeSubmission(content: String, format: SubFormat): Submission =
         serializer.deserializeSubmission(content, format)
 
-    override fun deserializeSubmission(content: String, format: SubFormat, source: FilesSources): Submission =
+    override fun deserializeSubmission(content: String, format: SubFormat, source: FileSourcesList): Submission =
         fileListSerializer.deserializeFileList(serializer.deserializeSubmission(content, format), source)
 
     override fun deserializeSubmission(file: File): Submission {
@@ -29,7 +29,7 @@ internal class PageTabSerializationService(
         return deserializeSubmission(pagetabFile.readText(), SubFormat.fromFile(pagetabFile))
     }
 
-    override fun deserializeSubmission(file: File, source: FilesSources): Submission =
+    override fun deserializeSubmission(file: File, source: FileSourcesList): Submission =
         fileListSerializer.deserializeFileList(deserializeSubmission(file), source)
 
     override fun deserializeFileList(

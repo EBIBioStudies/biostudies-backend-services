@@ -39,7 +39,7 @@ class FireFilesSource(
     override fun getFile(path: String, md5: String?): File? =
         if (md5 == null) null else fireClient.downloadByMd5(md5)
 
-    override fun description(): String = "EBI internal files Archive"
+    override val description: String = "EBI internal files Archive"
 }
 
 private class SubmissionFireFilesSource(
@@ -65,7 +65,7 @@ private class SubmissionFireFilesSource(
         if (md5 == null) fireClient.downloadByPath(subPath.resolve(path).toString())
         else fireClient.downloadByMd5(md5)
 
-    override fun description(): String = "Submission $accNo files"
+    override val description: String = "Submission $accNo files"
 }
 
 fun FireApiFile.asFireFile(path: String, attributes: List<Attribute>): FireFile =

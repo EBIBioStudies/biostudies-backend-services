@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.exception.EmptyPageTabFileException
 import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ebi.ac.uk.errors.FilesProcessingException
 import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.io.sources.FilesSources
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.util.file.ExcelReader.asTsv
 import java.io.File
 
@@ -16,7 +16,7 @@ object PageTabFileReader {
 
     fun getFileListFile(
         fileListName: String,
-        filesSource: FilesSources,
+        filesSource: FileSourcesList,
     ): File = when (val file = filesSource.getFile(fileListName)) {
         null -> throw FilesProcessingException(fileListName, filesSource)
         else -> when {

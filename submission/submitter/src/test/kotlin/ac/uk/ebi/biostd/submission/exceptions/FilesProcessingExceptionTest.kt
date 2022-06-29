@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.exceptions
 
 import ebi.ac.uk.errors.FilesProcessingException
-import ebi.ac.uk.io.sources.FilesSources
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.sources.PathSource
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -16,7 +16,7 @@ internal class FilesProcessingExceptionTest {
 
     @Test
     fun message() {
-        val testInstance = FilesProcessingException(invalidFiles, FilesSources(sources))
+        val testInstance = FilesProcessingException(invalidFiles, FileSourcesList(sources))
 
         assertThat(testInstance.message).isEqualTo(
             """

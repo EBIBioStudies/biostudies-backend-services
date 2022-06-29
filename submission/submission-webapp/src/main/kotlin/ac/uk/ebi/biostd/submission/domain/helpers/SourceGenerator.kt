@@ -3,9 +3,9 @@ package ac.uk.ebi.biostd.submission.domain.helpers
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.submission.model.GroupSource
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.sources.FilesListSource
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.FilesSources
 import ebi.ac.uk.io.sources.PathSource
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -16,12 +16,12 @@ class SourceGenerator(
     private val props: ApplicationProperties,
     private val fireSourceFactory: FireFilesSourceFactory,
 ) {
-    fun submissionSources(requestSources: RequestSources): FilesSources {
+    fun submissionSources(requestSources: RequestSources): FileSourcesList {
         val (onBehalfUser, submitter, files, rootPath, submission) = requestSources
-        return FilesSources(submissionSources(onBehalfUser, submitter, files, rootPath, submission))
+        return FileSourcesList(submissionSources(onBehalfUser, submitter, files, rootPath, submission))
     }
 
-    fun submitterSources(user: SecurityUser, onBehalfUser: SecurityUser? = null) = FilesSources(
+    fun submitterSources(user: SecurityUser, onBehalfUser: SecurityUser? = null) = FileSourcesList(
         buildList {
             if (onBehalfUser !== null) {
                 add(PathSource("${onBehalfUser.email} user files", onBehalfUser.magicFolder.path))

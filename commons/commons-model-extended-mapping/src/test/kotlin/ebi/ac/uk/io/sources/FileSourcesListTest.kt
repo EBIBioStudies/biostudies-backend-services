@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-internal class FilesSourcesTest(
+internal class FileSourcesListTest(
     @MockK private val oneFileSource: FilesSource,
     @MockK private val anotherFileSource: FilesSource,
     @MockK private val file: ExtFile,
 ) {
-    private val testInstance = FilesSources(listOf(oneFileSource, anotherFileSource))
+    private val testInstance = FileSourcesList(listOf(oneFileSource, anotherFileSource))
     private val filePath = "path/to/a/file.txt"
 
     @Nested

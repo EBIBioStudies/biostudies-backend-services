@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.service.PageTabFileReader.getFileListFile
 import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
-import ebi.ac.uk.io.sources.FilesSources
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.Submission
@@ -22,7 +22,7 @@ internal class FileListSerializer(
         return serializer.deserializeFileList(inputStream, format)
     }
 
-    internal fun deserializeFileList(submission: Submission, source: FilesSources): Submission {
+    internal fun deserializeFileList(submission: Submission, source: FileSourcesList): Submission {
         submission.allSections()
             .filter { section -> section.fileListName != null }
             .map { section -> section to section.fileListName!! }
@@ -30,7 +30,7 @@ internal class FileListSerializer(
         return submission
     }
 
-    private fun getFileList(name: String, fileSource: FilesSources): FileList {
+    private fun getFileList(name: String, fileSource: FileSourcesList): FileList {
         val file = getFileListFile(name, fileSource)
         file.inputStream().use { checkFileList(name, SubFormat.fromFile(file), it) }
         return FileList(name, file)
@@ -45,8 +45,7 @@ internal class FileListSerializer(
     }
 
     private fun errorMsg(exception: Throwable) = when (exception) {
-        is ClassCastException,
-        is InvalidChunkSizeException,
+        is ClassCastException, is InvalidChunkSizeException,
         -> "The provided page tab doesn't match the file list format"
         else -> exception.message.orEmpty()
     }
