@@ -47,7 +47,7 @@ CREATE TABLE User
     id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
     activationKey        VARCHAR(255) NULL,
     active               BIT    NOT NULL,
-    auxProfileInfo       LONGTEXT NULL,
+    orcid                VARCHAR(255) NULL,
     email                VARCHAR(255) NULL,
     fullName             VARCHAR(255) NULL,
     keyTime              BIGINT NOT NULL,

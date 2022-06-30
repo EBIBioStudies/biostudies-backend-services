@@ -1,15 +1,15 @@
 package ac.uk.ebi.biostd.submission.validator.filelist
 
 import ac.uk.ebi.biostd.common.SerializationConfig
-import ac.uk.ebi.biostd.submission.exceptions.InvalidFilesException
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
-import ebi.ac.uk.io.sources.PathFilesSource
+import ebi.ac.uk.errors.FilesProcessingException
+import ebi.ac.uk.io.sources.FileSourcesList
+import ebi.ac.uk.io.sources.PathSource
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -17,9 +17,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
 class FileListValidatorTest(
-    private val tempFolder: TemporaryFolder
+    private val tempFolder: TemporaryFolder,
 ) {
-    private val filesSource = PathFilesSource(tempFolder.root.toPath())
+    private val filesSource = FileSourcesList(listOf(PathSource("Description", tempFolder.root.toPath())))
     private val testInstance = FileListValidator(SerializationConfig.serializationService())
 
     @BeforeAll
@@ -57,7 +57,6 @@ class FileListValidatorTest(
             }
         }
 
-        val exception = assertThrows<InvalidFilesException> { testInstance.validateFileList("fail.xlsx", filesSource) }
-        assertThat(exception.message).isEqualTo("File not uploaded: ghost.txt")
+        assertThrows<FilesProcessingException> { testInstance.validateFileList("fail.xlsx", filesSource) }
     }
 }

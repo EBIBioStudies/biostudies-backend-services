@@ -12,17 +12,16 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 class ProfileService(private val filesDirPath: Path) {
-    fun getUserProfile(user: DbUser, token: String): UserInfo {
-        return UserInfo(asSecurityUser(user), token)
-    }
+    fun getUserProfile(user: DbUser, token: String): UserInfo = UserInfo(asSecurityUser(user), token)
 
-    fun asSecurityUser(user: DbUser): SecurityUser {
-        return user.run {
+    fun asSecurityUser(user: DbUser): SecurityUser =
+        user.run {
             SecurityUser(
                 id = id,
                 email = email,
                 fullName = fullName,
                 login = login,
+                orcid = orcid,
                 secret = secret,
                 superuser = user.superuser,
                 magicFolder = userMagicFolder(secret, id),
@@ -31,7 +30,6 @@ class ProfileService(private val filesDirPath: Path) {
                 notificationsEnabled = notificationsEnabled
             )
         }
-    }
 
     private fun getPermissions(permissions: Set<DbAccessPermission>): Set<SecurityPermission> =
         permissions.mapTo(mutableSetOf()) { SecurityPermission(it.accessType, it.accessTag.name) }

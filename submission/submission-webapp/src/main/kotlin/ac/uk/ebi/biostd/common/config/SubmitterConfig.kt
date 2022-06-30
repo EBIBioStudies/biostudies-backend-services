@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
@@ -35,6 +34,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
 import org.springframework.web.client.RestTemplate
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.nio.file.Paths
 

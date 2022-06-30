@@ -1,11 +1,9 @@
 package ac.uk.ebi.biostd.persistence.model
 
-import ac.uk.ebi.biostd.persistence.converters.AuxInfoConverter
 import java.time.OffsetDateTime
 import javax.persistence.CascadeType.MERGE
 import javax.persistence.CascadeType.PERSIST
 import javax.persistence.Column
-import javax.persistence.Convert
 import javax.persistence.Entity
 import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
@@ -76,7 +74,10 @@ class DbUser(
     var superuser: Boolean = false,
 
     @Column
-    var notificationsEnabled: Boolean = false
+    var notificationsEnabled: Boolean = false,
+
+    @Column
+    var orcid: String? = null,
 ) {
     @Column
     var active: Boolean = false
@@ -85,10 +86,6 @@ class DbUser(
 
     @Column
     var activationKey: String? = null
-
-    @Column(name = "auxProfileInfo")
-    @Convert(converter = AuxInfoConverter::class)
-    var auxInfo: AuxInfo = AuxInfo()
 
     @OneToMany(mappedBy = "user", cascade = [PERSIST, MERGE])
     val permissions: Set<DbAccessPermission> = emptySet()

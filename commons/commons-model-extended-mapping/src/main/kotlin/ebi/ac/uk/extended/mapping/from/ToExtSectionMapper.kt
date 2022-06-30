@@ -2,18 +2,18 @@ package ebi.ac.uk.extended.mapping.from
 
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.constants.SECTION_RESERVED_ATTRS
 
 class ToExtSectionMapper(private val toExtFileListMapper: ToExtFileListMapper) {
-    fun convert(subAccNo: String, version: Int, sec: Section, source: FilesSource): ExtSection = ExtSection(
+    fun convert(subAccNo: String, version: Int, sec: Section, source: FileSourcesList): ExtSection = ExtSection(
         type = sec.type,
         accNo = sec.accNo,
         fileList = sec.fileList?.let { toExtFileListMapper.convert(subAccNo, version, it, source) },
         attributes = sec.attributes.toExtAttributes(SECTION_RESERVED_ATTRS),
-        files = sec.files.map { either -> either.bimap({ it.toExtFile(source) }, { it.toExtTable(source) }) },
+        files = sec.files.map { either -> either.bimap({ source.toExtFile(it) }, { it.toExtTable(source) }) },
         links = sec.links.map { either -> either.bimap({ it.toExtLink() }, { it.toExtTable() }) },
         sections = sec.sections.map { either ->
             either.bimap(
@@ -27,6 +27,6 @@ class ToExtSectionMapper(private val toExtFileListMapper: ToExtFileListMapper) {
         subAccNo: String,
         version: Int,
         sectionsTable: SectionsTable,
-        fileSource: FilesSource
+        fileSource: FileSourcesList,
     ): ExtSectionTable = ExtSectionTable(sectionsTable.elements.map { convert(subAccNo, version, it, fileSource) })
 }

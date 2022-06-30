@@ -23,6 +23,7 @@ import ebi.ac.uk.security.test.SecurityTestEntities.Companion.captcha
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.email
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.instanceKey
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.name
+import ebi.ac.uk.security.test.SecurityTestEntities.Companion.orcid
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.password
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.passwordDigest
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.path
@@ -63,7 +64,7 @@ internal class SecurityServiceTest(
     @MockK private val securityProps: SecurityProperties,
     @MockK private val securityUtil: SecurityUtil,
     @MockK private val captchaVerifier: CaptchaVerifier,
-    @MockK private val eventsPublisherService: EventsPublisherService
+    @MockK private val eventsPublisherService: EventsPublisherService,
 ) {
     private val testInstance: SecurityService = SecurityService(
         userRepository,
@@ -134,6 +135,7 @@ internal class SecurityServiceTest(
             assertThat(dbUser.active).isTrue
             assertThat(dbUser.fullName).isEqualTo(name)
             assertThat(dbUser.email).isEqualTo(email)
+            assertThat(dbUser.orcid).isEqualTo(orcid)
             assertThat(dbUser.passwordDigest).isEqualTo(PASSWORD_DIGEST)
 
             assertThat(dbUser.superuser).isFalse

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.persistence.filesystem.service
+package uk.ac.ebi.extended.serialization.service
 
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
@@ -8,9 +8,10 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.use
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import ebi.ac.uk.util.collections.mapLeft
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
+import java.util.concurrent.atomic.AtomicInteger
 
 class FileProcessingService(
     private val serializationService: ExtSerializationService,
@@ -26,28 +27,29 @@ class FileProcessingService(
      * @param process process function to apply to each section.
      * @return an instance of @UpdatedSection indicating if section was changed or not.
      */
-    fun process(section: ExtSection, process: (file: ExtSection) -> Section): Section {
+    fun process(section: ExtSection, process: (file: ExtSection) -> TrackSection): TrackSection {
         val sections = section.sections.map { either -> either.mapLeft { process(it, process) } }
-        val current = process(section)
-        val changed = current.changed || sections.any { either -> either.fold({ it.changed }, { false }) }
+        val (hasChanged, processedSection) = process(section)
+        val changed = hasChanged || sections.any { either -> either.fold({ it.changed }, { false }) }
 
-        return Section(
+        return TrackSection(
             changed,
-            if (changed) current.section.copy(sections = sections.map { it.mapLeft(Section::section) }) else section
+            if (changed) processedSection.copy(sections = sections.mapLeft { it.section }) else section
         )
     }
 
     fun processFiles(
         submission: ExtSubmission,
-        processFile: (file: ExtFile) -> ExtFile,
-    ): ExtSubmission = submission.copy(
-        section = processSectionFiles(
+        processFile: (file: ExtFile, index: Int) -> ExtFile,
+    ): ExtSubmission {
+        val index = AtomicInteger()
+        val newSection = processSectionFiles(
             submission.accNo,
             submission.version,
-            submission.section,
-            processFile
-        )
-    )
+            submission.section
+        ) { processFile(it, index.incrementAndGet()) }
+        return submission.copy(section = newSection)
+    }
 
     private fun processSectionFiles(
         subAccNo: String,
@@ -99,3 +101,5 @@ class FileProcessingService(
         { it.copy(sections = it.sections.map { sub -> processSectionFiles(subAccNo, subVersion, sub, processFile) }) }
     )
 }
+
+data class TrackSection(val changed: Boolean, val section: ExtSection)

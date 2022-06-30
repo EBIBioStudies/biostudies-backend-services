@@ -1,8 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
 import ac.uk.ebi.biostd.common.TsvPagetabExtension
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
-import ac.uk.ebi.biostd.persistence.filesystem.service.Section
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
@@ -11,6 +9,8 @@ import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.paths.FILES_PATH
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import mu.KotlinLogging
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
+import uk.ac.ebi.extended.serialization.service.TrackSection
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
@@ -19,7 +19,7 @@ class NfsPageTabService(
     private val folderResolver: SubmissionFolderResolver,
     private val pageTabUtil: PageTabUtil,
     private val fileProcessingService: FileProcessingService,
-    private val tsvExtension: TsvPagetabExtension
+    private val tsvExtension: TsvPagetabExtension,
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
         logger.info { "${sub.accNo} ${sub.owner} Generating page tab files" }
@@ -40,13 +40,13 @@ class NfsPageTabService(
         }
     }
 
-    private fun updateFileList(sec: ExtSection, tab: Map<String, PageTabFiles>): Section {
+    private fun updateFileList(sec: ExtSection, tab: Map<String, PageTabFiles>): TrackSection {
         return when (val lst = sec.fileList) {
-            null -> Section(false, sec)
+            null -> TrackSection(false, sec)
             else -> {
                 val fileName = lst.filePath
                 val tabFiles = tab.getValue(lst.filePath)
-                Section(true, sec.copy(fileList = lst.copy(pageTabFiles = fileListFiles(tabFiles, fileName))))
+                TrackSection(true, sec.copy(fileList = lst.copy(pageTabFiles = fileListFiles(tabFiles, fileName))))
             }
         }
     }

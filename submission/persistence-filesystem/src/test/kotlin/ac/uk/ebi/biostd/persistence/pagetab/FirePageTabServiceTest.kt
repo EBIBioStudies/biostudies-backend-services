@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.FirePageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabFiles
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import arrow.core.Either.Companion.left
 import arrow.core.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtFileList
@@ -26,6 +25,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.extended.serialization.service.createExtFileList
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FileType

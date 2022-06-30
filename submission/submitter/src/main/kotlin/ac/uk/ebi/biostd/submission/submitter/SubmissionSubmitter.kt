@@ -23,7 +23,7 @@ import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
-import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
@@ -71,6 +71,7 @@ class SubmissionSubmitter(
     @Suppress("TooGenericExceptionCaught")
     private fun process(rqt: SubmitRequest): ExtSubmission {
         try {
+            logger.info { "${rqt.accNo} ${rqt.owner} Processing submission request accNo='${rqt.accNo}'" }
             val (sub, submitter, sources, method, _, onBehalfUser, _) = rqt
             val submission = process(sub, submitter.asUser(), onBehalfUser?.asUser(), sources, method)
             parentInfoService.executeCollectionValidators(submission)
@@ -85,7 +86,7 @@ class SubmissionSubmitter(
         submission: Submission,
         submitter: User,
         onBehalfUser: User?,
-        source: FilesSource,
+        source: FileSourcesList,
         method: SubmissionMethod,
     ): ExtSubmission {
         val previousVersion = queryService.findLatestBasicByAccNo(submission.accNo)
