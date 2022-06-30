@@ -1,5 +1,6 @@
 package ebi.ac.uk.io
 
+import ebi.ac.uk.io.FileUtilsHelper.setPermissions
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.Path
@@ -19,7 +20,7 @@ internal class CopyFileVisitor(
     override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
         val target = targetPath.resolve(sourcePath.relativize(file))
         Files.copy(file, target)
-        Files.setPosixFilePermissions(target, permissions.file)
+        setPermissions(target, permissions.file)
 
         return FileVisitResult.CONTINUE
     }

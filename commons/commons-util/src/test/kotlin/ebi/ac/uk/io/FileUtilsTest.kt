@@ -1,6 +1,7 @@
 package ebi.ac.uk.io
 
 import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
+import ebi.ac.uk.io.FileUtilsHelper.setPermissions
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.newFile
@@ -304,7 +305,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         @Test
         fun `create folder if not exists when exists`() {
             val folder = temporaryFolder.createDirectory("folder2")
-            Files.setPosixFilePermissions(folder.toPath(), RW_______)
+            setPermissions(folder.toPath(), RW_______)
             assertThat(folder).exists()
 
             createFolderIfNotExist(folder.toPath(), RWXRWX___)
