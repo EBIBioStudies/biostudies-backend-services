@@ -1,6 +1,7 @@
 app:
   fileName: # Name of the export file
   outputPath: # Path where the export file should be placed
+  tmpFilesPath: # Path to the temp folder to store files
   mode: # Export mode: PMC, PUBLIC_ONLY
 
   ftp:
