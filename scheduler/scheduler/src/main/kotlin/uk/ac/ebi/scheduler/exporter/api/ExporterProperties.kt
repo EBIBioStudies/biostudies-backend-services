@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component
 @ConfigurationProperties(prefix = "exporter")
 @Component
 class ExporterProperties {
+    lateinit var tmpFilesPath: String
+
     @NestedConfigurationProperty
     var bioStudies: BioStudies = BioStudies()
 

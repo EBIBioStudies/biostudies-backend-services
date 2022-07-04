@@ -81,6 +81,7 @@ class ExporterTriggerTest(
             --app.mode=$mode \
             --app.fileName=$fileName \
             --app.outputPath=$outputPath \
+            --app.tmpFilesPath=/a/tmp/path \
             --app.ftp.host=localhost \
             --app.ftp.user=admin \
             --app.ftp.password=123456 \
@@ -105,6 +106,7 @@ class ExporterTriggerTest(
     }
 
     private fun testProperties() = ExporterProperties().apply {
+        this.tmpFilesPath = "/a/tmp/path"
         this.pmc = Pmc().apply {
             fileName = "pmcFile"
             outputPath = "/an/output/path/1"

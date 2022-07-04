@@ -20,6 +20,7 @@ pmc:
     loadFolder: # Folder to load .gz pmc files from
 
 exporter:
+  tmpFilesPath: # Path to the temp folder to store files
   publicOnly:
     fileName: # Name of the export file
     outputPath: # Path where the export file should be placed

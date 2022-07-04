@@ -77,6 +77,7 @@ class ExporterTrigger(
         ExporterProperties.create(
             fileName,
             outputPath,
+            exporterProperties.tmpFilesPath,
             mode,
             exporterProperties.ftp.host,
             exporterProperties.ftp.user,
