@@ -39,13 +39,6 @@ auto-deploy-prod-submitter:
     refs:
       - prod
 
-auto-deploy-ae-submitter:
-  extends: .deploy-ae-submitter
-  stage: auto-deploy-ae-submitter
-  only:
-    refs:
-      - prod
-
 deploy-dev-submitter:
   extends: .deploy-dev-submitter
   stage: deploy-dev-submitter

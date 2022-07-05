@@ -39,13 +39,6 @@ auto-deploy-prod-handlers:
     refs:
       - prod
 
-auto-deploy-ae-handlers:
-  extends: .deploy-ae-handlers
-  stage: auto-deploy-ae-handlers
-  only:
-    refs:
-      - prod
-
 deploy-dev-handlers:
   extends: .deploy-dev-handlers
   stage: deploy-dev-handlers
