@@ -13,7 +13,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.FirePageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.NfsPageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileProcessingService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
@@ -24,6 +23,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
@@ -34,7 +34,7 @@ class PersistenceConfig(
     private val properties: ApplicationProperties,
     private val serializationService: SerializationService,
     private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
-    private val fireClient: FireClient
+    private val fireClient: FireClient,
 ) {
     @Bean
     @ConditionalOnProperty(
@@ -55,7 +55,7 @@ class PersistenceConfig(
     fun nfsPageTabService(
         pageTabUtil: PageTabUtil,
         fileProcessingService: FileProcessingService,
-        tsvPagetabExtension: TsvPagetabExtension
+        tsvPagetabExtension: TsvPagetabExtension,
     ): PageTabService =
         NfsPageTabService(folderResolver, pageTabUtil, fileProcessingService, tsvPagetabExtension)
 
@@ -63,7 +63,7 @@ class PersistenceConfig(
     fun pageTabUtil(
         toSubmissionMapper: ToSubmissionMapper,
         toFileListMapper: ToFileListMapper,
-        tsvPagetabExtension: TsvPagetabExtension
+        tsvPagetabExtension: TsvPagetabExtension,
     ): PageTabUtil = PageTabUtil(serializationService, toSubmissionMapper, toFileListMapper, tsvPagetabExtension)
 
     @Bean
@@ -79,7 +79,7 @@ class PersistenceConfig(
     fun firePageTabService(
         pageTabUtil: PageTabUtil,
         fileProcessingService: FileProcessingService,
-        tsvPagetabExtension: TsvPagetabExtension
+        tsvPagetabExtension: TsvPagetabExtension,
     ): PageTabService =
         FirePageTabService(
             File(properties.fireTempDirPath),
@@ -97,6 +97,6 @@ class PersistenceConfig(
     fun fileSystemService(
         ftpService: FtpService,
         filesService: FilesService,
-        pageTabService: PageTabService
+        pageTabService: PageTabService,
     ): FileSystemService = FileSystemService(ftpService, filesService, pageTabService)
 }

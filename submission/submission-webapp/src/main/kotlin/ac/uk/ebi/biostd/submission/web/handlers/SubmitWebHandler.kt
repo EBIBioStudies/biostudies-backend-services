@@ -14,7 +14,7 @@ import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtAttributeDetail
-import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod.FILE
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
@@ -31,7 +31,7 @@ class SubmitWebHandler(
     private val serializationService: SerializationService,
     private val userFilesService: UserFilesService,
     private val toSubmissionMapper: ToSubmissionMapper,
-    private val onBehalfUtils: OnBehalfUtils
+    private val onBehalfUtils: OnBehalfUtils,
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission =
         toSubmissionMapper.toSimpleSubmission(submissionService.submit(buildRequest(request)))
@@ -45,7 +45,7 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: ContentSubmitWebRequest): SubmitRequest {
         val (format, submitter, attrs) = request.submissionConfig
-        val (fileMode, files, preferredSource) = request.filesConfig
+        val (fileMode, files, preferredSources) = request.filesConfig
         val sub = serializationService.deserializeSubmission(request.submission, format)
         val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.also { requireNotProcessing(it.accNo) }
 
@@ -53,10 +53,10 @@ class SubmitWebHandler(
             RequestSources(
                 submitter = submitter,
                 files = files,
-                owner = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
+                onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
                 rootPath = sub.rootPath,
                 submission = extSub,
-                preferredSources = preferredSource
+                preferredSources = preferredSources
             )
         )
         val submission = withAttributes(submission(request.submission, format, source), attrs)
@@ -74,7 +74,7 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: FileSubmitWebRequest): SubmitRequest {
         val (_, submitter, attrs) = request.submissionConfig
-        val (fileMode, files, preferredSource) = request.filesConfig
+        val (fileMode, files, preferredSources) = request.filesConfig
         val sub = serializationService.deserializeSubmission(request.submission)
         val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)
         requireNotProcessing(sub.accNo)
@@ -83,10 +83,10 @@ class SubmitWebHandler(
             RequestSources(
                 submitter = submitter,
                 files = files,
-                owner = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
+                onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
                 rootPath = sub.rootPath,
                 submission = extSub,
-                preferredSources = preferredSource
+                preferredSources = preferredSources
             )
         )
         val submission = withAttributes(submission(request.submission, source), attrs)
@@ -108,11 +108,16 @@ class SubmitWebHandler(
         return submission
     }
 
-    private fun submission(content: String, format: SubFormat, source: FilesSource) =
-        serializationService.deserializeSubmission(content, format, source)
+    private fun submission(
+        content: String,
+        format: SubFormat,
+        source: FileSourcesList
+    ) = serializationService.deserializeSubmission(content, format, source)
 
-    private fun submission(subFile: File, source: FilesSource) =
-        serializationService.deserializeSubmission(subFile, source)
+    private fun submission(
+        subFile: File,
+        source: FileSourcesList
+    ) = serializationService.deserializeSubmission(subFile, source)
 
     private fun requireNotProcessing(accNo: String) = require(extSubmissionService.hasPendingRequest(accNo).not()) {
         throw ConcurrentProcessingSubmissionException(accNo)

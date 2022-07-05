@@ -1,13 +1,11 @@
 package ac.uk.ebi.biostd.submission.domain.helpers
 
-import ac.uk.ebi.biostd.common.properties.PersistenceProperties
 import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.FilesSource.Companion.EMPTY_FILE_SOURCE
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
 import uk.ac.ebi.fire.client.api.FIRE_BIO_FILE_TYPE
@@ -18,13 +16,11 @@ import java.io.File
 import java.nio.file.Path
 
 class FireFilesSourceFactory(
-    private val props: PersistenceProperties,
     private val fireClient: FireClient,
 ) {
-    fun createFireSource(): FilesSource = if (props.enableFire) FireFilesSource(fireClient) else EMPTY_FILE_SOURCE
-
+    fun createFireSource(): FilesSource = FireFilesSource(fireClient)
     fun createSubmissionFireSource(accNo: String, subPath: Path): FilesSource =
-        if (props.enableFire) SubmissionFireFilesSource(fireClient, accNo, subPath) else EMPTY_FILE_SOURCE
+        SubmissionFireFilesSource(fireClient, accNo, subPath)
 }
 
 class FireFilesSource(
@@ -43,6 +39,8 @@ class FireFilesSource(
 
     override fun getFile(path: String, md5: String?): File? =
         if (md5 == null) null else fireClient.downloadByMd5(md5)
+
+    override val description: String = "EBI internal files Archive"
 }
 
 private class SubmissionFireFilesSource(
@@ -67,6 +65,8 @@ private class SubmissionFireFilesSource(
     override fun getFile(path: String, md5: String?): File? =
         if (md5 == null) fireClient.downloadByPath(subPath.resolve(path).toString())
         else fireClient.downloadByMd5(md5)
+
+    override val description: String = "Submission $accNo files"
 }
 
 fun FireApiFile.asFireFile(path: String, attributes: List<Attribute>): FireFile =
@@ -81,4 +81,7 @@ fun FireApiFile.asFireFile(path: String, attributes: List<Attribute>): FireFile 
     )
 
 private val FireApiFile.fileType: ExtFileType
-    get(): ExtFileType = ExtFileType.fromString(metadata?.first { it.key == FIRE_BIO_FILE_TYPE }?.value ?: FILE.value)
+    get(): ExtFileType {
+        val fileType = metadata?.firstOrNull { it.key == FIRE_BIO_FILE_TYPE }
+        return fileType?.let { ExtFileType.fromString(it.value) } ?: ExtFileType.FILE
+    }

@@ -47,32 +47,30 @@ class FireService(
         }
     }
 
+    private fun fromNfsFile(sub: ExtSubmission, file: NfsFile, expectedPath: String): FireFile =
+        reuseOrPersistFireFile(sub, file, expectedPath) { file.file }
+
+    private fun fromFireFile(sub: ExtSubmission, file: FireFile, expectedPath: String): FireFile =
+        reuseOrPersistFireFile(sub, file, expectedPath) { client.downloadByFireId(file.fireId, file.fileName) }
+
     @Suppress("ReturnCount")
-    private fun fromNfsFile(sub: ExtSubmission, file: NfsFile, expectedPath: String): FireFile {
+    private fun reuseOrPersistFireFile(
+        sub: ExtSubmission,
+        file: ExtFile,
+        expectedPath: String,
+        fallbackFile: () -> File
+    ): FireFile {
         val fireFile = client.findByMd5(file.md5).firstOrNull { it.isAvailable(sub.accNo) }
         if (fireFile != null) {
-            if (fireFile.path == null) return saveFile(sub, fireFile.fireOid, file, expectedPath)
+            if (fireFile.path == null) return setMetadata(sub, fireFile.fireOid, file, expectedPath)
             if (fireFile.path == expectedPath) return asFireFile(file, fireFile.fireOid)
         }
 
-        val newFile = client.save(file.file, file.md5)
-        return saveFile(sub, newFile.fireOid, file, expectedPath)
+        val saved = client.save(fallbackFile(), file.md5)
+        return setMetadata(sub, saved.fireOid, file, expectedPath)
     }
 
-    @Suppress("ReturnCount")
-    private fun fromFireFile(sub: ExtSubmission, file: FireFile, expectedPath: String): FireFile {
-        val fireFile = client.findByMd5(file.md5).first()
-        if (fireFile.isAvailable(sub.accNo)) {
-            if (fireFile.path == null) return saveFile(sub, fireFile.fireOid, file, expectedPath)
-            if (fireFile.path == expectedPath) return asFireFile(file, fireFile.fireOid)
-        }
-
-        val downloadFile = client.downloadByFireId(fireFile.fireOid, file.fileName)
-        val saved = client.save(downloadFile, file.md5)
-        return saveFile(sub, saved.fireOid, file, expectedPath)
-    }
-
-    private fun saveFile(sub: ExtSubmission, fireOid: String, file: ExtFile, path: String): FireFile {
+    private fun setMetadata(sub: ExtSubmission, fireOid: String, file: ExtFile, path: String): FireFile {
         client.setBioMetadata(fireOid, sub.accNo, file.fireType, published = false)
         client.setPath(fireOid, path)
         return asFireFile(file, fireOid)
@@ -85,6 +83,7 @@ class FireService(
         val target = tempFolder.resolve(file.name)
         Files.deleteIfExists(target.toPath())
         ZipUtil.pack(file, target)
+
         return target
     }
 

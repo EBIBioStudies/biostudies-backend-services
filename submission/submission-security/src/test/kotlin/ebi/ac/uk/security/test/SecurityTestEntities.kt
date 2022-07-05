@@ -11,6 +11,7 @@ internal class SecurityTestEntities {
         const val userId = 55L
         const val name = "BioStudies Developer"
         const val email = "biostudies-dev@ebi.ac.uk"
+        const val orcid = "0000-0002-1825-0097"
         const val password = "abc123"
         const val instanceKey = "12345"
         const val path = "/activate_url_path"
@@ -18,7 +19,7 @@ internal class SecurityTestEntities {
         const val adminId = 70L
 
         val registrationRequest: RegisterRequest
-            get() = RegisterRequest(name, email, password, captcha = captcha)
+            get() = RegisterRequest(name, email, password, orcid = orcid, captcha = captcha)
 
         val preRegisterRequest: RegisterRequest
             get() = RegisterRequest(

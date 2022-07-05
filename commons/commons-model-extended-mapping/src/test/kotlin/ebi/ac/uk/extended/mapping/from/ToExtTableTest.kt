@@ -2,7 +2,7 @@ package ebi.ac.uk.extended.mapping.from
 
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtLink
-import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
@@ -19,13 +19,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ToExtTableTest {
     @Test
     fun `FileTable toExtTable`(
-        @MockK filesSource: FilesSource,
+        @MockK filesSource: FileSourcesList,
         @MockK file: BioFile,
         @MockK fileTable: FilesTable,
-        @MockK extFile: ExtFile
+        @MockK extFile: ExtFile,
     ) {
         mockkStatic(TO_EXT_FILE_EXTENSIONS) {
-            every { file.toExtFile(filesSource) } returns extFile
+            every { filesSource.toExtFile(file) } returns extFile
             every { fileTable.elements } returns listOf(file)
 
             val result = fileTable.toExtTable(filesSource)
@@ -38,7 +38,7 @@ class ToExtTableTest {
     fun `LinkTable toExtTable`(
         @MockK tableLink: Link,
         @MockK linkTable: LinksTable,
-        @MockK extLink: ExtLink
+        @MockK extLink: ExtLink,
     ) {
         mockkStatic(TO_EXT_LINK_EXTENSIONS) {
             every { tableLink.toExtLink() } returns extLink

@@ -13,6 +13,7 @@ class RegisterRequest(
     val password: String,
     var instanceKey: String? = null,
     var path: String? = null,
+    var orcid: String? = null,
     val notificationsEnabled: Boolean = false,
 
     @JsonProperty("recaptcha2-response")

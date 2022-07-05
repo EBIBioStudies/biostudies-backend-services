@@ -3,10 +3,10 @@ package ac.uk.ebi.biostd.submission.domain.helpers
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.submission.model.GroupSource
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.io.sources.ComposedFileSource
+import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.sources.FilesListSource
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.PathFilesSource
+import ebi.ac.uk.io.sources.PathSource
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
@@ -20,9 +20,11 @@ class SourceGenerator(
     private val props: ApplicationProperties,
     private val fireSourceFactory: FireFilesSourceFactory,
 ) {
-    fun submissionSources(requestSources: RequestSources): FilesSource {
+    fun submissionSources(requestSources: RequestSources): FileSourcesList {
         val sources = buildList {
-            add(FilesListSource(requestSources.files))
+            if (requestSources.files != null) {
+                add(FilesListSource(requestSources.files))
+            }
 
             if (requestSources.preferredSources.isEmpty()) {
                 addDefaultFileSources(requestSources, this)
@@ -31,16 +33,16 @@ class SourceGenerator(
             }
         }
 
-        return ComposedFileSource(sources)
+        return FileSourcesList(sources)
     }
 
     fun submitterSources(
-        user: SecurityUser,
+        submitter: SecurityUser,
         onBehalfUser: SecurityUser? = null,
         rootPath: String? = null
-    ): FilesSource = ComposedFileSource(
+    ): FileSourcesList = FileSourcesList(
         buildList {
-            addUserSources(rootPath, user, onBehalfUser, this)
+            addUserSources(rootPath, onBehalfUser, submitter, this)
         }
     )
 
@@ -69,24 +71,29 @@ class SourceGenerator(
     private fun addUserSources(
         rootPath: String?,
         owner: SecurityUser?,
-        submitter: SecurityUser?,
+        submitter: SecurityUser,
         sources: MutableList<FilesSource>
     ) {
-        if (submitter != null) {
-            sources.add(PathFilesSource(submitter.magicFolder.resolve(rootPath.orEmpty())))
-            sources.addAll(submitter.groupsFolders.map { GroupSource(it.groupName, it.path) })
-        }
+        addUserSource(submitter, rootPath, sources)
 
         if (owner != null) {
-            sources.add(PathFilesSource(owner.magicFolder.resolve(rootPath.orEmpty())))
-            sources.addAll(owner.groupsFolders.map { GroupSource(it.groupName, it.path) })
+            addUserSource(owner, rootPath, sources)
         }
+    }
+
+    private fun addUserSource(user: SecurityUser, rootPath: String?, sources: MutableList<FilesSource>) {
+        if (rootPath == null) sources.add(PathSource("${user.email} user files", user.magicFolder.path))
+        else sources.add(PathSource("${user.email} user files in /$rootPath", user.magicFolder.resolve(rootPath)))
+
+        sources.addAll(user.groupsFolders.map { GroupSource(it.groupName, it.path) })
     }
 
     private fun addSubmissionSources(sub: ExtSubmission?, sources: MutableList<FilesSource>) {
         if (sub != null) {
+            val subPath = Paths.get(props.submissionPath).resolve("${sub.relPath}/$FILES_PATH")
+
             sources.add(fireSourceFactory.createSubmissionFireSource(sub.accNo, Paths.get("${sub.relPath}/Files")))
-            sources.add(PathFilesSource(Paths.get(props.submissionPath).resolve(sub.relPath).resolve(FILES_PATH)))
+            sources.add(PathSource("Submission ${sub.accNo} previous version files", subPath))
         }
     }
 
@@ -98,9 +105,9 @@ class SourceGenerator(
 }
 
 data class RequestSources(
-    val owner: SecurityUser? = null,
-    val submitter: SecurityUser? = null,
-    val files: List<File> = emptyList(),
+    val onBehalfUser: SecurityUser?,
+    val submitter: SecurityUser,
+    val files: List<File>?,
     val rootPath: String?,
     val submission: ExtSubmission?,
     val preferredSources: List<PreferredSource>

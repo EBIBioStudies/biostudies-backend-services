@@ -88,9 +88,9 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
                                 "secret" to "secret"
                                 "fullname" to "fullname"
                                 "superuser" to true
+                                "orcid" to "orcid"
                                 "allow" to jsonArray("allow")
                                 "deny" to jsonArray("deny")
-                                "aux" to jsonObj { "orcid" to "orcid" }
                             }.toString()
                         )
                 )

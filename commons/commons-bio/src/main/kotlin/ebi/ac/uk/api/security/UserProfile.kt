@@ -8,9 +8,7 @@ class UserProfile(
     val secret: String,
     val fullname: String,
     val superuser: Boolean,
+    val orcid: String,
     val allow: List<String>,
     val deny: List<String>,
-    val aux: ProfileAuxInfo
 )
-
-class ProfileAuxInfo(val orcid: String)

@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
-import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import org.assertj.core.api.Assertions.assertThat
@@ -38,7 +37,6 @@ class UserGroupsApiTest(
         securityTestService.ensureUserRegistration(RegularUser)
         superWebClient = getWebClient(serverPort, SuperUser)
         regularWebClient = getWebClient(serverPort, RegularUser)
-
         superWebClient.addUserInGroup(superWebClient.createGroup(GROUP_NAME, GROUP_DESC).name, SuperUser.email)
     }
 
@@ -84,5 +82,12 @@ class UserGroupsApiTest(
         override val email = "gr-test-biostudies-mgmt@ebi.ac.uk"
         override val password = "12345"
         override val superUser = true
+    }
+
+    object RegularUser : TestUser {
+        override val username = "Regular User Group Test"
+        override val email = "regular-group-test-biostudies-mgmt@ebi.ac.uk"
+        override val password = "12345"
+        override val superUser = false
     }
 }
