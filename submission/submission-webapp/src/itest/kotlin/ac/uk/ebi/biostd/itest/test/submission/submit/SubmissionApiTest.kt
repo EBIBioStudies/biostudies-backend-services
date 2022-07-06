@@ -4,10 +4,8 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
-import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
@@ -18,9 +16,7 @@ import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import arrow.core.Either
-import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
@@ -66,7 +62,6 @@ class SubmissionApiTest(
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val sequenceRepository: SequenceDataRepository,
     @Autowired val tagsRefRepository: TagDataRepository,
-    @Autowired val userDataRepository: UserDataRepository,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int,
 ) {
@@ -166,50 +161,6 @@ class SubmissionApiTest(
         webClient.deleteFile(dataFile, rootPath)
 
         assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-    }
-
-    @Test
-    fun `submission with on behalf another user`() {
-        securityTestService.ensureUserRegistration(RegularUser)
-
-        val submission = tsv {
-            line("Submission")
-            line("Title", "Submission Title")
-        }.toString()
-
-        val onBehalfClient = SecurityWebClient.create("http://localhost:$serverPort")
-            .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
-
-        val response = onBehalfClient.submitSingle(submission, TSV)
-        assertThat(response).isSuccessful()
-
-        val accNo = response.body.accNo
-        assertThat(getSimpleSubmission(accNo)).isEqualTo(
-            submission(accNo) {
-                title = "Submission Title"
-            }
-        )
-    }
-
-    @Test
-    fun `submission with on behalf new user`() {
-        val username = "Jhon doe"
-        val email = "jhon@doe.email.com"
-
-        val submission = tsv {
-            line("Submission")
-            line("Title", "Submission Title")
-        }.toString()
-
-        val response = webClient.submitSingle(submission, TSV, UserRegistration(username, email))
-        val saved = submissionRepository.getExtByAccNo(response.body.accNo)
-
-        assertThat(saved.owner).isEqualTo(email)
-        assertThat(saved.submitter).isEqualTo(SuperUser.email)
-        val newUser = userDataRepository.findByEmail(email)
-        assertThat(newUser).isNotNull
-        assertThat(newUser!!.active).isFalse
-        assertThat(newUser.notificationsEnabled).isFalse
     }
 
     @Test

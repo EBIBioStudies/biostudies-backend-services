@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.itest.test.submission.query
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -43,9 +44,10 @@ class SubmissionListApiTest(
             assertThat(webClient.submitSingle(getSimpleSubmission(idx), TSV)).isSuccessful()
         }
 
+        val filesConfig = SubmissionFilesConfig(emptyList())
         for (idx in 21..30) {
             val submission = tempFolder.createFile("submission$idx.tsv", getSimpleSubmission(idx))
-            assertThat(webClient.submitSingle(submission, emptyList())).isSuccessful()
+            assertThat(webClient.submitSingle(submission, filesConfig)).isSuccessful()
         }
     }
 

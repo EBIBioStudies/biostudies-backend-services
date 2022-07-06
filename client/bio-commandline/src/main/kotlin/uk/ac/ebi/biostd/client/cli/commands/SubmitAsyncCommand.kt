@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.client.cli.commands
 
+import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
@@ -9,16 +10,17 @@ import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ON_BEHALF_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
+import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.PREFERRED_SOURCES
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
-import uk.ac.ebi.biostd.client.cli.common.FILES_SEPARATOR
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.ATTACHED_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.INPUT_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.FILE_MODE
-import uk.ac.ebi.biostd.client.cli.common.getFiles
+import uk.ac.ebi.biostd.client.cli.common.splitFiles
+import uk.ac.ebi.biostd.client.cli.common.splitPreferredSources
+import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
-import java.io.File
 
 internal class SubmitAsyncCommand(
     private val submissionService: SubmissionService
@@ -30,17 +32,16 @@ internal class SubmitAsyncCommand(
     private val input by option("-i", "--input", help = INPUT_HELP).file(exists = true).required()
     private val attached by option("-a", "--attached", help = ATTACHED_HELP)
     private val fileMode by option("-fm", "--fileMode", help = FILE_MODE).default(COPY.name)
+    private val preferredSources by option("-ps", "--preferredSources", help = PREFERRED_SOURCES)
 
     override fun run() {
-        val request = SubmissionRequest(
-            server = server,
-            user = user,
-            password = password,
-            onBehalf = onBehalf,
-            file = input,
-            attached = attached?.split(FILES_SEPARATOR)?.flatMap { getFiles(File(it)) }.orEmpty(),
-            fileMode = FileMode.valueOf(fileMode)
+        val securityConfig = SecurityConfig(server, user, password, onBehalf)
+        val filesConfig = SubmissionFilesConfig(
+            files = splitFiles(attached),
+            fileMode = FileMode.valueOf(fileMode),
+            preferredSources = splitPreferredSources(preferredSources)
         )
+        val request = SubmissionRequest(input, securityConfig, filesConfig)
 
         submissionService.submitAsync(request)
         echo("SUCCESS: Submission is in queue to be submitted")

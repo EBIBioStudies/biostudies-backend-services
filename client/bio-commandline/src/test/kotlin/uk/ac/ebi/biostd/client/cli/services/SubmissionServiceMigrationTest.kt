@@ -25,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
+import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.extended.serialization.service.createExtFileList
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
@@ -36,14 +37,12 @@ class SubmissionServiceMigrationTest(
     private val testInstance = SubmissionService()
     private val referencedFile = tempFolder.createFile("referenced.pdf")
     private val extSubmission = extSubmissionWithFileList()
+    private val sourceConfig = SecurityConfig("http://biostudy-prod", "manager", "123456")
+    private val targetConfig = SecurityConfig("http://biostudy-bia", "admin_user", "78910")
     private val migrationRequest = MigrationRequest(
         accNo = "S-BSST1",
-        source = "http://biostudy-prod",
-        sourceUser = "manager",
-        sourcePassword = "123456",
-        target = "http://biostudy-bia",
-        targetUser = "admin_user",
-        targetPassword = "78910",
+        sourceSecurityConfig = sourceConfig,
+        targetSecurityConfig = targetConfig,
         targetOwner = null,
         async = false,
         fileMode = COPY,

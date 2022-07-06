@@ -7,6 +7,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
+import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 @ExtendWith(MockKExtension::class)
@@ -30,12 +31,7 @@ internal class DeleteCommandTest(
         const val password = "password"
         const val accNo1 = "accNo1"
         const val accNo2 = "accNo2"
-        val subDelete = DeletionRequest(
-            server = server,
-            user = user,
-            password = password,
-            onBehalf = null,
-            accNoList = listOf(accNo1, accNo2)
-        )
+        private val securityConfig = SecurityConfig(server, user, password)
+        val subDelete = DeletionRequest(securityConfig, listOf(accNo1, accNo2))
     }
 }

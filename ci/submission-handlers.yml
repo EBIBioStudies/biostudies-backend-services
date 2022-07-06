@@ -61,7 +61,7 @@ deploy-prod-handlers:
   stage: deploy-prod-handlers
   when: manual
 
-deploy-ae-handlers:
+deploy-sandbox-handlers:
   extends: .deploy-sandbox-handlers
   stage: deploy-sandbox-handlers
   when: manual

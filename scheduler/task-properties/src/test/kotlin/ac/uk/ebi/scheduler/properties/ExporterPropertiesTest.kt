@@ -13,6 +13,7 @@ class ExporterPropertiesTest {
             mode = PUBLIC_ONLY,
             fileName = "publicOnlyStudies",
             outputPath = "/an/output/path",
+            tmpFilesPath = "/a/tmp/path",
             ftpHost = "localhost",
             ftpUser = "admin",
             ftpPassword = "123456",
@@ -30,6 +31,7 @@ class ExporterPropertiesTest {
             --app.mode=PUBLIC_ONLY \
             --app.fileName=publicOnlyStudies \
             --app.outputPath=/an/output/path \
+            --app.tmpFilesPath=/a/tmp/path \
             --app.ftp.host=localhost \
             --app.ftp.user=admin \
             --app.ftp.password=123456 \
@@ -49,6 +51,7 @@ class ExporterPropertiesTest {
             mode = PMC,
             fileName = "publicOnlyStudies",
             outputPath = "/an/output/path",
+            tmpFilesPath = "/a/tmp/path",
             ftpHost = "localhost",
             ftpUser = "admin",
             ftpPassword = "123456",
@@ -66,6 +69,7 @@ class ExporterPropertiesTest {
             --app.mode=PMC \
             --app.fileName=publicOnlyStudies \
             --app.outputPath=/an/output/path \
+            --app.tmpFilesPath=/a/tmp/path \
             --app.ftp.host=localhost \
             --app.ftp.user=admin \
             --app.ftp.password=123456 \

@@ -90,9 +90,9 @@ class ITestListener : TestExecutionListener {
         internal val magicDirPath = testAppFolder.createDirectory("magic")
         internal val dropboxPath = testAppFolder.createDirectory("dropbox")
 
+        internal val fireApiMock = createFireApiMock(ftpPath)
         private val mongoContainer = createMongoContainer()
         private val mysqlContainer = createMysqlContainer()
-        private val fireApiMock = createFireApiMock(ftpPath)
 
         val enableFire get() = System.getProperty("enableFire").toBoolean()
         val submissionPath get() = if (enableFire) fireSubmissionPath else nfsSubmissionPath
