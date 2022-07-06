@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
+import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
@@ -15,6 +16,7 @@ import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
+import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -106,9 +108,14 @@ class SubmissionConfig(
         )
 
     @Bean
+    fun submitRequestBuilder(
+        tempFileGenerator: TempFileGenerator
+    ): SubmitRequestBuilder = SubmitRequestBuilder(tempFileGenerator)
+
+    @Bean
     fun submissionHandler(
         submissionService: SubmissionService,
-        submissionQueryService: SubmissionQueryService,
+        submissionQueryService: SubmissionQueryService
     ): SubmissionsWebHandler = SubmissionsWebHandler(submissionService, submissionQueryService)
 
     @Bean

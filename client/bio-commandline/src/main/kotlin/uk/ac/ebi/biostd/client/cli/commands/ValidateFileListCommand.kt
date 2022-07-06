@@ -5,6 +5,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters
+import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
@@ -18,13 +19,8 @@ internal class ValidateFileListCommand(
     private val fileListPath by option("-f", "--fileListPath", help = SubmissionParameters.FILE_LIST_PATH).required()
 
     override fun run() {
-        val request = ValidateFileListRequest(
-            server = server,
-            user = user,
-            password = password,
-            onBehalf = onBehalf,
-            fileListPath = fileListPath
-        )
+        val securityConfig = SecurityConfig(server, user, password, onBehalf)
+        val request = ValidateFileListRequest(securityConfig, fileListPath)
 
         submissionService.validateFileList(request)
         echo("SUCCESS: ${request.fileListPath} is a valid file list")

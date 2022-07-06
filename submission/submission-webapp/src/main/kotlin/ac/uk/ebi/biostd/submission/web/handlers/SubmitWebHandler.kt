@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod.FILE
@@ -43,70 +44,80 @@ class SubmitWebHandler(
     fun submitAsync(request: FileSubmitWebRequest) = submissionService.submitAsync(buildRequest(request))
 
     private fun buildRequest(request: ContentSubmitWebRequest): SubmitRequest {
-        val sub = serializationService.deserializeSubmission(request.submission, request.format)
-        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)
-        requireNotProcessing(sub.accNo)
+        val (format, submitter, attrs) = request.submissionConfig
+        val (fileMode, files, preferredSources) = request.filesConfig
+        val sub = serializationService.deserializeSubmission(request.submission, format)
+        val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.also { requireNotProcessing(it.accNo) }
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
-                submitter = request.submitter,
-                files = request.files,
+                submitter = submitter,
+                files = files,
                 onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
                 rootPath = sub.rootPath,
-                submission = extSub
+                submission = extSub,
+                preferredSources = preferredSources
             )
         )
-        val submission = withAttributes(submission(request.submission, request.format, source), request.attrs)
+        val submission = withAttributes(submission(request.submission, format, source), attrs)
 
         return SubmitRequest(
             submission = submission,
-            submitter = request.submitter,
+            submitter = submitter,
             onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
             method = PAGE_TAB,
             sources = source,
-            mode = request.fileMode,
+            mode = fileMode,
             draftKey = request.draftKey
         )
     }
 
     private fun buildRequest(request: FileSubmitWebRequest): SubmitRequest {
+        val (_, submitter, attrs) = request.submissionConfig
+        val (fileMode, files, preferredSources) = request.filesConfig
         val sub = serializationService.deserializeSubmission(request.submission)
         val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)
         requireNotProcessing(sub.accNo)
 
         val source = sourceGenerator.submissionSources(
             RequestSources(
-                submitter = request.submitter,
-                files = request.files,
+                submitter = submitter,
+                files = files,
                 onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
                 rootPath = sub.rootPath,
-                submission = extSub
+                submission = extSub,
+                preferredSources = preferredSources
             )
         )
-        val submission = withAttributes(submission(request.submission, source), request.attrs)
+        val submission = withAttributes(submission(request.submission, source), attrs)
 
-        userFilesService.uploadFile(request.submitter, DIRECT_UPLOAD_PATH, request.submission)
+        userFilesService.uploadFile(submitter, DIRECT_UPLOAD_PATH, request.submission)
 
         return SubmitRequest(
             submission = submission,
-            submitter = request.submitter,
+            submitter = submitter,
             onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
             sources = source,
             method = FILE,
-            mode = request.fileMode
+            mode = fileMode
         )
     }
 
-    private fun withAttributes(submission: Submission, attrs: Map<String, String?>): Submission {
-        attrs.forEach { submission[it.key] = it.value }
+    private fun withAttributes(submission: Submission, attrs: List<ExtAttributeDetail>): Submission {
+        attrs.forEach { submission[it.name] = it.value }
         return submission
     }
 
-    private fun submission(content: String, format: SubFormat, source: FileSourcesList) =
-        serializationService.deserializeSubmission(content, format, source)
+    private fun submission(
+        content: String,
+        format: SubFormat,
+        source: FileSourcesList
+    ) = serializationService.deserializeSubmission(content, format, source)
 
-    private fun submission(subFile: File, source: FileSourcesList) =
-        serializationService.deserializeSubmission(subFile, source)
+    private fun submission(
+        subFile: File,
+        source: FileSourcesList
+    ) = serializationService.deserializeSubmission(subFile, source)
 
     private fun requireNotProcessing(accNo: String) = require(extSubmissionService.hasPendingRequest(accNo).not()) {
         throw ConcurrentProcessingSubmissionException(accNo)

@@ -1,18 +1,17 @@
-package ac.uk.ebi.biostd.data.web
+package ac.uk.ebi.biostd.submission.web.resources
 
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
+import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.converters.BioUser
+import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
+import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
-import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
+import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
 import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
-import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.model.constants.ATTRIBUTES
-import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
@@ -24,16 +23,17 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping(value = ["submissions/drafts"], produces = [APPLICATION_JSON_VALUE])
 @PreAuthorize("isAuthenticated()")
+@Suppress("LongParameterList")
 internal class SubmissionDraftResource(
     private val submitWebHandler: SubmitWebHandler,
-    private val draftService: SubmissionDraftService
+    private val draftService: SubmissionDraftService,
+    private val submitRequestBuilder: SubmitRequestBuilder,
 ) {
     @GetMapping
     @ResponseBody
@@ -84,22 +84,13 @@ internal class SubmissionDraftResource(
         @PathVariable key: String,
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
-        @RequestParam(FILE_MODE, defaultValue = "COPY") mode: FileMode,
-        @RequestParam(ATTRIBUTES, required = false) attributes: Map<String, String>?
+        @ModelAttribute parameters: SubmissionRequestParameters,
     ) {
         val submission = draftService.getSubmissionDraft(user.email, key).content
-        val request = ContentSubmitWebRequest(
-            submission = submission,
-            draftKey = key,
-            onBehalfRequest = onBehalfRequest,
-            user = user,
-            format = JSON_PRETTY,
-            fileMode = mode,
-            attrs = attributes.orEmpty(),
-            files = emptyList()
-        )
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.JSON_PRETTY, emptyArray(), parameters)
+        val request = submitRequestBuilder.buildContentRequest(submission, buildRequest)
 
-        submitWebHandler.submitAsync(request)
+        return submitWebHandler.submitAsync(request)
     }
 }
 

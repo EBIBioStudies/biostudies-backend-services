@@ -4,16 +4,16 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
+import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.PrintMessage
-import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.FileMode.COPY
+import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.Submission
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkObject
-import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
+import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 
@@ -37,10 +38,9 @@ internal class SubmissionServiceTest {
 
     @Test
     fun submit() {
-        val slot = slot<FileMode>()
         every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
         every {
-            bioWebClient.submitSingle(submissionRequest.file, submissionRequest.attached, fileMode = capture(slot)).body
+            bioWebClient.submitSingle(submissionRequest.submissionFile, submissionRequest.filesConfig).body
         } returns submission
 
         val submitted = testInstance.submit(submissionRequest)
@@ -48,23 +48,28 @@ internal class SubmissionServiceTest {
         assertThat(submitted).isEqualTo(submission)
         verify(exactly = 1) {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.submitSingle(submissionRequest.file, submissionRequest.attached, fileMode = slot.captured)
+            bioWebClient.submitSingle(
+                submissionRequest.submissionFile,
+                submissionRequest.filesConfig
+            )
         }
     }
 
     @Test
     fun `submit async`() {
-        val slot = slot<FileMode>()
         every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
         every {
-            bioWebClient.asyncSubmitSingle(submissionRequest.file, submissionRequest.attached, fileMode = capture(slot))
+            bioWebClient.asyncSubmitSingle(submissionRequest.submissionFile, submissionRequest.filesConfig)
         } answers { nothing }
 
         testInstance.submitAsync(submissionRequest)
 
         verify(exactly = 1) {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.asyncSubmitSingle(submissionRequest.file, submissionRequest.attached, fileMode = slot.captured)
+            bioWebClient.asyncSubmitSingle(
+                submissionRequest.submissionFile,
+                submissionRequest.filesConfig
+            )
         }
     }
 
@@ -123,13 +128,13 @@ internal class SubmissionServiceTest {
 
     @Test
     fun `validate file list`() {
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns bioWebClient
+        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF, false) } returns bioWebClient
         every { bioWebClient.validateFileList(validateFileList.fileListPath) } answers { nothing }
 
         testInstance.validateFileList(validateFileList)
 
         verify(exactly = 1) {
-            create(SERVER).getAuthenticatedClient(USER, PASSWORD, null)
+            create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF, false)
             bioWebClient.validateFileList(validateFileList.fileListPath)
         }
     }
@@ -143,34 +148,16 @@ internal class SubmissionServiceTest {
         private const val USER = "user"
         private const val FILE_LIST_PATH = "file-list.json"
 
-        val webClientException: WebClientException = mockk()
-        val submission: Submission = mockk()
-        val bioWebClient: BioWebClient = mockk()
+        private val webClientException: WebClientException = mockk()
+        private val submission: Submission = mockk()
+        private val bioWebClient: BioWebClient = mockk()
+        private val securityConfig = SecurityConfig(SERVER, USER, PASSWORD, ON_BEHALF)
+        private val filesConfig = SubmissionFilesConfig(listOf(mockk()), COPY, listOf(SUBMISSION))
 
-        val submissionRequest = SubmissionRequest(
-            server = SERVER,
-            user = USER,
-            password = PASSWORD,
-            onBehalf = ON_BEHALF,
-            file = mockk(),
-            attached = listOf(mockk()),
-            fileMode = COPY
-        )
+        private val submissionRequest = SubmissionRequest(mockk(), securityConfig, filesConfig)
 
-        val deletionRequest = DeletionRequest(
-            server = SERVER,
-            user = USER,
-            password = PASSWORD,
-            onBehalf = ON_BEHALF,
-            accNoList = listOf(ACC_NO)
-        )
+        private val deletionRequest = DeletionRequest(securityConfig, accNoList = listOf(ACC_NO))
 
-        var validateFileList = ValidateFileListRequest(
-            server = SERVER,
-            user = USER,
-            password = PASSWORD,
-            onBehalf = null,
-            fileListPath = FILE_LIST_PATH
-        )
+        private val validateFileList = ValidateFileListRequest(securityConfig, FILE_LIST_PATH)
     }
 }

@@ -23,11 +23,10 @@ import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import java.nio.file.Path
 import kotlin.random.Random
 
-class TestWireMockTransformer(
+class TestWireMockTransformer constructor(
     private val failFactor: Int?,
     private val handlers: List<RequestHandler>,
-) :
-    ResponseDefinitionTransformer() {
+) : ResponseDefinitionTransformer() {
     override fun getName(): String = Companion.name
 
     override fun transform(
@@ -58,6 +57,7 @@ class TestWireMockTransformer(
             failFactor: Int?,
         ): TestWireMockTransformer {
             val fireDatabase = FireMockDatabase(subFolder, ftpFolder, dbFolder)
+
             return TestWireMockTransformer(
                 failFactor,
                 listOf(

@@ -2,6 +2,7 @@ package ac.uk.ebi.pmc.submit
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
@@ -44,7 +45,8 @@ class PmcSubmitter(
         Try {
             logger.info { "submitting accNo='${submission.accNo}'" }
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }
-            bioWebClient.submitSingle(submission.body, SubmissionFormat.JSON, files)
+            val filesConfig = SubmissionFilesConfig(files)
+            bioWebClient.submitSingle(submission.body, SubmissionFormat.JSON, filesConfig)
         }.fold(
             { errorDocService.saveError(submission, PmcMode.SUBMIT, it) },
             { submissionService.changeStatus(submission, SubmissionStatus.SUBMITTED) }

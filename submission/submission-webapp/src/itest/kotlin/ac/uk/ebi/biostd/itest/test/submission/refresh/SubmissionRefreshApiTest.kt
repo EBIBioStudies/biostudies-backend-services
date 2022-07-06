@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.itest.test.submission.refresh
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.createFileList
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
@@ -140,7 +141,8 @@ class SubmissionRefreshApiTest(
         submissionDocRepository.deleteAll()
         submissionRequestRepository.deleteAll()
 
-        webClient.submitSingle(testSubmission, TSV, listOf(refreshFile, fileList, fileListFile))
+        val filesConfig = SubmissionFilesConfig(listOf(refreshFile, fileList, fileListFile))
+        webClient.submitSingle(testSubmission, TSV, filesConfig)
     }
 
     @Test

@@ -27,6 +27,7 @@ class FileListResource(
     ) {
         val onBehalfUser = onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) }
         val filesSource = sourceGenerator.submitterSources(user, onBehalfUser)
+
         fileListValidator.validateFileList(fileListName, filesSource)
     }
 }

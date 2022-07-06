@@ -68,11 +68,11 @@ internal class MigrateCommandTest(
 
     private fun assertRequest(request: MigrationRequest) {
         assertThat(request.accNo).isEqualTo("S-BSST1")
-        assertThat(request.source).isEqualTo("http://biostudy-prod.ebi.ac.uk")
-        assertThat(request.sourceUser).isEqualTo("admin_user@ebi.ac.uk")
-        assertThat(request.sourcePassword).isEqualTo("123456")
-        assertThat(request.target).isEqualTo("http://biostudy-bia.ebi.ac.uk")
-        assertThat(request.targetUser).isEqualTo("admin_user@ebi.ac.uk")
-        assertThat(request.targetPassword).isEqualTo("78910")
+        assertThat(request.sourceSecurityConfig.server).isEqualTo("http://biostudy-prod.ebi.ac.uk")
+        assertThat(request.sourceSecurityConfig.user).isEqualTo("admin_user@ebi.ac.uk")
+        assertThat(request.sourceSecurityConfig.password).isEqualTo("123456")
+        assertThat(request.targetSecurityConfig.server).isEqualTo("http://biostudy-bia.ebi.ac.uk")
+        assertThat(request.targetSecurityConfig.user).isEqualTo("admin_user@ebi.ac.uk")
+        assertThat(request.targetSecurityConfig.password).isEqualTo("78910")
     }
 }
