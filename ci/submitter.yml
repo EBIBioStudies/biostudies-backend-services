@@ -16,7 +16,7 @@
 .deploy-sandbox-submitter:
   dependencies:
     - build-test
-  script: gradle deploySubmitter -Penv=ae -PdeployPath=$APPS_PATH/submitter/sandbox -PjvmParams=-Xmx16g
+  script: gradle deploySubmitter -Penv=sandbox -PdeployPath=$APPS_PATH/submitter/sandbox -PjvmParams=-Xmx16g
 
 auto-deploy-dev-submitter:
   extends: .deploy-dev-submitter

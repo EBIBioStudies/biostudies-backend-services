@@ -16,7 +16,7 @@
 .deploy-sandbox-handlers:
   dependencies:
     - build-test
-  script: gradle deployHandlers -Penv=ae -PdeployPath=$APPS_PATH/handlers/sandbox
+  script: gradle deployHandlers -Penv=sandbox -PdeployPath=$APPS_PATH/handlers/sandbox
 
 auto-deploy-dev-handlers:
   extends: .deploy-dev-handlers
