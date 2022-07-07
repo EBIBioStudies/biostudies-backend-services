@@ -17,7 +17,7 @@ import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties as ExporterProps
 
 internal const val EXPORTER_CORES = 4
-internal const val EXPORTER = "Exporter"
+internal const val EXPORTER_SUBSYSTEM = "Exporter"
 
 private val logger = KotlinLogging.logger {}
 
@@ -54,8 +54,8 @@ class ExporterTrigger(
         notificationsSender.send(
             Report(
                 SYSTEM_NAME,
-                EXPORTER,
-                "Triggered $EXPORTER in the cluster job $job in mode $mode. Logs available at ${job.logsPath}"
+                EXPORTER_SUBSYSTEM,
+                "Triggered $EXPORTER_SUBSYSTEM in the cluster job $job in mode $mode. Logs available at ${job.logsPath}"
             )
         )
 
