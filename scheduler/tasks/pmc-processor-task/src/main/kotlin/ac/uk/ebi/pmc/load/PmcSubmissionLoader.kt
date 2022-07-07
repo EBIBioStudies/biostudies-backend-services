@@ -7,19 +7,18 @@ import ac.uk.ebi.scheduler.properties.PmcMode
 import ebi.ac.uk.base.splitIgnoringEmpty
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SUB_SEPARATOR
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import java.io.File
 
 private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()
 
-private const val WORKERS = 30
+private const val BUFFER_SIZE = 30
 private val logger = KotlinLogging.logger {}
 
 class PmcSubmissionLoader(
@@ -36,8 +35,12 @@ class PmcSubmissionLoader(
      */
     suspend fun processFile(file: FileSpec, processedFolder: File) = withContext(Dispatchers.Default) {
         logger.info { "processing file ${file.name}" }
-        val receiveChannel = launchProducer(file)
-        (1..WORKERS).map { launchProcessor(receiveChannel) }.joinAll()
+        val toLoad = loadSubmissions(file)
+        toLoad.buffer(BUFFER_SIZE).collect {
+            val (source, submission, positionInFile) = it
+            val (body, result) = deserialize(submission)
+            loadSubmission(result, body, source, positionInFile)
+        }
 
         inputFilesDocService.reportProcessed(file)
         moveFile(file.originalFile, processedFolder.resolve(file.originalFile.name))
@@ -54,18 +57,10 @@ class PmcSubmissionLoader(
         file.delete()
     }
 
-    private fun CoroutineScope.launchProducer(file: FileSpec) = produce {
+    private fun loadSubmissions(file: FileSpec): Flow<LoadedSubmissionInfo> = flow {
         sanitize(file.content)
             .splitIgnoringEmpty(SUB_SEPARATOR)
-            .forEachIndexed { index, submissionBody -> send(LoadedSubmissionInfo(file, submissionBody, index)) }
-        close()
-    }
-
-    private fun CoroutineScope.launchProcessor(channel: ReceiveChannel<LoadedSubmissionInfo>) = launch {
-        for ((source, submission, positionInFile) in channel) {
-            val (body, result) = deserialize(submission)
-            loadSubmission(result, body, source, positionInFile)
-        }
+            .forEachIndexed { index, submissionBody -> emit(LoadedSubmissionInfo(file, submissionBody, index)) }
     }
 
     private suspend fun loadSubmission(result: Result<Submission>, body: String, file: FileSpec, positionInFile: Int) =

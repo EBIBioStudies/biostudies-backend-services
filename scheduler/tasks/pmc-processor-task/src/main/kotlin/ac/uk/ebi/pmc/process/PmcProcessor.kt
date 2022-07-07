@@ -7,17 +7,13 @@ import ac.uk.ebi.pmc.process.util.FileDownloader
 import ac.uk.ebi.pmc.process.util.SubmissionInitializer
 import ac.uk.ebi.scheduler.properties.PmcMode
 import ebi.ac.uk.model.Submission
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger {}
-private const val WORKERS = 30
+private const val BUFFER_SIZE = 30
 
 class PmcProcessor(
     private val errorDocService: ErrorsDocService,
@@ -27,16 +23,8 @@ class PmcProcessor(
 ) {
 
     suspend fun processSubmissions() = withContext(Dispatchers.Default) {
-        val receiveChannel = launchProducer()
-        (1..WORKERS).map { launchProcessor(receiveChannel) }.joinAll()
-    }
-
-    private fun CoroutineScope.launchProcessor(channel: ReceiveChannel<SubmissionDoc>) =
-        launch { for (submission in channel) processSubmission(submission) }
-
-    private fun CoroutineScope.launchProducer() = produce {
-        submissionDocService.findReadyToProcess().forEach { send(it) }
-        close()
+        val toProcess = flow { submissionDocService.findReadyToProcess().forEach { emit(it) } }
+        toProcess.buffer(BUFFER_SIZE).collect { processSubmission(it) }
     }
 
     private suspend fun processSubmission(submissionDoc: SubmissionDoc) {

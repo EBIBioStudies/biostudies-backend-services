@@ -8,18 +8,17 @@ import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import ac.uk.ebi.scheduler.properties.PmcMode
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
-private const val WORKERS = 30
+private const val BUFFER_SIZE = 30
 
 class PmcSubmitter(
     private val bioWebClient: BioWebClient,
@@ -28,16 +27,8 @@ class PmcSubmitter(
 ) {
 
     suspend fun submit() = withContext(Dispatchers.Default) {
-        val receiveChannel = launchProducer()
-        (1..WORKERS).map { launchProcessor(receiveChannel) }
-    }
-
-    private fun CoroutineScope.launchProcessor(channel: ReceiveChannel<SubmissionDoc>) =
-        launch { for (submission in channel) submitSubmission(submission) }
-
-    private fun CoroutineScope.launchProducer() = produce {
-        submissionService.findReadyToSubmit().forEach { send(it) }
-        close()
+        val toSubmit = flow { submissionService.findReadyToSubmit().forEach { emit(it) } }
+        toSubmit.buffer(BUFFER_SIZE).collect { submitSubmission(it) }
     }
 
     private suspend fun submitSubmission(submission: SubmissionDoc) = coroutineScope {
