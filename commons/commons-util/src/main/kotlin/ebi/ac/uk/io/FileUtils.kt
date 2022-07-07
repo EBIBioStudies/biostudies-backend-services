@@ -6,7 +6,6 @@ import ebi.ac.uk.io.FileUtilsHelper.createFolderHardLinks
 import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createSymLink
-import ebi.ac.uk.io.FileUtilsHelper.setPermissions
 import ebi.ac.uk.io.ext.notExist
 import mu.KotlinLogging
 import org.apache.commons.codec.digest.DigestUtils
@@ -114,7 +113,7 @@ object FileUtils {
     ) {
         val filePath = source.toPath()
         Files.write(createParentDirectories(source.toPath(), permissions.folder), content.toByteArray())
-        setPermissions(filePath, permissions.file)
+        Files.setPosixFilePermissions(filePath, permissions.file)
     }
 
     fun isDirectory(file: File): Boolean = Files.isDirectory(file.toPath())
@@ -133,7 +132,6 @@ object FileUtils {
 internal object FileUtilsHelper {
     fun createFolderIfNotExist(file: Path, permissions: Set<PosixFilePermission>) {
         if (exists(file).not()) createDirectories(file, permissions)
-        else setPermissions(file, permissions)
     }
 
     fun createFolderHardLinks(
@@ -152,7 +150,7 @@ internal object FileUtilsHelper {
     ) {
         deleteFolder(target)
         Files.createLink(source, createParentDirectories(target, permissions.folder))
-        setPermissions(target, permissions.file)
+        Files.setPosixFilePermissions(target, permissions.file)
     }
 
     fun createSymLink(link: Path, target: Path, permissions: Set<PosixFilePermission>) {
@@ -185,7 +183,7 @@ internal object FileUtilsHelper {
         permissions: Permissions
     ) {
         Files.copy(source, createParentDirectories(target, permissions.folder), REPLACE_EXISTING)
-        setPermissions(target, permissions.file)
+        Files.setPosixFilePermissions(target, permissions.file)
     }
 
     fun copyFile(
@@ -194,7 +192,7 @@ internal object FileUtilsHelper {
         permissions: Permissions
     ) {
         Files.copy(source, createParentDirectories(target, permissions.folder), REPLACE_EXISTING)
-        setPermissions(target, permissions.file)
+        Files.setPosixFilePermissions(target, permissions.file)
     }
 
     fun moveFile(
@@ -203,7 +201,7 @@ internal object FileUtilsHelper {
         permissions: Permissions
     ) {
         Files.move(source, createParentDirectories(target, permissions.folder), REPLACE_EXISTING)
-        setPermissions(target, permissions.file)
+        Files.setPosixFilePermissions(target, permissions.file)
     }
 
     fun createParentDirectories(path: Path, permissions: Set<PosixFilePermission>): Path {
@@ -222,14 +220,9 @@ internal object FileUtilsHelper {
         return directoryPath
     }
 
-    fun setPermissions(path: Path, permissions: Set<PosixFilePermission>) {
-        runCatching { Files.setPosixFilePermissions(path, permissions) }
-            .onFailure { logger.error { "Error setting permissions '$permissions' to path '$path': ${it.message}" } }
-    }
-
     private fun createDirectory(path: Path, permissions: Set<PosixFilePermission>) {
         Files.createDirectory(path)
-        setPermissions(path, permissions)
+        Files.setPosixFilePermissions(path, permissions)
     }
 
     fun deleteFolder(path: Path) {

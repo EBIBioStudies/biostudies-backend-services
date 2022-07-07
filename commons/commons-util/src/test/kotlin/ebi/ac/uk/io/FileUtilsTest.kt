@@ -1,7 +1,6 @@
 package ebi.ac.uk.io
 
 import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
-import ebi.ac.uk.io.FileUtilsHelper.setPermissions
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.newFile
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
+import java.nio.file.Files
 import java.nio.file.Files.getPosixFilePermissions
 import java.util.concurrent.TimeUnit
 
@@ -304,13 +304,13 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         @Test
         fun `create folder if not exists when exists`() {
             val folder = temporaryFolder.createDirectory("folder2")
-            setPermissions(folder.toPath(), RW_______)
+            Files.setPosixFilePermissions(folder.toPath(), RW_______)
             assertThat(folder).exists()
 
             createFolderIfNotExist(folder.toPath(), RWXRWX___)
 
             assertThat(folder).exists()
-            assertThat(getPosixFilePermissions(folder.toPath())).isEqualTo(RWXRWX___)
+            assertThat(getPosixFilePermissions(folder.toPath())).isEqualTo(RW_______)
         }
     }
 }

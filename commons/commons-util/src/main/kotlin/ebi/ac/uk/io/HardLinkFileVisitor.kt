@@ -1,6 +1,5 @@
 package ebi.ac.uk.io
 
-import ebi.ac.uk.io.FileUtilsHelper.setPermissions
 import mu.KotlinLogging
 import java.nio.file.FileVisitResult
 import java.nio.file.Files
@@ -26,7 +25,7 @@ internal class HardLinkFileVisitor(
         logger.info { "Processing FTP link for file $file into target $target" }
 
         Files.createLink(target, file)
-        setPermissions(target, permissions.file)
+        Files.setPosixFilePermissions(target, permissions.file)
 
         logger.info { "Finished processing FTP link for file $file into target $target" }
 
