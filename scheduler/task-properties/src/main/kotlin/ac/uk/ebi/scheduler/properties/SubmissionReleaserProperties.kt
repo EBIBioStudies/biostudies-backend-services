@@ -1,13 +1,15 @@
 package ac.uk.ebi.scheduler.properties
 
-import ac.uk.ebi.scheduler.common.BaseAppProperty
+import ac.uk.ebi.scheduler.common.JavaAppProperties
+import ac.uk.ebi.scheduler.common.javaCmd
 
 private const val APP_NAME = "submission-releaser-task-1.0.0.jar"
 
-class SubmissionReleaserProperties : BaseAppProperty {
-    override fun asJavaCommand(location: String, javaHome: String): String =
-        StringBuilder().apply {
-            append("$javaHome/bin/java -Dsun.jnu.encoding=UTF-8 -jar $location/$APP_NAME \\\n")
+class SubmissionReleaserProperties : JavaAppProperties {
+    override fun asCmd(location: String, javaHome: String, debugPort: Int?): String =
+        buildString {
+            append(javaCmd(javaHome, debugPort))
+            append("-jar $location/$APP_NAME \\\n")
             append("--spring.data.mongodb.uri=$mongodbUri \\\n")
             append("--spring.data.mongodb.database=$mongodbDatabase \\\n")
             append("--spring.rabbitmq.host=$rabbitMqHost \\\n")
@@ -21,7 +23,7 @@ class SubmissionReleaserProperties : BaseAppProperty {
             append("--app.notification-times.first-warning-days=$firstWarningDays \\\n")
             append("--app.notification-times.second-warning-days=$secondWarningDays \\\n")
             append("--app.notification-times.third-warning-days=$thirdWarningDays \\\n")
-        }.removeSuffix(" \\\n").toString()
+        }.removeSuffix(" \\\n")
 
     lateinit var mode: ReleaserMode
 

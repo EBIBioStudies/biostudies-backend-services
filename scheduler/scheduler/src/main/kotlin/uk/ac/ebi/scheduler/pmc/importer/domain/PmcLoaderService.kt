@@ -34,8 +34,8 @@ internal class PmcLoaderService private constructor(
         notificationsSender: NotificationsSender,
     ) : this(PmcLoader(clusterOperations, properties, appProperties), notificationsSender)
 
-    fun loadFile(file: String?): Job {
-        val job = pmcLoaderService.loadFile(file)
+    fun loadFile(file: String?, debugPort: Int? = null): Job {
+        val job = pmcLoaderService.loadFile(file, debugPort)
         notificationsSender.send(
             Report(
                 SYSTEM_NAME,
@@ -46,8 +46,8 @@ internal class PmcLoaderService private constructor(
         return job
     }
 
-    fun triggerProcessor(): Job {
-        val job = pmcLoaderService.triggerProcessor()
+    fun triggerProcessor(debugPort: Int? = null): Job {
+        val job = pmcLoaderService.triggerProcessor(debugPort)
         notificationsSender.send(
             Report(
                 SYSTEM_NAME,
@@ -58,8 +58,8 @@ internal class PmcLoaderService private constructor(
         return job
     }
 
-    fun triggerSubmitter(): Job {
-        val job = pmcLoaderService.triggerSubmitter()
+    fun triggerSubmitter(debugPort: Int? = null): Job {
+        val job = pmcLoaderService.triggerSubmitter(debugPort)
         notificationsSender.send(
             Report(
                 SYSTEM_NAME,
@@ -80,7 +80,7 @@ private class PmcLoader(
     private val appProperties: AppProperties,
 ) {
 
-    fun loadFile(loadFolder: String?): Job {
+    fun loadFile(loadFolder: String?, debugPort: Int?): Job {
         val folder = loadFolder ?: properties.loadFolder
         logger.info { "submitting job to load folder: '$folder'" }
 
@@ -89,33 +89,33 @@ private class PmcLoader(
             JobSpec(
                 FOUR_CORES,
                 MemorySpec.EIGHT_GB,
-                properties.asJavaCommand(appProperties.appsFolder, appProperties.javaHome)
+                properties.asCmd(appProperties.appsFolder, appProperties.javaHome, debugPort)
             )
         )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    fun triggerProcessor(): Job {
+    fun triggerProcessor(debugPort: Int?): Job {
         logger.info { "submitting job to process submissions" }
         val properties = getConfigProperties(importMode = PROCESS)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 FOUR_CORES,
                 MemorySpec.EIGHT_GB,
-                properties.asJavaCommand(appProperties.appsFolder, appProperties.javaHome)
+                properties.asCmd(appProperties.appsFolder, appProperties.javaHome, debugPort)
             )
         )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    fun triggerSubmitter(): Job {
+    fun triggerSubmitter(debugPort: Int?): Job {
         logger.info { "submitting job to submit submissions" }
         val properties = getConfigProperties(importMode = SUBMIT)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 EIGHT_CORES,
                 MemorySpec.TWENTYFOUR_GB,
-                properties.asJavaCommand(appProperties.appsFolder, appProperties.javaHome)
+                properties.asCmd(appProperties.appsFolder, appProperties.javaHome, debugPort)
             )
         )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })

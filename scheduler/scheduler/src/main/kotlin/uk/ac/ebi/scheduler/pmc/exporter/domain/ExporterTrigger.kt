@@ -17,7 +17,7 @@ import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties as ExporterProps
 
 internal const val EXPORTER_CORES = 4
-internal const val EXPORTER_SUBSYSTEM = "Exporter"
+internal const val EXPORTER = "Exporter"
 
 private val logger = KotlinLogging.logger {}
 
@@ -27,49 +27,45 @@ class ExporterTrigger(
     private val clusterOperations: ClusterOperations,
     private val notificationsSender: NotificationsSender,
 ) {
-    fun triggerPmcExport(): Job {
+    fun triggerPmcExport(debugPort: Int? = null): Job {
         logger.info { "Triggering PMC export job" }
 
         return triggerExport(
             PMC,
             exporterProperties.pmc.fileName,
-            exporterProperties.pmc.outputPath
+            exporterProperties.pmc.outputPath,
+            debugPort
         )
     }
 
-    fun triggerPublicExport(): Job {
+    fun triggerPublicExport(debugPort: Int? = null): Job {
         logger.info { "Triggering public only export job" }
 
         return triggerExport(
             PUBLIC_ONLY,
             exporterProperties.publicOnly.fileName,
-            exporterProperties.publicOnly.outputPath
+            exporterProperties.publicOnly.outputPath,
+            debugPort
         )
     }
 
-    private fun triggerExport(mode: ExporterMode, fileName: String, outputPath: String): Job {
-        val job = exporterJob(mode, fileName, outputPath)
+    private fun triggerExport(mode: ExporterMode, fileName: String, outputPath: String, debugPort: Int?): Job {
+        val job = exporterJob(mode, fileName, outputPath, debugPort)
         notificationsSender.send(
             Report(
                 SYSTEM_NAME,
-                EXPORTER_SUBSYSTEM,
-                "Triggered $EXPORTER_SUBSYSTEM in the cluster job $job in mode $mode. Logs available at ${job.logsPath}"
+                EXPORTER,
+                "Triggered $EXPORTER in the cluster job $job in mode $mode. Logs available at ${job.logsPath}"
             )
         )
 
         return job
     }
 
-    private fun exporterJob(mode: ExporterMode, fileName: String, outputPath: String): Job {
+    private fun exporterJob(mode: ExporterMode, fileName: String, outputPath: String, debugPort: Int?): Job {
         val exporterProperties = getConfigProperties(mode, fileName, outputPath)
-        val jobTry = clusterOperations.triggerJob(
-            JobSpec(
-                cores = EXPORTER_CORES,
-                ram = TWENTYFOUR_GB,
-                command = exporterProperties.asJavaCommand(appProperties.appsFolder, appProperties.javaHome)
-            )
-        )
-
+        val cmd = exporterProperties.asCmd(appProperties.appsFolder, appProperties.javaHome, debugPort)
+        val jobTry = clusterOperations.triggerJob(JobSpec(cores = EXPORTER_CORES, ram = TWENTYFOUR_GB, command = cmd))
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 

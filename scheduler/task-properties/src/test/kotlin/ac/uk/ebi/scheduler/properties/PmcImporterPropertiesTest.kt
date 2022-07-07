@@ -1,6 +1,10 @@
 package ac.uk.ebi.scheduler.properties
 
+import ac.uk.ebi.scheduler.common.javaCmd
+import io.mockk.every
+import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 const val path = "/loadPath"
@@ -14,6 +18,12 @@ const val notificationUrl = "http://slack-here"
 const val baseUrl = "http://pmc"
 
 class PmcImporterPropertiesTest {
+    @BeforeEach
+    fun beforeEach() {
+        mockkStatic(::javaCmd)
+        every { javaCmd(any(), any()) } answers { "${firstArg<String>()}/java debug=${secondArg<Int?>()} \\\n" }
+    }
+
     @Test
     fun asJavaCommand() {
         val properties = PmcImporterProperties.create(
@@ -29,10 +39,11 @@ class PmcImporterPropertiesTest {
             notificationsUrl = notificationUrl
         )
 
-        assertThat(properties.asJavaCommand("/apps-folder", "/home/java"))
+        assertThat(properties.asCmd("/apps-folder", "/home/jd11", 8569))
             .isEqualTo(
                 """
-                /home/java"/bin/java -jar /apps-folder/pmc-processor-task-1.0.0.jar \
+                /home/jd11/java debug=8569 \
+                -jar /apps-folder/pmc-processor-task-1.0.0.jar \
                 --app.data.mode=LOAD \
                 --app.data.temp=/tempDir \
                 --app.data.mongodbUri=mongodbUri \
@@ -61,10 +72,11 @@ class PmcImporterPropertiesTest {
             pmcBaseUrl = baseUrl,
             notificationsUrl = notificationUrl
         )
-        assertThat(properties.asJavaCommand("/apps-folder", "/home/java"))
+        assertThat(properties.asCmd("/apps-folder", "/home/jd11", 8569))
             .isEqualTo(
                 """
-            /home/java"/bin/java -jar /apps-folder/pmc-processor-task-1.0.0.jar \
+            /home/jd11/java debug=8569 \
+            -jar /apps-folder/pmc-processor-task-1.0.0.jar \
             --app.data.mode=LOAD \
             --app.data.temp=/tempDir \
             --app.data.mongodbUri=mongodbUri \

@@ -51,7 +51,7 @@ class SubmissionReleaserTriggerTest(
         every { notificationsSender.send(capture(jobReport)) } answers { nothing }
         every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
         every { appProperties.appsFolder } returns "apps-folder"
-        every { appProperties.javaHome } returns "/home/java"
+        every { appProperties.javaHome } returns "/home/jdk11"
     }
 
     @Test
@@ -84,13 +84,13 @@ class SubmissionReleaserTriggerTest(
     }
 
     private fun verifyJobSpecs(specs: JobSpec, mode: ReleaserMode) {
-        val java = "/nfs/biostudies/.adm/java/zulu11.45.27-ca-jdk11.0.10-linux_x64/bin/java"
-
         assertThat(specs.ram).isEqualTo(EIGHT_GB)
         assertThat(specs.cores).isEqualTo(RELEASER_CORES)
         assertThat(specs.command).isEqualTo(
             """
-            /home/java/bin/java -Dsun.jnu.encoding=UTF-8 -jar apps-folder/submission-releaser-task-1.0.0.jar \
+            /home/jdk11/bin/java \
+            -Dsun.jnu.encoding=UTF-8 -Xmx6g \
+            -jar apps-folder/submission-releaser-task-1.0.0.jar \
             --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
             --spring.data.mongodb.database=dev \
             --spring.rabbitmq.host=localhost \

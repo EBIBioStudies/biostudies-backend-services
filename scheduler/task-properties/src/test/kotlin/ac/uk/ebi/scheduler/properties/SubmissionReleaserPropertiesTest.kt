@@ -1,10 +1,20 @@
 package ac.uk.ebi.scheduler.properties
 
+import ac.uk.ebi.scheduler.common.javaCmd
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
+import io.mockk.every
+import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class SubmissionReleaserPropertiesTest {
+    @BeforeEach
+    fun beforeEach() {
+        mockkStatic(::javaCmd)
+        every { javaCmd(any(), any()) } answers { "${firstArg<String>()}/java debug=${secondArg<Int?>()} \\\n" }
+    }
+
     @Test
     fun `as java command`() {
         val properties = SubmissionReleaserProperties.create(
@@ -23,9 +33,10 @@ class SubmissionReleaserPropertiesTest {
             thirdWarningDays = 7
         )
 
-        assertThat(properties.asJavaCommand("/apps-folder", "/home/java")).isEqualTo(
+        assertThat(properties.asCmd("/apps-folder", "/home/jdk11", 8569)).isEqualTo(
             """
-            /home/java/bin/java -Dsun.jnu.encoding=UTF-8 -jar /apps-folder/submission-releaser-task-1.0.0.jar \
+            /home/jdk11/java debug=8569 \
+            -jar /apps-folder/submission-releaser-task-1.0.0.jar \
             --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
             --spring.data.mongodb.database=dev \
             --spring.rabbitmq.host=localhost \

@@ -1,11 +1,21 @@
 package ac.uk.ebi.scheduler.properties
 
+import ac.uk.ebi.scheduler.common.javaCmd
 import ac.uk.ebi.scheduler.properties.ExporterMode.PMC
 import ac.uk.ebi.scheduler.properties.ExporterMode.PUBLIC_ONLY
+import io.mockk.every
+import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class ExporterPropertiesTest {
+    @BeforeEach
+    fun beforeEach() {
+        mockkStatic(::javaCmd)
+        every { javaCmd(any(), any()) } answers { "${firstArg<String>()}/java debug=${secondArg<Int?>()} \\\n" }
+    }
+
     @Test
     fun `public only mode as java command`() {
         val properties = ExporterProperties.create(
@@ -24,9 +34,10 @@ class ExporterPropertiesTest {
             bioStudiesPassword = "123456"
         )
 
-        assertThat(properties.asJavaCommand("/apps-folder", "/home/java")).isEqualTo(
+        assertThat(properties.asCmd("/apps-folder", "/home/jd11", 8569)).isEqualTo(
             """
-            $/home/java/bin/java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar /apps-folder/exporter-task-1.0.0.jar \
+            /home/jd11/java debug=8569 \
+            -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.mode=PUBLIC_ONLY \
             --app.fileName=publicOnlyStudies \
             --app.outputPath=/an/output/path \
@@ -62,9 +73,10 @@ class ExporterPropertiesTest {
             bioStudiesPassword = "123456"
         )
 
-        assertThat(properties.asJavaCommand("/apps-folder", "/home/java")).isEqualTo(
+        assertThat(properties.asCmd("/apps-folder", "/home/jd11", 8569)).isEqualTo(
             """
-            /home/java"/bin/java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar /apps-folder/exporter-task-1.0.0.jar \
+            /home/jd11/java debug=8569 \
+            -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.mode=PMC \
             --app.fileName=publicOnlyStudies \
             --app.outputPath=/an/output/path \

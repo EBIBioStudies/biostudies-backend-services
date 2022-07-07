@@ -28,23 +28,23 @@ class SubmissionReleaserTrigger(
     private val clusterOperations: ClusterOperations,
     private val notificationsSender: NotificationsSender,
 ) {
-    fun triggerSubmissionReleaser(): Job {
+    fun triggerSubmissionReleaser(debugPort: Int? = null): Job {
         logger.info { "triggering submission releaser job" }
-        return triggerJob(mode = RELEASE)
+        return triggerJob(mode = RELEASE, debugPort)
     }
 
-    fun triggerSubmissionReleaseNotifier(): Job {
+    fun triggerSubmissionReleaseNotifier(debugPort: Int? = null): Job {
         logger.info { "triggering submission release notifier job" }
-        return triggerJob(mode = NOTIFY)
+        return triggerJob(mode = NOTIFY, debugPort)
     }
 
-    fun triggerFtpLinksGenerator(): Job {
+    fun triggerFtpLinksGenerator(debugPort: Int? = null): Job {
         logger.info { "triggering ftp links generator job" }
-        return triggerJob(mode = GENERATE_FTP_LINKS)
+        return triggerJob(mode = GENERATE_FTP_LINKS, debugPort)
     }
 
-    private fun triggerJob(mode: ReleaserMode): Job {
-        val job = submissionReleaserJob(mode)
+    private fun triggerJob(mode: ReleaserMode, debugPort: Int?): Job {
+        val job = submissionReleaserJob(mode, debugPort)
         notificationsSender.send(
             Report(
                 SYSTEM_NAME,
@@ -56,13 +56,13 @@ class SubmissionReleaserTrigger(
         return job
     }
 
-    private fun submissionReleaserJob(mode: ReleaserMode): Job {
+    private fun submissionReleaserJob(mode: ReleaserMode, debugPort: Int?): Job {
         val releaserProperties = getConfigProperties(mode, properties)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 cores = RELEASER_CORES,
                 ram = EIGHT_GB,
-                command = releaserProperties.asJavaCommand(appProperties.appsFolder, appProperties.javaHome)
+                command = releaserProperties.asCmd(appProperties.appsFolder, appProperties.javaHome, debugPort)
             )
         )
 

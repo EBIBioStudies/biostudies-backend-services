@@ -51,7 +51,7 @@ class ExporterTriggerTest(
         every { notificationsSender.send(capture(jobReport)) } answers { nothing }
         every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
         every { appProperties.appsFolder } returns "/apps-folder"
-        every { appProperties.javaHome } returns "/home/java"
+        every { appProperties.javaHome } returns "/home/jdk11"
     }
 
     @Test
@@ -78,7 +78,9 @@ class ExporterTriggerTest(
         assertThat(specs.cores).isEqualTo(RELEASER_CORES)
         assertThat(specs.command).isEqualTo(
             """
-            /home/java/bin/java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar /apps-folder/exporter-task-1.0.0.jar \
+            /home/jdk11/bin/java \
+            -Dsun.jnu.encoding=UTF-8 -Xmx6g \
+            -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.mode=$mode \
             --app.fileName=$fileName \
             --app.outputPath=$outputPath \

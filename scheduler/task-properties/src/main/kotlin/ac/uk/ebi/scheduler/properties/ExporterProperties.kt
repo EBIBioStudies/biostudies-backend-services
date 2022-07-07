@@ -1,14 +1,16 @@
 package ac.uk.ebi.scheduler.properties
 
-import ac.uk.ebi.scheduler.common.BaseAppProperty
+import ac.uk.ebi.scheduler.common.JavaAppProperties
+import ac.uk.ebi.scheduler.common.javaCmd
 
 private const val APP_NAME = "exporter-task-1.0.0.jar"
 
 @Suppress("LongParameterList")
-class ExporterProperties : BaseAppProperty {
-    override fun asJavaCommand(location: String, javaHome: String): String =
-        StringBuilder().apply {
-            append("$javaHome/bin/java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar $location/$APP_NAME \\\n")
+class ExporterProperties : JavaAppProperties {
+    override fun asCmd(location: String, javaHome: String, debugPort: Int?): String =
+        buildString {
+            append(javaCmd(javaHome, debugPort))
+            append("-jar $location/$APP_NAME \\\n")
             append("--app.mode=$mode \\\n")
             append("--app.fileName=$fileName \\\n")
             append("--app.outputPath=$outputPath \\\n")
@@ -22,7 +24,7 @@ class ExporterProperties : BaseAppProperty {
             append("--app.bioStudies.url=$bioStudiesUrl \\\n")
             append("--app.bioStudies.user=$bioStudiesUser \\\n")
             append("--app.bioStudies.password=$bioStudiesPassword \\\n")
-        }.removeSuffix(" \\\n").toString()
+        }.removeSuffix(" \\\n")
 
     lateinit var mode: ExporterMode
 

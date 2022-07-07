@@ -1,10 +1,11 @@
 package ac.uk.ebi.scheduler.properties
 
-import ac.uk.ebi.scheduler.common.BaseAppProperty
+import ac.uk.ebi.scheduler.common.JavaAppProperties
+import ac.uk.ebi.scheduler.common.javaCmd
 
 private const val APP_NAME = "pmc-processor-task-1.0.0.jar"
 
-class PmcImporterProperties : BaseAppProperty {
+class PmcImporterProperties : JavaAppProperties {
 
     lateinit var mode: PmcMode
     lateinit var temp: String
@@ -18,9 +19,10 @@ class PmcImporterProperties : BaseAppProperty {
     var bioStudiesUser: String? = null
     var bioStudiesPassword: String? = null
 
-    override fun asJavaCommand(location: String, javaHome: String) =
+    override fun asCmd(location: String, javaHome: String, debugPort: Int?) =
         buildString {
-            append("$javaHome/bin/java -jar $location/$APP_NAME \\\n")
+            append(javaCmd(javaHome, debugPort))
+            append("-jar $location/$APP_NAME \\\n")
             append("--app.data.mode=$mode \\\n")
             append("--app.data.temp=$temp \\\n")
             append("--app.data.mongodbUri=$mongodbUri \\\n")
