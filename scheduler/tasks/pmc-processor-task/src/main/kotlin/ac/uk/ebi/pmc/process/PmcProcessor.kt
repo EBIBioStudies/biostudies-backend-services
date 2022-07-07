@@ -6,7 +6,6 @@ import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.process.util.FileDownloader
 import ac.uk.ebi.pmc.process.util.SubmissionInitializer
 import ac.uk.ebi.scheduler.properties.PmcMode
-import arrow.core.Try
 import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +23,7 @@ class PmcProcessor(
     private val errorDocService: ErrorsDocService,
     private val submissionInitializer: SubmissionInitializer,
     private val submissionDocService: SubmissionDocService,
-    private val fileDownloader: FileDownloader
+    private val fileDownloader: FileDownloader,
 ) {
 
     suspend fun processSubmissions() = withContext(Dispatchers.Default) {
@@ -41,11 +40,10 @@ class PmcProcessor(
     }
 
     private suspend fun processSubmission(submissionDoc: SubmissionDoc) {
-        Try { submissionInitializer.getSubmission(submissionDoc.body) }
+        runCatching { submissionInitializer.getSubmission(submissionDoc.body) }
             .fold(
-                { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
-                { downloadFiles(it, submissionDoc) }
-            )
+                { downloadFiles(it, submissionDoc) },
+                { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) })
     }
 
     private suspend fun downloadFiles(submissionPair: Pair<Submission, String>, submissionDoc: SubmissionDoc) {

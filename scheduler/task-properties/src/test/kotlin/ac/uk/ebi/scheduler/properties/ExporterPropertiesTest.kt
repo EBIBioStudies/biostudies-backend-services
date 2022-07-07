@@ -1,6 +1,5 @@
 package ac.uk.ebi.scheduler.properties
 
-import ac.uk.ebi.scheduler.common.JAVA_HOME
 import ac.uk.ebi.scheduler.properties.ExporterMode.PMC
 import ac.uk.ebi.scheduler.properties.ExporterMode.PUBLIC_ONLY
 import org.assertj.core.api.Assertions.assertThat
@@ -25,9 +24,9 @@ class ExporterPropertiesTest {
             bioStudiesPassword = "123456"
         )
 
-        assertThat(properties.asJavaCommand("/apps-folder")).isEqualTo(
+        assertThat(properties.asJavaCommand("/apps-folder", "/home/java")).isEqualTo(
             """
-            $JAVA_HOME/bin/java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar /apps-folder/exporter-task-1.0.0.jar \
+            $/home/java/bin/java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.mode=PUBLIC_ONLY \
             --app.fileName=publicOnlyStudies \
             --app.outputPath=/an/output/path \
@@ -63,9 +62,9 @@ class ExporterPropertiesTest {
             bioStudiesPassword = "123456"
         )
 
-        assertThat(properties.asJavaCommand("/apps-folder")).isEqualTo(
+        assertThat(properties.asJavaCommand("/apps-folder", "/home/java")).isEqualTo(
             """
-            $JAVA_HOME/bin/java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar /apps-folder/exporter-task-1.0.0.jar \
+            /home/java"/bin/java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.mode=PMC \
             --app.fileName=publicOnlyStudies \
             --app.outputPath=/an/output/path \

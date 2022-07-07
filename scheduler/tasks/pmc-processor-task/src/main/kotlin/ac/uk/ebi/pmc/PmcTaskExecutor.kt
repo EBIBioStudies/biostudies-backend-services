@@ -5,7 +5,6 @@ import ac.uk.ebi.pmc.process.PmcSubmissionProcessor
 import ac.uk.ebi.pmc.submit.PmcSubmissionSubmitter
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ac.uk.ebi.scheduler.properties.PmcMode
-import arrow.core.Try
 import ebi.ac.uk.commons.http.slack.Alert
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
@@ -20,7 +19,7 @@ private val logger = KotlinLogging.logger {}
 
 class PmcTaskExecutor(
     private val properties: PmcImporterProperties,
-    private val notificationSender: NotificationsSender
+    private val notificationSender: NotificationsSender,
 ) : ApplicationContextAware {
     private lateinit var context: ApplicationContext
 
@@ -35,7 +34,7 @@ class PmcTaskExecutor(
     @Suppress("TooGenericExceptionCaught")
     fun run() {
         val mode = properties.mode
-        Try {
+        runCatching {
             when (mode) {
                 PmcMode.LOAD -> context.getBean<PmcFileLoader>().loadFolder(File(properties.loadFolder))
                 PmcMode.PROCESS -> context.getBean<PmcSubmissionProcessor>().processSubmissions()
@@ -43,12 +42,12 @@ class PmcTaskExecutor(
             }
         }.fold(
             {
+                notificationSender.send(Report(SYSTEM, mode.description, "Process was completed successfully"))
+            },
+            {
                 logger.error(it) { "Error executing pmc task, mode = ${properties.mode} " }
                 notificationSender.send(Alert(SYSTEM, mode.description, "Error executing process", it.message))
             },
-            {
-                notificationSender.send(Report(SYSTEM, mode.description, "Process was completed successfully"))
-            }
         )
     }
 }

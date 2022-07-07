@@ -1,6 +1,5 @@
 package ac.uk.ebi.scheduler.properties
 
-import ac.uk.ebi.scheduler.common.JAVA_HOME
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -24,9 +23,9 @@ class SubmissionReleaserPropertiesTest {
             thirdWarningDays = 7
         )
 
-        assertThat(properties.asJavaCommand("/apps-folder")).isEqualTo(
+        assertThat(properties.asJavaCommand("/apps-folder", "/home/java")).isEqualTo(
             """
-            $JAVA_HOME/bin/java -Dsun.jnu.encoding=UTF-8 -jar /apps-folder/submission-releaser-task-1.0.0.jar \
+            /home/java/bin/java -Dsun.jnu.encoding=UTF-8 -jar /apps-folder/submission-releaser-task-1.0.0.jar \
             --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
             --spring.data.mongodb.database=dev \
             --spring.rabbitmq.host=localhost \

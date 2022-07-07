@@ -25,13 +25,13 @@ internal const val SUBMITTER_SUBSYSTEM = "PMC Submitter Trigger"
 
 internal class PmcLoaderService private constructor(
     private val pmcLoaderService: PmcLoader,
-    private val notificationsSender: NotificationsSender
+    private val notificationsSender: NotificationsSender,
 ) {
     constructor(
         clusterOperations: ClusterOperations,
         properties: PmcProcessorProp,
         appProperties: AppProperties,
-        notificationsSender: NotificationsSender
+        notificationsSender: NotificationsSender,
     ) : this(PmcLoader(clusterOperations, properties, appProperties), notificationsSender)
 
     fun loadFile(file: String?): Job {
@@ -77,7 +77,7 @@ private const val EIGHT_CORES = 8
 private class PmcLoader(
     private val clusterOperations: ClusterOperations,
     private val properties: PmcProcessorProp,
-    private val appProperties: AppProperties
+    private val appProperties: AppProperties,
 ) {
 
     fun loadFile(loadFolder: String?): Job {
@@ -89,7 +89,7 @@ private class PmcLoader(
             JobSpec(
                 FOUR_CORES,
                 MemorySpec.EIGHT_GB,
-                properties.asJavaCommand(appProperties.appsFolder)
+                properties.asJavaCommand(appProperties.appsFolder, appProperties.javaHome)
             )
         )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
@@ -102,7 +102,7 @@ private class PmcLoader(
             JobSpec(
                 FOUR_CORES,
                 MemorySpec.EIGHT_GB,
-                properties.asJavaCommand(appProperties.appsFolder)
+                properties.asJavaCommand(appProperties.appsFolder, appProperties.javaHome)
             )
         )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
@@ -115,7 +115,7 @@ private class PmcLoader(
             JobSpec(
                 EIGHT_CORES,
                 MemorySpec.TWENTYFOUR_GB,
-                properties.asJavaCommand(appProperties.appsFolder)
+                properties.asJavaCommand(appProperties.appsFolder, appProperties.javaHome)
             )
         )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })

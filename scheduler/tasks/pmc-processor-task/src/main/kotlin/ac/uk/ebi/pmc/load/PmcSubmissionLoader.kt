@@ -4,7 +4,6 @@ import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.InputFilesDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import ac.uk.ebi.scheduler.properties.PmcMode
-import arrow.core.Try
 import ebi.ac.uk.base.splitIgnoringEmpty
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SUB_SEPARATOR
@@ -27,7 +26,7 @@ class PmcSubmissionLoader(
     private val pmcSubmissionTabProcessor: PmcSubmissionTabProcessor,
     private val errorDocService: ErrorsDocService,
     private val inputFilesDocService: InputFilesDocService,
-    private val submissionService: SubmissionDocService
+    private val submissionService: SubmissionDocService,
 ) {
     /**
      * Process the given plain file and load submissions into database. Previously loaded submission are register
@@ -69,16 +68,16 @@ class PmcSubmissionLoader(
         }
     }
 
-    private suspend fun loadSubmission(result: Try<Submission>, body: String, file: FileSpec, positionInFile: Int) =
+    private suspend fun loadSubmission(result: Result<Submission>, body: String, file: FileSpec, positionInFile: Int) =
         result.fold(
+            { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) },
             { errorDocService.saveError(file.name, body, PmcMode.LOAD, it) },
-            { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) }
         )
 
-    private fun deserialize(originalPagetab: String): Pair<String, Try<Submission>> =
+    private fun deserialize(originalPagetab: String): Pair<String, Result<Submission>> =
         Pair(
             originalPagetab,
-            Try { pmcSubmissionTabProcessor.transformSubmission(originalPagetab) }
+            runCatching { pmcSubmissionTabProcessor.transformSubmission(originalPagetab) }
         )
 
     private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")
@@ -87,5 +86,5 @@ class PmcSubmissionLoader(
 private data class LoadedSubmissionInfo(
     val file: FileSpec,
     val body: String,
-    val positionInFile: Int
+    val positionInFile: Int,
 )

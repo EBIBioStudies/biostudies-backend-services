@@ -1,14 +1,13 @@
 package ac.uk.ebi.scheduler.properties
 
 import ac.uk.ebi.scheduler.common.BaseAppProperty
-import ac.uk.ebi.scheduler.common.JAVA_HOME
 
 private const val APP_NAME = "submission-releaser-task-1.0.0.jar"
 
 class SubmissionReleaserProperties : BaseAppProperty {
-    override fun asJavaCommand(location: String): String =
+    override fun asJavaCommand(location: String, javaHome: String): String =
         StringBuilder().apply {
-            append("$JAVA_HOME/bin/java -Dsun.jnu.encoding=UTF-8 -jar $location/$APP_NAME \\\n")
+            append("$javaHome/bin/java -Dsun.jnu.encoding=UTF-8 -jar $location/$APP_NAME \\\n")
             append("--spring.data.mongodb.uri=$mongodbUri \\\n")
             append("--spring.data.mongodb.database=$mongodbDatabase \\\n")
             append("--spring.rabbitmq.host=$rabbitMqHost \\\n")
@@ -57,7 +56,7 @@ class SubmissionReleaserProperties : BaseAppProperty {
             bioStudiesPassword: String,
             firstWarningDays: Long,
             secondWarningDays: Long,
-            thirdWarningDays: Long
+            thirdWarningDays: Long,
         ) = SubmissionReleaserProperties().apply {
             this.mode = mode
             this.mongodbUri = databaseUri

@@ -6,7 +6,6 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.data.mongodb.core.createCollection
 
 @ExtendWith(MockKExtension::class)
 class MongockTemplateExt2Test {

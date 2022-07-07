@@ -1,7 +1,6 @@
 package ac.uk.ebi.scheduler.properties
 
 import ac.uk.ebi.scheduler.common.BaseAppProperty
-import ac.uk.ebi.scheduler.common.JAVA_HOME
 
 private const val APP_NAME = "pmc-processor-task-1.0.0.jar"
 
@@ -19,9 +18,9 @@ class PmcImporterProperties : BaseAppProperty {
     var bioStudiesUser: String? = null
     var bioStudiesPassword: String? = null
 
-    override fun asJavaCommand(location: String) =
-        StringBuilder().apply {
-            append("$JAVA_HOME/bin/java -jar $location/$APP_NAME \\\n")
+    override fun asJavaCommand(location: String, javaHome: String) =
+        buildString {
+            append("$javaHome/bin/java -jar $location/$APP_NAME \\\n")
             append("--app.data.mode=$mode \\\n")
             append("--app.data.temp=$temp \\\n")
             append("--app.data.mongodbUri=$mongodbUri \\\n")
@@ -33,7 +32,7 @@ class PmcImporterProperties : BaseAppProperty {
             bioStudiesUrl?.let { append("--app.data.bioStudiesUrl=$it \\\n") }
             bioStudiesUser?.let { append("--app.data.bioStudiesUser=$it \\\n") }
             bioStudiesPassword?.let { append("--app.data.bioStudiesPassword=$it \\\n") }
-        }.removeSuffix(" \\\n").toString()
+        }.removeSuffix(" \\\n")
 
     companion object {
 
@@ -49,7 +48,7 @@ class PmcImporterProperties : BaseAppProperty {
             pmcBaseUrl: String,
             bioStudiesUrl: String? = null,
             bioStudiesUser: String? = null,
-            bioStudiesPassword: String? = null
+            bioStudiesPassword: String? = null,
         ) = PmcImporterProperties().apply {
             this.mode = mode
             this.loadFolder = loadFolder

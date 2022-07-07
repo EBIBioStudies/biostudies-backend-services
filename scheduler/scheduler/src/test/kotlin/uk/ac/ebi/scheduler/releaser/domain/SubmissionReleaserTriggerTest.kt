@@ -4,7 +4,6 @@ import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
-import ac.uk.ebi.scheduler.common.JAVA_HOME
 import ac.uk.ebi.scheduler.properties.ReleaserMode
 import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
@@ -35,7 +34,7 @@ class SubmissionReleaserTriggerTest(
     @MockK private val job: Job,
     @MockK private val appProperties: AppProperties,
     @MockK private val clusterOperations: ClusterOperations,
-    @MockK private val notificationsSender: NotificationsSender
+    @MockK private val notificationsSender: NotificationsSender,
 ) {
     private val jobSpecs = slot<JobSpec>()
     private val jobReport = slot<Report>()
@@ -47,9 +46,12 @@ class SubmissionReleaserTriggerTest(
 
     @BeforeEach
     fun beforeEach() {
-        mockJob()
-        mockClusterOperations()
-        mockApplicationProperties()
+        every { job.id } returns "ABC123"
+        every { job.queue } returns "submissions-releaser-queue"
+        every { notificationsSender.send(capture(jobReport)) } answers { nothing }
+        every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+        every { appProperties.appsFolder } returns "apps-folder"
+        every { appProperties.javaHome } returns "/home/java"
     }
 
     @Test
@@ -88,7 +90,7 @@ class SubmissionReleaserTriggerTest(
         assertThat(specs.cores).isEqualTo(RELEASER_CORES)
         assertThat(specs.command).isEqualTo(
             """
-            $JAVA_HOME/bin/java -Dsun.jnu.encoding=UTF-8 -jar apps-folder/submission-releaser-task-1.0.0.jar \
+            /home/java/bin/java -Dsun.jnu.encoding=UTF-8 -jar apps-folder/submission-releaser-task-1.0.0.jar \
             --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
             --spring.data.mongodb.database=dev \
             --spring.rabbitmq.host=localhost \
@@ -104,18 +106,6 @@ class SubmissionReleaserTriggerTest(
             --app.notification-times.third-warning-days=7
             """.trimIndent()
         )
-    }
-
-    private fun mockApplicationProperties() = every { appProperties.appsFolder } returns "apps-folder"
-
-    private fun mockClusterOperations() {
-        every { notificationsSender.send(capture(jobReport)) } answers { nothing }
-        every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
-    }
-
-    private fun mockJob() {
-        every { job.id } returns "ABC123"
-        every { job.queue } returns "submissions-releaser-queue"
     }
 
     private fun testProperties(): SubmissionReleaserProperties {

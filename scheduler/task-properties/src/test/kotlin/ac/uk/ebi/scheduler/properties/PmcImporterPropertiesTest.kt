@@ -1,6 +1,5 @@
 package ac.uk.ebi.scheduler.properties
 
-import ac.uk.ebi.scheduler.common.JAVA_HOME
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -30,10 +29,10 @@ class PmcImporterPropertiesTest {
             notificationsUrl = notificationUrl
         )
 
-        assertThat(properties.asJavaCommand("/apps-folder"))
+        assertThat(properties.asJavaCommand("/apps-folder", "/home/java"))
             .isEqualTo(
                 """
-                $JAVA_HOME/bin/java -jar /apps-folder/pmc-processor-task-1.0.0.jar \
+                /home/java"/bin/java -jar /apps-folder/pmc-processor-task-1.0.0.jar \
                 --app.data.mode=LOAD \
                 --app.data.temp=/tempDir \
                 --app.data.mongodbUri=mongodbUri \
@@ -62,10 +61,10 @@ class PmcImporterPropertiesTest {
             pmcBaseUrl = baseUrl,
             notificationsUrl = notificationUrl
         )
-        assertThat(properties.asJavaCommand("/apps-folder"))
+        assertThat(properties.asJavaCommand("/apps-folder", "/home/java"))
             .isEqualTo(
                 """
-            $JAVA_HOME/bin/java -jar /apps-folder/pmc-processor-task-1.0.0.jar \
+            /home/java"/bin/java -jar /apps-folder/pmc-processor-task-1.0.0.jar \
             --app.data.mode=LOAD \
             --app.data.temp=/tempDir \
             --app.data.mongodbUri=mongodbUri \

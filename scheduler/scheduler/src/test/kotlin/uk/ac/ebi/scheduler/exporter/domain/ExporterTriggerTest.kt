@@ -4,7 +4,6 @@ import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.TWENTYFOUR_GB
-import ac.uk.ebi.scheduler.common.JAVA_HOME
 import ac.uk.ebi.scheduler.properties.ExporterMode
 import ac.uk.ebi.scheduler.properties.ExporterMode.PMC
 import ac.uk.ebi.scheduler.properties.ExporterMode.PUBLIC_ONLY
@@ -36,7 +35,7 @@ class ExporterTriggerTest(
     @MockK private val job: Job,
     @MockK private val appProperties: AppProperties,
     @MockK private val clusterOperations: ClusterOperations,
-    @MockK private val notificationsSender: NotificationsSender
+    @MockK private val notificationsSender: NotificationsSender,
 ) {
     private val jobSpecs = slot<JobSpec>()
     private val jobReport = slot<Report>()
@@ -47,9 +46,12 @@ class ExporterTriggerTest(
 
     @BeforeEach
     fun beforeEach() {
-        mockJob()
-        mockClusterOperations()
-        mockApplicationProperties()
+        every { job.id } returns "ABC123"
+        every { job.queue } returns "submissions-releaser-queue"
+        every { notificationsSender.send(capture(jobReport)) } answers { nothing }
+        every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+        every { appProperties.appsFolder } returns "/apps-folder"
+        every { appProperties.javaHome } returns "/home/java"
     }
 
     @Test
@@ -65,7 +67,6 @@ class ExporterTriggerTest(
         verifyClusterOperations()
         verifyJobSpecs(jobSpecs.captured, PUBLIC_ONLY, "publicOnlyStudies", "/an/output/path/2")
     }
-    private fun mockApplicationProperties() = every { appProperties.appsFolder } returns "/apps-folder"
 
     private fun verifyClusterOperations() {
         verify(exactly = 1) { notificationsSender.send(jobReport.captured) }
@@ -77,7 +78,7 @@ class ExporterTriggerTest(
         assertThat(specs.cores).isEqualTo(RELEASER_CORES)
         assertThat(specs.command).isEqualTo(
             """
-            $JAVA_HOME/bin/java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar /apps-folder/exporter-task-1.0.0.jar \
+            /home/java/bin/java -Dsun.jnu.encoding=UTF-8 -Xmx6g -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.mode=$mode \
             --app.fileName=$fileName \
             --app.outputPath=$outputPath \
@@ -93,16 +94,6 @@ class ExporterTriggerTest(
             --app.bioStudies.password=123456
             """.trimIndent()
         )
-    }
-
-    private fun mockClusterOperations() {
-        every { notificationsSender.send(capture(jobReport)) } answers { nothing }
-        every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
-    }
-
-    private fun mockJob() {
-        every { job.id } returns "ABC123"
-        every { job.queue } returns "submissions-releaser-queue"
     }
 
     private fun testProperties() = ExporterProperties().apply {

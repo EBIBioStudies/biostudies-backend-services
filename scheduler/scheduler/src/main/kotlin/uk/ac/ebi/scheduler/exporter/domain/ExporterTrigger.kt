@@ -25,7 +25,7 @@ class ExporterTrigger(
     private val appProperties: AppProperties,
     private val exporterProperties: ExporterProps,
     private val clusterOperations: ClusterOperations,
-    private val notificationsSender: NotificationsSender
+    private val notificationsSender: NotificationsSender,
 ) {
     fun triggerPmcExport(): Job {
         logger.info { "Triggering PMC export job" }
@@ -66,7 +66,7 @@ class ExporterTrigger(
             JobSpec(
                 cores = EXPORTER_CORES,
                 ram = TWENTYFOUR_GB,
-                command = exporterProperties.asJavaCommand(appProperties.appsFolder)
+                command = exporterProperties.asJavaCommand(appProperties.appsFolder, appProperties.javaHome)
             )
         )
 

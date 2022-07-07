@@ -26,7 +26,7 @@ class SubmissionReleaserTrigger(
     private val appProperties: AppProperties,
     private val properties: SchedulerReleaserProps,
     private val clusterOperations: ClusterOperations,
-    private val notificationsSender: NotificationsSender
+    private val notificationsSender: NotificationsSender,
 ) {
     fun triggerSubmissionReleaser(): Job {
         logger.info { "triggering submission releaser job" }
@@ -62,7 +62,7 @@ class SubmissionReleaserTrigger(
             JobSpec(
                 cores = RELEASER_CORES,
                 ram = EIGHT_GB,
-                command = releaserProperties.asJavaCommand(appProperties.appsFolder)
+                command = releaserProperties.asJavaCommand(appProperties.appsFolder, appProperties.javaHome)
             )
         )
 
