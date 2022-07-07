@@ -1,28 +1,28 @@
 remotes {
     dev {
-        host = 'biostudy-bia.ebi.ac.uk'
-        user = 'ma-svc'
+        host = System.getenv("DEV_SERVER")
+        user = System.getenv("BS_USER")
     }
 
     beta {
-        host = 'biostudy-dev.ebi.ac.uk'
-        user = 'ma-svc'
+        host = System.getenv("BETA_SERVER")
+        user = System.getenv("BS_USER")
     }
 
     prod {
-        host = 'biostudy-prod.ebi.ac.uk'
-        user = 'ma-svc'
+        host = System.getenv("PROD_SERVER")
+        user = System.getenv("BS_USER")
     }
 
-    ae {
-        host = 'biostudies-async'
-        user = 'ma-svc'
+    sandbox {
+        host = System.getenv("SANDBOX_SERVER")
+        user = System.getenv("BS_USER")
     }
 }
 
 ssh.settings {
     knownHosts = allowAnyHosts
-    identity = System.getenv("MASVC_SSH_KEY")
+    identity = System.getenv("BS_SSH_KEY")
     logging = "stdout"
 }
 

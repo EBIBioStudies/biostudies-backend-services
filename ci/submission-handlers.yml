@@ -1,22 +1,22 @@
 .deploy-dev-handlers:
   dependencies:
     - build-test
-  script: gradle deployHandlers -Penv=dev -PdeployPath=/nfs/biostudies/.adm/apps/handlers/dev
+  script: gradle deployHandlers -Penv=dev -PdeployPath=$APPS_PATH/handlers/dev
 
 .deploy-beta-handlers:
   dependencies:
     - build-test
-  script: gradle deployHandlers -Penv=beta -PdeployPath=/nfs/biostudies/.adm/apps/handlers/beta
+  script: gradle deployHandlers -Penv=beta -PdeployPath=$APPS_PATH/handlers/beta
 
 .deploy-prod-handlers:
   dependencies:
     - build-test
-  script: gradle deployHandlers -Penv=prod -PdeployPath=/nfs/biostudies/.adm/apps/handlers/prod
+  script: gradle deployHandlers -Penv=prod -PdeployPath=$APPS_PATH/handlers/prod
 
-.deploy-ae-handlers:
+.deploy-sandbox-handlers:
   dependencies:
     - build-test
-  script: gradle deployHandlers -Penv=ae -PdeployPath=/nfs/biostudies/.adm/apps/handlers/ae
+  script: gradle deployHandlers -Penv=sandbox -PdeployPath=$APPS_PATH/handlers/sandbox
 
 auto-deploy-dev-handlers:
   extends: .deploy-dev-handlers
@@ -39,6 +39,13 @@ auto-deploy-prod-handlers:
     refs:
       - prod
 
+auto-deploy-sandbox-handlers:
+  extends: .deploy-sandbox-handlers
+  stage: auto-deploy-sandbox-handlers
+  only:
+    refs:
+      - prod
+
 deploy-dev-handlers:
   extends: .deploy-dev-handlers
   stage: deploy-dev-handlers
@@ -54,7 +61,7 @@ deploy-prod-handlers:
   stage: deploy-prod-handlers
   when: manual
 
-deploy-ae-handlers:
-  extends: .deploy-ae-handlers
-  stage: deploy-ae-handlers
+deploy-sandbox-handlers:
+  extends: .deploy-sandbox-handlers
+  stage: deploy-sandbox-handlers
   when: manual
