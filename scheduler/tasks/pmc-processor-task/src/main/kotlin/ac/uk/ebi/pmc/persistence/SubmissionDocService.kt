@@ -3,6 +3,7 @@ package ac.uk.ebi.pmc.persistence
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.pmc.common.coroutines.SuspendSequence
+import ac.uk.ebi.pmc.persistence.docs.FileDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.LOADED
@@ -11,6 +12,7 @@ import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.PROCESSING
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.SUBMITTING
 import ac.uk.ebi.pmc.persistence.repository.SubFileRepository
 import ac.uk.ebi.pmc.persistence.repository.SubmissionRepository
+import com.mongodb.client.result.UpdateResult
 import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -25,40 +27,30 @@ private val logger = KotlinLogging.logger {}
 class SubmissionDocService(
     private val submissionRepository: SubmissionRepository,
     private val fileRepository: SubFileRepository,
-    private val serializationService: SerializationService
+    private val serializationService: SerializationService,
 ) {
-    suspend fun findReadyToProcess() =
-        SuspendSequence { submissionRepository.findAndUpdate(LOADED, PROCESSING) }
+    suspend fun findReadyToProcess(): SuspendSequence<SubmissionDoc> {
+        return SuspendSequence { submissionRepository.findAndUpdate(LOADED, PROCESSING) }
+    }
 
-    suspend fun findReadyToSubmit() =
+    suspend fun findReadyToSubmit(): SuspendSequence<SubmissionDoc> =
         SuspendSequence { submissionRepository.findAndUpdate(PROCESSED, SUBMITTING) }
 
-    suspend fun getSubFiles(ids: List<ObjectId>) = fileRepository.getFiles(ids)
+    suspend fun getSubFiles(ids: List<ObjectId>): List<FileDoc> = fileRepository.getFiles(ids)
 
-    suspend fun changeStatus(submission: SubmissionDoc, status: SubmissionStatus) =
+    suspend fun changeStatus(submission: SubmissionDoc, status: SubmissionStatus): UpdateResult =
         submissionRepository.update(submission.withStatus(status))
 
     suspend fun saveLoadedVersion(submission: Submission, sourceFile: String, sourceTime: Instant, posInFile: Int) {
-        submissionRepository.insertOrExpire(
-            SubmissionDoc(
-                submission.accNo,
-                asJson(submission),
-                LOADED,
-                sourceFile,
-                posInFile,
-                sourceTime
-            )
-        )
-
+        val doc = SubmissionDoc(submission.accNo, asJson(submission), LOADED, sourceFile, posInFile, sourceTime)
+        submissionRepository.insertOrExpire(doc)
         logger.info { "loaded version of submission with accNo = '${submission.accNo}' from file $sourceFile" }
     }
 
-    suspend fun saveProcessedSubmission(submission: SubmissionDoc, files: List<File>) = coroutineScope {
-        submission.files = saveFiles(files, submission)
-        submissionRepository.update(submission.withStatus(PROCESSED))
-        logger.info {
-            "finish processing submission with accNo = '${submission.accNo}' from file ${submission.sourceFile}"
-        }
+    suspend fun saveProcessedSubmission(doc: SubmissionDoc, files: List<File>) = coroutineScope {
+        doc.files = saveFiles(files, doc)
+        submissionRepository.update(doc.withStatus(PROCESSED))
+        logger.info { "finish processing submission with accNo = '${doc.accNo}' from file ${doc.sourceFile}" }
     }
 
     private suspend fun saveFiles(files: List<File>, submission: SubmissionDoc): List<ObjectId> = coroutineScope {

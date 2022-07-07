@@ -1,26 +1,26 @@
 package uk.ac.ebi.scheduler.common.config
 
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
-import uk.ac.ebi.scheduler.common.properties.AppProperties
-import uk.ac.ebi.scheduler.common.properties.SshProperties
-import uk.ac.ebi.scheduler.pmc.importer.api.PmcProcessorProp
-import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
-import uk.ac.ebi.scheduler.scheduling.DailyScheduler
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
-import uk.ac.ebi.scheduler.exporter.api.ExporterProperties
-import uk.ac.ebi.scheduler.exporter.domain.ExporterTrigger
+import uk.ac.ebi.scheduler.common.properties.AppProperties
+import uk.ac.ebi.scheduler.common.properties.SshProperties
+import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties
+import uk.ac.ebi.scheduler.pmc.exporter.domain.ExporterTrigger
+import uk.ac.ebi.scheduler.pmc.importer.api.PmcProcessorProp
+import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 import uk.ac.ebi.scheduler.releaser.api.SubmissionReleaserProperties
 import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
+import uk.ac.ebi.scheduler.scheduling.DailyScheduler
 
 @Configuration
 @EnableScheduling
 internal class SchedulerConfig {
     @Bean
     fun clusterOperations(
-        sshProperties: SshProperties
+        sshProperties: SshProperties,
     ) = ClusterOperations.create(
         sshProperties.user,
         sshProperties.password,
@@ -32,7 +32,7 @@ internal class SchedulerConfig {
         clusterOperations: ClusterOperations,
         properties: PmcProcessorProp,
         appProperties: AppProperties,
-        notificationsSender: NotificationsSender
+        notificationsSender: NotificationsSender,
     ): PmcLoaderService = PmcLoaderService(clusterOperations, properties, appProperties, notificationsSender)
 
     @Bean
@@ -40,7 +40,7 @@ internal class SchedulerConfig {
         appProperties: AppProperties,
         clusterOperations: ClusterOperations,
         notificationsSender: NotificationsSender,
-        releaserProperties: SubmissionReleaserProperties
+        releaserProperties: SubmissionReleaserProperties,
     ): SubmissionReleaserTrigger =
         SubmissionReleaserTrigger(appProperties, releaserProperties, clusterOperations, notificationsSender)
 
@@ -49,7 +49,7 @@ internal class SchedulerConfig {
         appProperties: AppProperties,
         clusterOperations: ClusterOperations,
         exporterProperties: ExporterProperties,
-        notificationsSender: NotificationsSender
+        notificationsSender: NotificationsSender,
     ): ExporterTrigger = ExporterTrigger(appProperties, exporterProperties, clusterOperations, notificationsSender)
 
     @Bean
@@ -57,7 +57,7 @@ internal class SchedulerConfig {
         appProperties: AppProperties,
         loaderService: PmcLoaderService,
         exporterTrigger: ExporterTrigger,
-        releaserTrigger: SubmissionReleaserTrigger
+        releaserTrigger: SubmissionReleaserTrigger,
     ): DailyScheduler =
         DailyScheduler(
             appProperties.dailyScheduling,

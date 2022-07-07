@@ -31,7 +31,8 @@ class PmcProcessor(
         runCatching { submissionInitializer.getSubmission(submissionDoc.body) }
             .fold(
                 { downloadFiles(it, submissionDoc) },
-                { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) })
+                { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) }
+            )
     }
 
     private suspend fun downloadFiles(submissionPair: Pair<Submission, String>, submissionDoc: SubmissionDoc) {

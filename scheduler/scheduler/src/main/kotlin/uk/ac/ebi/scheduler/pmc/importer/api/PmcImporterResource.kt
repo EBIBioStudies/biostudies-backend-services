@@ -11,8 +11,7 @@ import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 internal class PmcImporterResource(private val pmcLoaderService: PmcLoaderService) {
     @PostMapping("/api/pmc/load/folder")
     @ResponseBody
-    fun loadFile(@RequestHeader(name = "path", required = false) path: String?): Job =
-        pmcLoaderService.loadFile(path)
+    fun loadFile(@RequestHeader(name = "path", required = false) path: String?): Job = pmcLoaderService.loadFile(path)
 
     @PostMapping("/api/pmc/process")
     @ResponseBody
