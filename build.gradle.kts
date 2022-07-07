@@ -61,8 +61,9 @@ tasks.register("buildArtifacts") {
         "bio-admin:bootJar",
         "submission:submission-webapp:bootJar",
         "scheduler:scheduler:bootJar",
-        "scheduler:tasks:exporter-task:bootJar",
         "scheduler:tasks:pmc-processor-task:bootJar",
-        "scheduler:tasks:submission-releaser-task:bootJar"
+        "scheduler:tasks:submission-releaser-task:bootJar",
+        "submission:submission-handlers:bootJar",
+        "submission:submission-webapp:bootJar"
     )
 }

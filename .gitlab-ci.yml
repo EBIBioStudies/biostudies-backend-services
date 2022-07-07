@@ -27,13 +27,15 @@ stages:
   - auto-deploy-dev-submitter
   - auto-deploy-beta-submitter
   - auto-deploy-prod-submitter
+  - auto-deploy-sandbox-submitter
   - auto-deploy-dev-handlers
   - auto-deploy-beta-handlers
   - auto-deploy-prod-handlers
+  - auto-deploy-sandbox-handlers
   - deploy-dev-submitter
   - deploy-beta-submitter
   - deploy-prod-submitter
-  - deploy-ae-submitter
+  - deploy-sandbox-submitter
   - deploy-dev-pmc
   - deploy-beta-pmc
   - deploy-prod-pmc
@@ -53,7 +55,7 @@ stages:
   - deploy-dev-handlers
   - deploy-beta-handlers
   - deploy-prod-handlers
-  - deploy-ae-handlers
+  - deploy-sandbox-handlers
 
 build-test:
   stage: build-test

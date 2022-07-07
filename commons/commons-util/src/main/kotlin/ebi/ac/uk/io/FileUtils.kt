@@ -7,6 +7,7 @@ import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createSymLink
 import ebi.ac.uk.io.ext.notExist
+import mu.KotlinLogging
 import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
 import java.io.InputStream
@@ -18,10 +19,6 @@ import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
 import kotlin.streams.toList
 
-internal const val CHECKSUM_SIGNUM = 1
-internal const val BUFFER_SIZE = 12288
-internal const val MD5_ALGORITHM = "MD5"
-internal const val HEXADECIMAL_BASE = 16
 val RW_______: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-------")
 val RWX______: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx------")
 val RWX__X___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx--x---")
@@ -31,6 +28,8 @@ val RWXR_X___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-
 val RW_R_____: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-r-----")
 val RW_R__R__: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-r--r--")
 val RWXR_XR_X: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-xr-x")
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 object FileUtils {
@@ -126,10 +125,6 @@ object FileUtils {
     fun listFiles(file: File): List<File> =
         if (isDirectory(file)) Files.list(file.toPath()).map { it.toFile() }.toList() else emptyList()
 
-    fun setFolderPermissions(path: Path, permissions: Set<PosixFilePermission>) {
-        Files.setPosixFilePermissions(path, permissions)
-    }
-
     private fun calculateMd5(file: File): String = file.inputStream().use { DigestUtils.md5Hex(it).uppercase() }
 }
 
@@ -137,7 +132,6 @@ object FileUtils {
 internal object FileUtilsHelper {
     fun createFolderIfNotExist(file: Path, permissions: Set<PosixFilePermission>) {
         if (exists(file).not()) createDirectories(file, permissions)
-        else FileUtils.setFolderPermissions(file, permissions)
     }
 
     fun createFolderHardLinks(

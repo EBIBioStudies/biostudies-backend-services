@@ -310,7 +310,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             createFolderIfNotExist(folder.toPath(), RWXRWX___)
 
             assertThat(folder).exists()
-            assertThat(getPosixFilePermissions(folder.toPath())).isEqualTo(RWXRWX___)
+            assertThat(getPosixFilePermissions(folder.toPath())).isEqualTo(RW_______)
         }
     }
 }
