@@ -2,6 +2,7 @@ package ac.uk.ebi.pmc
 
 import ac.uk.ebi.pmc.config.AppConfig
 import ac.uk.ebi.pmc.config.PersistenceConfig
+import ac.uk.ebi.pmc.persistence.docs.FileDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.ERROR_PROCESS
@@ -49,7 +50,7 @@ import java.time.Duration.ofSeconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration(classes = [PersistenceConfig::class])
 @ExtendWith(TemporaryFolderExtension::class)
-internal class PmcSubmissionTabProcessorTest(private val tempFolder: TemporaryFolder) {
+internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolder) {
 
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
         .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
@@ -130,7 +131,7 @@ internal class PmcSubmissionTabProcessorTest(private val tempFolder: TemporaryFo
         @Autowired val errorsRepository: ErrorsRepository,
         @Autowired val submissionRepository: SubmissionRepository,
         @Autowired val fileRepository: SubFileRepository,
-        @Autowired val pmcTaskExecutor: PmcTaskExecutor
+        @Autowired val pmcTaskExecutor: PmcTaskExecutor,
     ) {
         @BeforeEach
         fun cleanRepositories() {
@@ -153,7 +154,7 @@ internal class PmcSubmissionTabProcessorTest(private val tempFolder: TemporaryFo
 
                 val submissions = submissionRepository.findAll()
                 assertThat(submissions).hasSize(1)
-                assertProcessedSubmission(submissions.first())
+                assertProcessedSubmission(submissions.first(), fileRepository.findAll())
             }
         }
 
@@ -182,9 +183,11 @@ internal class PmcSubmissionTabProcessorTest(private val tempFolder: TemporaryFo
             assertThat(tempFolder.root.resolve(FILE3_PATH)).doesNotExist()
         }
 
-        private fun assertProcessedSubmission(processedSubmissionDoc: SubmissionDoc) {
-            assertThat(processedSubmissionDoc.status).isEqualTo(PROCESSED)
-            assertThat(processedSubmissionDoc.files).hasSize(2)
+        private fun assertProcessedSubmission(docSubmission: SubmissionDoc, files: List<FileDoc>) {
+            assertThat(docSubmission.status).isEqualTo(PROCESSED)
+            assertThat(docSubmission.files).hasSize(2)
+            assertThat(docSubmission.files).containsAll(files.map { it._id })
+
             assertThat(File(tempFolder.root.absolutePath + FILE1_PATH)).hasContent(FILE1_CONTENT)
             assertThat(File(tempFolder.root.absolutePath + FILE2_PATH)).hasContent(FILE2_CONTENT)
         }

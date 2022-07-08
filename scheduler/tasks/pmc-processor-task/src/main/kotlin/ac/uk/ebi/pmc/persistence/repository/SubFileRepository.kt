@@ -16,7 +16,7 @@ class SubFileRepository(private val collection: MongoCollection<FileDoc>) {
 
     suspend fun saveFile(file: File, accNo: String): ObjectId {
         collection.insertOne(FileDoc(file.name, file.absolutePath, accNo)).awaitSingle()
-        return collection.getOne(Filters.eq("path", file.absolutePath)).id
+        return collection.getOne(Filters.eq("path", file.absolutePath))._id
     }
 
     suspend fun findAll(): List<FileDoc> = collection.find().toList()

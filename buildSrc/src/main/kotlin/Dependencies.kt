@@ -251,7 +251,7 @@ object Projects {
     const val SubmissionSubmitter = ":submission:submitter"
     const val ClientBioWebClient = ":client:bio-webclient"
     const val ClientFireWebClient = ":client:fire-webclient"
-    const val SchedulerTaskProperties = ":scheduler:task-properties"
-    const val SchedulerClusterClient = ":scheduler:cluster-client"
+    const val SchedulerTaskProperties = ":scheduler:common:task-properties"
+    const val SchedulerClusterClient = ":scheduler:common:cluster-client"
     const val EventsPublisher = ":events:events-publisher"
 }

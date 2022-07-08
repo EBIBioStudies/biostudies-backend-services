@@ -5,7 +5,7 @@ import org.bson.conversions.Bson
 import org.bson.types.ObjectId
 import java.time.Instant
 
-@Suppress("VariableNaming")
+@Suppress("ConstructorParameterNaming")
 data class SubmissionDoc(
     val accNo: String,
     var body: String,
@@ -14,10 +14,9 @@ data class SubmissionDoc(
     val posInFile: Int,
     var sourceTime: Instant,
     var files: List<ObjectId> = emptyList(),
-    var updated: Instant = Instant.now()
+    var updated: Instant = Instant.now(),
+    val _id: ObjectId = ObjectId(),
 ) {
-
-    val _id: ObjectId? = null
 
     fun withStatus(status: SubmissionStatus): SubmissionDoc {
         this.status = status
