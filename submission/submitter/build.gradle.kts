@@ -9,6 +9,7 @@ import Dependencies.RxJava2
 import Dependencies.SpringDataJpa
 import Dependencies.SpringWeb
 import Projects.CommonsBio
+import Projects.CommonsModelExtended
 import Projects.CommonsSerialization
 import Projects.CommonsUtil
 import Projects.SubmissionSecurity
@@ -36,6 +37,7 @@ dependencies {
     implementation(SpringWeb)
 
     testImplementation(SpringBootAmqp)
+    testImplementation(testFixtures(project(CommonsModelExtended)))
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

@@ -63,6 +63,7 @@ dependencies {
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 
     testImplementation(testFixtures(project(CommonsModelExtendedSerialization)))
+    testImplementation(testFixtures(project(CommonsModelExtended)))
     testImplementation(SpringBootStarterTest) {
         exclude("junit", module = "junit")
     }
