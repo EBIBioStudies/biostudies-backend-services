@@ -13,6 +13,7 @@ import Dependencies.SpringfoxSwaggerUI
 import Projects.ClientBioWebClient
 import Projects.ClientFireWebClient
 import Projects.CommonsHttp
+import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedSerialization
 import Projects.CommonsSerialization
 import Projects.CommonsTest
@@ -114,6 +115,7 @@ dependencies {
 
     testImplementation(project(ClientBioWebClient))
     testImplementation(testFixtures(project(CommonsSerialization)))
+    testImplementation(testFixtures(project(CommonsModelExtended)))
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

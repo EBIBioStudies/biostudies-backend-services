@@ -32,7 +32,7 @@ internal class FireFilesServiceTest(
     @Test
     fun persistSubmissionFiles() {
         every { fireService.cleanFtp(submission) } answers { nothing }
-        every { fireService.getOrPersist(submission, nfsFile) } answers { fireFile }
+        every { fireService.getOrPersist(submission, nfsFile) } answers { FirePersistResult(fireFile, true) }
         every { fileProcessingService.processFiles(submission, any()) } answers {
             val function: (file: ExtFile, index: Int) -> ExtFile = secondArg()
             function(nfsFile, 1)

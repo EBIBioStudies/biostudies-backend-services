@@ -17,7 +17,7 @@ class SubmissionDraftClient(private val template: RestTemplate) : DraftSubmissio
         template.getForObject("$SUBMISSION_DRAFT_URL/$accNo")!!
 
     override fun getAllSubmissionDrafts(limit: Int, offset: Int): List<WebSubmissionDraft> =
-        template.getForObject<Array<WebSubmissionDraft>>(buildDraftsUrl(limit, offset)).orEmpty().toList()
+        template.getForObject<Array<WebSubmissionDraft>>(buildDraftsUrl(limit, offset)).toList()
 
     override fun deleteSubmissionDraft(accNo: String) = template.delete("$SUBMISSION_DRAFT_URL/$accNo")
 

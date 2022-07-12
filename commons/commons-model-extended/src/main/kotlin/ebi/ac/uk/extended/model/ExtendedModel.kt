@@ -3,8 +3,6 @@ package ebi.ac.uk.extended.model
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
 import java.io.File
 import java.time.OffsetDateTime
 
@@ -70,15 +68,6 @@ data class NfsFile(
     override val type: ExtFileType
         get() = if (file.isDirectory) DIR else FILE
 }
-
-@Deprecated(message = "Only for testing. Prefer default class constructor to avoid computation of md5 and size.")
-fun createNfsFile(
-    filePath: String,
-    relpath: String,
-    file: File,
-    attributes: List<ExtAttribute> = listOf(),
-): NfsFile =
-    NfsFile(filePath, relpath, file, file.absolutePath, file.md5(), file.size(), attributes)
 
 data class ExtFileList(
     val filePath: String,

@@ -11,21 +11,21 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.reflect.full.isSuperclassOf
 
 class ExtSubmissionConverter(
-    private val extSerializationService: ExtSerializationService
+    private val extSerializationService: ExtSerializationService,
 ) : HttpMessageConverter<ExtSubmission> {
     override fun canRead(
         clazz: Class<*>,
-        mediaType: MediaType
+        mediaType: MediaType?,
     ): Boolean = ExtSubmission::class.isSuperclassOf(clazz.kotlin)
 
     override fun canWrite(
         clazz: Class<*>,
-        mediaType: MediaType?
+        mediaType: MediaType?,
     ): Boolean = ExtSubmission::class.isSuperclassOf(clazz.kotlin)
 
     override fun getSupportedMediaTypes(): List<MediaType> = listOf(APPLICATION_JSON)
 
-    override fun write(extSubmission: ExtSubmission, contentType: MediaType, message: HttpOutputMessage) {
+    override fun write(extSubmission: ExtSubmission, contentType: MediaType?, message: HttpOutputMessage) {
         message.headers.contentType = APPLICATION_JSON
         message.body.write(extSerializationService.serialize(extSubmission).toByteArray())
     }

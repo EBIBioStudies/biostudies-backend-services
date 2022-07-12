@@ -30,7 +30,7 @@ internal class UserFilesClient(private val template: RestTemplate) : FilesOperat
     }
 
     override fun listUserFiles(relativePath: String): List<UserFile> {
-        return template.getForObject<Array<UserFile>>("$USER_FILES_URL${normalize(relativePath)}").orEmpty().toList()
+        return template.getForObject<Array<UserFile>>("$USER_FILES_URL${normalize(relativePath)}").toList()
     }
 
     override fun uploadFiles(files: List<File>, relativePath: String) {

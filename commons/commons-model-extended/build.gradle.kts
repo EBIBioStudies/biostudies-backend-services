@@ -9,6 +9,10 @@ import Projects.CommonsUtil
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
+plugins {
+    `java-test-fixtures`
+}
+
 dependencies {
     api(project(CommonsUtil))
 
