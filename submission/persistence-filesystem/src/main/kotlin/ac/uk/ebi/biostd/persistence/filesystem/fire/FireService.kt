@@ -39,7 +39,7 @@ class FireService(
      * submission. The method also ensures that the file has no path (i.e. it was submitted in the same submission in a
      * different path) and if so, even if the file exists in FIRE, it gets duplicated to ensure consistency.
      */
-    fun getOrPersist(sub: ExtSubmission, file: ExtFile): FireFile = when (file) {
+    fun getOrPersist(sub: ExtSubmission, file: ExtFile): FirePersistResult = when (file) {
         is FireFile -> fromFireFile(sub, file, "${sub.relPath}/${file.relPath}")
         is NfsFile -> when (file.type) {
             FILE -> fromNfsFile(sub, file, "${sub.relPath}/${file.relPath}")
@@ -47,10 +47,10 @@ class FireService(
         }
     }
 
-    private fun fromNfsFile(sub: ExtSubmission, file: NfsFile, expectedPath: String): FireFile =
+    private fun fromNfsFile(sub: ExtSubmission, file: NfsFile, expectedPath: String): FirePersistResult =
         reuseOrPersistFireFile(sub, file, expectedPath) { file.file }
 
-    private fun fromFireFile(sub: ExtSubmission, file: FireFile, expectedPath: String): FireFile =
+    private fun fromFireFile(sub: ExtSubmission, file: FireFile, expectedPath: String): FirePersistResult =
         reuseOrPersistFireFile(sub, file, expectedPath) { client.downloadByFireId(file.fireId, file.fileName) }
 
     @Suppress("ReturnCount")
@@ -58,16 +58,18 @@ class FireService(
         sub: ExtSubmission,
         file: ExtFile,
         expectedPath: String,
-        fallbackFile: () -> File
-    ): FireFile {
+        fallbackFile: () -> File,
+    ): FirePersistResult {
         val fireFile = client.findByMd5(file.md5).firstOrNull { it.isAvailable(sub.accNo) }
         if (fireFile != null) {
-            if (fireFile.path == null) return setMetadata(sub, fireFile.fireOid, file, expectedPath)
-            if (fireFile.path == expectedPath) return asFireFile(file, fireFile.fireOid)
+            when (fireFile.path) {
+                null -> return FirePersistResult(setMetadata(sub, fireFile.fireOid, file, expectedPath), false)
+                expectedPath -> return FirePersistResult(asFireFile(file, fireFile.fireOid), false)
+            }
         }
 
         val saved = client.save(fallbackFile(), file.md5)
-        return setMetadata(sub, saved.fireOid, file, expectedPath)
+        return FirePersistResult(setMetadata(sub, saved.fireOid, file, expectedPath), true)
     }
 
     private fun setMetadata(sub: ExtSubmission, fireOid: String, file: ExtFile, path: String): FireFile {
@@ -97,3 +99,5 @@ class FireService(
         attributes = file.attributes
     )
 }
+
+data class FirePersistResult(val file: FireFile, val created: Boolean)

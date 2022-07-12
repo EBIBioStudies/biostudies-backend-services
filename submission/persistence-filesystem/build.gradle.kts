@@ -31,6 +31,7 @@ dependencies {
     implementation(ZipUtil)
 
     testImplementation(testFixtures(project(CommonsModelExtendedSerialization)))
+    testImplementation(testFixtures(project(CommonsModelExtended)))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }
