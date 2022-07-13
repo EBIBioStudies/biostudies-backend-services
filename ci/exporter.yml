@@ -1,3 +1,15 @@
+.deploy-prod-exporter-task:
+  dependencies:
+    - build-test
+  script: gradle updateExporterArtifact -Penv=prod -PdeployPath=$APPS_PATH/scheduler/prod/apps
+
+auto-deploy-prod-exporter-task:
+  extends: .deploy-prod-exporter-task
+  stage: auto-deploy-prod-exporter-task
+  only:
+    refs:
+      - prod
+
 deploy-dev-exporter-task:
   stage: deploy-dev-exporter-task
   when: manual
@@ -13,8 +25,6 @@ deploy-beta-exporter-task:
   script: gradle updateExporterArtifact -Penv=beta -PdeployPath=$APPS_PATH/scheduler/beta/apps
 
 deploy-prod-exporter-task:
+  extends: .deploy-prod-exporter-task
   stage: deploy-prod-exporter-task
   when: manual
-  dependencies:
-    - build-test
-  script: gradle updateExporterArtifact -Penv=prod -PdeployPath=$APPS_PATH/scheduler/prod/apps
