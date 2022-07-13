@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import uk.ac.ebi.extended.serialization.service.FileIteratorService
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
@@ -37,8 +37,8 @@ class FileSystemConfig(
     fun fireFileService(
         fireService: FireService,
         fileProcessingService: FileProcessingService,
-        fileIteratorService: FileIteratorService,
-    ): FilesService = FireFilesService(fireService, fileProcessingService, fileIteratorService)
+        serializationService: ExtSerializationService,
+    ): FilesService = FireFilesService(fireService, fileProcessingService, serializationService)
 
     @Bean
     fun extFilesResolver() = FilesResolver(File(applicationProperties.requestFilesPath))

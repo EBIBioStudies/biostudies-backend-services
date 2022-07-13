@@ -6,15 +6,16 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import mu.KotlinLogging
-import uk.ac.ebi.extended.serialization.service.FileIteratorService
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
+import uk.ac.ebi.extended.serialization.service.forEachFile
 
 private val logger = KotlinLogging.logger {}
 
 class FireFilesService(
     private val fireService: FireService,
     private val fileProcessingService: FileProcessingService,
-    private val fileIteratorService: FileIteratorService,
+    private val serializationService: ExtSerializationService,
 ) : FilesService {
     override fun persistSubmissionFiles(rqt: FilePersistenceRequest): ExtSubmission = processFiles(rqt.submission)
     override fun cleanSubmissionFiles(sub: ExtSubmission) = cleanPreviousFiles(sub)
@@ -27,7 +28,7 @@ class FireFilesService(
         }
 
         logger.info { "${sub.accNo} ${sub.owner} Cleaning Current submission Folder for ${sub.accNo}" }
-        fileIteratorService.forEachFile(sub) { file, index -> cleanFile(file, index) }
+        serializationService.forEachFile(sub) { file, index -> cleanFile(file, index) }
         logger.info { "${sub.accNo} ${sub.owner} Cleaning Ftp Folder for ${sub.accNo}" }
     }
 

@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.FileIteratorService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.serialization.common.FilesResolver
 
@@ -93,7 +92,4 @@ class MongoDbServicesConfig {
     @Bean
     fun fileProcessingService(serializationService: ExtSerializationService, fileResolver: FilesResolver) =
         FileProcessingService(serializationService, fileResolver)
-
-    @Bean
-    fun fileIteratorService(serializationService: ExtSerializationService) = FileIteratorService(serializationService)
 }

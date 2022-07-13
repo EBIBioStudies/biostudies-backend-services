@@ -2,10 +2,11 @@ package ac.uk.ebi.biostd.persistence.filesystem.fire
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.forEachSubmissionFile
+import uk.ac.ebi.extended.serialization.service.forEachFile
 import uk.ac.ebi.fire.client.integration.web.FireClient
 
 private val logger = KotlinLogging.logger {}
@@ -27,13 +28,12 @@ class FireFtpService(
         val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
 
         logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission $accNo over FIRE" }
-
-        serializationService.forEachSubmissionFile(sub) { if (it is FireFile) publishFile(it.fireId) }
+        serializationService.forEachFile(sub) { file, idx -> if (file is FireFile) publishFile(sub, file.fireId, idx) }
         logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission $accNo over FIRE" }
     }
 
-    private fun publishFile(fireId: String) {
+    private fun publishFile(sub: ExtSubmission, fireId: String, index: Int) {
+        logger.debug { "${sub.accNo}, ${sub.version} publishing file $index, fireId='$fireId'" }
         fireClient.publish(fireId)
-        fireClient.setBioMetadata(fireId, published = true)
     }
 }
