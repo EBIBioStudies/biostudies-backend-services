@@ -21,14 +21,11 @@ class FireService(
     private val client: FireClient,
     private val fireTempDirPath: File,
 ) {
-
-    fun cleanFtp(sub: ExtSubmission) {
-        logger.info { "Started cleaning FTP files (unset path) of files in submission ${sub.accNo}" }
-        client
-            .findByAccNo(sub.accNo)
-            .apply { logger.info { "Found $size files in submission ${sub.accNo}" } }
-            .forEach { client.unsetPath(it.fireOid) }
-        logger.info { "Finished cleaning FTP files (unset path) of files in submission ${sub.accNo}" }
+    fun cleanFile(file: ExtFile) {
+        if (file is FireFile) {
+            client.unsetPath(file.fireId)
+            client.unpublish(file.fireId)
+        }
     }
 
     /**

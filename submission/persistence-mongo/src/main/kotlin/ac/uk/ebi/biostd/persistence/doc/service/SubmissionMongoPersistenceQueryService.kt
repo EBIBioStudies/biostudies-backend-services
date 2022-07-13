@@ -84,7 +84,12 @@ internal class SubmissionMongoPersistenceQueryService(
     override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
         val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, REQUESTED)
         val stored = serializationService.deserialize(request.submission.toString())
-        return SubmissionRequest(stored, request.fileMode, request.draftKey)
+        return SubmissionRequest(
+            submission = stored,
+            fileMode = request.fileMode,
+            draftKey = request.draftKey,
+            previousVersion = findExtByAccNo(stored.accNo, true)
+        )
     }
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =

@@ -28,8 +28,8 @@ class NfsFilesService(
     private val folderResolver: SubmissionFolderResolver,
     private val fileProcessingService: FileProcessingService,
 ) : FilesService {
-    override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
-        val (sub, mode) = request
+    override fun persistSubmissionFiles(rqt: FilePersistenceRequest): ExtSubmission {
+        val (sub, mode) = rqt
         logger.info { "${sub.accNo} ${sub.owner} Processing files of submission ${sub.accNo} over NFS" }
 
         val submissionFolder = getOrCreateSubmissionFolder(sub, sub.permissions().folder)
@@ -38,6 +38,14 @@ class NfsFilesService(
         logger.info { "${sub.accNo} ${sub.owner} Finished processing files of submission ${sub.accNo} over NFS" }
 
         return processed
+    }
+
+    override fun cleanSubmissionFiles(sub: ExtSubmission) {
+        logger.info { "${sub.accNo} ${sub.owner} Un-publishing files of submission ${sub.accNo} over NFS" }
+
+        FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(sub.relPath).toFile())
+
+        logger.info { "${sub.accNo} ${sub.owner} Finished un-publishing files of submission ${sub.accNo} over NFS" }
     }
 
     private fun processAttachedFiles(

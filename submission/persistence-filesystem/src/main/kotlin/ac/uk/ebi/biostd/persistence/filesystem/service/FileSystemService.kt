@@ -20,7 +20,6 @@ class FileSystemService(
         val owner = submission.owner
 
         logger.info { "$accNo $owner Processing files of submission $accNo in mode $mode" }
-
         val processedSubmission = filesService.persistSubmissionFiles(request)
         val finalSub = pageTabService.generatePageTab(processedSubmission)
 
@@ -29,19 +28,15 @@ class FileSystemService(
         return finalSub
     }
 
+    fun cleanFolder(previousSubmission: ExtSubmission) {
+        filesService.cleanSubmissionFiles(previousSubmission)
+    }
+
     fun releaseSubmissionFiles(accNo: String, owner: String, relPath: String) {
         logger.info { "$accNo $owner Releasing files of submission $accNo" }
 
         ftpService.releaseSubmissionFiles(accNo, owner, relPath)
 
         logger.info { "$accNo $owner Finished releasing files of submission $accNo" }
-    }
-
-    fun unpublishSubmissionFiles(accNo: String, owner: String, relPath: String) {
-        logger.info { "$accNo $owner Un-publishing files of submission $accNo" }
-
-        ftpService.unpublishSubmissionFiles(accNo, owner, relPath)
-
-        logger.info { "$accNo $owner Finished un-publishing files of submission $accNo" }
     }
 }

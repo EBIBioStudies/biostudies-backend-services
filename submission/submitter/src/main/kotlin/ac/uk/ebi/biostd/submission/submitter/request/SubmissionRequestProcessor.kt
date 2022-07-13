@@ -18,10 +18,12 @@ class SubmissionRequestProcessor(
         val (sub, fileMode, draftKey) = saveRequest
         logger.info { "${sub.accNo} ${sub.owner} processing request accNo='${sub.accNo}', version='${sub.version}'" }
 
+        if (saveRequest.previousVersion != null) systemService.cleanFolder(saveRequest.previousVersion!!)
+
         val processingSubmission = systemService.persistSubmissionFiles(FilePersistenceRequest(sub, fileMode))
         val savedSubmission = submissionPersistenceService.saveSubmission(processingSubmission, draftKey)
+
         submissionPersistenceService.updateRequestAsProcessed(sub.accNo, sub.version)
-        systemService.unpublishSubmissionFiles(savedSubmission.accNo, savedSubmission.owner, savedSubmission.relPath)
 
         if (savedSubmission.released) {
             releaseSubmission(savedSubmission.accNo, savedSubmission.owner, savedSubmission.relPath)

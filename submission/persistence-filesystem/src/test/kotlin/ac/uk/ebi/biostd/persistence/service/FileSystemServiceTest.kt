@@ -6,13 +6,13 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ebi.ac.uk.extended.model.ExtSubmission
-import org.assertj.core.api.Assertions.assertThat
 import ebi.ac.uk.extended.model.FileMode.MOVE
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -25,7 +25,7 @@ class FileSystemServiceTest(
     @MockK private val submission: ExtSubmission,
     @MockK private val finalSub: ExtSubmission,
     @MockK private val filesService: FilesService,
-    @MockK private val pageTabService: PageTabService
+    @MockK private val pageTabService: PageTabService,
 ) {
     private val testInstance = FileSystemService(ftpService, filesService, pageTabService)
 
@@ -59,22 +59,20 @@ class FileSystemServiceTest(
         verify(exactly = 1) { ftpService.releaseSubmissionFiles("S-BSST1", "owner@mail.com", "rel-path") }
     }
 
-    @Test
-    fun `un-publish submission`() {
-        every { ftpService.unpublishSubmissionFiles("S-BSST1", "owner@mail.com", "rel-path") } answers { nothing }
-
-        testInstance.unpublishSubmissionFiles("S-BSST1", "owner@mail.com", "rel-path")
-
-        verify(exactly = 1) { ftpService.unpublishSubmissionFiles("S-BSST1", "owner@mail.com", "rel-path") }
-    }
-
     private fun setUpSubmission() {
         every { submission.accNo } returns "S-TEST123"
         every { submission.owner } returns "user@mail.org"
     }
 
     private fun setUpServices() {
-        every { filesService.persistSubmissionFiles(FilePersistenceRequest(submission, MOVE)) } returns processedSubmission
+        every {
+            filesService.persistSubmissionFiles(
+                FilePersistenceRequest(
+                    submission,
+                    MOVE
+                )
+            )
+        } returns processedSubmission
         every { pageTabService.generatePageTab(processedSubmission) } answers { finalSub }
     }
 }

@@ -23,13 +23,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.createExtFileList
 import uk.ac.ebi.fire.client.integration.web.FireClient
-import uk.ac.ebi.fire.client.model.FireApiFile
 import ebi.ac.uk.test.basicExtSubmission as basicExtSub
 
 @ExtendWith(MockKExtension::class)
 class FireFtpServiceTest(
     @MockK(relaxUnitFun = true) private val fireClient: FireClient,
-    @MockK private val queryService: SubmissionPersistenceQueryService
+    @MockK private val queryService: SubmissionPersistenceQueryService,
 ) {
     private val fileFileList = fireFile(FILE_FILE_LIST)
     private val innerFileListFile = fireFile(INNER_FILE_FILE_LIST)
@@ -71,22 +70,6 @@ class FireFtpServiceTest(
         verifyFtpPublish()
     }
 
-    @Test
-    fun `unpublish submission files`() {
-        val fireFile = FireApiFile(1, "abc1", "MD5", 1, "2021-07-08")
-
-        every { fireClient.unpublish("abc1") } answers { nothing }
-        every { fireClient.setBioMetadata("abc1", published = false) } answers { nothing }
-        every { fireClient.findByAccNoAndPublished("S-TEST1", true) } returns listOf(fireFile)
-
-        testInstance.unpublishSubmissionFiles("S-TEST1", "owner@mail.org", "my/path")
-
-        verify(exactly = 1) {
-            fireClient.unpublish("abc1")
-            fireClient.setBioMetadata("abc1", published = false)
-        }
-    }
-
     private fun verifyFtpPublish() = verify(exactly = 1) {
         fun verifyPublishFile(fireId: String) {
             fireClient.publish(fireId)
@@ -107,7 +90,7 @@ class FireFtpServiceTest(
 
     private fun createExtSubmission(
         fileFileList: FireFile,
-        innerFileListFile: FireFile
+        innerFileListFile: FireFile,
     ): ExtSubmission {
         val filePageTab = fireFile(FILE_PAGE_TAB)
         val file = fireFile(FIRE_FILE)

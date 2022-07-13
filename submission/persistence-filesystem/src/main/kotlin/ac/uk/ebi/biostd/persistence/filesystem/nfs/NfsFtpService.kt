@@ -14,7 +14,7 @@ private val logger = KotlinLogging.logger {}
 
 class NfsFtpService(
     private val folderResolver: SubmissionFolderResolver,
-    private val queryService: SubmissionPersistenceQueryService
+    private val queryService: SubmissionPersistenceQueryService,
 ) : FtpService {
     override fun releaseSubmissionFiles(accNo: String, owner: String, relPath: String) {
         logger.info { "$accNo $owner Publishing files of submission $accNo over NFS" }
@@ -22,14 +22,6 @@ class NfsFtpService(
         generateLinks(relPath)
 
         logger.info { "$accNo $owner Finished publishing files of submission $accNo over NFS" }
-    }
-
-    override fun unpublishSubmissionFiles(accNo: String, owner: String, relPath: String) {
-        logger.info { "$accNo $owner Un-publishing files of submission $accNo over NFS" }
-
-        cleanFtpFolder(relPath)
-
-        logger.info { "$accNo $owner Finished un-publishing files of submission $accNo over NFS" }
     }
 
     override fun generateFtpLinks(accNo: String) {
@@ -51,8 +43,4 @@ class NfsFtpService(
 
     private fun getFtpFolder(relPath: String): File =
         FileUtils.getOrCreateFolder(folderResolver.getSubmissionFtpFolder(relPath), RWXR_XR_X).toFile()
-
-    private fun cleanFtpFolder(relPath: String) {
-        FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(relPath).toFile())
-    }
 }

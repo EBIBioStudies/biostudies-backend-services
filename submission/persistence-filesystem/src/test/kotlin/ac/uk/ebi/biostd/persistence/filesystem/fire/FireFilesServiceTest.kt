@@ -16,22 +16,23 @@ import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.FileIteratorService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class FireFilesServiceTest(
     @MockK private val fireService: FireService,
     @MockK private val fileProcessingService: FileProcessingService,
+    @MockK private val fileIteratorService: FileIteratorService,
     tempFolder: TemporaryFolder,
 ) {
     private val submission = basicExtSubmission
     private val fireFile = FireFile("test.txt", "Files/test.txt", "abc1", "md5", 1, ExtFileType.FILE, emptyList())
     private val nfsFile = createNfsFile("folder", "Files/folder", tempFolder.createFile("dummy.txt"))
-    private val testInstance = FireFilesService(fireService, fileProcessingService)
+    private val testInstance = FireFilesService(fireService, fileProcessingService, fileIteratorService)
 
     @Test
     fun persistSubmissionFiles() {
-        every { fireService.cleanFtp(submission) } answers { nothing }
         every { fireService.getOrPersist(submission, nfsFile) } answers { FirePersistResult(fireFile, true) }
         every { fileProcessingService.processFiles(submission, any()) } answers {
             val function: (file: ExtFile, index: Int) -> ExtFile = secondArg()
