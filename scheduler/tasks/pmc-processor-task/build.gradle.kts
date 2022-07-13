@@ -9,7 +9,6 @@ import Dependencies.MongockSpringDataV3
 import Dependencies.MongockSpringV5
 import Dependencies.OkHttpLogging
 import Dependencies.Retrofit2
-import Dependencies.SpringWeb
 import Projects.ClientBioWebClient
 import Projects.CommonsHttp
 import Projects.CommonsSerialization
@@ -19,6 +18,7 @@ import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
 import SpringBootDependencies.SpringBootStarterMongo
 import SpringBootDependencies.SpringBootStarterTest
+import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.AssertJ
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -56,7 +56,7 @@ dependencies {
 
     implementation(SpringBootStarter)
     implementation(SpringBootStarterMongo)
-    implementation(SpringWeb)
+    implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterConfigProcessor)
 
     testImplementation(TestContainerMongoDb)

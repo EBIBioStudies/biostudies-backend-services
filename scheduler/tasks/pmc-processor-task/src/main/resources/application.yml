@@ -1,3 +1,6 @@
+spring:
+  main:
+    web-application-type: none
 app:
   data:
     mode: # Processing mode: LOAD, PROCESS or SUBMIT
