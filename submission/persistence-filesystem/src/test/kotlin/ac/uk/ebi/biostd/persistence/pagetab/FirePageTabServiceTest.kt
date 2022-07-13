@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
@@ -22,7 +23,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -33,22 +33,19 @@ import uk.ac.ebi.serialization.common.FilesResolver
 import ebi.ac.uk.asserts.assertThat as assertThatEither
 import uk.ac.ebi.fire.client.model.FireApiFile as FireFileWeb
 
-@Disabled
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class FirePageTabServiceTest(
     tempFolder: TemporaryFolder,
     @MockK private val fireClient: FireClient,
     @MockK private val pageTabUtil: PageTabUtil,
 ) {
-    private val fireFolder = tempFolder.root.resolve("fire-temp")
-    private val fileProcessingService =
-        FileProcessingService(ExtSerializationService(), FilesResolver(tempFolder.createDirectory("ext-files")))
+    private val fireFolder = tempFolder.createDirectory("fire-temp")
     private val testInstance =
         FirePageTabService(
             fireFolder,
             fireClient,
             pageTabUtil,
-            fileProcessingService,
+            FileProcessingService(ExtSerializationService(), FilesResolver(tempFolder.createDirectory("ext-files"))),
             TsvPagetabExtension(featureEnabled = true)
         )
 
@@ -68,25 +65,20 @@ class FirePageTabServiceTest(
 
     private fun setUpGeneratePageTab(submission: ExtSubmission) {
         every { pageTabUtil.generateSubPageTab(submission, fireFolder) } returns PageTabFiles(
-            fireFolder.resolve("S-TEST123.json"),
-            fireFolder.resolve("S-TEST123.xml"),
-            fireFolder.resolve("S-TEST123.tsv")
+            fireFolder.createFile("S-TEST123.json"),
+            fireFolder.createFile("S-TEST123.xml"),
+            fireFolder.createFile("S-TEST123.tsv")
         )
-        every {
-            pageTabUtil.generateFileListPageTab(
-                submission,
-                fireFolder
-            )
-        } returns mapOf(
+        every { pageTabUtil.generateFileListPageTab(submission, fireFolder) } returns mapOf(
             "data/file-list2" to PageTabFiles(
-                fireFolder.resolve("data/file-list2.json"),
-                fireFolder.resolve("data/file-list2.xml"),
-                fireFolder.resolve("data/file-list2.tsv")
+                fireFolder.createFile("data/file-list2.json"),
+                fireFolder.createFile("data/file-list2.xml"),
+                fireFolder.createFile("data/file-list2.tsv")
             ),
             "data/file-list1" to PageTabFiles(
-                fireFolder.resolve("data/file-list1.json"),
-                fireFolder.resolve("data/file-list1.xml"),
-                fireFolder.resolve("data/file-list1.tsv")
+                fireFolder.createFile("data/file-list1.json"),
+                fireFolder.createFile("data/file-list1.xml"),
+                fireFolder.createFile("data/file-list1.tsv")
             )
         )
     }

@@ -9,7 +9,6 @@ import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
-import uk.ac.ebi.fire.client.model.isAvailable
 import java.io.File
 import java.nio.file.Path
 
@@ -31,7 +30,7 @@ class FireFilesSource(
     ): ExtFile? {
         return when (md5) {
             null -> null
-            else -> fireClient.findByMd5(md5).firstOrNull { it.isAvailable() }?.asFireFile(path, attributes)
+            else -> fireClient.findByMd5(md5).firstOrNull()?.asFireFile(path, attributes)
         }
     }
 

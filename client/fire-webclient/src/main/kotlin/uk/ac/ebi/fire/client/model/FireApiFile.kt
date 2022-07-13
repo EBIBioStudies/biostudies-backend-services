@@ -12,8 +12,6 @@ data class FireApiFile(
 val FireApiFile.path: String?
     get() = filesystemEntry?.path
 
-fun FireApiFile.isAvailable(): Boolean = this.filesystemEntry?.path == null
-
 enum class FileType(val key: String) {
     FILE("file"),
     DIR("directory")

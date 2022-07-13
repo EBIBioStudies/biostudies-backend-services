@@ -26,10 +26,7 @@ class FirePageTabService(
         val fileListFiles = pageTabUtil.generateFileListPageTab(sub, fireTempFolder)
         val section = processingService.process(sub.section) { withTabFiles(it, sub.relPath, fileListFiles) }
         return when {
-            section.changed -> sub.copy(
-                pageTabFiles = subExtFiles(subFiles, sub.relPath),
-                section = section.section
-            )
+            section.changed -> sub.copy(pageTabFiles = subExtFiles(subFiles, sub.relPath), section = section.section)
             else -> sub.copy(pageTabFiles = subExtFiles(subFiles, sub.relPath))
         }
     }
