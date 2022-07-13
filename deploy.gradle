@@ -82,7 +82,7 @@ task deployBioCommandLine {
 
 task updatePmcArtifact {
     doFirst {
-        project.ext.artifactPath = "scheduler/pmc-processor-task/build/libs"
+        project.ext.artifactPath = "scheduler/tasks/pmc-processor-task/build/libs"
         project.ext.artifactName = "pmc-processor-task-1.0.0.jar"
     }
 
@@ -91,7 +91,7 @@ task updatePmcArtifact {
 
 task updateExporterArtifact {
     doFirst {
-        project.ext.artifactPath = "scheduler/exporter-task/build/libs"
+        project.ext.artifactPath = "scheduler/tasks/exporter-task/build/libs"
         project.ext.artifactName = "exporter-task-1.0.0.jar"
     }
 
@@ -100,7 +100,7 @@ task updateExporterArtifact {
 
 task updateReleaserArtifact {
     doFirst {
-        project.ext.artifactPath = "scheduler/submission-releaser-task/build/libs"
+        project.ext.artifactPath = "scheduler/tasks/submission-releaser-task/build/libs"
         project.ext.artifactName = "submission-releaser-task-1.0.0.jar"
     }
 

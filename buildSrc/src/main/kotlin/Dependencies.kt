@@ -73,11 +73,11 @@ object Versions {
     const val SpringAdminVersion = "2.3.1"
 
     const val KotlinVersion = "1.6.10"
-    const val KotlinCoroutinesVersion = "1.6.0"
+    const val KotlinCoroutinesVersion = "1.6.3"
 
     const val KotlinLoggingVersion = "1.6.20"
     const val KotlinArrowVersion = "0.8.2"
-    const val KMongoCoroutineVersion = "4.1.3"
+    const val KMongoCoroutineVersion = "4.6.1"
     const val JpaEntityGraphVersion = "2.2.3"
     const val MongockVersion = "4.3.8"
 
@@ -98,7 +98,7 @@ object Versions {
     const val HibernateEMVersion = "5.3.5.Final"
     const val JschVersion = "0.1.55"
     const val Retrofit2Version = "2.9.0"
-    const val OkHttpLoggingVersion = "3.8.0"
+    const val OkHttpLoggingVersion = "4.10.0"
     const val JSONOrgVersion = "20201115"
     const val CliKtVersion = "1.7.0"
     const val RxJava2Version = "2.2.8"
@@ -251,7 +251,7 @@ object Projects {
     const val SubmissionSubmitter = ":submission:submitter"
     const val ClientBioWebClient = ":client:bio-webclient"
     const val ClientFireWebClient = ":client:fire-webclient"
-    const val SchedulerTaskProperties = ":scheduler:task-properties"
-    const val SchedulerClusterClient = ":scheduler:cluster-client"
+    const val SchedulerTaskProperties = ":scheduler:common:task-properties"
+    const val SchedulerClusterClient = ":scheduler:common:cluster-client"
     const val EventsPublisher = ":events:events-publisher"
 }
