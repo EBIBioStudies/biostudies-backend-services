@@ -1,7 +1,7 @@
 .deploy-prod-scheduler:
   dependencies:
     - build-test
-    script: gradle deployScheduler -Penv=prod -PdeployPath=$APPS_PATH/scheduler/prod
+  script: gradle deployScheduler -Penv=prod -PdeployPath=$APPS_PATH/scheduler/prod
 
 auto-deploy-prod-scheduler:
   extends: .deploy-prod-scheduler
