@@ -32,13 +32,17 @@ stages:
   - auto-deploy-beta-handlers
   - auto-deploy-prod-handlers
   - auto-deploy-sandbox-handlers
+  - auto-deploy-prod-scheduler
+  - auto-deploy-prod-exporter-task
+  - auto-deploy-prod-releaser-task
+  - auto-deploy-prod-pmc-processor-task
   - deploy-dev-submitter
   - deploy-beta-submitter
   - deploy-prod-submitter
   - deploy-sandbox-submitter
-  - deploy-dev-pmc
-  - deploy-beta-pmc
-  - deploy-prod-pmc
+  - deploy-dev-pmc-processor-task
+  - deploy-beta-pmc-processor-task
+  - deploy-prod-pmc-processor-task
   - deploy-dev-exporter-task
   - deploy-beta-exporter-task
   - deploy-prod-exporter-task
