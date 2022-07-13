@@ -59,10 +59,10 @@ tasks.register("buildArtifacts") {
     dependsOn(
         "client:bio-commandline:shadowJar",
         "bio-admin:bootJar",
-        "scheduler:exporter-task:bootJar",
+        "submission:submission-webapp:bootJar",
         "scheduler:scheduler:bootJar",
-        "scheduler:pmc-processor-task:bootJar",
-        "scheduler:submission-releaser-task:bootJar",
+        "scheduler:tasks:pmc-processor-task:bootJar",
+        "scheduler:tasks:submission-releaser-task:bootJar",
         "submission:submission-handlers:bootJar",
         "submission:submission-webapp:bootJar"
     )

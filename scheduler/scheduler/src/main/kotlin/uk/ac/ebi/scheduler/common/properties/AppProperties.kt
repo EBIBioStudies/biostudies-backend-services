@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component
 class AppProperties {
     lateinit var appsFolder: String
     lateinit var notificationsUrl: String
+    lateinit var javaHome: String
 
     @NestedConfigurationProperty
     var dailyScheduling: DailyScheduling = DailyScheduling()
