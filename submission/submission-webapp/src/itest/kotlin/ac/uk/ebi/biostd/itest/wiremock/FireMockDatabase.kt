@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.itest.wiremock
 
-import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import uk.ac.ebi.fire.client.model.FileSystemEntry
@@ -51,12 +50,6 @@ class FireMockDatabase(
         }
     }
 
-    fun updateMetadata(fireOid: String, entries: List<MetadataEntry>) {
-        val file = records.getValue(fireOid)
-        val metadata = merge(file.file.metadata.orEmpty(), entries)
-        records[fireOid] = file.copy(file = file.file.copy(metadata = metadata))
-    }
-
     fun publish(fireOid: String) {
         val file = records.getValue(fireOid)
         records[fireOid] = file.copy(published = true)
@@ -73,9 +66,6 @@ class FireMockDatabase(
         records[fireOid] = record.copy(published = false)
         if (record.path != null) Files.delete(ftpFolder.resolve(record.path))
     }
-
-    fun findByMetadata(entries: List<MetadataEntry>): List<FireApiFile> =
-        records.values.map { it.toFile() }.filter { it.metadata?.containsAll(entries).orFalse() }
 
     fun findByMd5(md5: String): List<FireApiFile> = records.values.map { it.toFile() }.filter { it.objectMd5 == md5 }
 

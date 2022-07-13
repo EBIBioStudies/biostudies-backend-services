@@ -8,10 +8,10 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.extended.serialization.service.TrackSection
 import uk.ac.ebi.fire.client.integration.web.FireClient
-import uk.ac.ebi.fire.client.model.FileType
 import java.io.File
 
 class FirePageTabService(
@@ -24,18 +24,17 @@ class FirePageTabService(
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
         val subFiles = pageTabUtil.generateSubPageTab(sub, fireTempFolder)
         val fileListFiles = pageTabUtil.generateFileListPageTab(sub, fireTempFolder)
-        val section = processingService.process(sub.section) { withTabFiles(sub.accNo, it, sub.relPath, fileListFiles) }
+        val section = processingService.process(sub.section) { withTabFiles(it, sub.relPath, fileListFiles) }
         return when {
             section.changed -> sub.copy(
-                pageTabFiles = subExtFiles(sub.accNo, subFiles, sub.relPath),
+                pageTabFiles = subExtFiles(subFiles, sub.relPath),
                 section = section.section
             )
-            else -> sub.copy(pageTabFiles = subExtFiles(sub.accNo, subFiles, sub.relPath))
+            else -> sub.copy(pageTabFiles = subExtFiles(subFiles, sub.relPath))
         }
     }
 
     private fun withTabFiles(
-        accNo: String,
         sec: ExtSection,
         path: String,
         pageTabFiles: Map<String, PageTabFiles>,
@@ -47,43 +46,33 @@ class FirePageTabService(
                 val files = pageTabFiles.getValue(name)
                 TrackSection(
                     changed = true,
-                    section = sec.copy(fileList = lst.copy(pageTabFiles = fileListFiles(accNo, files, path, name)))
+                    section = sec.copy(fileList = lst.copy(pageTabFiles = fileListFiles(files, path, name)))
                 )
             }
         }
     }
 
-    private fun fileListFiles(accNo: String, pageTab: PageTabFiles, subFolder: String, fileListName: String) = listOf(
-        saveFileListFile(accNo, pageTab.json, subFolder, "$fileListName.json"),
-        saveFileListFile(accNo, pageTab.xml, subFolder, "$fileListName.xml"),
-        saveFileListFile(accNo, pageTab.tsv, subFolder, "$fileListName.${tsvPagetabExtension.tsvExtension()}")
+    private fun fileListFiles(pageTab: PageTabFiles, subFolder: String, fileListName: String) = listOf(
+        saveFileListFile(pageTab.json, subFolder, "$fileListName.json"),
+        saveFileListFile(pageTab.xml, subFolder, "$fileListName.xml"),
+        saveFileListFile(pageTab.tsv, subFolder, "$fileListName.${tsvPagetabExtension.tsvExtension()}")
     )
 
-    private fun saveFileListFile(accNo: String, file: File, subFolder: String, filePath: String): FireFile {
+    private fun saveFileListFile(file: File, subFolder: String, filePath: String): FireFile {
         val relPath = "Files/$filePath"
-        val fireFile = fireClient.persistFireFile(accNo, file, FileType.FILE, file.md5(), "$subFolder/$relPath")
-
-        return FireFile(
-            filePath,
-            relPath,
-            fireFile.fireOid,
-            fireFile.objectMd5,
-            fireFile.objectSize.toLong(),
-            FILE,
-            listOf()
-        )
+        val save = fireClient.persistFireFile(file, file.md5(), file.size(), "$subFolder/$relPath")
+        return FireFile(filePath, relPath, save.fireOid, save.objectMd5, save.objectSize.toLong(), FILE, listOf())
     }
 
-    private fun subExtFiles(accNo: String, pageTab: PageTabFiles, subFolder: String): List<ExtFile> = listOf(
-        saveSubFile(accNo, pageTab.json, subFolder),
-        saveSubFile(accNo, pageTab.xml, subFolder),
-        saveSubFile(accNo, pageTab.tsv, subFolder)
+    private fun subExtFiles(pageTab: PageTabFiles, subFolder: String): List<ExtFile> = listOf(
+        saveSubFile(pageTab.json, subFolder),
+        saveSubFile(pageTab.xml, subFolder),
+        saveSubFile(pageTab.tsv, subFolder)
     )
 
-    private fun saveSubFile(accNo: String, file: File, subFolder: String): FireFile {
+    private fun saveSubFile(file: File, subFolder: String): FireFile {
         val fName = file.name
-        val saved = fireClient.persistFireFile(accNo, file, FileType.FILE, file.md5(), "$subFolder/$fName")
-
+        val saved = fireClient.persistFireFile(file, file.md5(), file.size(), "$subFolder/$fName")
         return FireFile(fName, fName, saved.fireOid, saved.objectMd5, saved.objectSize.toLong(), FILE, listOf())
     }
 }

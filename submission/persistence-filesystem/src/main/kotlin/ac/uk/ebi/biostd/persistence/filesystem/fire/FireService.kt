@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
-import ac.uk.ebi.biostd.persistence.filesystem.extensions.fireType
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
@@ -10,8 +9,6 @@ import ebi.ac.uk.extended.model.NfsFile
 import mu.KotlinLogging
 import org.zeroturnaround.zip.ZipUtil
 import uk.ac.ebi.fire.client.integration.web.FireClient
-import uk.ac.ebi.fire.client.model.isAvailable
-import uk.ac.ebi.fire.client.model.path
 import java.io.File
 import java.nio.file.Files
 
@@ -37,40 +34,38 @@ class FireService(
      * different path) and if so, even if the file exists in FIRE, it gets duplicated to ensure consistency.
      */
     fun getOrPersist(sub: ExtSubmission, file: ExtFile): FirePersistResult = when (file) {
-        is FireFile -> fromFireFile(sub, file, "${sub.relPath}/${file.relPath}")
+        is FireFile -> fromFireFile(file, "${sub.relPath}/${file.relPath}")
         is NfsFile -> when (file.type) {
-            FILE -> fromNfsFile(sub, file, "${sub.relPath}/${file.relPath}")
-            DIR -> fromNfsFile(sub, file.copy(file = compress(sub, file.file)), "${sub.relPath}/${file.relPath}.zip")
+            FILE -> fromNfsFile(file, "${sub.relPath}/${file.relPath}")
+            DIR -> fromNfsFile(file.copy(file = compress(sub, file.file)), "${sub.relPath}/${file.relPath}.zip")
         }
     }
 
-    private fun fromNfsFile(sub: ExtSubmission, file: NfsFile, expectedPath: String): FirePersistResult =
-        reuseOrPersistFireFile(sub, file, expectedPath) { file.file }
+    private fun fromNfsFile(file: NfsFile, expectedPath: String): FirePersistResult =
+        reuseOrPersistFireFile(file, expectedPath) { file.file }
 
-    private fun fromFireFile(sub: ExtSubmission, file: FireFile, expectedPath: String): FirePersistResult =
-        reuseOrPersistFireFile(sub, file, expectedPath) { client.downloadByFireId(file.fireId, file.fileName) }
+    private fun fromFireFile(file: FireFile, expectedPath: String): FirePersistResult =
+        reuseOrPersistFireFile(file, expectedPath) { client.downloadByFireId(file.fireId, file.fileName) }
 
     @Suppress("ReturnCount")
     private fun reuseOrPersistFireFile(
-        sub: ExtSubmission,
         file: ExtFile,
         expectedPath: String,
         fallbackFile: () -> File,
     ): FirePersistResult {
-        val fireFile = client.findByMd5(file.md5).firstOrNull { it.isAvailable(sub.accNo) }
-        if (fireFile != null) {
-            when (fireFile.path) {
-                null -> return FirePersistResult(setMetadata(sub, fireFile.fireOid, file, expectedPath), false)
-                expectedPath -> return FirePersistResult(asFireFile(file, fireFile.fireOid), false)
-            }
-        }
+        val files = client.findByMd5(file.md5)
 
-        val saved = client.save(fallbackFile(), file.md5)
-        return FirePersistResult(setMetadata(sub, saved.fireOid, file, expectedPath), true)
+        val byPath = files.firstOrNull { it.filesystemEntry?.path == expectedPath }
+        if (byPath != null) return FirePersistResult(asFireFile(file, byPath.fireOid), false)
+
+        val noPath = files.firstOrNull { it.filesystemEntry?.path == null }
+        if (noPath != null) return FirePersistResult(setMetadata(noPath.fireOid, file, expectedPath), false)
+
+        val saved = client.save(fallbackFile(), file.md5, file.size)
+        return FirePersistResult(setMetadata(saved.fireOid, file, expectedPath), true)
     }
 
-    private fun setMetadata(sub: ExtSubmission, fireOid: String, file: ExtFile, path: String): FireFile {
-        client.setBioMetadata(fireOid, sub.accNo, file.fireType, published = false)
+    private fun setMetadata(fireOid: String, file: ExtFile, path: String): FireFile {
         client.setPath(fireOid, path)
         return asFireFile(file, fireOid)
     }

@@ -1,28 +1,21 @@
 package uk.ac.ebi.fire.client.integration.web
 
-import uk.ac.ebi.fire.client.model.FileType
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 
 @Suppress("TooManyFunctions")
 interface FireClient {
-    fun save(file: File, md5: String): FireApiFile
+    fun save(file: File, md5: String, size: Long): FireApiFile
 
     fun setPath(fireOid: String, path: String)
 
     fun unsetPath(fireOid: String)
-
-    fun setBioMetadata(fireOid: String, accNo: String? = null, fileType: FileType? = null, published: Boolean? = null)
 
     fun downloadByPath(path: String): File?
 
     fun downloadByFireId(fireOid: String, fileName: String): File
 
     fun findByMd5(md5: String): List<FireApiFile>
-
-    fun findByAccNo(accNo: String): List<FireApiFile>
-
-    fun findByAccNoAndPublished(accNo: String, published: Boolean): List<FireApiFile>
 
     fun findByPath(path: String): FireApiFile?
 

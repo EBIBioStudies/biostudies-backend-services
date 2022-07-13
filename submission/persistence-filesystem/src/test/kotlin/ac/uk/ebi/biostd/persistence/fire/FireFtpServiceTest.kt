@@ -71,21 +71,16 @@ class FireFtpServiceTest(
     }
 
     private fun verifyFtpPublish() = verify(exactly = 1) {
-        fun verifyPublishFile(fireId: String) {
-            fireClient.publish(fireId)
-            fireClient.setBioMetadata(fireId, published = true)
-        }
-
-        verifyPublishFile(FILE_FILE_LIST)
-        verifyPublishFile(FILE_PAGE_TAB)
-        verifyPublishFile(FIRE_FILE)
-        verifyPublishFile(FILE_TABLE)
-        verifyPublishFile(INNER_FILE_FILE_LIST)
-        verifyPublishFile(INNER_FILE_PAGE_TAB)
-        verifyPublishFile(INNER_FILE)
-        verifyPublishFile(INNER_FILE_TABLE)
-        verifyPublishFile(SUB_FILE_PAGE_TAB)
-        verifyPublishFile(FIRE_DIR)
+        fireClient.publish(FILE_FILE_LIST)
+        fireClient.publish(FILE_PAGE_TAB)
+        fireClient.publish(FIRE_FILE)
+        fireClient.publish(FILE_TABLE)
+        fireClient.publish(INNER_FILE_FILE_LIST)
+        fireClient.publish(INNER_FILE_PAGE_TAB)
+        fireClient.publish(INNER_FILE)
+        fireClient.publish(INNER_FILE_TABLE)
+        fireClient.publish(SUB_FILE_PAGE_TAB)
+        fireClient.publish(FIRE_DIR)
     }
 
     private fun createExtSubmission(

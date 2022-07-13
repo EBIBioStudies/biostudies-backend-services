@@ -7,9 +7,7 @@ import ac.uk.ebi.biostd.itest.wiremock.handlers.Md5QueryHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.PathDownloadHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.PathQueryHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.PublishHandler
-import ac.uk.ebi.biostd.itest.wiremock.handlers.QueryMetadataHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.RequestHandler
-import ac.uk.ebi.biostd.itest.wiremock.handlers.SaveMetadataHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.SetPathHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.UnPublishHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.UnSetPathHandler
@@ -63,8 +61,6 @@ class TestWireMockTransformer constructor(
                 listOf(
                     Md5QueryHandler(fireDatabase),
                     PathQueryHandler(fireDatabase),
-                    QueryMetadataHandler(fireDatabase),
-                    SaveMetadataHandler(fireDatabase),
                     FileSaveHandler(fireDatabase),
                     PathDownloadHandler(fireDatabase),
                     SetPathHandler(fireDatabase),

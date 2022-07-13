@@ -4,11 +4,12 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.model.Attribute
 import java.io.File
 
-@JvmInline
-value class FileSourcesList(val sources: List<FilesSource>) {
-    fun getExtFile(path: String, md5: String? = null, attributes: List<Attribute> = emptyList()): ExtFile? =
-        sources.firstNotNullOfOrNull { it.getExtFile(path, md5, attributes) }
+class FileSourcesList(val sources: List<FilesSource>) {
+    fun getExtFile(path: String, md5: String? = null, attributes: List<Attribute> = emptyList()): ExtFile? {
+        return sources.firstNotNullOfOrNull { it.getExtFile(path, md5, attributes) }
+    }
 
-    fun getFile(path: String, md5: String? = null): File? =
-        sources.firstNotNullOfOrNull { it.getFile(path, md5) }
+    fun getFile(path: String, md5: String? = null): File? {
+        return sources.firstNotNullOfOrNull { it.getFile(path, md5) }
+    }
 }

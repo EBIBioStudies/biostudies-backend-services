@@ -1,6 +1,5 @@
 package uk.ac.ebi.fire.client.api
 
-import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -19,17 +18,13 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.NOT_FOUND
-import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
-import org.springframework.web.client.postForObject
 import uk.ac.ebi.fire.client.exception.FireClientException
-import uk.ac.ebi.fire.client.model.FileType
 import uk.ac.ebi.fire.client.model.FireApiFile
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
@@ -51,7 +46,7 @@ class FireWebClientTest(
             template.postForObject(FIRE_OBJECTS_URL, capture(httpEntitySlot), FireApiFile::class.java)
         } returns fireFile
 
-        testInstance.save(file, "the-md5")
+        testInstance.save(file, "the-md5", 55)
 
         val httpEntity = httpEntitySlot.captured
         assertThat(httpEntity.headers[FIRE_MD5_HEADER]!!.first()).isEqualTo("the-md5")
@@ -86,25 +81,6 @@ class FireWebClientTest(
         testInstance.unsetPath("the-fire-oid")
 
         verify(exactly = 1) { template.delete("$FIRE_OBJECTS_URL/the-fire-oid/firePath") }
-    }
-
-    @Test
-    fun `set bio metadata`() {
-        val httpEntitySlot = slot<HttpEntity<String>>()
-        val expectedMetadata = jsonObj {
-            FIRE_BIO_ACC_NO to "S-BSST0"
-            FIRE_BIO_FILE_TYPE to "file"
-            FIRE_BIO_PUBLISHED to false
-        }.toString()
-
-        every { template.put("$FIRE_OBJECTS_URL/fire-oid/metadata/set", capture(httpEntitySlot)) } answers { nothing }
-
-        testInstance.setBioMetadata("fire-oid", "S-BSST0", FileType.FILE, false)
-
-        val httpEntity = httpEntitySlot.captured
-        assertThat(httpEntity.body).isEqualToIgnoringWhitespace(expectedMetadata)
-        assertThat(httpEntity.headers[CONTENT_TYPE]!!.first()).isEqualTo(APPLICATION_JSON_VALUE)
-        verify(exactly = 1) { template.put("$FIRE_OBJECTS_URL/fire-oid/metadata/set", httpEntity) }
     }
 
     @Test
@@ -170,49 +146,6 @@ class FireWebClientTest(
         assertThat(files.first()).isEqualTo(fireFile)
         verify(exactly = 1) {
             template.getForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/md5/the-md5")
-        }
-    }
-
-    @Test
-    fun `find by accNo`(@MockK fireFile: FireApiFile) {
-        val httpEntitySlot = slot<HttpEntity<String>>()
-        every {
-            template.postForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/metadata", capture(httpEntitySlot))
-        } returns arrayOf(fireFile)
-
-        val files = testInstance.findByAccNo("S-BSST0")
-
-        val httpEntity = httpEntitySlot.captured
-        assertThat(files).hasSize(1)
-        assertThat(files.first()).isEqualTo(fireFile)
-        assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\" }")
-        assertThat(httpEntity.headers[CONTENT_TYPE]!!.first()).isEqualTo(APPLICATION_JSON_VALUE)
-        verify(exactly = 1) {
-            template.postForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/metadata", httpEntity)
-        }
-    }
-
-    @Test
-    fun `find by accNo and published`(@MockK fireFile: FireApiFile) {
-        val httpEntitySlot = slot<HttpEntity<String>>()
-        val expectedMetadata = jsonObj {
-            FIRE_BIO_ACC_NO to "S-BSST0"
-            FIRE_BIO_PUBLISHED to true
-        }.toString()
-
-        every {
-            template.postForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/metadata", capture(httpEntitySlot))
-        } returns arrayOf(fireFile)
-
-        val files = testInstance.findByAccNoAndPublished("S-BSST0", true)
-
-        val httpEntity = httpEntitySlot.captured
-        assertThat(files).hasSize(1)
-        assertThat(files.first()).isEqualTo(fireFile)
-        assertThat(httpEntity.body).isEqualToIgnoringWhitespace(expectedMetadata)
-        assertThat(httpEntity.headers[CONTENT_TYPE]!!.first()).isEqualTo(APPLICATION_JSON_VALUE)
-        verify(exactly = 1) {
-            template.postForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/metadata", httpEntity)
         }
     }
 
