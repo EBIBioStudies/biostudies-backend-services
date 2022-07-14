@@ -5,5 +5,6 @@ import ebi.ac.uk.extended.model.ExtSubmission
 
 interface FilesService {
     fun persistSubmissionFiles(rqt: FilePersistenceRequest): ExtSubmission
+
     fun cleanSubmissionFiles(sub: ExtSubmission)
 }

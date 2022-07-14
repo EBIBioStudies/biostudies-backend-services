@@ -18,6 +18,7 @@ class FireFilesService(
     private val serializationService: ExtSerializationService,
 ) : FilesService {
     override fun persistSubmissionFiles(rqt: FilePersistenceRequest): ExtSubmission = processFiles(rqt.submission)
+
     override fun cleanSubmissionFiles(sub: ExtSubmission) = cleanPreviousFiles(sub)
 
     private fun cleanPreviousFiles(sub: ExtSubmission) {

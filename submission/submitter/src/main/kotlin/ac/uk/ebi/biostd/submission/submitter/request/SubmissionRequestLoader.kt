@@ -19,11 +19,12 @@ class SubmissionRequestLoader(
 ) {
 
     internal fun loadRequest(accNo: String, version: Int): SubmissionRequest {
-        logger.info { "Loading request accNo='$accNo', version='$version'" }
-        val rqt = submissionPersistenceQueryService.getPendingRequest(accNo, version)
-        val full = processRequest(rqt.submission)
-        logger.info { "Finish Loading request accNo='$accNo', version='$version'" }
-        return SubmissionRequest(full, rqt.fileMode, rqt.draftKey)
+        logger.info { "Started loading request accNo='$accNo', version='$version'" }
+        val request = submissionPersistenceQueryService.getPendingRequest(accNo, version)
+        val processed = processRequest(request.submission)
+        logger.info { "Finished loading request accNo='$accNo', version='$version'" }
+
+        return request.copy(submission = processed)
     }
 
     private fun processRequest(sub: ExtSubmission): ExtSubmission =
