@@ -7,7 +7,11 @@ data class SubmissionRequest(
     val submission: ExtSubmission,
     val fileMode: FileMode,
     val draftKey: String? = null,
-    val previousVersion: ExtSubmission? = null,
-) {
-    operator fun component5() = submission.accNo
-}
+)
+
+data class ProcessedSubmissionRequest(
+    val submission: ExtSubmission,
+    val fileMode: FileMode,
+    val draftKey: String? = null,
+    val previousVersion: ExtSubmission?,
+)

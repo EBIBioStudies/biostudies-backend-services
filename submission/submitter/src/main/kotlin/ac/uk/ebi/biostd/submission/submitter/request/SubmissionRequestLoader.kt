@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.ProcessedSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -18,13 +18,12 @@ class SubmissionRequestLoader(
     private val fileProcessingService: FileProcessingService,
 ) {
 
-    internal fun loadRequest(accNo: String, version: Int): SubmissionRequest {
+    internal fun loadRequest(accNo: String, version: Int): ProcessedSubmissionRequest {
         logger.info { "Started loading request accNo='$accNo', version='$version'" }
-        val request = submissionPersistenceQueryService.getPendingRequest(accNo, version)
-        val processed = processRequest(request.submission)
+        val original = submissionPersistenceQueryService.getPendingRequest(accNo, version)
+        val processed = processRequest(original.submission)
         logger.info { "Finished loading request accNo='$accNo', version='$version'" }
-
-        return request.copy(submission = processed)
+        return ProcessedSubmissionRequest(processed, original.fileMode, original.draftKey, original.previousVersion)
     }
 
     private fun processRequest(sub: ExtSubmission): ExtSubmission =

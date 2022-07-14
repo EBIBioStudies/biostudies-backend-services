@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.ProcessedSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
@@ -14,7 +14,7 @@ class SubmissionRequestProcessor(
     private val submissionPersistenceService: SubmissionPersistenceService,
 ) {
 
-    fun processRequest(saveRequest: SubmissionRequest): ExtSubmission {
+    fun processRequest(saveRequest: ProcessedSubmissionRequest): ExtSubmission {
         val (sub, fileMode, draftKey) = saveRequest
         logger.info { "${sub.accNo} ${sub.owner} processing request accNo='${sub.accNo}', version='${sub.version}'" }
 

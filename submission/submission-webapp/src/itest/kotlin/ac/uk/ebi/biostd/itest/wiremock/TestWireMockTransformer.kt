@@ -36,7 +36,7 @@ class TestWireMockTransformer constructor(
         failIfApply()
         return handlers
             .firstOrNull { it.urlPattern.matches(request.url) && it.requestMethod == request.method }
-            ?.handle(request)
+            ?.handleSafely(request)
             ?: throw WebClientException(HttpStatus.BAD_REQUEST, "http method ${request.method.name} is not supported")
     }
 

@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
+import ac.uk.ebi.biostd.persistence.common.request.ProcessedSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -81,10 +81,10 @@ internal class SubmissionMongoPersistenceQueryService(
             else -> submissionRepo.getSubmissions(filter, owner).map { it.asBasicSubmission(PROCESSED) }
         }
 
-    override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
+    override fun getPendingRequest(accNo: String, version: Int): ProcessedSubmissionRequest {
         val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, REQUESTED)
         val stored = serializationService.deserialize(request.submission.toString())
-        return SubmissionRequest(
+        return ProcessedSubmissionRequest(
             submission = stored,
             fileMode = request.fileMode,
             draftKey = request.draftKey,
