@@ -1,6 +1,5 @@
 package uk.ac.ebi.fire.client.api
 
-import ebi.ac.uk.io.ext.size
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -19,10 +18,6 @@ internal const val FIRE_FILE_PARAM = "file"
 internal const val FIRE_MD5_HEADER = "x-fire-md5"
 internal const val FIRE_PATH_HEADER = "x-fire-path"
 internal const val FIRE_SIZE_HEADER = "x-fire-size"
-internal const val FIRE_BIO_PUBLISHED = "bio-published"
-
-const val FIRE_BIO_ACC_NO = "bio-accNo"
-const val FIRE_BIO_FILE_TYPE = "bio-file-type"
 const val FIRE_OBJECTS_URL = "/objects"
 
 @Suppress("TooManyFunctions")
@@ -33,7 +28,7 @@ internal class FireWebClient(
     override fun save(file: File, md5: String, size: Long): FireApiFile {
         val headers = HttpHeaders().apply {
             set(FIRE_MD5_HEADER, md5)
-            set(FIRE_SIZE_HEADER, file.size().toString())
+            set(FIRE_SIZE_HEADER, size.toString())
         }
         val formData = listOf(FIRE_FILE_PARAM to FileSystemResource(file))
         val body = LinkedMultiValueMap(formData.groupBy({ it.first }, { it.second }))

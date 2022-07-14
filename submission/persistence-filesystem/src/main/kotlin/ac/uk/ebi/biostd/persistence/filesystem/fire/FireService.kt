@@ -18,11 +18,9 @@ class FireService(
     private val client: FireClient,
     private val fireTempDirPath: File,
 ) {
-    fun cleanFile(file: ExtFile) {
-        if (file is FireFile) {
-            client.unsetPath(file.fireId)
-            client.unpublish(file.fireId)
-        }
+    fun cleanFile(file: FireFile) {
+        client.unsetPath(file.fireId)
+        client.unpublish(file.fireId)
     }
 
     /**
@@ -55,11 +53,11 @@ class FireService(
     ): FirePersistResult {
         val files = client.findByMd5(file.md5)
 
-        val byPath = files.firstOrNull { it.filesystemEntry?.path == expectedPath }
-        if (byPath != null) return FirePersistResult(asFireFile(file, byPath.fireOid), false)
-
         val noPath = files.firstOrNull { it.filesystemEntry?.path == null }
         if (noPath != null) return FirePersistResult(setMetadata(noPath.fireOid, file, expectedPath), false)
+
+        val byPath = files.firstOrNull { it.filesystemEntry?.path == expectedPath }
+        if (byPath != null) return FirePersistResult(asFireFile(file, byPath.fireOid), false)
 
         val saved = client.save(fallbackFile(), file.md5, file.size)
         return FirePersistResult(setMetadata(saved.fireOid, file, expectedPath), true)

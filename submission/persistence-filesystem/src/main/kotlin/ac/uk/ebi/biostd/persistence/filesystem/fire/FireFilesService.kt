@@ -21,14 +21,14 @@ class FireFilesService(
     override fun cleanSubmissionFiles(sub: ExtSubmission) = cleanPreviousFiles(sub)
 
     private fun cleanPreviousFiles(sub: ExtSubmission) {
-        fun cleanFile(file: ExtFile, index: Int) {
+        fun cleanFile(file: FireFile, index: Int) {
             logger.debug { "${sub.accNo}, ${sub.version} Cleaning file $index, path='${file.filePath}'" }
             fireService.cleanFile(file)
             logger.debug { "${sub.accNo}, ${sub.version} Cleaning file $index, path='${file.filePath}'" }
         }
 
         logger.info { "${sub.accNo} ${sub.owner} Cleaning Current submission Folder for ${sub.accNo}" }
-        serializationService.forEachFile(sub) { file, index -> cleanFile(file, index) }
+        serializationService.forEachFile(sub) { file, index -> if (file is FireFile) cleanFile(file, index) }
         logger.info { "${sub.accNo} ${sub.owner} Cleaning Ftp Folder for ${sub.accNo}" }
     }
 

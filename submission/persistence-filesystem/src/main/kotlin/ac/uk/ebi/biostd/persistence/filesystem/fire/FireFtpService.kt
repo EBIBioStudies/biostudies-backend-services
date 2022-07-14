@@ -33,7 +33,7 @@ class FireFtpService(
     }
 
     private fun publishFile(sub: ExtSubmission, fireId: String, index: Int) {
-        logger.debug { "${sub.accNo}, ${sub.version} publishing file $index, fireId='$fireId'" }
+        logger.debug { "${sub.accNo}, ${sub.owner} publishing file $index, fireId='$fireId'" }
         fireClient.publish(fireId)
     }
 }
