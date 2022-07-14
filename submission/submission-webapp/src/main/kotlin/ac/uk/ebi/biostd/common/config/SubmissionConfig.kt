@@ -5,9 +5,10 @@ import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
+import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
-import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
@@ -52,12 +53,14 @@ class SubmissionConfig(
         extSubmissionSubmitter: ExtSubmissionSubmitter,
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
+        fileService: FilesService,
     ): SubmissionService = SubmissionService(
         submissionPersistenceQueryService,
         userPrivilegeService,
         extSubmissionSubmitter,
         submissionSubmitter,
         eventsPublisherService,
+        fileService
     )
 
     @Bean
@@ -73,6 +76,7 @@ class SubmissionConfig(
         securityQueryService: ISecurityQueryService,
         properties: ApplicationProperties,
         eventsPublisherService: EventsPublisherService,
+        fileService: FilesService,
     ): ExtSubmissionService =
         ExtSubmissionService(
             submissionSubmitter,
@@ -80,7 +84,8 @@ class SubmissionConfig(
             userPrivilegeService,
             securityQueryService,
             properties,
-            eventsPublisherService
+            eventsPublisherService,
+            fileService
         )
 
     @Bean
@@ -109,13 +114,13 @@ class SubmissionConfig(
 
     @Bean
     fun submitRequestBuilder(
-        tempFileGenerator: TempFileGenerator
+        tempFileGenerator: TempFileGenerator,
     ): SubmitRequestBuilder = SubmitRequestBuilder(tempFileGenerator)
 
     @Bean
     fun submissionHandler(
         submissionService: SubmissionService,
-        submissionQueryService: SubmissionQueryService
+        submissionQueryService: SubmissionQueryService,
     ): SubmissionsWebHandler = SubmissionsWebHandler(submissionService, submissionQueryService)
 
     @Bean

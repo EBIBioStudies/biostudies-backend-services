@@ -26,7 +26,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFiel
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
@@ -77,7 +76,6 @@ class SubmissionRefreshApiTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val submissionDocRepository: SubmissionDocDataRepository,
-    @Autowired val submissionRequestRepository: SubmissionRequestDocDataRepository,
     @Autowired val fileListRepository: FileListDocFileDocDataRepository,
     @LocalServerPort val serverPort: Int,
 ) {
@@ -137,17 +135,13 @@ class SubmissionRefreshApiTest(
 
     @BeforeEach
     fun beforeEach() {
-        fileListRepository.deleteAll()
-        submissionDocRepository.deleteAll()
-        submissionRequestRepository.deleteAll()
-
         val filesConfig = SubmissionFilesConfig(listOf(refreshFile, fileList, fileListFile))
         webClient.submitSingle(testSubmission, TSV, filesConfig)
     }
 
     @Test
     fun `refresh when submission title is updated`() {
-        val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1)))
+        val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).gt(0)))
         val update = update(SUB_TITLE, NEW_SUBTITLE)
         mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
 
@@ -159,7 +153,7 @@ class SubmissionRefreshApiTest(
 
     @Test
     fun `refresh when submission release date is updated`() {
-        val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1)))
+        val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).gt(0)))
         val update = update(SUB_RELEASE_TIME, newReleaseDate.toInstant())
         mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
 
@@ -171,7 +165,7 @@ class SubmissionRefreshApiTest(
 
     @Test
     fun `refresh when submission attribute is updated`() {
-        val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1)))
+        val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).gt(0)))
         val update = update(SUB_ATTRIBUTES, listOf(DocAttribute(ATTR_NAME, NEW_ATTR_VALUE)))
         mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
 
@@ -184,14 +178,14 @@ class SubmissionRefreshApiTest(
     @Test
     fun `refresh when submission fileListFile attribute is updated`() {
         val docSubmission = mongoTemplate.findOne(
-            Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1))),
+            Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).gt(0))),
             DocSubmission::class.java
         )!!
         val query = Query(
             where(FILE_LIST_DOC_FILE_SUBMISSION_ID).`is`(docSubmission.id)
                 .andOperator(
                     where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO).`is`(ACC_NO)
-                        .andOperator(where(FILE_LIST_DOC_FILE_SUBMISSION_VERSION).`is`(1))
+                        .andOperator(where(FILE_LIST_DOC_FILE_SUBMISSION_VERSION).gt(0))
                 )
         )
         val update = update(
@@ -225,13 +219,13 @@ class SubmissionRefreshApiTest(
                 file.size(),
                 "file"
             )
-        val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).`is`(1)))
+        val query = Query(where(SUB_ACC_NO).`is`(ACC_NO).andOperator(where(SUB_VERSION).gt(0)))
         val update = Update().push("$SUB_SECTION.$SEC_FILES", docFile)
         mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
 
         webClient.refreshSubmission(ACC_NO)
 
-        val updatedSub = submissionDocRepository.getSubmission(ACC_NO, 2)
+        val updatedSub = submissionDocRepository.getSubmission(ACC_NO, sub.version + 1)
         val files = updatedSub.section.files
         assertThat(files).hasSize(3)
         if (enableFire) assertThat(files.third()).hasLeftValueSatisfying {
@@ -249,7 +243,7 @@ class SubmissionRefreshApiTest(
     private companion object {
         const val ROOT_PATH = "test-RootPath"
         const val RELEASE_DATE_STRING = "2017-07-04"
-        const val ACC_NO = "SimpleAcc1"
+        const val ACC_NO = "Refresh-001"
         const val SUBTITLE = "Simple Submission"
         const val ATTR_NAME = "custom-attribute"
         const val ATTR_VALUE = "custom-attribute-value"
