@@ -1,6 +1,5 @@
 package uk.ac.ebi.fire.client.api
 
-import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -50,7 +49,7 @@ class FireWebClientTest(
 
         val httpEntity = httpEntitySlot.captured
         assertThat(httpEntity.headers[FIRE_MD5_HEADER]!!.first()).isEqualTo("the-md5")
-        assertThat(httpEntity.headers[FIRE_SIZE_HEADER]!!.first()).isEqualTo(file.size().toString())
+        assertThat(httpEntity.headers[FIRE_SIZE_HEADER]!!.first()).isEqualTo("55")
         assertThat(httpEntity.body!![FIRE_FILE_PARAM]!!.first()).isEqualTo(FileSystemResource(file))
         verify(exactly = 1) {
             template.postForObject(
