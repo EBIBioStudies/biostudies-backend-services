@@ -1,7 +1,5 @@
 package uk.ac.ebi.fire.client.api
 
-import ebi.ac.uk.dsl.json.jsonObj
-import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -19,17 +17,12 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.NOT_FOUND
-import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
-import org.springframework.web.client.postForObject
-import uk.ac.ebi.fire.client.exception.FireClientException
-import uk.ac.ebi.fire.client.model.FileType
 import uk.ac.ebi.fire.client.model.FireApiFile
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
@@ -48,18 +41,18 @@ class FireWebClientTest(
         val httpEntitySlot = slot<HttpEntity<LinkedMultiValueMap<String, Any>>>()
 
         every {
-            template.postForObject(FIRE_OBJECTS_URL, capture(httpEntitySlot), FireApiFile::class.java)
+            template.postForObject("/objects", capture(httpEntitySlot), FireApiFile::class.java)
         } returns fireFile
 
-        testInstance.save(file, "the-md5")
+        testInstance.save(file, "the-md5", 55)
 
         val httpEntity = httpEntitySlot.captured
         assertThat(httpEntity.headers[FIRE_MD5_HEADER]!!.first()).isEqualTo("the-md5")
-        assertThat(httpEntity.headers[FIRE_SIZE_HEADER]!!.first()).isEqualTo(file.size().toString())
+        assertThat(httpEntity.headers[FIRE_SIZE_HEADER]!!.first()).isEqualTo("55")
         assertThat(httpEntity.body!![FIRE_FILE_PARAM]!!.first()).isEqualTo(FileSystemResource(file))
         verify(exactly = 1) {
             template.postForObject(
-                FIRE_OBJECTS_URL,
+                "/objects",
                 capture(httpEntitySlot),
                 FireApiFile::class.java
             )
@@ -70,41 +63,22 @@ class FireWebClientTest(
     fun `set path`() {
         val httpEntitySlot = slot<HttpEntity<String>>()
 
-        every { template.put("$FIRE_OBJECTS_URL/the-fire-oid/firePath", capture(httpEntitySlot)) } answers { nothing }
+        every { template.put("/objects/the-fire-oid/firePath", capture(httpEntitySlot)) } answers { nothing }
 
         testInstance.setPath("the-fire-oid", "/a/new/path/file2.txt")
 
         val httpEntity = httpEntitySlot.captured
         assertThat(httpEntity.headers[FIRE_PATH_HEADER]!!.first()).isEqualTo("/a/new/path/file2.txt")
-        verify(exactly = 1) { template.put("$FIRE_OBJECTS_URL/the-fire-oid/firePath", httpEntity) }
+        verify(exactly = 1) { template.put("/objects/the-fire-oid/firePath", httpEntity) }
     }
 
     @Test
     fun `unset path`() {
-        every { template.delete("$FIRE_OBJECTS_URL/the-fire-oid/firePath") } answers { nothing }
+        every { template.delete("/objects/the-fire-oid/firePath") } answers { nothing }
 
         testInstance.unsetPath("the-fire-oid")
 
-        verify(exactly = 1) { template.delete("$FIRE_OBJECTS_URL/the-fire-oid/firePath") }
-    }
-
-    @Test
-    fun `set bio metadata`() {
-        val httpEntitySlot = slot<HttpEntity<String>>()
-        val expectedMetadata = jsonObj {
-            FIRE_BIO_ACC_NO to "S-BSST0"
-            FIRE_BIO_FILE_TYPE to "file"
-            FIRE_BIO_PUBLISHED to false
-        }.toString()
-
-        every { template.put("$FIRE_OBJECTS_URL/fire-oid/metadata/set", capture(httpEntitySlot)) } answers { nothing }
-
-        testInstance.setBioMetadata("fire-oid", "S-BSST0", FileType.FILE, false)
-
-        val httpEntity = httpEntitySlot.captured
-        assertThat(httpEntity.body).isEqualToIgnoringWhitespace(expectedMetadata)
-        assertThat(httpEntity.headers[CONTENT_TYPE]!!.first()).isEqualTo(APPLICATION_JSON_VALUE)
-        verify(exactly = 1) { template.put("$FIRE_OBJECTS_URL/fire-oid/metadata/set", httpEntity) }
+        verify(exactly = 1) { template.delete("/objects/the-fire-oid/firePath") }
     }
 
     @Test
@@ -113,9 +87,9 @@ class FireWebClientTest(
     ) {
         val file = tmpFolder.createFile("test.txt", "test content")
 
-        every { template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/S-BSST1/file1.txt") } returns fireFile
+        every { template.getForObject<FireApiFile>("/objects/path/S-BSST1/file1.txt") } returns fireFile
         every {
-            template.getForObject("$FIRE_OBJECTS_URL/blob/path/S-BSST1/file1.txt", ByteArray::class.java)
+            template.getForObject("/objects/blob/path/S-BSST1/file1.txt", ByteArray::class.java)
         } returns file.readBytes()
 
         val downloadedFile = testInstance.downloadByPath("S-BSST1/file1.txt")!!
@@ -123,23 +97,23 @@ class FireWebClientTest(
         assertThat(downloadedFile.readText()).isEqualTo("test content")
         assertThat(downloadedFile.absolutePath).isEqualTo("${tmpFolder.root.absolutePath}/file1.txt")
         verify(exactly = 1) {
-            template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/S-BSST1/file1.txt")
-            template.getForObject("$FIRE_OBJECTS_URL/blob/path/S-BSST1/file1.txt", ByteArray::class.java)
+            template.getForObject<FireApiFile>("/objects/path/S-BSST1/file1.txt")
+            template.getForObject("/objects/blob/path/S-BSST1/file1.txt", ByteArray::class.java)
         }
     }
 
     @Test
     fun `download by path not found`() {
         every {
-            template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/S-BSST1/file1.txt")
-        } throws FireClientException(NOT_FOUND, "file not found")
+            template.getForObject<FireApiFile>("/objects/path/S-BSST1/file1.txt")
+        } throws HttpClientErrorException(NOT_FOUND, "file not found")
 
         assertThat(testInstance.downloadByPath("S-BSST1/file1.txt")).isNull()
         verify(exactly = 1) {
-            template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/S-BSST1/file1.txt")
+            template.getForObject<FireApiFile>("/objects/path/S-BSST1/file1.txt")
         }
         verify(exactly = 0) {
-            template.getForObject("$FIRE_OBJECTS_URL/blob/path/S-BSST1/file1.txt", ByteArray::class.java)
+            template.getForObject("/objects/blob/path/S-BSST1/file1.txt", ByteArray::class.java)
         }
     }
 
@@ -148,7 +122,7 @@ class FireWebClientTest(
         val file = tmpFolder.createFile("test.txt", "test content")
 
         every {
-            template.getForObject("$FIRE_OBJECTS_URL/blob/fireOId", ByteArray::class.java)
+            template.getForObject("/objects/blob/fireOId", ByteArray::class.java)
         } returns file.readBytes()
 
         val downloadedFile = testInstance.downloadByFireId("fireOId", "file1.txt")
@@ -156,80 +130,37 @@ class FireWebClientTest(
         assertThat(downloadedFile.readText()).isEqualTo("test content")
         assertThat(downloadedFile.absolutePath).isEqualTo("${tmpFolder.root.absolutePath}/file1.txt")
         verify(exactly = 1) {
-            template.getForObject("$FIRE_OBJECTS_URL/blob/fireOId", ByteArray::class.java)
+            template.getForObject("/objects/blob/fireOId", ByteArray::class.java)
         }
     }
 
     @Test
     fun `find by md5`(@MockK fireFile: FireApiFile) {
-        every { template.getForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/md5/the-md5") } returns arrayOf(fireFile)
+        every { template.getForObject<Array<FireApiFile>>("/objects/md5/the-md5") } returns arrayOf(fireFile)
 
         val files = testInstance.findByMd5("the-md5")
 
         assertThat(files).hasSize(1)
         assertThat(files.first()).isEqualTo(fireFile)
         verify(exactly = 1) {
-            template.getForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/md5/the-md5")
-        }
-    }
-
-    @Test
-    fun `find by accNo`(@MockK fireFile: FireApiFile) {
-        val httpEntitySlot = slot<HttpEntity<String>>()
-        every {
-            template.postForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/metadata", capture(httpEntitySlot))
-        } returns arrayOf(fireFile)
-
-        val files = testInstance.findByAccNo("S-BSST0")
-
-        val httpEntity = httpEntitySlot.captured
-        assertThat(files).hasSize(1)
-        assertThat(files.first()).isEqualTo(fireFile)
-        assertThat(httpEntity.body).isEqualTo("{ \"$FIRE_BIO_ACC_NO\": \"S-BSST0\" }")
-        assertThat(httpEntity.headers[CONTENT_TYPE]!!.first()).isEqualTo(APPLICATION_JSON_VALUE)
-        verify(exactly = 1) {
-            template.postForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/metadata", httpEntity)
-        }
-    }
-
-    @Test
-    fun `find by accNo and published`(@MockK fireFile: FireApiFile) {
-        val httpEntitySlot = slot<HttpEntity<String>>()
-        val expectedMetadata = jsonObj {
-            FIRE_BIO_ACC_NO to "S-BSST0"
-            FIRE_BIO_PUBLISHED to true
-        }.toString()
-
-        every {
-            template.postForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/metadata", capture(httpEntitySlot))
-        } returns arrayOf(fireFile)
-
-        val files = testInstance.findByAccNoAndPublished("S-BSST0", true)
-
-        val httpEntity = httpEntitySlot.captured
-        assertThat(files).hasSize(1)
-        assertThat(files.first()).isEqualTo(fireFile)
-        assertThat(httpEntity.body).isEqualToIgnoringWhitespace(expectedMetadata)
-        assertThat(httpEntity.headers[CONTENT_TYPE]!!.first()).isEqualTo(APPLICATION_JSON_VALUE)
-        verify(exactly = 1) {
-            template.postForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/metadata", httpEntity)
+            template.getForObject<Array<FireApiFile>>("/objects/md5/the-md5")
         }
     }
 
     @Test
     fun `find by path`(@MockK fireFile: FireApiFile) {
-        every { template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/my/path") } returns fireFile
+        every { template.getForObject<FireApiFile>("/objects/path/my/path") } returns fireFile
 
         val file = testInstance.findByPath("my/path")
 
         assertThat(file).isEqualTo(fireFile)
-        verify(exactly = 1) { template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/my/path") }
+        verify(exactly = 1) { template.getForObject<FireApiFile>("/objects/path/my/path") }
     }
 
     @Test
     fun `find all by path`(@MockK fireFile: FireApiFile) {
         every {
-            template.getForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
+            template.getForObject<Array<FireApiFile>>("/objects/entries/path/my/path")
         } returns arrayOf(fireFile)
 
         val files = testInstance.findAllInPath("my/path")
@@ -237,76 +168,76 @@ class FireWebClientTest(
         assertThat(files).hasSize(1)
         assertThat(files.first()).isEqualTo(fireFile)
         verify(exactly = 1) {
-            template.getForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
+            template.getForObject<Array<FireApiFile>>("/objects/entries/path/my/path")
         }
     }
 
     @Test
     fun `find all by path when FireClientException with NOT_FOUND status code`() {
         every {
-            template.getForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
-        }.throws(FireClientException(NOT_FOUND, "no files found in the given path"))
+            template.getForObject<Array<FireApiFile>>("/objects/entries/path/my/path")
+        }.throws(HttpClientErrorException(NOT_FOUND, "no files found in the given path"))
 
         val files = testInstance.findAllInPath("my/path")
 
         assertThat(files).hasSize(0)
         verify(exactly = 1) {
-            template.getForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
+            template.getForObject<Array<FireApiFile>>("/objects/entries/path/my/path")
         }
     }
 
     @Test
     fun `find all by path when httpException without a status code other than NOT_FOUND`() {
         every {
-            template.getForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
+            template.getForObject<Array<FireApiFile>>("/objects/entries/path/my/path")
         }.throws(HttpClientErrorException(HttpStatus.BAD_REQUEST))
 
         assertThatExceptionOfType(HttpClientErrorException::class.java)
             .isThrownBy { testInstance.findAllInPath("my/path") }
 
         verify(exactly = 1) {
-            template.getForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/entries/path/my/path")
+            template.getForObject<Array<FireApiFile>>("/objects/entries/path/my/path")
         }
     }
 
     @Test
     fun `find by path when FireClientException with NOT_FOUND status code`() {
         every {
-            template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/my/path")
-        }.throws(FireClientException(NOT_FOUND, "no file found with the given path"))
+            template.getForObject<FireApiFile>("/objects/path/my/path")
+        }.throws(HttpClientErrorException(NOT_FOUND, "no file found with the given path"))
 
         val file = testInstance.findByPath("my/path")
 
         assertThat(file).isNull()
-        verify(exactly = 1) { template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/my/path") }
+        verify(exactly = 1) { template.getForObject<FireApiFile>("/objects/path/my/path") }
     }
 
     @Test
     fun `find by path when httpException without a status code other than NOT_FOUND`() {
         every {
-            template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/my/path")
+            template.getForObject<FireApiFile>("/objects/path/my/path")
         }.throws(HttpClientErrorException(HttpStatus.BAD_REQUEST))
 
         assertThrows<HttpClientErrorException> { testInstance.findByPath("my/path") }
 
-        verify(exactly = 1) { template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/my/path") }
+        verify(exactly = 1) { template.getForObject<FireApiFile>("/objects/path/my/path") }
     }
 
     @Test
     fun publish() {
-        every { template.put("$FIRE_OBJECTS_URL/the-fire-oid/publish", null) } answers { nothing }
+        every { template.put("/objects/the-fire-oid/publish", null) } answers { nothing }
 
         testInstance.publish("the-fire-oid")
 
-        verify(exactly = 1) { template.put("$FIRE_OBJECTS_URL/the-fire-oid/publish", null) }
+        verify(exactly = 1) { template.put("/objects/the-fire-oid/publish", null) }
     }
 
     @Test
     fun unpublish() {
-        every { template.delete("$FIRE_OBJECTS_URL/the-fire-oid/publish") } answers { nothing }
+        every { template.delete("/objects/the-fire-oid/publish") } answers { nothing }
 
         testInstance.unpublish("the-fire-oid")
 
-        verify(exactly = 1) { template.delete("$FIRE_OBJECTS_URL/the-fire-oid/publish") }
+        verify(exactly = 1) { template.delete("/objects/the-fire-oid/publish") }
     }
 }

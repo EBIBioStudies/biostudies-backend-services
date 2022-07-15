@@ -11,7 +11,7 @@ import java.net.HttpURLConnection
 class DownloadHandler(
     private val fireDB: FireMockDatabase,
 ) : RequestHandler {
-    override val requestMethod: RequestMethod = RequestMethod.GET
+    override val method: RequestMethod = RequestMethod.GET
     override val urlPattern: Regex = "$FIRE_BASE_URL/blob/(.*)".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {

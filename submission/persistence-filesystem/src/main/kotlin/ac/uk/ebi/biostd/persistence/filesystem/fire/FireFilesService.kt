@@ -6,22 +6,31 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import mu.KotlinLogging
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
+import uk.ac.ebi.extended.serialization.service.forEachFile
 
 private val logger = KotlinLogging.logger {}
 
 class FireFilesService(
     private val fireService: FireService,
     private val fileProcessingService: FileProcessingService,
+    private val serializationService: ExtSerializationService,
 ) : FilesService {
-    override fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
-        val sub = request.submission
+    override fun persistSubmissionFiles(rqt: FilePersistenceRequest): ExtSubmission = processFiles(rqt.submission)
 
+    override fun cleanSubmissionFiles(sub: ExtSubmission) = cleanPreviousFiles(sub)
+
+    private fun cleanPreviousFiles(sub: ExtSubmission) {
+        fun cleanFile(file: FireFile, index: Int) {
+            logger.debug { "${sub.accNo}, ${sub.version} Cleaning file $index, path='${file.filePath}'" }
+            fireService.cleanFile(file)
+            logger.debug { "${sub.accNo}, ${sub.version} Cleaning file $index, path='${file.filePath}'" }
+        }
+
+        logger.info { "${sub.accNo} ${sub.owner} Cleaning Current submission Folder for ${sub.accNo}" }
+        serializationService.forEachFile(sub) { file, index -> if (file is FireFile) cleanFile(file, index) }
         logger.info { "${sub.accNo} ${sub.owner} Cleaning Ftp Folder for ${sub.accNo}" }
-        fireService.cleanFtp(sub)
-        logger.info { "${sub.accNo} ${sub.owner} Finished Ftp Folder for ${sub.accNo}" }
-        val processed = processFiles(request.submission)
-        return processed
     }
 
     private fun processFiles(sub: ExtSubmission): ExtSubmission {

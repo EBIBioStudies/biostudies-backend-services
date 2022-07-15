@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
+import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FileMode
@@ -28,9 +29,12 @@ class ExtSubmissionService(
     private val securityService: ISecurityQueryService,
     private val properties: ApplicationProperties,
     private val eventsPublisherService: EventsPublisherService,
+    private val fileService: FilesService,
 ) {
     fun refreshSubmission(accNo: String, user: String): ExtSubmission {
         val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        fileService.cleanSubmissionFiles(sub)
+
         val response = submitExt(user, sub, FileMode.COPY)
         eventsPublisherService.submissionsRefresh(sub.accNo, sub.owner)
         return response

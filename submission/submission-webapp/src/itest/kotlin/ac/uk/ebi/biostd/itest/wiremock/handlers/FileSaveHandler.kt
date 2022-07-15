@@ -7,7 +7,7 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition
 
 class FileSaveHandler(private val fireDB: FireMockDatabase) : RequestHandler {
 
-    override val requestMethod: RequestMethod = RequestMethod.POST
+    override val method: RequestMethod = RequestMethod.POST
     override val urlPattern: Regex = FIRE_BASE_URL.toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition =

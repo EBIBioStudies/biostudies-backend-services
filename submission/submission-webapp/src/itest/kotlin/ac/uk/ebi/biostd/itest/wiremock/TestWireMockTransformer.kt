@@ -7,9 +7,7 @@ import ac.uk.ebi.biostd.itest.wiremock.handlers.Md5QueryHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.PathDownloadHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.PathQueryHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.PublishHandler
-import ac.uk.ebi.biostd.itest.wiremock.handlers.QueryMetadataHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.RequestHandler
-import ac.uk.ebi.biostd.itest.wiremock.handlers.SaveMetadataHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.SetPathHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.UnPublishHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.UnSetPathHandler
@@ -30,21 +28,21 @@ class TestWireMockTransformer constructor(
     override fun getName(): String = Companion.name
 
     override fun transform(
-        request: Request,
+        rqt: Request,
         responseDefinition: ResponseDefinition?,
         files: FileSource?,
         parameters: Parameters?,
     ): ResponseDefinition {
-        failIfApply()
-        return handlers
-            .firstOrNull { it.urlPattern.matches(request.url) && it.requestMethod == request.method }
-            ?.handle(request)
-            ?: throw WebClientException(HttpStatus.BAD_REQUEST, "http method ${request.method.name} is not supported")
+        return failIfApply()
+            ?: handlers.firstOrNull { it.urlPattern.matches(rqt.url) && it.method == rqt.method }?.handleSafely(rqt)
+            ?: throw WebClientException(HttpStatus.BAD_REQUEST, "http method ${rqt.method.name} is not supported")
     }
 
-    private fun failIfApply() {
-        if (failFactor == null) return
-        if (Random.nextInt(0, failFactor) == 0) throw WebClientException(INTERNAL_SERVER_ERROR, "Simulated Error")
+    private fun failIfApply(): ResponseDefinition? {
+        return when {
+            failFactor == null || Random.nextInt(0, failFactor) != 0 -> null
+            else -> ResponseDefinition(INTERNAL_SERVER_ERROR.value(), "Simulated Error")
+        }
     }
 
     companion object {
@@ -63,8 +61,6 @@ class TestWireMockTransformer constructor(
                 listOf(
                     Md5QueryHandler(fireDatabase),
                     PathQueryHandler(fireDatabase),
-                    QueryMetadataHandler(fireDatabase),
-                    SaveMetadataHandler(fireDatabase),
                     FileSaveHandler(fireDatabase),
                     PathDownloadHandler(fireDatabase),
                     SetPathHandler(fireDatabase),

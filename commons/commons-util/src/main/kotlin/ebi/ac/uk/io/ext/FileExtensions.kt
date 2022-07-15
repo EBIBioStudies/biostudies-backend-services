@@ -20,7 +20,12 @@ fun File.md5() = FileUtils.md5(this)
 
 fun File.createDirectory(name: String): File = Files.createDirectory(toPath().resolve(name)).toFile()
 
-fun File.newFile(name: String): File = resolve(name).apply { createNewFile() }
+fun File.newFile(name: String): File {
+    val file = resolve(name)
+    file.parentFile.mkdirs()
+    file.createNewFile()
+    return file
+}
 
 fun File.createTempFile(prefix: String, suffix: String): File = Files.createTempFile(toPath(), prefix, suffix).toFile()
 

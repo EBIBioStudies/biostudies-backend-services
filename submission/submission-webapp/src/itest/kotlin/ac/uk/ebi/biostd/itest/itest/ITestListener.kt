@@ -20,7 +20,6 @@ import org.junit.platform.launcher.TestPlan
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName.parse
-import uk.ac.ebi.fire.client.api.FIRE_OBJECTS_URL
 import java.io.File
 import java.nio.file.Files
 import java.time.Duration.ofSeconds
@@ -54,7 +53,7 @@ class ITestListener : TestExecutionListener {
 
     private fun fireSetup() {
         fireApiMock.stubFor(
-            post(WireMock.urlMatching(FIRE_OBJECTS_URL))
+            post(WireMock.urlMatching("/objects"))
                 .withBasicAuth(FIRE_USERNAME, FIRE_PASSWORD)
                 .willReturn(WireMock.aResponse().withTransformers(TestWireMockTransformer.name))
         )

@@ -350,8 +350,8 @@ class MultipartFileSubmissionApiTest(
         val retryConfig = RetryConfig(1, 1, 1.1, 2)
         val fireClient = FireClientFactory.create(testTempFireDir.absolutePath, fireConfig, retryConfig)
 
-        val fireFile7 = fireClient.save(file7, file7Md5)
-        val fireFile8 = fireClient.save(file8, file8Md5)
+        val fireFile7 = fireClient.save(file7, file7Md5, 55L)
+        val fireFile8 = fireClient.save(file8, file8Md5, 55L)
 
         val submission = tsv {
             line("Submission", "S-TEST8")

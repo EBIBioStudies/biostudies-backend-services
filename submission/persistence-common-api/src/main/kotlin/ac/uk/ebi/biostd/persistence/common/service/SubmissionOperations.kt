@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.common.service
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
+import ac.uk.ebi.biostd.persistence.common.request.ProcessedSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ebi.ac.uk.extended.model.ExtFile
@@ -49,7 +50,7 @@ interface SubmissionPersistenceQueryService {
      **/
     fun getSubmissionsByUser(owner: String, filter: SubmissionFilter): List<BasicSubmission>
 
-    fun getPendingRequest(accNo: String, version: Int): SubmissionRequest
+    fun getPendingRequest(accNo: String, version: Int): ProcessedSubmissionRequest
 
     fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile>
 }

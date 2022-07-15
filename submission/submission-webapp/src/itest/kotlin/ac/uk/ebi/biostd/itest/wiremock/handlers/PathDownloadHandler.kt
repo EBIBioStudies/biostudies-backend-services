@@ -10,9 +10,9 @@ import ebi.ac.uk.util.regex.getGroup
 import java.io.File
 
 class PathDownloadHandler(
-    private val fireDB: FireMockDatabase
+    private val fireDB: FireMockDatabase,
 ) : RequestHandler {
-    override val requestMethod: RequestMethod = GET
+    override val method: RequestMethod = GET
     override val urlPattern: Regex = "$FIRE_BASE_URL/blob/path/(.*)".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {

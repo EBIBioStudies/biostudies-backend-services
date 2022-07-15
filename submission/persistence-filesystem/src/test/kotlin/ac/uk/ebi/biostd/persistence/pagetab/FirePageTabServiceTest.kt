@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
@@ -28,7 +29,6 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.extended.serialization.service.createExtFileList
 import uk.ac.ebi.fire.client.integration.web.FireClient
-import uk.ac.ebi.fire.client.model.FileType
 import uk.ac.ebi.serialization.common.FilesResolver
 import ebi.ac.uk.asserts.assertThat as assertThatEither
 import uk.ac.ebi.fire.client.model.FireApiFile as FireFileWeb
@@ -39,15 +39,13 @@ class FirePageTabServiceTest(
     @MockK private val fireClient: FireClient,
     @MockK private val pageTabUtil: PageTabUtil,
 ) {
-    private val fireFolder = tempFolder.root.resolve("fire-temp")
-    private val fileProcessingService =
-        FileProcessingService(ExtSerializationService(), FilesResolver(tempFolder.createDirectory("ext-files")))
+    private val fireFolder = tempFolder.createDirectory("fire-temp")
     private val testInstance =
         FirePageTabService(
             fireFolder,
             fireClient,
             pageTabUtil,
-            fileProcessingService,
+            FileProcessingService(ExtSerializationService(), FilesResolver(tempFolder.createDirectory("ext-files"))),
             TsvPagetabExtension(featureEnabled = true)
         )
 
@@ -63,36 +61,30 @@ class FirePageTabServiceTest(
         assertSectionTabFiles(result.section)
         assertThatEither(result.section.sections.first()).hasLeftValueSatisfying { assertSubSectionTabFiles(it) }
         verifySetFirePath()
-        verifySetBioMetadata()
     }
 
     private fun setUpGeneratePageTab(submission: ExtSubmission) {
         every { pageTabUtil.generateSubPageTab(submission, fireFolder) } returns PageTabFiles(
-            fireFolder.resolve("S-TEST123.json"),
-            fireFolder.resolve("S-TEST123.xml"),
-            fireFolder.resolve("S-TEST123.tsv")
+            fireFolder.createFile("S-TEST123.json"),
+            fireFolder.createFile("S-TEST123.xml"),
+            fireFolder.createFile("S-TEST123.tsv")
         )
-        every {
-            pageTabUtil.generateFileListPageTab(
-                submission,
-                fireFolder
-            )
-        } returns mapOf(
+        every { pageTabUtil.generateFileListPageTab(submission, fireFolder) } returns mapOf(
             "data/file-list2" to PageTabFiles(
-                fireFolder.resolve("data/file-list2.json"),
-                fireFolder.resolve("data/file-list2.xml"),
-                fireFolder.resolve("data/file-list2.tsv")
+                fireFolder.createFile("data/file-list2.json"),
+                fireFolder.createFile("data/file-list2.xml"),
+                fireFolder.createFile("data/file-list2.tsv")
             ),
             "data/file-list1" to PageTabFiles(
-                fireFolder.resolve("data/file-list1.json"),
-                fireFolder.resolve("data/file-list1.xml"),
-                fireFolder.resolve("data/file-list1.tsv")
+                fireFolder.createFile("data/file-list1.json"),
+                fireFolder.createFile("data/file-list1.xml"),
+                fireFolder.createFile("data/file-list1.tsv")
             )
         )
     }
 
     private fun setUpFireWebClient() {
-        every { fireClient.save(any(), any()) } returns
+        every { fireClient.save(any(), any(), any()) } returns
             FireFileWeb(1, "$FILE_LIST_JSON2-fireId", "md5", 1, "creationTime") andThen
             FireFileWeb(2, "$FILE_LIST_XML2-fireId", "md5", 1, "creationTime") andThen
             FireFileWeb(3, "$FILE_LIST_TSV2-fireId", "md5", 1, "creationTime") andThen
@@ -102,58 +94,6 @@ class FirePageTabServiceTest(
             FireFileWeb(7, "$SUB_JSON-fireId", "md5", 1, "creationTime") andThen
             FireFileWeb(8, "$SUB_XML-fireId", "md5", 1, "creationTime") andThen
             FireFileWeb(9, "$SUB_TSV-fireId", "md5", 1, "creationTime")
-
-        every { fireClient.setBioMetadata("$SUB_TSV-fireId", "S-TEST123", FileType.FILE, false) } answers { nothing }
-        every { fireClient.setBioMetadata("$SUB_XML-fireId", "S-TEST123", FileType.FILE, false) } answers { nothing }
-        every { fireClient.setBioMetadata("$SUB_JSON-fireId", "S-TEST123", FileType.FILE, false) } answers { nothing }
-        every {
-            fireClient.setBioMetadata(
-                "$FILE_LIST_TSV1-fireId",
-                "S-TEST123",
-                FileType.FILE,
-                false
-            )
-        } answers { nothing }
-        every {
-            fireClient.setBioMetadata(
-                "$FILE_LIST_TSV2-fireId",
-                "S-TEST123",
-                FileType.FILE,
-                false
-            )
-        } answers { nothing }
-        every {
-            fireClient.setBioMetadata(
-                "$FILE_LIST_XML1-fireId",
-                "S-TEST123",
-                FileType.FILE,
-                false
-            )
-        } answers { nothing }
-        every {
-            fireClient.setBioMetadata(
-                "$FILE_LIST_XML2-fireId",
-                "S-TEST123",
-                FileType.FILE,
-                false
-            )
-        } answers { nothing }
-        every {
-            fireClient.setBioMetadata(
-                "$FILE_LIST_JSON1-fireId",
-                "S-TEST123",
-                FileType.FILE,
-                false
-            )
-        } answers { nothing }
-        every {
-            fireClient.setBioMetadata(
-                "$FILE_LIST_JSON2-fireId",
-                "S-TEST123",
-                FileType.FILE,
-                false
-            )
-        } answers { nothing }
 
         every { fireClient.setPath("$SUB_TSV-fireId", "S-TEST/123/S-TEST123/$SUB_TSV") } answers { nothing }
         every { fireClient.setPath("$SUB_XML-fireId", "S-TEST/123/S-TEST123/$SUB_XML") } answers { nothing }
@@ -289,18 +229,6 @@ class FirePageTabServiceTest(
         fireClient.setPath("$FILE_LIST_XML2-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_XML2")
         fireClient.setPath("$FILE_LIST_JSON1-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_JSON1")
         fireClient.setPath("$FILE_LIST_JSON2-fireId", "S-TEST/123/S-TEST123/Files/data/$FILE_LIST_JSON2")
-    }
-
-    private fun verifySetBioMetadata() = verify(exactly = 1) {
-        fireClient.setBioMetadata("$SUB_TSV-fireId", "S-TEST123", FileType.FILE, false)
-        fireClient.setBioMetadata("$SUB_XML-fireId", "S-TEST123", FileType.FILE, false)
-        fireClient.setBioMetadata("$SUB_JSON-fireId", "S-TEST123", FileType.FILE, false)
-        fireClient.setBioMetadata("$FILE_LIST_TSV1-fireId", "S-TEST123", FileType.FILE, false)
-        fireClient.setBioMetadata("$FILE_LIST_TSV2-fireId", "S-TEST123", FileType.FILE, false)
-        fireClient.setBioMetadata("$FILE_LIST_XML1-fireId", "S-TEST123", FileType.FILE, false)
-        fireClient.setBioMetadata("$FILE_LIST_XML2-fireId", "S-TEST123", FileType.FILE, false)
-        fireClient.setBioMetadata("$FILE_LIST_JSON1-fireId", "S-TEST123", FileType.FILE, false)
-        fireClient.setBioMetadata("$FILE_LIST_JSON2-fireId", "S-TEST123", FileType.FILE, false)
     }
 
     companion object {

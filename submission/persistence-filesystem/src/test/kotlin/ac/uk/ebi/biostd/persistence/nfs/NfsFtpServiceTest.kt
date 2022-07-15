@@ -29,7 +29,7 @@ private const val REL_PATH = "My/Path/To/Submission"
 internal class NfsFtpServiceTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val extSubmission: ExtSubmission,
-    @MockK private val queryService: SubmissionPersistenceQueryService
+    @MockK private val queryService: SubmissionPersistenceQueryService,
 ) {
     private lateinit var expectedDirectory: File
     private lateinit var expectedFile1: File
@@ -55,12 +55,6 @@ internal class NfsFtpServiceTest(
         testInstance.generateFtpLinks("S-BSST0")
 
         assertFolder(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile())
-    }
-
-    @Test
-    fun `unpublish submission files`() {
-        testInstance.unpublishSubmissionFiles("B-SST1", "user@mail.org", REL_PATH)
-        assertThat(folderResolver.getSubmissionFtpFolder(REL_PATH)).doesNotExist()
     }
 
     @Test

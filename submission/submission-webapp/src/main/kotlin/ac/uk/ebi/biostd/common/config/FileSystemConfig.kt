@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
@@ -33,8 +34,11 @@ class FileSystemConfig(
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
-    fun fireFileService(fireService: FireService, fileProcessingService: FileProcessingService): FilesService =
-        FireFilesService(fireService, fileProcessingService)
+    fun fireFileService(
+        fireService: FireService,
+        fileProcessingService: FileProcessingService,
+        serializationService: ExtSerializationService,
+    ): FilesService = FireFilesService(fireService, fileProcessingService, serializationService)
 
     @Bean
     fun extFilesResolver() = FilesResolver(File(applicationProperties.requestFilesPath))

@@ -3,10 +3,10 @@ package uk.ac.ebi.fire.client.integration.web
 import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.retry.support.RetryTemplate
 import org.springframework.retry.support.RetryTemplateBuilder
+import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.DefaultUriBuilderFactory
 import uk.ac.ebi.fire.client.api.FireWebClient
-import uk.ac.ebi.fire.client.exception.FireWebClientErrorHandler
 
 private const val FIRE_API_BASE = "fire"
 
@@ -29,13 +29,13 @@ class FireClientFactory private constructor() {
 
         private fun createRetryTemplate(config: RetryConfig): RetryTemplate = RetryTemplateBuilder()
             .exponentialBackoff(config.initialInterval, config.multiplier, config.maxInterval)
+            .retryOn(HttpServerErrorException::class.java)
             .maxAttempts(config.maxAttempts)
             .build()
 
         private fun createRestTemplate(fireHost: String, fireVersion: String, username: String, password: String) =
             RestTemplate().apply {
                 uriTemplateHandler = DefaultUriBuilderFactory("$fireHost/$FIRE_API_BASE/$fireVersion")
-                errorHandler = FireWebClientErrorHandler()
                 clientHttpRequestInitializers.add(FireAuthRequestInitializer(username, password))
                 requestFactory = SimpleClientHttpRequestFactory().apply {
                     setReadTimeout(0)

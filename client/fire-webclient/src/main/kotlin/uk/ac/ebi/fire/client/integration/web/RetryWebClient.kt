@@ -1,7 +1,6 @@
 package uk.ac.ebi.fire.client.integration.web
 
 import org.springframework.retry.support.RetryTemplate
-import uk.ac.ebi.fire.client.model.FileType
 import uk.ac.ebi.fire.client.model.FireApiFile
 import uk.ac.ebi.fire.client.retry.execute
 import java.io.File
@@ -11,9 +10,9 @@ internal class RetryWebClient(
     private val fireClient: FireClient,
     private val template: RetryTemplate,
 ) : FireClient {
-    override fun save(file: File, md5: String): FireApiFile {
-        val opt = "Save file ${file.name}, md5=$md5"
-        return template.execute(opt) { fireClient.save(file, md5) }
+    override fun save(file: File, md5: String, size: Long): FireApiFile {
+        val opt = "Save file ${file.name}, md5=$md5, size=$size"
+        return template.execute(opt) { fireClient.save(file, md5, size) }
     }
 
     override fun setPath(fireOid: String, path: String) {
@@ -24,11 +23,6 @@ internal class RetryWebClient(
     override fun unsetPath(fireOid: String) {
         val opt = "Unset path fireOid='$fireOid'"
         template.execute(opt) { fireClient.unsetPath(fireOid) }
-    }
-
-    override fun setBioMetadata(fireOid: String, accNo: String?, fileType: FileType?, published: Boolean?) {
-        val opt = "Metadata update fireOid='$fireOid', accNo='$accNo', fileType='$fileType', published='$published'"
-        template.execute(opt) { fireClient.setBioMetadata(fireOid, accNo, fileType, published) }
     }
 
     override fun downloadByPath(path: String): File? {
@@ -44,16 +38,6 @@ internal class RetryWebClient(
     override fun findByMd5(md5: String): List<FireApiFile> {
         val opt = "Find file md5='$md5'"
         return template.execute(opt) { fireClient.findByMd5(md5) }
-    }
-
-    override fun findByAccNo(accNo: String): List<FireApiFile> {
-        val opt = "Find file by accNo='$accNo'"
-        return template.execute(opt) { fireClient.findByAccNo(accNo) }
-    }
-
-    override fun findByAccNoAndPublished(accNo: String, published: Boolean): List<FireApiFile> {
-        val opt = "Find file by accNo='$accNo'"
-        return template.execute(opt) { fireClient.findByAccNoAndPublished(accNo, published) }
     }
 
     override fun findByPath(path: String): FireApiFile? {

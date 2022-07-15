@@ -6,7 +6,12 @@ import ebi.ac.uk.extended.model.FileMode
 data class SubmissionRequest(
     val submission: ExtSubmission,
     val fileMode: FileMode,
-    val draftKey: String? = null
-) {
-    operator fun component4() = submission.accNo
-}
+    val draftKey: String? = null,
+)
+
+data class ProcessedSubmissionRequest(
+    val submission: ExtSubmission,
+    val fileMode: FileMode,
+    val draftKey: String? = null,
+    val previousVersion: ExtSubmission?,
+)
