@@ -9,7 +9,7 @@ import ebi.ac.uk.util.regex.getGroup
 class UnPublishHandler(
     private val fireDB: FireMockDatabase,
 ) : RequestHandler {
-    override val requestMethod: RequestMethod = RequestMethod.DELETE
+    override val method: RequestMethod = RequestMethod.DELETE
     override val urlPattern: Regex = "$FIRE_BASE_URL/(.*)/publish".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {

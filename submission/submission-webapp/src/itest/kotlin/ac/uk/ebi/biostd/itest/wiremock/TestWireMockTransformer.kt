@@ -28,21 +28,21 @@ class TestWireMockTransformer constructor(
     override fun getName(): String = Companion.name
 
     override fun transform(
-        request: Request,
+        rqt: Request,
         responseDefinition: ResponseDefinition?,
         files: FileSource?,
         parameters: Parameters?,
     ): ResponseDefinition {
-        failIfApply()
-        return handlers
-            .firstOrNull { it.urlPattern.matches(request.url) && it.requestMethod == request.method }
-            ?.handleSafely(request)
-            ?: throw WebClientException(HttpStatus.BAD_REQUEST, "http method ${request.method.name} is not supported")
+        return failIfApply()
+            ?: handlers.firstOrNull { it.urlPattern.matches(rqt.url) && it.method == rqt.method }?.handleSafely(rqt)
+            ?: throw WebClientException(HttpStatus.BAD_REQUEST, "http method ${rqt.method.name} is not supported")
     }
 
-    private fun failIfApply() {
-        if (failFactor == null) return
-        if (Random.nextInt(0, failFactor) == 0) throw WebClientException(INTERNAL_SERVER_ERROR, "Simulated Error")
+    private fun failIfApply(): ResponseDefinition? {
+        return when {
+            failFactor == null || Random.nextInt(0, failFactor) != 0 -> null
+            else -> ResponseDefinition(INTERNAL_SERVER_ERROR.value(), "Simulated Error")
+        }
     }
 
     companion object {

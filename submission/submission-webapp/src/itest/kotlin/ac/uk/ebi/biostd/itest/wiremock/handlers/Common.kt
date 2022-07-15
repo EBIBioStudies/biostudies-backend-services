@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus
 internal const val FIRE_BASE_URL = "/fire/v\\d*.\\d*/objects"
 
 interface RequestHandler {
-    val requestMethod: RequestMethod
+    val method: RequestMethod
     val urlPattern: Regex
 
     fun handle(rqt: Request): ResponseDefinition

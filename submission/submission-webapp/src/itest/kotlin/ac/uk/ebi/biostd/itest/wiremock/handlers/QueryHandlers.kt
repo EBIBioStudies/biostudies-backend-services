@@ -9,7 +9,7 @@ import ebi.ac.uk.util.regex.getGroup
 class Md5QueryHandler(
     private val fireDB: FireMockDatabase,
 ) : RequestHandler {
-    override val requestMethod: RequestMethod = RequestMethod.GET
+    override val method: RequestMethod = RequestMethod.GET
     override val urlPattern: Regex = "$FIRE_BASE_URL/md5/(.*)".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {
@@ -23,7 +23,7 @@ class Md5QueryHandler(
 class PathQueryHandler(
     private val fireDB: FireMockDatabase,
 ) : RequestHandler {
-    override val requestMethod: RequestMethod = RequestMethod.GET
+    override val method: RequestMethod = RequestMethod.GET
     override val urlPattern: Regex = "$FIRE_BASE_URL/path/(.*)".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {

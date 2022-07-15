@@ -7,9 +7,9 @@ import com.github.tomakehurst.wiremock.http.ResponseDefinition
 import ebi.ac.uk.util.regex.getGroup
 
 class SetPathHandler(
-    private val fireDB: FireMockDatabase
+    private val fireDB: FireMockDatabase,
 ) : RequestHandler {
-    override val requestMethod: RequestMethod = RequestMethod.PUT
+    override val method: RequestMethod = RequestMethod.PUT
     override val urlPattern: Regex = "$FIRE_BASE_URL/(.*)/firePath".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {
@@ -20,9 +20,9 @@ class SetPathHandler(
 }
 
 class UnSetPathHandler(
-    private val fireDB: FireMockDatabase
+    private val fireDB: FireMockDatabase,
 ) : RequestHandler {
-    override val requestMethod: RequestMethod = RequestMethod.DELETE
+    override val method: RequestMethod = RequestMethod.DELETE
     override val urlPattern: Regex = "$FIRE_BASE_URL/(.*)/firePath".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {
