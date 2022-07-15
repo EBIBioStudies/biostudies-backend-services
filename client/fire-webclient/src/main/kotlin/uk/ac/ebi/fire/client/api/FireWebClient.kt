@@ -5,10 +5,10 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.util.LinkedMultiValueMap
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
-import uk.ac.ebi.fire.client.exception.FireClientException
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
@@ -18,7 +18,7 @@ internal const val FIRE_FILE_PARAM = "file"
 internal const val FIRE_MD5_HEADER = "x-fire-md5"
 internal const val FIRE_PATH_HEADER = "x-fire-path"
 internal const val FIRE_SIZE_HEADER = "x-fire-size"
-const val FIRE_OBJECTS_URL = "/objects"
+private typealias ClientException = HttpClientErrorException
 
 @Suppress("TooManyFunctions")
 internal class FireWebClient(
@@ -32,28 +32,28 @@ internal class FireWebClient(
         }
         val formData = listOf(FIRE_FILE_PARAM to FileSystemResource(file))
         val body = LinkedMultiValueMap(formData.groupBy({ it.first }, { it.second }))
-        return template.postForObject(FIRE_OBJECTS_URL, HttpEntity(body, headers))
+        return template.postForObject("/objects", HttpEntity(body, headers))
     }
 
     override fun setPath(fireOid: String, path: String) {
         val headers = HttpHeaders().apply { set(FIRE_PATH_HEADER, path) }
-        template.put("$FIRE_OBJECTS_URL/$fireOid/firePath", HttpEntity(null, headers))
+        template.put("/objects/$fireOid/firePath", HttpEntity(null, headers))
     }
 
     override fun unsetPath(fireOid: String) {
-        template.delete("$FIRE_OBJECTS_URL/$fireOid/firePath")
+        template.delete("/objects/$fireOid/firePath")
     }
 
     override fun downloadByPath(
         path: String,
     ): File? = findByPath(path)?.let {
-        downloadFireFile(path.substringAfterLast("/"), "$FIRE_OBJECTS_URL/blob/path/$path")
+        downloadFireFile(path.substringAfterLast("/"), "/objects/blob/path/$path")
     }
 
     override fun downloadByFireId(
         fireOid: String,
         fileName: String,
-    ): File = downloadFireFile(fileName, "$FIRE_OBJECTS_URL/blob/$fireOid")
+    ): File = downloadFireFile(fileName, "/objects/blob/$fireOid")
 
     private fun downloadFireFile(fileName: String, downloadUrl: String): File {
         val tmpFile = File(tmpDirPath, fileName)
@@ -63,25 +63,23 @@ internal class FireWebClient(
     }
 
     override fun findByMd5(md5: String): List<FireApiFile> =
-        template.getForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/md5/$md5").toList()
+        template.getForObject<Array<FireApiFile>>("/objects/md5/$md5").toList()
 
     override fun findByPath(path: String): FireApiFile? {
-        return runCatching { template.getForObject<FireApiFile>("$FIRE_OBJECTS_URL/path/$path") }
-            .getOrElse { if (it is FireClientException && it.statusCode == NOT_FOUND) return null else throw it }
+        return runCatching { template.getForObject<FireApiFile>("/objects/path/$path") }
+            .getOrElse { if (it is ClientException && it.statusCode == NOT_FOUND) return null else throw it }
     }
 
     override fun findAllInPath(path: String): List<FireApiFile> {
-        return runCatching {
-            template.getForObject<Array<FireApiFile>>("$FIRE_OBJECTS_URL/entries/path/$path").toList()
-        }
-            .getOrElse { if (it is FireClientException && it.statusCode == NOT_FOUND) return emptyList() else throw it }
+        return runCatching { template.getForObject<Array<FireApiFile>>("/objects/entries/path/$path").toList() }
+            .getOrElse { if (it is ClientException && it.statusCode == NOT_FOUND) return emptyList() else throw it }
     }
 
     override fun publish(fireOid: String) {
-        template.put("$FIRE_OBJECTS_URL/$fireOid/publish", null)
+        template.put("/objects/$fireOid/publish", null)
     }
 
     override fun unpublish(fireOid: String) {
-        template.delete("$FIRE_OBJECTS_URL/$fireOid/publish")
+        template.delete("/objects/$fireOid/publish")
     }
 }

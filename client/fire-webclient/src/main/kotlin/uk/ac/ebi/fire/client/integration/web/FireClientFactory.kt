@@ -7,7 +7,6 @@ import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.DefaultUriBuilderFactory
 import uk.ac.ebi.fire.client.api.FireWebClient
-import uk.ac.ebi.fire.client.exception.FireWebClientErrorHandler
 
 private const val FIRE_API_BASE = "fire"
 
@@ -37,7 +36,6 @@ class FireClientFactory private constructor() {
         private fun createRestTemplate(fireHost: String, fireVersion: String, username: String, password: String) =
             RestTemplate().apply {
                 uriTemplateHandler = DefaultUriBuilderFactory("$fireHost/$FIRE_API_BASE/$fireVersion")
-                errorHandler = FireWebClientErrorHandler()
                 clientHttpRequestInitializers.add(FireAuthRequestInitializer(username, password))
                 requestFactory = SimpleClientHttpRequestFactory().apply {
                     setReadTimeout(0)
