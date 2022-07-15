@@ -63,7 +63,7 @@ stages:
 
 build-test:
   stage: build-test
-  script: gradle clean build test -x itest -x jacocoTestCoverageVerification buildArtifacts --stacktrace
+  script: gradle clean build test -x itest -x jacocoTestCoverageVerification buildArtifacts --info
   artifacts:
     paths:
       - bio-admin/build/libs/bio-admin-1.0.0.jar
@@ -78,9 +78,9 @@ build-test:
 mongo-nfs-itest:
   needs: ["build-test"]
   stage: mongo-nfs-itest
-  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mongo -PenableFire=false --rerun-tasks --stacktrace
+  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mongo -PenableFire=false --rerun-tasks --info
 
 mongo-fire-itest:
   needs: ["build-test"]
   stage: mongo-fire-itest
-  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mongo -PenableFire=true --rerun-tasks --stacktrace
+  script: gradle clean :submission:submission-webapp:itest -Pitest.mode=mongo -PenableFire=true --rerun-tasks --info
