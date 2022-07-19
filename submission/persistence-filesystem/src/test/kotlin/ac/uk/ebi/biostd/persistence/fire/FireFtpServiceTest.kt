@@ -52,9 +52,7 @@ class FireFtpServiceTest(
     fun `release submission files`() {
         val submission = extSub.copy(released = true)
 
-        every { queryService.getExtByAccNo(submission.accNo, true) } returns submission
-
-        testInstance.releaseSubmissionFiles(extSub.accNo, extSub.owner, extSub.relPath)
+        testInstance.releaseSubmissionFiles(submission)
 
         verifyFtpPublish()
     }

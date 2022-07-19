@@ -98,5 +98,5 @@ class PersistenceConfig(
         ftpService: FtpService,
         filesService: FilesService,
         pageTabService: PageTabService,
-    ): FileSystemService = FileSystemService(ftpService, filesService, pageTabService)
+    ): FileSystemService = FileSystemService(filesService, pageTabService)
 }

@@ -74,6 +74,6 @@ class SubmissionService(
 
     fun releaseSubmission(request: ReleaseRequest, user: SecurityUser) {
         require(userPrivilegesService.canRelease(user.email)) { throw UserCanNotRelease(request.accNo, user.email) }
-        extSubmissionSubmitter.release(request)
+        extSubmissionSubmitter.release(queryService.getExtByAccNo(request.accNo, true))
     }
 }
