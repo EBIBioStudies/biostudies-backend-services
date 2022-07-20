@@ -3,9 +3,9 @@ package ac.uk.ebi.biostd.submission.submitter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ebi.ac.uk.extended.model.ExtSubmission
 
 class ExtSubmissionSubmitter(
@@ -13,7 +13,7 @@ class ExtSubmissionSubmitter(
     private val draftService: SubmissionDraftService,
     private val requestLoader: SubmissionRequestLoader,
     private val requestProcessor: SubmissionRequestProcessor,
-    private val requestReleaser: SubmissionRequestReleaser,
+    private val requestReleaser: SubmissionReleaser,
 ) {
     fun submitAsync(request: SubmissionRequest): Pair<String, Int> {
         return saveRequest(request, request.submission.submitter)

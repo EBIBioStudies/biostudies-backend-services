@@ -18,9 +18,9 @@ import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
@@ -63,10 +63,10 @@ class SubmitterConfig {
     )
 
     @Bean
-    fun requestReleaser(
+    fun submissionReleaser(
         ftpService: FtpService,
         submissionPersistenceService: SubmissionPersistenceService,
-    ): SubmissionRequestReleaser = SubmissionRequestReleaser(ftpService, submissionPersistenceService)
+    ): SubmissionReleaser = SubmissionReleaser(ftpService, submissionPersistenceService)
 
     @Bean
     fun extSubmissionSubmitter(
@@ -74,7 +74,7 @@ class SubmitterConfig {
         submissionDraftService: SubmissionDraftService,
         requestLoader: SubmissionRequestLoader,
         requestProcessor: SubmissionRequestProcessor,
-        requestReleaser: SubmissionRequestReleaser,
+        submissionReleaser: SubmissionReleaser,
     ) = ExtSubmissionSubmitter(
         persistenceService,
         submissionDraftService,

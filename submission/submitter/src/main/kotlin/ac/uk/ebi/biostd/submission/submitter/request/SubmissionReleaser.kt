@@ -7,7 +7,7 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
-class SubmissionRequestReleaser(
+class SubmissionReleaser(
     private val ftpService: FtpService,
     private val submissionPersistenceService: SubmissionPersistenceService,
 ) {
