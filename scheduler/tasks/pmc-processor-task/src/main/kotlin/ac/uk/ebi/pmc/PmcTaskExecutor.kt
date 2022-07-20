@@ -1,8 +1,8 @@
 package ac.uk.ebi.pmc
 
 import ac.uk.ebi.pmc.load.PmcFileLoader
-import ac.uk.ebi.pmc.process.PmcSubmissionProcessor
-import ac.uk.ebi.pmc.submit.PmcSubmissionSubmitter
+import ac.uk.ebi.pmc.process.PmcProcessor
+import ac.uk.ebi.pmc.submit.PmcSubmitter
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ac.uk.ebi.scheduler.properties.PmcMode
 import ebi.ac.uk.commons.http.slack.Alert
@@ -37,8 +37,8 @@ class PmcTaskExecutor(
         runCatching {
             when (mode) {
                 PmcMode.LOAD -> context.getBean<PmcFileLoader>().loadFolder(File(properties.loadFolder))
-                PmcMode.PROCESS -> context.getBean<PmcSubmissionProcessor>().processSubmissions()
-                PmcMode.SUBMIT -> context.getBean<PmcSubmissionSubmitter>().submit()
+                PmcMode.PROCESS -> context.getBean<PmcProcessor>().processAll()
+                PmcMode.SUBMIT -> context.getBean<PmcSubmitter>().submitAll()
             }
         }.fold(
             {
