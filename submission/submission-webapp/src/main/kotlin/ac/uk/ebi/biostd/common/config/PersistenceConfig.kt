@@ -95,7 +95,6 @@ class PersistenceConfig(
 
     @Bean
     fun fileSystemService(
-        ftpService: FtpService,
         filesService: FilesService,
         pageTabService: PageTabService,
     ): FileSystemService = FileSystemService(filesService, pageTabService)

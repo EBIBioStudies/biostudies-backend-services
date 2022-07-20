@@ -28,7 +28,7 @@ class SubmissionRequestProcessor(
         val savedSubmission = submissionPersistenceService.saveSubmission(processingSubmission, draftKey)
 
         submissionPersistenceService.updateRequestAsProcessed(sub.accNo, sub.version)
-        
+
         logger.info { "${sub.accNo} ${sub.owner} processed request accNo='${sub.accNo}', version='${sub.version}'" }
         return savedSubmission
     }
