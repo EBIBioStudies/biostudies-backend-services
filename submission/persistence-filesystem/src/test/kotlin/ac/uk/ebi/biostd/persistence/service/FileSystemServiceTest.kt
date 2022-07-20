@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.service
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
-import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
@@ -20,14 +19,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 class FileSystemServiceTest(
-    @MockK private val ftpService: FtpService,
     @MockK private val processedSubmission: ExtSubmission,
     @MockK private val submission: ExtSubmission,
     @MockK private val finalSub: ExtSubmission,
     @MockK private val filesService: FilesService,
     @MockK private val pageTabService: PageTabService,
 ) {
-    private val testInstance = FileSystemService(ftpService, filesService, pageTabService)
+    private val testInstance = FileSystemService(filesService, pageTabService)
 
     @BeforeEach
     fun beforeEach() {
@@ -48,15 +46,6 @@ class FileSystemServiceTest(
             filesService.persistSubmissionFiles(request)
             pageTabService.generatePageTab(processedSubmission)
         }
-    }
-
-    @Test
-    fun `release submission`() {
-        every { ftpService.releaseSubmissionFiles("S-BSST1", "owner@mail.com", "rel-path") } answers { nothing }
-
-        testInstance.releaseSubmissionFiles("S-BSST1", "owner@mail.com", "rel-path")
-
-        verify(exactly = 1) { ftpService.releaseSubmissionFiles("S-BSST1", "owner@mail.com", "rel-path") }
     }
 
     private fun setUpSubmission() {

@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.persistence.filesystem.api
 
+import ebi.ac.uk.extended.model.ExtSubmission
+
 interface FtpService {
-    fun releaseSubmissionFiles(accNo: String, owner: String, relPath: String)
+    fun releaseSubmissionFiles(sub: ExtSubmission)
     fun generateFtpLinks(accNo: String)
 }
