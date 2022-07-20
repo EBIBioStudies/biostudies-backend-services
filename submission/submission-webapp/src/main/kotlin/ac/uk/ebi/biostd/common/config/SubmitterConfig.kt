@@ -80,7 +80,7 @@ class SubmitterConfig {
         submissionDraftService,
         requestLoader,
         requestProcessor,
-        requestReleaser
+        submissionReleaser
     )
 
     @Bean
