@@ -3,7 +3,9 @@ package ac.uk.ebi.biostd.itest.wiremock
 import ac.uk.ebi.biostd.itest.wiremock.handlers.FireException
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
-import org.springframework.http.HttpStatus.BAD_REQUEST
+import ebi.ac.uk.util.regex.match
+import ebi.ac.uk.util.regex.secondGroup
+import org.springframework.http.HttpStatus.CONFLICT
 import uk.ac.ebi.fire.client.model.FileSystemEntry
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
@@ -28,20 +30,17 @@ class FireMockDatabase(
     }
 
     fun setPath(fireOid: String, path: String) {
-        if (recordsById.values.firstOrNull { it.path == path } != null)
-            throw FireException("Path '$path' has already a file", BAD_REQUEST)
+        val normalizedPath = normalizePath(path)
+        val firePath = "/$normalizedPath"
+        if (recordsById.values.firstOrNull { it.path == firePath } != null)
+            throw FireException("Path '$firePath' is already allocated", CONFLICT)
 
         val record = recordsById.getValue(fireOid)
-        recordsById[fireOid] = record.copy(path = path)
+        recordsById[fireOid] = record.copy(path = firePath)
         val fireFile = dbFolder.resolve(fireOid)
 
-        if (record.path != null) {
-            Files.deleteIfExists(submissionFolder.resolve(record.path))
-            Files.deleteIfExists(ftpFolder.resolve(record.path))
-        }
-
-        Files.copy(fireFile, getOrCreateSubFolder(path))
-        if (record.published) Files.copy(fireFile, getOrCreateFtpFolder(path))
+        Files.copy(fireFile, getOrCreateSubFolder(normalizedPath))
+        if (record.published) Files.copy(fireFile, getOrCreateFtpFolder(normalizedPath))
     }
 
     fun unsetPath(fireOid: String) {
@@ -49,18 +48,20 @@ class FireMockDatabase(
         recordsById[fireOid] = record.copy(path = null)
 
         if (record.path != null) {
-            Files.deleteIfExists(ftpFolder.resolve(record.path))
-            Files.delete(submissionFolder.resolve(record.path))
+            val normalizedPath = normalizePath(record.path)
+            Files.deleteIfExists(ftpFolder.resolve(normalizedPath))
+            Files.delete(submissionFolder.resolve(normalizedPath))
         }
     }
 
     fun publish(fireOid: String) {
-        val file = recordsById.getValue(fireOid)
-        recordsById[fireOid] = file.copy(published = true)
+        val record = recordsById.getValue(fireOid)
+        recordsById[fireOid] = record.copy(published = true)
 
-        if (file.path != null && file.published.not()) {
-            val source = submissionFolder.resolve(file.path)
-            val target = getOrCreateFtpFolder(file.path)
+        if (record.path != null && record.published.not()) {
+            val normalizedPath = normalizePath(record.path)
+            val source = submissionFolder.resolve(normalizedPath)
+            val target = getOrCreateFtpFolder(normalizedPath)
             Files.copy(source, target)
         }
     }
@@ -68,15 +69,17 @@ class FireMockDatabase(
     fun unpublish(fireOid: String) {
         val record = recordsById.getValue(fireOid)
         recordsById[fireOid] = record.copy(published = false)
-        if (record.path != null) Files.delete(ftpFolder.resolve(record.path))
+        if (record.path != null) Files.delete(ftpFolder.resolve(normalizePath(record.path)))
     }
 
     fun findByMd5(md5: String): List<FireApiFile> =
         recordsById.values.map { it.toFile() }.filter { it.objectMd5 == md5 }
 
-    fun findByPath(path: String): FireApiFile? = recordsById.values.firstOrNull { it.path == path }?.toFile()
+    fun findByPath(path: String): FireApiFile? {
+        return recordsById.values.firstOrNull { it.path == "/${normalizePath(path)}" }?.toFile()
+    }
 
-    fun downloadByPath(path: String): File = submissionFolder.resolve(path).toFile()
+    fun downloadByPath(path: String): File = submissionFolder.resolve(normalizePath(path)).toFile()
 
     private fun saveFile(data: ByteArray, fireOid: String): File {
         val file = dbFolder.resolve(fireOid).toFile()
@@ -101,6 +104,8 @@ class FireMockDatabase(
     fun getFile(fireOid: String): File {
         return dbFolder.resolve(fireOid).toFile()
     }
+
+    private fun normalizePath(path: String) = "(/*)(.*)".toPattern().match(path)!!.secondGroup()
 }
 
 data class DbRecord(val file: FireApiFile, val path: String?, val published: Boolean) {
