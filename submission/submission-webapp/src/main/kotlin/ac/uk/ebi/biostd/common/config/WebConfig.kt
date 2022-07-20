@@ -27,7 +27,7 @@ import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.integration.web.FireClientFactory
 import uk.ac.ebi.fire.client.integration.web.FireConfig
 import uk.ac.ebi.fire.client.integration.web.RetryConfig
-import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 @Configuration
 @Suppress("MagicNumber")
@@ -53,10 +53,10 @@ internal class WebConfig(
                 password = properties.fire.password
             ),
             RetryConfig(
-                maxAttempts = 20,
-                initialInterval = 100,
-                multiplier = 2.0,
-                maxInterval = 2.hours.inWholeMilliseconds,
+                maxAttempts = properties.fire.retry.maxAttempts,
+                initialInterval = properties.fire.retry.initialInterval,
+                multiplier = properties.fire.retry.multiplier,
+                maxInterval = properties.fire.retry.maxInterval.minutes.inWholeMilliseconds,
             )
         )
 

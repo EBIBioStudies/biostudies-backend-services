@@ -33,6 +33,11 @@ app:
     username:
     password:
     version: v1.1
+    retry:
+      maxAttempts: 20
+      initialInterval: 5
+      multiplier: 2.0
+      maxInterval: 1
   security:
     tokenHash: biostd-test
     environment: TEST
