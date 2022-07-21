@@ -6,13 +6,10 @@ import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import mu.KotlinLogging
 import org.zeroturnaround.zip.ZipUtil
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 import java.nio.file.Files
-
-private val logger = KotlinLogging.logger {}
 
 class FireService(
     private val client: FireClient,
@@ -31,11 +28,14 @@ class FireService(
      * submission. The method also ensures that the file has no path (i.e. it was submitted in the same submission in a
      * different path) and if so, even if the file exists in FIRE, it gets duplicated to ensure consistency.
      */
-    fun getOrPersist(sub: ExtSubmission, file: ExtFile): FirePersistResult = when (file) {
-        is FireFile -> fromFireFile(file, "${sub.relPath}/${file.relPath}")
-        is NfsFile -> when (file.type) {
-            FILE -> fromNfsFile(file, "${sub.relPath}/${file.relPath}")
-            DIR -> fromNfsFile(file.copy(file = compress(sub, file.file)), "${sub.relPath}/${file.relPath}.zip")
+    fun getOrPersist(sub: ExtSubmission, file: ExtFile): FirePersistResult {
+        val expectedPath = "/${sub.relPath}/${file.relPath}"
+        return when (file) {
+            is FireFile -> fromFireFile(file, expectedPath)
+            is NfsFile -> when (file.type) {
+                FILE -> fromNfsFile(file, expectedPath)
+                DIR -> fromNfsFile(file.copy(file = compress(sub, file.file)), "$expectedPath.zip")
+            }
         }
     }
 
