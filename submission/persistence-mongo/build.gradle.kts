@@ -30,7 +30,7 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.6.10"
     id("io.spring.dependency-management") version "1.0.12.RELEASE"
-    id("org.springframework.boot") version "2.3.2.RELEASE"
+    id("org.springframework.boot") version "2.7.1"
     id("org.jetbrains.kotlin.plugin.allopen") version "1.6.10"
 }
 
