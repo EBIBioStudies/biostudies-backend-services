@@ -43,7 +43,7 @@ internal class WebConfig(
     fun principalResolver() = AuthenticationPrincipalArgumentResolver()
 
     @Bean
-    fun fireOperations(properties: ApplicationProperties): FireClient =
+    fun fireClient(properties: ApplicationProperties): FireClient =
         FireClientFactory.create(
             properties.fireTempDirPath,
             FireConfig(
