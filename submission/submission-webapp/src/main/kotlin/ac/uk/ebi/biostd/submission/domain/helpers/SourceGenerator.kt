@@ -42,16 +42,6 @@ class SourceGenerator(
         return FileSourcesList(sources)
     }
 
-    fun submitterSources(
-        submitter: SecurityUser,
-        onBehalfUser: SecurityUser? = null,
-        rootPath: String? = null
-    ): FileSourcesList = FileSourcesList(
-        buildList {
-            addUserSources(rootPath, onBehalfUser, submitter, this)
-        }
-    )
-
     private fun addUserSources(
         rootPath: String?,
         owner: SecurityUser?,

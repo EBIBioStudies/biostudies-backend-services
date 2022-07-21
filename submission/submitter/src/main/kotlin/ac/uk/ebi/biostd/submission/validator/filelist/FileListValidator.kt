@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.service.PageTabFileReader.getFileListFile
 import ebi.ac.uk.errors.FilesProcessingException
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.BioFile
+import ebi.ac.uk.model.extensions.md5
 import ebi.ac.uk.util.collections.ifNotEmpty
 import java.io.InputStream
 
@@ -24,7 +25,7 @@ class FileListValidator(
     private fun validateFileList(stream: InputStream, format: SubFormat, filesSource: FileSourcesList) {
         serializationService
             .deserializeFileList(stream, format)
-            .filter { filesSource.getExtFile(it.path) == null }
+            .filter { filesSource.getExtFile(it.path, it.md5) == null }
             .take(fileListLimit)
             .toList()
             .ifNotEmpty { throw FilesProcessingException(it.map(BioFile::path), filesSource) }
