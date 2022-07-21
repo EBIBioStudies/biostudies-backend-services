@@ -6,13 +6,10 @@ import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import mu.KotlinLogging
 import org.zeroturnaround.zip.ZipUtil
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 import java.nio.file.Files
-
-private val logger = KotlinLogging.logger {}
 
 class FireService(
     private val client: FireClient,
