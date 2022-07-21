@@ -17,9 +17,6 @@ class ProcessorConfig {
         errorsDocService: ErrorsDocService,
         submissionInitializer: SubmissionInitializer,
         submissionDocService: SubmissionDocService,
-        fileDownloader: FileDownloader
+        fileDownloader: FileDownloader,
     ) = PmcProcessor(errorsDocService, submissionInitializer, submissionDocService, fileDownloader)
-
-    @Bean
-    fun pmcSubmissionProcessor(pmcImporter: PmcProcessor) = PmcSubmissionProcessor(pmcImporter)
 }

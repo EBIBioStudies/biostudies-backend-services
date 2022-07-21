@@ -9,10 +9,11 @@ import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import ac.uk.ebi.scheduler.properties.PmcMode
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import java.io.File
@@ -26,9 +27,15 @@ class PmcSubmitter(
     private val submissionService: SubmissionDocService,
 ) {
 
-    suspend fun submit() = withContext(Dispatchers.Default) {
-        val toSubmit = flow { submissionService.findReadyToSubmit().forEach { emit(it) } }
-        toSubmit.buffer(BUFFER_SIZE).collect { submitSubmission(it) }
+    fun submitAll() = runBlocking {
+        submitSubmissions()
+    }
+
+    private suspend fun submitSubmissions() = withContext(Dispatchers.Default) {
+        submissionService.findReadyToSubmit()
+            .map { async { submitSubmission(it) } }
+            .buffer(BUFFER_SIZE)
+            .collect { it.await() }
     }
 
     private suspend fun submitSubmission(submission: SubmissionDoc) = coroutineScope {

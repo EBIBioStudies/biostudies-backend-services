@@ -26,9 +26,6 @@ class SubmitterConfig {
     fun pmcSubmitter(
         bioWebClient: BioWebClient,
         errorsDocService: ErrorsDocService,
-        submissionDocService: SubmissionDocService
+        submissionDocService: SubmissionDocService,
     ) = PmcSubmitter(bioWebClient, errorsDocService, submissionDocService)
-
-    @Bean
-    fun pmcSubmissionSubmitter(pmcSubmitter: PmcSubmitter) = PmcSubmissionSubmitter(pmcSubmitter)
 }
