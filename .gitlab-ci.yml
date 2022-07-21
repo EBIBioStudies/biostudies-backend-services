@@ -1,4 +1,4 @@
-image: gradle:6.9.2-jdk11
+image: gradle:7.5.0-jdk11
 services:
   - docker:dind
 variables:
