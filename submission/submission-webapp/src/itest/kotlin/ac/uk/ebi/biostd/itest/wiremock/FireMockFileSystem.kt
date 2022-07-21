@@ -17,7 +17,7 @@ class FireMockFileSystem(
         return file
     }
 
-    fun findFileByPath(path: String):Path = submissionFolder.resolve(path)
+    fun findFileByPath(path: String): Path = submissionFolder.resolve(path)
 
     fun findFileByFireId(fireOid: String): Path = dbFolder.resolve(fireOid)
 

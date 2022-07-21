@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus.CONFLICT
 import uk.ac.ebi.fire.client.model.FileSystemEntry
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
-import java.nio.file.Files
 import java.time.Instant
 
 class FireMockDatabase(
