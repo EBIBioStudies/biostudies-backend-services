@@ -51,7 +51,7 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
     fun readByEmail(userEmail: String): DbUser
 
     @EntityGraph(value = USER_DATA_GRAPH, type = LOAD)
-    fun getById(id: Long): DbUser
+    override fun getById(id: Long): DbUser
 }
 
 interface TokenDataRepository : JpaRepository<DbSecurityToken, String>

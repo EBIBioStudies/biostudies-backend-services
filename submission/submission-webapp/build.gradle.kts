@@ -1,7 +1,6 @@
 import Dependencies.Arrow
 import Dependencies.CommonsFileUpload
 import Dependencies.CommonsIO
-import Dependencies.JpaEntityGraph
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
@@ -24,10 +23,10 @@ import Projects.SubmissionPersistenceMongo
 import Projects.SubmissionPersistenceSql
 import Projects.SubmissionSecurity
 import Projects.SubmissionSubmitter
-import SpringBootDependencies.SpringBootAmqp
 import SpringBootDependencies.SpringBootConfigurationProcessor
 import SpringBootDependencies.SpringBootStartedAdminClient
 import SpringBootDependencies.SpringBootStarterActuator
+import SpringBootDependencies.SpringBootStarterAmqp
 import SpringBootDependencies.SpringBootStarterConfigProcessor
 import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterSecurity
@@ -60,7 +59,7 @@ buildscript {
 plugins {
     id("com.gorylenko.gradle-git-properties") version "2.4.0-rc1"
     id("org.jetbrains.kotlin.plugin.spring") version "1.6.10"
-    id("io.spring.dependency-management") version "1.0.9.RELEASE"
+    id("io.spring.dependency-management") version "1.0.12.RELEASE"
     id("org.springframework.boot") version "2.3.2.RELEASE"
     id("org.jetbrains.kotlin.plugin.jpa") version "1.6.10"
     id("org.jetbrains.kotlin.plugin.allopen") version "1.6.10"
@@ -89,22 +88,19 @@ dependencies {
     annotationProcessor(SpringBootConfigurationProcessor)
 
     implementation(SpringBootStarterWeb)
-    implementation(SpringBootAmqp)
+    implementation(SpringBootStarterAmqp)
     implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringBootStarterSecurity)
     implementation(SpringBootStarterActuator)
     implementation(SpringBootStarterValidation)
     implementation(SpringRetry)
-
-    // Registers the application in the Spring Dashboard
     implementation(SpringBootStartedAdminClient)
 
     implementation(Arrow)
     implementation(CommonsFileUpload)
     implementation(CommonsIO)
     implementation(MySql)
-    implementation(JpaEntityGraph)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
     implementation(KotlinCoroutines)
@@ -140,4 +136,8 @@ tasks.named<BootJar>("bootJar") {
     archiveBaseName.set("submission-webapp")
     archiveVersion.set("1.0.0")
     dependsOn("generateGitProperties")
+}
+
+tasks.named<Copy>("processItestResources") {
+    duplicatesStrategy = DuplicatesStrategy.WARN
 }
