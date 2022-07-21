@@ -59,7 +59,9 @@ internal class NfsFtpServiceTest(
 
     @Test
     fun `process public submission`() {
-        testInstance.releaseSubmissionFiles("S-BSST0", "owner@mailcom", REL_PATH)
+        every { extSubmission.relPath } returns REL_PATH
+
+        testInstance.releaseSubmissionFiles(extSubmission)
 
         assertFolder(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile())
     }

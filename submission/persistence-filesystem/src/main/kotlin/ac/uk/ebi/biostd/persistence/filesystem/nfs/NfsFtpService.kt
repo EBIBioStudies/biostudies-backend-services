@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
@@ -16,12 +17,12 @@ class NfsFtpService(
     private val folderResolver: SubmissionFolderResolver,
     private val queryService: SubmissionPersistenceQueryService,
 ) : FtpService {
-    override fun releaseSubmissionFiles(accNo: String, owner: String, relPath: String) {
-        logger.info { "$accNo $owner Publishing files of submission $accNo over NFS" }
+    override fun releaseSubmissionFiles(sub: ExtSubmission) {
+        logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission ${sub.accNo} over NFS" }
 
-        generateLinks(relPath)
+        generateLinks(sub.relPath)
 
-        logger.info { "$accNo $owner Finished publishing files of submission $accNo over NFS" }
+        logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission ${sub.accNo} over NFS" }
     }
 
     override fun generateFtpLinks(accNo: String) {

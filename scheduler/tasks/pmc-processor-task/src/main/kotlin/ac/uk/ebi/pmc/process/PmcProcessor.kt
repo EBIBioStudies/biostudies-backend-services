@@ -8,9 +8,10 @@ import ac.uk.ebi.pmc.process.util.SubmissionInitializer
 import ac.uk.ebi.scheduler.properties.PmcMode
 import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 private const val BUFFER_SIZE = 30
@@ -22,9 +23,15 @@ class PmcProcessor(
     private val fileDownloader: FileDownloader,
 ) {
 
-    suspend fun processSubmissions() = withContext(Dispatchers.Default) {
-        val toProcess = flow { submissionDocService.findReadyToProcess().forEach { emit(it) } }
-        toProcess.buffer(BUFFER_SIZE).collect { processSubmission(it) }
+    fun processAll() {
+        runBlocking { processSubmissions() }
+    }
+
+    private suspend fun processSubmissions() = withContext(Dispatchers.Default) {
+        submissionDocService.findReadyToProcess()
+            .map { async { processSubmission(it) } }
+            .buffer(BUFFER_SIZE)
+            .collect { it.await() }
     }
 
     private suspend fun processSubmission(submissionDoc: SubmissionDoc) {

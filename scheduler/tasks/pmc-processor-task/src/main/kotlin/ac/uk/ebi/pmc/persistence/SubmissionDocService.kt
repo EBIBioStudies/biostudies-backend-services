@@ -2,7 +2,6 @@ package ac.uk.ebi.pmc.persistence
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
-import ac.uk.ebi.pmc.common.coroutines.SuspendSequence
 import ac.uk.ebi.pmc.persistence.docs.FileDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
@@ -17,6 +16,8 @@ import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 import org.bson.types.ObjectId
 import java.io.File
@@ -29,12 +30,18 @@ class SubmissionDocService(
     private val fileRepository: SubFileRepository,
     private val serializationService: SerializationService,
 ) {
-    suspend fun findReadyToProcess(): SuspendSequence<SubmissionDoc> {
-        return SuspendSequence { submissionRepository.findAndUpdate(LOADED, PROCESSING) }
+
+    fun findReadyToProcess(): Flow<SubmissionDoc> = flow {
+        while (true) {
+            emit(submissionRepository.findAndUpdate(LOADED, PROCESSING) ?: break)
+        }
     }
 
-    suspend fun findReadyToSubmit(): SuspendSequence<SubmissionDoc> =
-        SuspendSequence { submissionRepository.findAndUpdate(PROCESSED, SUBMITTING) }
+    fun findReadyToSubmit(): Flow<SubmissionDoc> = flow {
+        while (true) {
+            emit(submissionRepository.findAndUpdate(PROCESSED, SUBMITTING) ?: break)
+        }
+    }
 
     suspend fun getSubFiles(ids: List<ObjectId>): List<FileDoc> = fileRepository.getFiles(ids)
 

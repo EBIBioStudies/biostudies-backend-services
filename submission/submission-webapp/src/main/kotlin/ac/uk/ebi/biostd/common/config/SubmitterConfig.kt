@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
+import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
@@ -17,6 +18,7 @@ import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -61,16 +63,24 @@ class SubmitterConfig {
     )
 
     @Bean
+    fun submissionReleaser(
+        ftpService: FtpService,
+        submissionPersistenceService: SubmissionPersistenceService,
+    ): SubmissionReleaser = SubmissionReleaser(ftpService, submissionPersistenceService)
+
+    @Bean
     fun extSubmissionSubmitter(
         persistenceService: SubmissionPersistenceService,
         submissionDraftService: SubmissionDraftService,
         requestLoader: SubmissionRequestLoader,
         requestProcessor: SubmissionRequestProcessor,
+        submissionReleaser: SubmissionReleaser,
     ) = ExtSubmissionSubmitter(
         persistenceService,
         submissionDraftService,
         requestLoader,
-        requestProcessor
+        requestProcessor,
+        submissionReleaser
     )
 
     @Bean

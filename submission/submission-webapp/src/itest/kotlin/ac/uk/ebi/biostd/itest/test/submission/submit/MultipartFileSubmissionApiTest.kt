@@ -7,12 +7,9 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
-import ac.uk.ebi.biostd.itest.common.FIRE_PASSWORD
-import ac.uk.ebi.biostd.itest.common.FIRE_USERNAME
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.fireApiMock
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
@@ -51,9 +48,7 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
-import uk.ac.ebi.fire.client.integration.web.FireClientFactory
-import uk.ac.ebi.fire.client.integration.web.FireConfig
-import uk.ac.ebi.fire.client.integration.web.RetryConfig
+import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 import java.nio.file.Paths
 
@@ -65,6 +60,7 @@ class MultipartFileSubmissionApiTest(
     @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired private val securityTestService: SecurityTestService,
     @Autowired private val toSubmissionMapper: ToSubmissionMapper,
+    @Autowired private val fireClient: FireClient,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
@@ -345,10 +341,6 @@ class MultipartFileSubmissionApiTest(
         val file8 = tempFolder.createFile("File8.txt", "content 8")
         val file7Md5 = file7.md5()
         val file8Md5 = file8.md5()
-
-        val fireConfig = FireConfig(fireApiMock.baseUrl(), "v1.1", FIRE_USERNAME, FIRE_PASSWORD)
-        val retryConfig = RetryConfig(1, 1, 1.1, 2)
-        val fireClient = FireClientFactory.create(testTempFireDir.absolutePath, fireConfig, retryConfig)
 
         val fireFile7 = fireClient.save(file7, file7Md5, 55L)
         val fireFile8 = fireClient.save(file8, file8Md5, 55L)
