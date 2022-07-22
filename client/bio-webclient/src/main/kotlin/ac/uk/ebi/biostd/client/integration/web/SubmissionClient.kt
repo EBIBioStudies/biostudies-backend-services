@@ -88,7 +88,7 @@ interface SubmissionOperations {
 
     fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
 
-    fun validateFileList(fileListPath: String, previousVersionAccNo: String? = null)
+    fun validateFileList(fileListPath: String, rootPath: String? = null, previousVersionAccNo: String? = null)
 }
 
 interface MultipartSubmissionOperations {

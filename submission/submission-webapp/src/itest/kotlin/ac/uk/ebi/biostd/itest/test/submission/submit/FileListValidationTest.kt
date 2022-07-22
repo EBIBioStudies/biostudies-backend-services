@@ -107,7 +107,7 @@ class FileListValidationTest(
         webClient.uploadFiles(listOf(file1, fileList))
         webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file2)))
 
-        webClient.validateFileList(fileList.name, "S-FLV123")
+        webClient.validateFileList(fileList.name, previousVersionAccNo = "S-FLV123")
 
         webClient.deleteFile(file1.name)
         webClient.deleteFile(fileList.name)
@@ -148,9 +148,28 @@ class FileListValidationTest(
         webClient.uploadFiles(listOf(file3, fileList))
         webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file5)))
 
-        webClient.validateFileList(fileList.name, "S-FLV124")
+        webClient.validateFileList(fileList.name, previousVersionAccNo = "S-FLV124")
 
         webClient.deleteFile(file3.name)
+        webClient.deleteFile(fileList.name)
+    }
+
+    @Test
+    fun `valid file list with root path`() {
+        val file6 = tempFolder.createFile("Plate6.tif", "content-6")
+        val fileListContent = tsv {
+            line("Files", "Resource")
+            line("Plate6.tif", "USER_SPACE")
+            line()
+        }.toString()
+
+        val fileList = tempFolder.createFile("root-path-file-list.tsv", fileListContent)
+
+        webClient.uploadFiles(listOf(file6, fileList), "root-path")
+
+        webClient.validateFileList(fileList.name, rootPath = "root-path")
+
+        webClient.deleteFile(file6.name)
         webClient.deleteFile(fileList.name)
     }
 
