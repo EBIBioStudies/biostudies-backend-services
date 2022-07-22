@@ -367,6 +367,42 @@ class SubmissionApiTest(
     }
 
     @Test
+    fun `reference a file twice`() {
+        val submission = tsv {
+            line("Submission")
+            line("Title", "Simple Submission With Files 3")
+            line("ReleaseDate", "2020-01-25")
+            line()
+
+            line("Study")
+            line("Type", "Experiment")
+            line()
+
+            line("File", "multiple-references.txt")
+            line("Type", "test")
+            line()
+
+            line("Experiment", "Exp1")
+            line("Type", "Subsection")
+            line()
+
+            line("File", "multiple-references.txt")
+            line("Type", "Second reference")
+            line()
+        }.toString()
+
+        webClient.uploadFiles(listOf(tempFolder.createFile("multiple-references.txt")))
+
+        val response = webClient.submitSingle(submission, TSV)
+        val accNo = response.body.accNo
+
+        val submitted = submissionRepository.getExtByAccNo(accNo)
+        assertThat(response).isSuccessful()
+        assertThat(submitted.version).isEqualTo(1)
+        assertThat(File("$submissionPath/${submitted.relPath}/Files/multiple-references.txt")).exists()
+    }
+
+    @Test
     fun `new submission with past release date`() {
         val submission = tsv {
             line("Submission", "S-RLSD123")
