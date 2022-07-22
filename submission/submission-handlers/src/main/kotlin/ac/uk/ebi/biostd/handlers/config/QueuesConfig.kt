@@ -17,7 +17,6 @@ const val SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY = "bio.submission.partials"
 
 const val LOG_QUEUE = "submission-submitted-log-queue"
 const val ST_LOG_QUEUE = "submission-submitted-st-queue"
-const val PARTIALS_QUEUE = "submission-submitted-partials-queue"
 const val FAILED_NOTIFICATIONS_LOG_QUEUE = "notification-failed-log-queue"
 const val FAILED_SUBMISSIONS_LOG_QUEUE = "submission-failed-log-queue"
 const val FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE = "submission-failed-notifications-queue"
@@ -46,9 +45,6 @@ class QueuesConfig {
     fun releaseNotificationsQueue(): Queue = Queue(RELEASE_NOTIFICATIONS_QUEUE, DURABLES_QUEUES)
 
     @Bean
-    fun partialUpdatesQueue(): Queue = Queue(PARTIALS_QUEUE, DURABLES_QUEUES)
-
-    @Bean
     fun failedNotificationsLogQueue(): Queue = Queue(FAILED_NOTIFICATIONS_LOG_QUEUE, DURABLES_QUEUES)
 
     @Bean
@@ -75,14 +71,6 @@ class QueuesConfig {
     @Bean
     fun releaseNotificationsQueueBinding(exchange: TopicExchange): Binding =
         BindingBuilder.bind(releaseNotificationsQueue()).to(exchange).with(SUBMISSIONS_RELEASE_ROUTING_KEY)
-
-    @Bean
-    fun partialUpdatesQueueBinding(exchange: TopicExchange): Binding =
-        BindingBuilder.bind(partialUpdatesQueue()).to(exchange).with(SUBMISSIONS_ROUTING_KEY)
-
-    @Bean
-    fun partialUpdatesOnlyQueueBinding(exchange: TopicExchange): Binding =
-        BindingBuilder.bind(partialUpdatesQueue()).to(exchange).with(SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY)
 
     @Bean
     fun failedNotificationLogQueueBinding(exchange: TopicExchange): Binding =
