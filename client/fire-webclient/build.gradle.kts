@@ -2,6 +2,7 @@ import Dependencies.JSONOrg
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
+import Dependencies.SpringWeb
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.JsonLibrary
@@ -25,11 +26,11 @@ the<DependencyManagementExtension>().apply {
 dependencies {
     api(project(CommonsUtil))
 
-    implementation(JSONOrg)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
-    implementation("org.springframework:spring-web")
     implementation(KotlinLogging)
+    implementation(JSONOrg)
+    implementation(SpringWeb)
     implementation(SpringRetry)
 
     testApi(project(CommonsTest))
