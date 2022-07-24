@@ -28,11 +28,13 @@ import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.io.ext.allSubFiles
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.createOrReplaceFile
@@ -51,6 +53,7 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.zeroturnaround.zip.ZipUtil
 import java.io.File
 import kotlin.test.assertFailsWith
 
@@ -417,6 +420,42 @@ class SubmissionApiTest(
         assertThat(savedSubmission.accNo).isEqualTo("S-RLSD123")
         assertThat(savedSubmission.title).isEqualTo("Test Public Submission")
         assertThat(savedSubmission.released).isTrue
+    }
+
+    @Test
+    fun `submission with directory with files`() {
+        val submission = tsv {
+            line("Submission")
+            line("Title", "Simple Submission With directory")
+            line()
+
+            line("Study")
+            line()
+
+            line("File", "directory")
+            line("Type", "test")
+            line()
+        }.toString()
+
+        val dirFile = tempFolder.createFile("file1.txt", "content-1")
+        webClient.uploadFiles(listOf(dirFile), "directory")
+
+        val response = webClient.submitSingle(submission, TSV)
+
+        assertThat(response).isSuccessful()
+
+        val submitted = submissionRepository.getExtByAccNo(response.body.accNo)
+        assertThat(submitted.section.files).hasSize(1)
+        assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+            assertThat(it.type).isEqualTo(ExtFileType.DIR)
+            assertThat(it.size).isEqualTo(199)
+            assertThat(it.md5).isEqualTo("85EB53570A38FCE16A4DEF0220CBBB9F")
+
+            val subZip = tempFolder.createDirectory("target")
+            ZipUtil.unpack(File("$submissionPath/${submitted.relPath}/Files/directory.zip"), subZip)
+            val files = subZip.resolve("directory").allSubFiles().map { file -> file.name to file.readText() }
+            assertThat(files).containsExactly("file1.txt" to "content-1")
+        }
     }
 
     @Test

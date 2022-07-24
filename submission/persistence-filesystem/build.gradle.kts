@@ -25,6 +25,7 @@ dependencies {
     api(project(SubmissionPersistenceCommonApi))
 
     implementation(Arrow)
+    implementation("commons-codec:commons-codec:1.15")
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(KotlinLogging)

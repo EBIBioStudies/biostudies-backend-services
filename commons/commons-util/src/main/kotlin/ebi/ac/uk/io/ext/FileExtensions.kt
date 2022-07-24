@@ -14,6 +14,8 @@ fun File.notExist() = Files.exists(toPath()).not()
 
 fun File.asFileList(): List<File> = FileUtils.listFiles(this)
 
+fun File.allSubFiles(): List<File> = FileUtils.listAllFiles(this)
+
 fun File.size() = FileUtils.size(this)
 
 fun File.md5() = FileUtils.md5(this)
