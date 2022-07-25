@@ -47,6 +47,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -423,7 +424,8 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `submission with directory with files`() {
+    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+    fun `submission with directory with files on FIRE`() {
         val submission = tsv {
             line("Submission")
             line("Title", "Simple Submission With directory")
