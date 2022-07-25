@@ -271,7 +271,6 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             val file11b = dir11.createFile("file11b", "11b-content")
 
             val files = FileUtils.listAllFiles(folder)
-
             assertThat(files).containsExactly(dir1, dir11, file11a, file11b, dir2, file3)
         }
 

@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
@@ -53,7 +54,6 @@ import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.zeroturnaround.zip.ZipUtil
 import java.io.File
 import kotlin.test.assertFailsWith
 
@@ -448,12 +448,12 @@ class SubmissionApiTest(
         assertThat(submitted.section.files).hasSize(1)
         assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
             assertThat(it.type).isEqualTo(ExtFileType.DIR)
-            assertThat(it.size).isEqualTo(199)
-            assertThat(it.md5).isEqualTo("85EB53570A38FCE16A4DEF0220CBBB9F")
+            assertThat(it.size).isEqualTo(161L)
+            assertThat(it.md5).isEqualTo("D2B8C7BFA31857BF778B4000E7FA8975")
 
             val subZip = tempFolder.createDirectory("target")
             ZipUtil.unpack(File("$submissionPath/${submitted.relPath}/Files/directory.zip"), subZip)
-            val files = subZip.resolve("directory").allSubFiles().map { file -> file.name to file.readText() }
+            val files = subZip.allSubFiles().map { file -> file.name to file.readText() }
             assertThat(files).containsExactly("file1.txt" to "content-1")
         }
     }

@@ -6,11 +6,8 @@ import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.io.FileUtils.md5
-import ebi.ac.uk.io.ext.allSubFiles
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
-import org.zeroturnaround.zip.ZipUtil
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 import java.nio.file.Files
@@ -36,40 +33,34 @@ class FireService(
         return when (file) {
             is FireFile -> {
                 val downloadFile = { client.downloadByFireId(file.fireId, file.fileName) }
-                reuseOrPersistFireFile(file, "/${sub.relPath}/${file.relPath}", downloadFile)
+                reuseOrPersistFireFile(file, sub.relPath, downloadFile)
             }
             is NfsFile -> {
-                val nfsFile = if (file.type == FILE) file else extDirectory(sub, file)
+                val nfsFile = if (file.type == FILE) file else asCompressedFile(sub, file)
                 val downloadFile = { nfsFile.file }
-                return reuseOrPersistFireFile(nfsFile, "/${sub.relPath}/${nfsFile.relPath}", downloadFile)
+                return reuseOrPersistFireFile(nfsFile, sub.relPath, downloadFile)
             }
         }
     }
 
-    private fun extDirectory(sub: ExtSubmission, directory: NfsFile): NfsFile {
+    private fun asCompressedFile(sub: ExtSubmission, directory: NfsFile): NfsFile {
         fun compress(file: File): File {
             val tempFolder = fireTempDirPath.resolve("${sub.accNo}/${sub.version}")
             tempFolder.mkdirs()
 
             val target = tempFolder.resolve("${file.name}.zip")
             Files.deleteIfExists(target.toPath())
-            ZipUtil.pack(file, target, true)
+            ZipUtil.pack(file, target)
             return target
         }
 
-        fun calculateMd5(dir: File): String {
-            val allMd5 = dir.allSubFiles().joinToString("") { if (dir.isDirectory) md5(dir.name) else dir.md5() }
-            return md5(allMd5)
-        }
-
-        val file = directory.file
-        val compressed = compress(file)
+        val compressed = compress(directory.file)
         return directory.copy(
             filePath = "${directory.filePath}.zip",
             relPath = "${directory.relPath}.zip",
             file = compressed,
             fullPath = "${directory.fullPath}.zip",
-            md5 = calculateMd5(file),
+            md5 = compressed.md5(),
             size = compressed.size(),
             type = DIR
         )
@@ -78,9 +69,10 @@ class FireService(
     @Suppress("ReturnCount")
     private fun reuseOrPersistFireFile(
         file: ExtFile,
-        expectedPath: String,
+        subRelpath: String,
         fallbackFile: () -> File,
     ): FirePersistResult {
+        val expectedPath = "/$subRelpath/${file.relPath}"
         val files = client.findByMd5(file.md5)
 
         val noPath = files.firstOrNull { it.filesystemEntry?.path == null }
