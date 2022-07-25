@@ -437,24 +437,32 @@ class SubmissionApiTest(
             line()
         }.toString()
 
-        val dirFile = tempFolder.createFile("file1.txt", "content-1")
-        webClient.uploadFiles(listOf(dirFile), "directory")
+        val file1 = tempFolder.createFile("file1.txt", "content-1")
+        val file2 = tempFolder.createFile("file2.txt", "content-2")
+
+        webClient.uploadFiles(listOf(file1), "directory")
+        webClient.uploadFiles(listOf(file2), "directory/subdirectory")
 
         val response = webClient.submitSingle(submission, TSV)
-
         assertThat(response).isSuccessful()
 
         val submitted = submissionRepository.getExtByAccNo(response.body.accNo)
         assertThat(submitted.section.files).hasSize(1)
         assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
             assertThat(it.type).isEqualTo(ExtFileType.DIR)
-            assertThat(it.size).isEqualTo(161L)
-            assertThat(it.md5).isEqualTo("D2B8C7BFA31857BF778B4000E7FA8975")
+            assertThat(it.size).isEqualTo(326L)
+            assertThat(it.md5).isEqualTo("8BD1F30C5389037D06A3CA20E5549B45")
 
             val subZip = tempFolder.createDirectory("target")
             ZipUtil.unpack(File("$submissionPath/${submitted.relPath}/Files/directory.zip"), subZip)
-            val files = subZip.allSubFiles().map { file -> file.name to file.readText() }
-            assertThat(files).containsExactly("file1.txt" to "content-1")
+            val files = subZip.allSubFiles()
+                .filter { file -> file.isDirectory.not() }
+                .map { file -> file.toRelativeString(subZip) to file.readText() }
+
+            assertThat(files).containsExactly(
+                "file1.txt" to file1.readText(),
+                "subdirectory/file2.txt" to file2.readText()
+            )
         }
     }
 
