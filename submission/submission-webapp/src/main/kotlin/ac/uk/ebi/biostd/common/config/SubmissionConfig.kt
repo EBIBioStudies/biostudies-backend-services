@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
-import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
+import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
@@ -33,7 +33,7 @@ import java.net.URI
 @Suppress("LongParameterList")
 @Import(value = [PersistenceConfig::class, SecurityBeansConfig::class])
 class SubmissionConfig(
-    private val sourceGenerator: SourceGenerator,
+    private val fileSourcesService: FileSourcesService,
     private val serializationService: SerializationService,
 ) {
 
@@ -105,7 +105,7 @@ class SubmissionConfig(
         SubmitWebHandler(
             submissionService,
             extSubmissionQueryService,
-            sourceGenerator,
+            fileSourcesService,
             serializationService,
             userFilesService,
             toSubmissionMapper,

@@ -1,6 +1,7 @@
-package ac.uk.ebi.biostd.submission.domain.helpers
+package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.submission.helpers.FireFilesSourceFactory
 import ac.uk.ebi.biostd.submission.model.GroupSource
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
@@ -18,12 +19,12 @@ import java.nio.file.Paths
 
 private val DEFAULT_SOURCES = listOf(USER_SPACE, SUBMISSION, FIRE)
 
-class SourceGenerator(
+class FileSourcesService(
     private val props: ApplicationProperties,
     private val fireSourceFactory: FireFilesSourceFactory,
 ) {
-    fun submissionSources(requestSources: RequestSources): FileSourcesList {
-        val (owner, submitter, files, rootPath, submission, preferredSources) = requestSources
+    fun submissionSources(fileSourcesRequest: FileSourcesRequest): FileSourcesList {
+        val (owner, submitter, files, rootPath, submission, preferredSources) = fileSourcesRequest
         val preferred = preferredSources.ifEmpty { DEFAULT_SOURCES }
         val sources = buildList {
             if (files != null) {
@@ -72,7 +73,7 @@ class SourceGenerator(
     }
 }
 
-data class RequestSources(
+data class FileSourcesRequest(
     val onBehalfUser: SecurityUser?,
     val submitter: SecurityUser,
     val files: List<File>?,

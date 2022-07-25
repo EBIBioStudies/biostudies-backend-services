@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.submission.web.resources
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
-import ac.uk.ebi.biostd.submission.domain.helpers.RequestSources
-import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
+import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
+import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ebi.ac.uk.model.constants.PREVIOUS_VERSION_ACC_NO
@@ -19,11 +19,14 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/submissions/fileLists")
 class FileListResource(
-    private val sourceGenerator: SourceGenerator,
+    private val fileSourcesService: FileSourcesService,
     private val fileListValidator: FileListValidator,
     private val onBehalfUtils: OnBehalfUtils,
     private val submissionQueryService: SubmissionPersistenceQueryService,
 ) {
+    // TODO change the parameter to just accNo
+    // TODO move all the logic to FileListValidator
+    // TODO add unit tests for FileSourceService (formerly known as SourceGenerator)
     @PostMapping("/validate")
     fun validateFileList(
         @BioUser user: SecurityUser,
@@ -34,7 +37,7 @@ class FileListResource(
     ) {
         val onBehalfUser = onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) }
         val submission = accNo?.let { submissionQueryService.findExtByAccNo(accNo, includeFileListFiles = false) }
-        val request = RequestSources(
+        val request = FileSourcesRequest(
             onBehalfUser = onBehalfUser,
             submitter = user,
             files = null,
@@ -43,6 +46,6 @@ class FileListResource(
             preferredSources = emptyList()
         )
 
-        fileListValidator.validateFileList(fileListName, sourceGenerator.submissionSources(request))
+        fileListValidator.validateFileList(fileListName, fileSourcesService.submissionSources(request))
     }
 }

@@ -4,8 +4,8 @@ import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
-import ac.uk.ebi.biostd.submission.domain.helpers.RequestSources
-import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
+import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
+import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.exceptions.ConcurrentProcessingSubmissionException
@@ -27,7 +27,7 @@ private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 class SubmitWebHandler(
     private val submissionService: SubmissionService,
     private val extSubmissionService: ExtSubmissionQueryService,
-    private val sourceGenerator: SourceGenerator,
+    private val fileSourcesService: FileSourcesService,
     private val serializationService: SerializationService,
     private val userFilesService: UserFilesService,
     private val toSubmissionMapper: ToSubmissionMapper,
@@ -49,8 +49,8 @@ class SubmitWebHandler(
         val sub = serializationService.deserializeSubmission(request.submission, format)
         val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.also { requireNotProcessing(it.accNo) }
 
-        val source = sourceGenerator.submissionSources(
-            RequestSources(
+        val source = fileSourcesService.submissionSources(
+            FileSourcesRequest(
                 submitter = submitter,
                 files = files,
                 onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
@@ -79,8 +79,8 @@ class SubmitWebHandler(
         val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)
         requireNotProcessing(sub.accNo)
 
-        val source = sourceGenerator.submissionSources(
-            RequestSources(
+        val source = fileSourcesService.submissionSources(
+            FileSourcesRequest(
                 submitter = submitter,
                 files = files,
                 onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },

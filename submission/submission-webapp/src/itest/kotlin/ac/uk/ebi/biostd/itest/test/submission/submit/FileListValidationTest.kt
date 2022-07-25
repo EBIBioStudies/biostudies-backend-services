@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ebi.ac.uk.dsl.json.jsonArray
@@ -53,7 +52,7 @@ class FileListValidationTest(
 
     @Test
     fun `empty file list`() {
-        val fileList = tempFolder.createFile("FileList.json")
+        val fileList = tempFolder.createFile("EmptyFileList.json")
 
         webClient.uploadFile(fileList)
 
@@ -89,16 +88,16 @@ class FileListValidationTest(
             line("Study")
             line()
 
-            line("File", "Plate2.tif")
+            line("File", "File2.tif")
             line()
         }.toString()
 
-        val file1 = tempFolder.createFile("Plate1.tif", "content-1")
-        val file2 = tempFolder.createFile("Plate2.tif", "content-2")
+        val file1 = tempFolder.createFile("File1.tif", "content-1")
+        val file2 = tempFolder.createFile("File2.tif", "content-2")
         val fileListContent = tsv {
-            line("Files", "Resource")
-            line("Plate1.tif", "USER_SPACE")
-            line("Plate2.tif", "SUBMISSION")
+            line("Files")
+            line("File1.tif")
+            line("File2.tif")
             line()
         }.toString()
 
@@ -111,6 +110,9 @@ class FileListValidationTest(
 
         webClient.deleteFile(file1.name)
         webClient.deleteFile(fileList.name)
+
+        file1.delete()
+        file2.delete()
     }
 
     @Test
@@ -123,65 +125,72 @@ class FileListValidationTest(
             line("Study")
             line()
 
-            line("File", "Plate5.tif")
+            line("File", "File3.tif")
             line()
         }.toString()
 
-        val file3 = tempFolder.createFile("Plate3.tif", "content-3")
-        val file4 = tempFolder.createFile("Plate4.tif", "content-4")
-        val file5 = tempFolder.createFile("Plate5.tif", "content-5")
+        val file1 = tempFolder.createFile("File1.tif", "content-1")
+        val file2 = tempFolder.createFile("File2.tif", "content-2")
+        val file3 = tempFolder.createFile("File3.tif", "content-3")
+        val file1Md5 = file1.md5()
+        val file2Md5 = file2.md5()
         val file3Md5 = file3.md5()
-        val file4Md5 = file4.md5()
-        val file5Md5 = file5.md5()
 
         val fileListContent = tsv {
-            line("Files", "Resource", "md5")
-            line("Plate3.tif", "USER_SPACE", file3Md5)
-            line("Plate4.tif", "FIRE", file4Md5)
-            line("Plate5.tif", "SUBMISSION", file5Md5)
+            line("Files", "md5")
+            line("File1.tif", file1Md5)
+            line("File2.tif", file2Md5)
+            line("File3.tif", file3Md5)
             line()
         }.toString()
 
         val fileList = tempFolder.createFile("fire-valid-file-list.tsv", fileListContent)
 
-        fireClient.save(file4, file4Md5, file4.size())
-        webClient.uploadFiles(listOf(file3, fileList))
-        webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file5)))
+        fireClient.save(file2, file2Md5, file2.size())
+        webClient.uploadFiles(listOf(file1, fileList))
+        webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file3)))
 
         webClient.validateFileList(fileList.name, previousVersionAccNo = "S-FLV124")
 
-        webClient.deleteFile(file3.name)
+        webClient.deleteFile(file1.name)
         webClient.deleteFile(fileList.name)
+
+        file1.delete()
+        file2.delete()
+        file3.delete()
     }
 
     @Test
     fun `valid file list with root path`() {
-        val file6 = tempFolder.createFile("Plate6.tif", "content-6")
+        val file = tempFolder.createFile("File1.tif", "content-1")
         val fileListContent = tsv {
-            line("Files", "Resource")
-            line("Plate6.tif", "USER_SPACE")
+            line("Files")
+            line("File1.tif")
             line()
         }.toString()
 
         val fileList = tempFolder.createFile("root-path-file-list.tsv", fileListContent)
 
-        webClient.uploadFiles(listOf(file6, fileList), "root-path")
+        webClient.uploadFiles(listOf(file, fileList), "root-path")
 
         webClient.validateFileList(fileList.name, rootPath = "root-path")
 
-        webClient.deleteFile(file6.name)
+        webClient.deleteFile(file.name)
         webClient.deleteFile(fileList.name)
+
+        file.delete()
     }
 
     @Test
-    fun `file list with missing files`() {
-        val fileList = tempFolder.createFile("FileList.json", getFileListContent().toString())
+    @EnabledIfSystemProperty(named = "enableFire", matches = "false")
+    fun `file list with missing files on NFS mode`() {
+        val fileList = tempFolder.createFile("InvalidNfsFileList.json", getFileListContent().toString())
 
         webClient.uploadFile(fileList)
 
         val exception = assertThrows(WebClientException::class.java) { webClient.validateFileList(fileList.name) }
         assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
-        val expectedNfsError = jsonObj {
+        val expectedError = jsonObj {
             "log" to jsonObj {
                 "level" to "ERROR"
                 "message" to """
@@ -194,7 +203,21 @@ class FileListValidationTest(
             }
             "status" to "FAIL"
         }
-        val expectedFireError = jsonObj {
+
+        assertEquals(expectedError.toString(), exception.message, JSONCompareMode.LENIENT)
+        webClient.deleteFile(fileList.name)
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+    fun `file list with missing files on FIRE mode`() {
+        val fileList = tempFolder.createFile("InvalidFireFileList.json", getFileListContent().toString())
+
+        webClient.uploadFile(fileList)
+
+        val exception = assertThrows(WebClientException::class.java) { webClient.validateFileList(fileList.name) }
+        assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+        val expectedError = jsonObj {
             "log" to jsonObj {
                 "level" to "ERROR"
                 "message" to """
@@ -208,7 +231,6 @@ class FileListValidationTest(
             }
             "status" to "FAIL"
         }
-        val expectedError = if (enableFire) expectedFireError else expectedNfsError
 
         assertEquals(expectedError.toString(), exception.message, JSONCompareMode.LENIENT)
         webClient.deleteFile(fileList.name)
