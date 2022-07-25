@@ -64,7 +64,7 @@ internal class FireWebClient(
     }
 
     override fun findByMd5(md5: String): List<FireApiFile> =
-        template.getForObjectOrNull<Array<FireApiFile>>("/objects/md5/$md5").orEmpty().toList()
+        template.getForObject<Array<FireApiFile>>("/objects/md5/$md5").toList()
 
     override fun findByPath(path: String): FireApiFile? = template.getForObjectOrNull("/objects/path/$path")
 
