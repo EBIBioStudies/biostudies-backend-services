@@ -2,6 +2,7 @@ package ebi.ac.uk.io
 
 import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.ext.createDirectory
+import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.newFile
 import ebi.ac.uk.test.clean
@@ -257,6 +258,20 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
 
             assertThat(FileUtils.md5(folder)).isEmpty()
             assertThat(FileUtils.md5(file)).isEqualTo("FC5D029EE5D34A268F8FA016E949073B")
+        }
+
+        @Test
+        fun listAllFiles() {
+            val folder = temporaryFolder.createDirectory("list-all-test")
+            val dir1 = folder.createDirectory("dir1")
+            val dir2 = folder.createDirectory("dir2")
+            val file3 = folder.createFile("file3", "file3")
+            val dir11 = dir1.createDirectory("dir11")
+            val file11a = dir11.createFile("file11a", "11a-content")
+            val file11b = dir11.createFile("file11b", "11b-content")
+
+            val files = FileUtils.listAllFiles(folder)
+            assertThat(files).containsExactly(dir1, dir11, file11a, file11b, dir2, file3)
         }
 
         @Nested

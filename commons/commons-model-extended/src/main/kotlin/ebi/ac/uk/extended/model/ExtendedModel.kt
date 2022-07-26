@@ -64,10 +64,8 @@ data class NfsFile(
     override val md5: String,
     override val size: Long,
     override val attributes: List<ExtAttribute> = listOf(),
-) : ExtFile() {
-    override val type: ExtFileType
-        get() = if (file.isDirectory) DIR else FILE
-}
+    override val type: ExtFileType = if (file.isDirectory) DIR else FILE,
+) : ExtFile()
 
 data class ExtFileList(
     val filePath: String,
