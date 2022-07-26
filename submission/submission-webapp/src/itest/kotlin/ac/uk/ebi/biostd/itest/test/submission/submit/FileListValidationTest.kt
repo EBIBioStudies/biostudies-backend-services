@@ -106,7 +106,7 @@ class FileListValidationTest(
         webClient.uploadFiles(listOf(file1, fileList))
         webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file2)))
 
-        webClient.validateFileList(fileList.name, previousVersionAccNo = "S-FLV123")
+        webClient.validateFileList(fileList.name, accNo = "S-FLV123")
 
         webClient.deleteFile(file1.name)
         webClient.deleteFile(fileList.name)
@@ -150,7 +150,7 @@ class FileListValidationTest(
         webClient.uploadFiles(listOf(file1, fileList))
         webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file3)))
 
-        webClient.validateFileList(fileList.name, previousVersionAccNo = "S-FLV124")
+        webClient.validateFileList(fileList.name, accNo = "S-FLV124")
 
         webClient.deleteFile(file1.name)
         webClient.deleteFile(fileList.name)

@@ -26,7 +26,7 @@ internal class ValidateFileListCommandTest(
                 "-u", user,
                 "-p", password,
                 "-f", fileListPath,
-                "-pv", previousVersion,
+                "-ac", accNo,
                 "-rp", rootPath
             )
         )
@@ -40,8 +40,8 @@ internal class ValidateFileListCommandTest(
         private const val password = "password"
         private const val fileListPath = "file-list.json"
         private const val rootPath = "root-path"
-        private const val previousVersion = "S-BSST123"
+        private const val accNo = "S-BSST123"
         private val securityConfig = SecurityConfig(server, user, password)
-        private val validateRequest = ValidateFileListRequest(fileListPath, previousVersion, rootPath, securityConfig)
+        private val validateRequest = ValidateFileListRequest(fileListPath, accNo, rootPath, securityConfig)
     }
 }

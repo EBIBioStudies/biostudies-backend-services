@@ -8,7 +8,7 @@ const val SUBMISSION = "submission"
 const val FILE_MODE = "fileMode"
 const val PREFERRED_SOURCES = "preferredSources"
 const val ROOT_PATH = "rootPath"
-const val PREVIOUS_VERSION_ACC_NO = "previousVersionAccNo"
+const val ACC_NO = "accNo"
 
 const val APPLICATION_JSON = "application/json"
 const val TEXT_XML = "text/xml"

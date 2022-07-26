@@ -17,7 +17,7 @@ import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.FILE_LIST_NAME
-import ebi.ac.uk.model.constants.PREVIOUS_VERSION_ACC_NO
+import ebi.ac.uk.model.constants.ACC_NO
 import ebi.ac.uk.model.constants.ROOT_PATH
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -66,12 +66,12 @@ internal class SubmissionClient(
         template.put("$SUBMISSIONS_URL/release", request)
     }
 
-    override fun validateFileList(fileListPath: String, rootPath: String?, previousVersionAccNo: String?) {
+    override fun validateFileList(fileListPath: String, rootPath: String?, accNo: String?) {
         val headers = HttpHeaders().apply { contentType = APPLICATION_FORM_URLENCODED }
         val formData = buildList {
             add(FILE_LIST_NAME to fileListPath)
             rootPath?.let { add(ROOT_PATH to it) }
-            previousVersionAccNo?.let { add(PREVIOUS_VERSION_ACC_NO to it) }
+            accNo?.let { add(ACC_NO to it) }
         }
         val body = LinkedMultiValueMap(formData.groupBy({ it.first }, { it.second }))
 

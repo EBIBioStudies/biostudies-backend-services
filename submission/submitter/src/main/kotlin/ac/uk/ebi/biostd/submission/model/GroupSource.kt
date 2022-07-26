@@ -11,7 +11,7 @@ class GroupSource(groupName: String, private val pathSource: PathSource) : Files
 
     private val groupPattern = "/?groups/$groupName/".toRegex()
 
-    constructor(groupName: String, path: Path) : this(groupName, PathSource("Group $groupName files", path))
+    constructor(groupName: String, path: Path) : this(groupName, PathSource("Group '$groupName' files", path))
 
     override fun getExtFile(
         path: String,

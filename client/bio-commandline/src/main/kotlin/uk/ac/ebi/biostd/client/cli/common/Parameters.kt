@@ -41,5 +41,5 @@ internal object GrantPermissionParameters {
 
 internal object FileListValidationParameters {
     const val ROOT_PATH = "Base path to search for the files in the user folder"
-    const val PREVIOUS_VERSION = "The accNo for the previous version to include its files in the search"
+    const val ACC_NO = "The accNo for the submission which files will be included in the search"
 }

@@ -32,8 +32,8 @@ post:
                 description: Base path to search for the files in the user folder
                 required: false
                 type: string
-              previousVersionAccNo:
-                description: The accNo for the previous version to include its files in the search
+              accNo:
+                description: The accNo for the submission which files will be included in the search
                 required: false
                 type: string
 
