@@ -75,11 +75,11 @@ class FireService(
         val expectedPath = "/$subRelpath/${file.relPath}"
         val files = client.findByMd5(file.md5)
 
-        val noPath = files.firstOrNull { it.filesystemEntry?.path == null }
-        if (noPath != null) return FirePersistResult(setMetadata(noPath.fireOid, file, expectedPath), false)
-
         val byPath = files.firstOrNull { it.filesystemEntry?.path == expectedPath }
         if (byPath != null) return FirePersistResult(asFireFile(file, byPath.fireOid), false)
+
+        val noPath = files.firstOrNull { it.filesystemEntry?.path == null }
+        if (noPath != null) return FirePersistResult(setMetadata(noPath.fireOid, file, expectedPath), false)
 
         val saved = client.save(fallbackFile(), file.md5, file.size)
         return FirePersistResult(setMetadata(saved.fireOid, file, expectedPath), true)
