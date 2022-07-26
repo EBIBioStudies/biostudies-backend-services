@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.submission.domain.helpers.FireFilesSourceFactory
-import ac.uk.ebi.biostd.submission.domain.helpers.SourceGenerator
+import ac.uk.ebi.biostd.submission.helpers.FireFilesSourceFactory
+import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -19,8 +19,8 @@ internal class GeneralConfig {
     fun fireFilesSourceFactory(fireClient: FireClient) = FireFilesSourceFactory(fireClient)
 
     @Bean
-    fun sourceGenerator(
+    fun fileSourcesService(
         applicationProperties: ApplicationProperties,
         filesSourceFactory: FireFilesSourceFactory,
-    ) = SourceGenerator(applicationProperties, filesSourceFactory)
+    ) = FileSourcesService(applicationProperties, filesSourceFactory)
 }

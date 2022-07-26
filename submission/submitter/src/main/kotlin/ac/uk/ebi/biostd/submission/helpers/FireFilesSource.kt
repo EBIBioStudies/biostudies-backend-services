@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.domain.helpers
+package ac.uk.ebi.biostd.submission.helpers
 
 import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtFile

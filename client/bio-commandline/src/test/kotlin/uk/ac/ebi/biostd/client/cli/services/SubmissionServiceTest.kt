@@ -128,14 +128,15 @@ internal class SubmissionServiceTest {
 
     @Test
     fun `validate file list`() {
+        val (fileListPath, accNo, rootPath) = validateFileList
         every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF, false) } returns bioWebClient
-        every { bioWebClient.validateFileList(validateFileList.fileListPath) } answers { nothing }
+        every { bioWebClient.validateFileList(fileListPath, rootPath, accNo) } answers { nothing }
 
         testInstance.validateFileList(validateFileList)
 
         verify(exactly = 1) {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF, false)
-            bioWebClient.validateFileList(validateFileList.fileListPath)
+            bioWebClient.validateFileList(fileListPath, rootPath, accNo)
         }
     }
 
@@ -147,6 +148,7 @@ internal class SubmissionServiceTest {
         private const val SERVER = "server"
         private const val USER = "user"
         private const val FILE_LIST_PATH = "file-list.json"
+        private const val ROOT_PATH = "root-path"
 
         private val webClientException: WebClientException = mockk()
         private val submission: Submission = mockk()
@@ -155,9 +157,7 @@ internal class SubmissionServiceTest {
         private val filesConfig = SubmissionFilesConfig(listOf(mockk()), COPY, listOf(SUBMISSION))
 
         private val submissionRequest = SubmissionRequest(mockk(), securityConfig, filesConfig)
-
         private val deletionRequest = DeletionRequest(securityConfig, accNoList = listOf(ACC_NO))
-
-        private val validateFileList = ValidateFileListRequest(securityConfig, FILE_LIST_PATH)
+        private val validateFileList = ValidateFileListRequest(FILE_LIST_PATH, ROOT_PATH, ACC_NO, securityConfig)
     }
 }
