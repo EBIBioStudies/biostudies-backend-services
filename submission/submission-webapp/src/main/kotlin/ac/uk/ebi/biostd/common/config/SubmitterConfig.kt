@@ -66,8 +66,10 @@ class SubmitterConfig {
     @Bean
     fun submissionReleaser(
         ftpService: FtpService,
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
-    ): SubmissionReleaser = SubmissionReleaser(ftpService, submissionPersistenceService)
+    ): SubmissionReleaser =
+        SubmissionReleaser(ftpService, submissionPersistenceQueryService, submissionPersistenceService)
 
     @Bean
     fun extSubmissionSubmitter(
