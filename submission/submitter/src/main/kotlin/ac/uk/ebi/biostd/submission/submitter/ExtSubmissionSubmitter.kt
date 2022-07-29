@@ -22,11 +22,11 @@ class ExtSubmissionSubmitter(
     fun processRequest(accNo: String, version: Int): ExtSubmission {
         val sub = requestLoader.loadRequest(accNo, version)
         val submission = requestProcessor.processRequest(sub)
-        if (submission.released) requestReleaser.releaseSubmission(submission)
+        if (submission.released) requestReleaser.releaseSubmission(accNo)
         return submission
     }
 
-    fun release(sub: ExtSubmission) = requestReleaser.releaseSubmission(sub)
+    fun release(accNo: String) = requestReleaser.releaseSubmission(accNo)
 
     private fun saveRequest(request: SubmissionRequest, owner: String): Pair<String, Int> {
         val saved = persistenceService.saveSubmissionRequest(request)
