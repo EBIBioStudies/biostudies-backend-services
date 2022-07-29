@@ -69,7 +69,6 @@ spring:
   boot:
     admin:
       client:
-        url: http://biostudies-prod.ebi.ac.uk:8590
         enabled: false
 
 management:
