@@ -7,7 +7,6 @@ spring:
   boot:
     admin:
       client:
-        url: http://biostudy-prod.ebi.ac.uk:8590
         enabled: false
 
   data:

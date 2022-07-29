@@ -66,12 +66,11 @@ releaser:
     third-warning-days: # Number of days before hand for the third warning to the users about upcoming release
 
 spring:
-  application:
-    name: Scheduler Prod
   boot:
     admin:
       client:
-        url: http://biostudy-prod.ebi.ac.uk:8590
+        enabled: false
+
 management:
   endpoints:
     web:
