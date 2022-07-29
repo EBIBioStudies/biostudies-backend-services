@@ -14,6 +14,9 @@ class SubmissionRequestProcessor(
     private val submissionPersistenceService: SubmissionPersistenceService,
 ) {
 
+    /**
+     * Process the current submission files. Note that [ExtSubmission] returned does not include file list files.
+     */
     fun processRequest(saveRequest: ProcessedSubmissionRequest): ExtSubmission {
         val (sub, fileMode, draftKey, previousVersion) = saveRequest
         logger.info { "${sub.accNo} ${sub.owner} processing request accNo='${sub.accNo}', version='${sub.version}'" }
