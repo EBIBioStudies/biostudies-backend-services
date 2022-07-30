@@ -54,8 +54,9 @@ internal class SubmissionService {
     }
 
     private fun validateFileListRequest(request: ValidateFileListRequest) {
+        val (fileListPath, accNo, rootPath) = request
         val (server, user, password, onBehalf) = request.securityConfig
 
-        bioWebClient(server, user, password, onBehalf).validateFileList(request.fileListPath)
+        bioWebClient(server, user, password, onBehalf).validateFileList(fileListPath, rootPath, accNo)
     }
 }

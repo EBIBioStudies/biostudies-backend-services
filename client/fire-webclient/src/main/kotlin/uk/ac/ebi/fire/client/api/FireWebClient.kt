@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.RestOperations
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
@@ -65,15 +66,10 @@ internal class FireWebClient(
     override fun findByMd5(md5: String): List<FireApiFile> =
         template.getForObject<Array<FireApiFile>>("/objects/md5/$md5").toList()
 
-    override fun findByPath(path: String): FireApiFile? {
-        return runCatching { template.getForObject<FireApiFile>("/objects/path/$path") }
-            .getOrElse { if (it is ClientException && it.statusCode == NOT_FOUND) return null else throw it }
-    }
+    override fun findByPath(path: String): FireApiFile? = template.getForObjectOrNull("/objects/path/$path")
 
-    override fun findAllInPath(path: String): List<FireApiFile> {
-        return runCatching { template.getForObject<Array<FireApiFile>>("/objects/entries/path/$path").toList() }
-            .getOrElse { if (it is ClientException && it.statusCode == NOT_FOUND) return emptyList() else throw it }
-    }
+    override fun findAllInPath(path: String): List<FireApiFile> =
+        template.getForObjectOrNull<Array<FireApiFile>>("/objects/entries/path/$path").orEmpty().toList()
 
     override fun publish(fireOid: String) {
         template.put("/objects/$fireOid/publish", null)
@@ -82,4 +78,12 @@ internal class FireWebClient(
     override fun unpublish(fireOid: String) {
         template.delete("/objects/$fireOid/publish")
     }
+}
+
+/**
+ * Perform same as @see [RestOperations.getForObject] but maps 404 status response into null result.
+ */
+private inline fun <reified T> RestOperations.getForObjectOrNull(url: String, vararg uriVariables: Any): T? {
+    val result = runCatching { getForObject<T>(url, *uriVariables) }
+    return result.getOrElse { if (it is ClientException && it.statusCode == NOT_FOUND) null else throw it }
 }

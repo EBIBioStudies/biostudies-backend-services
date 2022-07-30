@@ -14,14 +14,17 @@ class SubmissionRequestProcessor(
     private val submissionPersistenceService: SubmissionPersistenceService,
 ) {
 
+    /**
+     * Process the current submission files. Note that [ExtSubmission] returned does not include file list files.
+     */
     fun processRequest(saveRequest: ProcessedSubmissionRequest): ExtSubmission {
-        val (sub, fileMode, draftKey) = saveRequest
+        val (sub, fileMode, draftKey, previousVersion) = saveRequest
         logger.info { "${sub.accNo} ${sub.owner} processing request accNo='${sub.accNo}', version='${sub.version}'" }
 
-        if (saveRequest.previousVersion != null) {
-            logger.info { "${sub.accNo} ${sub.owner} Started cleaning files of version ${sub.version}" }
-            systemService.cleanFolder(saveRequest.previousVersion!!)
-            logger.info { "${sub.accNo} ${sub.owner} Finished cleaning files of version ${sub.version}" }
+        if (previousVersion != null) {
+            logger.info { "${sub.accNo} ${sub.owner} Started cleaning files of version ${previousVersion.version}" }
+            systemService.cleanFolder(previousVersion)
+            logger.info { "${sub.accNo} ${sub.owner} Finished cleaning files of version ${previousVersion.version}" }
         }
 
         val processingSubmission = systemService.persistSubmissionFiles(FilePersistenceRequest(sub, fileMode))

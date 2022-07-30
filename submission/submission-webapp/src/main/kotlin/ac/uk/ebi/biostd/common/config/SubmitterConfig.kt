@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
+import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
@@ -65,8 +66,10 @@ class SubmitterConfig {
     @Bean
     fun submissionReleaser(
         ftpService: FtpService,
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
-    ): SubmissionReleaser = SubmissionReleaser(ftpService, submissionPersistenceService)
+    ): SubmissionReleaser =
+        SubmissionReleaser(ftpService, submissionPersistenceQueryService, submissionPersistenceService)
 
     @Bean
     fun extSubmissionSubmitter(
@@ -161,8 +164,10 @@ class SubmitterConfig {
 
         @Bean
         fun fileListValidator(
+            fileSourcesService: FileSourcesService,
             serializationService: SerializationService,
-        ): FileListValidator = FileListValidator(serializationService)
+            submissionQueryService: SubmissionPersistenceQueryService,
+        ): FileListValidator = FileListValidator(fileSourcesService, serializationService, submissionQueryService)
 
         @Bean(name = ["EuToxRiskValidator"])
         fun euToxRiskValidator(

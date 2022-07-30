@@ -54,7 +54,8 @@ class TestWireMockTransformer constructor(
             dbFolder: Path,
             failFactor: Int?,
         ): TestWireMockTransformer {
-            val fireDatabase = FireMockDatabase(subFolder, ftpFolder, dbFolder)
+            val fileSystem = FireMockFileSystem(dbFolder, ftpFolder, subFolder)
+            val fireDatabase = FireMockDatabase(fileSystem)
 
             return TestWireMockTransformer(
                 failFactor,

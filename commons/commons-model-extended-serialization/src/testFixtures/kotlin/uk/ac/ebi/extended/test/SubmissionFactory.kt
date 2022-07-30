@@ -12,7 +12,6 @@ import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
-import ebi.ac.uk.extended.model.ExtProcessingStatus
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtStat
@@ -20,13 +19,9 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
 import uk.ac.ebi.extended.serialization.service.createExtFileList
 import uk.ac.ebi.extended.test.SectionFactory.defaultSection
-import java.io.File
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 
@@ -43,7 +38,6 @@ object SubmissionFactory {
         rootPath: String? = ROOT_PATH,
         released: Boolean = RELEASED,
         secretKey: String = SECRET_KEY,
-        status: ExtProcessingStatus = STATUS,
         releaseTime: OffsetDateTime? = RELEASE_TIME,
         modificationTime: OffsetDateTime = MODIFICATION_TIME,
         creationTime: OffsetDateTime = CREATION_TIME,
@@ -88,7 +82,6 @@ object SubmissionFactory {
     const val ROOT_PATH = "SUBMISSION_ROOT_PATH"
     const val RELEASED = false
     const val SECRET_KEY = "SUBMISSION_SECRET_KEY"
-    val STATUS = ExtProcessingStatus.PROCESSED
     val RELEASE_TIME: OffsetDateTime = OffsetDateTime.of(2019, 9, 21, 0, 0, 0, 0, UTC)
     val MODIFICATION_TIME: OffsetDateTime = OffsetDateTime.of(2020, 9, 21, 0, 0, 0, 0, UTC)
     val CREATION_TIME: OffsetDateTime = OffsetDateTime.of(2018, 9, 21, 0, 0, 0, 0, UTC)
@@ -151,30 +144,6 @@ object FireFileFactory {
     const val FIRE_ID = "fireId"
     const val MD5 = "md5"
     const val SIZE = 1L
-    val ATTRIBUTES = emptyList<ExtAttribute>()
-}
-
-object NfsFileFactory {
-    fun defaultNfsFile(
-        filePath: String = FILE_PATH,
-        relPath: String = REL_PATH,
-        fullPath: String = FULL_PATH,
-        file: File = FILE,
-        attributes: List<ExtAttribute> = ATTRIBUTES,
-    ) = NfsFile(
-        filePath = filePath,
-        relPath = relPath,
-        fullPath = fullPath,
-        file = file,
-        md5 = file.md5(),
-        size = file.size(),
-        attributes = attributes
-    )
-
-    const val FILE_PATH = "folder/file.txt"
-    const val FULL_PATH = "root/Files/folder/file.txt"
-    const val REL_PATH = "Files/folder/file.txt"
-    val FILE = File("")
     val ATTRIBUTES = emptyList<ExtAttribute>()
 }
 

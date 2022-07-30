@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
@@ -28,11 +29,13 @@ import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
+import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.io.ext.allSubFiles
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.createOrReplaceFile
@@ -44,6 +47,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -367,6 +371,42 @@ class SubmissionApiTest(
     }
 
     @Test
+    fun `reference a file twice`() {
+        val submission = tsv {
+            line("Submission")
+            line("Title", "Simple Submission With Files 3")
+            line("ReleaseDate", "2020-01-25")
+            line()
+
+            line("Study")
+            line("Type", "Experiment")
+            line()
+
+            line("File", "multiple-references.txt")
+            line("Type", "test")
+            line()
+
+            line("Experiment", "Exp1")
+            line("Type", "Subsection")
+            line()
+
+            line("File", "multiple-references.txt")
+            line("Type", "Second reference")
+            line()
+        }.toString()
+
+        webClient.uploadFiles(listOf(tempFolder.createFile("multiple-references.txt")))
+
+        val response = webClient.submitSingle(submission, TSV)
+        val accNo = response.body.accNo
+
+        val submitted = submissionRepository.getExtByAccNo(accNo)
+        assertThat(response).isSuccessful()
+        assertThat(submitted.version).isEqualTo(1)
+        assertThat(File("$submissionPath/${submitted.relPath}/Files/multiple-references.txt")).exists()
+    }
+
+    @Test
     fun `new submission with past release date`() {
         val submission = tsv {
             line("Submission", "S-RLSD123")
@@ -381,6 +421,51 @@ class SubmissionApiTest(
         assertThat(savedSubmission.accNo).isEqualTo("S-RLSD123")
         assertThat(savedSubmission.title).isEqualTo("Test Public Submission")
         assertThat(savedSubmission.released).isTrue
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+    fun `submission with directory with files on FIRE`() {
+        val submission = tsv {
+            line("Submission")
+            line("Title", "Simple Submission With directory")
+            line()
+
+            line("Study")
+            line()
+
+            line("File", "directory")
+            line("Type", "test")
+            line()
+        }.toString()
+
+        val file1 = tempFolder.createFile("file1.txt", "content-1")
+        val file2 = tempFolder.createFile("file2.txt", "content-2")
+
+        webClient.uploadFiles(listOf(file1), "directory")
+        webClient.uploadFiles(listOf(file2), "directory/subdirectory")
+
+        val response = webClient.submitSingle(submission, TSV)
+        assertThat(response).isSuccessful()
+
+        val submitted = submissionRepository.getExtByAccNo(response.body.accNo)
+        assertThat(submitted.section.files).hasSize(1)
+        assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+            assertThat(it.type).isEqualTo(ExtFileType.DIR)
+            assertThat(it.size).isEqualTo(326L)
+            assertThat(it.md5).isEqualTo("8BD1F30C5389037D06A3CA20E5549B45")
+
+            val subZip = tempFolder.createDirectory("target")
+            ZipUtil.unpack(File("$submissionPath/${submitted.relPath}/Files/directory.zip"), subZip)
+            val files = subZip.allSubFiles()
+                .filter { file -> file.isDirectory.not() }
+                .map { file -> file.toRelativeString(subZip) to file.readText() }
+
+            assertThat(files).containsExactly(
+                "file1.txt" to file1.readText(),
+                "subdirectory/file2.txt" to file2.readText()
+            )
+        }
     }
 
     @Test

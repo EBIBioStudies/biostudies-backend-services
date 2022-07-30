@@ -38,3 +38,8 @@ internal object GrantPermissionParameters {
     const val ACCESS_TYPE = "Access Type to grant to the target user"
     const val ACCESS_TAG_NAME = "Tag name of a collection"
 }
+
+internal object FileListValidationParameters {
+    const val ROOT_PATH = "Base path to search for the files in the user folder"
+    const val ACC_NO = "The accNo for the submission which files will be included in the search"
+}
