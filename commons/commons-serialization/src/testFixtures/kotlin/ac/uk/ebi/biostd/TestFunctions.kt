@@ -9,7 +9,7 @@ import kotlin.io.path.outputStream
 
 fun createFileList(vararg files: BioFile, format: SubFormat = SubFormat.JSON): File {
     val file = Files.createTempFile("file-list", "${files.size}-files")
-    val serializer = SerializationConfig.serializationService(enableTsvPagetabExtension = true)
+    val serializer = SerializationConfig.serializationService()
     file.outputStream().use { serializer.serializeFileList(files.asSequence(), format, it) }
     return file.toFile()
 }

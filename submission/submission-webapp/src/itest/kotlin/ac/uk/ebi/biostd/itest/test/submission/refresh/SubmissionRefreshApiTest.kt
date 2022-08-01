@@ -107,25 +107,16 @@ class SubmissionRefreshApiTest(
                 )
             )
         }
-        val refreshFile = tempFolder.createFile(TEST_FILE_NAME, "file content")
-        val fileList = tempFolder.createFile(
-            "$FILE_LIST_NAME.tsv",
-            tsv {
-                line("Files", FILE_ATTR_NAME)
-                line("$FILE_LIST_FILE_NAME.txt", FILE_ATTR_VALUE)
-            }.toString()
-        )
-        val fileListFile = tempFolder.createFile("$FILE_LIST_FILE_NAME.txt", "content fileList file")
     }
-    val refreshFile = tempFolder.createFile(TEST_FILE_NAME, "file content")
-    val fileList = tempFolder.createFile(
-        "$FILE_LIST_NAME.pagetab.tsv",
+    private val refreshFile = tempFolder.createFile(TEST_FILE_NAME, "file content")
+    private val fileList = tempFolder.createFile(
+        "$FILE_LIST_NAME.tsv",
         tsv {
             line("Files", FILE_ATTR_NAME)
             line("$FILE_LIST_FILE_NAME.txt", FILE_ATTR_VALUE)
         }.toString()
     )
-    val fileListFile = tempFolder.createFile("$FILE_LIST_FILE_NAME.txt", "content fileList file")
+    private val fileListFile = tempFolder.createFile("$FILE_LIST_FILE_NAME.txt", "content fileList file")
 
     @BeforeAll
     fun init() {
@@ -197,7 +188,7 @@ class SubmissionRefreshApiTest(
         webClient.refreshSubmission(ACC_NO)
 
         val files = fileListRepository
-            .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(ACC_NO, 1, "$FILE_LIST_NAME.pagetab")
+            .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(ACC_NO, 1, FILE_LIST_NAME)
         assertThat(files).hasSize(1)
         assertThat(files.first().file.attributes)
             .isEqualTo(listOf(DocAttribute(FILE_ATTR_NAME, FILE_NEW_ATTR_VALUE)))
@@ -233,7 +224,7 @@ class SubmissionRefreshApiTest(
             assertThat(it.fileName).isEqualTo(file.name)
             assertThat(it.filePath).isEqualTo(file.path)
             assertThat(it.relPath).isEqualTo("relPath")
-            assertThat(it.fireId).isNotNull()
+            assertThat(it.fireId).isNotNull
             assertThat(it.md5).isEqualTo(file.md5())
             assertThat(it.fileSize).isEqualTo(file.size())
         }

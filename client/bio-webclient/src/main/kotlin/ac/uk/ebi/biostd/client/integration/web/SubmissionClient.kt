@@ -136,7 +136,6 @@ interface SecurityOperations {
         user: String,
         password: String,
         onBehalf: String? = null,
-        enableTsvFeature: Boolean = false
     ): BioWebClient
 
     fun login(loginRequest: LoginRequest): UserProfile

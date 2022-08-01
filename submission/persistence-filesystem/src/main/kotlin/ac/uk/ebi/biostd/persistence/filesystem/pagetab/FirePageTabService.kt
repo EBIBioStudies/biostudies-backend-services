@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
-import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.persistFireFile
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.FILE
@@ -19,7 +18,6 @@ class FirePageTabService(
     private val fireClient: FireClient,
     private val pageTabUtil: PageTabUtil,
     private val processingService: FileProcessingService,
-    private val tsvPagetabExtension: TsvPagetabExtension,
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
         val subFiles = pageTabUtil.generateSubPageTab(sub, fireTempFolder)
@@ -52,13 +50,13 @@ class FirePageTabService(
     private fun fileListFiles(pageTab: PageTabFiles, subFolder: String, fileListName: String) = listOf(
         saveFileListFile(pageTab.json, subFolder, "$fileListName.json"),
         saveFileListFile(pageTab.xml, subFolder, "$fileListName.xml"),
-        saveFileListFile(pageTab.tsv, subFolder, "$fileListName.${tsvPagetabExtension.tsvExtension()}")
+        saveFileListFile(pageTab.tsv, subFolder, "$fileListName.tsv")
     )
 
     private fun saveFileListFile(file: File, subFolder: String, filePath: String): FireFile {
         val relPath = "Files/$filePath"
         val save = fireClient.persistFireFile(file, file.md5(), file.size(), "$subFolder/$relPath")
-        return FireFile(filePath, relPath, save.fireOid, save.objectMd5, save.objectSize.toLong(), FILE, listOf())
+        return FireFile(filePath, relPath, save.fireOid, save.objectMd5, save.objectSize, FILE, listOf())
     }
 
     private fun subExtFiles(pageTab: PageTabFiles, subFolder: String): List<ExtFile> = listOf(
@@ -70,6 +68,6 @@ class FirePageTabService(
     private fun saveSubFile(file: File, subFolder: String): FireFile {
         val fName = file.name
         val saved = fireClient.persistFireFile(file, file.md5(), file.size(), "$subFolder/$fName")
-        return FireFile(fName, fName, saved.fireOid, saved.objectMd5, saved.objectSize.toLong(), FILE, listOf())
+        return FireFile(fName, fName, saved.fireOid, saved.objectMd5, saved.objectSize, FILE, listOf())
     }
 }

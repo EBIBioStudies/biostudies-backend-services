@@ -8,9 +8,8 @@ import ac.uk.ebi.biostd.tsv.serialization.TsvSerializer
 import ac.uk.ebi.biostd.tsv.TsvSerializer as TsvSerialization
 
 object SerializationConfig {
-    fun serializationService(enableTsvPagetabExtension: Boolean = false): SerializationService {
-        val pagetabExtension = TsvPagetabExtension(enableTsvPagetabExtension)
-        val tsvSerializer = TsvSerialization(tsvSerializer = TsvSerializer(pagetabExtension))
+    fun serializationService(): SerializationService {
+        val tsvSerializer = TsvSerialization(tsvSerializer = TsvSerializer())
         val pageTabSerializer = PagetabSerializer(tsvSerializer = tsvSerializer)
 
         return PageTabSerializationService(

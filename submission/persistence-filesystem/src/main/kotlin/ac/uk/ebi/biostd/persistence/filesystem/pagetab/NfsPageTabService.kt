@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
-import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
@@ -19,7 +18,6 @@ class NfsPageTabService(
     private val folderResolver: SubmissionFolderResolver,
     private val pageTabUtil: PageTabUtil,
     private val fileProcessingService: FileProcessingService,
-    private val tsvExtension: TsvPagetabExtension,
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
         logger.info { "${sub.accNo} ${sub.owner} Generating page tab files" }
@@ -56,7 +54,7 @@ class NfsPageTabService(
         return listOf(
             createNfsFile("$name.json", json),
             createNfsFile("$name.xml", xml),
-            createNfsFile("$name.${tsvExtension.tsvExtension()}", tsv),
+            createNfsFile("$name.tsv", tsv),
         )
     }
 
