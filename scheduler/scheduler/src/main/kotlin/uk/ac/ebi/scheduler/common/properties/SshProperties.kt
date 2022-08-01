@@ -6,5 +6,6 @@ import org.springframework.stereotype.Component
 @ConfigurationProperties("app.ssh")
 @Component
 class SshProperties {
+    lateinit var user: String
     lateinit var server: String
 }

@@ -38,12 +38,12 @@ class ClusterOperations(
         private val sshClient = JSch()
         private val responseParser = JobResponseParser()
 
-        fun create(sshMachine: String): ClusterOperations {
-            return ClusterOperations(responseParser) { createSession(sshMachine) }
+        fun create(user: String, sshMachine: String): ClusterOperations {
+            return ClusterOperations(responseParser) { createSession(user, sshMachine) }
         }
 
-        private fun createSession(sshMachine: String): Session {
-            val session = sshClient.getSession(sshMachine)
+        private fun createSession(user: String, sshMachine: String): Session {
+            val session = sshClient.getSession(user, sshMachine)
             session.setConfig("StrictHostKeyChecking", "no")
             return session
         }

@@ -22,6 +22,7 @@ internal class SchedulerConfig {
     fun clusterOperations(
         sshProperties: SshProperties,
     ) = ClusterOperations.create(
+        sshProperties.user,
         sshProperties.server
     )
 
