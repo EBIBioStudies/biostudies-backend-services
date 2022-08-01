@@ -8,13 +8,12 @@ import arrow.core.Try
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
 
-private const val AS_SYSTEM_USER = "sudo -u $SYSTEM_USER $LSF_ENVDIR $LSF_SERVERDIR"
 private const val REDIRECT_LOGS = "-o $LOGS_PATH%J_OUT -e $LOGS_PATH/%J_IN"
-private const val SUBMIT_COMMAND = "$AS_SYSTEM_USER bsub $REDIRECT_LOGS"
+private const val SUBMIT_COMMAND = "bsub $REDIRECT_LOGS"
 
 class ClusterOperations(
     private val responseParser: JobResponseParser,
-    private val sessionFunction: () -> Session
+    private val sessionFunction: () -> Session,
 ) {
 
     fun triggerJob(jobSpec: JobSpec): Try<Job> {
@@ -39,14 +38,13 @@ class ClusterOperations(
         private val sshClient = JSch()
         private val responseParser = JobResponseParser()
 
-        fun create(user: String, password: String?, sshMachine: String): ClusterOperations {
-            return ClusterOperations(responseParser) { createSession(user, password, sshMachine) }
+        fun create(sshMachine: String): ClusterOperations {
+            return ClusterOperations(responseParser) { createSession(sshMachine) }
         }
 
-        private fun createSession(user: String, password: String?, sshMachine: String): Session {
-            val session = sshClient.getSession(user, sshMachine)
+        private fun createSession(sshMachine: String): Session {
+            val session = sshClient.getSession(sshMachine)
             session.setConfig("StrictHostKeyChecking", "no")
-            password?.let { session.setPassword(it) }
             return session
         }
     }
