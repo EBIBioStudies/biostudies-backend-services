@@ -2,7 +2,6 @@ package uk.ac.ebi.scheduler.releaser.service
 
 import ac.uk.ebi.biostd.client.dto.ReleaseRequestDto
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.util.date.asOffsetAtEndOfDay
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -80,7 +79,7 @@ class SubmissionReleaserServiceTest(
     }
 
     @Test
-    fun `generate ftp links`(@MockK publicSubmission: ExtSubmission) {
+    fun `generate ftp links`() {
         val released = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
 
         every { releaserRepository.findAllReleased() } returns listOf(released)
