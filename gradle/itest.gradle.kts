@@ -19,12 +19,8 @@ val itest = tasks.create<Test>("itest") {
     testClassesDirs = sourceSets["itest"].output.classesDirs
     classpath = sourceSets["itest"].runtimeClasspath
 
-    val testingMode = project.property("itest.mode")
-    println("##### Running integration tests in $testingMode mode #######")
-    systemProperty("itest.mode", testingMode)
-
     val enableFire = project.property("enableFire")
-    println("##### Running integration tests with fireEnable=$enableFire mode #######")
+    println("##### Running integration tests with fireEnable=$enableFire #######")
     systemProperty("enableFire", enableFire)
 
     useJUnitPlatform()
