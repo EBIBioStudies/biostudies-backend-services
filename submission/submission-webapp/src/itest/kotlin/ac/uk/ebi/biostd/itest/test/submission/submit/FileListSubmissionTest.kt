@@ -52,7 +52,6 @@ class FileListSubmissionTest(
     @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
     @LocalServerPort val serverPort: Int,
 ) {
-
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
