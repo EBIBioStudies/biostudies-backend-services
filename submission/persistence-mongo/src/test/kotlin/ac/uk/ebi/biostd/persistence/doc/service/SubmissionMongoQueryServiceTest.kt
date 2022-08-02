@@ -116,7 +116,7 @@ internal class SubmissionMongoQueryServiceTest(
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = -1))
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 2))
 
-            val result = submissionRepo.findLatestByAccNo("S-BSST1")
+            val result = submissionRepo.findByAccNo("S-BSST1")
             assertThat(result).isNotNull
             assertThat(result!!.version).isEqualTo(2)
         }
@@ -125,7 +125,7 @@ internal class SubmissionMongoQueryServiceTest(
         fun `find latest by accNo for submission with old expired version`() {
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -1))
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -2))
-            assertThat(submissionRepo.findLatestByAccNo("S-BSST3")).isNull()
+            assertThat(submissionRepo.findByAccNo("S-BSST3")).isNull()
         }
     }
 
