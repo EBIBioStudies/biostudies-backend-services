@@ -18,9 +18,9 @@ include:
 
 stages:
   - build-test
-  - mongo-nfs-itest
-  - mongo-fire-itest
-  - mongo-fire-caos-itest
+  - nfs-itest
+  - fire-itest
+  - fire-caos-itest
   - auto-deploy-dev-bio-commandline
   - auto-deploy-beta-bio-commandline
   - auto-deploy-prod-bio-commandline
@@ -75,19 +75,19 @@ build-test:
       - submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
       - submission/submission-handlers/build/libs/submission-handlers-1.0.0.jar
 
-mongo-nfs-itest:
+nfs-itest:
   needs: ["build-test"]
-  stage: mongo-nfs-itest
+  stage: nfs-itest
   script: gradle clean :submission:submission-webapp:itest -PenableFire=false --rerun-tasks --stacktrace
 
-mongo-fire-itest:
+fire-itest:
   needs: ["build-test"]
-  stage: mongo-fire-itest
+  stage: fire-itest
   script: gradle clean :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --stacktrace
 
-mongo-fire-caos-itest:
+fire-caos-itest:
   needs: [ "build-test" ]
-  stage: mongo-fire-caos-itest
+  stage: fire-caos-itest
   script: gradle clean :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --stacktrace
   variables:
     ITEST_FAIL_FACTOR: "8"
