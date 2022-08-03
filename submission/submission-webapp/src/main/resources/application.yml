@@ -56,7 +56,7 @@ logging:
     name: logs/application_logs.txt
 
 app:
-  consumers: 5 # number of processing queue consumers.
+  consumers: 10 # number of processing queue consumers.
   maxConsumers: 15 # Max number of processing queue consumers.
   submissionPath: # Absolute path to the folder to be used as submission storage
   ftpPath: # Absolute path to the folder to be used ftp hardlinks
