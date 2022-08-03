@@ -42,7 +42,7 @@ class SubmissionService(
         eventsPublisherService.submissionRequested(accNo, version)
     }
 
-    @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "1-2")
+    @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], containerFactory = "processingListenerFactory")
     fun processSubmission(request: SubmissionRequestMessage) {
         val (accNo, version) = request
         logger.info { "$accNo, Received process message for submission $accNo, version: $version" }

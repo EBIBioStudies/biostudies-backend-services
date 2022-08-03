@@ -44,6 +44,7 @@ class PmcSubmitter(
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }
             val filesConfig = SubmissionFilesConfig(files)
             bioWebClient.submitSingle(submission.body, SubmissionFormat.JSON, filesConfig)
+            logger.info { "submitted accNo='${submission.accNo}'" }
         }.fold(
             { submissionService.changeStatus(submission, SubmissionStatus.SUBMITTED) },
             { errorDocService.saveError(submission, PmcMode.SUBMIT, it) }
