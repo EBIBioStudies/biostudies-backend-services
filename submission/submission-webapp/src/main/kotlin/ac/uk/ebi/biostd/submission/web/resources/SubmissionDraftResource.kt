@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
-import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
@@ -87,7 +87,7 @@ internal class SubmissionDraftResource(
         @ModelAttribute parameters: SubmissionRequestParameters,
     ) {
         val submission = draftService.getSubmissionDraft(user.email, key).content
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.JSON_PRETTY, emptyArray(), parameters)
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, JSON_PRETTY, emptyArray(), parameters, key)
         val request = submitRequestBuilder.buildContentRequest(submission, buildRequest)
 
         return submitWebHandler.submitAsync(request)

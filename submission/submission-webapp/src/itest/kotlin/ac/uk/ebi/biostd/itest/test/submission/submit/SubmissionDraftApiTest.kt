@@ -74,16 +74,11 @@ class SubmissionDraftApiTest(
 
     @Test
     fun `delete submission draft after submission`() {
-        val pageTab = jsonObj { "accno" to "ABC-126"; "type" to "Study" }.toString()
+        val pageTab = jsonObj { "accno" to "ABC-126"; "title" to "From Draft" }.toString()
+        val draft = webClient.createSubmissionDraft(pageTab)
 
-        webClient.submitSingle(pageTab, JSON)
-        webClient.getSubmissionDraft("ABC-126")
-        val updatedDraft = tsv {
-            line("Submission", "ABC-126")
-            line("Description", "Updated Submission")
-        }
+        webClient.submitSingleFromDraft(draft.key)
 
-        webClient.submitSingle(updatedDraft.toString(), TSV)
         assertThat(webClient.getAllSubmissionDrafts()).isEmpty()
     }
 
@@ -105,7 +100,7 @@ class SubmissionDraftApiTest(
     }
 
     @Test
-    fun `submit from draft`() {
+    fun `re submit from draft`() {
         val pageTab = jsonObj {
             "accno" to "ABC-129"
             "type" to "Study"

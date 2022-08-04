@@ -22,6 +22,7 @@ class SubmitRequestBuilder(
 
         return ContentSubmitWebRequest(
             submission = submission,
+            draftKey = request.draftKey,
             onBehalfRequest = request.onBehalfRequest,
             submissionConfig = submitConfig.first,
             filesConfig = submitConfig.second
@@ -60,4 +61,5 @@ data class SubmitBuilderRequest(
     val format: SubFormat,
     val files: Array<out MultipartFile>,
     val submissionRequestParameters: SubmissionRequestParameters,
+    val draftKey: String? = null
 )
