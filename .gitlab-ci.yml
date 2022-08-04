@@ -78,16 +78,16 @@ build-test:
 nfs-itest:
   needs: ["build-test"]
   stage: nfs-itest
-  script: gradle clean :submission:submission-webapp:itest -PenableFire=false --rerun-tasks --stacktrace
+  script: gradle clean :submission:submission-webapp:itest -PenableFire=false --rerun-tasks --info
 
 fire-itest:
   needs: ["build-test"]
   stage: fire-itest
-  script: gradle clean :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --stacktrace
+  script: gradle clean :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --info
 
 fire-caos-itest:
   needs: [ "build-test" ]
   stage: fire-caos-itest
-  script: gradle clean :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --stacktrace
+  script: gradle clean :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --info
   variables:
     ITEST_FAIL_FACTOR: "8"
