@@ -304,7 +304,7 @@ class MultipartFileSubmissionApiTest(
         val jsonFile = File("$subFolder/$accNo.json")
         assertThat(jsonTabFile.filePath).isEqualTo("$accNo.json")
         assertThat(jsonTabFile.relPath).isEqualTo("$accNo.json")
-        assertThat(jsonTabFile.fireId).isNotNull
+        assertThat(jsonTabFile.fireId).isNotNull()
         assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
         assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
 
@@ -312,7 +312,7 @@ class MultipartFileSubmissionApiTest(
         val xmlFile = File("$subFolder/$accNo.xml")
         assertThat(xmlTabFile.filePath).isEqualTo("$accNo.xml")
         assertThat(xmlTabFile.relPath).isEqualTo("$accNo.xml")
-        assertThat(xmlTabFile.fireId).isNotNull
+        assertThat(xmlTabFile.fireId).isNotNull()
         assertThat(xmlTabFile.md5).isEqualTo(xmlFile.md5())
         assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
 
@@ -320,7 +320,7 @@ class MultipartFileSubmissionApiTest(
         val tsvFile = File("$subFolder/$accNo.tsv")
         assertThat(tsvTabFile.filePath).isEqualTo("$accNo.tsv")
         assertThat(tsvTabFile.relPath).isEqualTo("$accNo.tsv")
-        assertThat(tsvTabFile.fireId).isNotNull
+        assertThat(tsvTabFile.fireId).isNotNull()
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
@@ -333,7 +333,7 @@ class MultipartFileSubmissionApiTest(
         val jsonFile = File("$subFolder/Files/FileList.json")
         assertThat(jsonTabFile.filePath).isEqualTo("FileList.json")
         assertThat(jsonTabFile.relPath).isEqualTo("Files/FileList.json")
-        assertThat(jsonTabFile.fireId).isNotNull
+        assertThat(jsonTabFile.fireId).isNotNull()
         assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
         assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
 
@@ -341,7 +341,7 @@ class MultipartFileSubmissionApiTest(
         val xmlFile = File("$subFolder/Files/FileList.xml")
         assertThat(xmlTabFile.filePath).isEqualTo("FileList.xml")
         assertThat(xmlTabFile.relPath).isEqualTo("Files/FileList.xml")
-        assertThat(xmlTabFile.fireId).isNotNull
+        assertThat(xmlTabFile.fireId).isNotNull()
         assertThat(xmlTabFile.md5).isEqualTo(xmlFile.md5())
         assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
 
@@ -349,7 +349,7 @@ class MultipartFileSubmissionApiTest(
         val tsvFile = File("$subFolder/Files/FileList.tsv")
         assertThat(tsvTabFile.filePath).isEqualTo("FileList.tsv")
         assertThat(tsvTabFile.relPath).isEqualTo("Files/FileList.tsv")
-        assertThat(tsvTabFile.fireId).isNotNull
+        assertThat(tsvTabFile.fireId).isNotNull()
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }

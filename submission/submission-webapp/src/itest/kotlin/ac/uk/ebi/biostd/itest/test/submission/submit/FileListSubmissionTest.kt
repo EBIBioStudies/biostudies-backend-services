@@ -279,7 +279,7 @@ class FileListSubmissionTest(
         val jsonFile = File("$subFolder/$accNo.json")
         assertThat(jsonTabFile.filePath).isEqualTo("$accNo.json")
         assertThat(jsonTabFile.relPath).isEqualTo("$accNo.json")
-        assertThat(jsonTabFile.fireId).isNotNull
+        assertThat(jsonTabFile.fireId).isNotNull()
         assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
         assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
 
@@ -287,7 +287,7 @@ class FileListSubmissionTest(
         val xmlFile = File("$subFolder/$accNo.xml")
         assertThat(xmlTabFile.filePath).isEqualTo("$accNo.xml")
         assertThat(xmlTabFile.relPath).isEqualTo("$accNo.xml")
-        assertThat(xmlTabFile.fireId).isNotNull
+        assertThat(xmlTabFile.fireId).isNotNull()
         assertThat(xmlTabFile.md5).isEqualTo(xmlFile.md5())
         assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
 
@@ -295,7 +295,7 @@ class FileListSubmissionTest(
         val tsvFile = File("$subFolder/$accNo.tsv")
         assertThat(tsvTabFile.filePath).isEqualTo("$accNo.tsv")
         assertThat(tsvTabFile.relPath).isEqualTo("$accNo.tsv")
-        assertThat(tsvTabFile.fireId).isNotNull
+        assertThat(tsvTabFile.fireId).isNotNull()
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
@@ -308,7 +308,7 @@ class FileListSubmissionTest(
         val jsonFile = File("$subFolder/Files/$fileListName.json")
         assertThat(jsonTabFile.filePath).isEqualTo("$fileListName.json")
         assertThat(jsonTabFile.relPath).isEqualTo("Files/$fileListName.json")
-        assertThat(jsonTabFile.fireId).isNotNull
+        assertThat(jsonTabFile.fireId).isNotNull()
         assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
         assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
 
@@ -316,7 +316,7 @@ class FileListSubmissionTest(
         val xmlFile = File("$subFolder/Files/$fileListName.xml")
         assertThat(xmlTabFile.filePath).isEqualTo("$fileListName.xml")
         assertThat(xmlTabFile.relPath).isEqualTo("Files/$fileListName.xml")
-        assertThat(xmlTabFile.fireId).isNotNull
+        assertThat(xmlTabFile.fireId).isNotNull()
         assertThat(xmlTabFile.md5).isEqualTo(xmlFile.md5())
         assertThat(xmlTabFile.size).isEqualTo(xmlFile.size())
 
@@ -324,7 +324,7 @@ class FileListSubmissionTest(
         val tsvFile = File("$subFolder/Files/$fileListName.tsv")
         assertThat(tsvTabFile.filePath).isEqualTo("$fileListName.tsv")
         assertThat(tsvTabFile.relPath).isEqualTo("Files/$fileListName.tsv")
-        assertThat(tsvTabFile.fireId).isNotNull
+        assertThat(tsvTabFile.fireId).isNotNull()
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }

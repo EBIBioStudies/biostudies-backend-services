@@ -224,7 +224,7 @@ class SubmissionRefreshApiTest(
             assertThat(it.fileName).isEqualTo(file.name)
             assertThat(it.filePath).isEqualTo(file.path)
             assertThat(it.relPath).isEqualTo("relPath")
-            assertThat(it.fireId).isNotNull
+            assertThat(it.fireId).isNotNull()
             assertThat(it.md5).isEqualTo(file.md5())
             assertThat(it.fileSize).isEqualTo(file.size())
         }

@@ -117,7 +117,7 @@ internal class SubmissionMongoQueryServiceTest(
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 2))
 
             val result = submissionRepo.findByAccNo("S-BSST1")
-            assertThat(result).isNotNull
+            assertThat(result).isNotNull()
             assertThat(result!!.version).isEqualTo(2)
         }
 

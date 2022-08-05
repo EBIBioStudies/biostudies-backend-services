@@ -159,7 +159,7 @@ class ExtSubmissionClientTest(
     private fun assertHttpEntity(entity: HttpEntity<LinkedMultiValueMap<String, Any>>) {
         val body = entity.body
 
-        assertThat(body).isNotNull
+        assertThat(body).isNotNull()
         assertThat(body).hasSize(2)
         assertThat(body!![SUBMISSION]).hasSize(1)
         assertThat(body[SUBMISSION]?.first()).isEqualTo("ExtSubmission")
