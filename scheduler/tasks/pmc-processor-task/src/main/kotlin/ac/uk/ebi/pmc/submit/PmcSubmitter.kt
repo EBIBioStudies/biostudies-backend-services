@@ -13,9 +13,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
@@ -24,7 +24,7 @@ import kotlin.time.TimedValue
 import kotlin.time.measureTimedValue
 
 private val logger = KotlinLogging.logger {}
-private const val BUFFER_SIZE = 30
+private const val BUFFER_SIZE = 20
 
 class PmcSubmitter(
     private val bioWebClient: BioWebClient,
@@ -36,12 +36,13 @@ class PmcSubmitter(
         submitSubmissions()
     }
 
-    private suspend fun submitSubmissions() = withContext(Dispatchers.Default) {
+    private suspend fun submitSubmissions() = coroutineScope {
         val counter = AtomicInteger(0)
         submissionService.findReadyToSubmit()
-            .map { async { submitSubmission(it, counter.incrementAndGet()) } }
+            .map { async(Dispatchers.IO) { submitSubmission(it, counter.incrementAndGet()) } }
             .buffer(BUFFER_SIZE)
-            .collect { it.await() }
+            .map { it.await() }
+            .collect()
     }
 
     @OptIn(ExperimentalTime::class)
