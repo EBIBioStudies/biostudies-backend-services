@@ -6,9 +6,8 @@ import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.itest.ITestListener
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -97,7 +96,7 @@ class SubmissionFileSourceTest(
 
         val firstVersion = submissionRepository.getExtByAccNo("S-FSTST1")
         val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-FSTST1", "FileList")
-        val subFilesPath = "${ITestListener.submissionPath}/${firstVersion.relPath}/Files"
+        val subFilesPath = "$submissionPath/${firstVersion.relPath}/Files"
         val innerFile = Paths.get("$subFilesPath/File1.txt")
         val referencedFile = Paths.get("$subFilesPath/File2.txt")
 
@@ -172,7 +171,7 @@ class SubmissionFileSourceTest(
 
         val persistedSubmission = submissionRepository.getExtByAccNo("S-FSTST2")
         val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-FSTST2", "FileList")
-        val subFilesPath = "${ITestListener.submissionPath}/${persistedSubmission.relPath}/Files"
+        val subFilesPath = "$submissionPath/${persistedSubmission.relPath}/Files"
         val innerFile = Paths.get("$subFilesPath/File4.txt")
         val referencedFile = Paths.get("$subFilesPath/File3.txt")
 
@@ -204,11 +203,11 @@ class SubmissionFileSourceTest(
             line()
         }.toString()
 
-        val file5 = tempFolder.createFile("File5.txt", "content-5")
-        val file6 = tempFolder.createFile("File6.txt", "content-6")
+        val file1 = tempFolder.createFile("file1.txt", "content-1")
+        val file2 = tempFolder.createFile("file2.txt", "content-2")
 
-        webClient.uploadFiles(listOf(file5), "directory")
-        webClient.uploadFiles(listOf(file6), "directory/subdirectory")
+        webClient.uploadFiles(listOf(file1), "directory")
+        webClient.uploadFiles(listOf(file2), "directory/subdirectory")
 
         assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
@@ -217,17 +216,17 @@ class SubmissionFileSourceTest(
         assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
             assertThat(it.type).isEqualTo(ExtFileType.DIR)
             assertThat(it.size).isEqualTo(326L)
-            assertThat(it.md5).isEqualTo("8A181B636DA0BF5C1389BBB579BC9227")
+            assertThat(it.md5).isEqualTo("8BD1F30C5389037D06A3CA20E5549B45")
 
             val subZip = tempFolder.createDirectory("target")
-            ZipUtil.unpack(File("${Companion.submissionPath}/${submitted.relPath}/Files/directory.zip"), subZip)
+            ZipUtil.unpack(File("$submissionPath/${submitted.relPath}/Files/directory.zip"), subZip)
             val files = subZip.allSubFiles()
                 .filter { file -> file.isDirectory.not() }
                 .map { file -> file.toRelativeString(subZip) to file.readText() }
 
             assertThat(files).containsExactly(
-                "File5.txt" to file5.readText(),
-                "subdirectory/File6.txt" to file6.readText()
+                "file1.txt" to file1.readText(),
+                "subdirectory/file2.txt" to file2.readText()
             )
         }
     }
@@ -263,7 +262,7 @@ class SubmissionFileSourceTest(
 
         val submitted = submissionRepository.getExtByAccNo("S-FSTST4")
         assertThat(submitted.version).isEqualTo(1)
-        assertThat(File("${Companion.submissionPath}/${submitted.relPath}/Files/multiple-references.txt")).exists()
+        assertThat(File("$submissionPath/${submitted.relPath}/Files/multiple-references.txt")).exists()
     }
 
     @Test
