@@ -3,6 +3,7 @@ package ac.uk.ebi.pmc.submit
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
+import ac.uk.ebi.biostd.client.integration.web.SubmissionResponse
 import ac.uk.ebi.pmc.persistence.ErrorsDocService
 import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
@@ -17,6 +18,10 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import java.io.File
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.ExperimentalTime
+import kotlin.time.TimedValue
+import kotlin.time.measureTimedValue
 
 private val logger = KotlinLogging.logger {}
 private const val BUFFER_SIZE = 30
@@ -32,27 +37,34 @@ class PmcSubmitter(
     }
 
     private suspend fun submitSubmissions() = withContext(Dispatchers.Default) {
+        val counter = AtomicInteger(0)
         submissionService.findReadyToSubmit()
-            .map { async { submitSubmission(it) } }
+            .map { async { submitSubmission(it, counter.incrementAndGet()) } }
             .buffer(BUFFER_SIZE)
             .collect { it.await() }
     }
 
-    private suspend fun submitSubmission(submission: SubmissionDoc) = coroutineScope {
-        runCatching {
-            logger.info { "submitting accNo='${submission.accNo}'" }
+    @OptIn(ExperimentalTime::class)
+    private suspend fun submitSubmission(sub: SubmissionDoc, idx: Int) = coroutineScope {
+        runCatching { submit(sub) }
+            .fold(
+                {
+                    logger.info { "submitted $idx, accNo='${sub.accNo}', in ${it.duration.inWholeMilliseconds} ms" }
+                    submissionService.changeStatus(sub, SubmissionStatus.SUBMITTED)
+                },
+                {
+                    logger.error(it) { "failed to submit accNo='${sub.accNo}'" }
+                    errorDocService.saveError(sub, PmcMode.SUBMIT, it)
+                }
+            )
+    }
+
+    @OptIn(ExperimentalTime::class)
+    private suspend fun submit(submission: SubmissionDoc): TimedValue<SubmissionResponse> {
+        return measureTimedValue {
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }
             val filesConfig = SubmissionFilesConfig(files)
             bioWebClient.submitSingle(submission.body, SubmissionFormat.JSON, filesConfig)
-        }.fold(
-            {
-                logger.info { "submitted accNo='${submission.accNo}'" }
-                submissionService.changeStatus(submission, SubmissionStatus.SUBMITTED)
-            },
-            {
-                logger.error(it) { "failed to submit accNo='${submission.accNo}'" }
-                errorDocService.saveError(submission, PmcMode.SUBMIT, it)
-            }
-        )
+        }
     }
 }
