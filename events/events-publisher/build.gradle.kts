@@ -6,7 +6,7 @@ import SpringBootDependencies.SpringBootStarterAmqp
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
+import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
 plugins {
     id("io.spring.dependency-management") version "1.0.12.RELEASE"
@@ -15,7 +15,7 @@ plugins {
 
 the<DependencyManagementExtension>().apply {
     imports {
-        mavenBom(SpringBootPlugin.BOM_COORDINATES)
+        mavenBom(BOM_COORDINATES)
     }
 }
 
