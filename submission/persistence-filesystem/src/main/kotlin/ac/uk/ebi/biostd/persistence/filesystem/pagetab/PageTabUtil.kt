@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
-import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
@@ -20,7 +19,6 @@ class PageTabUtil(
     private val serializationService: SerializationService,
     private val toSubmissionMapper: ToSubmissionMapper,
     private val fileListMapper: ToFileListMapper,
-    private val pagetabExtension: TsvPagetabExtension
 ) {
     fun generateSubPageTab(sub: ExtSubmission, target: File): PageTabFiles {
         val element = toSubmissionMapper.toSimpleSubmission(sub)
@@ -38,7 +36,7 @@ class PageTabUtil(
                 permissions
             ),
             tsv = saveTabFile(
-                target.resolve("${sub.accNo}.${pagetabExtension.tsvExtension()}"),
+                target.resolve("${sub.accNo}.tsv"),
                 serializationService.serializeSubmission(element, TSV),
                 permissions
             ),
@@ -54,7 +52,7 @@ class PageTabUtil(
         return PageTabFiles(
             json = fileListMapper.serialize(fileList, JSON_PRETTY, filesDir.newFile("$path.json")),
             xml = fileListMapper.serialize(fileList, XML, filesDir.newFile("$path.xml")),
-            tsv = fileListMapper.serialize(fileList, TSV, filesDir.newFile("$path.${pagetabExtension.tsvExtension()}"))
+            tsv = fileListMapper.serialize(fileList, TSV, filesDir.newFile("$path.tsv"))
         )
     }
 

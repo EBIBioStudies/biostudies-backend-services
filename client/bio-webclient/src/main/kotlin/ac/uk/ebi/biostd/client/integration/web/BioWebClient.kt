@@ -13,11 +13,10 @@ class BioWebClient internal constructor(
         fun create(
             baseUrl: String,
             token: String,
-            enableTsvExtFeature: Boolean
         ): BioWebClient = BioWebClient(
             SubmissionClientImpl(
                 createRestTemplate(baseUrl, token),
-                SerializationConfig.serializationService(enableTsvExtFeature),
+                SerializationConfig.serializationService(),
                 ExtSerializationConfig.extSerializationService()
             )
         )
@@ -26,11 +25,10 @@ class BioWebClient internal constructor(
             baseUrl: String,
             token: String,
             onBehalf: String,
-            enableTsvExtFeature: Boolean
         ): BioWebClient = BioWebClient(
             SubmissionClientImpl(
                 createRestTemplate(baseUrl, token, onBehalf),
-                SerializationConfig.serializationService(enableTsvExtFeature),
+                SerializationConfig.serializationService(),
                 ExtSerializationConfig.extSerializationService()
             )
         )

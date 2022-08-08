@@ -100,7 +100,6 @@ internal class XmlSerializer {
             }
 
             return XmlMapper(module).apply {
-                setDefaultUseWrapper(false)
                 setSerializationInclusion(NON_NULL)
                 setSerializationInclusion(NON_EMPTY)
                 enable(SerializationFeature.INDENT_OUTPUT)
