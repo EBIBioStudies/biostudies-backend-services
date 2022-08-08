@@ -24,12 +24,10 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.aggregation.Aggregation.CURRENT
 import org.springframework.data.mongodb.core.aggregation.Aggregation.group
 import org.springframework.data.mongodb.core.aggregation.Aggregation.limit
 import org.springframework.data.mongodb.core.aggregation.Aggregation.match
 import org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation
-import org.springframework.data.mongodb.core.aggregation.Aggregation.replaceRoot
 import org.springframework.data.mongodb.core.aggregation.Aggregation.skip
 import org.springframework.data.mongodb.core.aggregation.Aggregation.sort
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation
@@ -40,14 +38,12 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update.update
 import java.time.Instant
 
-private const val SUB_ALIAS = "submission"
-
 @Suppress("SpreadOperator", "TooManyFunctions")
 class SubmissionDocDataRepository(
     private val submissionRepository: SubmissionMongoRepository,
     private val mongoTemplate: MongoTemplate,
 ) : SubmissionMongoRepository by submissionRepository {
-    fun setAsRelease(accNo: String) {
+    fun setAsReleased(accNo: String) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
         mongoTemplate.updateFirst(query, update(SUB_RELEASED, true), DocSubmission::class.java)
     }
@@ -59,21 +55,8 @@ class SubmissionDocDataRepository(
             group(SUB_ACC_NO).max(SUB_VERSION).`as`("maxVersion"),
             sort(Sort.Direction.DESC, "maxVersion")
         )
+
         return mongoTemplate.aggregate(aggregation, Result::class.java).uniqueMappedResult?.maxVersion
-    }
-
-    fun getLatestVersions(accNo: List<String>, skip: Long, limit: Long): List<DocSubmission> {
-        val aggregation = newAggregation(
-            DocSubmission::class.java,
-            match(where(SUB_ACC_NO).`in`(accNo)),
-            sort(Sort.Direction.DESC, SUB_VERSION),
-            group(SUB_ACC_NO).first(SUB_VERSION).`as`("maxVersion").first(CURRENT).`as`("submission"),
-            replaceRoot("submission"),
-            skip(skip),
-            limit(limit)
-        )
-
-        return mongoTemplate.aggregate(aggregation, DocSubmission::class.java).mappedResults
     }
 
     fun expireActiveProcessedVersions(accNo: String) {
@@ -81,14 +64,6 @@ class SubmissionDocDataRepository(
         mongoTemplate.updateMulti(
             Query(criteria),
             ExtendedUpdate().multiply(SUB_VERSION, -1),
-            DocSubmission::class.java
-        )
-    }
-
-    fun expireVersion(accNo: String, version: Int) {
-        mongoTemplate.updateMulti(
-            Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version))),
-            ExtendedUpdate().multiply(SUB_VERSION, -1).set(SUB_MODIFICATION_TIME, Instant.now()),
             DocSubmission::class.java
         )
     }
@@ -141,14 +116,10 @@ class SubmissionDocDataRepository(
             filter: SubmissionFilter,
             email: String? = null,
             offsetLimit: Pair<Long, Long>? = null,
-        ): List<AggregationOperation> {
-            return buildList {
-                add(match(where(SUB_VERSION).gt(0).andOperator(*createQuery(filter, email))))
-                sort(Sort.Direction.DESC, SUB_MODIFICATION_TIME)
-                offsetLimit?.let { add(skip(it.first)); add(limit(it.second)) }
-                add(group(SUB_ACC_NO).first(SUB_VERSION).`as`("maxVersion").first(CURRENT).`as`(SUB_ALIAS))
-                add(replaceRoot(SUB_ALIAS))
-            }
+        ): List<AggregationOperation> = buildList {
+            add(match(where(SUB_VERSION).gt(0).andOperator(*createQuery(filter, email))))
+            add(sort(Sort.Direction.DESC, SUB_MODIFICATION_TIME))
+            offsetLimit?.let { add(skip(it.first)); add(limit(it.second)) }
         }
 
         private fun createQuery(filter: SubmissionFilter, email: String? = null): Array<Criteria> =
