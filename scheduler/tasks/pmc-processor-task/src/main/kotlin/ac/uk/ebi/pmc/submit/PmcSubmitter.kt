@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import mu.KotlinLogging
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
@@ -25,6 +26,7 @@ import kotlin.time.measureTimedValue
 
 private val logger = KotlinLogging.logger {}
 private const val BUFFER_SIZE = 20
+private const val TIMEOUT = 25_000L
 
 class PmcSubmitter(
     private val bioWebClient: BioWebClient,
@@ -39,7 +41,7 @@ class PmcSubmitter(
     private suspend fun submitSubmissions() = coroutineScope {
         val counter = AtomicInteger(0)
         submissionService.findReadyToSubmit()
-            .map { async(Dispatchers.IO) { submitSubmission(it, counter.incrementAndGet()) } }
+            .map { withTimeout(TIMEOUT) { async(Dispatchers.IO) { submitSubmission(it, counter.incrementAndGet()) } } }
             .buffer(BUFFER_SIZE)
             .map { it.await() }
             .collect()
