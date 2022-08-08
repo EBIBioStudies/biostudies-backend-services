@@ -2,15 +2,12 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.data.service.UserDataService
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ebi.ac.uk.dsl.json.jsonObj
-import ebi.ac.uk.dsl.tsv.line
-import ebi.ac.uk.dsl.tsv.tsv
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -74,16 +71,11 @@ class SubmissionDraftApiTest(
 
     @Test
     fun `delete submission draft after submission`() {
-        val pageTab = jsonObj { "accno" to "ABC-126"; "type" to "Study" }.toString()
+        val pageTab = jsonObj { "accno" to "ABC-126"; "title" to "From Draft" }.toString()
+        val draft = webClient.createSubmissionDraft(pageTab)
 
-        webClient.submitSingle(pageTab, JSON)
-        webClient.getSubmissionDraft("ABC-126")
-        val updatedDraft = tsv {
-            line("Submission", "ABC-126")
-            line("Description", "Updated Submission")
-        }
+        webClient.submitSingleFromDraft(draft.key)
 
-        webClient.submitSingle(updatedDraft.toString(), TSV)
         assertThat(webClient.getAllSubmissionDrafts()).isEmpty()
     }
 
@@ -105,7 +97,7 @@ class SubmissionDraftApiTest(
     }
 
     @Test
-    fun `submit from draft`() {
+    fun `re submit from draft`() {
         val pageTab = jsonObj {
             "accno" to "ABC-129"
             "type" to "Study"
