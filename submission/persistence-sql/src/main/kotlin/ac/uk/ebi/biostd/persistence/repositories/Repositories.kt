@@ -21,7 +21,6 @@ import org.springframework.data.jpa.repository.Modifying
 import javax.persistence.LockModeType
 
 interface AccessTagDataRepo : JpaRepository<DbAccessTag, Long> {
-    fun getByName(name: String): DbAccessTag
     fun findByName(name: String): DbAccessTag?
     fun existsByName(name: String): Boolean
 }
@@ -44,14 +43,10 @@ interface UserDataRepository : JpaRepository<DbUser, Long> {
     fun findByActivationKeyAndActive(key: String, active: Boolean): DbUser?
     fun findByActivationKey(key: String): DbUser?
     fun findByEmailAndActive(email: String, active: Boolean): DbUser?
-    fun getByEmailAndActive(email: String, active: Boolean): DbUser
     fun findByEmail(email: String): DbUser?
 
     @EntityGraph(value = USER_DATA_GRAPH, type = LOAD)
     fun readByEmail(userEmail: String): DbUser
-
-    @EntityGraph(value = USER_DATA_GRAPH, type = LOAD)
-    fun getById(id: Long): DbUser
 }
 
 interface TokenDataRepository : JpaRepository<DbSecurityToken, String>

@@ -1,7 +1,7 @@
 .deploy-prod-pmc-processor-task:
   dependencies:
     - build-test
-  script: gradle updatePmcArtifact -Penv=prod -PdeployPath=$APPS_PATH/scheduler/prod/apps
+  script: gradle :scheduler:tasks:pmc-processor-task:bootJar updatePmcArtifact -Penv=prod -PdeployPath=$APPS_PATH/scheduler/prod/apps
 
 auto-deploy-prod-pmc-processor-task:
   extends: .deploy-prod-pmc-processor-task
@@ -15,14 +15,14 @@ deploy-dev-pmc-processor-task:
   when: manual
   dependencies:
     - build-test
-  script: gradle updatePmcArtifact -Penv=dev -PdeployPath=$APPS_PATH/scheduler/dev/apps
+  script: gradle :scheduler:tasks:pmc-processor-task:bootJar updatePmcArtifact -Penv=dev -PdeployPath=$APPS_PATH/scheduler/dev/apps
 
 deploy-beta-pmc-processor-task:
   stage: deploy-beta-pmc-processor-task
   when: manual
   dependencies:
     - build-test
-  script: gradle updatePmcArtifact -Penv=beta -PdeployPath=$APPS_PATH/scheduler/beta/apps
+  script: gradle :scheduler:tasks:pmc-processor-task:bootJar updatePmcArtifact -Penv=beta -PdeployPath=$APPS_PATH/scheduler/beta/apps
 
 deploy-prod-pmc-processor-task:
   extends: .deploy-prod-pmc-processor-task

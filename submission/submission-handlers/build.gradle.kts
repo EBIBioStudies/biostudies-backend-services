@@ -3,7 +3,6 @@ import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.MySql
-import Dependencies.SpringWeb
 import Projects.CommonsHttp
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedSerialization
@@ -12,16 +11,17 @@ import Projects.SubmissionConfig
 import Projects.SubmissionNotification
 import Projects.SubmissionPersistenceCommonApi
 import Projects.SubmissionPersistenceSql
-import SpringBootDependencies.SpringBootAmqp
+import SpringBootDependencies.SpringBootStarterAmqp
 import SpringBootDependencies.SpringBootStarterDataJpa
+import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.6.10"
-    id("io.spring.dependency-management") version "1.0.9.RELEASE"
-    id("org.springframework.boot") version "2.3.2.RELEASE"
+    id("io.spring.dependency-management") version "1.0.12.RELEASE"
+    id("org.springframework.boot") version "2.7.1"
 }
 
 dependencies {
@@ -39,8 +39,8 @@ dependencies {
     implementation(JacksonKotlin)
     implementation(KotlinLogging)
     implementation(MySql)
-    implementation(SpringBootAmqp)
-    implementation(SpringWeb)
+    implementation(SpringBootStarterAmqp)
+    implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterDataJpa)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }

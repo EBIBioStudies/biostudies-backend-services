@@ -5,8 +5,8 @@ import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
-import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
+import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.FILES
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
@@ -48,7 +48,6 @@ class MultipartSubmitResource(
     ): Submission {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.JSON, files.orEmpty(), parameters)
         val request = submitRequestBuilder.buildContentRequest(content, buildRequest)
-
         return submitWebHandler.submit(request)
     }
 
@@ -66,7 +65,6 @@ class MultipartSubmitResource(
     ): Submission {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.XML, files.orEmpty(), parameters)
         val request = submitRequestBuilder.buildContentRequest(content, buildRequest)
-
         return submitWebHandler.submit(request)
     }
 
@@ -84,7 +82,6 @@ class MultipartSubmitResource(
     ): Submission {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.TSV, files.orEmpty(), parameters)
         val request = submitRequestBuilder.buildContentRequest(content, buildRequest)
-
         return submitWebHandler.submit(request)
     }
 
@@ -98,12 +95,11 @@ class MultipartSubmitResource(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) file: MultipartFile,
-        @RequestParam(FILES) files: Array<MultipartFile>,
+        @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ): Submission {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.TSV, files, parameters)
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.TSV, files.orEmpty(), parameters)
         val request = submitRequestBuilder.buildFileRequest(file, buildRequest)
-
         return submitWebHandler.submit(request)
     }
 }

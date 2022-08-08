@@ -1,4 +1,4 @@
-image: gradle:6.9.2-jdk11
+image: gradle:7.5.0-jdk11
 services:
   - docker:dind
 variables:
@@ -64,16 +64,6 @@ stages:
 build-test:
   stage: build-test
   script: gradle clean build test -x itest -x jacocoTestCoverageVerification buildArtifacts --info
-  artifacts:
-    paths:
-      - bio-admin/build/libs/bio-admin-1.0.0.jar
-      - client/bio-commandline/build/libs/BioStudiesCLI-2.0.jar
-      - scheduler/scheduler/build/libs/scheduler-1.0.0.jar
-      - scheduler/tasks/pmc-processor-task/build/libs/pmc-processor-task-1.0.0.jar
-      - scheduler/tasks/exporter-task/build/libs/exporter-task-1.0.0.jar
-      - scheduler/tasks/submission-releaser-task/build/libs/submission-releaser-task-1.0.0.jar
-      - submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
-      - submission/submission-handlers/build/libs/submission-handlers-1.0.0.jar
 
 nfs-itest:
   needs: ["build-test"]
