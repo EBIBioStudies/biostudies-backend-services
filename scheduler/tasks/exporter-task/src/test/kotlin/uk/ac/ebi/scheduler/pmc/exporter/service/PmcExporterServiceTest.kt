@@ -1,14 +1,16 @@
 package uk.ac.ebi.scheduler.pmc.exporter.service
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.verify
-import kotlinx.coroutines.runBlocking
 import org.apache.commons.net.ftp.FTPClient
+import org.apache.commons.net.ftp.FTPConnectionClosedException
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -32,6 +34,9 @@ class PmcExporterServiceTest(
 ) {
     private val testInstance = PmcExporterService(pmcRepository, xmlWriter, ftpClient, appProperties)
 
+    @AfterEach
+    fun afterEach() = clearAllMocks()
+
     @BeforeEach
     fun beforeEach() {
         every { appProperties.fileName } returns "TestLinks.part%03d.xml"
@@ -40,36 +45,67 @@ class PmcExporterServiceTest(
 
     @Test
     fun `export pmc links`() {
-        runBlocking {
-            val linksSlot = slot<Links>()
-            val pageableSlot = slot<Pageable>()
-            val xmlSlot = slot<ByteArrayInputStream>()
-            val pmcData = PmcData("S-EPMC123", "Test PMC")
+        val linksSlot = slot<Links>()
+        val pageableSlot = slot<Pageable>()
+        val xmlSlot = slot<ByteArrayInputStream>()
+        val pmcData = PmcData("S-EPMC123", "Test PMC")
 
-            setUpFtpClient()
-            every { xmlWriter.writeValueAsString(capture(linksSlot)) } returns "serialized"
-            every { pmcRepository.findAllPmc(capture(pageableSlot)) } returns PageImpl(listOf(pmcData))
-            every { ftpClient.storeFile("test/links/TestLinks.part001.xml", capture(xmlSlot)) } returns true
+        setUpFtpClient()
+        every { xmlWriter.writeValueAsString(capture(linksSlot)) } returns "serialized"
+        every { pmcRepository.findAllPmc(capture(pageableSlot)) } returns PageImpl(listOf(pmcData))
+        every { ftpClient.storeFile("test/links/TestLinks.part001.xml", capture(xmlSlot)) } returns true
 
-            testInstance.exportPmcLinks()
+        testInstance.exportPmcLinks()
 
-            val xml = xmlSlot.captured
-            val links = linksSlot.captured
-            val pageable = pageableSlot.captured
+        val xml = xmlSlot.captured
+        val links = linksSlot.captured
+        val pageable = pageableSlot.captured
 
-            assertThat(links.link).hasSize(1)
+        assertThat(links.link).hasSize(1)
 
-            val link = links.link.first()
-            assertThat(link.record.id).isEqualTo("PMC123")
-            assertThat(link.record.source).isEqualTo(PMC_SOURCE)
-            assertThat(link.providerId).isEqualTo(PROVIDER_ID)
-            assertThat(link.resource.title).isEqualTo("Test PMC")
-            assertThat(link.resource.url).isEqualTo("http://www.ebi.ac.uk/biostudies/studies/S-EPMC123?xr=true")
+        val link = links.link.first()
+        assertThat(link.record.id).isEqualTo("PMC123")
+        assertThat(link.record.source).isEqualTo(PMC_SOURCE)
+        assertThat(link.providerId).isEqualTo(PROVIDER_ID)
+        assertThat(link.resource.title).isEqualTo("Test PMC")
+        assertThat(link.resource.url).isEqualTo("http://www.ebi.ac.uk/biostudies/studies/S-EPMC123?xr=true")
 
-            verify(exactly = 1) {
-                pmcRepository.findAllPmc(pageable)
-                ftpClient.storeFile("test/links/TestLinks.part001.xml", xml)
-            }
+        verify(exactly = 1) {
+            pmcRepository.findAllPmc(pageable)
+            ftpClient.login("test", "admin")
+            ftpClient.enterLocalPassiveMode()
+            ftpClient.storeFile("test/links/TestLinks.part001.xml", xml)
+        }
+    }
+
+    @Test
+    fun `attempt reconnection`() {
+        val linksSlot = slot<Links>()
+        val pageableSlot = slot<Pageable>()
+        val xmlSlot = slot<ByteArrayInputStream>()
+        val pmcData = PmcData("S-EPMC124", "Test PMC")
+
+        setUpFtpClient()
+        every { xmlWriter.writeValueAsString(capture(linksSlot)) } returns "serialized"
+        every { pmcRepository.findAllPmc(capture(pageableSlot)) } returns PageImpl(listOf(pmcData))
+        every {
+            ftpClient.storeFile("test/links/TestLinks.part001.xml", capture(xmlSlot))
+        } throws FTPConnectionClosedException("Error") andThenAnswer { true }
+
+        testInstance.exportPmcLinks()
+
+        val xml = xmlSlot.captured
+        val links = linksSlot.captured
+        val pageable = pageableSlot.captured
+
+        assertThat(links.link).hasSize(1)
+        verify(exactly = 1) {
+            pmcRepository.findAllPmc(pageable)
+        }
+
+        verify(exactly = 2) {
+            ftpClient.login("test", "admin")
+            ftpClient.storeFile("test/links/TestLinks.part001.xml", xml)
         }
     }
 
@@ -85,6 +121,7 @@ class PmcExporterServiceTest(
         every { appProperties.ftp } returns ftpProperties
         every { ftpClient.disconnect() } answers { nothing }
         every { ftpClient.login("test", "admin") } returns true
+        every { ftpClient.enterLocalPassiveMode() } answers { nothing }
         every { ftpClient.connect("localhost", 21) } answers { nothing }
     }
 }

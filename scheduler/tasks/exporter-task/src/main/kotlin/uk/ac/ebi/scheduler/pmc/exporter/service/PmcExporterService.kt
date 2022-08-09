@@ -1,12 +1,9 @@
 package uk.ac.ebi.scheduler.pmc.exporter.service
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.apache.commons.net.ftp.FTPClient
+import org.apache.commons.net.ftp.FTPConnectionClosedException
 import uk.ac.ebi.scheduler.pmc.exporter.config.ApplicationProperties
 import uk.ac.ebi.scheduler.pmc.exporter.mapping.toLink
 import uk.ac.ebi.scheduler.pmc.exporter.model.Link
@@ -27,16 +24,15 @@ class PmcExporterService(
 ) {
     private val pmcDataIterator = pageIterator(pmcRepository)
 
-    suspend fun exportPmcLinks() = withContext(Dispatchers.IO) {
+    fun exportPmcLinks() {
         logger.info { "Started exporting PMC links" }
 
         ftpClient.login()
 
         pmcDataIterator
             .asSequence()
-            .mapIndexed { part, page -> launch { writeLinks(part + 1, page.content) } }
+            .mapIndexed { part, page -> writeLinks(part + 1, page.content) }
             .toList()
-            .joinAll()
 
         ftpClient.logout()
         ftpClient.disconnect()
@@ -44,17 +40,27 @@ class PmcExporterService(
         logger.info { "Finished exporting PMC links" }
     }
 
-    private suspend fun writeLinks(part: Int, submissions: List<PmcData>) {
+    private fun writeLinks(part: Int, submissions: List<PmcData>) {
         logger.info { "Exporting PMC links part $part" }
         val links = submissions.map { it.toLink() }
-        withContext(Dispatchers.IO) { write(part, links) }
+
+        write(part, links)
     }
 
     private fun write(part: Int, links: List<Link>) {
-        logger.info { "writing file part $part" }
-        val xml = xmlWriter.writeValueAsString(Links(links))
+        logger.info { "Writing file part $part" }
+
+        val xml = xmlWriter.writeValueAsString(Links(links)).byteInputStream()
         val path = "${appProperties.outputPath}/${String.format(appProperties.fileName, part)}"
-        ftpClient.storeFile(path, xml.byteInputStream())
+
+        try {
+            ftpClient.storeFile(path, xml)
+        } catch (exception: FTPConnectionClosedException) {
+            logger.error { "FTP connection timeout: $exception. Attempting reconnection" }
+
+            ftpClient.reconnect()
+            ftpClient.storeFile(path, xml)
+        }
     }
 
     private fun FTPClient.login() {
@@ -62,5 +68,11 @@ class PmcExporterService(
 
         connect(ftpConfig.host, ftpConfig.port.toInt())
         login(ftpConfig.user, ftpConfig.password)
+        enterLocalPassiveMode()
+    }
+
+    private fun FTPClient.reconnect() {
+        disconnect()
+        login()
     }
 }
