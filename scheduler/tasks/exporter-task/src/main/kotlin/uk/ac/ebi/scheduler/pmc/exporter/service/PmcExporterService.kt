@@ -2,8 +2,7 @@ package uk.ac.ebi.scheduler.pmc.exporter.service
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import mu.KotlinLogging
-import org.apache.commons.net.ftp.FTPClient
-import org.apache.commons.net.ftp.FTPConnectionClosedException
+import uk.ac.ebi.scheduler.pmc.exporter.cli.BioStudiesFtpClient
 import uk.ac.ebi.scheduler.pmc.exporter.config.ApplicationProperties
 import uk.ac.ebi.scheduler.pmc.exporter.mapping.toLink
 import uk.ac.ebi.scheduler.pmc.exporter.model.Link
@@ -19,7 +18,7 @@ private val logger = KotlinLogging.logger {}
 class PmcExporterService(
     pmcRepository: PmcRepository,
     private val xmlWriter: XmlMapper,
-    private val ftpClient: FTPClient,
+    private val ftpClient: BioStudiesFtpClient,
     private val appProperties: ApplicationProperties,
 ) {
     private val pmcDataIterator = pageIterator(pmcRepository)
@@ -35,7 +34,6 @@ class PmcExporterService(
             .toList()
 
         ftpClient.logout()
-        ftpClient.disconnect()
 
         logger.info { "Finished exporting PMC links" }
     }
@@ -53,26 +51,6 @@ class PmcExporterService(
         val xml = xmlWriter.writeValueAsString(Links(links)).byteInputStream()
         val path = "${appProperties.outputPath}/${String.format(appProperties.fileName, part)}"
 
-        try {
-            ftpClient.storeFile(path, xml)
-        } catch (exception: FTPConnectionClosedException) {
-            logger.error { "FTP connection timeout: $exception. Attempting reconnection" }
-
-            ftpClient.reconnect()
-            ftpClient.storeFile(path, xml)
-        }
-    }
-
-    private fun FTPClient.login() {
-        val ftpConfig = appProperties.ftp
-
-        connect(ftpConfig.host, ftpConfig.port.toInt())
-        login(ftpConfig.user, ftpConfig.password)
-        enterLocalPassiveMode()
-    }
-
-    private fun FTPClient.reconnect() {
-        disconnect()
-        login()
+        ftpClient.storeFile(path, xml)
     }
 }
