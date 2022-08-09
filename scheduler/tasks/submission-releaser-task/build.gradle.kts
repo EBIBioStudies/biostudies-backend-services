@@ -1,7 +1,5 @@
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
-import Dependencies.SpringDataJpa
-import Dependencies.SpringWeb
 import Projects.ClientBioWebClient
 import Projects.CommonsModelExtended
 import Projects.EventsPublisher
@@ -9,18 +7,20 @@ import Projects.SchedulerTaskProperties
 import Projects.SubmissionNotification
 import Projects.SubmissionPersistenceCommonApi
 import Projects.SubmissionPersistenceMongo
-import SpringBootDependencies.SpringBootAmqp
 import SpringBootDependencies.SpringBootStarter
+import SpringBootDependencies.SpringBootStarterAmqp
 import SpringBootDependencies.SpringBootStarterConfigProcessor
+import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterMongo
+import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.6.10"
-    id("io.spring.dependency-management") version "1.0.9.RELEASE"
-    id("org.springframework.boot") version "2.3.2.RELEASE"
+    id("io.spring.dependency-management") version "1.0.12.RELEASE"
+    id("org.springframework.boot") version "2.7.1"
 }
 
 dependencies {
@@ -34,10 +34,10 @@ dependencies {
 
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
-    implementation(SpringBootAmqp)
+    implementation(SpringBootStarterAmqp)
     implementation(SpringBootStarter)
-    implementation(SpringDataJpa)
-    implementation(SpringWeb)
+    implementation(SpringBootStarterDataJpa)
+    implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringBootStarterMongo)
 

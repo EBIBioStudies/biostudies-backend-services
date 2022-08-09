@@ -1,5 +1,4 @@
 import Dependencies.Arrow
-import Dependencies.HibernateEntityManager
 import Dependencies.Jwt
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
@@ -7,19 +6,32 @@ import Dependencies.KotlinStdLib
 import Dependencies.Logback
 import Dependencies.RxJava2
 import Dependencies.ServletApi
-import Dependencies.SpringDataJpa
-import Dependencies.SpringSecurityCore
-import Dependencies.SpringWeb
 import Projects.CommonsBio
 import Projects.CommonsHttp
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.EventsPublisher
 import Projects.SubmissionPersistenceSql
-import SpringBootDependencies.SpringBootAmqp
+import SpringBootDependencies.SpringBootStarterAmqp
+import SpringBootDependencies.SpringBootStarterDataJpa
+import SpringBootDependencies.SpringBootStarterSecurity
+import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.JaxbApi
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+
+plugins {
+    id("io.spring.dependency-management") version "1.0.12.RELEASE"
+    id("org.springframework.boot") version "2.7.1" apply false
+}
+
+the<DependencyManagementExtension>().apply {
+    imports {
+        mavenBom(BOM_COORDINATES)
+    }
+}
 
 dependencies {
     api(project(CommonsUtil))
@@ -30,22 +42,21 @@ dependencies {
     api(project(SubmissionPersistenceSql))
 
     implementation(Arrow)
-    implementation(HibernateEntityManager)
     implementation(Jwt)
     implementation(KotlinLogging)
     implementation(JaxbApi)
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(RxJava2)
-    implementation(SpringWeb)
-    implementation(SpringSecurityCore)
-    implementation(SpringDataJpa)
+    implementation(SpringBootStarterSecurity)
+    implementation(SpringBootStarterDataJpa)
+    implementation(SpringBootStarterWeb)
     implementation(ServletApi)
 
     testApi(project(CommonsTest))
 
     testImplementation(Logback)
-    testImplementation(SpringBootAmqp)
+    testImplementation(SpringBootStarterAmqp)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

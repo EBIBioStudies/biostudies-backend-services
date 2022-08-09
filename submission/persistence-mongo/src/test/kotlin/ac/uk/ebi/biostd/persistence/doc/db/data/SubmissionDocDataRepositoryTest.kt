@@ -45,7 +45,7 @@ internal class SubmissionDocDataRepositoryTest {
         @Test
         fun `release submission`() {
             testInstance.save(testDocSubmission.copy(accNo = "S-BIAD1", version = 1, released = false))
-            testInstance.setAsRelease("S-BIAD1")
+            testInstance.setAsReleased("S-BIAD1")
 
             assertThat(testInstance.getByAccNo(accNo = "S-BIAD1").released).isTrue
         }
@@ -62,16 +62,6 @@ internal class SubmissionDocDataRepositoryTest {
 
             assertThat(testInstance.getByAccNoAndVersion("S-BSST4", version = -1)).isNotNull
             assertThat(testInstance.getByAccNoAndVersion("S-BSST4", version = -2)).isNotNull
-        }
-
-        @Test
-        fun `expire specific version`() {
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1))
-
-            testInstance.expireVersion(accNo = "S-BSST1", version = 1)
-
-            assertThat(testInstance.findByAccNo("S-BSST1")).isNull()
-            assertThat(testInstance.getByAccNoAndVersion("S-BSST1", version = -1)).isNotNull
         }
     }
 
@@ -150,22 +140,6 @@ internal class SubmissionDocDataRepositoryTest {
             testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = 2))
 
             assertThat(testInstance.getCurrentVersion("S-BSST3")).isEqualTo(2)
-        }
-
-        @Test
-        fun `by latest version`() {
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = -1))
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = 2))
-
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -1))
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = 2))
-
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST5", version = -1))
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST5", version = 2))
-
-            val result = testInstance.getLatestVersions(listOf("S-BSST3", "S-BSST5"), 0, 2)
-
-            assertThat(result).hasSize(2)
         }
     }
 

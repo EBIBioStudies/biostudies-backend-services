@@ -33,7 +33,7 @@ class StatsResourceTest(
     private val tempFolder: TemporaryFolder,
     @MockK private val statsFileHandler: StatsFileHandler,
     @MockK private val tempFileGenerator: TempFileGenerator,
-    @MockK private val statsService: StatsDataService
+    @MockK private val statsService: StatsDataService,
 ) {
     private val testStat = SingleSubmissionStat("S-TEST123", 10, VIEWS)
     private val testInstance = StatsResource(statsFileHandler, tempFileGenerator, statsService)
@@ -61,7 +61,7 @@ class StatsResourceTest(
             param("offset", "1")
             accept = APPLICATION_JSON
         }.andExpect {
-            status { isOk }
+            status { isOk() }
             content { json(expectedResponse.toString()) }
         }
 
@@ -84,7 +84,7 @@ class StatsResourceTest(
         mvc.get("/stats/views/S-TEST123") {
             accept = APPLICATION_JSON
         }.andExpect {
-            status { isOk }
+            status { isOk() }
             content { json(expectedResponse.toString()) }
         }
 
@@ -113,7 +113,7 @@ class StatsResourceTest(
             accept = APPLICATION_JSON
             file("stats", body.toByteArray())
         }.andExpect {
-            status { isOk }
+            status { isOk() }
             content { json(body) }
         }
 
@@ -153,7 +153,7 @@ class StatsResourceTest(
             accept = APPLICATION_JSON
             file("stats", body.toByteArray())
         }.andExpect {
-            status { isOk }
+            status { isOk() }
             content { json(response) }
         }
 

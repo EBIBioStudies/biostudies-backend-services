@@ -27,7 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders
 class UserFilesResourceTest(
     private val tempFolder: TemporaryFolder,
     @MockK private val filesMapper: FilesMapper,
-    @MockK private val fileManager: UserFilesService
+    @MockK private val fileManager: UserFilesService,
 ) {
     private val bioUserResolver = TestBioUserResolver()
     private val userPathResource = TestUserPathResolver()
@@ -52,7 +52,7 @@ class UserFilesResourceTest(
             accept = MediaType.APPLICATION_OCTET_STREAM
             param("fileName", file.name)
         }.andExpect {
-            status { isOk }
+            status { isOk() }
             header { string("Content-Disposition", "inline; filename=\"test.txt\"") }
         }
     }

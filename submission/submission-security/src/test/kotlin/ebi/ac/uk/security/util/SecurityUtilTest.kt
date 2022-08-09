@@ -32,7 +32,7 @@ private const val PROD_KEY = "prod-key"
 @ExtendWith(MockKExtension::class)
 class SecurityUtilTest(
     @MockK val userRepository: UserDataRepository,
-    @MockK val tokenRepository: TokenDataRepository
+    @MockK val tokenRepository: TokenDataRepository,
 ) {
     private val instanceKeys = InstanceKeys().apply {
         dev = DEV_KEY
@@ -55,9 +55,10 @@ class SecurityUtilTest(
         @Test
         fun `token can be generated and converted back`() {
             val user = simpleUser
-            every { userRepository.getById(user.id) } returns user
+            every { userRepository.readByEmail(user.email) } returns user
 
             val token = testInstance.createToken(user)
+
             assertThat(testInstance.fromToken(token)).isEqualTo(user)
         }
 
@@ -95,7 +96,7 @@ class SecurityUtilTest(
         @Test
         fun `check password is set as valid when super user security token is used`() {
             val superUserToken = testInstance.createToken(adminUser)
-            every { userRepository.getById(SecurityTestEntities.adminId) } returns adminUser
+            every { userRepository.readByEmail(SecurityTestEntities.email) } returns adminUser
 
             assertThat(testInstance.checkPassword(ByteArray(1), superUserToken)).isTrue
         }
@@ -129,8 +130,10 @@ class SecurityUtilTest(
         @Test
         fun `check when exist`() {
             val user = simpleUser
+
             val token = testInstance.createToken(user)
-            every { userRepository.getById(user.id) } returns user
+
+            every { userRepository.readByEmail(user.email) } returns user
             every { tokenRepository.findById(token) } returns Optional.empty()
 
             assertThat(testInstance.checkToken(token)).isEqualTo(user)

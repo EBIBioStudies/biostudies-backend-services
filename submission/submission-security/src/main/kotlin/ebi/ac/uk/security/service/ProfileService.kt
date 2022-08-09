@@ -14,22 +14,19 @@ import java.nio.file.Paths
 class ProfileService(private val filesDirPath: Path) {
     fun getUserProfile(user: DbUser, token: String): UserInfo = UserInfo(asSecurityUser(user), token)
 
-    fun asSecurityUser(user: DbUser): SecurityUser =
-        user.run {
-            SecurityUser(
-                id = id,
-                email = email,
-                fullName = fullName,
-                login = login,
-                orcid = orcid,
-                secret = secret,
-                superuser = user.superuser,
-                magicFolder = userMagicFolder(secret, id),
-                groupsFolders = groupsMagicFolder(user.groups),
-                permissions = getPermissions(permissions),
-                notificationsEnabled = notificationsEnabled
-            )
-        }
+    fun asSecurityUser(user: DbUser): SecurityUser = SecurityUser(
+        id = user.id,
+        email = user.email,
+        fullName = user.fullName,
+        login = user.login,
+        orcid = user.orcid,
+        secret = user.secret,
+        superuser = user.superuser,
+        magicFolder = userMagicFolder(user.secret, user.id),
+        groupsFolders = groupsMagicFolder(user.groups),
+        permissions = getPermissions(user.permissions),
+        notificationsEnabled = user.notificationsEnabled
+    )
 
     private fun getPermissions(permissions: Set<DbAccessPermission>): Set<SecurityPermission> =
         permissions.mapTo(mutableSetOf()) { SecurityPermission(it.accessType, it.accessTag.name) }

@@ -8,8 +8,6 @@ import Dependencies.KMongoAsync
 import Dependencies.KMongoCoroutine
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
-import Dependencies.SpringDataJpa
-import Dependencies.SpringWeb
 import Projects.ClientBioWebClient
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedMapping
@@ -20,7 +18,9 @@ import Projects.SubmissionPersistenceCommonApi
 import Projects.SubmissionPersistenceMongo
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
+import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterMongo
+import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.KotlinXmlBuilder
@@ -28,7 +28,7 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.6.10"
-    id("io.spring.dependency-management") version "1.0.9.RELEASE"
+    id("io.spring.dependency-management") version "1.0.12.RELEASE"
     id("org.springframework.boot") version "2.2.6.RELEASE"
 }
 
@@ -54,8 +54,8 @@ dependencies {
     implementation(JacksonXml)
     implementation(SpringBootStarter)
     implementation(SpringBootStarterMongo)
-    implementation(SpringDataJpa)
-    implementation(SpringWeb)
+    implementation(SpringBootStarterDataJpa)
+    implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterConfigProcessor)
 
     testImplementation(KotlinXmlBuilder)

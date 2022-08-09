@@ -228,6 +228,17 @@ class SubmissionListApiTest(
         }
     }
 
+    @Test
+    fun `latest updated submission should appear first`() {
+        webClient.submitSingle(getSimpleSubmission(19), TSV)
+
+        val submissionList = webClient.getSubmissions(
+            mapOf("keywords" to "list-api-keyword")
+        )
+
+        assertThat(submissionList.first().accno).isEqualTo("LIST-API-19")
+    }
+
     private fun getSimpleSubmission(idx: Int) = tsv {
         line("Submission", "LIST-API-$idx")
         line("Title", "Simple Submission $idx - list-api-keyword-$idx")

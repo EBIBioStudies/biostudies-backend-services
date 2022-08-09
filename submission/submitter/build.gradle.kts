@@ -6,16 +6,29 @@ import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.RxJava2
-import Dependencies.SpringDataJpa
-import Dependencies.SpringWeb
 import Projects.CommonsBio
 import Projects.CommonsModelExtended
 import Projects.CommonsSerialization
 import Projects.CommonsUtil
 import Projects.SubmissionSecurity
-import SpringBootDependencies.SpringBootAmqp
+import SpringBootDependencies.SpringBootStarterAmqp
+import SpringBootDependencies.SpringBootStarterDataJpa
+import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+
+plugins {
+    id("io.spring.dependency-management") version "1.0.12.RELEASE"
+    id("org.springframework.boot") version "2.7.1" apply false
+}
+
+the<DependencyManagementExtension>().apply {
+    imports {
+        mavenBom(BOM_COORDINATES)
+    }
+}
 
 dependencies {
     api(project(CommonsBio))
@@ -33,10 +46,10 @@ dependencies {
     implementation(KotlinStdLib)
     implementation(KotlinLogging)
 
-    implementation(SpringDataJpa)
-    implementation(SpringWeb)
+    implementation(SpringBootStarterDataJpa)
+    implementation(SpringBootStarterWeb)
 
-    testImplementation(SpringBootAmqp)
+    testImplementation(SpringBootStarterAmqp)
     testImplementation(testFixtures(project(CommonsModelExtended)))
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }

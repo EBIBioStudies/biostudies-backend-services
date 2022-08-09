@@ -33,7 +33,7 @@ class SecurityUtil(
     private val tokenRepository: TokenDataRepository,
     private val userRepository: UserDataRepository,
     private val tokenHash: String,
-    private val instanceKeys: InstanceKeys
+    private val instanceKeys: InstanceKeys,
 ) {
     fun createToken(user: DbUser): String {
         return Jwts.builder()
@@ -91,15 +91,12 @@ class SecurityUtil(
         instanceKey.startsWith("http://localhost") || instanceKey.startsWith("https://localhost")
 
     private fun getFromToken(token: String): DbUser? {
-        var tokenUser: TokenPayload? = null
-
-        runCatching {
+        val result = runCatching {
             val payload = jwtParser.setSigningKey(tokenHash).parseClaimsJws(token).body.subject
-            tokenUser = objectMapper.readValue(payload, TokenPayload::class.java)
-        }.onFailure {
-            logger.error("detected invalid signature token: ${it.message}")
+            val tokenUser = objectMapper.readValue(payload, TokenPayload::class.java)
+            userRepository.readByEmail(tokenUser.email)
         }
-
-        return tokenUser?.let { userRepository.getById(it.id) }
+        result.onFailure { logger.error("detected invalid signature token: ${it.message}") }
+        return result.getOrNull()
     }
 }
