@@ -9,6 +9,8 @@ spring:
     username: # RabbitMQ User
     password: # RabbitMQ Password
     port: # RabbitMQ Port
+  main:
+    web-application-type: none
 
 app:
   mode: # Releaser mode: RELEASE, NOTIFY, GENERATE_FTP_LINKS

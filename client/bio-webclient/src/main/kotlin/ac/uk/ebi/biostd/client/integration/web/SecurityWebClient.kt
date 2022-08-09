@@ -15,13 +15,12 @@ class SecurityWebClient private constructor(
         user: String,
         password: String,
         onBehalf: String?,
-        enableTsvFeature: Boolean
     ): BioWebClient {
         val sessId = login(LoginRequest(user, password)).sessid
 
         return when (onBehalf) {
-            null -> BioWebClient.create(baseUrl, sessId, enableTsvExtFeature = enableTsvFeature)
-            else -> BioWebClient.create(baseUrl, sessId, onBehalf, enableTsvFeature)
+            null -> BioWebClient.create(baseUrl, sessId)
+            else -> BioWebClient.create(baseUrl, sessId, onBehalf)
         }
     }
 

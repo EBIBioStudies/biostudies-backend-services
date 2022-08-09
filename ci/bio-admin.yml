@@ -3,4 +3,4 @@ deploy-bio-admin:
   when: manual
   dependencies:
     - build-test
-  script: gradle deployBioAdmin -Penv=prod -PdeployPath=$APPS_PATH/bio-admin
+  script: gradle :bio-admin:bootJar deployBioAdmin -Penv=prod -PdeployPath=$APPS_PATH/bio-admin

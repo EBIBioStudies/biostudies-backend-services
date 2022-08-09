@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.web.resources.ext
 
-import ac.uk.ebi.biostd.security.web.ExtUserResource
 import ac.uk.ebi.biostd.security.domain.service.ExtUserService
+import ac.uk.ebi.biostd.security.web.ExtUserResource
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtUser
 import io.mockk.every
@@ -34,7 +34,7 @@ class ExtUserResourceTest(@MockK private val extUserService: ExtUserService) {
         mvc.get("/security/users/extended/test@ebi.ac.uk") {
             accept = APPLICATION_JSON
         }.andExpect {
-            status { isOk }
+            status { isOk() }
             content { json(expectedJson) }
         }
 

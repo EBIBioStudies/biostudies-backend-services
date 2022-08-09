@@ -18,9 +18,6 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     fun findByAccNo(accNo: String): DocSubmission?
 
-    @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
-    fun findLatestByAccNo(accNo: String): DocSubmission?
-
     fun existsByAccNo(accNo: String): Boolean
 
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission

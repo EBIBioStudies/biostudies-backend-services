@@ -41,7 +41,7 @@ class ExtSubmissionResourceTest(
     @MockK private val extSubmissionService: ExtSubmissionService,
     @MockK private val extPageMapper: ExtendedPageMapper,
     @MockK private val extSerializationService: ExtSerializationService,
-    @MockK private val extSubmissionQueryService: ExtSubmissionQueryService
+    @MockK private val extSubmissionQueryService: ExtSubmissionQueryService,
 ) {
     private val bioUserResolver = TestBioUserResolver()
     private val mvc = MockMvcBuilders
@@ -73,7 +73,7 @@ class ExtSubmissionResourceTest(
 
         mvc.get("/submissions/extended/S-TEST123")
             .andExpect {
-                status { isOk }
+                status { isOk() }
                 content { json(submissionJson) }
             }
 
@@ -100,7 +100,7 @@ class ExtSubmissionResourceTest(
             param(SUBMISSION, submissionJson)
             param(FILE_MODE, COPY.name)
         }.andExpect {
-            status { isOk }
+            status { isOk() }
             content { json(submissionJson) }
         }
 
@@ -127,7 +127,7 @@ class ExtSubmissionResourceTest(
             param(SUBMISSION, submissionJson)
             param(FILE_MODE, COPY.name)
         }.andExpect {
-            status { isOk }
+            status { isOk() }
         }
 
         verify(exactly = 1) {
@@ -138,7 +138,7 @@ class ExtSubmissionResourceTest(
 
     @Test
     fun `get referenced files from file list`(
-        @MockK extFileTable: ExtFileTable
+        @MockK extFileTable: ExtFileTable,
     ) {
         val filesJson = jsonObj { "files" to "ext-file-table" }.toString()
 
@@ -147,7 +147,7 @@ class ExtSubmissionResourceTest(
 
         mvc.get("/submissions/extended/S-TEST123/referencedFiles/file-list")
             .andExpect {
-                status { isOk }
+                status { isOk() }
                 content { json(filesJson) }
             }
 
@@ -159,7 +159,7 @@ class ExtSubmissionResourceTest(
 
     @Test
     fun `get referenced files from file list inside inner folder`(
-        @MockK extFileTable: ExtFileTable
+        @MockK extFileTable: ExtFileTable,
     ) {
         val filesJson = jsonObj { "files" to "ext-file-table" }.toString()
 
@@ -168,7 +168,7 @@ class ExtSubmissionResourceTest(
 
         mvc.get("/submissions/extended/S-TEST123/referencedFiles/my/folder/file-list")
             .andExpect {
-                status { isOk }
+                status { isOk() }
                 content { json(filesJson) }
             }
 
@@ -181,7 +181,7 @@ class ExtSubmissionResourceTest(
     @Test
     fun getExtendedSubmissions(
         @MockK extSubmission: ExtSubmission,
-        @MockK pageable: Page<ExtSubmission>
+        @MockK pageable: Page<ExtSubmission>,
     ) {
         val extPageRequestSlot = slot<ExtPageRequest>()
         val webExtPage = WebExtPage(listOf(extSubmission), 1, 1, 0, null, null)
@@ -198,7 +198,7 @@ class ExtSubmissionResourceTest(
 
         mvc.get("/submissions/extended?limit=1&offset=0&fromRTime=2019-09-21T15:03:45Z&toRTime=2019-09-22T15:03:45Z")
             .andExpect {
-                status { isOk }
+                status { isOk() }
                 content { json(response) }
             }
 

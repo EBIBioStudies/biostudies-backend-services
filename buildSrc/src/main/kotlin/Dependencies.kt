@@ -18,11 +18,9 @@ import Versions.CommonsLang3Version
 import Versions.CommonsNetVersion
 import Versions.GuavaVersion
 import Versions.H2Version
-import Versions.HibernateEMVersion
 import Versions.JSONOrgVersion
 import Versions.JacksonVersion
 import Versions.JavaValidationApiVersion
-import Versions.JpaEntityGraphVersion
 import Versions.JschVersion
 import Versions.JwtVersion
 import Versions.KMongoCoroutineVersion
@@ -40,9 +38,6 @@ import Versions.Retrofit2Version
 import Versions.RxJava2Version
 import Versions.ServletVersion
 import Versions.SpringAdminVersion
-import Versions.SpringBootVersion
-import Versions.SpringDataVersion
-import Versions.SpringSecurityVersion
 import Versions.SpringVersion
 import Versions.SpringfoxSwaggerVersion
 import Versions.WoodstoxVersion
@@ -66,12 +61,8 @@ object TestVersions {
 }
 
 object Versions {
-    const val SpringBootVersion = "2.2.2.RELEASE"
-    const val SpringDataVersion = "2.2.3.RELEASE"
     const val SpringVersion = "5.2.20.RELEASE"
-    const val SpringSecurityVersion = "5.2.15.RELEASE"
     const val SpringAdminVersion = "2.3.1"
-
     const val KotlinVersion = "1.6.10"
     const val KotlinCoroutinesVersion = "1.6.3"
 
@@ -147,9 +138,7 @@ object TestDependencies {
 
 object Dependencies {
     const val SpringWeb = "org.springframework:spring-web:$SpringVersion"
-    const val SpringAutoConfigure = "org.springframework.boot:spring-boot-autoconfigure:$SpringBootVersion"
-    const val SpringSecurityCore = "org.springframework.security:spring-security-core:$SpringSecurityVersion"
-    const val SpringDataJpa = "org.springframework.data:spring-data-jpa:$SpringDataVersion"
+    const val SpringAutoConfigure = "org.springframework.boot:spring-boot-autoconfigure"
 
     // Web related
     const val JSONOrg = "org.json:json:$JSONOrgVersion"
@@ -162,11 +151,9 @@ object Dependencies {
     const val OkHttpLogging = "com.squareup.okhttp3:logging-interceptor:$OkHttpLoggingVersion"
 
     // Persistence
-    const val HibernateEntityManager = "org.hibernate:hibernate-entitymanager:$HibernateEMVersion"
     const val MySql = "mysql:mysql-connector-java:$MySqlVersion"
     const val KMongoCoroutine = "org.litote.kmongo:kmongo-coroutine:$KMongoCoroutineVersion"
     const val KMongoAsync = "org.litote.kmongo:kmongo-async:$KMongoCoroutineVersion"
-    const val JpaEntityGraph = "com.cosium.spring.data:spring-data-jpa-entity-graph:$JpaEntityGraphVersion"
     const val MongockBom = "com.github.cloudyrock.mongock:mongock-bom:$MongockVersion"
     const val MongockSpringV5 = "com.github.cloudyrock.mongock:mongock-spring-v5:$MongockVersion"
     const val MongockSpringDataV3 = "com.github.cloudyrock.mongock:mongodb-springdata-v3-driver:$MongockVersion"
@@ -211,7 +198,7 @@ object SpringBootDependencies {
     const val SpringBootStarterTest = "org.springframework.boot:spring-boot-starter-test"
     const val SpringBootStarterWeb = "org.springframework.boot:spring-boot-starter-web"
     const val SpringBootStarterMongo = "org.springframework.boot:spring-boot-starter-data-mongodb"
-    const val SpringBootAmqp = "org.springframework.boot:spring-boot-starter-amqp:$SpringBootVersion"
+    const val SpringBootStarterAmqp = "org.springframework.boot:spring-boot-starter-amqp"
     const val SpringBootConfigurationProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterActuator = "org.springframework.boot:spring-boot-starter-actuator"
     const val SpringBootStarterValidation = "org.springframework.boot:spring-boot-starter-validation"

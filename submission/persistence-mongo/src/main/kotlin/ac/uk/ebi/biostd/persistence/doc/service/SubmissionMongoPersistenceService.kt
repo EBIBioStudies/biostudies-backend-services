@@ -9,13 +9,10 @@ import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtSubmission
-import mu.KotlinLogging
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
 import kotlin.math.absoluteValue
-
-private val logger = KotlinLogging.logger {}
 
 @Suppress("LongParameterList")
 internal class SubmissionMongoPersistenceService(
@@ -24,7 +21,6 @@ internal class SubmissionMongoPersistenceService(
     private val serializationService: ExtSerializationService,
     private val submissionRepository: ExtSubmissionRepository,
 ) : SubmissionPersistenceService {
-
     override fun getNextVersion(accNo: String): Int {
         val lastVersion = subDataRepository.getCurrentVersion(accNo) ?: 0
         return lastVersion.absoluteValue + 1
@@ -49,7 +45,7 @@ internal class SubmissionMongoPersistenceService(
     }
 
     override fun setAsReleased(accNo: String) {
-        subDataRepository.setAsRelease(accNo)
+        subDataRepository.setAsReleased(accNo)
     }
 
     private fun asRequest(rqt: SubmissionRequest, submission: ExtSubmission): DocSubmissionRequest {

@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -55,19 +54,13 @@ class PersistenceConfig(
     fun nfsPageTabService(
         pageTabUtil: PageTabUtil,
         fileProcessingService: FileProcessingService,
-        tsvPagetabExtension: TsvPagetabExtension,
-    ): PageTabService =
-        NfsPageTabService(folderResolver, pageTabUtil, fileProcessingService, tsvPagetabExtension)
+    ): PageTabService = NfsPageTabService(folderResolver, pageTabUtil, fileProcessingService)
 
     @Bean
     fun pageTabUtil(
         toSubmissionMapper: ToSubmissionMapper,
         toFileListMapper: ToFileListMapper,
-        tsvPagetabExtension: TsvPagetabExtension,
-    ): PageTabUtil = PageTabUtil(serializationService, toSubmissionMapper, toFileListMapper, tsvPagetabExtension)
-
-    @Bean
-    fun tsvPagetabExtension(): TsvPagetabExtension = TsvPagetabExtension(properties.featureFlags.tsvPagetabExtension)
+    ): PageTabUtil = PageTabUtil(serializationService, toSubmissionMapper, toFileListMapper)
 
     @Bean
     @ConditionalOnProperty(prefix = "app.persistence", name = ["enableFire"], havingValue = "true")
@@ -79,14 +72,12 @@ class PersistenceConfig(
     fun firePageTabService(
         pageTabUtil: PageTabUtil,
         fileProcessingService: FileProcessingService,
-        tsvPagetabExtension: TsvPagetabExtension,
     ): PageTabService =
         FirePageTabService(
             File(properties.fireTempDirPath),
             fireClient,
             pageTabUtil,
             fileProcessingService,
-            tsvPagetabExtension
         )
 
     @Bean

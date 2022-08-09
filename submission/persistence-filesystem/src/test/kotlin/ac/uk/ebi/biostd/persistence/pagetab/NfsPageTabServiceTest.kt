@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.pagetab
 
-import ac.uk.ebi.biostd.common.TsvPagetabExtension
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.NfsPageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabFiles
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
@@ -46,7 +45,6 @@ class NfsPageTabServiceTest(
             folderResolver,
             pageTabUtil,
             fileProcessingService,
-            TsvPagetabExtension(featureEnabled = true)
         )
     private val subFolder = tempFolder.root.resolve("submission/S-TEST/123/S-TEST123")
 
