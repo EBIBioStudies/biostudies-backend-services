@@ -28,6 +28,7 @@ private val logger = KotlinLogging.logger {}
 private const val BUFFER_SIZE = 20
 private const val TIMEOUT = 25_000L
 
+@OptIn(ExperimentalTime::class)
 class PmcSubmitter(
     private val bioWebClient: BioWebClient,
     private val errorDocService: ErrorsDocService,
@@ -38,18 +39,23 @@ class PmcSubmitter(
         submitSubmissions()
     }
 
+    fun submitSingle(submissionId: String) = runBlocking {
+        val submission = submissionService.findById(submissionId)
+        submitSubmission(submission, 1)
+    }
+
     private suspend fun submitSubmissions() = coroutineScope {
         val counter = AtomicInteger(0)
         submissionService.findReadyToSubmit()
-            .map { withTimeout(TIMEOUT) { async(Dispatchers.IO) { submitSubmission(it, counter.incrementAndGet()) } } }
+            .map { async(Dispatchers.IO) { submitSubmission(it, counter.incrementAndGet()) } }
             .buffer(BUFFER_SIZE)
             .map { it.await() }
             .collect()
     }
 
-    @OptIn(ExperimentalTime::class)
+
     private suspend fun submitSubmission(sub: SubmissionDoc, idx: Int) = coroutineScope {
-        runCatching { submit(sub) }
+        runCatching { withTimeout(TIMEOUT) { submit(sub) } }
             .fold(
                 {
                     logger.info { "submitted $idx, accNo='${sub.accNo}', in ${it.duration.inWholeMilliseconds} ms" }
@@ -62,7 +68,6 @@ class PmcSubmitter(
             )
     }
 
-    @OptIn(ExperimentalTime::class)
     private suspend fun submit(submission: SubmissionDoc): TimedValue<SubmissionResponse> {
         return measureTimedValue {
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }

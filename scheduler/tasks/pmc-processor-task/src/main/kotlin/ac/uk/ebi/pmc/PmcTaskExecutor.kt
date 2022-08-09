@@ -39,6 +39,7 @@ class PmcTaskExecutor(
                 PmcMode.LOAD -> context.getBean<PmcFileLoader>().loadFolder(File(properties.loadFolder))
                 PmcMode.PROCESS -> context.getBean<PmcProcessor>().processAll()
                 PmcMode.SUBMIT -> context.getBean<PmcSubmitter>().submitAll()
+                PmcMode.SUBMIT_SINGLE -> context.getBean<PmcSubmitter>().submitSingle(properties.submissionId!!)
             }
         }.fold(
             {

@@ -53,7 +53,7 @@ import java.time.Duration.ofSeconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration
 @ExtendWith(TemporaryFolderExtension::class)
-internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolder) {
+internal class PmcSingleSubmissionSubmitterTest(private val tempFolder: TemporaryFolder) {
 
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
         .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
@@ -139,7 +139,8 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
 
     private fun setUpMongo() {
         mongoContainer.start()
-        System.setProperty("app.data.mode", "SUBMIT")
+        System.setProperty("app.data.mode", "SUBMIT_SINGLE")
+        System.setProperty("app.data.submissionId", processedSubmission._id.toString())
         System.setProperty("app.data.mongodbUri", mongoContainer.getReplicaSetUrl("pmc-submitter-test"))
         System.setProperty("app.data.mongodbDatabase", "pmc-submitter-test")
         System.setProperty("app.data.bioStudiesUser", "admin_user@ebi.ac.uk")
@@ -161,7 +162,7 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
         @Autowired val errorsRepository: ErrorsRepository,
         @Autowired val submissionRepository: SubmissionRepository,
         @Autowired val fileRepository: SubFileRepository,
-        @Autowired val pmcTaskExecutor: PmcTaskExecutor
+        @Autowired val pmcTaskExecutor: PmcTaskExecutor,
     ) {
         @BeforeEach
         fun cleanRepositories() {
@@ -169,18 +170,6 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
                 errorsRepository.deleteAll()
                 submissionRepository.deleteAll()
                 fileRepository.deleteAll()
-            }
-        }
-
-        @Test
-        fun `when single submission`() {
-            runBlocking {
-                val targetFile = tempFolder.createFile(FILE1_NAME, FILE1_CONTENT)
-                val fileObjectId = fileRepository.saveFile(targetFile, processedSubmission.accNo)
-                submissionRepository.insertOrExpire(processedSubmission.copy(files = listOf(fileObjectId)))
-
-                pmcTaskExecutor.run()
-
             }
         }
 

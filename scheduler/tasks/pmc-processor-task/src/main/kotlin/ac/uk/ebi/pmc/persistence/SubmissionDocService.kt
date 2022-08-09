@@ -37,6 +37,11 @@ class SubmissionDocService(
         }
     }
 
+    suspend fun findById(submissionId: String): SubmissionDoc {
+        val sub = submissionRepository.findByIdAndUpdate(submissionId, PROCESSING)
+        return sub ?: throw IllegalArgumentException("Could not find submission with Id '$submissionId'")
+    }
+
     fun findReadyToSubmit(): Flow<SubmissionDoc> = flow {
         while (true) {
             emit(submissionRepository.findAndUpdate(PROCESSED, SUBMITTING) ?: break)

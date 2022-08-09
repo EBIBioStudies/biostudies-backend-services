@@ -18,6 +18,7 @@ class PmcImporterProperties : JavaAppProperties {
     var bioStudiesUrl: String? = null
     var bioStudiesUser: String? = null
     var bioStudiesPassword: String? = null
+    var submissionId: String? = null
 
     override fun asCmd(location: String, javaHome: String, debugPort: Int?) =
         buildString {
@@ -67,12 +68,13 @@ class PmcImporterProperties : JavaAppProperties {
 }
 
 enum class PmcMode {
-    LOAD, PROCESS, SUBMIT;
+    LOAD, PROCESS, SUBMIT, SUBMIT_SINGLE;
 
     val description: String
         get() = when (this) {
             LOAD -> "PMC Submissions loading"
             PROCESS -> "PMC Submissions processing"
             SUBMIT -> "PMC Submissions submitting"
+            SUBMIT_SINGLE -> "PMC Submission submitting"
         }
 }
