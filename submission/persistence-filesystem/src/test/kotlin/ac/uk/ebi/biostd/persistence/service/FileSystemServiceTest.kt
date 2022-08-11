@@ -2,10 +2,8 @@ package ac.uk.ebi.biostd.persistence.service
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
-import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode.MOVE
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -38,12 +36,10 @@ class FileSystemServiceTest(
 
     @Test
     fun `persist submission`() {
-        val request = FilePersistenceRequest(submission, MOVE)
-
-        assertThat(testInstance.persistSubmissionFiles(request)).isEqualTo(finalSub)
+        assertThat(testInstance.persistSubmissionFiles(submission)).isEqualTo(finalSub)
 
         verify(exactly = 1) {
-            filesService.persistSubmissionFiles(request)
+            filesService.persistSubmissionFiles(submission)
             pageTabService.generatePageTab(processedSubmission)
         }
     }
@@ -54,14 +50,7 @@ class FileSystemServiceTest(
     }
 
     private fun setUpServices() {
-        every {
-            filesService.persistSubmissionFiles(
-                FilePersistenceRequest(
-                    submission,
-                    MOVE
-                )
-            )
-        } returns processedSubmission
+        every { filesService.persistSubmissionFiles(submission) } returns processedSubmission
         every { pageTabService.generatePageTab(processedSubmission) } answers { finalSub }
     }
 }

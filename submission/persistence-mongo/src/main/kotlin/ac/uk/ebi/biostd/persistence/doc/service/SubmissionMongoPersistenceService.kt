@@ -54,7 +54,6 @@ internal class SubmissionMongoPersistenceService(
             id = ObjectId(),
             accNo = submission.accNo,
             version = submission.version,
-            fileMode = rqt.fileMode,
             draftKey = rqt.draftKey,
             status = SubmissionRequestStatus.REQUESTED,
             submission = BasicDBObject.parse(content),

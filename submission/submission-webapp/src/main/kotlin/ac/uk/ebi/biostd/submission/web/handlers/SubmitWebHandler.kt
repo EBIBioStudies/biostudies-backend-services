@@ -45,7 +45,7 @@ class SubmitWebHandler(
 
     private fun buildRequest(request: ContentSubmitWebRequest): SubmitRequest {
         val (format, submitter, attrs) = request.submissionConfig
-        val (fileMode, files, preferredSources) = request.filesConfig
+        val (files, preferredSources) = request.filesConfig
         val sub = serializationService.deserializeSubmission(request.submission, format)
         val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)?.also { requireNotProcessing(it.accNo) }
 
@@ -67,14 +67,13 @@ class SubmitWebHandler(
             onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
             method = PAGE_TAB,
             sources = source,
-            mode = fileMode,
             draftKey = request.draftKey
         )
     }
 
     private fun buildRequest(request: FileSubmitWebRequest): SubmitRequest {
         val (_, submitter, attrs) = request.submissionConfig
-        val (fileMode, files, preferredSources) = request.filesConfig
+        val (files, preferredSources) = request.filesConfig
         val sub = serializationService.deserializeSubmission(request.submission)
         val extSub = extSubmissionService.findExtendedSubmission(sub.accNo)
         requireNotProcessing(sub.accNo)
@@ -99,7 +98,6 @@ class SubmitWebHandler(
             onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
             sources = source,
             method = FILE,
-            mode = fileMode
         )
     }
 

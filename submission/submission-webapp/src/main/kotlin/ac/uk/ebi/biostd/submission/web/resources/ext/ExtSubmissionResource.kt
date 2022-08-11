@@ -8,10 +8,7 @@ import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.WebExtPage
-import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize
@@ -61,24 +58,20 @@ class ExtSubmissionResource(
     @PreAuthorize("isAuthenticated()")
     fun submitExtended(
         @BioUser user: SecurityUser,
-        @RequestParam(FILE_MODE, required = false) fileMode: FileMode?,
         @RequestParam(SUBMISSION) extSubmission: String
     ): ExtSubmission = extSubmissionService.submitExt(
         user.email,
         extSerializationService.deserialize(extSubmission),
-        fileMode ?: COPY
     )
 
     @PostMapping("/async")
     @PreAuthorize("isAuthenticated()")
     fun submitExtendedAsync(
         @BioUser user: SecurityUser,
-        @RequestParam(FILE_MODE, required = false) fileMode: FileMode?,
         @RequestParam(SUBMISSION) extSubmission: String
     ) = extSubmissionService.submitExtAsync(
         user.email,
         extSerializationService.deserialize(extSubmission),
-        fileMode ?: COPY
     )
 
     @GetMapping

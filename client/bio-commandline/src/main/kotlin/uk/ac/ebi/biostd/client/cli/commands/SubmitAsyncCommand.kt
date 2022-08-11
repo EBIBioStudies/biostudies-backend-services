@@ -2,12 +2,9 @@ package uk.ac.ebi.biostd.client.cli.commands
 
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
-import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.extended.model.FileMode.COPY
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ON_BEHALF_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.PREFERRED_SOURCES
@@ -15,7 +12,6 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.ATTACHED_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.INPUT_HELP
-import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.FILE_MODE
 import uk.ac.ebi.biostd.client.cli.common.splitFiles
 import uk.ac.ebi.biostd.client.cli.common.splitPreferredSources
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
@@ -31,14 +27,12 @@ internal class SubmitAsyncCommand(
     private val onBehalf by option("-b", "--onBehalf", help = ON_BEHALF_HELP)
     private val input by option("-i", "--input", help = INPUT_HELP).file(exists = true).required()
     private val attached by option("-a", "--attached", help = ATTACHED_HELP)
-    private val fileMode by option("-fm", "--fileMode", help = FILE_MODE).default(COPY.name)
     private val preferredSources by option("-ps", "--preferredSources", help = PREFERRED_SOURCES)
 
     override fun run() {
         val securityConfig = SecurityConfig(server, user, password, onBehalf)
         val filesConfig = SubmissionFilesConfig(
             files = splitFiles(attached),
-            fileMode = FileMode.valueOf(fileMode),
             preferredSources = splitPreferredSources(preferredSources)
         )
         val request = SubmissionRequest(input, securityConfig, filesConfig)

@@ -7,14 +7,10 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.persistence.filesystem.extSubmissionWithFileList
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
-import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.extended.model.FileMode.COPY
-import ebi.ac.uk.extended.model.FileMode.MOVE
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RWXR_X___
@@ -31,7 +27,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -76,39 +71,22 @@ class NfsFilesServiceTest(
         every { mockSerializationService.serializeSubmission(simpleSubmission, JSON_PRETTY) } returns ""
     }
 
-    @Nested
-    inner class WhenMove {
-        @Test
-        fun whenReleased() {
-            testPersistSubmissionFiles(extSubmission.copy(released = true), MOVE, RW_R__R__, RWXR_XR_X)
-        }
-
-        @Test
-        fun whenNotReleased() {
-            testPersistSubmissionFiles(extSubmission.copy(released = false), MOVE, RW_R_____, RWXR_X___)
-        }
+    @Test
+    fun whenReleased() {
+        testPersistSubmissionFiles(extSubmission.copy(released = true), RW_R__R__, RWXR_XR_X)
     }
 
-    @Nested
-    inner class WhenCopy {
-        @Test
-        fun whenReleased() {
-            testPersistSubmissionFiles(extSubmission.copy(released = true), COPY, RW_R__R__, RWXR_XR_X)
-        }
-
-        @Test
-        fun whenNotReleased() {
-            testPersistSubmissionFiles(extSubmission.copy(released = false), COPY, RW_R_____, RWXR_X___)
-        }
+    @Test
+    fun whenNotReleased() {
+        testPersistSubmissionFiles(extSubmission.copy(released = false), RW_R_____, RWXR_X___)
     }
 
     private fun testPersistSubmissionFiles(
         extSubmission: ExtSubmission,
-        mode: FileMode,
         expectedFilePermissions: Set<PosixFilePermission>,
         expectedFolderPermissions: Set<PosixFilePermission>,
     ) {
-        testInstance.persistSubmissionFiles(FilePersistenceRequest(extSubmission, mode))
+        testInstance.persistSubmissionFiles(extSubmission)
 
         val relPath = extSubmission.relPath
 

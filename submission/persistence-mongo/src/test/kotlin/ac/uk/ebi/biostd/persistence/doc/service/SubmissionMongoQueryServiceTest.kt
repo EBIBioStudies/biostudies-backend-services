@@ -24,7 +24,6 @@ import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
@@ -438,7 +437,6 @@ internal class SubmissionMongoQueryServiceTest(
             accNo = submission.accNo,
             version = submission.version,
             status = status,
-            fileMode = FileMode.COPY,
             draftKey = null,
             submission = BasicDBObject.parse(serializationService.serialize(submission)),
         )

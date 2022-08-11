@@ -1,12 +1,9 @@
 package uk.ac.ebi.biostd.client.cli.commands
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
-import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.extended.model.FileMode.COPY
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.ACC_NO
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.ASYNC
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.SOURCE
@@ -16,7 +13,6 @@ import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_OWNER
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_PASSWORD
 import uk.ac.ebi.biostd.client.cli.common.MigrationParameters.TARGET_USER
-import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.FILE_MODE
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
@@ -33,7 +29,6 @@ internal class MigrateCommand(private val submissionService: SubmissionService) 
     private val targetUser by option("-tu", "--targetUser", help = TARGET_USER).required()
     private val targetPassword by option("-tp", "--targetPassword", help = TARGET_PASSWORD).required()
     private val targetOwner by option("-to", "--targetOwner", help = TARGET_OWNER)
-    private val fileMode by option("-fm", "--fileMode", help = FILE_MODE).default(COPY.name)
     private val async by option("-as", "--async", help = ASYNC).flag(default = false)
 
     override fun run() {
@@ -44,7 +39,6 @@ internal class MigrateCommand(private val submissionService: SubmissionService) 
             sourceSecurityConfig,
             targetSecurityConfig,
             targetOwner,
-            FileMode.valueOf(fileMode),
             async
         )
 
