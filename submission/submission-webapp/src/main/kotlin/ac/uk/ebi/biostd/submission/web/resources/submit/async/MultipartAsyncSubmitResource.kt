@@ -92,10 +92,10 @@ class MultipartAsyncSubmitResource(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) file: MultipartFile,
-        @RequestParam(FILES) files: Array<MultipartFile>,
+        @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ) {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.TSV, files, parameters)
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.TSV, files.orEmpty(), parameters)
         val fileWebRequest = submitRequestBuilder.buildFileRequest(file, buildRequest)
 
         submitWebHandler.submitAsync(fileWebRequest)
