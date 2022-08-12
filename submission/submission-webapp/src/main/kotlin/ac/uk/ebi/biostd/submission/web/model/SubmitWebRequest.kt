@@ -4,8 +4,6 @@ import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.ExtAttributeDetail
-import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
@@ -20,7 +18,6 @@ class OnBehalfRequest(
 }
 
 data class SubmissionRequestParameters(
-    val fileMode: FileMode = COPY,
     val preferredSources: List<PreferredSource> = emptyList(),
     val attributes: List<ExtAttributeDetail> = emptyList(),
 )
@@ -32,7 +29,6 @@ data class SubmissionConfig(
 )
 
 data class SubmissionFilesConfig(
-    val fileMode: FileMode,
     val files: List<File>,
     val preferredSources: List<PreferredSource>,
 )

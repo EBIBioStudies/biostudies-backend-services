@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
-import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.extended.model.ExtFile
@@ -40,7 +39,7 @@ internal class FireFilesServiceTest(
             submission.copy(section = submission.section.copy(files = listOf(Either.left(fireFile))))
         }
 
-        val response = testInstance.persistSubmissionFiles(FilePersistenceRequest(submission))
+        val response = testInstance.persistSubmissionFiles(submission)
 
         assertThat(response.section.files.first()).hasLeftValueSatisfying { assertThat(it).isEqualTo(fireFile) }
     }

@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.PROJECT_TYPE
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
@@ -77,7 +76,6 @@ class ExtSubmissionServiceTest(
         testInstance.submitExt("user@mail.com", extSubmission)
 
         val submissionRequest = submissionRequestSlot.captured
-        assertThat(submissionRequest.fileMode).isEqualTo(COPY)
         assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
         assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
         assertThat(submissionRequest.submission.modificationTime).isAfter(extSubmission.modificationTime)
@@ -98,10 +96,9 @@ class ExtSubmissionServiceTest(
         every { submissionSubmitter.submitAsync(capture(requestSlot)) } returns (extSubmission.accNo to 1)
         every { eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version) } answers { nothing }
 
-        testInstance.submitExtAsync("user@mail.com", extSubmission, fileMode = COPY)
+        testInstance.submitExtAsync("user@mail.com", extSubmission)
 
         val submissionRequest = requestSlot.captured
-        assertThat(submissionRequest.fileMode).isEqualTo(COPY)
         assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
         assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
         assertThat(submissionRequest.submission.modificationTime).isAfter(extSubmission.modificationTime)
@@ -178,7 +175,6 @@ class ExtSubmissionServiceTest(
         testInstance.submitExt("user@mail.com", collection)
 
         val request = requestSlot.captured
-        assertThat(request.fileMode).isEqualTo(COPY)
         assertThat(request.submission.submitter).isEqualTo("user@mail.com")
         assertThat(request.submission.storageMode).isEqualTo(FIRE)
         assertThat(request.submission.modificationTime).isAfter(extSubmission.modificationTime)

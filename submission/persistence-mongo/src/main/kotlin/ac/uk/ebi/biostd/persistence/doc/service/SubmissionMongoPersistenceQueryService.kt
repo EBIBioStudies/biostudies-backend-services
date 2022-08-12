@@ -86,7 +86,6 @@ internal class SubmissionMongoPersistenceQueryService(
         val stored = serializationService.deserialize(request.submission.toString())
         return ProcessedSubmissionRequest(
             submission = stored,
-            fileMode = request.fileMode,
             draftKey = request.draftKey,
             previousVersion = findExtByAccNo(stored.accNo, true)
         )

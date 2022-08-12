@@ -2,8 +2,6 @@ package ac.uk.ebi.biostd.persistence.nfs
 
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFileProcessingConfig
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.nfsCopy
-import ac.uk.ebi.biostd.persistence.filesystem.nfs.nfsMove
-import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.io.Permissions
@@ -46,7 +44,7 @@ class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
         val fileSubFolder = subFolder.resolve("folder/test.txt")
         assertThat(fileSubFolder).doesNotExist()
 
-        val config = NfsFileProcessingConfig("S-BSST1", "user@mail.org", COPY, subFolder, targetFolder, permissions)
+        val config = NfsFileProcessingConfig("S-BSST1", "user@mail.org", subFolder, targetFolder, permissions)
         val result = config.nfsCopy(extFile)
 
         assertThat(fileSubFolder).doesNotExist()
@@ -62,7 +60,7 @@ class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
         val fileSubFolder = subFolder.resolve("folder/test.txt")
         assertThat(fileSubFolder).exists()
 
-        val config = NfsFileProcessingConfig("S-BSST1", "user@mail.org", COPY, subFolder, targetFolder, permissions)
+        val config = NfsFileProcessingConfig("S-BSST1", "user@mail.org", subFolder, targetFolder, permissions)
         val result = config.nfsCopy(extFile)
 
         assertThat(fileSubFolder).doesNotExist()
@@ -70,20 +68,5 @@ class NfsFileProcessingConfigTest(private val tempFolder: TemporaryFolder) {
         assertThat(result.file).isEqualTo(fileSubFolder)
         assertThat(result.fullPath).isEqualTo(fileSubFolder.absolutePath)
         assertThat(extFile.file).exists()
-    }
-
-    @Test
-    fun move() {
-        val fileSubFolder = subFolder.resolve("folder/test.txt")
-        assertThat(fileSubFolder).doesNotExist()
-
-        val config = NfsFileProcessingConfig("S-BSST1", "user@mail.org", COPY, subFolder, targetFolder, permissions)
-        val result = config.nfsMove(extFile)
-
-        assertThat(fileSubFolder).doesNotExist()
-        assertThat(targetFolder.resolve("folder/test.txt")).exists()
-        assertThat(result.file).isEqualTo(fileSubFolder)
-        assertThat(result.fullPath).isEqualTo(fileSubFolder.absolutePath)
-        assertThat(extFile.file).doesNotExist()
     }
 }

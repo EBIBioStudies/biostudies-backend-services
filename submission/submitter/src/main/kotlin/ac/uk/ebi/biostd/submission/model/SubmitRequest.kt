@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.model
 
-import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
@@ -11,7 +10,6 @@ data class SubmitRequest(
     val submitter: SecurityUser,
     val sources: FileSourcesList,
     val method: SubmissionMethod,
-    val mode: FileMode,
     val onBehalfUser: SecurityUser? = null,
     val draftKey: String? = null,
 ) {

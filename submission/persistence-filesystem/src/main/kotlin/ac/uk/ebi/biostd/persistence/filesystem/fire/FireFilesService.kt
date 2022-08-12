@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
-import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
@@ -17,7 +16,7 @@ class FireFilesService(
     private val fileProcessingService: FileProcessingService,
     private val serializationService: ExtSerializationService,
 ) : FilesService {
-    override fun persistSubmissionFiles(rqt: FilePersistenceRequest): ExtSubmission = processFiles(rqt.submission)
+    override fun persistSubmissionFiles(sub: ExtSubmission): ExtSubmission = processFiles(sub)
 
     override fun cleanSubmissionFiles(sub: ExtSubmission) = cleanPreviousFiles(sub)
 

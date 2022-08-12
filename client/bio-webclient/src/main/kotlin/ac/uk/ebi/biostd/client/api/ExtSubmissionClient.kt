@@ -5,8 +5,6 @@ import ac.uk.ebi.biostd.client.integration.web.ExtSubmissionOperations
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.util.date.toStringInstant
 import ebi.ac.uk.util.web.optionalQueryParam
@@ -46,18 +44,18 @@ class ExtSubmissionClient(
         return extSerializationService.deserializeTable(response)
     }
 
-    override fun submitExt(extSubmission: ExtSubmission, fileMode: FileMode): ExtSubmission {
+    override fun submitExt(extSubmission: ExtSubmission): ExtSubmission {
         val response = restTemplate.postForEntity<String>(
             EXT_SUBMISSIONS_URL,
-            HttpEntity(getMultipartBody(extSubmission, fileMode))
+            HttpEntity(getMultipartBody(extSubmission))
         )
         return extSerializationService.deserialize(response.body!!)
     }
 
-    override fun submitExtAsync(extSubmission: ExtSubmission, fileMode: FileMode) {
+    override fun submitExtAsync(extSubmission: ExtSubmission) {
         restTemplate.postForEntity<String>(
             "$EXT_SUBMISSIONS_URL/async",
-            HttpEntity(getMultipartBody(extSubmission, fileMode))
+            HttpEntity(getMultipartBody(extSubmission))
         )
     }
 
@@ -77,10 +75,9 @@ class ExtSubmissionClient(
             .build()
             .toUriString()
 
-    private fun getMultipartBody(extSubmission: ExtSubmission, fileMode: FileMode): LinkedMultiValueMap<String, Any> {
+    private fun getMultipartBody(extSubmission: ExtSubmission): LinkedMultiValueMap<String, Any> {
         val elements = buildList<Pair<String, Any>> {
             add(SUBMISSION to extSerializationService.serialize(extSubmission))
-            add(FILE_MODE to fileMode.name)
         }
         return LinkedMultiValueMap(elements.groupBy({ it.first }, { it.second }))
     }

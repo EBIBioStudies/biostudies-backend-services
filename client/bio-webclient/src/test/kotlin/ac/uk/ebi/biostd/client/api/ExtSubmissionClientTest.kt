@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.SUBMISSION
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -160,10 +159,8 @@ class ExtSubmissionClientTest(
         val body = entity.body
 
         assertThat(body).isNotNull()
-        assertThat(body).hasSize(2)
+        assertThat(body).hasSize(1)
         assertThat(body!![SUBMISSION]).hasSize(1)
         assertThat(body[SUBMISSION]?.first()).isEqualTo("ExtSubmission")
-        assertThat(body[FILE_MODE]).hasSize(1)
-        assertThat(body[FILE_MODE]?.first()).isEqualTo("COPY")
     }
 }
