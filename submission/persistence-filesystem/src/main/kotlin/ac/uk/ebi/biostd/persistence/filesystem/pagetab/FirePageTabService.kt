@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
+import ac.uk.ebi.biostd.persistence.filesystem.api.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.persistFireFile
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.FILE

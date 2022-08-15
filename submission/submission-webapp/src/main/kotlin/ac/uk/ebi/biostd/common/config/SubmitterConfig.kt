@@ -10,7 +10,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
-import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
+import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
@@ -65,11 +65,11 @@ class SubmitterConfig {
 
     @Bean
     fun submissionReleaser(
-        ftpService: FtpService,
+        fileStorageService: FileStorageService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
     ): SubmissionReleaser =
-        SubmissionReleaser(ftpService, submissionPersistenceQueryService, submissionPersistenceService)
+        SubmissionReleaser(fileStorageService, submissionPersistenceQueryService, submissionPersistenceService)
 
     @Bean
     fun extSubmissionSubmitter(

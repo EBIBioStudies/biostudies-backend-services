@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
@@ -14,7 +13,6 @@ private val logger = KotlinLogging.logger {}
 class FireFtpService(
     private val fireClient: FireClient,
     private val serializationService: ExtSerializationService,
-    private val queryService: SubmissionPersistenceQueryService,
 ) : FtpService {
     override fun releaseSubmissionFiles(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission ${sub.accNo} over FIRE" }
@@ -22,12 +20,10 @@ class FireFtpService(
         logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission ${sub.accNo} over FIRE" }
     }
 
-    override fun generateFtpLinks(accNo: String) {
-        val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
-
-        logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission $accNo over FIRE" }
+    override fun generateFtpLinks(sub: ExtSubmission) {
+        logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission ${sub.accNo} over FIRE" }
         serializationService.forEachFile(sub) { file, idx -> if (file is FireFile) publishFile(sub, file.fireId, idx) }
-        logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission $accNo over FIRE" }
+        logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission ${sub.accNo} over FIRE" }
     }
 
     private fun publishFile(sub: ExtSubmission, fireId: String, index: Int) {
