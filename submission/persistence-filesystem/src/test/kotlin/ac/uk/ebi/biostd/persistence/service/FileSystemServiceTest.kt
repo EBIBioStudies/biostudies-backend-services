@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.service
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.clearAllMocks
@@ -21,9 +20,8 @@ class FileSystemServiceTest(
     @MockK private val submission: ExtSubmission,
     @MockK private val finalSub: ExtSubmission,
     @MockK private val fileStorageService: FileStorageService,
-    @MockK private val pageTabService: PageTabService,
 ) {
-    private val testInstance = FileSystemService(fileStorageService, pageTabService)
+    private val testInstance = FileSystemService(fileStorageService)
 
     @BeforeEach
     fun beforeEach() {
@@ -40,7 +38,7 @@ class FileSystemServiceTest(
 
         verify(exactly = 1) {
             fileStorageService.persistSubmissionFiles(submission)
-            pageTabService.generatePageTab(processedSubmission)
+            fileStorageService.generatePageTab(processedSubmission)
         }
     }
 
@@ -51,6 +49,6 @@ class FileSystemServiceTest(
 
     private fun setUpServices() {
         every { fileStorageService.persistSubmissionFiles(submission) } returns processedSubmission
-        every { pageTabService.generatePageTab(processedSubmission) } answers { finalSub }
+        every { fileStorageService.generatePageTab(processedSubmission) } answers { finalSub }
     }
 }

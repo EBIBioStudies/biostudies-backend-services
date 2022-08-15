@@ -1,4 +1,11 @@
 package ac.uk.ebi.biostd.persistence.filesystem.api
 
-interface FileStorageService : FilesService, FtpService {
+import ebi.ac.uk.extended.model.ExtSubmission
+
+interface FileStorageService {
+    fun releaseSubmissionFiles(sub: ExtSubmission)
+    fun generateFtpLinks(sub: ExtSubmission)
+    fun persistSubmissionFiles(sub: ExtSubmission): ExtSubmission
+    fun cleanSubmissionFiles(sub: ExtSubmission)
+    fun generatePageTab(sub: ExtSubmission): ExtSubmission
 }
