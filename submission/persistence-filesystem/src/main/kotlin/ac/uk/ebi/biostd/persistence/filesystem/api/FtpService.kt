@@ -4,5 +4,5 @@ import ebi.ac.uk.extended.model.ExtSubmission
 
 interface FtpService {
     fun releaseSubmissionFiles(sub: ExtSubmission)
-    fun generateFtpLinks(accNo: String)
+    fun generateFtpLinks(sub: ExtSubmission)
 }

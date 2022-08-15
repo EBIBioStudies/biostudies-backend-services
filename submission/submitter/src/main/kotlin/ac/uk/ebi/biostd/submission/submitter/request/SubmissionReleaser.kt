@@ -20,4 +20,9 @@ class SubmissionReleaser(
         ftpService.releaseSubmissionFiles(sub)
         logger.info { "${sub.accNo} ${sub.owner} released submission ${sub.accNo}" }
     }
+
+    fun generateFtpLinks(accNo: String) {
+        val sub = submissionPersistenceQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        ftpService.releaseSubmissionFiles(sub)
+    }
 }
