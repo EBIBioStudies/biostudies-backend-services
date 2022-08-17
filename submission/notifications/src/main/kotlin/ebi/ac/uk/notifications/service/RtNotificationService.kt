@@ -11,9 +11,9 @@ import ebi.ac.uk.notifications.util.TemplateLoader
 import ebi.ac.uk.util.date.toStringDate
 
 internal const val FROM = "biostudies@ebi.ac.uk"
-internal const val SUBMISSION_RELEASE_TEMPLATE = "release-notification.txt"
-internal const val SUCCESSFUL_SUBMISSION_TEMPLATE = "successful-submission.txt"
-internal const val SUCCESSFUL_RESUBMISSION_TEMPLATE = "successful-resubmission.txt"
+internal const val SUBMISSION_RELEASE_TEMPLATE = "release/%s.txt"
+internal const val SUCCESSFUL_SUBMISSION_TEMPLATE = "submission/%s.txt"
+internal const val SUCCESSFUL_RESUBMISSION_TEMPLATE = "resubmission/%s.txt"
 
 class RtNotificationService(
     private val templateLoader: TemplateLoader,
@@ -23,14 +23,17 @@ class RtNotificationService(
         val subject = "BioStudies Submission - ${sub.accNo}"
         val template = if (sub.version == 1) SUCCESSFUL_SUBMISSION_TEMPLATE else SUCCESSFUL_RESUBMISSION_TEMPLATE
         val model = successfulSubmissionModel(sub, uiUrl, ownerFullName)
-        val content = SuccessfulSubmissionTemplate(templateLoader.loadTemplate(template)).render(model)
+        val content = SuccessfulSubmissionTemplate(templateLoader.loadCollectionTemplate(sub, template)).render(model)
+
         rtTicketService.saveRtTicket(sub.accNo, subject, sub.owner, content)
     }
 
     fun notifySubmissionRelease(sub: ExtSubmission, ownerFullName: String, uiUrl: String) {
         val subject = "BioStudies Submission - ${sub.accNo}"
         val model = submissionReleaseModel(sub, uiUrl, ownerFullName)
-        val content = SubmissionReleaseTemplate(templateLoader.loadTemplate(SUBMISSION_RELEASE_TEMPLATE)).render(model)
+        val template = templateLoader.loadCollectionTemplate(sub, SUBMISSION_RELEASE_TEMPLATE)
+        val content = SubmissionReleaseTemplate(template).render(model)
+
         rtTicketService.saveRtTicket(sub.accNo, subject, sub.owner, content)
     }
 
@@ -66,7 +69,8 @@ class RtNotificationService(
                 username = ownerFullName,
                 accNo = submission.accNo,
                 title = title,
-                releaseMessage = releaseMessage(submission, uiUrl)
+                releaseMessage = releaseMessage(submission, uiUrl),
+                releaseDate = submission.releaseTime?.toStringDate().orEmpty(),
             )
         }
 

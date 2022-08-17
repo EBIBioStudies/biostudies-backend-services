@@ -24,17 +24,17 @@ class TemplateLoaderTest(
 
     @BeforeEach
     fun beforeEach() {
-        val file = temporaryFolder.createFile("successful-submission.txt", "submit")
+        val file = temporaryFolder.createFile("Default.txt", "submit")
 
         every { resource.inputStream } returns file.inputStream()
-        every { resourceLoader.getResource("classpath:templates/successful-submission.txt") } returns resource
+        every { resourceLoader.getResource("classpath:templates/Default.txt") } returns resource
     }
 
     @Test
     fun loadTemplate() {
-        val template = testInstance.loadTemplate("successful-submission.txt")
+        val template = testInstance.loadTemplate("Default.txt")
 
         assertThat(template).isEqualTo("submit")
-        verify(exactly = 1) { resourceLoader.getResource("classpath:templates/successful-submission.txt") }
+        verify(exactly = 1) { resourceLoader.getResource("classpath:templates/Default.txt") }
     }
 }

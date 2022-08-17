@@ -39,7 +39,7 @@ internal class RtNotificationServiceTest(
                         releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
                         released = false
                     ),
-                    template = "successful-submission.txt",
+                    template = "Default.txt",
                     subject = "BioStudies Submission - S-TEST1",
                     """
                         Dear owner@mail.org,
@@ -62,7 +62,7 @@ internal class RtNotificationServiceTest(
             fun `when no released no release date`() {
                 testNotification(
                     submission = testSubmission(releaseTime = null, released = false),
-                    template = "successful-submission.txt",
+                    template = "Default.txt",
                     subject = "BioStudies Submission - S-TEST1",
                     """
                         Dear owner@mail.org,
@@ -85,7 +85,7 @@ internal class RtNotificationServiceTest(
             fun `when released`() {
                 testNotification(
                     submission = testSubmission(released = true),
-                    template = "successful-submission.txt",
+                    template = "Default.txt",
                     subject = "BioStudies Submission - S-TEST1",
                     """
                         Dear owner@mail.org,
@@ -108,7 +108,7 @@ internal class RtNotificationServiceTest(
             fun `when submission title`() {
                 testNotification(
                     submission = testSubmission(title = "Sub Title", version = 1),
-                    template = "successful-submission.txt",
+                    template = "Default.txt",
                     subject = "BioStudies Submission - S-TEST1",
                     """
                         Dear owner@mail.org,
@@ -131,7 +131,7 @@ internal class RtNotificationServiceTest(
             fun `when section title`() {
                 testNotification(
                     submission = testSubmission(title = "Sect Title", version = 1),
-                    template = "successful-submission.txt",
+                    template = "Default.txt",
                     subject = "BioStudies Submission - S-TEST1",
                     """
                         Dear owner@mail.org,
@@ -157,7 +157,7 @@ internal class RtNotificationServiceTest(
             fun `when released`() {
                 testNotification(
                     submission = testSubmission(released = true, version = 2),
-                    template = "successful-resubmission.txt",
+                    template = "Default.txt",
                     subject = "BioStudies Submission - S-TEST1",
                     """
                         Dear owner@mail.org,
@@ -198,7 +198,7 @@ internal class RtNotificationServiceTest(
         fun `when no title`() {
             testNotification(
                 submission = testSubmission(released = true),
-                template = "release-notification.txt",
+                template = "Default.txt",
                 subject = "BioStudies Submission - S-TEST1",
                 """
                     Dear owner@mail.org,
@@ -221,7 +221,7 @@ internal class RtNotificationServiceTest(
         fun `when submission title`() {
             testNotification(
                 submission = testSubmission(title = "Sub Title", version = 1),
-                template = "release-notification.txt",
+                template = "Default.txt",
                 subject = "BioStudies Submission - S-TEST1",
                 """
                 Dear owner@mail.org,
@@ -244,7 +244,7 @@ internal class RtNotificationServiceTest(
         fun `when section title`() {
             testNotification(
                 submission = testSubmission(title = "Sect Title", version = 1),
-                template = "release-notification.txt",
+                template = "Default.txt",
                 subject = "BioStudies Submission - S-TEST1",
                 """
                     Dear owner@mail.org,

@@ -12,7 +12,8 @@ internal class SuccessfulSubmissionModel(
     private val username: String,
     private val accNo: String,
     private val title: String?,
-    private val releaseMessage: String
+    private val releaseMessage: String,
+    private val releaseDate: String,
 ) : NotificationTemplateModel {
 
     override fun getParams(): List<Pair<String, String>> = listOf(
@@ -21,6 +22,7 @@ internal class SuccessfulSubmissionModel(
         "TITLE" to title.orEmpty(),
         "MAIL_TO" to mailto,
         "UI_URL" to uiUrl,
+        "RELEASE_DATE" to releaseDate,
         "RELEASE_MESSAGE" to releaseMessage
     )
 }
