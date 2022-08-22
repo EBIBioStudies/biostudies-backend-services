@@ -9,9 +9,8 @@ import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
 import mu.KotlinLogging
 
-private const val AS_SYSTEM_USER = "sudo -u $SYSTEM_USER $LSF_ENVDIR $LSF_SERVERDIR"
 private const val REDIRECT_LOGS = "-o $LOGS_PATH%J_OUT -e $LOGS_PATH/%J_IN"
-private const val SUBMIT_COMMAND = "$AS_SYSTEM_USER bsub $REDIRECT_LOGS"
+private const val SUBMIT_COMMAND = "bsub $REDIRECT_LOGS"
 private val logger = KotlinLogging.logger {}
 
 class ClusterOperations(
