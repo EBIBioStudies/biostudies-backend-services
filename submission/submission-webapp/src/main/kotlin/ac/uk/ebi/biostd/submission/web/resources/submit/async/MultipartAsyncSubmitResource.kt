@@ -43,8 +43,8 @@ class MultipartAsyncSubmitResource(
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ) {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.JSON, files.orEmpty(), parameters)
-        val contentWebRequest = submitRequestBuilder.buildContentRequest(content, buildRequest)
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = files?.toList())
+        val contentWebRequest = submitRequestBuilder.buildContentRequest(content, SubFormat.JSON, buildRequest)
 
         submitWebHandler.submitAsync(contentWebRequest)
     }
@@ -60,8 +60,8 @@ class MultipartAsyncSubmitResource(
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ) {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.XML, files.orEmpty(), parameters)
-        val contentWebRequest = submitRequestBuilder.buildContentRequest(content, buildRequest)
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = files?.toList())
+        val contentWebRequest = submitRequestBuilder.buildContentRequest(content, SubFormat.XML, buildRequest)
 
         submitWebHandler.submitAsync(contentWebRequest)
     }
@@ -77,8 +77,8 @@ class MultipartAsyncSubmitResource(
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ) {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.TSV, files.orEmpty(), parameters)
-        val contentWebRequest = submitRequestBuilder.buildContentRequest(content, buildRequest)
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = files?.toList())
+        val contentWebRequest = submitRequestBuilder.buildContentRequest(content, SubFormat.TSV, buildRequest)
 
         submitWebHandler.submitAsync(contentWebRequest)
     }
@@ -95,7 +95,7 @@ class MultipartAsyncSubmitResource(
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ) {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.TSV, files.orEmpty(), parameters)
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = files?.toList())
         val fileWebRequest = submitRequestBuilder.buildFileRequest(file, buildRequest)
 
         submitWebHandler.submitAsync(fileWebRequest)

@@ -11,7 +11,7 @@ import java.io.File
 class OnBehalfRequest(
     private val userEmail: String,
     private val userName: String?,
-    private val register: Boolean?
+    private val register: Boolean?,
 ) {
     fun asRegisterRequest(): GetOrRegisterUserRequest =
         GetOrRegisterUserRequest(register.orFalse(), userEmail, userName)
@@ -23,18 +23,17 @@ data class SubmissionRequestParameters(
 )
 
 data class SubmissionConfig(
-    val format: SubFormat,
     val submitter: SecurityUser,
     val attrs: List<ExtAttributeDetail>,
 )
 
 data class SubmissionFilesConfig(
-    val files: List<File>,
+    val files: List<File>?,
     val preferredSources: List<PreferredSource>,
 )
 
 sealed class SubmitWebRequest(
-    val submissionConfig: SubmissionConfig,
+    val config: SubmissionConfig,
     val onBehalfRequest: OnBehalfRequest?,
     val filesConfig: SubmissionFilesConfig,
 )
@@ -42,6 +41,7 @@ sealed class SubmitWebRequest(
 class ContentSubmitWebRequest(
     val submission: String,
     val draftKey: String? = null,
+    val format: SubFormat,
     submissionConfig: SubmissionConfig,
     onBehalfRequest: OnBehalfRequest?,
     filesConfig: SubmissionFilesConfig,

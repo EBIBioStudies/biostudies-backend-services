@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
+import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
@@ -39,7 +39,7 @@ internal class SubmissionDraftResource(
     @ResponseBody
     fun getDraftSubmissions(
         @BioUser user: SecurityUser,
-        @ModelAttribute filter: PaginationFilter
+        @ModelAttribute filter: PaginationFilter,
     ): List<ResponseSubmissionDraft> =
         draftService.getActiveSubmissionsDraft(user.email, filter).map { it.asResponseDraft() }
 
@@ -47,21 +47,21 @@ internal class SubmissionDraftResource(
     @ResponseBody
     fun getDraftSubmission(
         @BioUser user: SecurityUser,
-        @PathVariable key: String
+        @PathVariable key: String,
     ): ResponseSubmissionDraft = draftService.getSubmissionDraft(user.email, key).asResponseDraft()
 
     @GetMapping("/{key}/content")
     @ResponseBody
     fun getDraftSubmissionContent(
         @BioUser user: SecurityUser,
-        @PathVariable key: String
+        @PathVariable key: String,
     ): ResponseSubmissionDraftContent =
         ResponseSubmissionDraftContent(draftService.getSubmissionDraft(user.email, key).content)
 
     @DeleteMapping("/{key}")
     fun deleteDraftSubmission(
         @BioUser user: SecurityUser,
-        @PathVariable key: String
+        @PathVariable key: String,
     ) = draftService.deleteSubmissionDraft(user.email, key)
 
     @PutMapping("/{key}")
@@ -69,14 +69,14 @@ internal class SubmissionDraftResource(
     fun updateSubmissionDraft(
         @BioUser user: SecurityUser,
         @RequestBody content: String,
-        @PathVariable key: String
+        @PathVariable key: String,
     ): ResponseSubmissionDraft = draftService.updateSubmissionDraft(user.email, key, content).asResponseDraft()
 
     @PostMapping
     @ResponseBody
     fun createDraftSubmission(
         @BioUser user: SecurityUser,
-        @RequestBody content: String
+        @RequestBody content: String,
     ): ResponseSubmissionDraft = draftService.createSubmissionDraft(user.email, content).asResponseDraft()
 
     @PostMapping("/{key}/submit")
@@ -87,8 +87,8 @@ internal class SubmissionDraftResource(
         @ModelAttribute parameters: SubmissionRequestParameters,
     ) {
         val submission = draftService.getSubmissionDraft(user.email, key).content
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, JSON_PRETTY, emptyArray(), parameters, key)
-        val request = submitRequestBuilder.buildContentRequest(submission, buildRequest)
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key)
+        val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON, buildRequest)
 
         return submitWebHandler.submitAsync(request)
     }
