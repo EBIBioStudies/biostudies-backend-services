@@ -28,6 +28,8 @@ app:
   tempDirPath:
   requestFilesPath:
   instanceBaseUrl: http://localhost:8080
+  consumers: 1
+  maxConsumers: 2
   fire:
     host:
     username:
