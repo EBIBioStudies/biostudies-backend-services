@@ -5,6 +5,7 @@ import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.io.sources.PreferredSource
+import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 
@@ -37,6 +38,18 @@ sealed class SubmitWebRequest(
     val onBehalfRequest: OnBehalfRequest?,
     val filesConfig: SubmissionFilesConfig,
 )
+
+val SubmitWebRequest.method: SubmissionMethod
+    get() = when (this) {
+        is ContentSubmitWebRequest -> SubmissionMethod.PAGE_TAB
+        is FileSubmitWebRequest -> SubmissionMethod.FILE
+    }
+
+val SubmitWebRequest.draftKey: String?
+    get() = when (this) {
+        is ContentSubmitWebRequest -> draftKey
+        is FileSubmitWebRequest -> null
+    }
 
 class ContentSubmitWebRequest(
     val submission: String,

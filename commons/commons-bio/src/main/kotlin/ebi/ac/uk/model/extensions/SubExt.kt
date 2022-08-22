@@ -1,5 +1,6 @@
 package ebi.ac.uk.model.extensions
 
+import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields
@@ -94,6 +95,14 @@ var Submission.accNoTemplate: String?
     set(value) {
         value?.let { this[SubFields.ACC_NO_TEMPLATE] = it }
     }
+
+/**
+ * Overrides the given list of attributes in the current submission.
+ */
+fun Submission.withAttributes(attrs: List<ExtAttributeDetail>): Submission {
+    attrs.forEach { this[it.name] = it.value }
+    return this
+}
 
 fun Submission.allFiles() = section.allFiles() + section.allSections().flatMap { it.allFiles() }
 fun Submission.getSectionByType(name: String): Section = section.allSections().first { it.type == name }

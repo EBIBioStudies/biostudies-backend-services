@@ -12,20 +12,21 @@ import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.SubmitWebRequest
+import ac.uk.ebi.biostd.submission.web.model.draftKey
+import ac.uk.ebi.biostd.submission.web.model.method
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.Submission
-import ebi.ac.uk.model.SubmissionMethod.FILE
 import ebi.ac.uk.model.extensions.rootPath
+import ebi.ac.uk.model.extensions.withAttributes
 
 private const val DIRECT_UPLOAD_PATH = "direct-uploads"
 
 @Suppress("LongParameterList")
 class SubmitWebHandler(
-    private val submissionService: SubmissionService,
-    private val extSubmissionService: ExtSubmissionQueryService,
+    private val subService: SubmissionService,
+    private val extSubService: ExtSubmissionQueryService,
     private val fileSourcesService: FileSourcesService,
     private val serializationService: SerializationService,
     private val userFilesService: UserFilesService,
@@ -34,52 +35,48 @@ class SubmitWebHandler(
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission {
         val rqt = buildRequest(request)
-        val extSubmission = submissionService.submit(rqt)
+        val extSubmission = subService.submit(rqt)
         return toSubmissionMapper.toSimpleSubmission(extSubmission)
     }
 
     fun submit(request: FileSubmitWebRequest): Submission {
         val rqt = buildRequest(request)
         userFilesService.uploadFile(request.config.submitter, DIRECT_UPLOAD_PATH, request.submission)
-        val extSubmission = submissionService.submit(rqt)
+        val extSubmission = subService.submit(rqt)
         return toSubmissionMapper.toSimpleSubmission(extSubmission)
     }
 
     fun submitAsync(request: ContentSubmitWebRequest) {
         val rqt = buildRequest(request)
-        submissionService.submitAsync(rqt)
+        subService.submitAsync(rqt)
     }
 
     fun submitAsync(request: FileSubmitWebRequest) {
         val rqt = buildRequest(request)
         userFilesService.uploadFile(request.config.submitter, DIRECT_UPLOAD_PATH, request.submission)
-        submissionService.submitAsync(rqt)
+        subService.submitAsync(rqt)
     }
 
-    private fun buildRequest(request: SubmitWebRequest): SubmitRequest {
-        val (submitter, attrs) = request.config
-        val (files, preferredSources) = request.filesConfig
-
-        /**
-         * Return the draft key of the submit request.
-         */
-        fun draftKey(rqt: SubmitWebRequest) = when (rqt) {
-            is ContentSubmitWebRequest -> rqt.draftKey
-            is FileSubmitWebRequest -> null
-        }
+    private fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {
+        val (submitter, attrs) = rqt.config
+        val (files, preferredSources) = rqt.filesConfig
+        val onBehalfUser = rqt.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) }
 
         /**
          * Deserialize the submission without considering files.
          */
-        fun submission(rqt: SubmitWebRequest): Submission = when (rqt) {
-            is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format)
-            is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission)
+        fun submissionAttributes(): Pair<String, String?> {
+            val submission = when (rqt) {
+                is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format)
+                is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission)
+            }
+            return submission.accNo to submission.rootPath
         }
 
         /**
          * Deserialize the submission and check file presence in the list of sources.
          */
-        fun submission(rqt: SubmitWebRequest, source: FileSourcesList): Submission = when (rqt) {
+        fun deserializeSubmission(source: FileSourcesList): Submission = when (rqt) {
             is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format, source)
             is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, source)
         }
@@ -87,39 +84,34 @@ class SubmitWebHandler(
         /**
          * Create the list of submission sources available based on the given submission.
          */
-        fun sourceRequest(sub: Submission, previous: ExtSubmission?): FileSourcesRequest = FileSourcesRequest(
+        fun sourceRequest(rootPath: String?, previous: ExtSubmission?): FileSourcesRequest = FileSourcesRequest(
             submitter = submitter,
             files = files,
-            onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
-            rootPath = sub.rootPath,
+            onBehalfUser = rqt.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
+            rootPath = rootPath,
             submission = previous,
             preferredSources = preferredSources
         )
 
         /**
-         * Overrides the given list of attributes in the current submission.
+         * Process the given submission:
+         *
+         * 1. AccNo, RootPath attributes are extracted from Submission.
+         * 2. Submission file sources are obtained.
+         * 3. Submission is deserialized including file sources to check both pagetab structure and file presence.
+         * 4. Overridden attributes are set.
          */
-        fun withAttributes(submission: Submission, attrs: List<ExtAttributeDetail>): Submission {
-            attrs.forEach { submission[it.name] = it.value }
-            return submission
+        fun processSubmission(): Pair<Submission, FileSourcesList> {
+            val (accNo, rootPath) = submissionAttributes()
+            require(extSubService.hasPendingRequest(accNo).not()) { throw ConcurrentSubException(accNo) }
+
+            val previous = extSubService.findExtendedSubmission(accNo)
+            val source = fileSourcesService.submissionSources(sourceRequest(rootPath, previous))
+            val submission = deserializeSubmission(source)
+            return submission.withAttributes(attrs) to source
         }
 
-        /**
-         * Ensure there is not pending for processing  submission for the given request.
-         */
-        fun requireNotProcessing(sub: Submission) =
-            require(extSubmissionService.hasPendingRequest(sub.accNo).not()) { throw ConcurrentSubException(sub.accNo) }
-
-        val sub = submission(request).also { requireNotProcessing(it) }
-        val previous = extSubmissionService.findExtendedSubmission(sub.accNo)
-        val source = fileSourcesService.submissionSources(sourceRequest(sub, previous))
-        return SubmitRequest(
-            submission = withAttributes(submission(request, source), attrs),
-            submitter = submitter,
-            onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
-            sources = source,
-            method = FILE,
-            draftKey = draftKey(request)
-        )
+        val (sub, sources) = processSubmission()
+        return SubmitRequest(sub, submitter, sources, rqt.method, onBehalfUser, rqt.draftKey)
     }
 }
