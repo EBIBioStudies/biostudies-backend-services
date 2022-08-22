@@ -14,7 +14,7 @@ private const val SUBMIT_COMMAND = "$AS_SYSTEM_USER bsub $REDIRECT_LOGS"
 
 class ClusterOperations(
     private val responseParser: JobResponseParser,
-    private val sessionFunction: () -> Session
+    private val sessionFunction: () -> Session,
 ) {
 
     fun triggerJob(jobSpec: JobSpec): Try<Job> {
@@ -35,19 +35,16 @@ class ClusterOperations(
             Try.raise(JobSubmitFailException(response))
 
     companion object {
-
-        private val sshClient = JSch()
         private val responseParser = JobResponseParser()
 
-        fun create(user: String, password: String?, sshMachine: String): ClusterOperations {
-            return ClusterOperations(responseParser) { createSession(user, password, sshMachine) }
-        }
-
-        private fun createSession(user: String, password: String?, sshMachine: String): Session {
-            val session = sshClient.getSession(user, sshMachine)
-            session.setConfig("StrictHostKeyChecking", "no")
-            password?.let { session.setPassword(it) }
-            return session
+        fun create(sshKey: String, sshMachine: String): ClusterOperations {
+            val sshClient = JSch()
+            sshClient.addIdentity(sshKey)
+            return ClusterOperations(responseParser) {
+                val session = sshClient.getSession(sshMachine)
+                session.setConfig("StrictHostKeyChecking", "no")
+                return@ClusterOperations session
+            }
         }
     }
 
