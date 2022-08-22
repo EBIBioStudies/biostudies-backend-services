@@ -46,14 +46,9 @@ class MultipartSubmitResource(
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ): Submission {
-        val buildRequest = SubmitBuilderRequest(
-            user = user,
-            onBehalfRequest = onBehalfRequest,
-            files = files?.toList(),
-            submissionRequestParameters = parameters,
-            draftKey = null
-        )
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = files?.toList())
         val request = submitRequestBuilder.buildContentRequest(content, SubFormat.JSON, buildRequest)
+
         return submitWebHandler.submit(request)
     }
 

@@ -88,7 +88,7 @@ internal class SubmissionDraftResource(
     ) {
         val submission = draftService.getSubmissionDraft(user.email, key).content
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key)
-        val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON, buildRequest)
+        val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON_PRETTY, buildRequest)
 
         return submitWebHandler.submitAsync(request)
     }
