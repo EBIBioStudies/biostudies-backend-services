@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionDraftRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
@@ -23,12 +22,6 @@ class MongoDbReposConfig {
         mongoTemplate: MongoTemplate,
         submissionMongoRepository: SubmissionMongoRepository
     ): SubmissionDocDataRepository = SubmissionDocDataRepository(submissionMongoRepository, mongoTemplate)
-
-    @Bean
-    internal fun submissionStatsDataRepository(
-        mongoTemplate: MongoTemplate,
-        submissionMongoRepository: SubmissionMongoRepository
-    ): SubmissionStatsDataRepository = SubmissionStatsDataRepository(mongoTemplate, submissionMongoRepository)
 
     @Bean
     internal fun submissionRequestDocDataRepository(

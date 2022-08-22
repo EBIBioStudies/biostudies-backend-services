@@ -59,21 +59,6 @@ enum class DocSubmissionMethod(val value: String) {
     }
 }
 
-enum class DocProcessingStatus(val value: String) {
-    PROCESSED("PROCESSED"), PROCESSING("PROCESSING"), REQUESTED("REQUESTED");
-
-    companion object {
-        fun fromString(value: String): DocProcessingStatus {
-            return when (value) {
-                "PROCESSED" -> PROCESSED
-                "PROCESSING" -> PROCESSING
-                "REQUESTED" -> REQUESTED
-                else -> throw IllegalStateException("Unknown submission method $value")
-            }
-        }
-    }
-}
-
 data class DocTag(val name: String, val value: String)
 data class DocCollection(val accNo: String)
 data class DocAttributeDetail(val name: String, val value: String?)
@@ -161,6 +146,14 @@ data class DocSectionTableRow(
     val accNo: String? = null,
     val type: String,
     val attributes: List<DocAttribute> = listOf()
+)
+
+@Document(collection = "submission_stats")
+data class DocSubmissionStats(
+    @Id
+    val id: ObjectId,
+    val accNo: String,
+    val stats: List<DocStat>
 )
 
 data class DocStat(val name: String, val value: Long)

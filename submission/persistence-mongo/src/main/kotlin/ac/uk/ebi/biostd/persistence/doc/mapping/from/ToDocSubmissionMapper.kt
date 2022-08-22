@@ -40,7 +40,6 @@ class ToDocSubmissionMapper(private val toDocSectionMapper: ToDocSectionMapper) 
             tags = tags.map { DocTag(it.name, it.value) },
             attributes = attributes.map { it.toDocAttribute() },
             section = docSection,
-            stats = stats.map { DocStat(it.name, it.value.toLong()) },
             pageTabFiles = pageTabFiles.map { it.toDocFile() },
             storageMode = storageMode
         )

@@ -3,7 +3,7 @@ post:
   description: |
     Increments the stats contained inside the given file. Please have in mind:
     - The file should be in TSV format following the convention <accNo>\t<value>
-    - All entries for nonexisting submissions will be ignored
+    - All entries for non existing submissions will be ignored
     - All the entries for the same submission will be summarized and the final value will be added to the current value for that submission or registered as a new stat if it doesn't exist
 
   tags:

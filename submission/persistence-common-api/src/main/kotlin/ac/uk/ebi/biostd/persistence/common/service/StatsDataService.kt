@@ -9,6 +9,8 @@ interface StatsDataService {
 
     fun findByAccNoAndType(accNo: String, submissionStatType: SubmissionStatType): SubmissionStat
 
+    fun save(stat: SubmissionStat): SubmissionStat
+
     fun saveAll(stats: List<SubmissionStat>): List<SubmissionStat>
 
     fun incrementAll(stats: List<SubmissionStat>): List<SubmissionStat>

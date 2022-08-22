@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionStatsRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ebi.ac.uk.extended.model.ExtCollection
@@ -10,7 +11,10 @@ import java.time.ZoneOffset.UTC
 
 internal const val FILES_DIR = "Files"
 
-class ToExtSubmissionMapper(private val toExtSectionMapper: ToExtSectionMapper) {
+class ToExtSubmissionMapper(
+    private val toExtSectionMapper: ToExtSectionMapper,
+    private val statsRepository: SubmissionStatsRepository,
+) {
     internal fun toExtSubmission(sub: DocSubmission, includeFileListFiles: Boolean): ExtSubmission =
         ExtSubmission(
             accNo = sub.accNo,
@@ -31,10 +35,13 @@ class ToExtSubmissionMapper(private val toExtSectionMapper: ToExtSectionMapper) 
             attributes = sub.attributes.toExtAttributes(),
             collections = sub.collections.map { ExtCollection(it.accNo) },
             tags = sub.tags.map { ExtTag(it.name, it.value) },
-            stats = sub.stats.map { it.toExtStat() },
+            stats = getStats(sub.accNo),
             pageTabFiles = sub.pageTabFiles.map { it.toExtFile() },
             storageMode = sub.storageMode
         )
+
+    private fun getStats(accNo: String) =
+        statsRepository.findByAccNo(accNo)?.stats?.map { it.toExtStat() } ?: emptyList()
 
     private fun getMethod(method: DocSubmissionMethod) = when (method) {
         DocSubmissionMethod.FILE -> ExtSubmissionMethod.FILE

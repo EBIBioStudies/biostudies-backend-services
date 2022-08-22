@@ -8,8 +8,8 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionStatsRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtFileListMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
@@ -69,7 +69,8 @@ class MongoDbServicesConfig {
     @Bean
     internal fun toExtSubmissionMapper(
         toExtSectionMapper: ToExtSectionMapper,
-    ): ToExtSubmissionMapper = ToExtSubmissionMapper(toExtSectionMapper)
+        statsRepository: SubmissionStatsRepository
+    ): ToExtSubmissionMapper = ToExtSubmissionMapper(toExtSectionMapper, statsRepository)
 
     @Bean
     internal fun submissionDraftMongoService(
@@ -86,8 +87,9 @@ class MongoDbServicesConfig {
 
     @Bean
     internal fun statsDataService(
-        submissionStatsDataRepository: SubmissionStatsDataRepository,
-    ): StatsDataService = StatsMongoDataService(submissionStatsDataRepository)
+        statsRepository: SubmissionStatsRepository,
+        submissionsRepository: SubmissionDocDataRepository
+    ): StatsDataService = StatsMongoDataService(statsRepository, submissionsRepository)
 
     @Bean
     fun fileProcessingService(serializationService: ExtSerializationService, fileResolver: FilesResolver) =
