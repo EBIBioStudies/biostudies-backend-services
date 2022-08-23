@@ -208,6 +208,7 @@ object SpringBootDependencies {
     const val SpringBootStarterSecurity = "org.springframework.boot:spring-boot-starter-security"
     const val SpringBootStarterMail = "org.springframework.boot:spring-boot-starter-mail"
     const val SpringBootStartedJetty = "org.springframework.boot:spring-boot-starter-jetty"
+    const val SpringDataCommons = "org.springframework.data:spring-data-commons"
     const val SpringBootStartedAdminClient = "de.codecentric:spring-boot-admin-starter-client:$SpringAdminVersion"
     const val SpringBootStartedAdmin = "de.codecentric:spring-boot-admin-starter-server:$SpringAdminVersion"
 }

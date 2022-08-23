@@ -4,13 +4,11 @@ import Projects.ClientBioWebClient
 import Projects.CommonsModelExtended
 import Projects.EventsPublisher
 import Projects.SchedulerTaskProperties
-import Projects.SubmissionNotification
 import Projects.SubmissionPersistenceCommonApi
 import Projects.SubmissionPersistenceMongo
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterAmqp
 import SpringBootDependencies.SpringBootStarterConfigProcessor
-import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterMongo
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
@@ -28,7 +26,6 @@ dependencies {
     api(project(CommonsModelExtended))
     api(project(EventsPublisher))
     api(project(SchedulerTaskProperties))
-    api(project(SubmissionNotification))
     api(project(SubmissionPersistenceCommonApi))
     api(project(SubmissionPersistenceMongo))
 
@@ -36,7 +33,6 @@ dependencies {
     implementation(KotlinStdLib)
     implementation(SpringBootStarterAmqp)
     implementation(SpringBootStarter)
-    implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringBootStarterMongo)
