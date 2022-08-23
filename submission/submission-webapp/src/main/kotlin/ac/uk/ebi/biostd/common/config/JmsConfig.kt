@@ -10,6 +10,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.amqp.support.converter.MessageConverter
+import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
@@ -43,13 +44,14 @@ class JmsConfig {
 
     @Bean(name = [LISTENER_FACTORY_NAME])
     fun processingListenerFactory(
+        configurer: SimpleRabbitListenerContainerFactoryConfigurer,
         connectionFactory: ConnectionFactory,
         applicationProperties: ApplicationProperties,
     ): SimpleRabbitListenerContainerFactory {
         val factory = SimpleRabbitListenerContainerFactory()
-        factory.setConnectionFactory(connectionFactory)
         factory.setConcurrentConsumers(applicationProperties.consumers)
         factory.setMaxConcurrentConsumers(applicationProperties.maxConsumers)
+        configurer.configure(factory, connectionFactory)
         return factory
     }
 }
