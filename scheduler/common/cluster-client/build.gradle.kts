@@ -1,6 +1,7 @@
 import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.Jsch
+import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Projects.CommonsUtil
@@ -11,6 +12,7 @@ dependencies {
     api(project(CommonsUtil))
 
     implementation(Arrow)
+    implementation(KotlinLogging)
     implementation(CommonsIO)
     implementation(Jsch)
     implementation(KotlinReflect)
