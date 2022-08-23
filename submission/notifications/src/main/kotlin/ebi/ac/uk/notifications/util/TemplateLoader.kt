@@ -14,7 +14,7 @@ class TemplateLoader(private val resourceLoader: ResourceLoader) {
         return IOUtils.toString(template.inputStream, Charset.defaultCharset())
     }
 
-    fun loadCollectionTemplate(sub: ExtSubmission, templateName: String): String {
+    fun loadTemplateOrDefault(sub: ExtSubmission, templateName: String): String {
         val template = getTemplate(sub, templateName)
         return IOUtils.toString(template.inputStream, Charset.defaultCharset())
     }

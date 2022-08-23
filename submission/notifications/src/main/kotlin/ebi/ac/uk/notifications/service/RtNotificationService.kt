@@ -23,7 +23,7 @@ class RtNotificationService(
         val subject = "BioStudies Submission - ${sub.accNo}"
         val template = if (sub.version == 1) SUCCESSFUL_SUBMISSION_TEMPLATE else SUCCESSFUL_RESUBMISSION_TEMPLATE
         val model = successfulSubmissionModel(sub, uiUrl, ownerFullName)
-        val content = SuccessfulSubmissionTemplate(templateLoader.loadCollectionTemplate(sub, template)).render(model)
+        val content = SuccessfulSubmissionTemplate(templateLoader.loadTemplateOrDefault(sub, template)).render(model)
 
         rtTicketService.saveRtTicket(sub.accNo, subject, sub.owner, content)
     }
@@ -31,7 +31,7 @@ class RtNotificationService(
     fun notifySubmissionRelease(sub: ExtSubmission, ownerFullName: String, uiUrl: String) {
         val subject = "BioStudies Submission - ${sub.accNo}"
         val model = submissionReleaseModel(sub, uiUrl, ownerFullName)
-        val template = templateLoader.loadCollectionTemplate(sub, SUBMISSION_RELEASE_TEMPLATE)
+        val template = templateLoader.loadTemplateOrDefault(sub, SUBMISSION_RELEASE_TEMPLATE)
         val content = SubmissionReleaseTemplate(template).render(model)
 
         rtTicketService.saveRtTicket(sub.accNo, subject, sub.owner, content)
@@ -67,6 +67,7 @@ class RtNotificationService(
                 mailto = FROM,
                 uiUrl = uiUrl,
                 username = ownerFullName,
+                userEmail = submission.owner,
                 accNo = submission.accNo,
                 title = title,
                 releaseMessage = releaseMessage(submission, uiUrl),

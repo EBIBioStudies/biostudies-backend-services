@@ -7,6 +7,10 @@ Release date: ${RELEASE_DATE}
 
 You will be able to see it at ${UI_URL}/studies/${ACC_NO} in the next 24 hours. ${RELEASE_MESSAGE}
 
+Activate your BioStudies access account ${UI_URL}/submissions/activation?email=${USER_EMAIL} to view your private study, get a link for reviewers, add publication reference or change the release date.
+
+Read more: ${UI_URL}/help.
+
 Should you have any further questions, please reply to this message making sure you keep the subject or contact us at ${MAIL_TO}
 
 Best regards,
