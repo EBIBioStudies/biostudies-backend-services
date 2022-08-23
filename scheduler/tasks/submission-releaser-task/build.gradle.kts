@@ -10,7 +10,6 @@ import Projects.SubmissionPersistenceMongo
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterAmqp
 import SpringBootDependencies.SpringBootStarterConfigProcessor
-import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterMongo
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
@@ -36,7 +35,6 @@ dependencies {
     implementation(KotlinStdLib)
     implementation(SpringBootStarterAmqp)
     implementation(SpringBootStarter)
-    implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringBootStarterMongo)
