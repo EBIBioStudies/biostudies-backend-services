@@ -63,9 +63,9 @@ class SubmitWebHandler(
         val onBehalfUser = rqt.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) }
 
         /**
-         * Deserialize the submission without considering files.
+         * Deserialize the submission without considering files and retrieve accNo and rootPath.
          */
-        fun submissionAttributes(): Pair<String, String?> {
+        fun deserializeSubmission(): Pair<String, String?> {
             val submission = when (rqt) {
                 is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format)
                 is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission)
@@ -102,7 +102,7 @@ class SubmitWebHandler(
          * 4. Overridden attributes are set.
          */
         fun processSubmission(): Pair<Submission, FileSourcesList> {
-            val (accNo, rootPath) = submissionAttributes()
+            val (accNo, rootPath) = deserializeSubmission()
             require(extSubService.hasPendingRequest(accNo).not()) { throw ConcurrentSubException(accNo) }
 
             val previous = extSubService.findExtendedSubmission(accNo)
