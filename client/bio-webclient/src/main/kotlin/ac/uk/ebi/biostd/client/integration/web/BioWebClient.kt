@@ -1,20 +1,20 @@
 package ac.uk.ebi.biostd.client.integration.web
 
-import ac.uk.ebi.biostd.client.api.SubmissionClientImpl
+import ac.uk.ebi.biostd.client.api.SubmitClientImpl
 import ac.uk.ebi.biostd.client.interceptor.OnBehalfInterceptor
 import ac.uk.ebi.biostd.client.interceptor.TokenInterceptor
 import ac.uk.ebi.biostd.common.SerializationConfig
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 
 class BioWebClient internal constructor(
-    private val submissionClient: SubmissionClient
-) : SubmissionClient by submissionClient {
+    private val submissionClient: SubmitClient,
+) : SubmitClient by submissionClient {
     companion object {
         fun create(
             baseUrl: String,
             token: String,
         ): BioWebClient = BioWebClient(
-            SubmissionClientImpl(
+            SubmitClientImpl(
                 createRestTemplate(baseUrl, token),
                 SerializationConfig.serializationService(),
                 ExtSerializationConfig.extSerializationService()
@@ -26,7 +26,7 @@ class BioWebClient internal constructor(
             token: String,
             onBehalf: String,
         ): BioWebClient = BioWebClient(
-            SubmissionClientImpl(
+            SubmitClientImpl(
                 createRestTemplate(baseUrl, token, onBehalf),
                 SerializationConfig.serializationService(),
                 ExtSerializationConfig.extSerializationService()

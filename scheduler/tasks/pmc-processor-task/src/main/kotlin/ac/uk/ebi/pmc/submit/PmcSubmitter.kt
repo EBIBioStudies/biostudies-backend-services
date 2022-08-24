@@ -8,6 +8,7 @@ import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import ac.uk.ebi.scheduler.properties.PmcMode
+import ebi.ac.uk.extended.model.StorageMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -43,7 +44,7 @@ class PmcSubmitter(
             logger.info { "submitting accNo='${submission.accNo}'" }
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }
             val filesConfig = SubmissionFilesConfig(files)
-            bioWebClient.submitSingle(submission.body, SubmissionFormat.JSON, filesConfig)
+            bioWebClient.submitSingle(submission.body, SubmissionFormat.JSON, StorageMode.NFS, filesConfig)
         }.fold(
             { submissionService.changeStatus(submission, SubmissionStatus.SUBMITTED) },
             { errorDocService.saveError(submission, PmcMode.SUBMIT, it) }

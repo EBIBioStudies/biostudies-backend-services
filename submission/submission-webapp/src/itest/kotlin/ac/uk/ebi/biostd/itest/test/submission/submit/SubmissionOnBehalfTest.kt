@@ -1,12 +1,13 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
@@ -64,7 +65,7 @@ class SubmissionOnBehalfTest(
             .create("http://localhost:$serverPort")
             .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-        val response = onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)
+        val response = onBehalfClient.submitSingle(submission, TSV)
         assertThat(response).isSuccessful()
 
         val accNo = response.body.accNo
@@ -85,7 +86,7 @@ class SubmissionOnBehalfTest(
             line("Title", "Submission Title")
         }.toString()
 
-        val response = webClient.submitSingle(submission, SubmissionFormat.TSV, UserRegistration(username, email))
+        val response = webClient.submitSingle(submission, TSV, storageMode, UserRegistration(username, email))
         val saved = submissionRepository.getExtByAccNo(response.body.accNo)
 
         assertThat(saved.owner).isEqualTo(email)
@@ -120,7 +121,7 @@ class SubmissionOnBehalfTest(
         }.toString()
 
         val onBehalfClient = getWebClient(serverPort, SuperUser, onBehalf = RegularUser)
-        val response = onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)
+        val response = onBehalfClient.submitSingle(submission, TSV)
         assertThat(response).isSuccessful()
 
         val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
@@ -153,7 +154,7 @@ class SubmissionOnBehalfTest(
             .create("http://localhost:$serverPort")
             .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-        val response = onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)
+        val response = onBehalfClient.submitSingle(submission, TSV)
         assertThat(response).isSuccessful()
 
         val subRelPath = submissionRepository.findExtByAccNo(response.body.accNo)?.relPath
