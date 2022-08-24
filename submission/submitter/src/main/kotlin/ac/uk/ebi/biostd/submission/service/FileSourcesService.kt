@@ -47,7 +47,7 @@ class FileSourcesService(
         rootPath: String?,
         owner: SecurityUser?,
         submitter: SecurityUser,
-        sources: MutableList<FilesSource>
+        sources: MutableList<FilesSource>,
     ) {
         addUserSource(submitter, rootPath, sources)
 
@@ -79,5 +79,5 @@ data class FileSourcesRequest(
     val files: List<File>?,
     val rootPath: String?,
     val submission: ExtSubmission?,
-    val preferredSources: List<PreferredSource>
+    val preferredSources: List<PreferredSource>,
 )

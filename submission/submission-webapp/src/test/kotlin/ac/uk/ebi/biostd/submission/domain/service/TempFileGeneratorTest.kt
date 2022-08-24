@@ -19,7 +19,7 @@ private const val FILE_NAME = "file.txt"
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class TempFileGeneratorTest(
     private val temporaryFolder: TemporaryFolder,
-    @MockK private val properties: ApplicationProperties
+    @MockK private val properties: ApplicationProperties,
 ) {
     private val testInstance = TempFileGenerator(properties)
     private val requestFile =
@@ -32,7 +32,7 @@ internal class TempFileGeneratorTest(
 
     @Test
     fun asFiles() {
-        val files = testInstance.asFiles(arrayOf(requestFile))
+        val files = testInstance.asFiles(listOf(requestFile))
 
         assertThat(files).hasSize(1)
 

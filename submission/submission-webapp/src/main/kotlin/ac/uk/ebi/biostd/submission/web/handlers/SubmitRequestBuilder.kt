@@ -12,16 +12,18 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
 
 class SubmitRequestBuilder(
-    private val tempFileGenerator: TempFileGenerator
+    private val tempFileGenerator: TempFileGenerator,
 ) {
     fun buildContentRequest(
         submission: String,
-        request: SubmitBuilderRequest
+        format: SubFormat,
+        request: SubmitBuilderRequest,
     ): ContentSubmitWebRequest {
         val submitConfig = submitConfig(request)
 
         return ContentSubmitWebRequest(
             submission = submission,
+            format = format,
             draftKey = request.draftKey,
             onBehalfRequest = request.onBehalfRequest,
             submissionConfig = submitConfig.first,
@@ -35,7 +37,6 @@ class SubmitRequestBuilder(
     ): FileSubmitWebRequest {
         val subFile = tempFileGenerator.asFile(submission)
         val submitConfig = submitConfig(request)
-
         return FileSubmitWebRequest(
             submission = subFile,
             onBehalfRequest = request.onBehalfRequest,
@@ -45,12 +46,11 @@ class SubmitRequestBuilder(
     }
 
     private fun submitConfig(request: SubmitBuilderRequest): Pair<SubmissionConfig, SubmissionFilesConfig> {
-        val (user, _, format, files, _) = request
-        val tempFiles = tempFileGenerator.asFiles(files)
+        val tempFiles = request.files?.let { tempFileGenerator.asFiles(it) }
         val (preferredSource, attributes) = request.submissionRequestParameters
-        val submissionConfig = SubmissionConfig(format, user, attributes)
-        val filesConfig = SubmissionFilesConfig(tempFiles, preferredSource)
 
+        val submissionConfig = SubmissionConfig(request.user, attributes)
+        val filesConfig = SubmissionFilesConfig(tempFiles, preferredSource)
         return submissionConfig to filesConfig
     }
 }
@@ -58,8 +58,7 @@ class SubmitRequestBuilder(
 data class SubmitBuilderRequest(
     val user: SecurityUser,
     val onBehalfRequest: OnBehalfRequest?,
-    val format: SubFormat,
-    val files: Array<out MultipartFile>,
     val submissionRequestParameters: SubmissionRequestParameters,
-    val draftKey: String? = null
+    val draftKey: String? = null,
+    val files: List<MultipartFile>? = null,
 )
