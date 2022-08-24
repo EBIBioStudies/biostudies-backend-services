@@ -79,9 +79,9 @@ interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId>
 interface SubmissionStatsRepository : MongoRepository<DocSubmissionStats, ObjectId> {
     fun findByAccNo(accNo: String): DocSubmissionStats?
 
-    @Query("{ 'accNo': '?0', 'stats.name': { \$eq: '?1' } }")
+    @Query("{ 'accNo': '?0', 'stats.?1': { \$exists: true } }")
     fun findByAccNoAndStatType(accNo: String, statType: SubmissionStatType): DocSubmissionStats?
 
-    @Query("{ 'stats.name': { \$eq: '?0' } }")
+    @Query("{ 'stats.?0': { \$exists: true } }")
     fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Page<DocSubmissionStats>
 }

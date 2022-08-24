@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionStatsRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ebi.ac.uk.extended.model.ExtCollection
@@ -13,7 +12,6 @@ internal const val FILES_DIR = "Files"
 
 class ToExtSubmissionMapper(
     private val toExtSectionMapper: ToExtSectionMapper,
-    private val statsRepository: SubmissionStatsRepository,
 ) {
     internal fun toExtSubmission(sub: DocSubmission, includeFileListFiles: Boolean): ExtSubmission =
         ExtSubmission(
@@ -35,13 +33,9 @@ class ToExtSubmissionMapper(
             attributes = sub.attributes.toExtAttributes(),
             collections = sub.collections.map { ExtCollection(it.accNo) },
             tags = sub.tags.map { ExtTag(it.name, it.value) },
-            stats = getStats(sub.accNo),
             pageTabFiles = sub.pageTabFiles.map { it.toExtFile() },
             storageMode = sub.storageMode
         )
-
-    private fun getStats(accNo: String) =
-        statsRepository.findByAccNo(accNo)?.stats?.map { it.toExtStat() } ?: emptyList()
 
     private fun getMethod(method: DocSubmissionMethod) = when (method) {
         DocSubmissionMethod.FILE -> ExtSubmissionMethod.FILE

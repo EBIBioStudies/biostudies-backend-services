@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.from
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
-import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag

@@ -1,32 +1,38 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.exception.StatNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.StatsNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionStatsRepository
-import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
-import org.bson.types.ObjectId
 import org.springframework.data.domain.PageRequest
 
 class StatsMongoDataService(
-    private val statsRepository: SubmissionStatsRepository,
     private val submissionsRepository: SubmissionMongoRepository,
+    private val statsDataRepository: SubmissionStatsDataRepository,
 ) : StatsDataService {
+    override fun findByAccNo(accNo: String): List<SubmissionStat> =
+        statsDataRepository
+            .findByAccNo(accNo)
+            ?.stats
+            ?.map { SingleSubmissionStat(accNo, it.value, SubmissionStatType.valueOf(it.key)) }
+            ?: throw StatsNotFoundException(accNo)
+
     override fun findByType(submissionStatType: SubmissionStatType, filter: PaginationFilter): List<SubmissionStat> =
-        statsRepository
+        statsDataRepository
             .findAllByStatType(submissionStatType, PageRequest.of(filter.pageNumber, filter.limit))
             .content
-            .map { toSubmissionStat(it, submissionStatType) }
+            .map { toSubmissionStat(submissionStatType, it) }
 
     override fun findByAccNoAndType(accNo: String, submissionStatType: SubmissionStatType): SubmissionStat =
-        statsRepository
+        statsDataRepository
             .findByAccNoAndStatType(accNo, submissionStatType)
-            ?.let { toSubmissionStat(it, submissionStatType) }
+            ?.let { toSubmissionStat(submissionStatType, it) }
             ?: throw StatNotFoundException(accNo, submissionStatType)
 
     override fun save(stat: SubmissionStat): SubmissionStat {
@@ -34,16 +40,15 @@ class StatsMongoDataService(
         return stat
     }
 
-    override fun saveAll(stats: List<SubmissionStat>): List<SubmissionStat> {
-        val valid = stats.filterValid().map { it.value.last() }
-        valid.forEach { updateOrRegister(it) }
+    override fun saveAll(stats: List<SubmissionStat>): List<SubmissionStat> =
+        stats.filterValid()
+            .mapValues { it.value.last() }
+            .map { updateOrRegister(it.value) }
 
-        return valid
-    }
 
     override fun incrementAll(stats: List<SubmissionStat>): List<SubmissionStat> =
         stats.filterValid()
-            .mapValues { incrementStat(it.value) }
+            .mapValues { increment(it.key, it.value) }
             .values
             .toList()
 
@@ -51,32 +56,21 @@ class StatsMongoDataService(
         groupBy { it.accNo.uppercase() }
             .filter { submissionsRepository.existsByAccNo(it.key) }
 
-    private fun updateOrRegister(stat: SubmissionStat) {
-        val docStat = DocStat(stat.type.name, stat.value)
-        val current = statsRepository.findByAccNo(stat.accNo)
-
-        if (current != null) {
-            val stats = current.stats.filterNot { it.name == stat.type.name }.plus(docStat)
-            statsRepository.save(current.copy(stats = stats))
-        } else {
-            statsRepository.save(DocSubmissionStats(ObjectId(), stat.accNo, listOf(docStat)))
-        }
+    private fun updateOrRegister(update: SubmissionStat): SubmissionStat {
+        statsDataRepository.updateOrRegisterStat(update)
+        return update
     }
 
-    private fun incrementStat(increments: List<SubmissionStat>): SubmissionStat {
+    private fun increment(accNo: String, increments: List<SubmissionStat>): SubmissionStat {
         val type = increments.first().type
-        val accNo = increments.first().accNo
-        val current = statsRepository.findByAccNo(accNo)?.stats?.find { it.name == type.name }?.value ?: 0L
-        val increment = increments.fold(current) { acc, submissionStat -> acc + submissionStat.value }
-        val incremented = SingleSubmissionStat(accNo, increment, type)
+        val current = statsDataRepository.findByAccNo(accNo)?.stats?.get(type.name) ?: 0L
+        val increment = statsDataRepository.incrementStat(accNo, increments)
 
-        updateOrRegister(incremented)
-
-        return incremented
+        return SingleSubmissionStat(accNo, current + increment, type)
     }
 
-    private fun toSubmissionStat(docSubmission: DocSubmissionStats, type: SubmissionStatType): SubmissionStat {
-        val stat = docSubmission.stats.first { it.name == type.name }
-        return SingleSubmissionStat(docSubmission.accNo, stat.value, type)
-    }
+    private fun toSubmissionStat(
+        type: SubmissionStatType,
+        docSubmission: DocSubmissionStats,
+    ) = SingleSubmissionStat(docSubmission.accNo, docSubmission.stats[type.name]!!, type)
 }

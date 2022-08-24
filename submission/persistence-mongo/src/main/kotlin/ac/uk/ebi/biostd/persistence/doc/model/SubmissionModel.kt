@@ -39,7 +39,6 @@ data class DocSubmission(
     val attributes: List<DocAttribute> = listOf(),
     val tags: List<DocTag> = listOf(),
     val collections: List<DocCollection> = listOf(),
-    val stats: List<DocStat> = listOf(),
     val pageTabFiles: List<DocFile> = listOf(),
     val storageMode: StorageMode
 )
@@ -153,7 +152,5 @@ data class DocSubmissionStats(
     @Id
     val id: ObjectId,
     val accNo: String,
-    val stats: List<DocStat>
+    val stats: Map<String, Long>
 )
-
-data class DocStat(val name: String, val value: Long)

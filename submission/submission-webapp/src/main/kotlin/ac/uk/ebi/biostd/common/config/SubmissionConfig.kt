@@ -4,8 +4,11 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
+import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
+import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
+import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
@@ -36,7 +39,6 @@ class SubmissionConfig(
     private val fileSourcesService: FileSourcesService,
     private val serializationService: SerializationService,
 ) {
-
     @Bean
     fun submissionQueryService(
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
@@ -62,6 +64,13 @@ class SubmissionConfig(
         eventsPublisherService,
         fileService
     )
+
+    @Bean
+    fun submissionStatsService(
+        statsFileHandler: StatsFileHandler,
+        tempFileGenerator: TempFileGenerator,
+        submissionStatsService: StatsDataService
+    ): SubmissionStatsService = SubmissionStatsService(statsFileHandler, tempFileGenerator, submissionStatsService)
 
     @Bean
     fun extSubmissionQueryService(
