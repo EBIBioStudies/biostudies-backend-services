@@ -100,7 +100,6 @@ class SubmissionConfig(
         userFilesService: UserFilesService,
         extSubmissionQueryService: ExtSubmissionQueryService,
         toSubmissionMapper: ToSubmissionMapper,
-        onBehalfUtils: OnBehalfUtils,
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
@@ -109,13 +108,13 @@ class SubmissionConfig(
             serializationService,
             userFilesService,
             toSubmissionMapper,
-            onBehalfUtils
         )
 
     @Bean
     fun submitRequestBuilder(
         tempFileGenerator: TempFileGenerator,
-    ): SubmitRequestBuilder = SubmitRequestBuilder(tempFileGenerator)
+        onBehalfUtils: OnBehalfUtils,
+    ): SubmitRequestBuilder = SubmitRequestBuilder(tempFileGenerator, onBehalfUtils)
 
     @Bean
     fun submissionHandler(

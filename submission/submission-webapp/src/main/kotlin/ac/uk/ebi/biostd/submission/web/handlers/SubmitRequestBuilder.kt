@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.web.handlers
 
 import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile
 
 class SubmitRequestBuilder(
     private val tempFileGenerator: TempFileGenerator,
+    private val onBehalfUtils: OnBehalfUtils,
 ) {
     fun buildContentRequest(
         submission: String,
@@ -20,12 +22,10 @@ class SubmitRequestBuilder(
         request: SubmitBuilderRequest,
     ): ContentSubmitWebRequest {
         val submitConfig = submitConfig(request)
-
         return ContentSubmitWebRequest(
             submission = submission,
             format = format,
             draftKey = request.draftKey,
-            onBehalfRequest = request.onBehalfRequest,
             submissionConfig = submitConfig.first,
             filesConfig = submitConfig.second
         )
@@ -37,20 +37,21 @@ class SubmitRequestBuilder(
     ): FileSubmitWebRequest {
         val subFile = tempFileGenerator.asFile(submission)
         val submitConfig = submitConfig(request)
-        return FileSubmitWebRequest(
-            submission = subFile,
-            onBehalfRequest = request.onBehalfRequest,
-            submissionConfig = submitConfig.first,
-            filesConfig = submitConfig.second
-        )
+        return FileSubmitWebRequest(subFile, submitConfig.first, submitConfig.second)
     }
 
     private fun submitConfig(request: SubmitBuilderRequest): Pair<SubmissionConfig, SubmissionFilesConfig> {
-        val tempFiles = request.files?.let { tempFileGenerator.asFiles(it) }
-        val (preferredSource, attributes) = request.submissionRequestParameters
-
-        val submissionConfig = SubmissionConfig(request.user, attributes)
-        val filesConfig = SubmissionFilesConfig(tempFiles, preferredSource)
+        val (preferredSource, attributes, storageMode) = request.submissionRequestParameters
+        val submissionConfig = SubmissionConfig(
+            submitter = request.user,
+            onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
+            attrs = attributes,
+            storageMode = storageMode
+        )
+        val filesConfig = SubmissionFilesConfig(
+            files = request.files?.let { tempFileGenerator.asFiles(it) },
+            preferredSources = preferredSource
+        )
         return submissionConfig to filesConfig
     }
 }

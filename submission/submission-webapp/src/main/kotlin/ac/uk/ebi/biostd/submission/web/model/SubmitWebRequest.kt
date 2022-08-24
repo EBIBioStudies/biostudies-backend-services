@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.api.security.GetOrRegisterUserRequest
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.ExtAttributeDetail
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -21,11 +22,14 @@ class OnBehalfRequest(
 data class SubmissionRequestParameters(
     val preferredSources: List<PreferredSource> = emptyList(),
     val attributes: List<ExtAttributeDetail> = emptyList(),
+    val storageMode: StorageMode?,
 )
 
 data class SubmissionConfig(
     val submitter: SecurityUser,
+    val onBehalfUser: SecurityUser?,
     val attrs: List<ExtAttributeDetail>,
+    val storageMode: StorageMode?,
 )
 
 data class SubmissionFilesConfig(
@@ -35,7 +39,6 @@ data class SubmissionFilesConfig(
 
 sealed class SubmitWebRequest(
     val config: SubmissionConfig,
-    val onBehalfRequest: OnBehalfRequest?,
     val filesConfig: SubmissionFilesConfig,
 )
 
@@ -56,13 +59,11 @@ class ContentSubmitWebRequest(
     val draftKey: String? = null,
     val format: SubFormat,
     submissionConfig: SubmissionConfig,
-    onBehalfRequest: OnBehalfRequest?,
     filesConfig: SubmissionFilesConfig,
-) : SubmitWebRequest(submissionConfig, onBehalfRequest, filesConfig)
+) : SubmitWebRequest(submissionConfig, filesConfig)
 
 class FileSubmitWebRequest(
     val submission: File,
     submissionConfig: SubmissionConfig,
-    onBehalfRequest: OnBehalfRequest?,
     filesConfig: SubmissionFilesConfig,
-) : SubmitWebRequest(submissionConfig, onBehalfRequest, filesConfig)
+) : SubmitWebRequest(submissionConfig, filesConfig)
