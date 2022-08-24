@@ -9,21 +9,21 @@ class SubmissionReleaserProperties : JavaAppProperties {
     override fun asCmd(location: String, javaHome: String, debugPort: Int?): String =
         buildString {
             append(javaCmd(javaHome, debugPort))
-            append("-jar $location/$APP_NAME \\\n")
-            append("--spring.data.mongodb.uri=$mongodbUri \\\n")
-            append("--spring.data.mongodb.database=$mongodbDatabase \\\n")
-            append("--spring.rabbitmq.host=$rabbitMqHost \\\n")
-            append("--spring.rabbitmq.username=$rabbitMqUser \\\n")
-            append("--spring.rabbitmq.password=$rabbitMqPassword \\\n")
-            append("--spring.rabbitmq.port=$rabbitMqPort \\\n")
-            append("--app.mode=$mode \\\n")
-            append("--app.bioStudies.url=$bioStudiesUrl \\\n")
-            append("--app.bioStudies.user=$bioStudiesUser \\\n")
-            append("--app.bioStudies.password=$bioStudiesPassword \\\n")
-            append("--app.notification-times.first-warning-days=$firstWarningDays \\\n")
-            append("--app.notification-times.second-warning-days=$secondWarningDays \\\n")
-            append("--app.notification-times.third-warning-days=$thirdWarningDays \\\n")
-        }.removeSuffix(" \\\n")
+            appendLine("-jar $location/$APP_NAME \\")
+            appendLine("--spring.data.mongodb.uri=$mongodbUri \\")
+            appendLine("--spring.data.mongodb.database=$mongodbDatabase \\")
+            appendLine("--spring.rabbitmq.host=$rabbitMqHost \\")
+            appendLine("--spring.rabbitmq.username=$rabbitMqUser \\")
+            appendLine("--spring.rabbitmq.password=$rabbitMqPassword \\")
+            appendLine("--spring.rabbitmq.port=$rabbitMqPort \\")
+            appendLine("--app.mode=$mode \\")
+            appendLine("--app.bioStudies.url=$bioStudiesUrl \\")
+            appendLine("--app.bioStudies.user=$bioStudiesUser \\")
+            appendLine("--app.bioStudies.password=$bioStudiesPassword \\")
+            appendLine("--app.notification-times.first-warning-days=$firstWarningDays \\")
+            appendLine("--app.notification-times.second-warning-days=$secondWarningDays \\")
+            append("--app.notification-times.third-warning-days=$thirdWarningDays")
+        }
 
     lateinit var mode: ReleaserMode
 

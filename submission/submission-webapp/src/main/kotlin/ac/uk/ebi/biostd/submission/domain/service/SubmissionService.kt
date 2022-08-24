@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
+import ac.uk.ebi.biostd.common.config.LISTENER_FACTORY_NAME
 import ac.uk.ebi.biostd.common.config.SUBMISSION_REQUEST_QUEUE
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
@@ -42,7 +43,7 @@ class SubmissionService(
         eventsPublisherService.submissionRequested(accNo, version)
     }
 
-    @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], concurrency = "1-2")
+    @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], containerFactory = LISTENER_FACTORY_NAME)
     fun processSubmission(request: SubmissionRequestMessage) {
         val (accNo, version) = request
         logger.info { "$accNo, Received process message for submission $accNo, version: $version" }
