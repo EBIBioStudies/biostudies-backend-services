@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.web.handlers
 
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.exceptions.ConcurrentSubException
@@ -31,7 +30,6 @@ class SubmitWebHandler(
     private val serializationService: SerializationService,
     private val userFilesService: UserFilesService,
     private val toSubmissionMapper: ToSubmissionMapper,
-    private val onBehalfUtils: OnBehalfUtils,
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission {
         val rqt = buildRequest(request)
@@ -58,9 +56,8 @@ class SubmitWebHandler(
     }
 
     private fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {
-        val (submitter, attrs) = rqt.config
+        val (submitter, onBehalfUser, attrs, storageMode) = rqt.config
         val (files, preferredSources) = rqt.filesConfig
-        val onBehalfUser = rqt.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) }
 
         /**
          * Deserialize the submission without considering files and retrieve accNo and rootPath.
@@ -87,7 +84,7 @@ class SubmitWebHandler(
         fun sourceRequest(rootPath: String?, previous: ExtSubmission?): FileSourcesRequest = FileSourcesRequest(
             submitter = submitter,
             files = files,
-            onBehalfUser = rqt.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
+            onBehalfUser = onBehalfUser,
             rootPath = rootPath,
             submission = previous,
             preferredSources = preferredSources
@@ -101,17 +98,26 @@ class SubmitWebHandler(
          * 3. Submission is deserialized including file sources to check both pagetab structure and file presence.
          * 4. Overridden attributes are set.
          */
-        fun processSubmission(): Pair<Submission, FileSourcesList> {
+        fun processSubmission(): SubmitRequest {
             val (accNo, rootPath) = deserializeSubmission()
             require(extSubService.hasPendingRequest(accNo).not()) { throw ConcurrentSubException(accNo) }
 
             val previous = extSubService.findExtendedSubmission(accNo)
-            val source = fileSourcesService.submissionSources(sourceRequest(rootPath, previous))
-            val submission = deserializeSubmission(source)
-            return submission.withAttributes(attrs) to source
+            val sources = fileSourcesService.submissionSources(sourceRequest(rootPath, previous))
+            val submission = deserializeSubmission(sources)
+
+            return SubmitRequest(
+                submission = submission.withAttributes(attrs),
+                submitter = submitter,
+                sources = sources,
+                method = rqt.method,
+                onBehalfUser = onBehalfUser,
+                draftKey = rqt.draftKey,
+                previousVersion = previous,
+                storageMode = storageMode,
+            )
         }
 
-        val (sub, sources) = processSubmission()
-        return SubmitRequest(sub, submitter, sources, rqt.method, onBehalfUser, rqt.draftKey)
+        return processSubmission()
     }
 }
