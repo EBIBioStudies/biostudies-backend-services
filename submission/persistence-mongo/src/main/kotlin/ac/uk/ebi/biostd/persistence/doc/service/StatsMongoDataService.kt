@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.exception.StatNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.StatsNotFoundException
+import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
@@ -36,8 +37,9 @@ class StatsMongoDataService(
             ?: throw StatNotFoundException(accNo, submissionStatType)
 
     override fun save(stat: SubmissionStat): SubmissionStat {
-        updateOrRegister(stat)
-        return stat
+        require(submissionsRepository.existsByAccNo(stat.accNo)) { throw SubmissionNotFoundException(stat.accNo) }
+
+        return updateOrRegister(stat)
     }
 
     override fun saveAll(stats: List<SubmissionStat>): List<SubmissionStat> =
@@ -58,15 +60,19 @@ class StatsMongoDataService(
 
     private fun updateOrRegister(update: SubmissionStat): SubmissionStat {
         statsDataRepository.updateOrRegisterStat(update)
-        return update
+
+        val updated = statsDataRepository.getByAccNo(update.accNo)
+
+        return toSubmissionStat(update.type, updated)
     }
 
     private fun increment(accNo: String, increments: List<SubmissionStat>): SubmissionStat {
-        val type = increments.first().type
-        val current = statsDataRepository.findByAccNo(accNo)?.stats?.get(type.name) ?: 0L
-        val increment = statsDataRepository.incrementStat(accNo, increments)
+        statsDataRepository.incrementStat(accNo, increments)
 
-        return SingleSubmissionStat(accNo, current + increment, type)
+        val type = increments.first().type
+        val incremented = statsDataRepository.getByAccNo(accNo)
+
+        return toSubmissionStat(type, incremented)
     }
 
     private fun toSubmissionStat(

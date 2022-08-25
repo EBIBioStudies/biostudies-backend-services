@@ -18,28 +18,23 @@ class SubmissionStatsDataRepository(
     private val statsRepository: SubmissionStatsRepository,
 ) : SubmissionStatsRepository by statsRepository {
     fun updateOrRegisterStat(stat: SubmissionStat) {
-        val query = findStatsQuery(stat.accNo)
+        val query = Query(where(DocSubmissionFields.SUB_ACC_NO).`is`(stat.accNo))
         mongoTemplate.upsert(query, update("$SUB_STATS.${stat.type}", stat.value), DocSubmissionStats::class.java)
     }
 
-    fun incrementStat(accNo: String, stats: List<SubmissionStat>): Long {
-        var increment = 0L
+    fun incrementStat(accNo: String, stats: List<SubmissionStat>) {
         val bulk = mongoTemplate.bulkOps(UNORDERED, DocSubmissionStats::class.java)
 
         stats.forEach {
             bulk.incrementStat(accNo, it)
-            increment += it.value
         }
 
         bulk.execute()
-        return increment
     }
-
-    private fun findStatsQuery(accNo: String) = Query(where(DocSubmissionFields.SUB_ACC_NO).`is`(accNo))
 
     private fun BulkOperations.incrementStat(accNo: String, stat: SubmissionStat) =
         upsert(
-            findStatsQuery(accNo),
+            Query(where(DocSubmissionFields.SUB_ACC_NO).`is`(accNo)),
             Update().inc("$SUB_STATS.${stat.type}", stat.value)
         )
 }

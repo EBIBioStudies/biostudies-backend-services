@@ -77,6 +77,8 @@ interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId>
 }
 
 interface SubmissionStatsRepository : MongoRepository<DocSubmissionStats, ObjectId> {
+    fun getByAccNo(accNo: String): DocSubmissionStats
+
     fun findByAccNo(accNo: String): DocSubmissionStats?
 
     @Query("{ 'accNo': '?0', 'stats.?1': { \$exists: true } }")
