@@ -52,8 +52,10 @@ server:
 
 logging:
   file:
-    max-history: 7
     name: logs/application_logs.txt
+  logback:
+    rollingpolicy:
+      max-history: 7
 
 app:
   submissionPath: # Absolute path to the folder to be used as submission storage

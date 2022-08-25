@@ -1,11 +1,8 @@
 package ac.uk.ebi.biostd.persistence.service
 
-import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
-import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
+import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode.MOVE
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -22,10 +19,9 @@ class FileSystemServiceTest(
     @MockK private val processedSubmission: ExtSubmission,
     @MockK private val submission: ExtSubmission,
     @MockK private val finalSub: ExtSubmission,
-    @MockK private val filesService: FilesService,
-    @MockK private val pageTabService: PageTabService,
+    @MockK private val fileStorageService: FileStorageService,
 ) {
-    private val testInstance = FileSystemService(filesService, pageTabService)
+    private val testInstance = FileSystemService(fileStorageService)
 
     @BeforeEach
     fun beforeEach() {
@@ -38,13 +34,11 @@ class FileSystemServiceTest(
 
     @Test
     fun `persist submission`() {
-        val request = FilePersistenceRequest(submission, MOVE)
-
-        assertThat(testInstance.persistSubmissionFiles(request)).isEqualTo(finalSub)
+        assertThat(testInstance.persistSubmissionFiles(submission)).isEqualTo(finalSub)
 
         verify(exactly = 1) {
-            filesService.persistSubmissionFiles(request)
-            pageTabService.generatePageTab(processedSubmission)
+            fileStorageService.persistSubmissionFiles(submission)
+            fileStorageService.generatePageTab(processedSubmission)
         }
     }
 
@@ -54,14 +48,7 @@ class FileSystemServiceTest(
     }
 
     private fun setUpServices() {
-        every {
-            filesService.persistSubmissionFiles(
-                FilePersistenceRequest(
-                    submission,
-                    MOVE
-                )
-            )
-        } returns processedSubmission
-        every { pageTabService.generatePageTab(processedSubmission) } answers { finalSub }
+        every { fileStorageService.persistSubmissionFiles(submission) } returns processedSubmission
+        every { fileStorageService.generatePageTab(processedSubmission) } answers { finalSub }
     }
 }

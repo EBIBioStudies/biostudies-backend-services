@@ -39,7 +39,7 @@ internal class NfsFtpServiceTest(
         temporaryFolder.root.toPath().resolve("submission"),
         temporaryFolder.root.toPath().resolve("ftp")
     )
-    private val testInstance = NfsFtpService(folderResolver, queryService)
+    private val testInstance = NfsFtpService(folderResolver)
 
     @BeforeEach
     fun beforeEach() {
@@ -50,9 +50,7 @@ internal class NfsFtpServiceTest(
 
     @Test
     fun `create ftp folder`() {
-        every { queryService.getExtByAccNo("S-BSST0", true) } returns extSubmission
-
-        testInstance.generateFtpLinks("S-BSST0")
+        testInstance.generateFtpLinks(extSubmission)
 
         assertFolder(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile())
     }

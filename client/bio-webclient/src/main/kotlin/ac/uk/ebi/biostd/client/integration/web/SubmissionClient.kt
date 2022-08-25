@@ -18,8 +18,6 @@ import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.Group
@@ -42,7 +40,6 @@ typealias SubmissionResponse = ClientResponse<Submission>
 
 data class SubmissionFilesConfig(
     val files: List<File>,
-    val fileMode: FileMode = COPY,
     val preferredSources: List<PreferredSource> = emptyList(),
 )
 
@@ -166,8 +163,8 @@ interface ExtSubmissionOperations {
     fun getExtSubmissionsPage(pageUrl: String): ExtPage
     fun getExtByAccNo(accNo: String, includeFileList: Boolean = false): ExtSubmission
     fun getReferencedFiles(filesUrl: String): ExtFileTable
-    fun submitExtAsync(extSubmission: ExtSubmission, fileMode: FileMode = COPY)
-    fun submitExt(extSubmission: ExtSubmission, fileMode: FileMode = COPY): ExtSubmission
+    fun submitExtAsync(extSubmission: ExtSubmission)
+    fun submitExt(extSubmission: ExtSubmission): ExtSubmission
     fun refreshSubmission(accNo: String): ExtSubmission
 }
 

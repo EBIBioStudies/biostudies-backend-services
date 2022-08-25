@@ -5,10 +5,9 @@ import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
-import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
+import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.extended.model.isCollection
@@ -29,13 +28,13 @@ class ExtSubmissionService(
     private val securityService: ISecurityQueryService,
     private val properties: ApplicationProperties,
     private val eventsPublisherService: EventsPublisherService,
-    private val fileService: FilesService,
+    private val fileStorageService: FileStorageService,
 ) {
     fun refreshSubmission(accNo: String, user: String): ExtSubmission {
         val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        fileService.cleanSubmissionFiles(sub)
+        fileStorageService.cleanSubmissionFiles(sub)
 
-        val response = submitExt(user, sub, FileMode.COPY)
+        val response = submitExt(user, sub)
         eventsPublisherService.submissionsRefresh(sub.accNo, sub.owner)
         return response
     }
@@ -47,22 +46,20 @@ class ExtSubmissionService(
     fun submitExt(
         user: String,
         sub: ExtSubmission,
-        fileMode: FileMode = FileMode.COPY,
     ): ExtSubmission {
         logger.info { "${sub.accNo} $user Received submit request for ext submission ${sub.accNo}" }
         val submission = processSubmission(user, sub)
-        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, fileMode))
+        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission))
         return submissionSubmitter.processRequest(accNo, version)
     }
 
     fun submitExtAsync(
         user: String,
         sub: ExtSubmission,
-        fileMode: FileMode,
     ) {
         logger.info { "${sub.accNo} $user Received async submit request for ext submission ${sub.accNo}" }
         val submission = processSubmission(user, sub)
-        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, fileMode))
+        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission))
         eventsPublisherService.submissionRequest(accNo, version)
     }
 

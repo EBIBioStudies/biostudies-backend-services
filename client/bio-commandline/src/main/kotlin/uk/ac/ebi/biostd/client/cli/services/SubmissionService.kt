@@ -48,8 +48,8 @@ internal class SubmissionService {
         val submission = if (rqt.targetOwner != null) source.copy(owner = rqt.targetOwner) else source
 
         when (rqt.async) {
-            true -> targetClient.submitExtAsync(submission, rqt.fileMode)
-            false -> targetClient.submitExt(submission, rqt.fileMode)
+            true -> targetClient.submitExtAsync(submission)
+            false -> targetClient.submitExt(submission)
         }
     }
 

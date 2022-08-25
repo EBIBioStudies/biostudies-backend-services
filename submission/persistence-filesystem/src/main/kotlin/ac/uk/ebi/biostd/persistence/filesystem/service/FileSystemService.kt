@@ -1,27 +1,23 @@
 package ac.uk.ebi.biostd.persistence.filesystem.service
 
-import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
-import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
+import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
 class FileSystemService(
-    private val filesService: FilesService,
-    private val pageTabService: PageTabService,
+    private val storageService: FileStorageService,
 ) {
-    fun persistSubmissionFiles(request: FilePersistenceRequest): ExtSubmission {
-        val (sub, mode) = request
-        logger.info { "${sub.accNo} ${sub.owner} Processing files of submission ${sub.accNo} in mode $mode" }
-        val processedSubmission = filesService.persistSubmissionFiles(request)
-        val finalSub = pageTabService.generatePageTab(processedSubmission)
-        logger.info { "${sub.accNo} ${sub.owner} Finished processing files of submission ${sub.accNo} in mode $mode" }
+    fun persistSubmissionFiles(sub: ExtSubmission): ExtSubmission {
+        logger.info { "${sub.accNo} ${sub.owner} Processing files of submission ${sub.accNo}" }
+        val processedSubmission = storageService.persistSubmissionFiles(sub)
+        val finalSub = storageService.generatePageTab(processedSubmission)
+        logger.info { "${sub.accNo} ${sub.owner} Finished processing files of submission ${sub.accNo}" }
         return finalSub
     }
 
     fun cleanFolder(previousSubmission: ExtSubmission) {
-        filesService.cleanSubmissionFiles(previousSubmission)
+        storageService.cleanSubmissionFiles(previousSubmission)
     }
 }

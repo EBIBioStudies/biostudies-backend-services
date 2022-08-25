@@ -7,7 +7,6 @@ import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
@@ -45,7 +44,6 @@ class SubmissionServiceMigrationTest(
         targetSecurityConfig = targetConfig,
         targetOwner = null,
         async = false,
-        fileMode = COPY,
     )
 
     @AfterEach

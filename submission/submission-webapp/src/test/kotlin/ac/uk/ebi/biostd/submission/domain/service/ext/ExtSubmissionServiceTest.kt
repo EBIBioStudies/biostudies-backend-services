@@ -5,12 +5,11 @@ import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
-import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
+import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.PROJECT_TYPE
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
@@ -39,7 +38,7 @@ class ExtSubmissionServiceTest(
     @MockK private val securityQueryService: ISecurityQueryService,
     @MockK private val properties: ApplicationProperties,
     @MockK private val eventsPublisher: EventsPublisherService,
-    @MockK private val filesService: FilesService,
+    @MockK private val fileStorageService: FileStorageService,
 ) {
     private val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
     private val testInstance =
@@ -50,7 +49,7 @@ class ExtSubmissionServiceTest(
             securityQueryService,
             properties,
             eventsPublisher,
-            filesService
+            fileStorageService
         )
 
     @AfterEach
@@ -77,7 +76,6 @@ class ExtSubmissionServiceTest(
         testInstance.submitExt("user@mail.com", extSubmission)
 
         val submissionRequest = submissionRequestSlot.captured
-        assertThat(submissionRequest.fileMode).isEqualTo(COPY)
         assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
         assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
         assertThat(submissionRequest.submission.modificationTime).isAfter(extSubmission.modificationTime)
@@ -98,10 +96,9 @@ class ExtSubmissionServiceTest(
         every { submissionSubmitter.submitAsync(capture(requestSlot)) } returns (extSubmission.accNo to 1)
         every { eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version) } answers { nothing }
 
-        testInstance.submitExtAsync("user@mail.com", extSubmission, fileMode = COPY)
+        testInstance.submitExtAsync("user@mail.com", extSubmission)
 
         val submissionRequest = requestSlot.captured
-        assertThat(submissionRequest.fileMode).isEqualTo(COPY)
         assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
         assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
         assertThat(submissionRequest.submission.modificationTime).isAfter(extSubmission.modificationTime)
@@ -121,7 +118,7 @@ class ExtSubmissionServiceTest(
         every { eventsPublisher.submissionsRefresh(extSubmission.accNo, extSubmission.owner) } answers { nothing }
         every { submissionSubmitter.processRequest(extSubmission.accNo, 1) } returns extSubmission
         every { submissionSubmitter.submitAsync(capture(submissionRequestSlot)) } returns (extSubmission.accNo to 1)
-        every { filesService.cleanSubmissionFiles(extSubmission) } answers { nothing }
+        every { fileStorageService.cleanSubmissionFiles(extSubmission) } answers { nothing }
 
         testInstance.refreshSubmission(extSubmission.accNo, "user@mail.com")
 
@@ -178,7 +175,6 @@ class ExtSubmissionServiceTest(
         testInstance.submitExt("user@mail.com", collection)
 
         val request = requestSlot.captured
-        assertThat(request.fileMode).isEqualTo(COPY)
         assertThat(request.submission.submitter).isEqualTo("user@mail.com")
         assertThat(request.submission.storageMode).isEqualTo(FIRE)
         assertThat(request.submission.modificationTime).isAfter(extSubmission.modificationTime)

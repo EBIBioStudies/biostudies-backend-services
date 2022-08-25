@@ -6,17 +6,17 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
+import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
-import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
+import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
@@ -55,14 +55,14 @@ class SubmissionConfig(
         extSubmissionSubmitter: ExtSubmissionSubmitter,
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
-        fileService: FilesService,
+        fileStorageService: FileStorageService,
     ): SubmissionService = SubmissionService(
         submissionPersistenceQueryService,
         userPrivilegeService,
         extSubmissionSubmitter,
         submissionSubmitter,
         eventsPublisherService,
-        fileService
+        fileStorageService
     )
 
     @Bean
@@ -85,7 +85,7 @@ class SubmissionConfig(
         securityQueryService: ISecurityQueryService,
         properties: ApplicationProperties,
         eventsPublisherService: EventsPublisherService,
-        fileService: FilesService,
+        fileStorageService: FileStorageService,
     ): ExtSubmissionService =
         ExtSubmissionService(
             submissionSubmitter,
@@ -94,7 +94,7 @@ class SubmissionConfig(
             securityQueryService,
             properties,
             eventsPublisherService,
-            fileService
+            fileStorageService
         )
 
     @Bean

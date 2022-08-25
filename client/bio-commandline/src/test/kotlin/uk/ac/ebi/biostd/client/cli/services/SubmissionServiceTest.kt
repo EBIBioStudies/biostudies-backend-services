@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.create
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.PrintMessage
-import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.Submission
 import io.mockk.clearAllMocks
@@ -154,7 +153,7 @@ internal class SubmissionServiceTest {
         private val submission: Submission = mockk()
         private val bioWebClient: BioWebClient = mockk()
         private val securityConfig = SecurityConfig(SERVER, USER, PASSWORD, ON_BEHALF)
-        private val filesConfig = SubmissionFilesConfig(listOf(mockk()), COPY, listOf(SUBMISSION))
+        private val filesConfig = SubmissionFilesConfig(listOf(mockk()), listOf(SUBMISSION))
 
         private val submissionRequest = SubmissionRequest(mockk(), securityConfig, filesConfig)
         private val deletionRequest = DeletionRequest(securityConfig, accNoList = listOf(ACC_NO))

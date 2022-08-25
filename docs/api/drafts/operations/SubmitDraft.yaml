@@ -33,14 +33,6 @@ post:
         schema:
           type: object
           properties:
-            fileMode:
-              description: |
-                Indicates whether the files in the submission should be copied or moved from the user folder.
-                The files will be copied by default. Accepted values:
-                * COPY
-                * MOVE
-              required: false
-              type: string
             attributes:
               description:
                 List of attributes that allow overriding any value at the submission level in the submitted page tab. The

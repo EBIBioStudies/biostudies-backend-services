@@ -33,7 +33,7 @@ class FireFtpServiceTest(
     private val fileFileList = fireFile(FILE_FILE_LIST)
     private val innerFileListFile = fireFile(INNER_FILE_FILE_LIST)
     private val extSub = createExtSubmission(fileFileList, innerFileListFile)
-    private val testInstance = FireFtpService(fireClient, ExtSerializationService(), queryService)
+    private val testInstance = FireFtpService(fireClient, ExtSerializationService())
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -61,9 +61,7 @@ class FireFtpServiceTest(
     fun `create ftp folder`() {
         val submission = extSub.copy(released = true)
 
-        every { queryService.getExtByAccNo(submission.accNo, true) } returns submission
-
-        testInstance.generateFtpLinks(submission.accNo)
+        testInstance.generateFtpLinks(submission)
 
         verifyFtpPublish()
     }

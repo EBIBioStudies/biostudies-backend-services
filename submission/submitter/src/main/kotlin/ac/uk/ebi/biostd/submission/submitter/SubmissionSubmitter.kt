@@ -57,14 +57,14 @@ class SubmissionSubmitter(
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         val submission = process(rqt)
-        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, rqt.mode, rqt.draftKey))
+        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, rqt.draftKey))
         submissionSubmitter.processRequest(accNo, version)
         return submission
     }
 
     fun submitAsync(rqt: SubmitRequest): ExtSubmission {
         val submission = process(rqt)
-        submissionSubmitter.submitAsync(SubmissionRequest(submission, rqt.mode, rqt.draftKey))
+        submissionSubmitter.submitAsync(SubmissionRequest(submission, rqt.draftKey))
         return submission
     }
 
@@ -72,7 +72,7 @@ class SubmissionSubmitter(
     private fun process(rqt: SubmitRequest): ExtSubmission {
         try {
             logger.info { "${rqt.accNo} ${rqt.owner} Processing submission request accNo='${rqt.accNo}'" }
-            val (sub, submitter, sources, method, _, onBehalfUser, _) = rqt
+            val (sub, submitter, sources, method, onBehalfUser, _) = rqt
             val submission = process(sub, submitter.asUser(), onBehalfUser?.asUser(), sources, method)
             parentInfoService.executeCollectionValidators(submission)
             return submission

@@ -23,7 +23,7 @@ class SubmissionRequestLoader(
         val original = submissionPersistenceQueryService.getPendingRequest(accNo, version)
         val processed = processRequest(original.submission)
         logger.info { "Finished loading request accNo='$accNo', version='$version'" }
-        return ProcessedSubmissionRequest(processed, original.fileMode, original.draftKey, original.previousVersion)
+        return ProcessedSubmissionRequest(processed, original.draftKey, original.previousVersion)
     }
 
     private fun processRequest(sub: ExtSubmission): ExtSubmission =

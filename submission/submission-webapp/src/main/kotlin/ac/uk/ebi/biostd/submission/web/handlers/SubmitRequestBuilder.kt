@@ -47,9 +47,9 @@ class SubmitRequestBuilder(
     private fun submitConfig(request: SubmitBuilderRequest): Pair<SubmissionConfig, SubmissionFilesConfig> {
         val (user, _, format, files, _) = request
         val tempFiles = tempFileGenerator.asFiles(files)
-        val (fileMode, preferredSource, attributes) = request.submissionRequestParameters
+        val (preferredSource, attributes) = request.submissionRequestParameters
         val submissionConfig = SubmissionConfig(format, user, attributes)
-        val filesConfig = SubmissionFilesConfig(fileMode, tempFiles, preferredSource)
+        val filesConfig = SubmissionFilesConfig(tempFiles, preferredSource)
 
         return submissionConfig to filesConfig
     }

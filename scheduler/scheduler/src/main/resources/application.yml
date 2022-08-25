@@ -9,9 +9,8 @@ app:
     exporter: # Indicates whether or not the Exporter should be daily triggered
 
   ssh:
-    user: # ssh user
-    password: # ssh user password
-    server:  ## ssh sever (to submit jobs from)
+    sshKey: # ssh key path.
+    sshServer:  ## ssh sever (to submit jobs from)
 
 pmc:
   import:
