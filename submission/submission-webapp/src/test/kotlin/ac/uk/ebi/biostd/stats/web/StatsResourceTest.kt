@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
+import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import ebi.ac.uk.dsl.json.jsonArray
@@ -28,15 +29,17 @@ import org.springframework.test.web.servlet.multipart
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.multipart.MultipartFile
 
+// TODO change this to an actual itest
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class StatsResourceTest(
     private val tempFolder: TemporaryFolder,
     @MockK private val statsFileHandler: StatsFileHandler,
     @MockK private val tempFileGenerator: TempFileGenerator,
     @MockK private val statsService: StatsDataService,
+    @MockK private val submissionStatsService: SubmissionStatsService
 ) {
     private val testStat = SingleSubmissionStat("S-TEST123", 10, VIEWS)
-    private val testInstance = StatsResource(statsFileHandler, tempFileGenerator, statsService)
+    private val testInstance = StatsResource(submissionStatsService)
     private val mvc = MockMvcBuilders.standaloneSetup(testInstance).build()
 
     @AfterEach

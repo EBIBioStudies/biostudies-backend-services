@@ -8,6 +8,8 @@ import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import org.springframework.web.multipart.MultipartFile
 
+// TODO add tests
+
 class SubmissionStatsService(
     private val statsFileHandler: StatsFileHandler,
     private val tempFileGenerator: TempFileGenerator,
