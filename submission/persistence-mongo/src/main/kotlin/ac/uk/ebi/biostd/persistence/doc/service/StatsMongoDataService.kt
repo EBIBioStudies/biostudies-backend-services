@@ -21,7 +21,7 @@ class StatsMongoDataService(
         statsDataRepository
             .findByAccNo(accNo)
             ?.stats
-            ?.map { SingleSubmissionStat(accNo, it.value, SubmissionStatType.valueOf(it.key)) }
+            ?.map { SingleSubmissionStat(accNo, it.value, SubmissionStatType.fromString(it.key)) }
             ?: throw StatsNotFoundException(accNo)
 
     override fun findByType(submissionStatType: SubmissionStatType, filter: PaginationFilter): List<SubmissionStat> =

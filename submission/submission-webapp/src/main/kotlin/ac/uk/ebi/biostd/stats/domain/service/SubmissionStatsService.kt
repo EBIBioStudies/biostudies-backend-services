@@ -20,12 +20,12 @@ class SubmissionStatsService(
     fun findByType(
         type: String,
         filter: PaginationFilter,
-    ): List<SubmissionStat> = submissionStatsService.findByType(SubmissionStatType.valueOf(type.uppercase()), filter)
+    ): List<SubmissionStat> = submissionStatsService.findByType(SubmissionStatType.fromString(type.uppercase()), filter)
 
     fun findByAccNoAndType(
         accNo: String,
         type: String,
-    ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, SubmissionStatType.valueOf(type.uppercase()))
+    ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, SubmissionStatType.fromString(type.uppercase()))
 
     fun register(
         stat: SubmissionStat
@@ -33,14 +33,14 @@ class SubmissionStatsService(
 
     fun register(type: String, stats: MultipartFile): List<SubmissionStat> {
         val statsFile = tempFileGenerator.asFile(stats)
-        val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type.uppercase()))
+        val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.fromString(type.uppercase()))
 
         return submissionStatsService.saveAll(statsList)
     }
 
     fun increment(type: String, stats: MultipartFile): List<SubmissionStat> {
         val statsFile = tempFileGenerator.asFile(stats)
-        val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.valueOf(type.uppercase()))
+        val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.fromString(type.uppercase()))
 
         return submissionStatsService.incrementAll(statsList)
     }
