@@ -47,7 +47,6 @@ class StatsMongoDataService(
             .mapValues { it.value.last() }
             .map { updateOrRegister(it.value) }
 
-
     override fun incrementAll(stats: List<SubmissionStat>): List<SubmissionStat> =
         stats.filterValid()
             .mapValues { increment(it.key, it.value) }

@@ -8,8 +8,6 @@ import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import org.springframework.web.multipart.MultipartFile
 
-// TODO add tests
-
 class SubmissionStatsService(
     private val statsFileHandler: StatsFileHandler,
     private val tempFileGenerator: TempFileGenerator,
@@ -27,7 +25,8 @@ class SubmissionStatsService(
     fun findByAccNoAndType(
         accNo: String,
         type: String,
-    ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, SubmissionStatType.fromString(type.uppercase()))
+    ): SubmissionStat =
+        submissionStatsService.findByAccNoAndType(accNo, SubmissionStatType.fromString(type.uppercase()))
 
     fun register(
         stat: SubmissionStat

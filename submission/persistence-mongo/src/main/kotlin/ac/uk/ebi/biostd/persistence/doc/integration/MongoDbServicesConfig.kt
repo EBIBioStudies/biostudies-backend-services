@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionStatsRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtFileListMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
@@ -22,7 +21,6 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.data.mongodb.core.MongoTemplate
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.serialization.common.FilesResolver

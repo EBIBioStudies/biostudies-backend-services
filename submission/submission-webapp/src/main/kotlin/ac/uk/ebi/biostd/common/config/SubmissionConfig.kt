@@ -33,7 +33,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 import java.net.URI
 
 @Configuration
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @Import(value = [PersistenceConfig::class, SecurityBeansConfig::class])
 class SubmissionConfig(
     private val fileSourcesService: FileSourcesService,
