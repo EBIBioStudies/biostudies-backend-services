@@ -1,6 +1,6 @@
 get:
-  summary: Get Submission Stats By Type
-  description: Get the stats with the given type for the submission with the given accession number.
+  summary: Get Submission Stats By AccNo
+  description: Get the stats for the submission with the given accession number.
 
   tags:
     - Submission Stats
@@ -12,11 +12,6 @@ get:
       required: true
       type: string
 
-    - in: path
-      name: type
-      description: "Stats type. Accepted values: FILES_SIZE, VIEWS"
-      required: true
-      type: string
     - in: path
       name: accNo
       description: Submission accession number

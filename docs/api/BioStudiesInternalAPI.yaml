@@ -58,6 +58,8 @@ paths:
   /submissions/ftp/generate:
     $ref: 'ftp/GenerateFtpLinks.yaml'
 
+  /stats:
+    $ref: 'stats/operations/StatsOperations.yaml'
   /stats/{type}:
     $ref: 'stats/operations/StatsOperationsByKey.yaml'
   /stats/{type}/{accNo}:

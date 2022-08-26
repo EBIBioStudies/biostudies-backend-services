@@ -58,7 +58,7 @@ post:
 
     - in: path
       name: type
-      description: "Stats type. Accepted values: VIEWS"
+      description: "Stats type. Accepted values: , FILES_SIZE, VIEWS"
       required: true
       type: string
 

@@ -1,0 +1,34 @@
+post:
+  summary: Register Submission Stat
+  description: |
+    Register the given stat. Please have in mind that any entry for an already existing stat will be overriden
+
+  tags:
+    - Submission Stats
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+
+  requestBody:
+    content:
+      application/x-www-form-urlencoded:
+        schema:
+          type: object
+          properties:
+            submission:
+              description: Stat to be registered
+              required: true
+              type: string
+
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          $ref: '../model/Stat.yaml'
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN
