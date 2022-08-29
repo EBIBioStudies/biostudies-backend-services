@@ -13,6 +13,7 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.ATTACHED_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.INPUT_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.PREFERRED_SOURCES
+import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.STORAGE_MODE
 import uk.ac.ebi.biostd.client.cli.common.splitFiles
 import uk.ac.ebi.biostd.client.cli.common.splitPreferredSources
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
@@ -29,7 +30,7 @@ internal class SubmitAsyncCommand(
     private val input by option("-i", "--input", help = INPUT_HELP).file(exists = true).required()
     private val attached by option("-a", "--attached", help = ATTACHED_HELP)
     private val preferredSources by option("-ps", "--preferredSources", help = PREFERRED_SOURCES)
-    private val storageMode by option("-sm", "--storageMode", help = PREFERRED_SOURCES)
+    private val storageMode by option("-sm", "--storageMode", help = STORAGE_MODE)
 
     override fun run() {
         val mode = storageMode?.let { StorageMode.fromString(it) }
