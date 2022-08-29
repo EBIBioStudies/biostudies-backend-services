@@ -17,6 +17,7 @@ internal object SubmissionParameters {
         Comma separated list of file sources. Valid values are FIRE, SUBMISSION and USER_SPACE.
         The order of the list indicates the priority in which the sources will be used
         """
+    const val STORAGE_MODE = "Submission storage mode, determinate where submission need to be saved FIRE/NFS"
     const val FILE_LIST_PATH = "Path to the file list to be validated. The path is relative to the user folder"
 }
 

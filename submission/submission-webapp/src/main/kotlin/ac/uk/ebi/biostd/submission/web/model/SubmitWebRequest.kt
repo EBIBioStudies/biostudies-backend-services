@@ -32,6 +32,9 @@ data class SubmissionConfig(
     val storageMode: StorageMode?,
 )
 
+/**
+ * TODO: merge with ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig as it is duplicated.
+ */
 data class SubmissionFilesConfig(
     val files: List<File>?,
     val preferredSources: List<PreferredSource>,

@@ -15,6 +15,7 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.db.MYSQL_SCHEMA
 import ebi.ac.uk.db.MYSQL_VERSION
+import ebi.ac.uk.extended.model.StorageMode
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestPlan
 import org.testcontainers.containers.MongoDBContainer
@@ -94,6 +95,7 @@ class ITestListener : TestExecutionListener {
         private val mysqlContainer = createMysqlContainer()
 
         val enableFire get() = System.getProperty("enableFire").toBoolean()
+        val storageMode get() = if (enableFire) StorageMode.FIRE else StorageMode.NFS
         val submissionPath get() = if (enableFire) fireSubmissionPath else nfsSubmissionPath
 
         private fun createMongoContainer(): MongoDBContainer =

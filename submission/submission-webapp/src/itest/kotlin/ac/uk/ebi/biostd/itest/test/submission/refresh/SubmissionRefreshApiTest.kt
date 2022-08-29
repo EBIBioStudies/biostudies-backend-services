@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.createFileList
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -127,7 +128,7 @@ class SubmissionRefreshApiTest(
     @BeforeEach
     fun beforeEach() {
         val filesConfig = SubmissionFilesConfig(listOf(refreshFile, fileList, fileListFile))
-        webClient.submitSingle(testSubmission, TSV, filesConfig)
+        webClient.submitSingle(testSubmission, TSV, storageMode, filesConfig)
     }
 
     @Test

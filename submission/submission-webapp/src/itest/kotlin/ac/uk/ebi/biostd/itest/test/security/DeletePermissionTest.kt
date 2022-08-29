@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.itest.test.security.SubmitPermissionTest.ExistingUser
@@ -165,10 +166,10 @@ class DeletePermissionTest(
 
             line("Project")
         }.toString()
-        val collectionFile = tempFolder.createFile("a-collection.tsv", project)
+        val projectFile = tempFolder.createFile("a-collection.tsv", project)
 
         val filesConfig = SubmissionFilesConfig(emptyList())
-        assertThat(superUserWebClient.submitSingle(collectionFile, filesConfig)).isSuccessful()
+        assertThat(superUserWebClient.submitSingle(projectFile, storageMode, filesConfig)).isSuccessful()
     }
 
     private fun setUpTestUsers() {
