@@ -5,9 +5,9 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.itest.ITestListener
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.fireSubmissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.nfsSubmissionPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.model.DbSequence
@@ -68,7 +68,7 @@ class SubmissionStorageModeTest(
             line()
         }.toString()
 
-        webClient.uploadFiles(listOf(ITestListener.tempFolder.createFile("one_file.txt", "content")))
+        webClient.uploadFiles(listOf(tempFolder.createFile("one_file.txt", "content")))
 
         assertThat(webClient.submitSingle(submission, TSV, FIRE)).isSuccessful()
         val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-1")
@@ -100,7 +100,7 @@ class SubmissionStorageModeTest(
             line()
         }.toString()
 
-        webClient.uploadFiles(listOf(ITestListener.tempFolder.createFile("one_file.txt", "content")))
+        webClient.uploadFiles(listOf(tempFolder.createFile("one_file.txt", "content")))
 
         assertThat(webClient.submitSingle(submission, TSV, NFS)).isSuccessful()
         val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-2")
