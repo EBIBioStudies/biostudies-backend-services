@@ -67,7 +67,7 @@ class ITestListener : TestExecutionListener {
 
     private fun appPropertiesSetup() {
         System.setProperty("app.submissionPath", nfsSubmissionPath.absolutePath)
-        System.setProperty("app.ftpPath", ftpPath.absolutePath)
+        System.setProperty("app.ftpPath", nfsFtpPath.absolutePath)
         System.setProperty("app.fireTempDirPath", fireTempFolder.absolutePath)
         System.setProperty("app.tempDirPath", tempDirPath.absolutePath)
         System.setProperty("app.requestFilesPath", requestFilesPath.absolutePath)
@@ -77,20 +77,22 @@ class ITestListener : TestExecutionListener {
     }
 
     companion object {
-        private val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()
-        private val nfsSubmissionPath = testAppFolder.createDirectory("submission")
-        private val fireSubmissionPath = testAppFolder.createDirectory("submission-fire")
-        private val firePath = testAppFolder.createDirectory("fire-db")
+        val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()
+        internal val nfsSubmissionPath = testAppFolder.createDirectory("submission")
+        internal val fireSubmissionPath = testAppFolder.createDirectory("submission-fire")
+        internal val firePath = testAppFolder.createDirectory("fire-db")
 
         internal val fireTempFolder = testAppFolder.createDirectory("fire-temp")
-        internal val ftpPath = testAppFolder.createDirectory("ftpPath")
+        internal val nfsFtpPath = testAppFolder.createDirectory("ftpPath")
+        internal val fireFtpPath = testAppFolder.createDirectory("fire-ftpPath")
+
         internal val tempDirPath = testAppFolder.createDirectory("tempDirPath")
         internal val tempFolder = testAppFolder.createDirectory("testTempDir")
         internal val requestFilesPath = testAppFolder.createDirectory("requestFilesPath")
         internal val magicDirPath = testAppFolder.createDirectory("magic")
         internal val dropboxPath = testAppFolder.createDirectory("dropbox")
 
-        internal val fireApiMock = createFireApiMock(ftpPath)
+        internal val fireApiMock = createFireApiMock(fireFtpPath)
         private val mongoContainer = createMongoContainer()
         private val mysqlContainer = createMysqlContainer()
 

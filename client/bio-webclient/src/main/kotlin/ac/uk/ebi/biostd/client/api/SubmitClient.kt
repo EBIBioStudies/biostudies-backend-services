@@ -73,7 +73,7 @@ internal class SubmitClient(
     }
 
     private fun buildUrl(config: RegisterConfig, storageMode: StorageMode?): String {
-        val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL)
+        val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL).optionalQueryParam(STORAGE_MODE, storageMode)
         return when (config) {
             NonRegistration -> builder.toUriString()
             is UserRegistration ->
@@ -81,7 +81,6 @@ internal class SubmitClient(
                     .queryParam(REGISTER_PARAM, true)
                     .queryParam(USER_NAME_PARAM, config.name)
                     .queryParam(ON_BEHALF_PARAM, config.email)
-                    .optionalQueryParam(STORAGE_MODE, storageMode)
                     .toUriString()
         }
     }
