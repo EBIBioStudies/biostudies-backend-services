@@ -162,5 +162,4 @@ class SubmissionStorageModeTest(
 
         return submission
     }
-
 }
