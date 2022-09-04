@@ -130,7 +130,6 @@ dependencies {
     testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)
     testImplementation(TestContainerJUnit)
-
 }
 
 apply(from = "$rootDir/gradle/itest.gradle.kts")
