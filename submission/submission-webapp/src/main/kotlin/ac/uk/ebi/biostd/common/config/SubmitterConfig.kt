@@ -49,18 +49,22 @@ class SubmitterConfig {
     @Bean
     fun requestLoader(
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+        submissionPersistenceService: SubmissionPersistenceService,
         fileProcessingService: FileProcessingService,
     ): SubmissionRequestLoader = SubmissionRequestLoader(
         submissionPersistenceQueryService,
+        submissionPersistenceService,
         fileProcessingService
     )
 
     @Bean
     fun requestProcessor(
         systemService: FileSystemService,
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
     ): SubmissionRequestProcessor = SubmissionRequestProcessor(
         systemService,
+        submissionPersistenceQueryService,
         submissionPersistenceService
     )
 
@@ -74,12 +78,14 @@ class SubmitterConfig {
 
     @Bean
     fun extSubmissionSubmitter(
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         persistenceService: SubmissionPersistenceService,
         submissionDraftService: SubmissionDraftService,
         requestLoader: SubmissionRequestLoader,
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionReleaser,
     ) = ExtSubmissionSubmitter(
+        submissionPersistenceQueryService,
         persistenceService,
         submissionDraftService,
         requestLoader,

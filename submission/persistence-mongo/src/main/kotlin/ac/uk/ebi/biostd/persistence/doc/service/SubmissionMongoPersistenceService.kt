@@ -1,12 +1,11 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtSubmission
 import org.bson.types.ObjectId
@@ -27,35 +26,34 @@ internal class SubmissionMongoPersistenceService(
     }
 
     override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
-        val version = getNextVersion(rqt.submission.accNo)
-        val extSubmission = rqt.submission.copy(version = version)
-        return saveRequest(rqt, extSubmission)
+        requestRepository.updateSubmissionRequest(asRequest(rqt))
+        return rqt.submission.accNo to rqt.submission.version
     }
 
-    private fun saveRequest(rqt: SubmissionRequest, extSubmission: ExtSubmission): Pair<String, Int> {
-        requestRepository.saveRequest(asRequest(rqt, extSubmission))
-        return extSubmission.accNo to extSubmission.version
+    override fun createSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
+        requestRepository.saveRequest(asRequest(rqt))
+        return rqt.submission.accNo to rqt.submission.version
     }
 
     override fun saveSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission =
         submissionRepository.saveSubmission(submission, draftKey)
 
-    override fun updateRequestAsProcessed(accNo: String, version: Int) {
-        requestRepository.updateStatus(PROCESSED, accNo, version)
+    override fun updateRequestStatus(accNo: String, version: Int, status: RequestStatus) {
+        requestRepository.updateStatus(status, accNo, version)
     }
 
     override fun setAsReleased(accNo: String) {
         subDataRepository.setAsReleased(accNo)
     }
 
-    private fun asRequest(rqt: SubmissionRequest, submission: ExtSubmission): DocSubmissionRequest {
-        val content = serializationService.serialize(submission, Properties(includeFileListFiles = true))
+    private fun asRequest(rqt: SubmissionRequest): DocSubmissionRequest {
+        val content = serializationService.serialize(rqt.submission, Properties(includeFileListFiles = true))
         return DocSubmissionRequest(
             id = ObjectId(),
-            accNo = submission.accNo,
-            version = submission.version,
+            accNo = rqt.submission.accNo,
+            version = rqt.submission.version,
             draftKey = rqt.draftKey,
-            status = SubmissionRequestStatus.REQUESTED,
+            status = rqt.status,
             submission = BasicDBObject.parse(content),
         )
     }

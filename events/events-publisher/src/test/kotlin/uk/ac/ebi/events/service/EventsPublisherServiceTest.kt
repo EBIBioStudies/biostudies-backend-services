@@ -1,9 +1,8 @@
 package uk.ac.ebi.events.service
 
-import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
+import ebi.ac.uk.extended.events.RequestMessage
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SubmissionMessage
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.util.date.asIsoTime
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -30,7 +29,7 @@ import java.time.ZoneOffset
 @ExtendWith(MockKExtension::class)
 class EventsPublisherServiceTest(
     @MockK private val rabbitTemplate: RabbitTemplate,
-    @MockK private val eventsProperties: EventsProperties
+    @MockK private val eventsProperties: EventsProperties,
 ) {
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 1, 2, 3, 4, ZoneOffset.UTC)
     private val testInstance = EventsPublisherService(rabbitTemplate, eventsProperties)
@@ -58,17 +57,15 @@ class EventsPublisherServiceTest(
     }
 
     @Test
-    fun submissionSubmitted(@MockK submission: ExtSubmission) {
+    fun submissionSubmitted() {
         val notificationSlot = slot<SubmissionMessage>()
 
-        every { submission.accNo } returns "S-BSST0"
-        every { submission.owner } returns "test@ebi.ac.uk"
         every { eventsProperties.instanceBaseUrl } returns "http://biostudies:8788"
         every {
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, capture(notificationSlot))
         } answers { nothing }
 
-        testInstance.submissionSubmitted(submission)
+        testInstance.submissionSubmitted("S-BSST0", "test@ebi.ac.uk")
 
         val notification = notificationSlot.captured
         assertThat(notification.accNo).isEqualTo("S-BSST0")
@@ -107,7 +104,7 @@ class EventsPublisherServiceTest(
     }
 
     @Test
-    fun submissionFailed(@MockK request: FailedSubmissionRequestMessage) {
+    fun submissionFailed(@MockK request: RequestMessage) {
         every {
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY, request)
         } answers { nothing }
