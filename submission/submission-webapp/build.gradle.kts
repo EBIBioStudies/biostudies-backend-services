@@ -34,6 +34,7 @@ import SpringBootDependencies.SpringBootStarterTest
 import SpringBootDependencies.SpringBootStarterValidation
 import SpringBootDependencies.SpringBootStarterWeb
 import SpringBootDependencies.SpringRetry
+import TestDependencies.Awaitility
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.JsonPathAssert
@@ -121,6 +122,7 @@ dependencies {
 
     testImplementation(KotlinXmlBuilder)
     testImplementation(JsonPathAssert)
+    testImplementation(Awaitility)
     testImplementation(XmlUnitCore)
     testImplementation(XmlUnitMatchers)
 

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.repositories
 
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
@@ -8,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -20,6 +20,8 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
     fun findByAccNo(accNo: String): DocSubmission?
 
     fun existsByAccNo(accNo: String): Boolean
+
+    fun existsByAccNoAndVersion(accNo: String, version: Int): Boolean
 
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
 
@@ -37,13 +39,15 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
     fun getByAccNoAndVersionAndStatus(
         accNo: String,
         version: Int,
-        status: SubmissionRequestStatus
+        status: RequestStatus,
     ): DocSubmissionRequest
 
     fun existsByAccNoAndStatusIn(
         accNo: String,
-        status: Set<SubmissionRequestStatus>
+        status: Set<RequestStatus>,
     ): Boolean
+
+    fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
 }
 
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {
@@ -52,7 +56,7 @@ interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String
     fun findAllByUserIdAndStatus(
         userId: String,
         status: DraftStatus,
-        pageRequest: Pageable
+        pageRequest: Pageable,
     ): List<DocSubmissionDraft>
 
     fun getById(id: String): DocSubmissionDraft
@@ -66,13 +70,13 @@ interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId>
     fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(
         accNo: String,
         version: Int,
-        fileListName: String
+        fileListName: String,
     ): List<FileListDocFile>
 
     fun findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
         accNo: String,
         version: Int,
-        fileListName: String
+        fileListName: String,
     ): List<FileListDocFile>
 }
 

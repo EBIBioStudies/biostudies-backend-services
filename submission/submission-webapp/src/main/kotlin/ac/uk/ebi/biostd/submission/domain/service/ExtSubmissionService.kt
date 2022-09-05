@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
@@ -40,7 +40,7 @@ class ExtSubmissionService(
     }
 
     fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
-        return submissionSubmitter.processRequest(accNo, version)
+        return submissionSubmitter.handleRequest(accNo, version)
     }
 
     fun submitExt(
@@ -49,8 +49,8 @@ class ExtSubmissionService(
     ): ExtSubmission {
         logger.info { "${sub.accNo} $user Received submit request for ext submission ${sub.accNo}" }
         val submission = processSubmission(user, sub)
-        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission))
-        return submissionSubmitter.processRequest(accNo, version)
+        val (accNo, version) = submissionSubmitter.createRequest(ExtSubmitRequest(submission))
+        return submissionSubmitter.handleRequest(accNo, version)
     }
 
     fun submitExtAsync(
@@ -59,7 +59,7 @@ class ExtSubmissionService(
     ) {
         logger.info { "${sub.accNo} $user Received async submit request for ext submission ${sub.accNo}" }
         val submission = processSubmission(user, sub)
-        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission))
+        val (accNo, version) = submissionSubmitter.createRequest(ExtSubmitRequest(submission))
         eventsPublisherService.submissionRequest(accNo, version)
     }
 

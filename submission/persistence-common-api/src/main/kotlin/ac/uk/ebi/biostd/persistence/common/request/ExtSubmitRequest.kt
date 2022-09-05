@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.persistence.common.request
 
 import ebi.ac.uk.extended.model.ExtSubmission
 
-data class SubmissionRequest(
+data class ExtSubmitRequest(
     val submission: ExtSubmission,
     val draftKey: String? = null,
 )

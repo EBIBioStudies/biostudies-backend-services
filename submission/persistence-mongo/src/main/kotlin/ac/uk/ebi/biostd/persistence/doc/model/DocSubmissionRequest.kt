@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import com.mongodb.DBObject
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
@@ -12,8 +13,6 @@ data class DocSubmissionRequest(
     val accNo: String,
     val version: Int,
     val draftKey: String?,
-    val status: SubmissionRequestStatus,
+    val status: RequestStatus,
     val submission: DBObject,
 )
-
-enum class SubmissionRequestStatus { REQUESTED, PROCESSED }

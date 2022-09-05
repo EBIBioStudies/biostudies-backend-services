@@ -18,6 +18,7 @@ import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.Group
@@ -25,12 +26,13 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.WebSubmissionDraft
 import java.io.File
 
-interface SubmissionClient :
+interface SubmitClient :
     SubmissionOperations,
     FilesOperations,
     GroupFilesOperations,
-    MultipartSubmissionOperations,
-    MultipartAsyncSubmissionOperations,
+    SubmitOperations,
+    MultipartSubmitOperations,
+    MultipartAsyncSubmitOperations,
     GeneralOperations,
     DraftSubmissionOperations,
     ExtSubmissionOperations,
@@ -61,84 +63,17 @@ interface GroupFilesOperations {
 }
 
 interface SubmissionOperations {
-    fun submitSingle(
-        submission: Submission,
-        format: SubmissionFormat = JSON,
-        register: RegisterConfig = NonRegistration
-    ): SubmissionResponse
-
-    fun submitSingle(
-        submission: String,
-        format: SubmissionFormat = JSON,
-        register: RegisterConfig = NonRegistration
-    ): SubmissionResponse
-
-    fun submitSingleFromDraft(draftKey: String)
-
-    fun submitAsync(submission: String, format: SubmissionFormat = JSON, register: RegisterConfig = NonRegistration)
-
     fun deleteSubmission(accNo: String)
-
     fun deleteSubmissions(submissions: List<String>)
-
     fun releaseSubmission(request: ReleaseRequestDto)
-
     fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
-
     fun validateFileList(fileListPath: String, rootPath: String? = null, accNo: String? = null)
 }
 
-interface MultipartSubmissionOperations {
-    fun submitSingle(
-        submission: String,
-        format: SubmissionFormat,
-        filesConfig: SubmissionFilesConfig,
-    ): SubmissionResponse
-
-    fun submitSingle(
-        submission: Submission,
-        format: SubmissionFormat,
-        filesConfig: SubmissionFilesConfig,
-    ): SubmissionResponse
-
-    fun submitSingle(
-        submission: File,
-        filesConfig: SubmissionFilesConfig,
-        attrs: Map<String, String> = emptyMap(),
-    ): SubmissionResponse
-}
-
-interface MultipartAsyncSubmissionOperations {
-    fun asyncSubmitSingle(
-        submission: String,
-        format: SubmissionFormat,
-        filesConfig: SubmissionFilesConfig,
-    )
-
-    fun asyncSubmitSingle(
-        submission: Submission,
-        format: SubmissionFormat,
-        filesConfig: SubmissionFilesConfig,
-    )
-
-    fun asyncSubmitSingle(
-        submission: File,
-        filesConfig: SubmissionFilesConfig,
-        attrs: Map<String, String> = emptyMap(),
-    )
-}
-
 interface SecurityOperations {
-    fun getAuthenticatedClient(
-        user: String,
-        password: String,
-        onBehalf: String? = null,
-    ): BioWebClient
-
+    fun getAuthenticatedClient(user: String, password: String, onBehalf: String? = null): BioWebClient
     fun login(loginRequest: LoginRequest): UserProfile
-
     fun registerUser(registerRequest: RegisterRequest)
-
     fun checkUser(checkUserRequest: CheckUserRequest)
 }
 
@@ -170,4 +105,72 @@ interface ExtSubmissionOperations {
 
 interface PermissionOperations {
     fun givePermissionToUser(user: String, accessTagName: String, accessType: String)
+}
+
+interface SubmitOperations {
+    fun submitSingle(
+        submission: Submission,
+        format: SubmissionFormat = JSON,
+        storageMode: StorageMode? = null,
+        register: RegisterConfig = NonRegistration,
+    ): SubmissionResponse
+
+    fun submitSingle(
+        submission: String,
+        format: SubmissionFormat = JSON,
+        storageMode: StorageMode? = null,
+        register: RegisterConfig = NonRegistration,
+    ): SubmissionResponse
+
+    fun submitSingleFromDraft(draftKey: String)
+
+    fun submitAsync(
+        submission: String,
+        format: SubmissionFormat = JSON,
+        storageMode: StorageMode? = null,
+        register: RegisterConfig = NonRegistration,
+    )
+}
+
+interface MultipartSubmitOperations {
+    fun submitSingle(
+        submission: String,
+        format: SubmissionFormat,
+        storageMode: StorageMode? = null,
+        filesConfig: SubmissionFilesConfig,
+    ): SubmissionResponse
+
+    fun submitSingle(
+        submission: Submission,
+        format: SubmissionFormat,
+        storageMode: StorageMode? = null,
+        filesConfig: SubmissionFilesConfig,
+    ): SubmissionResponse
+
+    fun submitSingle(
+        submission: File,
+        storageMode: StorageMode? = null,
+        filesConfig: SubmissionFilesConfig,
+        attrs: Map<String, String> = emptyMap(),
+    ): SubmissionResponse
+}
+
+interface MultipartAsyncSubmitOperations {
+    fun asyncSubmitSingle(
+        submission: String,
+        format: SubmissionFormat,
+        filesConfig: SubmissionFilesConfig,
+    )
+
+    fun asyncSubmitSingle(
+        submission: Submission,
+        format: SubmissionFormat,
+        filesConfig: SubmissionFilesConfig,
+    )
+
+    fun asyncSubmitSingle(
+        submission: File,
+        filesConfig: SubmissionFilesConfig,
+        attrs: Map<String, String> = emptyMap(),
+    )
 }

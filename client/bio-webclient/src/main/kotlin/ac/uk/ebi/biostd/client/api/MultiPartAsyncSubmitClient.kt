@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.client.api
 import ac.uk.ebi.biostd.client.common.getMultipartBody
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
-import ac.uk.ebi.biostd.client.integration.web.MultipartAsyncSubmissionOperations
+import ac.uk.ebi.biostd.client.integration.web.MultipartAsyncSubmitOperations
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.integration.SerializationService
 import ebi.ac.uk.model.Submission
@@ -17,14 +17,14 @@ import java.io.File
 
 private const val SUBMIT_URL = "/submissions/async"
 
-class MultiPartAsyncSubmissionClient(
+class MultiPartAsyncSubmitClient(
     private val template: RestTemplate,
-    private val serializationService: SerializationService
-) : MultipartAsyncSubmissionOperations {
+    private val serializationService: SerializationService,
+) : MultipartAsyncSubmitOperations {
     override fun asyncSubmitSingle(
         submission: File,
         filesConfig: SubmissionFilesConfig,
-        attrs: Map<String, String>
+        attrs: Map<String, String>,
     ) {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
         val multiPartBody = getMultipartBody(filesConfig, FileSystemResource(submission))

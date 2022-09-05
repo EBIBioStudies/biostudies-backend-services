@@ -14,6 +14,6 @@ import org.springframework.web.bind.annotation.RestController
 class FtpResource(private val submissionReleaser: SubmissionReleaser) {
     @PostMapping("/generate")
     fun generateFtpLinks(@RequestParam("accNo", required = true) accNo: String) {
-        submissionReleaser.generateFtpLinks(accNo)
+        submissionReleaser.generateFtp(accNo)
     }
 }

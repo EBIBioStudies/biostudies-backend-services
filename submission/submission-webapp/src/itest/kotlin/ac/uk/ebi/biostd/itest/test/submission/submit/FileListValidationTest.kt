@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ebi.ac.uk.dsl.json.jsonArray
@@ -104,7 +105,7 @@ class FileListValidationTest(
         val fileList = tempFolder.createFile("valid-file-list.tsv", fileListContent)
 
         webClient.uploadFiles(listOf(file1, fileList))
-        webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file2)))
+        webClient.submitSingle(previousVersion, TSV, storageMode, SubmissionFilesConfig(listOf(file2)))
 
         webClient.validateFileList(fileList.name, accNo = "S-FLV123")
 
@@ -148,7 +149,7 @@ class FileListValidationTest(
 
         fireClient.save(file2, file2Md5, file2.size())
         webClient.uploadFiles(listOf(file1, fileList))
-        webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file3)))
+        webClient.submitSingle(previousVersion, TSV, storageMode, SubmissionFilesConfig(listOf(file3)))
 
         webClient.validateFileList(fileList.name, accNo = "S-FLV124")
 

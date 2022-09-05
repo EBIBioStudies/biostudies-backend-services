@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.common.TestCollectionValidator
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -80,7 +81,7 @@ class SubmissionToCollectionsTest(
 
         val filesConfig = SubmissionFilesConfig(emptyList())
         val attributes = singletonMap("AttachTo", "Public-Project")
-        assertThat(webClient.submitSingle(submissionFile, filesConfig, attributes)).isSuccessful()
+        assertThat(webClient.submitSingle(submissionFile, storageMode, filesConfig, attributes)).isSuccessful()
 
         assertThat(getSimpleSubmission("S-TEST1")).isEqualTo(
             submission("S-TEST1") {

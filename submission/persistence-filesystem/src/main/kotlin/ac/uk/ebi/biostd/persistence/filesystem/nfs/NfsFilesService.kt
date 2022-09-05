@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensi
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.allPageTabFiles
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
 import ebi.ac.uk.io.FileUtils.moveFile
@@ -38,10 +39,12 @@ class NfsFilesService(
 
     override fun cleanSubmissionFiles(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Un-publishing files of submission ${sub.accNo} on NFS" }
-
         FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(sub.relPath).toFile())
-
         logger.info { "${sub.accNo} ${sub.owner} Finished un-publishing files of submission ${sub.accNo} on NFS" }
+
+        logger.info { "${sub.accNo} ${sub.owner} Deleting pagetab files of submission ${sub.accNo} on NFS" }
+        sub.allPageTabFiles.filterIsInstance<NfsFile>().forEach { FileUtils.deleteFile(it.file) }
+        logger.info { "${sub.accNo} ${sub.owner} Finished deleting pagetab files of submission ${sub.accNo} on NFS" }
     }
 
     private fun processAttachedFiles(

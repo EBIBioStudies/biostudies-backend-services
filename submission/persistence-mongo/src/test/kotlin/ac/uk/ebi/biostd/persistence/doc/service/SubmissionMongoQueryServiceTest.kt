@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -13,8 +15,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
@@ -55,7 +55,7 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.PROCESSED as REQUEST_PROCESSED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED as REQUEST_PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
@@ -427,12 +427,12 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(result.first().title).isEqualTo("one")
         }
 
-        private fun saveAsRequest(extSubmission: ExtSubmission, status: SubmissionRequestStatus): ExtSubmission {
+        private fun saveAsRequest(extSubmission: ExtSubmission, status: RequestStatus): ExtSubmission {
             requestRepository.saveRequest(asRequest(extSubmission, status))
             return extSubmission
         }
 
-        private fun asRequest(submission: ExtSubmission, status: SubmissionRequestStatus) = DocSubmissionRequest(
+        private fun asRequest(submission: ExtSubmission, status: RequestStatus) = DocSubmissionRequest(
             id = ObjectId(),
             accNo = submission.accNo,
             version = submission.version,

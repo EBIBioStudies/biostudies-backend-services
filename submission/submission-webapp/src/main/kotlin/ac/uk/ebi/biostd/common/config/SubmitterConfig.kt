@@ -18,6 +18,7 @@ import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.submitter.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
@@ -48,18 +49,22 @@ class SubmitterConfig {
     @Bean
     fun requestLoader(
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+        submissionPersistenceService: SubmissionPersistenceService,
         fileProcessingService: FileProcessingService,
     ): SubmissionRequestLoader = SubmissionRequestLoader(
         submissionPersistenceQueryService,
+        submissionPersistenceService,
         fileProcessingService
     )
 
     @Bean
     fun requestProcessor(
         systemService: FileSystemService,
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
     ): SubmissionRequestProcessor = SubmissionRequestProcessor(
         systemService,
+        submissionPersistenceQueryService,
         submissionPersistenceService
     )
 
@@ -73,12 +78,14 @@ class SubmitterConfig {
 
     @Bean
     fun extSubmissionSubmitter(
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         persistenceService: SubmissionPersistenceService,
         submissionDraftService: SubmissionDraftService,
         requestLoader: SubmissionRequestLoader,
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionReleaser,
     ) = ExtSubmissionSubmitter(
+        submissionPersistenceQueryService,
         persistenceService,
         submissionDraftService,
         requestLoader,
@@ -89,25 +96,33 @@ class SubmitterConfig {
     @Bean
     fun submissionSubmitter(
         extSubmissionSubmitter: ExtSubmissionSubmitter,
+        submissionProcessor: SubmissionProcessor,
+        parentInfoService: ParentInfoService,
+    ) = SubmissionSubmitter(
+        extSubmissionSubmitter,
+        submissionProcessor,
+        parentInfoService,
+    )
+
+    @Bean
+    fun submissionProcessor(
         persistenceService: SubmissionPersistenceService,
         timesService: TimesService,
         accNoService: AccNoService,
         parentInfoService: ParentInfoService,
         collectionInfoService: CollectionInfoService,
-        queryService: SubmissionMetaQueryService,
         properties: ApplicationProperties,
         toExtSectionMapper: ToExtSectionMapper,
-    ) = SubmissionSubmitter(
-        extSubmissionSubmitter,
-        persistenceService,
-        timesService,
-        accNoService,
-        parentInfoService,
-        collectionInfoService,
-        queryService,
-        properties,
-        toExtSectionMapper
-    )
+    ): SubmissionProcessor =
+        SubmissionProcessor(
+            persistenceService,
+            timesService,
+            accNoService,
+            parentInfoService,
+            collectionInfoService,
+            properties,
+            toExtSectionMapper
+        )
 
     @Configuration
     class ToExtendedConfiguration {

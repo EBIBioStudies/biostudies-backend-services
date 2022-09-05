@@ -84,7 +84,7 @@ class ExtSubmissionResourceTest(
     @Test
     fun submitExtended(@MockK extSubmission: ExtSubmission) {
         val user = TestSuperUser.asSecurityUser()
-        val fileLists = slot<Array<MultipartFile>>()
+        val fileLists = slot<List<MultipartFile>>()
         val submissionJson = jsonObj { "accNo" to "S-TEST123" }.toString()
 
         bioUserResolver.securityUser = user
@@ -111,7 +111,7 @@ class ExtSubmissionResourceTest(
     @Test
     fun submitExtendedAsync(@MockK extSubmission: ExtSubmission) {
         val user = TestSuperUser.asSecurityUser()
-        val fileLists = slot<Array<MultipartFile>>()
+        val fileLists = slot<List<MultipartFile>>()
         val submissionJson = jsonObj { "accNo" to "S-TEST123" }.toString()
 
         bioUserResolver.securityUser = user

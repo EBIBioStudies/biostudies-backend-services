@@ -32,16 +32,13 @@ internal class MigrateCommand(private val submissionService: SubmissionService) 
     private val async by option("-as", "--async", help = ASYNC).flag(default = false)
 
     override fun run() {
-        val sourceSecurityConfig = SecurityConfig(source, sourceUser, sourcePassword)
-        val targetSecurityConfig = SecurityConfig(target, targetUser, targetPassword)
         val migrationRequest = MigrationRequest(
-            accNo,
-            sourceSecurityConfig,
-            targetSecurityConfig,
-            targetOwner,
-            async
+            accNo = accNo,
+            sourceSecurityConfig = SecurityConfig(source, sourceUser, sourcePassword),
+            targetSecurityConfig = SecurityConfig(target, targetUser, targetPassword),
+            targetOwner = targetOwner,
+            async = async
         )
-
         submissionService.migrate(migrationRequest)
 
         when (async) {

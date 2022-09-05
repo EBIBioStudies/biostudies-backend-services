@@ -3,6 +3,7 @@ package uk.ac.ebi.biostd.client.cli.commands
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.Submission
@@ -22,12 +23,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
-import java.lang.IllegalArgumentException
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class SubmitCommandTest(
     private val temporaryFolder: TemporaryFolder,
-    @MockK private val submissionService: SubmissionService
+    @MockK private val submissionService: SubmissionService,
 ) {
     private var testInstance = SubmitCommand(submissionService)
     private val rootFolder: String = temporaryFolder.root.absolutePath
@@ -48,7 +48,7 @@ internal class SubmitCommandTest(
 
         val securityConfig = SecurityConfig("server", "user", "password")
         val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), emptyList())
-        val request = SubmissionRequest(submission, securityConfig, filesConfig)
+        val request = SubmissionRequest(submission, null, securityConfig, filesConfig)
 
         every { submissionService.submit(request) } returns mockResponse
 
@@ -75,7 +75,7 @@ internal class SubmitCommandTest(
 
         val securityConfig = SecurityConfig("server", "user", "password")
         val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), listOf(SUBMISSION, FIRE))
-        val request = SubmissionRequest(submission, securityConfig, filesConfig)
+        val request = SubmissionRequest(submission, StorageMode.NFS, securityConfig, filesConfig)
 
         every { submissionService.submit(request) } returns mockResponse
 
@@ -86,7 +86,8 @@ internal class SubmitCommandTest(
                 "-p", "password",
                 "-i", "$rootFolder/Submission.tsv",
                 "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
-                "-ps", "SUBMISSION,FIRE"
+                "-ps", "SUBMISSION,FIRE",
+                "-sm", "NFS"
             )
         )
 
@@ -101,7 +102,7 @@ internal class SubmitCommandTest(
 
         val securityConfig = SecurityConfig("server", "user", "password")
         val filesConfig = SubmissionFilesConfig(emptyList(), emptyList())
-        val request = SubmissionRequest(submission, securityConfig, filesConfig)
+        val request = SubmissionRequest(submission, StorageMode.FIRE, securityConfig, filesConfig)
 
         every { submissionService.submit(request) } returns mockResponse
 
@@ -111,6 +112,7 @@ internal class SubmitCommandTest(
                 "-u", "user",
                 "-p", "password",
                 "-i", "$rootFolder/Submission.tsv",
+                "-sm", "FIRE"
             )
         )
 

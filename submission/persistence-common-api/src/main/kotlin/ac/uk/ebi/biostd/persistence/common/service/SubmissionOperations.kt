@@ -2,9 +2,9 @@ package ac.uk.ebi.biostd.persistence.common.service
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import ac.uk.ebi.biostd.persistence.common.request.ProcessedSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.data.domain.Page
@@ -12,18 +12,22 @@ import org.springframework.data.domain.Page
 interface SubmissionPersistenceService {
     fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 
+    fun createSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
+
     fun getNextVersion(accNo: String): Int
 
     fun saveSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission
 
     fun setAsReleased(accNo: String)
 
-    fun updateRequestAsProcessed(accNo: String, version: Int)
+    fun updateRequestStatus(accNo: String, version: Int, status: RequestStatus)
 }
 
 @Suppress("TooManyFunctions")
 interface SubmissionPersistenceQueryService {
     fun existByAccNo(accNo: String): Boolean
+
+    fun existByAccNoAndVersion(accNo: String, version: Int): Boolean
 
     fun hasPendingRequest(accNo: String): Boolean
 
@@ -50,9 +54,10 @@ interface SubmissionPersistenceQueryService {
      **/
     fun getSubmissionsByUser(owner: String, filter: SubmissionFilter): List<BasicSubmission>
 
-    fun getPendingRequest(accNo: String, version: Int): ProcessedSubmissionRequest
-
+    fun getPendingRequest(accNo: String, version: Int): SubmissionRequest
+    fun getLoadedRequest(accNo: String, version: Int): SubmissionRequest
     fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile>
+    fun getRequestStatus(accNo: String, version: Int): RequestStatus
 }
 
 interface SubmissionMetaQueryService {

@@ -4,13 +4,14 @@ import ac.uk.ebi.biostd.client.common.getMultipartBody
 import ac.uk.ebi.biostd.client.extensions.map
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
-import ac.uk.ebi.biostd.client.integration.web.MultipartSubmissionOperations
+import ac.uk.ebi.biostd.client.integration.web.MultipartSubmitOperations
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ebi.ac.uk.api.ClientResponse
 import ebi.ac.uk.extended.model.ExtAttributeDetail
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import org.springframework.core.io.FileSystemResource
@@ -27,12 +28,13 @@ typealias RequestMap = HttpEntity<LinkedMultiValueMap<String, Any>>
 
 private const val SUBMIT_URL = "/submissions"
 
-internal class MultiPartSubmissionClient(
+internal class MultiPartSubmitClient(
     private val template: RestTemplate,
-    private val serializationService: SerializationService
-) : MultipartSubmissionOperations {
+    private val serializationService: SerializationService,
+) : MultipartSubmitOperations {
     override fun submitSingle(
         submission: File,
+        storageMode: StorageMode?,
         filesConfig: SubmissionFilesConfig,
         attrs: Map<String, String>,
     ): SubmissionResponse {
@@ -40,7 +42,6 @@ internal class MultiPartSubmissionClient(
         val multiPartBody = getMultipartBody(filesConfig, FileSystemResource(submission)).apply {
             attrs.entries.forEach { add(ATTRIBUTES, ExtAttributeDetail(it.key, it.value)) }
         }
-
         return template.postForEntity<String>("$SUBMIT_URL/direct", (HttpEntity(multiPartBody, headers)))
             .map { body -> serializationService.deserializeSubmission(body, JsonPretty) }
             .let { ClientResponse(it.body!!, it.statusCode.value()) }
@@ -49,6 +50,7 @@ internal class MultiPartSubmissionClient(
     override fun submitSingle(
         submission: String,
         format: SubmissionFormat,
+        storageMode: StorageMode?,
         filesConfig: SubmissionFilesConfig,
     ): SubmissionResponse {
         val headers = createHeaders(format)
@@ -60,6 +62,7 @@ internal class MultiPartSubmissionClient(
     override fun submitSingle(
         submission: Submission,
         format: SubmissionFormat,
+        storageMode: StorageMode?,
         filesConfig: SubmissionFilesConfig,
     ): SubmissionResponse {
         val headers = createHeaders(format)

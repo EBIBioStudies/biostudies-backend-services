@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.itest.test.security.SubmitPermissionTest.ExistingUser
@@ -50,22 +51,22 @@ class DeletePermissionTest(
     @Test
     fun `submit resubmit and delete submission`() {
         val submission = tsv {
-            line("Submission", "SimpleAcc1")
+            line("Submission", "DeleteAcc1")
             line("Title", "Simple Submission")
             line()
         }.toString()
 
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
-        superUserWebClient.deleteSubmission("SimpleAcc1")
-        assertDeletedSubmission("SimpleAcc1", -1)
-        assertDeletedSubmission("SimpleAcc1", -2)
+        superUserWebClient.deleteSubmission("DeleteAcc1")
+        assertDeletedSubmission("DeleteAcc1", -1)
+        assertDeletedSubmission("DeleteAcc1", -2)
     }
 
     @Test
     fun `delete with regular user`() {
         val submission = tsv {
-            line("Submission", "SimpleAcc2")
+            line("Submission", "DeleteAcc2")
             line("Title", "Simple Submission")
             line()
         }.toString()
@@ -73,14 +74,14 @@ class DeletePermissionTest(
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
 
         assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
-            regularUserWebClient.deleteSubmission("SimpleAcc2")
+            regularUserWebClient.deleteSubmission("DeleteAcc2")
         }
     }
 
     @Test
     fun `delete with regular user and tag access permission`() {
         val submission = tsv {
-            line("Submission", "SimpleAcc3")
+            line("Submission", "DeleteAcc3")
             line("Title", "Simple Submission")
             line("AttachTo", "ACollection")
             line()
@@ -89,30 +90,30 @@ class DeletePermissionTest(
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
         superUserWebClient.givePermissionToUser(RegularUser.email, "ACollection", DELETE.name)
 
-        regularUserWebClient.deleteSubmission("SimpleAcc3")
-        assertDeletedSubmission("SimpleAcc3")
+        regularUserWebClient.deleteSubmission("DeleteAcc3")
+        assertDeletedSubmission("DeleteAcc3")
     }
 
     @Test
     fun `resubmit deleted submission`() {
         val submission = tsv {
-            line("Submission", "SimpleAcc4")
+            line("Submission", "DeleteAcc4")
             line("Title", "Simple Submission")
             line()
         }.toString()
 
         superUserWebClient.submitSingle(submission, TSV)
-        superUserWebClient.deleteSubmission("SimpleAcc4")
+        superUserWebClient.deleteSubmission("DeleteAcc4")
         superUserWebClient.submitSingle(submission, TSV)
 
-        val resubmitted = submissionRepository.getExtByAccNo("SimpleAcc4")
+        val resubmitted = submissionRepository.getExtByAccNo("DeleteAcc4")
         assertThat(resubmitted.version).isEqualTo(2)
     }
 
     @Test
     fun `delete with collection admin user`() {
         val submission = tsv {
-            line("Submission", "SimpleAcc5")
+            line("Submission", "DeleteAcc5")
             line("Title", "Simple Submission")
             line("AttachTo", "ACollection")
             line()
@@ -121,22 +122,22 @@ class DeletePermissionTest(
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
         superUserWebClient.givePermissionToUser(ExistingUser.email, "ACollection", ADMIN.name)
 
-        existingUserWebClient.deleteSubmission("SimpleAcc5")
-        assertDeletedSubmission("SimpleAcc5")
+        existingUserWebClient.deleteSubmission("DeleteAcc5")
+        assertDeletedSubmission("DeleteAcc5")
     }
 
     @Test
     fun `delete subsmissions`() {
         val submission1 = tsv {
-            line("Submission", "S-TEST1")
+            line("Submission", "DeleteAcc6-1")
             line("Title", "Test Section Table")
         }.toString()
         val submission2 = tsv {
-            line("Submission", "S-TEST2")
+            line("Submission", "DeleteAcc6-2")
             line("Title", "Test Section Table")
         }.toString()
         val submission3 = tsv {
-            line("Submission", "S-TEST3")
+            line("Submission", "DeleteAcc6-3")
             line("Title", "Test Section Table")
         }.toString()
 
@@ -144,12 +145,12 @@ class DeletePermissionTest(
         assertThat(superUserWebClient.submitSingle(submission2, TSV)).isSuccessful()
         assertThat(superUserWebClient.submitSingle(submission3, TSV)).isSuccessful()
 
-        superUserWebClient.deleteSubmissions(listOf("S-TEST1", "S-TEST3"))
+        superUserWebClient.deleteSubmissions(listOf("DeleteAcc6-1", "DeleteAcc6-3"))
         Thread.sleep(5000)
 
-        assertDeletedSubmission("S-TEST1")
-        assertDeletedSubmission("S-TEST3")
-        assertThat(submissionRepository.getExtByAccNo("S-TEST2")).isNotNull
+        assertDeletedSubmission("DeleteAcc6-1")
+        assertDeletedSubmission("DeleteAcc6-3")
+        assertThat(submissionRepository.getExtByAccNo("DeleteAcc6-2")).isNotNull
     }
 
     private fun assertDeletedSubmission(accNo: String, version: Int = -1) {
@@ -165,10 +166,10 @@ class DeletePermissionTest(
 
             line("Project")
         }.toString()
-        val collectionFile = tempFolder.createFile("a-collection.tsv", project)
+        val projectFile = tempFolder.createFile("a-collection.tsv", project)
 
         val filesConfig = SubmissionFilesConfig(emptyList())
-        assertThat(superUserWebClient.submitSingle(collectionFile, filesConfig)).isSuccessful()
+        assertThat(superUserWebClient.submitSingle(projectFile, storageMode, filesConfig)).isSuccessful()
     }
 
     private fun setUpTestUsers() {
