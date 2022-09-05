@@ -1,7 +1,8 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
-import ac.uk.ebi.biostd.persistence.common.request.ProcessedSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
@@ -14,16 +15,21 @@ import uk.ac.ebi.extended.serialization.service.FileProcessingService
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestLoader(
-    private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+    private val queryService: SubmissionPersistenceQueryService,
+    private val persistenceService: SubmissionPersistenceService,
     private val fileProcessingService: FileProcessingService,
 ) {
 
-    internal fun loadRequest(accNo: String, version: Int): ProcessedSubmissionRequest {
+    /**
+     * Calculate md5 and size for every file in submission request.
+     */
+    fun loadRequest(accNo: String, version: Int): ExtSubmission {
         logger.info { "Started loading request accNo='$accNo', version='$version'" }
-        val original = submissionPersistenceQueryService.getPendingRequest(accNo, version)
+        val original = queryService.getPendingRequest(accNo, version)
         val processed = processRequest(original.submission)
+        persistenceService.saveSubmissionRequest(original.copy(status = LOADED, submission = processed))
         logger.info { "Finished loading request accNo='$accNo', version='$version'" }
-        return ProcessedSubmissionRequest(processed, original.draftKey, original.previousVersion)
+        return processed
     }
 
     private fun processRequest(sub: ExtSubmission): ExtSubmission =

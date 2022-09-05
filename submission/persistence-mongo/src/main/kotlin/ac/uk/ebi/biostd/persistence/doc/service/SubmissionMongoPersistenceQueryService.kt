@@ -1,7 +1,10 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import ac.uk.ebi.biostd.persistence.common.request.ProcessedSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
@@ -10,15 +13,17 @@ import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepositor
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
+import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.max
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 internal class SubmissionMongoPersistenceQueryService(
@@ -29,6 +34,9 @@ internal class SubmissionMongoPersistenceQueryService(
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
 ) : SubmissionPersistenceQueryService {
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
+
+    override fun existByAccNoAndVersion(accNo: String, version: Int): Boolean =
+        submissionRepo.existsByAccNoAndVersion(accNo, version)
 
     override fun hasPendingRequest(accNo: String): Boolean =
         requestRepository.existsByAccNoAndStatusIn(accNo, setOf(REQUESTED))
@@ -81,14 +89,28 @@ internal class SubmissionMongoPersistenceQueryService(
             else -> submissionRepo.getSubmissions(filter, owner).map { it.asBasicSubmission(PROCESSED) }
         }
 
-    override fun getPendingRequest(accNo: String, version: Int): ProcessedSubmissionRequest {
-        val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, REQUESTED)
+    override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
+        return getRequest(accNo, version, REQUESTED)
+    }
+
+    override fun getLoadedRequest(accNo: String, version: Int): SubmissionRequest {
+        return getRequest(accNo, version, LOADED)
+    }
+
+    private fun getRequest(accNo: String, version: Int, status: RequestStatus): SubmissionRequest {
+        logger.info { "$accNo, Loading request accNo='$accNo' version '$version'" }
+        val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, status)
         val stored = serializationService.deserialize(request.submission.toString())
-        return ProcessedSubmissionRequest(
+        logger.info { "$accNo, Finish loading request accNo='$accNo' version '$version'" }
+        return SubmissionRequest(
             submission = stored,
             draftKey = request.draftKey,
-            previousVersion = findExtByAccNo(stored.accNo, true)
+            request.status
         )
+    }
+
+    override fun getRequestStatus(accNo: String, version: Int): RequestStatus {
+        return requestRepository.getByAccNoAndVersion(accNo, version).status
     }
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =

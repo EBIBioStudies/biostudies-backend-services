@@ -2,7 +2,7 @@ package ebi.ac.uk.extended.events
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class FailedSubmissionRequestMessage(
+data class FailedRequestMessage(
     @JsonProperty("accNo")
     val accNo: String,
 

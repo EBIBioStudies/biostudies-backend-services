@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
@@ -14,18 +16,17 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import com.google.common.collect.ImmutableList
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.query.Update.update
 
 class SubmissionRequestDocDataRepository(
     private val submissionRequestRepository: SubmissionRequestRepository,
-    private val mongoTemplate: MongoTemplate
+    private val mongoTemplate: MongoTemplate,
 ) : SubmissionRequestRepository by submissionRequestRepository {
     fun saveRequest(submissionRequest: DocSubmissionRequest): DocSubmissionRequest =
         submissionRequestRepository.save(submissionRequest)
@@ -42,7 +43,7 @@ class SubmissionRequestDocDataRepository(
     private fun findActiveRequest(
         query: Query,
         skip: Long,
-        limit: Int
+        limit: Int,
     ): Pair<Int, MutableList<DocSubmissionRequest>> {
         val result = mongoTemplate.find(query.skip(skip).limit(limit), DocSubmissionRequest::class.java)
         return result.count() to result
@@ -54,9 +55,15 @@ class SubmissionRequestDocDataRepository(
             .and("status").`is`(REQUESTED)
             .andOperator(*criteriaArray(filter))
 
-    fun updateStatus(status: SubmissionRequestStatus, accNo: String, version: Int) {
+    fun updateStatus(status: RequestStatus, accNo: String, version: Int) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
         mongoTemplate.updateFirst(query, update("status", status), DocSubmissionRequest::class.java)
+    }
+
+    fun updateSubmissionRequest(rqt: DocSubmissionRequest) {
+        val query = Query(where(SUB_ACC_NO).`is`(rqt.accNo).andOperator(where(SUB_VERSION).`is`(rqt.version)))
+        val update = Update().set("status", rqt.status).set("submission", rqt.submission)
+        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java)
     }
 
     private fun criteriaArray(filter: SubmissionFilter): Array<Criteria> =

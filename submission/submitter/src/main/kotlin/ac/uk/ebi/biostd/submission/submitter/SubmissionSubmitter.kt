@@ -1,9 +1,12 @@
 package ac.uk.ebi.biostd.submission.submitter
 
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
+import ebi.ac.uk.extended.events.RequestCreated
+import ebi.ac.uk.extended.events.RequestLoaded
+import ebi.ac.uk.extended.events.RequestProcessed
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 
@@ -16,15 +19,27 @@ class SubmissionSubmitter(
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         val submission = process(rqt)
-        val (accNo, version) = submissionSubmitter.submitAsync(SubmissionRequest(submission, rqt.draftKey))
-        submissionSubmitter.processRequest(accNo, version)
+        val (accNo, version) = submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.draftKey))
+        submissionSubmitter.handleRequest(accNo, version)
         return submission
     }
 
-    fun submitAsync(rqt: SubmitRequest): ExtSubmission {
+    fun createRequest(rqt: SubmitRequest): ExtSubmission {
         val submission = process(rqt)
-        submissionSubmitter.submitAsync(SubmissionRequest(submission, rqt.draftKey))
+        submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.draftKey))
         return submission
+    }
+
+    fun loadRequest(rqt: RequestCreated): ExtSubmission {
+        return submissionSubmitter.loadRequest(rqt.accNo, rqt.version)
+    }
+
+    fun processRequest(rqt: RequestLoaded): ExtSubmission {
+        return submissionSubmitter.processRequest(rqt.accNo, rqt.version)
+    }
+
+    fun checkReleased(rqt: RequestProcessed): ExtSubmission {
+        return submissionSubmitter.checkReleased(rqt.accNo, rqt.version)
     }
 
     @Suppress("TooGenericExceptionCaught")

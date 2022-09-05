@@ -9,7 +9,7 @@ import ac.uk.ebi.biostd.handlers.config.RELEASE_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.config.SUBMIT_NOTIFICATIONS_QUEUE
 import ebi.ac.uk.commons.http.slack.Alert
 import ebi.ac.uk.commons.http.slack.NotificationsSender
-import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
+import ebi.ac.uk.extended.events.FailedRequestMessage
 import ebi.ac.uk.extended.events.SubmissionMessage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.notifications.service.RtNotificationService
@@ -51,7 +51,7 @@ class SubmissionNotificationsListener(
     }
 
     @RabbitListener(queues = [FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE])
-    fun receiveFailedSubmissionMessage(msg: FailedSubmissionRequestMessage): Unit =
+    fun receiveFailedSubmissionMessage(msg: FailedRequestMessage): Unit =
         sendErrorNotification("Problem processing submission '${msg.accNo}' with version ${msg.version}.")
 
     private fun notify(
