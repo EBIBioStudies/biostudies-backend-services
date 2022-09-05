@@ -18,9 +18,12 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
+import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.max
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 internal class SubmissionMongoPersistenceQueryService(
@@ -31,6 +34,9 @@ internal class SubmissionMongoPersistenceQueryService(
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
 ) : SubmissionPersistenceQueryService {
     override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
+
+    override fun existByAccNoAndVersion(accNo: String, version: Int): Boolean =
+        submissionRepo.existsByAccNoAndVersion(accNo, version)
 
     override fun hasPendingRequest(accNo: String): Boolean =
         requestRepository.existsByAccNoAndStatusIn(accNo, setOf(REQUESTED))
@@ -92,8 +98,10 @@ internal class SubmissionMongoPersistenceQueryService(
     }
 
     private fun getRequest(accNo: String, version: Int, status: RequestStatus): SubmissionRequest {
+        logger.info { "$accNo, Loading request accNo='$accNo' version '$version'" }
         val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, status)
         val stored = serializationService.deserialize(request.submission.toString())
+        logger.info { "$accNo, Finish loading request accNo='$accNo' version '$version'" }
         return SubmissionRequest(
             submission = stored,
             draftKey = request.draftKey,

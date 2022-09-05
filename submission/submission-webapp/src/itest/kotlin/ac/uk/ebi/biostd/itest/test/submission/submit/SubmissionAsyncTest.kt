@@ -58,7 +58,7 @@ class SubmissionAsyncTest(
         await()
             .atMost(ofSeconds(10))
             .until {
-                submissionRepository.existByAccNo("SimpleAsync1")
+                submissionRepository.existByAccNoAndVersion("SimpleAsync1", 1)
             }
 
         val saved = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("SimpleAsync1"))

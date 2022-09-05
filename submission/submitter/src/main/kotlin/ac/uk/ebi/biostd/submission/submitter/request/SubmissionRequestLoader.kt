@@ -23,7 +23,7 @@ class SubmissionRequestLoader(
     /**
      * Calculate md5 and size for every file in submission request.
      */
-    internal fun loadRequest(accNo: String, version: Int): ExtSubmission {
+    fun loadRequest(accNo: String, version: Int): ExtSubmission {
         logger.info { "Started loading request accNo='$accNo', version='$version'" }
         val original = queryService.getPendingRequest(accNo, version)
         val processed = processRequest(original.submission)

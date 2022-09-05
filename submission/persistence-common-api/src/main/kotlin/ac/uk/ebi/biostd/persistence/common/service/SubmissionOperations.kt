@@ -27,6 +27,8 @@ interface SubmissionPersistenceService {
 interface SubmissionPersistenceQueryService {
     fun existByAccNo(accNo: String): Boolean
 
+    fun existByAccNoAndVersion(accNo: String, version: Int): Boolean
+
     fun hasPendingRequest(accNo: String): Boolean
 
     fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission?
