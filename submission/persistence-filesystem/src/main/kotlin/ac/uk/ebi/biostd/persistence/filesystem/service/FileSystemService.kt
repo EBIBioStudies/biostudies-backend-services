@@ -12,9 +12,8 @@ class FileSystemService(
     fun persistSubmissionFiles(sub: ExtSubmission): ExtSubmission {
         logger.info { "${sub.accNo} ${sub.owner} Processing files of submission ${sub.accNo}" }
         val processedSubmission = storageService.persistSubmissionFiles(sub)
-        val finalSub = storageService.generatePageTab(processedSubmission)
         logger.info { "${sub.accNo} ${sub.owner} Finished processing files of submission ${sub.accNo}" }
-        return finalSub
+        return processedSubmission
     }
 
     fun cleanFolder(previousSubmission: ExtSubmission) {

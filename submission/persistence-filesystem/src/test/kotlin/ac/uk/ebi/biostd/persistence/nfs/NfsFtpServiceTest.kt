@@ -49,13 +49,6 @@ internal class NfsFtpServiceTest(
     }
 
     @Test
-    fun `create ftp folder`() {
-        testInstance.generateFtpLinks(extSubmission)
-
-        assertFolder(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile())
-    }
-
-    @Test
     fun `process public submission`() {
         every { extSubmission.relPath } returns REL_PATH
 

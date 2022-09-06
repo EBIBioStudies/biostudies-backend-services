@@ -6,7 +6,7 @@ import java.io.File
 
 class FilesListSource(private val files: List<File>) : FilesSource {
     override fun getExtFile(path: String, md5: String?, attributes: List<Attribute>): ExtFile? =
-        files.firstOrNull { it.name == path }?.let { create(path, it, attributes) }
+        files.firstOrNull { it.name == path }?.let { createNfsFile(path, it, attributes) }
 
     override fun getFile(path: String, md5: String?): File? = files.firstOrNull { it.name == path }
     override val description: String = "Request files [${files.joinToString { it.name }}]"

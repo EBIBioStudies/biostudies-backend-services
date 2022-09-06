@@ -48,7 +48,10 @@ class FileProcessingService(
             submission.version,
             submission.section
         ) { processFile(it, index.incrementAndGet()) }
-        return submission.copy(section = newSection)
+        return submission.copy(
+            section = newSection,
+            pageTabFiles = submission.pageTabFiles.map { processFile(it, index.incrementAndGet()) }
+        )
     }
 
     private fun processSectionFiles(
@@ -69,7 +72,10 @@ class FileProcessingService(
         processFile: (file: ExtFile) -> ExtFile,
     ): ExtFileList {
         val newFileList = fileResolver.createExtEmptyFile(subAccNo, subVersion, fileList.fileName)
-        return fileList.copy(file = copyFile(fileList.file, newFileList, processFile))
+        return fileList.copy(
+            file = copyFile(fileList.file, newFileList, processFile),
+            pageTabFiles = fileList.pageTabFiles.map(processFile),
+        )
     }
 
     private fun copyFile(inputFile: File, outputFile: File, processFile: (file: ExtFile) -> ExtFile): File {

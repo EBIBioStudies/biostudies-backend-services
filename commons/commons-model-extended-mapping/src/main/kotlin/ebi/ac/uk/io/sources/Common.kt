@@ -6,7 +6,7 @@ import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
 import java.io.File
 
-internal fun create(path: String, file: File, attributes: List<Attribute>): NfsFile {
+internal fun createNfsFile(path: String, file: File, attributes: List<Attribute>): NfsFile {
     return NfsFile(
         filePath = path,
         relPath = "Files/$path",
