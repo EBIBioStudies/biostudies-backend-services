@@ -6,19 +6,18 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
-import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.extended.serialization.service.TrackSection
+import uk.ac.ebi.extended.serialization.service.iterateSections
 import java.io.File
 
 class PageTabService(
-    private val fireTempFolder: File,
+    private val tempFolder: File,
     private val pageTabUtil: PageTabUtil,
-    private val processingService: FileProcessingService,
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
-        val subFiles = pageTabUtil.generateSubPageTab(sub, fireTempFolder)
-        val fileListFiles = pageTabUtil.generateFileListPageTab(sub, fireTempFolder)
-        val section = processingService.process(sub.section) { withTabFiles(it, fileListFiles) }
+        val subFiles = pageTabUtil.generateSubPageTab(sub, tempFolder)
+        val fileListFiles = pageTabUtil.generateFileListPageTab(sub, tempFolder)
+        val section = iterateSections(sub.section) { withTabFiles(it, fileListFiles) }
         return when {
             section.changed -> sub.copy(pageTabFiles = subExtFiles(sub.accNo, subFiles), section = section.section)
             else -> sub.copy(pageTabFiles = subExtFiles(sub.accNo, subFiles))
@@ -54,7 +53,7 @@ class PageTabService(
         createNfsFile("$accNo.tsv", "$accNo.tsv", pageTab.tsv)
     )
 
-    fun createNfsFile(path: String, relPath: String, file: File): NfsFile =
+    private fun createNfsFile(path: String, relPath: String, file: File): NfsFile =
         NfsFile(
             filePath = path,
             relPath = relPath,

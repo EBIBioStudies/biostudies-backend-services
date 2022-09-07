@@ -20,7 +20,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
@@ -61,12 +60,10 @@ class PersistenceConfig(
     @Bean
     fun pageTabService(
         pageTabUtil: PageTabUtil,
-        fileProcessingService: FileProcessingService,
     ): PageTabService =
         PageTabService(
             File(properties.fireTempDirPath),
             pageTabUtil,
-            fileProcessingService,
         )
 
     @Bean
