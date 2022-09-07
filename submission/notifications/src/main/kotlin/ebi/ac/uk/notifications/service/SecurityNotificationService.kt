@@ -15,7 +15,7 @@ class SecurityNotificationService(
     private val simpleEmailService: SimpleEmailService
 ) {
     fun sendActivationNotification(notification: SecurityNotification) {
-        val templateContent = templateLoader.loadTemplate("activation.html")
+        val templateContent = templateLoader.loadTemplate("security/activation.html")
         val userActivationModel =
             UserActivationModel(FROM, notification.activationLink, notification.username, notification.activationCode)
         val content = UserActivationTemplate(templateContent).render(userActivationModel)
@@ -25,7 +25,7 @@ class SecurityNotificationService(
     }
 
     fun sendActivationByEmailNotification(notification: SecurityNotification) {
-        val templateContent = templateLoader.loadTemplate("activation-by-email.html")
+        val templateContent = templateLoader.loadTemplate("security/activation-by-email.html")
         val userActivationModel =
             UserActivationModel(FROM, notification.activationLink, notification.username, notification.activationCode)
         val content = UserActivationTemplate(templateContent).render(userActivationModel)
@@ -35,7 +35,7 @@ class SecurityNotificationService(
     }
 
     fun sendPasswordResetNotification(notification: SecurityNotification) {
-        val templateContent = templateLoader.loadTemplate("reset-password.html")
+        val templateContent = templateLoader.loadTemplate("security/reset-password.html")
         val passwordResetModel =
             PasswordResetModel(FROM, notification.activationLink, notification.username)
         val content = PasswordResetTemplate(templateContent).render(passwordResetModel)
