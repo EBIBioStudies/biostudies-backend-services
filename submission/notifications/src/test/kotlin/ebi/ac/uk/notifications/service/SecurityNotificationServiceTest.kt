@@ -32,9 +32,10 @@ class SecurityNotificationServiceTest(
     @Test
     fun `activation notification`() {
         val activationEmail = slot<Email>()
-        val notification = SecurityNotification(TEST_EMAIL, "Test User", "activationCode", "activation-link", ACTIVATION)
+        val notification =
+            SecurityNotification(TEST_EMAIL, "Test User", "activationCode", "activation-link", ACTIVATION)
 
-        every { templateLoader.loadTemplate("activation.html") } returns "activation"
+        every { templateLoader.loadTemplate("security/activation.html") } returns "activation"
         every { simpleEmailService.send(capture(activationEmail)) } answers { nothing }
 
         testInstance.sendActivationNotification(notification)
@@ -47,9 +48,10 @@ class SecurityNotificationServiceTest(
     @Test
     fun `activation by email notification`() {
         val activationEmail = slot<Email>()
-        val notification = SecurityNotification(TEST_EMAIL, "Test User", "activationCode", "activation-link", ACTIVATION_BY_EMAIL)
+        val notification =
+            SecurityNotification(TEST_EMAIL, "Test User", "activationCode", "activation-link", ACTIVATION_BY_EMAIL)
 
-        every { templateLoader.loadTemplate("activation-by-email.html") } returns "activation"
+        every { templateLoader.loadTemplate("security/activation-by-email.html") } returns "activation"
         every { simpleEmailService.send(capture(activationEmail)) } answers { nothing }
 
         testInstance.sendActivationByEmailNotification(notification)
@@ -64,7 +66,7 @@ class SecurityNotificationServiceTest(
         val resetEmail = slot<Email>()
         val notification = SecurityNotification(TEST_EMAIL, "Test User", "activationCode", "password-reset-link", PASSWORD_RESET)
 
-        every { templateLoader.loadTemplate("reset-password.html") } returns "reset password"
+        every { templateLoader.loadTemplate("security/reset-password.html") } returns "reset password"
         every { simpleEmailService.send(capture(resetEmail)) } answers { nothing }
 
         testInstance.sendPasswordResetNotification(notification)

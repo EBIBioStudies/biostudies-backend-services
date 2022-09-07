@@ -8,11 +8,13 @@ import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.notifications.util.TemplateLoader
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,12 +26,13 @@ internal class RtNotificationServiceTest(
     @MockK private val loader: TemplateLoader,
     @MockK private val ticketService: RtTicketService,
 ) {
+    @AfterEach
+    fun afterEach() = clearAllMocks()
 
     private val testInstance: RtNotificationService = RtNotificationService(loader, ticketService)
 
     @Nested
     inner class NotifySuccessfulSubmission {
-
         @Nested
         inner class WhenSubmitting {
             @Test
@@ -39,8 +42,6 @@ internal class RtNotificationServiceTest(
                         releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
                         released = false
                     ),
-                    template = "successful-submission.txt",
-                    subject = "BioStudies Submission - S-TEST1",
                     """
                         Dear owner@mail.org,
                         
@@ -62,8 +63,6 @@ internal class RtNotificationServiceTest(
             fun `when no released no release date`() {
                 testNotification(
                     submission = testSubmission(releaseTime = null, released = false),
-                    template = "successful-submission.txt",
-                    subject = "BioStudies Submission - S-TEST1",
                     """
                         Dear owner@mail.org,
                         
@@ -85,8 +84,6 @@ internal class RtNotificationServiceTest(
             fun `when released`() {
                 testNotification(
                     submission = testSubmission(released = true),
-                    template = "successful-submission.txt",
-                    subject = "BioStudies Submission - S-TEST1",
                     """
                         Dear owner@mail.org,
 
@@ -108,8 +105,6 @@ internal class RtNotificationServiceTest(
             fun `when submission title`() {
                 testNotification(
                     submission = testSubmission(title = "Sub Title", version = 1),
-                    template = "successful-submission.txt",
-                    subject = "BioStudies Submission - S-TEST1",
                     """
                         Dear owner@mail.org,
 
@@ -131,8 +126,6 @@ internal class RtNotificationServiceTest(
             fun `when section title`() {
                 testNotification(
                     submission = testSubmission(title = "Sect Title", version = 1),
-                    template = "successful-submission.txt",
-                    subject = "BioStudies Submission - S-TEST1",
                     """
                         Dear owner@mail.org,
 
@@ -149,6 +142,26 @@ internal class RtNotificationServiceTest(
                     """.trimIndent()
                 )
             }
+
+            private fun testNotification(submission: ExtSubmission, content: String) {
+                val slot = slot<String>()
+
+                every {
+                    loader.loadTemplateOrDefault(submission, SUCCESSFUL_SUBMISSION_TEMPLATE)
+                } returns asText("/templates/submission/Default.txt")
+                every {
+                    ticketService.saveRtTicket(
+                        "S-TEST1",
+                        "BioStudies Submission - S-TEST1",
+                        "owner@mail.org",
+                        capture(slot)
+                    )
+                } returns Unit
+
+                testInstance.notifySuccessfulSubmission(submission, "owner@mail.org", "ui-url")
+
+                assertThat(slot.captured).isEqualTo(content)
+            }
         }
 
         @Nested
@@ -157,8 +170,6 @@ internal class RtNotificationServiceTest(
             fun `when released`() {
                 testNotification(
                     submission = testSubmission(released = true, version = 2),
-                    template = "successful-resubmission.txt",
-                    subject = "BioStudies Submission - S-TEST1",
                     """
                         Dear owner@mail.org,
 
@@ -173,22 +184,26 @@ internal class RtNotificationServiceTest(
                     """.trimIndent()
                 )
             }
-        }
 
-        private fun testNotification(
-            submission: ExtSubmission,
-            template: String,
-            subject: String,
-            content: String
-        ) {
-            val slot = slot<String>()
+            private fun testNotification(submission: ExtSubmission, content: String) {
+                val slot = slot<String>()
 
-            every { loader.loadTemplate(template) } returns asText("/templates/$template")
-            every { ticketService.saveRtTicket("S-TEST1", subject, "owner@mail.org", capture(slot)) } returns Unit
+                every {
+                    loader.loadTemplateOrDefault(submission, SUCCESSFUL_RESUBMISSION_TEMPLATE)
+                } returns asText("/templates/resubmission/Default.txt")
+                every {
+                    ticketService.saveRtTicket(
+                        "S-TEST1",
+                        "BioStudies Submission - S-TEST1",
+                        "owner@mail.org",
+                        capture(slot)
+                    )
+                } returns Unit
 
-            testInstance.notifySuccessfulSubmission(submission, "owner@mail.org", "ui-url")
+                testInstance.notifySuccessfulSubmission(submission, "owner@mail.org", "ui-url")
 
-            assertThat(slot.captured).isEqualTo(content)
+                assertThat(slot.captured).isEqualTo(content)
+            }
         }
     }
 
@@ -198,8 +213,6 @@ internal class RtNotificationServiceTest(
         fun `when no title`() {
             testNotification(
                 submission = testSubmission(released = true),
-                template = "release-notification.txt",
-                subject = "BioStudies Submission - S-TEST1",
                 """
                     Dear owner@mail.org,
 
@@ -221,8 +234,6 @@ internal class RtNotificationServiceTest(
         fun `when submission title`() {
             testNotification(
                 submission = testSubmission(title = "Sub Title", version = 1),
-                template = "release-notification.txt",
-                subject = "BioStudies Submission - S-TEST1",
                 """
                 Dear owner@mail.org,
 
@@ -244,8 +255,6 @@ internal class RtNotificationServiceTest(
         fun `when section title`() {
             testNotification(
                 submission = testSubmission(title = "Sect Title", version = 1),
-                template = "release-notification.txt",
-                subject = "BioStudies Submission - S-TEST1",
                 """
                     Dear owner@mail.org,
                     
@@ -263,16 +272,20 @@ internal class RtNotificationServiceTest(
             )
         }
 
-        private fun testNotification(
-            submission: ExtSubmission,
-            template: String,
-            subject: String,
-            content: String
-        ) {
+        private fun testNotification(submission: ExtSubmission, content: String) {
             val slot = slot<String>()
 
-            every { loader.loadTemplate(template) } returns asText("/templates/$template")
-            every { ticketService.saveRtTicket("S-TEST1", subject, "owner@mail.org", capture(slot)) } returns Unit
+            every {
+                loader.loadTemplateOrDefault(submission, SUBMISSION_RELEASE_TEMPLATE)
+            } returns asText("/templates/release/Default.txt")
+            every {
+                ticketService.saveRtTicket(
+                    "S-TEST1",
+                    "BioStudies Submission - S-TEST1",
+                    "owner@mail.org",
+                    capture(slot)
+                )
+            } returns Unit
 
             testInstance.notifySubmissionRelease(submission, "owner@mail.org", "ui-url")
 
