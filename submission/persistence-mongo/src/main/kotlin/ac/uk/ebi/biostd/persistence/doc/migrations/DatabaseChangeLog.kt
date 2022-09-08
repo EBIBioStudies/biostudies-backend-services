@@ -40,14 +40,13 @@ import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder as TextIndex
 
 internal const val TITLE_INDEX_NAME = "title_index"
-// TODO activate changelog that removes the stats field from the submission documents
 internal val CHANGE_LOG_CLASSES = listOf(
     ChangeLog001::class.java,
     ChangeLog002::class.java,
     ChangeLog003::class.java,
     ChangeLog004::class.java,
     ChangeLog005::class.java,
-//    ChangeLog006::class.java,
+    ChangeLog006::class.java,
 )
 
 @ChangeLog
