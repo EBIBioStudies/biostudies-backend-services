@@ -38,6 +38,7 @@ import uk.ac.ebi.extended.test.SubmissionFactory.SUBMITTER
 import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.time.Duration
+import kotlin.text.Typography.section
 
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class, TestConfig::class])
@@ -76,12 +77,7 @@ class ExtSubmissionRepositoryTest(
         subDataRepository.save(docSubmission.copy(accNo = ACC_NO, version = 1))
         assertThat(subDataRepository.findAll()).hasSize(1)
 
-        draftDocDataRepository.saveDraft("someone", "draftKey", "content")
-        draftDocDataRepository.saveDraft(OWNER, ACC_NO, "content")
-        draftDocDataRepository.saveDraft(SUBMITTER, ACC_NO, "content")
-        assertThat(draftDocDataRepository.findAll()).hasSize(3)
-
-        val result = testInstance.saveSubmission(submission, draftKey = "draftKey")
+        val result = testInstance.saveSubmission(submission)
 
         assertThat(result.section).isEqualToIgnoringGivenFields(
             section.copy(fileList = defaultFileList(filesUrl = null)),
@@ -101,6 +97,20 @@ class ExtSubmissionRepositoryTest(
         assertThat(fileListDocFile.index).isEqualTo(0)
         assertThat(fileListDocFile.submissionVersion).isEqualTo(savedSubmission.version)
         assertThat(fileListDocFile.submissionAccNo).isEqualTo(submission.accNo)
+
+        assertThat(draftDocDataRepository.findAll()).hasSize(0)
+    }
+
+    @Test
+    fun deleteSubmissionDrafts() {
+        val submission = defaultSubmission(version = 3)
+
+        draftDocDataRepository.saveDraft("someone", "draftKey", "content")
+        draftDocDataRepository.saveDraft(OWNER, ACC_NO, "content")
+        draftDocDataRepository.saveDraft(SUBMITTER, ACC_NO, "content")
+        assertThat(draftDocDataRepository.findAll()).hasSize(3)
+
+        testInstance.deleteSubmissionDrafts(submission, "draftKey")
 
         assertThat(draftDocDataRepository.findAll()).hasSize(0)
     }

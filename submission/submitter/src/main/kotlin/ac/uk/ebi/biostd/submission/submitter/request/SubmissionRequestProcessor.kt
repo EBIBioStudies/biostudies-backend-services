@@ -14,7 +14,6 @@ class SubmissionRequestProcessor(
     private val queryService: SubmissionPersistenceQueryService,
     private val persistenceService: SubmissionPersistenceService,
 ) {
-
     /**
      * Process the current submission files. Note that [ExtSubmission] returned does not include file list files.
      */
@@ -24,10 +23,14 @@ class SubmissionRequestProcessor(
             val (sub, draftKey) = request
 
             logger.info { "$accNo ${sub.owner} Copying files accNo='${sub.accNo}', version='$version'" }
+
             val processed = systemService.persistSubmissionFiles(sub)
-            persistenceService.saveSubmission(processed, draftKey)
+            persistenceService.saveSubmission(processed)
             persistenceService.saveSubmissionRequest(request.copy(status = FILES_COPIED, submission = processed))
+            persistenceService.deleteSubmissionDrafts(sub, draftKey)
+
             logger.info { "$accNo ${sub.owner} Finished copying files accNo='$accNo', version='$version'" }
+
             return processed
         }
 

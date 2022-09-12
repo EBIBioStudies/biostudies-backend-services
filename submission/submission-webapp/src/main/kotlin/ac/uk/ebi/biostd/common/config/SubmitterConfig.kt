@@ -80,14 +80,12 @@ class SubmitterConfig {
     fun extSubmissionSubmitter(
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         persistenceService: SubmissionPersistenceService,
-        submissionDraftService: SubmissionDraftService,
         requestLoader: SubmissionRequestLoader,
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionReleaser,
     ) = ExtSubmissionSubmitter(
         submissionPersistenceQueryService,
         persistenceService,
-        submissionDraftService,
         requestLoader,
         requestProcessor,
         submissionReleaser
@@ -98,10 +96,12 @@ class SubmitterConfig {
         extSubmissionSubmitter: ExtSubmissionSubmitter,
         submissionProcessor: SubmissionProcessor,
         parentInfoService: ParentInfoService,
+        draftService: SubmissionDraftService,
     ) = SubmissionSubmitter(
         extSubmissionSubmitter,
         submissionProcessor,
         parentInfoService,
+        draftService,
     )
 
     @Bean

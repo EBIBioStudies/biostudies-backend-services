@@ -35,8 +35,8 @@ internal class SubmissionMongoPersistenceService(
         return rqt.submission.accNo to rqt.submission.version
     }
 
-    override fun saveSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission =
-        submissionRepository.saveSubmission(submission, draftKey)
+    override fun saveSubmission(submission: ExtSubmission): ExtSubmission =
+        submissionRepository.saveSubmission(submission)
 
     override fun updateRequestStatus(accNo: String, version: Int, status: RequestStatus) {
         requestRepository.updateStatus(status, accNo, version)
@@ -44,6 +44,10 @@ internal class SubmissionMongoPersistenceService(
 
     override fun setAsReleased(accNo: String) {
         subDataRepository.setAsReleased(accNo)
+    }
+
+    override fun deleteSubmissionDrafts(submission: ExtSubmission, draftKey: String?) {
+        submissionRepository.deleteSubmissionDrafts(submission, draftKey)
     }
 
     private fun asRequest(rqt: SubmissionRequest): DocSubmissionRequest {
