@@ -30,15 +30,6 @@ class ExtSubmissionService(
     private val eventsPublisherService: EventsPublisherService,
     private val fileStorageService: FileStorageService,
 ) {
-    fun refreshSubmission(accNo: String, user: String): ExtSubmission {
-        val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        fileStorageService.cleanSubmissionFiles(sub)
-
-        val response = submitExt(user, sub)
-        eventsPublisherService.submissionsRefresh(sub.accNo, sub.owner)
-        return response
-    }
-
     fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
         return submissionSubmitter.handleRequest(accNo, version)
     }
