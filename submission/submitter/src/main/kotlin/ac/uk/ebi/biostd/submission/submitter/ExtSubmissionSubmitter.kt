@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
@@ -8,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionCleaner
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
@@ -20,10 +22,13 @@ class ExtSubmissionSubmitter(
     private val requestLoader: SubmissionRequestLoader,
     private val requestProcessor: SubmissionRequestProcessor,
     private val requestReleaser: SubmissionReleaser,
+    private val submissionCleaner: SubmissionCleaner,
 ) {
     fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> = createRequest(rqt, rqt.submission.submitter)
 
     fun loadRequest(accNo: String, version: Int): ExtSubmission = requestLoader.loadRequest(accNo, version)
+
+    fun cleanRequest(accNo: String) = submissionCleaner.cleanCurrentVersion(accNo)
 
     fun processRequest(accNo: String, version: Int): ExtSubmission = requestProcessor.processRequest(accNo, version)
 
@@ -35,6 +40,7 @@ class ExtSubmissionSubmitter(
         return when (queryService.getRequestStatus(accNo, version)) {
             REQUESTED -> completeRequest(accNo, version)
             LOADED -> processRequestFiles(accNo, version)
+            CLEANED -> processCleanedFiles(accNo, version)
             FILES_COPIED -> requestReleaser.checkReleased(accNo, version)
             else -> throw IllegalStateException("Request accNo=$accNo, version='$version' has been already processed")
         }
@@ -42,11 +48,18 @@ class ExtSubmissionSubmitter(
 
     private fun completeRequest(accNo: String, version: Int): ExtSubmission {
         requestLoader.loadRequest(accNo, version)
+        submissionCleaner.cleanCurrentVersion(accNo)
         requestProcessor.processRequest(accNo, version)
         return requestReleaser.checkReleased(accNo, version)
     }
 
     private fun processRequestFiles(accNo: String, version: Int): ExtSubmission {
+        submissionCleaner.cleanCurrentVersion(accNo)
+        requestProcessor.processRequest(accNo, version)
+        return requestReleaser.checkReleased(accNo, version)
+    }
+
+    private fun processCleanedFiles(accNo: String, version: Int): ExtSubmission {
         requestProcessor.processRequest(accNo, version)
         return requestReleaser.checkReleased(accNo, version)
     }

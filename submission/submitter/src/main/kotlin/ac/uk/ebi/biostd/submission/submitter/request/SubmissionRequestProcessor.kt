@@ -14,33 +14,18 @@ class SubmissionRequestProcessor(
     private val queryService: SubmissionPersistenceQueryService,
     private val persistenceService: SubmissionPersistenceService,
 ) {
-
     /**
      * Process the current submission files. Note that [ExtSubmission] returned does not include file list files.
      */
     fun processRequest(accNo: String, version: Int): ExtSubmission {
-        fun processSubmission(): ExtSubmission {
-            val request = queryService.getLoadedRequest(accNo, version)
-            val (sub, draftKey) = request
+        val request = queryService.getLoadedRequest(accNo, version)
+        val (sub, draftKey) = request
 
-            logger.info { "$accNo ${sub.owner} Copying files accNo='${sub.accNo}', version='$version'" }
-            val processed = systemService.persistSubmissionFiles(sub)
-            persistenceService.saveSubmission(processed, draftKey)
-            persistenceService.saveSubmissionRequest(request.copy(status = FILES_COPIED, submission = processed))
-            logger.info { "$accNo ${sub.owner} Finished copying files accNo='$accNo', version='$version'" }
-            return processed
-        }
-
-        fun cleanCurrentVersion() {
-            val sub = queryService.findExtByAccNo(accNo, includeFileListFiles = true)
-            if (sub != null) {
-                logger.info { "${sub.accNo} ${sub.owner} Started cleaning files of version ${sub.version}" }
-                systemService.cleanFolder(sub)
-                logger.info { "${sub.accNo} ${sub.owner} Finished cleaning files of version ${sub.version}" }
-            }
-        }
-
-        cleanCurrentVersion()
-        return processSubmission()
+        logger.info { "$accNo ${sub.owner} Copying files accNo='${sub.accNo}', version='$version'" }
+        val processed = systemService.persistSubmissionFiles(sub)
+        persistenceService.saveSubmission(processed, draftKey)
+        persistenceService.saveSubmissionRequest(request.copy(status = FILES_COPIED, submission = processed))
+        logger.info { "$accNo ${sub.owner} Finished copying files accNo='$accNo', version='$version'" }
+        return processed
     }
 }

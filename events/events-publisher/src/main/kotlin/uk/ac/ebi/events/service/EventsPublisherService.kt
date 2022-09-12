@@ -1,5 +1,6 @@
 package uk.ac.ebi.events.service
 
+import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
@@ -33,6 +34,11 @@ class EventsPublisherService(
     fun requestLoaded(accNo: String, version: Int) =
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestLoaded(accNo, version)
+        )
+
+    fun requestCleaned(accNo: String, version: Int) =
+        rabbitTemplate.convertAndSend(
+            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestCleaned(accNo, version)
         )
 
     fun requestProcessed(accNo: String, version: Int) =
