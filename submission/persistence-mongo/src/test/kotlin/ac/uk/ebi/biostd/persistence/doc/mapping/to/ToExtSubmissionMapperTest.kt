@@ -7,8 +7,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.PROJECT_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.REL_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.ROOT_PATH
 import ac.uk.ebi.biostd.persistence.doc.test.SECRET_KEY
-import ac.uk.ebi.biostd.persistence.doc.test.STAT_TYPE
-import ac.uk.ebi.biostd.persistence.doc.test.STAT_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.test.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.SUB_SCHEMA_VERSION
@@ -39,7 +37,9 @@ import java.io.File
 import java.time.ZoneOffset
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
-class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
+class ToExtSubmissionMapperTest(
+    temporaryFolder: TemporaryFolder
+) {
     private val extSection = mockk<ExtSection>()
     private val toExtSectionMapper: ToExtSectionMapper = mockk()
     private val testInstance = ToExtSubmissionMapper(toExtSectionMapper)
@@ -91,7 +91,6 @@ class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
         assertBasicProperties(extSubmission)
         assertAttributes(extSubmission)
         assertTags(extSubmission)
-        assertStats(extSubmission)
         assertProject(extSubmission)
         assertThat(extSubmission.pageTabFiles.first()).isEqualTo(createNfsFile("filePath", "relPath", nfsFileFile))
     }
@@ -123,12 +122,6 @@ class ToExtSubmissionMapperTest(private val temporaryFolder: TemporaryFolder) {
         assertThat(extSubmission.tags).hasSize(1)
         assertThat(extSubmission.tags.first().name).isEqualTo(TAG_NAME)
         assertThat(extSubmission.tags.first().value).isEqualTo(TAG_VALUE)
-    }
-
-    private fun assertStats(extSubmission: ExtSubmission) {
-        assertThat(extSubmission.stats).hasSize(1)
-        assertThat(extSubmission.stats.first().name).isEqualTo(STAT_TYPE)
-        assertThat(extSubmission.stats.first().value).isEqualTo(STAT_VALUE.toString())
     }
 
     private fun assertProject(extSubmission: ExtSubmission) {

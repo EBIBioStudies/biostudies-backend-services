@@ -18,8 +18,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.Date
 
-private val s = "something"
-
 @ExtendWith(MockKExtension::class)
 internal class DocSubmissionConverterTest(
     @MockK val docAttributeConverter: DocAttributeConverter,
@@ -69,8 +67,6 @@ internal class DocSubmissionConverterTest(
         assertThat(result.tags[0].name).isEqualTo(tagDocName)
         assertThat(result.tags[0].value).isEqualTo(tagDocValue)
         assertThat(result.collections[0].accNo).isEqualTo(projectDocAccNo)
-        assertThat(result.stats[0].name).isEqualTo(statDocName)
-        assertThat(result.stats[0].value).isEqualTo(statDocValue)
         assertThat(result.pageTabFiles).isEqualTo(listOf(docFile))
         assertThat(result.storageMode).isEqualTo(StorageMode.NFS)
     }
@@ -102,7 +98,6 @@ internal class DocSubmissionConverterTest(
         subDocument[DocSubmissionFields.SUB_ATTRIBUTES] = listOf(attributeDocument)
         subDocument[DocSubmissionFields.SUB_TAGS] = listOf(createTagDocument())
         subDocument[DocSubmissionFields.SUB_PROJECTS] = listOf(createProjectDocument())
-        subDocument[DocSubmissionFields.SUB_STATS] = listOf(createStatDocument())
         subDocument[DocSubmissionFields.PAGE_TAB_FILES] = listOf(fileDocument)
         subDocument[DocSubmissionFields.STORAGE_MODE] = storageMode
         return subDocument
@@ -119,13 +114,6 @@ internal class DocSubmissionConverterTest(
         val projectDoc = Document()
         projectDoc[DocSubmissionFields.PROJECT_DOC_ACC_NO] = projectDocAccNo
         return projectDoc
-    }
-
-    private fun createStatDocument(): Document {
-        val statDoc = Document()
-        statDoc[DocSubmissionFields.STAT_DOC_NAME] = statDocName
-        statDoc[DocSubmissionFields.STAT_DOC_VALUE] = statDocValue
-        return statDoc
     }
 
     companion object {
@@ -148,8 +136,6 @@ internal class DocSubmissionConverterTest(
         val subCreationTime: Date = Date(330)
         const val tagDocName = "name"
         const val tagDocValue = "value"
-        const val statDocName = "name"
-        const val statDocValue: Long = 1
         const val storageMode = "NFS"
     }
 }

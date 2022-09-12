@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
-import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
@@ -105,7 +104,6 @@ object DocSubmissionFields {
     val DOC_SUBMISSION_CLASS: String = DocSubmission::class.java.canonicalName
     val DOC_TAG_CLASS: String = DocTag::class.java.canonicalName
     val DOC_PROJECT_CLASS: String = DocCollection::class.java.canonicalName
-    val DOC_STAT_CLASS: String = DocStat::class.java.canonicalName
 
     const val CLASS_FIELD = "_class"
     const val SUB = "submission"

@@ -4,7 +4,6 @@ import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
-import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
@@ -38,7 +37,6 @@ val extCollection = ExtCollection(COLLECTION_ACC_NO)
 
 const val EXT_STAT_NAME = "component"
 const val EXT_STAT_VALUE = "1"
-val extStat = ExtStat(EXT_STAT_NAME, EXT_STAT_VALUE)
 
 const val FIRE_FILE_FILEPATH = "fireFileFilePath/fireFileFileName"
 const val FIRE_FILE_REL_PATH = "fireFileRelPath"
@@ -93,7 +91,6 @@ val fullExtSubmission = ExtSubmission(
     tags = listOf(extTag),
     collections = listOf(extCollection),
     section = rootSection,
-    stats = listOf(extStat),
     pageTabFiles = listOf(fireFile, fireDirectory),
     storageMode = StorageMode.NFS
 )
