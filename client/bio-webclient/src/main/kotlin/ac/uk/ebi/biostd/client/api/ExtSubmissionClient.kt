@@ -22,7 +22,7 @@ const val EXT_SUBMISSIONS_URL = "/submissions/extended"
 
 class ExtSubmissionClient(
     private val restTemplate: RestTemplate,
-    private val extSerializationService: ExtSerializationService
+    private val extSerializationService: ExtSerializationService,
 ) : ExtSubmissionOperations {
     override fun getExtSubmissions(extPageQuery: ExtPageQuery): ExtPage {
         val response = restTemplate.getForEntity<String>(asUrl(extPageQuery)).body!!
@@ -57,11 +57,6 @@ class ExtSubmissionClient(
             "$EXT_SUBMISSIONS_URL/async",
             HttpEntity(getMultipartBody(extSubmission))
         )
-    }
-
-    override fun refreshSubmission(accNo: String): ExtSubmission {
-        val response = restTemplate.postForEntity<String>("$EXT_SUBMISSIONS_URL/refresh/$accNo")
-        return extSerializationService.deserialize(response.body!!)
     }
 
     private fun asUrl(extPageQuery: ExtPageQuery): String =
