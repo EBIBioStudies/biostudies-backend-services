@@ -19,6 +19,7 @@ import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
 import uk.ac.ebi.events.config.SUBMISSIONS_ROUTING_KEY
 import java.time.OffsetDateTime
 
+@Suppress("TooManyFunctions")
 class EventsPublisherService(
     private val rabbitTemplate: RabbitTemplate,
     private val eventsProperties: EventsProperties,

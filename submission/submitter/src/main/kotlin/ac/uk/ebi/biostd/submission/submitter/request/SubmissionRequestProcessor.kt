@@ -22,10 +22,22 @@ class SubmissionRequestProcessor(
         val (sub, draftKey) = request
 
         logger.info { "$accNo ${sub.owner} Copying files accNo='${sub.accNo}', version='$version'" }
+
         val processed = systemService.persistSubmissionFiles(sub)
         persistenceService.saveSubmission(processed, draftKey)
         persistenceService.saveSubmissionRequest(request.copy(status = FILES_COPIED, submission = processed))
+
         logger.info { "$accNo ${sub.owner} Finished copying files accNo='$accNo', version='$version'" }
+
         return processed
+    }
+
+    fun cleanCurrentVersion(accNo: String) {
+        val sub = queryService.findExtByAccNo(accNo, includeFileListFiles = true)
+        if (sub != null) {
+            logger.info { "${sub.accNo} ${sub.owner} Started cleaning files of version ${sub.version}" }
+            systemService.cleanFolder(sub)
+            logger.info { "${sub.accNo} ${sub.owner} Finished cleaning files of version ${sub.version}" }
+        }
     }
 }

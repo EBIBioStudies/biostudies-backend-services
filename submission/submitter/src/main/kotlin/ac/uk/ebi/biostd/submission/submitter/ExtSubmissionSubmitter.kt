@@ -9,12 +9,12 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionCleaner
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ebi.ac.uk.extended.model.ExtSubmission
 
+@Suppress("TooManyFunctions")
 class ExtSubmissionSubmitter(
     private val queryService: SubmissionPersistenceQueryService,
     private val persistenceService: SubmissionPersistenceService,
@@ -22,13 +22,12 @@ class ExtSubmissionSubmitter(
     private val requestLoader: SubmissionRequestLoader,
     private val requestProcessor: SubmissionRequestProcessor,
     private val requestReleaser: SubmissionReleaser,
-    private val submissionCleaner: SubmissionCleaner,
 ) {
     fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> = createRequest(rqt, rqt.submission.submitter)
 
     fun loadRequest(accNo: String, version: Int): ExtSubmission = requestLoader.loadRequest(accNo, version)
 
-    fun cleanRequest(accNo: String) = submissionCleaner.cleanCurrentVersion(accNo)
+    fun cleanRequest(accNo: String) = requestProcessor.cleanCurrentVersion(accNo)
 
     fun processRequest(accNo: String, version: Int): ExtSubmission = requestProcessor.processRequest(accNo, version)
 
@@ -48,13 +47,13 @@ class ExtSubmissionSubmitter(
 
     private fun completeRequest(accNo: String, version: Int): ExtSubmission {
         requestLoader.loadRequest(accNo, version)
-        submissionCleaner.cleanCurrentVersion(accNo)
+        requestProcessor.cleanCurrentVersion(accNo)
         requestProcessor.processRequest(accNo, version)
         return requestReleaser.checkReleased(accNo, version)
     }
 
     private fun processRequestFiles(accNo: String, version: Int): ExtSubmission {
-        submissionCleaner.cleanCurrentVersion(accNo)
+        requestProcessor.cleanCurrentVersion(accNo)
         requestProcessor.processRequest(accNo, version)
         return requestReleaser.checkReleased(accNo, version)
     }

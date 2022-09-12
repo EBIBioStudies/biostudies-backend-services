@@ -25,6 +25,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
+@Suppress("TooManyFunctions")
 @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], containerFactory = LISTENER_FACTORY_NAME)
 class SubmissionService(
     private val queryService: SubmissionPersistenceQueryService,
