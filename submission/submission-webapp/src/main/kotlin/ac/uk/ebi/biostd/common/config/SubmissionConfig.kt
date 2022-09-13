@@ -76,7 +76,6 @@ class SubmissionConfig(
         securityQueryService: ISecurityQueryService,
         properties: ApplicationProperties,
         eventsPublisherService: EventsPublisherService,
-        fileStorageService: FileStorageService,
     ): ExtSubmissionService =
         ExtSubmissionService(
             submissionSubmitter,
@@ -85,7 +84,6 @@ class SubmissionConfig(
             securityQueryService,
             properties,
             eventsPublisherService,
-            fileStorageService
         )
 
     @Bean
