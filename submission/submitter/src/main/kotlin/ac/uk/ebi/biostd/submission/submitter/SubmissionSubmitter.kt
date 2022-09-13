@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
+import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestProcessed
@@ -36,7 +37,11 @@ class SubmissionSubmitter(
         return submissionSubmitter.loadRequest(rqt.accNo, rqt.version)
     }
 
-    fun processRequest(rqt: RequestLoaded): ExtSubmission {
+    fun cleanRequest(rqt: RequestLoaded) {
+        submissionSubmitter.cleanRequest(rqt.accNo)
+    }
+
+    fun processRequest(rqt: RequestCleaned): ExtSubmission {
         return submissionSubmitter.processRequest(rqt.accNo, rqt.version)
     }
 

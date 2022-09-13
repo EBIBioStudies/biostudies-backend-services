@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
@@ -24,6 +25,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
+@Suppress("TooManyFunctions")
 @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], containerFactory = LISTENER_FACTORY_NAME)
 class SubmissionService(
     private val queryService: SubmissionPersistenceQueryService,
@@ -56,9 +58,18 @@ class SubmissionService(
     }
 
     @RabbitHandler
-    fun processRequest(rqt: RequestLoaded) {
+    fun cleanRequest(rqt: RequestLoaded) {
         processSafely(rqt) {
             logger.info { "$accNo, received Loaded message for submission $accNo, version: $accNo" }
+            submissionSubmitter.cleanRequest(rqt)
+            eventsPublisherService.requestCleaned(rqt.accNo, rqt.version)
+        }
+    }
+
+    @RabbitHandler
+    fun processRequest(rqt: RequestCleaned) {
+        processSafely(rqt) {
+            logger.info { "$accNo, received Cleaned message for submission $accNo, version: $accNo" }
             val submission = submissionSubmitter.processRequest(rqt)
             eventsPublisherService.requestProcessed(submission.accNo, submission.version)
         }

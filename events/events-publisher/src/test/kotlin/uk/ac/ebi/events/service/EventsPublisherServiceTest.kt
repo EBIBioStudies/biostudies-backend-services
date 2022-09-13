@@ -1,5 +1,6 @@
 package uk.ac.ebi.events.service
 
+import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestMessage
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SubmissionMessage
@@ -22,6 +23,7 @@ import uk.ac.ebi.events.config.EventsProperties
 import uk.ac.ebi.events.config.SECURITY_NOTIFICATIONS_ROUTING_KEY
 import uk.ac.ebi.events.config.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
 import uk.ac.ebi.events.config.SUBMISSIONS_RELEASE_ROUTING_KEY
+import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
 import uk.ac.ebi.events.config.SUBMISSIONS_ROUTING_KEY
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -113,6 +115,23 @@ class EventsPublisherServiceTest(
 
         verify(exactly = 1) {
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY, request)
+        }
+    }
+
+    @Test
+    fun `request cleaned`() {
+        val requestSlot = slot<RequestCleaned>()
+        every {
+            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, capture(requestSlot))
+        } answers { nothing }
+
+        testInstance.requestCleaned("S-BSST0", 1)
+
+        val request = requestSlot.captured
+        assertThat(request.version).isEqualTo(1)
+        assertThat(request.accNo).isEqualTo("S-BSST0")
+        verify(exactly = 1) {
+            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, request)
         }
     }
 }

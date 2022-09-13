@@ -20,6 +20,7 @@ import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionCleaner
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
@@ -77,18 +78,26 @@ class SubmitterConfig {
         SubmissionReleaser(fileStorageService, submissionPersistenceQueryService, submissionPersistenceService)
 
     @Bean
+    fun submissionCleaner(
+        systemService: FileSystemService,
+        queryService: SubmissionPersistenceQueryService,
+    ): SubmissionCleaner = SubmissionCleaner(systemService, queryService)
+
+    @Bean
     fun extSubmissionSubmitter(
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         persistenceService: SubmissionPersistenceService,
         requestLoader: SubmissionRequestLoader,
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionReleaser,
+        submissionCleaner: SubmissionCleaner,
     ) = ExtSubmissionSubmitter(
         submissionPersistenceQueryService,
         persistenceService,
         requestLoader,
         requestProcessor,
-        submissionReleaser
+        submissionReleaser,
+        submissionCleaner,
     )
 
     @Bean

@@ -18,32 +18,18 @@ class SubmissionRequestProcessor(
      * Process the current submission files. Note that [ExtSubmission] returned does not include file list files.
      */
     fun processRequest(accNo: String, version: Int): ExtSubmission {
-        fun processSubmission(): ExtSubmission {
-            val request = queryService.getLoadedRequest(accNo, version)
-            val (sub, _) = request
+        val request = queryService.getLoadedRequest(accNo, version)
+        val (sub, _) = request
 
-            logger.info { "$accNo ${sub.owner} Copying files accNo='${sub.accNo}', version='$version'" }
+        logger.info { "$accNo ${sub.owner} Started copying files accNo='${sub.accNo}', version='$version'" }
 
-            val processed = systemService.persistSubmissionFiles(sub)
-            persistenceService.expirePreviousVersions(sub.accNo)
-            persistenceService.saveSubmission(processed)
-            persistenceService.saveSubmissionRequest(request.copy(status = FILES_COPIED, submission = processed))
+        val processed = systemService.persistSubmissionFiles(sub)
+        persistenceService.expirePreviousVersions(sub.accNo)
+        persistenceService.saveSubmission(processed)
+        persistenceService.saveSubmissionRequest(request.copy(status = FILES_COPIED, submission = processed))
 
-            logger.info { "$accNo ${sub.owner} Finished copying files accNo='$accNo', version='$version'" }
+        logger.info { "$accNo ${sub.owner} Finished copying files accNo='$accNo', version='$version'" }
 
-            return processed
-        }
-
-        fun cleanCurrentVersion() {
-            val sub = queryService.findExtByAccNo(accNo, includeFileListFiles = true)
-            if (sub != null) {
-                logger.info { "${sub.accNo} ${sub.owner} Started cleaning files of version ${sub.version}" }
-                systemService.cleanFolder(sub)
-                logger.info { "${sub.accNo} ${sub.owner} Finished cleaning files of version ${sub.version}" }
-            }
-        }
-
-        cleanCurrentVersion()
-        return processSubmission()
+        return processed
     }
 }
