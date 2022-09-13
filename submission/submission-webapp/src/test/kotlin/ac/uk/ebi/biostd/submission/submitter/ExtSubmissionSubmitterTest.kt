@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
@@ -24,16 +23,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class ExtSubmissionSubmitterTest(
     @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val persistenceService: SubmissionPersistenceService,
-    @MockK private val draftService: SubmissionDraftService,
     @MockK private val requestLoader: SubmissionRequestLoader,
     @MockK private val requestProcessor: SubmissionRequestProcessor,
     @MockK private val requestReleaser: SubmissionReleaser,
 ) {
-
     private val testInstance = ExtSubmissionSubmitter(
         queryService,
         persistenceService,
-        draftService,
         requestLoader,
         requestProcessor,
         requestReleaser

@@ -33,7 +33,6 @@ internal class SubmissionDraftMongoServiceTest(
     @MockK private val serializationService: SerializationService,
     @MockK private val toSubmissionMapper: ToSubmissionMapper,
 ) {
-
     private val testInstance = SubmissionDraftMongoService(
         draftDocDataRepository,
         queryService,
@@ -85,7 +84,16 @@ internal class SubmissionDraftMongoServiceTest(
     }
 
     @Test
-    fun deleteSubmissionDraft() {
+    fun `delete submission draft by key`() {
+        every { draftDocDataRepository.deleteByKey(DRAFT_KEY) } answers { nothing }
+
+        testInstance.deleteSubmissionDraft(DRAFT_KEY)
+
+        verify(exactly = 1) { draftDocDataRepository.deleteByKey(DRAFT_KEY) }
+    }
+
+    @Test
+    fun `delete submission draft by user and key`() {
         every { draftDocDataRepository.deleteByUserIdAndKey(USER_ID, DRAFT_KEY) } returns Unit
 
         testInstance.deleteSubmissionDraft(USER_ID, DRAFT_KEY)
@@ -125,6 +133,15 @@ internal class SubmissionDraftMongoServiceTest(
         assertThat(result.key).isEqualTo(DRAFT_KEY)
         assertThat(result.content).isEqualTo(DRAFT_CONTENT)
         unmockkStatic(Instant::class)
+    }
+
+    @Test
+    fun setActiveStatus() {
+        every { draftDocDataRepository.setStatus(USER_ID, DRAFT_KEY, ACTIVE) } answers { nothing }
+
+        testInstance.setActiveStatus(USER_ID, DRAFT_KEY)
+
+        verify(exactly = 1) { draftDocDataRepository.setStatus(USER_ID, DRAFT_KEY, ACTIVE) }
     }
 
     @Test

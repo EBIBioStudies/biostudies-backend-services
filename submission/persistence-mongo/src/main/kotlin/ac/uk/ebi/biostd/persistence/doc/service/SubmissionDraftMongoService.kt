@@ -29,6 +29,10 @@ class SubmissionDraftMongoService(
         return SubmissionDraft(key, content)
     }
 
+    override fun deleteSubmissionDraft(key: String) {
+        draftDocDataRepository.deleteByKey(key)
+    }
+
     override fun deleteSubmissionDraft(userEmail: String, key: String) =
         draftDocDataRepository.deleteByUserIdAndKey(userEmail, key)
 
@@ -43,8 +47,15 @@ class SubmissionDraftMongoService(
         return SubmissionDraft(draft.key, draft.content)
     }
 
-    override fun setProcessingStatus(userEmail: String, key: String) =
-        draftDocDataRepository.setStatus(userEmail, key, PROCESSING)
+    override fun setActiveStatus(
+        userEmail: String,
+        key: String
+    ) = draftDocDataRepository.setStatus(userEmail, key, ACTIVE)
+
+    override fun setProcessingStatus(
+        userEmail: String,
+        key: String
+    ) = draftDocDataRepository.setStatus(userEmail, key, PROCESSING)
 
     private fun create(userEmail: String, key: String): DocSubmissionDraft {
         val submission = toSubmissionMapper.toSimpleSubmission(queryService.getExtByAccNo(key))

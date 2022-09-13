@@ -18,7 +18,7 @@ class FileProcessingService(
     private val fileResolver: FilesResolver,
 ) {
     /**
-     * Allow to process the given section, and it subsections by updating a specific attribute or modified data
+     * Allow to process the given section, and its subsections by updating a specific attribute or modified data
      * structure.
      * Note that the submission tree is iterated from leaf sections (section with no subsections) to parents to avoid
      * update a section that has an updated child.
