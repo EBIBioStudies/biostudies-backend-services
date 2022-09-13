@@ -21,14 +21,14 @@ class SubmissionSubmitter(
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         val submission = processRequest(rqt)
-        val (accNo, version) = submissionSubmitter.saveRequest(ExtSubmitRequest(submission, rqt.draftKey))
+        val (accNo, version) = submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.draftKey))
         submissionSubmitter.handleRequest(accNo, version)
         return submission
     }
 
     fun createRequest(rqt: SubmitRequest): ExtSubmission {
         val submission = processRequest(rqt)
-        submissionSubmitter.saveRequest(ExtSubmitRequest(submission, rqt.draftKey))
+        submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.draftKey))
         return submission
     }
 
@@ -52,8 +52,9 @@ class SubmissionSubmitter(
             rqt.draftKey?.let { draftService.setProcessingStatus(rqt.owner, it) }
             val submission = submissionProcessor.processSubmission(rqt)
             parentInfoService.executeCollectionValidators(submission)
+            deleteSubmissionDrafts(submission, rqt.draftKey)
 
-            logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
+            logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 
             return submission
         } catch (exception: RuntimeException) {
@@ -62,5 +63,11 @@ class SubmissionSubmitter(
 
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
+    }
+
+    private fun deleteSubmissionDrafts(submission: ExtSubmission, draftKey: String?) {
+        draftKey?.let { draftService.deleteSubmissionDraft(draftKey) }
+        draftService.deleteSubmissionDraft(submission.owner, submission.accNo)
+        draftService.deleteSubmissionDraft(submission.submitter, submission.accNo)
     }
 }

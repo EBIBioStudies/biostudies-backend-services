@@ -46,8 +46,8 @@ internal class SubmissionMongoPersistenceService(
         subDataRepository.setAsReleased(accNo)
     }
 
-    override fun deleteSubmissionDrafts(submission: ExtSubmission, draftKey: String?) {
-        submissionRepository.deleteSubmissionDrafts(submission, draftKey)
+    override fun expirePreviousVersions(accNo: String) {
+        submissionRepository.expirePreviousVersions(accNo)
     }
 
     private fun asRequest(rqt: SubmissionRequest): DocSubmissionRequest {

@@ -19,7 +19,7 @@ class ExtSubmissionSubmitter(
     private val requestProcessor: SubmissionRequestProcessor,
     private val requestReleaser: SubmissionReleaser,
 ) {
-    fun saveRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
+    fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
         val submission = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         return persistenceService.createSubmissionRequest(SubmissionRequest(submission, rqt.draftKey, REQUESTED))
     }

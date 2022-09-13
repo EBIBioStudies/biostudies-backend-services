@@ -49,7 +49,7 @@ class ExtSubmissionService(
     ): ExtSubmission {
         logger.info { "${sub.accNo} $user Received submit request for ext submission ${sub.accNo}" }
         val submission = processSubmission(user, sub)
-        val (accNo, version) = submissionSubmitter.saveRequest(ExtSubmitRequest(submission))
+        val (accNo, version) = submissionSubmitter.createRequest(ExtSubmitRequest(submission))
         return submissionSubmitter.handleRequest(accNo, version)
     }
 
@@ -59,7 +59,7 @@ class ExtSubmissionService(
     ) {
         logger.info { "${sub.accNo} $user Received async submit request for ext submission ${sub.accNo}" }
         val submission = processSubmission(user, sub)
-        val (accNo, version) = submissionSubmitter.saveRequest(ExtSubmitRequest(submission))
+        val (accNo, version) = submissionSubmitter.createRequest(ExtSubmitRequest(submission))
         eventsPublisherService.submissionRequest(accNo, version)
     }
 

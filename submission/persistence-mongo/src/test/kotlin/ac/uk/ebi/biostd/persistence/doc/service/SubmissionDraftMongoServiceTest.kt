@@ -84,7 +84,16 @@ internal class SubmissionDraftMongoServiceTest(
     }
 
     @Test
-    fun deleteSubmissionDraft() {
+    fun `delete submission draft by key`() {
+        every { draftDocDataRepository.deleteByKey(DRAFT_KEY) } answers { nothing }
+
+        testInstance.deleteSubmissionDraft(DRAFT_KEY)
+
+        verify(exactly = 1) { draftDocDataRepository.deleteByKey(DRAFT_KEY) }
+    }
+
+    @Test
+    fun `delete submission draft by user and key`() {
         every { draftDocDataRepository.deleteByUserIdAndKey(USER_ID, DRAFT_KEY) } returns Unit
 
         testInstance.deleteSubmissionDraft(USER_ID, DRAFT_KEY)

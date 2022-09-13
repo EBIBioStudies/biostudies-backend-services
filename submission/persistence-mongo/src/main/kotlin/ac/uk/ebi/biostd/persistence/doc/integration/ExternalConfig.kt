@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.persistence.doc.integration
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
@@ -37,14 +36,12 @@ class ExternalConfig {
     @Suppress("LongParameterList")
     internal fun extSubmissionRepository(
         subDataRepository: SubmissionDocDataRepository,
-        draftDocDataRepository: SubmissionDraftDocDataRepository,
         fileListDocFileRepository: FileListDocFileRepository,
         toExtSubmissionMapper: ToExtSubmissionMapper,
         toDocSubmissionMapper: ToDocSubmissionMapper,
     ): ExtSubmissionRepository {
         return ExtSubmissionRepository(
             subDataRepository,
-            draftDocDataRepository,
             fileListDocFileRepository,
             toExtSubmissionMapper,
             toDocSubmissionMapper

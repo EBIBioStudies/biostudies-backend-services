@@ -46,11 +46,14 @@ class SubmissionSubmitterTest(
         every { request.owner } returns submission.owner
         every { request.accNo } returns submission.accNo
         every { submissionProcessor.processSubmission(request) } returns submission
+        every { draftService.deleteSubmissionDraft("TMP_123") } answers { nothing }
         every { parentInfoService.executeCollectionValidators(submission) } answers { nothing }
         every { draftService.setActiveStatus(submission.owner, "TMP_123") } answers { nothing }
         every { draftService.setProcessingStatus(submission.owner, "TMP_123") } answers { nothing }
+        every { draftService.deleteSubmissionDraft(submission.owner, "S-TEST123") } answers { nothing }
+        every { draftService.deleteSubmissionDraft(submission.submitter, "S-TEST123") } answers { nothing }
         every {
-            submissionSubmitter.saveRequest(capture(extRequestSlot))
+            submissionSubmitter.createRequest(capture(extRequestSlot))
         } returns (submission.accNo to submission.version)
 
         testInstance.createRequest(request)
@@ -62,7 +65,10 @@ class SubmissionSubmitterTest(
             submissionProcessor.processSubmission(request)
             parentInfoService.executeCollectionValidators(submission)
             draftService.setProcessingStatus(submission.owner, "TMP_123")
-            submissionSubmitter.saveRequest(extRequest)
+            submissionSubmitter.createRequest(extRequest)
+            draftService.deleteSubmissionDraft("TMP_123")
+            draftService.deleteSubmissionDraft(submission.owner, "S-TEST123")
+            draftService.deleteSubmissionDraft(submission.submitter, "S-TEST123")
         }
         verify(exactly = 0) {
             draftService.setActiveStatus(submission.owner, "TMP_123")
@@ -79,13 +85,9 @@ class SubmissionSubmitterTest(
         every { request.draftKey } returns "TMP_123"
         every { request.owner } returns submission.owner
         every { request.accNo } returns submission.accNo
-        every { parentInfoService.executeCollectionValidators(submission) } answers { nothing }
         every { draftService.setActiveStatus(submission.owner, "TMP_123") } answers { nothing }
         every { draftService.setProcessingStatus(submission.owner, "TMP_123") } answers { nothing }
         every { submissionProcessor.processSubmission(request) } throws RuntimeException("validation error")
-        every {
-            submissionSubmitter.saveRequest(capture(extRequestSlot))
-        } returns (submission.accNo to submission.version)
 
         assertThrows<InvalidSubmissionException> { testInstance.createRequest(request) }
 
@@ -96,7 +98,10 @@ class SubmissionSubmitterTest(
         }
         verify(exactly = 0) {
             parentInfoService.executeCollectionValidators(submission)
-            submissionSubmitter.saveRequest(capture(extRequestSlot))
+            submissionSubmitter.createRequest(capture(extRequestSlot))
+            draftService.deleteSubmissionDraft("TMP_123")
+            draftService.deleteSubmissionDraft(submission.owner, "S-TEST123")
+            draftService.deleteSubmissionDraft(submission.submitter, "S-TEST123")
         }
     }
 }

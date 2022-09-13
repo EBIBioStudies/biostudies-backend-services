@@ -29,6 +29,10 @@ class SubmissionDraftMongoService(
         return SubmissionDraft(key, content)
     }
 
+    override fun deleteSubmissionDraft(key: String) {
+        draftDocDataRepository.deleteByKey(key)
+    }
+
     override fun deleteSubmissionDraft(userEmail: String, key: String) =
         draftDocDataRepository.deleteByUserIdAndKey(userEmail, key)
 

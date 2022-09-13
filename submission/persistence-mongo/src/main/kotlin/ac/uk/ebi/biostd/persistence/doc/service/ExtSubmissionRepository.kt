@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
@@ -14,20 +13,15 @@ private const val FILES_CHUNK_SIZE = 100
 
 class ExtSubmissionRepository(
     private val subDataRepository: SubmissionDocDataRepository,
-    private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     private val fileListDocFileRepository: FileListDocFileRepository,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
     private val toDocSubmissionMapper: ToDocSubmissionMapper
 ) {
-    fun saveSubmission(submission: ExtSubmission): ExtSubmission {
-        subDataRepository.expireActiveProcessedVersions(submission.accNo)
-        return toExtSubmissionMapper.toExtSubmission(persistSubmission(submission), false)
-    }
+    fun saveSubmission(submission: ExtSubmission): ExtSubmission =
+        toExtSubmissionMapper.toExtSubmission(persistSubmission(submission), false)
 
-    fun deleteSubmissionDrafts(submission: ExtSubmission, draftKey: String?) {
-        draftKey?.let { draftDocDataRepository.deleteByKey(draftKey) }
-        draftDocDataRepository.deleteByUserIdAndKey(submission.owner, submission.accNo)
-        draftDocDataRepository.deleteByUserIdAndKey(submission.submitter, submission.accNo)
+    fun expirePreviousVersions(accNo: String) {
+        subDataRepository.expireActiveProcessedVersions(accNo)
     }
 
     private fun persistSubmission(submission: ExtSubmission): DocSubmission {

@@ -71,7 +71,7 @@ class ExtSubmissionServiceTest(
 
         every { properties.persistence.enableFire } returns true
         every { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-        every { submissionSubmitter.saveRequest(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
+        every { submissionSubmitter.createRequest(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
 
         testInstance.submitExt("user@mail.com", extSubmission)
 
@@ -81,7 +81,7 @@ class ExtSubmissionServiceTest(
         assertThat(submissionRequest.submission.modificationTime).isAfter(extSubmission.modificationTime)
         verify(exactly = 1) {
             submissionRepository.existByAccNo("ArrayExpress")
-            submissionSubmitter.saveRequest(submissionRequest)
+            submissionSubmitter.createRequest(submissionRequest)
             submissionSubmitter.handleRequest(extSubmission.accNo, 1)
             securityQueryService.existsByEmail("owner@email.org", false)
         }
@@ -93,7 +93,7 @@ class ExtSubmissionServiceTest(
 
         every { properties.persistence.enableFire } returns true
         every { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-        every { submissionSubmitter.saveRequest(capture(requestSlot)) } returns (extSubmission.accNo to 1)
+        every { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 1)
         every { eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version) } answers { nothing }
 
         testInstance.submitExtAsync("user@mail.com", extSubmission)
@@ -117,7 +117,7 @@ class ExtSubmissionServiceTest(
         every { submissionRepository.getExtByAccNo("S-TEST123", true) } returns extSubmission
         every { eventsPublisher.submissionsRefresh(extSubmission.accNo, extSubmission.owner) } answers { nothing }
         every { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-        every { submissionSubmitter.saveRequest(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
+        every { submissionSubmitter.createRequest(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
         every { fileStorageService.cleanSubmissionFiles(extSubmission) } answers { nothing }
 
         testInstance.refreshSubmission(extSubmission.accNo, "user@mail.com")
@@ -125,7 +125,7 @@ class ExtSubmissionServiceTest(
         val submissionRequest = submitRequestSlot.captured
         verify(exactly = 1) {
             submissionRepository.getExtByAccNo(extSubmission.accNo, true)
-            submissionSubmitter.saveRequest(submissionRequest)
+            submissionSubmitter.createRequest(submissionRequest)
             submissionSubmitter.handleRequest(extSubmission.accNo, 1)
             eventsPublisher.submissionsRefresh(extSubmission.accNo, extSubmission.owner)
         }
@@ -170,7 +170,7 @@ class ExtSubmissionServiceTest(
         every { properties.persistence.enableFire } returns true
         every { submissionRepository.existByAccNo("ArrayExpress") } returns false
         every { submissionSubmitter.handleRequest(collection.accNo, 1) } returns collection
-        every { submissionSubmitter.saveRequest(capture(requestSlot)) } returns (collection.accNo to collection.version)
+        every { submissionSubmitter.createRequest(capture(requestSlot)) } returns (collection.accNo to collection.version)
 
         testInstance.submitExt("user@mail.com", collection)
 

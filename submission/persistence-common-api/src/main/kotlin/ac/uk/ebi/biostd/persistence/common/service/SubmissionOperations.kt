@@ -18,9 +18,9 @@ interface SubmissionPersistenceService {
 
     fun saveSubmission(submission: ExtSubmission): ExtSubmission
 
-    fun setAsReleased(accNo: String)
+    fun expirePreviousVersions(accNo: String)
 
-    fun deleteSubmissionDrafts(submission: ExtSubmission, draftKey: String?)
+    fun setAsReleased(accNo: String)
 
     fun updateRequestStatus(accNo: String, version: Int, status: RequestStatus)
 }
