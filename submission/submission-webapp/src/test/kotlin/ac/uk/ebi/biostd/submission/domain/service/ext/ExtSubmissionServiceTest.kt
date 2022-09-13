@@ -48,8 +48,7 @@ class ExtSubmissionServiceTest(
             userPrivilegesService,
             securityQueryService,
             properties,
-            eventsPublisher,
-            fileStorageService
+            eventsPublisher
         )
 
     @AfterEach
