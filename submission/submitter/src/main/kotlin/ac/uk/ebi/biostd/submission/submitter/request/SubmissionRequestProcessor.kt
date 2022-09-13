@@ -19,12 +19,13 @@ class SubmissionRequestProcessor(
      */
     fun processRequest(accNo: String, version: Int): ExtSubmission {
         val request = queryService.getLoadedRequest(accNo, version)
-        val (sub, draftKey) = request
+        val (sub, _) = request
 
-        logger.info { "$accNo ${sub.owner} Copying files accNo='${sub.accNo}', version='$version'" }
+        logger.info { "$accNo ${sub.owner} Started copying files accNo='${sub.accNo}', version='$version'" }
 
         val processed = systemService.persistSubmissionFiles(sub)
-        persistenceService.saveSubmission(processed, draftKey)
+        persistenceService.expirePreviousVersions(sub.accNo)
+        persistenceService.saveSubmission(processed)
         persistenceService.saveSubmissionRequest(request.copy(status = FILES_COPIED, submission = processed))
 
         logger.info { "$accNo ${sub.owner} Finished copying files accNo='$accNo', version='$version'" }
