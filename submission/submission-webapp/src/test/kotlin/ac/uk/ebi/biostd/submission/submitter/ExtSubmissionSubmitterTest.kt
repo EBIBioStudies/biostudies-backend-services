@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionCleaner
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
@@ -32,6 +33,7 @@ internal class ExtSubmissionSubmitterTest(
     @MockK private val requestLoader: SubmissionRequestLoader,
     @MockK private val requestProcessor: SubmissionRequestProcessor,
     @MockK private val requestReleaser: SubmissionReleaser,
+    @MockK private val requestCleaner: SubmissionCleaner,
 ) {
     private val testInstance = ExtSubmissionSubmitter(
         queryService,
@@ -40,6 +42,7 @@ internal class ExtSubmissionSubmitterTest(
         requestLoader,
         requestProcessor,
         requestReleaser,
+        requestCleaner,
     )
 
     @AfterEach
@@ -53,7 +56,7 @@ internal class ExtSubmissionSubmitterTest(
             every { requestLoader.loadRequest("accNo", 1) } returns sub
             every { requestProcessor.processRequest("accNo", 1) } returns sub
             every { requestReleaser.checkReleased("accNo", 1) } returns sub
-            every { requestProcessor.cleanCurrentVersion("accNo") } answers { nothing }
+            every { requestCleaner.cleanCurrentVersion("accNo") } answers { nothing }
 
             val result = testInstance.handleRequest("accNo", 1)
 
@@ -61,7 +64,7 @@ internal class ExtSubmissionSubmitterTest(
             verify(exactly = 1) {
                 queryService.getRequestStatus("accNo", 1)
                 requestLoader.loadRequest("accNo", 1)
-                requestProcessor.cleanCurrentVersion("accNo")
+                requestCleaner.cleanCurrentVersion("accNo")
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
             }
@@ -72,14 +75,14 @@ internal class ExtSubmissionSubmitterTest(
             every { queryService.getRequestStatus("accNo", 1) } returns LOADED
             every { requestProcessor.processRequest("accNo", 1) } returns sub
             every { requestReleaser.checkReleased("accNo", 1) } returns sub
-            every { requestProcessor.cleanCurrentVersion("accNo") } answers { nothing }
+            every { requestCleaner.cleanCurrentVersion("accNo") } answers { nothing }
 
             val result = testInstance.handleRequest("accNo", 1)
 
             assertThat(result).isEqualTo(sub)
             verify(exactly = 1) {
                 queryService.getRequestStatus("accNo", 1)
-                requestProcessor.cleanCurrentVersion("accNo")
+                requestCleaner.cleanCurrentVersion("accNo")
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
             }
@@ -104,7 +107,7 @@ internal class ExtSubmissionSubmitterTest(
             }
             verify(exactly = 0) {
                 requestLoader.loadRequest("accNo", 1)
-                requestProcessor.cleanCurrentVersion("accNo")
+                requestCleaner.cleanCurrentVersion("accNo")
             }
         }
 
@@ -122,7 +125,7 @@ internal class ExtSubmissionSubmitterTest(
             }
             verify(exactly = 0) {
                 requestLoader.loadRequest("accNo", 1)
-                requestProcessor.cleanCurrentVersion("accNo")
+                requestCleaner.cleanCurrentVersion("accNo")
                 requestProcessor.processRequest("accNo", 1)
             }
         }
@@ -138,7 +141,7 @@ internal class ExtSubmissionSubmitterTest(
             }
             verify(exactly = 0) {
                 requestLoader.loadRequest("accNo", 1)
-                requestProcessor.cleanCurrentVersion("accNo")
+                requestCleaner.cleanCurrentVersion("accNo")
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
             }

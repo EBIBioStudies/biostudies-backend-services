@@ -31,13 +31,4 @@ class SubmissionRequestProcessor(
 
         return processed
     }
-
-    fun cleanCurrentVersion(accNo: String) {
-        val sub = queryService.findExtByAccNo(accNo, includeFileListFiles = true)
-        if (sub != null) {
-            logger.info { "${sub.accNo} ${sub.owner} Started cleaning files of version ${sub.version}" }
-            systemService.cleanFolder(sub)
-            logger.info { "${sub.accNo} ${sub.owner} Finished cleaning files of version ${sub.version}" }
-        }
-    }
 }

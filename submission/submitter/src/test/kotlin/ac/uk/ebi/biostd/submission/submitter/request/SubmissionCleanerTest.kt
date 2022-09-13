@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
@@ -14,12 +13,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-class SubmissionRequestProcessorTest(
+class SubmissionCleanerTest(
     @MockK private val systemService: FileSystemService,
     @MockK private val queryService: SubmissionPersistenceQueryService,
-    @MockK private val persistenceService: SubmissionPersistenceService,
 ) {
-    private val testInstance = SubmissionRequestProcessor(systemService, queryService, persistenceService)
+    private val testInstance = SubmissionCleaner(systemService, queryService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
