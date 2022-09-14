@@ -8,8 +8,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.FirePageTabService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.NfsPageTabService
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
@@ -21,7 +20,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
@@ -39,22 +37,15 @@ class PersistenceConfig(
     fun fileStorageService(
         fireFtpService: FireFtpService,
         fireFilesService: FireFilesService,
-        firePageTabService: FirePageTabService,
+        pageTabService: PageTabService,
         nfsFtpService: NfsFtpService,
         nfsFilesService: NfsFilesService,
-        nfsPageTabService: NfsPageTabService,
     ): FileStorageService = StorageService(
-        fireFtpService, fireFilesService, firePageTabService, nfsFtpService, nfsFilesService, nfsPageTabService,
+        fireFtpService, fireFilesService, pageTabService, nfsFtpService, nfsFilesService
     )
 
     @Bean
     fun nfsFtpService(): NfsFtpService = NfsFtpService(folderResolver)
-
-    @Bean
-    fun nfsPageTabService(
-        pageTabUtil: PageTabUtil,
-        fileProcessingService: FileProcessingService,
-    ): NfsPageTabService = NfsPageTabService(folderResolver, pageTabUtil, fileProcessingService)
 
     @Bean
     fun pageTabUtil(
@@ -67,15 +58,12 @@ class PersistenceConfig(
         FireFtpService(fireClient, serializationService)
 
     @Bean
-    fun firePageTabService(
+    fun pageTabService(
         pageTabUtil: PageTabUtil,
-        fileProcessingService: FileProcessingService,
-    ): FirePageTabService =
-        FirePageTabService(
+    ): PageTabService =
+        PageTabService(
             File(properties.fireTempDirPath),
-            fireClient,
             pageTabUtil,
-            fileProcessingService,
         )
 
     @Bean

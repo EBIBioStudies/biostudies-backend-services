@@ -16,23 +16,7 @@ class FireFilesService(
     private val fileProcessingService: FileProcessingService,
     private val serializationService: ExtSerializationService,
 ) : FilesService {
-    override fun persistSubmissionFiles(sub: ExtSubmission): ExtSubmission = processFiles(sub)
-
-    override fun cleanSubmissionFiles(sub: ExtSubmission) = cleanPreviousFiles(sub)
-
-    private fun cleanPreviousFiles(sub: ExtSubmission) {
-        fun cleanFile(file: FireFile, index: Int) {
-            logger.debug { "${sub.accNo}, ${sub.version} Cleaning file $index, path='${file.filePath}'" }
-            fireService.cleanFile(file)
-            logger.debug { "${sub.accNo}, ${sub.version} Cleaning file $index, path='${file.filePath}'" }
-        }
-
-        logger.info { "${sub.accNo} ${sub.owner} Cleaning Current submission Folder for ${sub.accNo}" }
-        serializationService.forEachFile(sub) { file, index -> if (file is FireFile) cleanFile(file, index) }
-        logger.info { "${sub.accNo} ${sub.owner} Cleaning Ftp Folder for ${sub.accNo}" }
-    }
-
-    private fun processFiles(sub: ExtSubmission): ExtSubmission {
+    override fun persistSubmissionFiles(sub: ExtSubmission): ExtSubmission {
         var newFilesSize = 0L
         var newFiles = 0
 
@@ -52,5 +36,17 @@ class FireFilesService(
         logger.info { "${sub.accNo} ${sub.owner} Processed $newFiles new files, $newFilesSize bytes on FIRE" }
         logger.info { "${sub.accNo} ${sub.owner} Finished persisting files of submission ${sub.accNo} on FIRE" }
         return submission
+    }
+
+    override fun cleanSubmissionFiles(sub: ExtSubmission) {
+        fun cleanFile(file: FireFile, index: Int) {
+            logger.debug { "${sub.accNo}, ${sub.version} Cleaning file $index, path='${file.filePath}'" }
+            fireService.cleanFile(file)
+            logger.debug { "${sub.accNo}, ${sub.version} Cleaning file $index, path='${file.filePath}'" }
+        }
+
+        logger.info { "${sub.accNo} ${sub.owner} Cleaning Current submission Folder for ${sub.accNo}" }
+        serializationService.forEachFile(sub) { file, index -> if (file is FireFile) cleanFile(file, index) }
+        logger.info { "${sub.accNo} ${sub.owner} Cleaning Ftp Folder for ${sub.accNo}" }
     }
 }

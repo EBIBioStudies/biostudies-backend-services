@@ -16,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 class FileSystemServiceTest(
-    @MockK private val processedSubmission: ExtSubmission,
     @MockK private val submission: ExtSubmission,
     @MockK private val finalSub: ExtSubmission,
     @MockK private val fileStorageService: FileStorageService,
@@ -38,7 +37,6 @@ class FileSystemServiceTest(
 
         verify(exactly = 1) {
             fileStorageService.persistSubmissionFiles(submission)
-            fileStorageService.generatePageTab(processedSubmission)
         }
     }
 
@@ -48,7 +46,6 @@ class FileSystemServiceTest(
     }
 
     private fun setUpServices() {
-        every { fileStorageService.persistSubmissionFiles(submission) } returns processedSubmission
-        every { fileStorageService.generatePageTab(processedSubmission) } answers { finalSub }
+        every { fileStorageService.persistSubmissionFiles(submission) } returns finalSub
     }
 }

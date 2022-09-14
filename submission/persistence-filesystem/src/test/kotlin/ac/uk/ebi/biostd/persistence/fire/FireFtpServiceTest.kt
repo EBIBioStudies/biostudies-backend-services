@@ -57,15 +57,6 @@ class FireFtpServiceTest(
         verifyFtpPublish()
     }
 
-    @Test
-    fun `create ftp folder`() {
-        val submission = extSub.copy(released = true)
-
-        testInstance.generateFtpLinks(submission)
-
-        verifyFtpPublish()
-    }
-
     private fun verifyFtpPublish() = verify(exactly = 1) {
         fireClient.publish(FILE_FILE_LIST)
         fireClient.publish(FILE_PAGE_TAB)

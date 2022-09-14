@@ -10,6 +10,8 @@ import ebi.ac.uk.extended.model.ExtFileList
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES_URL
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.PAGE_TAB_FILES
+import uk.ac.ebi.serialization.extensions.convertOrDefault
 import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 import java.io.File
@@ -22,7 +24,8 @@ class ExtFileListDeserializer : JsonDeserializer<ExtFileList>() {
         return ExtFileList(
             filePath = node.getNode<TextNode>(FILE_NAME).textValue(),
             filesUrl = node.findNode<TextNode>(FILES_URL)?.textValue(),
-            file = File(node.getNode<TextNode>(FILE).textValue())
+            file = File(node.getNode<TextNode>(FILE).textValue()),
+            pageTabFiles = mapper.convertOrDefault(node, PAGE_TAB_FILES) { emptyList() },
         )
     }
 }

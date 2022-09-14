@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.submitter.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
@@ -18,6 +19,7 @@ class SubmissionRequestLoader(
     private val queryService: SubmissionPersistenceQueryService,
     private val persistenceService: SubmissionPersistenceService,
     private val fileProcessingService: FileProcessingService,
+    private val storageService: StorageService,
 ) {
 
     /**
@@ -27,9 +29,10 @@ class SubmissionRequestLoader(
         logger.info { "Started loading request accNo='$accNo', version='$version'" }
         val original = queryService.getPendingRequest(accNo, version)
         val processed = processRequest(original.submission)
-        persistenceService.saveSubmissionRequest(original.copy(status = LOADED, submission = processed))
+        val withTabFiles = storageService.generatePageTab(processed)
+        persistenceService.saveSubmissionRequest(original.copy(status = LOADED, submission = withTabFiles))
         logger.info { "Finished loading request accNo='$accNo', version='$version'" }
-        return processed
+        return withTabFiles
     }
 
     private fun processRequest(sub: ExtSubmission): ExtSubmission =

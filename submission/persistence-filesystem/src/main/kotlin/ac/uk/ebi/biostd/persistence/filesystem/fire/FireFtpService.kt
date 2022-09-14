@@ -20,12 +20,6 @@ class FireFtpService(
         logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission ${sub.accNo} over FIRE" }
     }
 
-    override fun generateFtpLinks(sub: ExtSubmission) {
-        logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission ${sub.accNo} over FIRE" }
-        serializationService.forEachFile(sub) { file, idx -> if (file is FireFile) publishFile(sub, file.fireId, idx) }
-        logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission ${sub.accNo} over FIRE" }
-    }
-
     private fun publishFile(sub: ExtSubmission, fireId: String, index: Int) {
         logger.debug { "${sub.accNo}, ${sub.owner} publishing file $index, fireId='$fireId'" }
         fireClient.publish(fireId)

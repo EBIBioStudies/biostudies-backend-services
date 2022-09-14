@@ -8,6 +8,7 @@ import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedMapping
 import Projects.CommonsModelExtendedSerialization
 import Projects.CommonsSerialization
+import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.FireWebClient
 import Projects.SubmissionPersistenceCommonApi
@@ -43,6 +44,7 @@ dependencies {
     implementation(KotlinLogging)
     implementation(ZipUtil)
 
+    testImplementation(project(CommonsTest))
     testImplementation(testFixtures(project(CommonsModelExtendedSerialization)))
     testImplementation(testFixtures(project(CommonsModelExtended)))
     BaseTestCompileDependencies.forEach { testImplementation(it) }

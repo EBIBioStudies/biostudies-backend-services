@@ -39,8 +39,6 @@ paths:
   /auth/refresh-user:
     $ref: 'security/RefreshUser.yaml'
 
-  /submissions/refresh/{accNo}:
-    $ref: 'submissions/operations/RefreshSubmission.yaml'
   /submissions/extended:
     $ref: 'submissions/extended/ExtSubmissionOperations.yaml'
   /submissions/extended/{accNo}:

@@ -48,8 +48,7 @@ class ExtSubmissionServiceTest(
             userPrivilegesService,
             securityQueryService,
             properties,
-            eventsPublisher,
-            fileStorageService
+            eventsPublisher
         )
 
     @AfterEach
@@ -108,26 +107,6 @@ class ExtSubmissionServiceTest(
             submissionRepository.existByAccNo("ArrayExpress")
             securityQueryService.existsByEmail("owner@email.org", false)
             eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version)
-        }
-    }
-
-    @Test
-    fun `refresh submission`() {
-        val submitRequestSlot = slot<ExtSubmitRequest>()
-        every { submissionRepository.getExtByAccNo("S-TEST123", true) } returns extSubmission
-        every { eventsPublisher.submissionsRefresh(extSubmission.accNo, extSubmission.owner) } answers { nothing }
-        every { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-        every { submissionSubmitter.createRequest(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
-        every { fileStorageService.cleanSubmissionFiles(extSubmission) } answers { nothing }
-
-        testInstance.refreshSubmission(extSubmission.accNo, "user@mail.com")
-
-        val submissionRequest = submitRequestSlot.captured
-        verify(exactly = 1) {
-            submissionRepository.getExtByAccNo(extSubmission.accNo, true)
-            submissionSubmitter.createRequest(submissionRequest)
-            submissionSubmitter.handleRequest(extSubmission.accNo, 1)
-            eventsPublisher.submissionsRefresh(extSubmission.accNo, extSubmission.owner)
         }
     }
 
