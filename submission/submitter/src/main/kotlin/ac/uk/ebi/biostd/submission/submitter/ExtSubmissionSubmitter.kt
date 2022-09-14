@@ -30,7 +30,7 @@ class ExtSubmissionSubmitter(
 
     fun loadRequest(accNo: String, version: Int): ExtSubmission = requestLoader.loadRequest(accNo, version)
 
-    fun cleanRequest(accNo: String) = requestCleaner.cleanCurrentVersion(accNo)
+    fun cleanRequest(accNo: String, version: Int) = requestCleaner.cleanCurrentVersion(accNo, version)
 
     fun processRequest(accNo: String, version: Int): ExtSubmission = requestProcessor.processRequest(accNo, version)
 
@@ -49,20 +49,20 @@ class ExtSubmissionSubmitter(
     }
 
     private fun completeRequest(accNo: String, version: Int): ExtSubmission {
-        requestLoader.loadRequest(accNo, version)
-        cleanRequest(accNo)
-        requestProcessor.processRequest(accNo, version)
-        return requestReleaser.checkReleased(accNo, version)
+        loadRequest(accNo, version)
+        cleanRequest(accNo, version)
+        processRequest(accNo, version)
+        return checkReleased(accNo, version)
     }
 
     private fun processRequestFiles(accNo: String, version: Int): ExtSubmission {
-        cleanRequest(accNo)
-        requestProcessor.processRequest(accNo, version)
-        return requestReleaser.checkReleased(accNo, version)
+        cleanRequest(accNo, version)
+        processRequest(accNo, version)
+        return checkReleased(accNo, version)
     }
 
     private fun processCleanedFiles(accNo: String, version: Int): ExtSubmission {
-        requestProcessor.processRequest(accNo, version)
-        return requestReleaser.checkReleased(accNo, version)
+        processRequest(accNo, version)
+        return checkReleased(accNo, version)
     }
 }

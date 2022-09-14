@@ -58,6 +58,7 @@ interface SubmissionPersistenceQueryService {
 
     fun getPendingRequest(accNo: String, version: Int): SubmissionRequest
     fun getLoadedRequest(accNo: String, version: Int): SubmissionRequest
+    fun getCleanedRequest(accNo: String, version: Int): SubmissionRequest
     fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile>
     fun getRequestStatus(accNo: String, version: Int): RequestStatus
 }

@@ -53,7 +53,7 @@ internal class ExtSubmissionSubmitterTest(
             every { requestLoader.loadRequest("accNo", 1) } returns sub
             every { requestProcessor.processRequest("accNo", 1) } returns sub
             every { requestReleaser.checkReleased("accNo", 1) } returns sub
-            every { requestCleaner.cleanCurrentVersion("accNo") } answers { nothing }
+            every { requestCleaner.cleanCurrentVersion("accNo", 1) } answers { nothing }
 
             val result = testInstance.handleRequest("accNo", 1)
 
@@ -61,7 +61,7 @@ internal class ExtSubmissionSubmitterTest(
             verify(exactly = 1) {
                 queryService.getRequestStatus("accNo", 1)
                 requestLoader.loadRequest("accNo", 1)
-                requestCleaner.cleanCurrentVersion("accNo")
+                requestCleaner.cleanCurrentVersion("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
             }
@@ -72,14 +72,14 @@ internal class ExtSubmissionSubmitterTest(
             every { queryService.getRequestStatus("accNo", 1) } returns LOADED
             every { requestProcessor.processRequest("accNo", 1) } returns sub
             every { requestReleaser.checkReleased("accNo", 1) } returns sub
-            every { requestCleaner.cleanCurrentVersion("accNo") } answers { nothing }
+            every { requestCleaner.cleanCurrentVersion("accNo", 1) } answers { nothing }
 
             val result = testInstance.handleRequest("accNo", 1)
 
             assertThat(result).isEqualTo(sub)
             verify(exactly = 1) {
                 queryService.getRequestStatus("accNo", 1)
-                requestCleaner.cleanCurrentVersion("accNo")
+                requestCleaner.cleanCurrentVersion("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
             }
@@ -104,7 +104,7 @@ internal class ExtSubmissionSubmitterTest(
             }
             verify(exactly = 0) {
                 requestLoader.loadRequest("accNo", 1)
-                requestCleaner.cleanCurrentVersion("accNo")
+                requestCleaner.cleanCurrentVersion("accNo", 1)
             }
         }
 
@@ -122,13 +122,13 @@ internal class ExtSubmissionSubmitterTest(
             }
             verify(exactly = 0) {
                 requestLoader.loadRequest("accNo", 1)
-                requestCleaner.cleanCurrentVersion("accNo")
+                requestCleaner.cleanCurrentVersion("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)
             }
         }
 
         @Test
-        fun `when already completed`(@MockK sub: ExtSubmission) {
+        fun `when already completed`() {
             every { queryService.getRequestStatus("accNo", 1) } returns PROCESSED
 
             assertThrows<IllegalStateException> { testInstance.handleRequest("accNo", 1) }
@@ -138,7 +138,7 @@ internal class ExtSubmissionSubmitterTest(
             }
             verify(exactly = 0) {
                 requestLoader.loadRequest("accNo", 1)
-                requestCleaner.cleanCurrentVersion("accNo")
+                requestCleaner.cleanCurrentVersion("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
             }

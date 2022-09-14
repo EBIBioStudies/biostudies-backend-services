@@ -18,7 +18,7 @@ class SubmissionRequestProcessor(
      * Process the current submission files. Note that [ExtSubmission] returned does not include file list files.
      */
     fun processRequest(accNo: String, version: Int): ExtSubmission {
-        val request = queryService.getLoadedRequest(accNo, version)
+        val request = queryService.getCleanedRequest(accNo, version)
         val (sub, _) = request
 
         logger.info { "$accNo ${sub.owner} Started copying files accNo='${sub.accNo}', version='$version'" }

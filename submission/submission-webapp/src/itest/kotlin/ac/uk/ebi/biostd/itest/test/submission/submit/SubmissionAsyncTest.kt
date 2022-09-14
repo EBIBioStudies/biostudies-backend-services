@@ -6,7 +6,14 @@ import ac.uk.ebi.biostd.common.config.PersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
+import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
@@ -32,6 +39,7 @@ class SubmissionAsyncTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
+    @Autowired val extSubmissionSubmitter: ExtSubmissionSubmitter,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
@@ -68,5 +76,46 @@ class SubmissionAsyncTest(
                 section("RootSection") {}
             }
         )
+    }
+
+    @Test
+    fun `check submission stages`() {
+        val submission = tsv {
+            line("Submission", "SimpleAsync2")
+            line("Title", "Submission Stages")
+            line()
+
+            line("RootSection")
+            line()
+        }.toString()
+
+        webClient.submitSingle(submission, TSV)
+
+        val extSubmission = submissionRepository.getExtByAccNo("SimpleAsync2")
+        val extSubmitRequest = ExtSubmitRequest(extSubmission)
+
+        extSubmissionSubmitter.createRequest(extSubmitRequest)
+        val statusAfterCreation = submissionRepository.getRequestStatus("SimpleAsync2", 2)
+        assertThat(statusAfterCreation).isEqualTo(REQUESTED)
+
+        extSubmissionSubmitter.loadRequest("SimpleAsync2", 2)
+        val statusAfterLoading = submissionRepository.getRequestStatus("SimpleAsync2", 2)
+        assertThat(statusAfterLoading).isEqualTo(LOADED)
+
+        extSubmissionSubmitter.cleanRequest("SimpleAsync2", 2)
+        val statusAfterCleaning = submissionRepository.getRequestStatus("SimpleAsync2", 2)
+        assertThat(statusAfterCleaning).isEqualTo(CLEANED)
+
+        extSubmissionSubmitter.processRequest("SimpleAsync2", 2)
+        val statusAfterProcessing = submissionRepository.getRequestStatus("SimpleAsync2", 2)
+        assertThat(statusAfterProcessing).isEqualTo(FILES_COPIED)
+
+        extSubmissionSubmitter.checkReleased("SimpleAsync2", 2)
+        val statusAfterReleasing = submissionRepository.getRequestStatus("SimpleAsync2", 2)
+        assertThat(statusAfterReleasing).isEqualTo(PROCESSED)
+
+        assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", 1)).isFalse()
+        assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", -1)).isTrue()
+        assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", 2)).isTrue()
     }
 }

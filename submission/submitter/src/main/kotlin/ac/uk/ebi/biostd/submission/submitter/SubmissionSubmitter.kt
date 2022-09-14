@@ -38,7 +38,7 @@ class SubmissionSubmitter(
     }
 
     fun cleanRequest(rqt: RequestLoaded) {
-        submissionSubmitter.cleanRequest(rqt.accNo)
+        submissionSubmitter.cleanRequest(rqt.accNo, rqt.version)
     }
 
     fun processRequest(rqt: RequestCleaned): ExtSubmission {
