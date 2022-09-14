@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.test
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
-import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
@@ -56,7 +55,6 @@ object SubmissionTestHelper {
         creationTime = time,
         attributes = listOf(fullDocAttribute),
         tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
-        stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
         collections = listOf(DocCollection(PROJECT_ACC_NO)),
         section = docSection,
         pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile),

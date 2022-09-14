@@ -14,7 +14,6 @@ import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
@@ -45,7 +44,6 @@ object SubmissionFactory {
         attributes: List<ExtAttribute> = ATTRIBUTES,
         tags: List<ExtTag> = TAGS,
         collections: List<ExtCollection> = COLLECTIONS,
-        stats: List<ExtStat> = STATS,
         pageTabFiles: List<ExtFile> = PAGE_TAG_FILES
     ) = ExtSubmission(
         accNo = accNo,
@@ -66,7 +64,6 @@ object SubmissionFactory {
         attributes = attributes,
         tags = tags,
         collections = collections,
-        stats = stats,
         pageTabFiles = pageTabFiles,
         storageMode = StorageMode.NFS
     )
@@ -88,7 +85,6 @@ object SubmissionFactory {
     val ATTRIBUTES = emptyList<ExtAttribute>()
     val TAGS = emptyList<ExtTag>()
     val COLLECTIONS = emptyList<ExtCollection>()
-    val STATS = emptyList<ExtStat>()
     val SECTION = defaultSection()
     val PAGE_TAG_FILES = emptyList<ExtFile>()
 }

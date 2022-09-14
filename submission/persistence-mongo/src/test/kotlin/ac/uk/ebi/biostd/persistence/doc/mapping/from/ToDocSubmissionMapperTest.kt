@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
-import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
@@ -17,8 +16,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.CREATION_TIME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_STAT_NAME
-import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_STAT_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_TAG_NAME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.EXT_TAG_VALUE
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.MODIFICATION_TIME
@@ -167,9 +164,6 @@ class ToDocSubmissionMapperTest(
         assertThat(docSubmission.collections).hasSize(1)
         assertCollection(docSubmission.collections.first())
 
-        assertThat(docSubmission.stats).hasSize(1)
-        assertStat(docSubmission.stats.first())
-
         assertPageTabFiles(docSubmission.pageTabFiles)
     }
 
@@ -308,11 +302,6 @@ class ToDocSubmissionMapperTest(
     private fun assertTag(docTag: DocTag) {
         assertThat(docTag.name).isEqualTo(EXT_TAG_NAME)
         assertThat(docTag.value).isEqualTo(EXT_TAG_VALUE)
-    }
-
-    private fun assertStat(docStat: DocStat) {
-        assertThat(docStat.name).isEqualTo(EXT_STAT_NAME)
-        assertThat(docStat.value).isEqualTo(EXT_STAT_VALUE.toLong())
     }
 
     private fun assertInnerSections(docSections: List<Either<DocSection, DocSectionTable>>) {

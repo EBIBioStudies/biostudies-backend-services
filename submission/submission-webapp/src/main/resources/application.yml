@@ -53,9 +53,6 @@ server:
 logging:
   file:
     name: logs/application_logs.txt
-  logback:
-    rollingpolicy:
-      max-history: 7
 
 app:
   consumers: 10 # number of processing queue consumers.

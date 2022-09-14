@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttributeDetail
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
-import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod.PAGE_TAB
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
@@ -68,7 +67,6 @@ internal val testDocSubmission: DocSubmission
         creationTime = CREATION_TIME.truncatedTo(ChronoUnit.MILLIS),
         attributes = listOf(testDocAttribute),
         tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
-        stats = listOf(DocStat(STAT_TYPE, STAT_VALUE)),
         collections = listOf(testDocCollection),
         section = testDocSection,
         storageMode = StorageMode.NFS

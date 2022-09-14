@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
@@ -30,12 +31,14 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.STATU
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.USER_ID
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.model.constants.SectionFields.TITLE
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -48,6 +51,8 @@ import org.springframework.data.mongodb.core.collectionExists
 import org.springframework.data.mongodb.core.createCollection
 import org.springframework.data.mongodb.core.dropCollection
 import org.springframework.data.mongodb.core.findAll
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -219,6 +224,26 @@ internal class DatabaseChangeLogTest(
         val draftsAfterMigrations = mongoTemplate.findAll<DocSubmissionDraft>(draftCollection.namespace.collectionName)
         assertThat(draftsAfterMigrations).hasSize(1)
         assertThat(draftsAfterMigrations.first().status).isEqualTo(DocSubmissionDraft.DraftStatus.ACTIVE)
+    }
+
+    @Test
+    fun `run migration 006`() {
+        val objectId = ObjectId()
+        val submission = testDocSubmission.copy(id = objectId)
+        val submissionCollection = mongoTemplate.createCollection<DocSubmission>()
+        val collectionName = submissionCollection.namespace.collectionName
+        mongoTemplate.insert(submission, collectionName)
+        mongoTemplate.updateMulti(Query(), Update().set(SUB_STATS, "stats"), DocSubmission::class.java)
+
+        val submissions = mongoTemplate.findAll<Document>(collectionName)
+        assertThat(submissions).hasSize(1)
+        assertThat(submissions.first()[SUB_STATS]).isEqualTo("stats")
+
+        runMigrations(ChangeLog006::class.java)
+
+        val subAfterMigration = mongoTemplate.findAll<Document>(collectionName)
+        assertThat(subAfterMigration).hasSize(1)
+        assertThat(subAfterMigration.first()[SUB_STATS]).isNull()
     }
 
     private fun runMigrations(clazz: Class<*>) {

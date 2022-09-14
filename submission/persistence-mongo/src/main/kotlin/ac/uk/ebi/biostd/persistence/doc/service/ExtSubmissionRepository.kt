@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
@@ -14,39 +13,33 @@ private const val FILES_CHUNK_SIZE = 100
 
 class ExtSubmissionRepository(
     private val subDataRepository: SubmissionDocDataRepository,
-    private val draftDocDataRepository: SubmissionDraftDocDataRepository,
     private val fileListDocFileRepository: FileListDocFileRepository,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
     private val toDocSubmissionMapper: ToDocSubmissionMapper
 ) {
-    fun saveSubmission(submission: ExtSubmission, draftKey: String?): ExtSubmission {
-        updateCurrentRecords(submission.accNo, submission.owner, submission.submitter, draftKey)
-        return toExtSubmissionMapper.toExtSubmission(saveSubmission(submission), false)
-    }
+    fun saveSubmission(submission: ExtSubmission): ExtSubmission =
+        toExtSubmissionMapper.toExtSubmission(persistSubmission(submission), false)
 
-    private fun updateCurrentRecords(accNo: String, owner: String, submitter: String, draftKey: String?) {
+    fun expirePreviousVersions(accNo: String) {
         subDataRepository.expireActiveProcessedVersions(accNo)
-        deleteSubmissionDrafts(accNo, owner, submitter, draftKey)
     }
 
-    private fun deleteSubmissionDrafts(accNo: String, owner: String, submitter: String, draftKey: String?) {
-        draftKey?.let { draftDocDataRepository.deleteByKey(draftKey) }
-        draftDocDataRepository.deleteByUserIdAndKey(owner, accNo)
-        draftDocDataRepository.deleteByUserIdAndKey(submitter, accNo)
-    }
+    private fun persistSubmission(submission: ExtSubmission): DocSubmission {
+        val accNo = submission.accNo
+        val owner = submission.owner
 
-    private fun saveSubmission(submission: ExtSubmission): DocSubmission {
-        logger.info { "mapping submission ${submission.accNo} into doc submission" }
+        logger.info { "$accNo $owner Started mapping submission into doc submission" }
         val (docSubmission, files) = toDocSubmissionMapper.convert(submission)
-        logger.info { "mapped submission ${submission.accNo}" }
+        logger.info { "$accNo $owner Finished mapping submission into doc submission" }
 
-        logger.info { "saving submission ${docSubmission.accNo}" }
+        logger.info { "$accNo $owner Started saving submission in the database" }
         val savedSubmission = subDataRepository.save(docSubmission)
-        logger.info { "saved submission ${docSubmission.accNo}" }
+        logger.info { "$accNo $owner Finished saving submission in the database" }
 
-        logger.info { "saving ${files.count()} file list files ${docSubmission.accNo}" }
+        logger.info { "$accNo $owner Started saving ${files.count()} file list files" }
         files.chunked(FILES_CHUNK_SIZE).forEach { fileListDocFileRepository.saveAll(it) }
-        logger.info { "saved ${files.count()} file list files ${docSubmission.accNo}" }
+        logger.info { "$accNo $owner Finished saving ${files.count()} file list files" }
+
         return savedSubmission
     }
 }

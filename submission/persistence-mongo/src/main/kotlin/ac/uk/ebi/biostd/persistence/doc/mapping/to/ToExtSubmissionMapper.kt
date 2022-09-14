@@ -10,7 +10,9 @@ import java.time.ZoneOffset.UTC
 
 internal const val FILES_DIR = "Files"
 
-class ToExtSubmissionMapper(private val toExtSectionMapper: ToExtSectionMapper) {
+class ToExtSubmissionMapper(
+    private val toExtSectionMapper: ToExtSectionMapper,
+) {
     internal fun toExtSubmission(sub: DocSubmission, includeFileListFiles: Boolean): ExtSubmission =
         ExtSubmission(
             accNo = sub.accNo,
@@ -31,7 +33,6 @@ class ToExtSubmissionMapper(private val toExtSectionMapper: ToExtSectionMapper) 
             attributes = sub.attributes.toExtAttributes(),
             collections = sub.collections.map { ExtCollection(it.accNo) },
             tags = sub.tags.map { ExtTag(it.name, it.value) },
-            stats = sub.stats.map { it.toExtStat() },
             pageTabFiles = sub.pageTabFiles.map { it.toExtFile() },
             storageMode = sub.storageMode
         )

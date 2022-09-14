@@ -1,13 +1,10 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_PROJECT_CLASS
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_STAT_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_SUBMISSION_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_TAG_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PAGE_TAB_FILES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PROJECT_DOC_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_NAME
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STAT_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
@@ -24,7 +21,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SCHEMA_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECRET_KEY
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TAGS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
@@ -33,7 +29,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.TAG_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
-import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import org.bson.Document
@@ -44,7 +39,6 @@ class SubmissionConverter(
     private val attributeConverter: AttributeConverter,
     private val fileConverter: FileConverter
 ) : Converter<DocSubmission, Document> {
-
     override fun convert(submission: DocSubmission): Document {
         val submissionDoc = Document()
         submissionDoc[classField] = DOC_SUBMISSION_CLASS
@@ -67,7 +61,6 @@ class SubmissionConverter(
         submissionDoc[SUB_ATTRIBUTES] = submission.attributes.map { attributeConverter.convert(it) }
         submissionDoc[SUB_TAGS] = submission.tags.map { tagToDocument(it) }
         submissionDoc[SUB_PROJECTS] = submission.collections.map { collectionToDocument(it) }
-        submissionDoc[SUB_STATS] = submission.stats.map { statToDocument(it) }
         submissionDoc[PAGE_TAB_FILES] = submission.pageTabFiles.map { fileConverter.convert(it) }
         submissionDoc[STORAGE_MODE] = submission.storageMode.value
         return submissionDoc
@@ -86,13 +79,5 @@ class SubmissionConverter(
         projectDoc[classField] = DOC_PROJECT_CLASS
         projectDoc[PROJECT_DOC_ACC_NO] = docCollection.accNo
         return projectDoc
-    }
-
-    private fun statToDocument(docStat: DocStat): Document {
-        val statDoc = Document()
-        statDoc[classField] = DOC_STAT_CLASS
-        statDoc[STAT_DOC_NAME] = docStat.name
-        statDoc[STAT_DOC_VALUE] = docStat.value
-        return statDoc
     }
 }

@@ -24,7 +24,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
-import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
@@ -93,11 +92,6 @@ internal class SubmissionConverterTest(
         val projects = result.getAs<List<Document>>(DocSubmissionFields.SUB_PROJECTS)
         val project = projects.first()
         assertThat(project[DocSubmissionFields.PROJECT_DOC_ACC_NO]).isEqualTo(docProjectAccNo)
-
-        val stats = result.getAs<List<Document>>(DocSubmissionFields.SUB_STATS)
-        val stat = stats.first()
-        assertThat(stat[DocSubmissionFields.STAT_DOC_NAME]).isEqualTo(docStatName)
-        assertThat(stat[DocSubmissionFields.STAT_DOC_VALUE]).isEqualTo(docStatValue)
     }
 
     private fun createDocSubmission(
@@ -125,7 +119,6 @@ internal class SubmissionConverterTest(
             attributes = listOf(docAttribute),
             tags = submissionTags,
             collections = submissionProjects,
-            stats = submissionStats,
             pageTabFiles = listOf(docFile),
             storageMode = StorageMode.NFS
         )
@@ -153,9 +146,5 @@ internal class SubmissionConverterTest(
 
         private const val docProjectAccNo = "BioImages"
         val submissionProjects = listOf(DocCollection(docProjectAccNo))
-
-        private const val docStatName = "component"
-        private const val docStatValue: Long = 1
-        val submissionStats = listOf(DocStat(docStatName, docStatValue))
     }
 }

@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Page
@@ -30,12 +31,6 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
 
     @Query(value = "{ 'accNo' : ?0, 'version' : { \$gt: 0} }", fields = "{ 'collections.accNo':1 }")
     fun findSubmissionCollections(accNo: String): SubmissionProjects?
-
-    @Query("{ 'accNo': '?0', 'stats.name': { \$eq: '?1' } }")
-    fun findByAccNoAndStatType(accNo: String, statType: SubmissionStatType): DocSubmission?
-
-    @Query("{ 'stats.name': { \$eq: '?0' } }")
-    fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Page<DocSubmission>
 }
 
 fun SubmissionMongoRepository.getByAccNo(accNo: String) = findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
@@ -83,4 +78,16 @@ interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId>
         version: Int,
         fileListName: String,
     ): List<FileListDocFile>
+}
+
+interface SubmissionStatsRepository : MongoRepository<DocSubmissionStats, ObjectId> {
+    fun getByAccNo(accNo: String): DocSubmissionStats
+
+    fun findByAccNo(accNo: String): DocSubmissionStats?
+
+    @Query("{ 'accNo': '?0', 'stats.?1': { \$exists: true } }")
+    fun findByAccNoAndStatType(accNo: String, statType: SubmissionStatType): DocSubmissionStats?
+
+    @Query("{ 'stats.?0': { \$exists: true } }")
+    fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Page<DocSubmissionStats>
 }

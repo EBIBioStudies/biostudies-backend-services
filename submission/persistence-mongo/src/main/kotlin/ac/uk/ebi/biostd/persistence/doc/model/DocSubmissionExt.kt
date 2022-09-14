@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import com.google.common.collect.ImmutableList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
@@ -27,30 +26,6 @@ fun DocSubmission.asBasicSubmission(status: ProcessingStatus): BasicSubmission {
         owner = owner
     )
 }
-
-val DocSubmission.allDocSections: List<DocSection>
-    get() = ImmutableList.builder<DocSection>()
-        .add(section)
-        .addAll(section.allSections)
-        .build()
-        .filterNotNull()
-
-val DocSubmission.allFileLists: List<DocFileList>
-    get() = section.allFileList
-
-val DocSection.allSections: List<DocSection>
-    get() = sections.flatMap { either ->
-        either.fold(
-            { section -> listOf(section) + section.allSections },
-            { emptyList() }
-        )
-    }
-
-val DocSection.allFileList: List<DocFileList>
-    get() = buildList {
-        fileList?.let { add(it) }
-        addAll(sections.mapNotNull { either -> either.fold({ it }, { null }) }.flatMap { it.allFileList })
-    }
 
 private fun DocSubmissionMethod.toSubmissionMethod(): SubmissionMethod =
     when (this) {

@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepositor
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionDraftRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionStatsRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -27,8 +28,8 @@ class MongoDbReposConfig {
     @Bean
     internal fun submissionStatsDataRepository(
         mongoTemplate: MongoTemplate,
-        submissionMongoRepository: SubmissionMongoRepository
-    ): SubmissionStatsDataRepository = SubmissionStatsDataRepository(mongoTemplate, submissionMongoRepository)
+        submissionStatsRepository: SubmissionStatsRepository
+    ): SubmissionStatsDataRepository = SubmissionStatsDataRepository(mongoTemplate, submissionStatsRepository)
 
     @Bean
     internal fun submissionRequestDocDataRepository(

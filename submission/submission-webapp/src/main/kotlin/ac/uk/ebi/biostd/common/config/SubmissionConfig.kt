@@ -4,8 +4,11 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
+import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
+import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
@@ -30,13 +33,12 @@ import uk.ac.ebi.events.service.EventsPublisherService
 import java.net.URI
 
 @Configuration
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @Import(value = [PersistenceConfig::class, SecurityBeansConfig::class])
 class SubmissionConfig(
     private val fileSourcesService: FileSourcesService,
     private val serializationService: SerializationService,
 ) {
-
     @Bean
     fun submissionQueryService(
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
@@ -62,6 +64,13 @@ class SubmissionConfig(
         eventsPublisherService,
         fileStorageService
     )
+
+    @Bean
+    fun submissionStatsService(
+        statsFileHandler: StatsFileHandler,
+        tempFileGenerator: TempFileGenerator,
+        submissionStatsService: StatsDataService
+    ): SubmissionStatsService = SubmissionStatsService(statsFileHandler, tempFileGenerator, submissionStatsService)
 
     @Bean
     fun extSubmissionQueryService(

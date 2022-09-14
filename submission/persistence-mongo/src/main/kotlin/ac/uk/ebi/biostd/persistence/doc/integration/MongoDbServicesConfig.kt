@@ -86,8 +86,9 @@ class MongoDbServicesConfig {
 
     @Bean
     internal fun statsDataService(
-        submissionStatsDataRepository: SubmissionStatsDataRepository,
-    ): StatsDataService = StatsMongoDataService(submissionStatsDataRepository)
+        submissionsRepository: SubmissionDocDataRepository,
+        statsDataRepository: SubmissionStatsDataRepository,
+    ): StatsDataService = StatsMongoDataService(submissionsRepository, statsDataRepository)
 
     @Bean
     fun fileProcessingService(serializationService: ExtSerializationService, fileResolver: FilesResolver) =

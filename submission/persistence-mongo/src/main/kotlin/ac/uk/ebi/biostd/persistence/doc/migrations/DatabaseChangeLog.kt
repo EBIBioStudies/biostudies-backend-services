@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
@@ -23,6 +24,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.STATUS
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import com.github.cloudyrock.mongock.ChangeLog
 import com.github.cloudyrock.mongock.ChangeSet
@@ -43,7 +45,8 @@ internal val CHANGE_LOG_CLASSES = listOf(
     ChangeLog002::class.java,
     ChangeLog003::class.java,
     ChangeLog004::class.java,
-    ChangeLog005::class.java
+    ChangeLog005::class.java,
+    ChangeLog006::class.java,
 )
 
 @ChangeLog
@@ -148,5 +151,19 @@ class ChangeLog005 {
     @ChangeSet(order = "005", id = "Set ACTIVE status on existing Drafts", author = "System")
     fun changeSet005(template: MongockTemplate) {
         template.updateMulti(Query(), Update().set(STATUS, ACTIVE.name), DocSubmissionDraft::class.java)
+    }
+}
+
+@ChangeLog
+class ChangeLog006 {
+    @ChangeSet(order = "006", id = "Extract stats to a separated collection", author = "System")
+    fun changeSet006(template: MongockTemplate) {
+        template.ensureExists(DocSubmissionStats::class.java)
+
+        template.indexOps(DocSubmissionStats::class.java).apply {
+            ensureIndex(Index().on(SUB_ACC_NO, ASC))
+        }
+
+        template.updateMulti(Query(), Update().unset(SUB_STATS), DocSubmission::class.java)
     }
 }
