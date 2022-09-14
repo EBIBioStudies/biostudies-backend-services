@@ -84,7 +84,8 @@ class SubmitterConfig {
     fun submissionCleaner(
         systemService: FileSystemService,
         queryService: SubmissionPersistenceQueryService,
-    ): SubmissionCleaner = SubmissionCleaner(systemService, queryService)
+        submissionPersistenceService: SubmissionPersistenceService,
+    ): SubmissionCleaner = SubmissionCleaner(systemService, queryService, submissionPersistenceService)
 
     @Bean
     fun extSubmissionSubmitter(

@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
@@ -91,6 +92,10 @@ internal class SubmissionMongoPersistenceQueryService(
 
     override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
         return getRequest(accNo, version, REQUESTED)
+    }
+
+    override fun getCleanedRequest(accNo: String, version: Int): SubmissionRequest {
+        return getRequest(accNo, version, CLEANED)
     }
 
     override fun getLoadedRequest(accNo: String, version: Int): SubmissionRequest {
