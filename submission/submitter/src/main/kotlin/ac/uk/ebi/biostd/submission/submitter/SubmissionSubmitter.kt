@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
@@ -18,7 +18,7 @@ class SubmissionSubmitter(
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val submissionProcessor: SubmissionProcessor,
     private val parentInfoService: ParentInfoService,
-    private val draftService: SubmissionDraftService,
+    private val draftService: SubmissionDraftPersistenceService,
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         val submission = processRequest(rqt)

@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.submission.submitter.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
+import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
@@ -19,7 +19,7 @@ class SubmissionRequestLoader(
     private val queryService: SubmissionPersistenceQueryService,
     private val persistenceService: SubmissionPersistenceService,
     private val fileProcessingService: FileProcessingService,
-    private val storageService: StorageService,
+    private val storageService: FileStorageService,
 ) {
 
     /**

@@ -5,14 +5,13 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
-import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
@@ -53,7 +52,7 @@ class SubmitterConfig {
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
         fileProcessingService: FileProcessingService,
-        storageService: StorageService,
+        storageService: FileStorageService,
     ): SubmissionRequestLoader = SubmissionRequestLoader(
         submissionPersistenceQueryService,
         submissionPersistenceService,
@@ -109,7 +108,7 @@ class SubmitterConfig {
         extSubmissionSubmitter: ExtSubmissionSubmitter,
         submissionProcessor: SubmissionProcessor,
         parentInfoService: ParentInfoService,
-        draftService: SubmissionDraftService,
+        draftService: SubmissionDraftPersistenceService,
     ) = SubmissionSubmitter(
         extSubmissionSubmitter,
         submissionProcessor,
