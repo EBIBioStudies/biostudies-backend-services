@@ -100,7 +100,7 @@ class SubmitWebHandler(
          */
         fun processSubmission(): SubmitRequest {
             val (accNo, rootPath) = deserializeSubmission()
-            require(extSubService.hasPendingRequest(accNo).not()) { throw ConcurrentSubException(accNo) }
+            require(extSubService.hasActiveRequest(accNo).not()) { throw ConcurrentSubException(accNo) }
 
             val previous = extSubService.findExtendedSubmission(accNo)
             val sources = fileSourcesService.submissionSources(sourceRequest(rootPath, previous))

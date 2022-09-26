@@ -42,10 +42,7 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
         status: RequestStatus,
     ): DocSubmissionRequest
 
-    fun existsByAccNoAndStatusIn(
-        accNo: String,
-        status: Set<RequestStatus>,
-    ): Boolean
+    fun existsByAccNoAndStatusNot(accNo: String, status: RequestStatus): Boolean
 
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
 }

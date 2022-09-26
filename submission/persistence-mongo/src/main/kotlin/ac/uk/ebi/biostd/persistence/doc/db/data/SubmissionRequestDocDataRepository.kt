@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
@@ -31,16 +31,16 @@ class SubmissionRequestDocDataRepository(
     fun saveRequest(submissionRequest: DocSubmissionRequest): DocSubmissionRequest =
         submissionRequestRepository.save(submissionRequest)
 
-    fun findActiveRequest(filter: SubmissionFilter, email: String? = null): Pair<Int, List<DocSubmissionRequest>> {
+    fun findActiveRequests(filter: SubmissionFilter, email: String? = null): Pair<Int, List<DocSubmissionRequest>> {
         val query = Query().addCriteria(createQuery(filter, email))
         val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java)
         return when {
             requestCount <= filter.offset -> requestCount.toInt() to emptyList()
-            else -> findActiveRequest(query, filter.offset, filter.limit)
+            else -> findActiveRequests(query, filter.offset, filter.limit)
         }
     }
 
-    private fun findActiveRequest(
+    private fun findActiveRequests(
         query: Query,
         skip: Long,
         limit: Int,
@@ -52,7 +52,6 @@ class SubmissionRequestDocDataRepository(
     @Suppress("SpreadOperator")
     private fun createQuery(filter: SubmissionFilter, email: String? = null): Criteria =
         where("submission.$SUB_OWNER").`is`(email)
-            .and("status").`is`(REQUESTED)
             .andOperator(*criteriaArray(filter))
 
     fun updateStatus(status: RequestStatus, accNo: String, version: Int) {
@@ -68,7 +67,7 @@ class SubmissionRequestDocDataRepository(
 
     private fun criteriaArray(filter: SubmissionFilter): Array<Criteria> =
         ImmutableList.Builder<Criteria>().apply {
-            add(where("status").`is`(REQUESTED))
+            add(where("status").ne(PROCESSED))
             filter.accNo?.let { add(where("submission.$SUB_ACC_NO").`is`(it)) }
             filter.type?.let { add(where("submission.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
             filter.rTimeFrom?.let { add(where("submission.$SUB_RELEASE_TIME").gte(it.toString())) }
