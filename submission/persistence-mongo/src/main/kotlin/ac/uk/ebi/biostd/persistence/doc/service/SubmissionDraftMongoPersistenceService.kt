@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.PROCESSING
 
@@ -12,7 +11,9 @@ class SubmissionDraftMongoPersistenceService(
     private val draftDocDataRepository: SubmissionDraftDocDataRepository,
 ) : SubmissionDraftPersistenceService {
     override fun findSubmissionDraft(userEmail: String, key: String): SubmissionDraft? {
-        return draftDocDataRepository.findByUserIdAndKey(userEmail, key)?.toSubmissionDraft()
+        return draftDocDataRepository
+            .findByUserIdAndKey(userEmail, key)
+            ?.let { SubmissionDraft(it.key, it.content) }
     }
 
     override fun updateSubmissionDraft(userEmail: String, key: String, content: String): SubmissionDraft {
@@ -31,11 +32,12 @@ class SubmissionDraftMongoPersistenceService(
     override fun getActiveSubmissionDrafts(userEmail: String, filter: PaginationFilter): List<SubmissionDraft> {
         return draftDocDataRepository
             .findAllByUserIdAndStatus(userEmail, ACTIVE, filter)
-            .map { it.toSubmissionDraft() }
+            .map { SubmissionDraft(it.key, it.content) }
     }
 
     override fun createSubmissionDraft(userEmail: String, key: String, content: String): SubmissionDraft {
-        return draftDocDataRepository.createDraft(userEmail, key, content).toSubmissionDraft()
+        val draft = draftDocDataRepository.createDraft(userEmail, key, content)
+        return SubmissionDraft(draft.key, draft.content)
     }
 
     override fun setActiveStatus(
@@ -47,6 +49,4 @@ class SubmissionDraftMongoPersistenceService(
         userEmail: String,
         key: String
     ) = draftDocDataRepository.setStatus(userEmail, key, PROCESSING)
-
-    private fun DocSubmissionDraft.toSubmissionDraft() = SubmissionDraft(key, content)
 }
