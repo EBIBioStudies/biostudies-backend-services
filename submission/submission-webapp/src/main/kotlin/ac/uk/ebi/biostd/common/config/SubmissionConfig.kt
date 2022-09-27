@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
@@ -14,6 +15,7 @@ import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
@@ -100,6 +102,26 @@ class SubmissionConfig(
         collectionSqlDataService: CollectionDataService,
         userPrivilegeService: IUserPrivilegesService,
     ): CollectionService = CollectionService(collectionSqlDataService, userPrivilegeService)
+
+    @Bean
+    fun submissionDraftService(
+        submitWebHandler: SubmitWebHandler,
+        toSubmissionMapper: ToSubmissionMapper,
+        serializationService: SerializationService,
+        submitRequestBuilder: SubmitRequestBuilder,
+        userPrivilegesService: IUserPrivilegesService,
+        submissionQueryService: SubmissionPersistenceQueryService,
+        persistenceDraftService: SubmissionDraftPersistenceService,
+    ): SubmissionDraftService =
+        SubmissionDraftService(
+            submitWebHandler,
+            toSubmissionMapper,
+            serializationService,
+            submitRequestBuilder,
+            userPrivilegesService,
+            submissionQueryService,
+            persistenceDraftService,
+        )
 
     @Bean
     fun submitHandler(

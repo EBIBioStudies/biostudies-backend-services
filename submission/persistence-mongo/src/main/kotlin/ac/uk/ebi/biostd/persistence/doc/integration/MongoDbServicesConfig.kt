@@ -1,9 +1,8 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
-import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
@@ -15,9 +14,8 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.CollectionMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
-import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoService
+import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceQueryService
-import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -74,15 +72,7 @@ class MongoDbServicesConfig {
     @Bean
     internal fun submissionDraftMongoService(
         submissionDraftDocDataRepository: SubmissionDraftDocDataRepository,
-        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
-        serializationService: SerializationService,
-        toSubmissionMapper: ToSubmissionMapper,
-    ): SubmissionDraftService = SubmissionDraftMongoService(
-        submissionDraftDocDataRepository,
-        submissionPersistenceQueryService,
-        serializationService,
-        toSubmissionMapper
-    )
+    ): SubmissionDraftPersistenceService = SubmissionDraftMongoPersistenceService(submissionDraftDocDataRepository)
 
     @Bean
     internal fun statsDataService(
