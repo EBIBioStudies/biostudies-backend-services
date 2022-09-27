@@ -40,7 +40,7 @@ internal class SubmissionMongoPersistenceQueryService(
         submissionRepo.existsByAccNoAndVersion(accNo, version)
 
     override fun hasActiveRequest(accNo: String): Boolean =
-        requestRepository.existsByAccNoAndStatusNot(accNo, RequestStatus.PROCESSED)
+        requestRepository.existsByAccNoAndStatusIn(accNo, RequestStatus.PROCESSING)
 
     override fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
         val findByAccNo = submissionRepo.findByAccNo(accNo)
