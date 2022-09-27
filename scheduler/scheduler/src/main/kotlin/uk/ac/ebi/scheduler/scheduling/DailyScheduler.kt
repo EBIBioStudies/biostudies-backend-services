@@ -20,17 +20,17 @@ internal class DailyScheduler(
 
     @Scheduled(cron = "0 0 6 * * *")
     fun loadPmc() {
-        if (dailyScheduling.pmc) pmcLoaderService.loadFile(DEFAULT_FOLDER)
+        if (dailyScheduling.pmcImport) pmcLoaderService.loadFile(DEFAULT_FOLDER)
     }
 
     @Scheduled(cron = "0 0 7 * * *")
     fun processPmc() {
-        if (dailyScheduling.pmc) pmcLoaderService.triggerProcessor()
+        if (dailyScheduling.pmcImport) pmcLoaderService.triggerProcessor()
     }
 
     @Scheduled(cron = "0 0 8 * * *")
     fun submitPmc() {
-        if (dailyScheduling.pmc) pmcLoaderService.triggerSubmitter()
+        if (dailyScheduling.pmcImport) pmcLoaderService.triggerSubmitter()
     }
 
     @Scheduled(cron = "0 0 10 * * *")
@@ -40,7 +40,7 @@ internal class DailyScheduler(
 
     @Scheduled(cron = "0 0 20 * * *")
     fun exportPmcSubmissions() {
-        if (dailyScheduling.pmc) exporterTrigger.triggerPmcExport()
+        if (dailyScheduling.pmcExport) exporterTrigger.triggerPmcExport()
     }
 
     @Scheduled(cron = "0 0 21 * * *")
