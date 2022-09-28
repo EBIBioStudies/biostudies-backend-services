@@ -130,8 +130,6 @@ object DocSubmissionFields {
     const val TAG_DOC_NAME = "name"
     const val TAG_DOC_VALUE = "value"
     const val PROJECT_DOC_ACC_NO = "accNo"
-    const val STAT_DOC_NAME = "name"
-    const val STAT_DOC_VALUE = "value"
     const val SUB_STATS = "stats"
     const val PAGE_TAB_FILES = "pageTabFiles"
     const val STORAGE_MODE = "storageMode"

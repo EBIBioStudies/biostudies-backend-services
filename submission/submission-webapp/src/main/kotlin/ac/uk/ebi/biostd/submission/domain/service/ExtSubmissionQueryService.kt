@@ -12,7 +12,7 @@ import java.time.OffsetDateTime
 class ExtSubmissionQueryService(
     private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
 ) {
-    fun hasPendingRequest(accNo: String): Boolean = submissionPersistenceQueryService.hasPendingRequest(accNo)
+    fun hasActiveRequest(accNo: String): Boolean = submissionPersistenceQueryService.hasActiveRequest(accNo)
 
     fun getExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission =
         submissionPersistenceQueryService.getExtByAccNo(accNo, includeFileListFiles)

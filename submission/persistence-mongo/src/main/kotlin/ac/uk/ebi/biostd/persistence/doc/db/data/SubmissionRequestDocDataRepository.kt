@@ -1,17 +1,19 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
@@ -31,16 +33,16 @@ class SubmissionRequestDocDataRepository(
     fun saveRequest(submissionRequest: DocSubmissionRequest): DocSubmissionRequest =
         submissionRequestRepository.save(submissionRequest)
 
-    fun findActiveRequest(filter: SubmissionFilter, email: String? = null): Pair<Int, List<DocSubmissionRequest>> {
+    fun findActiveRequests(filter: SubmissionFilter, email: String? = null): Pair<Int, List<DocSubmissionRequest>> {
         val query = Query().addCriteria(createQuery(filter, email))
         val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java)
         return when {
             requestCount <= filter.offset -> requestCount.toInt() to emptyList()
-            else -> findActiveRequest(query, filter.offset, filter.limit)
+            else -> findActiveRequests(query, filter.offset, filter.limit)
         }
     }
 
-    private fun findActiveRequest(
+    private fun findActiveRequests(
         query: Query,
         skip: Long,
         limit: Int,
@@ -51,35 +53,34 @@ class SubmissionRequestDocDataRepository(
 
     @Suppress("SpreadOperator")
     private fun createQuery(filter: SubmissionFilter, email: String? = null): Criteria =
-        where("submission.$SUB_OWNER").`is`(email)
-            .and("status").`is`(REQUESTED)
+        where("$SUB.$SUB_OWNER").`is`(email)
             .andOperator(*criteriaArray(filter))
 
     fun updateStatus(status: RequestStatus, accNo: String, version: Int) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
-        mongoTemplate.updateFirst(query, update("status", status), DocSubmissionRequest::class.java)
+        mongoTemplate.updateFirst(query, update(SUB_STATUS, status), DocSubmissionRequest::class.java)
     }
 
     fun updateSubmissionRequest(rqt: DocSubmissionRequest) {
         val query = Query(where(SUB_ACC_NO).`is`(rqt.accNo).andOperator(where(SUB_VERSION).`is`(rqt.version)))
-        val update = Update().set("status", rqt.status).set("submission", rqt.submission)
+        val update = Update().set(SUB_STATUS, rqt.status).set(SUB, rqt.submission)
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java)
     }
 
     private fun criteriaArray(filter: SubmissionFilter): Array<Criteria> =
         ImmutableList.Builder<Criteria>().apply {
-            add(where("status").`is`(REQUESTED))
-            filter.accNo?.let { add(where("submission.$SUB_ACC_NO").`is`(it)) }
-            filter.type?.let { add(where("submission.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
-            filter.rTimeFrom?.let { add(where("submission.$SUB_RELEASE_TIME").gte(it.toString())) }
-            filter.rTimeTo?.let { add(where("submission.$SUB_RELEASE_TIME").lte(it.toString())) }
+            add(where(SUB_STATUS).`in`(PROCESSING))
+            filter.accNo?.let { add(where("$SUB.$SUB_ACC_NO").`is`(it)) }
+            filter.type?.let { add(where("$SUB.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
+            filter.rTimeFrom?.let { add(where("$SUB.$SUB_RELEASE_TIME").gte(it.toString())) }
+            filter.rTimeTo?.let { add(where("$SUB.$SUB_RELEASE_TIME").lte(it.toString())) }
             filter.keywords?.let { add(keywordsCriteria(it)) }
-            filter.released?.let { add(where("submission.$SUB_RELEASED").`is`(it)) }
+            filter.released?.let { add(where("$SUB.$SUB_RELEASED").`is`(it)) }
         }.build().toTypedArray()
 
     private fun keywordsCriteria(keywords: String) = Criteria().orOperator(
-        where("submission.$SUB_TITLE").regex("(?i).*$keywords.*"),
-        where("submission.$SUB_SECTION.$SEC_ATTRIBUTES").elemMatch(
+        where("$SUB.$SUB_TITLE").regex("(?i).*$keywords.*"),
+        where("$SUB.$SUB_SECTION.$SEC_ATTRIBUTES").elemMatch(
             where(ATTRIBUTE_DOC_NAME).`is`("Title").and(ATTRIBUTE_DOC_VALUE).regex("(?i).*$keywords.*")
         )
     )

@@ -2,6 +2,9 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
@@ -349,49 +352,44 @@ internal class SubmissionMongoQueryServiceTest(
 
         @Test
         fun `when all`() {
-            saveAsRequest(
-                extSubmission.copy(
-                    accNo = "accNo1",
-                    version = 1,
-                    title = "title",
-                    section = section.copy(type = "type1"),
-                    released = false,
-                    releaseTime = OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
-                ),
-                REQUESTED
-            )
-            submissionRepo.save(
-                docSubmission.copy(
-                    accNo = "accNo1",
-                    version = 1,
-                    title = "title",
-                    section = docSection.copy(type = "type1"),
-                    released = false,
-                    releaseTime = OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC).toInstant(),
-                )
-            )
+            submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = 1))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo2", version = 1))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo3", version = 1))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo4", version = 1))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo5", version = 1))
 
-            val result = testInstance.getSubmissionsByUser(
-                SUBMISSION_OWNER,
-                SubmissionFilter(
-                    accNo = "accNo1",
-                    version = 1,
-                    type = "type1",
-                    rTimeFrom = OffsetDateTime.of(2019, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
-                    rTimeTo = OffsetDateTime.of(2021, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
-                    keywords = "title",
-                    released = false
-                )
-            )
+            saveAsRequest(extSubmission.copy(accNo = "accNo1", version = 2), REQUESTED)
+            saveAsRequest(extSubmission.copy(accNo = "accNo2", version = 2), LOADED)
+            saveAsRequest(extSubmission.copy(accNo = "accNo3", version = 2), CLEANED)
+            saveAsRequest(extSubmission.copy(accNo = "accNo4", version = 2), FILES_COPIED)
 
-            assertThat(result).hasSize(1)
-            val request = result.first()
-            assertThat(request.accNo).isEqualTo("accNo1")
-            assertThat(request.version).isEqualTo(1)
-            assertThat(request.title).isEqualTo("title")
-            assertThat(request.releaseTime).isEqualTo(OffsetDateTime.of(2020, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC))
-            assertThat(request.released).isEqualTo(false)
-            assertThat(request.status).isEqualTo(PROCESSING)
+            val result = testInstance.getSubmissionsByUser(SUBMISSION_OWNER, SubmissionFilter())
+
+            assertThat(result).hasSize(5)
+            assertThat(result[0].accNo).isEqualTo("accNo1")
+            assertThat(result[0].version).isEqualTo(2)
+            assertThat(result[0].status).isEqualTo(PROCESSING)
+            assertThat(testInstance.hasActiveRequest("accNo1")).isTrue()
+
+            assertThat(result[1].accNo).isEqualTo("accNo2")
+            assertThat(result[1].version).isEqualTo(2)
+            assertThat(result[1].status).isEqualTo(PROCESSING)
+            assertThat(testInstance.hasActiveRequest("accNo2")).isTrue()
+
+            assertThat(result[2].accNo).isEqualTo("accNo3")
+            assertThat(result[2].version).isEqualTo(2)
+            assertThat(result[2].status).isEqualTo(PROCESSING)
+            assertThat(testInstance.hasActiveRequest("accNo3")).isTrue()
+
+            assertThat(result[3].accNo).isEqualTo("accNo4")
+            assertThat(result[3].version).isEqualTo(2)
+            assertThat(result[3].status).isEqualTo(PROCESSING)
+            assertThat(testInstance.hasActiveRequest("accNo4")).isTrue()
+
+            assertThat(result[4].accNo).isEqualTo("accNo5")
+            assertThat(result[4].version).isEqualTo(1)
+            assertThat(result[4].status).isEqualTo(PROCESSED)
+            assertThat(testInstance.hasActiveRequest("accNo5")).isFalse()
         }
 
         @Test

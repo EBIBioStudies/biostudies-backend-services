@@ -39,8 +39,8 @@ internal class SubmissionMongoPersistenceQueryService(
     override fun existByAccNoAndVersion(accNo: String, version: Int): Boolean =
         submissionRepo.existsByAccNoAndVersion(accNo, version)
 
-    override fun hasPendingRequest(accNo: String): Boolean =
-        requestRepository.existsByAccNoAndStatusIn(accNo, setOf(REQUESTED))
+    override fun hasActiveRequest(accNo: String): Boolean =
+        requestRepository.existsByAccNoAndStatusIn(accNo, RequestStatus.PROCESSING)
 
     override fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
         val findByAccNo = submissionRepo.findByAccNo(accNo)
@@ -71,7 +71,7 @@ internal class SubmissionMongoPersistenceQueryService(
     }
 
     override fun getSubmissionsByUser(owner: String, filter: SubmissionFilter): List<BasicSubmission> {
-        val (requestsCount, requests) = requestRepository.findActiveRequest(filter, owner)
+        val (requestsCount, requests) = requestRepository.findActiveRequests(filter, owner)
         val submissionFilter = filter.copy(
             limit = filter.limit - requests.size,
             offset = max(0, filter.offset - requestsCount),
