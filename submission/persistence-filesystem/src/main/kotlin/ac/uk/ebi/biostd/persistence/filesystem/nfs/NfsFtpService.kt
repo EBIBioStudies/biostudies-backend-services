@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
-import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.Permissions
@@ -14,11 +13,11 @@ private val logger = KotlinLogging.logger {}
 
 class NfsFtpService(
     private val folderResolver: SubmissionFolderResolver,
-) : FtpService {
-    override fun releaseSubmissionFiles(sub: ExtSubmission) {
-        logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links for submission ${sub.accNo} over NFS" }
+) {
+    fun releaseSubmissionFiles(sub: ExtSubmission) {
+        logger.info { "${sub.accNo} ${sub.owner} Started processing FTP links over NFS" }
         generateLinks(sub.relPath)
-        logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links for submission ${sub.accNo} over NFS" }
+        logger.info { "${sub.accNo} ${sub.owner} Finished processing FTP links over NFS" }
     }
 
     private fun generateLinks(relPath: String) {

@@ -110,7 +110,9 @@ internal class SubmissionMongoPersistenceQueryService(
         return SubmissionRequest(
             submission = stored,
             draftKey = request.draftKey,
-            request.status
+            request.status,
+            request.totalFiles,
+            request.currentIndex
         )
     }
 

@@ -133,4 +133,6 @@ object DocSubmissionFields {
     const val SUB_STATS = "stats"
     const val PAGE_TAB_FILES = "pageTabFiles"
     const val STORAGE_MODE = "storageMode"
+    const val RQT_IDX = "currentIndex"
+    const val RQT_TOTAL_FILES = "totalFiles"
 }

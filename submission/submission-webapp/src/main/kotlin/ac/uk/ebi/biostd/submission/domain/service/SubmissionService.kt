@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.service
 import ac.uk.ebi.biostd.common.config.LISTENER_FACTORY_NAME
 import ac.uk.ebi.biostd.common.config.SUBMISSION_REQUEST_QUEUE
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDelete
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotRelease
 import ac.uk.ebi.biostd.submission.model.ReleaseRequest
@@ -33,7 +33,7 @@ class SubmissionService(
     private val extSubmissionSubmitter: ExtSubmissionSubmitter,
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
-    private val fileStorageService: FileStorageService,
+    private val fileSystemService: FileSystemService,
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request for submission ${rqt.accNo}" }
@@ -95,7 +95,7 @@ class SubmissionService(
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
         require(userPrivilegesService.canDelete(user.email, accNo)) { throw UserCanNotDelete(accNo, user.email) }
-        fileStorageService.cleanSubmissionFiles(queryService.getExtByAccNo(accNo, true))
+        fileSystemService.cleanSubmissionFiles(queryService.getExtByAccNo(accNo, true))
         queryService.expireSubmission(accNo)
     }
 

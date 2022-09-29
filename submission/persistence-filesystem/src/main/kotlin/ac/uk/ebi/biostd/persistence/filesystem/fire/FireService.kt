@@ -1,9 +1,10 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
+import ac.uk.ebi.biostd.persistence.filesystem.api.FilePersistenceRequest
+import ac.uk.ebi.biostd.persistence.filesystem.api.FireFilePersistenceRequest
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
@@ -29,23 +30,24 @@ class FireService(
      * submission. The method also ensures that the file has no path (i.e. it was submitted in the same submission in a
      * different path) and if so, even if the file exists in FIRE, it gets duplicated to ensure consistency.
      */
-    fun getOrPersist(sub: ExtSubmission, file: ExtFile): FirePersistResult {
+    fun getOrPersist(request: FilePersistenceRequest): FirePersistResult {
+        val (accNo, version, relPath, file) = request as FireFilePersistenceRequest
         return when (file) {
             is FireFile -> {
                 val downloadFile = { client.downloadByFireId(file.fireId, file.fileName) }
-                reuseOrPersistFireFile(file, sub.relPath, downloadFile)
+                reuseOrPersistFireFile(file, relPath, downloadFile)
             }
             is NfsFile -> {
-                val nfsFile = if (file.type == FILE) file else asCompressedFile(sub, file)
+                val nfsFile = if (file.type == FILE) file else asCompressedFile(accNo, version, file)
                 val downloadFile = { nfsFile.file }
-                return reuseOrPersistFireFile(nfsFile, sub.relPath, downloadFile)
+                return reuseOrPersistFireFile(nfsFile, relPath, downloadFile)
             }
         }
     }
 
-    private fun asCompressedFile(sub: ExtSubmission, directory: NfsFile): NfsFile {
+    private fun asCompressedFile(accNo: String, version: Int, directory: NfsFile): NfsFile {
         fun compress(file: File): File {
-            val tempFolder = fireTempDirPath.resolve("${sub.accNo}/${sub.version}")
+            val tempFolder = fireTempDirPath.resolve("$accNo/$version")
             tempFolder.mkdirs()
 
             val target = tempFolder.resolve("${file.name}.zip")
@@ -69,10 +71,10 @@ class FireService(
     @Suppress("ReturnCount")
     private fun reuseOrPersistFireFile(
         file: ExtFile,
-        subRelpath: String,
+        subRelPath: String,
         fallbackFile: () -> File,
     ): FirePersistResult {
-        val expectedPath = "/$subRelpath/${file.relPath}"
+        val expectedPath = "/$subRelPath/${file.relPath}"
         val files = client.findByMd5(file.md5)
 
         val byPath = files.firstOrNull { it.filesystemEntry?.path == expectedPath }

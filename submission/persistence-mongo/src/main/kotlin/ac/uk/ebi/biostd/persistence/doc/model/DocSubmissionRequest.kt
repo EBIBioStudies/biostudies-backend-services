@@ -15,4 +15,6 @@ data class DocSubmissionRequest(
     val draftKey: String?,
     val status: RequestStatus,
     val submission: DBObject,
+    val totalFiles: Int,
+    val currentIndex: Int,
 )

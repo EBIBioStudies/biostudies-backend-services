@@ -7,6 +7,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.RQT_IDX
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.RQT_TOTAL_FILES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
@@ -61,9 +63,19 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.updateFirst(query, update(SUB_STATUS, status), DocSubmissionRequest::class.java)
     }
 
+    fun updateIndex(accNo: String, version: Int, index: Int) {
+        val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
+        mongoTemplate.updateFirst(query, update(RQT_IDX, index), DocSubmissionRequest::class.java)
+    }
+
+    fun updateTotalFiles(accNo: String, version: Int, totalFiles: Int) {
+        val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
+        mongoTemplate.updateFirst(query, update(RQT_TOTAL_FILES, totalFiles), DocSubmissionRequest::class.java)
+    }
+
     fun updateSubmissionRequest(rqt: DocSubmissionRequest) {
         val query = Query(where(SUB_ACC_NO).`is`(rqt.accNo).andOperator(where(SUB_VERSION).`is`(rqt.version)))
-        val update = Update().set(SUB_STATUS, rqt.status).set(SUB, rqt.submission)
+        val update = Update().set(SUB_STATUS, rqt.status).set(SUB, rqt.submission).set(RQT_IDX, rqt.currentIndex)
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java)
     }
 

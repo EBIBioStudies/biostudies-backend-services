@@ -19,7 +19,7 @@ class SubmissionCleaner(
 
         if (sub != null) {
             logger.info { "${sub.accNo} ${sub.owner} Started cleaning files of version ${sub.version}" }
-            systemService.cleanFolder(sub)
+            systemService.cleanSubmissionFiles(sub)
             logger.info { "${sub.accNo} ${sub.owner} Finished cleaning files of version ${sub.version}" }
         }
 

@@ -11,6 +11,8 @@ import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
+import ac.uk.ebi.biostd.persistence.filesystem.service.FireStorageService
+import ac.uk.ebi.biostd.persistence.filesystem.service.NfsStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
 import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
@@ -20,6 +22,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
@@ -31,18 +34,20 @@ class PersistenceConfig(
     private val serializationService: SerializationService,
     private val fireClient: FireClient,
 ) {
+    @Bean
+    fun fireStorageService(
+        ftpService: FireFtpService,
+        filesService: FireFilesService,
+        fileProcessingService: FileProcessingService,
+        serializationService: ExtSerializationService,
+    ): FireStorageService = FireStorageService(ftpService, filesService, fileProcessingService, serializationService)
 
     @Bean
-    @Suppress("LongParameterList")
-    fun fileStorageService(
-        fireFtpService: FireFtpService,
-        fireFilesService: FireFilesService,
-        pageTabService: PageTabService,
-        nfsFtpService: NfsFtpService,
-        nfsFilesService: NfsFilesService,
-    ): FileStorageService = StorageService(
-        fireFtpService, fireFilesService, pageTabService, nfsFtpService, nfsFilesService
-    )
+    fun nfsStorageService(
+        ftpService: NfsFtpService,
+        filesService: NfsFilesService,
+        fileProcessingService: FileProcessingService,
+    ): NfsStorageService = NfsStorageService(ftpService, filesService, folderResolver, fileProcessingService)
 
     @Bean
     fun nfsFtpService(): NfsFtpService = NfsFtpService(folderResolver)
@@ -70,6 +75,8 @@ class PersistenceConfig(
     fun fireService(): FireService = FireService(fireClient, File(properties.fireTempDirPath))
 
     @Bean
-    fun fileSystemService(fileStorageService: FileStorageService): FileSystemService =
-        FileSystemService(fileStorageService)
+    fun fileSystemService(
+        nfsStorageService: NfsStorageService,
+        fireStorageService: FireStorageService,
+    ): FileSystemService = FileSystemService(nfsStorageService, fireStorageService)
 }

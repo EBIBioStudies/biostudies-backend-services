@@ -2,7 +2,13 @@ package ac.uk.ebi.biostd.persistence.common.model
 
 import ebi.ac.uk.extended.model.ExtSubmission
 
-data class SubmissionRequest(val submission: ExtSubmission, val draftKey: String?, val status: RequestStatus)
+data class SubmissionRequest(
+    val submission: ExtSubmission,
+    val draftKey: String?,
+    val status: RequestStatus,
+    val totalFiles: Int = 0,
+    val currentIndex: Int = 0,
+)
 
 enum class RequestStatus {
     REQUESTED,

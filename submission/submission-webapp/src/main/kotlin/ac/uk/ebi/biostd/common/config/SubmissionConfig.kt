@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
@@ -57,14 +58,14 @@ class SubmissionConfig(
         extSubmissionSubmitter: ExtSubmissionSubmitter,
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
-        fileStorageService: FileStorageService,
+        fileSystemService: FileSystemService,
     ): SubmissionService = SubmissionService(
         submissionPersistenceQueryService,
         userPrivilegeService,
         extSubmissionSubmitter,
         submissionSubmitter,
         eventsPublisherService,
-        fileStorageService
+        fileSystemService,
     )
 
     @Bean

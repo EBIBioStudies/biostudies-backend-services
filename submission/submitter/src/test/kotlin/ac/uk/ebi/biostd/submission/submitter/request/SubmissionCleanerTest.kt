@@ -35,7 +35,7 @@ class SubmissionCleanerTest(
         val cleanedRequestSlot = slot<SubmissionRequest>()
         val loadedRequest = SubmissionRequest(submission, "TMP_123", LOADED)
 
-        every { systemService.cleanFolder(submission) } answers { nothing }
+        every { systemService.cleanSubmissionFiles(submission) } answers { nothing }
         every { queryService.getLoadedRequest("S-BSST0", 1) } returns loadedRequest
         every { queryService.findExtByAccNo("S-BSST0", includeFileListFiles = true) } returns submission
         every {
@@ -47,7 +47,7 @@ class SubmissionCleanerTest(
         val cleanedRequest = cleanedRequestSlot.captured
         assertThat(cleanedRequest.status).isEqualTo(CLEANED)
         verify(exactly = 1) {
-            systemService.cleanFolder(submission)
+            systemService.cleanSubmissionFiles(submission)
             queryService.getLoadedRequest("S-BSST0", 1)
             persistenceService.saveSubmissionRequest(cleanedRequest)
             queryService.findExtByAccNo("S-BSST0", includeFileListFiles = true)
@@ -70,7 +70,7 @@ class SubmissionCleanerTest(
 
         val cleanedRequest = cleanedRequestSlot.captured
         assertThat(cleanedRequest.status).isEqualTo(CLEANED)
-        verify(exactly = 0) { systemService.cleanFolder(any()) }
+        verify(exactly = 0) { systemService.cleanSubmissionFiles(any()) }
         verify(exactly = 1) {
             queryService.getLoadedRequest("S-BSST0", 1)
             persistenceService.saveSubmissionRequest(cleanedRequest)

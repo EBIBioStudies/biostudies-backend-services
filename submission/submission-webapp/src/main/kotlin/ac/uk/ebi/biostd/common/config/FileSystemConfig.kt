@@ -17,12 +17,11 @@ import java.io.File
 @Configuration
 @Import(value = [WebConfig::class, FilesHandlerConfig::class])
 class FileSystemConfig(
-    private val folderResolver: SubmissionFolderResolver,
+//    private val folderResolver: SubmissionFolderResolver,
     private val applicationProperties: ApplicationProperties,
 ) {
     @Bean
-    fun nfsFileService(fileProcessingService: FileProcessingService): NfsFilesService =
-        NfsFilesService(folderResolver, fileProcessingService)
+    fun nfsFileService(): NfsFilesService = NfsFilesService()
 
     @Bean
     fun fireFileService(

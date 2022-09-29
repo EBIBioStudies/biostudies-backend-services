@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
+import ac.uk.ebi.biostd.persistence.filesystem.api.FilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -9,44 +10,60 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.extended.serialization.service.forEachFile
 
-private val logger = KotlinLogging.logger {}
+//private val logger = KotlinLogging.logger {}
 
+// TODO this class is not necessary, just make FireService the implementation and getOrPersist a private one
 class FireFilesService(
     private val fireService: FireService,
     private val fileProcessingService: FileProcessingService,
     private val serializationService: ExtSerializationService,
 ) : FilesService {
-    override fun persistSubmissionFiles(sub: ExtSubmission): ExtSubmission {
-        var newFilesSize = 0L
-        var newFiles = 0
-
-        fun processFile(file: ExtFile, index: Int): FireFile {
-            logger.debug { "${sub.accNo}, ${sub.version} Processing file $index, path='${file.filePath}'" }
-            val (fireFile, created) = fireService.getOrPersist(sub, file)
-            if (created) {
-                newFiles += 1
-                newFilesSize += fireFile.size
-            }
-            logger.debug { "${sub.accNo}, ${sub.version} Finished processing file $index, path='${file.filePath}'" }
-            return fireFile
-        }
-
-        logger.info { "${sub.accNo} ${sub.owner} Starting persisting files of submission ${sub.accNo} on FIRE" }
-        val submission = fileProcessingService.processFiles(sub) { file, index -> processFile(file, index) }
-        logger.info { "${sub.accNo} ${sub.owner} Processed $newFiles new files, $newFilesSize bytes on FIRE" }
-        logger.info { "${sub.accNo} ${sub.owner} Finished persisting files of submission ${sub.accNo} on FIRE" }
-        return submission
+    override fun cleanSubmissionFile(file: ExtFile) {
+        fireService.cleanFile(file as FireFile)
     }
 
-    override fun cleanSubmissionFiles(sub: ExtSubmission) {
-        fun cleanFile(file: FireFile, index: Int) {
-            logger.debug { "${sub.accNo}, ${sub.version} Cleaning file $index, path='${file.filePath}'" }
-            fireService.cleanFile(file)
-            logger.debug { "${sub.accNo}, ${sub.version} Cleaning file $index, path='${file.filePath}'" }
-        }
-
-        logger.info { "${sub.accNo} ${sub.owner} Cleaning Current submission Folder for ${sub.accNo}" }
-        serializationService.forEachFile(sub) { file, index -> if (file is FireFile) cleanFile(file, index) }
-        logger.info { "${sub.accNo} ${sub.owner} Cleaning Ftp Folder for ${sub.accNo}" }
+    override fun persistSubmissionFile(request: FilePersistenceRequest): ExtFile {
+//        logger.debug { "${sub.accNo}, ${sub.version} Processing file $index, path='${file.filePath}'" }
+        val (fireFile, _) = fireService.getOrPersist(request)
+//        if (created) {
+//            newFiles += 1
+//            newFilesSize += fireFile.size
+//        }
+//        logger.debug { "${sub.accNo}, ${sub.version} Finished processing file $index, path='${file.filePath}'" }
+        return fireFile
     }
+
+//    override fun persistSubmissionFiles(sub: ExtSubmission): ExtSubmission {
+//        var newFilesSize = 0L
+//        var newFiles = 0
+//
+//        fun processFile(file: ExtFile, index: Int): FireFile {
+//            logger.debug { "${sub.accNo}, ${sub.version} Processing file $index, path='${file.filePath}'" }
+//            val (fireFile, created) = fireService.getOrPersist(sub, file)
+//            if (created) {
+//                newFiles += 1
+//                newFilesSize += fireFile.size
+//            }
+//            logger.debug { "${sub.accNo}, ${sub.version} Finished processing file $index, path='${file.filePath}'" }
+//            return fireFile
+//        }
+//
+//        logger.info { "${sub.accNo} ${sub.owner} Starting persisting files of submission ${sub.accNo} on FIRE" }
+//        val submission = fileProcessingService.processFiles(sub) { file, index -> processFile(file, index) }
+//        logger.info { "${sub.accNo} ${sub.owner} Processed $newFiles new files, $newFilesSize bytes on FIRE" }
+//        logger.info { "${sub.accNo} ${sub.owner} Finished persisting files of submission ${sub.accNo} on FIRE" }
+//        return submission
+//    }
+
+//    override fun cleanSubmissionFiles(sub: ExtSubmission) {
+//        fun cleanFile(file: FireFile, index: Int) {
+//            logger.debug { "${sub.accNo}, ${sub.version} Cleaning file $index, path='${file.filePath}'" }
+//            fireService.cleanFile(file)
+//            logger.debug { "${sub.accNo}, ${sub.version} Cleaning file $index, path='${file.filePath}'" }
+//        }
+//
+//        logger.info { "${sub.accNo} ${sub.owner} Cleaning Current submission Folder for ${sub.accNo}" }
+//        serializationService.forEachFile(sub) { file, index -> if (file is FireFile) cleanFile(file, index) }
+//        logger.info { "${sub.accNo} ${sub.owner} Cleaning Ftp Folder for ${sub.accNo}" }
+//    }
 }
