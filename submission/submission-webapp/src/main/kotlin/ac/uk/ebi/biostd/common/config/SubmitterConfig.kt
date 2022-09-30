@@ -10,7 +10,10 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
-import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
+import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
+import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
+import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.submission.service.AccNoService
@@ -21,8 +24,8 @@ import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionCleaner
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -63,29 +66,48 @@ class SubmitterConfig {
 
     @Bean
     fun requestProcessor(
-        systemService: FileSystemService,
+        nfsFilesService: NfsFilesService,
+        fireFilesService: FireFilesService,
+        fileProcessingService: FileProcessingService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
     ): SubmissionRequestProcessor = SubmissionRequestProcessor(
-        systemService,
+        nfsFilesService,
+        fireFilesService,
+        fileProcessingService,
         submissionPersistenceQueryService,
-        submissionPersistenceService
+        submissionPersistenceService,
     )
 
     @Bean
     fun submissionReleaser(
-        fileSystemService: FileSystemService,
+        nfsFtpService: NfsFtpService,
+        fireFtpService: FireFtpService,
+        serializationService: ExtSerializationService,
         submissionPersistenceService: SubmissionPersistenceService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
-    ): SubmissionReleaser =
-        SubmissionReleaser(fileSystemService, submissionPersistenceQueryService, submissionPersistenceService)
+    ): SubmissionRequestReleaser = SubmissionRequestReleaser(
+        nfsFtpService,
+        fireFtpService,
+        serializationService,
+        submissionPersistenceQueryService,
+        submissionPersistenceService,
+    )
 
     @Bean
     fun submissionCleaner(
-        systemService: FileSystemService,
+        nfsFilesService: NfsFilesService,
+        fireFilesService: FireFilesService,
+        serializationService: ExtSerializationService,
         queryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
-    ): SubmissionCleaner = SubmissionCleaner(systemService, queryService, submissionPersistenceService)
+    ): SubmissionRequestCleaner = SubmissionRequestCleaner(
+        nfsFilesService,
+        fireFilesService,
+        serializationService,
+        queryService,
+        submissionPersistenceService,
+    )
 
     @Bean
     fun extSubmissionSubmitter(
@@ -93,8 +115,8 @@ class SubmitterConfig {
         persistenceService: SubmissionPersistenceService,
         requestLoader: SubmissionRequestLoader,
         requestProcessor: SubmissionRequestProcessor,
-        submissionReleaser: SubmissionReleaser,
-        submissionCleaner: SubmissionCleaner,
+        submissionReleaser: SubmissionRequestReleaser,
+        submissionCleaner: SubmissionRequestCleaner,
     ) = ExtSubmissionSubmitter(
         submissionPersistenceQueryService,
         persistenceService,

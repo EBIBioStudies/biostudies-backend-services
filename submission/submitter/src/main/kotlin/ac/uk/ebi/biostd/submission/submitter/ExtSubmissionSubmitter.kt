@@ -8,8 +8,8 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionCleaner
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -20,8 +20,8 @@ class ExtSubmissionSubmitter(
     private val persistenceService: SubmissionPersistenceService,
     private val requestLoader: SubmissionRequestLoader,
     private val requestProcessor: SubmissionRequestProcessor,
-    private val requestReleaser: SubmissionReleaser,
-    private val requestCleaner: SubmissionCleaner,
+    private val requestReleaser: SubmissionRequestReleaser,
+    private val requestCleaner: SubmissionRequestCleaner,
 ) {
     fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
         val submission = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))

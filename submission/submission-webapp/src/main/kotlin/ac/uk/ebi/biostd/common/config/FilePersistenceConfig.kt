@@ -32,36 +32,31 @@ class FilePersistenceConfig(
     private val serializationService: SerializationService,
     private val fireClient: FireClient,
 ) {
-    @Bean
-    fun fireStorageService(
-        ftpService: FireFtpService,
-        filesService: FireFilesService,
-        fileProcessingService: FileProcessingService,
-        serializationService: ExtSerializationService,
-    ): FireStorageService = FireStorageService(ftpService, filesService, fileProcessingService, serializationService)
+//    @Bean
+//    fun fireStorageService(
+//        ftpService: FireFtpService,
+//        filesService: FireFilesService,
+//        fileProcessingService: FileProcessingService,
+//        serializationService: ExtSerializationService,
+//    ): FireStorageService = FireStorageService(ftpService, filesService, fileProcessingService, serializationService)
+//
+//    @Bean
+//    fun nfsStorageService(
+//        ftpService: NfsFtpService,
+//        filesService: NfsFilesService,
+//        fileProcessingService: FileProcessingService,
+//    ): NfsStorageService = NfsStorageService(ftpService, filesService, folderResolver, fileProcessingService)
 
     @Bean
-    fun nfsStorageService(
-        ftpService: NfsFtpService,
-        filesService: NfsFilesService,
-        fileProcessingService: FileProcessingService,
-    ): NfsStorageService = NfsStorageService(ftpService, filesService, folderResolver, fileProcessingService)
-
-    @Bean
-    fun nfsFileService(): NfsFilesService = NfsFilesService()
+    fun nfsFileService(): NfsFilesService = NfsFilesService(folderResolver)
 
     @Bean
     fun nfsFtpService(): NfsFtpService = NfsFtpService(folderResolver)
 
     @Bean
-    fun pageTabUtil(
-        toSubmissionMapper: ToSubmissionMapper,
-        toFileListMapper: ToFileListMapper,
-    ): PageTabUtil = PageTabUtil(serializationService, toSubmissionMapper, toFileListMapper)
-
-    @Bean
-    fun fireFtpService(serializationService: ExtSerializationService): FireFtpService =
-        FireFtpService(fireClient, serializationService)
+    fun fireFtpService(
+        serializationService: ExtSerializationService
+    ): FireFtpService = FireFtpService(fireClient, serializationService)
 
     @Bean
     fun fireFilesService(): FireFilesService = FireFilesService(fireClient, File(properties.fireTempDirPath))
@@ -69,20 +64,22 @@ class FilePersistenceConfig(
     @Bean
     fun pageTabService(
         pageTabUtil: PageTabUtil,
-    ): PageTabService =
-        PageTabService(
-            File(properties.fireTempDirPath),
-            pageTabUtil,
-        )
+    ): PageTabService = PageTabService(File(properties.fireTempDirPath), pageTabUtil)
+
+    @Bean
+    fun pageTabUtil(
+        toSubmissionMapper: ToSubmissionMapper,
+        toFileListMapper: ToFileListMapper,
+    ): PageTabUtil = PageTabUtil(serializationService, toSubmissionMapper, toFileListMapper)
 
 //    @Bean
 //    fun fireService(): FireService = FireService(fireClient, File(properties.fireTempDirPath))
 
-    @Bean
-    fun fileSystemService(
-        nfsStorageService: NfsStorageService,
-        fireStorageService: FireStorageService,
-    ): FileSystemService = FileSystemService(nfsStorageService, fireStorageService)
+//    @Bean
+//    fun fileSystemService(
+//        nfsStorageService: NfsStorageService,
+//        fireStorageService: FireStorageService,
+//    ): FileSystemService = FileSystemService(nfsStorageService, fireStorageService)
 
     @Bean
     fun extFilesResolver() = FilesResolver(File(properties.requestFilesPath))

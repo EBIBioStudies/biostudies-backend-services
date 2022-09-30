@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
 import ebi.ac.uk.extended.events.RequestLoaded
@@ -33,7 +34,7 @@ class SubmissionService(
     private val extSubmissionSubmitter: ExtSubmissionSubmitter,
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
-    private val fileSystemService: FileSystemService,
+    private val submissionCleaner: SubmissionRequestCleaner,
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request for submission ${rqt.accNo}" }
@@ -95,7 +96,7 @@ class SubmissionService(
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
         require(userPrivilegesService.canDelete(user.email, accNo)) { throw UserCanNotDelete(accNo, user.email) }
-        fileSystemService.cleanSubmissionFiles(queryService.getExtByAccNo(accNo, true))
+        submissionCleaner.cleanSubmissionFiles(queryService.getExtByAccNo(accNo, true))
         queryService.expireSubmission(accNo)
     }
 

@@ -4,6 +4,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 
+// TODO not needed
 class FileSystemService(
     private val nfsStorageService: NfsStorageService,
     private val fireStorageService: FireStorageService,
