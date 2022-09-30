@@ -32,7 +32,7 @@ class SubmissionRequestCleaner(
             logger.info { "${sub.accNo} ${sub.owner} Finished cleaning files of version ${sub.version}" }
         }
 
-        persistenceService.saveSubmissionRequest(request.copy(status = CLEANED))
+        persistenceService.saveSubmissionRequest(request.copy(status = CLEANED, currentIndex = 0))
     }
 
     fun cleanSubmissionFiles(sub: ExtSubmission) = when (sub.storageMode) {

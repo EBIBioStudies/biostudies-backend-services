@@ -37,7 +37,8 @@ class SubmissionRequestProcessor(
         val processed = persistSubmissionFiles(sub)
         persistenceService.expirePreviousVersions(sub.accNo)
         persistenceService.saveSubmission(processed)
-        persistenceService.saveSubmissionRequest(request.copy(status = FILES_COPIED, submission = processed))
+        val processedRequest = request.copy(status = FILES_COPIED, submission = processed, currentIndex = 0)
+        persistenceService.saveSubmissionRequest(processedRequest)
 
         logger.info { "$accNo ${sub.owner} Finished copying files accNo='$accNo', version='$version'" }
 
