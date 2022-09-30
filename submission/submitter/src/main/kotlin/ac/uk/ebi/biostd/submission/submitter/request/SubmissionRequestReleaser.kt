@@ -16,7 +16,6 @@ import uk.ac.ebi.extended.serialization.service.forEachFile
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestReleaser(
-//    private val fileSystemService: FileSystemService,
     private val nfsFtpService: NfsFtpService,
     private val fireFtpService: FireFtpService,
     private val serializationService: ExtSerializationService,

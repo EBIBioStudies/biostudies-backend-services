@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.nfs
 
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.FileUtils
@@ -29,7 +28,6 @@ private const val REL_PATH = "My/Path/To/Submission"
 internal class NfsFtpServiceTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val extSubmission: ExtSubmission,
-    @MockK private val queryService: SubmissionPersistenceQueryService,
 ) {
     private lateinit var expectedDirectory: File
     private lateinit var expectedFile1: File

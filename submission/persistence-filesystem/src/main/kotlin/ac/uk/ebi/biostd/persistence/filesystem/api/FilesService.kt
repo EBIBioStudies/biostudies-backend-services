@@ -26,4 +26,3 @@ data class NfsFilePersistenceRequest(
     val targetFolder: File,
     val permissions: Permissions
 ) : FilePersistenceRequest
-

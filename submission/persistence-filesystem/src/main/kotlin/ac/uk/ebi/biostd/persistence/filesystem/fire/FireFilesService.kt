@@ -15,13 +15,13 @@ import java.io.File
 import java.nio.file.Files
 
 class FireFilesService(
-    private val client: FireClient,
+    private val fireClient: FireClient,
     private val fireTempDirPath: File,
 ) : FilesService {
     override fun cleanSubmissionFile(file: ExtFile) {
         val fireFile = file as FireFile
-        client.unsetPath(fireFile.fireId)
-        client.unpublish(fireFile.fireId)
+        fireClient.unsetPath(fireFile.fireId)
+        fireClient.unpublish(fireFile.fireId)
     }
 
     /**
@@ -36,7 +36,7 @@ class FireFilesService(
         val (accNo, version, relPath, file) = request as FireFilePersistenceRequest
         return when (file) {
             is FireFile -> {
-                val downloadFile = { client.downloadByFireId(file.fireId, file.fileName) }
+                val downloadFile = { fireClient.downloadByFireId(file.fireId, file.fileName) }
                 reuseOrPersistFireFile(file, relPath, downloadFile)
             }
             is NfsFile -> {
@@ -77,7 +77,7 @@ class FireFilesService(
         fallbackFile: () -> File,
     ): ExtFile {
         val expectedPath = "/$subRelPath/${file.relPath}"
-        val files = client.findByMd5(file.md5)
+        val files = fireClient.findByMd5(file.md5)
 
         val byPath = files.firstOrNull { it.filesystemEntry?.path == expectedPath }
         if (byPath != null) return asFireFile(file, byPath.fireOid)
@@ -85,12 +85,12 @@ class FireFilesService(
         val noPath = files.firstOrNull { it.filesystemEntry?.path == null }
         if (noPath != null) return setMetadata(noPath.fireOid, file, expectedPath)
 
-        val saved = client.save(fallbackFile(), file.md5, file.size)
+        val saved = fireClient.save(fallbackFile(), file.md5, file.size)
         return setMetadata(saved.fireOid, file, expectedPath)
     }
 
     private fun setMetadata(fireOid: String, file: ExtFile, expectedPath: String): FireFile {
-        client.setPath(fireOid, expectedPath)
+        fireClient.setPath(fireOid, expectedPath)
         return asFireFile(file, fireOid)
     }
 

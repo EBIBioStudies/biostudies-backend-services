@@ -437,6 +437,8 @@ internal class SubmissionMongoQueryServiceTest(
             status = status,
             draftKey = null,
             submission = BasicDBObject.parse(serializationService.serialize(submission)),
+            totalFiles = 5,
+            currentIndex = 0,
         )
     }
 
