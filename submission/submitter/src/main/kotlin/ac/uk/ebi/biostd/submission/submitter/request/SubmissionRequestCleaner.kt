@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
@@ -17,7 +16,6 @@ import uk.ac.ebi.extended.serialization.service.forEachFile
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestCleaner(
-//    private val systemService: FileSystemService,
     private val nfsFilesService: NfsFilesService,
     private val fireFilesService: FireFilesService,
     private val serializationService: ExtSerializationService,
@@ -62,6 +60,4 @@ class SubmissionRequestCleaner(
     private fun cleanNfsFiles(sub: ExtSubmission) {
         nfsFilesService.cleanSubmissionFiles(sub)
     }
-
-
 }

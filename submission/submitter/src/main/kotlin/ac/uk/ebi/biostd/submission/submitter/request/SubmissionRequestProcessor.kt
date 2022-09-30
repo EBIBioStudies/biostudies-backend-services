@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.NfsFilePersistenceRequest
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.permissions
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
@@ -20,7 +19,6 @@ import uk.ac.ebi.extended.serialization.service.FileProcessingService
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestProcessor(
-//    private val systemService: FileSystemService,
     private val nfsFilesService: NfsFilesService,
     private val fireFilesService: FireFilesService,
     private val fileProcessingService: FileProcessingService,
@@ -54,7 +52,7 @@ class SubmissionRequestProcessor(
     private fun persistFireFiles(sub: ExtSubmission): ExtSubmission {
         logger.info { "${sub.accNo} ${sub.owner} Started persisting submission files on FIRE" }
 
-        val submission = fileProcessingService.processFiles(sub) { file, idx ->
+        val persisted = fileProcessingService.processFiles(sub) { file, idx ->
             logger.info { "${sub.accNo} ${sub.owner} Started persisting file $idx, path='${file.filePath}' on FIRE" }
 
             val request = FireFilePersistenceRequest(sub.accNo, sub.version, sub.relPath, file)
@@ -68,7 +66,7 @@ class SubmissionRequestProcessor(
 
         logger.info { "${sub.accNo} ${sub.owner} Finished persisting submission files on FIRE" }
 
-        return submission
+        return persisted
     }
 
     private fun persistNfsFiles(sub: ExtSubmission): ExtSubmission {
@@ -78,7 +76,7 @@ class SubmissionRequestProcessor(
         val subFolder = nfsFilesService.getOrCreateSubmissionFolder(sub, permissions.folder)
         val targetFolder = nfsFilesService.createTempSubFolder(subFolder, sub.accNo)
 
-        val processed = fileProcessingService.processFiles(sub) { file, idx ->
+        val persisted = fileProcessingService.processFiles(sub) { file, idx ->
             logger.info { "${sub.accNo}, ${sub.owner} Started persisting file $idx, path='${file.filePath}' on NFS" }
 
             val request = NfsFilePersistenceRequest(file as NfsFile, subFolder, targetFolder, permissions)
@@ -94,6 +92,6 @@ class SubmissionRequestProcessor(
 
         logger.info { "${sub.accNo} ${sub.owner} Finished persisting submission files on NFS" }
 
-        return processed
+        return persisted
     }
 }
