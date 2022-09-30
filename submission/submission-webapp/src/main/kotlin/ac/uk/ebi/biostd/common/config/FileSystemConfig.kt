@@ -14,22 +14,23 @@ import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 
+// TODO delete
 @Configuration
 @Import(value = [WebConfig::class, FilesHandlerConfig::class])
 class FileSystemConfig(
 //    private val folderResolver: SubmissionFolderResolver,
     private val applicationProperties: ApplicationProperties,
 ) {
-    @Bean
-    fun nfsFileService(): NfsFilesService = NfsFilesService()
+//    @Bean
+//    fun nfsFileService(): NfsFilesService = NfsFilesService()
 
-    @Bean
-    fun fireFileService(
-        fireService: FireService,
-        fileProcessingService: FileProcessingService,
-        serializationService: ExtSerializationService,
-    ): FireFilesService = FireFilesService(fireService, fileProcessingService, serializationService)
+//    @Bean
+//    fun fireFileService(
+//        fireService: FireService,
+//        fileProcessingService: FileProcessingService,
+//        serializationService: ExtSerializationService,
+//    ): FireFilesService = FireFilesService(fireService, fileProcessingService, serializationService)
 
-    @Bean
-    fun extFilesResolver() = FilesResolver(File(applicationProperties.requestFilesPath))
+//    @Bean
+//    fun extFilesResolver() = FilesResolver(File(applicationProperties.requestFilesPath))
 }

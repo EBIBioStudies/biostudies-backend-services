@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.itest.test.security
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.common.config.PersistenceConfig
+import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(SpringExtension::class)
-@Import(PersistenceConfig::class)
+@Import(FilePersistenceConfig::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PermissionApiTest(
     @Autowired private val userDataRepository: UserDataRepository,

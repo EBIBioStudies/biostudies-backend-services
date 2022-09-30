@@ -13,6 +13,7 @@ import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 import java.nio.file.Files
 
+// TODO delete
 class FireService(
     private val client: FireClient,
     private val fireTempDirPath: File,
