@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.model
 
 import ebi.ac.uk.base.remove
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.io.sources.FileDb
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathSource
 import ebi.ac.uk.model.Attribute
@@ -15,7 +16,7 @@ class GroupSource(groupName: String, private val pathSource: PathSource) : Files
 
     override fun getExtFile(
         path: String,
-        md5: String?,
+        fileDb: FileDb?,
         attributes: List<Attribute>,
-    ): ExtFile? = pathSource.getExtFile(path.remove(groupPattern), md5, attributes)
+    ): ExtFile? = pathSource.getExtFile(path.remove(groupPattern), fileDb, attributes)
 }
