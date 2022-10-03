@@ -11,7 +11,6 @@ import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ebi.ac.uk.api.ClientResponse
 import ebi.ac.uk.extended.model.ExtAttributeDetail
-import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.ATTRIBUTES
 import org.springframework.core.io.FileSystemResource
@@ -34,7 +33,6 @@ internal class MultiPartSubmitClient(
 ) : MultipartSubmitOperations {
     override fun submitSingle(
         submission: File,
-        storageMode: StorageMode?,
         filesConfig: SubmissionFilesConfig,
         attrs: Map<String, String>,
     ): SubmissionResponse {
@@ -50,7 +48,6 @@ internal class MultiPartSubmitClient(
     override fun submitSingle(
         submission: String,
         format: SubmissionFormat,
-        storageMode: StorageMode?,
         filesConfig: SubmissionFilesConfig,
     ): SubmissionResponse {
         val headers = createHeaders(format)
@@ -62,7 +59,6 @@ internal class MultiPartSubmitClient(
     override fun submitSingle(
         submission: Submission,
         format: SubmissionFormat,
-        storageMode: StorageMode?,
         filesConfig: SubmissionFilesConfig,
     ): SubmissionResponse {
         val headers = createHeaders(format)

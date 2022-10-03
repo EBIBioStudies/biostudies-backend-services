@@ -93,8 +93,8 @@ class FileListSubmissionTest(
             }.toString()
         )
 
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File4.txt")))
-        val response = webClient.submitSingle(submission, JSON, storageMode, filesConfig)
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File4.txt")), storageMode)
+        val response = webClient.submitSingle(submission, JSON, filesConfig)
 
         assertThat(response).isSuccessful()
         assertSubmissionFiles("S-TEST4", "File4.txt", "FileList")
@@ -138,8 +138,8 @@ class FileListSubmissionTest(
             }
         }
 
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File5.txt")))
-        val response = webClient.submitSingle(submission, JSON, storageMode, filesConfig)
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File5.txt")), storageMode)
+        val response = webClient.submitSingle(submission, JSON, filesConfig)
 
         assertThat(response).isSuccessful()
         assertSubmissionFiles("S-TEST5", "File5.txt", "FileList")
@@ -171,9 +171,9 @@ class FileListSubmissionTest(
             }
         }.toString()
 
-        val filesConfig = SubmissionFilesConfig(listOf(fileList))
+        val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
         assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { webClient.submitSingle(submission, JSON, storageMode, filesConfig) }
+            .isThrownBy { webClient.submitSingle(submission, JSON, filesConfig) }
             .withMessageContaining("Unsupported page tab format FileList.txt")
     }
 
@@ -199,8 +199,8 @@ class FileListSubmissionTest(
         )
 
         webClient.uploadFile(fileList, "folder")
-        val filesConfig = SubmissionFilesConfig(listOf(referencedFile))
-        assertThat(webClient.submitSingle(submission, TSV, storageMode, filesConfig)).isSuccessful()
+        val filesConfig = SubmissionFilesConfig(listOf(referencedFile), storageMode)
+        assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
 
         val extSubmission = webClient.getExtByAccNo("S-TEST6")
         val referencedFiles = webClient.getReferencedFiles(extSubmission.section.fileList!!.filesUrl!!).files
@@ -235,8 +235,8 @@ class FileListSubmissionTest(
         )
 
         val firstVersion = submission("reusable-file-list.tsv")
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile))
-        assertThat(webClient.submitSingle(firstVersion, TSV, storageMode, filesConfig)).isSuccessful()
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
+        assertThat(webClient.submitSingle(firstVersion, TSV, filesConfig)).isSuccessful()
         assertSubmissionFiles("S-TEST7", "File7.txt", "reusable-file-list")
         fileList.delete()
 

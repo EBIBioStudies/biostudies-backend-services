@@ -168,8 +168,8 @@ class DeletePermissionTest(
         }.toString()
         val projectFile = tempFolder.createFile("a-collection.tsv", project)
 
-        val filesConfig = SubmissionFilesConfig(emptyList())
-        assertThat(superUserWebClient.submitSingle(projectFile, storageMode, filesConfig)).isSuccessful()
+        val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
+        assertThat(superUserWebClient.submitSingle(projectFile, filesConfig)).isSuccessful()
     }
 
     private fun setUpTestUsers() {

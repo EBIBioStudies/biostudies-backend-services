@@ -6,6 +6,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.extended.model.StorageMode.FIRE
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.ON_BEHALF_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
@@ -33,11 +34,11 @@ internal class SubmitCommand(
     private val storageMode by option("-sm", "--storageMode", help = STORAGE_MODE)
 
     override fun run() {
-        val mode = storageMode?.let { StorageMode.fromString(it) }
+        val mode = storageMode?.let { StorageMode.fromString(it) } ?: FIRE
         val securityConfig = SecurityConfig(server, user, password, onBehalf)
-        val filesConfig = SubmissionFilesConfig(splitFiles(attached), splitPreferredSources(preferredSources))
+        val filesConfig = SubmissionFilesConfig(splitFiles(attached), mode, splitPreferredSources(preferredSources))
 
-        val response = subService.submit(SubmissionRequest(input, mode, securityConfig, filesConfig))
+        val response = subService.submit(SubmissionRequest(input, securityConfig, filesConfig))
         echo("SUCCESS: Submission with AccNo ${response.accNo} was submitted")
     }
 }

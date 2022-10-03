@@ -105,7 +105,7 @@ class FileListValidationTest(
         val fileList = tempFolder.createFile("valid-file-list.tsv", fileListContent)
 
         webClient.uploadFiles(listOf(file1, fileList))
-        webClient.submitSingle(previousVersion, TSV, storageMode, SubmissionFilesConfig(listOf(file2)))
+        webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file2), storageMode))
 
         webClient.validateFileList(fileList.name, accNo = "S-FLV123")
 
@@ -149,7 +149,7 @@ class FileListValidationTest(
 
         fireClient.save(file2, file2Md5, file2.size())
         webClient.uploadFiles(listOf(file1, fileList))
-        webClient.submitSingle(previousVersion, TSV, storageMode, SubmissionFilesConfig(listOf(file3)))
+        webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file3), storageMode))
 
         webClient.validateFileList(fileList.name, accNo = "S-FLV124")
 

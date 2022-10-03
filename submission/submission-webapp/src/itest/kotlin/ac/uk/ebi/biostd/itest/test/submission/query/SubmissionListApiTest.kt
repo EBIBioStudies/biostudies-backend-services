@@ -44,10 +44,10 @@ class SubmissionListApiTest(
             assertThat(webClient.submitSingle(getSimpleSubmission(idx), TSV)).isSuccessful()
         }
 
-        val filesConfig = SubmissionFilesConfig(emptyList())
+        val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
         for (idx in 21..30) {
             val submission = tempFolder.createFile("submission$idx.tsv", getSimpleSubmission(idx))
-            assertThat(webClient.submitSingle(submission, storageMode, filesConfig)).isSuccessful()
+            assertThat(webClient.submitSingle(submission, filesConfig)).isSuccessful()
         }
     }
 

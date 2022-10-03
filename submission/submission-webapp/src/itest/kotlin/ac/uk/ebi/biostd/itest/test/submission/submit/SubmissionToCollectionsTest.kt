@@ -79,9 +79,9 @@ class SubmissionToCollectionsTest(
             }.toString()
         )
 
-        val filesConfig = SubmissionFilesConfig(emptyList())
+        val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
         val attributes = singletonMap("AttachTo", "Public-Project")
-        assertThat(webClient.submitSingle(submissionFile, storageMode, filesConfig, attributes)).isSuccessful()
+        assertThat(webClient.submitSingle(submissionFile, filesConfig, attributes)).isSuccessful()
 
         assertThat(getSimpleSubmission("S-TEST1")).isEqualTo(
             submission("S-TEST1") {
