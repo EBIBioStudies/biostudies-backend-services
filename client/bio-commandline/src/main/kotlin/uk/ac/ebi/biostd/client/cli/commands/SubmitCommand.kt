@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.client.cli.commands
 
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
@@ -31,10 +32,10 @@ internal class SubmitCommand(
     private val input by option("-i", "--input", help = INPUT_HELP).file(exists = true).required()
     private val attached by option("-a", "--attached", help = ATTACHED_HELP)
     private val preferredSources by option("-ps", "--preferredSources", help = PREFERRED_SOURCES)
-    private val storageMode by option("-sm", "--storageMode", help = STORAGE_MODE)
+    private val storageMode by option("-sm", "--storageMode", help = STORAGE_MODE).default(FIRE.value)
 
     override fun run() {
-        val mode = storageMode?.let { StorageMode.fromString(it) } ?: FIRE
+        val mode = StorageMode.fromString(storageMode)
         val securityConfig = SecurityConfig(server, user, password, onBehalf)
         val filesConfig = SubmissionFilesConfig(splitFiles(attached), mode, splitPreferredSources(preferredSources))
 
