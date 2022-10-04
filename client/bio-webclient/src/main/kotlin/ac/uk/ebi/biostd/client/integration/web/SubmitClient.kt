@@ -42,6 +42,7 @@ typealias SubmissionResponse = ClientResponse<Submission>
 
 data class SubmissionFilesConfig(
     val files: List<File>,
+    val storageMode: StorageMode,
     val preferredSources: List<PreferredSource> = emptyList(),
 )
 
@@ -135,20 +136,17 @@ interface MultipartSubmitOperations {
     fun submitSingle(
         submission: String,
         format: SubmissionFormat,
-        storageMode: StorageMode? = null,
         filesConfig: SubmissionFilesConfig,
     ): SubmissionResponse
 
     fun submitSingle(
         submission: Submission,
         format: SubmissionFormat,
-        storageMode: StorageMode? = null,
         filesConfig: SubmissionFilesConfig,
     ): SubmissionResponse
 
     fun submitSingle(
         submission: File,
-        storageMode: StorageMode? = null,
         filesConfig: SubmissionFilesConfig,
         attrs: Map<String, String> = emptyMap(),
     ): SubmissionResponse

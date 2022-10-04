@@ -40,7 +40,7 @@ internal class SubmissionServiceTest {
     fun submit() {
         every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
         every {
-            bioWebClient.submitSingle(subRequest.submissionFile, FIRE, subRequest.filesConfig).body
+            bioWebClient.submitSingle(subRequest.submissionFile, subRequest.filesConfig).body
         } returns submission
 
         val submitted = testInstance.submit(subRequest)
@@ -48,7 +48,7 @@ internal class SubmissionServiceTest {
         assertThat(submitted).isEqualTo(submission)
         verify(exactly = 1) {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.submitSingle(subRequest.submissionFile, FIRE, subRequest.filesConfig)
+            bioWebClient.submitSingle(subRequest.submissionFile, subRequest.filesConfig)
         }
     }
 
@@ -151,9 +151,9 @@ internal class SubmissionServiceTest {
         private val submission: Submission = mockk()
         private val bioWebClient: BioWebClient = mockk()
         private val securityConfig = SecurityConfig(SERVER, USER, PASSWORD, ON_BEHALF)
-        private val filesConfig = SubmissionFilesConfig(listOf(mockk()), listOf(SUBMISSION))
+        private val filesConfig = SubmissionFilesConfig(listOf(mockk()), FIRE, listOf(SUBMISSION))
 
-        private val subRequest = SubmissionRequest(mockk(), FIRE, securityConfig, filesConfig)
+        private val subRequest = SubmissionRequest(mockk(), securityConfig, filesConfig)
         private val deletionRequest = DeletionRequest(securityConfig, accNoList = listOf(ACC_NO))
         private val validateFileList = ValidateFileListRequest(FILE_LIST_PATH, ROOT_PATH, ACC_NO, securityConfig)
     }

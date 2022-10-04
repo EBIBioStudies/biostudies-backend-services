@@ -10,7 +10,7 @@ import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 internal class SubmissionService {
     fun submit(rqt: SubmissionRequest): Submission = performRequest {
         val client = bioWebClient(rqt.securityConfig)
-        return client.submitSingle(rqt.submissionFile, rqt.storageMode, rqt.filesConfig).body
+        return client.submitSingle(rqt.submissionFile, rqt.filesConfig).body
     }
 
     fun submitAsync(request: SubmissionRequest) = performRequest {
