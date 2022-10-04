@@ -19,12 +19,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-class SubmissionCleanerTest(
+class SubmissionRequestCleanerTest(
     @MockK private val systemService: FileSystemService,
     @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val persistenceService: SubmissionPersistenceService,
 ) {
-    private val testInstance = SubmissionCleaner(systemService, queryService, persistenceService)
+    private val testInstance = SubmissionRequestCleaner(systemService, queryService, persistenceService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()

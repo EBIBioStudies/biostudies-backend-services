@@ -36,7 +36,7 @@ import java.net.URI
 
 @Configuration
 @Suppress("LongParameterList", "TooManyFunctions")
-@Import(value = [PersistenceConfig::class, SecurityBeansConfig::class])
+@Import(value = [FilePersistenceConfig::class, SecurityBeansConfig::class])
 class SubmissionConfig(
     private val fileSourcesService: FileSourcesService,
     private val serializationService: SerializationService,

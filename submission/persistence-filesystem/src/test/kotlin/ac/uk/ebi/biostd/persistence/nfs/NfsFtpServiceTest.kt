@@ -1,16 +1,17 @@
 package ac.uk.ebi.biostd.persistence.nfs
 
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.io.ext.asFileList
 import ebi.ac.uk.io.ext.createNewFile
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.test.clean
-import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
@@ -29,11 +30,9 @@ private const val REL_PATH = "My/Path/To/Submission"
 internal class NfsFtpServiceTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val extSubmission: ExtSubmission,
-    @MockK private val queryService: SubmissionPersistenceQueryService,
 ) {
     private lateinit var expectedDirectory: File
     private lateinit var expectedFile1: File
-    private lateinit var expectedFile2: File
 
     private val folderResolver = SubmissionFolderResolver(
         temporaryFolder.root.toPath().resolve("submission"),
@@ -49,10 +48,19 @@ internal class NfsFtpServiceTest(
     }
 
     @Test
-    fun `process public submission`() {
+    fun `release submission file`() {
         every { extSubmission.relPath } returns REL_PATH
 
-        testInstance.releaseSubmissionFiles(extSubmission)
+        val nfsFile = NfsFile(
+            filePath = "file.txt",
+            relPath = "Files/file.txt",
+            file = expectedFile1,
+            fullPath = expectedFile1.absolutePath,
+            md5 = expectedFile1.md5(),
+            size = expectedFile1.size(),
+        )
+
+        testInstance.releaseSubmissionFile(nfsFile, REL_PATH)
 
         assertFolder(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile())
     }
@@ -64,8 +72,7 @@ internal class NfsFtpServiceTest(
         assertThat(Files.getPosixFilePermissions(directory.toPath())).hasSameElementsAs(RWXR_XR_X)
 
         val files = directory.asFileList().sortedBy { it.name }
-        assertFile(files.first(), expectedFile2.name, expectedFile2.readText())
-        assertFile(files.second(), expectedFile1.name, expectedFile1.readText())
+        assertFile(files.first(), expectedFile1.name, expectedFile1.readText())
     }
 
     private fun assertFile(file: File, name: String, content: String) {
@@ -78,7 +85,6 @@ internal class NfsFtpServiceTest(
         val submissionFolder = submissionFolder()
         expectedDirectory = createFolder(submissionFolder.resolve("my-directory"))
         expectedFile1 = expectedDirectory.createNewFile("file.txt", "file-content")
-        expectedFile2 = expectedDirectory.createNewFile("file-2.txt", "file-text")
     }
 
     private fun setUpExtSubmission() {

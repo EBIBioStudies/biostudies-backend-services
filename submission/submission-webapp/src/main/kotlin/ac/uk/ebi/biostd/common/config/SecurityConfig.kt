@@ -33,7 +33,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 @Configuration
 @EnableWebSecurity
-@Import(value = [SecurityBeansConfig::class, PersistenceConfig::class])
+@Import(value = [SecurityBeansConfig::class, FilePersistenceConfig::class])
 class SecurityConfig(
     private val securityFilter: ISecurityFilter,
     private val accessDeniedHandler: SecurityAccessDeniedHandler,
@@ -64,7 +64,7 @@ class SecurityConfig(
 }
 
 @Configuration
-@Import(PersistenceConfig::class)
+@Import(FilePersistenceConfig::class)
 @Suppress("TooManyFunctions")
 class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: ApplicationProperties) {
     private val securityProps = properties.security
