@@ -307,4 +307,26 @@ class SubmissionFileSourceTest(
             }
         )
     }
+
+    @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+    fun `Submission bypassing fire`() {
+        val submission = tsv {
+            line("Submission", "S-FSTST6")
+            line("Title", "Sample Submission")
+            line()
+
+            line("Study")
+            line()
+
+            line("File", "DataFile5.txt")
+            line("dbMd5", "abc-123")
+            line("dbId", "unique-id")
+            line("dbSize", 145)
+            line()
+        }.toString()
+
+        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+        val submitted = submissionRepository.getExtByAccNo("S-FSTST6")
+    }
 }
