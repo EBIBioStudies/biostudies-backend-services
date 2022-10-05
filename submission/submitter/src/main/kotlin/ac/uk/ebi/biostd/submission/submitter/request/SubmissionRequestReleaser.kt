@@ -6,15 +6,17 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.forEachFile
 
 private val logger = KotlinLogging.logger {}
 
-class SubmissionReleaser(
+class SubmissionRequestReleaser(
     private val fileStorageService: FileStorageService,
+    private val serializationService: ExtSerializationService,
     private val queryService: SubmissionPersistenceQueryService,
     private val persistenceService: SubmissionPersistenceService,
 ) {
-
     /**
      * Check the release status of the submission and release it if released flag is true.
      */
@@ -38,13 +40,18 @@ class SubmissionReleaser(
      */
     fun generateFtp(accNo: String) {
         val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        fileStorageService.releaseSubmissionFiles(sub)
+        releaseSubmission(sub)
     }
 
     private fun releaseSubmission(sub: ExtSubmission) {
-        logger.info { "${sub.accNo} ${sub.owner} Releasing submission ${sub.accNo}" }
+        logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
+
         persistenceService.setAsReleased(sub.accNo)
-        fileStorageService.releaseSubmissionFiles(sub)
-        logger.info { "${sub.accNo} ${sub.owner} released submission ${sub.accNo}" }
+        serializationService.forEachFile(sub) { file, idx ->
+            logger.info { "${sub.accNo}, ${sub.owner} Publishing file $idx - ${file.filePath}" }
+            fileStorageService.releaseSubmissionFile(file, sub.relPath, sub.storageMode)
+        }
+
+        logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
     }
 }

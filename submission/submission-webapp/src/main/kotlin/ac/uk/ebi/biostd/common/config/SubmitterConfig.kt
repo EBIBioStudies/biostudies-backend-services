@@ -20,8 +20,8 @@ import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionCleaner
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -74,17 +74,22 @@ class SubmitterConfig {
     @Bean
     fun submissionReleaser(
         fileStorageService: FileStorageService,
+        serializationService: ExtSerializationService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
-    ): SubmissionReleaser =
-        SubmissionReleaser(fileStorageService, submissionPersistenceQueryService, submissionPersistenceService)
+    ): SubmissionRequestReleaser = SubmissionRequestReleaser(
+        fileStorageService,
+        serializationService,
+        submissionPersistenceQueryService,
+        submissionPersistenceService,
+    )
 
     @Bean
     fun submissionCleaner(
         systemService: FileSystemService,
         queryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
-    ): SubmissionCleaner = SubmissionCleaner(systemService, queryService, submissionPersistenceService)
+    ): SubmissionRequestCleaner = SubmissionRequestCleaner(systemService, queryService, submissionPersistenceService)
 
     @Bean
     fun extSubmissionSubmitter(
@@ -92,8 +97,8 @@ class SubmitterConfig {
         persistenceService: SubmissionPersistenceService,
         requestLoader: SubmissionRequestLoader,
         requestProcessor: SubmissionRequestProcessor,
-        submissionReleaser: SubmissionReleaser,
-        submissionCleaner: SubmissionCleaner,
+        submissionReleaser: SubmissionRequestReleaser,
+        submissionCleaner: SubmissionRequestCleaner,
     ) = ExtSubmissionSubmitter(
         submissionPersistenceQueryService,
         persistenceService,

@@ -7,8 +7,8 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionCleaner
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -30,8 +30,8 @@ internal class ExtSubmissionSubmitterTest(
     @MockK private val persistenceService: SubmissionPersistenceService,
     @MockK private val requestLoader: SubmissionRequestLoader,
     @MockK private val requestProcessor: SubmissionRequestProcessor,
-    @MockK private val requestReleaser: SubmissionReleaser,
-    @MockK private val requestCleaner: SubmissionCleaner,
+    @MockK private val requestReleaser: SubmissionRequestReleaser,
+    @MockK private val requestCleaner: SubmissionRequestCleaner,
 ) {
     private val testInstance = ExtSubmissionSubmitter(
         queryService,

@@ -6,8 +6,11 @@ import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.extended.model.StorageMode.NFS
 
 @Suppress("LongParameterList")
 class StorageService(
@@ -17,24 +20,23 @@ class StorageService(
     private val nfsFtpService: NfsFtpService,
     private val nfsFilesService: NfsFilesService,
 ) : FileStorageService {
-
     override fun persistSubmissionFiles(sub: ExtSubmission): ExtSubmission =
         when (sub.storageMode) {
-            StorageMode.FIRE -> fireFilesService.persistSubmissionFiles(sub)
-            StorageMode.NFS -> nfsFilesService.persistSubmissionFiles(sub)
+            FIRE -> fireFilesService.persistSubmissionFiles(sub)
+            NFS -> nfsFilesService.persistSubmissionFiles(sub)
         }
 
     override fun cleanSubmissionFiles(sub: ExtSubmission) =
         when (sub.storageMode) {
-            StorageMode.FIRE -> fireFilesService.cleanSubmissionFiles(sub)
-            StorageMode.NFS -> nfsFilesService.cleanSubmissionFiles(sub)
+            FIRE -> fireFilesService.cleanSubmissionFiles(sub)
+            NFS -> nfsFilesService.cleanSubmissionFiles(sub)
         }
 
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission = pageTabService.generatePageTab(sub)
 
-    override fun releaseSubmissionFiles(sub: ExtSubmission) =
-        when (sub.storageMode) {
-            StorageMode.FIRE -> fireFtpService.releaseSubmissionFiles(sub)
-            StorageMode.NFS -> nfsFtpService.releaseSubmissionFiles(sub)
+    override fun releaseSubmissionFile(file: ExtFile, subRelPath: String, mode: StorageMode) =
+        when (mode) {
+            FIRE -> fireFtpService.releaseSubmissionFile(file, subRelPath)
+            NFS -> nfsFtpService.releaseSubmissionFile(file, subRelPath)
         }
 }
