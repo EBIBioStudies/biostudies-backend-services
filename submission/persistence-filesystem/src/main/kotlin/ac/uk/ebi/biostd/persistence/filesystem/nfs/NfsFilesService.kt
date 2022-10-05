@@ -1,7 +1,10 @@
 package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
+import ac.uk.ebi.biostd.persistence.filesystem.api.FilePersistenceConfig
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
+import ac.uk.ebi.biostd.persistence.filesystem.api.NfsFilePersistenceConfig
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.permissions
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.allPageTabFiles
@@ -10,14 +13,12 @@ import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
 import ebi.ac.uk.io.FileUtils.moveFile
 import ebi.ac.uk.io.FileUtils.reCreateFolder
-import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RWX______
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.notExist
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import mu.KotlinLogging
-import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import java.io.File
 import java.nio.file.attribute.PosixFilePermission
 
@@ -25,15 +26,32 @@ private val logger = KotlinLogging.logger {}
 
 class NfsFilesService(
     private val folderResolver: SubmissionFolderResolver,
-    private val processingService: FileProcessingService,
 ) : FilesService {
-    override fun persistSubmissionFiles(sub: ExtSubmission): ExtSubmission {
-        val subFolder = getOrCreateSubmissionFolder(sub, sub.permissions().folder)
+    override fun preProcessSubmissionFiles(sub: ExtSubmission): FilePersistenceConfig {
+        val permissions = sub.permissions()
+        val subFolder = getOrCreateSubmissionFolder(sub, permissions.folder)
+        val targetFolder = createTempFolder(subFolder, sub.accNo)
 
-        logger.info { "${sub.accNo} ${sub.owner} Processing files of submission ${sub.accNo} on NFS" }
-        val processed = processAttachedFiles(sub, subFolder, createTempFolder(subFolder, sub.accNo), sub.permissions())
-        logger.info { "${sub.accNo} ${sub.owner} Finished processing files of submission ${sub.accNo} on NFS" }
-        return processed
+        return NfsFilePersistenceConfig(subFolder, targetFolder, permissions)
+    }
+
+    override fun persistSubmissionFile(file: ExtFile, config: FilePersistenceConfig): ExtFile {
+        val (subFolder, targetFolder, permissions) = config as NfsFilePersistenceConfig
+        val extFile = file as NfsFile
+        val target = targetFolder.resolve(extFile.relPath)
+        val subFile = subFolder.resolve(extFile.relPath)
+
+        if (target.notExist() && subFile.exists() && subFile.md5() == extFile.md5)
+            moveFile(subFile, target, permissions)
+        else if (target.notExist())
+            copyOrReplaceFile(extFile.file, target, permissions)
+
+        return extFile.copy(fullPath = subFile.absolutePath, file = subFile)
+    }
+
+    override fun postProcessSubmissionFiles(config: FilePersistenceConfig) {
+        val (subFolder, targetFolder, permissions) = config as NfsFilePersistenceConfig
+        moveFile(targetFolder, subFolder, permissions)
     }
 
     override fun cleanSubmissionFiles(sub: ExtSubmission) {
@@ -44,32 +62,6 @@ class NfsFilesService(
         logger.info { "${sub.accNo} ${sub.owner} Deleting pagetab files of submission ${sub.accNo} on NFS" }
         sub.allPageTabFiles.filterIsInstance<NfsFile>().forEach { FileUtils.deleteFile(it.file) }
         logger.info { "${sub.accNo} ${sub.owner} Finished deleting pagetab files of submission ${sub.accNo} on NFS" }
-    }
-
-    private fun processAttachedFiles(
-        sub: ExtSubmission,
-        subFolder: File,
-        targetFolder: File,
-        permissions: Permissions,
-    ): ExtSubmission {
-        fun copyFile(extFile: NfsFile, idx: Int): NfsFile {
-            val file = extFile.file
-            val target = targetFolder.resolve(extFile.relPath)
-            val subFile = subFolder.resolve(extFile.relPath)
-
-            logger.info { "${sub.accNo} ${sub.owner} Copying file $idx, $file with size ${extFile.size} into $target" }
-
-            if (target.notExist() && subFile.exists() && subFile.md5() == extFile.md5)
-                moveFile(subFile, target, permissions)
-            else if (target.notExist())
-                copyOrReplaceFile(file, target, permissions)
-
-            return extFile.copy(fullPath = subFile.absolutePath, file = subFile)
-        }
-
-        val result = processingService.processFiles(sub) { file, idx -> copyFile(file as NfsFile, idx) }
-        moveFile(targetFolder, subFolder, permissions)
-        return result
     }
 
     private fun getOrCreateSubmissionFolder(submission: ExtSubmission, permissions: Set<PosixFilePermission>): File {

@@ -1,6 +1,5 @@
-package ac.uk.ebi.biostd.persistence.fire
+package ac.uk.ebi.biostd.persistence.filesystem.fire
 
-import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
 import ebi.ac.uk.extended.model.FireFile
 import io.mockk.clearAllMocks
 import io.mockk.every

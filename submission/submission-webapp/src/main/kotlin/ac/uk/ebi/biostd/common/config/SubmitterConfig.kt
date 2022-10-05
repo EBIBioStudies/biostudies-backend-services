@@ -62,13 +62,15 @@ class SubmitterConfig {
 
     @Bean
     fun requestProcessor(
-        systemService: FileSystemService,
+        storageService: FileStorageService,
+        fileProcessingService: FileProcessingService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
     ): SubmissionRequestProcessor = SubmissionRequestProcessor(
-        systemService,
+        storageService,
+        fileProcessingService,
         submissionPersistenceQueryService,
-        submissionPersistenceService
+        submissionPersistenceService,
     )
 
     @Bean

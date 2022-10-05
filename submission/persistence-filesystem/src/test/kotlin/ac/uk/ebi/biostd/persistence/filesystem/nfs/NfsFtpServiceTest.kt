@@ -1,6 +1,5 @@
-package ac.uk.ebi.biostd.persistence.nfs
+package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
-import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
