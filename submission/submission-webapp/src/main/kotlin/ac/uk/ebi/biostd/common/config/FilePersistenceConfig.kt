@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
-import ac.uk.ebi.biostd.persistence.filesystem.fire.FireService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
@@ -19,6 +18,7 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
@@ -46,27 +46,29 @@ class FilePersistenceConfig(
     fun nfsFtpService(): NfsFtpService = NfsFtpService(folderResolver)
 
     @Bean
+    fun nfsFileService(): NfsFilesService = NfsFilesService(folderResolver)
+
+    @Bean
+    fun fireFtpService(): FireFtpService = FireFtpService(fireClient)
+
+    @Bean
+    fun fireFileService(
+        serializationService: ExtSerializationService,
+    ): FireFilesService = FireFilesService(fireClient, File(properties.fireTempDirPath), serializationService)
+
+    @Bean
+    fun pageTabService(
+        pageTabUtil: PageTabUtil,
+    ): PageTabService = PageTabService(File(properties.fireTempDirPath), pageTabUtil)
+
+    @Bean
     fun pageTabUtil(
         toSubmissionMapper: ToSubmissionMapper,
         toFileListMapper: ToFileListMapper,
     ): PageTabUtil = PageTabUtil(serializationService, toSubmissionMapper, toFileListMapper)
 
     @Bean
-    fun fireFtpService(): FireFtpService = FireFtpService(fireClient)
-
-    @Bean
-    fun pageTabService(
-        pageTabUtil: PageTabUtil,
-    ): PageTabService =
-        PageTabService(
-            File(properties.fireTempDirPath),
-            pageTabUtil,
-        )
-
-    @Bean
-    fun fireService(): FireService = FireService(fireClient, File(properties.fireTempDirPath))
-
-    @Bean
-    fun fileSystemService(fileStorageService: FileStorageService): FileSystemService =
-        FileSystemService(fileStorageService)
+    fun fileSystemService(
+        fileStorageService: FileStorageService
+    ): FileSystemService = FileSystemService(fileStorageService)
 }

@@ -20,10 +20,16 @@ class StorageService(
     private val nfsFtpService: NfsFtpService,
     private val nfsFilesService: NfsFilesService,
 ) : FileStorageService {
-    override fun persistSubmissionFiles(sub: ExtSubmission): ExtSubmission =
+    override fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile =
         when (sub.storageMode) {
-            FIRE -> fireFilesService.persistSubmissionFiles(sub)
-            NFS -> nfsFilesService.persistSubmissionFiles(sub)
+            FIRE -> fireFilesService.persistSubmissionFile(sub, file)
+            NFS -> nfsFilesService.persistSubmissionFile(sub, file)
+        }
+
+    override fun postProcessSubmissionFiles(sub: ExtSubmission) =
+        when (sub.storageMode) {
+            FIRE -> fireFilesService.postProcessSubmissionFiles(sub)
+            NFS -> nfsFilesService.postProcessSubmissionFiles(sub)
         }
 
     override fun cleanSubmissionFiles(sub: ExtSubmission) =

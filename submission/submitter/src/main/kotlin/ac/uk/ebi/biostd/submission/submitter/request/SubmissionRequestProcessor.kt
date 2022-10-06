@@ -3,14 +3,16 @@ package ac.uk.ebi.biostd.submission.submitter.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
+import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
 
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestProcessor(
-    private val systemService: FileSystemService,
+    private val storageService: FileStorageService,
+    private val fileProcessingService: FileProcessingService,
     private val queryService: SubmissionPersistenceQueryService,
     private val persistenceService: SubmissionPersistenceService,
 ) {
@@ -21,15 +23,22 @@ class SubmissionRequestProcessor(
         val request = queryService.getCleanedRequest(accNo, version)
         val (sub, _) = request
 
-        logger.info { "$accNo ${sub.owner} Started copying files accNo='${sub.accNo}', version='$version'" }
+        logger.info { "$accNo ${sub.owner} Started persisting submission files on ${sub.storageMode}" }
 
-        val processed = systemService.persistSubmissionFiles(sub)
+        val processed = persistSubmissionFiles(sub)
+        storageService.postProcessSubmissionFiles(sub)
         persistenceService.expirePreviousVersions(sub.accNo)
         persistenceService.saveSubmission(processed)
         persistenceService.saveSubmissionRequest(request.copy(status = FILES_COPIED, submission = processed))
 
-        logger.info { "$accNo ${sub.owner} Finished copying files accNo='$accNo', version='$version'" }
+        logger.info { "$accNo ${sub.owner} Finished persisting submission files on ${sub.storageMode}" }
 
         return processed
     }
+
+    private fun persistSubmissionFiles(sub: ExtSubmission) =
+        fileProcessingService.processFiles(sub) { file, idx ->
+            logger.info { "${sub.accNo} ${sub.owner} Persisting file $idx, path='${file.filePath}'" }
+            storageService.persistSubmissionFile(sub, file)
+        }
 }
