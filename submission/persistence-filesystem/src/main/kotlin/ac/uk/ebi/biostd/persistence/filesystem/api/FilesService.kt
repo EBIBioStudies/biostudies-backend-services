@@ -4,11 +4,9 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 
 internal interface FilesService {
-    fun preProcessSubmissionFiles(sub: ExtSubmission): FilePersistenceConfig
+    fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile
 
-    fun persistSubmissionFile(file: ExtFile, config: FilePersistenceConfig): ExtFile
-
-    fun postProcessSubmissionFiles(config: FilePersistenceConfig)
+    fun postProcessSubmissionFiles(sub: ExtSubmission)
 
     fun cleanSubmissionFiles(sub: ExtSubmission)
 }

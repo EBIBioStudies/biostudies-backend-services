@@ -7,11 +7,9 @@ import ebi.ac.uk.extended.model.StorageMode
 interface FileStorageService {
     fun releaseSubmissionFile(file: ExtFile, subRelPath: String, mode: StorageMode)
 
-    fun preProcessSubmissionFiles(sub: ExtSubmission): FilePersistenceConfig
+    fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile
 
-    fun persistSubmissionFile(file: ExtFile, config: FilePersistenceConfig): ExtFile
-
-    fun postProcessSubmissionFiles(config: FilePersistenceConfig)
+    fun postProcessSubmissionFiles(sub: ExtSubmission)
 
     fun cleanSubmissionFiles(sub: ExtSubmission)
 

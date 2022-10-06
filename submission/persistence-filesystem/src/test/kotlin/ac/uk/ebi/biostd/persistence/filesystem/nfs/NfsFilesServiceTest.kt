@@ -1,9 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
-import ac.uk.ebi.biostd.persistence.filesystem.api.NfsFilePersistenceConfig
-import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.permissions
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.test.basicExtSubmission
@@ -25,22 +22,11 @@ class NfsFilesServiceTest(
     private val testInstance = NfsFilesService(folderResolver)
 
     @Test
-    fun `pre process submission files`() {
-        val sub = basicExtSubmission
-        val config = testInstance.preProcessSubmissionFiles(sub) as NfsFilePersistenceConfig
-        assertThat(config.storageMode).isEqualTo(NFS)
-        assertThat(config.permissions).isEqualTo(sub.permissions())
-        assertThat(config.subFolder.absolutePath).isEqualTo("${subFolder.absolutePath}/${sub.relPath}")
-        assertThat(config.targetFolder.absolutePath).isEqualTo("${subFolder.absolutePath}/${sub.relPath}_temp")
-    }
-
-    @Test
     fun `persist submission file`() {
         val sub = basicExtSubmission
-        val config = testInstance.preProcessSubmissionFiles(sub)
         val file = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
 
-        val persisted = testInstance.persistSubmissionFile(file, config) as NfsFile
+        val persisted = testInstance.persistSubmissionFile(sub, file) as NfsFile
 
         assertThat(persisted.fullPath).isEqualTo("${subFolder.absolutePath}/${sub.relPath}/${file.relPath}")
         assertThat(Files.exists(Paths.get("${subFolder.absolutePath}/${sub.relPath}_temp/${file.relPath}"))).isTrue()
@@ -49,11 +35,10 @@ class NfsFilesServiceTest(
     @Test
     fun `post process submission files`() {
         val sub = basicExtSubmission
-        val config = testInstance.preProcessSubmissionFiles(sub)
         val file = createNfsFile("file2.txt", "Files/file2.txt", tempFolder.createFile("file2.txt"))
 
-        testInstance.persistSubmissionFile(file, config) as NfsFile
-        testInstance.postProcessSubmissionFiles(config)
+        testInstance.persistSubmissionFile(sub, file) as NfsFile
+        testInstance.postProcessSubmissionFiles(sub)
 
         assertThat(Files.exists(Paths.get("${subFolder.absolutePath}/${sub.relPath}/${file.relPath}"))).isTrue()
         assertThat(Files.exists(Paths.get("${subFolder.absolutePath}/${sub.relPath}_temp/${file.relPath}"))).isFalse()

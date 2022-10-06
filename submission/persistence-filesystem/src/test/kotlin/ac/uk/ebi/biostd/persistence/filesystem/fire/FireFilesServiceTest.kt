@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
-import ac.uk.ebi.biostd.persistence.filesystem.api.FireFilePersistenceConfig
 import ebi.ac.uk.extended.model.ExtFileType.FILE
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -10,6 +10,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -21,10 +22,18 @@ import uk.ac.ebi.fire.client.model.FireApiFile
 internal class FireFilesServiceTest(
     private val tempFolder: TemporaryFolder,
     @MockK private val fireClient: FireClient,
+    @MockK private val submission: ExtSubmission,
     @MockK private val serializationService: ExtSerializationService,
 ) {
     private val fireTempDirPath = tempFolder.createDirectory("fire-temp")
     private val testInstance = FireFilesService(fireClient, fireTempDirPath, serializationService)
+
+    @BeforeEach
+    fun beforeEach() {
+        every { submission.accNo } returns "S-BSST1"
+        every { submission.version } returns 1
+        every { submission.relPath } returns "S-BSST/001/S-BSST1"
+    }
 
     @Test
     fun `persist fire file found by md5 and path`() {
@@ -34,8 +43,7 @@ internal class FireFilesServiceTest(
 
         every { fireClient.findByMd5("the-md5") } returns listOf(fireApiFile)
 
-        val config = FireFilePersistenceConfig("S-BSST0", 1, "S-BSST/001/S-BSST1")
-        val persisted = testInstance.persistSubmissionFile(file, config)
+        val persisted = testInstance.persistSubmissionFile(submission, file)
 
         assertThat(persisted).isEqualToComparingFieldByField(file)
         verify(exactly = 1) {
@@ -56,8 +64,7 @@ internal class FireFilesServiceTest(
         every { fireClient.findByMd5("the-md5") } returns listOf(fireApiFile)
         every { fireClient.setPath("the-fire-id", "/S-BSST/001/S-BSST1/Files/folder/file.txt") } answers { nothing }
 
-        val config = FireFilePersistenceConfig("S-BSST0", 1, "S-BSST/001/S-BSST1")
-        val persisted = testInstance.persistSubmissionFile(file, config)
+        val persisted = testInstance.persistSubmissionFile(submission, file)
 
         assertThat(persisted).isEqualToComparingFieldByField(file)
         verify(exactly = 1) {
@@ -81,8 +88,7 @@ internal class FireFilesServiceTest(
         every { fireClient.downloadByFireId("the-fire-id", "file.txt") } returns content
         every { fireClient.setPath("the-fire-id", "/S-BSST/001/S-BSST1/Files/folder/file.txt") } answers { nothing }
 
-        val config = FireFilePersistenceConfig("S-BSST0", 1, "S-BSST/001/S-BSST1")
-        val persisted = testInstance.persistSubmissionFile(file, config)
+        val persisted = testInstance.persistSubmissionFile(submission, file)
 
         assertThat(persisted).isEqualToComparingFieldByField(file)
         verify(exactly = 1) {

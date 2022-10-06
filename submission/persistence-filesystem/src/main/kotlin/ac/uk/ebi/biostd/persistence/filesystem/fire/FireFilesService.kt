@@ -1,8 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
-import ac.uk.ebi.biostd.persistence.filesystem.api.FilePersistenceConfig
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
-import ac.uk.ebi.biostd.persistence.filesystem.api.FireFilePersistenceConfig
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
@@ -25,10 +23,6 @@ class FireFilesService(
     private val fireTempDirPath: File,
     private val serializationService: ExtSerializationService,
 ) : FilesService {
-    override fun preProcessSubmissionFiles(sub: ExtSubmission): FilePersistenceConfig {
-        return FireFilePersistenceConfig(sub.accNo, sub.version, sub.relPath)
-    }
-
     /**
      * Get or persist the given ext file from FIRE. Note that this method assumes that all the fire files belonging to
      * previous submission versions have been unpublished and any file with a path is assumed to be already used.
@@ -37,17 +31,16 @@ class FireFilesService(
      * submission. The method also ensures that the file has no path (i.e. it was submitted in the same submission in a
      * different path) and if so, even if the file exists in FIRE, it gets duplicated to ensure consistency.
      */
-    override fun persistSubmissionFile(file: ExtFile, config: FilePersistenceConfig): ExtFile {
-        val (accNo, version, subRelPath) = config as FireFilePersistenceConfig
+    override fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile {
         return when (file) {
             is FireFile -> {
                 val downloadFile = { client.downloadByFireId(file.fireId, file.fileName) }
-                reuseOrPersistFireFile(file, subRelPath, downloadFile)
+                reuseOrPersistFireFile(file, sub.relPath, downloadFile)
             }
             is NfsFile -> {
-                val nfsFile = if (file.type == FILE) file else asCompressedFile(accNo, version, file)
+                val nfsFile = if (file.type == FILE) file else asCompressedFile(sub.accNo, sub.version, file)
                 val downloadFile = { nfsFile.file }
-                return reuseOrPersistFireFile(nfsFile, subRelPath, downloadFile)
+                return reuseOrPersistFireFile(nfsFile, sub.relPath, downloadFile)
             }
         }
     }
@@ -109,7 +102,7 @@ class FireFilesService(
         attributes = file.attributes
     )
 
-    override fun postProcessSubmissionFiles(config: FilePersistenceConfig) {
+    override fun postProcessSubmissionFiles(sub: ExtSubmission) {
         // No need of post-processing on FIRE
     }
 

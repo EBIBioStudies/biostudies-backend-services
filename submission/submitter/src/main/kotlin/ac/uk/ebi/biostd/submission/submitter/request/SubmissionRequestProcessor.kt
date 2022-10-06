@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.submitter.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.api.FilePersistenceConfig
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
@@ -26,10 +25,8 @@ class SubmissionRequestProcessor(
 
         logger.info { "$accNo ${sub.owner} Started persisting submission files on ${sub.storageMode}" }
 
-        val filePersistenceConfig = storageService.preProcessSubmissionFiles(sub)
-        val processed = persistSubmissionFiles(sub, filePersistenceConfig)
-
-        storageService.postProcessSubmissionFiles(filePersistenceConfig)
+        val processed = persistSubmissionFiles(sub)
+        storageService.postProcessSubmissionFiles(sub)
         persistenceService.expirePreviousVersions(sub.accNo)
         persistenceService.saveSubmission(processed)
         persistenceService.saveSubmissionRequest(request.copy(status = FILES_COPIED, submission = processed))
@@ -39,9 +36,9 @@ class SubmissionRequestProcessor(
         return processed
     }
 
-    private fun persistSubmissionFiles(sub: ExtSubmission, config: FilePersistenceConfig) =
+    private fun persistSubmissionFiles(sub: ExtSubmission) =
         fileProcessingService.processFiles(sub) { file, idx ->
             logger.info { "${sub.accNo} ${sub.owner} Persisting file $idx, path='${file.filePath}'" }
-            storageService.persistSubmissionFile(file, config)
+            storageService.persistSubmissionFile(sub, file)
         }
 }

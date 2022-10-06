@@ -1,8 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
-import ac.uk.ebi.biostd.persistence.filesystem.api.FilePersistenceConfig
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
-import ac.uk.ebi.biostd.persistence.filesystem.api.NfsFilePersistenceConfig
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.permissions
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -12,7 +10,6 @@ import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
 import ebi.ac.uk.io.FileUtils.moveFile
-import ebi.ac.uk.io.FileUtils.reCreateFolder
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RWX______
 import ebi.ac.uk.io.ext.md5
@@ -27,30 +24,26 @@ private val logger = KotlinLogging.logger {}
 class NfsFilesService(
     private val folderResolver: SubmissionFolderResolver,
 ) : FilesService {
-    override fun preProcessSubmissionFiles(sub: ExtSubmission): FilePersistenceConfig {
+    override fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile {
+        require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
         val permissions = sub.permissions()
         val subFolder = getOrCreateSubmissionFolder(sub, permissions.folder)
-        val targetFolder = createTempFolder(subFolder, sub.accNo)
+        val target = getOrCreateTempFolder(subFolder, sub.accNo).resolve(file.relPath)
+        val subFile = subFolder.resolve(file.relPath)
 
-        return NfsFilePersistenceConfig(subFolder, targetFolder, permissions)
-    }
-
-    override fun persistSubmissionFile(file: ExtFile, config: FilePersistenceConfig): ExtFile {
-        val (subFolder, targetFolder, permissions) = config as NfsFilePersistenceConfig
-        val extFile = file as NfsFile
-        val target = targetFolder.resolve(extFile.relPath)
-        val subFile = subFolder.resolve(extFile.relPath)
-
-        if (target.notExist() && subFile.exists() && subFile.md5() == extFile.md5)
+        if (target.notExist() && subFile.exists() && subFile.md5() == file.md5)
             moveFile(subFile, target, permissions)
         else if (target.notExist())
-            copyOrReplaceFile(extFile.file, target, permissions)
+            copyOrReplaceFile(file.file, target, permissions)
 
-        return extFile.copy(fullPath = subFile.absolutePath, file = subFile)
+        return file.copy(fullPath = subFile.absolutePath, file = subFile)
     }
 
-    override fun postProcessSubmissionFiles(config: FilePersistenceConfig) {
-        val (subFolder, targetFolder, permissions) = config as NfsFilePersistenceConfig
+    override fun postProcessSubmissionFiles(sub: ExtSubmission) {
+        val permissions = sub.permissions()
+        val subFolder = getOrCreateSubmissionFolder(sub, permissions.folder)
+        val targetFolder = getOrCreateTempFolder(subFolder, sub.accNo)
+
         moveFile(targetFolder, subFolder, permissions)
     }
 
@@ -70,8 +63,8 @@ class NfsFilesService(
         return getOrCreateFolder(submissionPath, permissions).toFile()
     }
 
-    private fun createTempFolder(
+    private fun getOrCreateTempFolder(
         submissionFolder: File,
         accNo: String,
-    ): File = reCreateFolder(submissionFolder.parentFile.resolve("${accNo}_temp"), RWX______)
+    ): File = getOrCreateFolder(submissionFolder.parentFile.resolve("${accNo}_temp").toPath(), RWX______).toFile()
 }

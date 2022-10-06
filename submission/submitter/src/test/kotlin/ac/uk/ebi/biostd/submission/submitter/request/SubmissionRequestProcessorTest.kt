@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import ac.uk.ebi.biostd.persistence.filesystem.api.FireFilePersistenceConfig
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.FILE
@@ -42,13 +41,11 @@ class SubmissionRequestProcessorTest(
         val cleanedRequest = SubmissionRequest(submission, "TMP_123", CLEANED)
         val fireFile = FireFile("test.txt", "Files/test.txt", "abc1", "md5", 1, FILE, emptyList())
         val nfsFile = createNfsFile("dummy.txt", "Files/dummy.txt", tempFolder.createFile("dummy.txt"))
-        val config = FireFilePersistenceConfig(submission.accNo, submission.version, submission.relPath)
         val processed = submission.copy(section = submission.section.copy(files = listOf(Either.left(fireFile))))
 
         every { persistenceService.saveSubmission(processed) } returns processed
-        every { storageService.preProcessSubmissionFiles(submission) } returns config
-        every { storageService.postProcessSubmissionFiles(config) } answers { nothing }
-        every { storageService.persistSubmissionFile(nfsFile, config) } returns fireFile
+        every { storageService.postProcessSubmissionFiles(submission) } answers { nothing }
+        every { storageService.persistSubmissionFile(submission, nfsFile) } returns fireFile
         every { queryService.getCleanedRequest(submission.accNo, 1) } returns cleanedRequest
         every { persistenceService.expirePreviousVersions(submission.accNo) } answers { nothing }
         every {
@@ -66,9 +63,8 @@ class SubmissionRequestProcessorTest(
         assertThat(result).isEqualTo(processed)
         assertThat(processedRequest.status).isEqualTo(FILES_COPIED)
         verify(exactly = 1) {
-            storageService.preProcessSubmissionFiles(submission)
-            storageService.persistSubmissionFile(nfsFile, config)
-            storageService.postProcessSubmissionFiles(config)
+            storageService.persistSubmissionFile(submission, nfsFile)
+            storageService.postProcessSubmissionFiles(submission)
             persistenceService.expirePreviousVersions(submission.accNo)
             persistenceService.saveSubmission(processed)
             persistenceService.saveSubmissionRequest(processedRequest)
