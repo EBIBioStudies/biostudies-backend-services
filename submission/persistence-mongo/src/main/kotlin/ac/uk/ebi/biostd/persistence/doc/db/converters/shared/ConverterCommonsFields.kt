@@ -67,6 +67,13 @@ object FileListDocFileFields {
     const val FILE_LIST_DOC_FILE_FILE_LIST_NAME = "fileListName"
 }
 
+object DocSubmissionFileFields {
+    const val FILE_INDEX = "index"
+    const val FILE_PATH = "path"
+    const val FILE_SUB_ACC_NO = "accNo"
+    const val FILE_SUB_VERSION = "version"
+}
+
 object DocFileTableFields {
     val DOC_FILE_TABLE_CLASS: String = DocFileTable::class.java.canonicalName
     const val FILE_TABLE_DOC_FILES = "files"

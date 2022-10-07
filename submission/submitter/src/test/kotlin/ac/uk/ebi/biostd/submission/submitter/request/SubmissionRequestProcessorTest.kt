@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.submission.submitter.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtFile
@@ -29,10 +29,16 @@ class SubmissionRequestProcessorTest(
     private val tempFolder: TemporaryFolder,
     @MockK private val storageService: FileStorageService,
     @MockK private val fileService: FileProcessingService,
-    @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val persistenceService: SubmissionPersistenceService,
+    @MockK private val requestService: SubmissionRequestPersistenceService,
 ) {
-    private val testInstance = SubmissionRequestProcessor(storageService, fileService, queryService, persistenceService)
+    private val testInstance =
+        SubmissionRequestProcessor(
+            storageService,
+            fileService,
+            persistenceService,
+            requestService,
+        )
 
     @Test
     fun `process request`() {
@@ -46,10 +52,10 @@ class SubmissionRequestProcessorTest(
         every { persistenceService.saveSubmission(processed) } returns processed
         every { storageService.postProcessSubmissionFiles(submission) } answers { nothing }
         every { storageService.persistSubmissionFile(submission, nfsFile) } returns fireFile
-        every { queryService.getCleanedRequest(submission.accNo, 1) } returns cleanedRequest
+        every { requestService.getCleanedRequest(submission.accNo, 1) } returns cleanedRequest
         every { persistenceService.expirePreviousVersions(submission.accNo) } answers { nothing }
         every {
-            persistenceService.saveSubmissionRequest(capture(processedRequestSlot))
+            requestService.saveSubmissionRequest(capture(processedRequestSlot))
         } returns (submission.accNo to submission.version)
         every { fileService.processFiles(submission, any()) } answers {
             val function: (file: ExtFile, index: Int) -> ExtFile = secondArg()
@@ -67,7 +73,7 @@ class SubmissionRequestProcessorTest(
             storageService.postProcessSubmissionFiles(submission)
             persistenceService.expirePreviousVersions(submission.accNo)
             persistenceService.saveSubmission(processed)
-            persistenceService.saveSubmissionRequest(processedRequest)
+            requestService.saveSubmissionRequest(processedRequest)
         }
     }
 }

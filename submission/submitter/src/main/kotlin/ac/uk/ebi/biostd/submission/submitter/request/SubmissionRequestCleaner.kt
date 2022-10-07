@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.submitter.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import mu.KotlinLogging
 
@@ -11,10 +11,10 @@ private val logger = KotlinLogging.logger {}
 class SubmissionRequestCleaner(
     private val systemService: FileSystemService,
     private val queryService: SubmissionPersistenceQueryService,
-    private val persistenceService: SubmissionPersistenceService,
+    private val requestService: SubmissionRequestPersistenceService,
 ) {
     fun cleanCurrentVersion(accNo: String, version: Int) {
-        val request = queryService.getLoadedRequest(accNo, version)
+        val request = requestService.getLoadedRequest(accNo, version)
         val sub = queryService.findExtByAccNo(accNo, includeFileListFiles = true)
 
         if (sub != null) {
@@ -23,6 +23,6 @@ class SubmissionRequestCleaner(
             logger.info { "${sub.accNo} ${sub.owner} Finished cleaning files of version ${sub.version}" }
         }
 
-        persistenceService.saveSubmissionRequest(request.copy(status = CLEANED))
+        requestService.saveSubmissionRequest(request.copy(status = CLEANED))
     }
 }
