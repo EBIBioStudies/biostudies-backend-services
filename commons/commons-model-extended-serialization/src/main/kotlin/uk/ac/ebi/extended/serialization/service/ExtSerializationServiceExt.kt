@@ -10,7 +10,7 @@ fun ExtSerializationService.forEachFile(
     submission: ExtSubmission,
     function: (ExtFile, Int) -> Unit,
 ) {
-    val index = AtomicInteger(1)
+    val index = AtomicInteger()
     for (fileList in submission.allFileList) {
         fileList.file.inputStream().use { deserializeList(it).forEach { function(it, index.incrementAndGet()) } }
         fileList.pageTabFiles.forEach { function(it, index.incrementAndGet()) }

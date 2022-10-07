@@ -5,6 +5,9 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESS
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_IDX
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_TOTAL_FILES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
@@ -25,6 +28,7 @@ import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.query.Update.update
+import java.time.Instant
 
 class SubmissionRequestDocDataRepository(
     private val submissionRequestRepository: SubmissionRequestRepository,
@@ -57,13 +61,34 @@ class SubmissionRequestDocDataRepository(
             .andOperator(*criteriaArray(filter))
 
     fun updateStatus(status: RequestStatus, accNo: String, version: Int) {
+        val update = Update().set(SUB_STATUS, status).set(RQT_MODIFICATION_TIME, Instant.now())
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
-        mongoTemplate.updateFirst(query, update(SUB_STATUS, status), DocSubmissionRequest::class.java)
+
+        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java)
+    }
+
+    fun updateIndex(accNo: String, version: Int, index: Int) {
+        val update = Update().set(RQT_IDX, index).set(RQT_MODIFICATION_TIME, Instant.now())
+        val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
+
+        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java)
+    }
+
+    fun updateTotalFiles(accNo: String, version: Int, totalFiles: Int) {
+        val update = Update().set(RQT_TOTAL_FILES, totalFiles).set(RQT_MODIFICATION_TIME, Instant.now())
+        val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
+
+        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java)
     }
 
     fun updateSubmissionRequest(rqt: DocSubmissionRequest) {
         val query = Query(where(SUB_ACC_NO).`is`(rqt.accNo).andOperator(where(SUB_VERSION).`is`(rqt.version)))
-        val update = Update().set(SUB_STATUS, rqt.status).set(SUB, rqt.submission)
+        val update = Update()
+            .set(SUB_STATUS, rqt.status)
+            .set(SUB, rqt.submission)
+            .set(RQT_IDX, rqt.currentIndex)
+            .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
+
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java)
     }
 

@@ -48,8 +48,12 @@ class SubmissionRequestReleaser(
 
         persistenceService.setAsReleased(sub.accNo)
         serializationService.forEachFile(sub) { file, idx ->
-            logger.info { "${sub.accNo}, ${sub.owner} Publishing file $idx - ${file.filePath}" }
+            logger.info { "${sub.accNo}, ${sub.owner} Started publishing file $idx - ${file.filePath}" }
+
             fileStorageService.releaseSubmissionFile(file, sub.relPath, sub.storageMode)
+            persistenceService.updateRequestIndex(sub.accNo, sub.version, idx)
+
+            logger.info { "${sub.accNo}, ${sub.owner} Finished publishing file $idx - ${file.filePath}" }
         }
 
         logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }

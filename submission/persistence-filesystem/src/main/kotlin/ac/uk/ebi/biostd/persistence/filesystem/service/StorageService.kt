@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
@@ -16,7 +15,6 @@ import ebi.ac.uk.extended.model.StorageMode.NFS
 class StorageService(
     private val fireFtpService: FireFtpService,
     private val fireFilesService: FireFilesService,
-    private val pageTabService: PageTabService,
     private val nfsFtpService: NfsFtpService,
     private val nfsFilesService: NfsFilesService,
 ) : FileStorageService {
@@ -37,8 +35,6 @@ class StorageService(
             FIRE -> fireFilesService.cleanSubmissionFiles(sub)
             NFS -> nfsFilesService.cleanSubmissionFiles(sub)
         }
-
-    override fun generatePageTab(sub: ExtSubmission): ExtSubmission = pageTabService.generatePageTab(sub)
 
     override fun releaseSubmissionFile(file: ExtFile, subRelPath: String, mode: StorageMode) =
         when (mode) {

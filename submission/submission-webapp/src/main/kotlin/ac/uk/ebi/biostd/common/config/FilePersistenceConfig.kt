@@ -35,12 +35,9 @@ class FilePersistenceConfig(
     fun fileStorageService(
         fireFtpService: FireFtpService,
         fireFilesService: FireFilesService,
-        pageTabService: PageTabService,
         nfsFtpService: NfsFtpService,
         nfsFilesService: NfsFilesService,
-    ): FileStorageService = StorageService(
-        fireFtpService, fireFilesService, pageTabService, nfsFtpService, nfsFilesService
-    )
+    ): FileStorageService = StorageService(fireFtpService, fireFilesService, nfsFtpService, nfsFilesService)
 
     @Bean
     fun nfsFtpService(): NfsFtpService = NfsFtpService(folderResolver)

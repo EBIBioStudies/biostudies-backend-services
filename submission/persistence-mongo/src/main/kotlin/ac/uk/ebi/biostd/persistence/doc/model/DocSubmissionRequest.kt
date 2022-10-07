@@ -5,6 +5,7 @@ import com.mongodb.DBObject
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
+import java.time.Instant
 
 @Document(collection = "submission_requests")
 data class DocSubmissionRequest(
@@ -15,4 +16,7 @@ data class DocSubmissionRequest(
     val draftKey: String?,
     val status: RequestStatus,
     val submission: DBObject,
+    val totalFiles: Int,
+    val currentIndex: Int,
+    val modificationTime: Instant,
 )

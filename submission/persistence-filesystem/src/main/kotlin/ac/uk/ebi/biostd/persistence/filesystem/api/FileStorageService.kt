@@ -12,6 +12,4 @@ interface FileStorageService {
     fun postProcessSubmissionFiles(sub: ExtSubmission)
 
     fun cleanSubmissionFiles(sub: ExtSubmission)
-
-    fun generatePageTab(sub: ExtSubmission): ExtSubmission
 }

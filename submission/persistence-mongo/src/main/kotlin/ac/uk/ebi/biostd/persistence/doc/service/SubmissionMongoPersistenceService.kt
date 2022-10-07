@@ -42,6 +42,14 @@ internal class SubmissionMongoPersistenceService(
         requestRepository.updateStatus(status, accNo, version)
     }
 
+    override fun updateRequestIndex(accNo: String, version: Int, index: Int) {
+        requestRepository.updateIndex(accNo, version, index)
+    }
+
+    override fun updateRequestTotalFiles(accNo: String, version: Int, totalFiles: Int) {
+        requestRepository.updateTotalFiles(accNo, version, totalFiles)
+    }
+
     override fun setAsReleased(accNo: String) {
         subDataRepository.setAsReleased(accNo)
     }
@@ -59,6 +67,9 @@ internal class SubmissionMongoPersistenceService(
             draftKey = rqt.draftKey,
             status = rqt.status,
             submission = BasicDBObject.parse(content),
+            totalFiles = rqt.totalFiles,
+            currentIndex = rqt.currentIndex,
+            modificationTime = rqt.modificationTime.toInstant()
         )
     }
 }

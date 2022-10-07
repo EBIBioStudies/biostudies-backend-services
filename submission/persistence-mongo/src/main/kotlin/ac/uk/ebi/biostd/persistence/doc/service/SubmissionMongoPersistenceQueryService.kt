@@ -22,6 +22,7 @@ import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.time.ZoneOffset.UTC
 import kotlin.math.max
 
 private val logger = KotlinLogging.logger {}
@@ -103,14 +104,18 @@ internal class SubmissionMongoPersistenceQueryService(
     }
 
     private fun getRequest(accNo: String, version: Int, status: RequestStatus): SubmissionRequest {
-        logger.info { "$accNo, Loading request accNo='$accNo' version '$version'" }
+        logger.info { "$accNo, Started request accNo='$accNo' version '$version'" }
         val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, status)
         val stored = serializationService.deserialize(request.submission.toString())
-        logger.info { "$accNo, Finish loading request accNo='$accNo' version '$version'" }
+        logger.info { "$accNo, Finished loading request accNo='$accNo' version '$version'" }
+
         return SubmissionRequest(
             submission = stored,
             draftKey = request.draftKey,
-            request.status
+            request.status,
+            request.totalFiles,
+            request.currentIndex,
+            request.modificationTime.atOffset(UTC),
         )
     }
 
