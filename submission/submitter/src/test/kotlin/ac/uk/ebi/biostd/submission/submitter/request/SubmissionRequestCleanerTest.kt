@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
@@ -22,9 +22,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SubmissionRequestCleanerTest(
     @MockK private val systemService: FileSystemService,
     @MockK private val queryService: SubmissionPersistenceQueryService,
-    @MockK private val persistenceService: SubmissionPersistenceService,
+    @MockK private val requestService: SubmissionRequestPersistenceService,
 ) {
-    private val testInstance = SubmissionRequestCleaner(systemService, queryService, persistenceService)
+    private val testInstance = SubmissionRequestCleaner(systemService, queryService, requestService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -36,10 +36,10 @@ class SubmissionRequestCleanerTest(
         val loadedRequest = SubmissionRequest(submission, "TMP_123", LOADED)
 
         every { systemService.cleanFolder(submission) } answers { nothing }
-        every { queryService.getLoadedRequest("S-BSST0", 1) } returns loadedRequest
+        every { requestService.getLoadedRequest("S-BSST0", 1) } returns loadedRequest
         every { queryService.findExtByAccNo("S-BSST0", includeFileListFiles = true) } returns submission
         every {
-            persistenceService.saveSubmissionRequest(capture(cleanedRequestSlot))
+            requestService.saveSubmissionRequest(capture(cleanedRequestSlot))
         } returns (submission.accNo to submission.version)
 
         testInstance.cleanCurrentVersion("S-BSST0", 1)
@@ -48,8 +48,8 @@ class SubmissionRequestCleanerTest(
         assertThat(cleanedRequest.status).isEqualTo(CLEANED)
         verify(exactly = 1) {
             systemService.cleanFolder(submission)
-            queryService.getLoadedRequest("S-BSST0", 1)
-            persistenceService.saveSubmissionRequest(cleanedRequest)
+            requestService.getLoadedRequest("S-BSST0", 1)
+            requestService.saveSubmissionRequest(cleanedRequest)
             queryService.findExtByAccNo("S-BSST0", includeFileListFiles = true)
         }
     }
@@ -60,10 +60,10 @@ class SubmissionRequestCleanerTest(
         val cleanedRequestSlot = slot<SubmissionRequest>()
         val loadedRequest = SubmissionRequest(submission, "TMP_123", LOADED)
 
-        every { queryService.getLoadedRequest("S-BSST0", 1) } returns loadedRequest
+        every { requestService.getLoadedRequest("S-BSST0", 1) } returns loadedRequest
         every { queryService.findExtByAccNo("S-BSST0", includeFileListFiles = true) } returns null
         every {
-            persistenceService.saveSubmissionRequest(capture(cleanedRequestSlot))
+            requestService.saveSubmissionRequest(capture(cleanedRequestSlot))
         } returns (submission.accNo to submission.version)
 
         testInstance.cleanCurrentVersion("S-BSST0", 1)
@@ -72,8 +72,8 @@ class SubmissionRequestCleanerTest(
         assertThat(cleanedRequest.status).isEqualTo(CLEANED)
         verify(exactly = 0) { systemService.cleanFolder(any()) }
         verify(exactly = 1) {
-            queryService.getLoadedRequest("S-BSST0", 1)
-            persistenceService.saveSubmissionRequest(cleanedRequest)
+            requestService.getLoadedRequest("S-BSST0", 1)
+            requestService.saveSubmissionRequest(cleanedRequest)
             queryService.findExtByAccNo("S-BSST0", includeFileListFiles = true)
         }
     }

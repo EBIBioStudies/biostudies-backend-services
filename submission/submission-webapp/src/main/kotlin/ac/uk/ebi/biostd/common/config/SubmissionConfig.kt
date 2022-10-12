@@ -6,7 +6,10 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
@@ -52,6 +55,7 @@ class SubmissionConfig(
 
     @Bean
     fun submissionService(
+        submissionPersistenceService: SubmissionPersistenceService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         userPrivilegeService: IUserPrivilegesService,
         extSubmissionSubmitter: ExtSubmissionSubmitter,
@@ -64,7 +68,8 @@ class SubmissionConfig(
         extSubmissionSubmitter,
         submissionSubmitter,
         eventsPublisherService,
-        fileStorageService
+        fileStorageService,
+        submissionPersistenceService,
     )
 
     @Bean
@@ -76,8 +81,10 @@ class SubmissionConfig(
 
     @Bean
     fun extSubmissionQueryService(
-        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
-    ): ExtSubmissionQueryService = ExtSubmissionQueryService(submissionPersistenceQueryService)
+        filesService: SubmissionFilesPersistenceService,
+        requestService: SubmissionRequestPersistenceService,
+        queryService: SubmissionPersistenceQueryService,
+    ): ExtSubmissionQueryService = ExtSubmissionQueryService(requestService, filesService, queryService)
 
     @Bean
     fun extSubmissionService(

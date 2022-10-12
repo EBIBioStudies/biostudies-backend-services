@@ -18,6 +18,10 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.FILE_INDEX
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.FILE_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.FILE_SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.FILE_SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
@@ -29,6 +33,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.CONTE
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.KEY
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.STATUS
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.USER_ID
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
@@ -244,6 +249,24 @@ internal class DatabaseChangeLogTest(
         val subAfterMigration = mongoTemplate.findAll<Document>(collectionName)
         assertThat(subAfterMigration).hasSize(1)
         assertThat(subAfterMigration.first()[SUB_STATS]).isNull()
+    }
+
+    @Test
+    fun `run migration 007`() {
+        fun assertSubmissionFilesIndexes() {
+            val listIndexes = mongoTemplate.collection<DocSubmissionRequestFile>().listIndexes().toList()
+            assertThat(mongoTemplate.collectionExists<DocSubmissionRequestFile>()).isTrue()
+            assertThat(listIndexes).hasSize(5)
+            assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
+            assertThat(listIndexes[1]).containsEntry("key", Document(FILE_INDEX, 1))
+            assertThat(listIndexes[2]).containsEntry("key", Document(FILE_PATH, 1))
+            assertThat(listIndexes[3]).containsEntry("key", Document(FILE_SUB_ACC_NO, 1))
+            assertThat(listIndexes[4]).containsEntry("key", Document(FILE_SUB_VERSION, 1))
+        }
+
+        runMigrations(ChangeLog007::class.java)
+
+        assertSubmissionFilesIndexes()
     }
 
     private fun runMigrations(clazz: Class<*>) {

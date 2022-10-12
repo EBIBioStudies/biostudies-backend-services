@@ -1,8 +1,7 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -16,21 +15,19 @@ import uk.ac.ebi.extended.serialization.service.FileProcessingService
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestLoader(
-    private val queryService: SubmissionPersistenceQueryService,
-    private val persistenceService: SubmissionPersistenceService,
+    private val requestService: SubmissionRequestPersistenceService,
     private val fileProcessingService: FileProcessingService,
     private val storageService: FileStorageService,
 ) {
-
     /**
      * Calculate md5 and size for every file in submission request.
      */
     fun loadRequest(accNo: String, version: Int): ExtSubmission {
         logger.info { "Started loading request accNo='$accNo', version='$version'" }
-        val original = queryService.getPendingRequest(accNo, version)
+        val original = requestService.getPendingRequest(accNo, version)
         val processed = processRequest(original.submission)
         val withTabFiles = storageService.generatePageTab(processed)
-        persistenceService.saveSubmissionRequest(original.copy(status = LOADED, submission = withTabFiles))
+        requestService.saveSubmissionRequest(original.copy(status = LOADED, submission = withTabFiles))
         logger.info { "Finished loading request accNo='$accNo', version='$version'" }
         return withTabFiles
     }
