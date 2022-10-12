@@ -72,7 +72,7 @@ interface SubmissionFilesPersistenceService {
 
     fun getSubmissionFile(path: String, accNo: String, version: Int): ExtFile
 
-    fun getSubmissionFiles(accNo: String, version: Int, startingAt: Int = 0): List<Pair<ExtFile, Int>>
+    fun getSubmissionFiles(accNo: String, version: Int, startingAt: Int): List<Pair<ExtFile, Int>>
 
     fun getFileListFiles(accNo: String, version: Int, fileListName: String): List<ExtFile>
 

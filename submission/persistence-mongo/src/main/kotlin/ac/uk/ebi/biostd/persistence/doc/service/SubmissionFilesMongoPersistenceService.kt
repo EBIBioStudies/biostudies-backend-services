@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepositor
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ebi.ac.uk.extended.model.ExtFile
 import org.bson.types.ObjectId
 
@@ -15,7 +15,7 @@ class SubmissionFilesMongoPersistenceService(
     private val submissionFilesRepository: SubmissionFilesRepository,
 ) : SubmissionFilesPersistenceService {
     override fun saveSubmissionFile(file: SubmissionFile) {
-        val docFile = DocSubmissionFile(
+        val docFile = DocSubmissionRequestFile(
             ObjectId(),
             file.index,
             file.accNo,

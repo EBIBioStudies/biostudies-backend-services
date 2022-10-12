@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
@@ -48,12 +48,20 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
 }
 
-interface SubmissionFilesRepository : MongoRepository<DocSubmissionFile, ObjectId> {
-    fun findAllByAccNoAndVersionAndIndexGreaterThan(accNo: String, version: Int, index: Int): List<DocSubmissionFile>
+interface SubmissionFilesRepository : MongoRepository<DocSubmissionRequestFile, ObjectId> {
+    fun findAllByAccNoAndVersionAndIndexGreaterThan(
+        accNo: String,
+        version: Int,
+        index: Int,
+    ): List<DocSubmissionRequestFile>
 
-    fun findAllByAccNoAndVersionAndFileList(accNo: String, version: Int, fileList: String): List<DocSubmissionFile>
+    fun findAllByAccNoAndVersionAndFileList(
+        accNo: String,
+        version: Int,
+        fileList: String,
+    ): List<DocSubmissionRequestFile>
 
-    fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionFile
+    fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
 }
 
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {

@@ -117,8 +117,8 @@ data class FileListDocFile(
     val submissionAccNo: String
 )
 
-@Document(collection = "submission_files")
-data class DocSubmissionFile(
+@Document(collection = "submission_request_files")
+data class DocSubmissionRequestFile(
     @Id
     val id: ObjectId,
     val index: Int,

@@ -67,7 +67,7 @@ object FileListDocFileFields {
     const val FILE_LIST_DOC_FILE_FILE_LIST_NAME = "fileListName"
 }
 
-object DocSubmissionFileFields {
+object DocSubmissionRequestFileFields {
     const val FILE_INDEX = "index"
     const val FILE_PATH = "path"
     const val FILE_SUB_ACC_NO = "accNo"

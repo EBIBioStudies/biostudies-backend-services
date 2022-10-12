@@ -14,10 +14,10 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.FILE_INDEX
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.FILE_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.FILE_SUB_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFileFields.FILE_SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.FILE_INDEX
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.FILE_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.FILE_SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.FILE_SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
@@ -27,7 +27,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.STATUS
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionFile
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
@@ -175,11 +175,11 @@ class ChangeLog006 {
 
 @ChangeLog
 class ChangeLog007 {
-    @ChangeSet(order = "007", id = "Create submission files collection", author = "System")
+    @ChangeSet(order = "007", id = "Create submission request files collection", author = "System")
     fun changeSet007(template: MongockTemplate) {
-        template.ensureExists(DocSubmissionFile::class.java)
+        template.ensureExists(DocSubmissionRequestFile::class.java)
 
-        template.indexOps(DocSubmissionFile::class.java).apply {
+        template.indexOps(DocSubmissionRequestFile::class.java).apply {
             ensureIndex(Index().on(FILE_INDEX, ASC))
             ensureIndex(Index().on(FILE_PATH, ASC))
             ensureIndex(Index().on(FILE_SUB_ACC_NO, ASC))
