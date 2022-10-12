@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
 import ebi.ac.uk.asserts.assertThat
@@ -51,6 +52,7 @@ import java.nio.file.Paths
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
 class SubmissionFileSourceTest(
+    @Autowired private val submissionFilesRepository: SubmissionFilesPersistenceService,
     @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired private val securityTestService: SecurityTestService,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
@@ -96,7 +98,7 @@ class SubmissionFileSourceTest(
         assertThat(webClient.submitSingle(submission("FileList.tsv"), TSV, filesConfig)).isSuccessful()
 
         val firstVersion = submissionRepository.getExtByAccNo("S-FSTST1")
-        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-FSTST1", "FileList")
+        val firstVersionReferencedFiles = submissionFilesRepository.getReferencedFiles("S-FSTST1", "FileList")
         val subFilesPath = "$submissionPath/${firstVersion.relPath}/Files"
         val innerFile = Paths.get("$subFilesPath/File1.txt")
         val referencedFile = Paths.get("$subFilesPath/File2.txt")
@@ -126,7 +128,7 @@ class SubmissionFileSourceTest(
 
         if (enableFire) {
             val secondVersion = submissionRepository.getExtByAccNo("S-FSTST1")
-            val secondVersionReferencedFiles = submissionRepository.getReferencedFiles("S-FSTST1", "FileList")
+            val secondVersionReferencedFiles = submissionFilesRepository.getReferencedFiles("S-FSTST1", "FileList")
 
             val firstVersionFireId = (firstVersion.allSectionsFiles.first() as FireFile).fireId
             val secondVersionFireId = (secondVersion.allSectionsFiles.first() as FireFile).fireId
@@ -179,7 +181,7 @@ class SubmissionFileSourceTest(
         assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
 
         val persistedSubmission = submissionRepository.getExtByAccNo("S-FSTST2")
-        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-FSTST2", "FileList")
+        val firstVersionReferencedFiles = submissionFilesRepository.getReferencedFiles("S-FSTST2", "FileList")
         val subFilesPath = "$submissionPath/${persistedSubmission.relPath}/Files"
         val innerFile = Paths.get("$subFilesPath/File4.txt")
         val referencedFile = Paths.get("$subFilesPath/File3.txt")

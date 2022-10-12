@@ -13,26 +13,17 @@ import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepositor
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
-import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
-import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
-import ac.uk.ebi.biostd.persistence.doc.test.doc.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
-import arrow.core.Either.Companion.left
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import ebi.ac.uk.util.collections.second
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -65,11 +56,10 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as att
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmission
 
-@ExtendWith(MockKExtension::class, SpringExtension::class, TemporaryFolderExtension::class)
+@ExtendWith(MockKExtension::class, SpringExtension::class)
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 internal class SubmissionMongoQueryServiceTest(
-    private val tempFolder: TemporaryFolder,
     @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
     @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
@@ -79,37 +69,15 @@ internal class SubmissionMongoQueryServiceTest(
     private val testInstance =
         SubmissionMongoPersistenceQueryService(
             submissionRepo,
-            requestRepository,
-            fileListDocFileRepository,
-            serializationService,
             toExtSubmissionMapper,
+            serializationService,
+            requestRepository,
         )
 
     @AfterEach
     fun afterEach() {
         submissionRepo.deleteAll()
         fileListDocFileRepository.deleteAll()
-    }
-
-    @Nested
-    inner class ExpireSubmissions {
-        @Test
-        fun `expire submission`() {
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 1))
-            testInstance.expireSubmission("S-BSST1")
-
-            assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
-        }
-
-        @Test
-        fun `expire submissions`() {
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 1))
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST101", version = 1))
-            testInstance.expireSubmissions(listOf("S-BSST1", "S-BSST101"))
-
-            assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
-            assertThat(submissionRepo.findByAccNo("S-BSST101")).isNull()
-        }
     }
 
     @Nested
@@ -129,65 +97,6 @@ internal class SubmissionMongoQueryServiceTest(
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -1))
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -2))
             assertThat(submissionRepo.findByAccNo("S-BSST3")).isNull()
-        }
-    }
-
-    @Nested
-    inner class GetReferencedFiles {
-        private val fileReference = ObjectId()
-        private val referencedFile = tempFolder.createFile("referenced.txt")
-        private val fileListFile = FileListDocFile(
-            fileReference,
-            docSubmission.id,
-            NfsDocFile(
-                "referenced.txt",
-                "referenced.txt",
-                "referenced.txt",
-                referencedFile.absolutePath,
-                listOf(),
-                "test-md5",
-                1,
-                "file"
-            ),
-            fileListName = "test-file-list",
-            index = 1,
-            submissionVersion = docSubmission.version,
-            submissionAccNo = docSubmission.accNo
-        )
-        private val fileList = DocFileList("test-file-list")
-        private val submission =
-            docSubmission.copy(section = DocSection(id = ObjectId(), type = "Study", fileList = fileList))
-
-        @BeforeEach
-        fun beforeEach() {
-            submissionRepo.save(submission)
-            fileListDocFileRepository.save(fileListFile)
-        }
-
-        @Test
-        fun `get referenced files`() {
-            val files = testInstance.getReferencedFiles(SUB_ACC_NO, "test-file-list")
-            assertThat(files).hasSize(1)
-            assertThat((files.first() as NfsFile).file).isEqualTo(referencedFile)
-        }
-
-        @Test
-        fun `get referenced files for inner section`() {
-            val innerSection = DocSection(id = ObjectId(), type = "Experiment", fileList = fileList)
-            val rootSection = DocSection(id = ObjectId(), type = "Study", sections = listOf(left(innerSection)))
-            val innerSectionSubmission = docSubmission.copy(accNo = "S-REF1", section = rootSection)
-
-            submissionRepo.save(innerSectionSubmission)
-            fileListDocFileRepository.save(fileListFile.copy(submissionAccNo = innerSectionSubmission.accNo))
-
-            val files = testInstance.getReferencedFiles("S-REF1", "test-file-list")
-            assertThat(files).hasSize(1)
-            assertThat((files.first() as NfsFile).file).isEqualTo(referencedFile)
-        }
-
-        @Test
-        fun `non existing referenced files`() {
-            assertThat(testInstance.getReferencedFiles(SUB_ACC_NO, "non-existing-fileListName")).hasSize(0)
         }
     }
 
@@ -370,27 +279,27 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(result[0].accNo).isEqualTo("accNo1")
             assertThat(result[0].version).isEqualTo(2)
             assertThat(result[0].status).isEqualTo(PROCESSING)
-            assertThat(testInstance.hasActiveRequest("accNo1")).isTrue()
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo1", RequestStatus.PROCESSING)).isTrue()
 
             assertThat(result[1].accNo).isEqualTo("accNo2")
             assertThat(result[1].version).isEqualTo(2)
             assertThat(result[1].status).isEqualTo(PROCESSING)
-            assertThat(testInstance.hasActiveRequest("accNo2")).isTrue()
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo2", RequestStatus.PROCESSING)).isTrue()
 
             assertThat(result[2].accNo).isEqualTo("accNo3")
             assertThat(result[2].version).isEqualTo(2)
             assertThat(result[2].status).isEqualTo(PROCESSING)
-            assertThat(testInstance.hasActiveRequest("accNo3")).isTrue()
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo3", RequestStatus.PROCESSING)).isTrue()
 
             assertThat(result[3].accNo).isEqualTo("accNo4")
             assertThat(result[3].version).isEqualTo(2)
             assertThat(result[3].status).isEqualTo(PROCESSING)
-            assertThat(testInstance.hasActiveRequest("accNo4")).isTrue()
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo4", RequestStatus.PROCESSING)).isTrue()
 
             assertThat(result[4].accNo).isEqualTo("accNo5")
             assertThat(result[4].version).isEqualTo(1)
             assertThat(result[4].status).isEqualTo(PROCESSED)
-            assertThat(testInstance.hasActiveRequest("accNo5")).isFalse()
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo5", RequestStatus.PROCESSING)).isFalse()
         }
 
         @Test

@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.submitter.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
@@ -16,6 +17,7 @@ class SubmissionRequestReleaser(
     private val serializationService: ExtSerializationService,
     private val queryService: SubmissionPersistenceQueryService,
     private val persistenceService: SubmissionPersistenceService,
+    private val requestService: SubmissionRequestPersistenceService,
 ) {
     /**
      * Check the release status of the submission and release it if released flag is true.
@@ -23,7 +25,7 @@ class SubmissionRequestReleaser(
     fun checkReleased(accNo: String, version: Int): ExtSubmission {
         val sub = queryService.getExtByAccNoAndVersion(accNo, version, includeFileListFiles = true)
         if (sub.released) releaseSubmission(sub)
-        persistenceService.updateRequestStatus(sub.accNo, sub.version, PROCESSED)
+        requestService.updateRequestStatus(sub.accNo, sub.version, PROCESSED)
         return sub
     }
 
@@ -51,7 +53,7 @@ class SubmissionRequestReleaser(
             logger.info { "${sub.accNo}, ${sub.owner} Started publishing file $idx - ${file.filePath}" }
 
             fileStorageService.releaseSubmissionFile(file, sub.relPath, sub.storageMode)
-            persistenceService.updateRequestIndex(sub.accNo, sub.version, idx)
+            requestService.updateRequestIndex(sub.accNo, sub.version, idx)
 
             logger.info { "${sub.accNo}, ${sub.owner} Finished publishing file $idx - ${file.filePath}" }
         }

@@ -117,6 +117,18 @@ data class FileListDocFile(
     val submissionAccNo: String
 )
 
+@Document(collection = "submission_request_files")
+data class DocSubmissionRequestFile(
+    @Id
+    val id: ObjectId,
+    val index: Int,
+    val accNo: String,
+    val version: Int,
+    val path: String,
+    val file: DocFile,
+    val fileList: String?,
+)
+
 data class DocSectionTable(val sections: List<DocSectionTableRow>)
 data class DocLinkTable(val links: List<DocLink>)
 

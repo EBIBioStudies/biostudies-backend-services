@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
@@ -27,11 +27,11 @@ import java.time.ZoneOffset.UTC
 class SubmissionRequestCleanerTest(
     @MockK private val systemService: FileSystemService,
     @MockK private val queryService: SubmissionPersistenceQueryService,
-    @MockK private val persistenceService: SubmissionPersistenceService,
+    @MockK private val requestService: SubmissionRequestPersistenceService,
 ) {
     private val mockNow = OffsetDateTime.of(2022, 10, 5, 0, 0, 1, 0, UTC)
     private val testTime = OffsetDateTime.of(2022, 10, 5, 0, 0, 0, 0, UTC)
-    private val testInstance = SubmissionRequestCleaner(systemService, queryService, persistenceService)
+    private val testInstance = SubmissionRequestCleaner(systemService, queryService, requestService)
 
     @BeforeEach
     fun beforeEach() {
@@ -49,13 +49,13 @@ class SubmissionRequestCleanerTest(
     fun `clean current version`() {
         val submission = basicExtSubmission
         val cleanedRequestSlot = slot<SubmissionRequest>()
-        val loadedRequest = SubmissionRequest(submission, "TMP_123", LOADED, modificationTime = testTime)
+        val loadedRequest = SubmissionRequest(submission, "TMP_123", LOADED, 0, 0, modificationTime = testTime)
 
         every { systemService.cleanFolder(submission) } answers { nothing }
-        every { queryService.getLoadedRequest("S-BSST0", 1) } returns loadedRequest
+        every { requestService.getLoadedRequest("S-BSST0", 1) } returns loadedRequest
         every { queryService.findExtByAccNo("S-BSST0", includeFileListFiles = true) } returns submission
         every {
-            persistenceService.saveSubmissionRequest(capture(cleanedRequestSlot))
+            requestService.saveSubmissionRequest(capture(cleanedRequestSlot))
         } returns (submission.accNo to submission.version)
 
         testInstance.cleanCurrentVersion("S-BSST0", 1)
@@ -65,8 +65,8 @@ class SubmissionRequestCleanerTest(
         assertThat(cleanedRequest.modificationTime).isEqualTo(mockNow)
         verify(exactly = 1) {
             systemService.cleanFolder(submission)
-            queryService.getLoadedRequest("S-BSST0", 1)
-            persistenceService.saveSubmissionRequest(cleanedRequest)
+            requestService.getLoadedRequest("S-BSST0", 1)
+            requestService.saveSubmissionRequest(cleanedRequest)
             queryService.findExtByAccNo("S-BSST0", includeFileListFiles = true)
         }
     }
@@ -75,12 +75,12 @@ class SubmissionRequestCleanerTest(
     fun `clean current version when no previous version is found`() {
         val submission = basicExtSubmission
         val cleanedRequestSlot = slot<SubmissionRequest>()
-        val loadedRequest = SubmissionRequest(submission, "TMP_123", LOADED, modificationTime = testTime)
+        val loadedRequest = SubmissionRequest(submission, "TMP_123", LOADED, 0, 0, modificationTime = testTime)
 
-        every { queryService.getLoadedRequest("S-BSST0", 1) } returns loadedRequest
+        every { requestService.getLoadedRequest("S-BSST0", 1) } returns loadedRequest
         every { queryService.findExtByAccNo("S-BSST0", includeFileListFiles = true) } returns null
         every {
-            persistenceService.saveSubmissionRequest(capture(cleanedRequestSlot))
+            requestService.saveSubmissionRequest(capture(cleanedRequestSlot))
         } returns (submission.accNo to submission.version)
 
         testInstance.cleanCurrentVersion("S-BSST0", 1)
@@ -90,8 +90,8 @@ class SubmissionRequestCleanerTest(
         assertThat(cleanedRequest.modificationTime).isEqualTo(mockNow)
         verify(exactly = 0) { systemService.cleanFolder(any()) }
         verify(exactly = 1) {
-            queryService.getLoadedRequest("S-BSST0", 1)
-            persistenceService.saveSubmissionRequest(cleanedRequest)
+            requestService.getLoadedRequest("S-BSST0", 1)
+            requestService.saveSubmissionRequest(cleanedRequest)
             queryService.findExtByAccNo("S-BSST0", includeFileListFiles = true)
         }
     }

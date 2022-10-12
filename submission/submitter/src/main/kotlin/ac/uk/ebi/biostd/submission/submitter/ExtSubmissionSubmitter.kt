@@ -6,8 +6,8 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
@@ -17,7 +17,7 @@ import java.time.OffsetDateTime
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class ExtSubmissionSubmitter(
-    private val queryService: SubmissionPersistenceQueryService,
+    private val requestService: SubmissionRequestPersistenceService,
     private val persistenceService: SubmissionPersistenceService,
     private val requestLoader: SubmissionRequestLoader,
     private val requestProcessor: SubmissionRequestProcessor,
@@ -26,9 +26,16 @@ class ExtSubmissionSubmitter(
 ) {
     fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
         val submission = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
-        val request = SubmissionRequest(submission, rqt.draftKey, REQUESTED, modificationTime = OffsetDateTime.now())
+        val request = SubmissionRequest(
+            submission,
+            rqt.draftKey,
+            status = REQUESTED,
+            totalFiles = 0,
+            currentIndex = 0,
+            modificationTime = OffsetDateTime.now(),
+        )
 
-        return persistenceService.createSubmissionRequest(request)
+        return requestService.createSubmissionRequest(request)
     }
 
     fun loadRequest(accNo: String, version: Int): ExtSubmission = requestLoader.loadRequest(accNo, version)
@@ -42,7 +49,7 @@ class ExtSubmissionSubmitter(
     fun release(accNo: String) = requestReleaser.releaseSubmission(accNo)
 
     fun handleRequest(accNo: String, version: Int): ExtSubmission {
-        return when (queryService.getRequestStatus(accNo, version)) {
+        return when (requestService.getRequestStatus(accNo, version)) {
             REQUESTED -> completeRequest(accNo, version)
             LOADED -> processRequestFiles(accNo, version)
             CLEANED -> processCleanedFiles(accNo, version)

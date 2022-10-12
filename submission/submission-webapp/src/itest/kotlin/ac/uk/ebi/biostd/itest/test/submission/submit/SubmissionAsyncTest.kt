@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
@@ -37,6 +38,7 @@ import java.time.Duration.ofSeconds
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionAsyncTest(
     @Autowired val securityTestService: SecurityTestService,
+    @Autowired val requestRepository: SubmissionRequestPersistenceService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
     @Autowired val extSubmissionSubmitter: ExtSubmissionSubmitter,
@@ -95,23 +97,23 @@ class SubmissionAsyncTest(
         val extSubmitRequest = ExtSubmitRequest(extSubmission)
 
         extSubmissionSubmitter.createRequest(extSubmitRequest)
-        val statusAfterCreation = submissionRepository.getRequestStatus("SimpleAsync2", 2)
+        val statusAfterCreation = requestRepository.getRequestStatus("SimpleAsync2", 2)
         assertThat(statusAfterCreation).isEqualTo(REQUESTED)
 
         extSubmissionSubmitter.loadRequest("SimpleAsync2", 2)
-        val statusAfterLoading = submissionRepository.getRequestStatus("SimpleAsync2", 2)
+        val statusAfterLoading = requestRepository.getRequestStatus("SimpleAsync2", 2)
         assertThat(statusAfterLoading).isEqualTo(LOADED)
 
         extSubmissionSubmitter.cleanRequest("SimpleAsync2", 2)
-        val statusAfterCleaning = submissionRepository.getRequestStatus("SimpleAsync2", 2)
+        val statusAfterCleaning = requestRepository.getRequestStatus("SimpleAsync2", 2)
         assertThat(statusAfterCleaning).isEqualTo(CLEANED)
 
         extSubmissionSubmitter.processRequest("SimpleAsync2", 2)
-        val statusAfterProcessing = submissionRepository.getRequestStatus("SimpleAsync2", 2)
+        val statusAfterProcessing = requestRepository.getRequestStatus("SimpleAsync2", 2)
         assertThat(statusAfterProcessing).isEqualTo(FILES_COPIED)
 
         extSubmissionSubmitter.checkReleased("SimpleAsync2", 2)
-        val statusAfterReleasing = submissionRepository.getRequestStatus("SimpleAsync2", 2)
+        val statusAfterReleasing = requestRepository.getRequestStatus("SimpleAsync2", 2)
         assertThat(statusAfterReleasing).isEqualTo(PROCESSED)
 
         assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", 1)).isFalse()

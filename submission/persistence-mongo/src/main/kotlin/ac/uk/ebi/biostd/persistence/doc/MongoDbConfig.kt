@@ -79,6 +79,7 @@ class MongoDbConfig(
         converters.add(docSubmissionConverter())
         converters.add(submissionConverter())
         converters.add(FileConverter(AttributeConverter()))
+        converters.add(DocFileConverter(DocAttributeConverter()))
         converters.add(FileListDocFileConverter(FileConverter(AttributeConverter())))
         converters.add(DocFileListDocFileConverter(DocFileConverter(DocAttributeConverter())))
         return MongoCustomConversions(converters)

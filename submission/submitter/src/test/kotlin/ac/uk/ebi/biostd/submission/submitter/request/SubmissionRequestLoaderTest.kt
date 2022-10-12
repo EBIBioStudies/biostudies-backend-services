@@ -2,8 +2,7 @@ package ac.uk.ebi.biostd.submission.submitter.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtFile
@@ -33,19 +32,12 @@ import java.time.ZoneOffset
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestLoaderTest(
     private val tempFolder: TemporaryFolder,
-    @MockK private val queryService: SubmissionPersistenceQueryService,
-    @MockK private val persistenceService: SubmissionPersistenceService,
-    @MockK private val fileProcessingService: FileProcessingService,
     @MockK private val pageTabService: PageTabService,
+    @MockK private val fileProcessingService: FileProcessingService,
+    @MockK private val requestService: SubmissionRequestPersistenceService,
 ) {
     private val mockNow = OffsetDateTime.of(2022, 10, 5, 0, 0, 1, 0, ZoneOffset.UTC)
-    private val testInstance =
-        SubmissionRequestLoader(
-            queryService,
-            persistenceService,
-            fileProcessingService,
-            pageTabService,
-        )
+    private val testInstance = SubmissionRequestLoader(requestService, fileProcessingService, pageTabService)
 
     @BeforeEach
     fun beforeEach() {
@@ -70,11 +62,11 @@ class SubmissionRequestLoaderTest(
         every { pendingRequest.submission } returns sub
         every { pendingRequest.draftKey } returns "TMP_123"
         every { pageTabService.generatePageTab(sub) } returns sub
-        every { queryService.getPendingRequest(sub.accNo, sub.version) } returns pendingRequest
-        every { persistenceService.updateRequestTotalFiles(sub.accNo, sub.version, 1) } answers { nothing }
-        every { persistenceService.updateRequestIndex(sub.accNo, sub.version, 1) } answers { nothing }
+        every { requestService.getPendingRequest(sub.accNo, sub.version) } returns pendingRequest
+        every { requestService.updateRequestTotalFiles(sub.accNo, sub.version, 1) } answers { nothing }
+        every { requestService.updateRequestIndex(sub.accNo, sub.version, 1) } answers { nothing }
         every {
-            persistenceService.saveSubmissionRequest(capture(loadedRequestSlot))
+            requestService.saveSubmissionRequest(capture(loadedRequestSlot))
         } returns (sub.accNo to sub.version)
         every { fileProcessingService.processFiles(sub, any()) } answers {
             val function: (file: ExtFile, index: Int) -> ExtFile = secondArg()
@@ -97,9 +89,9 @@ class SubmissionRequestLoaderTest(
 
         verify(exactly = 1) {
             pageTabService.generatePageTab(sub)
-            persistenceService.saveSubmissionRequest(loadedRequest)
-            persistenceService.updateRequestIndex(sub.accNo, sub.version, 1)
-            persistenceService.updateRequestTotalFiles(sub.accNo, sub.version, 1)
+            requestService.saveSubmissionRequest(loadedRequest)
+            requestService.updateRequestIndex(sub.accNo, sub.version, 1)
+            requestService.updateRequestTotalFiles(sub.accNo, sub.version, 1)
         }
     }
 }

@@ -2,8 +2,7 @@ package ac.uk.ebi.biostd.submission.submitter.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -19,8 +18,7 @@ import java.time.OffsetDateTime
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestLoader(
-    private val queryService: SubmissionPersistenceQueryService,
-    private val persistenceService: SubmissionPersistenceService,
+    private val requestService: SubmissionRequestPersistenceService,
     private val fileProcessingService: FileProcessingService,
     private val pageTabService: PageTabService,
 ) {
@@ -32,7 +30,7 @@ class SubmissionRequestLoader(
     fun loadRequest(accNo: String, version: Int): ExtSubmission {
         logger.info { "Started loading pending request accNo='$accNo', version='$version'" }
 
-        val original = queryService.getPendingRequest(accNo, version)
+        val original = requestService.getPendingRequest(accNo, version)
         val owner = original.submission.owner
 
         logger.info { "Finished loading pending request accNo='$accNo', version='$version'" }
@@ -51,8 +49,8 @@ class SubmissionRequestLoader(
             modificationTime = OffsetDateTime.now()
         )
 
-        persistenceService.saveSubmissionRequest(loadedRequest)
-        persistenceService.updateRequestTotalFiles(accNo, version, totalFiles)
+        requestService.saveSubmissionRequest(loadedRequest)
+        requestService.updateRequestTotalFiles(accNo, version, totalFiles)
 
         logger.info { "$accNo $owner Finished loading submission files" }
 
@@ -74,7 +72,7 @@ class SubmissionRequestLoader(
         logger.info { "${sub.accNo} ${sub.owner} Started loading file $index, path='${file.filePath}'" }
 
         val loadedFile = loadFileAttributes(file)
-        persistenceService.updateRequestIndex(sub.accNo, sub.version, index)
+        requestService.updateRequestIndex(sub.accNo, sub.version, index)
 
         logger.info { "${sub.accNo} ${sub.owner} Finished loading file $index, path='${file.filePath}'" }
 

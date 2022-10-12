@@ -5,8 +5,8 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 internal class ExtSubmissionSubmitterTest(
-    @MockK private val queryService: SubmissionPersistenceQueryService,
+    @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val persistenceService: SubmissionPersistenceService,
     @MockK private val requestLoader: SubmissionRequestLoader,
     @MockK private val requestProcessor: SubmissionRequestProcessor,
@@ -34,7 +34,7 @@ internal class ExtSubmissionSubmitterTest(
     @MockK private val requestCleaner: SubmissionRequestCleaner,
 ) {
     private val testInstance = ExtSubmissionSubmitter(
-        queryService,
+        requestService,
         persistenceService,
         requestLoader,
         requestProcessor,
@@ -48,8 +48,10 @@ internal class ExtSubmissionSubmitterTest(
     @Nested
     inner class HandleRequest {
         @Test
-        fun `when requested`(@MockK sub: ExtSubmission) {
-            every { queryService.getRequestStatus("accNo", 1) } returns REQUESTED
+        fun `when requested`(
+            @MockK sub: ExtSubmission
+        ) {
+            every { requestService.getRequestStatus("accNo", 1) } returns REQUESTED
             every { requestLoader.loadRequest("accNo", 1) } returns sub
             every { requestProcessor.processRequest("accNo", 1) } returns sub
             every { requestReleaser.checkReleased("accNo", 1) } returns sub
@@ -59,7 +61,7 @@ internal class ExtSubmissionSubmitterTest(
 
             assertThat(result).isEqualTo(sub)
             verify(exactly = 1) {
-                queryService.getRequestStatus("accNo", 1)
+                requestService.getRequestStatus("accNo", 1)
                 requestLoader.loadRequest("accNo", 1)
                 requestCleaner.cleanCurrentVersion("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)
@@ -68,8 +70,10 @@ internal class ExtSubmissionSubmitterTest(
         }
 
         @Test
-        fun `when loaded`(@MockK sub: ExtSubmission) {
-            every { queryService.getRequestStatus("accNo", 1) } returns LOADED
+        fun `when loaded`(
+            @MockK sub: ExtSubmission
+        ) {
+            every { requestService.getRequestStatus("accNo", 1) } returns LOADED
             every { requestProcessor.processRequest("accNo", 1) } returns sub
             every { requestReleaser.checkReleased("accNo", 1) } returns sub
             every { requestCleaner.cleanCurrentVersion("accNo", 1) } answers { nothing }
@@ -78,7 +82,7 @@ internal class ExtSubmissionSubmitterTest(
 
             assertThat(result).isEqualTo(sub)
             verify(exactly = 1) {
-                queryService.getRequestStatus("accNo", 1)
+                requestService.getRequestStatus("accNo", 1)
                 requestCleaner.cleanCurrentVersion("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
@@ -89,8 +93,10 @@ internal class ExtSubmissionSubmitterTest(
         }
 
         @Test
-        fun `when cleaned`(@MockK sub: ExtSubmission) {
-            every { queryService.getRequestStatus("accNo", 1) } returns CLEANED
+        fun `when cleaned`(
+            @MockK sub: ExtSubmission
+        ) {
+            every { requestService.getRequestStatus("accNo", 1) } returns CLEANED
             every { requestProcessor.processRequest("accNo", 1) } returns sub
             every { requestReleaser.checkReleased("accNo", 1) } returns sub
 
@@ -98,7 +104,7 @@ internal class ExtSubmissionSubmitterTest(
 
             assertThat(result).isEqualTo(sub)
             verify(exactly = 1) {
-                queryService.getRequestStatus("accNo", 1)
+                requestService.getRequestStatus("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
             }
@@ -109,15 +115,17 @@ internal class ExtSubmissionSubmitterTest(
         }
 
         @Test
-        fun `when files copied`(@MockK sub: ExtSubmission) {
-            every { queryService.getRequestStatus("accNo", 1) } returns FILES_COPIED
+        fun `when files copied`(
+            @MockK sub: ExtSubmission
+        ) {
+            every { requestService.getRequestStatus("accNo", 1) } returns FILES_COPIED
             every { requestReleaser.checkReleased("accNo", 1) } returns sub
 
             val result = testInstance.handleRequest("accNo", 1)
 
             assertThat(result).isEqualTo(sub)
             verify(exactly = 1) {
-                queryService.getRequestStatus("accNo", 1)
+                requestService.getRequestStatus("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
             }
             verify(exactly = 0) {
@@ -129,12 +137,12 @@ internal class ExtSubmissionSubmitterTest(
 
         @Test
         fun `when already completed`() {
-            every { queryService.getRequestStatus("accNo", 1) } returns PROCESSED
+            every { requestService.getRequestStatus("accNo", 1) } returns PROCESSED
 
             assertThrows<IllegalStateException> { testInstance.handleRequest("accNo", 1) }
 
             verify(exactly = 1) {
-                queryService.getRequestStatus("accNo", 1)
+                requestService.getRequestStatus("accNo", 1)
             }
             verify(exactly = 0) {
                 requestLoader.loadRequest("accNo", 1)
