@@ -12,7 +12,9 @@ import com.mongodb.BasicDBObject
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
+import java.time.ZoneOffset.UTC
 
+@Suppress("TooManyFunctions")
 class SubmissionRequestMongoPersistenceService(
     private val serializationService: ExtSerializationService,
     private val requestRepository: SubmissionRequestDocDataRepository,
@@ -33,6 +35,14 @@ class SubmissionRequestMongoPersistenceService(
 
     override fun updateRequestStatus(accNo: String, version: Int, status: RequestStatus) {
         requestRepository.updateStatus(status, accNo, version)
+    }
+
+    override fun updateRequestIndex(accNo: String, version: Int, index: Int) {
+        requestRepository.updateIndex(accNo, version, index)
+    }
+
+    override fun updateRequestTotalFiles(accNo: String, version: Int, totalFiles: Int) {
+        requestRepository.updateTotalFiles(accNo, version, totalFiles)
     }
 
     override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
@@ -60,6 +70,9 @@ class SubmissionRequestMongoPersistenceService(
             draftKey = rqt.draftKey,
             status = rqt.status,
             submission = BasicDBObject.parse(content),
+            totalFiles = rqt.totalFiles,
+            currentIndex = rqt.currentIndex,
+            modificationTime = rqt.modificationTime.toInstant(),
         )
     }
 
@@ -67,6 +80,13 @@ class SubmissionRequestMongoPersistenceService(
         val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, status)
         val stored = serializationService.deserialize(request.submission.toString())
 
-        return SubmissionRequest(submission = stored, draftKey = request.draftKey, request.status)
+        return SubmissionRequest(
+            submission = stored,
+            draftKey = request.draftKey,
+            request.status,
+            request.totalFiles,
+            request.currentIndex,
+            request.modificationTime.atOffset(UTC),
+        )
     }
 }

@@ -1,42 +1,83 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.allPageTabFiles
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
+import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestLoader(
     private val requestService: SubmissionRequestPersistenceService,
     private val fileProcessingService: FileProcessingService,
-    private val storageService: FileStorageService,
+    private val pageTabService: PageTabService,
 ) {
     /**
-     * Calculate md5 and size for every file in submission request.
+     * - Calculate md5 and size for every file in submission request.
+     * - Calculate the total number of files in the submission
+     * - Generate submission pagetab
      */
     fun loadRequest(accNo: String, version: Int): ExtSubmission {
-        logger.info { "Started loading request accNo='$accNo', version='$version'" }
+        logger.info { "Started loading pending request accNo='$accNo', version='$version'" }
+
         val original = requestService.getPendingRequest(accNo, version)
-        val processed = processRequest(original.submission)
-        val withTabFiles = storageService.generatePageTab(processed)
-        requestService.saveSubmissionRequest(original.copy(status = LOADED, submission = withTabFiles))
-        logger.info { "Finished loading request accNo='$accNo', version='$version'" }
+        val owner = original.submission.owner
+
+        logger.info { "Finished loading pending request accNo='$accNo', version='$version'" }
+
+        logger.info { "$accNo $owner Started loading submission files" }
+
+        val (loaded, subTotalFiles) = processRequest(original.submission)
+        val withTabFiles = pageTabService.generatePageTab(loaded)
+        val totalFiles = subTotalFiles + withTabFiles.allPageTabFiles.size
+        val loadedRequest = SubmissionRequest(
+            withTabFiles,
+            original.draftKey,
+            LOADED,
+            totalFiles,
+            currentIndex = 0,
+            modificationTime = OffsetDateTime.now()
+        )
+
+        requestService.saveSubmissionRequest(loadedRequest)
+        requestService.updateRequestTotalFiles(accNo, version, totalFiles)
+
+        logger.info { "$accNo $owner Finished loading submission files" }
+
         return withTabFiles
     }
 
-    private fun processRequest(sub: ExtSubmission): ExtSubmission =
-        fileProcessingService.processFiles(sub) { file, index ->
-            logger.debug { "${sub.accNo}, ${sub.version} Loading file $index, path='${file.filePath}'" }
-            loadFileAttributes(file)
+    private fun processRequest(sub: ExtSubmission): Pair<ExtSubmission, Int> {
+        var totalFiles = 0
+
+        val loadedSubmission = fileProcessingService.processFiles(sub) { file, index ->
+            totalFiles++
+            processFile(sub, file, index)
         }
+
+        return loadedSubmission to totalFiles
+    }
+
+    private fun processFile(sub: ExtSubmission, file: ExtFile, index: Int): ExtFile {
+        logger.info { "${sub.accNo} ${sub.owner} Started loading file $index, path='${file.filePath}'" }
+
+        val loadedFile = loadFileAttributes(file)
+        requestService.updateRequestIndex(sub.accNo, sub.version, index)
+
+        logger.info { "${sub.accNo} ${sub.owner} Finished loading file $index, path='${file.filePath}'" }
+
+        return loadedFile
+    }
 
     private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {
         is FireFile -> file

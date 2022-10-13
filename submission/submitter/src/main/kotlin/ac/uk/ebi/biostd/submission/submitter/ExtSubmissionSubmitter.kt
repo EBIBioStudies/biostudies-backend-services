@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ebi.ac.uk.extended.model.ExtSubmission
+import java.time.OffsetDateTime
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class ExtSubmissionSubmitter(
@@ -25,7 +26,14 @@ class ExtSubmissionSubmitter(
 ) {
     fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
         val submission = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
-        val request = SubmissionRequest(submission, rqt.draftKey, REQUESTED)
+        val request = SubmissionRequest(
+            submission,
+            rqt.draftKey,
+            status = REQUESTED,
+            totalFiles = 0,
+            currentIndex = 0,
+            modificationTime = OffsetDateTime.now(),
+        )
 
         return requestService.createSubmissionRequest(request)
     }

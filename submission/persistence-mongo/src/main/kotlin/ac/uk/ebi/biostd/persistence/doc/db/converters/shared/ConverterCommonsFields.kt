@@ -141,3 +141,9 @@ object DocSubmissionFields {
     const val PAGE_TAB_FILES = "pageTabFiles"
     const val STORAGE_MODE = "storageMode"
 }
+
+object DocRequestFields {
+    const val RQT_IDX = "currentIndex"
+    const val RQT_TOTAL_FILES = "totalFiles"
+    const val RQT_MODIFICATION_TIME = "modificationTime"
+}

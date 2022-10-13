@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
+import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
@@ -29,7 +30,14 @@ class SubmissionRequestProcessor(
         storageService.postProcessSubmissionFiles(sub)
         persistenceService.expirePreviousVersions(sub.accNo)
         persistenceService.saveSubmission(processed)
-        requestService.saveSubmissionRequest(request.copy(status = FILES_COPIED, submission = processed))
+
+        val processedRequest = request.copy(
+            status = FILES_COPIED,
+            submission = processed,
+            currentIndex = 0,
+            modificationTime = OffsetDateTime.now(),
+        )
+        requestService.saveSubmissionRequest(processedRequest)
 
         logger.info { "$accNo ${sub.owner} Finished persisting submission files on ${sub.storageMode}" }
 
@@ -38,7 +46,13 @@ class SubmissionRequestProcessor(
 
     private fun persistSubmissionFiles(sub: ExtSubmission) =
         fileProcessingService.processFiles(sub) { file, idx ->
-            logger.info { "${sub.accNo} ${sub.owner} Persisting file $idx, path='${file.filePath}'" }
-            storageService.persistSubmissionFile(sub, file)
+            logger.info { "${sub.accNo} ${sub.owner} Started persisting file $idx, path='${file.filePath}'" }
+
+            val persisted = storageService.persistSubmissionFile(sub, file)
+            requestService.updateRequestIndex(sub.accNo, sub.version, idx)
+
+            logger.info { "${sub.accNo} ${sub.owner} Finished persisting file $idx, path='${file.filePath}'" }
+
+            persisted
         }
 }

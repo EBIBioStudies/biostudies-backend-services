@@ -47,6 +47,7 @@ import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Duration.ofSeconds
+import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED as REQUEST_PROCESSED
@@ -346,6 +347,9 @@ internal class SubmissionMongoQueryServiceTest(
             status = status,
             draftKey = null,
             submission = BasicDBObject.parse(serializationService.serialize(submission)),
+            totalFiles = 6,
+            currentIndex = 0,
+            modificationTime = Instant.now()
         )
     }
 

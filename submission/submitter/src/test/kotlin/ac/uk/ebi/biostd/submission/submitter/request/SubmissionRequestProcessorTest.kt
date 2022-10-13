@@ -17,12 +17,18 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockkStatic
 import io.mockk.slot
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
+import java.time.OffsetDateTime
+import java.time.ZoneOffset.UTC
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestProcessorTest(
@@ -32,6 +38,8 @@ class SubmissionRequestProcessorTest(
     @MockK private val persistenceService: SubmissionPersistenceService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
 ) {
+    private val mockNow = OffsetDateTime.of(2022, 10, 5, 0, 0, 1, 0, UTC)
+    private val testTime = OffsetDateTime.of(2022, 10, 5, 0, 0, 0, 0, UTC)
     private val testInstance =
         SubmissionRequestProcessor(
             storageService,
@@ -40,11 +48,22 @@ class SubmissionRequestProcessorTest(
             requestService,
         )
 
+    @BeforeEach
+    fun beforeEach() {
+        mockkStatic(OffsetDateTime::class)
+        every { OffsetDateTime.now() } returns mockNow
+    }
+
+    @AfterEach
+    fun afterEach() {
+        unmockkStatic(OffsetDateTime::class)
+    }
+
     @Test
     fun `process request`() {
         val submission = basicExtSubmission
         val processedRequestSlot = slot<SubmissionRequest>()
-        val cleanedRequest = SubmissionRequest(submission, "TMP_123", CLEANED)
+        val cleanedRequest = SubmissionRequest(submission, "TMP_123", CLEANED, 0, 0, modificationTime = testTime)
         val fireFile = FireFile("test.txt", "Files/test.txt", "abc1", "md5", 1, FILE, emptyList())
         val nfsFile = createNfsFile("dummy.txt", "Files/dummy.txt", tempFolder.createFile("dummy.txt"))
         val processed = submission.copy(section = submission.section.copy(files = listOf(Either.left(fireFile))))
@@ -54,6 +73,7 @@ class SubmissionRequestProcessorTest(
         every { storageService.persistSubmissionFile(submission, nfsFile) } returns fireFile
         every { requestService.getCleanedRequest(submission.accNo, 1) } returns cleanedRequest
         every { persistenceService.expirePreviousVersions(submission.accNo) } answers { nothing }
+        every { requestService.updateRequestIndex(submission.accNo, submission.version, 1) } answers { nothing }
         every {
             requestService.saveSubmissionRequest(capture(processedRequestSlot))
         } returns (submission.accNo to submission.version)
@@ -68,6 +88,7 @@ class SubmissionRequestProcessorTest(
 
         assertThat(result).isEqualTo(processed)
         assertThat(processedRequest.status).isEqualTo(FILES_COPIED)
+        assertThat(processedRequest.modificationTime).isEqualTo(mockNow)
         verify(exactly = 1) {
             storageService.persistSubmissionFile(submission, nfsFile)
             storageService.postProcessSubmissionFiles(submission)

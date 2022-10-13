@@ -58,6 +58,10 @@ interface SubmissionRequestPersistenceService {
 
     fun updateRequestStatus(accNo: String, version: Int, status: RequestStatus)
 
+    fun updateRequestIndex(accNo: String, version: Int, index: Int)
+
+    fun updateRequestTotalFiles(accNo: String, version: Int, totalFiles: Int)
+
     fun getPendingRequest(accNo: String, version: Int): SubmissionRequest
 
     fun getLoadedRequest(accNo: String, version: Int): SubmissionRequest

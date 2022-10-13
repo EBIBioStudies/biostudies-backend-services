@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
@@ -52,8 +53,8 @@ class SubmitterConfig {
     fun requestLoader(
         requestService: SubmissionRequestPersistenceService,
         fileProcessingService: FileProcessingService,
-        storageService: FileStorageService,
-    ): SubmissionRequestLoader = SubmissionRequestLoader(requestService, fileProcessingService, storageService)
+        pageTabService: PageTabService
+    ): SubmissionRequestLoader = SubmissionRequestLoader(requestService, fileProcessingService, pageTabService)
 
     @Bean
     fun requestProcessor(

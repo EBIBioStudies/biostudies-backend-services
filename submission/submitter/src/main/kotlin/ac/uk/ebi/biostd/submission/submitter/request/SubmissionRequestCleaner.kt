@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import mu.KotlinLogging
+import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
@@ -23,6 +24,7 @@ class SubmissionRequestCleaner(
             logger.info { "${sub.accNo} ${sub.owner} Finished cleaning files of version ${sub.version}" }
         }
 
-        requestService.saveSubmissionRequest(request.copy(status = CLEANED))
+        val cleanedRequest = request.copy(status = CLEANED, modificationTime = OffsetDateTime.now())
+        requestService.saveSubmissionRequest(cleanedRequest)
     }
 }
