@@ -25,7 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class ToFileTest(
     @MockK val extAttribute: ExtAttribute,
     @MockK val attribute: Attribute,
-    tempFolder: TemporaryFolder
+    tempFolder: TemporaryFolder,
 ) {
     private var file = tempFolder.createFile("myFile", "test content")
     private val md5 = file.md5()
@@ -54,8 +54,17 @@ internal class ToFileTest(
 
     @Test
     fun `from fire file`() {
-        val fireFile = FireFile("folder/myFile", "Files/folder/myFile", "fireId", md5, 12, FILE, listOf(extAttribute))
-        assertFile(fireFile.toFile())
+        val file = FireFile(
+            fireId = "fireId",
+            firePath = "firePath",
+            filePath = "folder/myFile",
+            relPath = "Files/folder/myFile",
+            md5 = md5,
+            size = 12,
+            type = FILE,
+            attributes = listOf(extAttribute)
+        )
+        assertFile(file.toFile())
     }
 
     private fun assertFile(file: BioFile) {

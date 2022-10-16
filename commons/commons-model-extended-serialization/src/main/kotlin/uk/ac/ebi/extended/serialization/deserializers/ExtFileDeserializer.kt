@@ -15,6 +15,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBU
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYPE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILEPATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_ID
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FULL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_MD5
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_REL_PATH
@@ -23,6 +24,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_TY
 import uk.ac.ebi.extended.serialization.constants.ExtType
 import uk.ac.ebi.extended.serialization.exception.InvalidExtTypeException
 import uk.ac.ebi.serialization.extensions.convertOrDefault
+import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 import java.nio.file.Paths
 
@@ -40,9 +42,10 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
 
     private fun fireFile(node: JsonNode, mapper: ObjectMapper): FireFile =
         FireFile(
+            fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
+            firePath = node.findNode<TextNode>(FILE_FIRE_PATH)?.textValue(),
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
-            fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<NumericNode>(FILE_SIZE).longValue(),
             type = ExtFileType.fromString(node.getNode<TextNode>(FILE_TYPE).textValue()),

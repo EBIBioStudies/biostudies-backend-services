@@ -57,9 +57,11 @@ class MongoDbServicesConfig {
 
     @Bean
     internal fun submissionFilesPersistenceService(
+        submissionDocDataRepository: SubmissionDocDataRepository,
         fileListDocFileRepository: FileListDocFileRepository,
         submissionFilesRepository: SubmissionFilesRepository,
     ): SubmissionFilesPersistenceService = SubmissionFilesMongoPersistenceService(
+        submissionDocDataRepository,
         fileListDocFileRepository,
         submissionFilesRepository,
     )

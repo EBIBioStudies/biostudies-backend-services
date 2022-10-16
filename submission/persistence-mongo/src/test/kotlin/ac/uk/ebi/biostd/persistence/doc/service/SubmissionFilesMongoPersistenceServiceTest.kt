@@ -47,6 +47,7 @@ class SubmissionFilesMongoPersistenceServiceTest(
 ) {
     private val testInstance =
         SubmissionFilesMongoPersistenceService(
+            submissionRepo,
             fileListDocFileRepository,
             submissionFilesRepository,
         )

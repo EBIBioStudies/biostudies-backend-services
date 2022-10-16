@@ -21,13 +21,21 @@ class ToExtFileListMapper(
         fileList: DocFileList,
         subAccNo: String,
         subVersion: Int,
+        subRelPath: String,
         includeFileListFiles: Boolean,
     ): ExtFileList {
-        val files = if (includeFileListFiles) getFiles(subAccNo, subVersion, fileList.fileName) else emptySequence()
+        fun fileListFiles(): Sequence<ExtFile> {
+            return fileListDocFileRepository
+                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(subAccNo, subVersion, fileList.fileName)
+                .map { it.file.toExtFile(subRelPath) }
+                .asSequence()
+        }
+
+        val files = if (includeFileListFiles) fileListFiles() else emptySequence()
         return ExtFileList(
             filePath = fileList.fileName,
             file = writeFile(subAccNo, subVersion, fileList.fileName, files),
-            pageTabFiles = fileList.pageTabFiles.map { it.toExtFile() }
+            pageTabFiles = fileList.pageTabFiles.map { it.toExtFile(subRelPath) }
         )
     }
 
@@ -35,12 +43,5 @@ class ToExtFileListMapper(
         val file = extFilesResolver.createExtEmptyFile(subAccNo, subVersion, fileListName)
         file.outputStream().use { serializationService.serialize(files, it) }
         return file
-    }
-
-    private fun getFiles(subAccNo: String, subVersion: Int, fileListName: String): Sequence<ExtFile> {
-        return fileListDocFileRepository
-            .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(subAccNo, subVersion, fileListName)
-            .map { it.file.toExtFile() }
-            .asSequence()
     }
 }

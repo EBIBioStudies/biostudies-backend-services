@@ -33,26 +33,26 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `nfsDocFile to ext file`() {
-        val extFile = testNfsDocFile.toExtFile()
+        val extFile = testNfsDocFile.toExtFile(SUB_REL_PATH)
         assertExtFile(extFile, testFile)
     }
 
     @Test
     fun `fireDocFile to ext file`() {
-        val extFile = fireDocFile.toExtFile()
+        val extFile = fireDocFile.toExtFile(SUB_REL_PATH)
         assertExtFile(extFile, testFile)
     }
 
     @Test
     fun `fire directory to ext file`() {
-        val extFile = fireDocDirectory.toExtFile() as FireFile
+        val extFile = fireDocDirectory.toExtFile(SUB_REL_PATH) as FireFile
         assertFireDirectory(extFile)
     }
 
     @Test
     fun `to ext file table`() {
         val docFilesTable = DocFileTable(listOf(testNfsDocFile, fireDocFile))
-        val extFilesTable = docFilesTable.toExtFileTable()
+        val extFilesTable = docFilesTable.toExtFileTable(SUB_REL_PATH)
 
         assertThat(extFilesTable.files).hasSize(2)
         assertExtFile(extFilesTable.files.first(), testFile)
@@ -63,7 +63,7 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
     fun `to ext files`() {
         val docFilesTable = DocFileTable(listOf(testNfsDocFile, fireDocFile))
         val docFiles = listOf(left(testNfsDocFile), left(testNfsDocFile), right(docFilesTable))
-        val extFiles = docFiles.map { it.toExtFiles() }
+        val extFiles = docFiles.map { it.toExtFiles(SUB_REL_PATH) }
 
         assertThat(extFiles).hasSize(3)
         extFiles.first().ifLeft { assertExtFile(it, testFile) }
@@ -73,5 +73,9 @@ class ToExtFileTest(temporaryFolder: TemporaryFolder) {
             assertExtFile(it.files.first(), testFile)
             assertExtFile(it.files.second(), testFile)
         }
+    }
+
+    companion object {
+        private const val SUB_REL_PATH = "SubRelPath"
     }
 }

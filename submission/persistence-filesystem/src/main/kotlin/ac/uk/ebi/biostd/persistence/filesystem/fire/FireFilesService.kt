@@ -13,6 +13,7 @@ import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.forEachFile
 import uk.ac.ebi.fire.client.integration.web.FireClient
+import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 import java.nio.file.Files
 
@@ -37,6 +38,7 @@ class FireFilesService(
                 val downloadFile = { client.downloadByFireId(file.fireId, file.fileName) }
                 reuseOrPersistFireFile(file, sub.relPath, downloadFile)
             }
+
             is NfsFile -> {
                 val nfsFile = if (file.type == FILE) file else asCompressedFile(sub.accNo, sub.version, file)
                 val downloadFile = { nfsFile.file }
@@ -78,24 +80,25 @@ class FireFilesService(
         val files = client.findByMd5(file.md5)
 
         val byPath = files.firstOrNull { it.filesystemEntry?.path == expectedPath }
-        if (byPath != null) return asFireFile(file, byPath.fireOid)
+        if (byPath != null) return asFireFile(file, byPath.fireOid, byPath.filesystemEntry!!.path!!)
 
         val noPath = files.firstOrNull { it.filesystemEntry?.path == null }
-        if (noPath != null) return setMetadata(noPath.fireOid, file, expectedPath)
+        if (noPath != null) return setMetadata(file, noPath, expectedPath)
 
         val saved = client.save(fallbackFile(), file.md5, file.size)
-        return setMetadata(saved.fireOid, file, expectedPath)
+        return setMetadata(file, saved, expectedPath)
     }
 
-    private fun setMetadata(fireOid: String, file: ExtFile, expectedPath: String): FireFile {
-        client.setPath(fireOid, expectedPath)
-        return asFireFile(file, fireOid)
+    private fun setMetadata(file: ExtFile, fireFile: FireApiFile, expectedPath: String): FireFile {
+        client.setPath(fireFile.fireOid, expectedPath)
+        return asFireFile(file, fireFile.fireOid, expectedPath)
     }
 
-    private fun asFireFile(file: ExtFile, fireId: String): FireFile = FireFile(
+    private fun asFireFile(file: ExtFile, fireId: String, firePath: String): FireFile = FireFile(
+        fireId = fireId,
+        firePath = firePath,
         filePath = file.filePath,
         relPath = file.relPath,
-        fireId = fireId,
         md5 = file.md5,
         size = file.size,
         type = file.type,

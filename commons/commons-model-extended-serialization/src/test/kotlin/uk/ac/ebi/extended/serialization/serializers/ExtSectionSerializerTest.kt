@@ -55,10 +55,26 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
         val sectionFilesTable = tempFolder.createFile("section-file-table.txt")
 
         val fileNfs = tempFolder.createFile("fileNfs.txt")
-        val pageTabFireFile =
-            FireFile("folder/fileFileName", "Files/folder/fileFileName", "fireId", "fileMd5", 1, FILE, listOf())
-        val pageTabFireDirectory =
-            FireFile("folder/dirFileName", "Files/folder/dirFileName", "dirFireId", "dirMd5", 2, DIR, listOf())
+        val pageTabFireFile = FireFile(
+            fireId = "fireId",
+            firePath = "firePath",
+            filePath = "folder/fileFileName",
+            relPath = "Files/folder/fileFileName",
+            md5 = "fileMd5",
+            size = 1,
+            type = FILE,
+            attributes = listOf()
+        )
+        val pageTabFireDirectory = FireFile(
+            fireId = "dirFireId",
+            firePath = "firePath",
+            filePath = "folder/dirFileName",
+            relPath = "Files/folder/dirFileName",
+            md5 = "dirMd5",
+            size = 2,
+            type = DIR,
+            attributes = listOf()
+        )
 
         val allInOneSection = ExtSection(
             accNo = "SECT-001",
@@ -136,7 +152,8 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                         "fileName" to pageTabFireFile.fileName
                         "filePath" to pageTabFireFile.filePath
                         "relPath" to pageTabFireFile.relPath
-                        "fireId" to "fireId"
+                        "fireId" to pageTabFireFile.fireId
+                        "firePath" to pageTabFireFile.firePath
                         "attributes" to jsonArray()
                         "extType" to "fireFile"
                         "type" to "file"
@@ -148,6 +165,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                         "filePath" to pageTabFireDirectory.filePath
                         "relPath" to pageTabFireDirectory.relPath
                         "fireId" to pageTabFireDirectory.fireId
+                        "firePath" to pageTabFireDirectory.firePath
                         "attributes" to jsonArray()
                         "extType" to "fireFile"
                         "type" to "directory"

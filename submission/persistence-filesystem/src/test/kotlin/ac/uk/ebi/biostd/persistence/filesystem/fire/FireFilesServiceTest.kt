@@ -37,9 +37,9 @@ internal class FireFilesServiceTest(
 
     @Test
     fun `persist fire file found by md5 and path`() {
-        val file = fireFile()
-        val path = FileSystemEntry("/S-BSST/001/S-BSST1/Files/folder/file.txt", published = true)
-        val fireApiFile = fireApiFile().copy(filesystemEntry = path)
+        val expectedPath = "/S-BSST/001/S-BSST1/Files/folder/file.txt"
+        val file = fireFile(expectedPath)
+        val fireApiFile = fireApiFile(expectedPath)
 
         every { fireClient.findByMd5("the-md5") } returns listOf(fireApiFile)
 
@@ -50,23 +50,26 @@ internal class FireFilesServiceTest(
             fireClient.findByMd5("the-md5")
         }
         verify(exactly = 0) {
-            fireClient.downloadByFireId("the-fire-id", "file.txt")
-            fireClient.setPath("the-fire-id", "/S-BSST/001/S-BSST1/Files/folder/file.txt")
-            fireClient.save(any(), "the-md5", 123L)
+            fireClient.downloadByFireId(any(), any())
+            fireClient.setPath(any(), any())
+            fireClient.save(any(), any(), any())
         }
     }
 
     @Test
-    fun `persist fire file found by md5 but no path`() {
-        val file = fireFile()
-        val fireApiFile = fireApiFile()
+    fun `persist fire file found by md5 but no path is set`() {
+        val file = fireFile(null)
+        val fireApiFile = fireApiFile(null)
 
         every { fireClient.findByMd5("the-md5") } returns listOf(fireApiFile)
         every { fireClient.setPath("the-fire-id", "/S-BSST/001/S-BSST1/Files/folder/file.txt") } answers { nothing }
 
-        val persisted = testInstance.persistSubmissionFile(submission, file)
+        val persisted = testInstance.persistSubmissionFile(
+            submission,
+            file
+        )
 
-        assertThat(persisted).isEqualToComparingFieldByField(file)
+        assertThat(persisted).isEqualToComparingFieldByField(file.copy(firePath = "/S-BSST/001/S-BSST1/Files/folder/file.txt"))
         verify(exactly = 1) {
             fireClient.findByMd5("the-md5")
             fireClient.setPath("the-fire-id", "/S-BSST/001/S-BSST1/Files/folder/file.txt")
@@ -79,8 +82,8 @@ internal class FireFilesServiceTest(
 
     @Test
     fun `persist fire file found not found`() {
-        val file = fireFile()
-        val fireApiFile = fireApiFile()
+        val file = fireFile(null)
+        val fireApiFile = fireApiFile(null)
         val content = tempFolder.createFile("file.txt")
 
         every { fireClient.findByMd5("the-md5") } returns listOf()
@@ -90,7 +93,8 @@ internal class FireFilesServiceTest(
 
         val persisted = testInstance.persistSubmissionFile(submission, file)
 
-        assertThat(persisted).isEqualToComparingFieldByField(file)
+        assertThat(persisted)
+            .isEqualToComparingFieldByField(file.copy(firePath = "/S-BSST/001/S-BSST1/Files/folder/file.txt"))
         verify(exactly = 1) {
             fireClient.findByMd5("the-md5")
             fireClient.save(any(), "the-md5", 123L)
@@ -99,21 +103,23 @@ internal class FireFilesServiceTest(
         }
     }
 
-    private fun fireFile() = FireFile(
-        "folder/file.txt",
-        "Files/folder/file.txt",
-        "the-fire-id",
-        "the-md5",
-        123L,
-        FILE,
-        emptyList(),
+    private fun fireFile(firePath: String?) = FireFile(
+        fireId = "the-fire-id",
+        firePath = firePath,
+        filePath = "folder/file.txt",
+        relPath = "Files/folder/file.txt",
+        md5 = "the-md5",
+        size = 123L,
+        type = FILE,
+        attributes = emptyList(),
     )
 
-    private fun fireApiFile() = FireApiFile(
-        456,
-        "the-fire-id",
-        "the-md5",
-        123L,
-        "2022-09-21"
+    private fun fireApiFile(firePath: String?) = FireApiFile(
+        objectId = 456,
+        filesystemEntry = FileSystemEntry(path = firePath, published = false),
+        fireOid = "the-fire-id",
+        objectMd5 = "the-md5",
+        objectSize = 123L,
+        createTime = "2022-09-21"
     )
 }

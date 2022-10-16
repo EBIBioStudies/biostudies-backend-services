@@ -20,6 +20,7 @@ object ExtSerializationFields {
     const val FILE_FULL_PATH = "fullPath"
     const val FILE_TYPE = "type"
     const val FILE_FIRE_ID = "fireId"
+    const val FILE_FIRE_PATH = "firePath"
     const val FILE_SIZE = "size"
     const val FILE_MD5 = "md5"
 

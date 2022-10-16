@@ -9,7 +9,7 @@ val ExtSubmission.allFileList
     get(): List<ExtFileList> = allSections.mapNotNull { it.fileList }
 
 val ExtSubmission.allSectionsFiles
-    get(): List<ExtFile> = allSections.flatMap { it.allFiles }
+    get(): List<ExtFile> = allSections.flatMap { it.allInnerFiles }
 
 val ExtSubmission.allPageTabFiles
     get(): List<ExtFile> = pageTabFiles + allFileList.flatMap { it.pageTabFiles }

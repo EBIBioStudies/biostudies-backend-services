@@ -74,12 +74,6 @@ interface SubmissionRequestPersistenceService {
 interface SubmissionFilesPersistenceService {
     fun saveSubmissionFile(file: SubmissionFile)
 
-    fun getSubmissionFile(path: String, accNo: String, version: Int): ExtFile
-
-    fun getSubmissionFiles(accNo: String, version: Int, startingAt: Int): List<Pair<ExtFile, Int>>
-
-    fun getFileListFiles(accNo: String, version: Int, fileListName: String): List<ExtFile>
-
     fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile>
 }
 
