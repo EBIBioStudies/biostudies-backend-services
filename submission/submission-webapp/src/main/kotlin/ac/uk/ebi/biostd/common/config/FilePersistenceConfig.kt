@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
 import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
@@ -63,9 +62,4 @@ class FilePersistenceConfig(
         toSubmissionMapper: ToSubmissionMapper,
         toFileListMapper: ToFileListMapper,
     ): PageTabUtil = PageTabUtil(serializationService, toSubmissionMapper, toFileListMapper)
-
-    @Bean
-    fun fileSystemService(
-        fileStorageService: FileStorageService
-    ): FileSystemService = FileSystemService(fileStorageService)
 }

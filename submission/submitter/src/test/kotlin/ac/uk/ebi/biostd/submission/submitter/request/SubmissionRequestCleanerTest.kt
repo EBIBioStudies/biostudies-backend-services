@@ -1,98 +1,65 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
-import ebi.ac.uk.test.basicExtSubmission
-import io.mockk.clearAllMocks
+import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
+import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkStatic
-import io.mockk.slot
-import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.time.OffsetDateTime
-import java.time.ZoneOffset.UTC
 
 @ExtendWith(MockKExtension::class)
 class SubmissionRequestCleanerTest(
-    @MockK private val systemService: FileSystemService,
+    @MockK private val storageService: StorageService,
     @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
 ) {
-    private val mockNow = OffsetDateTime.of(2022, 10, 5, 0, 0, 1, 0, UTC)
-    private val testTime = OffsetDateTime.of(2022, 10, 5, 0, 0, 0, 0, UTC)
-    private val testInstance = SubmissionRequestCleaner(systemService, queryService, requestService)
+    private val testInstance = SubmissionRequestCleaner(storageService, queryService, requestService)
 
-    @BeforeEach
-    fun beforeEach() {
-        mockkStatic(OffsetDateTime::class)
-        every { OffsetDateTime.now() } returns mockNow
-    }
+    @Test
+    fun `clean current version`(
+        @MockK loadRequest: SubmissionRequest,
+        @MockK cleanedRequest: SubmissionRequest,
+        @MockK sub: ExtSubmission,
+        @MockK requestSub: ExtSubmission,
+    ) {
+        every { storageService.cleanSubmissionFiles(sub, requestSub) } answers { nothing }
+        every { requestService.getLoadedRequest(accNo, version) } returns loadRequest
+        every { loadRequest.withStatus(status = CLEANED) } returns cleanedRequest
+        every { loadRequest.submission } returns requestSub
+        every { queryService.findExtByAccNo(accNo, true) } returns sub
+        every { requestService.saveSubmissionRequest(cleanedRequest) } returns (accNo to version)
 
-    @AfterEach
-    fun afterEach() {
-        clearAllMocks()
-        unmockkStatic(OffsetDateTime::class)
+        testInstance.cleanCurrentVersion(accNo, version)
+
+        verify { storageService.cleanSubmissionFiles(sub, requestSub) }
+        verify { requestService.saveSubmissionRequest(cleanedRequest) }
     }
 
     @Test
-    fun `clean current version`() {
-        val submission = basicExtSubmission
-        val cleanedRequestSlot = slot<SubmissionRequest>()
-        val loadedRequest = SubmissionRequest(submission, "TMP_123", LOADED, 0, 0, modificationTime = testTime)
+    fun `clean current version when no current`(
+        @MockK loadRequest: SubmissionRequest,
+        @MockK cleanedRequest: SubmissionRequest,
+        @MockK requestSub: ExtSubmission,
+    ) {
+        every { requestService.getLoadedRequest(accNo, version) } returns loadRequest
+        every { loadRequest.withStatus(status = CLEANED) } returns cleanedRequest
+        every { loadRequest.submission } returns requestSub
+        every { queryService.findExtByAccNo(accNo, true) } returns null
+        every { requestService.saveSubmissionRequest(cleanedRequest) } returns (accNo to version)
 
-        every { systemService.cleanFolder(submission) } answers { nothing }
-        every { requestService.getLoadedRequest("S-BSST0", 1) } returns loadedRequest
-        every { queryService.findExtByAccNo("S-BSST0", includeFileListFiles = true) } returns submission
-        every {
-            requestService.saveSubmissionRequest(capture(cleanedRequestSlot))
-        } returns (submission.accNo to submission.version)
+        testInstance.cleanCurrentVersion(accNo, 1)
 
-        testInstance.cleanCurrentVersion("S-BSST0", 1)
-
-        val cleanedRequest = cleanedRequestSlot.captured
-        assertThat(cleanedRequest.status).isEqualTo(CLEANED)
-        assertThat(cleanedRequest.modificationTime).isEqualTo(mockNow)
-        verify(exactly = 1) {
-            systemService.cleanFolder(submission)
-            requestService.getLoadedRequest("S-BSST0", 1)
-            requestService.saveSubmissionRequest(cleanedRequest)
-            queryService.findExtByAccNo("S-BSST0", includeFileListFiles = true)
-        }
+        verify { requestService.saveSubmissionRequest(cleanedRequest) }
     }
 
-    @Test
-    fun `clean current version when no previous version is found`() {
-        val submission = basicExtSubmission
-        val cleanedRequestSlot = slot<SubmissionRequest>()
-        val loadedRequest = SubmissionRequest(submission, "TMP_123", LOADED, 0, 0, modificationTime = testTime)
-
-        every { requestService.getLoadedRequest("S-BSST0", 1) } returns loadedRequest
-        every { queryService.findExtByAccNo("S-BSST0", includeFileListFiles = true) } returns null
-        every {
-            requestService.saveSubmissionRequest(capture(cleanedRequestSlot))
-        } returns (submission.accNo to submission.version)
-
-        testInstance.cleanCurrentVersion("S-BSST0", 1)
-
-        val cleanedRequest = cleanedRequestSlot.captured
-        assertThat(cleanedRequest.status).isEqualTo(CLEANED)
-        assertThat(cleanedRequest.modificationTime).isEqualTo(mockNow)
-        verify(exactly = 0) { systemService.cleanFolder(any()) }
-        verify(exactly = 1) {
-            requestService.getLoadedRequest("S-BSST0", 1)
-            requestService.saveSubmissionRequest(cleanedRequest)
-            queryService.findExtByAccNo("S-BSST0", includeFileListFiles = true)
-        }
+    private companion object {
+        const val accNo = "S-BSST0"
+        const val version = 1
     }
 }
