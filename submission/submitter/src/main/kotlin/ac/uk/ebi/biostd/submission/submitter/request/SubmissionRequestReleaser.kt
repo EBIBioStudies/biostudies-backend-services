@@ -5,10 +5,11 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.forEachFile
+import uk.ac.ebi.extended.serialization.service.fileSequence
 
 private val logger = KotlinLogging.logger {}
 
@@ -46,18 +47,16 @@ class SubmissionRequestReleaser(
     }
 
     private fun releaseSubmission(sub: ExtSubmission) {
-        logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
-
-        persistenceService.setAsReleased(sub.accNo)
-        serializationService.forEachFile(sub) { file, idx ->
+        fun releaseFile(idx: Int, file: ExtFile) {
             logger.info { "${sub.accNo}, ${sub.owner} Started publishing file $idx - ${file.filePath}" }
-
             fileStorageService.releaseSubmissionFile(file, sub.relPath, sub.storageMode)
             requestService.updateRequestIndex(sub.accNo, sub.version, idx)
-
             logger.info { "${sub.accNo}, ${sub.owner} Finished publishing file $idx - ${file.filePath}" }
         }
 
+        logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
+        serializationService.fileSequence(sub).forEachIndexed { idx, file -> releaseFile(idx, file) }
+        persistenceService.setAsReleased(sub.accNo)
         logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
     }
 }
