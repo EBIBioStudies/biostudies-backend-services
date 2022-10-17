@@ -11,7 +11,7 @@ import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.forEachFile
+import uk.ac.ebi.extended.serialization.service.fileSequence
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 import java.nio.file.Files
@@ -37,6 +37,7 @@ class FireFilesService(
                 val downloadFile = { client.downloadByFireId(file.fireId, file.fileName) }
                 reuseOrPersistFireFile(file, sub.relPath, downloadFile)
             }
+
             is NfsFile -> {
                 val nfsFile = if (file.type == FILE) file else asCompressedFile(sub.accNo, sub.version, file)
                 val downloadFile = { nfsFile.file }
@@ -106,16 +107,18 @@ class FireFilesService(
         // No need of post-processing on FIRE
     }
 
-    override fun cleanSubmissionFiles(sub: ExtSubmission) {
-        fun cleanFile(file: FireFile, index: Int) {
-            logger.debug { "${sub.accNo}, ${sub.version} Cleaning file $index, path='${file.filePath}'" }
+    override fun cleanSubmissionFiles(previous: ExtSubmission, current: ExtSubmission?) {
+        fun cleanFile(index: Int, file: FireFile) {
+            logger.debug { "${previous.accNo}, ${previous.version} Cleaning file $index, path='${file.filePath}'" }
             client.unsetPath(file.fireId)
             client.unpublish(file.fireId)
-            logger.debug { "${sub.accNo}, ${sub.version} Cleaning file $index, path='${file.filePath}'" }
+            logger.debug { "${previous.accNo}, ${previous.version} Cleaning file $index, path='${file.filePath}'" }
         }
 
-        logger.info { "${sub.accNo} ${sub.owner} Cleaning Current submission Folder for ${sub.accNo}" }
-        serializationService.forEachFile(sub) { file, index -> if (file is FireFile) cleanFile(file, index) }
-        logger.info { "${sub.accNo} ${sub.owner} Cleaning Ftp Folder for ${sub.accNo}" }
+        logger.info { "${previous.accNo} ${previous.owner} Cleaning Current submission Folder for ${previous.accNo}" }
+        serializationService.fileSequence(previous)
+            .filterIsInstance(FireFile::class.java)
+            .forEachIndexed { index, file -> cleanFile(index, file) }
+        logger.info { "${previous.accNo} ${previous.owner} Cleaning Ftp Folder for ${previous.accNo}" }
     }
 }

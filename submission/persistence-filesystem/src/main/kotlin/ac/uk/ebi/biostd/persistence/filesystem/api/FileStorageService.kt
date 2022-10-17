@@ -11,5 +11,5 @@ interface FileStorageService {
 
     fun postProcessSubmissionFiles(sub: ExtSubmission)
 
-    fun cleanSubmissionFiles(sub: ExtSubmission)
+    fun cleanSubmissionFiles(previous: ExtSubmission, current: ExtSubmission?)
 }
