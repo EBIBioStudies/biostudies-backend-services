@@ -38,7 +38,7 @@ import java.time.ZoneOffset
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class ToExtSubmissionMapperTest(
-    temporaryFolder: TemporaryFolder
+    temporaryFolder: TemporaryFolder,
 ) {
     private val extSection = mockk<ExtSection>()
     private val toExtSectionMapper: ToExtSectionMapper = mockk()
@@ -58,7 +58,7 @@ class ToExtSubmissionMapperTest(
 
     @Test
     fun `to ext Submission including FileListFiles`() {
-        every { toExtSectionMapper.toExtSection(docSection, "S-TEST123", 1, true) } returns extSection
+        every { toExtSectionMapper.toExtSection(docSection, "S-TEST123", 1, REL_PATH, true) } returns extSection
         val submission = docSubmission.copy(
             section = docSection,
             pageTabFiles = listOf(subNfsDocFile)
@@ -72,7 +72,7 @@ class ToExtSubmissionMapperTest(
 
     @Test
     fun `to ext Submission without FileListFiles`() {
-        every { toExtSectionMapper.toExtSection(docSection, "S-TEST123", 1, false) } returns extSection
+        every { toExtSectionMapper.toExtSection(docSection, "S-TEST123", 1, REL_PATH, false) } returns extSection
         val submission = docSubmission.copy(
             section = docSection,
             pageTabFiles = listOf(subNfsDocFile)

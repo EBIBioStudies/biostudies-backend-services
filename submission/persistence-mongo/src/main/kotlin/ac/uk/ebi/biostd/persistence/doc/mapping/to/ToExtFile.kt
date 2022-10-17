@@ -12,16 +12,18 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import java.nio.file.Paths
 
-internal fun DocFile.toExtFile(): ExtFile = when (this) {
+internal fun DocFile.toExtFile(subRelPath: String): ExtFile = when (this) {
     is FireDocFile -> FireFile(
+        fireId,
+        "/$subRelPath/$relPath",
         filePath,
         relPath,
-        fireId,
         md5,
         fileSize,
         ExtFileType.fromString(fileType),
         attributes.toExtAttributes()
     )
+
     is NfsDocFile -> NfsFile(
         filePath,
         relPath,
@@ -33,7 +35,10 @@ internal fun DocFile.toExtFile(): ExtFile = when (this) {
     )
 }
 
-internal fun DocFileTable.toExtFileTable(): ExtFileTable = ExtFileTable(files.map { it.toExtFile() })
+internal fun DocFileTable.toExtFileTable(subRelPath: String): ExtFileTable {
+    return ExtFileTable(files.map { it.toExtFile(subRelPath) })
+}
 
-internal fun Either<DocFile, DocFileTable>.toExtFiles(): Either<ExtFile, ExtFileTable> =
-    bimap({ it.toExtFile() }) { it.toExtFileTable() }
+internal fun Either<DocFile, DocFileTable>.toExtFiles(subRelPath: String): Either<ExtFile, ExtFileTable> {
+    return bimap({ it.toExtFile(subRelPath) }) { it.toExtFileTable(subRelPath) }
+}

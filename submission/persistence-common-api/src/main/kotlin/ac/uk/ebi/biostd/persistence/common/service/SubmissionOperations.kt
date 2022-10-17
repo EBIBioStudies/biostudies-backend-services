@@ -47,6 +47,8 @@ interface SubmissionPersistenceQueryService {
      * @param filter the submission filter
      **/
     fun getSubmissionsByUser(owner: String, filter: SubmissionFilter): List<BasicSubmission>
+
+    fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile>
 }
 
 interface SubmissionRequestPersistenceService {
@@ -79,8 +81,6 @@ interface SubmissionFilesPersistenceService {
     fun getSubmissionFiles(accNo: String, version: Int, startingAt: Int): List<Pair<ExtFile, Int>>
 
     fun getFileListFiles(accNo: String, version: Int, fileListName: String): List<ExtFile>
-
-    fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile>
 }
 
 interface SubmissionMetaQueryService {

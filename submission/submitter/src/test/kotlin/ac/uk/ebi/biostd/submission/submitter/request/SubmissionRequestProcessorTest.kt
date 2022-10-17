@@ -64,7 +64,7 @@ class SubmissionRequestProcessorTest(
         val submission = basicExtSubmission
         val processedRequestSlot = slot<SubmissionRequest>()
         val cleanedRequest = SubmissionRequest(submission, "TMP_123", CLEANED, 0, 0, modificationTime = testTime)
-        val fireFile = FireFile("test.txt", "Files/test.txt", "abc1", "md5", 1, FILE, emptyList())
+        val fireFile = FireFile("abc1", null, "test.txt", "Files/test.txt", "md5", 1, FILE, emptyList())
         val nfsFile = createNfsFile("dummy.txt", "Files/dummy.txt", tempFolder.createFile("dummy.txt"))
         val processed = submission.copy(section = submission.section.copy(files = listOf(Either.left(fireFile))))
 

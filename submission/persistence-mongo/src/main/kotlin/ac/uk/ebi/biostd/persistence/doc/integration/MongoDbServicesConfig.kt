@@ -42,11 +42,13 @@ class MongoDbServicesConfig {
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
         serializationService: ExtSerializationService,
         toExtSubmissionMapper: ToExtSubmissionMapper,
+        fileListDocFileRepository: FileListDocFileRepository,
     ): SubmissionPersistenceQueryService = SubmissionMongoPersistenceQueryService(
         submissionDocDataRepository,
         toExtSubmissionMapper,
         serializationService,
         submissionRequestDocDataRepository,
+        fileListDocFileRepository
     )
 
     @Bean
@@ -57,12 +59,10 @@ class MongoDbServicesConfig {
 
     @Bean
     internal fun submissionFilesPersistenceService(
-        fileListDocFileRepository: FileListDocFileRepository,
+        submissionDocDataRepository: SubmissionDocDataRepository,
         submissionFilesRepository: SubmissionFilesRepository,
-    ): SubmissionFilesPersistenceService = SubmissionFilesMongoPersistenceService(
-        fileListDocFileRepository,
-        submissionFilesRepository,
-    )
+    ): SubmissionFilesPersistenceService =
+        SubmissionFilesMongoPersistenceService(submissionDocDataRepository, submissionFilesRepository)
 
     @Bean
     internal fun projectDataService(

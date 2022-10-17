@@ -79,7 +79,7 @@ class FireFilesService(
         val files = client.findByMd5(file.md5)
 
         val byPath = files.firstOrNull { it.filesystemEntry?.path == expectedPath }
-        if (byPath != null) return asFireFile(file, byPath.fireOid)
+        if (byPath != null) return asFireFile(file, byPath.fireOid, byPath.filesystemEntry!!.path!!)
 
         val noPath = files.firstOrNull { it.filesystemEntry?.path == null }
         if (noPath != null) return setMetadata(noPath.fireOid, file, expectedPath)
@@ -90,13 +90,14 @@ class FireFilesService(
 
     private fun setMetadata(fireOid: String, file: ExtFile, expectedPath: String): FireFile {
         client.setPath(fireOid, expectedPath)
-        return asFireFile(file, fireOid)
+        return asFireFile(file, fireOid, expectedPath)
     }
 
-    private fun asFireFile(file: ExtFile, fireId: String): FireFile = FireFile(
+    private fun asFireFile(file: ExtFile, fireId: String, firePath: String): FireFile = FireFile(
+        fireId = fireId,
+        firePath = firePath,
         filePath = file.filePath,
         relPath = file.relPath,
-        fireId = fireId,
         md5 = file.md5,
         size = file.size,
         type = file.type,
