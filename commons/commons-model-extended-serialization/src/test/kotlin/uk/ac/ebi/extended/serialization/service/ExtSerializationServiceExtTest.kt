@@ -47,9 +47,10 @@ internal class ExtSerializationServiceExtTest(
 
     private fun createFireFile(idx: Int): FireFile {
         return FireFile(
+            "fireId-$idx",
+            "firePath-$idx",
             "folder/myFile$idx",
             "Files/folder/myFile$idx",
-            "fireId-$idx",
             "md5-$idx",
             12,
             FILE,

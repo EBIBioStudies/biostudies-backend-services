@@ -58,8 +58,8 @@ internal class FireFilesServiceTest(
 
     @Test
     fun `persist fire file found by md5 but no path is set`() {
-        val file = fireFile(null)
-        val fireApiFile = fireApiFile(null)
+        val file = fireFile(firePath = null)
+        val fireApiFile = fireApiFile(firePath = null)
 
         every { fireClient.findByMd5("the-md5") } returns listOf(fireApiFile)
         every { fireClient.setPath("the-fire-id", "/S-BSST/001/S-BSST1/Files/folder/file.txt") } answers { nothing }

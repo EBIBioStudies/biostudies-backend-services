@@ -13,7 +13,6 @@ import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.fileSequence
 import uk.ac.ebi.fire.client.integration.web.FireClient
-import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 import java.nio.file.Files
 
@@ -83,15 +82,15 @@ class FireFilesService(
         if (byPath != null) return asFireFile(file, byPath.fireOid, byPath.filesystemEntry!!.path!!)
 
         val noPath = files.firstOrNull { it.filesystemEntry?.path == null }
-        if (noPath != null) return setMetadata(file, noPath, expectedPath)
+        if (noPath != null) return setMetadata(noPath.fireOid, file, expectedPath)
 
         val saved = client.save(fallbackFile(), file.md5, file.size)
-        return setMetadata(file, saved, expectedPath)
+        return setMetadata(saved.fireOid, file, expectedPath)
     }
 
-    private fun setMetadata(file: ExtFile, fireFile: FireApiFile, expectedPath: String): FireFile {
-        client.setPath(fireFile.fireOid, expectedPath)
-        return asFireFile(file, fireFile.fireOid, expectedPath)
+    private fun setMetadata(fireOid: String, file: ExtFile, expectedPath: String): FireFile {
+        client.setPath(fireOid, expectedPath)
+        return asFireFile(file, fireOid, expectedPath)
     }
 
     private fun asFireFile(file: ExtFile, fireId: String, firePath: String): FireFile = FireFile(

@@ -5,9 +5,12 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
@@ -20,6 +23,7 @@ internal class SubmissionMongoPersistenceQueryService(
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
     private val serializationService: ExtSerializationService,
     private val requestRepository: SubmissionRequestDocDataRepository,
+    private val fileListDocFileRepository: FileListDocFileRepository,
 ) : SubmissionPersistenceQueryService {
     override fun existByAccNo(accNo: String): Boolean {
         return submissionRepo.existsByAccNo(accNo)
@@ -65,6 +69,12 @@ internal class SubmissionMongoPersistenceQueryService(
             .map { serializationService.deserialize(it.submission.toString()) }
             .map { it.asBasicSubmission(PROCESSING) }
             .plus(findSubmissions(owner, submissionFilter))
+    }
+
+    override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> {
+        return fileListDocFileRepository
+            .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(accNo, 0, fileListName)
+            .map { it.file.toExtFile(submissionRepo.getRelPath(accNo)) }
     }
 
     private fun findSubmissions(owner: String, filter: SubmissionFilter): List<BasicSubmission> =
