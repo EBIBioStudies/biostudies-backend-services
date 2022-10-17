@@ -64,10 +64,7 @@ internal class FireFilesServiceTest(
         every { fireClient.findByMd5("the-md5") } returns listOf(fireApiFile)
         every { fireClient.setPath("the-fire-id", "/S-BSST/001/S-BSST1/Files/folder/file.txt") } answers { nothing }
 
-        val persisted = testInstance.persistSubmissionFile(
-            submission,
-            file
-        )
+        val persisted = testInstance.persistSubmissionFile(submission, file)
 
         assertThat(persisted).isEqualToComparingFieldByField(file.copy(firePath = "/S-BSST/001/S-BSST1/Files/folder/file.txt"))
         verify(exactly = 1) {
