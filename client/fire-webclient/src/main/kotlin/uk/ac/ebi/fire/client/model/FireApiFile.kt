@@ -7,7 +7,9 @@ data class FireApiFile(
     val objectSize: Long,
     val createTime: String,
     val filesystemEntry: FileSystemEntry? = null,
-)
+) {
+    val path: String? = filesystemEntry?.path
+}
 
 val FireApiFile.path: String?
     get() = filesystemEntry?.path
