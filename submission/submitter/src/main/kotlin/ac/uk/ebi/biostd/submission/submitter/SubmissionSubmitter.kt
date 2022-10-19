@@ -51,21 +51,19 @@ class SubmissionSubmitter(
 
     @Suppress("TooGenericExceptionCaught")
     private fun processRequest(rqt: SubmitRequest): ExtSubmission {
-        val draftKey = rqt.draftKey
-
         try {
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
 
-            draftKey?.let { draftService.setProcessingStatus(rqt.owner, it) }
+            rqt.draftKey?.let { draftService.setProcessingStatus(rqt.owner, it) }
             val submission = submissionProcessor.processSubmission(rqt)
             parentInfoService.executeCollectionValidators(submission)
-            draftKey?.let { draftService.setDeleteStatus(it) }
+            rqt.draftKey?.let { draftService.setDeleteStatus(it) }
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 
             return submission
         } catch (exception: RuntimeException) {
             logger.error(exception) { "${rqt.accNo} ${rqt.owner} Error processing submission request" }
-            draftKey?.let { draftService.setActiveStatus(it) }
+            rqt.draftKey?.let { draftService.setActiveStatus(it) }
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
     }
