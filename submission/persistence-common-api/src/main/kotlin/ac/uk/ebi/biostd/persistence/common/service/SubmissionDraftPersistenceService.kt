@@ -21,7 +21,5 @@ interface SubmissionDraftPersistenceService {
 
     fun createSubmissionDraft(userEmail: String, key: String, content: String): SubmissionDraft
 
-    fun setActiveStatus(userEmail: String, key: String)
-
     fun setProcessingStatus(userEmail: String, key: String)
 }
