@@ -32,7 +32,7 @@ class SubmissionDraftDocDataRepository(
 
     fun setStatus(key: String, status: DraftStatus) {
         val query = Query(where(KEY).`is`(key))
-        mongoTemplate.updateFirst(query, update(STATUS, status), DocSubmissionDraft::class.java)
+        mongoTemplate.updateMulti(query, update(STATUS, status), DocSubmissionDraft::class.java)
     }
 
     fun updateDraftContent(userId: String, key: String, content: String) {
