@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
@@ -9,9 +10,10 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ebi.ac.uk.extended.model.ExtSubmission
 import java.time.OffsetDateTime
 
@@ -19,6 +21,7 @@ import java.time.OffsetDateTime
 class ExtSubmissionSubmitter(
     private val requestService: SubmissionRequestPersistenceService,
     private val persistenceService: SubmissionPersistenceService,
+    private val requestIndexer: SubmissionRequestIndexer,
     private val requestLoader: SubmissionRequestLoader,
     private val requestProcessor: SubmissionRequestProcessor,
     private val requestReleaser: SubmissionRequestReleaser,
@@ -38,6 +41,8 @@ class ExtSubmissionSubmitter(
         return requestService.createSubmissionRequest(request)
     }
 
+    fun indexRequest(accNo: String, version: Int) = requestIndexer.indexRequest(accNo, version)
+
     fun loadRequest(accNo: String, version: Int): ExtSubmission = requestLoader.loadRequest(accNo, version)
 
     fun cleanRequest(accNo: String, version: Int) = requestCleaner.cleanCurrentVersion(accNo, version)
@@ -51,27 +56,36 @@ class ExtSubmissionSubmitter(
     fun handleRequest(accNo: String, version: Int): ExtSubmission {
         return when (requestService.getRequestStatus(accNo, version)) {
             REQUESTED -> completeRequest(accNo, version)
-            LOADED -> processRequestFiles(accNo, version)
-            CLEANED -> processCleanedFiles(accNo, version)
+            INDEXED -> loadRequestFiles(accNo, version)
+            LOADED -> cleanRequestFiles(accNo, version)
+            CLEANED -> processRequestFiles(accNo, version)
             FILES_COPIED -> requestReleaser.checkReleased(accNo, version)
             else -> throw IllegalStateException("Request accNo=$accNo, version='$version' has been already processed")
         }
     }
 
     private fun completeRequest(accNo: String, version: Int): ExtSubmission {
+        indexRequest(accNo, version)
         loadRequest(accNo, version)
         cleanRequest(accNo, version)
         processRequest(accNo, version)
         return checkReleased(accNo, version)
     }
 
-    private fun processRequestFiles(accNo: String, version: Int): ExtSubmission {
+    private fun loadRequestFiles(accNo: String, version: Int): ExtSubmission {
+        loadRequest(accNo, version)
         cleanRequest(accNo, version)
         processRequest(accNo, version)
         return checkReleased(accNo, version)
     }
 
-    private fun processCleanedFiles(accNo: String, version: Int): ExtSubmission {
+    private fun cleanRequestFiles(accNo: String, version: Int): ExtSubmission {
+        cleanRequest(accNo, version)
+        processRequest(accNo, version)
+        return checkReleased(accNo, version)
+    }
+
+    private fun processRequestFiles(accNo: String, version: Int): ExtSubmission {
         processRequest(accNo, version)
         return checkReleased(accNo, version)
     }

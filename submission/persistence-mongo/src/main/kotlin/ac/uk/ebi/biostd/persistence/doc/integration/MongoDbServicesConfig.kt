@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.persistence.doc.integration
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
@@ -18,8 +18,8 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.CollectionMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoPersistenceService
-import ac.uk.ebi.biostd.persistence.doc.service.SubmissionRequestFilesMongoPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.doc.service.SubmissionRequestFilesMongoPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionRequestMongoPersistenceService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -59,8 +59,12 @@ class MongoDbServicesConfig {
 
     @Bean
     internal fun submissionFilesPersistenceService(
+        requestRepository: SubmissionRequestDocDataRepository,
         requestFilesRepository: SubmissionRequestFilesRepository,
-    ): SubmissionRequestFilesPersistenceService = SubmissionRequestFilesMongoPersistenceService(requestFilesRepository)
+    ): SubmissionRequestFilesPersistenceService = SubmissionRequestFilesMongoPersistenceService(
+        requestRepository,
+        requestFilesRepository,
+    )
 
     @Bean
     internal fun projectDataService(

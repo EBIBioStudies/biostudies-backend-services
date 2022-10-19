@@ -19,8 +19,14 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_FILE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
+import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
@@ -30,6 +36,7 @@ import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.query.Update.update
 import java.time.Instant
 
+@Suppress("TooManyFunctions")
 class SubmissionRequestDocDataRepository(
     private val submissionRequestRepository: SubmissionRequestRepository,
     private val mongoTemplate: MongoTemplate,
@@ -74,7 +81,14 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java)
     }
 
-    fun updateTotalFiles(accNo: String, version: Int, totalFiles: Int) {
+    fun updateSubmissionRequestFile(accNo: String, version: Int, path: String, file: DocFile) {
+        val where = where(RQT_FILE_SUB_ACC_NO).`is`(accNo)
+            .andOperator(where(RQT_FILE_SUB_VERSION).`is`(version), where(RQT_FILE_PATH).`is`(path))
+
+        mongoTemplate.updateFirst(Query(where), update(RQT_FILE_FILE, file), DocSubmissionRequestFile::class.java)
+    }
+
+    fun setTotalFiles(accNo: String, version: Int, totalFiles: Int) {
         val update = Update().set(RQT_TOTAL_FILES, totalFiles).set(RQT_MODIFICATION_TIME, Instant.now())
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
 

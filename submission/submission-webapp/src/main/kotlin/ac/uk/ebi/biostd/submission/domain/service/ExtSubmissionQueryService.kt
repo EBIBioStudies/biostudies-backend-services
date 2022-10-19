@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest

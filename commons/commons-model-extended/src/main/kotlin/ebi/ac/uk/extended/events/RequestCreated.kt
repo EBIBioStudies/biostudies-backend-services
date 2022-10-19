@@ -12,6 +12,11 @@ data class RequestCreated(
     @JsonProperty("version") override val version: Int,
 ) : RequestMessage
 
+data class RequestIndexed(
+    @JsonProperty("accNo") override val accNo: String,
+    @JsonProperty("version") override val version: Int,
+) : RequestMessage
+
 data class RequestLoaded(
     @JsonProperty("accNo") override val accNo: String,
     @JsonProperty("version") override val version: Int,

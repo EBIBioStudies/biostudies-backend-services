@@ -56,13 +56,9 @@ interface SubmissionRequestFilesRepository : MongoRepository<DocSubmissionReques
         index: Int,
     ): Stream<DocSubmissionRequestFile>
 
-    fun findAllByAccNoAndVersionAndFileList(
-        accNo: String,
-        version: Int,
-        fileList: String,
-    ): Stream<DocSubmissionRequestFile>
-
     fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
+
+    fun findByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile?
 }
 
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {

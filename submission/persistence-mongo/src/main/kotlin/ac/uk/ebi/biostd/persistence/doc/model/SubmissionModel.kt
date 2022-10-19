@@ -126,7 +126,6 @@ data class DocSubmissionRequestFile(
     val version: Int,
     val path: String,
     val file: DocFile,
-    val fileList: String?,
 )
 
 data class DocSectionTable(val sections: List<DocSectionTableRow>)

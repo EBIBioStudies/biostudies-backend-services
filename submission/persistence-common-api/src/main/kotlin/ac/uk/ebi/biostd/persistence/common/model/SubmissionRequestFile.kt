@@ -8,5 +8,9 @@ data class SubmissionRequestFile(
     val index: Int,
     val path: String,
     val file: ExtFile,
-    val fileListName: String? = null
+)
+
+data class SubmissionRequestIndexedFile(
+    val index: Int,
+    val file: ExtFile,
 )

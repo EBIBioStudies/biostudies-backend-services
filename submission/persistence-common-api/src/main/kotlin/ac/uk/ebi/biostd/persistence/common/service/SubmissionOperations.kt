@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestIndexedFile
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -52,6 +53,7 @@ interface SubmissionPersistenceQueryService {
     fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile>
 }
 
+@Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
     fun hasActiveRequest(accNo: String): Boolean
 
@@ -67,6 +69,8 @@ interface SubmissionRequestPersistenceService {
 
     fun getPendingRequest(accNo: String, version: Int): SubmissionRequest
 
+    fun getIndexedRequest(accNo: String, version: Int): SubmissionRequest
+
     fun getLoadedRequest(accNo: String, version: Int): SubmissionRequest
 
     fun getCleanedRequest(accNo: String, version: Int): SubmissionRequest
@@ -75,13 +79,15 @@ interface SubmissionRequestPersistenceService {
 }
 
 interface SubmissionRequestFilesPersistenceService {
-    fun saveSubmissionRequestFile(file: SubmissionRequestFile)
+    fun upsertSubmissionRequestFile(file: SubmissionRequestFile)
 
     fun getSubmissionRequestFile(path: String, accNo: String, version: Int): ExtFile
 
-    fun getSubmissionRequestFiles(accNo: String, version: Int, startingAt: Int): Stream<Pair<ExtFile, Int>>
-
-    fun getRequestFileListFiles(accNo: String, version: Int, fileListName: String): Stream<ExtFile>
+    fun getSubmissionRequestFiles(
+        accNo: String,
+        version: Int,
+        startingAt: Int
+    ): Stream<SubmissionRequestIndexedFile>
 }
 
 interface SubmissionMetaQueryService {

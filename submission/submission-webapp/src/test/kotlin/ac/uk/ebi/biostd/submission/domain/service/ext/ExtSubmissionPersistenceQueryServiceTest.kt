@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.service.ext
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
@@ -24,10 +23,9 @@ import org.springframework.data.domain.Pageable
 @ExtendWith(MockKExtension::class)
 internal class ExtSubmissionPersistenceQueryServiceTest(
     @MockK private val requestService: SubmissionRequestPersistenceService,
-    @MockK private val filesService: SubmissionRequestFilesPersistenceService,
     @MockK private val submissionQueryService: SubmissionPersistenceQueryService,
 ) {
-    private val testInstance = ExtSubmissionQueryService(requestService, filesService, submissionQueryService)
+    private val testInstance = ExtSubmissionQueryService(requestService, submissionQueryService)
 
     @Test
     fun `get ext submission`() {
@@ -71,7 +69,7 @@ internal class ExtSubmissionPersistenceQueryServiceTest(
     fun `get referenced files`(
         @MockK extFile: ExtFile
     ) {
-        every { filesService.getReferencedFiles("S-BSST1", "file-list") } returns listOf(extFile)
+        every { submissionQueryService.getReferencedFiles("S-BSST1", "file-list") } returns listOf(extFile)
 
         assertThat(testInstance.getReferencedFiles("S-BSST1", "file-list").files).containsExactly(extFile)
     }

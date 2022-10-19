@@ -1,7 +1,8 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ebi.ac.uk.extended.model.ExtFile
@@ -18,65 +19,72 @@ import java.time.OffsetDateTime
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestLoader(
+    private val filesRequestService: SubmissionRequestFilesPersistenceService,
     private val requestService: SubmissionRequestPersistenceService,
     private val fileProcessingService: FileProcessingService,
     private val pageTabService: PageTabService,
 ) {
     /**
      * - Calculate md5 and size for every file in submission request.
-     * - Calculate the total number of files in the submission
      * - Generate submission pagetab
      */
     fun loadRequest(accNo: String, version: Int): ExtSubmission {
-        logger.info { "Started loading pending request accNo='$accNo', version='$version'" }
+        val request = requestService.getIndexedRequest(accNo, version)
+        val sub = request.submission
 
-        val original = requestService.getPendingRequest(accNo, version)
-        val owner = original.submission.owner
+        logger.info { "${sub.accNo} ${sub.owner} Started loading submission files" }
 
-        logger.info { "Finished loading pending request accNo='$accNo', version='$version'" }
-
-        logger.info { "$accNo $owner Started loading submission files" }
-
-        val (loaded, subTotalFiles) = processRequest(original.submission)
+        loadSubmissionFiles(sub, request.currentIndex)
+        val loaded = loadSubmission(sub)
         val withTabFiles = pageTabService.generatePageTab(loaded)
-        val totalFiles = subTotalFiles + withTabFiles.allPageTabFiles.size
-        val loadedRequest = SubmissionRequest(
-            withTabFiles,
-            original.draftKey,
-            LOADED,
-            totalFiles,
+        loadPagetabFiles(withTabFiles, request.totalFiles)
+
+        val totalFiles = request.totalFiles + withTabFiles.allPageTabFiles.size
+        val loadedRequest = request.copy(
+            submission = withTabFiles,
+            status = LOADED,
             currentIndex = 0,
-            modificationTime = OffsetDateTime.now()
+            modificationTime = OffsetDateTime.now(),
         )
 
         requestService.saveSubmissionRequest(loadedRequest)
         requestService.updateRequestTotalFiles(accNo, version, totalFiles)
 
-        logger.info { "$accNo $owner Finished loading submission files" }
+        logger.info { "${sub.accNo} ${sub.owner} Finished loading submission files" }
 
         return withTabFiles
     }
 
-    private fun processRequest(sub: ExtSubmission): Pair<ExtSubmission, Int> {
-        var totalFiles = 0
-
-        val loadedSubmission = fileProcessingService.processFiles(sub) { file, index ->
-            totalFiles++
-            processFile(sub, file, index)
+    private fun loadSubmissionFiles(sub: ExtSubmission, startingAt: Int) {
+        fun loadSubmissionFile(file: ExtFile, idx: Int) {
+            logger.info { "${sub.accNo} ${sub.owner} Started loading file $idx, path='${file.filePath}'" }
+            val loadedFile = SubmissionRequestFile(sub.accNo, sub.version, idx, file.filePath, loadFileAttributes(file))
+            filesRequestService.upsertSubmissionRequestFile(loadedFile)
+            requestService.updateRequestIndex(sub.accNo, sub.version, idx)
+            logger.info { "${sub.accNo} ${sub.owner} Finished loading file $idx, path='${file.filePath}'" }
         }
 
-        return loadedSubmission to totalFiles
+        filesRequestService
+            .getSubmissionRequestFiles(sub.accNo, sub.version, startingAt)
+            .forEach { loadSubmissionFile(it.file, it.index) }
     }
 
-    private fun processFile(sub: ExtSubmission, file: ExtFile, index: Int): ExtFile {
-        logger.info { "${sub.accNo} ${sub.owner} Started loading file $index, path='${file.filePath}'" }
+    /**
+     * TODO Once the pagetab is generated from the request files, this step won't be necessary.
+     * See https://www.pivotaltracker.com/story/show/183557519
+     */
+    private fun loadSubmission(sub: ExtSubmission) =
+        fileProcessingService.processFiles(sub) { file, _ ->
+            filesRequestService.getSubmissionRequestFile(file.filePath, sub.accNo, sub.version)
+        }
 
-        val loadedFile = loadFileAttributes(file)
-        requestService.updateRequestIndex(sub.accNo, sub.version, index)
+    private fun loadPagetabFiles(sub: ExtSubmission, totalFiles: Int) {
+        fun loadPagetabFile(file: ExtFile, index: Int) {
+            val pagetabFile = SubmissionRequestFile(sub.accNo, sub.version, index, file.filePath, file)
+            filesRequestService.upsertSubmissionRequestFile(pagetabFile)
+        }
 
-        logger.info { "${sub.accNo} ${sub.owner} Finished loading file $index, path='${file.filePath}'" }
-
-        return loadedFile
+        sub.allPageTabFiles.forEachIndexed { index, file -> loadPagetabFile(file, totalFiles + index + 1) }
     }
 
     private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {
