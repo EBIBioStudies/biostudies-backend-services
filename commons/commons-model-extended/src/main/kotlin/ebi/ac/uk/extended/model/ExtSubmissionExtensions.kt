@@ -19,3 +19,5 @@ val ExtSubmission.isCollection
 
 val ExtSubmission.computedTitle
     get(): String? = title ?: section.title
+
+fun ExtSubmission.expectedPath(file: ExtFile): String = "/$relPath/${file.relPath}"

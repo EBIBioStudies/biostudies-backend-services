@@ -7,6 +7,7 @@ import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.expectedPath
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
@@ -29,19 +30,15 @@ class FireFilesService(
      *
      * For both FIRE and NFS, the file is searched by md5, and the system checks that it does not belong to another
      * submission. The method also ensures that the file has no path (i.e. it was submitted in the same submission in a
-     * different path) and if so, even if the file exists in FIRE, it gets duplicated to ensure consistency.
+     * different path) and if so, even if the file exists in FIRE, it gets duplicated to ensure consistency. TODO:
+     * handle scenario when the same file appear two times in the same submission and it was already in fire.
      */
-    override fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile {
+    override fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): FireFile {
         return when (file) {
-            is FireFile -> {
-                val downloadFile = { client.downloadByFireId(file.fireId, file.fileName) }
-                reuseOrPersistFireFile(file, sub.relPath, downloadFile)
-            }
-
+            is FireFile -> getOrCreate(file, sub.expectedPath(file))
             is NfsFile -> {
                 val nfsFile = if (file.type == FILE) file else asCompressedFile(sub.accNo, sub.version, file)
-                val downloadFile = { nfsFile.file }
-                return reuseOrPersistFireFile(nfsFile, sub.relPath, downloadFile)
+                return getOrCreate(nfsFile, sub.expectedPath(nfsFile))
             }
         }
     }
@@ -69,23 +66,28 @@ class FireFilesService(
         )
     }
 
-    @Suppress("ReturnCount")
-    private fun reuseOrPersistFireFile(
-        file: ExtFile,
-        subRelPath: String,
-        fallbackFile: () -> File,
-    ): ExtFile {
-        val expectedPath = "/$subRelPath/${file.relPath}"
-        val files = client.findByMd5(file.md5)
+    private fun getOrCreate(
+        file: FireFile,
+        expectedPath: String,
+    ): FireFile {
+        return when (file.firePath) {
+            expectedPath -> file
+            null -> setMetadata(file.fireId, file, expectedPath)
+            else -> {
+                val downloaded = client.downloadByFireId(file.fireId, file.fileName)
+                val saved = client.save(downloaded, file.md5, file.size)
+                setMetadata(saved.fireOid, file, expectedPath)
+            }
+        }
+    }
 
-        val byPath = files.firstOrNull { it.filesystemEntry?.path == expectedPath }
-        if (byPath != null) return asFireFile(file, byPath.fireOid, byPath.filesystemEntry!!.path!!)
-
-        val noPath = files.firstOrNull { it.filesystemEntry?.path == null }
-        if (noPath != null) return setMetadata(noPath.fireOid, file, expectedPath)
-
-        val saved = client.save(fallbackFile(), file.md5, file.size)
-        return setMetadata(saved.fireOid, file, expectedPath)
+    private fun getOrCreate(file: NfsFile, expectedPath: String): FireFile {
+        val matches = client.findByMd5(file.md5)
+        val apiFile = matches.find { it.path == expectedPath }
+            ?: matches.find { it.path == null }
+            ?: client.save(file.file, file.md5, file.size)
+        val fireFile = asFireFile(file, apiFile.fireOid, apiFile.path)
+        return getOrCreate(fireFile, expectedPath)
     }
 
     private fun setMetadata(fireOid: String, file: ExtFile, expectedPath: String): FireFile {
@@ -93,7 +95,7 @@ class FireFilesService(
         return asFireFile(file, fireOid, expectedPath)
     }
 
-    private fun asFireFile(file: ExtFile, fireId: String, firePath: String): FireFile = FireFile(
+    private fun asFireFile(file: ExtFile, fireId: String, firePath: String?): FireFile = FireFile(
         fireId = fireId,
         firePath = firePath,
         filePath = file.filePath,
@@ -116,10 +118,20 @@ class FireFilesService(
             logger.debug { "${previous.accNo}, ${previous.version} Cleaning file $index, path='${file.filePath}'" }
         }
 
+        val filesSet = if (current != null) createFileEntrySet(current) else emptySet()
         logger.info { "${previous.accNo} ${previous.owner} Cleaning Current submission Folder for ${previous.accNo}" }
         serializationService.fileSequence(previous)
             .filterIsInstance(FireFile::class.java)
+            .filterNot { filesSet.contains(FileEntry(it.md5, it.firePath!!)) }
             .forEachIndexed { index, file -> cleanFile(index, file) }
         logger.info { "${previous.accNo} ${previous.owner} Cleaning Ftp Folder for ${previous.accNo}" }
     }
+
+    private fun createFileEntrySet(sub: ExtSubmission): Set<FileEntry> =
+        serializationService.fileSequence(sub)
+            .filterIsInstance(FireFile::class.java)
+            .map { FileEntry(it.md5, sub.expectedPath(it)) }
+            .toSet()
+
+    data class FileEntry(val md5: String, val path: String)
 }
