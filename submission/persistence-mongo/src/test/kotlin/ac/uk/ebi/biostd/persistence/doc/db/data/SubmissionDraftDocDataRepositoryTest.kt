@@ -27,7 +27,7 @@ import kotlin.test.assertNotNull
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 class SubmissionDraftDocDataRepositoryTest(
-    @Autowired val testInstance: SubmissionDraftDocDataRepository
+    @Autowired val testInstance: SubmissionDraftDocDataRepository,
 ) {
     private val testDocDraft = DocSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, ACTIVE)
     private val testActiveDocDraft = DocSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT, ACTIVE)
@@ -42,7 +42,11 @@ class SubmissionDraftDocDataRepositoryTest(
     fun getSubmissionDraftByIdAndKey() {
         testInstance.save(testDocDraft)
 
-        val result = testInstance.findByUserIdAndKey(USER_ID, DRAFT_KEY)
+        val result = testInstance.findByUserIdAndKeyAndStatusIsNot(
+            USER_ID,
+            DRAFT_KEY,
+            DocSubmissionDraft.DraftStatus.DELETED
+        )
 
         assertThat(result).isEqualTo(testDocDraft)
     }
@@ -50,7 +54,11 @@ class SubmissionDraftDocDataRepositoryTest(
     @Test
     fun saveSubmissionDraft() {
         testInstance.saveDraft("user@test.org", "TMP_123", "{ type: 'submission' }")
-        val saved = testInstance.findByUserIdAndKey("user@test.org", "TMP_123")
+        val saved = testInstance.findByUserIdAndKeyAndStatusIsNot(
+            "user@test.org",
+            "TMP_123",
+            DocSubmissionDraft.DraftStatus.DELETED
+        )
 
         assertNotNull(saved)
         assertThat(saved.content).isEqualTo("{ type: 'submission' }")
@@ -61,7 +69,11 @@ class SubmissionDraftDocDataRepositoryTest(
     fun updateSubmissionDraft() {
         testInstance.saveDraft("user@test.org", "TMP_124", "{ type: 'submission' }")
         testInstance.updateDraftContent("user@test.org", "TMP_124", "{ type: 'study' }")
-        val updated = testInstance.findByUserIdAndKey("user@test.org", "TMP_124")
+        val updated = testInstance.findByUserIdAndKeyAndStatusIsNot(
+            "user@test.org",
+            "TMP_124",
+            DocSubmissionDraft.DraftStatus.DELETED
+        )
 
         assertNotNull(updated)
         assertThat(updated.content).isEqualTo("{ type: 'study' }")

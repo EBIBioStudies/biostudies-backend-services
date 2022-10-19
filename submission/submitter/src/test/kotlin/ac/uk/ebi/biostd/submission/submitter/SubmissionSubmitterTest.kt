@@ -37,7 +37,7 @@ class SubmissionSubmitterTest(
 
     @Test
     fun `create request`(
-        @MockK request: SubmitRequest
+        @MockK request: SubmitRequest,
     ) {
         val submission = basicExtSubmission
         val extRequestSlot = slot<ExtSubmitRequest>()
@@ -46,7 +46,7 @@ class SubmissionSubmitterTest(
         every { request.owner } returns submission.owner
         every { request.accNo } returns submission.accNo
         every { submissionProcessor.processSubmission(request) } returns submission
-        every { draftService.deleteSubmissionDraft("TMP_123") } answers { nothing }
+        every { draftService.setDeleteStatus("TMP_123") } answers { nothing }
         every { parentInfoService.executeCollectionValidators(submission) } answers { nothing }
         every { draftService.setActiveStatus(submission.owner, "TMP_123") } answers { nothing }
         every { draftService.setProcessingStatus(submission.owner, "TMP_123") } answers { nothing }
@@ -66,7 +66,7 @@ class SubmissionSubmitterTest(
             parentInfoService.executeCollectionValidators(submission)
             draftService.setProcessingStatus(submission.owner, "TMP_123")
             submissionSubmitter.createRequest(extRequest)
-            draftService.deleteSubmissionDraft("TMP_123")
+            draftService.setDeleteStatus("TMP_123")
             draftService.deleteSubmissionDraft(submission.owner, "S-TEST123")
             draftService.deleteSubmissionDraft(submission.submitter, "S-TEST123")
         }
@@ -77,7 +77,7 @@ class SubmissionSubmitterTest(
 
     @Test
     fun `create with failure on validation`(
-        @MockK request: SubmitRequest
+        @MockK request: SubmitRequest,
     ) {
         val submission = basicExtSubmission
         val extRequestSlot = slot<ExtSubmitRequest>()
@@ -99,7 +99,7 @@ class SubmissionSubmitterTest(
         verify(exactly = 0) {
             parentInfoService.executeCollectionValidators(submission)
             submissionSubmitter.createRequest(capture(extRequestSlot))
-            draftService.deleteSubmissionDraft("TMP_123")
+            draftService.setDeleteStatus("TMP_123")
             draftService.deleteSubmissionDraft(submission.owner, "S-TEST123")
             draftService.deleteSubmissionDraft(submission.submitter, "S-TEST123")
         }

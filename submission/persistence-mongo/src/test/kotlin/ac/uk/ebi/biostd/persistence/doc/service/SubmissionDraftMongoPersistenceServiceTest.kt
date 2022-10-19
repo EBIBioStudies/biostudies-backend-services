@@ -30,7 +30,13 @@ internal class SubmissionDraftMongoPersistenceServiceTest(
 
     @Test
     fun `get draft when exists`() {
-        every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns testDocDraft
+        every {
+            draftDocDataRepository.findByUserIdAndKeyAndStatusIsNot(
+                USER_ID,
+                DRAFT_KEY,
+                DocSubmissionDraft.DraftStatus.DELETED
+            )
+        } returns testDocDraft
 
         val result = testInstance.findSubmissionDraft(USER_ID, DRAFT_KEY)
 
@@ -41,7 +47,13 @@ internal class SubmissionDraftMongoPersistenceServiceTest(
 
     @Test
     fun `get draft when doesn't exist`() {
-        every { draftDocDataRepository.findByUserIdAndKey(USER_ID, DRAFT_KEY) } returns null
+        every {
+            draftDocDataRepository.findByUserIdAndKeyAndStatusIsNot(
+                USER_ID,
+                DRAFT_KEY,
+                DocSubmissionDraft.DraftStatus.DELETED
+            )
+        } returns null
 
         assertThat(testInstance.findSubmissionDraft(USER_ID, DRAFT_KEY)).isNull()
     }
@@ -55,15 +67,6 @@ internal class SubmissionDraftMongoPersistenceServiceTest(
         assertThat(result.key).isEqualTo(DRAFT_KEY)
         assertThat(result.content).isEqualTo(DRAFT_CONTENT)
         verify(exactly = 1) { draftDocDataRepository.updateDraftContent(USER_ID, DRAFT_KEY, DRAFT_CONTENT) }
-    }
-
-    @Test
-    fun `delete submission draft by key`() {
-        every { draftDocDataRepository.deleteByKey(DRAFT_KEY) } answers { nothing }
-
-        testInstance.deleteSubmissionDraft(DRAFT_KEY)
-
-        verify(exactly = 1) { draftDocDataRepository.deleteByKey(DRAFT_KEY) }
     }
 
     @Test

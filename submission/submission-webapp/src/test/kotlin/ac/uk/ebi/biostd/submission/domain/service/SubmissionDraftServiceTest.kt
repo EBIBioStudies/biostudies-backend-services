@@ -59,7 +59,7 @@ class SubmissionDraftServiceTest(
 
     @Test
     fun `get active submission drafts`(
-        @MockK paginationFilter: PaginationFilter
+        @MockK paginationFilter: PaginationFilter,
     ) {
         every { draftPersistenceService.getActiveSubmissionDrafts(USER_ID, paginationFilter) } returns listOf(testDraft)
 
@@ -72,7 +72,7 @@ class SubmissionDraftServiceTest(
     fun `get draft when exists`() {
         every { draftPersistenceService.findSubmissionDraft(USER_ID, DRAFT_KEY) } returns testDraft
 
-        val result = testInstance.getSubmissionDraft(USER_ID, DRAFT_KEY)
+        val result = testInstance.getOrCreateSubmissionDraft(USER_ID, DRAFT_KEY)
 
         assertThat(result.key).isEqualTo(DRAFT_KEY)
         assertThat(result.content).isEqualTo(DRAFT_CONTENT)
@@ -95,7 +95,7 @@ class SubmissionDraftServiceTest(
             serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(submission), JsonPretty)
         } returns DRAFT_CONTENT
 
-        val result = testInstance.getSubmissionDraft(USER_ID, DRAFT_KEY)
+        val result = testInstance.getOrCreateSubmissionDraft(USER_ID, DRAFT_KEY)
 
         assertThat(result.key).isEqualTo(DRAFT_KEY)
         assertThat(result.content).isEqualTo(DRAFT_CONTENT)
@@ -111,7 +111,7 @@ class SubmissionDraftServiceTest(
         every { userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY) } returns false
         every { draftPersistenceService.findSubmissionDraft(USER_ID, DRAFT_KEY) } returns null
 
-        val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.getSubmissionDraft(USER_ID, DRAFT_KEY) }
+        val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.getOrCreateSubmissionDraft(USER_ID, DRAFT_KEY) }
         assertThat(error.message).isEqualTo("The user {$USER_ID} is not allowed to update the submission $DRAFT_KEY")
 
         verify(exactly = 1) {
@@ -161,7 +161,7 @@ class SubmissionDraftServiceTest(
         @MockK user: SecurityUser,
         @MockK onBehalfRequest: OnBehalfRequest,
         @MockK parameters: SubmissionRequestParameters,
-        @MockK contentRequest: ContentSubmitWebRequest
+        @MockK contentRequest: ContentSubmitWebRequest,
     ) {
         val requestSlot = slot<SubmitBuilderRequest>()
 

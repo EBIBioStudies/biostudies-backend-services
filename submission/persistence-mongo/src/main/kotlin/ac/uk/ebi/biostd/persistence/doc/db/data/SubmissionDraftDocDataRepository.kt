@@ -17,7 +17,7 @@ import org.springframework.data.mongodb.core.query.Update.update
 
 class SubmissionDraftDocDataRepository(
     private val submissionDraftRepository: SubmissionDraftRepository,
-    private val mongoTemplate: MongoTemplate
+    private val mongoTemplate: MongoTemplate,
 ) : SubmissionDraftRepository by submissionDraftRepository {
     fun saveDraft(userId: String, key: String, content: String): DocSubmissionDraft =
         mongoTemplate.replaceOrCreate(
@@ -27,6 +27,11 @@ class SubmissionDraftDocDataRepository(
 
     fun setStatus(userEmail: String, key: String, status: DraftStatus) {
         val query = Query(where(USER_ID).`is`(userEmail).andOperator(where(KEY).`is`(key)))
+        mongoTemplate.updateFirst(query, update(STATUS, status), DocSubmissionDraft::class.java)
+    }
+
+    fun setStatus(key: String, status: DraftStatus) {
+        val query = Query(where(KEY).`is`(key))
         mongoTemplate.updateFirst(query, update(STATUS, status), DocSubmissionDraft::class.java)
     }
 
@@ -44,7 +49,7 @@ class SubmissionDraftDocDataRepository(
     fun findAllByUserIdAndStatus(
         userId: String,
         status: DraftStatus,
-        filter: PaginationFilter = PaginationFilter()
+        filter: PaginationFilter = PaginationFilter(),
     ): List<DocSubmissionDraft> = submissionDraftRepository.findAllByUserIdAndStatus(
         userId, status, PageRequest.of(filter.pageNumber, filter.limit)
     )

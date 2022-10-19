@@ -11,7 +11,7 @@ data class DocSubmissionDraft(
     val userId: String,
     val key: String,
     val content: String,
-    val status: DraftStatus
+    val status: DraftStatus,
 ) {
     constructor(userId: String, key: String, content: String, status: DraftStatus) :
         this(ObjectId().toString(), userId, key, content, status)
@@ -25,6 +25,7 @@ data class DocSubmissionDraft(
 
     enum class DraftStatus {
         ACTIVE,
-        PROCESSING
+        PROCESSING,
+        DELETED
     }
 }
