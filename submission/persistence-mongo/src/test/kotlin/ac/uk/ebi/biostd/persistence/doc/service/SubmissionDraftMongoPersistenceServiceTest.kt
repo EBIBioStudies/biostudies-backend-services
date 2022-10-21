@@ -111,11 +111,11 @@ internal class SubmissionDraftMongoPersistenceServiceTest(
 
     @Test
     fun setActiveStatus() {
-        every { draftDocDataRepository.setStatus(USER_ID, DRAFT_KEY, ACTIVE) } answers { nothing }
+        every { draftDocDataRepository.setStatus(DRAFT_KEY, ACTIVE) } answers { nothing }
 
-        testInstance.setActiveStatus(USER_ID, DRAFT_KEY)
+        testInstance.setActiveStatus(DRAFT_KEY)
 
-        verify(exactly = 1) { draftDocDataRepository.setStatus(USER_ID, DRAFT_KEY, ACTIVE) }
+        verify(exactly = 1) { draftDocDataRepository.setStatus(DRAFT_KEY, ACTIVE) }
     }
 
     @Test
