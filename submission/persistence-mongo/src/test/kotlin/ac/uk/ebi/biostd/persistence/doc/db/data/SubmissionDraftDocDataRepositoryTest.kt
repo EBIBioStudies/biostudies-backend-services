@@ -45,7 +45,7 @@ class SubmissionDraftDocDataRepositoryTest(
         val result = testInstance.findByUserIdAndKeyAndStatusIsNot(
             USER_ID,
             DRAFT_KEY,
-            DocSubmissionDraft.DraftStatus.DELETED
+            DocSubmissionDraft.DraftStatus.ACCEPTED
         )
 
         assertThat(result).isEqualTo(testDocDraft)
@@ -57,7 +57,7 @@ class SubmissionDraftDocDataRepositoryTest(
         val saved = testInstance.findByUserIdAndKeyAndStatusIsNot(
             "user@test.org",
             "TMP_123",
-            DocSubmissionDraft.DraftStatus.DELETED
+            DocSubmissionDraft.DraftStatus.ACCEPTED
         )
 
         assertNotNull(saved)
@@ -72,7 +72,7 @@ class SubmissionDraftDocDataRepositoryTest(
         val updated = testInstance.findByUserIdAndKeyAndStatusIsNot(
             "user@test.org",
             "TMP_124",
-            DocSubmissionDraft.DraftStatus.DELETED
+            DocSubmissionDraft.DraftStatus.ACCEPTED
         )
 
         assertNotNull(updated)

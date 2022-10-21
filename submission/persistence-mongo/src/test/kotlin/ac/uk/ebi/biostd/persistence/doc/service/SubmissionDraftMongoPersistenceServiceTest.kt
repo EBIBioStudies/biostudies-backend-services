@@ -34,7 +34,7 @@ internal class SubmissionDraftMongoPersistenceServiceTest(
             draftDocDataRepository.findByUserIdAndKeyAndStatusIsNot(
                 USER_ID,
                 DRAFT_KEY,
-                DocSubmissionDraft.DraftStatus.DELETED
+                DocSubmissionDraft.DraftStatus.ACCEPTED
             )
         } returns testDocDraft
 
@@ -51,7 +51,7 @@ internal class SubmissionDraftMongoPersistenceServiceTest(
             draftDocDataRepository.findByUserIdAndKeyAndStatusIsNot(
                 USER_ID,
                 DRAFT_KEY,
-                DocSubmissionDraft.DraftStatus.DELETED
+                DocSubmissionDraft.DraftStatus.ACCEPTED
             )
         } returns null
 

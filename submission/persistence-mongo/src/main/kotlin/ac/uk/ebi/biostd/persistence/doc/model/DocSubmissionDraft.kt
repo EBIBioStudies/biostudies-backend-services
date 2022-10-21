@@ -26,6 +26,6 @@ data class DocSubmissionDraft(
     enum class DraftStatus {
         ACTIVE,
         PROCESSING,
-        DELETED
+        ACCEPTED
     }
 }

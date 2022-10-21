@@ -8,7 +8,7 @@ interface SubmissionDraftPersistenceService {
 
     fun updateSubmissionDraft(userEmail: String, key: String, content: String): SubmissionDraft
 
-    fun setDeleteStatus(key: String)
+    fun setAcceptedStatus(key: String)
 
     fun setActiveStatus(key: String)
 

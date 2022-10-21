@@ -57,7 +57,7 @@ class SubmissionSubmitter(
             rqt.draftKey?.let { draftService.setProcessingStatus(rqt.owner, it) }
             val submission = submissionProcessor.processSubmission(rqt)
             parentInfoService.executeCollectionValidators(submission)
-            rqt.draftKey?.let { draftService.setDeleteStatus(it) }
+            rqt.draftKey?.let { draftService.setAcceptedStatus(it) }
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 
             return submission

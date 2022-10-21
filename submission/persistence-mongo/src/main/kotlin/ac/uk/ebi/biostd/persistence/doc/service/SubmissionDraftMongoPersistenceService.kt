@@ -4,8 +4,8 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACCEPTED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.DELETED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.PROCESSING
 
 class SubmissionDraftMongoPersistenceService(
@@ -13,7 +13,7 @@ class SubmissionDraftMongoPersistenceService(
 ) : SubmissionDraftPersistenceService {
     override fun findSubmissionDraft(userEmail: String, key: String): SubmissionDraft? {
         return draftDocDataRepository
-            .findByUserIdAndKeyAndStatusIsNot(userEmail, key, DELETED)
+            .findByUserIdAndKeyAndStatusIsNot(userEmail, key, ACCEPTED)
             ?.let { SubmissionDraft(it.key, it.content) }
     }
 
@@ -22,8 +22,8 @@ class SubmissionDraftMongoPersistenceService(
         return SubmissionDraft(key, content)
     }
 
-    override fun setDeleteStatus(key: String) {
-        draftDocDataRepository.setStatus(key, DELETED)
+    override fun setAcceptedStatus(key: String) {
+        draftDocDataRepository.setStatus(key, ACCEPTED)
     }
 
     override fun setActiveStatus(key: String) {
