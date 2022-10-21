@@ -5,36 +5,40 @@ import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.extended.model.StorageMode.NFS
 
 @Suppress("LongParameterList")
 class StorageService(
     private val fireFtpService: FireFtpService,
     private val fireFilesService: FireFilesService,
-    private val pageTabService: PageTabService,
     private val nfsFtpService: NfsFtpService,
     private val nfsFilesService: NfsFilesService,
 ) : FileStorageService {
-
-    override fun persistSubmissionFiles(sub: ExtSubmission): ExtSubmission =
+    override fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile =
         when (sub.storageMode) {
-            StorageMode.FIRE -> fireFilesService.persistSubmissionFiles(sub)
-            StorageMode.NFS -> nfsFilesService.persistSubmissionFiles(sub)
+            FIRE -> fireFilesService.persistSubmissionFile(sub, file)
+            NFS -> nfsFilesService.persistSubmissionFile(sub, file)
         }
 
-    override fun cleanSubmissionFiles(sub: ExtSubmission) =
+    override fun postProcessSubmissionFiles(sub: ExtSubmission) =
         when (sub.storageMode) {
-            StorageMode.FIRE -> fireFilesService.cleanSubmissionFiles(sub)
-            StorageMode.NFS -> nfsFilesService.cleanSubmissionFiles(sub)
+            FIRE -> fireFilesService.postProcessSubmissionFiles(sub)
+            NFS -> nfsFilesService.postProcessSubmissionFiles(sub)
         }
 
-    override fun generatePageTab(sub: ExtSubmission): ExtSubmission = pageTabService.generatePageTab(sub)
+    override fun cleanSubmissionFiles(previous: ExtSubmission, current: ExtSubmission?) =
+        when (previous.storageMode) {
+            FIRE -> fireFilesService.cleanSubmissionFiles(previous, current)
+            NFS -> nfsFilesService.cleanSubmissionFiles(previous, current)
+        }
 
-    override fun releaseSubmissionFiles(sub: ExtSubmission) =
-        when (sub.storageMode) {
-            StorageMode.FIRE -> fireFtpService.releaseSubmissionFiles(sub)
-            StorageMode.NFS -> nfsFtpService.releaseSubmissionFiles(sub)
+    override fun releaseSubmissionFile(file: ExtFile, subRelPath: String, mode: StorageMode) =
+        when (mode) {
+            FIRE -> fireFtpService.releaseSubmissionFile(file, subRelPath)
+            NFS -> nfsFtpService.releaseSubmissionFile(file, subRelPath)
         }
 }

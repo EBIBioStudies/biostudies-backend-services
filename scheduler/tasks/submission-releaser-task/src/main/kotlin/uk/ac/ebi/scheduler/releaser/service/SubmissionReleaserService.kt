@@ -44,6 +44,7 @@ class SubmissionReleaserService(
     private fun releaseSubmission(releaseData: ReleaseData) {
         logger.info { "Releasing submission ${releaseData.accNo}" }
         bioWebClient.releaseSubmission(releaseData.asReleaseDto())
+        eventsPublisherService.submissionsRefresh(releaseData.accNo, releaseData.owner)
     }
 
     private fun notifyRelease(date: Instant) {

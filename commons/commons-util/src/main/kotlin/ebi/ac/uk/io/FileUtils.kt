@@ -7,11 +7,11 @@ import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createSymLink
 import ebi.ac.uk.io.ext.notExist
-import mu.KotlinLogging
 import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
 import java.io.InputStream
 import java.nio.file.Files
+import java.nio.file.Files.deleteIfExists
 import java.nio.file.Files.exists
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
@@ -28,8 +28,6 @@ val RWXR_X___: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-
 val RW_R_____: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-r-----")
 val RW_R__R__: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-r--r--")
 val RWXR_XR_X: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwxr-xr-x")
-
-private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 object FileUtils {
@@ -55,12 +53,6 @@ object FileUtils {
         require(exists(folder).not() || isDirectory(folder.toFile())) { "'$folder' points to a file" }
         createFolderIfNotExist(folder, permissions)
         return folder
-    }
-
-    fun reCreateFolder(file: File, permissions: Set<PosixFilePermission>): File {
-        deleteFile(file)
-        getOrCreateFolder(file.toPath(), permissions)
-        return file
     }
 
     fun createEmptyFolder(folder: Path, permissions: Set<PosixFilePermission>) {
@@ -92,14 +84,16 @@ object FileUtils {
     }
 
     fun createHardLink(
-        source: File,
-        target: File,
+        file: File,
+        sourcePath: Path,
+        targetPath: Path,
         permissions: Permissions,
     ) {
-        when (isDirectory(source)) {
-            true -> createFolderHardLinks(source.toPath(), target.toPath(), permissions)
-            false -> createFileHardLink(source.toPath(), target.toPath(), permissions)
-        }
+        val filePath = file.toPath()
+        val target = targetPath.resolve(sourcePath.relativize(filePath))
+
+        if (file.isDirectory) createFolderHardLinks(sourcePath, target, permissions)
+        else createFileHardLink(filePath, target, permissions)
     }
 
     fun createSymbolicLink(path: Path, symLinkPath: Path, permissions: Set<PosixFilePermission>) {
@@ -146,21 +140,22 @@ internal object FileUtilsHelper {
     }
 
     fun createFolderHardLinks(
-        source: Path,
-        target: Path,
+        sourcePath: Path,
+        targetPath: Path,
         permissions: Permissions,
     ) {
-        deleteFolder(target)
-        Files.walkFileTree(source, HardLinkFileVisitor(source, target, permissions))
+        deleteFolder(targetPath)
+        Files.walkFileTree(sourcePath, HardLinkFileVisitor(sourcePath, targetPath, permissions))
     }
 
     fun createFileHardLink(
-        source: Path,
+        filePath: Path,
         target: Path,
         permissions: Permissions,
     ) {
-        deleteFolder(target)
-        Files.createLink(source, createParentDirectories(target, permissions.folder))
+        deleteIfExists(target)
+        FileUtils.createParentFolders(target, permissions.folder)
+        Files.createLink(target, filePath)
         Files.setPosixFilePermissions(target, permissions.file)
     }
 

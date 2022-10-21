@@ -67,6 +67,13 @@ object FileListDocFileFields {
     const val FILE_LIST_DOC_FILE_FILE_LIST_NAME = "fileListName"
 }
 
+object DocSubmissionRequestFileFields {
+    const val FILE_INDEX = "index"
+    const val FILE_PATH = "path"
+    const val FILE_SUB_ACC_NO = "accNo"
+    const val FILE_SUB_VERSION = "version"
+}
+
 object DocFileTableFields {
     val DOC_FILE_TABLE_CLASS: String = DocFileTable::class.java.canonicalName
     const val FILE_TABLE_DOC_FILES = "files"
@@ -133,4 +140,10 @@ object DocSubmissionFields {
     const val SUB_STATS = "stats"
     const val PAGE_TAB_FILES = "pageTabFiles"
     const val STORAGE_MODE = "storageMode"
+}
+
+object DocRequestFields {
+    const val RQT_IDX = "currentIndex"
+    const val RQT_TOTAL_FILES = "totalFiles"
+    const val RQT_MODIFICATION_TIME = "modificationTime"
 }

@@ -9,9 +9,11 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceSer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
+import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
@@ -20,10 +22,10 @@ import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionCleaner
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
@@ -49,53 +51,56 @@ import java.nio.file.Paths
 class SubmitterConfig {
     @Bean
     fun requestLoader(
-        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
-        submissionPersistenceService: SubmissionPersistenceService,
+        requestService: SubmissionRequestPersistenceService,
         fileProcessingService: FileProcessingService,
-        storageService: FileStorageService,
-    ): SubmissionRequestLoader = SubmissionRequestLoader(
-        submissionPersistenceQueryService,
-        submissionPersistenceService,
-        fileProcessingService,
-        storageService
-    )
+        pageTabService: PageTabService,
+    ): SubmissionRequestLoader = SubmissionRequestLoader(requestService, fileProcessingService, pageTabService)
 
     @Bean
     fun requestProcessor(
-        systemService: FileSystemService,
-        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+        storageService: FileStorageService,
+        fileProcessingService: FileProcessingService,
+        requestService: SubmissionRequestPersistenceService,
         submissionPersistenceService: SubmissionPersistenceService,
     ): SubmissionRequestProcessor = SubmissionRequestProcessor(
-        systemService,
-        submissionPersistenceQueryService,
-        submissionPersistenceService
+        storageService,
+        fileProcessingService,
+        submissionPersistenceService,
+        requestService,
     )
 
     @Bean
     fun submissionReleaser(
         fileStorageService: FileStorageService,
+        serializationService: ExtSerializationService,
+        requestService: SubmissionRequestPersistenceService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
-    ): SubmissionReleaser =
-        SubmissionReleaser(fileStorageService, submissionPersistenceQueryService, submissionPersistenceService)
+    ): SubmissionRequestReleaser = SubmissionRequestReleaser(
+        fileStorageService,
+        serializationService,
+        submissionPersistenceQueryService,
+        submissionPersistenceService,
+        requestService
+    )
 
     @Bean
     fun submissionCleaner(
-        systemService: FileSystemService,
+        storageService: StorageService,
         queryService: SubmissionPersistenceQueryService,
-        submissionPersistenceService: SubmissionPersistenceService,
-    ): SubmissionCleaner = SubmissionCleaner(systemService, queryService, submissionPersistenceService)
+        requestService: SubmissionRequestPersistenceService,
+    ): SubmissionRequestCleaner = SubmissionRequestCleaner(storageService, queryService, requestService)
 
     @Bean
     fun extSubmissionSubmitter(
-        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+        requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
         requestLoader: SubmissionRequestLoader,
         requestProcessor: SubmissionRequestProcessor,
-        submissionReleaser: SubmissionReleaser,
-        submissionCleaner: SubmissionCleaner,
+        submissionReleaser: SubmissionRequestReleaser,
+        submissionCleaner: SubmissionRequestCleaner,
     ) = ExtSubmissionSubmitter(
-        submissionPersistenceQueryService,
+        requestService,
         persistenceService,
         requestLoader,
         requestProcessor,

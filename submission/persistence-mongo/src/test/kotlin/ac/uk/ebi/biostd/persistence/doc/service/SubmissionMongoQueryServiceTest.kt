@@ -22,7 +22,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
-import arrow.core.Either.Companion.left
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
+import arrow.core.Either
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
@@ -56,6 +57,7 @@ import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Duration.ofSeconds
+import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED as REQUEST_PROCESSED
@@ -78,37 +80,16 @@ internal class SubmissionMongoQueryServiceTest(
     private val testInstance =
         SubmissionMongoPersistenceQueryService(
             submissionRepo,
-            requestRepository,
-            fileListDocFileRepository,
-            serializationService,
             toExtSubmissionMapper,
+            serializationService,
+            requestRepository,
+            fileListDocFileRepository
         )
 
     @AfterEach
     fun afterEach() {
         submissionRepo.deleteAll()
         fileListDocFileRepository.deleteAll()
-    }
-
-    @Nested
-    inner class ExpireSubmissions {
-        @Test
-        fun `expire submission`() {
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 1))
-            testInstance.expireSubmission("S-BSST1")
-
-            assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
-        }
-
-        @Test
-        fun `expire submissions`() {
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 1))
-            submissionRepo.save(docSubmission.copy(accNo = "S-BSST101", version = 1))
-            testInstance.expireSubmissions(listOf("S-BSST1", "S-BSST101"))
-
-            assertThat(submissionRepo.findByAccNo("S-BSST1")).isNull()
-            assertThat(submissionRepo.findByAccNo("S-BSST101")).isNull()
-        }
     }
 
     @Nested
@@ -128,65 +109,6 @@ internal class SubmissionMongoQueryServiceTest(
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -1))
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -2))
             assertThat(submissionRepo.findByAccNo("S-BSST3")).isNull()
-        }
-    }
-
-    @Nested
-    inner class GetReferencedFiles {
-        private val fileReference = ObjectId()
-        private val referencedFile = tempFolder.createFile("referenced.txt")
-        private val fileListFile = FileListDocFile(
-            fileReference,
-            docSubmission.id,
-            NfsDocFile(
-                "referenced.txt",
-                "referenced.txt",
-                "referenced.txt",
-                referencedFile.absolutePath,
-                listOf(),
-                "test-md5",
-                1,
-                "file"
-            ),
-            fileListName = "test-file-list",
-            index = 1,
-            submissionVersion = docSubmission.version,
-            submissionAccNo = docSubmission.accNo
-        )
-        private val fileList = DocFileList("test-file-list")
-        private val submission =
-            docSubmission.copy(section = DocSection(id = ObjectId(), type = "Study", fileList = fileList))
-
-        @BeforeEach
-        fun beforeEach() {
-            submissionRepo.save(submission)
-            fileListDocFileRepository.save(fileListFile)
-        }
-
-        @Test
-        fun `get referenced files`() {
-            val files = testInstance.getReferencedFiles(SUB_ACC_NO, "test-file-list")
-            assertThat(files).hasSize(1)
-            assertThat((files.first() as NfsFile).file).isEqualTo(referencedFile)
-        }
-
-        @Test
-        fun `get referenced files for inner section`() {
-            val innerSection = DocSection(id = ObjectId(), type = "Experiment", fileList = fileList)
-            val rootSection = DocSection(id = ObjectId(), type = "Study", sections = listOf(left(innerSection)))
-            val innerSectionSubmission = docSubmission.copy(accNo = "S-REF1", section = rootSection)
-
-            submissionRepo.save(innerSectionSubmission)
-            fileListDocFileRepository.save(fileListFile.copy(submissionAccNo = innerSectionSubmission.accNo))
-
-            val files = testInstance.getReferencedFiles("S-REF1", "test-file-list")
-            assertThat(files).hasSize(1)
-            assertThat((files.first() as NfsFile).file).isEqualTo(referencedFile)
-        }
-
-        @Test
-        fun `non existing referenced files`() {
-            assertThat(testInstance.getReferencedFiles(SUB_ACC_NO, "non-existing-fileListName")).hasSize(0)
         }
     }
 
@@ -369,27 +291,27 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(result[0].accNo).isEqualTo("accNo1")
             assertThat(result[0].version).isEqualTo(2)
             assertThat(result[0].status).isEqualTo(PROCESSING)
-            assertThat(testInstance.hasActiveRequest("accNo1")).isTrue()
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo1", RequestStatus.PROCESSING)).isTrue()
 
             assertThat(result[1].accNo).isEqualTo("accNo2")
             assertThat(result[1].version).isEqualTo(2)
             assertThat(result[1].status).isEqualTo(PROCESSING)
-            assertThat(testInstance.hasActiveRequest("accNo2")).isTrue()
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo2", RequestStatus.PROCESSING)).isTrue()
 
             assertThat(result[2].accNo).isEqualTo("accNo3")
             assertThat(result[2].version).isEqualTo(2)
             assertThat(result[2].status).isEqualTo(PROCESSING)
-            assertThat(testInstance.hasActiveRequest("accNo3")).isTrue()
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo3", RequestStatus.PROCESSING)).isTrue()
 
             assertThat(result[3].accNo).isEqualTo("accNo4")
             assertThat(result[3].version).isEqualTo(2)
             assertThat(result[3].status).isEqualTo(PROCESSING)
-            assertThat(testInstance.hasActiveRequest("accNo4")).isTrue()
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo4", RequestStatus.PROCESSING)).isTrue()
 
             assertThat(result[4].accNo).isEqualTo("accNo5")
             assertThat(result[4].version).isEqualTo(1)
             assertThat(result[4].status).isEqualTo(PROCESSED)
-            assertThat(testInstance.hasActiveRequest("accNo5")).isFalse()
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo5", RequestStatus.PROCESSING)).isFalse()
         }
 
         @Test
@@ -437,7 +359,69 @@ internal class SubmissionMongoQueryServiceTest(
             status = status,
             draftKey = null,
             submission = BasicDBObject.parse(serializationService.serialize(submission)),
+            totalFiles = 6,
+            currentIndex = 0,
+            modificationTime = Instant.now()
         )
+    }
+
+    @Nested
+    inner class GetReferencedFiles {
+        private val fileReference = ObjectId()
+        private val referencedFile = tempFolder.createFile("referenced.txt")
+        private val fileListFile = FileListDocFile(
+            fileReference,
+            testDocSubmission.id,
+            NfsDocFile(
+                "referenced.txt",
+                "referenced.txt",
+                "referenced.txt",
+                referencedFile.absolutePath,
+                listOf(),
+                "test-md5",
+                1,
+                "file"
+            ),
+            fileListName = "test-file-list",
+            index = 1,
+            submissionVersion = testDocSubmission.version,
+            submissionAccNo = testDocSubmission.accNo
+        )
+        private val fileList = DocFileList("test-file-list")
+        private val submission =
+            testDocSubmission.copy(section = DocSection(id = ObjectId(), type = "Study", fileList = fileList))
+
+        @BeforeEach
+        fun beforeEach() {
+            submissionRepo.save(submission)
+            fileListDocFileRepository.save(fileListFile)
+        }
+
+        @Test
+        fun `get referenced files`() {
+            val files = testInstance.getReferencedFiles(SUB_ACC_NO, "test-file-list")
+            assertThat(files).hasSize(1)
+            assertThat((files.first() as NfsFile).file).isEqualTo(referencedFile)
+        }
+
+        @Test
+        fun `get referenced files for inner section`() {
+            val innerSection = DocSection(id = ObjectId(), type = "Experiment", fileList = fileList)
+            val rootSection = DocSection(id = ObjectId(), type = "Study", sections = listOf(Either.left(innerSection)))
+            val innerSectionSubmission = testDocSubmission.copy(accNo = "S-REF1", section = rootSection)
+
+            submissionRepo.save(innerSectionSubmission)
+            fileListDocFileRepository.save(fileListFile.copy(submissionAccNo = innerSectionSubmission.accNo))
+
+            val files = testInstance.getReferencedFiles("S-REF1", "test-file-list")
+            assertThat(files).hasSize(1)
+            assertThat((files.first() as NfsFile).file).isEqualTo(referencedFile)
+        }
+
+        @Test
+        fun `non existing referenced files`() {
+            assertThat(testInstance.getReferencedFiles(SUB_ACC_NO, "non-existing-fileListName")).hasSize(0)
+        }
     }
 
     @Test

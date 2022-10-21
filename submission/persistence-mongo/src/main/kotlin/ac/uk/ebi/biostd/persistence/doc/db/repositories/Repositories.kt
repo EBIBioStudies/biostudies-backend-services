@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import org.bson.types.ObjectId
@@ -16,6 +17,9 @@ import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.mongodb.repository.Query
 
 interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
+    @Query(value = "{ 'accNo': '?0', 'version': { \$gte: 0 } }", fields = "{ relPath : 0 }")
+    fun getRelPath(accNo: String): String
+
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     fun findByAccNo(accNo: String): DocSubmission?
 
@@ -45,6 +49,22 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
     fun existsByAccNoAndStatusIn(accNo: String, status: Set<RequestStatus>): Boolean
 
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
+}
+
+interface SubmissionFilesRepository : MongoRepository<DocSubmissionRequestFile, ObjectId> {
+    fun findAllByAccNoAndVersionAndIndexGreaterThan(
+        accNo: String,
+        version: Int,
+        index: Int,
+    ): List<DocSubmissionRequestFile>
+
+    fun findAllByAccNoAndVersionAndFileList(
+        accNo: String,
+        version: Int,
+        fileList: String,
+    ): List<DocSubmissionRequestFile>
+
+    fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
 }
 
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {

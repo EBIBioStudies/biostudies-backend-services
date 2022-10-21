@@ -4,17 +4,14 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allFileList
 import ebi.ac.uk.extended.model.allSectionsFiles
-import java.util.concurrent.atomic.AtomicInteger
 
-fun ExtSerializationService.forEachFile(
-    submission: ExtSubmission,
-    function: (ExtFile, Int) -> Unit,
-) {
-    val index = AtomicInteger(1)
-    for (fileList in submission.allFileList) {
-        fileList.file.inputStream().use { deserializeList(it).forEach { function(it, index.incrementAndGet()) } }
-        fileList.pageTabFiles.forEach { function(it, index.incrementAndGet()) }
+fun ExtSerializationService.fileSequence(submission: ExtSubmission): Sequence<ExtFile> {
+    return sequence {
+        for (fileList in submission.allFileList) {
+            fileList.file.inputStream().use { deserializeList(it).forEach { yield(it) } }
+            fileList.pageTabFiles.forEach { yield(it) }
+        }
+        submission.allSectionsFiles.forEach { yield(it) }
+        submission.pageTabFiles.forEach { yield(it) }
     }
-    submission.allSectionsFiles.forEach { function(it, index.incrementAndGet()) }
-    submission.pageTabFiles.forEach { function(it, index.incrementAndGet()) }
 }

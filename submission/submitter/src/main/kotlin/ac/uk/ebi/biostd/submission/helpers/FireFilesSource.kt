@@ -68,10 +68,12 @@ private class SubmissionFireFilesSource(
 
 fun FireApiFile.asFireFile(path: String, attributes: List<Attribute>): FireFile =
     FireFile(
+        fireId = fireOid,
+        firePath = filesystemEntry?.path,
         filePath = path,
         relPath = "Files/$path",
-        fireId = fireOid,
         md5 = objectMd5,
+        size = objectSize,
         type = ExtFileType.FILE,
         size = objectSize,
         attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)

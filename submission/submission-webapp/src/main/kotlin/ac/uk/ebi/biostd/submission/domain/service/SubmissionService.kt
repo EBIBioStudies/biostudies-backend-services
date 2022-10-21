@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.service
 import ac.uk.ebi.biostd.common.config.LISTENER_FACTORY_NAME
 import ac.uk.ebi.biostd.common.config.SUBMISSION_REQUEST_QUEUE
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDelete
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotRelease
@@ -25,7 +26,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("TooManyFunctions")
+@Suppress("LongParameterList", "TooManyFunctions")
 @RabbitListener(queues = [SUBMISSION_REQUEST_QUEUE], containerFactory = LISTENER_FACTORY_NAME)
 class SubmissionService(
     private val queryService: SubmissionPersistenceQueryService,
@@ -34,6 +35,7 @@ class SubmissionService(
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
     private val fileStorageService: FileStorageService,
+    private val submissionPersistenceService: SubmissionPersistenceService,
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request for submission ${rqt.accNo}" }
@@ -95,8 +97,9 @@ class SubmissionService(
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
         require(userPrivilegesService.canDelete(user.email, accNo)) { throw UserCanNotDelete(accNo, user.email) }
-        fileStorageService.cleanSubmissionFiles(queryService.getExtByAccNo(accNo, true))
-        queryService.expireSubmission(accNo)
+        fileStorageService.cleanSubmissionFiles(queryService.getExtByAccNo(accNo, true), null)
+        submissionPersistenceService.expireSubmission(accNo)
+        eventsPublisherService.submissionsRefresh(accNo, user.email)
     }
 
     fun deleteSubmissions(submissions: List<String>, user: SecurityUser) {

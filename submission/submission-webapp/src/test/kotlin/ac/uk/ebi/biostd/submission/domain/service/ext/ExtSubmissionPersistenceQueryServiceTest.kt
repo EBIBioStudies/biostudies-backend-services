@@ -2,10 +2,10 @@ package ac.uk.ebi.biostd.submission.domain.service.ext
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtCollection
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.every
@@ -21,14 +21,15 @@ import org.springframework.data.domain.Pageable
 
 @ExtendWith(MockKExtension::class)
 internal class ExtSubmissionPersistenceQueryServiceTest(
-    @MockK private val queryService: SubmissionPersistenceQueryService,
+    @MockK private val requestService: SubmissionRequestPersistenceService,
+    @MockK private val submissionQueryService: SubmissionPersistenceQueryService,
 ) {
-    private val testInstance = ExtSubmissionQueryService(queryService)
+    private val testInstance = ExtSubmissionQueryService(requestService, submissionQueryService)
 
     @Test
     fun `get ext submission`() {
         val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
-        every { queryService.getExtByAccNo("S-TEST123") } returns extSubmission
+        every { submissionQueryService.getExtByAccNo("S-TEST123") } returns extSubmission
 
         val submission = testInstance.getExtendedSubmission("S-TEST123")
         assertThat(submission).isEqualTo(extSubmission)
@@ -48,7 +49,7 @@ internal class ExtSubmissionPersistenceQueryServiceTest(
         val pageable = Pageable.unpaged()
         val page = PageImpl(mutableListOf(extSubmission), pageable, 2L)
 
-        every { queryService.getExtendedSubmissions(capture(filter)) } returns page
+        every { submissionQueryService.getExtendedSubmissions(capture(filter)) } returns page
 
         val result = testInstance.getExtendedSubmissions(request)
         assertThat(result.content).hasSize(1)
@@ -60,15 +61,6 @@ internal class ExtSubmissionPersistenceQueryServiceTest(
         assertThat(submissionFilter.released).isTrue
         assertThat(submissionFilter.rTimeTo).isEqualTo("2020-09-21T15:00:00Z")
         assertThat(submissionFilter.rTimeFrom).isEqualTo("2019-09-21T15:00:00Z")
-        verify(exactly = 1) { queryService.getExtendedSubmissions(submissionFilter) }
-    }
-
-    @Test
-    fun `get referenced files`(
-        @MockK extFile: ExtFile
-    ) {
-        every { queryService.getReferencedFiles("S-BSST1", "file-list") } returns listOf(extFile)
-
-        assertThat(testInstance.getReferencedFiles("S-BSST1", "file-list").files).containsExactly(extFile)
+        verify(exactly = 1) { submissionQueryService.getExtendedSubmissions(submissionFilter) }
     }
 }

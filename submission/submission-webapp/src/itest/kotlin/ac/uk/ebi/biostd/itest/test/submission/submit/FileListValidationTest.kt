@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
-import ac.uk.ebi.biostd.common.config.PersistenceConfig
+import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
@@ -35,7 +35,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.fire.client.integration.web.FireClient
 
-@Import(PersistenceConfig::class)
+@Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class FileListValidationTest(
@@ -105,7 +105,7 @@ class FileListValidationTest(
         val fileList = tempFolder.createFile("valid-file-list.tsv", fileListContent)
 
         webClient.uploadFiles(listOf(file1, fileList))
-        webClient.submitSingle(previousVersion, TSV, storageMode, SubmissionFilesConfig(listOf(file2)))
+        webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file2), storageMode))
 
         webClient.validateFileList(fileList.name, accNo = "S-FLV123")
 
@@ -149,7 +149,7 @@ class FileListValidationTest(
 
         fireClient.save(file2, file2Md5, file2.size())
         webClient.uploadFiles(listOf(file1, fileList))
-        webClient.submitSingle(previousVersion, TSV, storageMode, SubmissionFilesConfig(listOf(file3)))
+        webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file3), storageMode))
 
         webClient.validateFileList(fileList.name, accNo = "S-FLV124")
 

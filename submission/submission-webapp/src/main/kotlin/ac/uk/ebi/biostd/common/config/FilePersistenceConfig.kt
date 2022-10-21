@@ -5,12 +5,10 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
-import ac.uk.ebi.biostd.persistence.filesystem.fire.FireService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabUtil
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
 import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
 import ac.uk.ebi.biostd.persistence.integration.config.SqlPersistenceConfig
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
@@ -25,51 +23,43 @@ import java.io.File
 
 @Configuration
 @Import(value = [SqlPersistenceConfig::class, FileSystemConfig::class])
-class PersistenceConfig(
+class FilePersistenceConfig(
     private val folderResolver: SubmissionFolderResolver,
     private val properties: ApplicationProperties,
     private val serializationService: SerializationService,
     private val fireClient: FireClient,
 ) {
-
     @Bean
     @Suppress("LongParameterList")
     fun fileStorageService(
         fireFtpService: FireFtpService,
         fireFilesService: FireFilesService,
-        pageTabService: PageTabService,
         nfsFtpService: NfsFtpService,
         nfsFilesService: NfsFilesService,
-    ): FileStorageService = StorageService(
-        fireFtpService, fireFilesService, pageTabService, nfsFtpService, nfsFilesService
-    )
+    ): FileStorageService = StorageService(fireFtpService, fireFilesService, nfsFtpService, nfsFilesService)
 
     @Bean
     fun nfsFtpService(): NfsFtpService = NfsFtpService(folderResolver)
+
+    @Bean
+    fun nfsFileService(): NfsFilesService = NfsFilesService(folderResolver)
+
+    @Bean
+    fun fireFtpService(): FireFtpService = FireFtpService(fireClient)
+
+    @Bean
+    fun fireFileService(
+        serializationService: ExtSerializationService,
+    ): FireFilesService = FireFilesService(fireClient, File(properties.fireTempDirPath), serializationService)
+
+    @Bean
+    fun pageTabService(
+        pageTabUtil: PageTabUtil,
+    ): PageTabService = PageTabService(File(properties.fireTempDirPath), pageTabUtil)
 
     @Bean
     fun pageTabUtil(
         toSubmissionMapper: ToSubmissionMapper,
         toFileListMapper: ToFileListMapper,
     ): PageTabUtil = PageTabUtil(serializationService, toSubmissionMapper, toFileListMapper)
-
-    @Bean
-    fun fireFtpService(serializationService: ExtSerializationService): FireFtpService =
-        FireFtpService(fireClient, serializationService)
-
-    @Bean
-    fun pageTabService(
-        pageTabUtil: PageTabUtil,
-    ): PageTabService =
-        PageTabService(
-            File(properties.fireTempDirPath),
-            pageTabUtil,
-        )
-
-    @Bean
-    fun fireService(): FireService = FireService(fireClient, File(properties.fireTempDirPath))
-
-    @Bean
-    fun fileSystemService(fileStorageService: FileStorageService): FileSystemService =
-        FileSystemService(fileStorageService)
 }

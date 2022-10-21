@@ -7,6 +7,8 @@ import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
@@ -36,7 +38,7 @@ import java.net.URI
 
 @Configuration
 @Suppress("LongParameterList", "TooManyFunctions")
-@Import(value = [PersistenceConfig::class, SecurityBeansConfig::class])
+@Import(value = [FilePersistenceConfig::class, SecurityBeansConfig::class])
 class SubmissionConfig(
     private val fileSourcesService: FileSourcesService,
     private val serializationService: SerializationService,
@@ -52,6 +54,7 @@ class SubmissionConfig(
 
     @Bean
     fun submissionService(
+        submissionPersistenceService: SubmissionPersistenceService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         userPrivilegeService: IUserPrivilegesService,
         extSubmissionSubmitter: ExtSubmissionSubmitter,
@@ -64,20 +67,22 @@ class SubmissionConfig(
         extSubmissionSubmitter,
         submissionSubmitter,
         eventsPublisherService,
-        fileStorageService
+        fileStorageService,
+        submissionPersistenceService,
     )
 
     @Bean
     fun submissionStatsService(
         statsFileHandler: StatsFileHandler,
         tempFileGenerator: TempFileGenerator,
-        submissionStatsService: StatsDataService
+        submissionStatsService: StatsDataService,
     ): SubmissionStatsService = SubmissionStatsService(statsFileHandler, tempFileGenerator, submissionStatsService)
 
     @Bean
     fun extSubmissionQueryService(
-        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
-    ): ExtSubmissionQueryService = ExtSubmissionQueryService(submissionPersistenceQueryService)
+        requestService: SubmissionRequestPersistenceService,
+        queryService: SubmissionPersistenceQueryService,
+    ): ExtSubmissionQueryService = ExtSubmissionQueryService(requestService, queryService)
 
     @Bean
     fun extSubmissionService(

@@ -14,27 +14,30 @@ class ToExtSectionMapper(private val fileListMapper: ToExtFileListMapper) {
         section: DocSection,
         subAccNo: String,
         subVersion: Int,
+        subRelPath: String,
         includeFileListFiles: Boolean,
     ): ExtSection = ExtSection(
         accNo = section.accNo,
         type = section.type,
-        fileList = section.fileList?.toExtFileList(subAccNo, subVersion, includeFileListFiles),
+        fileList = section.fileList?.toExtFileList(subAccNo, subVersion, subRelPath, includeFileListFiles),
         attributes = section.attributes.toExtAttributes(),
-        sections = section.sections.map { it.toExtSections(subAccNo, subVersion, includeFileListFiles) },
-        files = section.files.map { it.toExtFiles() },
+        sections = section.sections.map { it.toExtSections(subAccNo, subVersion, subRelPath, includeFileListFiles) },
+        files = section.files.map { it.toExtFiles(subRelPath) },
         links = section.links.map { it.toExtLinks() }
     )
 
     private fun DocFileList.toExtFileList(
         subAccNo: String,
         subVersion: Int,
-        includeFileListFiles: Boolean
-    ): ExtFileList = fileListMapper.toExtFileList(this, subAccNo, subVersion, includeFileListFiles)
+        subRelPath: String,
+        includeFileListFiles: Boolean,
+    ): ExtFileList = fileListMapper.toExtFileList(this, subAccNo, subVersion, subRelPath, includeFileListFiles)
 
     private fun Either<DocSection, DocSectionTable>.toExtSections(
         subAccNo: String,
         subVersion: Int,
+        subRelPath: String,
         includeFileListFiles: Boolean,
     ): Either<ExtSection, ExtSectionTable> =
-        bimap({ toExtSection(it, subAccNo, subVersion, includeFileListFiles) }, { it.toExtSectionTable() })
+        bimap({ toExtSection(it, subAccNo, subVersion, subRelPath, includeFileListFiles) }, { it.toExtSectionTable() })
 }

@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
-import ac.uk.ebi.biostd.common.config.PersistenceConfig
+import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
@@ -46,7 +46,7 @@ import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 import java.nio.file.Paths
 
-@Import(PersistenceConfig::class)
+@Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
@@ -90,10 +90,10 @@ class SubmissionFileSourceTest(
             }.toString()
         )
 
-        val file4 = tempFolder.createFile("File1.txt", "content 1")
-        val file5 = tempFolder.createFile("File2.txt", "content 2")
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, file4, file5))
-        assertThat(webClient.submitSingle(submission("FileList.tsv"), TSV, storageMode, filesConfig)).isSuccessful()
+        val file4 = tempFolder.createFile("File1.txt", "content file 1")
+        val file5 = tempFolder.createFile("File2.txt", "content file 2")
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, file4, file5), storageMode)
+        assertThat(webClient.submitSingle(submission("FileList.tsv"), TSV, filesConfig)).isSuccessful()
 
         val firstVersion = submissionRepository.getExtByAccNo("S-FSTST1")
         val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-FSTST1", "FileList")
@@ -102,27 +102,27 @@ class SubmissionFileSourceTest(
         val referencedFile = Paths.get("$subFilesPath/File2.txt")
 
         assertThat(innerFile).exists()
-        assertThat(innerFile.toFile().readText()).isEqualTo("content 1")
+        assertThat(innerFile.toFile().readText()).isEqualTo("content file 1")
         assertThat(referencedFile).exists()
-        assertThat(referencedFile.toFile().readText()).isEqualTo("content 2")
+        assertThat(referencedFile.toFile().readText()).isEqualTo("content file 2")
 
         file4.delete()
         file5.delete()
         fileList.delete()
 
-        tempFolder.createFile("File1.txt", "content 1 updated")
+        tempFolder.createFile("File1.txt", "content file 1 updated")
 
-        val reSubFilesConfig = SubmissionFilesConfig(emptyList(), preferredSources = listOf(SUBMISSION, USER_SPACE))
+        val reSubFilesConfig =
+            SubmissionFilesConfig(emptyList(), storageMode, preferredSources = listOf(SUBMISSION, USER_SPACE))
         assertThat(
             webClient.submitSingle(
                 submission("FileList.json"),
                 TSV,
-                storageMode,
                 reSubFilesConfig
             )
         ).isSuccessful()
-        assertThat(innerFile.toFile().readText()).isEqualTo("content 1")
-        assertThat(referencedFile.toFile().readText()).isEqualTo("content 2")
+        assertThat(innerFile.toFile().readText()).isEqualTo("content file 1")
+        assertThat(referencedFile.toFile().readText()).isEqualTo("content file 2")
 
         if (enableFire) {
             val secondVersion = submissionRepository.getExtByAccNo("S-FSTST1")
@@ -141,8 +141,8 @@ class SubmissionFileSourceTest(
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
     fun `submission with FIRE source only`() {
-        val file3 = tempFolder.createFile("File3.txt", "content 3")
-        val file4 = tempFolder.createFile("File4.txt", "content 4")
+        val file3 = tempFolder.createFile("File3.txt", "content file 3")
+        val file4 = tempFolder.createFile("File4.txt", "content file 4")
         val file3Md5 = file3.md5()
         val file4Md5 = file4.md5()
 
@@ -174,8 +174,9 @@ class SubmissionFileSourceTest(
             }.toString()
         )
 
-        val filesConfig = SubmissionFilesConfig(listOf(fileList), preferredSources = listOf(FIRE))
-        assertThat(webClient.submitSingle(submission, TSV, storageMode, filesConfig)).isSuccessful()
+        val filesConfig =
+            SubmissionFilesConfig(listOf(fileList), storageMode, preferredSources = listOf(FIRE))
+        assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
 
         val persistedSubmission = submissionRepository.getExtByAccNo("S-FSTST2")
         val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-FSTST2", "FileList")
@@ -184,9 +185,9 @@ class SubmissionFileSourceTest(
         val referencedFile = Paths.get("$subFilesPath/File3.txt")
 
         assertThat(innerFile).exists()
-        assertThat(innerFile.toFile().readText()).isEqualTo("content 4")
+        assertThat(innerFile.toFile().readText()).isEqualTo("content file 4")
         assertThat(referencedFile).exists()
-        assertThat(referencedFile.toFile().readText()).isEqualTo("content 3")
+        assertThat(referencedFile.toFile().readText()).isEqualTo("content file 3")
 
         val innerFileFireId = (persistedSubmission.allSectionsFiles.first() as FireFile).fireId
         assertThat(innerFileFireId).isEqualTo(fireFile4.fireOid)
