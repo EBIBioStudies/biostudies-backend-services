@@ -18,4 +18,4 @@ sealed interface FileDb {
 }
 
 data class UploadedFileDb(override val md5: String) : FileDb
-data class ConfiguredFileDb(val id: String, override val md5: String, val size: Long) : FileDb
+data class ConfiguredFileDb(val id: String, override val md5: String, val path: String, val size: Long) : FileDb

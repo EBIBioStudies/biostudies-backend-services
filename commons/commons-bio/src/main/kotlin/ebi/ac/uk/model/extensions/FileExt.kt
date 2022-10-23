@@ -18,7 +18,11 @@ val BioFile.fileDb: FileDb?
         if (dbMd5 != null) {
             val size = find(FileFields.DB_SIZE)
             val id = find(FileFields.DB_ID)
-            return if (size != null && id != null) ConfiguredFileDb(id, dbMd5, size.toLong()) else UploadedFileDb(dbMd5)
+            val path = find(FileFields.DB_PATH)
+            return if (size != null && id != null && path != null)
+                ConfiguredFileDb(id, dbMd5, path, size.toLong())
+            else
+                UploadedFileDb(dbMd5)
         }
         return null
     }

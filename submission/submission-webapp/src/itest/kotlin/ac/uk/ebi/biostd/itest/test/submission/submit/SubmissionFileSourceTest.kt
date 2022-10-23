@@ -160,7 +160,7 @@ class SubmissionFileSourceTest(
             line()
 
             line("File", "File4.txt")
-            line("md5", file4Md5)
+            line("dbMd5", file4Md5)
             line()
 
             line()
@@ -169,7 +169,7 @@ class SubmissionFileSourceTest(
         val fileList = tempFolder.createFile(
             "FileList.tsv",
             tsv {
-                line("Files", "GEN", "md5")
+                line("Files", "GEN", "dbMd5")
                 line("File3.txt", "ABC", file3Md5)
             }.toString()
         )
@@ -323,11 +323,23 @@ class SubmissionFileSourceTest(
             line("File", "DataFile5.txt")
             line("dbMd5", "abc-123")
             line("dbId", "unique-id")
+            line("dbPath", "/S-FSTST/006/S-FSTST6/Files/DataFile5.txt")
             line("dbSize", 145)
             line()
         }.toString()
 
         assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
         val submitted = submissionRepository.getExtByAccNo("S-FSTST6")
+
+        assertThat(submitted.section.files[0]).hasLeftValueSatisfying {
+            assertThat(it).isInstanceOf(FireFile::class.java)
+            val fireFile = it as FireFile
+            assertThat(fireFile.md5).isEqualTo("abc-123")
+            assertThat(fireFile.fireId).isEqualTo("unique-id")
+            assertThat(fireFile.size).isEqualTo(145)
+            assertThat(fireFile.firePath).isEqualTo("/S-FSTST/006/S-FSTST6/Files/DataFile5.txt")
+            assertThat(fireFile.relPath).isEqualTo("Files/DataFile5.txt")
+            assertThat(fireFile.filePath).isEqualTo("DataFile5.txt")
+        }
     }
 }

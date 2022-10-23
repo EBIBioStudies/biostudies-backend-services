@@ -75,7 +75,6 @@ fun FireApiFile.asFireFile(path: String, attributes: List<Attribute>): FireFile 
         md5 = objectMd5,
         size = objectSize,
         type = ExtFileType.FILE,
-        size = objectSize,
         attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
     )
 
@@ -88,9 +87,10 @@ private fun FireClient.findByDb(fileDb: FileDb, path: String, attributes: List<A
 
 fun asFireFile(path: String, db: ConfiguredFileDb, attributes: List<Attribute>): FireFile =
     FireFile(
+        fireId = db.id,
+        firePath = db.path,
         filePath = path,
         relPath = "Files/$path",
-        fireId = db.id,
         md5 = db.md5,
         type = ExtFileType.FILE,
         size = db.size,

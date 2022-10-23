@@ -119,6 +119,7 @@ enum class FileFields(override val value: String) : Fields {
     DB_MD5("dbMd5"),
     DB_SIZE("dbSize"),
     DB_ID("dbId"),
+    DB_PATH("dbPath"),
 
     ATTRIBUTES(ATTRIBUTES_FIELD);
 
