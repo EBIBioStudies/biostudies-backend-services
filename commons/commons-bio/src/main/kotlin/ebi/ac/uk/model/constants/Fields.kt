@@ -17,6 +17,7 @@ val FILES_RESERVED_ATTRS = setOf(
     FileFields.MD5.value,
     FileFields.DB_MD5.value,
     FileFields.DB_ID.value,
+    FileFields.DB_PATH.value,
     FileFields.DB_SIZE.value,
     FileFields.MD5.value,
 )
