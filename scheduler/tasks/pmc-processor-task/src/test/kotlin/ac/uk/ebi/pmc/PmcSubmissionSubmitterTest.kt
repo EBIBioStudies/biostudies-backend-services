@@ -24,7 +24,6 @@ import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
-import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -166,23 +165,10 @@ internal class PmcSubmissionSubmitterTest {
     ) {
         @BeforeEach
         fun cleanRepositories() {
-            tempFolder.clean()
             runBlocking {
                 errorsRepository.deleteAll()
                 submissionRepository.deleteAll()
                 fileRepository.deleteAll()
-            }
-        }
-
-        @Test
-        fun `when single submission`() {
-            runBlocking {
-                val targetFile = tempFolder.createFile(FILE1_NAME, FILE1_CONTENT)
-                val fileObjectId = fileRepository.saveFile(targetFile, processedSubmission.accNo)
-                submissionRepository.insertOrExpire(processedSubmission.copy(files = listOf(fileObjectId)))
-
-                pmcTaskExecutor.run()
-
             }
         }
 
