@@ -30,17 +30,17 @@ class SubmissionDraftService(
 ) {
     fun getActiveSubmissionDrafts(
         userEmail: String,
-        filter: PaginationFilter = PaginationFilter()
+        filter: PaginationFilter = PaginationFilter(),
     ): List<SubmissionDraft> {
         return draftPersistenceService.getActiveSubmissionDrafts(userEmail, filter)
     }
 
-    fun getSubmissionDraft(userEmail: String, key: String): SubmissionDraft {
+    fun getOrCreateSubmissionDraft(userEmail: String, key: String): SubmissionDraft {
         return draftPersistenceService.findSubmissionDraft(userEmail, key) ?: createDraftFromSubmission(userEmail, key)
     }
 
     fun getSubmissionDraftContent(userEmail: String, key: String): String {
-        return getSubmissionDraft(userEmail, key).content
+        return getOrCreateSubmissionDraft(userEmail, key).content
     }
 
     fun deleteSubmissionDraft(userEmail: String, key: String) {
@@ -61,19 +61,19 @@ class SubmissionDraftService(
         onBehalfRequest: OnBehalfRequest?,
         parameters: SubmissionRequestParameters,
     ) {
-        val submission = getSubmissionDraft(user.email, key).content
+        val submission = getOrCreateSubmissionDraft(user.email, key).content
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON_PRETTY, buildRequest)
 
         submitWebHandler.submitAsync(request)
     }
 
-    private fun createDraftFromSubmission(userEmail: String, key: String): SubmissionDraft {
-        require(userPrivilegesService.canResubmit(userEmail, key)) { throw UserCanNotUpdateSubmit(key, userEmail) }
+    private fun createDraftFromSubmission(userEmail: String, accNo: String): SubmissionDraft {
+        require(userPrivilegesService.canResubmit(userEmail, accNo)) { throw UserCanNotUpdateSubmit(accNo, userEmail) }
 
-        val submission = toSubmissionMapper.toSimpleSubmission(submissionQueryService.getExtByAccNo(key))
+        val submission = toSubmissionMapper.toSimpleSubmission(submissionQueryService.getExtByAccNo(accNo))
         val content = serializationService.serializeSubmission(submission, JsonPretty)
 
-        return draftPersistenceService.createSubmissionDraft(userEmail, key, content)
+        return draftPersistenceService.createSubmissionDraft(userEmail, accNo, content)
     }
 }

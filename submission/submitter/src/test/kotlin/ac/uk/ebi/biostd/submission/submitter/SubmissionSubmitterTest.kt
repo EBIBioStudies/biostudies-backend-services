@@ -37,7 +37,7 @@ class SubmissionSubmitterTest(
 
     @Test
     fun `create request`(
-        @MockK request: SubmitRequest
+        @MockK request: SubmitRequest,
     ) {
         val submission = basicExtSubmission
         val extRequestSlot = slot<ExtSubmitRequest>()
@@ -46,11 +46,11 @@ class SubmissionSubmitterTest(
         every { request.owner } returns submission.owner
         every { request.accNo } returns submission.accNo
         every { submissionProcessor.processSubmission(request) } returns submission
-        every { draftService.deleteSubmissionDraft("TMP_123") } answers { nothing }
+        every { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
         every { parentInfoService.executeCollectionValidators(submission) } answers { nothing }
-        every { draftService.setActiveStatus(submission.owner, "TMP_123") } answers { nothing }
+        every { draftService.setActiveStatus("TMP_123") } answers { nothing }
         every { draftService.setProcessingStatus(submission.owner, "TMP_123") } answers { nothing }
-        every { draftService.deleteSubmissionDraft(submission.owner, "S-TEST123") } answers { nothing }
+        every { draftService.setAcceptedStatus("S-TEST123") } answers { nothing }
         every { draftService.deleteSubmissionDraft(submission.submitter, "S-TEST123") } answers { nothing }
         every {
             submissionSubmitter.createRequest(capture(extRequestSlot))
@@ -66,18 +66,16 @@ class SubmissionSubmitterTest(
             parentInfoService.executeCollectionValidators(submission)
             draftService.setProcessingStatus(submission.owner, "TMP_123")
             submissionSubmitter.createRequest(extRequest)
-            draftService.deleteSubmissionDraft("TMP_123")
-            draftService.deleteSubmissionDraft(submission.owner, "S-TEST123")
-            draftService.deleteSubmissionDraft(submission.submitter, "S-TEST123")
+            draftService.setAcceptedStatus("TMP_123")
         }
         verify(exactly = 0) {
-            draftService.setActiveStatus(submission.owner, "TMP_123")
+            draftService.setActiveStatus("TMP_123")
         }
     }
 
     @Test
     fun `create with failure on validation`(
-        @MockK request: SubmitRequest
+        @MockK request: SubmitRequest,
     ) {
         val submission = basicExtSubmission
         val extRequestSlot = slot<ExtSubmitRequest>()
@@ -85,8 +83,9 @@ class SubmissionSubmitterTest(
         every { request.draftKey } returns "TMP_123"
         every { request.owner } returns submission.owner
         every { request.accNo } returns submission.accNo
-        every { draftService.setActiveStatus(submission.owner, "TMP_123") } answers { nothing }
+        every { draftService.setActiveStatus("TMP_123") } answers { nothing }
         every { draftService.setProcessingStatus(submission.owner, "TMP_123") } answers { nothing }
+        every { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
         every { submissionProcessor.processSubmission(request) } throws RuntimeException("validation error")
 
         assertThrows<InvalidSubmissionException> { testInstance.createRequest(request) }
@@ -94,14 +93,12 @@ class SubmissionSubmitterTest(
         verify(exactly = 1) {
             submissionProcessor.processSubmission(request)
             draftService.setProcessingStatus(submission.owner, "TMP_123")
-            draftService.setActiveStatus(submission.owner, "TMP_123")
+            draftService.setActiveStatus("TMP_123")
         }
         verify(exactly = 0) {
             parentInfoService.executeCollectionValidators(submission)
             submissionSubmitter.createRequest(capture(extRequestSlot))
-            draftService.deleteSubmissionDraft("TMP_123")
-            draftService.deleteSubmissionDraft(submission.owner, "S-TEST123")
-            draftService.deleteSubmissionDraft(submission.submitter, "S-TEST123")
+            draftService.setAcceptedStatus("TMP_123")
         }
     }
 }

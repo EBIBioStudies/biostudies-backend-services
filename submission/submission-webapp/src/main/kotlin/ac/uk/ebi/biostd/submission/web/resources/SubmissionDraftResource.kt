@@ -39,10 +39,10 @@ internal class SubmissionDraftResource(
 
     @GetMapping("/{key}")
     @ResponseBody
-    fun getSubmissionDraft(
+    fun getOrCreateSubmissionDraft(
         @BioUser user: SecurityUser,
         @PathVariable key: String,
-    ): ResponseSubmissionDraft = submissionDraftService.getSubmissionDraft(user.email, key).asResponseDraft()
+    ): ResponseSubmissionDraft = submissionDraftService.getOrCreateSubmissionDraft(user.email, key).asResponseDraft()
 
     @GetMapping("/{key}/content")
     @ResponseBody
