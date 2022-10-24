@@ -4,16 +4,23 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
+import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
+import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
-import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
+import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
@@ -30,13 +37,12 @@ import uk.ac.ebi.events.service.EventsPublisherService
 import java.net.URI
 
 @Configuration
-@Suppress("LongParameterList")
-@Import(value = [PersistenceConfig::class, SecurityBeansConfig::class])
+@Suppress("LongParameterList", "TooManyFunctions")
+@Import(value = [FilePersistenceConfig::class, SecurityBeansConfig::class])
 class SubmissionConfig(
     private val fileSourcesService: FileSourcesService,
     private val serializationService: SerializationService,
 ) {
-
     @Bean
     fun submissionQueryService(
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
@@ -48,25 +54,35 @@ class SubmissionConfig(
 
     @Bean
     fun submissionService(
+        submissionPersistenceService: SubmissionPersistenceService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         userPrivilegeService: IUserPrivilegesService,
         extSubmissionSubmitter: ExtSubmissionSubmitter,
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
-        fileService: FilesService,
+        fileStorageService: FileStorageService,
     ): SubmissionService = SubmissionService(
         submissionPersistenceQueryService,
         userPrivilegeService,
         extSubmissionSubmitter,
         submissionSubmitter,
         eventsPublisherService,
-        fileService
+        fileStorageService,
+        submissionPersistenceService,
     )
 
     @Bean
+    fun submissionStatsService(
+        statsFileHandler: StatsFileHandler,
+        tempFileGenerator: TempFileGenerator,
+        submissionStatsService: StatsDataService,
+    ): SubmissionStatsService = SubmissionStatsService(statsFileHandler, tempFileGenerator, submissionStatsService)
+
+    @Bean
     fun extSubmissionQueryService(
-        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
-    ): ExtSubmissionQueryService = ExtSubmissionQueryService(submissionPersistenceQueryService)
+        requestService: SubmissionRequestPersistenceService,
+        queryService: SubmissionPersistenceQueryService,
+    ): ExtSubmissionQueryService = ExtSubmissionQueryService(requestService, queryService)
 
     @Bean
     fun extSubmissionService(
@@ -76,7 +92,6 @@ class SubmissionConfig(
         securityQueryService: ISecurityQueryService,
         properties: ApplicationProperties,
         eventsPublisherService: EventsPublisherService,
-        fileService: FilesService,
     ): ExtSubmissionService =
         ExtSubmissionService(
             submissionSubmitter,
@@ -85,7 +100,6 @@ class SubmissionConfig(
             securityQueryService,
             properties,
             eventsPublisherService,
-            fileService
         )
 
     @Bean
@@ -95,12 +109,31 @@ class SubmissionConfig(
     ): CollectionService = CollectionService(collectionSqlDataService, userPrivilegeService)
 
     @Bean
+    fun submissionDraftService(
+        submitWebHandler: SubmitWebHandler,
+        toSubmissionMapper: ToSubmissionMapper,
+        serializationService: SerializationService,
+        submitRequestBuilder: SubmitRequestBuilder,
+        userPrivilegesService: IUserPrivilegesService,
+        submissionQueryService: SubmissionPersistenceQueryService,
+        persistenceDraftService: SubmissionDraftPersistenceService,
+    ): SubmissionDraftService =
+        SubmissionDraftService(
+            submitWebHandler,
+            toSubmissionMapper,
+            serializationService,
+            submitRequestBuilder,
+            userPrivilegesService,
+            submissionQueryService,
+            persistenceDraftService,
+        )
+
+    @Bean
     fun submitHandler(
         submissionService: SubmissionService,
         userFilesService: UserFilesService,
         extSubmissionQueryService: ExtSubmissionQueryService,
         toSubmissionMapper: ToSubmissionMapper,
-        onBehalfUtils: OnBehalfUtils,
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
@@ -109,13 +142,13 @@ class SubmissionConfig(
             serializationService,
             userFilesService,
             toSubmissionMapper,
-            onBehalfUtils
         )
 
     @Bean
     fun submitRequestBuilder(
         tempFileGenerator: TempFileGenerator,
-    ): SubmitRequestBuilder = SubmitRequestBuilder(tempFileGenerator)
+        onBehalfUtils: OnBehalfUtils,
+    ): SubmitRequestBuilder = SubmitRequestBuilder(tempFileGenerator, onBehalfUtils)
 
     @Bean
     fun submissionHandler(

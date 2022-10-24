@@ -5,23 +5,27 @@ import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
-import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
+import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
+import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.submitter.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionReleaser
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
@@ -47,67 +51,95 @@ import java.nio.file.Paths
 class SubmitterConfig {
     @Bean
     fun requestLoader(
-        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+        requestService: SubmissionRequestPersistenceService,
         fileProcessingService: FileProcessingService,
-    ): SubmissionRequestLoader = SubmissionRequestLoader(
-        submissionPersistenceQueryService,
-        fileProcessingService
-    )
+        pageTabService: PageTabService,
+    ): SubmissionRequestLoader = SubmissionRequestLoader(requestService, fileProcessingService, pageTabService)
 
     @Bean
     fun requestProcessor(
-        systemService: FileSystemService,
+        storageService: FileStorageService,
+        fileProcessingService: FileProcessingService,
+        requestService: SubmissionRequestPersistenceService,
         submissionPersistenceService: SubmissionPersistenceService,
     ): SubmissionRequestProcessor = SubmissionRequestProcessor(
-        systemService,
-        submissionPersistenceService
+        storageService,
+        fileProcessingService,
+        submissionPersistenceService,
+        requestService,
     )
 
     @Bean
     fun submissionReleaser(
-        ftpService: FtpService,
+        fileStorageService: FileStorageService,
+        serializationService: ExtSerializationService,
+        requestService: SubmissionRequestPersistenceService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
-    ): SubmissionReleaser =
-        SubmissionReleaser(ftpService, submissionPersistenceQueryService, submissionPersistenceService)
+    ): SubmissionRequestReleaser = SubmissionRequestReleaser(
+        fileStorageService,
+        serializationService,
+        submissionPersistenceQueryService,
+        submissionPersistenceService,
+        requestService
+    )
+
+    @Bean
+    fun submissionCleaner(
+        storageService: StorageService,
+        queryService: SubmissionPersistenceQueryService,
+        requestService: SubmissionRequestPersistenceService,
+    ): SubmissionRequestCleaner = SubmissionRequestCleaner(storageService, queryService, requestService)
 
     @Bean
     fun extSubmissionSubmitter(
+        requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
-        submissionDraftService: SubmissionDraftService,
         requestLoader: SubmissionRequestLoader,
         requestProcessor: SubmissionRequestProcessor,
-        submissionReleaser: SubmissionReleaser,
+        submissionReleaser: SubmissionRequestReleaser,
+        submissionCleaner: SubmissionRequestCleaner,
     ) = ExtSubmissionSubmitter(
+        requestService,
         persistenceService,
-        submissionDraftService,
         requestLoader,
         requestProcessor,
-        submissionReleaser
+        submissionReleaser,
+        submissionCleaner,
     )
 
     @Bean
     fun submissionSubmitter(
         extSubmissionSubmitter: ExtSubmissionSubmitter,
+        submissionProcessor: SubmissionProcessor,
+        parentInfoService: ParentInfoService,
+        draftService: SubmissionDraftPersistenceService,
+    ) = SubmissionSubmitter(
+        extSubmissionSubmitter,
+        submissionProcessor,
+        parentInfoService,
+        draftService,
+    )
+
+    @Bean
+    fun submissionProcessor(
         persistenceService: SubmissionPersistenceService,
         timesService: TimesService,
         accNoService: AccNoService,
         parentInfoService: ParentInfoService,
         collectionInfoService: CollectionInfoService,
-        queryService: SubmissionMetaQueryService,
         properties: ApplicationProperties,
         toExtSectionMapper: ToExtSectionMapper,
-    ) = SubmissionSubmitter(
-        extSubmissionSubmitter,
-        persistenceService,
-        timesService,
-        accNoService,
-        parentInfoService,
-        collectionInfoService,
-        queryService,
-        properties,
-        toExtSectionMapper
-    )
+    ): SubmissionProcessor =
+        SubmissionProcessor(
+            persistenceService,
+            timesService,
+            accNoService,
+            parentInfoService,
+            collectionInfoService,
+            properties,
+            toExtSectionMapper
+        )
 
     @Configuration
     class ToExtendedConfiguration {

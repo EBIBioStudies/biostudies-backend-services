@@ -2,15 +2,13 @@ package ac.uk.ebi.biostd.submission.domain.service.ext
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
-import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.PROJECT_TYPE
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
@@ -39,7 +37,6 @@ class ExtSubmissionServiceTest(
     @MockK private val securityQueryService: ISecurityQueryService,
     @MockK private val properties: ApplicationProperties,
     @MockK private val eventsPublisher: EventsPublisherService,
-    @MockK private val filesService: FilesService,
 ) {
     private val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
     private val testInstance =
@@ -49,8 +46,7 @@ class ExtSubmissionServiceTest(
             userPrivilegesService,
             securityQueryService,
             properties,
-            eventsPublisher,
-            filesService
+            eventsPublisher
         )
 
     @AfterEach
@@ -68,69 +64,47 @@ class ExtSubmissionServiceTest(
 
     @Test
     fun `submit extended`() {
-        val submissionRequestSlot = slot<SubmissionRequest>()
+        val submitRequestSlot = slot<ExtSubmitRequest>()
 
         every { properties.persistence.enableFire } returns true
-        every { submissionSubmitter.processRequest(extSubmission.accNo, 1) } returns extSubmission
-        every { submissionSubmitter.submitAsync(capture(submissionRequestSlot)) } returns (extSubmission.accNo to 1)
+        every { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
+        every { submissionSubmitter.createRequest(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
 
         testInstance.submitExt("user@mail.com", extSubmission)
 
-        val submissionRequest = submissionRequestSlot.captured
-        assertThat(submissionRequest.fileMode).isEqualTo(COPY)
+        val submissionRequest = submitRequestSlot.captured
         assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
         assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
         assertThat(submissionRequest.submission.modificationTime).isAfter(extSubmission.modificationTime)
         verify(exactly = 1) {
             submissionRepository.existByAccNo("ArrayExpress")
-            submissionSubmitter.submitAsync(submissionRequest)
-            submissionSubmitter.processRequest(extSubmission.accNo, 1)
+            submissionSubmitter.createRequest(submissionRequest)
+            submissionSubmitter.handleRequest(extSubmission.accNo, 1)
             securityQueryService.existsByEmail("owner@email.org", false)
         }
     }
 
     @Test
     fun `submit extended async`() {
-        val requestSlot = slot<SubmissionRequest>()
+        val requestSlot = slot<ExtSubmitRequest>()
 
         every { properties.persistence.enableFire } returns true
-        every { submissionSubmitter.processRequest(extSubmission.accNo, 1) } returns extSubmission
-        every { submissionSubmitter.submitAsync(capture(requestSlot)) } returns (extSubmission.accNo to 1)
+        every { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
+        every { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 1)
         every { eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version) } answers { nothing }
 
-        testInstance.submitExtAsync("user@mail.com", extSubmission, fileMode = COPY)
+        testInstance.submitExtAsync("user@mail.com", extSubmission)
 
         val submissionRequest = requestSlot.captured
-        assertThat(submissionRequest.fileMode).isEqualTo(COPY)
         assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
         assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
         assertThat(submissionRequest.submission.modificationTime).isAfter(extSubmission.modificationTime)
 
-        verify(exactly = 0) { submissionSubmitter.processRequest(any(), any()) }
+        verify(exactly = 0) { submissionSubmitter.handleRequest(any(), any()) }
         verify(exactly = 1) {
             submissionRepository.existByAccNo("ArrayExpress")
             securityQueryService.existsByEmail("owner@email.org", false)
             eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version)
-        }
-    }
-
-    @Test
-    fun `refresh submission`() {
-        val submissionRequestSlot = slot<SubmissionRequest>()
-        every { submissionRepository.getExtByAccNo("S-TEST123", true) } returns extSubmission
-        every { eventsPublisher.submissionsRefresh(extSubmission.accNo, extSubmission.owner) } answers { nothing }
-        every { submissionSubmitter.processRequest(extSubmission.accNo, 1) } returns extSubmission
-        every { submissionSubmitter.submitAsync(capture(submissionRequestSlot)) } returns (extSubmission.accNo to 1)
-        every { filesService.cleanSubmissionFiles(extSubmission) } answers { nothing }
-
-        testInstance.refreshSubmission(extSubmission.accNo, "user@mail.com")
-
-        val submissionRequest = submissionRequestSlot.captured
-        verify(exactly = 1) {
-            submissionRepository.getExtByAccNo(extSubmission.accNo, true)
-            submissionSubmitter.submitAsync(submissionRequest)
-            submissionSubmitter.processRequest(extSubmission.accNo, 1)
-            eventsPublisher.submissionsRefresh(extSubmission.accNo, extSubmission.owner)
         }
     }
 
@@ -167,18 +141,17 @@ class ExtSubmissionServiceTest(
 
     @Test
     fun `submit extended collection`() {
-        val requestSlot = slot<SubmissionRequest>()
+        val requestSlot = slot<ExtSubmitRequest>()
         val collection = extSubmission.copy(section = ExtSection(type = PROJECT_TYPE))
 
         every { properties.persistence.enableFire } returns true
         every { submissionRepository.existByAccNo("ArrayExpress") } returns false
-        every { submissionSubmitter.processRequest(collection.accNo, 1) } returns collection
-        every { submissionSubmitter.submitAsync(capture(requestSlot)) } returns (collection.accNo to collection.version)
+        every { submissionSubmitter.handleRequest(collection.accNo, 1) } returns collection
+        every { submissionSubmitter.createRequest(capture(requestSlot)) } returns (collection.accNo to collection.version)
 
         testInstance.submitExt("user@mail.com", collection)
 
         val request = requestSlot.captured
-        assertThat(request.fileMode).isEqualTo(COPY)
         assertThat(request.submission.submitter).isEqualTo("user@mail.com")
         assertThat(request.submission.storageMode).isEqualTo(FIRE)
         assertThat(request.submission.modificationTime).isAfter(extSubmission.modificationTime)

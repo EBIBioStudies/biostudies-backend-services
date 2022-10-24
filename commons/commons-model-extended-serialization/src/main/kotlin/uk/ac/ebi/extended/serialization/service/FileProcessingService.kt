@@ -13,31 +13,31 @@ import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 
+/**
+ * Allow to process the given section, and it subsections by updating a specific attribute or modified data
+ * structure.
+ * Note that the submission tree is iterated from leaf sections (section with no subsections) to parents to avoid
+ * update a section that has an updated child.
+ *
+ * @param section the section to iterate recursively.
+ * @param process process function to apply to each section.
+ * @return an instance of @UpdatedSection indicating if section was changed or not.
+ */
+fun iterateSections(section: ExtSection, process: (file: ExtSection) -> TrackSection): TrackSection {
+    val sections = section.sections.map { either -> either.mapLeft { iterateSections(it, process) } }
+    val (hasChanged, processedSection) = process(section)
+    val changed = hasChanged || sections.any { either -> either.fold({ it.changed }, { false }) }
+
+    return TrackSection(
+        changed,
+        if (changed) processedSection.copy(sections = sections.mapLeft { it.section }) else section
+    )
+}
+
 class FileProcessingService(
     private val serializationService: ExtSerializationService,
     private val fileResolver: FilesResolver,
 ) {
-    /**
-     * Allow to process the given section, and it subsections by updating a specific attribute or modified data
-     * structure.
-     * Note that the submission tree is iterated from leaf sections (section with no subsections) to parents to avoid
-     * update a section that has an updated child.
-     *
-     * @param section the section to iterate recursively.
-     * @param process process function to apply to each section.
-     * @return an instance of @UpdatedSection indicating if section was changed or not.
-     */
-    fun process(section: ExtSection, process: (file: ExtSection) -> TrackSection): TrackSection {
-        val sections = section.sections.map { either -> either.mapLeft { process(it, process) } }
-        val (hasChanged, processedSection) = process(section)
-        val changed = hasChanged || sections.any { either -> either.fold({ it.changed }, { false }) }
-
-        return TrackSection(
-            changed,
-            if (changed) processedSection.copy(sections = sections.mapLeft { it.section }) else section
-        )
-    }
-
     fun processFiles(
         submission: ExtSubmission,
         processFile: (file: ExtFile, index: Int) -> ExtFile,
@@ -48,7 +48,10 @@ class FileProcessingService(
             submission.version,
             submission.section
         ) { processFile(it, index.incrementAndGet()) }
-        return submission.copy(section = newSection)
+        return submission.copy(
+            section = newSection,
+            pageTabFiles = submission.pageTabFiles.map { processFile(it, index.incrementAndGet()) }
+        )
     }
 
     private fun processSectionFiles(
@@ -69,7 +72,10 @@ class FileProcessingService(
         processFile: (file: ExtFile) -> ExtFile,
     ): ExtFileList {
         val newFileList = fileResolver.createExtEmptyFile(subAccNo, subVersion, fileList.fileName)
-        return fileList.copy(file = copyFile(fileList.file, newFileList, processFile))
+        return fileList.copy(
+            file = copyFile(fileList.file, newFileList, processFile),
+            pageTabFiles = fileList.pageTabFiles.map(processFile),
+        )
     }
 
     private fun copyFile(inputFile: File, outputFile: File, processFile: (file: ExtFile) -> ExtFile): File {

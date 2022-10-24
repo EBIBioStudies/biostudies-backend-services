@@ -39,7 +39,6 @@ data class DocSubmission(
     val attributes: List<DocAttribute> = listOf(),
     val tags: List<DocTag> = listOf(),
     val collections: List<DocCollection> = listOf(),
-    val stats: List<DocStat> = listOf(),
     val pageTabFiles: List<DocFile> = listOf(),
     val storageMode: StorageMode
 )
@@ -53,21 +52,6 @@ enum class DocSubmissionMethod(val value: String) {
                 "FILE" -> FILE
                 "PAGE_TAB" -> PAGE_TAB
                 "UNKNOWN" -> UNKNOWN
-                else -> throw IllegalStateException("Unknown submission method $value")
-            }
-        }
-    }
-}
-
-enum class DocProcessingStatus(val value: String) {
-    PROCESSED("PROCESSED"), PROCESSING("PROCESSING"), REQUESTED("REQUESTED");
-
-    companion object {
-        fun fromString(value: String): DocProcessingStatus {
-            return when (value) {
-                "PROCESSED" -> PROCESSED
-                "PROCESSING" -> PROCESSING
-                "REQUESTED" -> REQUESTED
                 else -> throw IllegalStateException("Unknown submission method $value")
             }
         }
@@ -133,6 +117,18 @@ data class FileListDocFile(
     val submissionAccNo: String
 )
 
+@Document(collection = "submission_request_files")
+data class DocSubmissionRequestFile(
+    @Id
+    val id: ObjectId,
+    val index: Int,
+    val accNo: String,
+    val version: Int,
+    val path: String,
+    val file: DocFile,
+    val fileList: String?,
+)
+
 data class DocSectionTable(val sections: List<DocSectionTableRow>)
 data class DocLinkTable(val links: List<DocLink>)
 
@@ -163,4 +159,10 @@ data class DocSectionTableRow(
     val attributes: List<DocAttribute> = listOf()
 )
 
-data class DocStat(val name: String, val value: Long)
+@Document(collection = "submission_stats")
+data class DocSubmissionStats(
+    @Id
+    val id: ObjectId,
+    val accNo: String,
+    val stats: Map<String, Long>
+)

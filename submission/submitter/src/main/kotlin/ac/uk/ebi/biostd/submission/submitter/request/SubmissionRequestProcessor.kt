@@ -1,38 +1,58 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
-import ac.uk.ebi.biostd.persistence.common.request.ProcessedSubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
+import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestProcessor(
-    private val systemService: FileSystemService,
-    private val submissionPersistenceService: SubmissionPersistenceService,
+    private val storageService: FileStorageService,
+    private val fileProcessingService: FileProcessingService,
+    private val persistenceService: SubmissionPersistenceService,
+    private val requestService: SubmissionRequestPersistenceService,
 ) {
-
     /**
      * Process the current submission files. Note that [ExtSubmission] returned does not include file list files.
      */
-    fun processRequest(saveRequest: ProcessedSubmissionRequest): ExtSubmission {
-        val (sub, fileMode, draftKey, previousVersion) = saveRequest
-        logger.info { "${sub.accNo} ${sub.owner} processing request accNo='${sub.accNo}', version='${sub.version}'" }
+    fun processRequest(accNo: String, version: Int): ExtSubmission {
+        val request = requestService.getCleanedRequest(accNo, version)
+        val (sub, _) = request
 
-        if (previousVersion != null) {
-            logger.info { "${sub.accNo} ${sub.owner} Started cleaning files of version ${previousVersion.version}" }
-            systemService.cleanFolder(previousVersion)
-            logger.info { "${sub.accNo} ${sub.owner} Finished cleaning files of version ${previousVersion.version}" }
-        }
+        logger.info { "$accNo ${sub.owner} Started persisting submission files on ${sub.storageMode}" }
 
-        val processingSubmission = systemService.persistSubmissionFiles(FilePersistenceRequest(sub, fileMode))
-        val savedSubmission = submissionPersistenceService.saveSubmission(processingSubmission, draftKey)
+        val processed = persistSubmissionFiles(sub)
+        storageService.postProcessSubmissionFiles(sub)
+        persistenceService.expirePreviousVersions(sub.accNo)
+        persistenceService.saveSubmission(processed)
 
-        submissionPersistenceService.updateRequestAsProcessed(sub.accNo, sub.version)
+        val processedRequest = request.copy(
+            status = FILES_COPIED,
+            submission = processed,
+            currentIndex = 0,
+            modificationTime = OffsetDateTime.now(),
+        )
+        requestService.saveSubmissionRequest(processedRequest)
 
-        logger.info { "${sub.accNo} ${sub.owner} processed request accNo='${sub.accNo}', version='${sub.version}'" }
-        return savedSubmission
+        logger.info { "$accNo ${sub.owner} Finished persisting submission files on ${sub.storageMode}" }
+
+        return processed
     }
+
+    private fun persistSubmissionFiles(sub: ExtSubmission) =
+        fileProcessingService.processFiles(sub) { file, idx ->
+            logger.info { "${sub.accNo} ${sub.owner} Started persisting file $idx, path='${file.filePath}'" }
+
+            val persisted = storageService.persistSubmissionFile(sub, file)
+            requestService.updateRequestIndex(sub.accNo, sub.version, idx)
+
+            logger.info { "${sub.accNo} ${sub.owner} Finished persisting file $idx, path='${file.filePath}'" }
+
+            persisted
+        }
 }

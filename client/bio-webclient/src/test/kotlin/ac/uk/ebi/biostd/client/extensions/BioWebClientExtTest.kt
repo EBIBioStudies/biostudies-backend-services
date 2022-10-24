@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.client.extensions
 import ac.uk.ebi.biostd.client.api.EXT_SUBMISSIONS_URL
 import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SubmissionClient
+import ac.uk.ebi.biostd.client.integration.web.SubmitClient
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.every
@@ -17,13 +17,13 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-class BioWebClientExtTest(@MockK private val submissionClient: SubmissionClient) {
+class BioWebClientExtTest(@MockK private val submissionClient: SubmitClient) {
     private val testInstance = spyk(BioWebClient(submissionClient))
 
     @Test
     fun `ext submissions as sequence`(
         @MockK firstExtSubmission: ExtSubmission,
-        @MockK secondExtSubmission: ExtSubmission
+        @MockK secondExtSubmission: ExtSubmission,
     ) {
         val firstPageUrl = "$EXT_SUBMISSIONS_URL?offset=0&limit=1"
         val secondPageUrl = "$EXT_SUBMISSIONS_URL?offset=1&limit=1"

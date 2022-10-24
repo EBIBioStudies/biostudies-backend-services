@@ -3,15 +3,15 @@ app:
   notificationsUrl: # Slack notifications URL
 
   daily-scheduling:
-    pmc: # Indicates whether or not the PMC related tasks should be daily triggered
-    notifier: # Indicates whether or not the Submission Release Notifier should be daily triggered
-    releaser: # Indicates whether or not the Submission Releaser should be daily triggered
-    exporter: # Indicates whether or not the Exporter should be daily triggered
+    pmc-import: # Indicates whether the PMC import pipeline be daily triggered
+    pmc-export: # Indicates whether the PMC links export should be daily triggered
+    notifier: # Indicates whether the Submission Release Notifier should be daily triggered
+    releaser: # Indicates whether the Submission Releaser should be daily triggered
+    exporter: # Indicates whether the Exporter should be daily triggered
 
   ssh:
-    user: # ssh user
-    password: # ssh user password
-    server:  ## ssh sever (to submit jobs from)
+    sshKey: # ssh key path.
+    sshServer:  ## ssh sever (to submit jobs from)
 
 pmc:
   import:

@@ -3,10 +3,8 @@ package uk.ac.ebi.biostd.client.cli.commands
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
-import ebi.ac.uk.extended.model.FileMode.COPY
-import ebi.ac.uk.extended.model.FileMode.MOVE
-import ebi.ac.uk.io.sources.PreferredSource.FIRE
-import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
+import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -24,12 +22,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
-import java.lang.IllegalArgumentException
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class SubmitCommandTest(
     private val temporaryFolder: TemporaryFolder,
-    @MockK private val submissionService: SubmissionService
+    @MockK private val submissionService: SubmissionService,
 ) {
     private var testInstance = SubmitCommand(submissionService)
     private val rootFolder: String = temporaryFolder.root.absolutePath
@@ -49,7 +46,7 @@ internal class SubmitCommandTest(
         val attachedFile2 = temporaryFolder.createFile("attachedFile2.tsv")
 
         val securityConfig = SecurityConfig("server", "user", "password")
-        val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), COPY, emptyList())
+        val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), StorageMode.FIRE, emptyList())
         val request = SubmissionRequest(submission, securityConfig, filesConfig)
 
         every { submissionService.submit(request) } returns mockResponse
@@ -76,7 +73,8 @@ internal class SubmitCommandTest(
         val attachedFile2 = temporaryFolder.createFile("attachedFile2.tsv")
 
         val securityConfig = SecurityConfig("server", "user", "password")
-        val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), MOVE, listOf(SUBMISSION, FIRE))
+        val sources = listOf(PreferredSource.SUBMISSION, PreferredSource.FIRE)
+        val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), StorageMode.NFS, sources)
         val request = SubmissionRequest(submission, securityConfig, filesConfig)
 
         every { submissionService.submit(request) } returns mockResponse
@@ -88,8 +86,8 @@ internal class SubmitCommandTest(
                 "-p", "password",
                 "-i", "$rootFolder/Submission.tsv",
                 "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
-                "-fm", "MOVE",
-                "-ps", "SUBMISSION,FIRE"
+                "-ps", "SUBMISSION,FIRE",
+                "-sm", "NFS"
             )
         )
 
@@ -103,7 +101,7 @@ internal class SubmitCommandTest(
         val submission = temporaryFolder.createFile("Submission.tsv")
 
         val securityConfig = SecurityConfig("server", "user", "password")
-        val filesConfig = SubmissionFilesConfig(emptyList(), MOVE, emptyList())
+        val filesConfig = SubmissionFilesConfig(emptyList(), StorageMode.FIRE, emptyList())
         val request = SubmissionRequest(submission, securityConfig, filesConfig)
 
         every { submissionService.submit(request) } returns mockResponse
@@ -114,31 +112,11 @@ internal class SubmitCommandTest(
                 "-u", "user",
                 "-p", "password",
                 "-i", "$rootFolder/Submission.tsv",
-                "-fm", "MOVE"
+                "-sm", "FIRE"
             )
         )
 
         verify(exactly = 1) { submissionService.submit(request) }
-    }
-
-    @Test
-    fun `invalid file mode`() {
-        temporaryFolder.createFile("Submission.tsv")
-        temporaryFolder.createFile("attachedFile1.tsv")
-        temporaryFolder.createFile("attachedFile2.tsv")
-
-        assertThrows<IllegalArgumentException> {
-            testInstance.parse(
-                listOf(
-                    "-s", "server",
-                    "-u", "user",
-                    "-p", "password",
-                    "-i", "$rootFolder/Submission.tsv",
-                    "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
-                    "-fm", "INVALID"
-                )
-            )
-        }
     }
 
     @Test

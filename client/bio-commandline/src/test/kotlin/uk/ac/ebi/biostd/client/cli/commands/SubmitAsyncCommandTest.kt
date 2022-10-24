@@ -3,10 +3,8 @@ package uk.ac.ebi.biostd.client.cli.commands
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
-import ebi.ac.uk.extended.model.FileMode.COPY
-import ebi.ac.uk.extended.model.FileMode.MOVE
-import ebi.ac.uk.io.sources.PreferredSource.FIRE
-import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
+import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -27,7 +25,7 @@ import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class SubmitAsyncCommandTest(
     private val temporaryFolder: TemporaryFolder,
-    @MockK private val submissionService: SubmissionService
+    @MockK private val submissionService: SubmissionService,
 ) {
     private var testInstance = SubmitAsyncCommand(submissionService)
     private val rootFolder: String = temporaryFolder.root.absolutePath
@@ -45,7 +43,7 @@ internal class SubmitAsyncCommandTest(
         val attachedFile2 = temporaryFolder.createFile("attachedFile2.tsv")
 
         val securityConfig = SecurityConfig("server", "user", "password")
-        val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), COPY, emptyList())
+        val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), StorageMode.FIRE, emptyList())
         val request = SubmissionRequest(submission, securityConfig, filesConfig)
 
         every { submissionService.submitAsync(request) } answers { nothing }
@@ -70,7 +68,8 @@ internal class SubmitAsyncCommandTest(
         val attachedFile2 = temporaryFolder.createFile("attachedFile2.tsv")
 
         val securityConfig = SecurityConfig("server", "user", "password")
-        val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), MOVE, listOf(SUBMISSION, FIRE))
+        val sources = listOf(PreferredSource.SUBMISSION, PreferredSource.FIRE)
+        val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), StorageMode.NFS, sources)
         val request = SubmissionRequest(submission, securityConfig, filesConfig)
 
         every { submissionService.submitAsync(request) } answers { nothing }
@@ -82,8 +81,8 @@ internal class SubmitAsyncCommandTest(
                 "-p", "password",
                 "-i", "$rootFolder/Submission.tsv",
                 "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
-                "-fm", "MOVE",
-                "-ps", "SUBMISSION,FIRE"
+                "-ps", "SUBMISSION,FIRE",
+                "-sm", "NFS"
             )
         )
 
@@ -95,7 +94,7 @@ internal class SubmitAsyncCommandTest(
         val submission = temporaryFolder.createFile("Submission.tsv")
 
         val securityConfig = SecurityConfig("server", "user", "password")
-        val filesConfig = SubmissionFilesConfig(emptyList(), COPY, emptyList())
+        val filesConfig = SubmissionFilesConfig(emptyList(), StorageMode.FIRE, emptyList())
         val request = SubmissionRequest(submission, securityConfig, filesConfig)
 
         every { submissionService.submitAsync(request) } answers { nothing }
@@ -105,7 +104,8 @@ internal class SubmitAsyncCommandTest(
                 "-s", "server",
                 "-u", "user",
                 "-p", "password",
-                "-i", "$rootFolder/Submission.tsv"
+                "-i", "$rootFolder/Submission.tsv",
+                "-sm", "FIRE"
             )
         )
 

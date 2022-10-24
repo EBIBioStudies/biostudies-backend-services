@@ -1,0 +1,28 @@
+get:
+  summary: Get Submission Stats By AccNo
+  description: Get the stats for the submission with the given accession number.
+
+  tags:
+    - Submission Stats
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+
+    - in: path
+      name: accNo
+      description: Submission accession number
+      required: true
+      type: string
+
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          $ref: '../model/Stat.yaml'
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

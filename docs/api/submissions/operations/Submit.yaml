@@ -46,15 +46,6 @@ parameters:
     required: false
     type: string
   - in: query
-    name: fileMode
-    description: |
-      Indicates whether the files in the submission should be copied or moved from the user folder.
-      The files will be copied by default. Accepted values:
-      * COPY
-      * MOVE
-    required: false
-    type: string
-  - in: query
     name: preferredSource
     description: Indicates the preferred files source. Valid values are SUBMISSION or USER_SPACE.
   - in: query

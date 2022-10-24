@@ -41,8 +41,8 @@ class SubmitResource(
         @RequestBody submission: String,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ): Submission {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.XML, emptyArray(), parameters)
-        val request = submitRequestBuilder.buildContentRequest(submission, buildRequest)
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
+        val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.XML, buildRequest)
 
         return submitWebHandler.submit(request)
     }
@@ -58,8 +58,8 @@ class SubmitResource(
         @RequestBody submission: String,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ): Submission {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.TSV, emptyArray(), parameters)
-        val request = submitRequestBuilder.buildContentRequest(submission, buildRequest)
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
+        val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.TSV, buildRequest)
 
         return submitWebHandler.submit(request)
     }
@@ -75,8 +75,8 @@ class SubmitResource(
         @RequestBody submission: String,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ): Submission {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, SubFormat.JSON_PRETTY, emptyArray(), parameters)
-        val request = submitRequestBuilder.buildContentRequest(submission, buildRequest)
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
+        val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON_PRETTY, buildRequest)
 
         return submitWebHandler.submit(request)
     }

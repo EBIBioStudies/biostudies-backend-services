@@ -7,9 +7,11 @@ import ac.uk.ebi.cluster.client.model.JobSpec
 import arrow.core.Try
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
+import mu.KotlinLogging
 
 private const val REDIRECT_LOGS = "-o $LOGS_PATH%J_OUT -e $LOGS_PATH/%J_IN"
 private const val SUBMIT_COMMAND = "bsub $REDIRECT_LOGS"
+private val logger = KotlinLogging.logger {}
 
 class ClusterOperations(
     private val responseParser: JobResponseParser,
@@ -27,14 +29,14 @@ class ClusterOperations(
         }
     }
 
-    private fun asJobReturn(exitCode: Int, response: String) =
-        if (exitCode == 0)
-            Try.just(responseParser.toJob(response))
-        else
-            Try.raise(JobSubmitFailException(response))
+    private fun asJobReturn(exitCode: Int, response: String): Try<Job> {
+        if (exitCode == 0) return Try.just(responseParser.toJob(response))
+
+        logger.error(response) { "Error submission job, exitCode='$exitCode', response='$response'" }
+        return Try.raise(JobSubmitFailException(response))
+    }
 
     companion object {
-
         private val responseParser = JobResponseParser()
 
         fun create(sshKey: String, sshMachine: String): ClusterOperations {

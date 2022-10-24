@@ -17,7 +17,7 @@ import org.skyscreamer.jsonassert.JSONAssert.assertEquals
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
-import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 
@@ -98,26 +98,26 @@ class SubmissionDraftApiTest(
 
     @Test
     fun `re submit from draft`() {
-        val pageTab = jsonObj {
-            "accno" to "ABC-129"
-            "type" to "Study"
-        }.toString()
+        webClient.submitSingle(
+            jsonObj {
+                "accno" to "ABC-129"
+                "type" to "Study"
+            }.toString(),
+            JSON
+        )
 
-        webClient.submitSingle(pageTab, JSON)
-        webClient.getSubmissionDraft("ABC-129")
+        webClient.updateSubmissionDraft(
+            "ABC-129",
+            jsonObj {
+                "accno" to "ABC-129"
+                "ReleaseDate" to "2021-09-21"
+                "type" to "Study"
+            }.toString()
+        )
 
-        val updatedDraft = jsonObj {
-            "accno" to "ABC-129"
-            "ReleaseDate" to "2021-09-21"
-            "type" to "Study"
-        }.toString()
-        val draftResponse = webClient.createSubmissionDraft(updatedDraft)
+        webClient.submitSingleFromDraft("ABC-129")
 
-        webClient.submitSingleFromDraft(draftResponse.key)
-
-        // TODO this approach must be improved once the testing for async submissions are in place
-        Thread.sleep(10000)
         assertThat(dataService.getUserData(SuperUser.email, "ABC-129")).isNull()
-        assertThat(dataService.getUserData(SuperUser.email, draftResponse.key)).isNull()
+        assertThat(dataService.getUserData(SuperUser.email, "ABC-129")).isNull()
     }
 }

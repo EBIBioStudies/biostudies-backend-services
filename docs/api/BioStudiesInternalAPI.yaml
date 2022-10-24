@@ -39,8 +39,6 @@ paths:
   /auth/refresh-user:
     $ref: 'security/RefreshUser.yaml'
 
-  /submissions/refresh/{accNo}:
-    $ref: 'submissions/operations/RefreshSubmission.yaml'
   /submissions/extended:
     $ref: 'submissions/extended/ExtSubmissionOperations.yaml'
   /submissions/extended/{accNo}:
@@ -58,6 +56,8 @@ paths:
   /submissions/ftp/generate:
     $ref: 'ftp/GenerateFtpLinks.yaml'
 
+  /stats:
+    $ref: 'stats/operations/StatsOperations.yaml'
   /stats/{type}:
     $ref: 'stats/operations/StatsOperationsByKey.yaml'
   /stats/{type}/{accNo}:

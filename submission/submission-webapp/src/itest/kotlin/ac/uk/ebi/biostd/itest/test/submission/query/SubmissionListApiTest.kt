@@ -3,9 +3,10 @@ package ac.uk.ebi.biostd.itest.test.submission.query
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
-import ac.uk.ebi.biostd.common.config.PersistenceConfig
+import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ebi.ac.uk.asserts.assertThat
@@ -16,17 +17,16 @@ import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.net.URLEncoder.encode
 
-@Import(PersistenceConfig::class)
+@Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionListApiTest(
@@ -44,27 +44,10 @@ class SubmissionListApiTest(
             assertThat(webClient.submitSingle(getSimpleSubmission(idx), TSV)).isSuccessful()
         }
 
-        val filesConfig = SubmissionFilesConfig(emptyList())
+        val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
         for (idx in 21..30) {
             val submission = tempFolder.createFile("submission$idx.tsv", getSimpleSubmission(idx))
             assertThat(webClient.submitSingle(submission, filesConfig)).isSuccessful()
-        }
-    }
-
-    @Test
-    @Disabled("If submission is processed fast enough test wil fail. Needs re design.")
-    fun `get submission when processing`() {
-        val newVersion = getSimpleSubmission(18)
-        webClient.submitAsync(newVersion, TSV)
-
-        val submissionList = webClient.getSubmissions(mapOf("accNo" to "SimpleAcc18"))
-
-        assertThat(submissionList).anySatisfy {
-            assertThat(it.accno).isEqualTo("SimpleAcc18")
-            assertThat(it.version).isEqualTo(2)
-            assertThat(it.method).isEqualTo(PAGE_TAB)
-            assertThat(it.title).isEqualTo("Simple Submission 18 - keyword18")
-            assertThat(it.status).isEqualTo("REQUESTED")
         }
     }
 

@@ -13,11 +13,11 @@ internal object SubmissionParameters {
     const val ACC_NO_HELP = "The submission accession number"
     const val ATTACHED_HELP = "Comma separated list of paths to the files referenced in the submission"
     const val INPUT_HELP = "Path to the file containing the submission page tab"
-    const val FILE_MODE = "Indicates the mode used to process the files. Valid values are COPY or MOVE"
     const val PREFERRED_SOURCES = """
         Comma separated list of file sources. Valid values are FIRE, SUBMISSION and USER_SPACE.
         The order of the list indicates the priority in which the sources will be used
         """
+    const val STORAGE_MODE = "Submission storage mode, determinate where submission need to be saved FIRE/NFS"
     const val FILE_LIST_PATH = "Path to the file list to be validated. The path is relative to the user folder"
 }
 

@@ -15,7 +15,6 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
@@ -105,12 +104,7 @@ class ExtSubmissionSerializerTest {
                         "accNo" to "BioImages"
                     }
                 )
-                "stats" to jsonArray(
-                    jsonObj {
-                        "name" to "component"
-                        "value" to "web"
-                    }
-                )
+                "stats" to "/stats/submission/S-TEST1"
                 "accessTags" to if (released) jsonArray(
                     jsonObj { "name" to "BioImages" },
                     jsonObj { "name" to "owner@mail.org" },
@@ -160,10 +154,9 @@ class ExtSubmissionSerializerTest {
                 tags = listOf(ExtTag("component", "web")),
                 collections = listOf(ExtCollection("BioImages")),
                 section = ExtSection(type = "Study"),
-                stats = listOf(ExtStat("component", "web")),
                 pageTabFiles = listOf(
-                    FireFile("S-TEST1", "S-TEST1", "fireId", "md5", 1L, FILE, listOf()),
-                    FireFile("S-TEST1", "S-TEST1", "dirFireId", "md5", 2L, DIR, listOf()),
+                    FireFile("fireId", "firePath", "S-TEST1", "S-TEST1", "md5", 1L, FILE, listOf()),
+                    FireFile("dirFireId", "dirFirePath", "S-TEST1", "S-TEST1", "md5", 2L, DIR, listOf()),
                     NfsFile("S-TEST1", "S-TEST1", File("anyPath"), "/test//S-TEST1", "md5", 55, listOf())
                 )
             )

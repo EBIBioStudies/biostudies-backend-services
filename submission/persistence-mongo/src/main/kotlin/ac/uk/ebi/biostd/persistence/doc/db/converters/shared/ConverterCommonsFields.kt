@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
-import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
@@ -68,6 +67,13 @@ object FileListDocFileFields {
     const val FILE_LIST_DOC_FILE_FILE_LIST_NAME = "fileListName"
 }
 
+object DocSubmissionRequestFileFields {
+    const val FILE_INDEX = "index"
+    const val FILE_PATH = "path"
+    const val FILE_SUB_ACC_NO = "accNo"
+    const val FILE_SUB_VERSION = "version"
+}
+
 object DocFileTableFields {
     val DOC_FILE_TABLE_CLASS: String = DocFileTable::class.java.canonicalName
     const val FILE_TABLE_DOC_FILES = "files"
@@ -105,7 +111,6 @@ object DocSubmissionFields {
     val DOC_SUBMISSION_CLASS: String = DocSubmission::class.java.canonicalName
     val DOC_TAG_CLASS: String = DocTag::class.java.canonicalName
     val DOC_PROJECT_CLASS: String = DocCollection::class.java.canonicalName
-    val DOC_STAT_CLASS: String = DocStat::class.java.canonicalName
 
     const val CLASS_FIELD = "_class"
     const val SUB = "submission"
@@ -132,9 +137,13 @@ object DocSubmissionFields {
     const val TAG_DOC_NAME = "name"
     const val TAG_DOC_VALUE = "value"
     const val PROJECT_DOC_ACC_NO = "accNo"
-    const val STAT_DOC_NAME = "name"
-    const val STAT_DOC_VALUE = "value"
     const val SUB_STATS = "stats"
     const val PAGE_TAB_FILES = "pageTabFiles"
     const val STORAGE_MODE = "storageMode"
+}
+
+object DocRequestFields {
+    const val RQT_IDX = "currentIndex"
+    const val RQT_TOTAL_FILES = "totalFiles"
+    const val RQT_MODIFICATION_TIME = "modificationTime"
 }

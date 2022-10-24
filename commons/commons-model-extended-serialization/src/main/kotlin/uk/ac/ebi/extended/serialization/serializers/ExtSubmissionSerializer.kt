@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializerProvider
 import ebi.ac.uk.extended.model.ExtAccessTag
 import ebi.ac.uk.extended.model.ExtSubmission
+import org.springframework.web.util.UriUtils.encodePath
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ACCESS_TAGS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ACC_NO
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
@@ -27,6 +28,9 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SUBMITT
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TAGS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.TITLE
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.VERSION
+import java.nio.charset.StandardCharsets.UTF_8
+
+const val STATS_URL = "stats/submission"
 
 class ExtSubmissionSerializer : JsonSerializer<ExtSubmission>() {
     override fun serialize(submission: ExtSubmission, gen: JsonGenerator, serializers: SerializerProvider) {
@@ -51,7 +55,7 @@ class ExtSubmissionSerializer : JsonSerializer<ExtSubmission>() {
         gen.writeObjectField(ATTRIBUTES, submission.attributes)
         gen.writeObjectField(TAGS, submission.tags)
         gen.writeObjectField(COLLECTIONS, submission.collections)
-        gen.writeObjectField(STATS, submission.stats)
+        gen.writeObjectField(STATS, statsUrl(submission.accNo))
         gen.writeObjectField(ACCESS_TAGS, getAccessTag(submission))
         gen.writeObjectField(PAGE_TAB_FILES, submission.pageTabFiles)
         gen.writeObjectField(STORAGE_MODE, submission.storageMode.value)
@@ -62,4 +66,6 @@ class ExtSubmissionSerializer : JsonSerializer<ExtSubmission>() {
         val projects = submission.collections.map { ExtAccessTag(it.accNo) }.plus(ExtAccessTag(submission.owner))
         return if (submission.released) projects.plus(ExtAccessTag("Public")) else projects
     }
+
+    private fun statsUrl(accNo: String): String = encodePath("/$STATS_URL/$accNo", UTF_8)
 }

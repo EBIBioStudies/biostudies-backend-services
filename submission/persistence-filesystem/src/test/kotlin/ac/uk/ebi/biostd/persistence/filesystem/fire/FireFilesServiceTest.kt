@@ -1,47 +1,192 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
-import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
-import arrow.core.Either
-import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileType
+import ebi.ac.uk.extended.model.ExtFileType.FILE
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.createNfsFile
-import ebi.ac.uk.test.basicExtSubmission
+import ebi.ac.uk.extended.model.expectedPath
+import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import io.mockk.Called
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockkStatic
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.FileProcessingService
+import uk.ac.ebi.extended.serialization.service.fileSequence
+import uk.ac.ebi.fire.client.integration.web.FireClient
+import uk.ac.ebi.fire.client.model.FileSystemEntry
+import uk.ac.ebi.fire.client.model.FireApiFile
+import java.util.UUID
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class FireFilesServiceTest(
-    @MockK private val fireService: FireService,
-    @MockK private val fileProcessingService: FileProcessingService,
+    private val tempFolder: TemporaryFolder,
+    @MockK private val fireClient: FireClient,
+    @MockK private val submission: ExtSubmission,
     @MockK private val serializationService: ExtSerializationService,
-    tempFolder: TemporaryFolder,
 ) {
-    private val submission = basicExtSubmission
-    private val fireFile = FireFile("test.txt", "Files/test.txt", "abc1", "md5", 1, ExtFileType.FILE, emptyList())
-    private val nfsFile = createNfsFile("folder", "Files/folder", tempFolder.createFile("dummy.txt"))
-    private val testInstance = FireFilesService(fireService, fileProcessingService, serializationService)
+    private val fireTempDirPath = tempFolder.createDirectory("fire-temp")
+    private val testInstance = FireFilesService(fireClient, fireTempDirPath, serializationService)
 
-    @Test
-    fun persistSubmissionFiles() {
-        every { fireService.getOrPersist(submission, nfsFile) } answers { FirePersistResult(fireFile, true) }
-        every { fileProcessingService.processFiles(submission, any()) } answers {
-            val function: (file: ExtFile, index: Int) -> ExtFile = secondArg()
-            function(nfsFile, 1)
-            submission.copy(section = submission.section.copy(files = listOf(Either.left(fireFile))))
+    @BeforeEach
+    fun beforeEach() {
+        every { submission.accNo } returns "S-BSST1"
+        every { submission.version } returns 1
+        every { submission.relPath } returns "001"
+    }
+
+    @Nested
+    inner class WhenFireFile {
+        @Test
+        fun `when fire file has the expected path`() {
+            val file = fireFile(firePath = "/001/Files/folder/file.txt")
+
+            val result = testInstance.persistSubmissionFile(submission, file)
+
+            assertThat(result).isEqualTo(file)
+            verify { fireClient wasNot Called }
         }
 
-        val response = testInstance.persistSubmissionFiles(FilePersistenceRequest(submission))
+        @Test
+        fun `when fire file has not the expected path`() {
+            val file = fireFile(firePath = "/another-path/file.txt")
 
-        assertThat(response.section.files.first()).hasLeftValueSatisfying { assertThat(it).isEqualTo(fireFile) }
+            val newFile = tempFolder.createFile("file.txt", "content")
+            val newFireFile = fireApiFile(firePath = null)
+            every { fireClient.downloadByFireId(file.fireId, file.fileName) } returns newFile
+            every { fireClient.save(newFile, file.md5, file.size) } answers { newFireFile }
+            every { fireClient.setPath(newFireFile.fireOid, "/001/Files/folder/file.txt") } answers { nothing }
+
+            val result = testInstance.persistSubmissionFile(submission, file)
+
+            assertThat(result.fileName).isEqualTo(file.fileName)
+            assertThat(result.fireId).isEqualTo(newFireFile.fireOid)
+            assertThat(result.firePath).isEqualTo("/001/Files/folder/file.txt")
+        }
+
+        @Test
+        fun `when fire file has not path`() {
+            val file = fireFile(firePath = null)
+            every { fireClient.setPath(file.fireId, "/001/Files/folder/file.txt") } answers { nothing }
+
+            val result = testInstance.persistSubmissionFile(submission, file)
+
+            assertThat(result.fileName).isEqualTo(file.fileName)
+            assertThat(result.fireId).isEqualTo(file.fireId)
+            assertThat(result.firePath).isEqualTo("/001/Files/folder/file.txt")
+        }
     }
+
+    @Nested
+    inner class WhenNfsFile {
+        @Test
+        fun `when fire file has the expected path`() {
+            val fireApiFile = fireApiFile(firePath = "/001/Files/folder/file.txt")
+            val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
+            every { fireClient.findByMd5(file.md5) } answers { listOf(fireApiFile) }
+
+            val result = testInstance.persistSubmissionFile(submission, file)
+
+            assertThat(result.md5).isEqualTo(file.md5)
+            assertThat(result.size).isEqualTo(file.size)
+            assertThat(result.fileName).isEqualTo(file.fileName)
+            assertThat(result.fireId).isEqualTo(fireApiFile.fireOid)
+            assertThat(result.firePath).isEqualTo("/001/Files/folder/file.txt")
+        }
+
+        @Test
+        fun `when fire file has not the expected path`() {
+            val fireApiFile = fireApiFile(firePath = "/another/file.txt")
+            val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
+            every { fireClient.findByMd5(file.md5) } answers { listOf(fireApiFile) }
+
+            val newFile = fireApiFile(firePath = null)
+            every { fireClient.save(file.file, file.md5, file.size) } answers { newFile }
+            every { fireClient.setPath(newFile.fireOid, "/001/Files/folder/file.txt") } answers { nothing }
+
+            val result = testInstance.persistSubmissionFile(submission, file)
+
+            assertThat(result.fileName).isEqualTo(file.fileName)
+            assertThat(result.fireId).isEqualTo(newFile.fireOid)
+            assertThat(result.firePath).isEqualTo("/001/Files/folder/file.txt")
+        }
+
+        @Test
+        fun `when fire file has not path`() {
+            val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
+            val fireFile = fireApiFile(firePath = null)
+            every { fireClient.findByMd5(file.md5) } answers { listOf(fireFile) }
+            every { fireClient.setPath(fireFile.fireOid, "/001/Files/folder/file.txt") } answers { nothing }
+
+            val result = testInstance.persistSubmissionFile(submission, file)
+
+            assertThat(result.fileName).isEqualTo(file.fileName)
+            assertThat(result.fireId).isEqualTo(fireFile.fireOid)
+            assertThat(result.firePath).isEqualTo("/001/Files/folder/file.txt")
+        }
+    }
+
+    @Nested
+    inner class CleanSubmissionFiles {
+
+        @BeforeEach
+        fun beforeEach() {
+            mockkStatic(
+                "uk.ac.ebi.extended.serialization.service.ExtSerializationServiceExtKt",
+                "ebi.ac.uk.extended.model.ExtSubmissionExtensionsKt"
+            )
+        }
+
+        @Test
+        fun whenNotCurrent() {
+            val file = fireFile(firePath = "a file path")
+            every { serializationService.fileSequence(submission) } returns sequenceOf(file)
+            every { fireClient.unsetPath(file.fireId) } answers { nothing }
+            every { fireClient.unpublish(file.fireId) } answers { nothing }
+
+            testInstance.cleanSubmissionFiles(submission, null)
+        }
+
+        @Test
+        fun whenCurrent(@MockK current: ExtSubmission) {
+            val file = fireFile(md5 = "md1", firePath = "path_1")
+            val deletedFile = fireFile(md5 = "md2", firePath = "path_2")
+
+            every { current.expectedPath(file) } returns "path_1"
+            every { serializationService.fileSequence(submission) } returns sequenceOf(file, deletedFile)
+            every { serializationService.fileSequence(current) } returns sequenceOf(file)
+            every { fireClient.unsetPath(deletedFile.fireId) } answers { nothing }
+            every { fireClient.unpublish(deletedFile.fireId) } answers { nothing }
+
+            testInstance.cleanSubmissionFiles(submission, current)
+        }
+    }
+
+    private fun fireFile(firePath: String? = null, md5: String = "the md5") = FireFile(
+        fireId = UUID.randomUUID().toString(),
+        firePath = firePath,
+        filePath = "folder/file.txt",
+        relPath = "Files/folder/file.txt",
+        md5 = md5,
+        size = 123L,
+        type = FILE,
+        attributes = emptyList(),
+    )
+
+    private fun fireApiFile(firePath: String?) = FireApiFile(
+        objectId = 456,
+        filesystemEntry = FileSystemEntry(path = firePath, published = false),
+        fireOid = UUID.randomUUID().toString(),
+        objectMd5 = "the-md5",
+        objectSize = 123L,
+        createTime = "2022-09-21"
+    )
 }

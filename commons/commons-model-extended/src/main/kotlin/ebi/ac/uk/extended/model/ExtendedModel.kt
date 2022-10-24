@@ -8,7 +8,7 @@ import java.time.OffsetDateTime
 
 enum class ExtSubmissionMethod { FILE, PAGE_TAB, UNKNOWN }
 
-enum class ExtProcessingStatus { PROCESSED, PROCESSING, REQUESTED }
+enum class ExtProcessingStatus { PROCESSED, PROCESSING }
 
 enum class ExtFileType(val value: String) {
     FILE("file"),
@@ -47,9 +47,10 @@ sealed class ExtFile {
 }
 
 data class FireFile(
+    val fireId: String,
+    val firePath: String?,
     override val filePath: String,
     override val relPath: String,
-    val fireId: String,
     override val md5: String,
     override val size: Long,
     override val type: ExtFileType,
@@ -108,8 +109,8 @@ data class ExtAccessTag(val name: String)
 data class ExtSubmission(
     val accNo: String,
     var version: Int,
-    var schemaVersion: String,
     val owner: String,
+    var schemaVersion: String,
     val submitter: String,
     val title: String?,
     val method: ExtSubmissionMethod,
@@ -124,7 +125,6 @@ data class ExtSubmission(
     val attributes: List<ExtAttribute> = listOf(),
     val tags: List<ExtTag> = listOf(),
     val collections: List<ExtCollection> = listOf(),
-    val stats: List<ExtStat> = listOf(),
     val pageTabFiles: List<ExtFile> = listOf(),
     val storageMode: StorageMode,
 )
@@ -142,9 +142,6 @@ enum class StorageMode(val value: String) {
         }
     }
 }
-
-// TODO change value type to long
-data class ExtStat(val name: String, val value: String)
 
 data class ExtUser(
     val email: String,

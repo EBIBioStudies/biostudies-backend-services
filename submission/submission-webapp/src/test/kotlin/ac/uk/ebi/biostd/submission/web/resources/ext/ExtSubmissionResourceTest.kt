@@ -14,9 +14,7 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.WebExtPage
-import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.SUBMISSION
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -86,7 +84,7 @@ class ExtSubmissionResourceTest(
     @Test
     fun submitExtended(@MockK extSubmission: ExtSubmission) {
         val user = TestSuperUser.asSecurityUser()
-        val fileLists = slot<Array<MultipartFile>>()
+        val fileLists = slot<List<MultipartFile>>()
         val submissionJson = jsonObj { "accNo" to "S-TEST123" }.toString()
 
         bioUserResolver.securityUser = user
@@ -98,7 +96,6 @@ class ExtSubmissionResourceTest(
         mvc.multipart("/submissions/extended") {
             content = submissionJson
             param(SUBMISSION, submissionJson)
-            param(FILE_MODE, COPY.name)
         }.andExpect {
             status { isOk() }
             content { json(submissionJson) }
@@ -114,24 +111,23 @@ class ExtSubmissionResourceTest(
     @Test
     fun submitExtendedAsync(@MockK extSubmission: ExtSubmission) {
         val user = TestSuperUser.asSecurityUser()
-        val fileLists = slot<Array<MultipartFile>>()
+        val fileLists = slot<List<MultipartFile>>()
         val submissionJson = jsonObj { "accNo" to "S-TEST123" }.toString()
 
         bioUserResolver.securityUser = user
         every { tempFileGenerator.asFiles(capture(fileLists)) } returns emptyList()
-        every { extSubmissionService.submitExtAsync(user.email, extSubmission, fileMode = COPY) } answers { nothing }
+        every { extSubmissionService.submitExtAsync(user.email, extSubmission) } answers { nothing }
         every { extSerializationService.deserialize(submissionJson) } returns extSubmission
 
         mvc.multipart("/submissions/extended/async") {
             content = submissionJson
             param(SUBMISSION, submissionJson)
-            param(FILE_MODE, COPY.name)
         }.andExpect {
             status { isOk() }
         }
 
         verify(exactly = 1) {
-            extSubmissionService.submitExtAsync(user.email, extSubmission, fileMode = COPY)
+            extSubmissionService.submitExtAsync(user.email, extSubmission)
             extSerializationService.deserialize(submissionJson)
         }
     }

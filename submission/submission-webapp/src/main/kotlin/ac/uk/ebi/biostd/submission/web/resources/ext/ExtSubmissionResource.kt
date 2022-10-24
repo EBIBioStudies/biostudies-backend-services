@@ -8,10 +8,7 @@ import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FileMode
-import ebi.ac.uk.extended.model.FileMode.COPY
 import ebi.ac.uk.extended.model.WebExtPage
-import ebi.ac.uk.model.constants.FILE_MODE
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize
@@ -30,55 +27,45 @@ class ExtSubmissionResource(
     private val extPageMapper: ExtendedPageMapper,
     private val extSubmissionService: ExtSubmissionService,
     private val extSubmissionQueryService: ExtSubmissionQueryService,
-    private val extSerializationService: ExtSerializationService
+    private val extSerializationService: ExtSerializationService,
 ) {
     @GetMapping("/{accNo}")
     fun getExtended(
         @PathVariable accNo: String,
-        @RequestParam(name = "includeFileList", required = false) includeFileList: Boolean?
+        @RequestParam(name = "includeFileList", required = false) includeFileList: Boolean?,
     ): ExtSubmission =
         extSubmissionQueryService.getExtendedSubmission(accNo, includeFileList.orFalse())
 
     @GetMapping("/{accNo}/referencedFiles/**")
     fun getReferencedFiles(
         @PathVariable accNo: String,
-        fileListPath: FileListPath
+        fileListPath: FileListPath,
     ): ExtFileTable = extSubmissionQueryService.getReferencedFiles(accNo, fileListPath.path)
-
-    @PostMapping("/refresh/{accNo}")
-    fun refreshSubmission(
-        @BioUser user: SecurityUser,
-        @PathVariable accNo: String
-    ): ExtSubmission = extSubmissionService.refreshSubmission(accNo, user.email)
 
     @PostMapping("/re-trigger/{accNo}/{version}")
     fun reTriggerSubmission(
         @PathVariable accNo: String,
-        @PathVariable version: Int
+        @PathVariable version: Int,
     ): ExtSubmission = extSubmissionService.reTriggerSubmission(accNo, version)
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     fun submitExtended(
         @BioUser user: SecurityUser,
-        @RequestParam(FILE_MODE, required = false) fileMode: FileMode?,
-        @RequestParam(SUBMISSION) extSubmission: String
+        @RequestParam(SUBMISSION) extSubmission: String,
     ): ExtSubmission = extSubmissionService.submitExt(
         user.email,
         extSerializationService.deserialize(extSubmission),
-        fileMode ?: COPY
     )
 
     @PostMapping("/async")
     @PreAuthorize("isAuthenticated()")
     fun submitExtendedAsync(
         @BioUser user: SecurityUser,
-        @RequestParam(FILE_MODE, required = false) fileMode: FileMode?,
-        @RequestParam(SUBMISSION) extSubmission: String
+        @RequestParam(SUBMISSION) extSubmission: String,
     ) = extSubmissionService.submitExtAsync(
         user.email,
         extSerializationService.deserialize(extSubmission),
-        fileMode ?: COPY
     )
 
     @GetMapping

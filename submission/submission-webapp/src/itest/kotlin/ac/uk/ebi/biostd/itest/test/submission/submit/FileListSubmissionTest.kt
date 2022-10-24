@@ -5,10 +5,11 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
-import ac.uk.ebi.biostd.common.config.PersistenceConfig
+import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
@@ -36,14 +37,14 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.web.server.LocalServerPort
+import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import java.io.File
 import java.nio.file.Paths
 
-@Import(PersistenceConfig::class)
+@Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
@@ -92,7 +93,7 @@ class FileListSubmissionTest(
             }.toString()
         )
 
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File4.txt")))
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File4.txt")), storageMode)
         val response = webClient.submitSingle(submission, JSON, filesConfig)
 
         assertThat(response).isSuccessful()
@@ -137,7 +138,7 @@ class FileListSubmissionTest(
             }
         }
 
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File5.txt")))
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File5.txt")), storageMode)
         val response = webClient.submitSingle(submission, JSON, filesConfig)
 
         assertThat(response).isSuccessful()
@@ -170,7 +171,7 @@ class FileListSubmissionTest(
             }
         }.toString()
 
-        val filesConfig = SubmissionFilesConfig(listOf(fileList))
+        val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { webClient.submitSingle(submission, JSON, filesConfig) }
             .withMessageContaining("Unsupported page tab format FileList.txt")
@@ -198,7 +199,7 @@ class FileListSubmissionTest(
         )
 
         webClient.uploadFile(fileList, "folder")
-        val filesConfig = SubmissionFilesConfig(listOf(referencedFile))
+        val filesConfig = SubmissionFilesConfig(listOf(referencedFile), storageMode)
         assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
 
         val extSubmission = webClient.getExtByAccNo("S-TEST6")
@@ -214,7 +215,7 @@ class FileListSubmissionTest(
 
     @Test
     fun `reuse previous version file list`() {
-        val referencedFile = tempFolder.createFile("File7.txt")
+        val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
         fun submission(fileList: String) = tsv {
             line("Submission", "S-TEST7")
             line("Title", "Reuse Previous Version File List")
@@ -233,13 +234,13 @@ class FileListSubmissionTest(
             }.toString()
         )
 
-        val firstVersion = submission("reusable-file-list.tsv")
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile))
+        val firstVersion = submission(fileList = "reusable-file-list.tsv")
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
         assertThat(webClient.submitSingle(firstVersion, TSV, filesConfig)).isSuccessful()
         assertSubmissionFiles("S-TEST7", "File7.txt", "reusable-file-list")
         fileList.delete()
 
-        val secondVersion = submission("reusable-file-list.json")
+        val secondVersion = submission(fileList = "reusable-file-list.json")
         assertThat(webClient.submitSingle(secondVersion, TSV)).isSuccessful()
         assertSubmissionFiles("S-TEST7", "File7.txt", "reusable-file-list")
     }

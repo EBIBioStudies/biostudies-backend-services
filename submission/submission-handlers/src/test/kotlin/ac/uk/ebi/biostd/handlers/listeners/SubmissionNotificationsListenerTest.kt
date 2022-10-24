@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.handlers.config.BIOSTUDIES_EXCHANGE
 import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.SystemNotification
-import ebi.ac.uk.extended.events.FailedSubmissionRequestMessage
+import ebi.ac.uk.extended.events.FailedRequestMessage
 import ebi.ac.uk.extended.events.SubmissionMessage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtUser
@@ -113,7 +113,7 @@ class SubmissionNotificationsListenerTest(
     @Test
     fun `notify failed submission`() {
         val notificationSlot = slot<SystemNotification>()
-        val message = FailedSubmissionRequestMessage("S-BSST1", 1)
+        val message = FailedRequestMessage("S-BSST1", 1)
 
         every { notificationsSender.send(capture(notificationSlot)) } answers { nothing }
 

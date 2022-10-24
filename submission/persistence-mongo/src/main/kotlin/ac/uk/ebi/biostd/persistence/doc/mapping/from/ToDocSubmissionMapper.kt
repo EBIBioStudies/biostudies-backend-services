@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.from
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
-import ac.uk.ebi.biostd.persistence.doc.model.DocStat
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionMethod
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
@@ -40,7 +39,6 @@ class ToDocSubmissionMapper(private val toDocSectionMapper: ToDocSectionMapper) 
             tags = tags.map { DocTag(it.name, it.value) },
             attributes = attributes.map { it.toDocAttribute() },
             section = docSection,
-            stats = stats.map { DocStat(it.name, it.value.toLong()) },
             pageTabFiles = pageTabFiles.map { it.toDocFile() },
             storageMode = storageMode
         )

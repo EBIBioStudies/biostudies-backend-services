@@ -1,13 +1,9 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.converters.BioUser
-import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
-import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
-import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
 import com.fasterxml.jackson.annotation.JsonRawValue
@@ -31,53 +27,52 @@ import org.springframework.web.bind.annotation.RestController
 @PreAuthorize("isAuthenticated()")
 @Suppress("LongParameterList")
 internal class SubmissionDraftResource(
-    private val submitWebHandler: SubmitWebHandler,
-    private val draftService: SubmissionDraftService,
-    private val submitRequestBuilder: SubmitRequestBuilder,
+    private val submissionDraftService: SubmissionDraftService,
 ) {
     @GetMapping
     @ResponseBody
-    fun getDraftSubmissions(
+    fun getSubmissionDrafts(
         @BioUser user: SecurityUser,
-        @ModelAttribute filter: PaginationFilter
+        @ModelAttribute filter: PaginationFilter,
     ): List<ResponseSubmissionDraft> =
-        draftService.getActiveSubmissionsDraft(user.email, filter).map { it.asResponseDraft() }
+        submissionDraftService.getActiveSubmissionDrafts(user.email, filter).map { it.asResponseDraft() }
 
     @GetMapping("/{key}")
     @ResponseBody
-    fun getDraftSubmission(
+    fun getOrCreateSubmissionDraft(
         @BioUser user: SecurityUser,
-        @PathVariable key: String
-    ): ResponseSubmissionDraft = draftService.getSubmissionDraft(user.email, key).asResponseDraft()
+        @PathVariable key: String,
+    ): ResponseSubmissionDraft = submissionDraftService.getOrCreateSubmissionDraft(user.email, key).asResponseDraft()
 
     @GetMapping("/{key}/content")
     @ResponseBody
-    fun getDraftSubmissionContent(
+    fun getSubmissionDraftContent(
         @BioUser user: SecurityUser,
-        @PathVariable key: String
+        @PathVariable key: String,
     ): ResponseSubmissionDraftContent =
-        ResponseSubmissionDraftContent(draftService.getSubmissionDraft(user.email, key).content)
+        ResponseSubmissionDraftContent(submissionDraftService.getSubmissionDraftContent(user.email, key))
 
     @DeleteMapping("/{key}")
-    fun deleteDraftSubmission(
+    fun deleteSubmissionDraft(
         @BioUser user: SecurityUser,
-        @PathVariable key: String
-    ) = draftService.deleteSubmissionDraft(user.email, key)
+        @PathVariable key: String,
+    ) = submissionDraftService.deleteSubmissionDraft(user.email, key)
 
     @PutMapping("/{key}")
     @ResponseBody
     fun updateSubmissionDraft(
         @BioUser user: SecurityUser,
         @RequestBody content: String,
-        @PathVariable key: String
-    ): ResponseSubmissionDraft = draftService.updateSubmissionDraft(user.email, key, content).asResponseDraft()
+        @PathVariable key: String,
+    ): ResponseSubmissionDraft =
+        submissionDraftService.updateSubmissionDraft(user.email, key, content).asResponseDraft()
 
     @PostMapping
     @ResponseBody
-    fun createDraftSubmission(
+    fun createSubmissionDraft(
         @BioUser user: SecurityUser,
-        @RequestBody content: String
-    ): ResponseSubmissionDraft = draftService.createSubmissionDraft(user.email, content).asResponseDraft()
+        @RequestBody content: String,
+    ): ResponseSubmissionDraft = submissionDraftService.createSubmissionDraft(user.email, content).asResponseDraft()
 
     @PostMapping("/{key}/submit")
     fun submitDraft(
@@ -86,15 +81,12 @@ internal class SubmissionDraftResource(
         onBehalfRequest: OnBehalfRequest?,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ) {
-        val submission = draftService.getSubmissionDraft(user.email, key).content
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, JSON_PRETTY, emptyArray(), parameters, key)
-        val request = submitRequestBuilder.buildContentRequest(submission, buildRequest)
-
-        return submitWebHandler.submitAsync(request)
+        submissionDraftService.submitDraft(key, user, onBehalfRequest, parameters)
     }
 }
 
 internal class ResponseSubmissionDraft(val key: String, @JsonRawValue val content: String)
+
 internal class ResponseSubmissionDraftContent(@JsonRawValue @JsonValue val value: String)
 
 internal fun SubmissionDraft.asResponseDraft() = ResponseSubmissionDraft(key, content)

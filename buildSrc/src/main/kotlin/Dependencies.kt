@@ -1,4 +1,5 @@
 import TestVersions.AssertJVersion
+import TestVersions.AwaitilityVersion
 import TestVersions.JaxbApiVersion
 import TestVersions.JsonAssertVersion
 import TestVersions.JsonPathAssertVersion
@@ -58,6 +59,7 @@ object TestVersions {
     const val WiremockVersion = "2.27.2"
     const val RabbitmqMockVersion = "1.1.0"
     const val TestContainerVersion = "1.16.2"
+    const val AwaitilityVersion = "4.2.0"
 }
 
 object Versions {
@@ -123,6 +125,7 @@ object TestDependencies {
     const val Woodstox = "com.fasterxml.woodstox:woodstox-core:$WoodstoxVersion"
 
     const val H2 = "com.h2database:h2:$H2Version"
+    const val Awaitility = "org.awaitility:awaitility:$AwaitilityVersion"
 
     // Json/Http
     const val JsonPathAssert = "com.jayway.jsonpath:json-path-assert:$JsonPathAssertVersion"
@@ -208,6 +211,7 @@ object SpringBootDependencies {
     const val SpringBootStarterSecurity = "org.springframework.boot:spring-boot-starter-security"
     const val SpringBootStarterMail = "org.springframework.boot:spring-boot-starter-mail"
     const val SpringBootStartedJetty = "org.springframework.boot:spring-boot-starter-jetty"
+    const val SpringDataCommons = "org.springframework.data:spring-data-commons"
     const val SpringBootStartedAdminClient = "de.codecentric:spring-boot-admin-starter-client:$SpringAdminVersion"
     const val SpringBootStartedAdmin = "de.codecentric:spring-boot-admin-starter-server:$SpringAdminVersion"
 }

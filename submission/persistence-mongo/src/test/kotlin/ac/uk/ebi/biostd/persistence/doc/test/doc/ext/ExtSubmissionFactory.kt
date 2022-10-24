@@ -4,7 +4,6 @@ import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
-import ebi.ac.uk.extended.model.ExtStat
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
@@ -36,38 +35,38 @@ val extTag = ExtTag(EXT_TAG_NAME, EXT_TAG_VALUE)
 const val COLLECTION_ACC_NO = "BioImages"
 val extCollection = ExtCollection(COLLECTION_ACC_NO)
 
-const val EXT_STAT_NAME = "component"
-const val EXT_STAT_VALUE = "1"
-val extStat = ExtStat(EXT_STAT_NAME, EXT_STAT_VALUE)
-
 const val FIRE_FILE_FILEPATH = "fireFileFilePath/fireFileFileName"
 const val FIRE_FILE_REL_PATH = "fireFileRelPath"
 const val FIRE_FILE_FIRE_ID = "fireFileFireID"
 const val FIRE_DIR_FIRE_ID = "fireDirFireID"
+const val FIRE_DIR_FIRE_PATH = "submission/fireFileFilePath/fireFileFileName"
 const val FIRE_FILE_MD5 = "fireFileMd5"
 const val FIRE_FILE_SIZE = 1L
 val fireFile = FireFile(
-    FIRE_FILE_FILEPATH,
-    FIRE_FILE_REL_PATH,
-    FIRE_FILE_FIRE_ID,
-    FIRE_FILE_MD5,
-    FIRE_FILE_SIZE,
-    FILE,
-    listOf()
+    fireId = FIRE_FILE_FIRE_ID,
+    firePath = FIRE_DIR_FIRE_PATH,
+    filePath = FIRE_FILE_FILEPATH,
+    relPath = FIRE_FILE_REL_PATH,
+    md5 = FIRE_FILE_MD5,
+    size = FIRE_FILE_SIZE,
+    type = FILE,
+    attributes = listOf()
 )
 
 const val FIRE_DIRECTORY_FILEPATH = "fireDirectoryFilePath/fireDirectoryFileName"
 const val FIRE_DIRECTORY_REL_PATH = "fireDirectoryRelPath"
+const val FIRE_DIRECTORY_FIRE_PATH = "submission/fireDirectoryFilePath/fireDirectoryFileName"
 const val FIRE_DIRECTORY_MD5 = "fireDirectoryMd5"
 const val FIRE_DIRECTORY_SIZE = 2L
 val fireDirectory = FireFile(
-    FIRE_DIRECTORY_FILEPATH,
-    FIRE_DIRECTORY_REL_PATH,
-    FIRE_DIR_FIRE_ID,
-    FIRE_DIRECTORY_MD5,
-    FIRE_DIRECTORY_SIZE,
-    DIR,
-    listOf()
+    fireId = FIRE_DIR_FIRE_ID,
+    firePath = FIRE_DIRECTORY_FIRE_PATH,
+    filePath = FIRE_DIRECTORY_FILEPATH,
+    relPath = FIRE_DIRECTORY_REL_PATH,
+    md5 = FIRE_DIRECTORY_MD5,
+    size = FIRE_DIRECTORY_SIZE,
+    type = DIR,
+    attributes = listOf()
 )
 
 const val NFS_FILENAME = "nfsFileName"
@@ -93,7 +92,6 @@ val fullExtSubmission = ExtSubmission(
     tags = listOf(extTag),
     collections = listOf(extCollection),
     section = rootSection,
-    stats = listOf(extStat),
     pageTabFiles = listOf(fireFile, fireDirectory),
     storageMode = StorageMode.NFS
 )

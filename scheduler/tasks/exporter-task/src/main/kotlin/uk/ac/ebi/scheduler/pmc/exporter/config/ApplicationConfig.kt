@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.scheduler.pmc.exporter.ExporterExecutor
+import uk.ac.ebi.scheduler.pmc.exporter.cli.BioStudiesFtpClient
 import uk.ac.ebi.scheduler.pmc.exporter.persistence.PmcRepository
 import uk.ac.ebi.scheduler.pmc.exporter.service.ExporterService
 import uk.ac.ebi.scheduler.pmc.exporter.service.PmcExporterService
@@ -35,9 +36,15 @@ class ApplicationConfig(
     @Bean
     fun pmcExporterService(
         xmlWriter: XmlMapper,
-        ftpClient: FTPClient,
+        ftpClient: BioStudiesFtpClient,
         applicationProperties: ApplicationProperties,
     ): PmcExporterService = PmcExporterService(pmcRepository, xmlWriter, ftpClient, applicationProperties)
+
+    @Bean
+    fun bioStudiesFtpClient(
+        ftpClient: FTPClient,
+        applicationProperties: ApplicationProperties,
+    ): BioStudiesFtpClient = BioStudiesFtpClient(ftpClient, applicationProperties)
 
     @Bean
     fun publicOnlyExporterService(

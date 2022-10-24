@@ -1,10 +1,12 @@
 package ac.uk.ebi.biostd.persistence.filesystem.api
 
-import ac.uk.ebi.biostd.persistence.filesystem.request.FilePersistenceRequest
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 
-interface FilesService {
-    fun persistSubmissionFiles(rqt: FilePersistenceRequest): ExtSubmission
+internal interface FilesService {
+    fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile
 
-    fun cleanSubmissionFiles(sub: ExtSubmission)
+    fun postProcessSubmissionFiles(sub: ExtSubmission)
+
+    fun cleanSubmissionFiles(previous: ExtSubmission, current: ExtSubmission?)
 }

@@ -10,6 +10,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.amqp.support.converter.MessageConverter
+import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
@@ -17,6 +18,7 @@ import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 const val SUBMISSION_REQUEST_QUEUE = "submission-request-submitter-queue"
+const val LISTENER_FACTORY_NAME = "processingListenerFactory"
 
 @Configuration
 class JmsConfig {
@@ -40,15 +42,16 @@ class JmsConfig {
     @Bean
     fun messageConverter(): MessageConverter = Jackson2JsonMessageConverter(ExtSerializationService.mapper)
 
-    @Bean
+    @Bean(name = [LISTENER_FACTORY_NAME])
     fun processingListenerFactory(
+        configurer: SimpleRabbitListenerContainerFactoryConfigurer,
         connectionFactory: ConnectionFactory,
         applicationProperties: ApplicationProperties,
     ): SimpleRabbitListenerContainerFactory {
         val factory = SimpleRabbitListenerContainerFactory()
-        factory.setConnectionFactory(connectionFactory)
         factory.setConcurrentConsumers(applicationProperties.consumers)
         factory.setMaxConcurrentConsumers(applicationProperties.maxConsumers)
+        configurer.configure(factory, connectionFactory)
         return factory
     }
 }

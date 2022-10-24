@@ -52,7 +52,6 @@ server:
 
 logging:
   file:
-    max-history: 7
     name: logs/application_logs.txt
 
 app:

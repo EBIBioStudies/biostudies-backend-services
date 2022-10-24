@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import ac.uk.ebi.biostd.persistence.common.request.ProcessedSubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
@@ -10,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepositor
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
-import ac.uk.ebi.biostd.persistence.doc.model.SubmissionRequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -20,18 +18,20 @@ import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.max
 
-@Suppress("TooManyFunctions")
 internal class SubmissionMongoPersistenceQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
+    private val toExtSubmissionMapper: ToExtSubmissionMapper,
+    private val serializationService: ExtSerializationService,
     private val requestRepository: SubmissionRequestDocDataRepository,
     private val fileListDocFileRepository: FileListDocFileRepository,
-    private val serializationService: ExtSerializationService,
-    private val toExtSubmissionMapper: ToExtSubmissionMapper,
 ) : SubmissionPersistenceQueryService {
-    override fun existByAccNo(accNo: String): Boolean = submissionRepo.existsByAccNo(accNo)
+    override fun existByAccNo(accNo: String): Boolean {
+        return submissionRepo.existsByAccNo(accNo)
+    }
 
-    override fun hasPendingRequest(accNo: String): Boolean =
-        requestRepository.existsByAccNoAndStatusIn(accNo, setOf(REQUESTED))
+    override fun existByAccNoAndVersion(accNo: String, version: Int): Boolean {
+        return submissionRepo.existsByAccNoAndVersion(accNo, version)
+    }
 
     override fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
         val findByAccNo = submissionRepo.findByAccNo(accNo)
@@ -53,16 +53,12 @@ internal class SubmissionMongoPersistenceQueryService(
         return toExtSubmissionMapper.toExtSubmission(document, includeFileListFiles)
     }
 
-    override fun expireSubmissions(accNumbers: List<String>) {
-        submissionRepo.expireVersions(accNumbers)
-    }
-
     override fun getExtendedSubmissions(filter: SubmissionFilter): Page<ExtSubmission> {
         return submissionRepo.getSubmissionsPage(filter).map { toExtSubmissionMapper.toExtSubmission(it, false) }
     }
 
     override fun getSubmissionsByUser(owner: String, filter: SubmissionFilter): List<BasicSubmission> {
-        val (requestsCount, requests) = requestRepository.findActiveRequest(filter, owner)
+        val (requestsCount, requests) = requestRepository.findActiveRequests(filter, owner)
         val submissionFilter = filter.copy(
             limit = filter.limit - requests.size,
             offset = max(0, filter.offset - requestsCount),
@@ -75,25 +71,15 @@ internal class SubmissionMongoPersistenceQueryService(
             .plus(findSubmissions(owner, submissionFilter))
     }
 
+    override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> {
+        return fileListDocFileRepository
+            .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(accNo, 0, fileListName)
+            .map { it.file.toExtFile(submissionRepo.getRelPath(accNo)) }
+    }
+
     private fun findSubmissions(owner: String, filter: SubmissionFilter): List<BasicSubmission> =
         when (filter.limit) {
             0 -> emptyList()
             else -> submissionRepo.getSubmissions(filter, owner).map { it.asBasicSubmission(PROCESSED) }
         }
-
-    override fun getPendingRequest(accNo: String, version: Int): ProcessedSubmissionRequest {
-        val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, REQUESTED)
-        val stored = serializationService.deserialize(request.submission.toString())
-        return ProcessedSubmissionRequest(
-            submission = stored,
-            fileMode = request.fileMode,
-            draftKey = request.draftKey,
-            previousVersion = findExtByAccNo(stored.accNo, true)
-        )
-    }
-
-    override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> =
-        fileListDocFileRepository
-            .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(accNo, 0, fileListName)
-            .map { it.file.toExtFile() }
 }

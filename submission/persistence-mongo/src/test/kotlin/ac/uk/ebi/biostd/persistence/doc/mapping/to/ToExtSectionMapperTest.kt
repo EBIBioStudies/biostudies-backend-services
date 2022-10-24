@@ -24,14 +24,14 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import java.io.File
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.File
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class ToExtSectionMapperTest(
-    temporaryFolder: TemporaryFolder
+    temporaryFolder: TemporaryFolder,
 ) {
     private val sectionFile =
         temporaryFolder.root.resolve("submissions/S-TEST/123/S-TEST123/$FILES_DIR/$TEST_FILENAME").apply { mkdirs() }
@@ -52,8 +52,16 @@ class ToExtSectionMapperTest(
             fileList = docFileList
         )
 
-        every { toExtFileListMapper.toExtFileList(docFileList, "subAccNo", 121, false) } returns extFileList
-        val extSection = testInstance.toExtSection(section, "subAccNo", 121, includeFileListFiles = false)
+        every {
+            toExtFileListMapper.toExtFileList(
+                docFileList,
+                "subAccNo",
+                121,
+                "subRelPath",
+                false
+            )
+        } returns extFileList
+        val extSection = testInstance.toExtSection(section, "subAccNo", 121, "subRelPath", includeFileListFiles = false)
 
         assertExtSection(extSection, sectionFile)
         assertThat(extSection.fileList).isEqualTo(extFileList)
@@ -66,8 +74,16 @@ class ToExtSectionMapperTest(
             fileList = docFileList
         )
 
-        every { toExtFileListMapper.toExtFileList(docFileList, "subAccNo", 121, true) } returns extFileList
-        val extSection = testInstance.toExtSection(section, "subAccNo", 121, includeFileListFiles = true)
+        every {
+            toExtFileListMapper.toExtFileList(
+                docFileList,
+                "subAccNo",
+                121,
+                "subRelPath",
+                true
+            )
+        } returns extFileList
+        val extSection = testInstance.toExtSection(section, "subAccNo", 121, "subRelPath", includeFileListFiles = true)
 
         assertExtSection(extSection, sectionFile)
         assertThat(extSection.fileList).isEqualTo(extFileList)

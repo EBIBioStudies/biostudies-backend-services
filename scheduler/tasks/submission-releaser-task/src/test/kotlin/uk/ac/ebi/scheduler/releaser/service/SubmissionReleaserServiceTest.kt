@@ -68,6 +68,7 @@ class SubmissionReleaserServiceTest(
 
         every { bioWebClient.releaseSubmission(capture(requestSlot)) } answers { nothing }
         every { releaserRepository.findAllUntil(mockNow.asOffsetAtEndOfDay().toLocalDate()) } returns listOf(released)
+        every { eventsPublisherService.submissionsRefresh(released.accNo, released.owner) } answers { nothing }
 
         testInstance.releaseDailySubmissions()
 
@@ -76,6 +77,7 @@ class SubmissionReleaserServiceTest(
         assertThat(releaseRequest.accNo).isEqualTo("S-BSST0")
         assertThat(releaseRequest.owner).isEqualTo("owner0@mail.org")
         assertThat(releaseRequest.relPath).isEqualTo("S-BSST/000/S-BSST0")
+        verify(exactly = 1) { eventsPublisherService.submissionsRefresh(released.accNo, released.owner) }
     }
 
     @Test
