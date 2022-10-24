@@ -24,6 +24,7 @@ import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
+import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -52,8 +53,7 @@ import java.time.Duration.ofSeconds
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration
-@ExtendWith(TemporaryFolderExtension::class)
-internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolder) {
+internal class PmcSubmissionSubmitterTest {
 
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
         .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
@@ -153,7 +153,7 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
     }
 
     @Nested
-    @ExtendWith(SpringExtension::class)
+    @ExtendWith(SpringExtension::class, TemporaryFolderExtension::class)
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     @SpringBootTest(classes = [AppConfig::class])
     @DirtiesContext
@@ -161,10 +161,12 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
         @Autowired val errorsRepository: ErrorsRepository,
         @Autowired val submissionRepository: SubmissionRepository,
         @Autowired val fileRepository: SubFileRepository,
-        @Autowired val pmcTaskExecutor: PmcTaskExecutor
+        @Autowired val pmcTaskExecutor: PmcTaskExecutor,
+        private val tempFolder: TemporaryFolder,
     ) {
         @BeforeEach
         fun cleanRepositories() {
+            tempFolder.clean()
             runBlocking {
                 errorsRepository.deleteAll()
                 submissionRepository.deleteAll()
