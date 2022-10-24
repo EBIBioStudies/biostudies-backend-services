@@ -54,7 +54,6 @@ class PmcSubmitter(
             .collect()
     }
 
-
     private suspend fun submitSubmission(sub: SubmissionDoc, idx: Int) = coroutineScope {
         runCatching { withTimeout(TIMEOUT) { submit(sub) } }
             .fold(
