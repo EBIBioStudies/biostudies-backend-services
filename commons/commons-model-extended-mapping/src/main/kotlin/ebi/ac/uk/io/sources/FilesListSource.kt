@@ -5,9 +5,9 @@ import ebi.ac.uk.model.Attribute
 import java.io.File
 
 class FilesListSource(private val files: List<File>) : FilesSource {
-    override fun getExtFile(path: String, fileDb: FileDb?, attributes: List<Attribute>): ExtFile? =
+    override fun getExtFile(path: String, dbFile: DbFile?, attributes: List<Attribute>): ExtFile? =
         files.firstOrNull { it.name == path }?.let { create(path, it, attributes) }
 
-    override fun getFile(path: String, fileDb: FileDb?): File? = files.firstOrNull { it.name == path }
+    override fun getFile(path: String, dbFile: DbFile?): File? = files.firstOrNull { it.name == path }
     override val description: String = "Request files [${files.joinToString { it.name }}]"
 }

@@ -9,13 +9,13 @@ enum class PreferredSource { FIRE, SUBMISSION, USER_SPACE }
 interface FilesSource {
     val description: String
 
-    fun getExtFile(path: String, fileDb: FileDb? = null, attributes: List<Attribute> = emptyList()): ExtFile?
-    fun getFile(path: String, fileDb: FileDb? = null): File?
+    fun getExtFile(path: String, dbFile: DbFile? = null, attributes: List<Attribute> = emptyList()): ExtFile?
+    fun getFile(path: String, dbFile: DbFile? = null): File?
 }
 
-sealed interface FileDb {
+sealed interface DbFile {
     val md5: String
 }
 
-data class UploadedFileDb(override val md5: String) : FileDb
-data class ConfiguredFileDb(val id: String, override val md5: String, val path: String, val size: Long) : FileDb
+data class UploadedDbFile(override val md5: String) : DbFile
+data class ConfiguredDbFile(val id: String, override val md5: String, val path: String, val size: Long) : DbFile

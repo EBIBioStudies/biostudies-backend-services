@@ -340,6 +340,7 @@ class SubmissionFileSourceTest(
             assertThat(fireFile.firePath).isEqualTo("/S-FSTST/006/S-FSTST6/Files/DataFile5.txt")
             assertThat(fireFile.relPath).isEqualTo("Files/DataFile5.txt")
             assertThat(fireFile.filePath).isEqualTo("DataFile5.txt")
+            assertThat(fireFile.attributes).isEmpty()
         }
     }
 }
