@@ -10,6 +10,7 @@ import ac.uk.ebi.scheduler.properties.PmcMode
 import ac.uk.ebi.scheduler.properties.PmcMode.LOAD
 import ac.uk.ebi.scheduler.properties.PmcMode.PROCESS
 import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT
+import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT_SINGLE
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import mu.KotlinLogging
@@ -69,6 +70,18 @@ internal class PmcLoaderService private constructor(
         )
         return job
     }
+
+    fun triggerSubmitSingle(debugPort: Int? = null, submissionId: String): Job {
+        val job = pmcLoaderService.triggerSubmitSingle(debugPort, submissionId)
+        notificationsSender.send(
+            Report(
+                SYSTEM_NAME,
+                SUBMITTER_SUBSYSTEM,
+                "Triggered PMC submitter['$submissionId'], cluster job: $job, logs will be available at ${job.logsPath}"
+            )
+        )
+        return job
+    }
 }
 
 private const val FOUR_CORES = 4
@@ -121,7 +134,20 @@ private class PmcLoader(
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    private fun getConfigProperties(loadFolder: String? = null, importMode: PmcMode) =
+    fun triggerSubmitSingle(debugPort: Int?, submissionId: String): Job {
+        logger.info { "submitting job to submit submissions" }
+        val properties = getConfigProperties(importMode = SUBMIT_SINGLE, submissionId = submissionId)
+        val jobTry = clusterOperations.triggerJob(
+            JobSpec(
+                EIGHT_CORES,
+                MemorySpec.TWENTYFOUR_GB,
+                properties.asCmd(appProperties.appsFolder, appProperties.javaHome, debugPort)
+            )
+        )
+        return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
+    }
+
+    private fun getConfigProperties(loadFolder: String? = null, importMode: PmcMode, submissionId: String? = null) =
         PmcImporterProperties.create(
             mode = importMode,
             loadFolder = loadFolder,
@@ -132,6 +158,7 @@ private class PmcLoader(
             pmcBaseUrl = "http://www.ft-loading.europepmc.org",
             bioStudiesUser = properties.bioStudiesUser,
             bioStudiesPassword = properties.bioStudiesPassword,
-            bioStudiesUrl = properties.bioStudiesUrl
+            bioStudiesUrl = properties.bioStudiesUrl,
+            submissionId = submissionId
         )
 }

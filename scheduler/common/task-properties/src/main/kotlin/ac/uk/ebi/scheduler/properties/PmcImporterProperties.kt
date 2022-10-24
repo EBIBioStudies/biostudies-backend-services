@@ -52,6 +52,7 @@ class PmcImporterProperties : JavaAppProperties {
             bioStudiesUrl: String? = null,
             bioStudiesUser: String? = null,
             bioStudiesPassword: String? = null,
+            submissionId: String? = null,
         ) = PmcImporterProperties().apply {
             this.mode = mode
             this.loadFolder = loadFolder
@@ -62,6 +63,7 @@ class PmcImporterProperties : JavaAppProperties {
             this.bioStudiesUrl = bioStudiesUrl
             this.bioStudiesUser = bioStudiesUser
             this.bioStudiesPassword = bioStudiesPassword
+            this.submissionId = submissionId
             this.pmcBaseUrl = pmcBaseUrl
         }
     }

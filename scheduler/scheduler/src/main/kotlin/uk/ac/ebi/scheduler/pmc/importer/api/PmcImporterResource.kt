@@ -1,6 +1,7 @@
 package uk.ac.ebi.scheduler.pmc.importer.api
 
 import ac.uk.ebi.cluster.client.model.Job
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestParam
@@ -26,4 +27,9 @@ internal class PmcImporterResource(private val pmcLoaderService: PmcLoaderServic
     @ResponseBody
     fun triggerSubmitter(@RequestParam(required = false) debugPort: Int?): Job =
         pmcLoaderService.triggerSubmitter(debugPort)
+
+    @PostMapping("/api/pmc/submit/{submissionId}")
+    @ResponseBody
+    fun triggerSubmitter(@RequestParam(required = false) debugPort: Int?, @PathVariable submissionId: String): Job =
+        pmcLoaderService.triggerSubmitSingle(debugPort, submissionId)
 }
