@@ -7,24 +7,24 @@ private const val APP_NAME = "exporter-task-1.0.0.jar"
 
 @Suppress("LongParameterList")
 class ExporterProperties : JavaAppProperties {
-    override fun asCmd(location: String, javaHome: String, debugPort: Int?): String =
-        buildString {
-            append(javaCmd(javaHome, debugPort))
-            append("-jar $location/$APP_NAME \\\n")
-            append("--app.mode=$mode \\\n")
-            append("--app.fileName=$fileName \\\n")
-            append("--app.outputPath=$outputPath \\\n")
-            append("--app.tmpFilesPath=$tmpFilesPath \\\n")
-            append("--app.ftp.host=$ftpHost \\\n")
-            append("--app.ftp.user=$ftpUser \\\n")
-            append("--app.ftp.password=$ftpPassword \\\n")
-            append("--app.ftp.port=$ftpPort \\\n")
-            append("--spring.data.mongodb.database=$databaseName \\\n")
-            append("--spring.data.mongodb.uri=$databaseUri \\\n")
-            append("--app.bioStudies.url=$bioStudiesUrl \\\n")
-            append("--app.bioStudies.user=$bioStudiesUser \\\n")
-            append("--app.bioStudies.password=$bioStudiesPassword \\\n")
-        }.removeSuffix(" \\\n")
+    override fun asCmd(location: String, debugPort: Int?): String =
+        buildList {
+            addAll(javaCmd(debugPort))
+            add("-jar $location/$APP_NAME")
+            add("--app.mode=$mode")
+            add("--app.fileName=$fileName")
+            add("--app.outputPath=$outputPath")
+            add("--app.tmpFilesPath=$tmpFilesPath")
+            add("--app.ftp.host=$ftpHost")
+            add("--app.ftp.user=$ftpUser")
+            add("--app.ftp.password=$ftpPassword")
+            add("--app.ftp.port=$ftpPort")
+            add("--spring.data.mongodb.database=$databaseName")
+            add("--spring.data.mongodb.uri=$databaseUri")
+            add("--app.bioStudies.url=$bioStudiesUrl")
+            add("--app.bioStudies.user=$bioStudiesUser")
+            add("--app.bioStudies.password=$bioStudiesPassword")
+        }.joinToString(separator = " \\\n", prefix = "\"", postfix = "\"")
 
     lateinit var mode: ExporterMode
 

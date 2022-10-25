@@ -6,24 +6,24 @@ import ac.uk.ebi.scheduler.common.javaCmd
 private const val APP_NAME = "submission-releaser-task-1.0.0.jar"
 
 class SubmissionReleaserProperties : JavaAppProperties {
-    override fun asCmd(location: String, javaHome: String, debugPort: Int?): String =
-        buildString {
-            append(javaCmd(javaHome, debugPort))
-            appendLine("-jar $location/$APP_NAME \\")
-            appendLine("--spring.data.mongodb.uri=$mongodbUri \\")
-            appendLine("--spring.data.mongodb.database=$mongodbDatabase \\")
-            appendLine("--spring.rabbitmq.host=$rabbitMqHost \\")
-            appendLine("--spring.rabbitmq.username=$rabbitMqUser \\")
-            appendLine("--spring.rabbitmq.password=$rabbitMqPassword \\")
-            appendLine("--spring.rabbitmq.port=$rabbitMqPort \\")
-            appendLine("--app.mode=$mode \\")
-            appendLine("--app.bioStudies.url=$bioStudiesUrl \\")
-            appendLine("--app.bioStudies.user=$bioStudiesUser \\")
-            appendLine("--app.bioStudies.password=$bioStudiesPassword \\")
-            appendLine("--app.notification-times.first-warning-days=$firstWarningDays \\")
-            appendLine("--app.notification-times.second-warning-days=$secondWarningDays \\")
-            append("--app.notification-times.third-warning-days=$thirdWarningDays")
-        }
+    override fun asCmd(location: String, debugPort: Int?): String =
+        buildList {
+            addAll(javaCmd(debugPort))
+            add("-jar $location/$APP_NAME")
+            add("--spring.data.mongodb.uri=$mongodbUri")
+            add("--spring.data.mongodb.database=$mongodbDatabase")
+            add("--spring.rabbitmq.host=$rabbitMqHost")
+            add("--spring.rabbitmq.username=$rabbitMqUser")
+            add("--spring.rabbitmq.password=$rabbitMqPassword")
+            add("--spring.rabbitmq.port=$rabbitMqPort")
+            add("--app.mode=$mode")
+            add("--app.bioStudies.url=$bioStudiesUrl")
+            add("--app.bioStudies.user=$bioStudiesUser")
+            add("--app.bioStudies.password=$bioStudiesPassword")
+            add("--app.notification-times.first-warning-days=$firstWarningDays")
+            add("--app.notification-times.second-warning-days=$secondWarningDays")
+            add("--app.notification-times.third-warning-days=$thirdWarningDays")
+        }.joinToString(separator = " \\\n", prefix = "\"", postfix = "\"")
 
     lateinit var mode: ReleaserMode
 

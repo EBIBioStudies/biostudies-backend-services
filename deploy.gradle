@@ -4,13 +4,28 @@ remotes {
         user = System.getenv("BS_USER")
     }
 
+    devCodon {
+        host = System.getenv("CODON_SERVER")
+        user = System.getenv("BS_USER")
+    }
+
     beta {
         host = System.getenv("BETA_SERVER")
         user = System.getenv("BS_USER")
     }
 
+    betaCodon {
+        host = System.getenv("CODON_SERVER")
+        user = System.getenv("BS_USER")
+    }
+
     prod {
         host = System.getenv("PROD_SERVER")
+        user = System.getenv("BS_USER")
+    }
+
+    prodCodon {
+        host = System.getenv("CODON_SERVER")
         user = System.getenv("BS_USER")
     }
 

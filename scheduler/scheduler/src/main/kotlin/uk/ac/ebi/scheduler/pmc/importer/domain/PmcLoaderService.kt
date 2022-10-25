@@ -102,7 +102,7 @@ private class PmcLoader(
             JobSpec(
                 FOUR_CORES,
                 MemorySpec.EIGHT_GB,
-                properties.asCmd(appProperties.appsFolder, appProperties.javaHome, debugPort)
+                properties.asCmd(appProperties.appsFolder, debugPort)
             )
         )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
@@ -115,7 +115,7 @@ private class PmcLoader(
             JobSpec(
                 FOUR_CORES,
                 MemorySpec.EIGHT_GB,
-                properties.asCmd(appProperties.appsFolder, appProperties.javaHome, debugPort)
+                properties.asCmd(appProperties.appsFolder, debugPort)
             )
         )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
@@ -128,7 +128,7 @@ private class PmcLoader(
             JobSpec(
                 EIGHT_CORES,
                 MemorySpec.TWENTYFOUR_GB,
-                properties.asCmd(appProperties.appsFolder, appProperties.javaHome, debugPort)
+                properties.asCmd(appProperties.appsFolder, debugPort)
             )
         )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
@@ -141,7 +141,7 @@ private class PmcLoader(
             JobSpec(
                 EIGHT_CORES,
                 MemorySpec.TWENTYFOUR_GB,
-                properties.asCmd(appProperties.appsFolder, appProperties.javaHome, debugPort)
+                properties.asCmd(appProperties.appsFolder, debugPort)
             )
         )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })

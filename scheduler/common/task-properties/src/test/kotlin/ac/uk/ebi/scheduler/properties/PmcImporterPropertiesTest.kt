@@ -21,7 +21,7 @@ class PmcImporterPropertiesTest {
     @BeforeEach
     fun beforeEach() {
         mockkStatic(::javaCmd)
-        every { javaCmd(any(), any()) } answers { "${firstArg<String>()}/java debug=${secondArg<Int?>()} \\\n" }
+        every { javaCmd(any()) } answers { listOf("java debug=${firstArg<Int?>()}") }
     }
 
     @Test
@@ -39,10 +39,10 @@ class PmcImporterPropertiesTest {
             notificationsUrl = notificationUrl
         )
 
-        assertThat(properties.asCmd("/apps-folder", "/home/jd11", 8569))
+        assertThat(properties.asCmd("/apps-folder", 8569))
             .isEqualTo(
                 """
-                /home/jd11/java debug=8569 \
+                "java debug=8569 \
                 -jar /apps-folder/pmc-processor-task-1.0.0.jar \
                 --app.data.mode=LOAD \
                 --app.data.temp=/tempDir \
@@ -53,7 +53,7 @@ class PmcImporterPropertiesTest {
                 --app.data.loadFolder=/loadPath \
                 --app.data.bioStudiesUrl=http://an_url.com \
                 --app.data.bioStudiesUser=user \
-                --app.data.bioStudiesPassword=password
+                --app.data.bioStudiesPassword=password"
                 """.trimIndent()
             )
     }
@@ -72,17 +72,17 @@ class PmcImporterPropertiesTest {
             pmcBaseUrl = baseUrl,
             notificationsUrl = notificationUrl
         )
-        assertThat(properties.asCmd("/apps-folder", "/home/jd11", 8569))
+        assertThat(properties.asCmd("/apps-folder", 8569))
             .isEqualTo(
                 """
-            /home/jd11/java debug=8569 \
+            "java debug=8569 \
             -jar /apps-folder/pmc-processor-task-1.0.0.jar \
             --app.data.mode=LOAD \
             --app.data.temp=/tempDir \
             --app.data.mongodbUri=mongodbUri \
             --app.data.mongodbDatabase=a-database \
             --app.data.notificationsUrl=http://slack-here \
-            --app.data.pmcBaseUrl=http://pmc
+            --app.data.pmcBaseUrl=http://pmc"
                 """.trimIndent()
             )
     }

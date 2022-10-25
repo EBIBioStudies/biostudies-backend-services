@@ -12,7 +12,7 @@ class SubmissionReleaserPropertiesTest {
     @BeforeEach
     fun beforeEach() {
         mockkStatic(::javaCmd)
-        every { javaCmd(any(), any()) } answers { "${firstArg<String>()}/java debug=${secondArg<Int?>()} \\\n" }
+        every { javaCmd(any()) } answers { listOf("java debug=${firstArg<Int?>()}") }
     }
 
     @Test
@@ -33,9 +33,9 @@ class SubmissionReleaserPropertiesTest {
             thirdWarningDays = 7
         )
 
-        assertThat(properties.asCmd("/apps-folder", "/home/jdk11", 8569)).isEqualTo(
+        assertThat(properties.asCmd("/apps-folder", 8569)).isEqualTo(
             """
-            /home/jdk11/java debug=8569 \
+            java debug=8569 \
             -jar /apps-folder/submission-releaser-task-1.0.0.jar \
             --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
             --spring.data.mongodb.database=dev \

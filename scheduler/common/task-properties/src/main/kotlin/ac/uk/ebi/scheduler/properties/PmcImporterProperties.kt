@@ -20,22 +20,22 @@ class PmcImporterProperties : JavaAppProperties {
     var bioStudiesPassword: String? = null
     var submissionId: String? = null
 
-    override fun asCmd(location: String, javaHome: String, debugPort: Int?) =
-        buildString {
-            append(javaCmd(javaHome, debugPort))
-            append("-jar $location/$APP_NAME \\\n")
-            append("--app.data.mode=$mode \\\n")
-            append("--app.data.temp=$temp \\\n")
-            append("--app.data.mongodbUri=$mongodbUri \\\n")
-            append("--app.data.mongodbDatabase=$mongodbDatabase \\\n")
-            append("--app.data.notificationsUrl=$notificationsUrl \\\n")
-            append("--app.data.pmcBaseUrl=$pmcBaseUrl \\\n")
-
-            loadFolder?.let { append("--app.data.loadFolder=$it \\\n") }
-            bioStudiesUrl?.let { append("--app.data.bioStudiesUrl=$it \\\n") }
-            bioStudiesUser?.let { append("--app.data.bioStudiesUser=$it \\\n") }
-            bioStudiesPassword?.let { append("--app.data.bioStudiesPassword=$it \\\n") }
-        }.removeSuffix(" \\\n")
+    override fun asCmd(location: String, debugPort: Int?): String =
+        buildList {
+            addAll(javaCmd(debugPort))
+            add("-jar $location/$APP_NAME")
+            add("--app.data.mode=$mode")
+            add("--app.data.temp=$temp")
+            add("--app.data.mongodbUri=$mongodbUri")
+            add("--app.data.mongodbDatabase=$mongodbDatabase")
+            add("--app.data.notificationsUrl=$notificationsUrl")
+            add("--app.data.pmcBaseUrl=$pmcBaseUrl")
+            submissionId?.let { add("--app.data.submissionId=$it") }
+            loadFolder?.let { add("--app.data.loadFolder=$it") }
+            bioStudiesUrl?.let { add("--app.data.bioStudiesUrl=$it") }
+            bioStudiesUser?.let { add("--app.data.bioStudiesUser=$it") }
+            bioStudiesPassword?.let { add("--app.data.bioStudiesPassword=$it") }
+        }.joinToString(separator = " \\\n", prefix = "\"", postfix = "\"")
 
     companion object {
 

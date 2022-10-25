@@ -62,7 +62,7 @@ class SubmissionReleaserTrigger(
             JobSpec(
                 cores = RELEASER_CORES,
                 ram = EIGHT_GB,
-                command = releaserProperties.asCmd(appProperties.appsFolder, appProperties.javaHome, debugPort)
+                command = releaserProperties.asCmd(appProperties.appsFolder, debugPort)
             )
         )
 

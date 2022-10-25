@@ -109,7 +109,7 @@ internal class PmcFileLoaderTest(private val tempFolder: TemporaryFolder) {
         @Autowired val serializationService: SerializationService,
         @Autowired val inputFileRepository: InputFileRepository,
         @Autowired val pmcTaskExecutor: PmcTaskExecutor,
-        @Autowired val resourceLoader: ResourceLoader
+        @Autowired val resourceLoader: ResourceLoader,
     ) {
         private val gzipFilePath = tempFolder.root.resolve(PMC_EXPORT_FILE_GZIP).path
 
