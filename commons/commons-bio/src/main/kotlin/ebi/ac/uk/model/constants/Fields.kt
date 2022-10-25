@@ -9,11 +9,18 @@ val SUBMISSION_RESERVED_ATTRIBUTES = setOf(
     SubFields.TITLE.value,
     SubFields.ATTACH_TO.value,
     SubFields.ON_BEHALF.value,
-    SubFields.ROOT_PATH.value
+    SubFields.ROOT_PATH.value,
 )
 
 val SECTION_RESERVED_ATTRS = setOf(SectionFields.FILE_LIST.value)
-val FILES_RESERVED_ATTRS = setOf(FileFields.MD5.value)
+val FILES_RESERVED_ATTRS = setOf(
+    FileFields.MD5.value,
+    FileFields.DB_MD5.value,
+    FileFields.DB_ID.value,
+    FileFields.DB_PATH.value,
+    FileFields.DB_SIZE.value,
+    FileFields.MD5.value,
+)
 
 interface Fields {
     val value: String?
@@ -109,6 +116,12 @@ enum class FileFields(override val value: String) : Fields {
     TYPE("type"),
     FILE_TYPE("file"),
     MD5("md5"),
+
+    DB_MD5("dbMd5"),
+    DB_SIZE("dbSize"),
+    DB_ID("dbId"),
+    DB_PATH("dbPath"),
+
     ATTRIBUTES(ATTRIBUTES_FIELD);
 
     override fun toString(): String {

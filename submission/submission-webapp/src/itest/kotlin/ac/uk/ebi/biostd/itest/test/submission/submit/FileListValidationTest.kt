@@ -138,7 +138,7 @@ class FileListValidationTest(
         val file3Md5 = file3.md5()
 
         val fileListContent = tsv {
-            line("Files", "md5")
+            line("Files", "dbMd5")
             line("File1.tif", file1Md5)
             line("File2.tif", file2Md5)
             line("File3.tif", file3Md5)

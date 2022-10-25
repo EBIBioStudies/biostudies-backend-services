@@ -11,9 +11,6 @@ data class FireApiFile(
     val path: String? = filesystemEntry?.path
 }
 
-val FireApiFile.path: String?
-    get() = filesystemEntry?.path
-
 enum class FileType(val key: String) {
     FILE("file"),
     DIR("directory")
