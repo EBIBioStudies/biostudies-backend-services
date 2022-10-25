@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestIndexedFile
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -81,13 +80,13 @@ interface SubmissionRequestPersistenceService {
 interface SubmissionRequestFilesPersistenceService {
     fun upsertSubmissionRequestFile(file: SubmissionRequestFile)
 
-    fun getSubmissionRequestFile(path: String, accNo: String, version: Int): ExtFile
+    fun getSubmissionRequestFile(path: String, accNo: String, version: Int): SubmissionRequestFile
 
     fun getSubmissionRequestFiles(
         accNo: String,
         version: Int,
         startingAt: Int
-    ): Stream<SubmissionRequestIndexedFile>
+    ): Stream<SubmissionRequestFile>
 }
 
 interface SubmissionMetaQueryService {

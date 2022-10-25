@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
@@ -20,11 +21,12 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_FILE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_INDEX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
-import ac.uk.ebi.biostd.persistence.doc.model.DocFile
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
@@ -81,11 +83,15 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java)
     }
 
-    fun updateSubmissionRequestFile(accNo: String, version: Int, path: String, file: DocFile) {
-        val where = where(RQT_FILE_SUB_ACC_NO).`is`(accNo)
-            .andOperator(where(RQT_FILE_SUB_VERSION).`is`(version), where(RQT_FILE_PATH).`is`(path))
+    fun upsertSubmissionRequestFile(rqtFile: SubmissionRequestFile) {
+        val update = update(RQT_FILE_FILE, rqtFile.file.toDocFile())
+        val where = where(RQT_FILE_SUB_ACC_NO).`is`(rqtFile.accNo)
+            .andOperator(where(RQT_FILE_SUB_VERSION).`is`(rqtFile.version),
+                where(RQT_FILE_PATH).`is`(rqtFile.path),
+                where(RQT_FILE_INDEX).`is`(rqtFile.index),
+            )
 
-        mongoTemplate.updateFirst(Query(where), update(RQT_FILE_FILE, file), DocSubmissionRequestFile::class.java)
+        mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java)
     }
 
     fun setTotalFiles(accNo: String, version: Int, totalFiles: Int) {

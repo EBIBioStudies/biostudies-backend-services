@@ -20,6 +20,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import kotlin.streams.asStream
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestIndexerTest(
@@ -31,7 +32,8 @@ class SubmissionRequestIndexerTest(
 
     @Test
     fun `index request`(
-        @MockK pendingRequest: SubmissionRequest
+        @MockK pendingRequest: SubmissionRequest,
+        @MockK mockRequestFile: SubmissionRequestFile,
     ) {
         val requestFileSlot = slot<SubmissionRequestFile>()
         val file = tempFolder.createFile("requested.txt")
@@ -43,6 +45,9 @@ class SubmissionRequestIndexerTest(
         every { requestService.updateRequestTotalFiles("S-BSST0", 1, 1) } answers { nothing }
         every { requestService.updateRequestStatus("S-BSST0", 1, INDEXED) } answers { nothing }
         every { filesRequestService.upsertSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
+        every {
+            filesRequestService.getSubmissionRequestFiles("S-BSST0", 1, 0)
+        } returns sequenceOf(mockRequestFile).asStream()
 
         testInstance.indexRequest("S-BSST0", 1)
 

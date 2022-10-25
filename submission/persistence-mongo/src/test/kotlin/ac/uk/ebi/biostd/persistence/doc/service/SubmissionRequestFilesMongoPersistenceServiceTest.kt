@@ -56,7 +56,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
             testInstance.upsertSubmissionRequestFile(requestFile)
 
             val saved = testInstance.getSubmissionRequestFile("requested.txt", "S-BSST0", 1)
-            assertThat(saved).isEqualTo(extFile)
+            assertThat(saved).isEqualTo(requestFile)
         }
 
         @Test
@@ -71,7 +71,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
             testInstance.upsertSubmissionRequestFile(updatedFile)
 
             val updated = testInstance.getSubmissionRequestFile("updated.txt", "S-BSST0", 2)
-            assertThat(updated).isEqualTo(second)
+            assertThat(updated).isEqualTo(updatedFile)
         }
     }
 

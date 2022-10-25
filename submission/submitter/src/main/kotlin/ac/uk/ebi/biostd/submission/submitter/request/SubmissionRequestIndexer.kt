@@ -22,24 +22,23 @@ class SubmissionRequestIndexer(
         val request = requestService.getPendingRequest(accNo, version)
         logger.info { "Finished loading pending request accNo='$accNo', version='$version'" }
 
-        val totalFiles = indexSubmissionFiles(request.submission)
+        indexSubmissionFiles(request.submission)
+        val totalFiles = filesRequestService.getSubmissionRequestFiles(accNo, version, 0).count().toInt()
         requestService.updateRequestTotalFiles(accNo, version, totalFiles)
         requestService.updateRequestStatus(accNo, version, INDEXED)
     }
 
-    private fun indexSubmissionFiles(sub: ExtSubmission): Int {
-        var totalFiles = 0
+    private fun indexSubmissionFiles(sub: ExtSubmission) {
         fun indexFile(file: ExtFile, index: Int) {
             logger.info { "${sub.accNo} ${sub.owner} Indexing submission file $index, path='${file.filePath}'" }
-            totalFiles++
             val requestFile = SubmissionRequestFile(sub.accNo, sub.version, index, file.filePath, file)
             filesRequestService.upsertSubmissionRequestFile(requestFile)
         }
 
         logger.info { "${sub.accNo} ${sub.owner} Started indexing submission files" }
+        // TODO merge with master to get latest updates from Juan
+        // TODO ignore incoming pagetab files
         extSerializationService.forEachFile(sub, ::indexFile)
         logger.info { "${sub.accNo} ${sub.owner} Finished indexing submission files" }
-
-        return totalFiles
     }
 }

@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestIndexedFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
@@ -64,12 +63,12 @@ class SubmissionRequestLoaderTest(
 
     @Test
     fun `load request`() {
-        val loadedFileSlot = slot<ExtFile>()
         val loadedRequestSlot = slot<SubmissionRequest>()
         val requestFileSlot = slot<SubmissionRequestFile>()
         val file = tempFolder.createFile("dummy.txt")
         val nfsFile = NfsFile("dummy.txt", "Files/dummy.txt", file, file.absolutePath, "NOT_CALCULATED", -1)
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Study", files = listOf(left(nfsFile))))
+        val indexedRequestFile = SubmissionRequestFile(sub.accNo, sub.version, 1, "dummy.txt", nfsFile)
         val indexedRequest = SubmissionRequest(sub, "TMP_123", INDEXED, 1, 0, testTime)
 
         every { pageTabService.generatePageTab(sub) } returns sub
@@ -82,7 +81,7 @@ class SubmissionRequestLoaderTest(
         } returns (sub.accNo to sub.version)
         every {
             filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)
-        } returns sequenceOf(SubmissionRequestIndexedFile(1, nfsFile)).asStream()
+        } returns sequenceOf(indexedRequestFile).asStream()
         every {
             filesRequestService.upsertSubmissionRequestFile(capture(requestFileSlot))
         } answers { nothing }

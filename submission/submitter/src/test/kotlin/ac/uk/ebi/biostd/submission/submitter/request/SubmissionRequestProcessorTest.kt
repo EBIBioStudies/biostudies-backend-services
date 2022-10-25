@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestIndexedFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -72,6 +71,7 @@ class SubmissionRequestProcessorTest(
         val cleanedRequest = SubmissionRequest(sub, "TMP_123", CLEANED, 1, 0, modificationTime = testTime)
         val fireFile = FireFile("test.txt", "Files/test.txt", "abc1", "md5", 1, FILE, emptyList())
         val nfsFile = createNfsFile("dummy.txt", "Files/dummy.txt", tempFolder.createFile("dummy.txt"))
+        val loadedRequestFile = SubmissionRequestFile(sub.accNo, sub.version, 1, "test.txt", nfsFile)
         val processed = sub.copy(section = sub.section.copy(files = listOf(Either.left(fireFile))))
 
         every { fileService.processFiles(sub, any()) } returns processed
@@ -86,7 +86,7 @@ class SubmissionRequestProcessorTest(
         } returns (sub.accNo to sub.version)
         every {
             filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)
-        } returns sequenceOf(SubmissionRequestIndexedFile(1, nfsFile)).asStream()
+        } returns sequenceOf(loadedRequestFile).asStream()
         every { filesRequestService.upsertSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
 
         val result = testInstance.processRequest(sub.accNo, sub.version)
