@@ -320,7 +320,7 @@ class SubmissionFileSourceTest(
             line("Study")
             line()
 
-            line("File", "DataFile5.txt")
+            line("File", "DataFile555.txt")
             line("dbMd5", "abc-123")
             line("dbId", "unique-id")
             line("dbPath", "/S-FSTST/006/S-FSTST6/Files/DataFile5.txt")
@@ -337,9 +337,9 @@ class SubmissionFileSourceTest(
             assertThat(fireFile.md5).isEqualTo("abc-123")
             assertThat(fireFile.fireId).isEqualTo("unique-id")
             assertThat(fireFile.size).isEqualTo(145)
-            assertThat(fireFile.firePath).isEqualTo("/S-FSTST/006/S-FSTST6/Files/DataFile5.txt")
-            assertThat(fireFile.relPath).isEqualTo("Files/DataFile5.txt")
-            assertThat(fireFile.filePath).isEqualTo("DataFile5.txt")
+            assertThat(fireFile.firePath).isEqualTo("/S-FSTST/006/S-FSTST6/Files/DataFile555.txt")
+            assertThat(fireFile.relPath).isEqualTo("Files/DataFile555.txt")
+            assertThat(fireFile.filePath).isEqualTo("DataFile555.txt")
             assertThat(fireFile.attributes).isEmpty()
         }
     }
