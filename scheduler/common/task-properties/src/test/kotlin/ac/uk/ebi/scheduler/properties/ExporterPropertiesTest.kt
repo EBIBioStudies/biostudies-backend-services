@@ -36,7 +36,7 @@ class ExporterPropertiesTest {
 
         assertThat(properties.asCmd("/apps-folder", 8569)).isEqualTo(
             """
-            java debug=8569 \
+            "java debug=8569 \
             -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.mode=PUBLIC_ONLY \
             --app.fileName=publicOnlyStudies \
@@ -50,7 +50,7 @@ class ExporterPropertiesTest {
             --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
             --app.bioStudies.url=http://localhost:8080 \
             --app.bioStudies.user=admin_user@ebi.ac.uk \
-            --app.bioStudies.password=123456
+            --app.bioStudies.password=123456"
             """.trimIndent()
         )
     }
@@ -75,7 +75,7 @@ class ExporterPropertiesTest {
 
         assertThat(properties.asCmd("/apps-folder", 8569)).isEqualTo(
             """
-            java debug=8569 \
+            "java debug=8569 \
             -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.mode=PMC \
             --app.fileName=publicOnlyStudies \
@@ -89,7 +89,7 @@ class ExporterPropertiesTest {
             --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
             --app.bioStudies.url=http://localhost:8080 \
             --app.bioStudies.user=admin_user@ebi.ac.uk \
-            --app.bioStudies.password=123456
+            --app.bioStudies.password=123456"
             """.trimIndent()
         )
     }
