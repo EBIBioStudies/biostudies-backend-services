@@ -323,7 +323,7 @@ class SubmissionFileSourceTest(
             line("File", "DataFile555.txt")
             line("dbMd5", "abc-123")
             line("dbId", "unique-id")
-            line("dbPath", "/S-FSTST/006/S-FSTST6/Files/DataFile5.txt")
+            line("dbPath", "/S-FSTST/006/S-FSTST6/Files/DataFile555.txt")
             line("dbSize", 145)
             line()
         }.toString()
