@@ -62,12 +62,12 @@ class SubmissionRequestProcessor(
         }
 
         filesRequestService
-            .getSubmissionRequestFiles(sub.accNo, sub.version, startingAt)
+            .getSubmissionRequestFiles(sub.accNo, sub.version, sub.relPath, startingAt)
             .forEach { persistSubmissionFile(it.file, it.index) }
     }
 
     private fun assembleSubmission(sub: ExtSubmission) =
         fileProcessingService.processFiles(sub) { file, _ ->
-            filesRequestService.getSubmissionRequestFile(file.filePath, sub.accNo, sub.version).file
+            filesRequestService.getSubmissionRequestFile(sub.accNo, sub.version, sub.relPath, file.filePath).file
         }
 }

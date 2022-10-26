@@ -75,7 +75,7 @@ class SubmissionConfig(
     fun submissionStatsService(
         statsFileHandler: StatsFileHandler,
         tempFileGenerator: TempFileGenerator,
-        submissionStatsService: StatsDataService
+        submissionStatsService: StatsDataService,
     ): SubmissionStatsService = SubmissionStatsService(statsFileHandler, tempFileGenerator, submissionStatsService)
 
     @Bean

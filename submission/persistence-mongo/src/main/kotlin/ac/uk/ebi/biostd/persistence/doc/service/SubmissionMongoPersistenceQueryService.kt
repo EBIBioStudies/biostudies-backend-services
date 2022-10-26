@@ -74,7 +74,7 @@ internal class SubmissionMongoPersistenceQueryService(
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> {
         return fileListDocFileRepository
             .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(accNo, 0, fileListName)
-            .map { it.file.toExtFile() }
+            .map { it.file.toExtFile(submissionRepo.getRelPath(accNo)) }
     }
 
     private fun findSubmissions(owner: String, filter: SubmissionFilter): List<BasicSubmission> =

@@ -8,7 +8,8 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.forEachFile
+import uk.ac.ebi.extended.serialization.service.fileSequence
+import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
 
@@ -20,10 +21,11 @@ class SubmissionRequestIndexer(
     fun indexRequest(accNo: String, version: Int) {
         logger.info { "Started loading pending request accNo='$accNo', version='$version'" }
         val request = requestService.getPendingRequest(accNo, version)
+        val sub = request.submission
         logger.info { "Finished loading pending request accNo='$accNo', version='$version'" }
 
-        indexSubmissionFiles(request.submission)
-        val totalFiles = filesRequestService.getSubmissionRequestFiles(accNo, version, 0).count().toInt()
+        indexSubmissionFiles(sub)
+        val totalFiles = filesRequestService.getSubmissionRequestFiles(accNo, version, sub.relPath, 0).count().toInt()
         requestService.updateRequestTotalFiles(accNo, version, totalFiles)
         requestService.updateRequestStatus(accNo, version, INDEXED)
     }
@@ -36,9 +38,9 @@ class SubmissionRequestIndexer(
         }
 
         logger.info { "${sub.accNo} ${sub.owner} Started indexing submission files" }
-        // TODO merge with master to get latest updates from Juan
         // TODO ignore incoming pagetab files
-        extSerializationService.forEachFile(sub, ::indexFile)
+        val index = AtomicInteger()
+        extSerializationService.fileSequence(sub).forEach { indexFile(it, index.incrementAndGet()) }
         logger.info { "${sub.accNo} ${sub.owner} Finished indexing submission files" }
     }
 }

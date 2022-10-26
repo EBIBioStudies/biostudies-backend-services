@@ -18,6 +18,9 @@ import org.springframework.data.mongodb.repository.Query
 import java.util.stream.Stream
 
 interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
+    @Query(value = "{ 'accNo': '?0', 'version': { \$gte: 0 } }", fields = "{ relPath : 0 }")
+    fun getRelPath(accNo: String): String
+
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     fun findByAccNo(accNo: String): DocSubmission?
 
@@ -57,12 +60,10 @@ interface SubmissionRequestFilesRepository : MongoRepository<DocSubmissionReques
     ): Stream<DocSubmissionRequestFile>
 
     fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
-
-    fun findByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile?
 }
 
 interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {
-    fun findByUserIdAndKey(userId: String, key: String): DocSubmissionDraft?
+    fun findByUserIdAndKeyAndStatusIsNot(userId: String, key: String, deleted: DraftStatus): DocSubmissionDraft?
 
     fun findAllByUserIdAndStatus(
         userId: String,
@@ -72,9 +73,7 @@ interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String
 
     fun getById(id: String): DocSubmissionDraft
 
-    fun deleteByKey(key: String)
-
-    fun deleteByUserIdAndKey(userId: String, key: String)
+    fun deleteByUserIdAndKey(userId: String, draftKey: String)
 }
 
 interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId> {

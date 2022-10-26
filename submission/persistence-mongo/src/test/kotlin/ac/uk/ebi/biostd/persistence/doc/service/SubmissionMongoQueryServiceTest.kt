@@ -84,6 +84,7 @@ internal class SubmissionMongoQueryServiceTest(
             serializationService,
             fileListDocFileRepository,
             requestRepository,
+            fileListDocFileRepository
         )
 
     @AfterEach

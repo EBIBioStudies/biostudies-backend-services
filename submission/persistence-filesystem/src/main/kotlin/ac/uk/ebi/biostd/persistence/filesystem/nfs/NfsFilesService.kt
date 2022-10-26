@@ -47,14 +47,16 @@ class NfsFilesService(
         moveFile(targetFolder, subFolder, permissions)
     }
 
-    override fun cleanSubmissionFiles(sub: ExtSubmission) {
-        logger.info { "${sub.accNo} ${sub.owner} Un-publishing files of submission ${sub.accNo} on NFS" }
-        FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(sub.relPath).toFile())
-        logger.info { "${sub.accNo} ${sub.owner} Finished un-publishing files of submission ${sub.accNo} on NFS" }
+    override fun cleanSubmissionFiles(previous: ExtSubmission, current: ExtSubmission?) {
+        val accNo = previous.accNo
 
-        logger.info { "${sub.accNo} ${sub.owner} Deleting pagetab files of submission ${sub.accNo} on NFS" }
-        sub.allPageTabFiles.filterIsInstance<NfsFile>().forEach { FileUtils.deleteFile(it.file) }
-        logger.info { "${sub.accNo} ${sub.owner} Finished deleting pagetab files of submission ${sub.accNo} on NFS" }
+        logger.info { "$accNo ${previous.owner} Un-publishing files of submission $accNo on NFS" }
+        FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(previous.relPath).toFile())
+        logger.info { "$accNo ${previous.owner} Finished un-publishing files of submission $accNo on NFS" }
+
+        logger.info { "$accNo ${previous.owner} Deleting pagetab files of submission $accNo on NFS" }
+        previous.allPageTabFiles.filterIsInstance<NfsFile>().forEach { FileUtils.deleteFile(it.file) }
+        logger.info { "$accNo ${previous.owner} Finished deleting pagetab files of submission $accNo on NFS" }
     }
 
     private fun getOrCreateSubmissionFolder(submission: ExtSubmission, permissions: Set<PosixFilePermission>): File {

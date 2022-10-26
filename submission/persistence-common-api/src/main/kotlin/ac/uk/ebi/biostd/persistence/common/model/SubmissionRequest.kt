@@ -10,7 +10,11 @@ data class SubmissionRequest(
     val totalFiles: Int,
     val currentIndex: Int,
     val modificationTime: OffsetDateTime,
-)
+) {
+    fun withStatus(status: RequestStatus): SubmissionRequest {
+        return copy(status = status, modificationTime = OffsetDateTime.now())
+    }
+}
 
 enum class RequestStatus {
     REQUESTED,

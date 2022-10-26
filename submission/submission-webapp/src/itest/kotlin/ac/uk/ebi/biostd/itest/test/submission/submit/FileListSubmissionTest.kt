@@ -215,7 +215,7 @@ class FileListSubmissionTest(
 
     @Test
     fun `reuse previous version file list`() {
-        val referencedFile = tempFolder.createFile("File7.txt")
+        val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
         fun submission(fileList: String) = tsv {
             line("Submission", "S-TEST7")
             line("Title", "Reuse Previous Version File List")
@@ -234,13 +234,13 @@ class FileListSubmissionTest(
             }.toString()
         )
 
-        val firstVersion = submission("reusable-file-list.tsv")
+        val firstVersion = submission(fileList = "reusable-file-list.tsv")
         val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
         assertThat(webClient.submitSingle(firstVersion, TSV, filesConfig)).isSuccessful()
         assertSubmissionFiles("S-TEST7", "File7.txt", "reusable-file-list")
         fileList.delete()
 
-        val secondVersion = submission("reusable-file-list.json")
+        val secondVersion = submission(fileList = "reusable-file-list.json")
         assertThat(webClient.submitSingle(secondVersion, TSV)).isSuccessful()
         assertSubmissionFiles("S-TEST7", "File7.txt", "reusable-file-list")
     }

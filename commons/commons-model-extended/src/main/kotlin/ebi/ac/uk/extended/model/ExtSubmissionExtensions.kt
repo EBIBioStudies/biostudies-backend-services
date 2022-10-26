@@ -9,7 +9,7 @@ val ExtSubmission.allFileList
     get(): List<ExtFileList> = allSections.mapNotNull { it.fileList }
 
 val ExtSubmission.allSectionsFiles
-    get(): List<ExtFile> = allSections.flatMap { it.allFiles }
+    get(): List<ExtFile> = allSections.flatMap { it.allInnerFiles }
 
 val ExtSubmission.allPageTabFiles
     get(): List<ExtFile> = pageTabFiles + allFileList.flatMap { it.pageTabFiles }
@@ -19,3 +19,5 @@ val ExtSubmission.isCollection
 
 val ExtSubmission.computedTitle
     get(): String? = title ?: section.title
+
+fun ExtSubmission.expectedPath(file: ExtFile): String = "/$relPath/${file.relPath}"

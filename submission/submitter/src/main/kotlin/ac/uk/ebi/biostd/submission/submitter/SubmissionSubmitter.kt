@@ -62,22 +62,14 @@ class SubmissionSubmitter(
             rqt.draftKey?.let { draftService.setProcessingStatus(rqt.owner, it) }
             val submission = submissionProcessor.processSubmission(rqt)
             parentInfoService.executeCollectionValidators(submission)
-            deleteSubmissionDrafts(submission, rqt.draftKey)
-
+            rqt.draftKey?.let { draftService.setAcceptedStatus(it) }
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 
             return submission
         } catch (exception: RuntimeException) {
             logger.error(exception) { "${rqt.accNo} ${rqt.owner} Error processing submission request" }
-            rqt.draftKey?.let { draftService.setActiveStatus(rqt.owner, it) }
-
+            rqt.draftKey?.let { draftService.setActiveStatus(it) }
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
-    }
-
-    private fun deleteSubmissionDrafts(submission: ExtSubmission, draftKey: String?) {
-        draftKey?.let { draftService.deleteSubmissionDraft(draftKey) }
-        draftService.deleteSubmissionDraft(submission.owner, submission.accNo)
-        draftService.deleteSubmissionDraft(submission.submitter, submission.accNo)
     }
 }

@@ -4,7 +4,10 @@ import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.io.sources.ConfiguredDbFile
+import ebi.ac.uk.io.sources.DbFile
 import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.io.sources.UploadedDbFile
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
 import uk.ac.ebi.fire.client.integration.web.FireClient
@@ -25,16 +28,18 @@ class FireFilesSource(
 ) : FilesSource {
     override fun getExtFile(
         path: String,
-        md5: String?,
+        dbFile: DbFile?,
         attributes: List<Attribute>,
     ): ExtFile? {
-        return when (md5) {
+        return when (dbFile) {
             null -> null
-            else -> fireClient.findByMd5(md5).firstOrNull()?.asFireFile(path, attributes)
+            else -> fireClient.findByDb(dbFile, path, attributes)
         }
     }
 
-    override fun getFile(path: String, md5: String?): File? = if (md5 == null) null else fireClient.downloadByMd5(md5)
+    override fun getFile(path: String, dbFile: DbFile?): File? =
+        if (dbFile == null) null else fireClient.downloadByMd5(dbFile.md5)
+
     override val description: String = "EBI internal files Archive"
 }
 
@@ -47,27 +52,47 @@ private class SubmissionFireFilesSource(
 
     override fun getExtFile(
         path: String,
-        md5: String?,
+        dbFile: DbFile?,
         attributes: List<Attribute>,
     ): ExtFile? {
-        return when (md5) {
+        return when (dbFile) {
             null -> fireClient.findByPath(subPath.resolve(path).toString())?.asFireFile(path, attributes)
-            else -> fireClient.findByMd5(md5).firstOrNull()?.asFireFile(path, attributes)
+            else -> fireClient.findByDb(dbFile, path, attributes)
         }
     }
 
-    override fun getFile(path: String, md5: String?): File? =
-        if (md5 == null) fireClient.downloadByPath(subPath.resolve(path).toString())
-        else fireClient.downloadByMd5(md5)
+    override fun getFile(path: String, dbFile: DbFile?): File? =
+        if (dbFile == null) fireClient.downloadByPath(subPath.resolve(path).toString())
+        else fireClient.downloadByMd5(dbFile.md5)
 }
 
 fun FireApiFile.asFireFile(path: String, attributes: List<Attribute>): FireFile =
     FireFile(
+        fireId = fireOid,
+        firePath = filesystemEntry?.path,
         filePath = path,
         relPath = "Files/$path",
-        fireId = fireOid,
         md5 = objectMd5,
+        size = objectSize,
         type = ExtFileType.FILE,
-        size = objectSize.toLong(),
+        attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
+    )
+
+private fun FireClient.findByDb(dbFile: DbFile, path: String, attributes: List<Attribute>): FireFile {
+    return when (dbFile) {
+        is UploadedDbFile -> findByMd5(dbFile.md5).first().asFireFile(path, attributes)
+        is ConfiguredDbFile -> asFireFile(path, dbFile, attributes)
+    }
+}
+
+fun asFireFile(path: String, db: ConfiguredDbFile, attributes: List<Attribute>): FireFile =
+    FireFile(
+        fireId = db.id,
+        firePath = db.path,
+        filePath = path,
+        relPath = "Files/$path",
+        md5 = db.md5,
+        type = ExtFileType.FILE,
+        size = db.size,
         attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
     )

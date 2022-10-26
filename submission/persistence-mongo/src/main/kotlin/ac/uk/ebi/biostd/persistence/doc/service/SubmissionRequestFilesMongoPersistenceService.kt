@@ -16,20 +16,28 @@ class SubmissionRequestFilesMongoPersistenceService(
         requestRepository.upsertSubmissionRequestFile(file)
     }
 
-    override fun getSubmissionRequestFile(path: String, accNo: String, version: Int): SubmissionRequestFile {
-        return requestFilesRepository.getByPathAndAccNoAndVersion(path, accNo, version).toSubmissionRequestFile()
+    override fun getSubmissionRequestFile(
+        accNo: String,
+        version: Int,
+        subRelPath: String,
+        filePath: String,
+    ): SubmissionRequestFile {
+        return requestFilesRepository
+            .getByPathAndAccNoAndVersion(filePath, accNo, version)
+            .toSubmissionRequestFile(subRelPath)
     }
 
     override fun getSubmissionRequestFiles(
         accNo: String,
         version: Int,
+        subRelPath: String,
         startingAt: Int,
     ): Stream<SubmissionRequestFile> {
         return requestFilesRepository
             .findAllByAccNoAndVersionAndIndexGreaterThan(accNo, version, startingAt)
-            .map { it.toSubmissionRequestFile() }
+            .map { it.toSubmissionRequestFile(subRelPath) }
     }
 
-    private fun DocSubmissionRequestFile.toSubmissionRequestFile() =
-        SubmissionRequestFile(accNo, version, index, path, file.toExtFile())
+    private fun DocSubmissionRequestFile.toSubmissionRequestFile(subRelPath: String) =
+        SubmissionRequestFile(accNo, version, index, path, file.toExtFile(subRelPath))
 }

@@ -14,7 +14,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
-import ac.uk.ebi.biostd.persistence.filesystem.service.FileSystemService
+import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
@@ -103,10 +103,10 @@ class SubmitterConfig {
 
     @Bean
     fun submissionCleaner(
-        systemService: FileSystemService,
+        storageService: StorageService,
         queryService: SubmissionPersistenceQueryService,
         requestService: SubmissionRequestPersistenceService,
-    ): SubmissionRequestCleaner = SubmissionRequestCleaner(systemService, queryService, requestService)
+    ): SubmissionRequestCleaner = SubmissionRequestCleaner(storageService, queryService, requestService)
 
     @Bean
     fun extSubmissionSubmitter(

@@ -65,7 +65,7 @@ class SubmissionRequestLoader(
         }
 
         filesRequestService
-            .getSubmissionRequestFiles(sub.accNo, sub.version, startingAt)
+            .getSubmissionRequestFiles(sub.accNo, sub.version, sub.relPath, startingAt)
             .forEach { loadSubmissionFile(it.file, it.index) }
     }
 
@@ -75,7 +75,7 @@ class SubmissionRequestLoader(
      */
     private fun loadSubmission(sub: ExtSubmission) =
         fileProcessingService.processFiles(sub) { file, _ ->
-            filesRequestService.getSubmissionRequestFile(file.filePath, sub.accNo, sub.version).file
+            filesRequestService.getSubmissionRequestFile(sub.accNo, sub.version, sub.relPath, file.filePath).file
         }
 
     private fun loadPagetabFiles(sub: ExtSubmission, totalFiles: Int) {

@@ -8,5 +8,5 @@ internal interface FilesService {
 
     fun postProcessSubmissionFiles(sub: ExtSubmission)
 
-    fun cleanSubmissionFiles(sub: ExtSubmission)
+    fun cleanSubmissionFiles(previous: ExtSubmission, current: ExtSubmission?)
 }

@@ -8,18 +8,18 @@ interface SubmissionDraftPersistenceService {
 
     fun updateSubmissionDraft(userEmail: String, key: String, content: String): SubmissionDraft
 
-    fun deleteSubmissionDraft(key: String)
+    fun setAcceptedStatus(key: String)
+
+    fun setActiveStatus(key: String)
 
     fun deleteSubmissionDraft(userEmail: String, key: String)
 
     fun getActiveSubmissionDrafts(
         userEmail: String,
-        filter: PaginationFilter = PaginationFilter()
+        filter: PaginationFilter = PaginationFilter(),
     ): List<SubmissionDraft>
 
     fun createSubmissionDraft(userEmail: String, key: String, content: String): SubmissionDraft
-
-    fun setActiveStatus(userEmail: String, key: String)
 
     fun setProcessingStatus(userEmail: String, key: String)
 }

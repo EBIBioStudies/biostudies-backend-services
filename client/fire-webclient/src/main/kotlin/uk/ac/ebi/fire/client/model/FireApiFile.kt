@@ -7,10 +7,9 @@ data class FireApiFile(
     val objectSize: Long,
     val createTime: String,
     val filesystemEntry: FileSystemEntry? = null,
-)
-
-val FireApiFile.path: String?
-    get() = filesystemEntry?.path
+) {
+    val path: String? = filesystemEntry?.path
+}
 
 enum class FileType(val key: String) {
     FILE("file"),
