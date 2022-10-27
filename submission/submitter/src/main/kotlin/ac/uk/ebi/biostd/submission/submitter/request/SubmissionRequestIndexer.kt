@@ -21,11 +21,10 @@ class SubmissionRequestIndexer(
     fun indexRequest(accNo: String, version: Int) {
         logger.info { "Started loading pending request accNo='$accNo', version='$version'" }
         val request = requestService.getPendingRequest(accNo, version)
-        val sub = request.submission
         logger.info { "Finished loading pending request accNo='$accNo', version='$version'" }
 
-        indexSubmissionFiles(sub)
-        val totalFiles = filesRequestService.getSubmissionRequestFiles(accNo, version, sub.relPath, 0).count().toInt()
+        indexSubmissionFiles(request.submission)
+        val totalFiles = filesRequestService.getSubmissionRequestFiles(accNo, version, 0).count().toInt()
         requestService.updateRequestTotalFiles(accNo, version, totalFiles)
         requestService.updateRequestStatus(accNo, version, INDEXED)
     }
@@ -38,7 +37,6 @@ class SubmissionRequestIndexer(
         }
 
         logger.info { "${sub.accNo} ${sub.owner} Started indexing submission files" }
-        // TODO ignore incoming pagetab files
         val index = AtomicInteger()
         extSerializationService.fileSequence(sub).forEach { indexFile(it, index.incrementAndGet()) }
         logger.info { "${sub.accNo} ${sub.owner} Finished indexing submission files" }

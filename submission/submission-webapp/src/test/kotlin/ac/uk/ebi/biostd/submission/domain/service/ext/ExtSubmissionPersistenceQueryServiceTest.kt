@@ -43,7 +43,7 @@ internal class ExtSubmissionPersistenceQueryServiceTest(
             toRTime = "2020-09-21T15:00:00Z",
             released = true,
             offset = 1,
-            limit = 2
+            limit = 2,
         )
 
         val pageable = Pageable.unpaged()
@@ -62,14 +62,5 @@ internal class ExtSubmissionPersistenceQueryServiceTest(
         assertThat(submissionFilter.rTimeTo).isEqualTo("2020-09-21T15:00:00Z")
         assertThat(submissionFilter.rTimeFrom).isEqualTo("2019-09-21T15:00:00Z")
         verify(exactly = 1) { submissionQueryService.getExtendedSubmissions(submissionFilter) }
-    }
-
-    @Test
-    fun `get referenced files`(
-        @MockK extFile: ExtFile
-    ) {
-        every { submissionQueryService.getReferencedFiles("S-BSST1", "file-list") } returns listOf(extFile)
-
-        assertThat(testInstance.getReferencedFiles("S-BSST1", "file-list").files).containsExactly(extFile)
     }
 }

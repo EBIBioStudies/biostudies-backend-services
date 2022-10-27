@@ -80,19 +80,9 @@ interface SubmissionRequestPersistenceService {
 interface SubmissionRequestFilesPersistenceService {
     fun upsertSubmissionRequestFile(file: SubmissionRequestFile)
 
-    fun getSubmissionRequestFile(
-        accNo: String,
-        version: Int,
-        subRelPath: String,
-        filePath: String,
-    ): SubmissionRequestFile
+    fun getSubmissionRequestFile(accNo: String, version: Int, filePath: String): SubmissionRequestFile
 
-    fun getSubmissionRequestFiles(
-        accNo: String,
-        version: Int,
-        subRelPath: String,
-        startingAt: Int
-    ): Stream<SubmissionRequestFile>
+    fun getSubmissionRequestFiles(accNo: String, version: Int, startingAt: Int): Stream<SubmissionRequestFile>
 }
 
 interface SubmissionMetaQueryService {

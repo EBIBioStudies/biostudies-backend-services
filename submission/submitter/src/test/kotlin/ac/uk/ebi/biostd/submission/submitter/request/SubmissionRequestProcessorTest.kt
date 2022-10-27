@@ -69,7 +69,7 @@ class SubmissionRequestProcessorTest(
         val requestFileSlot = slot<SubmissionRequestFile>()
         val processedRequestSlot = slot<SubmissionRequest>()
         val cleanedRequest = SubmissionRequest(sub, "TMP_123", CLEANED, 1, 0, modificationTime = testTime)
-        val fireFile = FireFile("test.txt", "Files/test.txt", "abc1", "md5", 1, FILE, emptyList())
+        val fireFile = FireFile("abc1", null, "test.txt", "Files/test.txt", "md5", 1, FILE, emptyList())
         val nfsFile = createNfsFile("dummy.txt", "Files/dummy.txt", tempFolder.createFile("dummy.txt"))
         val loadedRequestFile = SubmissionRequestFile(sub.accNo, sub.version, 1, "test.txt", nfsFile)
         val processed = sub.copy(section = sub.section.copy(files = listOf(Either.left(fireFile))))

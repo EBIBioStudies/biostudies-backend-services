@@ -4,11 +4,12 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestFilesRepository
-import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.util.stream.Stream
 
 class SubmissionRequestFilesMongoPersistenceService(
+    private val extSerializationService: ExtSerializationService,
     private val requestRepository: SubmissionRequestDocDataRepository,
     private val requestFilesRepository: SubmissionRequestFilesRepository,
 ) : SubmissionRequestFilesPersistenceService {
@@ -16,28 +17,24 @@ class SubmissionRequestFilesMongoPersistenceService(
         requestRepository.upsertSubmissionRequestFile(file)
     }
 
-    override fun getSubmissionRequestFile(
-        accNo: String,
-        version: Int,
-        subRelPath: String,
-        filePath: String,
-    ): SubmissionRequestFile {
+    override fun getSubmissionRequestFile(accNo: String, version: Int, filePath: String): SubmissionRequestFile {
         return requestFilesRepository
             .getByPathAndAccNoAndVersion(filePath, accNo, version)
-            .toSubmissionRequestFile(subRelPath)
+            .toSubmissionRequestFile()
     }
 
     override fun getSubmissionRequestFiles(
         accNo: String,
         version: Int,
-        subRelPath: String,
         startingAt: Int,
     ): Stream<SubmissionRequestFile> {
         return requestFilesRepository
             .findAllByAccNoAndVersionAndIndexGreaterThan(accNo, version, startingAt)
-            .map { it.toSubmissionRequestFile(subRelPath) }
+            .map { it.toSubmissionRequestFile() }
     }
 
-    private fun DocSubmissionRequestFile.toSubmissionRequestFile(subRelPath: String) =
-        SubmissionRequestFile(accNo, version, index, path, file.toExtFile(subRelPath))
+    private fun DocSubmissionRequestFile.toSubmissionRequestFile(): SubmissionRequestFile {
+        val file = extSerializationService.deserializeFile(file.toString())
+        return SubmissionRequestFile(accNo, version, index, path, file)
+    }
 }

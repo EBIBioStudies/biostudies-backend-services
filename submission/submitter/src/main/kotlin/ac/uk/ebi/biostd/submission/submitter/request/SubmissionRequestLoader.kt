@@ -15,6 +15,7 @@ import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import java.time.OffsetDateTime
+import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
 
@@ -37,7 +38,8 @@ class SubmissionRequestLoader(
         loadSubmissionFiles(sub, request.currentIndex)
         val loaded = loadSubmission(sub)
         val withTabFiles = pageTabService.generatePageTab(loaded)
-        loadPagetabFiles(withTabFiles, request.totalFiles)
+        val pagetabIndex = if (sub.allPageTabFiles.isNotEmpty()) 0 else request.totalFiles
+        loadPagetabFiles(withTabFiles, pagetabIndex)
 
         val totalFiles = request.totalFiles + withTabFiles.allPageTabFiles.size
         val loadedRequest = request.copy(
@@ -65,7 +67,7 @@ class SubmissionRequestLoader(
         }
 
         filesRequestService
-            .getSubmissionRequestFiles(sub.accNo, sub.version, sub.relPath, startingAt)
+            .getSubmissionRequestFiles(sub.accNo, sub.version, startingAt)
             .forEach { loadSubmissionFile(it.file, it.index) }
     }
 
@@ -75,16 +77,17 @@ class SubmissionRequestLoader(
      */
     private fun loadSubmission(sub: ExtSubmission) =
         fileProcessingService.processFiles(sub) { file, _ ->
-            filesRequestService.getSubmissionRequestFile(sub.accNo, sub.version, sub.relPath, file.filePath).file
+            filesRequestService.getSubmissionRequestFile(sub.accNo, sub.version, file.filePath).file
         }
 
-    private fun loadPagetabFiles(sub: ExtSubmission, totalFiles: Int) {
+    private fun loadPagetabFiles(sub: ExtSubmission, pagetabIndex: Int) {
+        val index = AtomicInteger(pagetabIndex)
         fun loadPagetabFile(file: ExtFile, index: Int) {
             val pagetabFile = SubmissionRequestFile(sub.accNo, sub.version, index, file.filePath, file)
             filesRequestService.upsertSubmissionRequestFile(pagetabFile)
         }
 
-        sub.allPageTabFiles.forEachIndexed { index, file -> loadPagetabFile(file, totalFiles + index + 1) }
+        sub.allPageTabFiles.forEach { loadPagetabFile(it, index.incrementAndGet()) }
     }
 
     private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {

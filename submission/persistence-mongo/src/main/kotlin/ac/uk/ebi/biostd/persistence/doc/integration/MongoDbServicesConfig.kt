@@ -59,9 +59,11 @@ class MongoDbServicesConfig {
 
     @Bean
     internal fun submissionFilesPersistenceService(
+        extSerializationService: ExtSerializationService,
         requestRepository: SubmissionRequestDocDataRepository,
         requestFilesRepository: SubmissionRequestFilesRepository,
     ): SubmissionRequestFilesPersistenceService = SubmissionRequestFilesMongoPersistenceService(
+        extSerializationService,
         requestRepository,
         requestFilesRepository,
     )

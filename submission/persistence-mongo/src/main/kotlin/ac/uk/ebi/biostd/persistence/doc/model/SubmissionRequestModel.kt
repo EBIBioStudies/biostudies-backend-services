@@ -7,9 +7,6 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.Instant
 
-/**
- * TODO: Remove default parameters when all submission request has been processed.
- */
 @Document(collection = "submission_requests")
 data class DocSubmissionRequest(
     @Id
@@ -19,7 +16,18 @@ data class DocSubmissionRequest(
     val draftKey: String?,
     val status: RequestStatus,
     val submission: DBObject,
-    val totalFiles: Int = 0,
-    val currentIndex: Int = 0,
-    val modificationTime: Instant = Instant.now(),
+    val totalFiles: Int,
+    val currentIndex: Int,
+    val modificationTime: Instant,
+)
+
+@Document(collection = "submission_request_files")
+data class DocSubmissionRequestFile(
+    @Id
+    val id: ObjectId,
+    val index: Int,
+    val accNo: String,
+    val version: Int,
+    val path: String,
+    val file: DBObject,
 )

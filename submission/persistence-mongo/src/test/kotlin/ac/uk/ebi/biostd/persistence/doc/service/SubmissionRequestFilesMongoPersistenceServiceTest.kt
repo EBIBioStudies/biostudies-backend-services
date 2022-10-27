@@ -27,6 +27,7 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Duration.ofSeconds
 import kotlin.streams.toList
 
@@ -35,10 +36,16 @@ import kotlin.streams.toList
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 class SubmissionRequestFilesMongoPersistenceServiceTest(
     private val tempFolder: TemporaryFolder,
+    @Autowired private val extSerializationService: ExtSerializationService,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
     @Autowired private val requestFilesRepository: SubmissionRequestFilesRepository,
 ) {
-    private val testInstance = SubmissionRequestFilesMongoPersistenceService(requestRepository, requestFilesRepository)
+    private val testInstance =
+        SubmissionRequestFilesMongoPersistenceService(
+            extSerializationService,
+            requestRepository,
+            requestFilesRepository,
+        )
 
     @AfterEach
     fun afterEach() {
@@ -55,7 +62,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
 
             testInstance.upsertSubmissionRequestFile(requestFile)
 
-            val saved = testInstance.getSubmissionRequestFile("requested.txt", "S-BSST0", 1)
+            val saved = testInstance.getSubmissionRequestFile("S-BSST0", 1, "requested.txt")
             assertThat(saved).isEqualTo(requestFile)
         }
 
@@ -70,7 +77,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
             val updatedFile = SubmissionRequestFile("S-BSST0", 2, 1, "updated.txt", second)
             testInstance.upsertSubmissionRequestFile(updatedFile)
 
-            val updated = testInstance.getSubmissionRequestFile("updated.txt", "S-BSST0", 2)
+            val updated = testInstance.getSubmissionRequestFile("S-BSST0", 2, "updated.txt")
             assertThat(updated).isEqualTo(updatedFile)
         }
     }

@@ -26,22 +26,24 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionReques
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
-import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
+import com.mongodb.BasicDBObject
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.query.Update.update
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Instant
 
 @Suppress("TooManyFunctions")
 class SubmissionRequestDocDataRepository(
-    private val submissionRequestRepository: SubmissionRequestRepository,
     private val mongoTemplate: MongoTemplate,
+    private val extSerializationService: ExtSerializationService,
+    private val submissionRequestRepository: SubmissionRequestRepository,
 ) : SubmissionRequestRepository by submissionRequestRepository {
     fun saveRequest(submissionRequest: DocSubmissionRequest): DocSubmissionRequest =
         submissionRequestRepository.save(submissionRequest)
@@ -84,12 +86,10 @@ class SubmissionRequestDocDataRepository(
     }
 
     fun upsertSubmissionRequestFile(rqtFile: SubmissionRequestFile) {
-        val update = update(RQT_FILE_FILE, rqtFile.file.toDocFile())
+        val file = BasicDBObject.parse(extSerializationService.serialize(rqtFile.file))
+        val update = update(RQT_FILE_FILE, file).set(RQT_FILE_INDEX, rqtFile.index)
         val where = where(RQT_FILE_SUB_ACC_NO).`is`(rqtFile.accNo)
-            .andOperator(where(RQT_FILE_SUB_VERSION).`is`(rqtFile.version),
-                where(RQT_FILE_PATH).`is`(rqtFile.path),
-                where(RQT_FILE_INDEX).`is`(rqtFile.index),
-            )
+            .andOperator(where(RQT_FILE_SUB_VERSION).`is`(rqtFile.version), where(RQT_FILE_PATH).`is`(rqtFile.path))
 
         mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java)
     }
