@@ -43,6 +43,7 @@ class SubmissionRequestLoader(
         val loadedRequest = SubmissionRequest(
             withTabFiles,
             original.draftKey,
+            original.notifyTo,
             LOADED,
             totalFiles,
             currentIndex = 0,

@@ -3,7 +3,7 @@ package ebi.ac.uk.security.service
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
-import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
+import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
@@ -20,9 +20,9 @@ class SecurityQueryService(
     }
 
     override fun getUser(email: String): SecurityUser {
-        return userRepository.findByEmailAndActive(email, true)
+        return userRepository.findByEmail(email)
             ?.let { profileService.asSecurityUser(it) }
-            ?: throw UserAlreadyRegister(email)
+            ?: throw UserNotFoundByEmailException(email)
     }
 
     override fun getUserProfile(authToken: String): UserInfo {

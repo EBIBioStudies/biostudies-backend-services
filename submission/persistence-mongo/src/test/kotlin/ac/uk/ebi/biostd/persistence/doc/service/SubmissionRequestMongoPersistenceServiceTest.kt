@@ -83,6 +83,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
         version = 1,
         status = CLEANED,
         draftKey = null,
+        notifyTo = "user@test.org",
         submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
         totalFiles = 5,
         currentIndex = 0,

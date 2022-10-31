@@ -3,13 +3,13 @@ package ac.uk.ebi.biostd.submission.submitter.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
+import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestCleaner(
-    private val storageService: StorageService,
+    private val storageService: FileStorageService,
     private val queryService: SubmissionPersistenceQueryService,
     private val requestService: SubmissionRequestPersistenceService,
 ) {

@@ -9,9 +9,9 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ebi.ac.uk.extended.model.ExtSubmission
 import java.time.OffsetDateTime
 
@@ -29,6 +29,7 @@ class ExtSubmissionSubmitter(
         val request = SubmissionRequest(
             submission,
             rqt.draftKey,
+            rqt.notifyTo,
             status = REQUESTED,
             totalFiles = 0,
             currentIndex = 0,

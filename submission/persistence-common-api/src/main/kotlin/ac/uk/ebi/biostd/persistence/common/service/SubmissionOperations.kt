@@ -51,6 +51,7 @@ interface SubmissionPersistenceQueryService {
     fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile>
 }
 
+@Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
     fun hasActiveRequest(accNo: String): Boolean
 
@@ -69,6 +70,8 @@ interface SubmissionRequestPersistenceService {
     fun getLoadedRequest(accNo: String, version: Int): SubmissionRequest
 
     fun getCleanedRequest(accNo: String, version: Int): SubmissionRequest
+
+    fun getFilesCopiedRequest(accNo: String, version: Int): SubmissionRequest
 
     fun getRequestStatus(accNo: String, version: Int): RequestStatus
 }

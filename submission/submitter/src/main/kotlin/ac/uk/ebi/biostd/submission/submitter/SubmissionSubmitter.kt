@@ -22,14 +22,14 @@ class SubmissionSubmitter(
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         val submission = processRequest(rqt)
-        val (accNo, version) = submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.draftKey))
+        val (accNo, version) = submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.owner, rqt.draftKey))
         submissionSubmitter.handleRequest(accNo, version)
         return submission
     }
 
     fun createRequest(rqt: SubmitRequest): ExtSubmission {
         val submission = processRequest(rqt)
-        submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.draftKey))
+        submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.owner, rqt.draftKey))
         return submission
     }
 

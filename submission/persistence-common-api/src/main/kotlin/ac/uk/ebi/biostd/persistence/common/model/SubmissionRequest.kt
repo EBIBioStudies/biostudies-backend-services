@@ -6,6 +6,7 @@ import java.time.OffsetDateTime
 data class SubmissionRequest(
     val submission: ExtSubmission,
     val draftKey: String?,
+    val notifyTo: String,
     val status: RequestStatus,
     val totalFiles: Int,
     val currentIndex: Int,

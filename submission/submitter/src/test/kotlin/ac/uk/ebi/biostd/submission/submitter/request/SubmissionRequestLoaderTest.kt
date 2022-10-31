@@ -61,6 +61,7 @@ class SubmissionRequestLoaderTest(
 
         every { pendingRequest.submission } returns sub
         every { pendingRequest.draftKey } returns "TMP_123"
+        every { pendingRequest.notifyTo } returns "user@test.org"
         every { pageTabService.generatePageTab(sub) } returns sub
         every { requestService.getPendingRequest(sub.accNo, sub.version) } returns pendingRequest
         every { requestService.updateRequestTotalFiles(sub.accNo, sub.version, 1) } answers { nothing }
@@ -82,6 +83,7 @@ class SubmissionRequestLoaderTest(
         val loadedRequest = loadedRequestSlot.captured
         assertThat(loadedRequest.submission).isEqualTo(sub)
         assertThat(loadedRequest.draftKey).isEqualTo("TMP_123")
+        assertThat(loadedRequest.notifyTo).isEqualTo("user@test.org")
         assertThat(loadedRequest.status).isEqualTo(LOADED)
         assertThat(loadedRequest.totalFiles).isEqualTo(1)
         assertThat(loadedRequest.currentIndex).isEqualTo(0)

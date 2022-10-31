@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
@@ -57,6 +58,10 @@ class SubmissionRequestMongoPersistenceService(
         return getRequest(accNo, version, CLEANED)
     }
 
+    override fun getFilesCopiedRequest(accNo: String, version: Int): SubmissionRequest {
+        return getRequest(accNo, version, FILES_COPIED)
+    }
+
     override fun getRequestStatus(accNo: String, version: Int): RequestStatus {
         return requestRepository.getByAccNoAndVersion(accNo, version).status
     }
@@ -68,6 +73,7 @@ class SubmissionRequestMongoPersistenceService(
             accNo = rqt.submission.accNo,
             version = rqt.submission.version,
             draftKey = rqt.draftKey,
+            notifyTo = rqt.notifyTo,
             status = rqt.status,
             submission = BasicDBObject.parse(content),
             totalFiles = rqt.totalFiles,
@@ -83,6 +89,7 @@ class SubmissionRequestMongoPersistenceService(
         return SubmissionRequest(
             submission = stored,
             draftKey = request.draftKey,
+            request.notifyTo,
             request.status,
             request.totalFiles,
             request.currentIndex,

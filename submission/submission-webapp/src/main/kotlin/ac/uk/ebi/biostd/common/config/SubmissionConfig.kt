@@ -20,6 +20,7 @@ import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionStagesHandler
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
@@ -70,6 +71,12 @@ class SubmissionConfig(
         fileStorageService,
         submissionPersistenceService,
     )
+
+    @Bean
+    fun submissionStagesHanlder(
+        submissionSubmitter: SubmissionSubmitter,
+        eventsPublisherService: EventsPublisherService,
+    ): SubmissionStagesHandler = SubmissionStagesHandler(submissionSubmitter, eventsPublisherService)
 
     @Bean
     fun submissionStatsService(

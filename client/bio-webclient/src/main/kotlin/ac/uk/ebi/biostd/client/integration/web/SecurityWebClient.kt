@@ -32,7 +32,7 @@ class SecurityWebClient private constructor(
     }
 
     override fun checkUser(checkUserRequest: CheckUserRequest) {
-        restTemplate.postForLocation("/auth/check-user", jsonHttpEntityOf(checkUserRequest))
+        restTemplate.postForLocation("/auth/check-registration", jsonHttpEntityOf(checkUserRequest))
     }
 
     companion object {

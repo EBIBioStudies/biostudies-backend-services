@@ -17,6 +17,7 @@ data class DocSubmissionRequest(
     val accNo: String,
     val version: Int,
     val draftKey: String?,
+    val notifyTo: String,
     val status: RequestStatus,
     val submission: DBObject,
     val totalFiles: Int = 0,
