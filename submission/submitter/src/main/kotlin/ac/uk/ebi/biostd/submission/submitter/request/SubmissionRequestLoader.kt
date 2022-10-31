@@ -61,7 +61,7 @@ class SubmissionRequestLoader(
         fun loadSubmissionFile(file: ExtFile, idx: Int) {
             logger.info { "${sub.accNo} ${sub.owner} Started loading file $idx, path='${file.filePath}'" }
             val loadedFile = SubmissionRequestFile(sub.accNo, sub.version, idx, file.filePath, loadFileAttributes(file))
-            filesRequestService.upsertSubmissionRequestFile(loadedFile)
+            filesRequestService.saveSubmissionRequestFile(loadedFile)
             requestService.updateRequestIndex(sub.accNo, sub.version, idx)
             logger.info { "${sub.accNo} ${sub.owner} Finished loading file $idx, path='${file.filePath}'" }
         }
@@ -84,7 +84,7 @@ class SubmissionRequestLoader(
         val index = AtomicInteger(pagetabIndex)
         fun loadPagetabFile(file: ExtFile, index: Int) {
             val pagetabFile = SubmissionRequestFile(sub.accNo, sub.version, index, file.filePath, file)
-            filesRequestService.upsertSubmissionRequestFile(pagetabFile)
+            filesRequestService.saveSubmissionRequestFile(pagetabFile)
         }
 
         sub.allPageTabFiles.forEach { loadPagetabFile(it, index.incrementAndGet()) }

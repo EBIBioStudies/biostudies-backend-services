@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.data.domain.Page
-import java.util.stream.Stream
 
 interface SubmissionPersistenceService {
     fun saveSubmission(submission: ExtSubmission): ExtSubmission
@@ -78,11 +77,11 @@ interface SubmissionRequestPersistenceService {
 }
 
 interface SubmissionRequestFilesPersistenceService {
-    fun upsertSubmissionRequestFile(file: SubmissionRequestFile)
+    fun saveSubmissionRequestFile(file: SubmissionRequestFile)
 
     fun getSubmissionRequestFile(accNo: String, version: Int, filePath: String): SubmissionRequestFile
 
-    fun getSubmissionRequestFiles(accNo: String, version: Int, startingAt: Int): Stream<SubmissionRequestFile>
+    fun getSubmissionRequestFiles(accNo: String, version: Int, startingAt: Int): Sequence<SubmissionRequestFile>
 }
 
 interface SubmissionMetaQueryService {

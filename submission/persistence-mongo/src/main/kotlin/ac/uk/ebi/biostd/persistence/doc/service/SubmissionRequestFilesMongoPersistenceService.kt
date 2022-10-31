@@ -6,14 +6,14 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataReposito
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import java.util.stream.Stream
+import kotlin.streams.asSequence
 
 class SubmissionRequestFilesMongoPersistenceService(
     private val extSerializationService: ExtSerializationService,
     private val requestRepository: SubmissionRequestDocDataRepository,
     private val requestFilesRepository: SubmissionRequestFilesRepository,
 ) : SubmissionRequestFilesPersistenceService {
-    override fun upsertSubmissionRequestFile(file: SubmissionRequestFile) {
+    override fun saveSubmissionRequestFile(file: SubmissionRequestFile) {
         requestRepository.upsertSubmissionRequestFile(file)
     }
 
@@ -27,9 +27,10 @@ class SubmissionRequestFilesMongoPersistenceService(
         accNo: String,
         version: Int,
         startingAt: Int,
-    ): Stream<SubmissionRequestFile> {
+    ): Sequence<SubmissionRequestFile> {
         return requestFilesRepository
             .findAllByAccNoAndVersionAndIndexGreaterThan(accNo, version, startingAt)
+            .asSequence()
             .map { it.toSubmissionRequestFile() }
     }
 

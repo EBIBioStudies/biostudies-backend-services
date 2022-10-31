@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import arrow.core.Either
+import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.createNfsFile
@@ -30,7 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
-import kotlin.streams.asStream
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestProcessorTest(
@@ -72,7 +71,7 @@ class SubmissionRequestProcessorTest(
         val fireFile = FireFile("abc1", null, "test.txt", "Files/test.txt", "md5", 1, FILE, emptyList())
         val nfsFile = createNfsFile("dummy.txt", "Files/dummy.txt", tempFolder.createFile("dummy.txt"))
         val loadedRequestFile = SubmissionRequestFile(sub.accNo, sub.version, 1, "test.txt", nfsFile)
-        val processed = sub.copy(section = sub.section.copy(files = listOf(Either.left(fireFile))))
+        val processed = sub.copy(section = sub.section.copy(files = listOf(left(fireFile))))
 
         every { fileService.processFiles(sub, any()) } returns processed
         every { persistenceService.saveSubmission(processed) } returns processed
@@ -86,8 +85,8 @@ class SubmissionRequestProcessorTest(
         } returns (sub.accNo to sub.version)
         every {
             filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)
-        } returns sequenceOf(loadedRequestFile).asStream()
-        every { filesRequestService.upsertSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
+        } returns sequenceOf(loadedRequestFile)
+        every { filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
 
         val result = testInstance.processRequest(sub.accNo, sub.version)
         val processedRequest = processedRequestSlot.captured
@@ -104,7 +103,7 @@ class SubmissionRequestProcessorTest(
             persistenceService.saveSubmission(processed)
             requestService.saveSubmissionRequest(processedRequest)
             requestService.updateRequestIndex(sub.accNo, sub.version, 1)
-            filesRequestService.upsertSubmissionRequestFile(requestFile)
+            filesRequestService.saveSubmissionRequestFile(requestFile)
         }
     }
 }

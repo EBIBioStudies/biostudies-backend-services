@@ -19,26 +19,29 @@ class SubmissionRequestIndexer(
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
     fun indexRequest(accNo: String, version: Int) {
-        logger.info { "Started loading pending request accNo='$accNo', version='$version'" }
         val request = requestService.getPendingRequest(accNo, version)
-        logger.info { "Finished loading pending request accNo='$accNo', version='$version'" }
+        val sub = request.submission
 
-        indexSubmissionFiles(request.submission)
-        val totalFiles = filesRequestService.getSubmissionRequestFiles(accNo, version, 0).count().toInt()
+        logger.info { "${sub.accNo} ${sub.owner} Started indexing submission files" }
+
+        val totalFiles = indexSubmissionFiles(sub)
         requestService.updateRequestTotalFiles(accNo, version, totalFiles)
         requestService.updateRequestStatus(accNo, version, INDEXED)
+
+        logger.info { "${sub.accNo} ${sub.owner} Finished indexing submission files" }
     }
 
-    private fun indexSubmissionFiles(sub: ExtSubmission) {
+    private fun indexSubmissionFiles(sub: ExtSubmission): Int {
         fun indexFile(file: ExtFile, index: Int) {
             logger.info { "${sub.accNo} ${sub.owner} Indexing submission file $index, path='${file.filePath}'" }
             val requestFile = SubmissionRequestFile(sub.accNo, sub.version, index, file.filePath, file)
-            filesRequestService.upsertSubmissionRequestFile(requestFile)
+            filesRequestService.saveSubmissionRequestFile(requestFile)
         }
 
-        logger.info { "${sub.accNo} ${sub.owner} Started indexing submission files" }
         val index = AtomicInteger()
-        extSerializationService.fileSequence(sub).forEach { indexFile(it, index.incrementAndGet()) }
-        logger.info { "${sub.accNo} ${sub.owner} Finished indexing submission files" }
+        return extSerializationService
+            .fileSequence(sub)
+            .onEach { indexFile(it, index.incrementAndGet()) }
+            .count()
     }
 }

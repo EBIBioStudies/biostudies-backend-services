@@ -55,7 +55,7 @@ class SubmissionRequestProcessor(
 
             val persisted = storageService.persistSubmissionFile(sub, file)
             val updatedFile = SubmissionRequestFile(sub.accNo, sub.version, idx, file.filePath, persisted)
-            filesRequestService.upsertSubmissionRequestFile(updatedFile)
+            filesRequestService.saveSubmissionRequestFile(updatedFile)
             requestService.updateRequestIndex(sub.accNo, sub.version, idx)
 
             logger.info { "${sub.accNo} ${sub.owner} Finished persisting file $idx, path='${file.filePath}'" }

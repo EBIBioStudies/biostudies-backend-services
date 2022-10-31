@@ -60,7 +60,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
             val extFile = createNfsFile("requested.txt", "Files/requested.txt", tempFolder.createFile("requested.txt"))
             val requestFile = SubmissionRequestFile("S-BSST0", 1, 1, "requested.txt", extFile)
 
-            testInstance.upsertSubmissionRequestFile(requestFile)
+            testInstance.saveSubmissionRequestFile(requestFile)
 
             val saved = testInstance.getSubmissionRequestFile("S-BSST0", 1, "requested.txt")
             assertThat(saved).isEqualTo(requestFile)
@@ -72,10 +72,10 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
             val second = createNfsFile("second.txt", "Files/second.txt", tempFolder.createFile("second.txt"))
 
             val requestFile = SubmissionRequestFile("S-BSST0", 2, 1, "updated.txt", first)
-            testInstance.upsertSubmissionRequestFile(requestFile)
+            testInstance.saveSubmissionRequestFile(requestFile)
 
             val updatedFile = SubmissionRequestFile("S-BSST0", 2, 1, "updated.txt", second)
-            testInstance.upsertSubmissionRequestFile(updatedFile)
+            testInstance.saveSubmissionRequestFile(updatedFile)
 
             val updated = testInstance.getSubmissionRequestFile("S-BSST0", 2, "updated.txt")
             assertThat(updated).isEqualTo(updatedFile)
@@ -96,10 +96,10 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
             val requestFile3 = SubmissionRequestFile("S-BSST1", 1, 3, "file3.txt", extFile3)
             val requestFile4 = SubmissionRequestFile("S-BSST1", 1, 4, "file4.txt", extFile4)
 
-            testInstance.upsertSubmissionRequestFile(requestFile1)
-            testInstance.upsertSubmissionRequestFile(requestFile2)
-            testInstance.upsertSubmissionRequestFile(requestFile3)
-            testInstance.upsertSubmissionRequestFile(requestFile4)
+            testInstance.saveSubmissionRequestFile(requestFile1)
+            testInstance.saveSubmissionRequestFile(requestFile2)
+            testInstance.saveSubmissionRequestFile(requestFile3)
+            testInstance.saveSubmissionRequestFile(requestFile4)
         }
 
         @Test

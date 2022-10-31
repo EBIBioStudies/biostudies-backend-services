@@ -30,7 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
-import kotlin.streams.asStream
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestLoaderTest(
@@ -80,9 +79,9 @@ class SubmissionRequestLoaderTest(
         } returns (sub.accNo to sub.version)
         every {
             filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)
-        } returns sequenceOf(indexedRequestFile).asStream()
+        } returns listOf(indexedRequestFile).asSequence()
         every {
-            filesRequestService.upsertSubmissionRequestFile(capture(requestFileSlot))
+            filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot))
         } answers { nothing }
 
         testInstance.loadRequest(sub.accNo, sub.version)
@@ -102,7 +101,7 @@ class SubmissionRequestLoaderTest(
         verify(exactly = 1) {
             pageTabService.generatePageTab(sub)
             requestService.saveSubmissionRequest(loadedRequest)
-            filesRequestService.upsertSubmissionRequestFile(requestFile)
+            filesRequestService.saveSubmissionRequestFile(requestFile)
             requestService.updateRequestIndex(sub.accNo, sub.version, 1)
             requestService.updateRequestTotalFiles(sub.accNo, sub.version, 1)
         }
