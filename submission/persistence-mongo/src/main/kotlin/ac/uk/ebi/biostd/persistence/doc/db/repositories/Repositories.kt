@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.mongodb.repository.Query
+import java.util.stream.Stream
 
 interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
     @Query(value = "{ 'accNo': '?0', 'version': { \$gte: 0 } }", fields = "{ relPath : 0 }")
@@ -51,18 +52,12 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
 }
 
-interface SubmissionFilesRepository : MongoRepository<DocSubmissionRequestFile, ObjectId> {
+interface SubmissionRequestFilesRepository : MongoRepository<DocSubmissionRequestFile, ObjectId> {
     fun findAllByAccNoAndVersionAndIndexGreaterThan(
         accNo: String,
         version: Int,
         index: Int,
-    ): List<DocSubmissionRequestFile>
-
-    fun findAllByAccNoAndVersionAndFileList(
-        accNo: String,
-        version: Int,
-        fileList: String,
-    ): List<DocSubmissionRequestFile>
+    ): Stream<DocSubmissionRequestFile>
 
     fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
 }

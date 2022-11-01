@@ -1,11 +1,13 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import arrow.core.Either.Companion.left
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
@@ -27,7 +29,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import java.time.ZoneOffset.UTC
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestLoaderTest(
@@ -35,9 +37,16 @@ class SubmissionRequestLoaderTest(
     @MockK private val pageTabService: PageTabService,
     @MockK private val fileProcessingService: FileProcessingService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
+    @MockK private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
-    private val mockNow = OffsetDateTime.of(2022, 10, 5, 0, 0, 1, 0, ZoneOffset.UTC)
-    private val testInstance = SubmissionRequestLoader(requestService, fileProcessingService, pageTabService)
+    private val mockNow = OffsetDateTime.of(2022, 10, 5, 0, 0, 1, 0, UTC)
+    private val testTime = OffsetDateTime.of(2022, 10, 4, 0, 0, 1, 0, UTC)
+    private val testInstance = SubmissionRequestLoader(
+        filesRequestService,
+        requestService,
+        fileProcessingService,
+        pageTabService,
+    )
 
     @BeforeEach
     fun beforeEach() {
@@ -51,33 +60,35 @@ class SubmissionRequestLoaderTest(
     }
 
     @Test
-    fun `load request`(
-        @MockK pendingRequest: SubmissionRequest
-    ) {
+    fun `load request`() {
         val loadedRequestSlot = slot<SubmissionRequest>()
+        val requestFileSlot = slot<SubmissionRequestFile>()
         val file = tempFolder.createFile("dummy.txt")
-        var nfsFile = NfsFile("dummy.txt", "Files/dummy.txt", file, file.absolutePath, "NOT_CALCULATED", -1)
+        val nfsFile = NfsFile("dummy.txt", "Files/dummy.txt", file, file.absolutePath, "NOT_CALCULATED", -1)
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Study", files = listOf(left(nfsFile))))
+        val indexedRequestFile = SubmissionRequestFile(sub.accNo, sub.version, 1, "dummy.txt", nfsFile)
+        val indexedRequest = SubmissionRequest(sub, "TMP_123", INDEXED, 1, 0, testTime)
 
-        every { pendingRequest.submission } returns sub
-        every { pendingRequest.draftKey } returns "TMP_123"
         every { pageTabService.generatePageTab(sub) } returns sub
-        every { requestService.getPendingRequest(sub.accNo, sub.version) } returns pendingRequest
-        every { requestService.updateRequestTotalFiles(sub.accNo, sub.version, 1) } answers { nothing }
+        every { fileProcessingService.processFiles(sub, any()) } returns sub
+        every { requestService.getIndexedRequest(sub.accNo, sub.version) } returns indexedRequest
         every { requestService.updateRequestIndex(sub.accNo, sub.version, 1) } answers { nothing }
+        every { requestService.updateRequestTotalFiles(sub.accNo, sub.version, 1) } answers { nothing }
         every {
             requestService.saveSubmissionRequest(capture(loadedRequestSlot))
         } returns (sub.accNo to sub.version)
-        every { fileProcessingService.processFiles(sub, any()) } answers {
-            val function: (file: ExtFile, index: Int) -> ExtFile = secondArg()
-            nfsFile = function(nfsFile, 1) as NfsFile
-            sub
-        }
+        every {
+            filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)
+        } returns listOf(indexedRequestFile).asSequence()
+        every {
+            filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot))
+        } answers { nothing }
 
-        val loaded = testInstance.loadRequest(sub.accNo, sub.version)
-        assertThat(loaded).isEqualTo(sub)
-        assertThat(nfsFile.md5).isEqualTo(file.md5())
-        assertThat(nfsFile.size).isEqualTo(file.size())
+        testInstance.loadRequest(sub.accNo, sub.version)
+
+        val requestFile = requestFileSlot.captured
+        assertThat(requestFile.file.md5).isEqualTo(file.md5())
+        assertThat(requestFile.file.size).isEqualTo(file.size())
 
         val loadedRequest = loadedRequestSlot.captured
         assertThat(loadedRequest.submission).isEqualTo(sub)
@@ -90,6 +101,7 @@ class SubmissionRequestLoaderTest(
         verify(exactly = 1) {
             pageTabService.generatePageTab(sub)
             requestService.saveSubmissionRequest(loadedRequest)
+            filesRequestService.saveSubmissionRequestFile(requestFile)
             requestService.updateRequestIndex(sub.accNo, sub.version, 1)
             requestService.updateRequestTotalFiles(sub.accNo, sub.version, 1)
         }

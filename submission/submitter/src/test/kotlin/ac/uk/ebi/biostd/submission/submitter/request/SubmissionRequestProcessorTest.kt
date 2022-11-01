@@ -3,11 +3,12 @@ package ac.uk.ebi.biostd.submission.submitter.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import arrow.core.Either
-import ebi.ac.uk.extended.model.ExtFile
+import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.createNfsFile
@@ -37,6 +38,7 @@ class SubmissionRequestProcessorTest(
     @MockK private val fileService: FileProcessingService,
     @MockK private val persistenceService: SubmissionPersistenceService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
+    @MockK private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
     private val mockNow = OffsetDateTime.of(2022, 10, 5, 0, 0, 1, 0, UTC)
     private val testTime = OffsetDateTime.of(2022, 10, 5, 0, 0, 0, 0, UTC)
@@ -46,6 +48,7 @@ class SubmissionRequestProcessorTest(
             fileService,
             persistenceService,
             requestService,
+            filesRequestService,
         )
 
     @BeforeEach
@@ -61,40 +64,46 @@ class SubmissionRequestProcessorTest(
 
     @Test
     fun `process request`() {
-        val submission = basicExtSubmission
+        val sub = basicExtSubmission
+        val requestFileSlot = slot<SubmissionRequestFile>()
         val processedRequestSlot = slot<SubmissionRequest>()
-        val cleanedRequest = SubmissionRequest(submission, "TMP_123", CLEANED, 0, 0, modificationTime = testTime)
+        val cleanedRequest = SubmissionRequest(sub, "TMP_123", CLEANED, 1, 0, modificationTime = testTime)
         val fireFile = FireFile("abc1", null, "test.txt", "Files/test.txt", "md5", 1, FILE, emptyList())
         val nfsFile = createNfsFile("dummy.txt", "Files/dummy.txt", tempFolder.createFile("dummy.txt"))
-        val processed = submission.copy(section = submission.section.copy(files = listOf(Either.left(fireFile))))
+        val loadedRequestFile = SubmissionRequestFile(sub.accNo, sub.version, 1, "test.txt", nfsFile)
+        val processed = sub.copy(section = sub.section.copy(files = listOf(left(fireFile))))
 
+        every { fileService.processFiles(sub, any()) } returns processed
         every { persistenceService.saveSubmission(processed) } returns processed
-        every { storageService.postProcessSubmissionFiles(submission) } answers { nothing }
-        every { storageService.persistSubmissionFile(submission, nfsFile) } returns fireFile
-        every { requestService.getCleanedRequest(submission.accNo, 1) } returns cleanedRequest
-        every { persistenceService.expirePreviousVersions(submission.accNo) } answers { nothing }
-        every { requestService.updateRequestIndex(submission.accNo, submission.version, 1) } answers { nothing }
+        every { storageService.postProcessSubmissionFiles(sub) } answers { nothing }
+        every { storageService.persistSubmissionFile(sub, nfsFile) } returns fireFile
+        every { requestService.getCleanedRequest(sub.accNo, 1) } returns cleanedRequest
+        every { persistenceService.expirePreviousVersions(sub.accNo) } answers { nothing }
+        every { requestService.updateRequestIndex(sub.accNo, sub.version, 1) } answers { nothing }
         every {
             requestService.saveSubmissionRequest(capture(processedRequestSlot))
-        } returns (submission.accNo to submission.version)
-        every { fileService.processFiles(submission, any()) } answers {
-            val function: (file: ExtFile, index: Int) -> ExtFile = secondArg()
-            function(nfsFile, 1)
-            processed
-        }
+        } returns (sub.accNo to sub.version)
+        every {
+            filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)
+        } returns sequenceOf(loadedRequestFile)
+        every { filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
 
-        val result = testInstance.processRequest(submission.accNo, submission.version)
+        val result = testInstance.processRequest(sub.accNo, sub.version)
         val processedRequest = processedRequestSlot.captured
+        val requestFile = requestFileSlot.captured
 
         assertThat(result).isEqualTo(processed)
+        assertThat(requestFile.file).isEqualTo(fireFile)
         assertThat(processedRequest.status).isEqualTo(FILES_COPIED)
         assertThat(processedRequest.modificationTime).isEqualTo(mockNow)
         verify(exactly = 1) {
-            storageService.persistSubmissionFile(submission, nfsFile)
-            storageService.postProcessSubmissionFiles(submission)
-            persistenceService.expirePreviousVersions(submission.accNo)
+            storageService.persistSubmissionFile(sub, nfsFile)
+            storageService.postProcessSubmissionFiles(sub)
+            persistenceService.expirePreviousVersions(sub.accNo)
             persistenceService.saveSubmission(processed)
             requestService.saveSubmissionRequest(processedRequest)
+            requestService.updateRequestIndex(sub.accNo, sub.version, 1)
+            filesRequestService.saveSubmissionRequestFile(requestFile)
         }
     }
 }

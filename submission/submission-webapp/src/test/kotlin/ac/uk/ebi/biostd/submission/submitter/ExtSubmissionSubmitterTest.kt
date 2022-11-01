@@ -8,9 +8,10 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class ExtSubmissionSubmitterTest(
     @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val persistenceService: SubmissionPersistenceService,
+    @MockK private val requestIndexer: SubmissionRequestIndexer,
     @MockK private val requestLoader: SubmissionRequestLoader,
     @MockK private val requestProcessor: SubmissionRequestProcessor,
     @MockK private val requestReleaser: SubmissionRequestReleaser,
@@ -36,6 +38,7 @@ internal class ExtSubmissionSubmitterTest(
     private val testInstance = ExtSubmissionSubmitter(
         requestService,
         persistenceService,
+        requestIndexer,
         requestLoader,
         requestProcessor,
         requestReleaser,
@@ -52,6 +55,7 @@ internal class ExtSubmissionSubmitterTest(
             @MockK sub: ExtSubmission
         ) {
             every { requestService.getRequestStatus("accNo", 1) } returns REQUESTED
+            every { requestIndexer.indexRequest("accNo", 1) } answers { nothing }
             every { requestLoader.loadRequest("accNo", 1) } returns sub
             every { requestProcessor.processRequest("accNo", 1) } returns sub
             every { requestReleaser.checkReleased("accNo", 1) } returns sub
@@ -62,6 +66,7 @@ internal class ExtSubmissionSubmitterTest(
             assertThat(result).isEqualTo(sub)
             verify(exactly = 1) {
                 requestService.getRequestStatus("accNo", 1)
+                requestIndexer.indexRequest("accNo", 1)
                 requestLoader.loadRequest("accNo", 1)
                 requestCleaner.cleanCurrentVersion("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)
@@ -88,6 +93,7 @@ internal class ExtSubmissionSubmitterTest(
                 requestReleaser.checkReleased("accNo", 1)
             }
             verify(exactly = 0) {
+                requestIndexer.indexRequest("accNo", 1)
                 requestLoader.loadRequest("accNo", 1)
             }
         }
@@ -109,6 +115,7 @@ internal class ExtSubmissionSubmitterTest(
                 requestReleaser.checkReleased("accNo", 1)
             }
             verify(exactly = 0) {
+                requestIndexer.indexRequest("accNo", 1)
                 requestLoader.loadRequest("accNo", 1)
                 requestCleaner.cleanCurrentVersion("accNo", 1)
             }
@@ -129,6 +136,7 @@ internal class ExtSubmissionSubmitterTest(
                 requestReleaser.checkReleased("accNo", 1)
             }
             verify(exactly = 0) {
+                requestIndexer.indexRequest("accNo", 1)
                 requestLoader.loadRequest("accNo", 1)
                 requestCleaner.cleanCurrentVersion("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)
@@ -145,6 +153,7 @@ internal class ExtSubmissionSubmitterTest(
                 requestService.getRequestStatus("accNo", 1)
             }
             verify(exactly = 0) {
+                requestIndexer.indexRequest("accNo", 1)
                 requestLoader.loadRequest("accNo", 1)
                 requestCleaner.cleanCurrentVersion("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)

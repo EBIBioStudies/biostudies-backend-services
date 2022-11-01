@@ -82,8 +82,8 @@ internal class SubmissionMongoQueryServiceTest(
             submissionRepo,
             toExtSubmissionMapper,
             serializationService,
+            fileListDocFileRepository,
             requestRepository,
-            fileListDocFileRepository
         )
 
     @AfterEach

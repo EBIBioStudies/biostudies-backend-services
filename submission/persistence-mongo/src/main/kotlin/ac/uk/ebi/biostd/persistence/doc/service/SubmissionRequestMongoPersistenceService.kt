@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
@@ -42,11 +43,15 @@ class SubmissionRequestMongoPersistenceService(
     }
 
     override fun updateRequestTotalFiles(accNo: String, version: Int, totalFiles: Int) {
-        requestRepository.updateTotalFiles(accNo, version, totalFiles)
+        requestRepository.setTotalFiles(accNo, version, totalFiles)
     }
 
     override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
         return getRequest(accNo, version, REQUESTED)
+    }
+
+    override fun getIndexedRequest(accNo: String, version: Int): SubmissionRequest {
+        return getRequest(accNo, version, INDEXED)
     }
 
     override fun getLoadedRequest(accNo: String, version: Int): SubmissionRequest {

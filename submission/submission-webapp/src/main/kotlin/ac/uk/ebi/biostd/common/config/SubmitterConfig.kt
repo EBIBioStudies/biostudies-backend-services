@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceSer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
@@ -23,6 +24,7 @@ import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
@@ -50,11 +52,24 @@ import java.nio.file.Paths
 @Import(ServiceConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class, SerializationConfiguration::class)
 class SubmitterConfig {
     @Bean
+    fun requestIndexer(
+        serializationService: ExtSerializationService,
+        requestService: SubmissionRequestPersistenceService,
+        filesRequestService: SubmissionRequestFilesPersistenceService,
+    ): SubmissionRequestIndexer = SubmissionRequestIndexer(serializationService, requestService, filesRequestService)
+
+    @Bean
     fun requestLoader(
+        filesRequestService: SubmissionRequestFilesPersistenceService,
         requestService: SubmissionRequestPersistenceService,
         fileProcessingService: FileProcessingService,
-        pageTabService: PageTabService,
-    ): SubmissionRequestLoader = SubmissionRequestLoader(requestService, fileProcessingService, pageTabService)
+        pageTabService: PageTabService
+    ): SubmissionRequestLoader = SubmissionRequestLoader(
+        filesRequestService,
+        requestService,
+        fileProcessingService,
+        pageTabService,
+    )
 
     @Bean
     fun requestProcessor(
@@ -62,11 +77,13 @@ class SubmitterConfig {
         fileProcessingService: FileProcessingService,
         requestService: SubmissionRequestPersistenceService,
         submissionPersistenceService: SubmissionPersistenceService,
+        filesRequestService: SubmissionRequestFilesPersistenceService,
     ): SubmissionRequestProcessor = SubmissionRequestProcessor(
         storageService,
         fileProcessingService,
         submissionPersistenceService,
         requestService,
+        filesRequestService,
     )
 
     @Bean
@@ -95,6 +112,7 @@ class SubmitterConfig {
     fun extSubmissionSubmitter(
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
+        requestIndexer: SubmissionRequestIndexer,
         requestLoader: SubmissionRequestLoader,
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionRequestReleaser,
@@ -102,6 +120,7 @@ class SubmitterConfig {
     ) = ExtSubmissionSubmitter(
         requestService,
         persistenceService,
+        requestIndexer,
         requestLoader,
         requestProcessor,
         submissionReleaser,

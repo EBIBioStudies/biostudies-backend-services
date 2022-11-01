@@ -11,7 +11,7 @@ spring:
 
   data:
     mongodb:
-      database: #Mongo Database Name
+      database: # Mongo Database Name
       uri: # Mongo Database connection URL
 
   datasource:

@@ -80,8 +80,8 @@ class SubmissionConfig(
 
     @Bean
     fun extSubmissionQueryService(
-        requestService: SubmissionRequestPersistenceService,
         queryService: SubmissionPersistenceQueryService,
+        requestService: SubmissionRequestPersistenceService,
     ): ExtSubmissionQueryService = ExtSubmissionQueryService(requestService, queryService)
 
     @Bean

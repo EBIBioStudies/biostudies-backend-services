@@ -15,9 +15,10 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.data.mongodb.core.MongoTemplate
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
-@Import(MongoDbConfig::class)
+@Import(MongoDbConfig::class, SerializationConfiguration::class)
 class MongoDbReposConfig {
     @Bean
     internal fun submissionDocDataRepository(
@@ -34,9 +35,13 @@ class MongoDbReposConfig {
     @Bean
     internal fun submissionRequestDocDataRepository(
         mongoTemplate: MongoTemplate,
+        extSerializationService: ExtSerializationService,
         submissionRequestRepository: SubmissionRequestRepository
-    ): SubmissionRequestDocDataRepository =
-        SubmissionRequestDocDataRepository(submissionRequestRepository, mongoTemplate)
+    ): SubmissionRequestDocDataRepository = SubmissionRequestDocDataRepository(
+        mongoTemplate,
+        extSerializationService,
+        submissionRequestRepository,
+    )
 
     @Bean
     internal fun submissionDraftDocDataRepository(
