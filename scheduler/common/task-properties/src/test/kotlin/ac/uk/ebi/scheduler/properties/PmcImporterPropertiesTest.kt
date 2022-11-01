@@ -7,7 +7,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-const val path = "/loadPath"
+const val loadFolder = "/loadPath"
+const val loadFile = "import.gz"
 const val tempDir = "/tempDir"
 const val mongodbUri = "mongodbUri"
 const val mongodbDatabase = "a-database"
@@ -28,7 +29,8 @@ class PmcImporterPropertiesTest {
     fun asJavaCommand() {
         val properties = PmcImporterProperties.create(
             mode = PmcMode.LOAD,
-            loadFolder = path,
+            loadFolder = loadFolder,
+            loadFile = loadFile,
             temp = tempDir,
             mongodbUri = mongodbUri,
             mongodbDatabase = mongodbDatabase,
@@ -50,10 +52,11 @@ class PmcImporterPropertiesTest {
                 --app.data.mongodbDatabase=a-database \
                 --app.data.notificationsUrl=http://slack-here \
                 --app.data.pmcBaseUrl=http://pmc \
-                --app.data.loadFolder=/loadPath \
                 --app.data.bioStudiesUrl=http://an_url.com \
                 --app.data.bioStudiesUser=user \
-                --app.data.bioStudiesPassword=password"
+                --app.data.bioStudiesPassword=password \
+                --app.data.loadFolder=/loadPath \
+                --app.data.loadFile=import.gz"
                 """.trimIndent()
             )
     }

@@ -14,11 +14,14 @@ class PmcImporterProperties : JavaAppProperties {
     lateinit var notificationsUrl: String
     lateinit var pmcBaseUrl: String
 
-    var loadFolder: String? = null
-    var bioStudiesUrl: String? = null
     var bioStudiesUser: String? = null
     var bioStudiesPassword: String? = null
     var submissionId: String? = null
+
+    var loadFolder: String? = null
+    var loadFile: String? = null
+    var sourceFile: String? = null
+    var bioStudiesUrl: String? = null
 
     override fun asCmd(location: String, debugPort: Int?): String =
         buildList {
@@ -30,11 +33,15 @@ class PmcImporterProperties : JavaAppProperties {
             add("--app.data.mongodbDatabase=$mongodbDatabase")
             add("--app.data.notificationsUrl=$notificationsUrl")
             add("--app.data.pmcBaseUrl=$pmcBaseUrl")
-            submissionId?.let { add("--app.data.submissionId=$it") }
-            loadFolder?.let { add("--app.data.loadFolder=$it") }
+
             bioStudiesUrl?.let { add("--app.data.bioStudiesUrl=$it") }
             bioStudiesUser?.let { add("--app.data.bioStudiesUser=$it") }
             bioStudiesPassword?.let { add("--app.data.bioStudiesPassword=$it") }
+
+            loadFolder?.let { add("--app.data.loadFolder=$it") }
+            loadFile?.let { add("--app.data.loadFile=$it") }
+            sourceFile?.let { add("--app.data.sourceFile=$it") }
+            submissionId?.let { add("--app.data.submissionId=$it") }
         }.joinToString(separator = " \\\n", prefix = "\"", postfix = "\"")
 
     companion object {
@@ -44,6 +51,8 @@ class PmcImporterProperties : JavaAppProperties {
         fun create(
             mode: PmcMode,
             loadFolder: String?,
+            loadFile: String? = null,
+            sourceFile: String? = null,
             temp: String,
             mongodbUri: String,
             mongodbDatabase: String,
@@ -56,6 +65,8 @@ class PmcImporterProperties : JavaAppProperties {
         ) = PmcImporterProperties().apply {
             this.mode = mode
             this.loadFolder = loadFolder
+            this.loadFile = loadFile
+            this.sourceFile = sourceFile
             this.temp = temp
             this.mongodbUri = mongodbUri
             this.mongodbDatabase = mongodbDatabase
@@ -77,6 +88,6 @@ enum class PmcMode {
             LOAD -> "PMC Submissions loading"
             PROCESS -> "PMC Submissions processing"
             SUBMIT -> "PMC Submissions submitting"
-            SUBMIT_SINGLE -> "PMC Submission submitting"
+            SUBMIT_SINGLE -> "PMC Single submission submitting"
         }
 }

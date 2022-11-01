@@ -52,12 +52,28 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
             FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
         ).awaitFirstOrNull()
 
-    suspend fun findAndUpdate(status: SubmissionStatus, newStatus: SubmissionStatus): SubmissionDoc? =
-        submissions.findOneAndUpdate(
+    suspend fun findAndUpdate(
+        status: SubmissionStatus,
+        newStatus: SubmissionStatus,
+        sourceFile: String,
+    ): SubmissionDoc? {
+        return submissions.findOneAndUpdate(
+            and(eq(SubmissionDoc.SUB_STATUS, status.name), eq(SubmissionDoc.SUB_SOURCE_FILE, sourceFile)),
+            combine(set(SubmissionDoc.SUB_STATUS, newStatus.name), set(SubmissionDoc.SUB_UPDATED, Instant.now())),
+            FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+        ).awaitFirstOrNull()
+    }
+
+    suspend fun findAndUpdate(
+        status: SubmissionStatus,
+        newStatus: SubmissionStatus,
+    ): SubmissionDoc? {
+        return submissions.findOneAndUpdate(
             eq(SubmissionDoc.SUB_STATUS, status.name),
             combine(set(SubmissionDoc.SUB_STATUS, newStatus.name), set(SubmissionDoc.SUB_UPDATED, Instant.now())),
             FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
         ).awaitFirstOrNull()
+    }
 
     private fun latest(accNo: String, sourceTime: Instant, posInFile: Int) =
         and(

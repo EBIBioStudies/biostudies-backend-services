@@ -1,7 +1,11 @@
-package ac.uk.ebi.pmc
+package ac.uk.ebi.pmc.load
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.pmc.ACC_NO
+import ac.uk.ebi.pmc.PmcTaskExecutor
+import ac.uk.ebi.pmc.SUB_ATTRIBUTE
+import ac.uk.ebi.pmc.SUB_ERROR_TEXT
 import ac.uk.ebi.pmc.config.AppConfig
 import ac.uk.ebi.pmc.persistence.docs.InputFileDoc
 import ac.uk.ebi.pmc.persistence.docs.InputFileStatus.FAILED
@@ -12,6 +16,7 @@ import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.LOADED
 import ac.uk.ebi.pmc.persistence.repository.ErrorsRepository
 import ac.uk.ebi.pmc.persistence.repository.InputFileRepository
 import ac.uk.ebi.pmc.persistence.repository.SubmissionRepository
+import ac.uk.ebi.pmc.processedSubmission
 import ac.uk.ebi.scheduler.properties.PmcMode.LOAD
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
@@ -75,6 +80,7 @@ internal class PmcFileLoaderTest(private val tempFolder: TemporaryFolder) {
         mongoContainer.start()
         System.setProperty("app.data.mode", "LOAD")
         System.setProperty("app.data.loadFolder", tempFolder.root.path)
+        System.clearProperty("app.data.loadFile")
         System.setProperty("app.data.mongodbUri", mongoContainer.getReplicaSetUrl("pmc-loader-test"))
         System.setProperty("app.data.mongodbDatabase", "pmc-loader-test")
     }

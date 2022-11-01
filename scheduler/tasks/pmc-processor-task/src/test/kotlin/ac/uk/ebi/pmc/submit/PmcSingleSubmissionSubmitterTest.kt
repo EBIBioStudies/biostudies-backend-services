@@ -1,11 +1,16 @@
-package ac.uk.ebi.pmc
+package ac.uk.ebi.pmc.submit
 
+import ac.uk.ebi.pmc.FILE1_CONTENT
+import ac.uk.ebi.pmc.FILE1_NAME
+import ac.uk.ebi.pmc.PmcTaskExecutor
 import ac.uk.ebi.pmc.config.AppConfig
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.ERROR_SUBMIT
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.SUBMITTED
 import ac.uk.ebi.pmc.persistence.repository.ErrorsRepository
 import ac.uk.ebi.pmc.persistence.repository.SubFileRepository
 import ac.uk.ebi.pmc.persistence.repository.SubmissionRepository
+import ac.uk.ebi.pmc.prcoessedSubmissionBody
+import ac.uk.ebi.pmc.processedSubmission
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aMultipart
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse

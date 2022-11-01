@@ -31,9 +31,13 @@ class SubmissionDocService(
     private val serializationService: SerializationService,
 ) {
 
-    fun findReadyToProcess(): Flow<SubmissionDoc> = flow {
+    fun findReadyToProcess(sourceFile: String?): Flow<SubmissionDoc> = flow {
         while (true) {
-            emit(submissionRepository.findAndUpdate(LOADED, PROCESSING) ?: break)
+            val next = when (sourceFile) {
+                null -> submissionRepository.findAndUpdate(LOADED, PROCESSING)
+                else -> submissionRepository.findAndUpdate(LOADED, PROCESSING, sourceFile)
+            }
+            emit(next ?: break)
         }
     }
 

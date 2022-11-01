@@ -23,12 +23,12 @@ class PmcProcessor(
     private val fileDownloader: FileDownloader,
 ) {
 
-    fun processAll() {
-        runBlocking { processSubmissions() }
+    fun processAll(sourceFile: String?) {
+        runBlocking { processSubmissions(sourceFile) }
     }
 
-    private suspend fun processSubmissions() = withContext(Dispatchers.Default) {
-        submissionDocService.findReadyToProcess()
+    private suspend fun processSubmissions(sourceFile: String?) = withContext(Dispatchers.Default) {
+        submissionDocService.findReadyToProcess(sourceFile)
             .map { async { processSubmission(it) } }
             .buffer(BUFFER_SIZE)
             .collect { it.await() }

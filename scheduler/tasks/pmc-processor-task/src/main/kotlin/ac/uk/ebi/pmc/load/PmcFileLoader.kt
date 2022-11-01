@@ -14,33 +14,28 @@ import java.util.zip.GZIPInputStream
 private val logger = KotlinLogging.logger {}
 
 class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
+
     /**
      * List the files in the given folder and load into the system the ones not already loaded. Sequence is used so the
      * full list of file content is not loaded into memory.
      *
-     * @folder folder containing submission gzip files to be loaded into the system.
+     * @param folder folder containing submission gzip files to be loaded into the system.
+     * @param file optional file to load.
      */
-    fun loadFolder(folder: File) {
+    fun loadFile(folder: File, file: File?) {
         runBlocking {
+            val files = if (file != null) listOf(file) else folder.listFiles(GzFilter).orEmpty().toList()
+            logger.info { "loading files ${files.joinToString()}" }
             processFiles(
-                toProcess = folder,
+                toProcess = files,
                 processed = folder.createSubFolder("processed"),
                 failed = folder.createSubFolder("failed")
             )
         }
     }
 
-    private fun File.createSubFolder(name: String): File {
-        val folder = resolve(name)
-        folder.mkdir()
-        return folder
-    }
-
-    private suspend fun processFiles(toProcess: File, processed: File, failed: File) {
-        logger.info { "loading files in ${toProcess.absolutePath}" }
-        toProcess.listFiles(GzFilter)
-            .orEmpty()
-            .asSequence()
+    private suspend fun processFiles(toProcess: List<File>, processed: File, failed: File) {
+        toProcess.asSequence()
             .onEach { file -> logger.info { "checking file '${file.absolutePath}'" } }
             .map { file -> runCatching { getFileData(file) }.fold({ left(it) }, { right(Pair(file, it)) }) }
             .forEach { either ->
@@ -54,6 +49,12 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
     private fun getFileData(file: File): FileSpec {
         val entryContent = GZIPInputStream(FileInputStream(file)).use { IOUtils.toString(it, Charsets.UTF_8) }
         return FileSpec(file.absolutePath, entryContent, milisToInstant(file.lastModified()), file)
+    }
+
+    private fun File.createSubFolder(name: String): File {
+        val folder = resolve(name)
+        folder.mkdir()
+        return folder
     }
 
     object GzFilter : FilenameFilter {

@@ -15,13 +15,17 @@ internal class PmcImporterResource(private val pmcLoaderService: PmcLoaderServic
     @ResponseBody
     fun loadFile(
         @RequestParam(required = false) debugPort: Int?,
-        @RequestHeader(name = "path", required = false) path: String?,
-    ): Job = pmcLoaderService.loadFile(path, debugPort)
+        @RequestHeader(name = "folder", required = false) folder: String?,
+        @RequestHeader(name = "file", required = false) file: String?,
+    ): Job = pmcLoaderService.loadFile(folder, file, debugPort)
 
     @PostMapping("/api/pmc/process")
     @ResponseBody
-    fun triggerProcessor(@RequestParam(required = false) debugPort: Int?): Job =
-        pmcLoaderService.triggerProcessor(debugPort)
+    fun triggerProcessor(
+        @RequestParam(required = false) debugPort: Int?,
+        @RequestHeader(name = "sourceFile", required = false) sourceFile: String?,
+    ): Job =
+        pmcLoaderService.triggerProcessor(sourceFile, debugPort)
 
     @PostMapping("/api/pmc/submit")
     @ResponseBody

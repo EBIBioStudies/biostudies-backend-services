@@ -20,12 +20,12 @@ internal class DailyScheduler(
 
     @Scheduled(cron = "0 0 6 * * *")
     fun loadPmc() {
-        if (dailyScheduling.pmcImport) pmcLoaderService.loadFile(DEFAULT_FOLDER)
+        if (dailyScheduling.pmcImport) pmcLoaderService.loadFile(DEFAULT_FOLDER, file = null)
     }
 
     @Scheduled(cron = "0 0 7 * * *")
     fun processPmc() {
-        if (dailyScheduling.pmcImport) pmcLoaderService.triggerProcessor()
+        if (dailyScheduling.pmcImport) pmcLoaderService.triggerProcessor(sourceFile = null)
     }
 
     @Scheduled(cron = "0 0 8 * * *")
