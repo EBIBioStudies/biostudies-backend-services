@@ -1,8 +1,7 @@
 package ebi.ac.uk.extended.model
 
 import arrow.core.Either.Companion.left
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -30,27 +29,14 @@ class ExtSubmissionExtensionsTest(
     @Test
     fun `get all submission files`() {
         val innerFile = tempFolder.createFile("file.txt")
-        val referencedFile = tempFolder.createFile("referenced.txt")
-        val innerExtFile = NfsFile(
-            "my-folder/file.txt",
-            "Files/my-folder/file.txt",
-            innerFile,
-            innerFile.absolutePath,
-            innerFile.md5(),
-            innerFile.size(),
-            listOf()
-        )
-        val referencedExtFile = NfsFile(
-            "my-folder/referenced.txt",
-            "Files/my-folder/referenced.txt",
-            referencedFile,
-            referencedFile.absolutePath,
-            referencedFile.md5(),
-            referencedFile.size(),
-            listOf()
-        )
+        val pagetabFile = tempFolder.createFile("S-TEST1.tsv")
+        val refFile = tempFolder.createFile("referenced.txt")
+        val pagetabExtFile = createNfsFile("S-TEST1.tsv", "S-TEST1.tsv", pagetabFile)
+        val innerExtFile = createNfsFile("my-folder/file.txt", "Files/my-folder/file.txt", innerFile)
+        val referencedExtFile = createNfsFile("my-folder/referenced.txt", "Files/my-folder/referenced.txt", refFile)
         val fileList = ExtFileList("a/file-list", createExtFileList(referencedExtFile))
         val submission = testSubmission("Test Submission").copy(
+            pageTabFiles = listOf(pagetabExtFile),
             section = ExtSection(
                 type = "Study",
                 files = listOf(left(innerExtFile)),
@@ -66,6 +52,11 @@ class ExtSubmissionExtensionsTest(
         val fileLists = submission.allFileList
         assertThat(fileLists).hasSize(1)
         assertThat(fileLists.first()).isEqualTo(fileList)
+
+        val allInnerSubmissionFiles = submission.allInnerSubmissionFiles
+        assertThat(allInnerSubmissionFiles).hasSize(2)
+        assertThat(allInnerSubmissionFiles.first()).isEqualTo(innerExtFile)
+        assertThat(allInnerSubmissionFiles.second()).isEqualTo(pagetabExtFile)
     }
 
     private fun testSubmission(subTitle: String? = null, secTitle: String? = null): ExtSubmission = ExtSubmission(

@@ -6,9 +6,11 @@ import java.io.File
 
 @JvmInline
 value class FileSourcesList(val sources: List<FilesSource>) {
-    fun getExtFile(path: String, dbFile: DbFile? = null, attributes: List<Attribute> = emptyList()): ExtFile? =
-        sources.firstNotNullOfOrNull { it.getExtFile(path, dbFile, attributes) }
+    fun getExtFile(
+        path: String,
+        dbFile: DbFile? = null,
+        attributes: List<Attribute> = emptyList()
+    ): ExtFile? = sources.firstNotNullOfOrNull { it.getExtFile(path, dbFile, attributes) }
 
-    fun getFile(path: String, dbFile: DbFile? = null): File? =
-        sources.firstNotNullOfOrNull { it.getFile(path, dbFile) }
+    fun getFile(path: String): File? = sources.firstNotNullOfOrNull { it.getFile(path) }
 }

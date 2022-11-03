@@ -14,6 +14,9 @@ val ExtSubmission.allSectionsFiles
 val ExtSubmission.allPageTabFiles
     get(): List<ExtFile> = pageTabFiles + allFileList.flatMap { it.pageTabFiles }
 
+val ExtSubmission.allInnerSubmissionFiles
+    get(): List<ExtFile> = allSectionsFiles + allPageTabFiles
+
 val ExtSubmission.isCollection
     get(): Boolean = section.type == PROJECT_TYPE
 

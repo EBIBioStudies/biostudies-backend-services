@@ -1,9 +1,12 @@
 package ac.uk.ebi.biostd.submission.helpers
 
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.allInnerSubmissionFiles
 import ebi.ac.uk.io.sources.ConfiguredDbFile
 import ebi.ac.uk.io.sources.DbFile
 import ebi.ac.uk.io.sources.FilesSource
@@ -13,14 +16,27 @@ import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
-import java.nio.file.Path
 
 class FireFilesSourceFactory(
     private val fireClient: FireClient,
+    private val queryService: SubmissionPersistenceQueryService,
 ) {
     fun createFireSource(): FilesSource = FireFilesSource(fireClient)
-    fun createSubmissionFireSource(accNo: String, subPath: Path): FilesSource =
-        SubmissionFireFilesSource(accNo, fireClient, subPath)
+
+    fun createSubmissionFireSource(previousVersion: ExtSubmission): FilesSource {
+        val previousVersionFiles = previousVersion
+            .allInnerSubmissionFiles
+            .groupBy { it.filePath }
+            .mapValues { it.value.first() }
+
+        return SubmissionFireFilesSource(
+            previousVersion.accNo,
+            previousVersion.version,
+            fireClient,
+            previousVersionFiles,
+            queryService,
+        )
+    }
 }
 
 class FireFilesSource(
@@ -37,16 +53,17 @@ class FireFilesSource(
         }
     }
 
-    override fun getFile(path: String, dbFile: DbFile?): File? =
-        if (dbFile == null) null else fireClient.downloadByMd5(dbFile.md5)
+    override fun getFile(path: String): File? = null
 
     override val description: String = "EBI internal files Archive"
 }
 
 private class SubmissionFireFilesSource(
-    accNo: String,
+    private val accNo: String,
+    private val version: Int,
     private val fireClient: FireClient,
-    private val subPath: Path,
+    private val previousVersionFiles: Map<String, ExtFile>,
+    private val queryService: SubmissionPersistenceQueryService,
 ) : FilesSource {
     override val description: String = "Submission $accNo files"
 
@@ -55,15 +72,15 @@ private class SubmissionFireFilesSource(
         dbFile: DbFile?,
         attributes: List<Attribute>,
     ): ExtFile? {
-        return when (dbFile) {
-            null -> fireClient.findByPath(subPath.resolve(path).toString())?.asFireFile(path, attributes)
-            else -> fireClient.findByDb(dbFile, path, attributes)
-        }
+        return findSubmissionFile(path)
     }
 
-    override fun getFile(path: String, dbFile: DbFile?): File? =
-        if (dbFile == null) fireClient.downloadByPath(subPath.resolve(path).toString())
-        else fireClient.downloadByMd5(dbFile.md5)
+    override fun getFile(path: String): File? {
+        return findSubmissionFile(path)?.let { fireClient.downloadByFireId((it as FireFile).fireId, it.fileName) }
+    }
+
+    private fun findSubmissionFile(path: String): ExtFile? =
+        previousVersionFiles[path] ?: queryService.findReferencedFile(accNo, version, path)
 }
 
 fun FireApiFile.asFireFile(path: String, attributes: List<Attribute>): FireFile =

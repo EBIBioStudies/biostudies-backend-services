@@ -90,9 +90,10 @@ class SubmissionFileSourceTest(
             }.toString()
         )
 
-        val file4 = tempFolder.createFile("File1.txt", "content file 1")
-        val file5 = tempFolder.createFile("File2.txt", "content file 2")
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, file4, file5), storageMode)
+        val file1 = tempFolder.createFile("File1.txt", "content file 1")
+        val file2 = tempFolder.createFile("File2.txt", "content file 2")
+        webClient.uploadFiles(listOf(file1, file2))
+        val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
         assertThat(webClient.submitSingle(submission("FileList.tsv"), TSV, filesConfig)).isSuccessful()
 
         val firstVersion = submissionRepository.getExtByAccNo("S-FSTST1")
@@ -106,19 +107,16 @@ class SubmissionFileSourceTest(
         assertThat(referencedFile).exists()
         assertThat(referencedFile.toFile().readText()).isEqualTo("content file 2")
 
-        file4.delete()
-        file5.delete()
+        file1.delete()
+        file2.delete()
         fileList.delete()
+        webClient.uploadFiles(listOf(tempFolder.createFile("File1.txt", "content file 1 updated")))
 
-        tempFolder.createFile("File1.txt", "content file 1 updated")
-
-        val reSubFilesConfig =
-            SubmissionFilesConfig(emptyList(), storageMode, preferredSources = listOf(SUBMISSION, USER_SPACE))
         assertThat(
             webClient.submitSingle(
                 submission("FileList.json"),
                 TSV,
-                reSubFilesConfig
+                SubmissionFilesConfig(emptyList(), storageMode, preferredSources = listOf(SUBMISSION, USER_SPACE)),
             )
         ).isSuccessful()
         assertThat(innerFile.toFile().readText()).isEqualTo("content file 1")
@@ -341,6 +339,54 @@ class SubmissionFileSourceTest(
             assertThat(fireFile.relPath).isEqualTo("Files/DataFile555.txt")
             assertThat(fireFile.filePath).isEqualTo("DataFile555.txt")
             assertThat(fireFile.attributes).isEmpty()
+        }
+    }
+
+    @Test
+    fun `resubmission with SUBMISSION source ONLY`() {
+        val submission = tsv {
+            line("Submission", "S-FSTST7")
+            line("Title", "Submission Source Only")
+            line()
+
+            line("Study", "SECT-001")
+            line("Title", "Root Section")
+            line()
+
+            line("File", "test.txt")
+
+            line()
+        }.toString()
+
+        val file = tempFolder.createFile("test.txt", "test content")
+        webClient.uploadFiles(listOf(file))
+        val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
+        assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
+
+        val firstVersion = submissionRepository.getExtByAccNo("S-FSTST7")
+        val subFilesPath = "$submissionPath/${firstVersion.relPath}/Files"
+        val innerFile = Paths.get("$subFilesPath/test.txt")
+
+        assertThat(innerFile).exists()
+        assertThat(innerFile.toFile().readText()).isEqualTo("test content")
+
+        webClient.uploadFiles(listOf(tempFolder.createFile("test.txt", "updated test content")))
+
+        assertThat(
+            webClient.submitSingle(
+                submission,
+                TSV,
+                SubmissionFilesConfig(emptyList(), storageMode, preferredSources = listOf(SUBMISSION)),
+            )
+        ).isSuccessful()
+        assertThat(innerFile.toFile().readText()).isEqualTo("test content")
+
+        if (enableFire) {
+            val secondVersion = submissionRepository.getExtByAccNo("S-FSTST7")
+
+            val firstVersionFireId = (firstVersion.allSectionsFiles.first() as FireFile).fireId
+            val secondVersionFireId = (secondVersion.allSectionsFiles.first() as FireFile).fireId
+            assertThat(firstVersionFireId).isEqualTo(secondVersionFireId)
         }
     }
 }

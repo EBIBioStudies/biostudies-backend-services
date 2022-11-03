@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.service
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.submission.helpers.FireFilesSourceFactory
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
@@ -11,11 +12,13 @@ import ebi.ac.uk.security.integration.model.api.MagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.nio.file.Paths
@@ -34,20 +37,46 @@ class FileSourcesServiceTest(
     private val subFolder = tempFolder.createDirectory("submissions")
     private val testInstance = FileSourcesService(props, fireSourceFactory)
 
-    @BeforeAll
-    fun beforeAll() {
+    @BeforeEach
+    fun beforeEach() {
         every { extSubmission.accNo } returns "S-BSST1"
         every { extSubmission.relPath } returns "S-BSST/001/S-BSST1"
+        every { extSubmission.storageMode } returns StorageMode.FIRE
         every { props.submissionPath } returns subFolder.absolutePath
         every { fireSourceFactory.createFireSource() } returns fireSource
-        every {
-            fireSourceFactory.createSubmissionFireSource("S-BSST1", Paths.get("S-BSST/001/S-BSST1/Files"))
-        } returns subFireSource
+        every { fireSourceFactory.createSubmissionFireSource(extSubmission) } returns subFireSource
+    }
+
+    @AfterEach
+    fun afterEach() = clearAllMocks()
+
+    @Test
+    fun `default submission sources with FIRE submission`() {
+        val request = FileSourcesRequest(
+            onBehalfUser = onBehalfUser(),
+            submitter = submitter(),
+            files = listOf(tempFile),
+            rootPath = "root-path",
+            submission = extSubmission,
+            preferredSources = emptyList()
+        )
+
+        val fileSources = testInstance.submissionSources(request)
+
+        val sources = fileSources.sources
+        assertThat(sources).hasSize(7)
+        assertThat(sources[0].description).isEqualTo("Request files [test.txt]")
+        assertThat(sources[1].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
+        assertThat(sources[2].description).isEqualTo("Group 'Test Group' files")
+        assertThat(sources[3].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
+        assertThat(sources[4].description).isEqualTo("Group 'Test Group' files")
+        assertThat(sources[5]).isEqualTo(subFireSource)
+        assertThat(sources[6]).isEqualTo(fireSource)
     }
 
     @Test
-    fun `default submission sources with FIRE enabled`() {
-        every { props.persistence.enableFire } returns true
+    fun `default submission sources with NFS submission`() {
+        every { extSubmission.storageMode } returns StorageMode.NFS
 
         val request = FileSourcesRequest(
             onBehalfUser = onBehalfUser(),
@@ -61,21 +90,18 @@ class FileSourcesServiceTest(
         val fileSources = testInstance.submissionSources(request)
 
         val sources = fileSources.sources
-        assertThat(sources).hasSize(8)
+        assertThat(sources).hasSize(7)
         assertThat(sources[0].description).isEqualTo("Request files [test.txt]")
         assertThat(sources[1].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
         assertThat(sources[2].description).isEqualTo("Group 'Test Group' files")
         assertThat(sources[3].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
         assertThat(sources[4].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[5]).isEqualTo(subFireSource)
-        assertThat(sources[6].description).isEqualTo("Submission S-BSST1 previous version files")
-        assertThat(sources[7]).isEqualTo(fireSource)
+        assertThat(sources[5].description).isEqualTo("Submission S-BSST1 previous version files")
+        assertThat(sources[6]).isEqualTo(fireSource)
     }
 
     @Test
-    fun `default submission sources with FIRE disabled and no onBehalfUser`() {
-        every { props.persistence.enableFire } returns false
-
+    fun `default submission sources with no onBehalfUser`() {
         val request = FileSourcesRequest(
             onBehalfUser = null,
             submitter = submitter(),
@@ -93,13 +119,11 @@ class FileSourcesServiceTest(
         assertThat(sources[1].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
         assertThat(sources[2].description).isEqualTo("Group 'Test Group' files")
         assertThat(sources[3]).isEqualTo(subFireSource)
-        assertThat(sources[4].description).isEqualTo("Submission S-BSST1 previous version files")
+        assertThat(sources[4]).isEqualTo(fireSource)
     }
 
     @Test
     fun `submission sources with preferred sources`() {
-        every { props.persistence.enableFire } returns true
-
         val request = FileSourcesRequest(
             onBehalfUser = null,
             submitter = submitter(),
@@ -112,10 +136,9 @@ class FileSourcesServiceTest(
         val fileSources = testInstance.submissionSources(request)
 
         val sources = fileSources.sources
-        assertThat(sources).hasSize(3)
+        assertThat(sources).hasSize(2)
         assertThat(sources[0]).isEqualTo(fireSource)
         assertThat(sources[1]).isEqualTo(subFireSource)
-        assertThat(sources[2].description).isEqualTo("Submission S-BSST1 previous version files")
     }
 
     private fun submitter(): SecurityUser {

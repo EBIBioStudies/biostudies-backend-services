@@ -74,7 +74,14 @@ internal class SubmissionMongoPersistenceQueryService(
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> {
         return fileListDocFileRepository
             .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(accNo, 0, fileListName)
-            .map { it.file.toExtFile(submissionRepo.getRelPath(accNo)) }
+            .map { it.file.toExtFile(submissionRepo.getRelPath(accNo).relPath) }
+    }
+
+    override fun findReferencedFile(accNo: String, version: Int, path: String): ExtFile? {
+        return fileListDocFileRepository
+            .findBySubmissionAccNoAndSubmissionVersionAndFilePath(accNo, version, path)
+            ?.file
+            ?.toExtFile(submissionRepo.getRelPath(accNo).relPath)
     }
 
     private fun findSubmissions(owner: String, filter: SubmissionFilter): List<BasicSubmission> =

@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.submission.helpers.FireFilesSourceFactory
 import ac.uk.ebi.biostd.submission.model.GroupSource
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.sources.FilesListSource
 import ebi.ac.uk.io.sources.FilesSource
@@ -33,9 +34,9 @@ class FileSourcesService(
 
             preferred.forEach {
                 when (it) {
-                    FIRE -> if (props.persistence.enableFire) add(fireSourceFactory.createFireSource())
+                    FIRE -> add(fireSourceFactory.createFireSource())
                     USER_SPACE -> addUserSources(rootPath, owner, submitter, this)
-                    SUBMISSION -> addSubmissionSources(submission, this)
+                    SUBMISSION -> if (submission != null) addSubmissionSources(submission, this)
                 }
             }
         }
@@ -63,12 +64,13 @@ class FileSourcesService(
         sources.addAll(user.groupsFolders.map { GroupSource(it.groupName, it.path) })
     }
 
-    private fun addSubmissionSources(sub: ExtSubmission?, sources: MutableList<FilesSource>) {
-        if (sub != null) {
-            val subPath = Paths.get(props.submissionPath).resolve("${sub.relPath}/$FILES_PATH")
-
-            sources.add(fireSourceFactory.createSubmissionFireSource(sub.accNo, Paths.get("${sub.relPath}/Files")))
-            sources.add(PathSource("Submission ${sub.accNo} previous version files", subPath))
+    private fun addSubmissionSources(sub: ExtSubmission, sources: MutableList<FilesSource>) {
+        when (sub.storageMode) {
+            StorageMode.FIRE -> sources.add(fireSourceFactory.createSubmissionFireSource(sub))
+            StorageMode.NFS -> {
+                val subPath = Paths.get(props.submissionPath).resolve("${sub.relPath}/$FILES_PATH")
+                sources.add(PathSource("Submission ${sub.accNo} previous version files", subPath))
+            }
         }
     }
 }
