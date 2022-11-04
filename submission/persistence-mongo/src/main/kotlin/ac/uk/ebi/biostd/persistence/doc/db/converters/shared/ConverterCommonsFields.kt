@@ -68,10 +68,11 @@ object FileListDocFileFields {
 }
 
 object DocSubmissionRequestFileFields {
-    const val FILE_INDEX = "index"
-    const val FILE_PATH = "path"
-    const val FILE_SUB_ACC_NO = "accNo"
-    const val FILE_SUB_VERSION = "version"
+    const val RQT_FILE_INDEX = "index"
+    const val RQT_FILE_FILE = "file"
+    const val RQT_FILE_PATH = "path"
+    const val RQT_FILE_SUB_ACC_NO = "accNo"
+    const val RQT_FILE_SUB_VERSION = "version"
 }
 
 object DocFileTableFields {

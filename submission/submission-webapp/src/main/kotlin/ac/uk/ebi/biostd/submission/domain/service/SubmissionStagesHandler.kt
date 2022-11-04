@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.common.config.SUBMISSION_REQUEST_QUEUE
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
+import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
 import ebi.ac.uk.extended.events.RequestProcessed
@@ -21,9 +22,18 @@ class SubmissionStagesHandler(
     private val eventsPublisherService: EventsPublisherService,
 ) {
     @RabbitHandler
-    fun loadRequest(rqt: RequestCreated) {
+    fun indexRequest(rqt: RequestCreated) {
         processSafely(rqt) {
             logger.info { "$accNo, Received Created message for submission $accNo, version: $accNo" }
+            submissionSubmitter.indexRequest(rqt)
+            eventsPublisherService.requestIndexed(rqt.accNo, rqt.version)
+        }
+    }
+
+    @RabbitHandler
+    fun loadRequest(rqt: RequestIndexed) {
+        processSafely(rqt) {
+            logger.info { "$accNo, received Created message for submission $accNo, version: $accNo" }
             val submission = submissionSubmitter.loadRequest(rqt)
             eventsPublisherService.requestLoaded(submission.accNo, submission.version)
         }

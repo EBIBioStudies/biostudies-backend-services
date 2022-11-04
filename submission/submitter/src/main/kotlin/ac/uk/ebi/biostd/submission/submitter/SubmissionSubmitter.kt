@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
+import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestProcessed
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -34,7 +35,11 @@ class SubmissionSubmitter(
         return submission
     }
 
-    fun loadRequest(rqt: RequestCreated): ExtSubmission {
+    fun indexRequest(rqt: RequestCreated) {
+        submissionSubmitter.indexRequest(rqt.accNo, rqt.version)
+    }
+
+    fun loadRequest(rqt: RequestIndexed): ExtSubmission {
         return submissionSubmitter.loadRequest(rqt.accNo, rqt.version)
     }
 

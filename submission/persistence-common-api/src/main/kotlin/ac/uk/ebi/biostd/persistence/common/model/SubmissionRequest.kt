@@ -19,6 +19,7 @@ data class SubmissionRequest(
 
 enum class RequestStatus {
     REQUESTED,
+    INDEXED,
     LOADED,
     CLEANED,
     FILES_COPIED,

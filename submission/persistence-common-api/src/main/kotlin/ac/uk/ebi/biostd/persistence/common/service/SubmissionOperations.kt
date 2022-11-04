@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.persistence.common.service
 import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionFile
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -67,6 +67,8 @@ interface SubmissionRequestPersistenceService {
 
     fun getPendingRequest(accNo: String, version: Int): SubmissionRequest
 
+    fun getIndexedRequest(accNo: String, version: Int): SubmissionRequest
+
     fun getLoadedRequest(accNo: String, version: Int): SubmissionRequest
 
     fun getCleanedRequest(accNo: String, version: Int): SubmissionRequest
@@ -76,14 +78,12 @@ interface SubmissionRequestPersistenceService {
     fun getRequestStatus(accNo: String, version: Int): RequestStatus
 }
 
-interface SubmissionFilesPersistenceService {
-    fun saveSubmissionFile(file: SubmissionFile)
+interface SubmissionRequestFilesPersistenceService {
+    fun saveSubmissionRequestFile(file: SubmissionRequestFile)
 
-    fun getSubmissionFile(path: String, accNo: String, version: Int): ExtFile
+    fun getSubmissionRequestFile(accNo: String, version: Int, filePath: String): SubmissionRequestFile
 
-    fun getSubmissionFiles(accNo: String, version: Int, startingAt: Int): List<Pair<ExtFile, Int>>
-
-    fun getFileListFiles(accNo: String, version: Int, fileListName: String): List<ExtFile>
+    fun getSubmissionRequestFiles(accNo: String, version: Int, startingAt: Int): Sequence<SubmissionRequestFile>
 }
 
 interface SubmissionMetaQueryService {

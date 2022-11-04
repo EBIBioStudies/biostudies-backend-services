@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
@@ -99,6 +100,10 @@ class SubmissionAsyncTest(
         extSubmissionSubmitter.createRequest(extSubmitRequest)
         val statusAfterCreation = requestRepository.getRequestStatus("SimpleAsync2", 2)
         assertThat(statusAfterCreation).isEqualTo(REQUESTED)
+
+        extSubmissionSubmitter.indexRequest("SimpleAsync2", 2)
+        val statusAfterIndexing = requestRepository.getRequestStatus("SimpleAsync2", 2)
+        assertThat(statusAfterIndexing).isEqualTo(INDEXED)
 
         extSubmissionSubmitter.loadRequest("SimpleAsync2", 2)
         val statusAfterLoading = requestRepository.getRequestStatus("SimpleAsync2", 2)

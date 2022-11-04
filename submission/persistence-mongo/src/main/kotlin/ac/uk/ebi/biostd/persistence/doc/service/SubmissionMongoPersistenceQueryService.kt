@@ -22,8 +22,8 @@ internal class SubmissionMongoPersistenceQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
     private val serializationService: ExtSerializationService,
-    private val requestRepository: SubmissionRequestDocDataRepository,
     private val fileListDocFileRepository: FileListDocFileRepository,
+    private val requestRepository: SubmissionRequestDocDataRepository,
 ) : SubmissionPersistenceQueryService {
     override fun existByAccNo(accNo: String): Boolean {
         return submissionRepo.existsByAccNo(accNo)
