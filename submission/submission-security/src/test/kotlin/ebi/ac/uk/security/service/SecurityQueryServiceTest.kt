@@ -2,7 +2,7 @@ package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
-import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
+import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserNotFoundByTokenException
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
@@ -52,17 +52,17 @@ class SecurityQueryServiceTest(
         @MockK securityUser: SecurityUser
     ) {
         every { profileService.asSecurityUser(dbUser) } returns securityUser
-        every { userRepository.findByEmailAndActive("user@test.org", true) } returns dbUser
+        every { userRepository.findByEmail("user@test.org") } returns dbUser
 
         assertThat(testInstance.getUser("user@test.org")).isEqualTo(securityUser)
     }
 
     @Test
     fun `get non existing user`() {
-        every { userRepository.findByEmailAndActive("user@test.org", true) } returns null
+        every { userRepository.findByEmail("user@test.org") } returns null
 
-        val err = assertThrows<UserAlreadyRegister> { testInstance.getUser("user@test.org") }
-        assertThat(err.message).isEqualTo("There is a user already registered with the email address 'user@test.org'.")
+        val err = assertThrows<UserNotFoundByEmailException> { testInstance.getUser("user@test.org") }
+        assertThat(err.message).isEqualTo("Could not find user with the provided email 'user@test.org'.")
     }
 
     @Test

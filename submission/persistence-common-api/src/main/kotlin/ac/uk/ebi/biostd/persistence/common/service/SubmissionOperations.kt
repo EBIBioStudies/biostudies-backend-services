@@ -73,6 +73,8 @@ interface SubmissionRequestPersistenceService {
 
     fun getCleanedRequest(accNo: String, version: Int): SubmissionRequest
 
+    fun getFilesCopiedRequest(accNo: String, version: Int): SubmissionRequest
+
     fun getRequestStatus(accNo: String, version: Int): RequestStatus
 }
 

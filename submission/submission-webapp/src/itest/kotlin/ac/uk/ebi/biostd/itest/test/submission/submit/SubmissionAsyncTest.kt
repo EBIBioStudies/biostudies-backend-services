@@ -95,7 +95,7 @@ class SubmissionAsyncTest(
         webClient.submitSingle(submission, TSV)
 
         val extSubmission = submissionRepository.getExtByAccNo("SimpleAsync2")
-        val extSubmitRequest = ExtSubmitRequest(extSubmission)
+        val extSubmitRequest = ExtSubmitRequest(extSubmission, SuperUser.email)
 
         extSubmissionSubmitter.createRequest(extSubmitRequest)
         val statusAfterCreation = requestRepository.getRequestStatus("SimpleAsync2", 2)

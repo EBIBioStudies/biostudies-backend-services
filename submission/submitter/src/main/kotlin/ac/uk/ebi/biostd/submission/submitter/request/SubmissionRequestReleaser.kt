@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.fileSequence
 
@@ -16,6 +17,7 @@ private val logger = KotlinLogging.logger {}
 class SubmissionRequestReleaser(
     private val fileStorageService: FileStorageService,
     private val serializationService: ExtSerializationService,
+    private val eventsPublisherService: EventsPublisherService,
     private val queryService: SubmissionPersistenceQueryService,
     private val persistenceService: SubmissionPersistenceService,
     private val requestService: SubmissionRequestPersistenceService,
@@ -24,9 +26,11 @@ class SubmissionRequestReleaser(
      * Check the release status of the submission and release it if released flag is true.
      */
     fun checkReleased(accNo: String, version: Int): ExtSubmission {
+        val request = requestService.getFilesCopiedRequest(accNo, version)
         val sub = queryService.getExtByAccNoAndVersion(accNo, version, includeFileListFiles = true)
         if (sub.released) releaseSubmission(sub)
         requestService.updateRequestStatus(sub.accNo, sub.version, PROCESSED)
+        eventsPublisherService.submissionSubmitted(accNo, request.notifyTo)
         return sub
     }
 
