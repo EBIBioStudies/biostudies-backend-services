@@ -29,11 +29,17 @@ internal class PmcImporterResource(private val pmcLoaderService: PmcLoaderServic
 
     @PostMapping("/api/pmc/submit")
     @ResponseBody
-    fun triggerSubmitter(@RequestParam(required = false) debugPort: Int?): Job =
-        pmcLoaderService.triggerSubmitter(debugPort)
+    fun triggerSubmitter(
+        @RequestParam(required = false) debugPort: Int?,
+        @RequestHeader(name = "sourceFile", required = false) sourceFile: String?,
+    ): Job =
+        pmcLoaderService.triggerSubmitter(sourceFile, debugPort)
 
     @PostMapping("/api/pmc/submit/{submissionId}")
     @ResponseBody
-    fun triggerSubmitter(@RequestParam(required = false) debugPort: Int?, @PathVariable submissionId: String): Job =
+    fun triggerSingleSubmitter(
+        @RequestParam(required = false) debugPort: Int?,
+        @PathVariable submissionId: String,
+    ): Job =
         pmcLoaderService.triggerSubmitSingle(debugPort, submissionId)
 }

@@ -56,7 +56,7 @@ internal class PmcLoaderService private constructor(
     fun triggerProcessor(sourceFile: String?, debugPort: Int? = null): Job {
         val job = pmcLoaderService.triggerProcessor(sourceFile, debugPort)
         val params = buildList {
-            sourceFile?.let { add("folder='$it'") }
+            sourceFile?.let { add("sourceFile='$it'") }
             debugPort?.let { add("debugPort='$it'") }
         }.joinToString()
         notificationsSender.send(
@@ -69,8 +69,8 @@ internal class PmcLoaderService private constructor(
         return job
     }
 
-    fun triggerSubmitter(debugPort: Int? = null): Job {
-        val job = pmcLoaderService.triggerSubmitter(debugPort)
+    fun triggerSubmitter(sourceFile: String?, debugPort: Int? = null): Job {
+        val job = pmcLoaderService.triggerSubmitter(sourceFile, debugPort)
         notificationsSender.send(
             Report(
                 SYSTEM_NAME,
@@ -82,7 +82,7 @@ internal class PmcLoaderService private constructor(
     }
 
     fun triggerSubmitSingle(debugPort: Int? = null, submissionId: String): Job {
-        val job = pmcLoaderService.triggerSubmitSingle(debugPort, submissionId)
+        val job = pmcLoaderService.triggerSubmitSingle(submissionId, debugPort)
         notificationsSender.send(
             Report(
                 SYSTEM_NAME,
@@ -131,9 +131,9 @@ private class PmcLoader(
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    fun triggerSubmitter(debugPort: Int?): Job {
-        logger.info { "submitting job to submit submissions" }
-        val properties = getConfigProperties(importMode = SUBMIT)
+    fun triggerSubmitter(sourceFile: String?, debugPort: Int?): Job {
+        logger.info { "submitting job to submit submissions, source file ${sourceFile ?: "any"}" }
+        val properties = getConfigProperties(importMode = SUBMIT, sourceFile = sourceFile)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 EIGHT_CORES,
@@ -144,7 +144,7 @@ private class PmcLoader(
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    fun triggerSubmitSingle(debugPort: Int?, submissionId: String): Job {
+    fun triggerSubmitSingle(submissionId: String, debugPort: Int?): Job {
         logger.info { "submitting job to submit submissions" }
         val properties = getConfigProperties(importMode = SUBMIT_SINGLE, submissionId = submissionId)
         val jobTry = clusterOperations.triggerJob(

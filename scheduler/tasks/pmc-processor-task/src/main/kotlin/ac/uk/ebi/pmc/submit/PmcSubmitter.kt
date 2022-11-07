@@ -36,8 +36,8 @@ class PmcSubmitter(
     private val submissionService: SubmissionDocService,
 ) {
 
-    fun submitAll() = runBlocking {
-        submitSubmissions()
+    fun submitAll(sourceFile: String?) = runBlocking {
+        submitSubmissions(sourceFile)
     }
 
     fun submitSingle(submissionId: String) = runBlocking {
@@ -45,9 +45,9 @@ class PmcSubmitter(
         submitSubmission(submission, 1)
     }
 
-    private suspend fun submitSubmissions() = coroutineScope {
+    private suspend fun submitSubmissions(sourceFile: String?) = coroutineScope {
         val counter = AtomicInteger(0)
-        submissionService.findReadyToSubmit()
+        submissionService.findReadyToSubmit(sourceFile)
             .map { async(Dispatchers.IO) { submitSubmission(it, counter.incrementAndGet()) } }
             .buffer(BUFFER_SIZE)
             .map { it.await() }

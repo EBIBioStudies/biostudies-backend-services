@@ -30,7 +30,7 @@ internal class DailyScheduler(
 
     @Scheduled(cron = "0 0 8 * * *")
     fun submitPmc() {
-        if (dailyScheduling.pmcImport) pmcLoaderService.triggerSubmitter()
+        if (dailyScheduling.pmcImport) pmcLoaderService.triggerSubmitter(sourceFile = null)
     }
 
     @Scheduled(cron = "0 0 10 * * *")
