@@ -32,6 +32,7 @@ class ExtSubmissionSubmitter(
         val request = SubmissionRequest(
             submission,
             rqt.draftKey,
+            rqt.notifyTo,
             status = REQUESTED,
             totalFiles = 0,
             currentIndex = 0,

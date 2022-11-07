@@ -1,12 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.events.RequestCreated
-import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -16,24 +11,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.events.service.EventsPublisherService
 
 @ExtendWith(MockKExtension::class)
-class SubmissionServiceTest(
-    @MockK private val queryService: SubmissionPersistenceQueryService,
-    @MockK private val userPrivilegesService: IUserPrivilegesService,
-    @MockK private val extSubmissionSubmitter: ExtSubmissionSubmitter,
+class SubmissionStagesHandlerTest(
     @MockK private val submissionSubmitter: SubmissionSubmitter,
     @MockK private val eventsPublisherService: EventsPublisherService,
-    @MockK private val fileStorageService: FileStorageService,
-    @MockK private val submissionPersistenceService: SubmissionPersistenceService,
 ) {
-    private val testInstance = SubmissionService(
-        queryService,
-        userPrivilegesService,
-        extSubmissionSubmitter,
-        submissionSubmitter,
-        eventsPublisherService,
-        fileStorageService,
-        submissionPersistenceService,
-    )
+    private val testInstance = SubmissionStagesHandler(submissionSubmitter, eventsPublisherService)
 
     @Test
     fun `index request`() {

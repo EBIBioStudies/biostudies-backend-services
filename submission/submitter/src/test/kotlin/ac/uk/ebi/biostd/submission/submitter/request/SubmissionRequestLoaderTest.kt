@@ -67,7 +67,7 @@ class SubmissionRequestLoaderTest(
         val nfsFile = NfsFile("dummy.txt", "Files/dummy.txt", file, file.absolutePath, "NOT_CALCULATED", -1)
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Study", files = listOf(left(nfsFile))))
         val indexedRequestFile = SubmissionRequestFile(sub.accNo, sub.version, 1, "dummy.txt", nfsFile)
-        val indexedRequest = SubmissionRequest(sub, "TMP_123", INDEXED, 1, 0, testTime)
+        val indexedRequest = SubmissionRequest(sub, "TMP_123", "user@test.org", INDEXED, 1, 0, testTime)
 
         every { pageTabService.generatePageTab(sub) } returns sub
         every { fileProcessingService.processFiles(sub, any()) } returns sub
@@ -93,6 +93,7 @@ class SubmissionRequestLoaderTest(
         val loadedRequest = loadedRequestSlot.captured
         assertThat(loadedRequest.submission).isEqualTo(sub)
         assertThat(loadedRequest.draftKey).isEqualTo("TMP_123")
+        assertThat(loadedRequest.notifyTo).isEqualTo("user@test.org")
         assertThat(loadedRequest.status).isEqualTo(LOADED)
         assertThat(loadedRequest.totalFiles).isEqualTo(1)
         assertThat(loadedRequest.currentIndex).isEqualTo(0)

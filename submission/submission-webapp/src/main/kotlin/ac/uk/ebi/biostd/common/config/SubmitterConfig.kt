@@ -14,7 +14,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
-import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionInfoService
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
@@ -42,6 +41,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
 import org.springframework.web.client.RestTemplate
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.serialization.common.FilesResolver
@@ -90,20 +90,22 @@ class SubmitterConfig {
     fun submissionReleaser(
         fileStorageService: FileStorageService,
         serializationService: ExtSerializationService,
+        eventsPublisherService: EventsPublisherService,
         requestService: SubmissionRequestPersistenceService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
     ): SubmissionRequestReleaser = SubmissionRequestReleaser(
         fileStorageService,
         serializationService,
+        eventsPublisherService,
         submissionPersistenceQueryService,
         submissionPersistenceService,
-        requestService
+        requestService,
     )
 
     @Bean
     fun submissionCleaner(
-        storageService: StorageService,
+        storageService: FileStorageService,
         queryService: SubmissionPersistenceQueryService,
         requestService: SubmissionRequestPersistenceService,
     ): SubmissionRequestCleaner = SubmissionRequestCleaner(storageService, queryService, requestService)
