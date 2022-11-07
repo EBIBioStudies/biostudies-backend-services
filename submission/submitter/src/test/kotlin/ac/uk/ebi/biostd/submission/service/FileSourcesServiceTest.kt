@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.submission.helpers.FireFilesSourceFactory
+import ac.uk.ebi.biostd.submission.helpers.FilesSourceFactory
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.FilesSource
@@ -30,7 +30,7 @@ class FileSourcesServiceTest(
     @MockK private val subFireSource: FilesSource,
     @MockK private val props: ApplicationProperties,
     @MockK private val extSubmission: ExtSubmission,
-    @MockK private val fireSourceFactory: FireFilesSourceFactory,
+    @MockK private val fireSourceFactory: FilesSourceFactory,
 ) {
     private val tempFile = tempFolder.createFile("test.txt")
     private val filesFolder = tempFolder.createDirectory("files")

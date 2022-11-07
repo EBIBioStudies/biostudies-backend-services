@@ -16,12 +16,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.fire.client.integration.web.FireClient
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
-class FireFilesSourceFactoryTest(
+class FilesSourceFactoryTest(
     private val tempFolder: TemporaryFolder,
     @MockK private val fireClient: FireClient,
     @MockK private val queryService: SubmissionPersistenceQueryService,
 ) {
-    private val testInstance = FireFilesSourceFactory(fireClient, queryService)
+    private val testInstance = FilesSourceFactory(fireClient, queryService)
 
     @Test
     fun `submission FIRE source`() {
