@@ -14,7 +14,6 @@ data class ApplicationProperties(
     val instanceBaseUrl: String,
     val consumers: Int,
     val maxConsumers: Int,
-
     val security: SecurityProperties,
     val fire: FireProperties,
     val validator: ValidatorProperties,

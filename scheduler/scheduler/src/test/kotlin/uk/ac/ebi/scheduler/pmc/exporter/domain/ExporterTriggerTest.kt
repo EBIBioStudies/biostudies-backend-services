@@ -78,7 +78,8 @@ class ExporterTriggerTest(
         assertThat(specs.cores).isEqualTo(RELEASER_CORES)
         assertThat(specs.command).isEqualTo(
             """
-            /home/jdk11/bin/java \
+            "module load openjdk-11.0.1-gcc-9.3.0-unymjzh; \
+            java \
             -Dsun.jnu.encoding=UTF-8 -Xmx6g \
             -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.mode=$mode \
@@ -93,7 +94,7 @@ class ExporterTriggerTest(
             --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
             --app.bioStudies.url=http://localhost:8080 \
             --app.bioStudies.user=admin_user@ebi.ac.uk \
-            --app.bioStudies.password=123456
+            --app.bioStudies.password=123456"
             """.trimIndent()
         )
     }

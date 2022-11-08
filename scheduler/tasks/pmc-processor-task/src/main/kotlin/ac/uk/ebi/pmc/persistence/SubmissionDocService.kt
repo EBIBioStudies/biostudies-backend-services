@@ -31,15 +31,28 @@ class SubmissionDocService(
     private val serializationService: SerializationService,
 ) {
 
-    fun findReadyToProcess(): Flow<SubmissionDoc> = flow {
+    fun findReadyToProcess(sourceFile: String?): Flow<SubmissionDoc> = flow {
         while (true) {
-            emit(submissionRepository.findAndUpdate(LOADED, PROCESSING) ?: break)
+            val next = when (sourceFile) {
+                null -> submissionRepository.findAndUpdate(LOADED, PROCESSING)
+                else -> submissionRepository.findAndUpdate(LOADED, PROCESSING, sourceFile)
+            }
+            emit(next ?: break)
         }
     }
 
-    fun findReadyToSubmit(): Flow<SubmissionDoc> = flow {
+    suspend fun findById(submissionId: String): SubmissionDoc {
+        val sub = submissionRepository.findByIdAndUpdate(submissionId, PROCESSING)
+        return sub ?: throw IllegalArgumentException("Could not find submission with Id '$submissionId'")
+    }
+
+    fun findReadyToSubmit(sourceFile: String?): Flow<SubmissionDoc> = flow {
         while (true) {
-            emit(submissionRepository.findAndUpdate(PROCESSED, SUBMITTING) ?: break)
+            val next = when (sourceFile) {
+                null -> submissionRepository.findAndUpdate(PROCESSED, SUBMITTING)
+                else -> submissionRepository.findAndUpdate(PROCESSED, SUBMITTING, sourceFile)
+            }
+            emit(next ?: break)
         }
     }
 

@@ -13,7 +13,7 @@ private val logger = KotlinLogging.logger {}
 
 class ErrorsDocService(
     private val errorsRepository: ErrorsRepository,
-    private val subRepository: SubmissionRepository
+    private val subRepository: SubmissionRepository,
 ) {
     suspend fun saveError(submission: SubmissionDoc, mode: PmcMode, throwable: Throwable) {
         logger.error { "Error ${asText(mode)} ${asText(submission)}, ${throwable.message}" }
@@ -28,14 +28,16 @@ class ErrorsDocService(
     private fun getError(pmcMode: PmcMode) = when (pmcMode) {
         PmcMode.LOAD -> SubmissionStatus.ERROR_LOAD
         PmcMode.PROCESS -> SubmissionStatus.ERROR_PROCESS
-        PmcMode.SUBMIT -> SubmissionStatus.ERROR_SUBMIT
+        PmcMode.SUBMIT, PmcMode.SUBMIT_SINGLE -> SubmissionStatus.ERROR_SUBMIT
     }
 
     private fun asText(pmcMode: PmcMode) = when (pmcMode) {
         PmcMode.LOAD -> "loading"
         PmcMode.PROCESS -> "processing"
         PmcMode.SUBMIT -> "submitting"
+        PmcMode.SUBMIT_SINGLE -> "submitting single"
     }
+
     suspend fun saveError(sourceFile: String, submissionBody: String, process: PmcMode, throwable: Throwable) {
         logger.info { "Reporting error for submission in file $sourceFile" }
         errorsRepository.save(SubmissionErrorDoc(sourceFile, submissionBody, getStackTrace(throwable), process))

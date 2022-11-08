@@ -88,7 +88,8 @@ class SubmissionReleaserTriggerTest(
         assertThat(specs.cores).isEqualTo(RELEASER_CORES)
         assertThat(specs.command).isEqualTo(
             """
-            /home/jdk11/bin/java \
+            "module load openjdk-11.0.1-gcc-9.3.0-unymjzh; \
+            java \
             -Dsun.jnu.encoding=UTF-8 -Xmx6g \
             -jar apps-folder/submission-releaser-task-1.0.0.jar \
             --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
@@ -103,7 +104,7 @@ class SubmissionReleaserTriggerTest(
             --app.bioStudies.password=123456 \
             --app.notification-times.first-warning-days=60 \
             --app.notification-times.second-warning-days=30 \
-            --app.notification-times.third-warning-days=7
+            --app.notification-times.third-warning-days=7"
             """.trimIndent()
         )
     }

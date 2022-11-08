@@ -1,16 +1,24 @@
-package ac.uk.ebi.pmc
+package ac.uk.ebi.pmc.process
 
+import ac.uk.ebi.pmc.FILE1_CONTENT
+import ac.uk.ebi.pmc.FILE1_NAME
+import ac.uk.ebi.pmc.FILE1_PATH
+import ac.uk.ebi.pmc.FILE2_CONTENT
+import ac.uk.ebi.pmc.FILE2_NAME
+import ac.uk.ebi.pmc.FILE2_PATH
+import ac.uk.ebi.pmc.PmcTaskExecutor
+import ac.uk.ebi.pmc.URL_FILE1_FILES_SERVER
+import ac.uk.ebi.pmc.URL_FILE2_FILES_SERVER
+import ac.uk.ebi.pmc.URL_FILE3_FILES_SERVER
 import ac.uk.ebi.pmc.config.AppConfig
 import ac.uk.ebi.pmc.config.PersistenceConfig
+import ac.uk.ebi.pmc.docSubmission
 import ac.uk.ebi.pmc.persistence.docs.FileDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
-import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc
-import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.ERROR_PROCESS
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.PROCESSED
 import ac.uk.ebi.pmc.persistence.repository.ErrorsRepository
 import ac.uk.ebi.pmc.persistence.repository.SubFileRepository
 import ac.uk.ebi.pmc.persistence.repository.SubmissionRepository
-import ac.uk.ebi.scheduler.properties.PmcMode
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
@@ -50,7 +58,7 @@ import java.time.Duration.ofSeconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration(classes = [PersistenceConfig::class])
 @ExtendWith(TemporaryFolderExtension::class)
-internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolder) {
+internal class PmcSingleSubmissionProcessorTest(private val tempFolder: TemporaryFolder) {
 
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
         .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
@@ -117,6 +125,7 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
     private fun setUpMongo() {
         mongoContainer.start()
         System.setProperty("app.data.mode", "PROCESS")
+        System.clearProperty("app.data.sourceFile")
         System.setProperty("app.data.temp", tempFolder.root.path)
         System.setProperty("app.data.mongodbUri", mongoContainer.getReplicaSetUrl("pmc-processor-test"))
         System.setProperty("app.data.mongodbDatabase", "pmc-processor-test")
@@ -158,31 +167,6 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
             }
         }
 
-        @Test
-        fun `when error`() {
-            runBlocking {
-                submissionRepository.insertOrExpire(invalidFileSubmission)
-
-                pmcTaskExecutor.run()
-
-                val errors = errorsRepository.findAll()
-                assertThat(errors).hasSize(1)
-                assertError(errors.first())
-
-                val submissions = submissionRepository.findAll()
-                assertThat(submissions).hasSize(1)
-                assertErrorProcessSubmission(submissions.first())
-
-                assertThat(fileRepository.findAll()).isEmpty()
-            }
-        }
-
-        private fun assertErrorProcessSubmission(errorProcessedSubmission: SubmissionDoc) {
-            assertThat(errorProcessedSubmission.status).isEqualTo(ERROR_PROCESS)
-            assertThat(errorProcessedSubmission.files).isEmpty()
-            assertThat(tempFolder.root.resolve(FILE3_PATH)).doesNotExist()
-        }
-
         private fun assertProcessedSubmission(docSubmission: SubmissionDoc, files: List<FileDoc>) {
             assertThat(docSubmission.status).isEqualTo(PROCESSED)
             assertThat(docSubmission.files).hasSize(2)
@@ -190,13 +174,6 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
 
             assertThat(File(tempFolder.root.absolutePath + FILE1_PATH)).hasContent(FILE1_CONTENT)
             assertThat(File(tempFolder.root.absolutePath + FILE2_PATH)).hasContent(FILE2_CONTENT)
-        }
-
-        private fun assertError(savedError: SubmissionErrorDoc) {
-            assertThat(savedError.accNo).isEqualTo(ERROR_ACCNO)
-            assertThat(savedError.sourceFile).isEqualTo(ERROR_SOURCE_FILE)
-            assertThat(savedError.mode).isEqualTo(PmcMode.PROCESS)
-            assertThat(savedError.submissionText).isEqualTo(invalidFileSubmission.body)
         }
     }
 }

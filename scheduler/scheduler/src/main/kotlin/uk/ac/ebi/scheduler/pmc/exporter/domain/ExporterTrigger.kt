@@ -64,7 +64,7 @@ class ExporterTrigger(
 
     private fun exporterJob(mode: ExporterMode, fileName: String, outputPath: String, debugPort: Int?): Job {
         val exporterProperties = getConfigProperties(mode, fileName, outputPath)
-        val cmd = exporterProperties.asCmd(appProperties.appsFolder, appProperties.javaHome, debugPort)
+        val cmd = exporterProperties.asCmd(appProperties.appsFolder, debugPort)
         val jobTry = clusterOperations.triggerJob(JobSpec(cores = EXPORTER_CORES, ram = TWENTYFOUR_GB, command = cmd))
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }

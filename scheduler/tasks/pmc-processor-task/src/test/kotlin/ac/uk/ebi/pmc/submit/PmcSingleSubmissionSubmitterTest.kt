@@ -1,11 +1,16 @@
-package ac.uk.ebi.pmc
+package ac.uk.ebi.pmc.submit
 
+import ac.uk.ebi.pmc.FILE1_CONTENT
+import ac.uk.ebi.pmc.FILE1_NAME
+import ac.uk.ebi.pmc.PmcTaskExecutor
 import ac.uk.ebi.pmc.config.AppConfig
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.ERROR_SUBMIT
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.SUBMITTED
 import ac.uk.ebi.pmc.persistence.repository.ErrorsRepository
 import ac.uk.ebi.pmc.persistence.repository.SubFileRepository
 import ac.uk.ebi.pmc.persistence.repository.SubmissionRepository
+import ac.uk.ebi.pmc.prcoessedSubmissionBody
+import ac.uk.ebi.pmc.processedSubmission
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aMultipart
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
@@ -53,7 +58,7 @@ import java.time.Duration.ofSeconds
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration
 @ExtendWith(TemporaryFolderExtension::class)
-internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolder) {
+internal class PmcSingleSubmissionSubmitterTest(private val tempFolder: TemporaryFolder) {
 
     private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
         .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
@@ -139,7 +144,8 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
 
     private fun setUpMongo() {
         mongoContainer.start()
-        System.setProperty("app.data.mode", "SUBMIT")
+        System.setProperty("app.data.mode", "SUBMIT_SINGLE")
+        System.setProperty("app.data.submissionId", processedSubmission._id.toString())
         System.setProperty("app.data.mongodbUri", mongoContainer.getReplicaSetUrl("pmc-submitter-test"))
         System.setProperty("app.data.mongodbDatabase", "pmc-submitter-test")
         System.setProperty("app.data.bioStudiesUser", "admin_user@ebi.ac.uk")
@@ -161,7 +167,7 @@ internal class PmcSubmissionSubmitterTest(private val tempFolder: TemporaryFolde
         @Autowired val errorsRepository: ErrorsRepository,
         @Autowired val submissionRepository: SubmissionRepository,
         @Autowired val fileRepository: SubFileRepository,
-        @Autowired val pmcTaskExecutor: PmcTaskExecutor
+        @Autowired val pmcTaskExecutor: PmcTaskExecutor,
     ) {
         @BeforeEach
         fun cleanRepositories() {

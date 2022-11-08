@@ -13,7 +13,7 @@ class ExporterPropertiesTest {
     @BeforeEach
     fun beforeEach() {
         mockkStatic(::javaCmd)
-        every { javaCmd(any(), any()) } answers { "${firstArg<String>()}/java debug=${secondArg<Int?>()} \\\n" }
+        every { javaCmd(any()) } answers { listOf("java debug=${firstArg<Int?>()}") }
     }
 
     @Test
@@ -34,9 +34,9 @@ class ExporterPropertiesTest {
             bioStudiesPassword = "123456"
         )
 
-        assertThat(properties.asCmd("/apps-folder", "/home/jd11", 8569)).isEqualTo(
+        assertThat(properties.asCmd("/apps-folder", 8569)).isEqualTo(
             """
-            /home/jd11/java debug=8569 \
+            "java debug=8569 \
             -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.mode=PUBLIC_ONLY \
             --app.fileName=publicOnlyStudies \
@@ -50,7 +50,7 @@ class ExporterPropertiesTest {
             --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
             --app.bioStudies.url=http://localhost:8080 \
             --app.bioStudies.user=admin_user@ebi.ac.uk \
-            --app.bioStudies.password=123456
+            --app.bioStudies.password=123456"
             """.trimIndent()
         )
     }
@@ -73,9 +73,9 @@ class ExporterPropertiesTest {
             bioStudiesPassword = "123456"
         )
 
-        assertThat(properties.asCmd("/apps-folder", "/home/jd11", 8569)).isEqualTo(
+        assertThat(properties.asCmd("/apps-folder", 8569)).isEqualTo(
             """
-            /home/jd11/java debug=8569 \
+            "java debug=8569 \
             -jar /apps-folder/exporter-task-1.0.0.jar \
             --app.mode=PMC \
             --app.fileName=publicOnlyStudies \
@@ -89,7 +89,7 @@ class ExporterPropertiesTest {
             --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
             --app.bioStudies.url=http://localhost:8080 \
             --app.bioStudies.user=admin_user@ebi.ac.uk \
-            --app.bioStudies.password=123456
+            --app.bioStudies.password=123456"
             """.trimIndent()
         )
     }

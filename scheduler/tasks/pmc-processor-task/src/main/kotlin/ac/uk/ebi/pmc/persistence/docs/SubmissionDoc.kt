@@ -31,6 +31,7 @@ data class SubmissionDoc(
 
     fun asInsertOrExpire(): Bson = Updates.combine(
         Updates.setOnInsert(SUB_ACC_NO, accNo),
+        Updates.setOnInsert(SUB_ID, _id),
         Updates.setOnInsert(SUB_BODY, body),
         Updates.setOnInsert(SUB_SOURCE_FILE, sourceFile),
         Updates.setOnInsert(SUB_POS_IN_FILE, posInFile),
@@ -41,6 +42,7 @@ data class SubmissionDoc(
     )
 
     companion object Fields {
+        const val SUB_ID = "_id"
         const val SUB_ACC_NO = "accNo"
         const val SUB_BODY = "body"
         const val SUB_STATUS = "status"

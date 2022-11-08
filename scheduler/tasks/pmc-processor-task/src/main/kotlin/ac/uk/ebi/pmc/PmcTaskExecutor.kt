@@ -4,7 +4,10 @@ import ac.uk.ebi.pmc.load.PmcFileLoader
 import ac.uk.ebi.pmc.process.PmcProcessor
 import ac.uk.ebi.pmc.submit.PmcSubmitter
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
-import ac.uk.ebi.scheduler.properties.PmcMode
+import ac.uk.ebi.scheduler.properties.PmcMode.LOAD
+import ac.uk.ebi.scheduler.properties.PmcMode.PROCESS
+import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT
+import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT_SINGLE
 import ebi.ac.uk.commons.http.slack.Alert
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
@@ -18,7 +21,7 @@ private const val SYSTEM = "PMC_PROCESSOR"
 private val logger = KotlinLogging.logger {}
 
 class PmcTaskExecutor(
-    private val properties: PmcImporterProperties,
+    private val props: PmcImporterProperties,
     private val notificationSender: NotificationsSender,
 ) : ApplicationContextAware {
     private lateinit var context: ApplicationContext
@@ -33,19 +36,25 @@ class PmcTaskExecutor(
      */
     @Suppress("TooGenericExceptionCaught")
     fun run() {
-        val mode = properties.mode
+        val mode = props.mode
         runCatching {
             when (mode) {
-                PmcMode.LOAD -> context.getBean<PmcFileLoader>().loadFolder(File(properties.loadFolder))
-                PmcMode.PROCESS -> context.getBean<PmcProcessor>().processAll()
-                PmcMode.SUBMIT -> context.getBean<PmcSubmitter>().submitAll()
+                LOAD -> {
+                    val folder = File(requireNotNull(props.loadFolder) { "load folder parameter is required" })
+                    val file = props.loadFile?.let { folder.resolve(it) }
+                    context.getBean<PmcFileLoader>().loadFile(folder, file)
+                }
+
+                PROCESS -> context.getBean<PmcProcessor>().processAll(props.sourceFile)
+                SUBMIT -> context.getBean<PmcSubmitter>().submitAll(props.sourceFile)
+                SUBMIT_SINGLE -> context.getBean<PmcSubmitter>().submitSingle(requireNotNull(props.submissionId))
             }
         }.fold(
             {
                 notificationSender.send(Report(SYSTEM, mode.description, "Process was completed successfully"))
             },
             {
-                logger.error(it) { "Error executing pmc task, mode = ${properties.mode} " }
+                logger.error(it) { "Error executing pmc task, mode = ${props.mode} " }
                 notificationSender.send(Alert(SYSTEM, mode.description, "Error executing process", it.message))
             },
         )

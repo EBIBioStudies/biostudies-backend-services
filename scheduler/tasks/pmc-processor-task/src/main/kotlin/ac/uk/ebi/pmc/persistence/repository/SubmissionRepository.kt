@@ -19,6 +19,7 @@ import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
+import org.bson.types.ObjectId
 import org.litote.kmongo.reactivestreams.updateOne
 import org.litote.kmongo.setValue
 import java.time.Instant
@@ -44,12 +45,35 @@ class SubmissionRepository(private val submissions: MongoCollection<SubmissionDo
 
     suspend fun update(submissionDoc: SubmissionDoc): UpdateResult = submissions.updateOne(submissionDoc).awaitFirst()
 
-    suspend fun findAndUpdate(status: SubmissionStatus, newStatus: SubmissionStatus): SubmissionDoc? =
+    suspend fun findByIdAndUpdate(id: String, newStatus: SubmissionStatus): SubmissionDoc? =
         submissions.findOneAndUpdate(
+            eq(SubmissionDoc.SUB_ID, ObjectId(id)),
+            combine(set(SubmissionDoc.SUB_STATUS, newStatus.name), set(SubmissionDoc.SUB_UPDATED, Instant.now())),
+            FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+        ).awaitFirstOrNull()
+
+    suspend fun findAndUpdate(
+        status: SubmissionStatus,
+        newStatus: SubmissionStatus,
+        sourceFile: String,
+    ): SubmissionDoc? {
+        return submissions.findOneAndUpdate(
+            and(eq(SubmissionDoc.SUB_STATUS, status.name), eq(SubmissionDoc.SUB_SOURCE_FILE, sourceFile)),
+            combine(set(SubmissionDoc.SUB_STATUS, newStatus.name), set(SubmissionDoc.SUB_UPDATED, Instant.now())),
+            FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+        ).awaitFirstOrNull()
+    }
+
+    suspend fun findAndUpdate(
+        status: SubmissionStatus,
+        newStatus: SubmissionStatus,
+    ): SubmissionDoc? {
+        return submissions.findOneAndUpdate(
             eq(SubmissionDoc.SUB_STATUS, status.name),
             combine(set(SubmissionDoc.SUB_STATUS, newStatus.name), set(SubmissionDoc.SUB_UPDATED, Instant.now())),
             FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
         ).awaitFirstOrNull()
+    }
 
     private fun latest(accNo: String, sourceTime: Instant, posInFile: Int) =
         and(
