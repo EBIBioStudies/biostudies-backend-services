@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.max
 
+@Suppress("TooManyFunctions")
 internal class SubmissionMongoPersistenceQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,

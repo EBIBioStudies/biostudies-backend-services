@@ -27,15 +27,15 @@ import java.nio.file.Paths
 class FileSourcesServiceTest(
     tempFolder: TemporaryFolder,
     @MockK private val fireSource: FilesSource,
-    @MockK private val subFireSource: FilesSource,
+    @MockK private val subFileSource: FilesSource,
     @MockK private val props: ApplicationProperties,
     @MockK private val extSubmission: ExtSubmission,
-    @MockK private val fireSourceFactory: FilesSourceFactory,
+    @MockK private val filesSourceFactory: FilesSourceFactory,
 ) {
     private val tempFile = tempFolder.createFile("test.txt")
     private val filesFolder = tempFolder.createDirectory("files")
     private val subFolder = tempFolder.createDirectory("submissions")
-    private val testInstance = FileSourcesService(props, fireSourceFactory)
+    private val testInstance = FileSourcesService(filesSourceFactory)
 
     @BeforeEach
     fun beforeEach() {
@@ -43,8 +43,8 @@ class FileSourcesServiceTest(
         every { extSubmission.relPath } returns "S-BSST/001/S-BSST1"
         every { extSubmission.storageMode } returns StorageMode.FIRE
         every { props.submissionPath } returns subFolder.absolutePath
-        every { fireSourceFactory.createFireSource() } returns fireSource
-        every { fireSourceFactory.createSubmissionFireSource(extSubmission) } returns subFireSource
+        every { filesSourceFactory.createFireSource() } returns fireSource
+        every { filesSourceFactory.createSubmissionSource(extSubmission) } returns subFileSource
     }
 
     @AfterEach
@@ -70,7 +70,7 @@ class FileSourcesServiceTest(
         assertThat(sources[2].description).isEqualTo("Group 'Test Group' files")
         assertThat(sources[3].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
         assertThat(sources[4].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[5]).isEqualTo(subFireSource)
+        assertThat(sources[5]).isEqualTo(subFileSource)
         assertThat(sources[6]).isEqualTo(fireSource)
     }
 
@@ -96,7 +96,7 @@ class FileSourcesServiceTest(
         assertThat(sources[2].description).isEqualTo("Group 'Test Group' files")
         assertThat(sources[3].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
         assertThat(sources[4].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[5].description).isEqualTo("Submission S-BSST1 previous version files")
+        assertThat(sources[5]).isEqualTo(subFileSource)
         assertThat(sources[6]).isEqualTo(fireSource)
     }
 
@@ -118,7 +118,7 @@ class FileSourcesServiceTest(
         assertThat(sources[0].description).isEqualTo("Request files [test.txt]")
         assertThat(sources[1].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
         assertThat(sources[2].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[3]).isEqualTo(subFireSource)
+        assertThat(sources[3]).isEqualTo(subFileSource)
         assertThat(sources[4]).isEqualTo(fireSource)
     }
 
@@ -138,7 +138,7 @@ class FileSourcesServiceTest(
         val sources = fileSources.sources
         assertThat(sources).hasSize(2)
         assertThat(sources[0]).isEqualTo(fireSource)
-        assertThat(sources[1]).isEqualTo(subFireSource)
+        assertThat(sources[1]).isEqualTo(subFileSource)
     }
 
     private fun submitter(): SecurityUser {

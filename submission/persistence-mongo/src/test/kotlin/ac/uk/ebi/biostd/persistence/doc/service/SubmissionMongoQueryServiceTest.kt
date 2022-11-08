@@ -11,13 +11,13 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
@@ -27,8 +27,13 @@ import arrow.core.Either
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.createNfsFile
+import ebi.ac.uk.io.ext.md5
+import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import ebi.ac.uk.util.collections.second
@@ -368,23 +373,34 @@ internal class SubmissionMongoQueryServiceTest(
 
     @Nested
     inner class GetReferencedFiles {
-        private val fileReference = ObjectId()
-        private val referencedFile = tempFolder.createFile("referenced.txt")
-        private val fileListFile = FileListDocFile(
-            fileReference,
+        private val nfsReferencedFile = tempFolder.createFile("nfsReferenced.txt")
+        private val nfsFile = createNfsFile("nfsReferenced.txt", "Files/nfsReferenced.txt", nfsReferencedFile)
+        private val nfsFileListFile = FileListDocFile(
+            ObjectId(),
             testDocSubmission.id,
-            NfsDocFile(
-                "referenced.txt",
-                "referenced.txt",
-                "referenced.txt",
-                referencedFile.absolutePath,
-                listOf(),
-                "test-md5",
-                1,
-                "file"
-            ),
+            nfsFile.toDocFile(),
             fileListName = "test-file-list",
             index = 1,
+            submissionVersion = testDocSubmission.version,
+            submissionAccNo = testDocSubmission.accNo
+        )
+        private val fireReferencedFile = tempFolder.createFile("fireReferenced.txt")
+        private val fireFile = FireFile(
+            "fire-oid",
+            null,
+            "fireReferenced.txt",
+            "Files/fireReferenced.txt",
+            fireReferencedFile.md5(),
+            fireReferencedFile.size(),
+            FILE,
+            emptyList()
+        )
+        private val fireFileListFile = FileListDocFile(
+            ObjectId(),
+            testDocSubmission.id,
+            fireFile.toDocFile(),
+            fileListName = "test-file-list",
+            index = 2,
             submissionVersion = testDocSubmission.version,
             submissionAccNo = testDocSubmission.accNo
         )
@@ -395,14 +411,24 @@ internal class SubmissionMongoQueryServiceTest(
         @BeforeEach
         fun beforeEach() {
             submissionRepo.save(submission)
-            fileListDocFileRepository.save(fileListFile)
+            fileListDocFileRepository.save(nfsFileListFile)
+            fileListDocFileRepository.save(fireFileListFile)
         }
 
         @Test
         fun `get referenced files`() {
             val files = testInstance.getReferencedFiles(SUB_ACC_NO, "test-file-list")
-            assertThat(files).hasSize(1)
-            assertThat((files.first() as NfsFile).file).isEqualTo(referencedFile)
+            assertThat(files).hasSize(2)
+
+            val nfsFile = files.first() as NfsFile
+            assertThat(nfsFile.file).isEqualTo(nfsReferencedFile)
+            assertThat(nfsFile.fullPath).isEqualTo(nfsReferencedFile.absolutePath)
+
+            val fireFile = files.second() as FireFile
+            assertThat(fireFile.fireId).isEqualTo("fire-oid")
+            assertThat(fireFile.filePath).isEqualTo("fireReferenced.txt")
+            assertThat(fireFile.relPath).isEqualTo("Files/fireReferenced.txt")
+            assertThat(fireFile.firePath).isEqualTo("/${submission.relPath}/Files/fireReferenced.txt")
         }
 
         @Test
@@ -412,11 +438,12 @@ internal class SubmissionMongoQueryServiceTest(
             val innerSectionSubmission = testDocSubmission.copy(accNo = "S-REF1", section = rootSection)
 
             submissionRepo.save(innerSectionSubmission)
-            fileListDocFileRepository.save(fileListFile.copy(submissionAccNo = innerSectionSubmission.accNo))
+            fileListDocFileRepository.save(nfsFileListFile.copy(submissionAccNo = innerSectionSubmission.accNo))
 
             val files = testInstance.getReferencedFiles("S-REF1", "test-file-list")
             assertThat(files).hasSize(1)
-            assertThat((files.first() as NfsFile).file).isEqualTo(referencedFile)
+            assertThat((files.first() as NfsFile).file).isEqualTo(nfsReferencedFile)
+            assertThat(nfsFile.fullPath).isEqualTo(nfsReferencedFile.absolutePath)
         }
 
         @Test

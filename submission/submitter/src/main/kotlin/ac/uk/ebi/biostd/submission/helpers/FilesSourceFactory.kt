@@ -17,14 +17,14 @@ class FilesSourceFactory(
 ) {
     fun createFireSource(): FilesSource = FireFilesSource(fireClient)
 
-    fun createSubmissionSource(sub: ExtSubmission): SubmissionFilesSource {
+    fun createSubmissionSource(sub: ExtSubmission): FilesSource {
         val nfsSubPath = Paths.get(applicationProperties.submissionPath).resolve("${sub.relPath}/$FILES_PATH")
-        val nfsFiles = PathSource("Files of submission '${sub.accNo}', version ${sub.version}", nfsSubPath)
+        val nfsFiles = PathSource("Previous version files", nfsSubPath)
         val previousVersionFiles = sub
             .allInnerSubmissionFiles
             .groupBy { it.filePath }
             .mapValues { it.value.first() }
 
-        return SubmissionFilesSource(sub, nfsFiles, fireClient, previousVersionFiles, queryService)
+        return SubmissionFilesSource(sub.accNo, sub.version, nfsFiles, fireClient, previousVersionFiles, queryService)
     }
 }

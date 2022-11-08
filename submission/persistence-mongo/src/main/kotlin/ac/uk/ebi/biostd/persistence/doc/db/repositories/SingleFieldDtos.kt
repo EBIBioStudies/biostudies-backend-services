@@ -8,4 +8,4 @@ import org.bson.types.ObjectId
  */
 data class SubmissionCollections(val collections: List<DocCollection>?)
 
-data class SubmissionRelPath(val _id: ObjectId, val relPath: String)
+data class SubmissionRelPath(val id: ObjectId, val relPath: String)
