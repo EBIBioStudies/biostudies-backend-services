@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
@@ -16,6 +17,7 @@ import mu.KotlinLogging
 private val logger = KotlinLogging.logger {}
 
 class SubmissionSubmitter(
+    private val pageTabService: PageTabService,
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val submissionProcessor: SubmissionProcessor,
     private val parentInfoService: ParentInfoService,
@@ -39,7 +41,7 @@ class SubmissionSubmitter(
         submissionSubmitter.indexRequest(rqt.accNo, rqt.version)
     }
 
-    fun loadRequest(rqt: RequestIndexed): ExtSubmission {
+    fun loadRequest(rqt: RequestIndexed) {
         return submissionSubmitter.loadRequest(rqt.accNo, rqt.version)
     }
 
@@ -61,12 +63,13 @@ class SubmissionSubmitter(
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
 
             rqt.draftKey?.let { draftService.setProcessingStatus(rqt.owner, it) }
-            val submission = submissionProcessor.processSubmission(rqt)
-            parentInfoService.executeCollectionValidators(submission)
+            val processed = submissionProcessor.processSubmission(rqt)
+            val withTabFiles = pageTabService.generatePageTab(processed)
+            parentInfoService.executeCollectionValidators(withTabFiles)
             rqt.draftKey?.let { draftService.setAcceptedStatus(it) }
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 
-            return submission
+            return withTabFiles
         } catch (exception: RuntimeException) {
             logger.error(exception) { "${rqt.accNo} ${rqt.owner} Error processing submission request" }
             rqt.draftKey?.let { draftService.setActiveStatus(it) }

@@ -44,7 +44,7 @@ class ExtSubmissionSubmitter(
 
     fun indexRequest(accNo: String, version: Int) = requestIndexer.indexRequest(accNo, version)
 
-    fun loadRequest(accNo: String, version: Int): ExtSubmission = requestLoader.loadRequest(accNo, version)
+    fun loadRequest(accNo: String, version: Int) = requestLoader.loadRequest(accNo, version)
 
     fun cleanRequest(accNo: String, version: Int) = requestCleaner.cleanCurrentVersion(accNo, version)
 

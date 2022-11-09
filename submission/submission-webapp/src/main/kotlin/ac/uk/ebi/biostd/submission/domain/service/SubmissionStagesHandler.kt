@@ -35,7 +35,7 @@ class SubmissionStagesHandler(
         processSafely(rqt) {
             logger.info { "$accNo, received Created message for submission $accNo, version: $accNo" }
             val submission = submissionSubmitter.loadRequest(rqt)
-            eventsPublisherService.requestLoaded(submission.accNo, submission.version)
+            eventsPublisherService.requestLoaded(rqt.accNo, rqt.version)
         }
     }
 

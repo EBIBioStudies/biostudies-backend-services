@@ -93,7 +93,7 @@ internal class ExtSubmissionSubmitterTest(
         ) {
             every { requestService.getRequestStatus("accNo", 1) } returns REQUESTED
             every { requestIndexer.indexRequest("accNo", 1) } answers { nothing }
-            every { requestLoader.loadRequest("accNo", 1) } returns sub
+            every { requestLoader.loadRequest("accNo", 1) } answers { nothing }
             every { requestProcessor.processRequest("accNo", 1) } returns sub
             every { requestReleaser.checkReleased("accNo", 1) } returns sub
             every { requestCleaner.cleanCurrentVersion("accNo", 1) } answers { nothing }
