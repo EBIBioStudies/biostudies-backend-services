@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -32,16 +31,14 @@ class SubmissionRequestIndexer(
     }
 
     private fun indexSubmissionFiles(sub: ExtSubmission): Int {
-        fun indexFile(file: ExtFile, index: Int) {
-            logger.info { "${sub.accNo} ${sub.owner} Indexing submission file $index, path='${file.filePath}'" }
-            val requestFile = SubmissionRequestFile(sub.accNo, sub.version, index, file.filePath, file)
-            filesRequestService.saveSubmissionRequestFile(requestFile)
-        }
-
         val index = AtomicInteger()
         return extSerializationService
             .fileSequence(sub)
-            .onEach { indexFile(it, index.incrementAndGet()) }
+            .map { SubmissionRequestFile(sub.accNo, sub.version, index.incrementAndGet(), it.filePath, it) }
+            .onEach {
+                logger.info { "${sub.accNo} ${sub.owner} Indexing submission file ${it.index}, path='${it.path}'" }
+                filesRequestService.saveSubmissionRequestFile(it)
+            }
             .count()
     }
 }

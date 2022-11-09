@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtFile
@@ -41,17 +40,17 @@ class SubmissionRequestLoader(
     }
 
     private fun loadSubmissionFiles(sub: ExtSubmission, startingAt: Int) {
-        fun loadSubmissionFile(file: ExtFile, idx: Int) {
-            logger.info { "${sub.accNo} ${sub.owner} Started loading file $idx, path='${file.filePath}'" }
-            val loadedFile = SubmissionRequestFile(sub.accNo, sub.version, idx, file.filePath, loadFileAttributes(file))
-            filesRequestService.saveSubmissionRequestFile(loadedFile)
-            requestService.updateRequestIndex(sub.accNo, sub.version, idx)
-            logger.info { "${sub.accNo} ${sub.owner} Finished loading file $idx, path='${file.filePath}'" }
-        }
-
         filesRequestService
             .getSubmissionRequestFiles(sub.accNo, sub.version, startingAt)
-            .forEach { loadSubmissionFile(it.file, it.index) }
+            .map {
+                logger.info { "${sub.accNo} ${sub.owner} Started loading file ${it.index}, path='${it.path}'" }
+                it.copy(file = loadFileAttributes(it.file))
+            }
+            .forEach {
+                filesRequestService.saveSubmissionRequestFile(it)
+                requestService.updateRequestIndex(sub.accNo, sub.version, it.index)
+                logger.info { "${sub.accNo} ${sub.owner} Finished loading file ${it.index}, path='${it.path}'" }
+            }
     }
 
     private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {

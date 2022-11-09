@@ -1,12 +1,10 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
@@ -50,20 +48,17 @@ class SubmissionRequestProcessor(
     }
 
     private fun persistSubmissionFiles(sub: ExtSubmission, startingAt: Int) {
-        fun persistSubmissionFile(file: ExtFile, idx: Int) {
-            logger.info { "${sub.accNo} ${sub.owner} Started persisting file $idx, path='${file.filePath}'" }
-
-            val persisted = storageService.persistSubmissionFile(sub, file)
-            val updatedFile = SubmissionRequestFile(sub.accNo, sub.version, idx, file.filePath, persisted)
-            filesRequestService.saveSubmissionRequestFile(updatedFile)
-            requestService.updateRequestIndex(sub.accNo, sub.version, idx)
-
-            logger.info { "${sub.accNo} ${sub.owner} Finished persisting file $idx, path='${file.filePath}'" }
-        }
-
         filesRequestService
             .getSubmissionRequestFiles(sub.accNo, sub.version, startingAt)
-            .forEach { persistSubmissionFile(it.file, it.index) }
+            .map {
+                logger.info { "${sub.accNo} ${sub.owner} Started persisting file ${it.index}, path='${it.path}'" }
+                it.copy(file = storageService.persistSubmissionFile(sub, it.file))
+            }
+            .forEach {
+                filesRequestService.saveSubmissionRequestFile(it)
+                requestService.updateRequestIndex(sub.accNo, sub.version, it.index)
+                logger.info { "${sub.accNo} ${sub.owner} Finished persisting file ${it.index}, path='${it.path}'" }
+            }
     }
 
     private fun assembleSubmission(sub: ExtSubmission) =
