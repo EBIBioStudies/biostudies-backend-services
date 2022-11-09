@@ -39,7 +39,7 @@ class SubmissionSubmitter(
         submissionSubmitter.indexRequest(rqt.accNo, rqt.version)
     }
 
-    fun loadRequest(rqt: RequestIndexed): ExtSubmission {
+    fun loadRequest(rqt: RequestIndexed) {
         return submissionSubmitter.loadRequest(rqt.accNo, rqt.version)
     }
 
@@ -61,12 +61,12 @@ class SubmissionSubmitter(
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
 
             rqt.draftKey?.let { draftService.setProcessingStatus(rqt.owner, it) }
-            val submission = submissionProcessor.processSubmission(rqt)
-            parentInfoService.executeCollectionValidators(submission)
+            val processed = submissionProcessor.processSubmission(rqt)
+            parentInfoService.executeCollectionValidators(processed)
             rqt.draftKey?.let { draftService.setAcceptedStatus(it) }
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 
-            return submission
+            return processed
         } catch (exception: RuntimeException) {
             logger.error(exception) { "${rqt.accNo} ${rqt.owner} Error processing submission request" }
             rqt.draftKey?.let { draftService.setActiveStatus(it) }

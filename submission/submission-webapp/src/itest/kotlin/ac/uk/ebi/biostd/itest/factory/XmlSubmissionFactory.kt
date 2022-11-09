@@ -22,10 +22,6 @@ internal val expectedAllInOneXmlFileList = xml("table") {
                 "name" { -"Type" }
                 "value" { -"referenced" }
             }
-            "attribute" {
-                "name" { -"md5" }
-                "value" { -"3F57CF2A5D7C2E6E46B52D26EA72621C" }
-            }
         }
     }
     "file" {
@@ -36,10 +32,6 @@ internal val expectedAllInOneXmlFileList = xml("table") {
             "attribute" {
                 "name" { -"Type" }
                 "value" { -"referenced" }
-            }
-            "attribute" {
-                "name" { -"md5" }
-                "value" { -"838559E92C5A52DEF29B9484C32DDCBB" }
             }
         }
     }
@@ -55,10 +47,6 @@ internal val expectedAllInOneXmlInnerFileList = xml("table") {
                 "name" { -"Type" }
                 "value" { -"referenced" }
             }
-            "attribute" {
-                "name" { -"md5" }
-                "value" { -"8723FD7A2E31D56966F94616ADF799B1" }
-            }
         }
     }
     "file" {
@@ -69,10 +57,6 @@ internal val expectedAllInOneXmlInnerFileList = xml("table") {
             "attribute" {
                 "name" { -"Type" }
                 "value" { -"referenced" }
-            }
-            "attribute" {
-                "name" { -"md5" }
-                "value" { -"51F996F04CF87844A8BBFCD9E440AAEC" }
             }
         }
     }

@@ -62,14 +62,7 @@ class SubmitterConfig {
     fun requestLoader(
         filesRequestService: SubmissionRequestFilesPersistenceService,
         requestService: SubmissionRequestPersistenceService,
-        fileProcessingService: FileProcessingService,
-        pageTabService: PageTabService
-    ): SubmissionRequestLoader = SubmissionRequestLoader(
-        filesRequestService,
-        requestService,
-        fileProcessingService,
-        pageTabService,
-    )
+    ): SubmissionRequestLoader = SubmissionRequestLoader(filesRequestService, requestService)
 
     @Bean
     fun requestProcessor(
@@ -112,6 +105,7 @@ class SubmitterConfig {
 
     @Bean
     fun extSubmissionSubmitter(
+        pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
         requestIndexer: SubmissionRequestIndexer,
@@ -119,7 +113,8 @@ class SubmitterConfig {
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
-    ) = ExtSubmissionSubmitter(
+    ): ExtSubmissionSubmitter = ExtSubmissionSubmitter(
+        pageTabService,
         requestService,
         persistenceService,
         requestIndexer,
@@ -135,7 +130,7 @@ class SubmitterConfig {
         submissionProcessor: SubmissionProcessor,
         parentInfoService: ParentInfoService,
         draftService: SubmissionDraftPersistenceService,
-    ) = SubmissionSubmitter(
+    ): SubmissionSubmitter = SubmissionSubmitter(
         extSubmissionSubmitter,
         submissionProcessor,
         parentInfoService,

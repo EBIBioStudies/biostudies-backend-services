@@ -21,10 +21,7 @@ internal val expectedAllInOneJsonFileList = jsonArray(
             {
                 "name" to "Type"
                 "value" to "referenced"
-            }, {
-            "name" to "md5"
-            "value" to "3F57CF2A5D7C2E6E46B52D26EA72621C"
-        }
+            }
         )
         "type" to "file"
     },
@@ -35,10 +32,7 @@ internal val expectedAllInOneJsonFileList = jsonArray(
             {
                 "name" to "Type"
                 "value" to "referenced"
-            }, {
-            "name" to "md5"
-            "value" to "838559E92C5A52DEF29B9484C32DDCBB"
-        }
+            }
         )
         "type" to "file"
     }
@@ -52,10 +46,7 @@ internal val expectedAllInOneJsonInnerFileList = jsonArray(
             {
                 "name" to "Type"
                 "value" to "referenced"
-            }, {
-            "name" to "md5"
-            "value" to "8723FD7A2E31D56966F94616ADF799B1"
-        }
+            }
         )
         "type" to "file"
     },
@@ -66,10 +57,7 @@ internal val expectedAllInOneJsonInnerFileList = jsonArray(
             {
                 "name" to "Type"
                 "value" to "referenced"
-            }, {
-            "name" to "md5"
-            "value" to "51F996F04CF87844A8BBFCD9E440AAEC"
-        }
+            }
         )
         "type" to "file"
     }

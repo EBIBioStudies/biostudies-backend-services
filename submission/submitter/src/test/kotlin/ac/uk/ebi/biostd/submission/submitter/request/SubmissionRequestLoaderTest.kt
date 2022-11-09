@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.NfsFile
@@ -27,26 +26,18 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestLoaderTest(
     private val tempFolder: TemporaryFolder,
-    @MockK private val pageTabService: PageTabService,
-    @MockK private val fileProcessingService: FileProcessingService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
     private val mockNow = OffsetDateTime.of(2022, 10, 5, 0, 0, 1, 0, UTC)
     private val testTime = OffsetDateTime.of(2022, 10, 4, 0, 0, 1, 0, UTC)
-    private val testInstance = SubmissionRequestLoader(
-        filesRequestService,
-        requestService,
-        fileProcessingService,
-        pageTabService,
-    )
+    private val testInstance = SubmissionRequestLoader(filesRequestService, requestService)
 
     @BeforeEach
     fun beforeEach() {
@@ -69,8 +60,6 @@ class SubmissionRequestLoaderTest(
         val indexedRequestFile = SubmissionRequestFile(sub.accNo, sub.version, 1, "dummy.txt", nfsFile)
         val indexedRequest = SubmissionRequest(sub, "TMP_123", "user@test.org", INDEXED, 1, 0, testTime)
 
-        every { pageTabService.generatePageTab(sub) } returns sub
-        every { fileProcessingService.processFiles(sub, any()) } returns sub
         every { requestService.getIndexedRequest(sub.accNo, sub.version) } returns indexedRequest
         every { requestService.updateRequestIndex(sub.accNo, sub.version, 1) } answers { nothing }
         every { requestService.updateRequestTotalFiles(sub.accNo, sub.version, 1) } answers { nothing }
@@ -100,11 +89,9 @@ class SubmissionRequestLoaderTest(
         assertThat(loadedRequest.modificationTime).isEqualTo(mockNow)
 
         verify(exactly = 1) {
-            pageTabService.generatePageTab(sub)
             requestService.saveSubmissionRequest(loadedRequest)
             filesRequestService.saveSubmissionRequestFile(requestFile)
             requestService.updateRequestIndex(sub.accNo, sub.version, 1)
-            requestService.updateRequestTotalFiles(sub.accNo, sub.version, 1)
         }
     }
 }
