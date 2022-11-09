@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
@@ -35,6 +36,7 @@ import java.time.ZoneOffset.UTC
 
 @ExtendWith(MockKExtension::class)
 internal class ExtSubmissionSubmitterTest(
+    @MockK private val pageTabService: PageTabService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val persistenceService: SubmissionPersistenceService,
     @MockK private val requestIndexer: SubmissionRequestIndexer,
@@ -45,6 +47,7 @@ internal class ExtSubmissionSubmitterTest(
 ) {
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 1, 2, 3, 4, UTC)
     private val testInstance = ExtSubmissionSubmitter(
+        pageTabService,
         requestService,
         persistenceService,
         requestIndexer,
@@ -67,15 +70,20 @@ internal class ExtSubmissionSubmitterTest(
     inner class CreateRequest {
         @Test
         fun `create request`() {
+            val submission = basicExtSubmission
             val submissionRequestSlot = slot<SubmissionRequest>()
 
             every { persistenceService.getNextVersion("S-TEST123") } returns 2
+            every { pageTabService.generatePageTab(submission) } returns submission
             every { requestService.createSubmissionRequest(capture(submissionRequestSlot)) } returns ("S-TEST123" to 2)
 
-            testInstance.createRequest(ExtSubmitRequest(basicExtSubmission, "user@test.org", "TMP_123"))
+            testInstance.createRequest(ExtSubmitRequest(submission, "user@test.org", "TMP_123"))
             val request = submissionRequestSlot.captured
-            verify(exactly = 1) { requestService.createSubmissionRequest(request) }
-            assertThat(request.submission).isEqualTo(basicExtSubmission.copy(version = 2))
+            verify(exactly = 1) {
+                pageTabService.generatePageTab(submission)
+                requestService.createSubmissionRequest(request)
+            }
+            assertThat(request.submission).isEqualTo(submission.copy(version = 2))
             assertThat(request.draftKey).isEqualTo("TMP_123")
             assertThat(request.notifyTo).isEqualTo("user@test.org")
             assertThat(request.status).isEqualTo(REQUESTED)

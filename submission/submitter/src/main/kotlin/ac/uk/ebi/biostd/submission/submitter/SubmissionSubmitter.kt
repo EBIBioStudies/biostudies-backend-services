@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
@@ -17,7 +16,6 @@ import mu.KotlinLogging
 private val logger = KotlinLogging.logger {}
 
 class SubmissionSubmitter(
-    private val pageTabService: PageTabService,
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val submissionProcessor: SubmissionProcessor,
     private val parentInfoService: ParentInfoService,
@@ -64,12 +62,11 @@ class SubmissionSubmitter(
 
             rqt.draftKey?.let { draftService.setProcessingStatus(rqt.owner, it) }
             val processed = submissionProcessor.processSubmission(rqt)
-            val withTabFiles = pageTabService.generatePageTab(processed)
-            parentInfoService.executeCollectionValidators(withTabFiles)
+            parentInfoService.executeCollectionValidators(processed)
             rqt.draftKey?.let { draftService.setAcceptedStatus(it) }
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 
-            return withTabFiles
+            return processed
         } catch (exception: RuntimeException) {
             logger.error(exception) { "${rqt.accNo} ${rqt.owner} Error processing submission request" }
             rqt.draftKey?.let { draftService.setActiveStatus(it) }

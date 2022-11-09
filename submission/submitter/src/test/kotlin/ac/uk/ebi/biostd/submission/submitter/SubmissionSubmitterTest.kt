@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.submitter
 
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
@@ -21,14 +20,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 class SubmissionSubmitterTest(
-    @MockK private val pageTabService: PageTabService,
     @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
     @MockK private val submissionProcessor: SubmissionProcessor,
     @MockK private val parentInfoService: ParentInfoService,
     @MockK private val draftService: SubmissionDraftPersistenceService,
 ) {
     private val testInstance = SubmissionSubmitter(
-        pageTabService,
         submissionSubmitter,
         submissionProcessor,
         parentInfoService,
@@ -48,7 +45,6 @@ class SubmissionSubmitterTest(
         every { request.draftKey } returns "TMP_123"
         every { request.owner } returns submission.owner
         every { request.accNo } returns submission.accNo
-        every { pageTabService.generatePageTab(submission) } returns submission
         every { submissionProcessor.processSubmission(request) } returns submission
         every { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
         every { parentInfoService.executeCollectionValidators(submission) } answers { nothing }
@@ -66,7 +62,6 @@ class SubmissionSubmitterTest(
         assertThat(extRequest.draftKey).isEqualTo("TMP_123")
         assertThat(extRequest.submission).isEqualTo(submission)
         verify(exactly = 1) {
-            pageTabService.generatePageTab(submission)
             submissionProcessor.processSubmission(request)
             parentInfoService.executeCollectionValidators(submission)
             draftService.setProcessingStatus(submission.owner, "TMP_123")
@@ -89,7 +84,6 @@ class SubmissionSubmitterTest(
         every { request.owner } returns submission.owner
         every { request.accNo } returns submission.accNo
         every { draftService.setActiveStatus("TMP_123") } answers { nothing }
-        every { pageTabService.generatePageTab(submission) } returns submission
         every { draftService.setProcessingStatus(submission.owner, "TMP_123") } answers { nothing }
         every { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
         every { submissionProcessor.processSubmission(request) } throws RuntimeException("validation error")
@@ -102,7 +96,6 @@ class SubmissionSubmitterTest(
             draftService.setActiveStatus("TMP_123")
         }
         verify(exactly = 0) {
-            pageTabService.generatePageTab(submission)
             parentInfoService.executeCollectionValidators(submission)
             submissionSubmitter.createRequest(capture(extRequestSlot))
             draftService.setAcceptedStatus("TMP_123")

@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
@@ -19,6 +20,7 @@ import java.time.OffsetDateTime
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class ExtSubmissionSubmitter(
+    private val pageTabService: PageTabService,
     private val requestService: SubmissionRequestPersistenceService,
     private val persistenceService: SubmissionPersistenceService,
     private val requestIndexer: SubmissionRequestIndexer,
@@ -28,7 +30,8 @@ class ExtSubmissionSubmitter(
     private val requestCleaner: SubmissionRequestCleaner,
 ) {
     fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
-        val submission = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
+        val withTabFiles = pageTabService.generatePageTab(rqt.submission)
+        val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         val request = SubmissionRequest(
             submission,
             rqt.draftKey,
@@ -42,11 +45,11 @@ class ExtSubmissionSubmitter(
         return requestService.createSubmissionRequest(request)
     }
 
-    fun indexRequest(accNo: String, version: Int) = requestIndexer.indexRequest(accNo, version)
+    fun indexRequest(accNo: String, version: Int): Unit = requestIndexer.indexRequest(accNo, version)
 
-    fun loadRequest(accNo: String, version: Int) = requestLoader.loadRequest(accNo, version)
+    fun loadRequest(accNo: String, version: Int): Unit = requestLoader.loadRequest(accNo, version)
 
-    fun cleanRequest(accNo: String, version: Int) = requestCleaner.cleanCurrentVersion(accNo, version)
+    fun cleanRequest(accNo: String, version: Int): Unit = requestCleaner.cleanCurrentVersion(accNo, version)
 
     fun processRequest(accNo: String, version: Int): ExtSubmission = requestProcessor.processRequest(accNo, version)
 

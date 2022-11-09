@@ -105,6 +105,7 @@ class SubmitterConfig {
 
     @Bean
     fun extSubmissionSubmitter(
+        pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
         requestIndexer: SubmissionRequestIndexer,
@@ -112,7 +113,8 @@ class SubmitterConfig {
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
-    ) = ExtSubmissionSubmitter(
+    ): ExtSubmissionSubmitter = ExtSubmissionSubmitter(
+        pageTabService,
         requestService,
         persistenceService,
         requestIndexer,
@@ -124,13 +126,11 @@ class SubmitterConfig {
 
     @Bean
     fun submissionSubmitter(
-        pageTabService: PageTabService,
         extSubmissionSubmitter: ExtSubmissionSubmitter,
         submissionProcessor: SubmissionProcessor,
         parentInfoService: ParentInfoService,
         draftService: SubmissionDraftPersistenceService,
-    ) = SubmissionSubmitter(
-        pageTabService,
+    ): SubmissionSubmitter = SubmissionSubmitter(
         extSubmissionSubmitter,
         submissionProcessor,
         parentInfoService,
