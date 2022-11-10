@@ -199,6 +199,7 @@ class FileListValidationTest(
                           - Plate1.tif
                         List of available sources:
                           - biostudies-mgmt-filelist-v@ebi.ac.uk user files
+                          - EBI internal files Archive
                 """.trimIndent()
                 "subnodes" to jsonArray()
             }

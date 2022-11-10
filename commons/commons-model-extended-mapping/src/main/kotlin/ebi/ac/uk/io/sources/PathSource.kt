@@ -10,7 +10,7 @@ class PathSource(override val description: String, private val sourcePath: Path)
     override fun getExtFile(path: String, dbFile: DbFile?, attributes: List<Attribute>): ExtFile? =
         findFile(path)?.let { create(path, it, attributes) }
 
-    override fun getFile(path: String, dbFile: DbFile?): File? = findFile(path)
+    override fun getFile(path: String): File? = findFile(path)
 
     private fun findFile(path: String): File? {
         val filePath = sourcePath.resolve(path)

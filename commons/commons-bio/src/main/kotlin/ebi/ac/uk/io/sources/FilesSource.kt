@@ -10,7 +10,8 @@ interface FilesSource {
     val description: String
 
     fun getExtFile(path: String, dbFile: DbFile? = null, attributes: List<Attribute> = emptyList()): ExtFile?
-    fun getFile(path: String, dbFile: DbFile? = null): File?
+
+    fun getFile(path: String): File?
 }
 
 sealed interface DbFile {

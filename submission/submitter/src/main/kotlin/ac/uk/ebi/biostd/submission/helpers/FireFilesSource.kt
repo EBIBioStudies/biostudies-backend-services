@@ -13,15 +13,6 @@ import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
-import java.nio.file.Path
-
-class FireFilesSourceFactory(
-    private val fireClient: FireClient,
-) {
-    fun createFireSource(): FilesSource = FireFilesSource(fireClient)
-    fun createSubmissionFireSource(accNo: String, subPath: Path): FilesSource =
-        SubmissionFireFilesSource(accNo, fireClient, subPath)
-}
 
 class FireFilesSource(
     private val fireClient: FireClient,
@@ -37,33 +28,9 @@ class FireFilesSource(
         }
     }
 
-    override fun getFile(path: String, dbFile: DbFile?): File? =
-        if (dbFile == null) null else fireClient.downloadByMd5(dbFile.md5)
+    override fun getFile(path: String): File? = null
 
     override val description: String = "EBI internal files Archive"
-}
-
-private class SubmissionFireFilesSource(
-    accNo: String,
-    private val fireClient: FireClient,
-    private val subPath: Path,
-) : FilesSource {
-    override val description: String = "Submission $accNo files"
-
-    override fun getExtFile(
-        path: String,
-        dbFile: DbFile?,
-        attributes: List<Attribute>,
-    ): ExtFile? {
-        return when (dbFile) {
-            null -> fireClient.findByPath(subPath.resolve(path).toString())?.asFireFile(path, attributes)
-            else -> fireClient.findByDb(dbFile, path, attributes)
-        }
-    }
-
-    override fun getFile(path: String, dbFile: DbFile?): File? =
-        if (dbFile == null) fireClient.downloadByPath(subPath.resolve(path).toString())
-        else fireClient.downloadByMd5(dbFile.md5)
 }
 
 fun FireApiFile.asFireFile(path: String, attributes: List<Attribute>): FireFile =

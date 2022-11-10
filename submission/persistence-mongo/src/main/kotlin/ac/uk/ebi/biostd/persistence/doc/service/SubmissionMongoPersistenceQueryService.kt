@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.max
 
+@Suppress("TooManyFunctions")
 internal class SubmissionMongoPersistenceQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
@@ -72,9 +73,17 @@ internal class SubmissionMongoPersistenceQueryService(
     }
 
     override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> {
+        val subRelPath = submissionRepo.getRelPath(accNo).relPath
         return fileListDocFileRepository
             .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(accNo, 0, fileListName)
-            .map { it.file.toExtFile(submissionRepo.getRelPath(accNo)) }
+            .map { it.file.toExtFile(subRelPath) }
+    }
+
+    override fun findReferencedFile(accNo: String, version: Int, path: String): ExtFile? {
+        return fileListDocFileRepository
+            .findBySubmissionAccNoAndSubmissionVersionAndFilePath(accNo, version, path)
+            ?.file
+            ?.toExtFile(submissionRepo.getRelPath(accNo).relPath)
     }
 
     private fun findSubmissions(owner: String, filter: SubmissionFilter): List<BasicSubmission> =

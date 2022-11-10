@@ -18,8 +18,8 @@ import org.springframework.data.mongodb.repository.Query
 import java.util.stream.Stream
 
 interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
-    @Query(value = "{ 'accNo': '?0', 'version': { \$gte: 0 } }", fields = "{ relPath : 0 }")
-    fun getRelPath(accNo: String): String
+    @Query(value = "{ 'accNo': '?0', 'version': { \$gte: 0 } }", fields = "{ relPath : 1 }")
+    fun getRelPath(accNo: String): SubmissionRelPath
 
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     fun findByAccNo(accNo: String): DocSubmission?
@@ -35,7 +35,7 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
     fun findFirstByAccNoOrderByVersionDesc(accNo: String): DocSubmission?
 
     @Query(value = "{ 'accNo' : ?0, 'version' : { \$gt: 0} }", fields = "{ 'collections.accNo':1 }")
-    fun findSubmissionCollections(accNo: String): SubmissionProjects?
+    fun findSubmissionCollections(accNo: String): SubmissionCollections?
 }
 
 fun SubmissionMongoRepository.getByAccNo(accNo: String) = findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
@@ -88,6 +88,13 @@ interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId>
         version: Int,
         fileListName: String,
     ): List<FileListDocFile>
+
+    @Query("{ 'submissionAccNo': ?0, 'submissionVersion': ?1, 'file.filePath':  ?2}")
+    fun findBySubmissionAccNoAndSubmissionVersionAndFilePath(
+        accNo: String,
+        version: Int,
+        filePath: String,
+    ): FileListDocFile?
 }
 
 interface SubmissionStatsRepository : MongoRepository<DocSubmissionStats, ObjectId> {
