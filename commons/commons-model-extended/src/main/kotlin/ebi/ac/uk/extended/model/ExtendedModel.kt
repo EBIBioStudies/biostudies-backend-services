@@ -49,6 +49,7 @@ sealed class ExtFile {
 data class FireFile(
     val fireId: String,
     val firePath: String?,
+    val published: Boolean,
     override val filePath: String,
     override val relPath: String,
     override val md5: String,

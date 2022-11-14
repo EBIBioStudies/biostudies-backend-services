@@ -19,8 +19,9 @@ val BioFile.dbFile: DbFile?
             val size = find(FileFields.DB_SIZE)
             val id = find(FileFields.DB_ID)
             val path = find(FileFields.DB_PATH)
+            val published = find(FileFields.DB_PUBLISHED)
             return if (size != null && id != null && path != null)
-                ConfiguredDbFile(id, dbMd5, path, size.toLong())
+                ConfiguredDbFile(id, dbMd5, path, size.toLong(), published.toBoolean())
             else
                 UploadedDbFile(dbMd5)
         }

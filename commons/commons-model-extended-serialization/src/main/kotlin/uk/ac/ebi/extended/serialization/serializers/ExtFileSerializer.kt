@@ -11,6 +11,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYP
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILEPATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_ID
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_PATH
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_PUBLISHED
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FULL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_MD5
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_NAME
@@ -48,6 +49,7 @@ class ExtFileSerializer : JsonSerializer<ExtFile>() {
         writeStringField(FILE_REL_PATH, file.relPath)
         writeStringField(FILE_FIRE_ID, file.fireId)
         writeStringField(FILE_FIRE_PATH, file.firePath)
+        writeBooleanField(FILE_FIRE_PUBLISHED, file.published)
         writeObjectField(ATTRIBUTES, file.attributes)
         writeStringField(EXT_TYPE, ExtType.FireFile.type)
         writeStringField(FILE_TYPE, file.type.value)

@@ -121,6 +121,7 @@ enum class FileFields(override val value: String) : Fields {
     DB_SIZE("dbSize"),
     DB_ID("dbId"),
     DB_PATH("dbPath"),
+    DB_PUBLISHED("dbPublished"),
 
     ATTRIBUTES(ATTRIBUTES_FIELD);
 

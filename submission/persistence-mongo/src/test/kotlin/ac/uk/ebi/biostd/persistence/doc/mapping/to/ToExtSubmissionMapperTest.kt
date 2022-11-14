@@ -58,7 +58,7 @@ class ToExtSubmissionMapperTest(
 
     @Test
     fun `to ext Submission including FileListFiles`() {
-        every { toExtSectionMapper.toExtSection(docSection, "S-TEST123", 1, REL_PATH, true) } returns extSection
+        every { toExtSectionMapper.toExtSection(docSection, "S-TEST123", 1, false, REL_PATH, true) } returns extSection
         val submission = docSubmission.copy(
             section = docSection,
             pageTabFiles = listOf(subNfsDocFile)
@@ -72,7 +72,7 @@ class ToExtSubmissionMapperTest(
 
     @Test
     fun `to ext Submission without FileListFiles`() {
-        every { toExtSectionMapper.toExtSection(docSection, "S-TEST123", 1, REL_PATH, false) } returns extSection
+        every { toExtSectionMapper.toExtSection(docSection, "S-TEST123", 1, false, REL_PATH, false) } returns extSection
         val submission = docSubmission.copy(
             section = docSection,
             pageTabFiles = listOf(subNfsDocFile)

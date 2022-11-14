@@ -67,6 +67,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
         val extFile = FireFile(
             fireId = "fireId",
             firePath = "firePath",
+            published = false,
             filePath = "folder/fire-file.txt",
             relPath = "Files/folder/fire-file.txt",
             md5 = "fireFileMd5",
@@ -80,6 +81,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
             "relPath" to "Files/folder/fire-file.txt"
             "fireId" to "fireId"
             "firePath" to "firePath"
+            "published" to false
             "attributes" to jsonArray(
                 jsonObj {
                     "name" to "Type"
@@ -110,6 +112,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
         val extFile = FireFile(
             fireId = "dirFireId",
             firePath = "firePath",
+            published = true,
             filePath = "folder",
             relPath = "Files/folder",
             md5 = "fireDirMd5",
@@ -123,6 +126,7 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
             "relPath" to "Files/folder"
             "fireId" to "dirFireId"
             "firePath" to "firePath"
+            "published" to true
             "attributes" to jsonArray(
                 jsonObj {
                     "name" to "Type"

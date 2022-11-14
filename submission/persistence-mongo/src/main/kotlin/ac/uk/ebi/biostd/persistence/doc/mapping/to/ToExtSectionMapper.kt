@@ -8,36 +8,52 @@ import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 
+@Suppress("LongParameterList")
 class ToExtSectionMapper(private val fileListMapper: ToExtFileListMapper) {
-
     fun toExtSection(
         section: DocSection,
         subAccNo: String,
         subVersion: Int,
+        released: Boolean,
         subRelPath: String,
         includeFileListFiles: Boolean,
     ): ExtSection = ExtSection(
         accNo = section.accNo,
         type = section.type,
-        fileList = section.fileList?.toExtFileList(subAccNo, subVersion, subRelPath, includeFileListFiles),
+        fileList = section.fileList?.toExtFileList(subAccNo, subVersion, released, subRelPath, includeFileListFiles),
         attributes = section.attributes.toExtAttributes(),
-        sections = section.sections.map { it.toExtSections(subAccNo, subVersion, subRelPath, includeFileListFiles) },
-        files = section.files.map { it.toExtFiles(subRelPath) },
+        sections = section.sections.map {
+            it.toExtSections(
+                subAccNo = subAccNo,
+                subVersion = subVersion,
+                released = released,
+                subRelPath = subRelPath,
+                includeFileListFiles = includeFileListFiles
+            )
+        },
+        files = section.files.map { it.toExtFiles(released, subRelPath) },
         links = section.links.map { it.toExtLinks() }
     )
 
     private fun DocFileList.toExtFileList(
         subAccNo: String,
         subVersion: Int,
+        released: Boolean,
         subRelPath: String,
         includeFileListFiles: Boolean,
-    ): ExtFileList = fileListMapper.toExtFileList(this, subAccNo, subVersion, subRelPath, includeFileListFiles)
+    ): ExtFileList =
+        fileListMapper.toExtFileList(this, subAccNo, subVersion, released, subRelPath, includeFileListFiles)
 
     private fun Either<DocSection, DocSectionTable>.toExtSections(
         subAccNo: String,
         subVersion: Int,
+        released: Boolean,
         subRelPath: String,
         includeFileListFiles: Boolean,
-    ): Either<ExtSection, ExtSectionTable> =
-        bimap({ toExtSection(it, subAccNo, subVersion, subRelPath, includeFileListFiles) }, { it.toExtSectionTable() })
+    ): Either<ExtSection, ExtSectionTable> {
+        return bimap(
+            { toExtSection(it, subAccNo, subVersion, released, subRelPath, includeFileListFiles) },
+            { it.toExtSectionTable() }
+        )
+    }
 }

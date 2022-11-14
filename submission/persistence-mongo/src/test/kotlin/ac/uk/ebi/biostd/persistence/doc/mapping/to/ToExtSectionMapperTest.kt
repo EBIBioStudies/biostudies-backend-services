@@ -57,11 +57,13 @@ class ToExtSectionMapperTest(
                 docFileList,
                 "subAccNo",
                 121,
+                false,
                 "subRelPath",
-                false
+                false,
             )
         } returns extFileList
-        val extSection = testInstance.toExtSection(section, "subAccNo", 121, "subRelPath", includeFileListFiles = false)
+        val extSection =
+            testInstance.toExtSection(section, "subAccNo", 121, false, "subRelPath", includeFileListFiles = false)
 
         assertExtSection(extSection, sectionFile)
         assertThat(extSection.fileList).isEqualTo(extFileList)
@@ -79,11 +81,13 @@ class ToExtSectionMapperTest(
                 docFileList,
                 "subAccNo",
                 121,
+                false,
                 "subRelPath",
-                true
+                true,
             )
         } returns extFileList
-        val extSection = testInstance.toExtSection(section, "subAccNo", 121, "subRelPath", includeFileListFiles = true)
+        val extSection =
+            testInstance.toExtSection(section, "subAccNo", 121, false, "subRelPath", includeFileListFiles = true)
 
         assertExtSection(extSection, sectionFile)
         assertThat(extSection.fileList).isEqualTo(extFileList)

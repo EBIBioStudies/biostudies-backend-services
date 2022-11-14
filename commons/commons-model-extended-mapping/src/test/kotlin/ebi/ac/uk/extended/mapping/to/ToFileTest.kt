@@ -55,6 +55,7 @@ internal class ToFileTest(
         val file = FireFile(
             fireId = "fireId",
             firePath = "firePath",
+            published = false,
             filePath = "folder/myFile",
             relPath = "Files/folder/myFile",
             md5 = md5,
