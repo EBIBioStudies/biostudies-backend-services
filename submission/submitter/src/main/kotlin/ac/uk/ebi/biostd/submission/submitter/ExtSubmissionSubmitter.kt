@@ -63,7 +63,7 @@ class ExtSubmissionSubmitter(
             INDEXED -> loadRequestFiles(accNo, version)
             LOADED -> cleanRequestFiles(accNo, version)
             CLEANED -> processRequestFiles(accNo, version)
-            FILES_COPIED -> requestReleaser.checkReleased(accNo, version)
+            FILES_COPIED -> checkReleased(accNo, version)
             else -> throw IllegalStateException("Request accNo=$accNo, version='$version' has been already processed")
         }
     }

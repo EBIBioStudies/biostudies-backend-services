@@ -12,7 +12,7 @@ import java.io.File
 import java.time.Instant
 
 class FireMockDatabase(
-    private val fileSystem: FireMockFileSystem
+    private val fileSystem: FireMockFileSystem,
 ) {
     private val recordsById: MutableMap<String, DbRecord> = mutableMapOf()
 
@@ -74,7 +74,7 @@ data class DbRecord(
     val file: FireApiFile,
     val firePath: String?,
     val fileSystemPath: String?,
-    val published: Boolean
+    val published: Boolean,
 ) {
     fun toFile(): FireApiFile = file.copy(filesystemEntry = FileSystemEntry(firePath, published))
 }
