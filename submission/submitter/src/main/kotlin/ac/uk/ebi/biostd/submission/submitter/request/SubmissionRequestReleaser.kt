@@ -17,6 +17,7 @@ import uk.ac.ebi.extended.serialization.service.fileSequence
 
 private val logger = KotlinLogging.logger {}
 
+@Suppress("LongParameterList")
 class SubmissionRequestReleaser(
     private val fileStorageService: FileStorageService,
     private val serializationService: ExtSerializationService,
@@ -52,7 +53,6 @@ class SubmissionRequestReleaser(
             }
         persistenceService.setAsReleased(sub.accNo)
     }
-
 
     /**
      * Release the given submission by changing record status database and publishing files.
