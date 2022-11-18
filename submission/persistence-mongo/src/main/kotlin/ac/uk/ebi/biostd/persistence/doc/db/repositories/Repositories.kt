@@ -19,7 +19,7 @@ import java.util.stream.Stream
 
 interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
     @Query(value = "{ 'accNo': '?0', 'version': { \$gte: 0 } }", fields = "{ relPath : 1, released: 2 }")
-    fun getSubData(accNo: String): SubmissionProjection
+    fun getSubProjection(accNo: String): SubmissionProjection
 
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     fun findByAccNo(accNo: String): DocSubmission?

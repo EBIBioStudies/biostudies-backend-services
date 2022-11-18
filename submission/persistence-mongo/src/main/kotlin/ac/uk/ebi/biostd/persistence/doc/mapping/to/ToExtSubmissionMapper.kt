@@ -13,6 +13,8 @@ internal const val FILES_DIR = "Files"
 class ToExtSubmissionMapper(
     private val toExtSectionMapper: ToExtSectionMapper,
 ) {
+    // TODO, rather that trusting sub status to determinate file status we need to start storing each file release
+    //  status and in case of fire files (fire path) rather than calculating it.
     internal fun toExtSubmission(sub: DocSubmission, includeFileListFiles: Boolean): ExtSubmission =
         ExtSubmission(
             accNo = sub.accNo,
