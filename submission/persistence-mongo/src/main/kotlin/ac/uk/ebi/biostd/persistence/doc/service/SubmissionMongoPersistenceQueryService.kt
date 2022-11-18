@@ -84,7 +84,7 @@ internal class SubmissionMongoPersistenceQueryService(
         return fileListDocFileRepository
             .findBySubmissionAccNoAndSubmissionVersionAndFilePath(accNo, version, path)
             ?.file
-            ?.toExtFile(subData.released, submissionRepo.getSubProjection(accNo).relPath)
+            ?.toExtFile(subData.released, subData.relPath)
     }
 
     private fun findSubmissions(owner: String, filter: SubmissionFilter): List<BasicSubmission> =
