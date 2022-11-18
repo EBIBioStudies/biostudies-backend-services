@@ -51,7 +51,6 @@ class SubmissionRequestReleaser(
                 filesRequestService.saveSubmissionRequestFile(it)
                 requestService.updateRequestIndex(sub.accNo, sub.version, it.index)
             }
-        persistenceService.setAsReleased(sub.accNo)
     }
 
     /**
