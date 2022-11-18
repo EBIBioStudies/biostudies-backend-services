@@ -9,6 +9,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.KEY
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.STATUS
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.USER_ID
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACCEPTED
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria.where
@@ -19,38 +21,45 @@ class SubmissionDraftDocDataRepository(
     private val submissionDraftRepository: SubmissionDraftRepository,
     private val mongoTemplate: MongoTemplate,
 ) : SubmissionDraftRepository by submissionDraftRepository {
-    fun saveDraft(userId: String, key: String, content: String): DocSubmissionDraft =
-        mongoTemplate.replaceOrCreate(
-            Query(where(USER_ID).`is`(userId).andOperator(where(KEY).`is`(key))),
-            DocSubmissionDraft(userId, key, content, DraftStatus.ACTIVE)
+    fun saveDraft(userId: String, key: String, content: String): DocSubmissionDraft {
+        val draft = DocSubmissionDraft(userId, key, content, ACTIVE)
+        return mongoTemplate.replaceOrCreate(
+            Query(where(USER_ID).`is`(userId).andOperator(where(KEY).`is`(key), where(STATUS).`is`(ACTIVE))),
+            draft
         )
+    }
 
-    fun setStatus(userEmail: String, key: String, status: DraftStatus) {
-        val query = Query(where(USER_ID).`is`(userEmail).andOperator(where(KEY).`is`(key)))
-        mongoTemplate.updateFirst(query, update(STATUS, status), DocSubmissionDraft::class.java)
+    fun setStatus(userEmail: String, key: String, newStatus: DraftStatus) {
+        val query = Query(
+            where(USER_ID).`is`(userEmail).andOperator(where(KEY).`is`(key), where(STATUS).ne(ACCEPTED))
+        )
+        mongoTemplate.updateFirst(query, update(STATUS, newStatus), DocSubmissionDraft::class.java)
     }
 
     fun setStatus(key: String, status: DraftStatus) {
-        val query = Query(where(KEY).`is`(key))
+        val query = Query(where(KEY).`is`(key).andOperator(where(STATUS).ne(ACCEPTED)))
         mongoTemplate.updateMulti(query, update(STATUS, status), DocSubmissionDraft::class.java)
     }
 
     fun updateDraftContent(userId: String, key: String, content: String) {
         mongoTemplate.updateFirst(
-            Query(where(USER_ID).`is`(userId).andOperator(where(KEY).`is`(key))),
+            Query(where(USER_ID).`is`(userId).andOperator(where(KEY).`is`(key), where(STATUS).`is`(ACTIVE))),
             update(CONTENT, content),
             DocSubmissionDraft::class.java
         )
     }
 
-    fun createDraft(userId: String, key: String, content: String): DocSubmissionDraft =
-        submissionDraftRepository.save(DocSubmissionDraft(userId, key, content, DraftStatus.ACTIVE))
+    fun createDraft(userId: String, key: String, content: String): DocSubmissionDraft {
+        val draft = DocSubmissionDraft(userId, key, content, ACTIVE)
+        return submissionDraftRepository.save(draft)
+    }
 
     fun findAllByUserIdAndStatus(
         userId: String,
         status: DraftStatus,
         filter: PaginationFilter = PaginationFilter(),
-    ): List<DocSubmissionDraft> = submissionDraftRepository.findAllByUserIdAndStatus(
-        userId, status, PageRequest.of(filter.pageNumber, filter.limit)
-    )
+    ): List<DocSubmissionDraft> {
+        val pageRequest = PageRequest.of(filter.pageNumber, filter.limit)
+        return submissionDraftRepository.findAllByUserIdAndStatus(userId, status, pageRequest)
+    }
 }

@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.data.service.UserDataService
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.dsl.json.jsonObj
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
@@ -20,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDO
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import uk.ac.ebi.serialization.extensions.getProperty
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -119,5 +121,47 @@ class SubmissionDraftApiTest(
 
         assertThat(dataService.getUserData(SuperUser.email, "ABC-129")).isNull()
         assertThat(dataService.getUserData(SuperUser.email, "ABC-129")).isNull()
+    }
+
+    @Test
+    fun `update a submission already submitted draft`(@Autowired mapper: ObjectMapper) {
+        val accNo = "ABC-130"
+        val newSubmission = webClient.submitSingle(
+            jsonObj {
+                "accno" to accNo
+                "section" to jsonObj {
+                    "type" to "Study"
+                }
+                "type" to "submission"
+            }.toString()
+        ).body
+        assertThat(newSubmission.section.type).isEqualTo("Study")
+
+        webClient.getSubmissionDraft(accNo)
+        webClient.updateSubmissionDraft(
+            accNo,
+            jsonObj {
+                "accno" to accNo
+                "section" to jsonObj {
+                    "type" to "Another"
+                }
+                "type" to "submission"
+            }.toString()
+        )
+        val updatedSubmission = webClient.submitSingleFromDraft(accNo).body
+        assertThat(updatedSubmission.section.type).isEqualTo("Another")
+
+        webClient.getSubmissionDraft(accNo)
+        webClient.updateSubmissionDraft(
+            accNo,
+            jsonObj {
+                "accno" to accNo
+                "section" to jsonObj {
+                    "type" to "Yet-Another"
+                }
+                "type" to "submission"
+            }.toString()
+        )
+        assertThat(webClient.getSubmissionDraft(accNo).content.getProperty("section.type")).isEqualTo("Yet-Another")
     }
 }

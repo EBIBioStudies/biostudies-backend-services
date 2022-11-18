@@ -45,8 +45,6 @@ class SubmissionDraftMongoPersistenceService(
         return SubmissionDraft(draft.key, draft.content)
     }
 
-    override fun setProcessingStatus(
-        userEmail: String,
-        key: String,
-    ) = draftDocDataRepository.setStatus(userEmail, key, PROCESSING)
+    override fun setProcessingStatus(userEmail: String, key: String) =
+        draftDocDataRepository.setStatus(userEmail, key, PROCESSING)
 }

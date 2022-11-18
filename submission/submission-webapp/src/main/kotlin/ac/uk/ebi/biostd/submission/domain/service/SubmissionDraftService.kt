@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import ebi.ac.uk.model.Submission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.time.Instant
@@ -64,8 +65,19 @@ class SubmissionDraftService(
         val submission = getOrCreateSubmissionDraft(user.email, key).content
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON_PRETTY, buildRequest)
-
         submitWebHandler.submitAsync(request)
+    }
+
+    fun submitDraftSync(
+        key: String,
+        user: SecurityUser,
+        onBehalfRequest: OnBehalfRequest?,
+        parameters: SubmissionRequestParameters,
+    ): Submission {
+        val submission = getOrCreateSubmissionDraft(user.email, key).content
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key)
+        val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON_PRETTY, buildRequest)
+        return submitWebHandler.submit(request)
     }
 
     private fun createDraftFromSubmission(userEmail: String, accNo: String): SubmissionDraft {
@@ -73,7 +85,6 @@ class SubmissionDraftService(
 
         val submission = toSubmissionMapper.toSimpleSubmission(submissionQueryService.getExtByAccNo(accNo))
         val content = serializationService.serializeSubmission(submission, JsonPretty)
-
         return draftPersistenceService.createSubmissionDraft(userEmail, accNo, content)
     }
 }
