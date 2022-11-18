@@ -7,5 +7,4 @@ import org.bson.types.ObjectId
  * Represent the project of a specific @see [ac.uk.ebi.biostd.persistence.doc.model.DocSubmission].
  */
 data class SubmissionCollections(val collections: List<DocCollection>?)
-
-data class SubmissionRelPath(val id: ObjectId, val relPath: String)
+data class SubmissionProjection(val id: ObjectId, val relPath: String, val released: Boolean)

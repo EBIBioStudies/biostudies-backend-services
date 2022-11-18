@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.BooleanNode
 import com.fasterxml.jackson.databind.node.NumericNode
 import com.fasterxml.jackson.databind.node.TextNode
 import ebi.ac.uk.extended.model.ExtFile
@@ -16,6 +17,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.EXT_TYP
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FILEPATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_ID
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_PATH
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FIRE_PUBLISHED
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_FULL_PATH
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_MD5
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_REL_PATH
@@ -44,6 +46,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
         FireFile(
             fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
             firePath = node.findNode<TextNode>(FILE_FIRE_PATH)?.textValue(),
+            published = node.getNode<BooleanNode>(FILE_FIRE_PUBLISHED).booleanValue(),
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
             relPath = node.getNode<TextNode>(FILE_REL_PATH).textValue(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),

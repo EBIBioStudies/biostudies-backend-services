@@ -72,11 +72,11 @@ class FireFilesService(
     ): FireFile {
         return when (file.firePath) {
             expectedPath -> file
-            null -> setMetadata(file.fireId, file, expectedPath)
+            null -> setMetadata(file.fireId, file, expectedPath, file.published)
             else -> {
                 val downloaded = client.downloadByFireId(file.fireId, file.fileName)
                 val saved = client.save(downloaded, file.md5, file.size)
-                setMetadata(saved.fireOid, file, expectedPath)
+                setMetadata(saved.fireOid, file, expectedPath, false)
             }
         }
     }
@@ -86,18 +86,19 @@ class FireFilesService(
         val apiFile = matches.find { it.path == expectedPath }
             ?: matches.find { it.path == null }
             ?: client.save(file.file, file.md5, file.size)
-        val fireFile = asFireFile(file, apiFile.fireOid, apiFile.path)
+        val fireFile = asFireFile(file, apiFile.fireOid, apiFile.path, apiFile.published)
         return getOrCreate(fireFile, expectedPath)
     }
 
-    private fun setMetadata(fireOid: String, file: ExtFile, expectedPath: String): FireFile {
+    private fun setMetadata(fireOid: String, file: ExtFile, expectedPath: String, published: Boolean): FireFile {
         client.setPath(fireOid, expectedPath)
-        return asFireFile(file, fireOid, expectedPath)
+        return asFireFile(file, fireOid, expectedPath, published)
     }
 
-    private fun asFireFile(file: ExtFile, fireId: String, firePath: String?): FireFile = FireFile(
+    private fun asFireFile(file: ExtFile, fireId: String, firePath: String?, published: Boolean): FireFile = FireFile(
         fireId = fireId,
         firePath = firePath,
+        published = published,
         filePath = file.filePath,
         relPath = file.relPath,
         md5 = file.md5,
