@@ -313,6 +313,7 @@ class SubmissionFileSourceTest(
         val submission = tsv {
             line("Submission", "S-FSTST6")
             line("Title", "Sample Submission")
+            line("ReleaseDate", "2015-02-20")
             line()
 
             line("Study")
@@ -322,6 +323,7 @@ class SubmissionFileSourceTest(
             line("dbMd5", "abc-123")
             line("dbId", "unique-id")
             line("dbPath", "/S-FSTST/006/S-FSTST6/Files/DataFile555.txt")
+            line("dbPublished", true)
             line("dbSize", 145)
             line()
         }.toString()

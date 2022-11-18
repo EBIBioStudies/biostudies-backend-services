@@ -173,6 +173,7 @@ internal class FireFilesServiceTest(
     private fun fireFile(firePath: String? = null, md5: String = "the md5") = FireFile(
         fireId = UUID.randomUUID().toString(),
         firePath = firePath,
+        published = false,
         filePath = "folder/file.txt",
         relPath = "Files/folder/file.txt",
         md5 = md5,

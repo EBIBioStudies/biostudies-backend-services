@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.persistence.doc.test.doc.ext
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtFileType.FILE
-import ebi.ac.uk.extended.model.ExtProcessingStatus.PROCESSED
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod.PAGE_TAB
 import ebi.ac.uk.extended.model.ExtTag
@@ -23,7 +22,7 @@ const val SUBMISSION_REL_PATH = "/a/rel/path"
 const val SUBMISSION_ROOT_PATH = "/a/root/path"
 const val SUBMISSION_RELEASED = true
 const val SUBMISSION_SECRET_KEY = "a-secret-key"
-val SUBMISSION_STATUS = PROCESSED
+
 val RELEASE_TIME: OffsetDateTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
 val MODIFICATION_TIME: OffsetDateTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
 val CREATION_TIME: OffsetDateTime = OffsetDateTime.of(2018, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
@@ -42,9 +41,12 @@ const val FIRE_DIR_FIRE_ID = "fireDirFireID"
 const val FIRE_DIR_FIRE_PATH = "submission/fireFileFilePath/fireFileFileName"
 const val FIRE_FILE_MD5 = "fireFileMd5"
 const val FIRE_FILE_SIZE = 1L
+const val FIRE_FILE_PUBLISHED = true
+
 val fireFile = FireFile(
     fireId = FIRE_FILE_FIRE_ID,
     firePath = FIRE_DIR_FIRE_PATH,
+    published = FIRE_FILE_PUBLISHED,
     filePath = FIRE_FILE_FILEPATH,
     relPath = FIRE_FILE_REL_PATH,
     md5 = FIRE_FILE_MD5,
@@ -61,6 +63,7 @@ const val FIRE_DIRECTORY_SIZE = 2L
 val fireDirectory = FireFile(
     fireId = FIRE_DIR_FIRE_ID,
     firePath = FIRE_DIRECTORY_FIRE_PATH,
+    published = false,
     filePath = FIRE_DIRECTORY_FILEPATH,
     relPath = FIRE_DIRECTORY_REL_PATH,
     md5 = FIRE_DIRECTORY_MD5,

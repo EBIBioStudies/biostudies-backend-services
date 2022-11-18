@@ -87,6 +87,7 @@ class SubmitterConfig {
         requestService: SubmissionRequestPersistenceService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
+        filesRequestService: SubmissionRequestFilesPersistenceService,
     ): SubmissionRequestReleaser = SubmissionRequestReleaser(
         fileStorageService,
         serializationService,
@@ -94,6 +95,7 @@ class SubmitterConfig {
         submissionPersistenceQueryService,
         submissionPersistenceService,
         requestService,
+        filesRequestService
     )
 
     @Bean

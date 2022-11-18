@@ -129,6 +129,7 @@ object FireFileFactory {
     ) = FireFile(
         fireId = fireId,
         firePath = firePath,
+        published = false,
         filePath = filePath,
         relPath = relPath,
         md5 = md5,

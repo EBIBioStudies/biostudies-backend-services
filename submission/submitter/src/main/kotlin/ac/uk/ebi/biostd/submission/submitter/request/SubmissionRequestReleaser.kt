@@ -1,12 +1,15 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FireFile
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -14,6 +17,7 @@ import uk.ac.ebi.extended.serialization.service.fileSequence
 
 private val logger = KotlinLogging.logger {}
 
+@Suppress("LongParameterList")
 class SubmissionRequestReleaser(
     private val fileStorageService: FileStorageService,
     private val serializationService: ExtSerializationService,
@@ -21,17 +25,33 @@ class SubmissionRequestReleaser(
     private val queryService: SubmissionPersistenceQueryService,
     private val persistenceService: SubmissionPersistenceService,
     private val requestService: SubmissionRequestPersistenceService,
+    private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
+
     /**
      * Check the release status of the submission and release it if released flag is true.
      */
     fun checkReleased(accNo: String, version: Int): ExtSubmission {
         val request = requestService.getFilesCopiedRequest(accNo, version)
-        val sub = queryService.getExtByAccNoAndVersion(accNo, version, includeFileListFiles = true)
-        if (sub.released) releaseSubmission(sub)
-        requestService.updateRequestStatus(sub.accNo, sub.version, PROCESSED)
+        if (request.submission.released) releaseRequest(request)
+        requestService.updateRequestStatus(request.submission.accNo, request.submission.version, PROCESSED)
         eventsPublisherService.submissionSubmitted(accNo, request.notifyTo)
-        return sub
+        return request.submission
+    }
+
+    private fun releaseRequest(
+        request: SubmissionRequest,
+    ) {
+        val sub = request.submission
+        filesRequestService
+            .getSubmissionRequestFiles(sub.accNo, sub.version, request.currentIndex)
+            .filterNot { it.file is FireFile && (it.file as FireFile).published }
+            .forEach {
+                fileStorageService.releaseSubmissionFile(it.file, sub.relPath, sub.storageMode)
+                filesRequestService.saveSubmissionRequestFile(it)
+                requestService.updateRequestIndex(sub.accNo, sub.version, it.index)
+            }
+        persistenceService.setAsReleased(sub.accNo)
     }
 
     /**
@@ -59,7 +79,9 @@ class SubmissionRequestReleaser(
         }
 
         logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
-        serializationService.fileSequence(sub).forEachIndexed { idx, file -> releaseFile(idx, file) }
+        serializationService.fileSequence(sub)
+            .filterNot { it is FireFile && it.published }
+            .forEachIndexed { idx, file -> releaseFile(idx, file) }
         persistenceService.setAsReleased(sub.accNo)
         logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
     }

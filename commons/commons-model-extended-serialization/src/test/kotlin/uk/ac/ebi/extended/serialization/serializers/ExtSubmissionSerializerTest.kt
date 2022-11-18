@@ -155,8 +155,8 @@ class ExtSubmissionSerializerTest {
                 collections = listOf(ExtCollection("BioImages")),
                 section = ExtSection(type = "Study"),
                 pageTabFiles = listOf(
-                    FireFile("fireId", "firePath", "S-TEST1", "S-TEST1", "md5", 1L, FILE, listOf()),
-                    FireFile("dirFireId", "dirFirePath", "S-TEST1", "S-TEST1", "md5", 2L, DIR, listOf()),
+                    FireFile("fireId", "firePath", false, "S-TEST1", "S-TEST1", "md5", 1L, FILE, listOf()),
+                    FireFile("dirFireId", "dirFirePath", true, "S-TEST1", "S-TEST1", "md5", 2L, DIR, listOf()),
                     NfsFile("S-TEST1", "S-TEST1", File("anyPath"), "/test//S-TEST1", "md5", 55, listOf())
                 )
             )

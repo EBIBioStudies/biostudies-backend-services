@@ -388,6 +388,7 @@ internal class SubmissionMongoQueryServiceTest(
         private val fireFile = FireFile(
             "fire-oid",
             null,
+            false,
             "fireReferenced.txt",
             "Files/fireReferenced.txt",
             fireReferencedFile.md5(),

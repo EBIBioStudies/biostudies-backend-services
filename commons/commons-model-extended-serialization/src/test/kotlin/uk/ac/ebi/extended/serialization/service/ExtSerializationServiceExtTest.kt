@@ -49,6 +49,7 @@ internal class ExtSerializationServiceExtTest(
         return FireFile(
             "fireId-$idx",
             "firePath-$idx",
+            false,
             "folder/myFile$idx",
             "Files/folder/myFile$idx",
             "md5-$idx",

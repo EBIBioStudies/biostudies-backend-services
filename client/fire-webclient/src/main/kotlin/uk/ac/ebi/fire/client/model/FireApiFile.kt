@@ -1,5 +1,7 @@
 package uk.ac.ebi.fire.client.model
 
+import ebi.ac.uk.base.orFalse
+
 data class FireApiFile(
     val objectId: Number,
     val fireOid: String,
@@ -9,6 +11,7 @@ data class FireApiFile(
     val filesystemEntry: FileSystemEntry? = null,
 ) {
     val path: String? = filesystemEntry?.path
+    val published: Boolean = filesystemEntry?.published.orFalse()
 }
 
 enum class FileType(val key: String) {

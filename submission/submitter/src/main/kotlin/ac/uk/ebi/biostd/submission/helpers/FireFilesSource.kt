@@ -33,12 +33,13 @@ class FireFilesSource(
     override val description: String = "EBI internal files Archive"
 }
 
-fun FireApiFile.asFireFile(path: String, attributes: List<Attribute>): FireFile =
+fun FireApiFile.asFireFile(filePath: String, attributes: List<Attribute>): FireFile =
     FireFile(
         fireId = fireOid,
-        firePath = filesystemEntry?.path,
-        filePath = path,
-        relPath = "Files/$path",
+        firePath = path,
+        published = published,
+        filePath = filePath,
+        relPath = "Files/$filePath",
         md5 = objectMd5,
         size = objectSize,
         type = ExtFileType.FILE,
@@ -56,6 +57,7 @@ fun asFireFile(path: String, db: ConfiguredDbFile, attributes: List<Attribute>):
     FireFile(
         fireId = db.id,
         firePath = db.path,
+        published = db.published,
         filePath = path,
         relPath = "Files/$path",
         md5 = db.md5,

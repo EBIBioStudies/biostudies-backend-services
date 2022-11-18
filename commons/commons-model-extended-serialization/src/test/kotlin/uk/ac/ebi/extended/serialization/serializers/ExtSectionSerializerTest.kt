@@ -58,6 +58,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
         val pageTabFireFile = FireFile(
             fireId = "fireId",
             firePath = "firePath",
+            published = false,
             filePath = "folder/fileFileName",
             relPath = "Files/folder/fileFileName",
             md5 = "fileMd5",
@@ -68,6 +69,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
         val pageTabFireDirectory = FireFile(
             fireId = "dirFireId",
             firePath = "firePath",
+            published = false,
             filePath = "folder/dirFileName",
             relPath = "Files/folder/dirFileName",
             md5 = "dirMd5",
@@ -154,6 +156,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                         "relPath" to pageTabFireFile.relPath
                         "fireId" to pageTabFireFile.fireId
                         "firePath" to pageTabFireFile.firePath
+                        "published" to pageTabFireDirectory.published
                         "attributes" to jsonArray()
                         "extType" to "fireFile"
                         "type" to "file"
@@ -166,6 +169,7 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                         "relPath" to pageTabFireDirectory.relPath
                         "fireId" to pageTabFireDirectory.fireId
                         "firePath" to pageTabFireDirectory.firePath
+                        "published" to pageTabFireDirectory.published
                         "attributes" to jsonArray()
                         "extType" to "fireFile"
                         "type" to "directory"
