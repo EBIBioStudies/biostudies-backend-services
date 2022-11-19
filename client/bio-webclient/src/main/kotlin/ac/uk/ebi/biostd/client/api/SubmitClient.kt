@@ -68,8 +68,15 @@ internal class SubmitClient(
         template.postForEntity<Void>(url.plus("/async"), entity)
     }
 
-    override fun submitSingleFromDraft(draftKey: String) {
+    override fun submitSingleFromDraftAsync(draftKey: String) {
         template.postForEntity<Void>("$SUBMISSIONS_URL/drafts/$draftKey/submit")
+    }
+
+    override fun submitSingleFromDraft(draftKey: String): SubmissionResponse {
+        return template
+            .postForEntity<String>("$SUBMISSIONS_URL/drafts/$draftKey/submit/sync")
+            .map { body -> serializationService.deserializeSubmission(body, SubFormat.JSON) }
+            .let { ClientResponse(it.body!!, it.statusCodeValue) }
     }
 
     private fun buildUrl(config: RegisterConfig, storageMode: StorageMode?): String {

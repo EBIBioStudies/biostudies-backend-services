@@ -122,7 +122,9 @@ interface SubmitOperations {
         register: RegisterConfig = NonRegistration,
     ): SubmissionResponse
 
-    fun submitSingleFromDraft(draftKey: String)
+    fun submitSingleFromDraftAsync(draftKey: String)
+
+    fun submitSingleFromDraft(draftKey: String): SubmissionResponse
 
     fun submitAsync(
         submission: String,

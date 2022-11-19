@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
 import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
+import ebi.ac.uk.model.Submission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
@@ -82,6 +83,16 @@ internal class SubmissionDraftResource(
         @ModelAttribute parameters: SubmissionRequestParameters,
     ) {
         submissionDraftService.submitDraft(key, user, onBehalfRequest, parameters)
+    }
+
+    @PostMapping("/{key}/submit/sync")
+    fun submitDraftSync(
+        @PathVariable key: String,
+        @BioUser user: SecurityUser,
+        onBehalfRequest: OnBehalfRequest?,
+        @ModelAttribute parameters: SubmissionRequestParameters,
+    ): Submission {
+        return submissionDraftService.submitDraftSync(key, user, onBehalfRequest, parameters)
     }
 }
 
