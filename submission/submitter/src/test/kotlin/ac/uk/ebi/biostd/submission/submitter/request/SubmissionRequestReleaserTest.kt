@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -49,10 +50,12 @@ class SubmissionRequestReleaserTest(
     @Test
     fun `check released`(
         @MockK request: SubmissionRequest,
+        @MockK releasedFile: ExtFile,
     ) {
         val nfsFile = createNfsFile("public.txt", "Files/public.txt", temporaryFolder.createFile("public.txt"))
         val sub = basicExtSubmission.copy(released = true)
         val toPublishFile = SubmissionRequestFile(sub.accNo, sub.version, 0, "test.txt", nfsFile)
+        val expectedFile = SubmissionRequestFile(sub.accNo, sub.version, 0, "test.txt", releasedFile)
 
         every { request.notifyTo } returns "user@test.org"
         every { request.submission } returns sub
@@ -62,10 +65,16 @@ class SubmissionRequestReleaserTest(
         every { requestService.updateRequestIndex("S-TEST123", 1, 0) } answers { nothing }
         every { requestService.updateRequestStatus("S-TEST123", 1, PROCESSED) } answers { nothing }
         every { requestFilesService.getSubmissionRequestFiles("S-TEST123", 1, 0) } returns sequenceOf(toPublishFile)
-        every { requestFilesService.saveSubmissionRequestFile(toPublishFile) } answers { nothing }
+        every { requestFilesService.saveSubmissionRequestFile(expectedFile) } answers { nothing }
         every { requestService.updateRequestIndex(sub.accNo, sub.version, 1) } answers { nothing }
         every { eventsPublisherService.submissionSubmitted("S-TEST123", "user@test.org") } answers { nothing }
-        every { fileStorageService.releaseSubmissionFile(nfsFile, sub.relPath, sub.storageMode) } answers { nothing }
+        every {
+            fileStorageService.releaseSubmissionFile(
+                nfsFile,
+                sub.relPath,
+                sub.storageMode
+            )
+        } answers { releasedFile }
 
         testInstance.checkReleased("S-TEST123", 1)
 

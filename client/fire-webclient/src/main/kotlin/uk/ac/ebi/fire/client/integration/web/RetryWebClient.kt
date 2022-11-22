@@ -50,9 +50,9 @@ internal class RetryWebClient(
         return template.execute(opt) { fireClient.findAllInPath(path) }
     }
 
-    override fun publish(fireOid: String) {
+    override fun publish(fireOid: String): FireApiFile {
         val opt = "Publish file fireOid='$fireOid'"
-        template.execute(opt) { fireClient.publish(fireOid) }
+        return template.execute(opt) { fireClient.publish(fireOid) }
     }
 
     override fun unpublish(fireOid: String) {

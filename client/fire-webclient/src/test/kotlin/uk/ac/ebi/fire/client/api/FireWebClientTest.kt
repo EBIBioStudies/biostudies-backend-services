@@ -17,8 +17,10 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.ResponseEntity
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
@@ -224,12 +226,19 @@ class FireWebClientTest(
     }
 
     @Test
-    fun publish() {
-        every { template.put("/objects/the-fire-oid/publish", null) } answers { nothing }
+    fun publish(@MockK apiFile: FireApiFile) {
+        every {
+            template.exchange(
+                "/objects/the-fire-oid/publish",
+                PUT,
+                null,
+                FireApiFile::class.java
+            )
+        } answers { ResponseEntity(apiFile, HttpStatus.OK) }
 
-        testInstance.publish("the-fire-oid")
+        val response = testInstance.publish("the-fire-oid")
 
-        verify(exactly = 1) { template.put("/objects/the-fire-oid/publish", null) }
+        assertThat(response).isEqualTo(apiFile)
     }
 
     @Test

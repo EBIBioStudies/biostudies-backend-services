@@ -3,6 +3,7 @@ package uk.ac.ebi.fire.client.api
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.HttpClientErrorException
@@ -71,8 +72,9 @@ internal class FireWebClient(
     override fun findAllInPath(path: String): List<FireApiFile> =
         template.getForObjectOrNull<Array<FireApiFile>>("/objects/entries/path/$path").orEmpty().toList()
 
-    override fun publish(fireOid: String) {
-        template.put("/objects/$fireOid/publish", null)
+    override fun publish(fireOid: String): FireApiFile {
+        val response = template.exchange("/objects/$fireOid/publish", HttpMethod.PUT, null, FireApiFile::class.java)
+        return requireNotNull(response.body) { "Expecting operation '/objects/$fireOid/publish' to retrieve an object" }
     }
 
     override fun unpublish(fireOid: String) {

@@ -47,11 +47,11 @@ class FireMockDatabase(
         }
     }
 
-    fun publish(fireOid: String) {
+    fun publish(fireOid: String): FireApiFile {
         val record = recordsById.getValue(fireOid)
         recordsById[fireOid] = record.copy(published = true)
-
         if (record.fileSystemPath != null && record.published.not()) fileSystem.publish(record.fileSystemPath)
+        return recordsById.getValue(fireOid).toFile()
     }
 
     fun unpublish(fireOid: String) {

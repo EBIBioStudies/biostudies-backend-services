@@ -36,9 +36,10 @@ class StorageService(
             NFS -> nfsFilesService.cleanSubmissionFiles(previous, current)
         }
 
-    override fun releaseSubmissionFile(file: ExtFile, subRelPath: String, mode: StorageMode) =
-        when (mode) {
+    override fun releaseSubmissionFile(file: ExtFile, subRelPath: String, mode: StorageMode): ExtFile {
+        return when (mode) {
             FIRE -> fireFtpService.releaseSubmissionFile(file, subRelPath)
             NFS -> nfsFtpService.releaseSubmissionFile(file, subRelPath)
         }
+    }
 }
