@@ -12,6 +12,10 @@ data class SubmissionRequest(
     val currentIndex: Int,
     val modificationTime: OffsetDateTime,
 ) {
+    /**
+     * Update request by setting new status, resetting current Index and updating modification date.
+     * Optionally total files can be updated.
+     */
     fun withNewStatus(status: RequestStatus, totalFiles: Int? = null): SubmissionRequest {
         return copy(
             status = status,
