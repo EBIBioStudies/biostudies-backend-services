@@ -31,22 +31,19 @@ class SubmissionRequestIndexerTest(
 
     @Test
     fun `index request`(
-        @MockK pendingRequest: SubmissionRequest,
-        @MockK mockRequestFile: SubmissionRequestFile,
+        @MockK pendingRqt: SubmissionRequest,
+        @MockK rqtFile: SubmissionRequestFile,
     ) {
         val requestFileSlot = slot<SubmissionRequestFile>()
         val file = tempFolder.createFile("requested.txt")
         val extFile = NfsFile("dummy.txt", "Files/dummy.txt", file, file.absolutePath, "NOT_CALCULATED", -1)
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Study", files = listOf(left(extFile))))
 
-        every { pendingRequest.submission } returns sub
-        every { requestService.getPendingRequest("S-BSST0", 1) } returns pendingRequest
-        every { requestService.updateRequestTotalFiles("S-BSST0", 1, 1) } answers { nothing }
-        every { requestService.updateRequestStatus("S-BSST0", 1, INDEXED) } answers { nothing }
+        every { pendingRqt.submission } returns sub
+        every { requestService.getPendingRequest("S-BSST0", 1) } returns pendingRqt
+        every { requestService.saveSubmissionRequest(pendingRqt.withNewStatus(INDEXED, 1)) } answers { "S-BSST0" to 1 }
         every { filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
-        every {
-            filesRequestService.getSubmissionRequestFiles("S-BSST0", 1, 0)
-        } returns sequenceOf(mockRequestFile)
+        every { filesRequestService.getSubmissionRequestFiles("S-BSST0", 1, 0) } returns sequenceOf(rqtFile)
 
         testInstance.indexRequest("S-BSST0", 1)
 
@@ -55,8 +52,7 @@ class SubmissionRequestIndexerTest(
 
         verify(exactly = 1) {
             requestService.getPendingRequest("S-BSST0", 1)
-            requestService.updateRequestTotalFiles("S-BSST0", 1, 1)
-            requestService.updateRequestStatus("S-BSST0", 1, INDEXED)
+            requestService.saveSubmissionRequest(pendingRqt.withNewStatus(INDEXED, 1))
             filesRequestService.saveSubmissionRequestFile(requestFile)
         }
     }

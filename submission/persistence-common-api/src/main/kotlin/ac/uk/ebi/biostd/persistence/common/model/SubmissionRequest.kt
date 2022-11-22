@@ -12,8 +12,13 @@ data class SubmissionRequest(
     val currentIndex: Int,
     val modificationTime: OffsetDateTime,
 ) {
-    fun withStatus(status: RequestStatus): SubmissionRequest {
-        return copy(status = status, modificationTime = OffsetDateTime.now())
+    fun withNewStatus(status: RequestStatus, totalFiles: Int? = null): SubmissionRequest {
+        return copy(
+            status = status,
+            modificationTime = OffsetDateTime.now(),
+            currentIndex = 0,
+            totalFiles = totalFiles ?: this.totalFiles
+        )
     }
 }
 

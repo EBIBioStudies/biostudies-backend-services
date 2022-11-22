@@ -34,7 +34,7 @@ class SubmissionRequestReleaser(
     fun checkReleased(accNo: String, version: Int): ExtSubmission {
         val request = requestService.getFilesCopiedRequest(accNo, version)
         if (request.submission.released) releaseRequest(request)
-        requestService.updateRequestStatus(request.submission.accNo, request.submission.version, PROCESSED)
+        requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED))
         eventsPublisherService.submissionSubmitted(accNo, request.notifyTo)
         return request.submission
     }

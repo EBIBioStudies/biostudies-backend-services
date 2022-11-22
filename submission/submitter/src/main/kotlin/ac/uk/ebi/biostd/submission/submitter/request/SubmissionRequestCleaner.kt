@@ -23,6 +23,6 @@ class SubmissionRequestCleaner(
             logger.info { "${sub.accNo} ${sub.owner} Finished cleaning files of version ${sub.version}" }
         }
 
-        requestService.saveSubmissionRequest(request.withStatus(status = CLEANED))
+        requestService.saveSubmissionRequest(request.withNewStatus(status = CLEANED))
     }
 }

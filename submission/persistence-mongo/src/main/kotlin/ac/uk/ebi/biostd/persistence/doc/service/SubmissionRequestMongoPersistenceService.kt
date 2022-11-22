@@ -36,17 +36,9 @@ class SubmissionRequestMongoPersistenceService(
         return rqt.submission.accNo to rqt.submission.version
     }
 
-    override fun updateRequestStatus(accNo: String, version: Int, status: RequestStatus) {
-        requestRepository.updateStatus(status, accNo, version)
-    }
-
     override fun updateRequestFile(file: SubmissionRequestFile) {
         requestRepository.updateSubmissionRequestFile(file)
         requestRepository.updateIndex(file.accNo, file.version, file.index)
-    }
-
-    override fun updateRequestTotalFiles(accNo: String, version: Int, totalFiles: Int) {
-        requestRepository.setTotalFiles(accNo, version, totalFiles)
     }
 
     override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {

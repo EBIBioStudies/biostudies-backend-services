@@ -22,10 +22,8 @@ class SubmissionRequestIndexer(
         val sub = request.submission
 
         logger.info { "${sub.accNo} ${sub.owner} Started indexing submission files" }
-
         val totalFiles = indexSubmissionFiles(sub)
-        requestService.updateRequestTotalFiles(accNo, version, totalFiles)
-        requestService.updateRequestStatus(accNo, version, INDEXED)
+        requestService.saveSubmissionRequest(request.withNewStatus(INDEXED, totalFiles))
 
         logger.info { "${sub.accNo} ${sub.owner} Finished indexing submission files" }
     }

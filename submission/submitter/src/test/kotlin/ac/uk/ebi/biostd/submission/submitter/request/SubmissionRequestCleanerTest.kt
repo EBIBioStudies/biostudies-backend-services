@@ -30,7 +30,7 @@ class SubmissionRequestCleanerTest(
     ) {
         every { storageService.cleanSubmissionFiles(sub, requestSub) } answers { nothing }
         every { requestService.getLoadedRequest(accNo, version) } returns loadRequest
-        every { loadRequest.withStatus(status = CLEANED) } returns cleanedRequest
+        every { loadRequest.withNewStatus(status = CLEANED) } returns cleanedRequest
         every { loadRequest.submission } returns requestSub
         every { queryService.findExtByAccNo(accNo, true) } returns sub
         every { requestService.saveSubmissionRequest(cleanedRequest) } returns (accNo to version)
@@ -48,7 +48,7 @@ class SubmissionRequestCleanerTest(
         @MockK requestSub: ExtSubmission,
     ) {
         every { requestService.getLoadedRequest(accNo, version) } returns loadRequest
-        every { loadRequest.withStatus(status = CLEANED) } returns cleanedRequest
+        every { loadRequest.withNewStatus(status = CLEANED) } returns cleanedRequest
         every { loadRequest.submission } returns requestSub
         every { queryService.findExtByAccNo(accNo, true) } returns null
         every { requestService.saveSubmissionRequest(cleanedRequest) } returns (accNo to version)
