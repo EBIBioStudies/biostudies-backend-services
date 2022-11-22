@@ -46,8 +46,8 @@ class SubmissionRequestReleaser(
         filesRequestService
             .getSubmissionRequestFiles(sub.accNo, sub.version, request.currentIndex)
             .filterNot { it.file is FireFile && (it.file as FireFile).published }
+            .map { it.copy(file = fileStorageService.releaseSubmissionFile(it.file, sub.relPath, sub.storageMode)) }
             .forEach {
-                fileStorageService.releaseSubmissionFile(it.file, sub.relPath, sub.storageMode)
                 filesRequestService.saveSubmissionRequestFile(it)
                 requestService.updateRequestIndex(sub.accNo, sub.version, it.index)
             }
