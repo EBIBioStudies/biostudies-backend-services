@@ -47,8 +47,7 @@ class SubmissionRequestLoader(
                 it.copy(file = loadFileAttributes(it.file))
             }
             .forEach {
-                filesRequestService.saveSubmissionRequestFile(it)
-                requestService.updateRequestIndex(sub.accNo, sub.version, it.index)
+                requestService.updateRequestFile(it)
                 logger.info { "${sub.accNo} ${sub.owner} Finished loading file ${it.index}, path='${it.path}'" }
             }
     }

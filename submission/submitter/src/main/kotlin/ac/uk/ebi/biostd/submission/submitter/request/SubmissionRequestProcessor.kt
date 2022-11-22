@@ -55,8 +55,7 @@ class SubmissionRequestProcessor(
                 it.copy(file = storageService.persistSubmissionFile(sub, it.file))
             }
             .forEach {
-                filesRequestService.saveSubmissionRequestFile(it)
-                requestService.updateRequestIndex(sub.accNo, sub.version, it.index)
+                requestService.updateRequestFile(it)
                 logger.info { "${sub.accNo} ${sub.owner} Finished persisting file ${it.index}, path='${it.path}'" }
             }
     }

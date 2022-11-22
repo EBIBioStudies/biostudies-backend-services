@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
@@ -39,8 +40,9 @@ class SubmissionRequestMongoPersistenceService(
         requestRepository.updateStatus(status, accNo, version)
     }
 
-    override fun updateRequestIndex(accNo: String, version: Int, index: Int) {
-        requestRepository.updateIndex(accNo, version, index)
+    override fun updateRequestFile(file: SubmissionRequestFile) {
+        requestRepository.updateSubmissionRequestFile(file)
+        requestRepository.updateIndex(file.accNo, file.version, file.index)
     }
 
     override fun updateRequestTotalFiles(accNo: String, version: Int, totalFiles: Int) {

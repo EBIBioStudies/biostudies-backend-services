@@ -45,12 +45,11 @@ class SubmissionRequestReleaser(
         val sub = request.submission
         filesRequestService
             .getSubmissionRequestFiles(sub.accNo, sub.version, request.currentIndex)
-            .filterNot { it.file is FireFile && (it.file as FireFile).published }
-            .map { it.copy(file = fileStorageService.releaseSubmissionFile(it.file, sub.relPath, sub.storageMode)) }
-            .forEach {
-                filesRequestService.saveSubmissionRequestFile(it)
-                requestService.updateRequestIndex(sub.accNo, sub.version, it.index)
+            .map {
+                if (it.file is FireFile && (it.file as FireFile).published) it
+                else it.copy(file = fileStorageService.releaseSubmissionFile(it.file, sub.relPath, sub.storageMode))
             }
+            .forEach { requestService.updateRequestFile(it) }
         persistenceService.setAsReleased(sub.accNo)
     }
 
@@ -74,7 +73,6 @@ class SubmissionRequestReleaser(
         fun releaseFile(idx: Int, file: ExtFile) {
             logger.info { "${sub.accNo}, ${sub.owner} Started publishing file $idx - ${file.filePath}" }
             fileStorageService.releaseSubmissionFile(file, sub.relPath, sub.storageMode)
-            requestService.updateRequestIndex(sub.accNo, sub.version, idx)
             logger.info { "${sub.accNo}, ${sub.owner} Finished publishing file $idx - ${file.filePath}" }
         }
 

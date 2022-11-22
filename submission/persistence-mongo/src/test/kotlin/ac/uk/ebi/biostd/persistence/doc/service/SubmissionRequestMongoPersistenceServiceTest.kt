@@ -56,17 +56,6 @@ class SubmissionRequestMongoPersistenceServiceTest(
     }
 
     @Test
-    fun `update request index`() {
-        requestRepository.save(testRequest())
-
-        testInstance.updateRequestIndex("S-BSST0", 1, 23)
-
-        val request = requestRepository.getByAccNoAndVersion("S-BSST0", 1)
-        assertThat(request.currentIndex).isEqualTo(23)
-        assertThat(request.modificationTime).isEqualTo(testInstant)
-    }
-
-    @Test
     fun `update total files`() {
         requestRepository.save(testRequest())
 
