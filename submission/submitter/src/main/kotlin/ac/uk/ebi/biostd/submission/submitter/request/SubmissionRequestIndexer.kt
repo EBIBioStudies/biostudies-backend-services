@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -22,7 +21,7 @@ class SubmissionRequestIndexer(
 
         logger.info { "${sub.accNo} ${sub.owner} Started indexing submission files" }
         val totalFiles = indexSubmissionFiles(sub)
-        requestService.saveSubmissionRequest(request.withNewStatus(INDEXED, totalFiles))
+        requestService.saveSubmissionRequest(request.indexed(totalFiles))
 
         logger.info { "${sub.accNo} ${sub.owner} Finished indexing submission files" }
     }
