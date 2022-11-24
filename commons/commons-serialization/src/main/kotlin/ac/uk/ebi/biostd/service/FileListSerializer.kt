@@ -38,7 +38,7 @@ internal class FileListSerializer(
 
     private fun checkFileList(name: String, format: SubFormat, stream: InputStream) {
         runCatching {
-            serializer.deserializeFileList(stream, format).forEach { logger.debug { "read file ${it.path}" } }
+            serializer.deserializeFileList(stream, format)
         }.getOrElse {
             throw InvalidFileListException(name, errorMsg(it))
         }

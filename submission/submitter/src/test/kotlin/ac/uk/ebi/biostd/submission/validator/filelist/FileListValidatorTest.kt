@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.validator.filelist
 
 import ac.uk.ebi.biostd.common.SerializationConfig
+import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
@@ -15,6 +16,7 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import io.mockk.called
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -118,5 +120,23 @@ class FileListValidatorTest(
 
         verify(exactly = 0) { submissionQueryService.findExtByAccNo("S-BSST0") }
         verify(exactly = 1) { fileSourcesService.submissionSources(fileSourceRequest) }
+    }
+
+    @Test
+    fun `empty file list`(
+        @MockK submitter: SecurityUser,
+        @MockK onBehalfUser: SecurityUser,
+    ) {
+        val fileSourcesSlot = slot<FileSourcesRequest>()
+        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
+
+        tempFolder.createFile("empty.tsv", "Files\tType")
+
+        val request = FileListValidationRequest(null, null, "empty.tsv", submitter, onBehalfUser)
+        val exception = assertThrows<InvalidFileListException> { testInstance.validateFileList(request) }
+        assertThat(exception.message)
+            .isEqualTo("Problem processing file list 'empty.tsv': A file list should contain at least one file")
+
+        verify { submissionQueryService wasNot called }
     }
 }

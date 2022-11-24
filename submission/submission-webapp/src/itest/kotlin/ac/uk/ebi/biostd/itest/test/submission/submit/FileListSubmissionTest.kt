@@ -32,6 +32,7 @@ import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -39,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
+import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import java.io.File
@@ -243,6 +245,32 @@ class FileListSubmissionTest(
         val secondVersion = submission(fileList = "reusable-file-list.json")
         assertThat(webClient.submitSingle(secondVersion, TSV)).isSuccessful()
         assertSubmissionFiles("S-TEST7", "File7.txt", "reusable-file-list")
+    }
+
+    @Test
+    fun `empty file list`() {
+        val sub = tsv {
+            line("Submission", "S-TEST8")
+            line("Title", "Empty File List")
+            line()
+
+            line("Study")
+            line("File List", "empty-file-list.tsv")
+            line()
+        }.toString()
+
+        val fileList = tempFolder.createFile(
+            "empty-file-list.tsv",
+            tsv {
+                line("Files", "GEN")
+            }.toString()
+        )
+
+        val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
+        val exception = assertThrows(WebClientException::class.java) { webClient.submitSingle(sub, TSV, filesConfig) }
+        assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        assertThat(exception).hasMessageContaining("A file list should contain at least one file")
+        fileList.delete()
     }
 
     private fun assertSubmissionFiles(accNo: String, testFile: String, fileListName: String) {
