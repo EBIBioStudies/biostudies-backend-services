@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -41,7 +40,7 @@ class SubmissionRequestIndexerTest(
 
         every { pendingRqt.submission } returns sub
         every { requestService.getPendingRequest("S-BSST0", 1) } returns pendingRqt
-        every { requestService.saveSubmissionRequest(pendingRqt.withNewStatus(INDEXED, 1)) } answers { "S-BSST0" to 1 }
+        every { requestService.saveSubmissionRequest(pendingRqt.indexed(1)) } answers { "S-BSST0" to 1 }
         every { filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
         every { filesRequestService.getSubmissionRequestFiles("S-BSST0", 1, 0) } returns sequenceOf(rqtFile)
 
@@ -52,7 +51,7 @@ class SubmissionRequestIndexerTest(
 
         verify(exactly = 1) {
             requestService.getPendingRequest("S-BSST0", 1)
-            requestService.saveSubmissionRequest(pendingRqt.withNewStatus(INDEXED, 1))
+            requestService.saveSubmissionRequest(pendingRqt.indexed(1))
             filesRequestService.saveSubmissionRequestFile(requestFile)
         }
     }
