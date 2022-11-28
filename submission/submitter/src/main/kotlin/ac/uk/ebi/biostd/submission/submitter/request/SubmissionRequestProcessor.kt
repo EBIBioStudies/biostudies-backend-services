@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
-import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
@@ -34,16 +33,8 @@ class SubmissionRequestProcessor(
         persistenceService.expirePreviousVersions(sub.accNo)
         persistenceService.saveSubmission(processed)
 
-        val processedRequest = request.copy(
-            status = FILES_COPIED,
-            submission = processed,
-            currentIndex = 0,
-            modificationTime = OffsetDateTime.now(),
-        )
-        requestService.saveSubmissionRequest(processedRequest)
-
+        requestService.saveSubmissionRequest(request.withNewStatus(FILES_COPIED))
         logger.info { "$accNo ${sub.owner} Finished persisting submission files on ${sub.storageMode}" }
-
         return processed
     }
 
@@ -55,8 +46,7 @@ class SubmissionRequestProcessor(
                 it.copy(file = storageService.persistSubmissionFile(sub, it.file))
             }
             .forEach {
-                filesRequestService.saveSubmissionRequestFile(it)
-                requestService.updateRequestIndex(sub.accNo, sub.version, it.index)
+                requestService.updateRequestFile(it)
                 logger.info { "${sub.accNo} ${sub.owner} Finished persisting file ${it.index}, path='${it.path}'" }
             }
     }

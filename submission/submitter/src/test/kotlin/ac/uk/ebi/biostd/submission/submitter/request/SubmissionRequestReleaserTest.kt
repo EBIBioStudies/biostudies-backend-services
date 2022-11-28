@@ -62,11 +62,9 @@ class SubmissionRequestReleaserTest(
         every { request.currentIndex } returns 0
         every { persistenceService.setAsReleased("S-TEST123") } answers { nothing }
         every { requestService.getFilesCopiedRequest("S-TEST123", 1) } returns request
-        every { requestService.updateRequestIndex("S-TEST123", 1, 0) } answers { nothing }
-        every { requestService.updateRequestStatus("S-TEST123", 1, PROCESSED) } answers { nothing }
+        every { requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED)) } answers { "S-TEST123" to 1 }
         every { requestFilesService.getSubmissionRequestFiles("S-TEST123", 1, 0) } returns sequenceOf(toPublishFile)
-        every { requestFilesService.saveSubmissionRequestFile(expectedFile) } answers { nothing }
-        every { requestService.updateRequestIndex(sub.accNo, sub.version, 1) } answers { nothing }
+        every { requestService.updateRequestFile(expectedFile) } answers { nothing }
         every { eventsPublisherService.submissionSubmitted("S-TEST123", "user@test.org") } answers { nothing }
         every {
             fileStorageService.releaseSubmissionFile(
@@ -80,8 +78,7 @@ class SubmissionRequestReleaserTest(
 
         verify(exactly = 1) {
             persistenceService.setAsReleased("S-TEST123")
-            requestService.updateRequestIndex("S-TEST123", 1, 0)
-            requestService.updateRequestStatus("S-TEST123", 1, PROCESSED)
+            requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED))
             eventsPublisherService.submissionSubmitted("S-TEST123", "user@test.org")
             fileStorageService.releaseSubmissionFile(nfsFile, sub.relPath, sub.storageMode)
         }
@@ -98,19 +95,17 @@ class SubmissionRequestReleaserTest(
         every { request.currentIndex } returns 0
         every { persistenceService.setAsReleased("S-TEST123") } answers { nothing }
         every { requestService.getFilesCopiedRequest("S-TEST123", 1) } returns request
-        every { requestService.updateRequestIndex("S-TEST123", 1, 0) } answers { nothing }
-        every { requestService.updateRequestStatus("S-TEST123", 1, PROCESSED) } answers { nothing }
+        every { requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED)) } answers { "S-TEST123" to 1 }
         every { eventsPublisherService.submissionSubmitted("S-TEST123", "user@test.org") } answers { nothing }
 
         testInstance.checkReleased("S-TEST123", 1)
 
         verify(exactly = 0) {
             persistenceService.setAsReleased("S-TEST123")
-            requestService.updateRequestIndex("S-TEST123", 1, 0)
             fileStorageService.releaseSubmissionFile(any(), sub.relPath, sub.storageMode)
         }
         verify(exactly = 1) {
-            requestService.updateRequestStatus("S-TEST123", 1, PROCESSED)
+            requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED))
             eventsPublisherService.submissionSubmitted("S-TEST123", "user@test.org")
         }
     }

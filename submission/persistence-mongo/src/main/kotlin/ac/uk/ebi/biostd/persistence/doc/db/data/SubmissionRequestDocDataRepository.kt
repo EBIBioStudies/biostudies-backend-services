@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
@@ -71,13 +70,6 @@ class SubmissionRequestDocDataRepository(
         where("$SUB.$SUB_OWNER").`is`(email)
             .andOperator(*criteriaArray(filter))
 
-    fun updateStatus(status: RequestStatus, accNo: String, version: Int) {
-        val update = Update().set(SUB_STATUS, status).set(RQT_MODIFICATION_TIME, Instant.now())
-        val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
-
-        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java)
-    }
-
     fun updateIndex(accNo: String, version: Int, index: Int) {
         val update = Update().set(RQT_IDX, index).set(RQT_MODIFICATION_TIME, Instant.now())
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
@@ -94,11 +86,12 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java)
     }
 
-    fun setTotalFiles(accNo: String, version: Int, totalFiles: Int) {
-        val update = Update().set(RQT_TOTAL_FILES, totalFiles).set(RQT_MODIFICATION_TIME, Instant.now())
-        val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
-
-        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java)
+    fun updateSubmissionRequestFile(rqtFile: SubmissionRequestFile) {
+        val file = BasicDBObject.parse(extSerializationService.serialize(rqtFile.file))
+        val update = update(RQT_FILE_FILE, file).set(RQT_FILE_INDEX, rqtFile.index)
+        val where = where(RQT_FILE_SUB_ACC_NO).`is`(rqtFile.accNo)
+            .andOperator(where(RQT_FILE_SUB_VERSION).`is`(rqtFile.version), where(RQT_FILE_PATH).`is`(rqtFile.path))
+        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java)
     }
 
     fun updateSubmissionRequest(rqt: DocSubmissionRequest) {
@@ -107,6 +100,7 @@ class SubmissionRequestDocDataRepository(
             .set(SUB_STATUS, rqt.status)
             .set(SUB, rqt.submission)
             .set(RQT_IDX, rqt.currentIndex)
+            .set(RQT_TOTAL_FILES, rqt.totalFiles)
             .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
 
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java)

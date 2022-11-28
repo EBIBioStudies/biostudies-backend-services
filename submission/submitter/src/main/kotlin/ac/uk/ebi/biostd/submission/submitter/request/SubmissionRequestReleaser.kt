@@ -34,7 +34,7 @@ class SubmissionRequestReleaser(
     fun checkReleased(accNo: String, version: Int): ExtSubmission {
         val request = requestService.getFilesCopiedRequest(accNo, version)
         if (request.submission.released) releaseRequest(request)
-        requestService.updateRequestStatus(request.submission.accNo, request.submission.version, PROCESSED)
+        requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED))
         eventsPublisherService.submissionSubmitted(accNo, request.notifyTo)
         return request.submission
     }
@@ -45,12 +45,11 @@ class SubmissionRequestReleaser(
         val sub = request.submission
         filesRequestService
             .getSubmissionRequestFiles(sub.accNo, sub.version, request.currentIndex)
-            .filterNot { it.file is FireFile && (it.file as FireFile).published }
-            .map { it.copy(file = fileStorageService.releaseSubmissionFile(it.file, sub.relPath, sub.storageMode)) }
-            .forEach {
-                filesRequestService.saveSubmissionRequestFile(it)
-                requestService.updateRequestIndex(sub.accNo, sub.version, it.index)
+            .mapIndexed { idx, rqtFile ->
+                if (rqtFile.file is FireFile && (rqtFile.file as FireFile).published) rqtFile
+                else rqtFile.copy(file = releaseFile(sub, idx, rqtFile.file))
             }
+            .forEach { requestService.updateRequestFile(it) }
         persistenceService.setAsReleased(sub.accNo)
     }
 
@@ -70,18 +69,18 @@ class SubmissionRequestReleaser(
         releaseSubmission(sub)
     }
 
-    private fun releaseSubmission(sub: ExtSubmission) {
-        fun releaseFile(idx: Int, file: ExtFile) {
-            logger.info { "${sub.accNo}, ${sub.owner} Started publishing file $idx - ${file.filePath}" }
-            fileStorageService.releaseSubmissionFile(file, sub.relPath, sub.storageMode)
-            requestService.updateRequestIndex(sub.accNo, sub.version, idx)
-            logger.info { "${sub.accNo}, ${sub.owner} Finished publishing file $idx - ${file.filePath}" }
-        }
+    private fun releaseFile(sub: ExtSubmission, idx: Int, file: ExtFile): ExtFile {
+        logger.info { "${sub.accNo}, ${sub.owner} Started publishing file $idx - ${file.filePath}" }
+        val releasedFile = fileStorageService.releaseSubmissionFile(file, sub.relPath, sub.storageMode)
+        logger.info { "${sub.accNo}, ${sub.owner} Finished publishing file $idx - ${file.filePath}" }
+        return releasedFile
+    }
 
+    private fun releaseSubmission(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
         serializationService.fileSequence(sub)
             .filterNot { it is FireFile && it.published }
-            .forEachIndexed { idx, file -> releaseFile(idx, file) }
+            .forEachIndexed { idx, file -> releaseFile(sub, idx, file) }
         persistenceService.setAsReleased(sub.accNo)
         logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
     }

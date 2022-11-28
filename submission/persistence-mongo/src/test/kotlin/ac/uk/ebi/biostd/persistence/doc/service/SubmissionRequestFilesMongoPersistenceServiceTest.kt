@@ -29,7 +29,6 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.time.Duration.ofSeconds
-import kotlin.streams.toList
 
 @ExtendWith(MockKExtension::class, SpringExtension::class, TemporaryFolderExtension::class)
 @Testcontainers

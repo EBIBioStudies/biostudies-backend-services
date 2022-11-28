@@ -61,16 +61,12 @@ class SubmissionRequestLoaderTest(
         val indexedRequest = SubmissionRequest(sub, "TMP_123", "user@test.org", INDEXED, 1, 0, testTime)
 
         every { requestService.getIndexedRequest(sub.accNo, sub.version) } returns indexedRequest
-        every { requestService.updateRequestIndex(sub.accNo, sub.version, 1) } answers { nothing }
-        every { requestService.updateRequestTotalFiles(sub.accNo, sub.version, 1) } answers { nothing }
-        every {
-            requestService.saveSubmissionRequest(capture(loadedRequestSlot))
-        } returns (sub.accNo to sub.version)
+        every { requestService.saveSubmissionRequest(capture(loadedRequestSlot)) } returns (sub.accNo to sub.version)
         every {
             filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)
         } returns listOf(indexedRequestFile).asSequence()
         every {
-            filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot))
+            requestService.updateRequestFile(capture(requestFileSlot))
         } answers { nothing }
 
         testInstance.loadRequest(sub.accNo, sub.version)
@@ -90,8 +86,7 @@ class SubmissionRequestLoaderTest(
 
         verify(exactly = 1) {
             requestService.saveSubmissionRequest(loadedRequest)
-            filesRequestService.saveSubmissionRequestFile(requestFile)
-            requestService.updateRequestIndex(sub.accNo, sub.version, 1)
+            requestService.updateRequestFile(requestFile)
         }
     }
 }

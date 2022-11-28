@@ -61,11 +61,7 @@ interface SubmissionRequestPersistenceService {
 
     fun createSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 
-    fun updateRequestStatus(accNo: String, version: Int, status: RequestStatus)
-
-    fun updateRequestIndex(accNo: String, version: Int, index: Int)
-
-    fun updateRequestTotalFiles(accNo: String, version: Int, totalFiles: Int)
+    fun updateRequestFile(file: SubmissionRequestFile)
 
     fun getPendingRequest(accNo: String, version: Int): SubmissionRequest
 

@@ -10,7 +10,6 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
-import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
@@ -28,13 +27,7 @@ class SubmissionRequestLoader(
         logger.info { "${sub.accNo} ${sub.owner} Started loading submission files" }
 
         loadSubmissionFiles(sub, request.currentIndex)
-        val loadedRequest = request.copy(
-            status = LOADED,
-            currentIndex = 0,
-            modificationTime = OffsetDateTime.now(),
-        )
-
-        requestService.saveSubmissionRequest(loadedRequest)
+        requestService.saveSubmissionRequest(request.withNewStatus(LOADED))
 
         logger.info { "${sub.accNo} ${sub.owner} Finished loading submission files" }
     }
@@ -47,8 +40,7 @@ class SubmissionRequestLoader(
                 it.copy(file = loadFileAttributes(it.file))
             }
             .forEach {
-                filesRequestService.saveSubmissionRequestFile(it)
-                requestService.updateRequestIndex(sub.accNo, sub.version, it.index)
+                requestService.updateRequestFile(it)
                 logger.info { "${sub.accNo} ${sub.owner} Finished loading file ${it.index}, path='${it.path}'" }
             }
     }

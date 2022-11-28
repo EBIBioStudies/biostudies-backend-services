@@ -79,14 +79,11 @@ class SubmissionRequestProcessorTest(
         every { storageService.persistSubmissionFile(sub, nfsFile) } returns fireFile
         every { requestService.getCleanedRequest(sub.accNo, 1) } returns cleanedRequest
         every { persistenceService.expirePreviousVersions(sub.accNo) } answers { nothing }
-        every { requestService.updateRequestIndex(sub.accNo, sub.version, 1) } answers { nothing }
-        every {
-            requestService.saveSubmissionRequest(capture(processedRequestSlot))
-        } returns (sub.accNo to sub.version)
+        every { requestService.saveSubmissionRequest(capture(processedRequestSlot)) } returns (sub.accNo to sub.version)
         every {
             filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)
         } returns sequenceOf(loadedRequestFile)
-        every { filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
+        every { requestService.updateRequestFile(capture(requestFileSlot)) } answers { nothing }
 
         val result = testInstance.processRequest(sub.accNo, sub.version)
         val processedRequest = processedRequestSlot.captured
@@ -102,8 +99,7 @@ class SubmissionRequestProcessorTest(
             persistenceService.expirePreviousVersions(sub.accNo)
             persistenceService.saveSubmission(processed)
             requestService.saveSubmissionRequest(processedRequest)
-            requestService.updateRequestIndex(sub.accNo, sub.version, 1)
-            filesRequestService.saveSubmissionRequestFile(requestFile)
+            requestService.updateRequestFile(requestFile)
         }
     }
 }
