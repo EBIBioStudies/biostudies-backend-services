@@ -1,105 +1,61 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import arrow.core.Either.Companion.left
-import ebi.ac.uk.extended.model.ExtFileType.FILE
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.createNfsFile
-import ebi.ac.uk.test.basicExtSubmission
-import io.github.glytching.junit.extension.folder.TemporaryFolder
+import ebi.ac.uk.extended.model.NfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkStatic
-import io.mockk.slot
-import io.mockk.unmockkStatic
 import io.mockk.verify
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.extended.serialization.service.FileProcessingService
-import java.time.OffsetDateTime
-import java.time.ZoneOffset.UTC
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestProcessorTest(
-    private val tempFolder: TemporaryFolder,
     @MockK private val storageService: FileStorageService,
-    @MockK private val fileService: FileProcessingService,
-    @MockK private val persistenceService: SubmissionPersistenceService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
-    @MockK private val filesRequestService: SubmissionRequestFilesPersistenceService,
+    @MockK private val filesService: SubmissionRequestFilesPersistenceService,
 ) {
-    private val mockNow = OffsetDateTime.of(2022, 10, 5, 0, 0, 1, 0, UTC)
-    private val testTime = OffsetDateTime.of(2022, 10, 5, 0, 0, 0, 0, UTC)
-    private val testInstance =
-        SubmissionRequestProcessor(
-            storageService,
-            fileService,
-            persistenceService,
-            requestService,
-            filesRequestService,
-        )
-
-    @BeforeEach
-    fun beforeEach() {
-        mockkStatic(OffsetDateTime::class)
-        every { OffsetDateTime.now() } returns mockNow
-    }
+    private val testInstance = SubmissionRequestProcessor(storageService, requestService, filesService)
 
     @AfterEach
-    fun afterEach() {
-        unmockkStatic(OffsetDateTime::class)
-    }
+    fun afterEach() = clearAllMocks()
 
     @Test
-    fun `process request`() {
-        val sub = basicExtSubmission
-        val requestFileSlot = slot<SubmissionRequestFile>()
-        val processedRequestSlot = slot<SubmissionRequest>()
-        val cleanedRequest = SubmissionRequest(sub, "TMP_123", "a@test.org", CLEANED, 1, 0, modificationTime = testTime)
-        val fireFile = FireFile("abc1", null, false, "test.txt", "Files/test.txt", "md5", 1, FILE, emptyList())
-        val nfsFile = createNfsFile("dummy.txt", "Files/dummy.txt", tempFolder.createFile("dummy.txt"))
-        val loadedRequestFile = SubmissionRequestFile(sub.accNo, sub.version, 1, "test.txt", nfsFile)
-        val processed = sub.copy(section = sub.section.copy(files = listOf(left(fireFile))))
+    fun `process request`(
+        @MockK submission: ExtSubmission,
+        @MockK rqt: SubmissionRequest,
+        @MockK nfsFile: NfsFile,
+        @MockK releasedFile: FireFile,
+    ) {
+        val accNo = "ABC-123"
+        val version = 1
 
-        every { fileService.processFiles(sub, any()) } returns processed
-        every { persistenceService.saveSubmission(processed) } returns processed
-        every { storageService.postProcessSubmissionFiles(sub) } answers { nothing }
-        every { storageService.persistSubmissionFile(sub, nfsFile) } returns fireFile
-        every { requestService.getCleanedRequest(sub.accNo, 1) } returns cleanedRequest
-        every { persistenceService.expirePreviousVersions(sub.accNo) } answers { nothing }
-        every { requestService.saveSubmissionRequest(capture(processedRequestSlot)) } returns (sub.accNo to sub.version)
-        every {
-            filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)
-        } returns sequenceOf(loadedRequestFile)
-        every { requestService.updateRequestFile(capture(requestFileSlot)) } answers { nothing }
+        val nfsRqtFile = SubmissionRequestFile(accNo, version, 1, "test1.txt", nfsFile)
+        every { rqt.submission } returns submission
+        every { rqt.currentIndex } returns 1
+        every { submission.accNo } returns accNo
+        every { submission.version } returns version
+        every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns sequenceOf(nfsRqtFile)
+        every { storageService.persistSubmissionFile(submission, nfsFile) } answers { releasedFile }
+        every { storageService.postProcessSubmissionFiles(submission) } answers { nothing }
+        every { requestService.saveSubmissionRequest(rqt.withNewStatus(FILES_COPIED)) } answers { accNo to version }
+        every { requestService.getCleanedRequest(accNo, version) } returns rqt
+        every { requestService.updateRequestFile(nfsRqtFile.copy(file = releasedFile)) } answers { nothing }
 
-        val result = testInstance.processRequest(sub.accNo, sub.version)
-        val processedRequest = processedRequestSlot.captured
-        val requestFile = requestFileSlot.captured
+        testInstance.processRequest(accNo, version)
 
-        assertThat(result).isEqualTo(processed)
-        assertThat(requestFile.file).isEqualTo(fireFile)
-        assertThat(processedRequest.status).isEqualTo(FILES_COPIED)
-        assertThat(processedRequest.modificationTime).isEqualTo(mockNow)
         verify(exactly = 1) {
-            storageService.persistSubmissionFile(sub, nfsFile)
-            storageService.postProcessSubmissionFiles(sub)
-            persistenceService.expirePreviousVersions(sub.accNo)
-            persistenceService.saveSubmission(processed)
-            requestService.saveSubmissionRequest(processedRequest)
-            requestService.updateRequestFile(requestFile)
+            requestService.saveSubmissionRequest(rqt.withNewStatus(FILES_COPIED))
         }
     }
 }

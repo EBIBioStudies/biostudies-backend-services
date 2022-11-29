@@ -38,19 +38,26 @@ class FileProcessingService(
     private val serializationService: ExtSerializationService,
     private val fileResolver: FilesResolver,
 ) {
-    fun processFiles(
+    fun processFilesIndexed(
         submission: ExtSubmission,
         processFile: (file: ExtFile, index: Int) -> ExtFile,
     ): ExtSubmission {
         val index = AtomicInteger()
+        return processFiles(submission) { file -> processFile(file, index.incrementAndGet()) }
+    }
+
+    fun processFiles(
+        submission: ExtSubmission,
+        processFile: (file: ExtFile) -> ExtFile,
+    ): ExtSubmission {
         val newSection = processSectionFiles(
             submission.accNo,
             submission.version,
             submission.section
-        ) { processFile(it, index.incrementAndGet()) }
+        ) { processFile(it) }
         return submission.copy(
             section = newSection,
-            pageTabFiles = submission.pageTabFiles.map { processFile(it, index.incrementAndGet()) }
+            pageTabFiles = submission.pageTabFiles.map { processFile(it) }
         )
     }
 

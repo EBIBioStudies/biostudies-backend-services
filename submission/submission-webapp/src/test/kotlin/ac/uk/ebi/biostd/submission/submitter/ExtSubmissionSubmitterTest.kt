@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestSaver
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
@@ -44,6 +45,7 @@ internal class ExtSubmissionSubmitterTest(
     @MockK private val requestProcessor: SubmissionRequestProcessor,
     @MockK private val requestReleaser: SubmissionRequestReleaser,
     @MockK private val requestCleaner: SubmissionRequestCleaner,
+    @MockK private val requestSaver: SubmissionRequestSaver,
 ) {
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 1, 2, 3, 4, UTC)
     private val testInstance = ExtSubmissionSubmitter(
@@ -55,6 +57,7 @@ internal class ExtSubmissionSubmitterTest(
         requestProcessor,
         requestReleaser,
         requestCleaner,
+        requestSaver
     )
 
     @AfterEach
@@ -97,14 +100,15 @@ internal class ExtSubmissionSubmitterTest(
     inner class HandleRequest {
         @Test
         fun `when requested`(
-            @MockK sub: ExtSubmission
+            @MockK sub: ExtSubmission,
         ) {
             every { requestService.getRequestStatus("accNo", 1) } returns REQUESTED
             every { requestIndexer.indexRequest("accNo", 1) } answers { nothing }
             every { requestLoader.loadRequest("accNo", 1) } answers { nothing }
-            every { requestProcessor.processRequest("accNo", 1) } returns sub
-            every { requestReleaser.checkReleased("accNo", 1) } returns sub
+            every { requestProcessor.processRequest("accNo", 1) } answers { nothing }
+            every { requestReleaser.checkReleased("accNo", 1) } answers { nothing }
             every { requestCleaner.cleanCurrentVersion("accNo", 1) } answers { nothing }
+            every { requestSaver.saveRequest("accNo", 1) } answers { sub }
 
             val result = testInstance.handleRequest("accNo", 1)
 
@@ -121,12 +125,13 @@ internal class ExtSubmissionSubmitterTest(
 
         @Test
         fun `when loaded`(
-            @MockK sub: ExtSubmission
+            @MockK sub: ExtSubmission,
         ) {
             every { requestService.getRequestStatus("accNo", 1) } returns LOADED
-            every { requestProcessor.processRequest("accNo", 1) } returns sub
-            every { requestReleaser.checkReleased("accNo", 1) } returns sub
+            every { requestProcessor.processRequest("accNo", 1) } answers { nothing }
+            every { requestReleaser.checkReleased("accNo", 1) } answers { nothing }
             every { requestCleaner.cleanCurrentVersion("accNo", 1) } answers { nothing }
+            every { requestSaver.saveRequest("accNo", 1) } answers { sub }
 
             val result = testInstance.handleRequest("accNo", 1)
 
@@ -145,11 +150,12 @@ internal class ExtSubmissionSubmitterTest(
 
         @Test
         fun `when cleaned`(
-            @MockK sub: ExtSubmission
+            @MockK sub: ExtSubmission,
         ) {
             every { requestService.getRequestStatus("accNo", 1) } returns CLEANED
-            every { requestProcessor.processRequest("accNo", 1) } returns sub
-            every { requestReleaser.checkReleased("accNo", 1) } returns sub
+            every { requestProcessor.processRequest("accNo", 1) } answers { nothing }
+            every { requestReleaser.checkReleased("accNo", 1) } answers { nothing }
+            every { requestSaver.saveRequest("accNo", 1) } answers { sub }
 
             val result = testInstance.handleRequest("accNo", 1)
 
@@ -168,10 +174,11 @@ internal class ExtSubmissionSubmitterTest(
 
         @Test
         fun `when files copied`(
-            @MockK sub: ExtSubmission
+            @MockK sub: ExtSubmission,
         ) {
             every { requestService.getRequestStatus("accNo", 1) } returns FILES_COPIED
-            every { requestReleaser.checkReleased("accNo", 1) } returns sub
+            every { requestReleaser.checkReleased("accNo", 1) } answers { nothing }
+            every { requestSaver.saveRequest("accNo", 1) } answers { sub }
 
             val result = testInstance.handleRequest("accNo", 1)
 

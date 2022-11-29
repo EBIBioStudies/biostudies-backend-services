@@ -27,7 +27,12 @@ data class RequestCleaned(
     @JsonProperty("version") override val version: Int,
 ) : RequestMessage
 
-data class RequestProcessed(
+data class RequestCheckReleased(
+    @JsonProperty("accNo") override val accNo: String,
+    @JsonProperty("version") override val version: Int,
+) : RequestMessage
+
+data class RequestFilesCopied(
     @JsonProperty("accNo") override val accNo: String,
     @JsonProperty("version") override val version: Int,
 ) : RequestMessage

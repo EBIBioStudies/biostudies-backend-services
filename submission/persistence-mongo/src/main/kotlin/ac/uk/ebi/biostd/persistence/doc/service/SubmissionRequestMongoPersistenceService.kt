@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
@@ -55,6 +56,10 @@ class SubmissionRequestMongoPersistenceService(
 
     override fun getCleanedRequest(accNo: String, version: Int): SubmissionRequest {
         return getRequest(accNo, version, CLEANED)
+    }
+
+    override fun getCheckReleased(accNo: String, version: Int): SubmissionRequest {
+        return getRequest(accNo, version, CHECK_RELEASED)
     }
 
     override fun getFilesCopiedRequest(accNo: String, version: Int): SubmissionRequest {

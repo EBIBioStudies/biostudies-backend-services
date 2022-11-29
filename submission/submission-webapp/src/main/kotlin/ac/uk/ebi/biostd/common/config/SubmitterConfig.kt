@@ -27,6 +27,7 @@ import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
@@ -65,16 +66,29 @@ class SubmitterConfig {
     ): SubmissionRequestLoader = SubmissionRequestLoader(filesRequestService, requestService)
 
     @Bean
+    fun requestSaver(
+        requestService: SubmissionRequestPersistenceService,
+        fileProcessingService: FileProcessingService,
+        persistenceService: SubmissionPersistenceService,
+        filesRequestService: SubmissionRequestFilesPersistenceService,
+        eventsPublisherService: EventsPublisherService,
+    ): SubmissionRequestSaver {
+        return SubmissionRequestSaver(
+            requestService,
+            fileProcessingService,
+            persistenceService,
+            filesRequestService,
+            eventsPublisherService
+        )
+    }
+
+    @Bean
     fun requestProcessor(
         storageService: FileStorageService,
-        fileProcessingService: FileProcessingService,
         requestService: SubmissionRequestPersistenceService,
-        submissionPersistenceService: SubmissionPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
     ): SubmissionRequestProcessor = SubmissionRequestProcessor(
         storageService,
-        fileProcessingService,
-        submissionPersistenceService,
         requestService,
         filesRequestService,
     )
@@ -83,7 +97,6 @@ class SubmitterConfig {
     fun submissionReleaser(
         fileStorageService: FileStorageService,
         serializationService: ExtSerializationService,
-        eventsPublisherService: EventsPublisherService,
         requestService: SubmissionRequestPersistenceService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         submissionPersistenceService: SubmissionPersistenceService,
@@ -91,7 +104,6 @@ class SubmitterConfig {
     ): SubmissionRequestReleaser = SubmissionRequestReleaser(
         fileStorageService,
         serializationService,
-        eventsPublisherService,
         submissionPersistenceQueryService,
         submissionPersistenceService,
         requestService,
@@ -115,6 +127,7 @@ class SubmitterConfig {
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
+        submissionSaver: SubmissionRequestSaver,
     ): ExtSubmissionSubmitter = ExtSubmissionSubmitter(
         pageTabService,
         requestService,
@@ -124,6 +137,7 @@ class SubmitterConfig {
         requestProcessor,
         submissionReleaser,
         submissionCleaner,
+        submissionSaver
     )
 
     @Bean

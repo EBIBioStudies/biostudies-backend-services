@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
@@ -11,7 +11,6 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import mu.KotlinLogging
-import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.fileSequence
 
@@ -21,7 +20,6 @@ private val logger = KotlinLogging.logger {}
 class SubmissionRequestReleaser(
     private val fileStorageService: FileStorageService,
     private val serializationService: ExtSerializationService,
-    private val eventsPublisherService: EventsPublisherService,
     private val queryService: SubmissionPersistenceQueryService,
     private val persistenceService: SubmissionPersistenceService,
     private val requestService: SubmissionRequestPersistenceService,
@@ -31,12 +29,10 @@ class SubmissionRequestReleaser(
     /**
      * Check the release status of the submission and release it if released flag is true.
      */
-    fun checkReleased(accNo: String, version: Int): ExtSubmission {
+    fun checkReleased(accNo: String, version: Int) {
         val request = requestService.getFilesCopiedRequest(accNo, version)
         if (request.submission.released) releaseRequest(request)
-        requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED))
-        eventsPublisherService.submissionSubmitted(accNo, request.notifyTo)
-        return request.submission
+        requestService.saveSubmissionRequest(request.withNewStatus(CHECK_RELEASED))
     }
 
     private fun releaseRequest(
@@ -50,7 +46,6 @@ class SubmissionRequestReleaser(
                 else rqtFile.copy(file = releaseFile(sub, idx, rqtFile.file))
             }
             .forEach { requestService.updateRequestFile(it) }
-        persistenceService.setAsReleased(sub.accNo)
     }
 
     /**
