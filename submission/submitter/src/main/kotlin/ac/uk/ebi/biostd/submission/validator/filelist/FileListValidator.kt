@@ -41,23 +41,22 @@ class FileListValidator(
 
     fun validateFileList(fileListName: String, fileSources: FileSourcesList) {
         val fileListFile = getFileListFile(fileListName, fileSources)
-
-        fileListFile.inputStream().use {
-            validateFileList(fileListName, it, SubFormat.fromFile(fileListFile), fileSources)
-        }
+        val format = SubFormat.fromFile(fileListFile)
+        fileListFile.inputStream().use { validateFiles(fileListName, it, format, fileSources) }
     }
 
-    private fun validateFileList(name: String, stream: InputStream, format: SubFormat, filesSource: FileSourcesList) {
-        val fileListFiles = serializationService.deserializeFileList(stream, format).take(fileListLimit).toList()
-
-        require(fileListFiles.isNotEmpty()) { throw InvalidFileListException.emptyFileList(name) }
-        fileListFiles
+    private fun validateFiles(name: String, stream: InputStream, format: SubFormat, filesSource: FileSourcesList) {
+        serializationService
+            .deserializeFileList(stream, format)
+            .ifEmpty { throw InvalidFileListException.emptyFileList(name) }
             .filter { filesSource.getExtFile(it.path, it.dbFile) == null }
+            .take(FILE_LIST_LIMIT)
+            .toList()
             .ifNotEmpty { throw FilesProcessingException(it.map(BioFile::path), filesSource) }
     }
 
     companion object {
-        private const val fileListLimit = 1000
+        private const val FILE_LIST_LIMIT = 1000
     }
 }
 

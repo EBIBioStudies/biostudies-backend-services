@@ -115,7 +115,7 @@ class FileListValidationTest(
             line()
         }.toString()
 
-        val fileList = tempFolder.createFile("valid-file-list.tsv", fileListContent)
+        val fileList = tempFolder.createFile("ValidFileList.tsv", fileListContent)
 
         webClient.uploadFiles(listOf(file1, fileList))
         webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file2), storageMode))
@@ -158,7 +158,7 @@ class FileListValidationTest(
             line()
         }.toString()
 
-        val fileList = tempFolder.createFile("fire-valid-file-list.tsv", fileListContent)
+        val fileList = tempFolder.createFile("FireValidFileList.tsv", fileListContent)
 
         fireClient.save(file2, file2Md5, file2.size())
         webClient.uploadFiles(listOf(file1, fileList))
@@ -183,7 +183,7 @@ class FileListValidationTest(
             line()
         }.toString()
 
-        val fileList = tempFolder.createFile("root-path-file-list.tsv", fileListContent)
+        val fileList = tempFolder.createFile("RootPathFileList.tsv", fileListContent)
 
         webClient.uploadFiles(listOf(file, fileList), "root-path")
 
@@ -198,7 +198,7 @@ class FileListValidationTest(
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "false")
     fun `file list with missing files on NFS mode`() {
-        val fileList = tempFolder.createFile("InvalidNfsFileList.json", getFileListContent().toString())
+        val fileList = tempFolder.createFile("InvalidNfsFileList.json", FILE_LIST_CONTENT)
 
         webClient.uploadFile(fileList)
 
@@ -226,7 +226,7 @@ class FileListValidationTest(
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
     fun `file list with missing files on FIRE mode`() {
-        val fileList = tempFolder.createFile("InvalidFireFileList.json", getFileListContent().toString())
+        val fileList = tempFolder.createFile("InvalidFireFileList.json", FILE_LIST_CONTENT)
 
         webClient.uploadFile(fileList)
 
@@ -255,7 +255,7 @@ class FileListValidationTest(
     fun `blank file list on behalf another user`() {
         securityTestService.ensureUserRegistration(RegularUser)
 
-        val fileList = tempFolder.createFile("FileList.json")
+        val fileList = tempFolder.createFile("BlankOnBehalfFileList.json")
         webClient.uploadFile(fileList)
 
         val onBehalfClient = SecurityWebClient.create("http://localhost:$serverPort")
@@ -288,7 +288,7 @@ class FileListValidationTest(
     @Test
     fun `valid file list on behalf another user`() {
         val fileListFile = tempFolder.createFile("Plate1.tif")
-        val fileList = tempFolder.createFile("FileList.json", getFileListContent().toString())
+        val fileList = tempFolder.createFile("ValidOnBehalfFileList.json", FILE_LIST_CONTENT)
 
         webClient.uploadFiles(listOf(fileListFile, fileList))
         webClient.validateFileList(fileList.name)
@@ -297,13 +297,15 @@ class FileListValidationTest(
         webClient.deleteFile(fileList.name)
     }
 
-    private fun getFileListContent() = jsonArray(
-        jsonObj {
-            "path" to "Plate1.tif"
-            "size" to 290
-            "type" to "file"
-        }
-    )
+    companion object {
+        private val FILE_LIST_CONTENT = jsonArray(
+            jsonObj {
+                "path" to "Plate1.tif"
+                "size" to 290
+                "type" to "file"
+            }
+        ).toString()
+    }
 
     object RegUser : TestUser {
         override val username = "User File List Validation"

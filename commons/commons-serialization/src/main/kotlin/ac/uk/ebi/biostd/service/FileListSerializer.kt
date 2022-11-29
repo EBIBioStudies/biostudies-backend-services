@@ -10,10 +10,7 @@ import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.fileListName
-import mu.KotlinLogging
 import java.io.InputStream
-
-private val logger = KotlinLogging.logger {}
 
 internal class FileListSerializer(
     private val serializer: PagetabSerializer,
