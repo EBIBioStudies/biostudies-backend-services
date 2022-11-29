@@ -25,7 +25,7 @@ class SubmissionStagesHandler(
     @RabbitHandler
     fun indexRequest(rqt: RequestCreated) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received Created message for submission $accNo, version: $accNo" }
+            logger.info { "$accNo, Received Created message for submission $accNo, version: $version" }
             submissionSubmitter.indexRequest(rqt)
             eventsPublisherService.requestIndexed(rqt.accNo, rqt.version)
         }
@@ -34,7 +34,7 @@ class SubmissionStagesHandler(
     @RabbitHandler
     fun loadRequest(rqt: RequestIndexed) {
         processSafely(rqt) {
-            logger.info { "$accNo, received Created message for submission $accNo, version: $accNo" }
+            logger.info { "$accNo, received Created message for submission $accNo, version: $version" }
             submissionSubmitter.loadRequest(rqt)
             eventsPublisherService.requestLoaded(rqt.accNo, rqt.version)
         }
@@ -43,7 +43,7 @@ class SubmissionStagesHandler(
     @RabbitHandler
     fun cleanRequest(rqt: RequestLoaded) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received Loaded message for submission $accNo, version: $accNo" }
+            logger.info { "$accNo, Received Loaded message for submission $accNo, version: $version" }
             submissionSubmitter.cleanRequest(rqt)
             eventsPublisherService.requestCleaned(rqt.accNo, rqt.version)
         }
@@ -52,7 +52,7 @@ class SubmissionStagesHandler(
     @RabbitHandler
     fun copyRequestFiles(rqt: RequestCleaned) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received Cleaned message for submission $accNo, version: $accNo" }
+            logger.info { "$accNo, Received Cleaned message for submission $accNo, version: $version" }
             submissionSubmitter.processRequest(rqt)
             eventsPublisherService.requestFileCopied(rqt.accNo, rqt.version)
         }
@@ -61,7 +61,7 @@ class SubmissionStagesHandler(
     @RabbitHandler
     fun checkReleased(rqt: RequestFilesCopied) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received Processed message for submission $accNo, version: $accNo" }
+            logger.info { "$accNo, Received Processed message for submission $accNo, version: $version" }
             submissionSubmitter.checkReleased(rqt)
             eventsPublisherService.checkReleased(rqt.accNo, rqt.version)
         }
@@ -70,7 +70,7 @@ class SubmissionStagesHandler(
     @RabbitHandler
     fun saveSubmission(rqt: RequestCheckReleased) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received check released message for submission $accNo, version: $accNo" }
+            logger.info { "$accNo, Received check released message for submission $accNo, version: $version" }
             val submission = submissionSubmitter.saveRequest(rqt)
             eventsPublisherService.submissionSubmitted(submission.accNo, submission.owner)
         }
