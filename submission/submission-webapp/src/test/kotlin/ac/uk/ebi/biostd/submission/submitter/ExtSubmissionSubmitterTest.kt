@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
@@ -120,6 +121,7 @@ internal class ExtSubmissionSubmitterTest(
                 requestCleaner.cleanCurrentVersion("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
+                requestSaver.saveRequest("accNo", 1)
             }
         }
 
@@ -141,6 +143,7 @@ internal class ExtSubmissionSubmitterTest(
                 requestCleaner.cleanCurrentVersion("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
+                requestSaver.saveRequest("accNo", 1)
             }
             verify(exactly = 0) {
                 requestIndexer.indexRequest("accNo", 1)
@@ -164,6 +167,7 @@ internal class ExtSubmissionSubmitterTest(
                 requestService.getRequestStatus("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
+                requestSaver.saveRequest("accNo", 1)
             }
             verify(exactly = 0) {
                 requestIndexer.indexRequest("accNo", 1)
@@ -186,12 +190,36 @@ internal class ExtSubmissionSubmitterTest(
             verify(exactly = 1) {
                 requestService.getRequestStatus("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
+                requestSaver.saveRequest("accNo", 1)
             }
             verify(exactly = 0) {
                 requestIndexer.indexRequest("accNo", 1)
                 requestLoader.loadRequest("accNo", 1)
                 requestCleaner.cleanCurrentVersion("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)
+            }
+        }
+
+        @Test
+        fun `when checked released`(
+            @MockK sub: ExtSubmission,
+        ) {
+            every { requestService.getRequestStatus("accNo", 1) } returns CHECK_RELEASED
+            every { requestSaver.saveRequest("accNo", 1) } answers { sub }
+
+            val result = testInstance.handleRequest("accNo", 1)
+
+            assertThat(result).isEqualTo(sub)
+            verify(exactly = 1) {
+                requestService.getRequestStatus("accNo", 1)
+                requestSaver.saveRequest("accNo", 1)
+            }
+            verify(exactly = 0) {
+                requestIndexer.indexRequest("accNo", 1)
+                requestLoader.loadRequest("accNo", 1)
+                requestCleaner.cleanCurrentVersion("accNo", 1)
+                requestProcessor.processRequest("accNo", 1)
+                requestReleaser.checkReleased("accNo", 1)
             }
         }
 
@@ -210,6 +238,7 @@ internal class ExtSubmissionSubmitterTest(
                 requestCleaner.cleanCurrentVersion("accNo", 1)
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
+                requestSaver.saveRequest("accNo", 1)
             }
         }
     }

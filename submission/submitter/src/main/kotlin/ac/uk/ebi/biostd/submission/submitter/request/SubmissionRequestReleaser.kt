@@ -25,7 +25,6 @@ class SubmissionRequestReleaser(
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
-
     /**
      * Check the release status of the submission and release it if released flag is true.
      */
@@ -39,6 +38,8 @@ class SubmissionRequestReleaser(
         request: SubmissionRequest,
     ) {
         val sub = request.submission
+        logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
+
         filesRequestService
             .getSubmissionRequestFiles(sub.accNo, sub.version, request.currentIndex)
             .mapIndexed { idx, rqtFile ->
@@ -46,6 +47,8 @@ class SubmissionRequestReleaser(
                 else rqtFile.copy(file = releaseFile(sub, idx, rqtFile.file))
             }
             .forEach { requestService.updateRequestFile(it) }
+
+        logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
     }
 
     /**

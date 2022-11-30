@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceSer
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
-import ebi.ac.uk.extended.events.RequestCheckReleased
+import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
 import ebi.ac.uk.extended.events.RequestFilesCopied
@@ -56,7 +56,7 @@ class SubmissionSubmitter(
         submissionSubmitter.checkReleased(rqt.accNo, rqt.version)
     }
 
-    fun saveRequest(rqt: RequestCheckReleased): ExtSubmission {
+    fun saveRequest(rqt: RequestCheckedReleased): ExtSubmission {
         return submissionSubmitter.saveRequest(rqt.accNo, rqt.version)
     }
 

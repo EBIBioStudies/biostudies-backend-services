@@ -1,6 +1,6 @@
 package uk.ac.ebi.events.service
 
-import ebi.ac.uk.extended.events.RequestCheckReleased
+import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
 import ebi.ac.uk.extended.events.RequestFilesCopied
@@ -34,7 +34,7 @@ class EventsPublisherService(
             BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestCreated(accNo, version)
         )
 
-    fun requestFileCopied(accNo: String, version: Int) {
+    fun requestFilesCopied(accNo: String, version: Int) {
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestFilesCopied(accNo, version)
         )
@@ -57,7 +57,7 @@ class EventsPublisherService(
 
     fun checkReleased(accNo: String, version: Int) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestCheckReleased(accNo, version)
+            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestCheckedReleased(accNo, version)
         )
 
     fun submissionSubmitted(accNo: String, owner: String) =

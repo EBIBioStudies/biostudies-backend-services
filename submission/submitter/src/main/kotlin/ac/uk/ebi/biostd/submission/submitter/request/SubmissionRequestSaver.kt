@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -18,7 +18,6 @@ class SubmissionRequestSaver(
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
     private val eventsPublisherService: EventsPublisherService,
 ) {
-
     fun saveRequest(accNo: String, version: Int): ExtSubmission {
         val request = requestService.getCheckReleased(accNo, version)
         val sub = request.submission
@@ -29,7 +28,7 @@ class SubmissionRequestSaver(
         val saved = persistenceService.saveSubmission(assemble)
         logger.info { "$accNo ${sub.owner} Finished saving submission '${sub.accNo}', version={${sub.version}}" }
 
-        requestService.saveSubmissionRequest(request.withNewStatus(RequestStatus.PROCESSED))
+        requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED))
         eventsPublisherService.submissionSubmitted(accNo, request.notifyTo)
         return saved
     }

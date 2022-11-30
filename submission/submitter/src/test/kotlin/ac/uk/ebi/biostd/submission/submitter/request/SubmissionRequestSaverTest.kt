@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
@@ -27,7 +27,6 @@ internal class SubmissionRequestSaverTest(
     @MockK val filesService: SubmissionRequestFilesPersistenceService,
     @MockK val eventsPublisherService: EventsPublisherService,
 ) {
-
     private val testInstance = SubmissionRequestSaver(
         requestService,
         processingService,
@@ -60,7 +59,7 @@ internal class SubmissionRequestSaverTest(
         every { requestService.getCheckReleased(accNo, version) } answers { request }
         every { requestService.saveSubmissionRequest(request) } answers { ACC_NO to version }
 
-        every { request.withNewStatus(RequestStatus.PROCESSED) } returns request
+        every { request.withNewStatus(PROCESSED) } returns request
         every { request.submission } answers { submission }
         every { request.notifyTo } answers { notifyTo }
         every { requestFile.file } returns updatedSubFile
@@ -81,6 +80,7 @@ internal class SubmissionRequestSaverTest(
             eventsPublisherService.submissionSubmitted(accNo, notifyTo)
             persistenceService.expirePreviousVersions(accNo)
             persistenceService.saveSubmission(submission)
+            requestService.saveSubmissionRequest(request)
         }
     }
 }

@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.service
 import ac.uk.ebi.biostd.common.config.LISTENER_FACTORY_NAME
 import ac.uk.ebi.biostd.common.config.SUBMISSION_REQUEST_QUEUE
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
-import ebi.ac.uk.extended.events.RequestCheckReleased
+import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
 import ebi.ac.uk.extended.events.RequestFilesCopied
@@ -54,7 +54,7 @@ class SubmissionStagesHandler(
         processSafely(rqt) {
             logger.info { "$accNo, Received Cleaned message for submission $accNo, version: $version" }
             submissionSubmitter.processRequest(rqt)
-            eventsPublisherService.requestFileCopied(rqt.accNo, rqt.version)
+            eventsPublisherService.requestFilesCopied(rqt.accNo, rqt.version)
         }
     }
 
@@ -68,7 +68,7 @@ class SubmissionStagesHandler(
     }
 
     @RabbitHandler
-    fun saveSubmission(rqt: RequestCheckReleased) {
+    fun saveSubmission(rqt: RequestCheckedReleased) {
         processSafely(rqt) {
             logger.info { "$accNo, Received check released message for submission $accNo, version: $version" }
             val submission = submissionSubmitter.saveRequest(rqt)

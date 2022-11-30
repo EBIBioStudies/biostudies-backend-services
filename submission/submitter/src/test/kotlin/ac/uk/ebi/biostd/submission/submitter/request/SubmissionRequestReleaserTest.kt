@@ -13,6 +13,7 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import io.mockk.called
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -98,9 +99,9 @@ class SubmissionRequestReleaserTest(
 
         testInstance.checkReleased("S-TEST123", 1)
 
-        verify(exactly = 0) {
-            persistenceService.setAsReleased("S-TEST123")
-            storageService.releaseSubmissionFile(any(), any(), any())
+        verify {
+            storageService wasNot called
+            persistenceService wasNot called
         }
         verify(exactly = 1) {
             requestService.saveSubmissionRequest(rqt.withNewStatus(CHECK_RELEASED))
