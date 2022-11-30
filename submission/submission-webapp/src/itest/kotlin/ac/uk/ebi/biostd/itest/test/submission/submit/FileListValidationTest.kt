@@ -252,46 +252,18 @@ class FileListValidationTest(
     }
 
     @Test
-    fun `blank file list on behalf another user`() {
-        securityTestService.ensureUserRegistration(RegularUser)
-
-        val fileList = tempFolder.createFile("BlankOnBehalfFileList.json")
-        webClient.uploadFile(fileList)
-
-        val onBehalfClient = SecurityWebClient.create("http://localhost:$serverPort")
-            .getAuthenticatedClient(RegUser.email, RegUser.password, RegularUser.email)
-
-        val exception = assertThrows(WebClientException::class.java) { onBehalfClient.validateFileList(fileList.name) }
-        assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
-        assertThat(exception).hasMessageContaining("Expected content to be an array")
-
-        webClient.deleteFile(fileList.name)
-    }
-
-    @Test
-    fun `empty file list on behalf another user`() {
-        securityTestService.ensureUserRegistration(RegularUser)
-
-        val fileList = tempFolder.createFile("EmptyOnBehalfFileList.tsv", "Files\tAttr1")
-        webClient.uploadFile(fileList)
-
-        val onBehalfClient = SecurityWebClient.create("http://localhost:$serverPort")
-            .getAuthenticatedClient(RegUser.email, RegUser.password, RegularUser.email)
-
-        val exception = assertThrows(WebClientException::class.java) { onBehalfClient.validateFileList(fileList.name) }
-        assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-        assertThat(exception).hasMessageContaining("A file list should contain at least one file")
-
-        webClient.deleteFile(fileList.name)
-    }
-
-    @Test
     fun `valid file list on behalf another user`() {
+        securityTestService.ensureUserRegistration(RegularUser)
+
         val fileListFile = tempFolder.createFile("Plate1.tif")
         val fileList = tempFolder.createFile("ValidOnBehalfFileList.json", FILE_LIST_CONTENT)
 
         webClient.uploadFiles(listOf(fileListFile, fileList))
-        webClient.validateFileList(fileList.name)
+
+        val onBehalfClient = SecurityWebClient.create("http://localhost:$serverPort")
+            .getAuthenticatedClient(RegUser.email, RegUser.password, RegularUser.email)
+
+        onBehalfClient.validateFileList(fileList.name)
 
         webClient.deleteFile(fileListFile.name)
         webClient.deleteFile(fileList.name)
