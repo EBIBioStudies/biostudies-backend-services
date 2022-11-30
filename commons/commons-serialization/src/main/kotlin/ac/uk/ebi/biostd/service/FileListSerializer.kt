@@ -10,10 +10,7 @@ import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.fileListName
-import mu.KotlinLogging
 import java.io.InputStream
-
-private val logger = KotlinLogging.logger {}
 
 internal class FileListSerializer(
     private val serializer: PagetabSerializer,
@@ -38,7 +35,7 @@ internal class FileListSerializer(
 
     private fun checkFileList(name: String, format: SubFormat, stream: InputStream) {
         runCatching {
-            serializer.deserializeFileList(stream, format).forEach { logger.debug { "read file ${it.path}" } }
+            serializer.deserializeFileList(stream, format)
         }.getOrElse {
             throw InvalidFileListException(name, errorMsg(it))
         }

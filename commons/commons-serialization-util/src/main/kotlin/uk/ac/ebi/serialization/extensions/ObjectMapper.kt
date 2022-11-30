@@ -34,10 +34,17 @@ inline fun <reified T : Any> ObjectMapper.deserializeList(inputStream: InputStre
 inline fun <reified T : Any> ObjectMapper.asSequence(jsonParser: JsonParser): Sequence<T> =
     object : Sequence<T> {
         override fun iterator(): Iterator<T> = object : Iterator<T> {
-            override fun hasNext(): Boolean = jsonParser.nextToken() != JsonToken.END_ARRAY
+            private var next: JsonToken? = jsonParser.nextToken()
+
+            override fun hasNext(): Boolean {
+                return next != null && next != JsonToken.END_ARRAY
+            }
+
             override fun next(): T {
                 if (hasNext().not()) throw NoSuchElementException()
-                return readValue(jsonParser, T::class.java)
+                val value = readValue(jsonParser, T::class.java)
+                next = jsonParser.nextToken()
+                return value
             }
         }
     }

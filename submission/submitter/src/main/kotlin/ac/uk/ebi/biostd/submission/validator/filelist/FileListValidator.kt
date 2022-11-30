@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.validator.filelist
 
+import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -35,22 +36,27 @@ class FileListValidator(
             preferredSources = emptyList()
         )
         val fileSources = fileSourcesService.submissionSources(fileSourcesRequest)
-        val fileListFile = getFileListFile(fileListName, fileSources)
-
-        fileListFile.inputStream().use { validateFileList(it, SubFormat.fromFile(fileListFile), fileSources) }
+        validateFileList(fileListName, fileSources)
     }
 
-    private fun validateFileList(stream: InputStream, format: SubFormat, filesSource: FileSourcesList) {
+    fun validateFileList(fileListName: String, fileSources: FileSourcesList) {
+        val fileListFile = getFileListFile(fileListName, fileSources)
+        val format = SubFormat.fromFile(fileListFile)
+        fileListFile.inputStream().use { validateFiles(fileListName, it, format, fileSources) }
+    }
+
+    private fun validateFiles(name: String, stream: InputStream, format: SubFormat, filesSource: FileSourcesList) {
         serializationService
             .deserializeFileList(stream, format)
+            .ifEmpty { throw InvalidFileListException.emptyFileList(name) }
             .filter { filesSource.getExtFile(it.path, it.dbFile) == null }
-            .take(fileListLimit)
+            .take(FILE_LIST_LIMIT)
             .toList()
             .ifNotEmpty { throw FilesProcessingException(it.map(BioFile::path), filesSource) }
     }
 
     companion object {
-        private const val fileListLimit = 1000
+        private const val FILE_LIST_LIMIT = 1000
     }
 }
 
