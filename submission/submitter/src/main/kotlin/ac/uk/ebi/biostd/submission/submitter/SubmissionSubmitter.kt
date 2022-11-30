@@ -5,11 +5,12 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceSer
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
+import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
+import ebi.ac.uk.extended.events.RequestFilesCopied
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
-import ebi.ac.uk.extended.events.RequestProcessed
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 
@@ -47,12 +48,16 @@ class SubmissionSubmitter(
         submissionSubmitter.cleanRequest(rqt.accNo, rqt.version)
     }
 
-    fun processRequest(rqt: RequestCleaned): ExtSubmission {
-        return submissionSubmitter.processRequest(rqt.accNo, rqt.version)
+    fun processRequest(rqt: RequestCleaned) {
+        submissionSubmitter.processRequest(rqt.accNo, rqt.version)
     }
 
-    fun checkReleased(rqt: RequestProcessed): ExtSubmission {
-        return submissionSubmitter.checkReleased(rqt.accNo, rqt.version)
+    fun checkReleased(rqt: RequestFilesCopied) {
+        submissionSubmitter.checkReleased(rqt.accNo, rqt.version)
+    }
+
+    fun saveRequest(rqt: RequestCheckedReleased): ExtSubmission {
+        return submissionSubmitter.saveRequest(rqt.accNo, rqt.version)
     }
 
     @Suppress("TooGenericExceptionCaught")

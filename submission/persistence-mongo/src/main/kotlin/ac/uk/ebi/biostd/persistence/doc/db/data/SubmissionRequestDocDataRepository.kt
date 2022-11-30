@@ -99,6 +99,7 @@ class SubmissionRequestDocDataRepository(
         val update = Update()
             .set(SUB_STATUS, rqt.status)
             .set(SUB, rqt.submission)
+            .set(RQT_TOTAL_FILES, rqt.totalFiles)
             .set(RQT_IDX, rqt.currentIndex)
             .set(RQT_TOTAL_FILES, rqt.totalFiles)
             .set(RQT_MODIFICATION_TIME, rqt.modificationTime)

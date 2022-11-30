@@ -3,12 +3,13 @@ package ac.uk.ebi.biostd.submission.domain.service
 import ac.uk.ebi.biostd.common.config.LISTENER_FACTORY_NAME
 import ac.uk.ebi.biostd.common.config.SUBMISSION_REQUEST_QUEUE
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
+import ebi.ac.uk.extended.events.RequestFilesCopied
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
-import ebi.ac.uk.extended.events.RequestProcessed
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.amqp.rabbit.annotation.RabbitListener
@@ -24,7 +25,7 @@ class SubmissionStagesHandler(
     @RabbitHandler
     fun indexRequest(rqt: RequestCreated) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received Created message for submission $accNo, version: $accNo" }
+            logger.info { "$accNo, Received Created message for submission $accNo, version: $version" }
             submissionSubmitter.indexRequest(rqt)
             eventsPublisherService.requestIndexed(rqt.accNo, rqt.version)
         }
@@ -33,8 +34,8 @@ class SubmissionStagesHandler(
     @RabbitHandler
     fun loadRequest(rqt: RequestIndexed) {
         processSafely(rqt) {
-            logger.info { "$accNo, received Created message for submission $accNo, version: $accNo" }
-            val submission = submissionSubmitter.loadRequest(rqt)
+            logger.info { "$accNo, received Created message for submission $accNo, version: $version" }
+            submissionSubmitter.loadRequest(rqt)
             eventsPublisherService.requestLoaded(rqt.accNo, rqt.version)
         }
     }
@@ -42,26 +43,36 @@ class SubmissionStagesHandler(
     @RabbitHandler
     fun cleanRequest(rqt: RequestLoaded) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received Loaded message for submission $accNo, version: $accNo" }
+            logger.info { "$accNo, Received Loaded message for submission $accNo, version: $version" }
             submissionSubmitter.cleanRequest(rqt)
             eventsPublisherService.requestCleaned(rqt.accNo, rqt.version)
         }
     }
 
     @RabbitHandler
-    fun processRequest(rqt: RequestCleaned) {
+    fun copyRequestFiles(rqt: RequestCleaned) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received Cleaned message for submission $accNo, version: $accNo" }
-            val submission = submissionSubmitter.processRequest(rqt)
-            eventsPublisherService.requestProcessed(submission.accNo, submission.version)
+            logger.info { "$accNo, Received Cleaned message for submission $accNo, version: $version" }
+            submissionSubmitter.processRequest(rqt)
+            eventsPublisherService.requestFilesCopied(rqt.accNo, rqt.version)
         }
     }
 
     @RabbitHandler
-    fun checkReleased(rqt: RequestProcessed) {
+    fun checkReleased(rqt: RequestFilesCopied) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received Processed message for submission $accNo, version: $accNo" }
+            logger.info { "$accNo, Received Processed message for submission $accNo, version: $version" }
             submissionSubmitter.checkReleased(rqt)
+            eventsPublisherService.checkReleased(rqt.accNo, rqt.version)
+        }
+    }
+
+    @RabbitHandler
+    fun saveSubmission(rqt: RequestCheckedReleased) {
+        processSafely(rqt) {
+            logger.info { "$accNo, Received check released message for submission $accNo, version: $version" }
+            val submission = submissionSubmitter.saveRequest(rqt)
+            eventsPublisherService.submissionSubmitted(submission.accNo, submission.owner)
         }
     }
 

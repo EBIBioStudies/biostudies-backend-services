@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
@@ -119,7 +120,11 @@ class SubmissionAsyncTest(
 
         extSubmissionSubmitter.checkReleased("SimpleAsync2", 2)
         val statusAfterReleasing = requestRepository.getRequestStatus("SimpleAsync2", 2)
-        assertThat(statusAfterReleasing).isEqualTo(PROCESSED)
+        assertThat(statusAfterReleasing).isEqualTo(CHECK_RELEASED)
+
+        extSubmissionSubmitter.saveRequest("SimpleAsync2", 2)
+        val statusAfterSaved = requestRepository.getRequestStatus("SimpleAsync2", 2)
+        assertThat(statusAfterSaved).isEqualTo(PROCESSED)
 
         assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", 1)).isFalse()
         assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", -1)).isTrue()
