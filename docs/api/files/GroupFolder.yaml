@@ -1,6 +1,9 @@
-get:
-  summary: Create Group Folder
-  description: Create a folder inside the group's directory.
+post:
+  summary: Create Folder in a Group
+  description: |
+    Create a folder inside the group's directory.
+    * To take into account: what is written after the groupName in the URL is taken as the path relative to the group's directory where the action will be performed. 
+      The path is not required and in its absence, the action will be performed over the group's directory base
 
   tags:
     - Group Files
@@ -10,27 +13,19 @@ get:
       name: X-SESSION-TOKEN
       description: User authentication token
       required: true
+      schema:
+        type: string
     - in: path
       name: groupName
-      description: The name of the group to create the folder.
+      description: The name of the group to list the files.
       required: true
-    - in: path
-      name: path
-      description: Path of the new folder.
-      required: false
-
-  requestBody:
-    required: true
-    content:
-      application/x-www-form-urlencoded:
-        schema:
-          type: object
-          properties:
-            fileName:
-              description: Name of the new folder
-              example: folder1
-              required: true
-              type: string
+      schema:
+        type: string
+    - in : query
+      name: folder
+      description: Folder name to be created
+      schema:
+        type: string
 
   responses:
     200:

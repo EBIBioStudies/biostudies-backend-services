@@ -10,18 +10,17 @@ get:
       name: X-SESSION-TOKEN
       description: User authentication token
       required: true
-      type: string
+      schema:
+        type: string
     - in: path
       name: accNo
       description: Accession number to get the page tab document.
       required: true
-      type: string
+      schema:
+        type: string
 
   responses:
     200:
-      description: OK
-      content:
-        application/json:
-          $ref: '../model/BasicSubmission.yaml'
+      $ref: '../model/BasicSubmission.yaml'
     401:
       description: Caused by an invalid X-SESSION-TOKEN

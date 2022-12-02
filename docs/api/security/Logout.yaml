@@ -4,19 +4,22 @@ post:
 
   tags:
     - Security
+    -
+  parameters:
+    - name: Content-Type
+      in: header
+      schema:
+        type: string
+      example: application/json
 
   requestBody:
     content:
       application/json:
         schema:
           type: object
-          properties:
-            sessid:
-              description: Authorization token to expire
-              example: <user token>
-              required: true
-              type: string
+          example:
+            sessid: <user token>
 
   responses:
-    200:
+    '200':
       description: OK
