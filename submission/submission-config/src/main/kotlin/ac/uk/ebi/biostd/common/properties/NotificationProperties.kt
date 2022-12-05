@@ -1,12 +1,12 @@
 package ac.uk.ebi.biostd.common.properties
 
 import org.springframework.boot.context.properties.NestedConfigurationProperty
-import java.lang.System.setProperty
 import java.util.Properties
 
 class NotificationProperties {
     lateinit var smtp: String
     lateinit var uiUrl: String
+    lateinit var stUrl: String
     lateinit var slackUrl: String
 
     @NestedConfigurationProperty
