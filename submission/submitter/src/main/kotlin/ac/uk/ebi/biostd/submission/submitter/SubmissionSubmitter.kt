@@ -65,16 +65,26 @@ class SubmissionSubmitter(
         try {
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
 
-            rqt.draftKey?.let { draftService.setProcessingStatus(rqt.owner, it) }
+            rqt.draftKey?.let {
+                draftService.setProcessingStatus(rqt.owner, it)
+                logger.info { "${rqt.accNo} ${rqt.owner} Status of draft with key '$it' set to PROCESSING" }
+            }
             val processed = submissionProcessor.processSubmission(rqt)
             parentInfoService.executeCollectionValidators(processed)
-            rqt.draftKey?.let { draftService.setAcceptedStatus(it) }
+            rqt.draftKey?.let {
+                logger.info { "${rqt.accNo} ${rqt.owner} Assigned accNo '${processed.accNo}' to draft with key '$it'" }
+                draftService.setAcceptedStatus(it)
+                logger.info { "${rqt.accNo} ${rqt.owner} Status of draft with key '$it' set to ACCEPTED" }
+            }
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 
             return processed
         } catch (exception: RuntimeException) {
             logger.error(exception) { "${rqt.accNo} ${rqt.owner} Error processing submission request" }
-            rqt.draftKey?.let { draftService.setActiveStatus(it) }
+            rqt.draftKey?.let {
+                draftService.setActiveStatus(it)
+                logger.info { "${rqt.accNo} ${rqt.owner} Status of draft with key '$it' set to ACTIVE" }
+            }
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
     }

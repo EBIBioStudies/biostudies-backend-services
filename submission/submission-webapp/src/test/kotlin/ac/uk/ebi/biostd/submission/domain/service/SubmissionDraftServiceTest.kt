@@ -172,7 +172,7 @@ class SubmissionDraftServiceTest(
             submitRequestBuilder.buildContentRequest(DRAFT_CONTENT, SubFormat.JSON_PRETTY, capture(requestSlot))
         } returns contentRequest
 
-        testInstance.submitDraft(DRAFT_KEY, user, onBehalfRequest, parameters)
+        testInstance.submitDraftAsync(DRAFT_KEY, user, onBehalfRequest, parameters)
 
         val submitRequest = requestSlot.captured
         assertThat(submitRequest.user).isEqualTo(user)

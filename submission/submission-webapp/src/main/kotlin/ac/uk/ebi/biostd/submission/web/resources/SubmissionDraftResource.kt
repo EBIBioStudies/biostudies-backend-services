@@ -82,7 +82,7 @@ internal class SubmissionDraftResource(
         onBehalfRequest: OnBehalfRequest?,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ) {
-        submissionDraftService.submitDraft(key, user, onBehalfRequest, parameters)
+        submissionDraftService.submitDraftAsync(key, user, onBehalfRequest, parameters)
     }
 
     @PostMapping("/{key}/submit/sync")
