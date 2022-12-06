@@ -58,7 +58,7 @@ class SubmissionStorageModeTest(
     }
 
     @Test
-    fun `Fire to Nfs`() {
+    fun `10,1 - Fire to Nfs`() {
         val submission = createSubmission("S-STR-MODE-1")
 
         assertThat(webClient.submitSingle(submission, TSV, FIRE)).isSuccessful()
@@ -85,7 +85,7 @@ class SubmissionStorageModeTest(
     }
 
     @Test
-    fun `Nfs to Fire`() {
+    fun `10,2 - Nfs to Fire`() {
         val submission = createSubmission("S-STR-MODE-2")
 
         assertThat(webClient.submitSingle(submission, TSV, NFS)).isSuccessful()

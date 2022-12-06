@@ -46,7 +46,7 @@ class ExtCollectionSubmitTest(
     }
 
     @Test
-    fun `submit private project`() {
+    fun `7,1 - submit private project`() {
         val privateProject = tsv {
             line("Submission", "PrivateProject")
             line("Title", "A Private Project")
@@ -71,7 +71,7 @@ class ExtCollectionSubmitTest(
     }
 
     @Test
-    fun `submit public project`() {
+    fun `7,2 - submit public project`() {
         val publicProject = tsv {
             line("Submission", "PublicProject")
             line("Title", "Public Project")
@@ -93,7 +93,7 @@ class ExtCollectionSubmitTest(
     }
 
     @Test
-    fun `submit duplicated accNo template`() {
+    fun `7,3 - submit duplicated accNo template`() {
         val aProject = tsv {
             line("Submission", "A-Project")
             line("AccNoTemplate", "!{S-APRJ}")

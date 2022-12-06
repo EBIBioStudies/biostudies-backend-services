@@ -42,12 +42,12 @@ class GroupFilesApiTest(
     }
 
     @Test
-    fun `upload download delete file and retrieve in user root folder`() {
+    fun `18,1 - upload download delete file and retrieve in user root folder`() {
         testUserFilesGroup()
     }
 
     @Test
-    fun `upload download delete file and retrieve in user folder`() {
+    fun `18,2 - upload download delete file and retrieve in user folder`() {
         testUserFilesGroup("test-folder")
     }
 

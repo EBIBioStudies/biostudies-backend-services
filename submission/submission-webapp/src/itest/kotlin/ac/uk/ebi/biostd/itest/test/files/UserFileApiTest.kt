@@ -35,17 +35,17 @@ class UserFileApiTest(
     }
 
     @Test
-    fun `upload download delete file and retrieve in user root folder`() {
+    fun `17,1 - upload download delete file and retrieve in user root folder`() {
         testUserFilesGroup()
     }
 
     @Test
-    fun `upload download delete file and retrieve in user folder`() {
+    fun `17,2 - upload download delete file and retrieve in user folder`() {
         testUserFilesGroup("test-folder")
     }
 
     @Test
-    fun `upload download delete file and retrieve in user folder with space`() {
+    fun `17,3 - upload download delete file and retrieve in user folder with space`() {
         testUserFilesGroup("test folder")
     }
 

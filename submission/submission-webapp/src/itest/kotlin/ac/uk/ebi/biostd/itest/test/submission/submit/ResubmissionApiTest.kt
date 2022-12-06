@@ -41,7 +41,7 @@ class ResubmissionApiTest(
     }
 
     @Test
-    fun `resubmit existing submission`() {
+    fun `5,1 - resubmit existing submission`() {
         val submission = tsv {
             line("Submission", "S-RSTST1")
             line("Title", "Simple Submission With Files")
@@ -100,7 +100,7 @@ class ResubmissionApiTest(
     }
 
     @Test
-    fun `resubmit existing submission with the same files`() {
+    fun `5,2 - resubmit existing submission with the same files`() {
         val submission = tsv {
             line("Submission", "S-RSTST2")
             line("Title", "Simple Submission With Files 2")
@@ -158,7 +158,7 @@ class ResubmissionApiTest(
     }
 
     @Test
-    fun `re submit a submission with rootPath`() {
+    fun `5,3 - re submit a submission with rootPath`() {
         val rootPath = "The-RootPath"
         val dataFile = "DataFile1.txt"
 
