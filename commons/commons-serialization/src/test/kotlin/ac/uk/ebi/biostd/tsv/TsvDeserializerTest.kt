@@ -137,6 +137,7 @@ class TsvDeserializerTest {
         assertThat(result).isEqualToComparingFieldByField(
             submission("S-EPMC123") {
                 attribute("Title", "This is a really long title \n with a break line")
+                attribute("Another", "another attribute")
             }
         )
     }

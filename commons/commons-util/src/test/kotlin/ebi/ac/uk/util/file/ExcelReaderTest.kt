@@ -77,7 +77,29 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
             line("file2.txt", "b1", "b2")
         }
 
-        assertThat(asTsv(testFile).readText()).isEqualTo(expectedTsv.toString().plus("\n"))
+        assertThat(asTsv(testFile)).hasContent(expectedTsv.toString().plus("\n"))
+    }
+
+    @Test
+    fun `read as TSV with linebreak`() {
+        val testFile = excel(File("${temporaryFolder.root.absolutePath}/ExcelSubmissionLineBreak.xlsx")) {
+            sheet("page tab") {
+                row {
+                    cell("Submission")
+                }
+                row {
+                    cell("Title")
+                    cell("Excel Submission \n with a line break")
+                }
+            }
+        }
+
+        val expectedTsv = tsv {
+            line("Submission")
+            line("Title", "\"Excel Submission \n with a line break\"")
+        }
+
+        assertThat(asTsv(testFile)).hasContent(expectedTsv.toString().plus("\n"))
     }
 
     @Test
@@ -120,8 +142,13 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
 
             line("Study", "SECT-001")
             line("An Attr", "A Value")
+            line()
+            line()
+            line()
+            line()
+            line()
         }
 
-        assertThat(asTsv(testFile).readText()).isEqualTo(expectedTsv.toString().plus("\n"))
+        assertThat(asTsv(testFile)).hasContent(expectedTsv.toString().plus("\n"))
     }
 }

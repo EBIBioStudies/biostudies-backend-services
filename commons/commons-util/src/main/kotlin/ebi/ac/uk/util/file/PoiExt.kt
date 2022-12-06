@@ -5,21 +5,28 @@ import org.apache.poi.ss.usermodel.Cell
 import org.apache.poi.ss.usermodel.CellType.NUMERIC
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.Sheet
-import java.util.LinkedList
 
 /**
  * Retrieves the sheet representation as a list of tsv separated string List. Note that as stream reader ignored empty
- * rows they are completed with emtpy values.
+ * rows they are completed with empty values.
  */
-fun Sheet.asTsvList(): List<String> {
-    val elements = LinkedList<String>()
-    for (row in this) {
-        while (elements.size < row.rowNum) elements.add(EMPTY)
-        elements.add(row.asString())
-    }
+fun Sheet.asTsvSequence(): Sequence<String> {
+    val sheet = this
+    return sequence {
+        var elements = 0
+        for (row in sheet) {
+            while (elements < row.rowNum) {
+                elements++
+                yield(EMPTY)
+            }
 
-    return elements.trim()
+            elements++
+            yield(row.asString())
+        }
+    }
 }
+
+private val specialCharRegex = "[\n\t\"]".toRegex()
 
 private fun Row.asString(): String {
     val cells = mutableListOf<String>()
@@ -29,13 +36,10 @@ private fun Row.asString(): String {
 
     return when {
         cells.all { it == EMPTY } -> EMPTY
-        else -> cells.trim().joinToString("\t")
+        else -> cells
+            .dropLastWhile { it.isBlank() }
+            .joinToString("\t") { if (it.contains(specialCharRegex)) "\"${it}\"" else it }
     }
-}
-
-private fun MutableList<String>.trim(): List<String> = when {
-    last().isBlank() -> dropLastWhile { it.isBlank() }
-    else -> this
 }
 
 private val Cell.valueAsString: String
