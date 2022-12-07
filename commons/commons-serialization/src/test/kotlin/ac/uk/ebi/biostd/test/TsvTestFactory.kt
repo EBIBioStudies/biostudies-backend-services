@@ -130,8 +130,16 @@ fun submissionWithInnerSubsections() = submissionWithSubsection().apply {
     line("Grant Id", "No. 2015BAD27A03")
     line()
 
-    line("Expense", "E-001", "F-001")
+    line("Expense", "", "F-001")
     line("Description", "Travel")
+    line()
+
+    line("Expense", "E-001", "F-001")
+    line("Description", "Accommodation")
+    line()
+
+    line("Funding Protocols", "", "F-002")
+    line("Description", "Submission funding protocols")
     line()
 }
 
