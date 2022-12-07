@@ -141,7 +141,7 @@ task deploy {
                 }
 
                 execute "chmod +x $deployPath/update.sh"
-                execute "sh $deployPath/update.sh"
+                execute "$deployPath/update.sh"
             }
         }
     }
