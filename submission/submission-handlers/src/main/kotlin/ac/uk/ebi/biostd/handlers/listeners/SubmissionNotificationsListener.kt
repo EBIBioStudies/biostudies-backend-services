@@ -73,9 +73,9 @@ class SubmissionNotificationsListener(
     }
 
     private fun getUiUrl(submission: ExtSubmission): String {
-        return buildString {
-            append(notificationProps.uiUrl)
-            submission.collections.firstOrNull()?.let { append("/${it.accNo.lowercase()}") }
+        return when (val col = submission.collections.firstOrNull()) {
+            null -> notificationProps.uiUrl
+            else -> "${notificationProps.uiUrl}/${col.accNo.lowercase()}"
         }
     }
 }

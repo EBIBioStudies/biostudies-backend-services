@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtUser
 import ebi.ac.uk.notifications.service.RtNotificationService
+import io.mockk.called
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -69,12 +70,10 @@ class SubmissionNotificationsListenerTest(
     fun `receive submission message`() {
         testInstance.receiveSubmissionMessage(message)
 
+        verify { rabbitTemplate wasNot called }
         verify(exactly = 1) {
             webConsumer.getExtSubmission("ext-tab-url")
             rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url", "st-url")
-        }
-        verify(exactly = 0) {
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
         }
     }
 
@@ -87,12 +86,10 @@ class SubmissionNotificationsListenerTest(
 
         testInstance.receiveSubmissionMessage(message)
 
+        verify { rabbitTemplate wasNot called }
         verify(exactly = 1) {
             webConsumer.getExtSubmission("ext-tab-url")
             rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url/bioimages", "st-url")
-        }
-        verify(exactly = 0) {
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
         }
     }
 
@@ -102,10 +99,10 @@ class SubmissionNotificationsListenerTest(
 
         testInstance.receiveSubmissionMessage(message)
 
-        verify(exactly = 0) {
-            webConsumer.getExtSubmission("ext-tab-url")
-            rtNotificationService.notifySuccessfulSubmission(submission, "Dr Owner", "ui-url", "st-url")
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
+        verify(exactly = 0) { webConsumer.getExtSubmission(any()) }
+        verify {
+            rabbitTemplate wasNot called
+            rtNotificationService wasNot called
         }
     }
 
@@ -113,12 +110,10 @@ class SubmissionNotificationsListenerTest(
     fun `receive submission release message`() {
         testInstance.receiveSubmissionReleaseMessage(message)
 
+        verify { rabbitTemplate wasNot called }
         verify(exactly = 1) {
             webConsumer.getExtSubmission("ext-tab-url")
             rtNotificationService.notifySubmissionRelease(submission, "Dr Owner", "ui-url", "st-url")
-        }
-        verify(exactly = 0) {
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
         }
     }
 
@@ -128,10 +123,10 @@ class SubmissionNotificationsListenerTest(
 
         testInstance.receiveSubmissionReleaseMessage(message)
 
-        verify(exactly = 0) {
-            webConsumer.getExtSubmission("ext-tab-url")
-            rtNotificationService.notifySubmissionRelease(submission, "Dr Owner", "ui-url", "st-url")
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
+        verify(exactly = 0) { webConsumer.getExtSubmission(any()) }
+        verify {
+            rabbitTemplate wasNot called
+            rtNotificationService wasNot called
         }
     }
 
@@ -156,9 +151,7 @@ class SubmissionNotificationsListenerTest(
 
         testInstance.receiveSubmissionReleaseMessage(message)
 
-        verify(exactly = 0) {
-            rtNotificationService.notifySubmissionRelease(submission, "Dr Owner", "ui-url", "st-url")
-        }
+        verify { rtNotificationService wasNot called }
         verify(exactly = 1) {
             webConsumer.getExtSubmission("ext-tab-url")
             notificationsSender.send(errorNotificationSlot.captured)
