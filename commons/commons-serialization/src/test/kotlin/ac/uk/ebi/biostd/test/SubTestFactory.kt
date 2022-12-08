@@ -22,7 +22,7 @@ fun createVenousBloodMonocyte() = submission("S-IHECRE00000919.1") {
 
     section("Study") {
         accNo = "SECT-001"
-        attribute(name = "Title", value = "venous blood, Monocyte")
+        attribute(name = "Title", value = "venous blood, \n Monocyte")
         attribute(name = "Project", value = "CEEHRC (McGill)")
         attribute(name = "Status", value = "Incomplete")
         attribute(name = "Organism", value = "Homo sapiens")
