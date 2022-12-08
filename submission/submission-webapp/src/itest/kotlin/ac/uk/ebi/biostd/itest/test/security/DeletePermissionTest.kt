@@ -49,7 +49,7 @@ class DeletePermissionTest(
     }
 
     @Test
-    fun `1,1 - submit resubmit and delete submission`() {
+    fun `1-1 submit resubmit and delete submission`() {
         val submission = tsv {
             line("Submission", "DeleteAcc1")
             line("Title", "Simple Submission")
@@ -64,7 +64,7 @@ class DeletePermissionTest(
     }
 
     @Test
-    fun `1,2 - delete with regular user`() {
+    fun `1-2 delete with regular user`() {
         val submission = tsv {
             line("Submission", "DeleteAcc2")
             line("Title", "Simple Submission")
@@ -79,7 +79,7 @@ class DeletePermissionTest(
     }
 
     @Test
-    fun `1,3 - delete with regular user and tag access permission`() {
+    fun `1-3 delete with regular user and tag access permission`() {
         val submission = tsv {
             line("Submission", "DeleteAcc3")
             line("Title", "Simple Submission")
@@ -95,7 +95,7 @@ class DeletePermissionTest(
     }
 
     @Test
-    fun `1,4 - resubmit deleted submission`() {
+    fun `1-4 resubmit deleted submission`() {
         val submission = tsv {
             line("Submission", "DeleteAcc4")
             line("Title", "Simple Submission")
@@ -111,7 +111,7 @@ class DeletePermissionTest(
     }
 
     @Test
-    fun `1,5 - delete with collection admin user`() {
+    fun `1-5 delete with collection admin user`() {
         val submission = tsv {
             line("Submission", "DeleteAcc5")
             line("Title", "Simple Submission")
@@ -127,7 +127,7 @@ class DeletePermissionTest(
     }
 
     @Test
-    fun `1,6 - delete subsmissions`() {
+    fun `1-6 delete subsmissions`() {
         val submission1 = tsv {
             line("Submission", "DeleteAcc6-1")
             line("Title", "Test Section Table")

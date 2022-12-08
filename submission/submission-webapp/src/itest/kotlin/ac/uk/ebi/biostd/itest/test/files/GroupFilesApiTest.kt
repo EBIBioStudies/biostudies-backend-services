@@ -42,7 +42,7 @@ class GroupFilesApiTest(
     }
 
     @Test
-    fun `18,1 - upload download delete file and retrieve in user root folder`() {
+    fun `18-1 upload download delete file and retrieve in user root folder`() {
         val file = tempFolder.createFile("FileList1.txt", "An example content")
         webClient.uploadGroupFiles(testGroupName, listOf(file))
 
@@ -55,7 +55,7 @@ class GroupFilesApiTest(
     }
 
     @Test
-    fun `18,2 - upload download delete file and retrieve in user folder`() {
+    fun `18-2 upload download delete file and retrieve in user folder`() {
         val file = tempFolder.createFile("FileList1.txt", "An example content")
 
         webClient.uploadGroupFiles(testGroupName, listOf(file), relativePath = "test-folder")

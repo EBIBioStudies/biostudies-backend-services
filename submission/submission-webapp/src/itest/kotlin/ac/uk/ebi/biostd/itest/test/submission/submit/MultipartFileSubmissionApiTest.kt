@@ -65,7 +65,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `9,1 - XLS submission`() {
+    fun `9-1 XLS submission`() {
         val excelPageTab = excel(File("${tempFolder.absolutePath}/ExcelSubmission.xlsx")) {
             sheet("page tab") {
                 row {
@@ -114,7 +114,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `9,2 - TSV submission`() {
+    fun `9-2 TSV submission`() {
         val submission = tsv {
             line("Submission", "S-TEST1")
             line("Title", "Test Submission")
@@ -142,7 +142,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `9,3 - JSON submission`() {
+    fun `9-3 JSON submission`() {
         val submission = jsonObj {
             "accno" to "S-TEST2"
             "attributes" to jsonArray({
@@ -184,7 +184,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `9,4 - XML submission`() {
+    fun `9-4 XML submission`() {
         val submission = xml("submission") {
             attribute("accno", "S-TEST3")
             "attributes" {
@@ -233,7 +233,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `9,5 - direct submission with overriden attributes`() {
+    fun `9-5 direct submission with overriden attributes`() {
         val submission = tempFolder.createFile(
             "submission.tsv",
             tsv {
@@ -265,7 +265,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `9,6 - invalid format file`() {
+    fun `9-6 invalid format file`() {
         val submission = tempFolder.createFile("submission.txt", "invalid file")
         val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
 

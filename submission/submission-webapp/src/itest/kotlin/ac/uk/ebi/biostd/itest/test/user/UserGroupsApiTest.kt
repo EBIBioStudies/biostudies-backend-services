@@ -41,7 +41,7 @@ class UserGroupsApiTest(
     }
 
     @Test
-    fun `24,1 - get user groups`() {
+    fun `24-1 get user groups`() {
         val groups = superWebClient.getGroups()
 
         assertThat(groups).hasSize(1)
@@ -52,21 +52,21 @@ class UserGroupsApiTest(
     }
 
     @Test
-    fun `24,2 - trying to add a user to unexisting group`() {
+    fun `24-2 trying to add a user to unexisting group`() {
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { superWebClient.addUserInGroup(nonExistentGroupName, SuperUser.email) }
             .withMessageContaining("The group $nonExistentGroupName does not exists")
     }
 
     @Test
-    fun `24,3 - trying to add a user that does not exist`() {
+    fun `24-3 trying to add a user that does not exist`() {
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { superWebClient.addUserInGroup(GROUP_NAME, nonExistentUser) }
             .withMessageContaining("The user $nonExistentUser does not exists")
     }
 
     @Test
-    fun `24,4 - trying to add a user by regularUser`() {
+    fun `24-4 trying to add a user by regularUser`() {
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { regularWebClient.addUserInGroup(GROUP_NAME, nonExistentUser) }
             .withMessageContaining("Access is denied")

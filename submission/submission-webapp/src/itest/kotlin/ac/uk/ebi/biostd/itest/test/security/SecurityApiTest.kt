@@ -28,7 +28,7 @@ class SecurityApiTest(
     }
 
     @Test
-    fun `22,1 - register with invalid email`() {
+    fun `22-1 register with invalid email`() {
         val request = RegisterRequest("Test", "not-a-mail", "123", captcha = "captcha")
         assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
             webClient.registerUser(request)
@@ -36,13 +36,13 @@ class SecurityApiTest(
     }
 
     @Test
-    fun `22,2 - register when activation is not enable`() {
+    fun `22-2 register when activation is not enable`() {
         webClient.registerUser(NewUser.asRegisterRequest())
         webClient.getAuthenticatedClient(NewUser.email, NewUser.password)
     }
 
     @Test
-    fun `22,3 - login when inactive`() {
+    fun `22-3 login when inactive`() {
         webClient.checkUser(CheckUserRequest(InactiveUser.email, InactiveUser.username))
 
         assertThatExceptionOfType(ResourceAccessException::class.java).isThrownBy {

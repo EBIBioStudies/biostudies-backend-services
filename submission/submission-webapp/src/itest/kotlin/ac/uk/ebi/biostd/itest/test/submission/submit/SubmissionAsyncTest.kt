@@ -55,7 +55,7 @@ class SubmissionAsyncTest(
     }
 
     @Test
-    fun `19,1 - simple submit async`() {
+    fun `19-1 simple submit async`() {
         val submission = tsv {
             line("Submission", "SimpleAsync1")
             line("Title", "Async Submission")
@@ -83,7 +83,7 @@ class SubmissionAsyncTest(
     }
 
     @Test
-    fun `19,2 - check submission stages`() {
+    fun `19-2 check submission stages`() {
         val submission = tsv {
             line("Submission", "SimpleAsync2")
             line("Title", "Submission Stages")
