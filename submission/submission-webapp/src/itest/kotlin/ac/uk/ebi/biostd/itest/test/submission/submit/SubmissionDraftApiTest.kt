@@ -47,6 +47,7 @@ class SubmissionDraftApiTest(
 
         val draftSubmission = webClient.getSubmissionDraft("ABC-123")
         assertThat(draftSubmission.key).isEqualTo("ABC-123")
+        webClient.deleteSubmissionDraft(draftSubmission.key)
     }
 
     @Test
@@ -57,6 +58,7 @@ class SubmissionDraftApiTest(
 
         val resultDraft = webClient.getSubmissionDraft(draftSubmission.key)
         assertEquals(resultDraft.content.toString(), pageTab, false)
+        webClient.deleteSubmissionDraft(draftSubmission.key)
     }
 
     @Test
@@ -69,6 +71,7 @@ class SubmissionDraftApiTest(
 
         val draftResult = webClient.getSubmissionDraft(draftSubmission.key)
         assertEquals(draftResult.content.toString(), updatedValue, false)
+        webClient.deleteSubmissionDraft(draftSubmission.key)
     }
 
     @Test
@@ -163,5 +166,6 @@ class SubmissionDraftApiTest(
             }.toString()
         )
         assertThat(webClient.getSubmissionDraft(accNo).content.getProperty("section.type")).isEqualTo("Yet-Another")
+        webClient.deleteSubmissionDraft(accNo)
     }
 }
