@@ -10,6 +10,8 @@ get:
       name: X-SESSION-TOKEN
       description: User authentication token
       required: true
+      schema:
+        type: string
 
   responses:
     200:

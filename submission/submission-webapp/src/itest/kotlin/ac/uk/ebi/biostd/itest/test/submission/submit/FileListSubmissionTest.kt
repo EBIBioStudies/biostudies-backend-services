@@ -104,7 +104,7 @@ class FileListSubmissionTest(
     }
 
     @Test
-    fun `JSON submission with XSL file list`() {
+    fun `JSON submission with XLS file list`() {
         val submission = jsonObj {
             "accno" to "S-TEST5"
             "attributes" to jsonArray({

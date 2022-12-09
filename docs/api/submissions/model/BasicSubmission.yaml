@@ -1,15 +1,20 @@
-schema:
-  type: object
-  properties:
-    type:
-      type: string
-      example: "Submission"
-    accno:
-      type: string
-      example: "S-BIAD1"
-    section:
+description: OK
+content:
+  application/json:
+    schema:
       type: object
-      properties:
-        type:
-          type: string
-          example: Study
+    example:
+      accno: <AccNo>
+      attributes:
+        - name: Title
+          value: Submission Title
+      section:
+        type: Study
+        files:
+          - path: example.txt
+            size: 14
+            attributes:
+              - name: md5
+                value: 01A33621980DDF27A6538708D5E93C53
+            type: file
+      type: submission
