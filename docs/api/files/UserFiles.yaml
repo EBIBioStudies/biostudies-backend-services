@@ -1,8 +1,10 @@
 get:
   summary: Download Files
-  description:
+  description: |
     Download the file in the given path from the user directory. If the path points to a folder, the list of the files
     contained in it will be retrieved.
+    * To take into account: what is written after user in the url is taken as the path where the action will be performed. The path is not required.
+    The path to where the file will be download. If empty, it'll be uploaded to the root user directory.
 
   tags:
     - User Files
@@ -12,10 +14,8 @@ get:
       name: X-SESSION-TOKEN
       description: User authentication token
       required: true
-    - in: path
-      name: path
-      description: Path to the file. If empty, all the files in the user directory will be listed.
-      required: false
+      schema:
+        type: string
 
   responses:
     200:
@@ -23,30 +23,28 @@ get:
       content:
         application/json:
           schema:
-            type: array
+            type: object
             items:
               type: object
-              properties:
-                name:
-                  type: string
-                  example: "file1.txt"
-                path:
-                  type: string
-                  example: "folder/file1.txt"
-                size:
-                  type: number
-                  example: 34
-                type:
-                  type: string
-                  example: "FILE"
+              example:
+                - name: file2.txt
+                  path: user
+                  size: 14
+                  type: FILE
+                - name: file4.txt
+                  path: user
+                  size: 36
+                  type: FILE
     401:
       description: Caused by an invalid X-SESSION-TOKEN
 
 post:
   summary: Upload User File
-  description:
+  description: |
     Uploads a file to the given path. If the given path is a directory, the file will be uploaded there preserving its
     current name. If it's a full file path, the file name will be replaced.
+    * To take into account: what is written after user in the url is taken as the path where the action will be performed. The path is not required. 
+    The path to upload the file. If empty, it'll be uploaded to the root user directory.
 
   tags:
     - User Files
@@ -56,10 +54,8 @@ post:
       name: X-SESSION-TOKEN
       description: User authentication token
       required: true
-    - in: path
-      name: path
-      description: The path to upload the file. If empty, it'll be uploaded to the root user directory.
-      required: false
+      schema:
+        type: string
 
   requestBody:
     required: true
@@ -67,13 +63,14 @@ post:
       multipart/form-data:
         schema:
           type: object
+          required:
+            - files
           properties:
             files:
               type: array
               items:
                 description: Files to be uploaded
                 example: file1.txt
-                required: true
                 type: string
                 format: binary
 
@@ -95,23 +92,8 @@ delete:
       name: X-SESSION-TOKEN
       description: User authentication token
       required: true
-    - in: path
-      name: path
-      description: The path of the directory that contains the file to be deleted.
-      required: true
-
-  requestBody:
-    required: true
-    content:
-      application/x-www-form-urlencoded:
-        schema:
-          type: object
-          properties:
-            fileName:
-              description: Name of the file to be deleted
-              example: file1.txt
-              required: true
-              type: string
+      schema:
+        type: string
 
   responses:
     200:

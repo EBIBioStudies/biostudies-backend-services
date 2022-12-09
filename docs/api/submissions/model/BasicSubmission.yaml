@@ -1,15 +1,19 @@
-schema:
-  type: object
-  properties:
-    type:
-      type: string
-      example: "Submission"
-    accno:
-      type: string
-      example: "S-BIAD1"
-    section:
+description: OK
+content:
+  application/json:
+    schema:
       type: object
-      properties:
-        type:
-          type: string
-          example: Study
+    example:
+      accno: <accNo>
+      attributes:
+        - name: Title
+          value: Submission Title
+        - name: ReleaseDate
+          value: '2021-05-30'
+      section:
+        accno: <accno-section>
+        type: <section-type>
+        attributes:
+          - name: File List
+            value: fileList.json
+      type: submission

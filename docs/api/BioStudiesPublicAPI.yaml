@@ -37,14 +37,14 @@ paths:
   /groups:
     $ref: 'groups/UserGroups.yaml'
 
-  /files/groups/{groupName}/{path}:
+  /files/groups/{groupName}/<unknown>:
     $ref: 'files/GroupFiles.yaml'
-  /folder/groups/{groupName}/{path}:
+  /folder/groups/{groupName}/<unknown>:
     $ref: 'files/GroupFolder.yaml'
 
-  /files/user/{path}:
+  /files/user/<unknown>:
     $ref: 'files/UserFiles.yaml'
-  /folder/user/{path}:
+  /folder/user/<unknown>:
     $ref: 'files/UserFolder.yaml'
 
   /submissions:
@@ -54,7 +54,7 @@ paths:
 
   /submissions/async:
     $ref: 'submissions/operations/AsyncSubmit.yaml'
-  /submissions/direct/async:
+  /submissions/async/direct:
     $ref: 'submissions/operations/AsyncDirectSubmit.yaml'
 
   /submissions/fileLists/validate:
