@@ -35,10 +35,13 @@ import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.date.isBeforeOrEqual
+import mu.KotlinLogging
 import java.time.OffsetDateTime
 import java.util.UUID
 
 private const val DEFAULT_SCHEMA_VERSION = "1.0"
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * TODO: refactor this class to avoid so many individual validations and unnecessary queries. All information required
@@ -66,6 +69,7 @@ class SubmissionProcessor(
         val released = releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
         val accNo = getAccNumber(submission, isNew, submitter, parentPattern)
         val accNoString = accNo.toString()
+        logger.info { "${rqt.accNo} ${rqt.owner} Assigned accNo '$accNoString' to draft with key '${rqt.draftKey}'" }
         val version = persistenceService.getNextVersion(accNoString)
         val collectionInfo = getCollectionInfo(submitter, submission, accNoString, isNew)
         val secretKey = previousVersion?.secretKey ?: UUID.randomUUID().toString()

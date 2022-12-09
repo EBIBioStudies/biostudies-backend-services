@@ -16,6 +16,7 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
+@Suppress("TooManyFunctions")
 class SubmissionSubmitter(
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val submissionProcessor: SubmissionProcessor,
@@ -65,27 +66,32 @@ class SubmissionSubmitter(
         try {
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
 
-            rqt.draftKey?.let {
-                draftService.setProcessingStatus(rqt.owner, it)
-                logger.info { "${rqt.accNo} ${rqt.owner} Status of draft with key '$it' set to PROCESSING" }
-            }
+            rqt.draftKey?.let { startProcessingDraft(rqt.accNo, rqt.owner, it) }
             val processed = submissionProcessor.processSubmission(rqt)
             parentInfoService.executeCollectionValidators(processed)
-            rqt.draftKey?.let {
-                logger.info { "${rqt.accNo} ${rqt.owner} Assigned accNo '${processed.accNo}' to draft with key '$it'" }
-                draftService.setAcceptedStatus(it)
-                logger.info { "${rqt.accNo} ${rqt.owner} Status of draft with key '$it' set to ACCEPTED" }
-            }
+            rqt.draftKey?.let { acceptDraft(rqt.accNo, rqt.owner, it) }
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 
             return processed
         } catch (exception: RuntimeException) {
             logger.error(exception) { "${rqt.accNo} ${rqt.owner} Error processing submission request" }
-            rqt.draftKey?.let {
-                draftService.setActiveStatus(it)
-                logger.info { "${rqt.accNo} ${rqt.owner} Status of draft with key '$it' set to ACTIVE" }
-            }
+            rqt.draftKey?.let { reactivateDraft(rqt.accNo, rqt.owner, it) }
             throw InvalidSubmissionException("Submission validation errors", listOf(exception))
         }
+    }
+
+    private fun acceptDraft(accNo: String, owner: String, draftKey: String) {
+        draftService.setAcceptedStatus(draftKey)
+        logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACCEPTED" }
+    }
+
+    private fun startProcessingDraft(accNo: String, owner: String, draftKey: String) {
+        draftService.setProcessingStatus(owner, draftKey)
+        logger.info { "$accNo $owner Status of draft with key '$draftKey' set to PROCESSING" }
+    }
+
+    private fun reactivateDraft(accNo: String, owner: String, draftKey: String) {
+        draftService.setActiveStatus(draftKey)
+        logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACTIVE" }
     }
 }
