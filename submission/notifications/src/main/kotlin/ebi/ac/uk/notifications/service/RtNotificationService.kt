@@ -19,18 +19,18 @@ class RtNotificationService(
     private val templateLoader: TemplateLoader,
     private val rtTicketService: RtTicketService
 ) {
-    fun notifySuccessfulSubmission(sub: ExtSubmission, ownerFullName: String, uiUrl: String) {
+    fun notifySuccessfulSubmission(sub: ExtSubmission, ownerFullName: String, uiUrl: String, stUrl: String) {
         val subject = "BioStudies Submission - ${sub.accNo}"
         val template = if (sub.version == 1) SUCCESSFUL_SUBMISSION_TEMPLATE else SUCCESSFUL_RESUBMISSION_TEMPLATE
-        val model = successfulSubmissionModel(sub, uiUrl, ownerFullName)
+        val model = successfulSubmissionModel(sub, uiUrl, stUrl, ownerFullName)
         val content = SuccessfulSubmissionTemplate(templateLoader.loadTemplateOrDefault(sub, template)).render(model)
 
         rtTicketService.saveRtTicket(sub.accNo, subject, sub.owner, content)
     }
 
-    fun notifySubmissionRelease(sub: ExtSubmission, ownerFullName: String, uiUrl: String) {
+    fun notifySubmissionRelease(sub: ExtSubmission, ownerFullName: String, uiUrl: String, stUrl: String) {
         val subject = "BioStudies Submission - ${sub.accNo}"
-        val model = submissionReleaseModel(sub, uiUrl, ownerFullName)
+        val model = submissionReleaseModel(sub, uiUrl, stUrl, ownerFullName)
         val template = templateLoader.loadTemplateOrDefault(sub, SUBMISSION_RELEASE_TEMPLATE)
         val content = SubmissionReleaseTemplate(template).render(model)
 
@@ -41,6 +41,7 @@ class RtNotificationService(
         private fun submissionReleaseModel(
             submission: ExtSubmission,
             uiUrl: String,
+            stUrl: String,
             ownerFullName: String
         ): SubmissionReleaseModel {
             val description = buildString {
@@ -51,6 +52,7 @@ class RtNotificationService(
             return SubmissionReleaseModel(
                 FROM,
                 uiUrl,
+                stUrl,
                 ownerFullName,
                 description,
                 submission.releaseTime?.toStringDate()
@@ -60,12 +62,14 @@ class RtNotificationService(
         private fun successfulSubmissionModel(
             submission: ExtSubmission,
             uiUrl: String,
+            stUrl: String,
             ownerFullName: String
         ): SuccessfulSubmissionModel {
             val title = submission.computedTitle?.let { "submission \"$it\"" } ?: "submission"
             return SuccessfulSubmissionModel(
                 mailto = FROM,
                 uiUrl = uiUrl,
+                stUrl = stUrl,
                 username = ownerFullName,
                 userEmail = submission.owner,
                 accNo = submission.accNo,

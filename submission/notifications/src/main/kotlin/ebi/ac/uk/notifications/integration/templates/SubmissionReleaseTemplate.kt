@@ -10,6 +10,7 @@ internal class SubmissionReleaseTemplate(
 internal class SubmissionReleaseModel(
     private val mailto: String,
     private val uiUrl: String,
+    private val stUrl: String,
     private val username: String,
     private val subDescription: String,
     private val releaseDate: String?
@@ -19,6 +20,7 @@ internal class SubmissionReleaseModel(
         "SUB_DESCRIPTION" to subDescription,
         "MAIL_TO" to mailto,
         "UI_URL" to uiUrl,
+        "ST_URL" to stUrl,
         "RELEASE_DATE" to releaseDate.orEmpty()
     )
 }

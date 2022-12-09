@@ -20,63 +20,62 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 private val logger = KotlinLogging.logger {}
 private const val SYSTEM_NAME = "Submitter"
 private const val HANDLERS_SUBSYSTEM = "Submission Handlers"
+private const val ERROR_MESSAGE = "Problem processing notification for submission %s"
 
 class SubmissionNotificationsListener(
     private val rabbitTemplate: RabbitTemplate,
     private val webConsumer: BioStudiesWebConsumer,
     private val notificationsSender: NotificationsSender,
     private val rtNotificationService: RtNotificationService,
-    private val notificationProperties: NotificationProperties,
+    private val notificationProps: NotificationProperties,
 ) {
     @RabbitListener(queues = [SUBMIT_NOTIFICATIONS_QUEUE])
     fun receiveSubmissionMessage(message: SubmissionMessage) {
         logger.info { "Submission Notification for ${message.accNo}" }
 
-        notify(
-            message,
-            "Problem processing notification for submission ${message.accNo}",
-            rtNotificationService::notifySuccessfulSubmission,
-        )
+        notifySafely(message) {
+            val owner = webConsumer.getExtUser(message.extUserUrl)
+            if (owner.notificationsEnabled) {
+                val sub = webConsumer.getExtSubmission(message.extTabUrl)
+                val uiUrl = getUiUrl(sub)
+                rtNotificationService.notifySuccessfulSubmission(sub, owner.fullName, uiUrl, notificationProps.stUrl)
+            }
+        }
     }
 
     @RabbitListener(queues = [RELEASE_NOTIFICATIONS_QUEUE])
     fun receiveSubmissionReleaseMessage(message: SubmissionMessage) {
         logger.info { "Release notification for ${message.accNo}" }
 
-        notify(
-            message,
-            "Problem processing release notification for submission ${message.accNo}",
-            rtNotificationService::notifySubmissionRelease,
-        )
-    }
-
-    @RabbitListener(queues = [FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE])
-    fun receiveFailedSubmissionMessage(msg: FailedRequestMessage): Unit =
-        sendErrorNotification("Problem processing submission '${msg.accNo}' with version ${msg.version}.")
-
-    private fun notify(
-        message: SubmissionMessage,
-        errorMessage: String,
-        notifyFunction: (ExtSubmission, String, String) -> Unit,
-    ) = runCatching {
-        sendNotification(message, notifyFunction)
-    }.onFailure {
-        logFailedNotification(message)
-        sendErrorNotification(errorMessage)
-    }
-
-    private fun sendNotification(message: SubmissionMessage, notifyFunction: (ExtSubmission, String, String) -> Unit) {
-        val owner = webConsumer.getExtUser(message.extUserUrl)
-
-        if (owner.notificationsEnabled) {
-            val submission = webConsumer.getExtSubmission(message.extTabUrl)
-            notifyFunction(submission, owner.fullName, notificationProperties.uiUrl)
+        notifySafely(message) {
+            val owner = webConsumer.getExtUser(message.extUserUrl)
+            if (owner.notificationsEnabled) {
+                val sub = webConsumer.getExtSubmission(message.extTabUrl)
+                val uiUrl = getUiUrl(sub)
+                rtNotificationService.notifySubmissionRelease(sub, owner.fullName, uiUrl, notificationProps.stUrl)
+            }
         }
     }
 
-    private fun logFailedNotification(message: SubmissionMessage) =
-        rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
+    @RabbitListener(queues = [FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE])
+    fun receiveFailedSubmissionMessage(msg: FailedRequestMessage) {
+        val errorMessage = "Problem processing submission '${msg.accNo}' with version ${msg.version}."
+        notificationsSender.send(Alert(SYSTEM_NAME, HANDLERS_SUBSYSTEM, errorMessage))
+    }
 
-    private fun sendErrorNotification(message: String) =
-        notificationsSender.send(Alert(SYSTEM_NAME, HANDLERS_SUBSYSTEM, message))
+    private fun notifySafely(message: SubmissionMessage, notifyFunction: SubmissionMessage.() -> Unit) {
+        runCatching { notifyFunction(message) }.onFailure { onError(message) }
+    }
+
+    private fun onError(message: SubmissionMessage) {
+        rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
+        notificationsSender.send(Alert(SYSTEM_NAME, HANDLERS_SUBSYSTEM, String.format(ERROR_MESSAGE, message.accNo)))
+    }
+
+    private fun getUiUrl(submission: ExtSubmission): String {
+        return when (val col = submission.collections.firstOrNull()) {
+            null -> notificationProps.uiUrl
+            else -> "${notificationProps.uiUrl}/${col.accNo.lowercase()}"
+        }
+    }
 }
