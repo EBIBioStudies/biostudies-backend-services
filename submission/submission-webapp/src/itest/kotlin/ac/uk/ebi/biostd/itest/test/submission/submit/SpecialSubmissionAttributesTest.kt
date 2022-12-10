@@ -61,7 +61,7 @@ class SpecialSubmissionAttributesTest(
     }
 
     @Test
-    fun `new submission with past release date`() {
+    fun `15-1 new submission with past release date`() {
         val submission = tsv {
             line("Submission", "S-RLSD123")
             line("Title", "Test Public Submission")
@@ -78,7 +78,7 @@ class SpecialSubmissionAttributesTest(
     }
 
     @Test
-    fun `submission with tags`() {
+    fun `15-2 submission with tags`() {
         val submission = tsv {
             line("Submission", "S-TEST123")
             line("Title", "Submission With Tags")
@@ -102,7 +102,7 @@ class SpecialSubmissionAttributesTest(
     }
 
     @Test
-    fun `new submission with empty accNo subsection table`() {
+    fun `15-3 new submission with empty accNo subsection table`() {
         val submission = tsv {
             line("Submission", "S-STBL123")
             line("Title", "Test Section Table")
@@ -136,7 +136,7 @@ class SpecialSubmissionAttributesTest(
     }
 
     @Test
-    fun `new submission with empty-null attributes`() {
+    fun `15-4 new submission with empty-null attributes`() {
         fun assertSubmission(submission: ExtSubmission) {
             assertThat(submission.accNo).isEqualTo("S-STBL124")
             assertThat(submission.title).isEqualTo("Test Section Table")
@@ -235,7 +235,7 @@ class SpecialSubmissionAttributesTest(
     }
 
     @Test
-    fun `new submission with empty-null table attributes`() {
+    fun `15-5 new submission with empty-null table attributes`() {
         fun assertSubmission(submission: ExtSubmission) {
             assertThat(submission.accNo).isEqualTo("S-STBL124")
             assertThat(submission.title).isEqualTo("Test Section Table")

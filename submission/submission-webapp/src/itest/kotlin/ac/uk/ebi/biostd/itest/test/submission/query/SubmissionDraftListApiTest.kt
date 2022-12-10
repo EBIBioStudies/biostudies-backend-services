@@ -38,13 +38,13 @@ class SubmissionDraftListApiTest(
     }
 
     @Test
-    fun `get draft by key`() {
+    fun `23-1 get draft by key`() {
         val draft = webClient.getSubmissionDraft(testDrafts.first().key)
         assertDraft(testDrafts.first().key, "ABC-0", draft)
     }
 
     @Test
-    fun `get drafts without pagination`() {
+    fun `23-2 get drafts without pagination`() {
         val drafts = webClient.getAllSubmissionDrafts()
 
         assertThat(drafts).hasSize(3)
@@ -52,7 +52,7 @@ class SubmissionDraftListApiTest(
     }
 
     @Test
-    fun `get drafts with pagination`() {
+    fun `23-3 get drafts with pagination`() {
         val page1 = webClient.getAllSubmissionDrafts(offset = 0, limit = 2)
         val page2 = webClient.getAllSubmissionDrafts(offset = 2, limit = 2)
 

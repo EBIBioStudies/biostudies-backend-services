@@ -40,7 +40,7 @@ class CollectionsListTest(
     }
 
     @Test
-    fun `list collections for super user`() {
+    fun `20-1 list collections for super user`() {
         val collections = superUserWebClient.getCollections()
 
         assertThat(collections).hasSizeGreaterThanOrEqualTo(2)
@@ -49,7 +49,7 @@ class CollectionsListTest(
     }
 
     @Test
-    fun `list collections for regular user`() {
+    fun `20-2 list collections for regular user`() {
         val collections = regularUserWebClient.getCollections()
 
         assertThat(collections).hasSizeGreaterThanOrEqualTo(2)
@@ -58,7 +58,7 @@ class CollectionsListTest(
     }
 
     @Test
-    fun `list collections for default user`() {
+    fun `20-3 list collections for default user`() {
         val collections = defaultUserWebClient.getCollections()
 
         assertThat(collections).hasSize(1)
@@ -66,7 +66,7 @@ class CollectionsListTest(
     }
 
     @Test
-    fun `list collections for collection admin user`() {
+    fun `20-4 list collections for collection admin user`() {
         val collections = collectionAdminUserWebClient.getCollections()
 
         assertThat(collections).hasSizeGreaterThanOrEqualTo(2)

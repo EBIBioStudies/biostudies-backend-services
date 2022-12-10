@@ -52,7 +52,7 @@ class FileListValidationTest(
     }
 
     @Test
-    fun `blank file list`() {
+    fun `11-1 blank file list`() {
         val fileList = tempFolder.createFile("BlankFileList.json")
 
         webClient.uploadFile(fileList)
@@ -65,7 +65,7 @@ class FileListValidationTest(
     }
 
     @Test
-    fun `empty file list`() {
+    fun `11-2 empty file list`() {
         val fileList = tempFolder.createFile("EmptyFileList.tsv", "Files\tAttr1")
 
         webClient.uploadFile(fileList)
@@ -78,7 +78,7 @@ class FileListValidationTest(
     }
 
     @Test
-    fun `unsupported file list format`() {
+    fun `11-3 unsupported file list format`() {
         val fileList = tempFolder.createFile("image.jpg")
 
         webClient.uploadFile(fileList)
@@ -94,7 +94,7 @@ class FileListValidationTest(
     }
 
     @Test
-    fun `valid file list`() {
+    fun `11-4 valid file list`() {
         val previousVersion = tsv {
             line("Submission", "S-FLV123")
             line()
@@ -131,7 +131,7 @@ class FileListValidationTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `valid file list including a file from FIRE`() {
+    fun `11-5 valid file list including a file from FIRE`() {
         val previousVersion = tsv {
             line("Submission", "S-FLV124")
             line()
@@ -175,7 +175,7 @@ class FileListValidationTest(
     }
 
     @Test
-    fun `valid file list with root path`() {
+    fun `11-6 valid file list with root path`() {
         val file = tempFolder.createFile("File1.tif", "content-1")
         val fileListContent = tsv {
             line("Files")
@@ -197,7 +197,7 @@ class FileListValidationTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "false")
-    fun `file list with missing files on NFS mode`() {
+    fun `11-7 file list with missing files on NFS mode`() {
         val fileList = tempFolder.createFile("InvalidNfsFileList.json", FILE_LIST_CONTENT)
 
         webClient.uploadFile(fileList)
@@ -225,7 +225,7 @@ class FileListValidationTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `file list with missing files on FIRE mode`() {
+    fun `11-8 file list with missing files on FIRE mode`() {
         val fileList = tempFolder.createFile("InvalidFireFileList.json", FILE_LIST_CONTENT)
 
         webClient.uploadFile(fileList)
@@ -252,7 +252,7 @@ class FileListValidationTest(
     }
 
     @Test
-    fun `valid file list on behalf another user`() {
+    fun `11-9 valid file list on behalf another user`() {
         securityTestService.ensureUserRegistration(RegularUser)
 
         val fileListFile = tempFolder.createFile("Plate1.tif")

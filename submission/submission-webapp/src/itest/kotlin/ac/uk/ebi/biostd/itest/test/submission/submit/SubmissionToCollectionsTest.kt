@@ -53,7 +53,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `accNo generation from collection template`() {
+    fun `8-1 accNo generation from collection template`() {
         val submission = tsv {
             line("Submission")
             line("AttachTo", "Test-Project")
@@ -69,7 +69,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `direct submission overriding collection`() {
+    fun `8-2 direct submission overriding collection`() {
         val submissionFile = tempFolder.createFile(
             "submission.tsv",
             tsv {
@@ -92,7 +92,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `no release date to private collection`() {
+    fun `8-3 no release date to private collection`() {
         val submission = tsv {
             line("Submission", "S-PRP0")
             line("AttachTo", "Private-Project")
@@ -109,7 +109,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `public submission to private collection`() {
+    fun `8-4 public submission to private collection`() {
         val submission = tsv {
             line("Submission", "S-PRP1")
             line("AttachTo", "Private-Project")
@@ -128,7 +128,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `private submission to public collection`() {
+    fun `8-5 private submission to public collection`() {
         val submission = tsv {
             line("Submission", "S-PUP0")
             line("AttachTo", "Public-Project")
@@ -147,7 +147,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `no release date to public collection`() {
+    fun `8-6 no release date to public collection`() {
         val submission = tsv {
             line("Submission", "S-PUP1")
             line("AttachTo", "Public-Project")
@@ -164,7 +164,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `submit to collection with validator`() {
+    fun `8-7 submit to collection with validator`() {
         val submission = tsv {
             line("Submission", "S-VLD0")
             line("AttachTo", "ValidatedCollection")
@@ -182,7 +182,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `submit to collection with failling validator`() {
+    fun `8-8 submit to collection with failling validator`() {
         val submission = tsv {
             line("Submission", "S-FLC0")
             line("AttachTo", "FailCollection")

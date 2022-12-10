@@ -40,27 +40,29 @@ class SubmissionDraftApiTest(
     }
 
     @Test
-    fun `get draft submission when draft does not exist but submission does`() {
+    fun `12-1 get draft submission when draft does not exist but submission does`() {
         val pageTab = jsonObj { "accno" to "ABC-123"; "type" to "Study" }.toString()
 
         webClient.submitSingle(pageTab, JSON)
 
         val draftSubmission = webClient.getSubmissionDraft("ABC-123")
         assertThat(draftSubmission.key).isEqualTo("ABC-123")
+        webClient.deleteSubmissionDraft(draftSubmission.key)
     }
 
     @Test
-    fun `create and get submission draft`() {
+    fun `12-2 create and get submission draft`() {
         val pageTab = jsonObj { "accno" to "ABC-124"; "type" to "Study" }.toString()
 
         val draftSubmission = webClient.createSubmissionDraft(pageTab)
 
         val resultDraft = webClient.getSubmissionDraft(draftSubmission.key)
         assertEquals(resultDraft.content.toString(), pageTab, false)
+        webClient.deleteSubmissionDraft(draftSubmission.key)
     }
 
     @Test
-    fun `create and update submission draft`() {
+    fun `12-3 create and update submission draft`() {
         val updatedValue = "{ \"value\": 1 }"
         val pageTab = jsonObj { "accno" to "ABC-125"; "type" to "Study" }.toString()
 
@@ -69,10 +71,11 @@ class SubmissionDraftApiTest(
 
         val draftResult = webClient.getSubmissionDraft(draftSubmission.key)
         assertEquals(draftResult.content.toString(), updatedValue, false)
+        webClient.deleteSubmissionDraft(draftSubmission.key)
     }
 
     @Test
-    fun `delete submission draft after submission`() {
+    fun `12-4 delete submission draft after submission`() {
         val pageTab = jsonObj { "accno" to "ABC-126"; "title" to "From Draft" }.toString()
         val draft = webClient.createSubmissionDraft(pageTab)
 
@@ -82,14 +85,14 @@ class SubmissionDraftApiTest(
     }
 
     @Test
-    fun `get draft submission when neither draft nor submission exists`() {
+    fun `12-5 get draft submission when neither draft nor submission exists`() {
         assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
             webClient.getSubmissionDraft("ABC-127")
         }
     }
 
     @Test
-    fun `delete a draft directly`() {
+    fun `12-6 delete a draft directly`() {
         val pageTab = jsonObj { "accno" to "ABC-128"; "type" to "Study" }.toString()
         webClient.submitSingle(pageTab, JSON)
 
@@ -99,7 +102,7 @@ class SubmissionDraftApiTest(
     }
 
     @Test
-    fun `re submit from draft`() {
+    fun `12-7 re submit from draft`() {
         webClient.submitSingle(
             jsonObj {
                 "accno" to "ABC-129"
@@ -124,7 +127,7 @@ class SubmissionDraftApiTest(
     }
 
     @Test
-    fun `update a submission already submitted draft`(@Autowired mapper: ObjectMapper) {
+    fun `12-8 update a submission already submitted draft`(@Autowired mapper: ObjectMapper) {
         val accNo = "ABC-130"
         val newSubmission = webClient.submitSingle(
             jsonObj {
@@ -163,5 +166,6 @@ class SubmissionDraftApiTest(
             }.toString()
         )
         assertThat(webClient.getSubmissionDraft(accNo).content.getProperty("section.type")).isEqualTo("Yet-Another")
+        webClient.deleteSubmissionDraft(accNo)
     }
 }
