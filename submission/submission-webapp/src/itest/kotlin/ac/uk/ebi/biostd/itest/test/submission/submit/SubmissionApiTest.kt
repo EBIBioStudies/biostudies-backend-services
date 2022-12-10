@@ -58,7 +58,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `submit with submission object`() {
+    fun `16-1 submit with submission object`() {
         val submission = submission("SimpleAcc1") {
             title = "Simple Submission"
         }
@@ -72,7 +72,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `empty accNo`() {
+    fun `16-2 empty accNo`() {
         val submission = tsv {
             line("Submission")
             line("Title", "Empty AccNo")
@@ -89,7 +89,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `submission with root path`() {
+    fun `16-3 submission with root path`() {
         val submission = tsv {
             line("Submission", "S-12364")
             line("Title", "Sample Submission")
@@ -120,7 +120,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `submission with generic root section`() {
+    fun `16-4 submission with generic root section`() {
         val submission = tsv {
             line("Submission", "E-MTAB123")
             line("Title", "Generic Submission")
@@ -140,7 +140,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `submit with invalid link Url`() {
+    fun `16-5 submit with invalid link Url`() {
         val exception = assertThrows(WebClientException::class.java) {
             webClient.submitSingle(invalidLinkUrl().toString(), TSV)
         }
@@ -149,7 +149,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `submission with validation error`() {
+    fun `16-6 submission with validation error`() {
         val submission = submission("S-400") {
             title = "Submission with invalid file"
             section("Study") { file("invalidfile.txt") }

@@ -249,8 +249,13 @@ class TsvDeserializerTest {
                         attribute("Grant Id", "No. 2015BAD27B01")
 
                         section("Expense") {
-                            accNo = "E-001"
+                            accNo = null
                             attribute("Description", "Travel")
+                        }
+
+                        section("Expense") {
+                            accNo = "E-001"
+                            attribute("Description", "Accommodation")
                         }
                     }
 
@@ -258,6 +263,11 @@ class TsvDeserializerTest {
                         accNo = "F-002"
                         attribute("Agency", "National Support Program of Japan")
                         attribute("Grant Id", "No. 2015BAD27A03")
+
+                        section("Funding Protocols") {
+                            accNo = null
+                            attribute("Description", "Submission funding protocols")
+                        }
                     }
                 }
             }

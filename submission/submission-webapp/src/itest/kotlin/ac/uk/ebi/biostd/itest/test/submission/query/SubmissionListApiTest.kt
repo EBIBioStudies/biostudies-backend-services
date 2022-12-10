@@ -52,7 +52,7 @@ class SubmissionListApiTest(
     }
 
     @Test
-    fun `get submission list`() {
+    fun `13-1 get submission list`() {
         val submissionList = webClient.getSubmissions()
 
         assertThat(submissionList).isNotNull
@@ -60,7 +60,7 @@ class SubmissionListApiTest(
     }
 
     @Test
-    fun `get submission list by accession`() {
+    fun `13-2 get submission list by accession`() {
         val submissionList = webClient.getSubmissions(
             mapOf(
                 "accNo" to "LIST-API-17"
@@ -77,7 +77,7 @@ class SubmissionListApiTest(
     }
 
     @Test
-    fun `get direct submission list by accession`() {
+    fun `13-3 get direct submission list by accession`() {
         val submissionList = webClient.getSubmissions(
             mapOf(
                 "accNo" to "LIST-API-27"
@@ -94,7 +94,7 @@ class SubmissionListApiTest(
     }
 
     @Test
-    fun `get submission list by keywords`() {
+    fun `13-4 get submission list by keywords`() {
         val submissionList = webClient.getSubmissions(
             mapOf(
                 "keywords" to "list-api-keyword-20"
@@ -107,7 +107,7 @@ class SubmissionListApiTest(
     }
 
     @Test
-    fun `get submission list by release date`() {
+    fun `13-5 get submission list by release date`() {
         val submissionList = webClient.getSubmissions(
             mapOf(
                 "rTimeFrom" to "2019-09-24T09:41:44.000Z",
@@ -119,7 +119,7 @@ class SubmissionListApiTest(
     }
 
     @Test
-    fun `get submission list pagination`() {
+    fun `13-6 get submission list pagination`() {
         val submissionList = webClient.getSubmissions(
             mapOf(
                 "offset" to 15,
@@ -131,7 +131,7 @@ class SubmissionListApiTest(
     }
 
     @Test
-    fun `get submissions with submission title`() {
+    fun `13-7 get submissions with submission title`() {
         val submission = tsv {
             line("Submission", "SECT-123")
             line("Title", "Submission subTitle")
@@ -160,7 +160,7 @@ class SubmissionListApiTest(
     }
 
     @Test
-    fun `get submissions with section title`() {
+    fun `13-8 get submissions with section title`() {
         val submission = tsv {
             line("Submission", "SECT-124")
             line()
@@ -183,7 +183,7 @@ class SubmissionListApiTest(
     }
 
     @Test
-    fun `submission with spaces`() {
+    fun `13-9 submission with spaces`() {
         val submission = tsv {
             line("Submission", "SECT-125")
             line("Title", "the Submission title")
@@ -212,7 +212,7 @@ class SubmissionListApiTest(
     }
 
     @Test
-    fun `latest updated submission should appear first`() {
+    fun `13-10 latest updated submission should appear first`() {
         webClient.submitSingle(getSimpleSubmission(19), TSV)
 
         val submissionList = webClient.getSubmissions(

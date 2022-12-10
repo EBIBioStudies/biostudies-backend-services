@@ -158,7 +158,7 @@ internal class RtNotificationServiceTest(
                     )
                 } returns Unit
 
-                testInstance.notifySuccessfulSubmission(submission, "owner@mail.org", "ui-url")
+                testInstance.notifySuccessfulSubmission(submission, "owner@mail.org", "ui-url", "st-url")
 
                 assertThat(slot.captured).isEqualTo(content)
             }
@@ -200,7 +200,7 @@ internal class RtNotificationServiceTest(
                     )
                 } returns Unit
 
-                testInstance.notifySuccessfulSubmission(submission, "owner@mail.org", "ui-url")
+                testInstance.notifySuccessfulSubmission(submission, "owner@mail.org", "ui-url", "st-url")
 
                 assertThat(slot.captured).isEqualTo(content)
             }
@@ -218,7 +218,7 @@ internal class RtNotificationServiceTest(
 
                     Your submission with accession number S-TEST1 will be made public on 2019-09-21.
 
-                    If you want to keep your submission private after this date or make it public earlier, please log in to the BioStudies Submission Tool at ui-url/submissions/submissions and change the release date.
+                    If you want to keep your submission private after this date or make it public earlier, please log in to the BioStudies Submission Tool at st-url and change the release date.
 
                     Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
 
@@ -239,7 +239,7 @@ internal class RtNotificationServiceTest(
 
                 Your submission with accession number S-TEST1 - "Sub Title" will be made public on 2019-09-21.
 
-                If you want to keep your submission private after this date or make it public earlier, please log in to the BioStudies Submission Tool at ui-url/submissions/submissions and change the release date.
+                If you want to keep your submission private after this date or make it public earlier, please log in to the BioStudies Submission Tool at st-url and change the release date.
 
                 Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
  
@@ -260,7 +260,7 @@ internal class RtNotificationServiceTest(
                     
                     Your submission with accession number S-TEST1 - "Sect Title" will be made public on 2019-09-21.
                     
-                    If you want to keep your submission private after this date or make it public earlier, please log in to the BioStudies Submission Tool at ui-url/submissions/submissions and change the release date.
+                    If you want to keep your submission private after this date or make it public earlier, please log in to the BioStudies Submission Tool at st-url and change the release date.
                     
                     Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
                     
@@ -287,7 +287,7 @@ internal class RtNotificationServiceTest(
                 )
             } returns Unit
 
-            testInstance.notifySubmissionRelease(submission, "owner@mail.org", "ui-url")
+            testInstance.notifySubmissionRelease(submission, "owner@mail.org", "ui-url", "st-url")
 
             assertThat(slot.captured).isEqualTo(content)
         }

@@ -66,7 +66,7 @@ class SubmissionFileSourceTest(
     }
 
     @Test
-    fun `resubmission with SUBMISSION file source as priority over USER_SPACE`() {
+    fun `6-1 resubmission with SUBMISSION file source as priority over USER_SPACE`() {
         fun submission(fileList: String) = tsv {
             line("Submission", "S-FSTST1")
             line("Title", "Preferred Source Submission")
@@ -138,7 +138,7 @@ class SubmissionFileSourceTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `submission with FIRE source only`() {
+    fun `6-2 submission with FIRE source only`() {
         val file3 = tempFolder.createFile("File3.txt", "content file 3")
         val file4 = tempFolder.createFile("File4.txt", "content file 4")
         val file3Md5 = file3.md5()
@@ -196,7 +196,7 @@ class SubmissionFileSourceTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `submission with directory with files on FIRE`() {
+    fun `6-3 submission with directory with files on FIRE`() {
         val submission = tsv {
             line("Submission", "S-FSTST3")
             line("Title", "Simple Submission With directory")
@@ -239,7 +239,7 @@ class SubmissionFileSourceTest(
     }
 
     @Test
-    fun `multiple file references`() {
+    fun `6-4 multiple file references`() {
         val submission = tsv {
             line("Submission", "S-FSTST4")
             line("Title", "Simple Submission With Files")
@@ -273,7 +273,7 @@ class SubmissionFileSourceTest(
     }
 
     @Test
-    fun `submission with group file`() {
+    fun `6-5 submission with group file`() {
         val groupName = "The-Group"
         val submission = tsv {
             line("Submission", "S-FSTST5")
@@ -309,7 +309,7 @@ class SubmissionFileSourceTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `Submission bypassing fire`() {
+    fun `6-6 Submission bypassing fire`() {
         val submission = tsv {
             line("Submission", "S-FSTST6")
             line("Title", "Sample Submission")
@@ -345,7 +345,7 @@ class SubmissionFileSourceTest(
     }
 
     @Test
-    fun `resubmission with SUBMISSION source ONLY`() {
+    fun `6-7 resubmission with SUBMISSION source ONLY`() {
         val submission = tsv {
             line("Submission", "S-FSTST7")
             line("Title", "Submission Source Only")

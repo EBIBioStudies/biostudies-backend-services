@@ -64,7 +64,7 @@ class FileListSubmissionTest(
     }
 
     @Test
-    fun `JSON submission with TSV file list`() {
+    fun `3-1 JSON submission with TSV file list`() {
         val submission = jsonObj {
             "accno" to "S-TEST4"
             "attributes" to jsonArray({
@@ -104,7 +104,7 @@ class FileListSubmissionTest(
     }
 
     @Test
-    fun `JSON submission with XSL file list`() {
+    fun `3-2 JSON submission with XSL file list`() {
         val submission = jsonObj {
             "accno" to "S-TEST5"
             "attributes" to jsonArray({
@@ -149,7 +149,7 @@ class FileListSubmissionTest(
     }
 
     @Test
-    fun `JSON submission with invalid file list format`() {
+    fun `3-3 JSON submission with invalid file list format`() {
         val fileList = tempFolder.createFile("FileList.txt", "Invalid file list")
         val submission = jsonObj {
             "accno" to "S-TEST5"
@@ -180,7 +180,7 @@ class FileListSubmissionTest(
     }
 
     @Test
-    fun `list referenced files`() {
+    fun `3-4 list referenced files`() {
         val referencedFile = tempFolder.createFile("referenced.txt")
         val submission = tsv {
             line("Submission", "S-TEST6")
@@ -216,7 +216,7 @@ class FileListSubmissionTest(
     }
 
     @Test
-    fun `reuse previous version file list`() {
+    fun `3-5 reuse previous version file list`() {
         val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
         fun submission(fileList: String) = tsv {
             line("Submission", "S-TEST7")
@@ -248,7 +248,7 @@ class FileListSubmissionTest(
     }
 
     @Test
-    fun `empty file list`() {
+    fun `3-6 empty file list`() {
         val sub = tsv {
             line("Submission", "S-TEST8")
             line("Title", "Empty File List")

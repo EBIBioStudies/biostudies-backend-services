@@ -53,7 +53,7 @@ class SubmissionOnBehalfTest(
     }
 
     @Test
-    fun `submission on behalf another user`() {
+    fun `14-1 submission on behalf another user`() {
         securityTestService.ensureUserRegistration(RegularUser)
 
         val submission = tsv {
@@ -77,7 +77,7 @@ class SubmissionOnBehalfTest(
     }
 
     @Test
-    fun `submission on behalf new user`() {
+    fun `14-2 submission on behalf new user`() {
         val username = "Jhon doe"
         val email = "jhon@doe.email.com"
 
@@ -98,7 +98,7 @@ class SubmissionOnBehalfTest(
     }
 
     @Test
-    fun `submission on behalf created user with files in his folder`() {
+    fun `14-3 submission on behalf created user with files in his folder`() {
         securityTestService.ensureUserRegistration(RegularUser)
         val regularClient = getWebClient(serverPort, RegularUser)
 
@@ -131,7 +131,7 @@ class SubmissionOnBehalfTest(
     }
 
     @Test
-    fun `submission on behalf when owner and submitter has the same file`() {
+    fun `14-4 submission on behalf when owner and submitter has the same file`() {
         securityTestService.ensureUserRegistration(RegularUser)
         val regularClient = getWebClient(serverPort, RegularUser)
 

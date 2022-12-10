@@ -52,19 +52,19 @@ class SubmitPermissionTest(
     }
 
     @Test
-    fun `create collection with superuser`() {
+    fun `4-1 create collection with superuser`() {
         assertThat(superUserWebClient.submitSingle(collection, SubmissionFormat.TSV)).isSuccessful()
     }
 
     @Test
-    fun `create collection with regular user`() {
+    fun `4-2 create collection with regular user`() {
         assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
             regularUserWebClient.submitSingle(collection, SubmissionFormat.TSV)
         }
     }
 
     @Test
-    fun `submit without attach permission`() {
+    fun `4-3 submit without attach permission`() {
         val project = tsv {
             line("Submission", "TestCollection")
             line("AccNoTemplate", "!{S-CLL}")
@@ -88,7 +88,7 @@ class SubmitPermissionTest(
     }
 
     @Test
-    fun `submit with attach permission access tag`() {
+    fun `4-4 submit with attach permission access tag`() {
         val project = tsv {
             line("Submission", "TestCollection2")
             line("AccNoTemplate", "!{S-COLL}")
@@ -110,7 +110,7 @@ class SubmitPermissionTest(
     }
 
     @Test
-    fun `registering user and submit to default project`() {
+    fun `4-5 registering user and submit to default project`() {
         val project = tsv {
             line("Submission", "TestCollection3")
             line("AccNoTemplate", "!{S-CLC}")
@@ -133,7 +133,7 @@ class SubmitPermissionTest(
     }
 
     @Test
-    fun `submit with collection admin permission`() {
+    fun `4-6 submit with collection admin permission`() {
         val project = tsv {
             line("Submission", "TestCollection4")
             line("AccNoTemplate", "!{S-CLCT}")
@@ -155,7 +155,7 @@ class SubmitPermissionTest(
     }
 
     @Test
-    fun `resubmit with collection admin permission`() {
+    fun `4-7 resubmit with collection admin permission`() {
         val project = tsv {
             line("Submission", "TestCollection5")
             line("AccNoTemplate", "!{S-TCLT}")

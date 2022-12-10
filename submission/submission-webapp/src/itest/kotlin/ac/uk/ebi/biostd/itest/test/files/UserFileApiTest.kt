@@ -24,7 +24,7 @@ import java.nio.file.Paths
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserFileApiTest(
     @Autowired val securityTestService: SecurityTestService,
-    @LocalServerPort val serverPort: Int,
+    @LocalServerPort val serverPort: Int
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -35,30 +35,44 @@ class UserFileApiTest(
     }
 
     @Test
-    fun `upload download delete file and retrieve in user root folder`() {
-        testUserFilesGroup()
-    }
-
-    @Test
-    fun `upload download delete file and retrieve in user folder`() {
-        testUserFilesGroup("test-folder")
-    }
-
-    @Test
-    fun `upload download delete file and retrieve in user folder with space`() {
-        testUserFilesGroup("test folder")
-    }
-
-    private fun testUserFilesGroup(path: String = "") {
+    fun `17-1 upload download delete file and retrieve in user root folder`() {
         val file = tempFolder.createFile("FileList1.txt", "An example content")
-        webClient.uploadFiles(listOf(file), relativePath = path)
+        webClient.uploadFiles(listOf(file), relativePath = "")
 
-        val files = webClient.listUserFiles(relativePath = path)
+        val files = webClient.listUserFiles(relativePath = "")
         assertThat(files).hasSize(1)
-        assertFile(files.first(), webClient.downloadFile(file.name, path), file, path)
+        assertFile(files.first(), webClient.downloadFile(file.name, ""), file, "")
 
-        webClient.deleteFile("FileList1.txt", path)
-        assertThat(webClient.listUserFiles(relativePath = path)).isEmpty()
+        webClient.deleteFile("FileList1.txt", "")
+        assertThat(webClient.listUserFiles(relativePath = "")).isEmpty()
+    }
+
+    @Test
+    fun `17-2 upload download delete file and retrieve in user folder`() {
+        val file = tempFolder.createFile("FileList1.txt", "An example content")
+        webClient.uploadFiles(listOf(file), relativePath = "test-folder")
+
+        val files = webClient.listUserFiles(relativePath = "test-folder")
+        assertThat(files).hasSize(1)
+        assertFile(files.first(), webClient.downloadFile(file.name, "test-folder"), file, "test-folder")
+
+        webClient.deleteFile("FileList1.txt", "test-folder")
+        assertThat(webClient.listUserFiles(relativePath = "test-folder")).isEmpty()
+        webClient.deleteFile("test-folder")
+    }
+
+    @Test
+    fun `17-3 upload download delete file and retrieve in user folder with space`() {
+        val file = tempFolder.createFile("FileList1.txt", "An example content")
+        webClient.uploadFiles(listOf(file), relativePath = "test folder")
+
+        val files = webClient.listUserFiles(relativePath = "test folder")
+        assertThat(files).hasSize(1)
+        assertFile(files.first(), webClient.downloadFile(file.name, "test folder"), file, "test folder")
+
+        webClient.deleteFile("FileList1.txt", "test folder")
+        assertThat(webClient.listUserFiles(relativePath = "test folder")).isEmpty()
+        webClient.deleteFile("test folder")
     }
 
     private fun assertFile(resultFile: UserFile, downloadFile: File, file: File, relativePath: String) {

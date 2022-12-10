@@ -9,6 +9,7 @@ internal class SuccessfulSubmissionTemplate(content: String) : NotificationTempl
 internal class SuccessfulSubmissionModel(
     private val mailto: String,
     private val uiUrl: String,
+    private val stUrl: String,
     private val username: String,
     private val userEmail: String,
     private val accNo: String,
@@ -24,6 +25,7 @@ internal class SuccessfulSubmissionModel(
         "TITLE" to title.orEmpty(),
         "MAIL_TO" to mailto,
         "UI_URL" to uiUrl,
+        "ST_URL" to stUrl,
         "RELEASE_DATE" to releaseDate,
         "RELEASE_MESSAGE" to releaseMessage
     )
