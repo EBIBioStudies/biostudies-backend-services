@@ -36,9 +36,10 @@ private fun Row.asString(): String {
 
     return when {
         cells.all { it == EMPTY } -> EMPTY
-        else -> cells
-            .dropLastWhile { it.isBlank() }
-            .joinToString("\t") { if (it.contains(specialCharRegex)) "\"${it}\"" else it }
+        else ->
+            cells
+                .dropLastWhile { it.isBlank() }
+                .joinToString("\t") { if (it.contains(specialCharRegex)) "\"${it}\"" else it }
     }
 }
 

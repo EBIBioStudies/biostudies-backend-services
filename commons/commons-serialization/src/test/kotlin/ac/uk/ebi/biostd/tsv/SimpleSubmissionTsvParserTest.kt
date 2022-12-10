@@ -31,7 +31,7 @@ class SimpleSubmissionTsvParserTest {
             line()
 
             line("Study", "SECT-001")
-            line("Title", "venous blood, Monocyte")
+            line("Title", "\"venous blood, \n Monocyte\"")
             line("Project", "CEEHRC (McGill)")
             line("Status", "Incomplete")
             line("Organism", "Homo sapiens")
