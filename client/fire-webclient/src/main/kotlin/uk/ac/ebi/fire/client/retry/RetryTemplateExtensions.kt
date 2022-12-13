@@ -17,12 +17,14 @@ private val logger = KotlinLogging.logger {}
  */
 @OptIn(ExperimentalTime::class)
 internal fun <T> RetryTemplate.execute(opt: String, func: () -> T): T {
-    logger.debug(opt) { "Executing operation: $opt" }
+    logger.debug(opt) { "Started executing operation: $opt" }
     val response = execute(
-        onError = { error, cxt -> logger.error(error) { "Fail to perform operation: $opt, ${cxt.retryCount + 1}" } },
+        onError = { error, cxt ->
+            logger.warn(error) { "Failed to perform operation: $opt. Attempt # ${cxt.retryCount + 1}" }
+        },
         func = { measureTimedValue(func) }
     )
-    logger.debug { "Executed operation: $opt in ${response.duration.inWholeMilliseconds}" }
+    logger.debug { "Finished executing operation: $opt in ${response.duration.inWholeMilliseconds}" }
     return response.value
 }
 

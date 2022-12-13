@@ -17,7 +17,10 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import mu.KotlinLogging
 import java.time.Instant
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("LongParameterList")
 class SubmissionDraftService(
@@ -46,17 +49,25 @@ class SubmissionDraftService(
 
     fun deleteSubmissionDraft(userEmail: String, key: String) {
         draftPersistenceService.deleteSubmissionDraft(userEmail, key)
+        logger.info { "$key $userEmail Draft with key '$key' DELETED for user '$userEmail'" }
     }
 
     fun updateSubmissionDraft(userEmail: String, key: String, content: String): SubmissionDraft {
-        return draftPersistenceService.updateSubmissionDraft(userEmail, key, content)
+        val updated = draftPersistenceService.updateSubmissionDraft(userEmail, key, content)
+        logger.info { "$key $userEmail Draft with key '$key' UPDATED for user '$userEmail'" }
+
+        return updated
     }
 
     fun createSubmissionDraft(userEmail: String, content: String): SubmissionDraft {
-        return draftPersistenceService.createSubmissionDraft(userEmail, "TMP_${Instant.now().toEpochMilli()}", content)
+        val draftKey = "TMP_${Instant.now().toEpochMilli()}"
+        val draft = draftPersistenceService.createSubmissionDraft(userEmail, draftKey, content)
+        logger.info { "$draftKey $userEmail Draft with key '$draftKey' CREATED for user '$userEmail'" }
+
+        return draft
     }
 
-    fun submitDraft(
+    fun submitDraftAsync(
         key: String,
         user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
@@ -66,6 +77,8 @@ class SubmissionDraftService(
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON_PRETTY, buildRequest)
         submitWebHandler.submitAsync(request)
+
+        logger.info { "$key ${user.email} Draft with key '$key' SUBMITTED" }
     }
 
     fun submitDraftSync(
@@ -77,6 +90,9 @@ class SubmissionDraftService(
         val submission = getOrCreateSubmissionDraft(user.email, key).content
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON_PRETTY, buildRequest)
+
+        logger.info { "$key ${user.email} Started SUBMITTED process draft with key '$key'" }
+
         return submitWebHandler.submit(request)
     }
 
