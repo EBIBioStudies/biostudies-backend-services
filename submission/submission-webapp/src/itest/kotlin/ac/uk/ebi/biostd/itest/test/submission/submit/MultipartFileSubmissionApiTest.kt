@@ -114,6 +114,41 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
+    fun `9-1-2 XLS submission with line break`() {
+        val excelPageTab = excel(File("${tempFolder.absolutePath}/ExcelSubmission-2.xlsx")) {
+            sheet("page tab") {
+                row {
+                    cell("Submission")
+                    cell("S-EXC124")
+                }
+                row {
+                    cell("Title")
+                    cell("Excel \n Submission")
+                }
+                row { cell(""); cell("") }
+                row {
+                    cell("Study")
+                    cell("SECT-1")
+                }
+            }
+        }
+
+        val response = webClient.submitSingle(excelPageTab, SubmissionFilesConfig(emptyList(), storageMode))
+        assertThat(response).isSuccessful()
+
+        val sub = submissionRepository.getExtByAccNo(response.body.accNo)
+        assertThat(Paths.get("$submissionPath/${sub.relPath}/${sub.accNo}.tsv")).hasContent(
+            """
+                Submission	S-EXC124
+                Title	"Excel 
+                 Submission"
+
+                Study	SECT-1
+            """.trimIndent()
+        )
+    }
+
+    @Test
     fun `9-2 TSV submission`() {
         val submission = tsv {
             line("Submission", "S-TEST1")

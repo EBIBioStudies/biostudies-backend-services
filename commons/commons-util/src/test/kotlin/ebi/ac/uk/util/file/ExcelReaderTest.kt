@@ -77,7 +77,7 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
             line("file2.txt", "b1", "b2")
         }
 
-        assertThat(asTsv(testFile)).hasContent(expectedTsv.toString().plus("\n"))
+        assertThat(asTsv(testFile)).hasContent(expectedTsv.toString())
     }
 
     @Test
@@ -99,7 +99,7 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
             line("Title", "\"Excel Submission \n with a line break\"")
         }
 
-        assertThat(asTsv(testFile)).hasContent(expectedTsv.toString().plus("\n"))
+        assertThat(asTsv(testFile)).hasContent(expectedTsv.toString())
     }
 
     @Test
@@ -147,8 +147,9 @@ class ExcelReaderTest(private val temporaryFolder: TemporaryFolder) {
             line()
             line()
             line()
+            line()
         }
 
-        assertThat(asTsv(testFile)).hasContent(expectedTsv.toString().plus("\n"))
+        assertThat(asTsv(testFile)).hasContent(expectedTsv.toString())
     }
 }
