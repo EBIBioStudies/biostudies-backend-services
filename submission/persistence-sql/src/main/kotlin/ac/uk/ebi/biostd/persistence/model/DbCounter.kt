@@ -17,5 +17,5 @@ class DbCounter(
     var id: Long = 0L
 
     @Column(name = "maxCount")
-    var count: Long = -1
+    var count: Long = 0
 }

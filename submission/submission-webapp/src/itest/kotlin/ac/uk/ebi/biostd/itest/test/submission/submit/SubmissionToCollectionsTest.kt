@@ -61,11 +61,11 @@ class SubmissionToCollectionsTest(
         }.toString()
 
         assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-        val expected = submission("S-TEST-EXT0") {
+        val expected = submission("S-TEST-EXT1") {
             title = "AccNo Generation Test"
             attachTo = "Test-Project"
         }
-        assertThat(getSimpleSubmission("S-TEST-EXT0")).isEqualTo(expected)
+        assertThat(getSimpleSubmission("S-TEST-EXT1")).isEqualTo(expected)
     }
 
     @Test
