@@ -17,7 +17,7 @@ object ExcelReader {
         val tempFile = File.createTempFile(name, ".tsv")
         val reader = StreamingReader.builder().rowCacheSize(ROW_CACHE_SIZE).bufferSize(BUFFER_SIZE).open(inputStream)
         val writer = BufferedWriter(FileWriter(tempFile))
-        reader.use { it.getSheetAt(0).asTsvList().forEach { line -> writer.write("$line\n") } }
+        reader.use { it.getSheetAt(0).asTsvSequence().forEach { line -> writer.write("$line\n") } }
         writer.close()
         return tempFile
     }

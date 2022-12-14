@@ -47,6 +47,7 @@ fun submissionWithQuoteValue() = tsv {
 fun basicSubmissionWithMultiline() = tsv {
     line("Submission", "S-EPMC123")
     line("Title", "\"This is a really long title \n with a break line\"")
+    line("Another", "another attribute")
 }
 
 fun basicSubmissionWithComments() = tsv {
