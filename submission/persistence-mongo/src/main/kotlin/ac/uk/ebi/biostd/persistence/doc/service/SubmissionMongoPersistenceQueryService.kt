@@ -83,6 +83,7 @@ internal class SubmissionMongoPersistenceQueryService(
         val subData = submissionRepo.getSubData(accNo)
         return fileListDocFileRepository
             .findBySubmissionAccNoAndSubmissionVersionAndFilePath(accNo, version, path)
+            .firstOrNull()
             ?.file
             ?.toExtFile(subData.released, submissionRepo.getSubData(accNo).relPath)
     }

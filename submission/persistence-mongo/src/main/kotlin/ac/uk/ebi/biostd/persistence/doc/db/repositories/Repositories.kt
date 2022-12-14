@@ -94,7 +94,7 @@ interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId>
         accNo: String,
         version: Int,
         filePath: String,
-    ): FileListDocFile?
+    ): List<FileListDocFile>
 }
 
 interface SubmissionStatsRepository : MongoRepository<DocSubmissionStats, ObjectId> {

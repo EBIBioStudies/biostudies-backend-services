@@ -1,9 +1,11 @@
 package ac.uk.ebi.biostd.submission.helpers
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ebi.ac.uk.extended.mapping.from.toExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.copyWithAttributes
 import ebi.ac.uk.io.sources.DbFile
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathSource
@@ -23,7 +25,7 @@ class SubmissionFilesSource(
         get() = "Previous version files"
 
     override fun getExtFile(path: String, dbFile: DbFile?, attributes: List<Attribute>): ExtFile? {
-        return findSubmissionFile(path)
+        return findSubmissionFile(path)?.copyWithAttributes(attributes.map { it.toExtAttribute() })
     }
 
     override fun getFile(path: String): File? {

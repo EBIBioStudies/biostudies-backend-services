@@ -20,6 +20,7 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.allSectionsFiles
@@ -31,6 +32,7 @@ import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -240,7 +242,13 @@ class SubmissionFileSourceTest(
 
     @Test
     fun `6-4 multiple file references`() {
-        val submission = tsv {
+        val firstVersionFileList = tsv {
+            line("Files", "Type")
+            line("MultipleReferences.txt", "Ref 1")
+            line("MultipleReferences.txt", "Ref 2")
+            line()
+        }.toString()
+        val firstVersionPagetab = tsv {
             line("Submission", "S-FSTST4")
             line("Title", "Simple Submission With Files")
             line("ReleaseDate", "2020-01-25")
@@ -248,28 +256,65 @@ class SubmissionFileSourceTest(
 
             line("Study")
             line("Type", "Experiment")
-            line()
-
-            line("File", "multiple-references.txt")
-            line("Type", "test")
-            line()
-
-            line("Experiment", "Exp1")
-            line("Type", "Subsection")
-            line()
-
-            line("File", "multiple-references.txt")
-            line("Type", "Second reference")
+            line("File List", "FirstVersionFileList.tsv")
             line()
         }.toString()
 
-        webClient.uploadFiles(listOf(tempFolder.createFile("multiple-references.txt")))
+        webClient.uploadFiles(
+            listOf(
+                tempFolder.createFile("MultipleReferences.txt"),
+                tempFolder.createFile("FirstVersionFileList.tsv", firstVersionFileList)
+            )
+        )
 
-        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+        assertThat(webClient.submitSingle(firstVersionPagetab, TSV)).isSuccessful()
 
-        val submitted = submissionRepository.getExtByAccNo("S-FSTST4")
-        assertThat(submitted.version).isEqualTo(1)
-        assertThat(File("$submissionPath/${submitted.relPath}/Files/multiple-references.txt")).exists()
+        val firstVersion = submissionRepository.getExtByAccNo("S-FSTST4")
+        assertThat(firstVersion.version).isEqualTo(1)
+        assertThat(File("$submissionPath/${firstVersion.relPath}/Files/MultipleReferences.txt")).exists()
+
+        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-FSTST4", "FirstVersionFileList")
+        assertThat(firstVersionReferencedFiles).hasSize(2)
+        assertThat(firstVersionReferencedFiles.first().attributes).containsExactly(ExtAttribute("Type", "Ref 1"))
+        assertThat(firstVersionReferencedFiles.second().attributes).containsExactly(ExtAttribute("Type", "Ref 2"))
+
+        webClient.deleteFile("MultipleReferences.txt")
+
+        val secondVersionFileList = tsv {
+            line("Files", "Type")
+            line("MultipleReferences.txt", "A reference")
+            line()
+        }.toString()
+        val secondVersionPagetab = tsv {
+            line("Submission", "S-FSTST4")
+            line("Title", "Multiple References")
+            line("ReleaseDate", "2020-01-25")
+            line()
+
+            line("Study")
+            line("Type", "Experiment")
+            line("File List", "SecondVersionFileList.tsv")
+            line()
+
+            line("File", "MultipleReferences.txt")
+            line("Type", "Another reference")
+            line()
+        }.toString()
+
+        webClient.uploadFiles(listOf(tempFolder.createFile("SecondVersionFileList.tsv", secondVersionFileList)))
+        assertThat(webClient.submitSingle(secondVersionPagetab, TSV)).isSuccessful()
+
+        val secondVersion = submissionRepository.getExtByAccNo("S-FSTST4")
+        assertThat(secondVersion.version).isEqualTo(2)
+        assertThat(File("$submissionPath/${secondVersion.relPath}/Files/MultipleReferences.txt")).exists()
+
+        val secondVersionFiles = secondVersion.allSectionsFiles
+        assertThat(secondVersionFiles).hasSize(1)
+        assertThat(secondVersionFiles.first().attributes).containsExactly(ExtAttribute("Type", "Another reference"))
+
+        val secondVersionReferencedFiles = submissionRepository.getReferencedFiles("S-FSTST4", "SecondVersionFileList")
+        assertThat(secondVersionReferencedFiles).hasSize(1)
+        assertThat(secondVersionReferencedFiles.first().attributes).containsExactly(ExtAttribute("Type", "A reference"))
     }
 
     @Test
