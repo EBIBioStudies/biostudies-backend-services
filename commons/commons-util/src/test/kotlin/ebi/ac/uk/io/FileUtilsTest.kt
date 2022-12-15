@@ -125,6 +125,20 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         }
     }
 
+    @Test
+    fun createHardLink() {
+        val permissions = Permissions(RW_______, RWX______)
+        val sourceFolder = temporaryFolder.createDirectory("sourceFolder")
+        val targetFolder = temporaryFolder.createDirectory("targetFolder")
+        val folder = sourceFolder.createDirectory("folder")
+        val file = folder.createFile("file")
+        val listFiles = listOf(file, folder)
+
+        listFiles.forEach { FileUtils.createHardLink(it, sourceFolder.toPath(), targetFolder.toPath(), permissions) }
+
+        assertThat(File("${targetFolder.absolutePath}/folder/file")).exists()
+    }
+
     @Nested
     inner class MoveFile {
         @Nested

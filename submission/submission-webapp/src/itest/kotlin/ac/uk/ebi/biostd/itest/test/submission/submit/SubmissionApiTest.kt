@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.nfsFtpPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -35,6 +36,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.io.File
 import kotlin.test.assertFailsWith
 
 @Import(FilePersistenceConfig::class)
@@ -45,7 +47,7 @@ class SubmissionApiTest(
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val sequenceRepository: SequenceDataRepository,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
-    @LocalServerPort val serverPort: Int,
+    @LocalServerPort val serverPort: Int
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -159,6 +161,34 @@ class SubmissionApiTest(
             webClient.submitSingle(submission, SubmissionFormat.XML)
         }
         assertThat(exception.message!!.contains("Submission contains invalid files invalid file.txt"))
+    }
+
+    @Test
+    fun `16-7 submission for checking ftp files`() {
+        val submission = tsv {
+            line("Submission", "S-500")
+            line("Title", "Submission")
+            line("ReleaseDate", "2020-01-25")
+            line()
+
+            line("Study")
+            line("File List", "filelist.tsv")
+            line()
+        }.toString()
+
+        val fileListContent = tsv {
+            line("Files", "Type")
+            line("a/file.pdf", "inner")
+            line("a", "folder")
+        }.toString()
+
+        webClient.uploadFiles(listOf(tempFolder.createFile("filelist.tsv", fileListContent)))
+        webClient.uploadFiles(listOf(tempFolder.createFile("file.pdf", "pdf content")), "a")
+        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+        val submitted = submissionRepository.getExtByAccNo("S-500")
+        assertThat(File("$nfsFtpPath/${submitted.relPath}/Files/a/file.pdf")).exists()
+        assertThat(File("$nfsFtpPath/${submitted.relPath}/Files/a/file.pdf")).hasContent("pdf content")
     }
 
     private fun getSimpleSubmission(accNo: String) =

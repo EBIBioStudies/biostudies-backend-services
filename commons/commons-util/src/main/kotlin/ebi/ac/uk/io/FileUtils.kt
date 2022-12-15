@@ -92,7 +92,7 @@ object FileUtils {
         val filePath = file.toPath()
         val target = targetPath.resolve(sourcePath.relativize(filePath))
 
-        if (file.isDirectory) createFolderHardLinks(sourcePath, target, permissions)
+        if (file.isDirectory) createFolderHardLinks(filePath, target, permissions)
         else createFileHardLink(filePath, target, permissions)
     }
 
