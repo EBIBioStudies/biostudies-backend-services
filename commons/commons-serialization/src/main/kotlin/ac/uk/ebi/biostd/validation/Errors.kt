@@ -6,7 +6,7 @@ import ebi.ac.uk.model.Submission
 
 const val CHUNK_SIZE_ERROR_MSG = "Several page tab elements detected. Exactly one element must be provided"
 
-class InvalidElementException(message: String) : RuntimeException("$message. Element was not created.")
+class InvalidElementException(message: String) : RuntimeException(message)
 
 class SerializationError(val chunk: TsvChunk, val cause: Exception)
 

@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
+import ac.uk.ebi.biostd.validation.InvalidElementException
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -136,6 +137,38 @@ class FileListValidatorTest(
         val exception = assertThrows<InvalidFileListException> { testInstance.validateFileList(request) }
         assertThat(exception.message)
             .isEqualTo("Problem processing file list 'empty.tsv': A file list should contain at least one file")
+
+        verify { submissionQueryService wasNot called }
+    }
+
+    @Test
+    fun `invalid path`(
+        @MockK submitter: SecurityUser,
+        @MockK extSubmission: ExtSubmission,
+    ) {
+        val fileSourcesSlot = slot<FileSourcesRequest>()
+        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
+
+        excel(tempFolder.createFile("relative.xlsx")) {
+            sheet("page tab") {
+                row {
+                    cell("Files")
+                    cell("Type")
+                }
+                row {
+                    cell("ref.txt")
+                    cell("test")
+                }
+                row {
+                    cell("./relative/../path/ghost.txt")
+                    cell("fail")
+                }
+            }
+        }
+
+        val request = FileListValidationRequest(null, null, "relative.xlsx", submitter, null)
+        val exception = assertThrows<InvalidElementException> { testInstance.validateFileList(request) }
+        assertThat(exception.message).isEqualTo("Error at row 3: Relative file paths are not allowed")
 
         verify { submissionQueryService wasNot called }
     }

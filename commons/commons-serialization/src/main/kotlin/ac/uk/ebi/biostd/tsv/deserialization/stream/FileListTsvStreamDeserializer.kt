@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.tsv.deserialization.stream
 import ac.uk.ebi.biostd.tsv.TAB
 import ac.uk.ebi.biostd.validation.INVALID_TABLE_ROW
 import ac.uk.ebi.biostd.validation.InvalidElementException
-import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
+import ac.uk.ebi.biostd.validation.validateFilePath
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.constants.TableFields.FILES_TABLE
@@ -43,8 +43,10 @@ internal class FileListTsvStreamDeserializer {
 
     private fun deserializeRow(index: Int, row: List<String>, headers: List<String>): BioFile {
         val (fileName, attributes) = row.destructure()
-        require(fileName.isNotBlank()) {
-            throw InvalidElementException("Error at row ${index + 1}: $REQUIRED_FILE_PATH")
+        runCatching {
+            validateFilePath(fileName)
+        }.onFailure {
+            throw InvalidElementException("Error at row ${index + 1}: ${it.message}")
         }
 
         return BioFile(fileName, attributes = buildAttributes(attributes, headers, index))

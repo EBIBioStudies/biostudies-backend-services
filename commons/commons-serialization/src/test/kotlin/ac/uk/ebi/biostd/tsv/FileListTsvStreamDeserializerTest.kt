@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.tsv
 
 import ac.uk.ebi.biostd.tsv.deserialization.stream.FileListTsvStreamDeserializer
+import ac.uk.ebi.biostd.validation.INVALID_FILE_PATH
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ebi.ac.uk.dsl.tsv.line
@@ -79,10 +80,26 @@ class FileListTsvStreamDeserializerTest(
             line()
         }
 
-        val testFile = tempFolder.createFile("invalid.tsv", tsv.toString())
+        val testFile = tempFolder.createFile("EmptyPath.tsv", tsv.toString())
         testFile.inputStream().use {
             val exception = assertThrows<InvalidElementException> { testInstance.deserializeFileList(it).toList() }
-            assertThat(exception.message).isEqualTo("Error at row 3: $REQUIRED_FILE_PATH. Element was not created.")
+            assertThat(exception.message).isEqualTo("Error at row 3: $REQUIRED_FILE_PATH")
+        }
+    }
+
+    @Test
+    fun `file list with invalid path`() {
+        val tsv = tsv {
+            line("Files", "Attr1", "Attr2")
+            line("test.txt", "a", "b")
+            line("./file/../with/../../relative/path.txt", "c", "d")
+            line()
+        }
+
+        val testFile = tempFolder.createFile("InvalidPath.tsv", tsv.toString())
+        testFile.inputStream().use {
+            val exception = assertThrows<InvalidElementException> { testInstance.deserializeFileList(it).toList() }
+            assertThat(exception.message).isEqualTo("Error at row 3: $INVALID_FILE_PATH")
         }
     }
 }

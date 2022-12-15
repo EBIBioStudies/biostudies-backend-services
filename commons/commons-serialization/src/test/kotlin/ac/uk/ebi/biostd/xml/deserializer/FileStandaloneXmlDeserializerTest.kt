@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.xml.deserializer
 
+import ac.uk.ebi.biostd.validation.INVALID_FILE_PATH
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ac.uk.ebi.biostd.xml.XmlSerializer
@@ -46,6 +47,16 @@ class FileStandaloneXmlDeserializerTest {
         }.toString()
 
         val exception = assertThrows<InvalidElementException> { testInstance.readValue(xmlFile, BioFile::class.java) }
-        assertThat(exception.message).isEqualTo("$REQUIRED_FILE_PATH. Element was not created.")
+        assertThat(exception.message).isEqualTo(REQUIRED_FILE_PATH)
+    }
+
+    @Test
+    fun `deserialize file with invalid path`() {
+        val xmlFile = xml("file") {
+            "path" { -"./file/../with/../../relative/path.txt" }
+        }.toString()
+
+        val exception = assertThrows<InvalidElementException> { testInstance.readValue(xmlFile, BioFile::class.java) }
+        assertThat(exception.message).isEqualTo(INVALID_FILE_PATH)
     }
 }

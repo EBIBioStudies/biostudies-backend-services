@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.test.submissionWithInvalidValueAttributeDetail
 import ac.uk.ebi.biostd.test.submissionWithTableWithMoreAttributes
 import ac.uk.ebi.biostd.test.submissionWithTableWithNoRows
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
+import ac.uk.ebi.biostd.validation.INVALID_FILE_PATH
 import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
@@ -84,7 +85,19 @@ class TsvDeserializationErrorsTest {
         }.toString()
 
         val exception = assertThrows<InvalidElementException> { deserializer.deserializeElement<BioFile>(tsv) }
-        assertThat(exception.message).isEqualTo("$REQUIRED_FILE_PATH. Element was not created.")
+        assertThat(exception.message).isEqualTo(REQUIRED_FILE_PATH)
+    }
+
+    @Test
+    fun `invalid file path`() {
+        val tsv = tsv {
+            line("File", "./file/../with/../../relative/path.txt")
+            line("Type", "Empty Path")
+            line()
+        }.toString()
+
+        val exception = assertThrows<InvalidElementException> { deserializer.deserializeElement<BioFile>(tsv) }
+        assertThat(exception.message).isEqualTo(INVALID_FILE_PATH)
     }
 
     @Test
@@ -110,6 +123,6 @@ class TsvDeserializationErrorsTest {
 
         val cause = exception.errors.values().first().cause
         assertThat(cause).isInstanceOf(InvalidElementException::class.java)
-        assertThat(cause).hasMessage("$expectedMessage. Element was not created.")
+        assertThat(cause).hasMessage(expectedMessage)
     }
 }

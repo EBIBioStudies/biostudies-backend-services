@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
+import ac.uk.ebi.biostd.validation.INVALID_FILE_PATH
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -42,7 +43,17 @@ class FileDeserializerTest {
         }.toString()
 
         val exception = assertThrows<InvalidElementException> { testInstance.readValue<BioFile>(invalidJson) }
-        assertThat(exception.message).isEqualTo("$REQUIRED_FILE_PATH. Element was not created.")
+        assertThat(exception.message).isEqualTo(REQUIRED_FILE_PATH)
+    }
+
+    @Test
+    fun `deserialize invalid path`() {
+        val invalidJson = jsonObj {
+            "path" to "./file/../with/../../relative/path.txt"
+        }.toString()
+
+        val exception = assertThrows<InvalidElementException> { testInstance.readValue<BioFile>(invalidJson) }
+        assertThat(exception.message).isEqualTo(INVALID_FILE_PATH)
     }
 
     @Test

@@ -6,9 +6,8 @@ import ac.uk.ebi.biostd.tsv.deserialization.common.getIdOrElse
 import ac.uk.ebi.biostd.tsv.deserialization.common.getType
 import ac.uk.ebi.biostd.tsv.deserialization.common.toAttributes
 import ac.uk.ebi.biostd.validation.InvalidElementException
-import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ac.uk.ebi.biostd.validation.REQUIRED_LINK_URL
-import ebi.ac.uk.base.isNotBlank
+import ac.uk.ebi.biostd.validation.validateFilePath
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
@@ -43,7 +42,7 @@ internal class LinkChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 class FileChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
     fun asFile(): BioFile {
         val fileName = header.findSecond()
-        require(fileName.isNotBlank()) { throw InvalidElementException(REQUIRED_FILE_PATH) }
+        validateFilePath(fileName)
 
         val attributes = toAttributes(lines)
         return BioFile(fileName!!, attributes = attributes)
