@@ -7,7 +7,9 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.constants.ACC_NO
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -18,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
+import java.io.File
 
 @ExtendWith(MockKExtension::class)
 internal class SubmissionRequestSaverTest(
@@ -41,13 +44,15 @@ internal class SubmissionRequestSaverTest(
         @MockK submission: ExtSubmission,
         @MockK subFile: ExtFile,
         @MockK requestFile: SubmissionRequestFile,
-        @MockK updatedSubFile: ExtFile,
+        @MockK updatedFile: File,
     ) {
         val accNo = "ABC-123"
         val version = 1
         val filePath = "the-file-path"
         val notifyTo = "user@ebi.ac.uk"
+        val updatedSubFile = NfsFile("file.txt", "Files/file.txt", updatedFile, "file", "md5", 1, type = FILE)
 
+        every { subFile.attributes } returns emptyList()
         every { eventsPublisherService.submissionSubmitted(accNo, notifyTo) } answers { nothing }
         every { persistenceService.expirePreviousVersions(accNo) } answers { nothing }
         every { persistenceService.saveSubmission(submission) } answers { submission }
