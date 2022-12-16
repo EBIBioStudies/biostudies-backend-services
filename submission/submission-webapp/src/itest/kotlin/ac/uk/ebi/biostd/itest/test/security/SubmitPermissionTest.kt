@@ -176,7 +176,7 @@ class SubmitPermissionTest(
         assertThat(regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
 
         val resubmission = tsv {
-            line("Submission", "S-TCLT0")
+            line("Submission", "S-TCLT1")
             line("AttachTo", "TestCollection5")
             line("Title", "Test Resubmission")
         }.toString()

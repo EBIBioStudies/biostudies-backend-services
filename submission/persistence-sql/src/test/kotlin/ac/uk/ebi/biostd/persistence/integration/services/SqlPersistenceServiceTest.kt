@@ -39,9 +39,9 @@ internal class SqlPersistenceServiceTest(
         val sequence = DbSequence("S-BSST")
 
         mockSequenceRepository(sequence)
-        every { queryService.existByAccNo("S-BSST0") } returns false
+        every { queryService.existByAccNo("S-BSST1") } returns false
 
-        assertThat(testInstance.getSequenceNextValue("S-BSST")).isEqualTo(0)
+        assertThat(testInstance.getSequenceNextValue("S-BSST")).isEqualTo(1)
         verify(exactly = 1) { sequenceRepository.save(sequence) }
     }
 
@@ -50,11 +50,11 @@ internal class SqlPersistenceServiceTest(
         val sequence = DbSequence("S-BSST")
 
         mockSequenceRepository(sequence)
-        every { queryService.existByAccNo("S-BSST0") } returns true
         every { queryService.existByAccNo("S-BSST1") } returns true
-        every { queryService.existByAccNo("S-BSST2") } returns false
+        every { queryService.existByAccNo("S-BSST2") } returns true
+        every { queryService.existByAccNo("S-BSST3") } returns false
 
-        assertThat(testInstance.getSequenceNextValue("S-BSST")).isEqualTo(2)
+        assertThat(testInstance.getSequenceNextValue("S-BSST")).isEqualTo(3)
         verify(exactly = 1) { sequenceRepository.save(sequence) }
     }
 
