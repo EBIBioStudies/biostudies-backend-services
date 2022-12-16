@@ -172,23 +172,20 @@ class SubmissionApiTest(
             line()
 
             line("Study")
-            line("File List", "filelist.tsv")
+            line()
+
+            line("File", "folder1")
             line()
         }.toString()
 
-        val fileListContent = tsv {
-            line("Files", "Type")
-            line("a/file.pdf", "inner")
-            line("a", "folder")
-        }.toString()
-
-        webClient.uploadFiles(listOf(tempFolder.createFile("filelist.tsv", fileListContent)))
-        webClient.uploadFiles(listOf(tempFolder.createFile("file.pdf", "pdf content")), "a")
+        webClient.createFolder("folder1")
         assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
         val submitted = submissionRepository.getExtByAccNo("S-500")
-        assertThat(File("$nfsFtpPath/${submitted.relPath}/Files/a/file.pdf")).exists()
-        assertThat(File("$nfsFtpPath/${submitted.relPath}/Files/a/file.pdf")).hasContent("pdf content")
+
+        assertThat(File("$nfsFtpPath/${submitted.relPath}/Files").listFiles()?.size).isEqualTo(1)
+        assertThat(File("$nfsFtpPath/${submitted.relPath}/Files/folder1")).exists()
+        assertThat(File("$nfsFtpPath/${submitted.relPath}/Files/folder1")).isEmptyDirectory()
     }
 
     private fun getSimpleSubmission(accNo: String) =

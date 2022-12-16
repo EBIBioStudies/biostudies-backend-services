@@ -125,18 +125,34 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         }
     }
 
-    @Test
-    fun createHardLink() {
-        val permissions = Permissions(RW_______, RWX______)
-        val sourceFolder = temporaryFolder.createDirectory("sourceFolder")
-        val targetFolder = temporaryFolder.createDirectory("targetFolder")
-        val folder = sourceFolder.createDirectory("folder")
-        val file = folder.createFile("file")
-        val listFiles = listOf(file, folder)
+    @Nested
+    inner class HardLinks {
+        @Test
+        fun createHardLinkFile() {
+            val permissions = Permissions(RW_______, RWX______)
+            val sourceFolder = temporaryFolder.createDirectory("sourceFolder")
+            val targetFolder = temporaryFolder.createDirectory("targetFolder")
+            val folder = sourceFolder.createFile("file.txt")
 
-        listFiles.forEach { FileUtils.createHardLink(it, sourceFolder.toPath(), targetFolder.toPath(), permissions) }
+            FileUtils.createHardLink(folder, sourceFolder.toPath(), targetFolder.toPath(), permissions)
 
-        assertThat(File("${targetFolder.absolutePath}/folder/file")).exists()
+            File("${targetFolder.absolutePath}/").listFiles()?.let { assertThat(it.size).isEqualTo(1) }
+            assertThat(File("${targetFolder.absolutePath}/file.txt")).exists()
+        }
+
+        @Test
+        fun createHardLinkFolder() {
+            val permissions = Permissions(RW_______, RWX______)
+            val sourceFolder = temporaryFolder.createDirectory("sourceFolder")
+            val targetFolder = temporaryFolder.createDirectory("targetFolder")
+            val folder = sourceFolder.createDirectory("folder")
+
+            FileUtils.createHardLink(folder, sourceFolder.toPath(), targetFolder.toPath(), permissions)
+
+            File(targetFolder.absolutePath).listFiles()?.let { assertThat(it.size).isEqualTo(1) }
+            assertThat(File("${targetFolder.absolutePath}/folder/")).exists()
+            assertThat(File("${targetFolder.absolutePath}/folder/")).isEmptyDirectory()
+        }
     }
 
     @Nested
