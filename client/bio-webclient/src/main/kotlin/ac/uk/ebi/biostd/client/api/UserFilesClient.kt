@@ -11,7 +11,11 @@ import org.springframework.http.HttpMethod.GET
 import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_OCTET_STREAM
 import org.springframework.util.LinkedMultiValueMap
-import org.springframework.web.client.*
+import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.RequestCallback
+import org.springframework.web.client.ResponseExtractor
+import org.springframework.web.client.getForObject
+import org.springframework.web.client.postForEntity
 import java.io.File
 
 private const val USER_FILES_URL = "/files/user"
