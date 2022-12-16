@@ -8,7 +8,8 @@ import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.nfsFtpPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.ftpPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -183,9 +184,14 @@ class SubmissionApiTest(
 
         val submitted = submissionRepository.getExtByAccNo("S-500")
 
-        assertThat(File("$nfsFtpPath/${submitted.relPath}/Files").listFiles()?.size).isEqualTo(1)
-        assertThat(File("$nfsFtpPath/${submitted.relPath}/Files/folder1")).exists()
-        assertThat(File("$nfsFtpPath/${submitted.relPath}/Files/folder1")).isEmptyDirectory()
+        if (enableFire) {
+            assertThat(File("$ftpPath/${submitted.relPath}/Files").listFiles()?.size).isEqualTo(1)
+            assertThat(File("$ftpPath/${submitted.relPath}/Files/folder1.zip")).exists()
+        } else {
+            assertThat(File("$ftpPath/${submitted.relPath}/Files").listFiles()?.size).isEqualTo(1)
+            assertThat(File("$ftpPath/${submitted.relPath}/Files/folder1")).exists()
+            assertThat(File("$ftpPath/${submitted.relPath}/Files/folder1")).isEmptyDirectory()
+        }
     }
 
     private fun getSimpleSubmission(accNo: String) =
