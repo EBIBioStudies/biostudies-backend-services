@@ -205,11 +205,11 @@ private fun fileList2() = xml("table") {
         }
     }
     "file" {
-        "path" { -"Folder1/DataFile8.txt" }
+        "path" { -"Folder1" }
         "attributes" {
             "attribute" {
                 "name" { -"Type" }
-                "value" { -"referenced" }
+                "value" { -"referenced directory" }
             }
         }
     }

@@ -7,6 +7,7 @@ import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createSymLink
 import ebi.ac.uk.io.ext.notExist
+import ebi.ac.uk.io.ext.size
 import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
 import java.io.InputStream
@@ -112,7 +113,7 @@ object FileUtils {
 
     fun isDirectory(file: File): Boolean = Files.isDirectory(file.toPath())
 
-    fun size(file: File): Long = Files.size(file.toPath())
+    fun size(file: File): Long = if (file.isFile) Files.size(file.toPath()) else calculateDirectorySize(file)
 
     fun md5(file: File): String = if (file.isFile) calculateMd5(file) else ""
 
@@ -131,6 +132,8 @@ object FileUtils {
         if (isDirectory(file)) Files.list(file.toPath()).map { it.toFile() }.toList() else emptyList()
 
     private fun calculateMd5(file: File): String = file.inputStream().use { DigestUtils.md5Hex(it).uppercase() }
+
+    private fun calculateDirectorySize(dir: File) = dir.walkTopDown().filter { it.isFile }.map { it.size() }.sum()
 }
 
 @Suppress("TooManyFunctions")

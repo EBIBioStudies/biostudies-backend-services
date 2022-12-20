@@ -246,9 +246,22 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         }
 
         @Test
-        fun size() {
+        fun `file size`() {
             val file = temporaryFolder.createFile("size-test.txt", "a test text")
             assertThat(FileUtils.size(file)).isEqualTo(11L)
+        }
+
+        @Test
+        fun `directory size`() {
+            val directory = temporaryFolder.createDirectory("dir-size-test")
+
+            temporaryFolder.createDirectory("dir-size-test/level-1")
+            temporaryFolder.createDirectory("dir-size-test/level-1/level-2")
+            temporaryFolder.createFile("dir-size-test/file1.txt", "test 1")
+            temporaryFolder.createFile("dir-size-test/level-1/file2.txt", "test 2")
+            temporaryFolder.createFile("dir-size-test/level-1/level-2/file3.txt", "test 3")
+
+            assertThat(FileUtils.size(directory)).isEqualTo(18L)
         }
 
         @Test
