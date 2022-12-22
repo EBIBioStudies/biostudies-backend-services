@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.ftpPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
@@ -30,6 +29,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -165,6 +165,7 @@ class SubmissionApiTest(
     }
 
     @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "false")
     fun `16-7 submission for checking ftp files`() {
         val submission = tsv {
             line("Submission", "S-500")
@@ -184,14 +185,9 @@ class SubmissionApiTest(
 
         val submitted = submissionRepository.getExtByAccNo("S-500")
 
-        if (enableFire) {
-            assertThat(File("$ftpPath/${submitted.relPath}/Files").listFiles()?.size).isEqualTo(1)
-            assertThat(File("$ftpPath/${submitted.relPath}/Files/folder1.zip")).exists()
-        } else {
-            assertThat(File("$ftpPath/${submitted.relPath}/Files").listFiles()?.size).isEqualTo(1)
-            assertThat(File("$ftpPath/${submitted.relPath}/Files/folder1")).exists()
-            assertThat(File("$ftpPath/${submitted.relPath}/Files/folder1")).isEmptyDirectory()
-        }
+        assertThat(File("$ftpPath/${submitted.relPath}/Files").listFiles()?.size).isEqualTo(1)
+        assertThat(File("$ftpPath/${submitted.relPath}/Files/folder1")).exists()
+        assertThat(File("$ftpPath/${submitted.relPath}/Files/folder1")).isEmptyDirectory()
     }
 
     private fun getSimpleSubmission(accNo: String) =

@@ -132,12 +132,13 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             val permissions = Permissions(RW_______, RWX______)
             val sourceFolder = temporaryFolder.createDirectory("sourceFolder")
             val targetFolder = temporaryFolder.createDirectory("targetFolder")
-            val folder = sourceFolder.createFile("file.txt")
+            val file = sourceFolder.createFile("file.txt")
+            val expectedFile = targetFolder.resolve("file.txt")
 
-            FileUtils.createHardLink(folder, sourceFolder.toPath(), targetFolder.toPath(), permissions)
+            FileUtils.createHardLink(file, sourceFolder.toPath(), targetFolder.toPath(), permissions)
 
-            File("${targetFolder.absolutePath}/").listFiles()?.let { assertThat(it.size).isEqualTo(1) }
-            assertThat(File("${targetFolder.absolutePath}/file.txt")).exists()
+            val filesInTarget = FileUtils.listAllFiles(targetFolder)
+            assertThat(filesInTarget).containsExactly(expectedFile)
         }
 
         @Test
@@ -146,12 +147,13 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             val sourceFolder = temporaryFolder.createDirectory("sourceFolder")
             val targetFolder = temporaryFolder.createDirectory("targetFolder")
             val folder = sourceFolder.createDirectory("folder")
+            val expectedFolder = targetFolder.resolve("folder")
 
             FileUtils.createHardLink(folder, sourceFolder.toPath(), targetFolder.toPath(), permissions)
 
-            File(targetFolder.absolutePath).listFiles()?.let { assertThat(it.size).isEqualTo(1) }
-            assertThat(File("${targetFolder.absolutePath}/folder/")).exists()
-            assertThat(File("${targetFolder.absolutePath}/folder/")).isEmptyDirectory()
+            val filesInTarget = FileUtils.listAllFiles(targetFolder)
+            assertThat(filesInTarget).containsExactly(expectedFolder)
+            assertThat(expectedFolder).isEmptyDirectory()
         }
     }
 
