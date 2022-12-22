@@ -126,6 +126,38 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     @Nested
+    inner class HardLinks {
+        @Test
+        fun createHardLinkFile() {
+            val permissions = Permissions(RW_______, RWX______)
+            val sourceFolder = temporaryFolder.createDirectory("sourceFolder")
+            val targetFolder = temporaryFolder.createDirectory("targetFolder")
+            val file = sourceFolder.createFile("file.txt")
+            val expectedFile = targetFolder.resolve("file.txt")
+
+            FileUtils.createHardLink(file, sourceFolder.toPath(), targetFolder.toPath(), permissions)
+
+            val filesInTarget = FileUtils.listAllFiles(targetFolder)
+            assertThat(filesInTarget).containsExactly(expectedFile)
+        }
+
+        @Test
+        fun createHardLinkFolder() {
+            val permissions = Permissions(RW_______, RWX______)
+            val sourceFolder = temporaryFolder.createDirectory("sourceFolder")
+            val targetFolder = temporaryFolder.createDirectory("targetFolder")
+            val folder = sourceFolder.createDirectory("folder")
+            val expectedFolder = targetFolder.resolve("folder")
+
+            FileUtils.createHardLink(folder, sourceFolder.toPath(), targetFolder.toPath(), permissions)
+
+            val filesInTarget = FileUtils.listAllFiles(targetFolder)
+            assertThat(filesInTarget).containsExactly(expectedFolder)
+            assertThat(expectedFolder).isEmptyDirectory()
+        }
+    }
+
+    @Nested
     inner class MoveFile {
         @Nested
         inner class WhenFile {

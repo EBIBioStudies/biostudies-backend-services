@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.ftpPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -28,6 +29,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -35,6 +37,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.io.File
 import kotlin.test.assertFailsWith
 
 @Import(FilePersistenceConfig::class)
@@ -45,7 +48,7 @@ class SubmissionApiTest(
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val sequenceRepository: SequenceDataRepository,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
-    @LocalServerPort val serverPort: Int,
+    @LocalServerPort val serverPort: Int
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -159,6 +162,32 @@ class SubmissionApiTest(
             webClient.submitSingle(submission, SubmissionFormat.XML)
         }
         assertThat(exception.message!!.contains("Submission contains invalid files invalid file.txt"))
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "false")
+    fun `16-7 submission for checking ftp files`() {
+        val submission = tsv {
+            line("Submission", "S-500")
+            line("Title", "Submission")
+            line("ReleaseDate", "2020-01-25")
+            line()
+
+            line("Study")
+            line()
+
+            line("File", "folder1")
+            line()
+        }.toString()
+
+        webClient.createFolder("folder1")
+        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+        val submitted = submissionRepository.getExtByAccNo("S-500")
+
+        assertThat(File("$ftpPath/${submitted.relPath}/Files").listFiles()?.size).isEqualTo(1)
+        assertThat(File("$ftpPath/${submitted.relPath}/Files/folder1")).exists()
+        assertThat(File("$ftpPath/${submitted.relPath}/Files/folder1")).isEmptyDirectory()
     }
 
     private fun getSimpleSubmission(accNo: String) =

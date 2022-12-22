@@ -11,11 +11,11 @@ import org.springframework.http.HttpMethod.GET
 import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_OCTET_STREAM
 import org.springframework.util.LinkedMultiValueMap
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.RequestCallback
 import org.springframework.web.client.ResponseExtractor
-import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
-import org.springframework.web.client.postForObject
+import org.springframework.web.client.postForEntity
 import java.io.File
 
 private const val USER_FILES_URL = "/files/user"
@@ -36,17 +36,17 @@ internal class UserFilesClient(private val template: RestTemplate) : FilesOperat
     override fun uploadFiles(files: List<File>, relativePath: String) {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
         val body = LinkedMultiValueMap<String, Any>().apply { files.forEach { add("files", FileSystemResource(it)) } }
-        template.postForEntity("$USER_FILES_URL${normalize(relativePath)}", HttpEntity(body, headers), Void::class.java)
+        template.postForEntity<Unit>("$USER_FILES_URL${normalize(relativePath)}", HttpEntity(body, headers))
     }
 
     override fun uploadFile(file: File, relativePath: String) {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
         val body = LinkedMultiValueMap<String, Any>().apply { add("files", FileSystemResource(file)) }
-        template.postForEntity("$USER_FILES_URL${normalize(relativePath)}", HttpEntity(body, headers), Void::class.java)
+        template.postForEntity<Unit>("$USER_FILES_URL${normalize(relativePath)}", HttpEntity(body, headers))
     }
 
     override fun createFolder(folderName: String, relativePath: String) {
-        template.postForObject<Unit>("$USER_FOLDER_URL${normalize(relativePath)}?folder=$folderName")
+        template.postForEntity<Unit>("$USER_FOLDER_URL${normalize(relativePath)}?folder=$folderName")
     }
 
     override fun deleteFile(fileName: String, relativePath: String) {

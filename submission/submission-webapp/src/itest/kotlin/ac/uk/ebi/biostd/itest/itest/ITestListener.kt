@@ -99,6 +99,7 @@ class ITestListener : TestExecutionListener {
         val enableFire get() = System.getProperty("enableFire").toBoolean()
         val storageMode get() = if (enableFire) StorageMode.FIRE else StorageMode.NFS
         val submissionPath get() = if (enableFire) fireSubmissionPath else nfsSubmissionPath
+        val ftpPath get() = if (enableFire) fireFtpPath else nfsFtpPath
 
         private fun createMongoContainer(): MongoDBContainer =
             MongoDBContainer(parse(MONGO_VERSION))
