@@ -17,7 +17,7 @@ class SubmissionReleaserService(
     private val bioWebClient: BioWebClient,
     private val notificationTimes: NotificationTimes,
     private val releaserRepository: ReleaserRepository,
-    private val eventsPublisherService: EventsPublisherService
+    private val eventsPublisherService: EventsPublisherService,
 ) {
     fun notifySubmissionReleases() {
         val today = Instant.now()
@@ -32,7 +32,7 @@ class SubmissionReleaserService(
 
         releaserRepository
             .findAllUntil(to.toLocalDate())
-            .forEach(::releaseSubmission)
+            .forEach(::releaseSafely)
     }
 
     fun generateFtpLinks() {
@@ -41,8 +41,14 @@ class SubmissionReleaserService(
             .forEach(::generateFtpLink)
     }
 
-    private fun releaseSubmission(releaseData: ReleaseData) {
+    private fun releaseSafely(releaseData: ReleaseData) {
         logger.info { "Releasing submission ${releaseData.accNo}" }
+        runCatching { releaseSubmission(releaseData) }
+            .onFailure { logger.info { "Failed to release submission ${releaseData.accNo}" } }
+            .onSuccess { logger.info { "Released submission ${releaseData.accNo}" } }
+    }
+
+    private fun releaseSubmission(releaseData: ReleaseData) {
         bioWebClient.releaseSubmission(releaseData.asReleaseDto())
         eventsPublisherService.submissionsRefresh(releaseData.accNo, releaseData.owner)
     }
