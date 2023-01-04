@@ -5,6 +5,7 @@ import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.newFile
+import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -257,11 +258,11 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
 
             temporaryFolder.createDirectory("dir-size-test/level-1")
             temporaryFolder.createDirectory("dir-size-test/level-1/level-2")
-            temporaryFolder.createFile("dir-size-test/file1.txt", "test 1")
-            temporaryFolder.createFile("dir-size-test/level-1/file2.txt", "test 2")
-            temporaryFolder.createFile("dir-size-test/level-1/level-2/file3.txt", "test 3")
+            val f1 = temporaryFolder.createFile("dir-size-test/file1.txt", "test 1")
+            val f2 = temporaryFolder.createFile("dir-size-test/level-1/file2.txt", "test 2")
+            val f3 = temporaryFolder.createFile("dir-size-test/level-1/level-2/file3.txt", "test 3")
 
-            assertThat(FileUtils.size(directory)).isEqualTo(18L)
+            assertThat(FileUtils.size(directory)).isEqualTo(f1.size() + f2.size() + f3.size())
         }
 
         @Test
