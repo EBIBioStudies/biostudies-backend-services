@@ -42,7 +42,6 @@ class SubmissionReleaserService(
     }
 
     private fun releaseSafely(releaseData: ReleaseData) {
-        logger.info { "Releasing submission ${releaseData.accNo}" }
         runCatching { releaseSubmission(releaseData) }
             .onFailure { logger.info { "Failed to release submission ${releaseData.accNo}" } }
             .onSuccess { logger.info { "Released submission ${releaseData.accNo}" } }
