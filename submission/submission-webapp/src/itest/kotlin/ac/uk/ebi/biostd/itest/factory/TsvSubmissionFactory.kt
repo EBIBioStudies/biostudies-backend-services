@@ -103,6 +103,6 @@ internal val expectedAllInOneTsvFileList = tsv {
 internal val expectedAllInOneTsvInnerFileList = tsv {
     line("Files", "Type")
     line("DataFile7.txt", "referenced")
-    line("Folder1/DataFile8.txt", "referenced")
+    line("Folder1", "referenced directory")
     line()
 }

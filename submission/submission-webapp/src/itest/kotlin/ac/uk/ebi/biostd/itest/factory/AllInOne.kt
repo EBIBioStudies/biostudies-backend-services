@@ -21,5 +21,4 @@ fun submissionsFiles(tempFolder: File): List<SubmissionFile> = listOf(
     SubmissionFile(tempFolder.createOrReplaceFile("DataFile5.txt", "content 5")),
     SubmissionFile(tempFolder.createOrReplaceFile("DataFile6.txt", "content 6"), "Folder1"),
     SubmissionFile(tempFolder.createOrReplaceFile("DataFile7.txt", "content 7")),
-    SubmissionFile(tempFolder.createOrReplaceFile("DataFile8.txt", "content 8"), "Folder1"),
 )

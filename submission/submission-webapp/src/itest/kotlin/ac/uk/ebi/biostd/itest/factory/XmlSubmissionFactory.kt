@@ -50,13 +50,13 @@ internal val expectedAllInOneXmlInnerFileList = xml("table") {
         }
     }
     "file" {
-        attribute("size", 9)
-        "path" { -"Folder1/DataFile8.txt" }
-        "type" { -"file" }
+        attribute("size", 27)
+        "path" { -"Folder1" }
+        "type" { -"directory" }
         "attributes" {
             "attribute" {
                 "name" { -"Type" }
-                "value" { -"referenced" }
+                "value" { -"referenced directory" }
             }
         }
     }

@@ -5,6 +5,7 @@ import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.createNewFile
 import ebi.ac.uk.io.ext.newFile
+import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.clean
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -278,9 +279,22 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         }
 
         @Test
-        fun size() {
+        fun `file size`() {
             val file = temporaryFolder.createFile("size-test.txt", "a test text")
             assertThat(FileUtils.size(file)).isEqualTo(11L)
+        }
+
+        @Test
+        fun `directory size`() {
+            val directory = temporaryFolder.createDirectory("dir-size-test")
+
+            temporaryFolder.createDirectory("dir-size-test/level-1")
+            temporaryFolder.createDirectory("dir-size-test/level-1/level-2")
+            val file1 = temporaryFolder.createFile("dir-size-test/file1.txt", "test 1")
+            val file2 = temporaryFolder.createFile("dir-size-test/level-1/file2.txt", "test 2")
+            val file3 = temporaryFolder.createFile("dir-size-test/level-1/level-2/file3.txt", "test 3")
+
+            assertThat(FileUtils.size(directory)).isEqualTo(file1.size() + file2.size() + file3.size())
         }
 
         @Test
