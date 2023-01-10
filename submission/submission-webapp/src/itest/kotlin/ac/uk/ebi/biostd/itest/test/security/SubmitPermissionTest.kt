@@ -46,6 +46,7 @@ class SubmitPermissionTest(
     fun init() {
         securityTestService.ensureUserRegistration(SuperUser)
         securityTestService.ensureUserRegistration(ExistingUser)
+        securityTestService.ensureUserRegistration(ImpersonatedUser)
 
         superUserWebClient = getWebClient(serverPort, SuperUser)
         regularUserWebClient = getWebClient(serverPort, ExistingUser)
@@ -184,6 +185,36 @@ class SubmitPermissionTest(
         assertThat(regularUserWebClient.submitSingle(resubmission, SubmissionFormat.TSV)).isSuccessful()
     }
 
+    @Test
+    fun `4-8 owner resubmits without attach permission`() {
+        val project = tsv {
+            line("Submission", "TestCollection6")
+            line("AccNoTemplate", "!{T-CLLC}")
+            line()
+
+            line("Project")
+        }.toString()
+
+        val submission = tsv {
+            line("Submission")
+            line("AttachTo", "TestCollection6")
+            line("Title", "Test Submission")
+        }.toString()
+
+        val impersonatedUserClient = getWebClient(serverPort, ImpersonatedUser)
+        val onBehalfClient = getWebClient(serverPort, SuperUser, ImpersonatedUser)
+
+        assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
+        assertThat(onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+
+        val resubmission = tsv {
+            line("Submission", "T-CLLC1")
+            line("AttachTo", "TestCollection6")
+            line("Title", "Test Resubmission")
+        }.toString()
+        assertThat(impersonatedUserClient.submitSingle(resubmission, SubmissionFormat.TSV)).isSuccessful()
+    }
+
     private fun setAttachPermission(testUser: TestUser, collection: String) =
         superUserWebClient.givePermissionToUser(testUser.email, collection, ATTACH.name)
 
@@ -197,6 +228,13 @@ class SubmitPermissionTest(
     object NewUser : TestUser {
         override val username = "New User"
         override val email = "new_user@ebi.ac.uk"
+        override val password = "1234"
+        override val superUser = false
+    }
+
+    object ImpersonatedUser : TestUser {
+        override val username = "Impersonated User"
+        override val email = "impersonated_user@ebi.ac.uk"
         override val password = "1234"
         override val superUser = false
     }

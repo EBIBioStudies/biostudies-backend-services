@@ -139,7 +139,7 @@ class AccNoServiceTest(
             every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
             every { privilegesService.canSubmitToCollection(SUBMITTER, PROJECT) } returns false
 
-            val request = AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT, isNew = false)
+            val request = AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT, isNew = true)
             val error = assertThrows<UserCanNotSubmitToProjectException> { testInstance.calculateAccNo(request) }
 
             assertThat(error.message).isEqualTo("The user submiter@email.com is not allowed to submit to CC123 project")
@@ -147,13 +147,12 @@ class AccNoServiceTest(
 
         @Test
         fun whenUserCanNotReSubmit() {
-            every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
-            every { privilegesService.canSubmitToCollection(SUBMITTER, PROJECT) } returns false
+            every { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns false
 
             val request = AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT, isNew = false)
-            val error = assertThrows<UserCanNotSubmitToProjectException> { testInstance.calculateAccNo(request) }
+            val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.calculateAccNo(request) }
 
-            assertThat(error.message).isEqualTo("The user submiter@email.com is not allowed to submit to CC123 project")
+            assertThat(error.message).isEqualTo("The user {$SUBMITTER} is not allowed to update the submission $ACC_NO")
         }
 
         @Test
@@ -170,7 +169,7 @@ class AccNoServiceTest(
         fun `owner regular user resubmit`() {
             every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
             every { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns true
-            every { privilegesService.canSubmitToCollection(SUBMITTER, PROJECT) } returns true
+            every { privilegesService.canSubmitToCollection(SUBMITTER, PROJECT) } returns false
 
             val request = AccNoServiceRequest(submitter = SUBMITTER, accNo = ACC_NO, project = PROJECT, isNew = false)
             assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("AAB", "12"))

@@ -19,14 +19,14 @@ class AccNoService(
     @Suppress("ThrowsCount")
     fun calculateAccNo(request: AccNoServiceRequest): AccNumber {
         val (submitter, accNo, isNew, project, projectPattern) = request
-        checkCanSubmitToProject(project, submitter)
-        checkCanProvideAcc(accNo, isNew, submitter)
 
         if (accNo != null && isNew.not()) {
             checkCanReSubmit(accNo, submitter)
             return patternUtil.toAccNumber(accNo)
         }
 
+        checkCanSubmitToProject(project, submitter)
+        checkCanProvideAcc(accNo, isNew, submitter)
         return accNo?.let { patternUtil.toAccNumber(it) } ?: calculateAccNo(getPattern(projectPattern))
     }
 
