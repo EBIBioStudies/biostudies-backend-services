@@ -258,11 +258,11 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
 
             temporaryFolder.createDirectory("dir-size-test/level-1")
             temporaryFolder.createDirectory("dir-size-test/level-1/level-2")
-            val f1 = temporaryFolder.createFile("dir-size-test/file1.txt", "test 1")
-            val f2 = temporaryFolder.createFile("dir-size-test/level-1/file2.txt", "test 2")
-            val f3 = temporaryFolder.createFile("dir-size-test/level-1/level-2/file3.txt", "test 3")
+            val file1 = temporaryFolder.createFile("dir-size-test/file1.txt", "test 1")
+            val file2 = temporaryFolder.createFile("dir-size-test/level-1/file2.txt", "test 2")
+            val file3 = temporaryFolder.createFile("dir-size-test/level-1/level-2/file3.txt", "test 3")
 
-            assertThat(FileUtils.size(directory)).isEqualTo(f1.size() + f2.size() + f3.size())
+            assertThat(FileUtils.size(directory)).isEqualTo(file1.size() + file2.size() + file3.size())
         }
 
         @Test
