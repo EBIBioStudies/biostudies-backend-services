@@ -1,34 +1,25 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.common.properties.LoggingProperties
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ebi.ac.uk.base.toPrettyString
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.event.ContextRefreshedEvent
 import org.springframework.context.event.EventListener
+import org.springframework.stereotype.Component
 
-class PropertyLogger(private val loggingProperties: LoggingProperties) {
+@Component
+@ConditionalOnProperty(prefix = "app", name = ["enablePropertiesLog"], havingValue = "true")
+class PropertyLogger(@Autowired private val applicationProperties: ApplicationProperties) {
     private val logger: Logger = LoggerFactory.getLogger(PropertyLogger::class.java)
 
     @EventListener
     @Suppress("UnusedPrivateMember")
     fun handleContextRefresh(event: ContextRefreshedEvent) {
         logger.info("===================APPLICATION PROPERTIES========================")
-        logger.info("------------------------SPRING-----------------------------------")
-        loggingProperties.spring.forEach { (t, u) -> logger.info("* $t: $u") }
-        logger.info("--------------------------MONGO----------------------------------")
-        loggingProperties.mongo.forEach { (t, u) -> logger.info("* $t: $u") }
-        logger.info("------------------------MYSQL-JPA--------------------------------")
-        loggingProperties.mysql.forEach { (t, u) -> logger.info("* $t: $u") }
-        logger.info("------------------------RABBITMQ---------------------------------")
-        loggingProperties.rabbit.forEach { (t, u) -> logger.info("* $t: $u") }
-        logger.info("-------------------------SERVLET---------------------------------")
-        loggingProperties.servlet.forEach { (t, u) -> logger.info("* $t: $u") }
-        logger.info("--------------------------APP------------------------------------")
-        loggingProperties.app.forEach { (t, u) -> logger.info("* $t: $u") }
-        logger.info("--------------------------FIRE-----------------------------------")
-        loggingProperties.fire.forEach { (t, u) -> logger.info("* $t: $u") }
-        logger.info("-------------------------SECURITY--------------------------------")
-        loggingProperties.security.forEach { (t, u) -> logger.info("* $t: $u") }
+        logger.info(applicationProperties.toPrettyString())
         logger.info("=================================================================")
         logger.info("=================================================================")
     }

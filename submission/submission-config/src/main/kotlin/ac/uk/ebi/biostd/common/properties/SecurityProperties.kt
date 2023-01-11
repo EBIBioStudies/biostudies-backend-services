@@ -14,10 +14,21 @@ class SecurityProperties {
 
     @NestedConfigurationProperty
     var instanceKeys = InstanceKeys()
+
+    override fun toString(): String {
+        return "SecurityProperties (" +
+            "tokenHash=$tokenHash, environment=$environment, filesDirPath=$filesDirPath, " +
+            "captchaKey=$captchaKey, magicDirPath=$magicDirPath, checkCaptcha=$checkCaptcha, " +
+            "requireActivation=$requireActivation, instanceKeys=$instanceKeys)"
+    }
 }
 
 class InstanceKeys {
     lateinit var dev: String
     lateinit var beta: String
     lateinit var prod: String
+
+    override fun toString(): String {
+        return "InstanceKeys (dev=$dev, beta=$beta, prod=$prod)"
+    }
 }

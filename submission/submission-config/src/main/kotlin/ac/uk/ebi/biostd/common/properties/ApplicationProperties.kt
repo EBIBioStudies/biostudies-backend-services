@@ -17,14 +17,14 @@ data class ApplicationProperties(
     val security: SecurityProperties,
     val fire: FireProperties,
     val validator: ValidatorProperties,
-    val persistence: PersistenceProperties
+    val persistence: PersistenceProperties,
 )
 
 data class RetryProperties(
     val maxAttempts: Int,
     val initialInterval: Long,
     val multiplier: Double,
-    val maxInterval: Long
+    val maxInterval: Long,
 )
 
 data class FireProperties(
@@ -32,13 +32,13 @@ data class FireProperties(
     val version: String,
     val username: String,
     val password: String,
-    val retry: RetryProperties
+    val retry: RetryProperties,
 )
 
 data class ValidatorProperties(
-    val euToxRiskValidationApi: String
+    val euToxRiskValidationApi: String,
 )
 
-class PersistenceProperties(
-    val enableFire: Boolean = false
+data class PersistenceProperties(
+    val enableFire: Boolean = false,
 )
