@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.itest.test.security
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
@@ -20,7 +21,7 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -72,14 +73,11 @@ class DeletePermissionTest(
         }.toString()
 
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
-
-        assertThatExceptionOfType(WebClientException::class.java).isThrownBy {
-            regularUserWebClient.deleteSubmission("DeleteAcc2")
-        }
+        assertThrows(WebClientException::class.java) { regularUserWebClient.deleteSubmission("DeleteAcc2") }
     }
 
     @Test
-    fun `1-3 delete with regular user and tag access permission`() {
+    fun `1-3 delete private with regular user and tag access permission`() {
         val submission = tsv {
             line("Submission", "DeleteAcc3")
             line("Title", "Simple Submission")
@@ -151,6 +149,39 @@ class DeletePermissionTest(
         assertDeletedSubmission("DeleteAcc6-1")
         assertDeletedSubmission("DeleteAcc6-3")
         assertThat(submissionRepository.getExtByAccNo("DeleteAcc6-2")).isNotNull
+    }
+
+    @Test
+    fun `1-7 delete public with regular user and tag access permission`() {
+        val submission = tsv {
+            line("Submission", "DeleteAcc7")
+            line("Title", "Simple Submission")
+            line("AttachTo", "ACollection")
+            line("ReleaseDate", "2018-09-21")
+            line()
+        }.toString()
+
+        assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
+        superUserWebClient.givePermissionToUser(RegularUser.email, "ACollection", DELETE.name)
+        assertThrows(WebClientException::class.java) { regularUserWebClient.deleteSubmission("DeleteAcc7") }
+    }
+
+    @Test
+    fun `1-8 delete own public submission`() {
+        val submission = tsv {
+            line("Submission", "DeleteAcc8")
+            line("Title", "Simple Submission")
+            line("AttachTo", "ACollection")
+            line("ReleaseDate", "2018-09-21")
+            line()
+        }.toString()
+
+        val onBehalfClient = SecurityWebClient
+            .create("http://localhost:$serverPort")
+            .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+
+        assertThat(onBehalfClient.submitSingle(submission, TSV)).isSuccessful()
+        assertThrows(WebClientException::class.java) { regularUserWebClient.deleteSubmission("DeleteAcc8") }
     }
 
     private fun assertDeletedSubmission(accNo: String, version: Int = -1) {

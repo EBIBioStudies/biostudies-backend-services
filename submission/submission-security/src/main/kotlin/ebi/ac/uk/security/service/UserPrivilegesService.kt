@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
+import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
@@ -42,10 +43,12 @@ internal class UserPrivilegesService(
             isAuthor(getOwner(accNo), submitter) ||
             hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), UPDATE)
 
-    override fun canDelete(submitter: String, accNo: String) =
-        isSuperUser(submitter) ||
-            isAuthor(getOwner(accNo), submitter) ||
+    override fun canDelete(submitter: String, accNo: String) = when {
+        isSuperUser(submitter) -> true
+        isPublic(accNo) -> false
+        else -> isAuthor(getOwner(accNo), submitter) ||
             hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), DELETE)
+    }
 
     override fun canRelease(email: String): Boolean = isSuperUser(email)
 
@@ -61,4 +64,6 @@ internal class UserPrivilegesService(
     private fun getUser(email: String) = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
 
     private fun getOwner(accNo: String) = submissionQueryService.findLatestBasicByAccNo(accNo)?.owner
+
+    private fun isPublic(accNo: String) = submissionQueryService.findLatestBasicByAccNo(accNo)?.released.orFalse()
 }
