@@ -1,12 +1,12 @@
 openapi: 3.0.0
 info:
   title: BioStudies API
-  description: Description of the endpoints that can be used to interact programatically with the BioStudies database
+  description: Description of the endpoints that can be used to interact programmatically with the BioStudies database
   version: 1.0.0
 servers:
-  - url: 'http://biostudy-prod.ebi.ac.uk:8788'
+  - url: 'http://biostudies-prod.ebi.ac.uk:8788'
     description: PROD
-  - url: 'http://biostudy-dev.ebi.ac.uk:8788'
+  - url: 'http://biostudies-beta.ebi.ac.uk:8788'
     description: BETA
 
 tags:
