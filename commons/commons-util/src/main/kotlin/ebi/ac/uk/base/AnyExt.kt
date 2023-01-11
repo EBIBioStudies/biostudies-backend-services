@@ -1,7 +1,7 @@
 package ebi.ac.uk.base
 
 /**
- * Rewrites a string to pretty considering custom indentation size. The default indentation size is 2.
+ * Rewrites a string to pretty considering custom indentation size. Default indentation size is 2.
  */
 fun Any.toPrettyString(indentSize: Int = 2) = " ".repeat(indentSize).let { indent ->
     toString()
