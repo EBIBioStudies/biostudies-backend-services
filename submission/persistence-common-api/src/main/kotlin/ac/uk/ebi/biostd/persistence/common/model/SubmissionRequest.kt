@@ -44,6 +44,6 @@ enum class RequestStatus {
     PROCESSED;
 
     companion object {
-        val PROCESSING: Set<RequestStatus> = setOf(REQUESTED, LOADED, CLEANED, FILES_COPIED, CHECK_RELEASED)
+        val PROCESSING: Set<RequestStatus> = setOf(REQUESTED, INDEXED, LOADED, CLEANED, FILES_COPIED, CHECK_RELEASED)
     }
 }

@@ -27,6 +27,10 @@ class SubmissionRequestMongoPersistenceService(
         return requestRepository.existsByAccNoAndStatusIn(accNo, RequestStatus.PROCESSING)
     }
 
+    override fun getProcessingRequests(): List<Pair<String, Int>> {
+        return requestRepository.findByStatusIn(RequestStatus.PROCESSING).map { it.accNo to it.version }
+    }
+
     override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
         requestRepository.updateSubmissionRequest(asRequest(rqt))
         return rqt.submission.accNo to rqt.submission.version

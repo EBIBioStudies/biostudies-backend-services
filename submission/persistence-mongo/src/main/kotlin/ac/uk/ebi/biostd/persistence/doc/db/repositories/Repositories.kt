@@ -52,6 +52,8 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
     fun existsByAccNoAndStatusIn(accNo: String, status: Set<RequestStatus>): Boolean
 
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
+
+    fun findByStatusIn(status: Set<RequestStatus>): List<DocSubmissionRequest>
 }
 
 interface SubmissionRequestFilesRepository : MongoRepository<DocSubmissionRequestFile, ObjectId> {

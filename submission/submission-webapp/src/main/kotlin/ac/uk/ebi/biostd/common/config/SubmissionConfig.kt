@@ -17,6 +17,7 @@ import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.domain.service.StartApplicationHandler
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
@@ -108,6 +109,12 @@ class SubmissionConfig(
             properties,
             eventsPublisherService,
         )
+
+    @Bean
+    fun startApplicationHandler(
+        extSubmissionService: ExtSubmissionService,
+        requestService: SubmissionRequestPersistenceService,
+    ) = StartApplicationHandler(extSubmissionService, requestService)
 
     @Bean
     fun projectService(

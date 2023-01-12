@@ -57,6 +57,8 @@ interface SubmissionPersistenceQueryService {
 interface SubmissionRequestPersistenceService {
     fun hasActiveRequest(accNo: String): Boolean
 
+    fun getProcessingRequests(): List<Pair<String, Int>>
+
     fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 
     fun createSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
