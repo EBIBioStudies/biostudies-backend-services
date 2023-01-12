@@ -19,7 +19,12 @@ class StartApplicationHandler(
     fun onStart() {
         logger.info { "Re processing pending submission" }
         requestService.getProcessingRequests()
-            .onEach { (accNo, version) -> "re triggering submission accNo='$accNo', version='$version'" }
-            .forEach { (accNo, version) -> extSubmissionService.reTriggerSubmission(accNo, version) }
+            .forEach { (accNo, version) -> reTriggerSafely(accNo, version) }
+    }
+
+    private fun reTriggerSafely(accNo: String, version: Int) {
+        runCatching { extSubmissionService.reTriggerSubmission(accNo, version) }
+            .onFailure { logger.error { "Failed to re triggering request accNo='$accNo', version='$version'" } }
+            .onSuccess { logger.info { "Re triggering request accNo='$accNo', version='$version'" } }
     }
 }

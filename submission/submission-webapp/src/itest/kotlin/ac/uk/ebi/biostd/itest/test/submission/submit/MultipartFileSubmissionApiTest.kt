@@ -147,8 +147,6 @@ class MultipartFileSubmissionApiTest(
                 SubAttribute	"Line1
                  Line2
                  Line3"
-                Title	"Excel 
-                 Submission"
                 
                 Study	SECT-1
                 SecAttribute	"Line1
