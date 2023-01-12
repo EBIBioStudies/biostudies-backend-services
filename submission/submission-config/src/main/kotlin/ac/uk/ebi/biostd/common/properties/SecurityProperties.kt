@@ -2,22 +2,19 @@ package ac.uk.ebi.biostd.common.properties
 
 import org.springframework.boot.context.properties.NestedConfigurationProperty
 
-class SecurityProperties {
-    lateinit var tokenHash: String
-    lateinit var environment: String
-    lateinit var filesDirPath: String
-    lateinit var captchaKey: String
-    lateinit var magicDirPath: String
+data class SecurityProperties(
+    val captchaKey: String = "",
+    val checkCaptcha: Boolean = false,
+    val tokenHash: String,
+    val filesDirPath: String,
+    val magicDirPath: String,
+    val environment: String,
+    val requireActivation: Boolean = false,
+    @NestedConfigurationProperty val instanceKeys: InstanceKeys = InstanceKeys()
+)
 
-    var checkCaptcha: Boolean = false
-    var requireActivation: Boolean = false
-
-    @NestedConfigurationProperty
-    var instanceKeys = InstanceKeys()
-}
-
-class InstanceKeys {
-    lateinit var dev: String
-    lateinit var beta: String
-    lateinit var prod: String
-}
+data class InstanceKeys(
+    val dev: String = "",
+    val beta: String = "",
+    val prod: String = "",
+)
