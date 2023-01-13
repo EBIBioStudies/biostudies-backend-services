@@ -163,7 +163,9 @@ class DeletePermissionTest(
 
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
         superUserWebClient.givePermissionToUser(RegularUser.email, "ACollection", DELETE.name)
-        assertThrows(WebClientException::class.java) { regularUserWebClient.deleteSubmission("DeleteAcc7") }
+        val error = assertThrows(WebClientException::class.java) { regularUserWebClient.deleteSubmission("DeleteAcc7") }
+        val expectedMessage = "The user {biostudies-dev@ebi.ac.uk} is not allowed to delete the submission DeleteAcc7"
+        assertThat(error.message).contains(expectedMessage)
     }
 
     @Test
@@ -171,7 +173,6 @@ class DeletePermissionTest(
         val submission = tsv {
             line("Submission", "DeleteAcc8")
             line("Title", "Simple Submission")
-            line("AttachTo", "ACollection")
             line("ReleaseDate", "2018-09-21")
             line()
         }.toString()
@@ -182,6 +183,26 @@ class DeletePermissionTest(
 
         assertThat(onBehalfClient.submitSingle(submission, TSV)).isSuccessful()
         assertThrows(WebClientException::class.java) { regularUserWebClient.deleteSubmission("DeleteAcc8") }
+    }
+
+    @Test
+    fun `1-9 superuser deletes public submission`() {
+        val submission = tsv {
+            line("Submission", "DeleteAcc9")
+            line("Title", "Simple Submission")
+            line("ReleaseDate", "2018-09-21")
+            line()
+        }.toString()
+
+        val onBehalfClient = SecurityWebClient
+            .create("http://localhost:$serverPort")
+            .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+
+        assertThat(onBehalfClient.submitSingle(submission, TSV)).isSuccessful()
+        superUserWebClient.deleteSubmission("DeleteAcc9")
+        Thread.sleep(5000)
+
+        assertDeletedSubmission("DeleteAcc9")
     }
 
     private fun assertDeletedSubmission(accNo: String, version: Int = -1) {
