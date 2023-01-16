@@ -25,7 +25,7 @@ class RetryHandler(
             .forEach { (accNo, version) -> reTriggerSafely(accNo, version) }
     }
 
-    @Scheduled(cron = "0 0 0/3 * * ?")
+    @Scheduled(cron = "0 0 */3 * * ?")
     @Suppress("MagicNumber")
     fun onSchedule() {
         logger.info { "Scheduled re processing of pending submission" }
