@@ -16,17 +16,19 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockkStatic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
+import java.time.LocalDate
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class PageTabServiceTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val pageTabUtil: PageTabUtil,
 ) {
-    private val tempDir = temporaryFolder.createDirectory("files-temp-dir")
+    private val baseTempDir = temporaryFolder.createDirectory("files-temp-dir")
     private val subJson = temporaryFolder.createFile("sub.json")
     private val subXml = temporaryFolder.createFile("sub.xml")
     private val subTsv = temporaryFolder.createFile("sub.tsv")
@@ -35,10 +37,14 @@ internal class PageTabServiceTest(
     private val fileListXml = temporaryFolder.createFile("fileList.xml")
     private val fileListTsv = temporaryFolder.createFile("fileList.tsv")
 
-    private val testInstance = PageTabService(tempDir, pageTabUtil)
+    private val testInstance = PageTabService(baseTempDir, pageTabUtil)
 
     @Test
     fun `generate pagetab`() {
+        mockkStatic(LocalDate::class)
+        every { LocalDate.now() } returns LocalDate.of(2023, 1, 24)
+
+        val tempDir = File("${baseTempDir.absolutePath}/2023/1/24/S-TEST123/1")
         val fileList = temporaryFolder.createFile("file-list")
         val fileListSection = ExtSection(type = "t2", fileList = ExtFileList(filePath = "a-path", fileList))
         val rootSection = ExtSection(type = "t1", sections = listOf(Either.left(fileListSection)))
@@ -54,11 +60,11 @@ internal class PageTabServiceTest(
         )
 
         val result = testInstance.generatePageTab(sub)
+
         assertThat(result.pageTabFiles).hasSize(3)
         assertFile(result.pageTabFiles.first(), subJson, "S-TEST123.json")
         assertFile(result.pageTabFiles.second(), subXml, "S-TEST123.xml")
         assertFile(result.pageTabFiles.third(), subTsv, "S-TEST123.tsv")
-
         assertThat(result.section.sections.first()).hasLeftValueSatisfying {
             val resultFileList = it.fileList
             assertThat(resultFileList).isNotNull()
