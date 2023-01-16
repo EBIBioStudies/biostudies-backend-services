@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
@@ -16,7 +17,9 @@ import com.mongodb.BasicDBObject
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
+import java.time.Instant
 import java.time.ZoneOffset.UTC
+import java.time.temporal.TemporalAmount
 
 @Suppress("TooManyFunctions")
 class SubmissionRequestMongoPersistenceService(
@@ -24,7 +27,15 @@ class SubmissionRequestMongoPersistenceService(
     private val requestRepository: SubmissionRequestDocDataRepository,
 ) : SubmissionRequestPersistenceService {
     override fun hasActiveRequest(accNo: String): Boolean {
-        return requestRepository.existsByAccNoAndStatusIn(accNo, RequestStatus.PROCESSING)
+        return requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING)
+    }
+
+    override fun getProcessingRequests(since: TemporalAmount?): List<Pair<String, Int>> {
+        val request = when (since) {
+            null -> requestRepository.findByStatusIn(PROCESSING)
+            else -> requestRepository.findByStatusInAndModificationTimeLessThan(PROCESSING, Instant.now().minus(since))
+        }
+        return request.map { it.accNo to it.version }
     }
 
     override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
