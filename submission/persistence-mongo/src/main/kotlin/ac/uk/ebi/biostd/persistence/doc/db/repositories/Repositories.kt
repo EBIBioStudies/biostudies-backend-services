@@ -17,6 +17,7 @@ import org.springframework.data.mongodb.core.query.Meta.CursorOption
 import org.springframework.data.mongodb.repository.Meta
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.mongodb.repository.Query
+import java.time.Instant
 import java.util.stream.Stream
 
 interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
@@ -54,6 +55,11 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
 
     fun findByStatusIn(status: Set<RequestStatus>): List<DocSubmissionRequest>
+
+    fun findByStatusInAndModificationTimeLessThan(
+        status: Set<RequestStatus>,
+        since: Instant,
+    ): List<DocSubmissionRequest>
 }
 
 interface SubmissionRequestFilesRepository : MongoRepository<DocSubmissionRequestFile, ObjectId> {

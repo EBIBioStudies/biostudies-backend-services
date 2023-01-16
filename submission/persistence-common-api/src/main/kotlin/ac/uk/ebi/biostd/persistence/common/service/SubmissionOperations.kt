@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.data.domain.Page
+import java.time.temporal.TemporalAmount
 
 interface SubmissionPersistenceService {
     fun saveSubmission(submission: ExtSubmission): ExtSubmission
@@ -57,7 +58,7 @@ interface SubmissionPersistenceQueryService {
 interface SubmissionRequestPersistenceService {
     fun hasActiveRequest(accNo: String): Boolean
 
-    fun getProcessingRequests(): List<Pair<String, Int>>
+    fun getProcessingRequests(since: TemporalAmount? = null): List<Pair<String, Int>>
 
     fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 

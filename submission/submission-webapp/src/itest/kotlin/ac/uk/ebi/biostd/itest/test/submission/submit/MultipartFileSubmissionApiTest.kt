@@ -122,17 +122,13 @@ class MultipartFileSubmissionApiTest(
                     cell("S-EXC124")
                 }
                 row {
-                    cell("SubAttribute")
-                    cell("Line1\n Line2\n Line3")
+                    cell("Title")
+                    cell("Excel \n Submission")
                 }
                 row { cell(""); cell("") }
                 row {
                     cell("Study")
                     cell("SECT-1")
-                }
-                row {
-                    cell("SecAttribute")
-                    cell("Line1\nLine2\nLine3")
                 }
             }
         }
@@ -144,14 +140,10 @@ class MultipartFileSubmissionApiTest(
         assertThat(Paths.get("$submissionPath/${sub.relPath}/${sub.accNo}.tsv")).hasContent(
             """
                 Submission	S-EXC124
-                SubAttribute	"Line1
-                 Line2
-                 Line3"
-                
+                Title	"Excel 
+                 Submission"
+
                 Study	SECT-1
-                SecAttribute	"Line1
-                Line2
-                Line3"
             """.trimIndent()
         )
     }
