@@ -88,7 +88,7 @@ build-push-docker-image:
   stage: build-push-docker-image
   when: manual
   script:
-    - cd submission/submission-webapp
+    - cd submission/submission-webapp && gradle bootJar
     - mkdir -p build/dependency && cd build/dependency && jar -xf ../libs/submission-webapp-1.0.0.jar && cd .. && cd ..
     - docker login dockerhub.ebi.ac.uk
     - docker build -t dockerhub.ebi.ac.uk/jcamilorada/sumitter:$CI_COMMIT_SHA .
