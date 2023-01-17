@@ -5,12 +5,8 @@ info:
   version: 1.0.0
 servers:
   - url: 'https://www.ebi.ac.uk/biostudies/submissions/api'
-    description: ST PROD
-  - url: 'https://wwwdev.ebi.ac.uk/biostudies/submissions/api'
-    description: ST BETA
-  - url: 'http://biostudies-prod.ebi.ac.uk:8788'
     description: PROD
-  - url: 'http://biostudies-beta.ebi.ac.uk:8788'
+  - url: 'https://wwwdev.ebi.ac.uk/biostudies/submissions/api'
     description: BETA
 
 tags:

@@ -6,9 +6,9 @@ info:
     links, we've created some endpoints that are intended only for internal usage.
   version: 1.0.0
 servers:
-  - url: 'http://biostudy-prod.ebi.ac.uk:8788'
+  - url: 'http://biostudies-prod.ebi.ac.uk:8788'
     description: PROD
-  - url: 'http://biostudy-dev.ebi.ac.uk:8788'
+  - url: 'http://biostudies-beta.ebi.ac.uk:8788'
     description: BETA
   - url: 'http://biostudy-bia.ebi.ac.uk:8788'
     description: DEV
