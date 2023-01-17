@@ -26,7 +26,7 @@ internal class SubmissionMongoPersistenceService(
     }
 
     override fun getNextVersion(accNo: String): Int {
-        val lastVersion = subDataRepository.getCurrentVersion(accNo) ?: 0
+        val lastVersion = subDataRepository.getCurrentMaxVersion(accNo) ?: 0
         return lastVersion.absoluteValue + 1
     }
 }
