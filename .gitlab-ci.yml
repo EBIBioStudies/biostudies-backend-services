@@ -90,12 +90,8 @@ build-push-docker-image:
   script:
     - cd submission/submission-webapp
     - gradle bootJar
-    - ls
-    - cd build/libs
-    - ls
-    - cd .. && cd ..
     - mkdir -p build/dependency
     - cd build/dependency && jar -xf ../libs/submission-webapp-1.0.0.jar && cd .. && cd ..
-    - docker login dockerhub.ebi.ac.uk
+    - docker login -u miguel -p @miguel2022 dockerhub.ebi.ac.uk
     - docker build -t dockerhub.ebi.ac.uk/jcamilorada/sumitter:$CI_COMMIT_SHA .
     - docker push dockerhub.ebi.ac.uk/jcamilorada/sumitter:$CI_COMMIT_SHA
