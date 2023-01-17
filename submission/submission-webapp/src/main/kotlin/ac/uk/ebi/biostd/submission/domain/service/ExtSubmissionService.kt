@@ -28,6 +28,7 @@ class ExtSubmissionService(
     private val properties: ApplicationProperties,
     private val eventsPublisherService: EventsPublisherService,
 ) {
+
     fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
         return submissionSubmitter.handleRequest(accNo, version)
     }

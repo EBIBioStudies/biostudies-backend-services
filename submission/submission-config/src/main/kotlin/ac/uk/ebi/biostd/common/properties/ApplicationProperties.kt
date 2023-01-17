@@ -39,6 +39,6 @@ data class ValidatorProperties(
     val euToxRiskValidationApi: String,
 )
 
-class PersistenceProperties(
+data class PersistenceProperties(
     val enableFire: Boolean = false,
 )

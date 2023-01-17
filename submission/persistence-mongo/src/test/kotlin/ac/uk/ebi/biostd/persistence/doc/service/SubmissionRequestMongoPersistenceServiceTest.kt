@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestFilesRepository
@@ -60,6 +62,30 @@ class SubmissionRequestMongoPersistenceServiceTest(
     fun afterEach() {
         requestRepository.deleteAll()
         unmockkStatic(Instant::class)
+    }
+
+    @Test
+    fun getProcessingRequests() {
+        fun testRequest(accNo: String, version: Int, modificationTime: Instant, status: RequestStatus) =
+            DocSubmissionRequest(
+                id = ObjectId(),
+                accNo = accNo,
+                version = version,
+                status = status,
+                draftKey = null,
+                notifyTo = "user@test.org",
+                submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
+                totalFiles = 5,
+                currentIndex = 0,
+                modificationTime = modificationTime
+            )
+
+        requestRepository.save(testRequest("abc", 1, Instant.now().minusSeconds(10), CLEANED))
+        requestRepository.save(testRequest("zxy", 2, Instant.now().minusSeconds(20), FILES_COPIED))
+
+        assertThat(testInstance.getProcessingRequests()).containsExactly("abc" to 1, "zxy" to 2)
+        assertThat(testInstance.getProcessingRequests(ofSeconds(5))).containsExactly("abc" to 1, "zxy" to 2)
+        assertThat(testInstance.getProcessingRequests(ofSeconds(15))).containsExactly("zxy" to 2)
     }
 
     @Test

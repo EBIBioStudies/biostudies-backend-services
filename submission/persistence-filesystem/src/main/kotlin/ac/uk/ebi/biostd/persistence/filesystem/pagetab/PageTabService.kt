@@ -9,12 +9,15 @@ import ebi.ac.uk.io.ext.size
 import uk.ac.ebi.extended.serialization.service.TrackSection
 import uk.ac.ebi.extended.serialization.service.iterateSections
 import java.io.File
+import java.time.LocalDate
+import java.time.temporal.ChronoField
 
 class PageTabService(
-    private val tempFolder: File,
+    private val baseTempFolder: File,
     private val pageTabUtil: PageTabUtil,
 ) : PageTabService {
     override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
+        val tempFolder = createTempFolder(sub.accNo, sub.version)
         val subFiles = pageTabUtil.generateSubPageTab(sub, tempFolder)
         val fileListFiles = pageTabUtil.generateFileListPageTab(sub, tempFolder)
         val section = iterateSections(sub.section) { withTabFiles(it, fileListFiles) }
@@ -63,4 +66,17 @@ class PageTabService(
             size = file.size(),
             attributes = emptyList()
         )
+
+
+    private fun createTempFolder(accNo: String, version: Int): File {
+        val now = LocalDate.now()
+        val path = baseTempFolder
+            .resolve(now.get(ChronoField.YEAR).toString())
+            .resolve(now.get(ChronoField.MONTH_OF_YEAR).toString())
+            .resolve(now.get(ChronoField.DAY_OF_MONTH).toString())
+            .resolve(accNo)
+            .resolve(version.toString())
+        path.mkdirs()
+        return path
+    }
 }

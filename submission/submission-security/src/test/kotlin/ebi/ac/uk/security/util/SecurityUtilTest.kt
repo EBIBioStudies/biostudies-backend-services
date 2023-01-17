@@ -14,12 +14,12 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.DynamicTest
-import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.Optional
 
@@ -32,13 +32,9 @@ private const val PROD_KEY = "prod-key"
 @ExtendWith(MockKExtension::class)
 class SecurityUtilTest(
     @MockK val userRepository: UserDataRepository,
-    @MockK val tokenRepository: TokenDataRepository,
+    @MockK val tokenRepository: TokenDataRepository
 ) {
-    private val instanceKeys = InstanceKeys().apply {
-        dev = DEV_KEY
-        beta = BETA_KEY
-        prod = PROD_KEY
-    }
+    private val instanceKeys = InstanceKeys(dev = DEV_KEY, beta = BETA_KEY, prod = PROD_KEY)
 
     private val testInstance =
         SecurityUtil(
