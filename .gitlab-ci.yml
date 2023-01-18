@@ -60,6 +60,7 @@ stages:
   - deploy-beta-handlers
   - deploy-prod-handlers
   - deploy-sandbox-handlers
+  - build-fat-jar
   - build-push-docker-image
 
 build-test:
@@ -85,7 +86,7 @@ fire-caos-itest:
 
 build-fat-jar:
   needs: [ "build-test" ]
-  stage: build-push-docker-image
+  stage: build-fat-jar
   when: manual
   before_script:
     - cd submission/submission-webapp
