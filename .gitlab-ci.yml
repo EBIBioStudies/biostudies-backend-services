@@ -84,7 +84,7 @@ fire-caos-itest:
     ITEST_FAIL_FACTOR: "8"
 
 build-push-docker-image:
-  needs: [ "build-test" ]
+#  needs: [ "build-test" ]
   stage: build-push-docker-image
   when: manual
   script:
