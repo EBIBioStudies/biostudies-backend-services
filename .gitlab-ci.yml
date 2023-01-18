@@ -104,5 +104,12 @@ build-push-docker-image:
     - docker login dockerhub.ebi.ac.uk -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
   script:
     - cd submission/submission-webapp
+    - ls
+    - cd build
+    - ls
+    - cd dependency
+    - ls
+    - cd BOOT-INF
+    - ls
     - docker build -t dockerhub.ebi.ac.uk/jcamilorada/submitter:$CI_COMMIT_SHA .
     - docker push dockerhub.ebi.ac.uk/jcamilorada/submitter:$CI_COMMIT_SHA
