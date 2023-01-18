@@ -88,6 +88,7 @@ build-push-docker-image:
   stage: build-push-docker-image
   when: manual
   script:
+    - docker --version
     - cd submission/submission-webapp
     - gradle bootJar
     - mkdir -p build/dependency
