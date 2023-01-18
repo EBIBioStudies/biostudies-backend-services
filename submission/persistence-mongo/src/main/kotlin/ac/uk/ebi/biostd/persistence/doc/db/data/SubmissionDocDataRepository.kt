@@ -32,6 +32,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation.skip
 import org.springframework.data.mongodb.core.aggregation.Aggregation.sort
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation
 import org.springframework.data.mongodb.core.aggregation.AggregationOptions
+import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators.Abs.absoluteValueOf
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
@@ -48,11 +49,11 @@ class SubmissionDocDataRepository(
         mongoTemplate.updateFirst(query, update(SUB_RELEASED, true), DocSubmission::class.java)
     }
 
-    fun getCurrentVersion(accNo: String): Int? {
+    fun getCurrentMaxVersion(accNo: String): Int? {
         val aggregation = newAggregation(
             DocSubmission::class.java,
             match(where(SUB_ACC_NO).`is`(accNo)),
-            group(SUB_ACC_NO).max(SUB_VERSION).`as`("maxVersion"),
+            group(SUB_ACC_NO).max(absoluteValueOf(SUB_VERSION)).`as`("maxVersion"),
             sort(Sort.Direction.DESC, "maxVersion")
         )
 

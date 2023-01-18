@@ -139,7 +139,15 @@ internal class SubmissionDocDataRepositoryTest {
             testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = -1))
             testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = 2))
 
-            assertThat(testInstance.getCurrentVersion("S-BSST3")).isEqualTo(2)
+            assertThat(testInstance.getCurrentMaxVersion("S-BSST3")).isEqualTo(2)
+        }
+
+        @Test
+        fun `by current version with all versions deleted`() {
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -1))
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -2))
+
+            assertThat(testInstance.getCurrentMaxVersion("S-BSST4")).isEqualTo(2)
         }
     }
 

@@ -67,7 +67,6 @@ class PageTabService(
             attributes = emptyList()
         )
 
-
     private fun createTempFolder(accNo: String, version: Int): File {
         val now = LocalDate.now()
         val path = baseTempFolder
