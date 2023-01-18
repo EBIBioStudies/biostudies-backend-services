@@ -67,12 +67,12 @@ build-test:
   script: gradle clean build test -x itest -x jacocoTestCoverageVerification buildArtifacts --info
 
 nfs-itest:
-  needs: ["build-test"]
+  needs: [ "build-test" ]
   stage: nfs-itest
   script: gradle clean :submission:submission-webapp:itest -PenableFire=false --rerun-tasks --stacktrace
 
 fire-itest:
-  needs: ["build-test"]
+  needs: [ "build-test" ]
   stage: fire-itest
   script: gradle clean :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --stacktrace
 
@@ -83,17 +83,24 @@ fire-caos-itest:
   variables:
     ITEST_FAIL_FACTOR: "8"
 
-build-push-docker-image:
-  image: docker:latest
+build-fat-jar:
   needs: [ "build-test" ]
   stage: build-push-docker-image
   when: manual
-  script:
-    - docker --version
+  before_script:
     - cd submission/submission-webapp
+  script:
     - gradle bootJar
-    - mkdir -p build/dependency
-    - cd build/dependency && jar -xf ../libs/submission-webapp-1.0.0.jar && cd .. && cd ..
+
+build-push-docker-image:
+  image: docker:latest
+  needs: [ "build-fat-jar" ]
+  stage: build-push-docker-image
+  when: manual
+  before_script:
+    - cd submission/submission-webapp && mkdir -p build/dependency
+    - cd build/dependency && jar -xf ../libs/submission-webapp-1.0.0.jar && cd submission/submission-webapp
     - docker login dockerhub.ebi.ac.uk -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+  script:
     - docker build -t dockerhub.ebi.ac.uk/jcamilorada/sumitter:$CI_COMMIT_SHA .
     - docker push dockerhub.ebi.ac.uk/jcamilorada/sumitter:$CI_COMMIT_SHA
