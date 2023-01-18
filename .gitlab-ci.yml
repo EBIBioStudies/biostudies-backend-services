@@ -6,17 +6,19 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
 
-include:
-  - local: '/ci/submitter.yml'
-  - local: '/ci/pmc-processor.yml'
-  - local: '/ci/exporter.yml'
-  - local: '/ci/submission-releaser.yml'
-  - local: '/ci/scheduler.yml'
-  - local: '/ci/bio-admin.yml'
-  - local: '/ci/bio-commandline.yml'
-  - local: '/ci/submission-handlers.yml'
+#include:
+#  - local: '/ci/submitter.yml'
+#  - local: '/ci/pmc-processor.yml'
+#  - local: '/ci/exporter.yml'
+#  - local: '/ci/submission-releaser.yml'
+#  - local: '/ci/scheduler.yml'
+#  - local: '/ci/bio-admin.yml'
+#  - local: '/ci/bio-commandline.yml'
+#  - local: '/ci/submission-handlers.yml'
 
 stages:
+  - build-fat-jar
+  - build-push-docker-image
 #  - build-test
 #  - nfs-itest
 #  - fire-itest
@@ -60,8 +62,6 @@ stages:
 #  - deploy-beta-handlers
 #  - deploy-prod-handlers
 #  - deploy-sandbox-handlers
-  - build-fat-jar
-  - build-push-docker-image
 
 #build-test:
 #  stage: build-test
