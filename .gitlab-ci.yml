@@ -94,7 +94,7 @@ build-fat-jar:
     - gradle bootJar
 
 build-push-docker-image:
-  image: docker:docker:cli
+  image: docker:cli
   needs: [ "build-fat-jar" ]
   stage: build-push-docker-image
   when: manual
