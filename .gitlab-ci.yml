@@ -101,11 +101,13 @@ build-push-docker-image:
   needs: [ "build-fat-jar" ]
   stage: build-push-docker-image
   when: manual
+  variables:
+    SUBMITTER_IMAGE: $CI_REGISTRY/submitter:$CI_COMMIT_SHA
   dependencies:
     - build-fat-jar
   before_script:
     - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
   script:
     - cd submission/submission-webapp
-    - docker build -t dockerhub.ebi.ac.uk/jcamilorada/biostudies-backend-service/submitter:$CI_COMMIT_SHA .
-    - docker push dockerhub.ebi.ac.uk/jcamilorada/biostudies-backend-service/submitter:$CI_COMMIT_SHA
+    - docker build -t $SUBMITTER_IMAGE .
+    - docker push $SUBMITTER_IMAGE
