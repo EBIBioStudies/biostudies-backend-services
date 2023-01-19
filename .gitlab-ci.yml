@@ -89,16 +89,11 @@ build-fat-jar:
   stage: build-fat-jar
   when: manual
   script:
-    - ls
     - cd submission/submission-webapp
-    - ls
     - gradle bootJar
-    - ls
-    - cd build/libs
-    - ls
   artifacts:
     paths:
-      - submission-webapp-1.0.0.jar
+      - submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
 
 build-push-docker-image:
   image: docker:cli
