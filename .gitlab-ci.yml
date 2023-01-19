@@ -96,7 +96,7 @@ build-fat-jar:
     - ls
   artifacts:
     paths:
-      - build/libs/submission-webapp-1.0.0.jar
+      - build
 
 build-push-docker-image:
   image: docker:cli
@@ -106,7 +106,9 @@ build-push-docker-image:
   dependencies:
     - build-fat-jar
   before_script:
+    - ls
     - cd submission/submission-webapp
+    - ls
     - mkdir dependency && cd dependency && jar -xf build/libs/submission-webapp-1.0.0.jar && cd ..
     - docker login dockerhub.ebi.ac.uk -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
   script:
