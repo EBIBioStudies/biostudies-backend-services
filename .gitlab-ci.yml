@@ -96,7 +96,7 @@ build-fat-jar:
     - ls
   artifacts:
     paths:
-      - build
+      - submission-webapp-1.0.0.jar
 
 build-push-docker-image:
   image: docker:cli
