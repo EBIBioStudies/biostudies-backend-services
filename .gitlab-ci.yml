@@ -17,8 +17,7 @@ variables:
 #  - local: '/ci/submission-handlers.yml'
 
 stages:
-  - build-fat-jar
-  - build-push-docker-image
+  - build-push-submitter-image
 #  - build-test
 #  - nfs-itest
 #  - fire-itest
@@ -86,7 +85,7 @@ stages:
 
 build-fat-jar:
   #  needs: [ "build-test" ]
-  stage: build-fat-jar
+  stage: build-push-submitter-image
   when: manual
   script:
     - cd submission/submission-webapp
@@ -98,9 +97,9 @@ build-fat-jar:
 
 build-push-docker-image:
   image: docker:cli
-  needs: [ "build-fat-jar" ]
-  stage: build-push-docker-image
-  when: manual
+  needs:
+    - build-fat-jar
+  stage: build-push-submitter-image
   variables:
     SUBMITTER_IMAGE: $CI_REGISTRY/submitter:$CI_COMMIT_SHA
   dependencies:
