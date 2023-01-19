@@ -88,14 +88,11 @@ build-fat-jar:
 #  needs: [ "build-test" ]
   stage: build-fat-jar
   when: manual
-  before_script:
-    - cd submission/submission-webapp
   script:
+    - ls
+    - cd submission/submission-webapp
+    - ls
     - gradle bootJar
-    - ls
-    - cd build
-    - ls
-    - cd libs
     - ls
   artifacts:
     paths:
