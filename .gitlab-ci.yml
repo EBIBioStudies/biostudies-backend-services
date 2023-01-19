@@ -91,9 +91,10 @@ build-fat-jar:
   script:
     - cd submission/submission-webapp
     - gradle bootJar
+    - mkdir -p build/dependency && cd build/dependency && jar -xf ../libs/submission-webapp-1.0.0.jar
   artifacts:
     paths:
-      - submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
+      - submission/submission-webapp/build/dependency
 
 build-push-docker-image:
   image: docker:cli
@@ -103,13 +104,8 @@ build-push-docker-image:
   dependencies:
     - build-fat-jar
   before_script:
-    - cd submission/submission-webapp
-    - mkdir -p build/dependency && cd build/dependency
-    - jar -xf submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
-    - ls
-    - cd .. && cd ..
-    - ls
-    - docker login dockerhub.ebi.ac.uk -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
   script:
-    - docker build -t dockerhub.ebi.ac.uk/jcamilorada/submitter:$CI_COMMIT_SHA .
-    - docker push dockerhub.ebi.ac.uk/jcamilorada/submitter:$CI_COMMIT_SHA
+    - cd submission/submission-webapp
+    - docker build -t dockerhub.ebi.ac.uk/jcamilorada/biostudies-backend-service/submitter:$CI_COMMIT_SHA .
+    - docker push dockerhub.ebi.ac.uk/jcamilorada/biostudies-backend-service/submitter:$CI_COMMIT_SHA
