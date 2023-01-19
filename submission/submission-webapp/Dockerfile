@@ -10,7 +10,7 @@ USER systemUser:systemGroup
 # The layers are cached both at build time and at runtime (in most runtimes), so we want the most frequently changing
 # resources (usually the class and static resources in the application itself) to be layered after the more slowly
 # changing resources.
-ARG DEPENDENCY=dependency
+ARG DEPENDENCY=build/dependency
 COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY ${DEPENDENCY}/META-INF /app/META-INF
 COPY ${DEPENDENCY}/BOOT-INF/classes /app

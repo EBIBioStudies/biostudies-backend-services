@@ -85,7 +85,7 @@ stages:
 #    ITEST_FAIL_FACTOR: "8"
 
 build-fat-jar:
-#  needs: [ "build-test" ]
+  #  needs: [ "build-test" ]
   stage: build-fat-jar
   when: manual
   script:
@@ -103,15 +103,13 @@ build-push-docker-image:
   dependencies:
     - build-fat-jar
   before_script:
-    - ls
     - cd submission/submission-webapp
+    - mkdir -p build/dependency && cd build/dependency
+    - jar -xf submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar
     - ls
-    - mkdir dependency && cd dependency && ls
-    - jar -xf submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar && ls
-    - cd ..
+    - cd .. && cd ..
     - ls
     - docker login dockerhub.ebi.ac.uk -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
   script:
-    - cd submission/submission-webapp
     - docker build -t dockerhub.ebi.ac.uk/jcamilorada/submitter:$CI_COMMIT_SHA .
     - docker push dockerhub.ebi.ac.uk/jcamilorada/submitter:$CI_COMMIT_SHA
