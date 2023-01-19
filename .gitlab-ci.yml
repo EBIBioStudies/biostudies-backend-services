@@ -94,6 +94,8 @@ build-fat-jar:
     - ls
     - gradle bootJar
     - ls
+    - cd build/libs
+    - ls
   artifacts:
     paths:
       - submission-webapp-1.0.0.jar
