@@ -106,7 +106,10 @@ build-push-docker-image:
     - ls
     - cd submission/submission-webapp
     - ls
-    - mkdir dependency && cd dependency && jar -xf build/libs/submission-webapp-1.0.0.jar && cd ..
+    - mkdir dependency && cd dependency && ls
+    - jar -xf submission/submission-webapp/build/libs/submission-webapp-1.0.0.jar && ls
+    - cd ..
+    - ls
     - docker login dockerhub.ebi.ac.uk -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
   script:
     - cd submission/submission-webapp
