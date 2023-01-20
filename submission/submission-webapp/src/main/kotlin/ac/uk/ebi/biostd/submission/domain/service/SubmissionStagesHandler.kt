@@ -34,7 +34,7 @@ class SubmissionStagesHandler(
     @RabbitHandler
     fun loadRequest(rqt: RequestIndexed) {
         processSafely(rqt) {
-            logger.info { "$accNo, received Created message for submission $accNo, version: $version" }
+            logger.info { "$accNo, Received Created message for submission $accNo, version: $version" }
             submissionSubmitter.loadRequest(rqt)
             eventsPublisherService.requestLoaded(rqt.accNo, rqt.version)
         }
