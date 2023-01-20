@@ -71,8 +71,7 @@ class SubmissionStagesHandler(
     fun saveSubmission(rqt: RequestCheckedReleased) {
         processSafely(rqt) {
             logger.info { "$accNo, Received check released message for submission $accNo, version: $version" }
-            val submission = submissionSubmitter.saveRequest(rqt)
-            eventsPublisherService.submissionSubmitted(submission.accNo, submission.owner)
+            submissionSubmitter.saveRequest(rqt)
         }
     }
 
