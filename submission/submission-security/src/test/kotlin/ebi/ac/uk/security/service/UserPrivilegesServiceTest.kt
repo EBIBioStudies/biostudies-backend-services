@@ -106,7 +106,10 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `author user deletes own submission`(@MockK basicSubmission: BasicSubmission) {
+    fun `author user deletes own private submission`(
+        @MockK basicSubmission: BasicSubmission
+    ) {
+        every { basicSubmission.released } returns false
         every { basicSubmission.owner } returns "author@mail.com"
         every { queryService.findLatestBasicByAccNo("accNo") } returns basicSubmission
 
@@ -114,16 +117,36 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `author user deletes not own submission`() {
+    fun `author user deletes own public submission`(
+        @MockK basicSubmission: BasicSubmission
+    ) {
+        every { basicSubmission.released } returns true
+        every { basicSubmission.owner } returns "author@mail.com"
+        every { queryService.findLatestBasicByAccNo("accNo") } returns basicSubmission
+
         assertThat(testInstance.canDelete("author@mail.com", "accNo")).isFalse
     }
 
     @Test
-    fun `other author user deletes submission with tag`() {
+    fun `other author user deletes not own submission`() {
+        assertThat(testInstance.canDelete("author@mail.com", "accNo")).isFalse
+    }
+
+    @Test
+    fun `other author user deletes private submission with tag`() {
         every { queryService.getAccessTags("accNo") } returns listOf("A-Collection")
         every { userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Collection", DELETE) } returns true
 
         assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isTrue
+    }
+
+    @Test
+    fun `other author user deletes public submission with tag`() {
+        every { basicSubmission.released } returns true
+        every { queryService.getAccessTags("accNo") } returns listOf("A-Collection")
+        every { userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Collection", DELETE) } returns true
+
+        assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isFalse
     }
 
     @Test
@@ -164,6 +187,7 @@ class UserPrivilegesServiceTest(
     }
 
     private fun initSubmissionQueries() {
+        every { basicSubmission.released } returns false
         every { basicSubmission.owner } returns "nottheauthor@mail.com"
         every { queryService.getAccessTags("accNo") } returns emptyList()
         every { queryService.findLatestBasicByAccNo("accNo") } returns basicSubmission

@@ -10,6 +10,6 @@ private val logger = KotlinLogging.logger {}
 class LogSubmissionListener {
     @RabbitListener(queues = [LOG_QUEUE])
     fun receiveMessage(submission: SubmissionMessage) {
-        logger.info { "received message for submission ${submission.accNo}" }
+        logger.info { "Received message for submission ${submission.accNo}" }
     }
 }

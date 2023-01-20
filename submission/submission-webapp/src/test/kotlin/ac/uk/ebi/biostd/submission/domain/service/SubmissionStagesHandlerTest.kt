@@ -112,13 +112,10 @@ class SubmissionStagesHandlerTest(
         every { submission.accNo } returns "S-BSST0"
         every { submission.owner } returns "owner@test.org"
         every { submissionSubmitter.saveRequest(request) } returns submission
-        every { eventsPublisherService.submissionSubmitted("S-BSST0", "owner@test.org") } answers { nothing }
 
         testInstance.saveSubmission(request)
 
-        verify(exactly = 1) {
-            submissionSubmitter.saveRequest(request)
-            eventsPublisherService.submissionSubmitted("S-BSST0", "owner@test.org")
-        }
+        verify(exactly = 1) { submissionSubmitter.saveRequest(request) }
+        verify(exactly = 0) { eventsPublisherService.submissionSubmitted(any(), any()) }
     }
 }
