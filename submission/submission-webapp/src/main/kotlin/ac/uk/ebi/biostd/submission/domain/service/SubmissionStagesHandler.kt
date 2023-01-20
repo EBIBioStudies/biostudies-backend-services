@@ -34,7 +34,7 @@ class SubmissionStagesHandler(
     @RabbitHandler
     fun loadRequest(rqt: RequestIndexed) {
         processSafely(rqt) {
-            logger.info { "$accNo, received Created message for submission $accNo, version: $version" }
+            logger.info { "$accNo, Received Created message for submission $accNo, version: $version" }
             submissionSubmitter.loadRequest(rqt)
             eventsPublisherService.requestLoaded(rqt.accNo, rqt.version)
         }
@@ -71,8 +71,7 @@ class SubmissionStagesHandler(
     fun saveSubmission(rqt: RequestCheckedReleased) {
         processSafely(rqt) {
             logger.info { "$accNo, Received check released message for submission $accNo, version: $version" }
-            val submission = submissionSubmitter.saveRequest(rqt)
-            eventsPublisherService.submissionSubmitted(submission.accNo, submission.owner)
+            submissionSubmitter.saveRequest(rqt)
         }
     }
 
