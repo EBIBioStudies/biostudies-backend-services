@@ -1,6 +1,6 @@
 build-fat-jar:
   needs: [ "build-test" ]
-  stage: build-fat-jar
+  stage: docker-image
   when: manual
   script:
     - cd submission/submission-webapp
@@ -13,7 +13,7 @@ build-fat-jar:
 build-push-docker-image:
   image: docker:cli
   needs: [ "build-fat-jar" ]
-  stage: build-push-docker-image
+  stage: docker-image
   variables:
     SUBMITTER_IMAGE: dockerhub.ebi.ac.uk/jcamilorada/biostudies-backend-service/submitter:$CI_COMMIT_SHA-SNAPSHOT
   before_script:
