@@ -61,7 +61,7 @@ stages:
 #  - deploy-beta-handlers
 #  - deploy-prod-handlers
 #  - deploy-sandbox-handlers
-  - build-fat-jar
+#  - build-fat-jar
   - build-push-docker-image
 
 build-test:

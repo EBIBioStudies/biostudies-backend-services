@@ -1,6 +1,6 @@
 build-fat-jar:
   needs: [ "build-test" ]
-  stage: build-fat-jar
+  stage: build-push-docker-image
   when: manual
   script:
     - cd submission/submission-webapp
