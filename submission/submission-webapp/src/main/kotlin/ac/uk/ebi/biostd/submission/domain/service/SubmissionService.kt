@@ -40,7 +40,7 @@ class SubmissionService(
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
         require(userPrivilegesService.canDelete(user.email, accNo)) { throw UserCanNotDelete(accNo, user.email) }
-        fileStorageService.cleanSubmissionFiles(queryService.getExtByAccNo(accNo, true), null)
+        fileStorageService.cleanSubmissionFiles(queryService.getExtByAccNo(accNo, true))
         submissionPersistenceService.expireSubmission(accNo)
         eventsPublisherService.submissionsRefresh(accNo, user.email)
     }

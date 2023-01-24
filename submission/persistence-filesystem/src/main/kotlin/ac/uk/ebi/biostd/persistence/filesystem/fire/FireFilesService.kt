@@ -111,21 +111,43 @@ class FireFilesService(
         // No need of post-processing on FIRE
     }
 
-    override fun cleanSubmissionFiles(previous: ExtSubmission, current: ExtSubmission?) {
-        fun cleanFile(index: Int, file: FireFile) {
-            logger.debug { "${previous.accNo}, ${previous.version} Cleaning file $index, path='${file.filePath}'" }
-            client.unsetPath(file.fireId)
-            client.unpublish(file.fireId)
-            logger.debug { "${previous.accNo}, ${previous.version} Cleaning file $index, path='${file.filePath}'" }
-        }
-
-        val filesSet = if (current != null) createFileEntrySet(current) else emptySet()
-        logger.info { "${previous.accNo} ${previous.owner} Cleaning Current submission Folder for ${previous.accNo}" }
-        serializationService.fileSequence(previous)
+    override fun cleanSubmissionFiles(sub: ExtSubmission) {
+        logger.info { "${sub.accNo} ${sub.owner} Started cleaning submission files for ${sub.accNo}" }
+        serializationService
+            .fileSequence(sub)
             .filterIsInstance(FireFile::class.java)
-            .filterNot { filesSet.contains(FileEntry(it.md5, it.firePath!!)) }
-            .forEachIndexed { index, file -> cleanFile(index, file) }
-        logger.info { "${previous.accNo} ${previous.owner} Cleaning Ftp Folder for ${previous.accNo}" }
+            .forEachIndexed { index, file -> cleanFile(sub.accNo, sub.version, index, file) }
+        logger.info { "${sub.accNo} ${sub.owner} Finished cleaning submission files for ${sub.accNo}" }
+    }
+
+    override fun cleanCommonFiles(new: ExtSubmission, current: ExtSubmission) {
+        val newFiles = createFileEntrySet(new)
+        val previousFiles = createFileEntrySet(current)
+
+        cleanFiles(current, newFiles.intersect(previousFiles))
+    }
+
+    override fun cleanRemainingFiles(new: ExtSubmission, current: ExtSubmission) {
+        val newFiles = createFileEntrySet(new)
+        val previousFiles = createFileEntrySet(current)
+
+        cleanFiles(current, previousFiles.subtract(newFiles))
+    }
+
+    private fun cleanFiles(sub: ExtSubmission, filesToClean: Set<FileEntry>) {
+        logger.info { "${sub.accNo} ${sub.owner} Started cleaning submission files for ${sub.accNo}" }
+        serializationService.fileSequence(sub)
+            .filterIsInstance(FireFile::class.java)
+            .filter { filesToClean.contains(FileEntry(it.md5, it.firePath!!)) }
+            .forEachIndexed { index, file -> cleanFile(sub.accNo, sub.version, index, file) }
+        logger.info { "${sub.accNo} ${sub.owner} Finished cleaning Ftp Folder for ${sub.accNo}" }
+    }
+
+    private fun cleanFile(accNo: String, version: Int, index: Int, file: FireFile) {
+        logger.debug { "$accNo, $version Cleaning file $index, path='${file.filePath}'" }
+        client.unsetPath(file.fireId)
+        client.unpublish(file.fireId)
+        logger.debug { "$accNo, $version Cleaning file $index, path='${file.filePath}'" }
     }
 
     private fun createFileEntrySet(sub: ExtSubmission): Set<FileEntry> =

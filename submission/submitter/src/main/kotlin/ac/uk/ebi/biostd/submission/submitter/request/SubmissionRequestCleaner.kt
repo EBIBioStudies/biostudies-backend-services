@@ -15,13 +15,12 @@ class SubmissionRequestCleaner(
 ) {
     fun cleanCurrentVersion(accNo: String, version: Int) {
         val request = requestService.getLoadedRequest(accNo, version)
-        val sub = queryService.findExtByAccNo(accNo, includeFileListFiles = true)
+        val new = request.submission
+        val current = queryService.findExtByAccNo(accNo, includeFileListFiles = true)
 
-        if (sub != null) {
-            logger.info { "${sub.accNo} ${sub.owner} Started cleaning files of version ${sub.version}" }
-            storageService.cleanSubmissionFiles(sub, request.submission)
-            logger.info { "${sub.accNo} ${sub.owner} Finished cleaning files of version ${sub.version}" }
-        }
+        logger.info { "${new.accNo} ${new.owner} Started cleaning files of version ${new.version}" }
+        storageService.prepareSubmissionFiles(new, current)
+        logger.info { "${new.accNo} ${new.owner} Finished cleaning files of version ${new.version}" }
 
         requestService.saveSubmissionRequest(request.withNewStatus(status = CLEANED))
     }
