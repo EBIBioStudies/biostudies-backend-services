@@ -15,6 +15,7 @@ include:
   - local: '/ci/bio-admin.yml'
   - local: '/ci/bio-commandline.yml'
   - local: '/ci/submission-handlers.yml'
+  - local: '/ci/docker.yml'
 
 stages:
   - build-test
@@ -39,6 +40,8 @@ stages:
   - deploy-dev-submitter
   - deploy-beta-submitter
   - deploy-prod-submitter
+  - build-fat-jar-prod
+  - build-push-docker-image-prod
   - deploy-sandbox-submitter
   - deploy-dev-pmc-processor-task
   - deploy-beta-pmc-processor-task
@@ -60,18 +63,20 @@ stages:
   - deploy-beta-handlers
   - deploy-prod-handlers
   - deploy-sandbox-handlers
+  - build-fat-jar
+  - build-push-docker-image
 
 build-test:
   stage: build-test
   script: gradle clean build test -x itest -x jacocoTestCoverageVerification buildArtifacts --info
 
 nfs-itest:
-  needs: ["build-test"]
+  needs: [ "build-test" ]
   stage: nfs-itest
   script: gradle clean :submission:submission-webapp:itest -PenableFire=false --rerun-tasks --stacktrace
 
 fire-itest:
-  needs: ["build-test"]
+  needs: [ "build-test" ]
   stage: fire-itest
   script: gradle clean :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --stacktrace
 
