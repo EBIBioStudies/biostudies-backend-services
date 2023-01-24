@@ -5,13 +5,18 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allFileList
 import ebi.ac.uk.extended.model.allSectionsFiles
 
+/**
+ * Return a sequence with all file list of a submission. Pagetab files are retrieved first, followed by section files
+ * and file list files.
+ */
 fun ExtSerializationService.fileSequence(submission: ExtSubmission): Sequence<ExtFile> {
     return sequence {
-        for (fileList in submission.allFileList) {
-            fileList.file.inputStream().use { deserializeList(it).forEach { yield(it) } }
-            fileList.pageTabFiles.forEach { yield(it) }
-        }
-        submission.allSectionsFiles.forEach { yield(it) }
         submission.pageTabFiles.forEach { yield(it) }
+        submission.allFileList.forEach { fileList -> fileList.pageTabFiles.forEach { yield(it) } }
+
+        submission.allSectionsFiles.forEach { yield(it) }
+        submission.allFileList
+            .map { it.file }
+            .forEach { it.inputStream().use { stream -> deserializeList(stream).forEach { file -> yield(file) } } }
     }
 }
