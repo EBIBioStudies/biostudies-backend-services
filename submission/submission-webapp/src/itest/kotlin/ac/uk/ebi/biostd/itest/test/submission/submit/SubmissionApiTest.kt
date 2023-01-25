@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.ftpPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -193,7 +194,6 @@ class SubmissionApiTest(
     }
 
     @Test
-    @EnabledIfSystemProperty(named = "enableFire", matches = "false")
     fun `16-8 submission released makes files public`() {
         val submission = tsv {
             line("Submission", "S-600")
@@ -217,10 +217,10 @@ class SubmissionApiTest(
         val expectedFile = File("$ftpPath/${submitted.relPath}/Files/file_16-8.txt")
         assertThat(ftpFiles).containsExactly(expectedFile)
         assertThat(expectedFile).hasContent("16-8 file content")
+        assertThat(File("$submissionPath/${submitted.relPath}/Files/file_16-8.txt")).hasContent("16-8 file content")
     }
 
     @Test
-    @EnabledIfSystemProperty(named = "enableFire", matches = "false")
     fun `16-9 submission not released makes files private`() {
         val submission = tsv {
             line("Submission", "S-700")
@@ -241,6 +241,10 @@ class SubmissionApiTest(
         val submitted = submissionRepository.getExtByAccNo("S-700")
 
         assertThat(File("$ftpPath/${submitted.relPath}")).doesNotExist()
+        val submissionFiles = FileUtils.listAllFiles(File("$submissionPath/${submitted.relPath}/Files"))
+        val expectedFile = File("$submissionPath/${submitted.relPath}/Files/file_16-9.txt")
+        assertThat(submissionFiles).containsOnly(expectedFile)
+        assertThat(expectedFile).hasContent("16-9 file content")
     }
 
     private fun getSimpleSubmission(accNo: String) =
