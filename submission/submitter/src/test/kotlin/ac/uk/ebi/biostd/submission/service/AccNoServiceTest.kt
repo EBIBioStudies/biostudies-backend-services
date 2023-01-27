@@ -32,22 +32,57 @@ class AccNoServiceTest(
     @MockK private val privilegesService: IUserPrivilegesService
 ) {
     private val accNoPatternUtil: AccNoPatternUtil = AccNoPatternUtil()
-    private val testInstance = AccNoService(service, accNoPatternUtil, privilegesService)
+    private val testInstance = AccNoService(service, accNoPatternUtil, privilegesService, baseRelPath = "")
 
     @AfterEach
     fun afterEach() = clearAllMocks()
 
-    @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
-    @CsvSource(
-        "S-DIXA-AN-002, S-DIXA-AN-/002/S-DIXA-AN-002",
-        "S-BSST11, S-BSST/011/S-BSST11",
-        "S-DIXA-011, S-DIXA-/011/S-DIXA-011",
-        "1-AAA, 1-AAA/000/1-AAA",
-        "S-SCDT-EMBOJ-2019-103549, S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549",
-        "S-SCDT-EMBOR-2017-44445V1, S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1"
-    )
-    fun getRelPath(value: String, expected: String) {
-        assertThat(testInstance.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
+    @Nested
+    inner class GetRelPath {
+        private val testInstanceEmptyBase = AccNoService(service, accNoPatternUtil, privilegesService, baseRelPath = "")
+        private val testInstanceBaseWithSlash =
+            AccNoService(service, accNoPatternUtil, privilegesService, "baseRelPath/")
+        private val testInstanceBaseWithNoSlash =
+            AccNoService(service, accNoPatternUtil, privilegesService, "baseRelPath")
+
+        @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
+        @CsvSource(
+            "S-DIXA-AN-002, S-DIXA-AN-/002/S-DIXA-AN-002",
+            "S-BSST11, S-BSST/011/S-BSST11",
+            "S-DIXA-011, S-DIXA-/011/S-DIXA-011",
+            "1-AAA, 1-AAA/000/1-AAA",
+            "S-SCDT-EMBOJ-2019-103549, S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549",
+            "S-SCDT-EMBOR-2017-44445V1, S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1"
+        )
+        fun `get rePath when base path is empty`(value: String, expected: String) {
+            assertThat(testInstanceEmptyBase.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
+        }
+
+        @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
+        @CsvSource(
+            "S-DIXA-AN-002, baseRelPath/S-DIXA-AN-/002/S-DIXA-AN-002",
+            "S-BSST11, baseRelPath/S-BSST/011/S-BSST11",
+            "S-DIXA-011, baseRelPath/S-DIXA-/011/S-DIXA-011",
+            "1-AAA, baseRelPath/1-AAA/000/1-AAA",
+            "S-SCDT-EMBOJ-2019-103549, baseRelPath/S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549",
+            "S-SCDT-EMBOR-2017-44445V1, baseRelPath/S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1"
+        )
+        fun `get rePath when base path ends with slash`(value: String, expected: String) {
+            assertThat(testInstanceBaseWithSlash.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
+        }
+
+        @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
+        @CsvSource(
+            "S-DIXA-AN-002, baseRelPath/S-DIXA-AN-/002/S-DIXA-AN-002",
+            "S-BSST11, baseRelPath/S-BSST/011/S-BSST11",
+            "S-DIXA-011, baseRelPath/S-DIXA-/011/S-DIXA-011",
+            "1-AAA, baseRelPath/1-AAA/000/1-AAA",
+            "S-SCDT-EMBOJ-2019-103549, baseRelPath/S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549",
+            "S-SCDT-EMBOR-2017-44445V1, baseRelPath/S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1"
+        )
+        fun `get rePath when base path ends with no slash`(value: String, expected: String) {
+            assertThat(testInstanceBaseWithNoSlash.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
+        }
     }
 
     @Nested

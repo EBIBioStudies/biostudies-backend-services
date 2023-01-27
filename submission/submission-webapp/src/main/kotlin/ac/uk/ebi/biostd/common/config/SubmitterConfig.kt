@@ -37,6 +37,7 @@ import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -206,12 +207,13 @@ class SubmitterConfig {
         private val service: PersistenceService,
         private val queryService: SubmissionMetaQueryService,
         private val userPrivilegesService: IUserPrivilegesService,
+        @Value("\${app.baseSubmissionRelPath}") val baseRelPath: String,
     ) {
         @Bean
         fun accNoPatternUtil() = AccNoPatternUtil()
 
         @Bean
-        fun accNoService() = AccNoService(service, accNoPatternUtil(), userPrivilegesService)
+        fun accNoService() = AccNoService(service, accNoPatternUtil(), userPrivilegesService, baseRelPath)
 
         @Bean
         fun parentInfoService(beanFactory: BeanFactory) = ParentInfoService(beanFactory, queryService)
