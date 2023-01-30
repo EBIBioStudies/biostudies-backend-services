@@ -195,7 +195,7 @@ class SubmissionApiTest(
     @Nested
     inner class SubmitBaseSubmissionRelPath {
         @Nested
-        @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.baseSubmissionRelPath=subRelPath/"])
+        @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.baseSubmissionRelPath=subRelPathSlash/"])
         inner class RelPathWithSlash(@LocalServerPort val serverPort: Int) {
             private lateinit var webClient: BioWebClient
 
@@ -205,7 +205,7 @@ class SubmissionApiTest(
             }
 
             @Test
-            fun `submission with file`() {
+            fun `16-10 submission with file when baseSubmissionRelPath has slash`() {
                 val submission = tsv {
                     line("Submission", "S-12365")
                     line("Title", "Sample Submission")
@@ -222,7 +222,7 @@ class SubmissionApiTest(
                 assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
                 val extSub = submissionRepository.getExtByAccNo("S-12365")
-                assertThat(extSub.relPath).isEqualTo("subRelPath/S-/365/S-12365")
+                assertThat(extSub.relPath).isEqualTo("subRelPathSlash/S-/365/S-12365")
             }
         }
 
@@ -237,7 +237,7 @@ class SubmissionApiTest(
             }
 
             @Test
-            fun `submission with file`() {
+            fun `16-11 submission with file when submissionRelPath was no slash`() {
                 val submission = tsv {
                     line("Submission", "S-12366")
                     line("Title", "Sample Submission")
