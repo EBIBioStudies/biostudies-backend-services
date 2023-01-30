@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
+import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
@@ -44,8 +45,9 @@ class SubmissionRequestMongoPersistenceService(
     }
 
     override fun createSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
-        requestRepository.saveRequest(asRequest(rqt))
-        return rqt.submission.accNo to rqt.submission.version
+        val (request, created) = requestRepository.saveRequest(asRequest(rqt))
+        if (created.not()) throw ConcurrentSubException(request.accNo, request.version)
+        return request.accNo to request.version
     }
 
     override fun updateRequestFile(file: SubmissionRequestFile) {

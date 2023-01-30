@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
-import ac.uk.ebi.biostd.submission.exceptions.ConcurrentSubException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
@@ -100,8 +99,6 @@ class SubmitWebHandler(
          */
         fun processSubmission(): SubmitRequest {
             val (accNo, rootPath) = deserializeSubmission()
-            require(extSubService.hasActiveRequest(accNo).not()) { throw ConcurrentSubException(accNo) }
-
             val previous = extSubService.findExtendedSubmission(accNo)
             val sources = fileSourcesService.submissionSources(sourceRequest(rootPath, previous))
             val submission = deserializeSubmission(sources)

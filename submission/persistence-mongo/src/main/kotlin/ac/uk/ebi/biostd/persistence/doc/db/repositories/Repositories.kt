@@ -60,6 +60,9 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
         status: Set<RequestStatus>,
         since: Instant,
     ): List<DocSubmissionRequest>
+
+    fun getById(id: ObjectId): DocSubmissionRequest
+    fun findByAccNo(accNo: String): List<DocSubmissionRequest>
 }
 
 interface SubmissionRequestFilesRepository : MongoRepository<DocSubmissionRequestFile, ObjectId> {
