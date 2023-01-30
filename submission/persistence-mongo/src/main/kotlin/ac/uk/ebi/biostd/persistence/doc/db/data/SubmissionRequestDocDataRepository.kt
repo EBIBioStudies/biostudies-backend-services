@@ -53,7 +53,10 @@ class SubmissionRequestDocDataRepository(
             request.asSetOnInsert(),
             DocSubmissionRequest::class.java
         )
-        return submissionRequestRepository.save(request) to (result.matchedCount < 1)
+        return when (val insertedId = result.upsertedId) {
+            null -> submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING) to false
+            else -> submissionRequestRepository.getById(insertedId.asObjectId().value) to true
+        }
     }
 
     fun findActiveRequests(filter: SubmissionFilter, email: String? = null): Pair<Int, List<DocSubmissionRequest>> {

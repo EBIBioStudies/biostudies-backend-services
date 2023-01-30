@@ -10,8 +10,7 @@ import ebi.ac.uk.dsl.json.jsonObj
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
 import org.bson.types.ObjectId
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,8 +34,8 @@ class SubmissionRequestDocDataRepositoryTest(
     @Autowired val testInstance: SubmissionRequestDocDataRepository,
 ) {
 
-    @BeforeEach
-    fun beforeEach() {
+    @AfterEach
+    fun afterEach() {
         testInstance.deleteAll()
     }
 

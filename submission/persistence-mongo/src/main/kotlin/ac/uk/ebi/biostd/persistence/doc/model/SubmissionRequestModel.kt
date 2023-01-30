@@ -26,6 +26,7 @@ data class DocSubmissionRequest(
 
     fun asSetOnInsert(): Update {
         return Update()
+            .setOnInsert("_id", id)
             .setOnInsert(DocRequestFields.RQT_ACC_NO, accNo)
             .setOnInsert(DocRequestFields.RQT_VERSION, version)
             .setOnInsert(DocRequestFields.RQT_DRAFT_KEY, draftKey)
