@@ -192,7 +192,6 @@ class SubmissionApiTest(
         assertThat(File("$ftpPath/${submitted.relPath}/Files/folder1")).isEmptyDirectory()
     }
 
-
     @Nested
     inner class SubmitBaseSubmissionRelPath {
         @Nested
