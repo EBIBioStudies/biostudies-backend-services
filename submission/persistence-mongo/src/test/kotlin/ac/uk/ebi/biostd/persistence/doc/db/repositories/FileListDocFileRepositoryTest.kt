@@ -44,7 +44,7 @@ class FileListDocFileRepositoryTest(
         )
         repository.save(fileListFile)
 
-        val result = repository.findBySubmissionAccNoAndSubmissionVersionAndFileFilePath("S-TEST123", 1, "filePath")
+        val result = repository.findBySubmissionAccNoAndSubmissionVersionAndFilePath("S-TEST123", 1, "filePath")
 
         assertThat(result).containsExactly(fileListFile)
     }

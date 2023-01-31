@@ -86,7 +86,7 @@ internal class SubmissionMongoPersistenceQueryService(
         path: String,
     ): ExtFile? {
         return fileListDocFileRepository
-            .findBySubmissionAccNoAndSubmissionVersionAndFileFilePath(sub.accNo, sub.version, path)
+            .findBySubmissionAccNoAndSubmissionVersionAndFilePath(sub.accNo, sub.version, path)
             .firstOrNull()
             ?.file
             ?.toExtFile(sub.released, sub.relPath)
