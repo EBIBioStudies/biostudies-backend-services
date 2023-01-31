@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.ftpPath
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -21,6 +22,7 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.extensions.rootPath
@@ -185,9 +187,64 @@ class SubmissionApiTest(
 
         val submitted = submissionRepository.getExtByAccNo("S-500")
 
-        assertThat(File("$ftpPath/${submitted.relPath}/Files").listFiles()?.size).isEqualTo(1)
-        assertThat(File("$ftpPath/${submitted.relPath}/Files/folder1")).exists()
-        assertThat(File("$ftpPath/${submitted.relPath}/Files/folder1")).isEmptyDirectory()
+        val ftpFiles = FileUtils.listAllFiles(File("$ftpPath/${submitted.relPath}/Files"))
+        val expectedFolder = File("$ftpPath/${submitted.relPath}/Files/folder1")
+        assertThat(ftpFiles).containsExactly(expectedFolder)
+        assertThat(expectedFolder).isEmptyDirectory()
+    }
+
+    @Test
+    fun `16-8 submission released makes files public`() {
+        val submission = tsv {
+            line("Submission", "S-600")
+            line("Title", "Submission")
+            line("ReleaseDate", "2020-01-25")
+            line()
+
+            line("Study")
+            line()
+
+            line("File", "file_16-8.txt")
+            line()
+        }.toString()
+
+        webClient.uploadFile(tempFolder.createFile("file_16-8.txt", "16-8 file content"))
+        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+        val submitted = submissionRepository.getExtByAccNo("S-600")
+
+        val ftpFiles = FileUtils.listAllFiles(File("$ftpPath/${submitted.relPath}/Files"))
+        val expectedFile = File("$ftpPath/${submitted.relPath}/Files/file_16-8.txt")
+        assertThat(ftpFiles).containsExactly(expectedFile)
+        assertThat(expectedFile).hasContent("16-8 file content")
+        assertThat(File("$submissionPath/${submitted.relPath}/Files/file_16-8.txt")).hasContent("16-8 file content")
+    }
+
+    @Test
+    fun `16-9 submission not released makes files private`() {
+        val submission = tsv {
+            line("Submission", "S-700")
+            line("Title", "Submission")
+            line("ReleaseDate", "2030-01-25")
+            line()
+
+            line("Study")
+            line()
+
+            line("File", "file_16-9.txt")
+            line()
+        }.toString()
+
+        webClient.uploadFile(tempFolder.createFile("file_16-9.txt", "16-9 file content"))
+        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+        val submitted = submissionRepository.getExtByAccNo("S-700")
+
+        assertThat(File("$ftpPath/${submitted.relPath}")).doesNotExist()
+        val submissionFiles = FileUtils.listAllFiles(File("$submissionPath/${submitted.relPath}/Files"))
+        val expectedFile = File("$submissionPath/${submitted.relPath}/Files/file_16-9.txt")
+        assertThat(submissionFiles).containsOnly(expectedFile)
+        assertThat(expectedFile).hasContent("16-9 file content")
     }
 
     private fun getSimpleSubmission(accNo: String) =
