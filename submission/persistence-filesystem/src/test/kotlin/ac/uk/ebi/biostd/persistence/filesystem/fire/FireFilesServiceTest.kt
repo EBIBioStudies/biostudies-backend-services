@@ -152,7 +152,7 @@ internal class FireFilesServiceTest(
             every { fireClient.unsetPath(file.fireId) } answers { nothing }
             every { fireClient.unpublish(file.fireId) } answers { nothing }
 
-            testInstance.cleanSubmissionFiles(submission, null)
+            testInstance.deleteSubmissionFiles(submission, null)
         }
 
         @Test
@@ -166,7 +166,7 @@ internal class FireFilesServiceTest(
             every { fireClient.unsetPath(deletedFile.fireId) } answers { nothing }
             every { fireClient.unpublish(deletedFile.fireId) } answers { nothing }
 
-            testInstance.cleanSubmissionFiles(submission, current)
+            testInstance.deleteSubmissionFiles(submission, current)
         }
     }
 

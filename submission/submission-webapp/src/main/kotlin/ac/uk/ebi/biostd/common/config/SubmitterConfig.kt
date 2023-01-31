@@ -25,6 +25,7 @@ import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestPostProcessor
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestSaver
@@ -85,12 +86,10 @@ class SubmitterConfig {
     @Bean
     fun requestProcessor(
         storageService: FileStorageService,
-        queryService: SubmissionPersistenceQueryService,
         requestService: SubmissionRequestPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
     ): SubmissionRequestProcessor = SubmissionRequestProcessor(
         storageService,
-        queryService,
         requestService,
         filesRequestService,
     )
@@ -115,9 +114,28 @@ class SubmitterConfig {
     @Bean
     fun submissionCleaner(
         storageService: FileStorageService,
+        serializationService: ExtSerializationService,
         queryService: SubmissionPersistenceQueryService,
         requestService: SubmissionRequestPersistenceService,
-    ): SubmissionRequestCleaner = SubmissionRequestCleaner(storageService, queryService, requestService)
+        filesRequestService: SubmissionRequestFilesPersistenceService,
+    ): SubmissionRequestCleaner = SubmissionRequestCleaner(
+        storageService,
+        serializationService,
+        queryService,
+        requestService,
+        filesRequestService,
+    )
+
+    @Bean
+    fun submissionPostProcessor(
+        storageService: FileStorageService,
+        serializationService: ExtSerializationService,
+        queryService: SubmissionPersistenceQueryService,
+    ): SubmissionRequestPostProcessor = SubmissionRequestPostProcessor(
+        storageService,
+        serializationService,
+        queryService,
+    )
 
     @Bean
     fun extSubmissionSubmitter(
@@ -130,6 +148,7 @@ class SubmitterConfig {
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
+        postProcessor: SubmissionRequestPostProcessor,
     ): ExtSubmissionSubmitter = ExtSubmissionSubmitter(
         pageTabService,
         requestService,
@@ -139,7 +158,8 @@ class SubmitterConfig {
         requestProcessor,
         submissionReleaser,
         submissionCleaner,
-        submissionSaver
+        submissionSaver,
+        postProcessor,
     )
 
     @Bean

@@ -59,4 +59,9 @@ internal class RetryWebClient(
         val opt = "Unpublish file fireOid='$fireOid'"
         template.execute(opt) { fireClient.unpublish(fireOid) }
     }
+
+    override fun delete(fireOid: String) {
+        val opt = "Delete file fireOid='$fireOid'"
+        template.execute(opt) { fireClient.delete(fireOid) }
+    }
 }

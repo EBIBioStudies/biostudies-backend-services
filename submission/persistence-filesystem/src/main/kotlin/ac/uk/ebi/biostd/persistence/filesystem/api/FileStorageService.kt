@@ -9,9 +9,9 @@ interface FileStorageService {
 
     fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile
 
-    fun cleanSubmissionFiles(sub: ExtSubmission)
+    fun deleteSubmissionFiles(sub: ExtSubmission)
 
-    fun prepareSubmissionFiles(new: ExtSubmission, current: ExtSubmission?)
+    fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile)
 
-    fun postProcessSubmissionFiles(new: ExtSubmission, current: ExtSubmission?)
+    fun deleteFtpLinks(sub: ExtSubmission)
 }

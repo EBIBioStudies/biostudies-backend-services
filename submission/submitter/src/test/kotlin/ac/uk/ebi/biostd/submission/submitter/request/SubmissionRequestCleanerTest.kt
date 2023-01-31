@@ -28,7 +28,7 @@ class SubmissionRequestCleanerTest(
         @MockK sub: ExtSubmission,
         @MockK requestSub: ExtSubmission,
     ) {
-        every { storageService.cleanSubmissionFiles(sub, requestSub) } answers { nothing }
+        every { storageService.deleteSubmissionFiles(sub, requestSub) } answers { nothing }
         every { requestService.getLoadedRequest(accNo, version) } returns loadRequest
         every { loadRequest.withNewStatus(status = CLEANED) } returns cleanedRequest
         every { loadRequest.submission } returns requestSub
@@ -37,7 +37,7 @@ class SubmissionRequestCleanerTest(
 
         testInstance.cleanCurrentVersion(accNo, version)
 
-        verify { storageService.cleanSubmissionFiles(sub, requestSub) }
+        verify { storageService.deleteSubmissionFiles(sub, requestSub) }
         verify { requestService.saveSubmissionRequest(cleanedRequest) }
     }
 

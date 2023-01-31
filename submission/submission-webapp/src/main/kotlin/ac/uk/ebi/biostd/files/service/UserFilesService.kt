@@ -50,6 +50,6 @@ class UserFilesService {
         val userPath = user.magicFolder.path
         val userFile = userPath.resolve(path).resolve(fileName).toFile()
         require(userPath != userFile.toPath()) { "Can not delete user root folder" }
-        FileUtils.deleteFile(userFile)
+        FileUtils.deleteIfExists(userFile)
     }
 }

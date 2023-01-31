@@ -36,3 +36,8 @@ data class RequestFilesCopied(
     @JsonProperty("accNo") override val accNo: String,
     @JsonProperty("version") override val version: Int,
 ) : RequestMessage
+
+data class RequestSubmissionProcessed(
+    @JsonProperty("accNo") override val accNo: String,
+    @JsonProperty("version") override val version: Int,
+) : RequestMessage

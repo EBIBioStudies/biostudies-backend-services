@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESS
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
@@ -75,6 +76,10 @@ class SubmissionRequestMongoPersistenceService(
 
     override fun getFilesCopiedRequest(accNo: String, version: Int): SubmissionRequest {
         return getRequest(accNo, version, FILES_COPIED)
+    }
+
+    override fun getProcessedRequest(accNo: String, version: Int): SubmissionRequest {
+        return getRequest(accNo, version, PROCESSED)
     }
 
     override fun getRequestStatus(accNo: String, version: Int): RequestStatus {

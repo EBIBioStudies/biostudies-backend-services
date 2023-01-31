@@ -35,7 +35,7 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
 
     fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): List<DocSubmission>
 
-    fun findFirstByAccNoOrderByVersionDesc(accNo: String): DocSubmission?
+    fun findFirstByAccNoAndVersionLessThanOrderByVersion(accNo: String, version: Int = 0): DocSubmission?
 
     @Query(value = "{ 'accNo' : ?0, 'version' : { \$gt: 0} }", fields = "{ 'collections.accNo':1 }")
     fun findSubmissionCollections(accNo: String): SubmissionCollections?
