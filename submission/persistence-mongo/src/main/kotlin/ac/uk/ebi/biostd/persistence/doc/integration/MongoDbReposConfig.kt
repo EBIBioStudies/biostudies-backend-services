@@ -23,20 +23,20 @@ class MongoDbReposConfig {
     @Bean
     internal fun submissionDocDataRepository(
         mongoTemplate: MongoTemplate,
-        submissionMongoRepository: SubmissionMongoRepository
+        submissionMongoRepository: SubmissionMongoRepository,
     ): SubmissionDocDataRepository = SubmissionDocDataRepository(submissionMongoRepository, mongoTemplate)
 
     @Bean
     internal fun submissionStatsDataRepository(
         mongoTemplate: MongoTemplate,
-        submissionStatsRepository: SubmissionStatsRepository
+        submissionStatsRepository: SubmissionStatsRepository,
     ): SubmissionStatsDataRepository = SubmissionStatsDataRepository(mongoTemplate, submissionStatsRepository)
 
     @Bean
     internal fun submissionRequestDocDataRepository(
         mongoTemplate: MongoTemplate,
         extSerializationService: ExtSerializationService,
-        submissionRequestRepository: SubmissionRequestRepository
+        submissionRequestRepository: SubmissionRequestRepository,
     ): SubmissionRequestDocDataRepository = SubmissionRequestDocDataRepository(
         mongoTemplate,
         extSerializationService,
@@ -46,11 +46,12 @@ class MongoDbReposConfig {
     @Bean
     internal fun submissionDraftDocDataRepository(
         mongoTemplate: MongoTemplate,
-        submissionDraftRepository: SubmissionDraftRepository
+        submissionDraftRepository: SubmissionDraftRepository,
     ): SubmissionDraftDocDataRepository = SubmissionDraftDocDataRepository(submissionDraftRepository, mongoTemplate)
 
     @Bean
     internal fun fileListDocFileDocDataRepository(
-        fileListDocFileRepository: FileListDocFileRepository
-    ): FileListDocFileDocDataRepository = FileListDocFileDocDataRepository(fileListDocFileRepository)
+        mongoTemplate: MongoTemplate,
+        fileListDocFileRepository: FileListDocFileRepository,
+    ): FileListDocFileDocDataRepository = FileListDocFileDocDataRepository(fileListDocFileRepository, mongoTemplate)
 }

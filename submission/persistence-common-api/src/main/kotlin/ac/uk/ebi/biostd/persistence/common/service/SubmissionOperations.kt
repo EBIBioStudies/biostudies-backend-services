@@ -49,9 +49,9 @@ interface SubmissionPersistenceQueryService {
      **/
     fun getSubmissionsByUser(owner: String, filter: SubmissionFilter): List<BasicSubmission>
 
-    fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile>
+    fun getReferencedFiles(sub: ExtSubmission, fileListName: String): List<ExtFile>
 
-    fun findReferencedFile(accNo: String, version: Int, path: String): ExtFile?
+    fun findReferencedFile(sub: ExtSubmission, path: String): ExtFile?
 }
 
 @Suppress("TooManyFunctions")

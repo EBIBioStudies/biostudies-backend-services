@@ -99,7 +99,7 @@ class SubmissionFileSourceTest(
         assertThat(webClient.submitSingle(submission("FileList.tsv"), TSV, filesConfig)).isSuccessful()
 
         val firstVersion = submissionRepository.getExtByAccNo("S-FSTST1")
-        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-FSTST1", "FileList")
+        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles(firstVersion, "FileList")
         val subFilesPath = "$submissionPath/${firstVersion.relPath}/Files"
         val innerFile = Paths.get("$subFilesPath/File1.txt")
         val referencedFile = Paths.get("$subFilesPath/File2.txt")
@@ -126,7 +126,7 @@ class SubmissionFileSourceTest(
 
         if (enableFire) {
             val secondVersion = submissionRepository.getExtByAccNo("S-FSTST1")
-            val secondVersionReferencedFiles = submissionRepository.getReferencedFiles("S-FSTST1", "FileList")
+            val secondVersionReferencedFiles = submissionRepository.getReferencedFiles(secondVersion, "FileList")
 
             val firstVersionFireId = (firstVersion.allSectionsFiles.first() as FireFile).fireId
             val secondVersionFireId = (secondVersion.allSectionsFiles.first() as FireFile).fireId
@@ -179,7 +179,7 @@ class SubmissionFileSourceTest(
         assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
 
         val persistedSubmission = submissionRepository.getExtByAccNo("S-FSTST2")
-        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-FSTST2", "FileList")
+        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles(persistedSubmission, "FileList")
         val subFilesPath = "$submissionPath/${persistedSubmission.relPath}/Files"
         val innerFile = Paths.get("$subFilesPath/File4.txt")
         val referencedFile = Paths.get("$subFilesPath/File3.txt")
@@ -273,7 +273,7 @@ class SubmissionFileSourceTest(
         assertThat(firstVersion.version).isEqualTo(1)
         assertThat(File("$submissionPath/${firstVersion.relPath}/Files/MultipleReferences.txt")).exists()
 
-        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles("S-FSTST4", "FirstVersionFileList")
+        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles(firstVersion, "FirstVersionFileList")
         assertThat(firstVersionReferencedFiles).hasSize(2)
         assertThat(firstVersionReferencedFiles.first().attributes).containsExactly(ExtAttribute("Type", "Ref 1"))
         assertThat(firstVersionReferencedFiles.second().attributes).containsExactly(ExtAttribute("Type", "Ref 2"))
@@ -312,9 +312,9 @@ class SubmissionFileSourceTest(
         assertThat(secondVersionFiles).hasSize(1)
         assertThat(secondVersionFiles.first().attributes).containsExactly(ExtAttribute("Type", "Another reference"))
 
-        val secondVersionReferencedFiles = submissionRepository.getReferencedFiles("S-FSTST4", "SecondVersionFileList")
-        assertThat(secondVersionReferencedFiles).hasSize(1)
-        assertThat(secondVersionReferencedFiles.first().attributes).containsExactly(ExtAttribute("Type", "A reference"))
+        val secondVersionRefFiles = submissionRepository.getReferencedFiles(secondVersion, "SecondVersionFileList")
+        assertThat(secondVersionRefFiles).hasSize(1)
+        assertThat(secondVersionRefFiles.first().attributes).containsExactly(ExtAttribute("Type", "A reference"))
     }
 
     @Test

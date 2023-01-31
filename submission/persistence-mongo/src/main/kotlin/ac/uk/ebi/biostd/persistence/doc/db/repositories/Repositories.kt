@@ -104,8 +104,8 @@ interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId>
         fileListName: String,
     ): List<FileListDocFile>
 
-    @Query("{ 'submissionAccNo': ?0, 'submissionVersion': ?1, 'file.filePath':  ?2}")
-    fun findBySubmissionAccNoAndSubmissionVersionAndFilePath(
+    @Query("{ 'submissionAccNo': ?0, 'submissionVersion': ?1, 'file.filePath': ?2}")
+    fun findBySubmissionAccNoAndSubmissionVersionAndFileFilePath(
         accNo: String,
         version: Int,
         filePath: String,
