@@ -1,12 +1,15 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_IDX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_TOTAL_FILES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
@@ -44,8 +47,15 @@ class SubmissionRequestDocDataRepository(
     private val extSerializationService: ExtSerializationService,
     private val submissionRequestRepository: SubmissionRequestRepository,
 ) : SubmissionRequestRepository by submissionRequestRepository {
-    fun saveRequest(submissionRequest: DocSubmissionRequest): DocSubmissionRequest =
-        submissionRequestRepository.save(submissionRequest)
+    fun saveRequest(request: DocSubmissionRequest): Pair<DocSubmissionRequest, Boolean> {
+        val result = mongoTemplate.upsert(
+            Query(where(RQT_ACC_NO).`is`(request.accNo).andOperator(where(RQT_STATUS).ne(PROCESSED))),
+            request.asSetOnInsert(),
+            DocSubmissionRequest::class.java
+        )
+        val created = result.matchedCount < 1
+        return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING) to created
+    }
 
     fun findActiveRequests(filter: SubmissionFilter, email: String? = null): Pair<Int, List<DocSubmissionRequest>> {
         val query = Query().addCriteria(createQuery(filter, email))

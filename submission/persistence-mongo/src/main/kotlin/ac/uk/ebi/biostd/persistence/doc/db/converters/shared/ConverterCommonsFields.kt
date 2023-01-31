@@ -144,7 +144,13 @@ object DocSubmissionFields {
 }
 
 object DocRequestFields {
-    const val RQT_IDX = "currentIndex"
+    const val RQT_ACC_NO = "accNo"
+    const val RQT_VERSION = "version"
+    const val RQT_DRAFT_KEY = "draftKey"
+    const val RQT_NOTIFY_TO = "notifyTo"
+    const val RQT_STATUS = "status"
+    const val RQT_SUBMISSION = "submission"
     const val RQT_TOTAL_FILES = "totalFiles"
+    const val RQT_IDX = "currentIndex"
     const val RQT_MODIFICATION_TIME = "modificationTime"
 }
