@@ -193,69 +193,34 @@ class SubmissionApiTest(
     }
 
     @Nested
-    inner class SubmitBaseSubmissionRelPath {
-        @Nested
-        @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=subRelPathSlash/"])
-        inner class RelPathWithSlash(@LocalServerPort val serverPort: Int) {
-            private lateinit var webClient: BioWebClient
+    @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=subRelPath"])
+    inner class RelPathWithNoSlash(@LocalServerPort val serverPort: Int) {
+        private lateinit var webClient: BioWebClient
 
-            @BeforeAll
-            fun init() {
-                webClient = getWebClient(serverPort, SuperUser)
-            }
-
-            @Test
-            fun `16-10 submission with file when baseSubmissionRelPath has slash`() {
-                val submission = tsv {
-                    line("Submission", "S-12365")
-                    line("Title", "Sample Submission")
-                    line()
-
-                    line("Study")
-                    line()
-
-                    line("File", "file12365.txt")
-                    line()
-                }.toString()
-                webClient.uploadFiles(listOf(tempFolder.createFile("file12365.txt", "An example content")))
-
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-
-                val extSub = submissionRepository.getExtByAccNo("S-12365")
-                assertThat(extSub.relPath).isEqualTo("subRelPathSlash/S-/365/S-12365")
-            }
+        @BeforeAll
+        fun init() {
+            webClient = getWebClient(serverPort, SuperUser)
         }
 
-        @Nested
-        @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=subRelPath"])
-        inner class RelPathWithNoSlash(@LocalServerPort val serverPort: Int) {
-            private lateinit var webClient: BioWebClient
+        @Test
+        fun `16-10 submission when system has submission base path`() {
+            val submission = tsv {
+                line("Submission", "S-12366")
+                line("Title", "Sample Submission")
+                line()
 
-            @BeforeAll
-            fun init() {
-                webClient = getWebClient(serverPort, SuperUser)
-            }
+                line("Study")
+                line()
 
-            @Test
-            fun `16-11 submission with file when submissionRelPath was no slash`() {
-                val submission = tsv {
-                    line("Submission", "S-12366")
-                    line("Title", "Sample Submission")
-                    line()
+                line("File", "file12366.txt")
+                line()
+            }.toString()
+            webClient.uploadFiles(listOf(tempFolder.createFile("file12366.txt", "An example content")))
 
-                    line("Study")
-                    line()
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-                    line("File", "file12366.txt")
-                    line()
-                }.toString()
-                webClient.uploadFiles(listOf(tempFolder.createFile("file12366.txt", "An example content")))
-
-                assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-
-                val extSub = submissionRepository.getExtByAccNo("S-12366")
-                assertThat(extSub.relPath).isEqualTo("subRelPath/S-/366/S-12366")
-            }
+            val extSub = submissionRepository.getExtByAccNo("S-12366")
+            assertThat(extSub.relPath).isEqualTo("subRelPath/S-/366/S-12366")
         }
     }
 

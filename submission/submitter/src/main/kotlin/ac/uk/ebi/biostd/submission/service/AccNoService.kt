@@ -15,7 +15,7 @@ class AccNoService(
     private val service: PersistenceService,
     private val patternUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService,
-    private val baseRelPath: String?,
+    private val subBasePath: String?,
 ) {
     @Suppress("ThrowsCount")
     fun calculateAccNo(request: AccNoServiceRequest): AccNumber {
@@ -52,8 +52,8 @@ class AccNoService(
         val prefix = accNo.prefix
         val suffix = accNo.numericValue.orEmpty().padStart(3, '0')
         val basicRelPath = "$prefix/${suffix.takeLast(PATH_DIGITS)}/$accNo".removePrefix("/")
-        return if (baseRelPath != null) {
-            "${baseRelPath.trimEnd('/')}/$basicRelPath".removePrefix("/")
+        return if (subBasePath != null) {
+            "${subBasePath.trimEnd('/')}/$basicRelPath".removePrefix("/")
         } else {
             basicRelPath
         }
