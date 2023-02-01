@@ -59,7 +59,7 @@ class AccNoServiceTest(
         "S-SCDT-EMBOR-2017-44445V1, basePath/S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1, basePath/",
         nullValues = ["null"]
     )
-    fun `get rePath when base path ends with slash`(value: String, expected: String, subBasePath: String?) {
+    fun `get relPath whit different subRelPath`(value: String, expected: String, subBasePath: String?) {
         val testInstance = AccNoService(service, accNoPatternUtil, privilegesService, subBasePath)
         assertThat(testInstance.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
     }

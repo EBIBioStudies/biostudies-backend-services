@@ -194,7 +194,7 @@ class SubmissionApiTest(
 
     @Nested
     @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=subRelPath"])
-    inner class RelPathWithNoSlash(@LocalServerPort val serverPort: Int) {
+    inner class SubmitWhenSubmissionRelPath(@LocalServerPort val serverPort: Int) {
         private lateinit var webClient: BioWebClient
 
         @BeforeAll
