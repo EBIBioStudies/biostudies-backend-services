@@ -209,13 +209,13 @@ class SubmitterConfig {
         private val service: PersistenceService,
         private val queryService: SubmissionMetaQueryService,
         private val userPrivilegesService: IUserPrivilegesService,
-        @Value("\${app.baseSubmissionRelPath}") private val baseSubmissionRelPath: String,
+        @Value("\${app.subBasePath:#{null}}") private val subBasePath: String?,
     ) {
         @Bean
         fun accNoPatternUtil() = AccNoPatternUtil()
 
         @Bean
-        fun accNoService() = AccNoService(service, accNoPatternUtil(), userPrivilegesService, baseSubmissionRelPath)
+        fun accNoService() = AccNoService(service, accNoPatternUtil(), userPrivilegesService, subBasePath)
 
         @Bean
         fun parentInfoService(beanFactory: BeanFactory) = ParentInfoService(beanFactory, queryService)

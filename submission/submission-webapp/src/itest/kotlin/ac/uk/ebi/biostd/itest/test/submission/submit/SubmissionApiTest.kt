@@ -195,7 +195,7 @@ class SubmissionApiTest(
     @Nested
     inner class SubmitBaseSubmissionRelPath {
         @Nested
-        @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.baseSubmissionRelPath=subRelPathSlash/"])
+        @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=subRelPathSlash/"])
         inner class RelPathWithSlash(@LocalServerPort val serverPort: Int) {
             private lateinit var webClient: BioWebClient
 
@@ -227,7 +227,7 @@ class SubmissionApiTest(
         }
 
         @Nested
-        @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.baseSubmissionRelPath=subRelPath"])
+        @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=subRelPath"])
         inner class RelPathWithNoSlash(@LocalServerPort val serverPort: Int) {
             private lateinit var webClient: BioWebClient
 

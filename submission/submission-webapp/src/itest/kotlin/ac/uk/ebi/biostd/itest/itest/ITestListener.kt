@@ -67,7 +67,6 @@ class ITestListener : TestExecutionListener {
 
     private fun appPropertiesSetup() {
         System.setProperty("app.submissionPath", nfsSubmissionPath.absolutePath)
-        System.setProperty("app.baseSubmissionRelPath", "")
         System.setProperty("app.ftpPath", nfsFtpPath.absolutePath)
         System.setProperty("app.fireTempDirPath", fireTempFolder.absolutePath)
         System.setProperty("app.tempDirPath", tempDirPath.absolutePath)

@@ -3,6 +3,9 @@ package ac.uk.ebi.biostd.common.properties
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 
+/**
+ * @param subBasePath prefix of submission relPath. Should be null unless backend is used for e2e testing.
+ */
 @ConfigurationProperties(prefix = "app")
 @ConstructorBinding
 data class ApplicationProperties(
@@ -12,7 +15,7 @@ data class ApplicationProperties(
     val requestFilesPath: String,
     val ftpPath: String,
     val instanceBaseUrl: String,
-    val baseSubmissionRelPath: String = "",
+    val subBasePath: String?,
     val consumers: Int,
     val maxConsumers: Int,
     val security: SecurityProperties,
