@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
@@ -13,9 +13,9 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestPostProcessor
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestSaver
@@ -33,7 +33,7 @@ class ExtSubmissionSubmitter(
     private val requestReleaser: SubmissionRequestReleaser,
     private val requestCleaner: SubmissionRequestCleaner,
     private val requestSaver: SubmissionRequestSaver,
-    private val postProcessor: SubmissionRequestPostProcessor,
+    private val postProcessor: SubmissionRequestFinalizer,
 ) {
     fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
         val withTabFiles = pageTabService.generatePageTab(rqt.submission)
@@ -63,7 +63,7 @@ class ExtSubmissionSubmitter(
 
     fun checkReleased(accNo: String, version: Int): Unit = requestReleaser.checkReleased(accNo, version)
 
-    fun postProcessRequest(accNo: String, version: Int): Unit = postProcessor.postProcessRequest(accNo, version)
+    fun finalizeRequest(accNo: String, version: Int): ExtSubmission = postProcessor.finalizeRequest(accNo, version)
 
     fun release(accNo: String) = requestReleaser.releaseSubmission(accNo)
 
@@ -74,8 +74,8 @@ class ExtSubmissionSubmitter(
             LOADED -> cleanRequestFiles(accNo, version)
             CLEANED -> processRequestFiles(accNo, version)
             FILES_COPIED -> releaseSubmission(accNo, version)
-            CHECK_RELEASED -> saveRequest(accNo, version)
-            PROCESSED -> postProcess(accNo, version)
+            CHECK_RELEASED -> saveAndFinalize(accNo, version)
+            PERSISTED -> finalizeRequest(accNo, version)
             else -> throw IllegalStateException("Request accNo=$accNo, version='$version' has been already processed")
         }
     }
@@ -86,7 +86,8 @@ class ExtSubmissionSubmitter(
         cleanRequest(accNo, version)
         processRequest(accNo, version)
         checkReleased(accNo, version)
-        return saveAndPostProcess(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
     }
 
     private fun loadRequestFiles(accNo: String, version: Int): ExtSubmission {
@@ -94,36 +95,33 @@ class ExtSubmissionSubmitter(
         cleanRequest(accNo, version)
         processRequest(accNo, version)
         checkReleased(accNo, version)
-        return saveAndPostProcess(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
     }
 
     private fun cleanRequestFiles(accNo: String, version: Int): ExtSubmission {
         cleanRequest(accNo, version)
         processRequest(accNo, version)
         checkReleased(accNo, version)
-        return saveAndPostProcess(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
     }
 
     private fun processRequestFiles(accNo: String, version: Int): ExtSubmission {
         processRequest(accNo, version)
         checkReleased(accNo, version)
-        return saveAndPostProcess(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
     }
 
     private fun releaseSubmission(accNo: String, version: Int): ExtSubmission {
         checkReleased(accNo, version)
-        return saveAndPostProcess(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
     }
 
-    private fun postProcess(accNo: String, version: Int): ExtSubmission {
-        val request = requestService.getProcessedRequest(accNo, version)
-        postProcessRequest(accNo, version)
-        return request.submission
-    }
-
-    private fun saveAndPostProcess(accNo: String, version: Int): ExtSubmission {
-        val saved = saveRequest(accNo, version)
-        postProcessRequest(accNo, version)
-        return  saved
+    private fun saveAndFinalize(accNo: String, version: Int): ExtSubmission {
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
     }
 }

@@ -23,9 +23,9 @@ import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestPostProcessor
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestSaver
@@ -127,14 +127,16 @@ class SubmitterConfig {
     )
 
     @Bean
-    fun submissionPostProcessor(
+    fun submissionRequestFinalizer(
         storageService: FileStorageService,
         serializationService: ExtSerializationService,
         queryService: SubmissionPersistenceQueryService,
-    ): SubmissionRequestPostProcessor = SubmissionRequestPostProcessor(
+        requestService: SubmissionRequestPersistenceService,
+    ): SubmissionRequestFinalizer = SubmissionRequestFinalizer(
         storageService,
         serializationService,
         queryService,
+        requestService,
     )
 
     @Bean
@@ -148,7 +150,7 @@ class SubmitterConfig {
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
-        postProcessor: SubmissionRequestPostProcessor,
+        postProcessor: SubmissionRequestFinalizer,
     ): ExtSubmissionSubmitter = ExtSubmissionSubmitter(
         pageTabService,
         requestService,

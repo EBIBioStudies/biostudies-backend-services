@@ -7,7 +7,7 @@ import ebi.ac.uk.extended.events.RequestFilesCopied
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
-import ebi.ac.uk.extended.events.RequestSubmissionProcessed
+import ebi.ac.uk.extended.events.RequestPersisted
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SubmissionMessage
 import ebi.ac.uk.util.date.asIsoTime
@@ -61,9 +61,9 @@ class EventsPublisherService(
             BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestCheckedReleased(accNo, version)
         )
 
-    fun requestSubmissionProcessed(accNo: String, version: Int) =
+    fun submissionPersisted(accNo: String, version: Int) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestSubmissionProcessed(accNo, version)
+            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestPersisted(accNo, version)
         )
 
     fun submissionSubmitted(accNo: String, owner: String) =

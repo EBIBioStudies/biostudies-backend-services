@@ -10,7 +10,7 @@ import ebi.ac.uk.extended.events.RequestFilesCopied
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
-import ebi.ac.uk.extended.events.RequestSubmissionProcessed
+import ebi.ac.uk.extended.events.RequestPersisted
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.amqp.rabbit.annotation.RabbitListener
@@ -73,15 +73,15 @@ class SubmissionStagesHandler(
         processSafely(rqt) {
             logger.info { "$accNo, Received check released message for submission $accNo, version: $version" }
             submissionSubmitter.saveRequest(rqt)
-            eventsPublisherService.requestSubmissionProcessed(rqt.accNo, rqt.version)
+            eventsPublisherService.submissionPersisted(rqt.accNo, rqt.version)
         }
     }
 
     @RabbitHandler
-    fun postProcessRequest(rqt: RequestSubmissionProcessed) {
+    fun finalizeRequest(rqt: RequestPersisted) {
         processSafely(rqt) {
             logger.info { "$accNo, Received processed message for submission $accNo, version: $version" }
-            submissionSubmitter.postProcessRequest(rqt)
+            submissionSubmitter.finalizeRequest(rqt)
         }
     }
 

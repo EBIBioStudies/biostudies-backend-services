@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
@@ -12,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
@@ -47,6 +49,7 @@ internal class ExtSubmissionSubmitterTest(
     @MockK private val requestReleaser: SubmissionRequestReleaser,
     @MockK private val requestCleaner: SubmissionRequestCleaner,
     @MockK private val requestSaver: SubmissionRequestSaver,
+    @MockK private val postProcessor: SubmissionRequestFinalizer,
 ) {
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 1, 2, 3, 4, UTC)
     private val testInstance = ExtSubmissionSubmitter(
@@ -58,7 +61,8 @@ internal class ExtSubmissionSubmitterTest(
         requestProcessor,
         requestReleaser,
         requestCleaner,
-        requestSaver
+        requestSaver,
+        postProcessor,
     )
 
     @AfterEach
@@ -110,6 +114,7 @@ internal class ExtSubmissionSubmitterTest(
             every { requestReleaser.checkReleased("accNo", 1) } answers { nothing }
             every { requestCleaner.cleanCurrentVersion("accNo", 1) } answers { nothing }
             every { requestSaver.saveRequest("accNo", 1) } answers { sub }
+            every { postProcessor.finalizeRequest("accNo", 1) } returns sub
 
             val result = testInstance.handleRequest("accNo", 1)
 
@@ -122,6 +127,7 @@ internal class ExtSubmissionSubmitterTest(
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
                 requestSaver.saveRequest("accNo", 1)
+                postProcessor.finalizeRequest("accNo", 1)
             }
         }
 
@@ -134,6 +140,7 @@ internal class ExtSubmissionSubmitterTest(
             every { requestReleaser.checkReleased("accNo", 1) } answers { nothing }
             every { requestCleaner.cleanCurrentVersion("accNo", 1) } answers { nothing }
             every { requestSaver.saveRequest("accNo", 1) } answers { sub }
+            every { postProcessor.finalizeRequest("accNo", 1) } returns sub
 
             val result = testInstance.handleRequest("accNo", 1)
 
@@ -144,6 +151,7 @@ internal class ExtSubmissionSubmitterTest(
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
                 requestSaver.saveRequest("accNo", 1)
+                postProcessor.finalizeRequest("accNo", 1)
             }
             verify(exactly = 0) {
                 requestIndexer.indexRequest("accNo", 1)
@@ -159,6 +167,7 @@ internal class ExtSubmissionSubmitterTest(
             every { requestProcessor.processRequest("accNo", 1) } answers { nothing }
             every { requestReleaser.checkReleased("accNo", 1) } answers { nothing }
             every { requestSaver.saveRequest("accNo", 1) } answers { sub }
+            every { postProcessor.finalizeRequest("accNo", 1) } returns sub
 
             val result = testInstance.handleRequest("accNo", 1)
 
@@ -168,6 +177,7 @@ internal class ExtSubmissionSubmitterTest(
                 requestProcessor.processRequest("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
                 requestSaver.saveRequest("accNo", 1)
+                postProcessor.finalizeRequest("accNo", 1)
             }
             verify(exactly = 0) {
                 requestIndexer.indexRequest("accNo", 1)
@@ -183,6 +193,7 @@ internal class ExtSubmissionSubmitterTest(
             every { requestService.getRequestStatus("accNo", 1) } returns FILES_COPIED
             every { requestReleaser.checkReleased("accNo", 1) } answers { nothing }
             every { requestSaver.saveRequest("accNo", 1) } answers { sub }
+            every { postProcessor.finalizeRequest("accNo", 1) } returns sub
 
             val result = testInstance.handleRequest("accNo", 1)
 
@@ -191,6 +202,7 @@ internal class ExtSubmissionSubmitterTest(
                 requestService.getRequestStatus("accNo", 1)
                 requestReleaser.checkReleased("accNo", 1)
                 requestSaver.saveRequest("accNo", 1)
+                postProcessor.finalizeRequest("accNo", 1)
             }
             verify(exactly = 0) {
                 requestIndexer.indexRequest("accNo", 1)
@@ -205,7 +217,8 @@ internal class ExtSubmissionSubmitterTest(
             @MockK sub: ExtSubmission,
         ) {
             every { requestService.getRequestStatus("accNo", 1) } returns CHECK_RELEASED
-            every { requestSaver.saveRequest("accNo", 1) } answers { sub }
+            every { requestSaver.saveRequest("accNo", 1) } returns sub
+            every { postProcessor.finalizeRequest("accNo", 1) } returns sub
 
             val result = testInstance.handleRequest("accNo", 1)
 
@@ -213,6 +226,7 @@ internal class ExtSubmissionSubmitterTest(
             verify(exactly = 1) {
                 requestService.getRequestStatus("accNo", 1)
                 requestSaver.saveRequest("accNo", 1)
+                postProcessor.finalizeRequest("accNo", 1)
             }
             verify(exactly = 0) {
                 requestIndexer.indexRequest("accNo", 1)
@@ -224,13 +238,17 @@ internal class ExtSubmissionSubmitterTest(
         }
 
         @Test
-        fun `when already completed`() {
-            every { requestService.getRequestStatus("accNo", 1) } returns PROCESSED
+        fun `when persisted`(
+            @MockK sub: ExtSubmission,
+        ) {
+            every { postProcessor.finalizeRequest("accNo", 1) } returns sub
+            every { requestService.getRequestStatus("accNo", 1) } returns PERSISTED
 
-            assertThrows<IllegalStateException> { testInstance.handleRequest("accNo", 1) }
+            testInstance.handleRequest("accNo", 1)
 
             verify(exactly = 1) {
                 requestService.getRequestStatus("accNo", 1)
+                postProcessor.finalizeRequest("accNo", 1)
             }
             verify(exactly = 0) {
                 requestIndexer.indexRequest("accNo", 1)
@@ -240,6 +258,14 @@ internal class ExtSubmissionSubmitterTest(
                 requestReleaser.checkReleased("accNo", 1)
                 requestSaver.saveRequest("accNo", 1)
             }
+        }
+
+        @Test
+        fun `when processed`() {
+            every { requestService.getRequestStatus("accNo", 1) } returns PROCESSED
+
+            val exception = assertThrows<IllegalStateException> { testInstance.handleRequest("accNo", 1) }
+            assertThat(exception.message).isEqualTo("Request accNo=accNo, version='1' has been already processed")
         }
     }
 }

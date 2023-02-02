@@ -44,7 +44,7 @@ class SubmissionRequestCleaner(
         val newFiles = newFilesMap(new)
         logger.info { "${current.accNo} ${current.owner} Started cleaning common submission files" }
         serializationService.fileSequence(current)
-            .filter { newFiles[it.filePath] != it.md5 }
+            .filter { newFiles.containsKey(it.filePath) && newFiles[it.filePath] != it.md5 }
             .forEachIndexed { index, file -> deleteFile(index, file) }
         logger.info { "${current.accNo} ${current.owner} Finished cleaning common submission files" }
     }

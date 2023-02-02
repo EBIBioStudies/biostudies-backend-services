@@ -86,7 +86,7 @@ internal class SubmissionMongoMetaQueryServiceTest(
 
     @Test
     fun findLatestBasicByAccNo() {
-        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = 1))
+        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = -1))
         submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = -2))
         submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = 4))
 

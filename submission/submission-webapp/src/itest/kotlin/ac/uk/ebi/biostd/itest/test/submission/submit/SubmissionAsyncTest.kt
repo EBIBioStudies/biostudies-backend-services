@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
@@ -124,7 +125,11 @@ class SubmissionAsyncTest(
 
         extSubmissionSubmitter.saveRequest("SimpleAsync2", 2)
         val statusAfterSaved = requestRepository.getRequestStatus("SimpleAsync2", 2)
-        assertThat(statusAfterSaved).isEqualTo(PROCESSED)
+        assertThat(statusAfterSaved).isEqualTo(PERSISTED)
+
+        extSubmissionSubmitter.finalizeRequest("SimpleAsync2", 2)
+        val statusAfterFinalized = requestRepository.getRequestStatus("SimpleAsync2", 2)
+        assertThat(statusAfterFinalized).isEqualTo(PROCESSED)
 
         assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", 1)).isFalse()
         assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", -1)).isTrue()

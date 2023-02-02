@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.persistence.filesystem.fire
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
-import ebi.ac.uk.extended.model.expectedPath
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -25,6 +25,7 @@ import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FileSystemEntry
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.util.UUID
+import kotlin.test.assertFails
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class FireFilesServiceTest(
@@ -135,8 +136,7 @@ internal class FireFilesServiceTest(
     }
 
     @Nested
-    inner class CleanSubmissionFiles {
-
+    inner class DeleteSubmissionFiles {
         @BeforeEach
         fun beforeEach() {
             mockkStatic(
@@ -146,27 +146,40 @@ internal class FireFilesServiceTest(
         }
 
         @Test
-        fun whenNotCurrent() {
-            val file = fireFile(firePath = "a file path")
-            every { serializationService.fileSequence(submission) } returns sequenceOf(file)
-            every { fireClient.unsetPath(file.fireId) } answers { nothing }
-            every { fireClient.unpublish(file.fireId) } answers { nothing }
+        fun `delete submission files`(
+            @MockK submission: ExtSubmission
+        ) {
+            val file = fireFile(md5 = "md1", firePath = "path_1")
 
-            testInstance.deleteSubmissionFiles(submission, null)
+            every { submission.accNo } returns "S-BSST1"
+            every { submission.owner } returns "user@mail.org"
+            every { serializationService.fileSequence(submission) } returns sequenceOf(file)
+            every { fireClient.delete(file.fireId) } answers { nothing }
+
+            testInstance.deleteSubmissionFiles(submission)
+
+            verify(exactly = 1) { fireClient.delete(file.fireId) }
         }
 
         @Test
-        fun whenCurrent(@MockK current: ExtSubmission) {
-            val file = fireFile(md5 = "md1", firePath = "path_1")
-            val deletedFile = fireFile(md5 = "md2", firePath = "path_2")
+        fun `delete submission file`(
+            @MockK submission: ExtSubmission
+        ) {
+            val file = fireFile(firePath = "a file path")
+            every { fireClient.delete(file.fireId) } answers { nothing }
 
-            every { current.expectedPath(file) } returns "path_1"
-            every { serializationService.fileSequence(submission) } returns sequenceOf(file, deletedFile)
-            every { serializationService.fileSequence(current) } returns sequenceOf(file)
-            every { fireClient.unsetPath(deletedFile.fireId) } answers { nothing }
-            every { fireClient.unpublish(deletedFile.fireId) } answers { nothing }
+            testInstance.deleteSubmissionFile(submission, file)
 
-            testInstance.deleteSubmissionFiles(submission, current)
+            verify(exactly = 1) { fireClient.delete(file.fireId) }
+        }
+
+        @Test
+        fun `delete nfs file`(
+            @MockK nfsFile: NfsFile,
+            @MockK submission: ExtSubmission
+        ) {
+            val exception = assertFails { testInstance.deleteSubmissionFile(submission, nfsFile) }
+            assertThat(exception.message).isEqualTo("FireFilesService should only handle FireFile")
         }
     }
 

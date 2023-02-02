@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.itest.wiremock
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
+import ac.uk.ebi.biostd.itest.wiremock.handlers.DeleteHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.DownloadHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.FileSaveHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.Md5QueryHandler
@@ -63,6 +64,7 @@ class TestWireMockTransformer constructor(
                     Md5QueryHandler(fireDatabase),
                     PathQueryHandler(fireDatabase),
                     FileSaveHandler(fireDatabase),
+                    DeleteHandler(fireDatabase),
                     PathDownloadHandler(fireDatabase),
                     SetPathHandler(fireDatabase),
                     UnSetPathHandler(fireDatabase),

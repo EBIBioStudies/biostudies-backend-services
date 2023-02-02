@@ -11,7 +11,7 @@ import ebi.ac.uk.extended.events.RequestCreated
 import ebi.ac.uk.extended.events.RequestFilesCopied
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
-import ebi.ac.uk.extended.events.RequestSubmissionProcessed
+import ebi.ac.uk.extended.events.RequestPersisted
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 
@@ -62,8 +62,8 @@ class SubmissionSubmitter(
         return submissionSubmitter.saveRequest(rqt.accNo, rqt.version)
     }
 
-    fun postProcessRequest(rqt: RequestSubmissionProcessed) {
-        submissionSubmitter.postProcessRequest(rqt.accNo, rqt.version)
+    fun finalizeRequest(rqt: RequestPersisted) {
+        submissionSubmitter.finalizeRequest(rqt.accNo, rqt.version)
     }
 
     @Suppress("TooGenericExceptionCaught")

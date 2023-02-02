@@ -7,6 +7,7 @@ import ebi.ac.uk.extended.events.RequestCreated
 import ebi.ac.uk.extended.events.RequestFilesCopied
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
+import ebi.ac.uk.extended.events.RequestPersisted
 import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -112,10 +113,26 @@ class SubmissionStagesHandlerTest(
         every { submission.accNo } returns "S-BSST0"
         every { submission.owner } returns "owner@test.org"
         every { submissionSubmitter.saveRequest(request) } returns submission
+        every { eventsPublisherService.submissionPersisted("S-BSTT0", 1) } answers { nothing }
 
         testInstance.saveSubmission(request)
 
-        verify(exactly = 1) { submissionSubmitter.saveRequest(request) }
+        verify(exactly = 1) {
+            submissionSubmitter.saveRequest(request)
+            eventsPublisherService.submissionPersisted("S-BSTT0", 1)
+        }
+        verify(exactly = 0) { eventsPublisherService.submissionSubmitted(any(), any()) }
+    }
+
+    @Test
+    fun `finalize request`() {
+        val request = RequestPersisted("S-BSTT0", 1)
+
+        every { submissionSubmitter.finalizeRequest(request) } answers { nothing }
+
+        testInstance.finalizeRequest(request)
+
+        verify(exactly = 1) { submissionSubmitter.finalizeRequest(request) }
         verify(exactly = 0) { eventsPublisherService.submissionSubmitted(any(), any()) }
     }
 }

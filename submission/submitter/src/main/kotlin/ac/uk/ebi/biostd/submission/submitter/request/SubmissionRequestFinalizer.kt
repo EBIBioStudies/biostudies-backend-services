@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -10,12 +12,14 @@ import uk.ac.ebi.extended.serialization.service.fileSequence
 
 private val logger = KotlinLogging.logger {}
 
-class SubmissionRequestPostProcessor(
+class SubmissionRequestFinalizer(
     private val storageService: FileStorageService,
     private val serializationService: ExtSerializationService,
     private val queryService: SubmissionPersistenceQueryService,
+    private val requestService: SubmissionRequestPersistenceService,
 ) {
-    fun postProcessRequest(accNo: String, version: Int) {
+    fun finalizeRequest(accNo: String, version: Int): ExtSubmission {
+        val request = requestService.getPersistedRequest(accNo, version)
         val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
         val previous = queryService.findLatestInactiveByAccNo(accNo, includeFileListFiles = true)
 
@@ -23,6 +27,9 @@ class SubmissionRequestPostProcessor(
             if (sub.storageMode == previous.storageMode) deleteRemainingFiles(sub, previous)
             else storageService.deleteSubmissionFiles(previous)
         }
+
+        requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED))
+        return sub
     }
 
     private fun deleteRemainingFiles(sub: ExtSubmission, previous: ExtSubmission) {
