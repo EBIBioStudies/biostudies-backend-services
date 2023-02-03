@@ -245,7 +245,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         fun deleteFolderWhenFileExist() {
             val file = temporaryFolder.createFile("one.txt", "content.exist")
 
-            FileUtils.deleteIfExists(file)
+            FileUtils.deleteFile(file)
             assertThat(file).doesNotExist()
         }
 
@@ -255,7 +255,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             val file = tempDir.resolve("two.txt")
             file.createNewFile()
 
-            FileUtils.deleteIfExists(tempDir)
+            FileUtils.deleteFile(tempDir)
             assertThat(tempDir).doesNotExist()
         }
 
@@ -263,7 +263,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         fun deleteFolderWhenNotExist() {
             val tempDir = temporaryFolder.createDirectory("dir-example")
 
-            FileUtils.deleteIfExists(tempDir.resolve("another-dir"))
+            FileUtils.deleteFile(tempDir.resolve("another-dir"))
         }
     }
 

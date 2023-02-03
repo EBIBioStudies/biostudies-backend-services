@@ -51,11 +51,11 @@ class NfsFilesService(
         val accNo = previous.accNo
 
         logger.info { "$accNo ${previous.owner} Un-publishing files of submission $accNo on NFS" }
-        FileUtils.deleteIfExists(folderResolver.getSubmissionFtpFolder(previous.relPath).toFile())
+        FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(previous.relPath).toFile())
         logger.info { "$accNo ${previous.owner} Finished un-publishing files of submission $accNo on NFS" }
 
         logger.info { "$accNo ${previous.owner} Deleting pagetab files of submission $accNo on NFS" }
-        previous.allPageTabFiles.filterIsInstance<NfsFile>().forEach { FileUtils.deleteIfExists(it.file) }
+        previous.allPageTabFiles.filterIsInstance<NfsFile>().forEach { FileUtils.deleteFile(it.file) }
         logger.info { "$accNo ${previous.owner} Finished deleting pagetab files of submission $accNo on NFS" }
     }
 
@@ -77,18 +77,18 @@ class NfsFilesService(
 
     override fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {
         require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
-        FileUtils.deleteIfExists(folderResolver.getSubFolder(sub.relPath).resolve(file.relPath).toFile())
+        FileUtils.deleteFile(folderResolver.getSubFolder(sub.relPath).resolve(file.relPath).toFile())
     }
 
     override fun deleteFtpLinks(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Started un-publishing files of submission ${sub.accNo} on NFS" }
-        FileUtils.deleteIfExists(folderResolver.getSubmissionFtpFolder(sub.relPath).toFile())
+        FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(sub.relPath).toFile())
         logger.info { "${sub.accNo} ${sub.owner} Finished un-publishing files of submission ${sub.accNo} on NFS" }
     }
 
     private fun deleteSubFolder(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Started deleting files of submission ${sub.accNo} on NFS" }
-        FileUtils.deleteIfExists(folderResolver.getSubFolder(sub.relPath).toFile())
+        FileUtils.deleteFile(folderResolver.getSubFolder(sub.relPath).toFile())
         logger.info { "${sub.accNo} ${sub.owner} Finished deleting files of submission ${sub.accNo} on NFS" }
     }
 }

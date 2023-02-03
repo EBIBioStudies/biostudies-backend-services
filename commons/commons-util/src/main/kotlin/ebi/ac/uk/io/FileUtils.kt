@@ -57,7 +57,7 @@ object FileUtils {
     }
 
     fun createEmptyFolder(folder: Path, permissions: Set<PosixFilePermission>) {
-        deleteIfExists(folder.toFile())
+        deleteFile(folder.toFile())
         createDirectories(folder, permissions)
     }
 
@@ -65,7 +65,7 @@ object FileUtils {
         createDirectories(folder.parent, permissions)
     }
 
-    fun deleteIfExists(file: File) {
+    fun deleteFile(file: File) {
         when {
             isDirectory(file) -> FileUtilsHelper.deleteFolder(file.toPath())
             exists(file.toPath()) -> Files.delete(file.toPath())
@@ -77,7 +77,7 @@ object FileUtils {
         target: File,
         permissions: Permissions,
     ) {
-        deleteIfExists(target)
+        deleteFile(target)
         when (isDirectory(source)) {
             true -> FileUtilsHelper.moveFolder(source.toPath(), target.toPath(), permissions)
             false -> FileUtilsHelper.moveFile(source.toPath(), target.toPath(), permissions)
