@@ -4,7 +4,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 
 /**
- * @param subBasePath prefix of submission relPath. Should be null unless backend is used for e2e testing.
+ * @param subBasePath subBasePath extra path added as a prefix of submission relative path. Allows to allocate
+ * submissions under different paths
  */
 @ConfigurationProperties(prefix = "app")
 @ConstructorBinding

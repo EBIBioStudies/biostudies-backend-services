@@ -37,31 +37,49 @@ class AccNoServiceTest(
     @AfterEach
     fun afterEach() = clearAllMocks()
 
-    @ParameterizedTest(name = "prefix is {0}, numeric value is {1} and submission base path is {2}")
-    @CsvSource(
-        "S-DIXA-AN-002, S-DIXA-AN-/002/S-DIXA-AN-002, null",
-        "S-BSST11, S-BSST/011/S-BSST11, null",
-        "S-DIXA-011, S-DIXA-/011/S-DIXA-011, null",
-        "1-AAA, 1-AAA/000/1-AAA, null",
-        "S-SCDT-EMBOJ-2019-103549, S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549, null",
-        "S-SCDT-EMBOR-2017-44445V1, S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1, null",
-        "S-DIXA-AN-002, basePath/S-DIXA-AN-/002/S-DIXA-AN-002, basePath",
-        "S-BSST11, basePath/S-BSST/011/S-BSST11, basePath",
-        "S-DIXA-011, basePath/S-DIXA-/011/S-DIXA-011, basePath",
-        "1-AAA, basePath/1-AAA/000/1-AAA, basePath",
-        "S-SCDT-EMBOJ-2019-103549, basePath/S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549, basePath",
-        "S-SCDT-EMBOR-2017-44445V1, basePath/S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1, basePath",
-        "S-DIXA-AN-002, basePath/S-DIXA-AN-/002/S-DIXA-AN-002, basePath/",
-        "S-BSST11, basePath/S-BSST/011/S-BSST11, basePath/",
-        "S-DIXA-011, basePath/S-DIXA-/011/S-DIXA-011, basePath/",
-        "1-AAA, basePath/1-AAA/000/1-AAA, basePath/",
-        "S-SCDT-EMBOJ-2019-103549, basePath/S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549, basePath/",
-        "S-SCDT-EMBOR-2017-44445V1, basePath/S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1, basePath/",
-        nullValues = ["null"]
-    )
-    fun `get relPath whit different subRelPath`(value: String, expected: String, subBasePath: String?) {
-        val testInstance = AccNoService(service, accNoPatternUtil, privilegesService, subBasePath)
-        assertThat(testInstance.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
+    inner class GetRelPath {
+        @ParameterizedTest(name = "prefix is {0}, numeric value is {1} and submission base path is {2}")
+        @CsvSource(
+            "S-DIXA-AN-002, S-DIXA-AN-/002/S-DIXA-AN-002, null",
+            "S-BSST11, S-BSST/011/S-BSST11, null",
+            "S-DIXA-011, S-DIXA-/011/S-DIXA-011, null",
+            "1-AAA, 1-AAA/000/1-AAA, null",
+            "S-SCDT-EMBOJ-2019-103549, S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549, null",
+            "S-SCDT-EMBOR-2017-44445V1, S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1, null",
+            nullValues = ["null"]
+        )
+        fun `get relPath whit different subRelPath1`(value: String, expected: String, subBasePath: String?) {
+            val testInstance = AccNoService(service, accNoPatternUtil, privilegesService, subBasePath)
+            assertThat(testInstance.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
+        }
+
+        @ParameterizedTest(name = "prefix is {0}, numeric value is {1} and submission base path is {2}")
+        @CsvSource(
+            "S-DIXA-AN-002, basePath/S-DIXA-AN-/002/S-DIXA-AN-002, basePath",
+            "S-BSST11, basePath/S-BSST/011/S-BSST11, basePath",
+            "S-DIXA-011, basePath/S-DIXA-/011/S-DIXA-011, basePath",
+            "1-AAA, basePath/1-AAA/000/1-AAA, basePath",
+            "S-SCDT-EMBOJ-2019-103549, basePath/S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549, basePath",
+            "S-SCDT-EMBOR-2017-44445V1, basePath/S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1, basePath",
+        )
+        fun `get relPath whit different subRelPath2`(value: String, expected: String, subBasePath: String?) {
+            val testInstance = AccNoService(service, accNoPatternUtil, privilegesService, subBasePath)
+            assertThat(testInstance.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
+        }
+
+        @ParameterizedTest(name = "prefix is {0}, numeric value is {1} and submission base path is {2}")
+        @CsvSource(
+            "S-DIXA-AN-002, basePath/S-DIXA-AN-/002/S-DIXA-AN-002, basePath/",
+            "S-BSST11, basePath/S-BSST/011/S-BSST11, basePath/",
+            "S-DIXA-011, basePath/S-DIXA-/011/S-DIXA-011, basePath/",
+            "1-AAA, basePath/1-AAA/000/1-AAA, basePath/",
+            "S-SCDT-EMBOJ-2019-103549, basePath/S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549, basePath/",
+            "S-SCDT-EMBOR-2017-44445V1, basePath/S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1, basePath/",
+        )
+        fun `get relPath whit different subRelPath3`(value: String, expected: String, subBasePath: String?) {
+            val testInstance = AccNoService(service, accNoPatternUtil, privilegesService, subBasePath)
+            assertThat(testInstance.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
+        }
     }
 
     @Nested

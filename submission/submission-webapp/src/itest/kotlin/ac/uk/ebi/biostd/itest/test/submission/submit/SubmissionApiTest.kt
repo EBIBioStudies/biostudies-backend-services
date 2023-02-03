@@ -193,8 +193,8 @@ class SubmissionApiTest(
     }
 
     @Nested
-    @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=subRelPath"])
-    inner class SubmitWhenSubmissionRelPath(@LocalServerPort val serverPort: Int) {
+    @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=base/path"])
+    inner class SubmitWebBasePath(@LocalServerPort val serverPort: Int) {
         private lateinit var webClient: BioWebClient
 
         @BeforeAll
@@ -220,7 +220,7 @@ class SubmissionApiTest(
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
             val extSub = submissionRepository.getExtByAccNo("S-12366")
-            assertThat(extSub.relPath).isEqualTo("subRelPath/S-/366/S-12366")
+            assertThat(extSub.relPath).isEqualTo("base/path/S-/366/S-12366")
         }
     }
 
