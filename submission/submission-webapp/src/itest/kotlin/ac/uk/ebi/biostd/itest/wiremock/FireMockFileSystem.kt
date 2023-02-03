@@ -26,6 +26,11 @@ class FireMockFileSystem(
         Files.copy(fireFile, getOrCreateSubFolder(path))
     }
 
+    fun delete(path: String) {
+        Files.deleteIfExists(ftpFolder.resolve(path))
+        Files.delete(submissionFolder.resolve(path))
+    }
+
     fun unSetPath(path: String) {
         Files.deleteIfExists(ftpFolder.resolve(path))
         Files.delete(submissionFolder.resolve(path))

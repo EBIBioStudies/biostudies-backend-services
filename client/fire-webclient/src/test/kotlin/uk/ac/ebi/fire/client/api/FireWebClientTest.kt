@@ -249,4 +249,13 @@ class FireWebClientTest(
 
         verify(exactly = 1) { template.delete("/objects/the-fire-oid/publish") }
     }
+
+    @Test
+    fun delete() {
+        every { template.delete("/objects/the-fire-oid") } answers { nothing }
+
+        testInstance.delete("the-fire-oid")
+
+        verify(exactly = 1) { template.delete("/objects/the-fire-oid") }
+    }
 }

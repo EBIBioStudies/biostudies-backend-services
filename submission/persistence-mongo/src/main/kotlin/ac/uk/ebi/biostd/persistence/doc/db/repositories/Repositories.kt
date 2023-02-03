@@ -35,7 +35,7 @@ interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
 
     fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): List<DocSubmission>
 
-    fun findFirstByAccNoOrderByVersionDesc(accNo: String): DocSubmission?
+    fun findFirstByAccNoAndVersionLessThanOrderByVersion(accNo: String, version: Int = 0): DocSubmission?
 
     @Query(value = "{ 'accNo' : ?0, 'version' : { \$gt: 0} }", fields = "{ 'collections.accNo':1 }")
     fun findSubmissionCollections(accNo: String): SubmissionCollections?
@@ -51,6 +51,7 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
     ): DocSubmissionRequest
 
     fun existsByAccNoAndStatusIn(accNo: String, status: Set<RequestStatus>): Boolean
+    fun getByAccNoAndStatusIn(accNo: String, status: Set<RequestStatus>): DocSubmissionRequest
 
     fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
 
@@ -60,6 +61,9 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
         status: Set<RequestStatus>,
         since: Instant,
     ): List<DocSubmissionRequest>
+
+    fun getById(id: ObjectId): DocSubmissionRequest
+    fun findByAccNo(accNo: String): List<DocSubmissionRequest>
 }
 
 interface SubmissionRequestFilesRepository : MongoRepository<DocSubmissionRequestFile, ObjectId> {
@@ -100,7 +104,7 @@ interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId>
         fileListName: String,
     ): List<FileListDocFile>
 
-    @Query("{ 'submissionAccNo': ?0, 'submissionVersion': ?1, 'file.filePath':  ?2}")
+    @Query("{ 'submissionAccNo': ?0, 'submissionVersion': ?1, 'file.filePath': ?2}")
     fun findBySubmissionAccNoAndSubmissionVersionAndFilePath(
         accNo: String,
         version: Int,

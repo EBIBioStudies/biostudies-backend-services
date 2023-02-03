@@ -32,10 +32,11 @@ class FilesSourceFactoryTest(
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Exp", files = listOf(left(innerFile))))
 
         every { applicationProperties.submissionPath } returns "sub-path"
-        every { queryService.findReferencedFile(sub.accNo, sub.version, "ghost.txt") } returns null
-        every { queryService.findReferencedFile(sub.accNo, sub.version, "ref.txt") } returns refFile
+        every { queryService.findReferencedFile(sub, "ghost.txt") } returns null
+        every { queryService.findReferencedFile(sub, "ref.txt") } returns refFile
 
         val fileSource = testInstance.createSubmissionSource(sub)
+
         assertThat(fileSource.getExtFile("ghost.txt")).isNull()
         assertThat(fileSource.getExtFile("ref.txt")).isEqualTo(refFile)
         assertThat(fileSource.getExtFile("inner.txt")).isEqualTo(innerFile)

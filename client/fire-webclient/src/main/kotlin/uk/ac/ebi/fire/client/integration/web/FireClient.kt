@@ -24,4 +24,6 @@ interface FireClient {
     fun publish(fireOid: String): FireApiFile
 
     fun unpublish(fireOid: String)
+
+    fun delete(fireOid: String)
 }

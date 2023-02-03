@@ -80,6 +80,10 @@ internal class FireWebClient(
     override fun unpublish(fireOid: String) {
         template.delete("/objects/$fireOid/publish")
     }
+
+    override fun delete(fireOid: String) {
+        template.delete("/objects/$fireOid")
+    }
 }
 
 /**

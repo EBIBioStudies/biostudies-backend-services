@@ -3,9 +3,9 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
@@ -23,7 +23,7 @@ internal class SubmissionMongoPersistenceQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
     private val serializationService: ExtSerializationService,
-    private val fileListDocFileRepository: FileListDocFileRepository,
+    private val fileListDocFileRepository: FileListDocFileDocDataRepository,
     private val requestRepository: SubmissionRequestDocDataRepository,
 ) : SubmissionPersistenceQueryService {
     override fun existByAccNo(accNo: String): Boolean {
@@ -39,8 +39,8 @@ internal class SubmissionMongoPersistenceQueryService(
         return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
     }
 
-    override fun findLatestExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
-        val findByAccNo = submissionRepo.findByAccNo(accNo)
+    override fun findLatestInactiveByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
+        val findByAccNo = submissionRepo.findFirstByAccNoAndVersionLessThanOrderByVersion(accNo)
         return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
     }
 
@@ -72,20 +72,24 @@ internal class SubmissionMongoPersistenceQueryService(
             .plus(findSubmissions(owner, submissionFilter))
     }
 
-    override fun getReferencedFiles(accNo: String, fileListName: String): List<ExtFile> {
-        val subData = submissionRepo.getSubData(accNo)
+    override fun getReferencedFiles(
+        sub: ExtSubmission,
+        fileListName: String,
+    ): List<ExtFile> {
         return fileListDocFileRepository
-            .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(accNo, 0, fileListName)
-            .map { it.file.toExtFile(subData.released, subData.relPath) }
+            .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(sub.accNo, 0, fileListName)
+            .map { it.file.toExtFile(sub.released, sub.relPath) }
     }
 
-    override fun findReferencedFile(accNo: String, version: Int, path: String): ExtFile? {
-        val subData = submissionRepo.getSubData(accNo)
+    override fun findReferencedFile(
+        sub: ExtSubmission,
+        path: String,
+    ): ExtFile? {
         return fileListDocFileRepository
-            .findBySubmissionAccNoAndSubmissionVersionAndFilePath(accNo, version, path)
+            .findBySubmissionAccNoAndSubmissionVersionAndFilePath(sub.accNo, sub.version, path)
             .firstOrNull()
             ?.file
-            ?.toExtFile(subData.released, submissionRepo.getSubData(accNo).relPath)
+            ?.toExtFile(sub.released, sub.relPath)
     }
 
     private fun findSubmissions(owner: String, filter: SubmissionFilter): List<BasicSubmission> =

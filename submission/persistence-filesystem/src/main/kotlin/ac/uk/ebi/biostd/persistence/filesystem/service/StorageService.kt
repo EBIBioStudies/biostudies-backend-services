@@ -42,4 +42,22 @@ class StorageService(
             NFS -> nfsFtpService.releaseSubmissionFile(file, subRelPath)
         }
     }
+
+    override fun deleteFtpLinks(sub: ExtSubmission) =
+        when (sub.storageMode) {
+            FIRE -> fireFilesService.deleteFtpLinks(sub)
+            NFS -> nfsFilesService.deleteFtpLinks(sub)
+        }
+
+    override fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) =
+        when (sub.storageMode) {
+            FIRE -> fireFilesService.deleteSubmissionFile(sub, file)
+            NFS -> nfsFilesService.deleteSubmissionFile(sub, file)
+        }
+
+    override fun deleteSubmissionFiles(sub: ExtSubmission) =
+        when (sub.storageMode) {
+            FIRE -> fireFilesService.deleteSubmissionFiles(sub)
+            NFS -> nfsFilesService.deleteSubmissionFiles(sub)
+        }
 }

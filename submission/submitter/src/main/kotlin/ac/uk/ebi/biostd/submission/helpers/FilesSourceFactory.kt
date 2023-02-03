@@ -24,7 +24,6 @@ class FilesSourceFactory(
             .allInnerSubmissionFiles
             .groupBy { it.filePath }
             .mapValues { it.value.first() }
-
-        return SubmissionFilesSource(sub.accNo, sub.version, nfsFiles, fireClient, previousVersionFiles, queryService)
+        return SubmissionFilesSource(sub, nfsFiles, fireClient, previousVersionFiles, queryService)
     }
 }

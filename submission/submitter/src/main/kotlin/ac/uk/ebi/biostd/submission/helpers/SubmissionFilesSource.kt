@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.helpers
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.extended.mapping.from.toExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.copyWithAttributes
@@ -14,8 +15,7 @@ import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
 class SubmissionFilesSource(
-    private val accNo: String,
-    private val version: Int,
+    private val sub: ExtSubmission,
     private val nfsFiles: PathSource,
     private val fireClient: FireClient,
     private val previousVersionFiles: Map<String, ExtFile>,
@@ -33,7 +33,7 @@ class SubmissionFilesSource(
     }
 
     private fun findSubmissionFile(path: String): ExtFile? {
-        return previousVersionFiles[path] ?: queryService.findReferencedFile(accNo, version, path)
+        return previousVersionFiles[path] ?: queryService.findReferencedFile(sub, path)
     }
 
     private fun getFile(file: ExtFile): File? {

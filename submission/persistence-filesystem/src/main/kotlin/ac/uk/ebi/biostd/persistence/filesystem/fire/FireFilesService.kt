@@ -19,6 +19,7 @@ import java.nio.file.Files
 
 private val logger = KotlinLogging.logger {}
 
+@Suppress("TooManyFunctions")
 class FireFilesService(
     private val client: FireClient,
     private val fireTempDirPath: File,
@@ -135,4 +136,27 @@ class FireFilesService(
             .toSet()
 
     data class FileEntry(val md5: String, val path: String)
+
+    override fun deleteFtpLinks(sub: ExtSubmission) {
+        // No need to delete FTP links on FIRE
+    }
+
+    override fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {
+        require(file is FireFile) { "FireFilesService should only handle FireFile" }
+        client.delete(file.fireId)
+    }
+
+    override fun deleteSubmissionFiles(sub: ExtSubmission) {
+        fun deleteFile(index: Int, file: FireFile) {
+            logger.info { "${sub.accNo} ${sub.owner} Deleting file $index, path='${file.filePath}'" }
+            deleteSubmissionFile(sub, file)
+        }
+
+        logger.info { "${sub.accNo} ${sub.owner} Started cleaning submission files for ${sub.accNo}" }
+        serializationService
+            .fileSequence(sub)
+            .filterIsInstance(FireFile::class.java)
+            .forEachIndexed { index, file -> deleteFile(index, file) }
+        logger.info { "${sub.accNo} ${sub.owner} Finished cleaning submission files for ${sub.accNo}" }
+    }
 }
