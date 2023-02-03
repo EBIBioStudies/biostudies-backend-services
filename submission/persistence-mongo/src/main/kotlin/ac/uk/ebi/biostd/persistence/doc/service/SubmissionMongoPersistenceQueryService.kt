@@ -39,8 +39,8 @@ internal class SubmissionMongoPersistenceQueryService(
         return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
     }
 
-    override fun findLatestExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
-        val findByAccNo = submissionRepo.findByAccNo(accNo)
+    override fun findLatestInactiveByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
+        val findByAccNo = submissionRepo.findFirstByAccNoAndVersionLessThanOrderByVersion(accNo)
         return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
     }
 

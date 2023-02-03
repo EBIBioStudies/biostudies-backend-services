@@ -9,4 +9,10 @@ internal interface FilesService {
     fun postProcessSubmissionFiles(sub: ExtSubmission)
 
     fun cleanSubmissionFiles(previous: ExtSubmission, current: ExtSubmission?)
+
+    fun deleteSubmissionFiles(sub: ExtSubmission)
+
+    fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile)
+
+    fun deleteFtpLinks(sub: ExtSubmission)
 }

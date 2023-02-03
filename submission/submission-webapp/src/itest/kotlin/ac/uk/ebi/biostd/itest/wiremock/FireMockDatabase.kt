@@ -47,6 +47,15 @@ class FireMockDatabase(
         }
     }
 
+    fun delete(fireOid: String) {
+        val record = recordsById.getValue(fireOid)
+        if (record.fileSystemPath != null) {
+            fileSystem.delete(record.fileSystemPath)
+        }
+
+        recordsById.remove(fireOid)
+    }
+
     fun publish(fireOid: String): FireApiFile {
         val record = recordsById.getValue(fireOid)
         recordsById[fireOid] = record.copy(published = true)

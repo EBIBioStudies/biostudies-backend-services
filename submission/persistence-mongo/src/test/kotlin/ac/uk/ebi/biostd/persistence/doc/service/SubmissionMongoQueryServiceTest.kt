@@ -119,6 +119,14 @@ internal class SubmissionMongoQueryServiceTest(
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -2))
             assertThat(submissionRepo.findByAccNo("S-BSST3")).isNull()
         }
+
+        @Test
+        fun `find latest inactive by accNo`() {
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -1))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -2))
+            val sub = submissionRepo.findFirstByAccNoAndVersionLessThanOrderByVersion(accNo = "S-BSST3")
+            assertThat(sub?.version).isEqualTo(-2)
+        }
     }
 
     @Nested

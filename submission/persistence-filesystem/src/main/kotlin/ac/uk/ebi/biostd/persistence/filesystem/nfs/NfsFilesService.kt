@@ -69,4 +69,26 @@ class NfsFilesService(
         submissionFolder: File,
         accNo: String,
     ): File = getOrCreateFolder(submissionFolder.parentFile.resolve("${accNo}_temp").toPath(), RWX______).toFile()
+
+    override fun deleteSubmissionFiles(sub: ExtSubmission) {
+        deleteFtpLinks(sub)
+        deleteSubFolder(sub)
+    }
+
+    override fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {
+        require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
+        FileUtils.deleteFile(folderResolver.getSubFolder(sub.relPath).resolve(file.relPath).toFile())
+    }
+
+    override fun deleteFtpLinks(sub: ExtSubmission) {
+        logger.info { "${sub.accNo} ${sub.owner} Started un-publishing files of submission ${sub.accNo} on NFS" }
+        FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(sub.relPath).toFile())
+        logger.info { "${sub.accNo} ${sub.owner} Finished un-publishing files of submission ${sub.accNo} on NFS" }
+    }
+
+    private fun deleteSubFolder(sub: ExtSubmission) {
+        logger.info { "${sub.accNo} ${sub.owner} Started deleting files of submission ${sub.accNo} on NFS" }
+        FileUtils.deleteFile(folderResolver.getSubFolder(sub.relPath).toFile())
+        logger.info { "${sub.accNo} ${sub.owner} Finished deleting files of submission ${sub.accNo} on NFS" }
+    }
 }
