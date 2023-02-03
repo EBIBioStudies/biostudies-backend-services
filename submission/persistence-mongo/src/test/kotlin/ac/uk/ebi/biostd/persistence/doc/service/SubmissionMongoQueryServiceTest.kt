@@ -7,10 +7,11 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
+import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
@@ -39,7 +40,6 @@ import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
@@ -51,6 +51,8 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -61,6 +63,8 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.serialization.common.FilesResolver
+import java.nio.file.Files
 import java.time.Duration.ofSeconds
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -73,12 +77,12 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmiss
 
 @ExtendWith(MockKExtension::class, SpringExtension::class, TemporaryFolderExtension::class)
 @Testcontainers
-@SpringBootTest(classes = [MongoDbReposConfig::class])
+@SpringBootTest(classes = [MongoDbReposConfig::class, MongoDbServicesConfig::class, TestConfiguration::class])
 internal class SubmissionMongoQueryServiceTest(
     private val tempFolder: TemporaryFolder,
-    @MockK private val toExtSubmissionMapper: ToExtSubmissionMapper,
+    @Autowired private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
-    @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
+    @Autowired private val fileListDocFileRepository: FileListDocFileDocDataRepository,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
 ) {
     private val serializationService: ExtSerializationService = extSerializationService()
@@ -376,9 +380,9 @@ internal class SubmissionMongoQueryServiceTest(
         private val nfsReferencedFile = tempFolder.createFile("nfsReferenced.txt")
         private val nfsFile = createNfsFile("nfsReferenced.txt", "Files/nfsReferenced.txt", nfsReferencedFile)
         private val nfsFileListFile = FileListDocFile(
-            ObjectId(),
-            testDocSubmission.id,
-            nfsFile.toDocFile(),
+            id = ObjectId(),
+            submissionId = testDocSubmission.id,
+            file = nfsFile.toDocFile(),
             fileListName = "test-file-list",
             index = 1,
             submissionVersion = testDocSubmission.version,
@@ -386,15 +390,15 @@ internal class SubmissionMongoQueryServiceTest(
         )
         private val fireReferencedFile = tempFolder.createFile("fireReferenced.txt")
         private val fireFile = FireFile(
-            "fire-oid",
-            null,
-            false,
-            "fireReferenced.txt",
-            "Files/fireReferenced.txt",
-            fireReferencedFile.md5(),
-            fireReferencedFile.size(),
-            FILE,
-            emptyList()
+            fireId = "fire-oid",
+            firePath = null,
+            published = false,
+            filePath = "fireReferenced.txt",
+            relPath = "Files/fireReferenced.txt",
+            md5 = fireReferencedFile.md5(),
+            size = fireReferencedFile.size(),
+            type = FILE,
+            attributes = emptyList()
         )
         private val fireFileListFile = FileListDocFile(
             ObjectId(),
@@ -418,7 +422,8 @@ internal class SubmissionMongoQueryServiceTest(
 
         @Test
         fun `get referenced files`() {
-            val files = testInstance.getReferencedFiles(SUB_ACC_NO, "test-file-list")
+            val submission = testInstance.getExtByAccNo(SUB_ACC_NO)
+            val files = testInstance.getReferencedFiles(submission, "test-file-list")
             assertThat(files).hasSize(2)
 
             val nfsFile = files.first() as NfsFile
@@ -441,7 +446,8 @@ internal class SubmissionMongoQueryServiceTest(
             submissionRepo.save(innerSectionSubmission)
             fileListDocFileRepository.save(nfsFileListFile.copy(submissionAccNo = innerSectionSubmission.accNo))
 
-            val files = testInstance.getReferencedFiles("S-REF1", "test-file-list")
+            val submission = testInstance.getExtByAccNo("S-REF1")
+            val files = testInstance.getReferencedFiles(submission, "test-file-list")
             assertThat(files).hasSize(1)
             assertThat((files.first() as NfsFile).file).isEqualTo(nfsReferencedFile)
             assertThat(nfsFile.fullPath).isEqualTo(nfsReferencedFile.absolutePath)
@@ -449,7 +455,8 @@ internal class SubmissionMongoQueryServiceTest(
 
         @Test
         fun `non existing referenced files`() {
-            assertThat(testInstance.getReferencedFiles(SUB_ACC_NO, "non-existing-fileListName")).hasSize(0)
+            val submission = testInstance.getExtByAccNo(SUB_ACC_NO)
+            assertThat(testInstance.getReferencedFiles(submission, "non-existing-fileListName")).hasSize(0)
         }
     }
 
@@ -470,5 +477,13 @@ internal class SubmissionMongoQueryServiceTest(
             register.add("spring.data.mongodb.uri") { mongoContainer.getReplicaSetUrl("biostudies-test") }
             register.add("spring.data.mongodb.database") { "biostudies-test" }
         }
+    }
+}
+
+@Configuration
+class TestConfiguration {
+    @Bean
+    fun fileResolver(): FilesResolver {
+        return FilesResolver(Files.createTempDirectory("sub-requests").toFile())
     }
 }

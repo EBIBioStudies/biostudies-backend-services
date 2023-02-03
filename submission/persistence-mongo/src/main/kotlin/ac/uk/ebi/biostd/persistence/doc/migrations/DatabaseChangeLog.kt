@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.migrations
 
 import ac.uk.ebi.biostd.persistence.doc.commons.ensureExists
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
@@ -18,6 +19,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionReques
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
@@ -184,6 +186,21 @@ class ChangeLog007 {
             ensureIndex(Index().on(RQT_FILE_PATH, ASC))
             ensureIndex(Index().on(RQT_FILE_SUB_ACC_NO, ASC))
             ensureIndex(Index().on(RQT_FILE_SUB_VERSION, ASC))
+        }
+    }
+}
+
+@ChangeLog
+class ChangeLog008 {
+    @ChangeSet(order = "008", id = "File List files index", author = "System")
+    fun changeSet007(template: MongockTemplate) {
+        template.indexOps(FileListDocFile::class.java).apply {
+            ensureIndex(
+                Index()
+                    .on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC)
+                    .on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC)
+                    .on("$FILE_LIST_DOC_FILE_FILE.${DocFileFields.FILE_DOC_FILEPATH}", ASC)
+            )
         }
     }
 }
