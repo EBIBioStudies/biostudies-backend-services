@@ -32,7 +32,7 @@ interface SubmissionPersistenceQueryService {
 
     fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission?
 
-    fun findLatestExtByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission?
+    fun findLatestInactiveByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission?
 
     fun getExtByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission
 

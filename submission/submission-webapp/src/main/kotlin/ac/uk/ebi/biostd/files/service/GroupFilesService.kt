@@ -41,7 +41,7 @@ class GroupFilesService {
             .resolve(path)
             .resolve(fileName)
             .toFile()
-        FileUtils.deleteFile(file)
+        FileUtils.deleteIfExists(file)
     }
 
     private fun getGroupPath(groupName: String, user: SecurityUser): Path {

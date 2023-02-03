@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.filesystem.fire
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
 import ebi.ac.uk.extended.model.expectedPath
 import ebi.ac.uk.test.createFile
@@ -25,6 +26,7 @@ import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FileSystemEntry
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.util.UUID
+import kotlin.test.assertFails
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class FireFilesServiceTest(
@@ -167,6 +169,43 @@ internal class FireFilesServiceTest(
             every { fireClient.unpublish(deletedFile.fireId) } answers { nothing }
 
             testInstance.cleanSubmissionFiles(submission, current)
+        }
+
+        @Test
+        fun `delete submission files`(
+            @MockK submission: ExtSubmission
+        ) {
+            val file = fireFile(md5 = "md1", firePath = "path_1")
+
+            every { submission.accNo } returns "S-BSST1"
+            every { submission.owner } returns "user@mail.org"
+            every { serializationService.fileSequence(submission) } returns sequenceOf(file)
+            every { fireClient.delete(file.fireId) } answers { nothing }
+
+            testInstance.deleteSubmissionFiles(submission)
+
+            verify(exactly = 1) { fireClient.delete(file.fireId) }
+        }
+
+        @Test
+        fun `delete submission file`(
+            @MockK submission: ExtSubmission
+        ) {
+            val file = fireFile(firePath = "a file path")
+            every { fireClient.delete(file.fireId) } answers { nothing }
+
+            testInstance.deleteSubmissionFile(submission, file)
+
+            verify(exactly = 1) { fireClient.delete(file.fireId) }
+        }
+
+        @Test
+        fun `delete nfs file`(
+            @MockK nfsFile: NfsFile,
+            @MockK submission: ExtSubmission
+        ) {
+            val exception = assertFails { testInstance.deleteSubmissionFile(submission, nfsFile) }
+            assertThat(exception.message).isEqualTo("FireFilesService should only handle FireFile")
         }
     }
 
