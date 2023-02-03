@@ -42,8 +42,7 @@ class FireMockDatabase(
         recordsById[fireOid] = record.copy(firePath = null, fileSystemPath = null)
 
         if (record.fileSystemPath != null) {
-            fileSystem.unSetPath(record.fileSystemPath)
-            fileSystem.unpublish(record.fileSystemPath)
+            fileSystem.delete(record.fileSystemPath)
         }
     }
 

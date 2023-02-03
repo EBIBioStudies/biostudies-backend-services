@@ -23,6 +23,7 @@ import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
@@ -113,9 +114,30 @@ class SubmitterConfig {
     @Bean
     fun submissionCleaner(
         storageService: FileStorageService,
+        serializationService: ExtSerializationService,
         queryService: SubmissionPersistenceQueryService,
         requestService: SubmissionRequestPersistenceService,
-    ): SubmissionRequestCleaner = SubmissionRequestCleaner(storageService, queryService, requestService)
+        filesRequestService: SubmissionRequestFilesPersistenceService,
+    ): SubmissionRequestCleaner = SubmissionRequestCleaner(
+        storageService,
+        serializationService,
+        queryService,
+        requestService,
+        filesRequestService,
+    )
+
+    @Bean
+    fun submissionRequestFinalizer(
+        storageService: FileStorageService,
+        serializationService: ExtSerializationService,
+        queryService: SubmissionPersistenceQueryService,
+        requestService: SubmissionRequestPersistenceService,
+    ): SubmissionRequestFinalizer = SubmissionRequestFinalizer(
+        storageService,
+        serializationService,
+        queryService,
+        requestService,
+    )
 
     @Bean
     fun extSubmissionSubmitter(
@@ -128,6 +150,7 @@ class SubmitterConfig {
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
+        submissionFinalizer: SubmissionRequestFinalizer,
     ): ExtSubmissionSubmitter = ExtSubmissionSubmitter(
         pageTabService,
         requestService,
@@ -137,7 +160,8 @@ class SubmitterConfig {
         requestProcessor,
         submissionReleaser,
         submissionCleaner,
-        submissionSaver
+        submissionSaver,
+        submissionFinalizer,
     )
 
     @Bean

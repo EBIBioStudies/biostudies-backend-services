@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
@@ -12,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
@@ -32,6 +34,7 @@ class ExtSubmissionSubmitter(
     private val requestReleaser: SubmissionRequestReleaser,
     private val requestCleaner: SubmissionRequestCleaner,
     private val requestSaver: SubmissionRequestSaver,
+    private val requestFinalizer: SubmissionRequestFinalizer,
 ) {
     fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
         val withTabFiles = pageTabService.generatePageTab(rqt.submission)
@@ -61,6 +64,8 @@ class ExtSubmissionSubmitter(
 
     fun checkReleased(accNo: String, version: Int): Unit = requestReleaser.checkReleased(accNo, version)
 
+    fun finalizeRequest(accNo: String, version: Int): ExtSubmission = requestFinalizer.finalizeRequest(accNo, version)
+
     fun release(accNo: String) = requestReleaser.releaseSubmission(accNo)
 
     fun handleRequest(accNo: String, version: Int): ExtSubmission {
@@ -70,7 +75,8 @@ class ExtSubmissionSubmitter(
             LOADED -> cleanRequestFiles(accNo, version)
             CLEANED -> processRequestFiles(accNo, version)
             FILES_COPIED -> releaseSubmission(accNo, version)
-            CHECK_RELEASED -> saveRequest(accNo, version)
+            CHECK_RELEASED -> saveAndFinalize(accNo, version)
+            PERSISTED -> finalizeRequest(accNo, version)
             else -> throw IllegalStateException("Request accNo=$accNo, version='$version' has been already processed")
         }
     }
@@ -81,7 +87,8 @@ class ExtSubmissionSubmitter(
         cleanRequest(accNo, version)
         processRequest(accNo, version)
         checkReleased(accNo, version)
-        return saveRequest(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
     }
 
     private fun loadRequestFiles(accNo: String, version: Int): ExtSubmission {
@@ -89,24 +96,33 @@ class ExtSubmissionSubmitter(
         cleanRequest(accNo, version)
         processRequest(accNo, version)
         checkReleased(accNo, version)
-        return saveRequest(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
     }
 
     private fun cleanRequestFiles(accNo: String, version: Int): ExtSubmission {
         cleanRequest(accNo, version)
         processRequest(accNo, version)
         checkReleased(accNo, version)
-        return saveRequest(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
     }
 
     private fun processRequestFiles(accNo: String, version: Int): ExtSubmission {
         processRequest(accNo, version)
         checkReleased(accNo, version)
-        return saveRequest(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
     }
 
     private fun releaseSubmission(accNo: String, version: Int): ExtSubmission {
         checkReleased(accNo, version)
-        return saveRequest(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
+    }
+
+    private fun saveAndFinalize(accNo: String, version: Int): ExtSubmission {
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
     }
 }

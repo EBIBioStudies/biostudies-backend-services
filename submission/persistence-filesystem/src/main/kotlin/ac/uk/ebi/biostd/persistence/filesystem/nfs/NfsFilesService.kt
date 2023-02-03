@@ -5,14 +5,10 @@ import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensi
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.allPageTabFiles
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
-import ebi.ac.uk.io.FileUtils.moveFile
 import ebi.ac.uk.io.RWXR_XR_X
-import ebi.ac.uk.io.RWX______
-import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.notExist
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import mu.KotlinLogging
@@ -28,35 +24,11 @@ class NfsFilesService(
         require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
         val permissions = sub.permissions()
         val subFolder = getOrCreateSubmissionFolder(sub, permissions.folder)
-        val target = getOrCreateTempFolder(subFolder, sub.accNo).resolve(file.relPath)
         val subFile = subFolder.resolve(file.relPath)
 
-        if (target.notExist() && subFile.exists() && subFile.md5() == file.md5)
-            moveFile(subFile, target, permissions)
-        else if (target.notExist())
-            copyOrReplaceFile(file.file, target, permissions)
+        if (subFile.notExist()) copyOrReplaceFile(file.file, subFile, permissions)
 
         return file.copy(fullPath = subFile.absolutePath, file = subFile)
-    }
-
-    override fun postProcessSubmissionFiles(sub: ExtSubmission) {
-        val permissions = sub.permissions()
-        val subFolder = getOrCreateSubmissionFolder(sub, permissions.folder)
-        val targetFolder = getOrCreateTempFolder(subFolder, sub.accNo)
-
-        moveFile(targetFolder, subFolder, permissions)
-    }
-
-    override fun cleanSubmissionFiles(previous: ExtSubmission, current: ExtSubmission?) {
-        val accNo = previous.accNo
-
-        logger.info { "$accNo ${previous.owner} Un-publishing files of submission $accNo on NFS" }
-        FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(previous.relPath).toFile())
-        logger.info { "$accNo ${previous.owner} Finished un-publishing files of submission $accNo on NFS" }
-
-        logger.info { "$accNo ${previous.owner} Deleting pagetab files of submission $accNo on NFS" }
-        previous.allPageTabFiles.filterIsInstance<NfsFile>().forEach { FileUtils.deleteFile(it.file) }
-        logger.info { "$accNo ${previous.owner} Finished deleting pagetab files of submission $accNo on NFS" }
     }
 
     private fun getOrCreateSubmissionFolder(submission: ExtSubmission, permissions: Set<PosixFilePermission>): File {
@@ -64,11 +36,6 @@ class NfsFilesService(
         FileUtils.createParentFolders(submissionPath, RWXR_XR_X)
         return getOrCreateFolder(submissionPath, permissions).toFile()
     }
-
-    private fun getOrCreateTempFolder(
-        submissionFolder: File,
-        accNo: String,
-    ): File = getOrCreateFolder(submissionFolder.parentFile.resolve("${accNo}_temp").toPath(), RWX______).toFile()
 
     override fun deleteSubmissionFiles(sub: ExtSubmission) {
         deleteFtpLinks(sub)

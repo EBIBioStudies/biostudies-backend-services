@@ -31,11 +31,6 @@ class FireMockFileSystem(
         Files.delete(submissionFolder.resolve(path))
     }
 
-    fun unSetPath(path: String) {
-        Files.deleteIfExists(ftpFolder.resolve(path))
-        Files.delete(submissionFolder.resolve(path))
-    }
-
     fun publish(path: String) {
         val source = submissionFolder.resolve(path)
         val target = getOrCreateFtpFolder(path)

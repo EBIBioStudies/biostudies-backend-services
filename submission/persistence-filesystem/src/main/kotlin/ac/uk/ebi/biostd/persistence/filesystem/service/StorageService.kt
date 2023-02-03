@@ -24,18 +24,6 @@ class StorageService(
             NFS -> nfsFilesService.persistSubmissionFile(sub, file)
         }
 
-    override fun postProcessSubmissionFiles(sub: ExtSubmission) =
-        when (sub.storageMode) {
-            FIRE -> fireFilesService.postProcessSubmissionFiles(sub)
-            NFS -> nfsFilesService.postProcessSubmissionFiles(sub)
-        }
-
-    override fun cleanSubmissionFiles(previous: ExtSubmission, current: ExtSubmission?) =
-        when (previous.storageMode) {
-            FIRE -> fireFilesService.cleanSubmissionFiles(previous, current)
-            NFS -> nfsFilesService.cleanSubmissionFiles(previous, current)
-        }
-
     override fun releaseSubmissionFile(file: ExtFile, subRelPath: String, mode: StorageMode): ExtFile {
         return when (mode) {
             FIRE -> fireFtpService.releaseSubmissionFile(file, subRelPath)
