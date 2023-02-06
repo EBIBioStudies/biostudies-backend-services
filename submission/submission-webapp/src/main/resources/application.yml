@@ -65,7 +65,7 @@ app:
   requestFilesPath: # Base directory absolute path where request file list are stored.
   fireTempDirPath: # Absolute path of the temp folder for FIRE storage
   instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
-  subBasePath: # Prefix of submission relPath. Should be null unless backend is used for e2e testing.
+  subBasePath: # Extra path added as a prefix of submission relative path. Allows to allocate submissions under different paths
   fire:
     host: # FIRE host
     username: # FIRE user

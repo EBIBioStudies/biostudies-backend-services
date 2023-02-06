@@ -51,12 +51,9 @@ class AccNoService(
     internal fun getRelPath(accNo: AccNumber): String {
         val prefix = accNo.prefix
         val suffix = accNo.numericValue.orEmpty().padStart(3, '0')
-        val basicRelPath = "$prefix/${suffix.takeLast(PATH_DIGITS)}/$accNo".removePrefix("/")
-        return if (subBasePath != null) {
-            "${subBasePath.trimEnd('/')}/$basicRelPath".removePrefix("/")
-        } else {
-            basicRelPath
-        }
+        val basePath = subBasePath?.trim('/')
+        val basicRelPath = "$basePath/$prefix/${suffix.takeLast(PATH_DIGITS)}/$accNo".removePrefix("/")
+        return if (basePath != null) "$basePath/$basicRelPath" else basicRelPath
     }
 
     private fun getPattern(parentPattern: String?) = when (parentPattern) {
@@ -70,5 +67,5 @@ data class AccNoServiceRequest(
     val accNo: String? = null,
     val isNew: Boolean = true,
     val project: String? = null,
-    val projectPattern: String? = null
+    val projectPattern: String? = null,
 )
