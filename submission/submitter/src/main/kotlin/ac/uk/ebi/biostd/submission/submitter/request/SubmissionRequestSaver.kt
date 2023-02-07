@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -29,7 +29,7 @@ class SubmissionRequestSaver(
         val saved = persistenceService.saveSubmission(assemble)
         logger.info { "$accNo ${sub.owner} Finished saving submission '${sub.accNo}', version={${sub.version}}" }
 
-        requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED))
+        requestService.saveSubmissionRequest(request.withNewStatus(PERSISTED))
         eventsPublisherService.submissionSubmitted(accNo, request.notifyTo)
         return saved
     }

@@ -5,7 +5,6 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.createNfsFile
-import ebi.ac.uk.extended.model.expectedPath
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -141,34 +140,7 @@ internal class FireFilesServiceTest(
 
         @BeforeEach
         fun beforeEach() {
-            mockkStatic(
-                "uk.ac.ebi.extended.serialization.service.ExtSerializationServiceExtKt",
-                "ebi.ac.uk.extended.model.ExtSubmissionExtensionsKt"
-            )
-        }
-
-        @Test
-        fun whenNotCurrent() {
-            val file = fireFile(firePath = "a file path")
-            every { serializationService.fileSequence(submission) } returns sequenceOf(file)
-            every { fireClient.unsetPath(file.fireId) } answers { nothing }
-            every { fireClient.unpublish(file.fireId) } answers { nothing }
-
-            testInstance.cleanSubmissionFiles(submission, null)
-        }
-
-        @Test
-        fun whenCurrent(@MockK current: ExtSubmission) {
-            val file = fireFile(md5 = "md1", firePath = "path_1")
-            val deletedFile = fireFile(md5 = "md2", firePath = "path_2")
-
-            every { current.expectedPath(file) } returns "path_1"
-            every { serializationService.fileSequence(submission) } returns sequenceOf(file, deletedFile)
-            every { serializationService.fileSequence(current) } returns sequenceOf(file)
-            every { fireClient.unsetPath(deletedFile.fireId) } answers { nothing }
-            every { fireClient.unpublish(deletedFile.fireId) } answers { nothing }
-
-            testInstance.cleanSubmissionFiles(submission, current)
+            mockkStatic("uk.ac.ebi.extended.serialization.service.ExtSerializationServiceExtKt")
         }
 
         @Test

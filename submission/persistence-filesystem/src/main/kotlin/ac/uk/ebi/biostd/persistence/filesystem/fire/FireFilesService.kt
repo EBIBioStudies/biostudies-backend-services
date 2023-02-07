@@ -19,7 +19,6 @@ import java.nio.file.Files
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("TooManyFunctions")
 class FireFilesService(
     private val client: FireClient,
     private val fireTempDirPath: File,
@@ -107,35 +106,6 @@ class FireFilesService(
         type = file.type,
         attributes = file.attributes
     )
-
-    override fun postProcessSubmissionFiles(sub: ExtSubmission) {
-        // No need of post-processing on FIRE
-    }
-
-    override fun cleanSubmissionFiles(previous: ExtSubmission, current: ExtSubmission?) {
-        fun cleanFile(index: Int, file: FireFile) {
-            logger.debug { "${previous.accNo}, ${previous.version} Cleaning file $index, path='${file.filePath}'" }
-            client.unsetPath(file.fireId)
-            client.unpublish(file.fireId)
-            logger.debug { "${previous.accNo}, ${previous.version} Cleaning file $index, path='${file.filePath}'" }
-        }
-
-        val filesSet = if (current != null) createFileEntrySet(current) else emptySet()
-        logger.info { "${previous.accNo} ${previous.owner} Cleaning Current submission Folder for ${previous.accNo}" }
-        serializationService.fileSequence(previous)
-            .filterIsInstance(FireFile::class.java)
-            .filterNot { filesSet.contains(FileEntry(it.md5, it.firePath!!)) }
-            .forEachIndexed { index, file -> cleanFile(index, file) }
-        logger.info { "${previous.accNo} ${previous.owner} Cleaning Ftp Folder for ${previous.accNo}" }
-    }
-
-    private fun createFileEntrySet(sub: ExtSubmission): Set<FileEntry> =
-        serializationService.fileSequence(sub)
-            .filterIsInstance(FireFile::class.java)
-            .map { FileEntry(it.md5, sub.expectedPath(it)) }
-            .toSet()
-
-    data class FileEntry(val md5: String, val path: String)
 
     override fun deleteFtpLinks(sub: ExtSubmission) {
         // No need to delete FTP links on FIRE

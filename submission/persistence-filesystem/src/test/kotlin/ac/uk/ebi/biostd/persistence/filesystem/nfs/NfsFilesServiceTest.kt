@@ -36,19 +36,7 @@ class NfsFilesServiceTest(
         val persisted = testInstance.persistSubmissionFile(sub, file) as NfsFile
 
         assertThat(persisted.fullPath).isEqualTo("${subFolder.absolutePath}/${sub.relPath}/${file.relPath}")
-        assertThat(Files.exists(Paths.get("${subFolder.absolutePath}/${sub.relPath}_temp/${file.relPath}"))).isTrue()
-    }
-
-    @Test
-    fun `post process submission files`() {
-        val sub = basicExtSubmission
-        val file = createNfsFile("file2.txt", "Files/file2.txt", tempFolder.createFile("file2.txt"))
-
-        testInstance.persistSubmissionFile(sub, file) as NfsFile
-        testInstance.postProcessSubmissionFiles(sub)
-
         assertThat(Files.exists(Paths.get("${subFolder.absolutePath}/${sub.relPath}/${file.relPath}"))).isTrue()
-        assertThat(Files.exists(Paths.get("${subFolder.absolutePath}/${sub.relPath}_temp/${file.relPath}"))).isFalse()
     }
 
     @Test

@@ -24,7 +24,6 @@ class SubmissionRequestProcessor(
         logger.info { "$accNo ${sub.owner} Started persisting submission files on ${sub.storageMode}" }
 
         persistSubmissionFiles(sub, request.currentIndex)
-        storageService.postProcessSubmissionFiles(sub)
         requestService.saveSubmissionRequest(request.withNewStatus(FILES_COPIED))
         logger.info { "$accNo ${sub.owner} Finished persisting submission files on ${sub.storageMode}" }
     }
