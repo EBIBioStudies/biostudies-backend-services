@@ -21,7 +21,7 @@ class ExtSubmissionRepository(
         toExtSubmissionMapper.toExtSubmission(persistSubmission(submission), false)
 
     fun expirePreviousVersions(accNo: String) {
-        subDataRepository.expireActiveProcessedVersions(accNo)
+        subDataRepository.expireVersions(listOf(accNo))
     }
 
     private fun persistSubmission(submission: ExtSubmission): DocSubmission {

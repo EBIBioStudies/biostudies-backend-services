@@ -1,16 +1,18 @@
 package ac.uk.ebi.biostd.submission.domain.service.ext
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
+import ac.uk.ebi.biostd.submission.domain.exceptions.InvalidTransferTargetException
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.PROJECT_TYPE
 import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
@@ -19,6 +21,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
@@ -28,6 +31,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.events.service.EventsPublisherService
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 @ExtendWith(MockKExtension::class)
 class ExtSubmissionServiceTest(
@@ -35,9 +40,9 @@ class ExtSubmissionServiceTest(
     @MockK private val submissionRepository: SubmissionPersistenceQueryService,
     @MockK private val userPrivilegesService: IUserPrivilegesService,
     @MockK private val securityQueryService: ISecurityQueryService,
-    @MockK private val properties: ApplicationProperties,
     @MockK private val eventsPublisher: EventsPublisherService,
 ) {
+    private val mockNow = OffsetDateTime.of(2023, 9, 21, 1, 2, 3, 4, ZoneOffset.UTC)
     private val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
     private val testInstance =
         ExtSubmissionService(
@@ -45,8 +50,7 @@ class ExtSubmissionServiceTest(
             submissionRepository,
             userPrivilegesService,
             securityQueryService,
-            properties,
-            eventsPublisher
+            eventsPublisher,
         )
 
     @AfterEach
@@ -54,28 +58,28 @@ class ExtSubmissionServiceTest(
 
     @BeforeEach
     fun beforeEach() {
+        mockkStatic(OffsetDateTime::class)
+        every { OffsetDateTime.now() } returns mockNow
         every { submissionRepository.existByAccNo("ArrayExpress") } returns true
         every { submissionRepository.getExtByAccNo("S-TEST123") } returns extSubmission
         every { userPrivilegesService.canSubmitExtended("user@mail.com") } returns true
         every { securityQueryService.existsByEmail("owner@email.org", false) } returns true
         every { userPrivilegesService.canSubmitExtended("regular@mail.com") } returns false
-        every { properties.persistence.enableFire } returns true
     }
 
     @Test
     fun `submit extended`() {
         val submitRequestSlot = slot<ExtSubmitRequest>()
 
-        every { properties.persistence.enableFire } returns true
         every { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
         every { submissionSubmitter.createRequest(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
 
-        testInstance.submitExt("user@mail.com", extSubmission)
+        testInstance.submitExt("user@mail.com", extSubmission.copy(storageMode = FIRE))
 
         val submissionRequest = submitRequestSlot.captured
         assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
         assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
-        assertThat(submissionRequest.submission.modificationTime).isAfter(extSubmission.modificationTime)
+        assertThat(submissionRequest.submission.modificationTime).isEqualTo(mockNow)
         verify(exactly = 1) {
             submissionRepository.existByAccNo("ArrayExpress")
             submissionSubmitter.createRequest(submissionRequest)
@@ -88,7 +92,6 @@ class ExtSubmissionServiceTest(
     fun `submit extended async`() {
         val requestSlot = slot<ExtSubmitRequest>()
 
-        every { properties.persistence.enableFire } returns true
         every { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
         every { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 1)
         every { eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version) } answers { nothing }
@@ -97,8 +100,8 @@ class ExtSubmissionServiceTest(
 
         val submissionRequest = requestSlot.captured
         assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
-        assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
-        assertThat(submissionRequest.submission.modificationTime).isAfter(extSubmission.modificationTime)
+        assertThat(submissionRequest.submission.storageMode).isEqualTo(NFS)
+        assertThat(submissionRequest.submission.modificationTime).isEqualTo(mockNow)
 
         verify(exactly = 0) { submissionSubmitter.handleRequest(any(), any()) }
         verify(exactly = 1) {
@@ -142,9 +145,8 @@ class ExtSubmissionServiceTest(
     @Test
     fun `submit extended collection`() {
         val requestSlot = slot<ExtSubmitRequest>()
-        val collection = extSubmission.copy(section = ExtSection(type = PROJECT_TYPE))
+        val collection = extSubmission.copy(section = ExtSection(type = PROJECT_TYPE), storageMode = FIRE)
 
-        every { properties.persistence.enableFire } returns true
         every { submissionRepository.existByAccNo("ArrayExpress") } returns false
         every { submissionSubmitter.handleRequest(collection.accNo, 1) } returns collection
         every { submissionSubmitter.createRequest(capture(requestSlot)) } returns (collection.accNo to collection.version)
@@ -154,9 +156,43 @@ class ExtSubmissionServiceTest(
         val request = requestSlot.captured
         assertThat(request.submission.submitter).isEqualTo("user@mail.com")
         assertThat(request.submission.storageMode).isEqualTo(FIRE)
-        assertThat(request.submission.modificationTime).isAfter(extSubmission.modificationTime)
+        assertThat(request.submission.modificationTime).isEqualTo(mockNow)
 
         verify(exactly = 0) { submissionRepository.existByAccNo("ArrayExpress") }
         verify(exactly = 1) { securityQueryService.existsByEmail("owner@email.org", false) }
+    }
+
+    @Test
+    fun `transfer submission`() {
+        val requestSlot = slot<ExtSubmitRequest>()
+
+        every { eventsPublisher.submissionRequest(extSubmission.accNo, 2) } answers { nothing }
+        every { submissionRepository.getExtByAccNo(extSubmission.accNo, true) } returns extSubmission
+        every { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 2)
+
+        testInstance.transferSubmission("user@mail.com", extSubmission.accNo, FIRE)
+
+        val submissionRequest = requestSlot.captured
+        assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
+        assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
+        assertThat(submissionRequest.submission.modificationTime).isEqualTo(mockNow)
+
+        verify(exactly = 1) {
+            submissionSubmitter.createRequest(submissionRequest)
+            eventsPublisher.submissionRequest(extSubmission.accNo, 2)
+        }
+    }
+
+    @Test
+    fun `transfer submission with invalid target`(
+        @MockK source: ExtSubmission
+    ) {
+        every { source.storageMode } returns FIRE
+        every { submissionRepository.getExtByAccNo("S-BSST1", true) } returns source
+
+        val exception = assertThrows<InvalidTransferTargetException> {
+            testInstance.transferSubmission("user@mail.com", "S-BSST1", FIRE)
+        }
+        assertThat(exception.message).isEqualTo("The target and current storage mode must be different")
     }
 }
