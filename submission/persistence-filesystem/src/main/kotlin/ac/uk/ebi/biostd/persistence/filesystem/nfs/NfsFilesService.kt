@@ -6,6 +6,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.asNfsFile
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.FileUtils.copyOrReplaceFile
 import ebi.ac.uk.io.FileUtils.getOrCreateFolder
@@ -47,7 +48,7 @@ class NfsFilesService(
             copyOrReplaceFile(fireFile, subFile, permissions)
         }
 
-        return asNfsFile(file, subFile, subFile.absolutePath)
+        return file.asNfsFile(subFile)
     }
 
     private fun getSubFile(sub: ExtSubmission, permissions: Permissions, relPath: String): File {
@@ -60,17 +61,6 @@ class NfsFilesService(
         FileUtils.createParentFolders(submissionPath, RWXR_XR_X)
         return getOrCreateFolder(submissionPath, permissions).toFile()
     }
-
-    private fun asNfsFile(fireFile: FireFile, file: File, fullPath: String) = NfsFile(
-        fireFile.filePath,
-        fireFile.relPath,
-        file,
-        fullPath,
-        fireFile.md5,
-        fireFile.size,
-        fireFile.attributes,
-        fireFile.type
-    )
 
     override fun deleteSubmissionFiles(sub: ExtSubmission) {
         deleteFtpLinks(sub)

@@ -11,7 +11,9 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.nfsFtpPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.nfsSubmissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ebi.ac.uk.asserts.assertThat
@@ -27,6 +29,7 @@ import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.ext.asFileList
 import ebi.ac.uk.io.ext.createFile
 import org.assertj.core.api.Assertions.assertThat
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -36,6 +39,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.time.Duration.ofSeconds
 import kotlin.reflect.KClass
 
 @Import(FilePersistenceConfig::class)
@@ -43,6 +47,7 @@ import kotlin.reflect.KClass
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionStorageModeTest(
     @Autowired val securityTestService: SecurityTestService,
+    @Autowired val submissionRequestRepository: SubmissionRequestRepository,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val serializationService: ExtSerializationService,
     @Autowired val sequenceRepository: SequenceDataRepository,
@@ -119,7 +124,10 @@ class SubmissionStorageModeTest(
         val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-3", includeFileListFiles = true)
 
         webClient.transferSubmission("S-STR-MODE-3", FIRE)
-        Thread.sleep(5000)
+        await()
+            .atMost(ofSeconds(10))
+            .until { submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-3", 2).status == PROCESSED }
+
         val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-3", includeFileListFiles = true)
         assertThat(fireSub.storageMode).isEqualTo(FIRE)
         assertThat(fireSub.version).isEqualTo(2)
@@ -140,7 +148,10 @@ class SubmissionStorageModeTest(
         val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-4", includeFileListFiles = true)
 
         webClient.transferSubmission("S-STR-MODE-4", NFS)
-        Thread.sleep(5000)
+        await()
+            .atMost(ofSeconds(10))
+            .until { submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-4", 2).status == PROCESSED }
+
         val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-4", includeFileListFiles = true)
 
         assertThat(nfsSub.storageMode).isEqualTo(NFS)

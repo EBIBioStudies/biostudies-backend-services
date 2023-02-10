@@ -25,7 +25,7 @@ class SubmissionRequestCleaner(
         val new = request.submission
         val current = queryService.findExtByAccNo(accNo, includeFileListFiles = true)
 
-        if (current != null && new.storageMode == current.storageMode) {
+        if (current != null) {
             logger.info { "${new.accNo} ${new.owner} Started cleaning common files of version ${new.version}" }
             deleteCommonFiles(new, current)
             storageService.deleteFtpLinks(current)
