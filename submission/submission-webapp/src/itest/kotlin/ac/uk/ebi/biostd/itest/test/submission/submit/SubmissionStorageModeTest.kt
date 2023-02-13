@@ -26,8 +26,8 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
-import ebi.ac.uk.io.ext.asFileList
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.io.ext.listFilesOrEmpty
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeAll
@@ -85,8 +85,8 @@ class SubmissionStorageModeTest(
         assertFileListFile(nfsSub.section.fileList!!, NfsFile::class)
 
         // No Files in FIRE submit folder/ftp folder
-        assertThat(fireSubmissionPath.resolve(fireSub.relPath).asFileList().filter { it.isFile }).isEmpty()
-        assertThat(fireFtpPath.resolve(fireSub.relPath).asFileList().filter { it.isFile }).isEmpty()
+        assertThat(fireSubmissionPath.resolve(fireSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
+        assertThat(fireFtpPath.resolve(fireSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
     }
 
     @Test
@@ -112,8 +112,8 @@ class SubmissionStorageModeTest(
         assertFileListFile(fireSub.section.fileList!!, FireFile::class)
 
         // No Files in NFS submit folder/ftp
-        assertThat(nfsSubmissionPath.resolve(nfsSub.relPath).asFileList().filter { it.isFile }).isEmpty()
-        assertThat(nfsFtpPath.resolve(nfsSub.relPath).asFileList().filter { it.isFile }).isEmpty()
+        assertThat(nfsSubmissionPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
+        assertThat(nfsFtpPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
     }
 
     @Test
@@ -136,8 +136,8 @@ class SubmissionStorageModeTest(
         assertThat(fireSub.section.fileList).isNotNull()
         assertFileListFile(fireSub.section.fileList!!, FireFile::class)
 
-        assertThat(nfsSubmissionPath.resolve(nfsSub.relPath).asFileList().filter { it.isFile }).isEmpty()
-        assertThat(nfsFtpPath.resolve(nfsSub.relPath).asFileList().filter { it.isFile }).isEmpty()
+        assertThat(nfsSubmissionPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
+        assertThat(nfsFtpPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
     }
 
     @Test
@@ -161,8 +161,8 @@ class SubmissionStorageModeTest(
         assertThat(nfsSub.section.fileList).isNotNull()
         assertFileListFile(nfsSub.section.fileList!!, NfsFile::class)
 
-        assertThat(fireSubmissionPath.resolve(fireSub.relPath).asFileList().filter { it.isFile }).isEmpty()
-        assertThat(fireFtpPath.resolve(fireSub.relPath).asFileList().filter { it.isFile }).isEmpty()
+        assertThat(fireSubmissionPath.resolve(fireSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
+        assertThat(fireFtpPath.resolve(fireSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
     }
 
     private fun assertFile(file: ExtFile, expectType: KClass<*>) {

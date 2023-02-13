@@ -69,17 +69,17 @@ internal class SubmissionDocDataRepositoryTest(
                 id = ObjectId(),
                 submissionId = testDocSubmission.id,
                 file = file.toDocFile(),
-                fileListName = "test-file-list",
+                fileListName = "file-list",
                 index = 1,
                 submissionVersion = 1,
                 submissionAccNo = "S-BSST4"
             )
 
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -1))
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4"))
             fileListDocFileRepo.save(fileListFile)
 
             testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = 2))
-            fileListDocFileRepo.save(fileListFile.copy(submissionVersion = 2))
+            fileListDocFileRepo.save(fileListFile.copy(id = ObjectId(), submissionVersion = 2))
 
             testInstance.expireVersions(listOf("S-BSST4"))
 
@@ -87,8 +87,16 @@ internal class SubmissionDocDataRepositoryTest(
             assertThat(testInstance.getByAccNoAndVersion("S-BSST4", version = -2)).isNotNull
             assertThat(
                 fileListDocFileRepo
-                    .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName("S-BSST4", 0, "test-file-list")
+                    .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName("S-BSST4", 0, "file-list")
             ).isEmpty()
+            assertThat(
+                fileListDocFileRepo
+                    .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName("S-BSST4", -1, "file-list")
+            ).hasSize(1)
+            assertThat(
+                fileListDocFileRepo
+                    .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName("S-BSST4", -2, "file-list")
+            ).hasSize(1)
         }
     }
 
