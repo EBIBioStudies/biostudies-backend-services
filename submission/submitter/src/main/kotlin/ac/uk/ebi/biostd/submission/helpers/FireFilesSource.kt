@@ -24,7 +24,8 @@ class FireFilesSource(
     ): ExtFile? {
         return when (dbFile) {
             null -> null
-            else -> fireClient.findByDb(dbFile, path, attributes)
+            is ConfiguredDbFile -> null
+            is UploadedDbFile -> fireClient.findByMd5(dbFile.md5).first().asFireFile(path, attributes)
         }
     }
 
@@ -45,13 +46,6 @@ fun FireApiFile.asFireFile(filePath: String, attributes: List<Attribute>): FireF
         type = ExtFileType.FILE,
         attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
     )
-
-private fun FireClient.findByDb(dbFile: DbFile, path: String, attributes: List<Attribute>): FireFile {
-    return when (dbFile) {
-        is UploadedDbFile -> findByMd5(dbFile.md5).first().asFireFile(path, attributes)
-        is ConfiguredDbFile -> asFireFile(path, dbFile, attributes)
-    }
-}
 
 fun asFireFile(path: String, db: ConfiguredDbFile, attributes: List<Attribute>): FireFile =
     FireFile(

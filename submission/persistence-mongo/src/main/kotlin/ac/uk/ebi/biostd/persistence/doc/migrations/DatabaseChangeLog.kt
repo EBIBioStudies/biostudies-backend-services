@@ -54,6 +54,8 @@ internal val CHANGE_LOG_CLASSES = listOf(
     ChangeLog004::class.java,
     ChangeLog005::class.java,
     ChangeLog006::class.java,
+    ChangeLog007::class.java,
+    ChangeLog008::class.java,
 )
 
 @ChangeLog
@@ -193,7 +195,7 @@ class ChangeLog007 {
 @ChangeLog
 class ChangeLog008 {
     @ChangeSet(order = "008", id = "File List files index", author = "System")
-    fun changeSet007(template: MongockTemplate) {
+    fun changeSet008(template: MongockTemplate) {
         template.indexOps(FileListDocFile::class.java).apply {
             ensureIndex(
                 Index()

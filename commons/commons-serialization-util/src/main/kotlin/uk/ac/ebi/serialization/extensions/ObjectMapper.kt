@@ -9,14 +9,16 @@ import com.fasterxml.jackson.module.kotlin.convertValue
 import java.io.InputStream
 import java.io.OutputStream
 
-fun <T : Any> ObjectMapper.serializeList(files: Sequence<T>, outputStream: OutputStream) {
+fun <T : Any> ObjectMapper.serializeList(files: Sequence<T>, outputStream: OutputStream): Int {
     val jsonGenerator = factory.createGenerator(outputStream)
-
+    var filesCount = 0
     jsonGenerator.use {
         it.writeStartArray()
-        files.forEach { file -> writeValue(it, file) }
+        filesCount = files.onEach { file -> writeValue(it, file) }.count()
         it.writeEndArray()
     }
+
+    return filesCount
 }
 
 inline fun <reified T> ObjectMapper.convertOrDefault(node: JsonNode, property: String, default: () -> T): T =

@@ -39,7 +39,7 @@ class FileListValidator(
         validateFileList(fileListName, fileSources)
     }
 
-    fun validateFileList(fileListName: String, fileSources: FileSourcesList) {
+    private fun validateFileList(fileListName: String, fileSources: FileSourcesList) {
         val fileListFile = getFileListFile(fileListName, fileSources)
         val format = SubFormat.fromFile(fileListFile)
         fileListFile.inputStream().use { validateFiles(fileListName, it, format, fileSources) }

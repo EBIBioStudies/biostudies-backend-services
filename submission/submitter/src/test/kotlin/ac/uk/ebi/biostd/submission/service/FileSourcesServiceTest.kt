@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.submission.helpers.DbFilesSource
 import ac.uk.ebi.biostd.submission.helpers.FilesSourceFactory
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
@@ -64,14 +65,15 @@ class FileSourcesServiceTest(
         val fileSources = testInstance.submissionSources(request)
 
         val sources = fileSources.sources
-        assertThat(sources).hasSize(7)
-        assertThat(sources[0].description).isEqualTo("Request files [test.txt]")
-        assertThat(sources[1].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
-        assertThat(sources[2].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[3].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
-        assertThat(sources[4].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[5]).isEqualTo(subFileSource)
-        assertThat(sources[6]).isEqualTo(fireSource)
+        assertThat(sources).hasSize(8)
+        assertThat(sources[0]).isEqualTo(DbFilesSource)
+        assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
+        assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
+        assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
+        assertThat(sources[4].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
+        assertThat(sources[5].description).isEqualTo("Group 'Test Group' files")
+        assertThat(sources[6]).isEqualTo(subFileSource)
+        assertThat(sources[7]).isEqualTo(fireSource)
     }
 
     @Test
@@ -90,14 +92,15 @@ class FileSourcesServiceTest(
         val fileSources = testInstance.submissionSources(request)
 
         val sources = fileSources.sources
-        assertThat(sources).hasSize(7)
-        assertThat(sources[0].description).isEqualTo("Request files [test.txt]")
-        assertThat(sources[1].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
-        assertThat(sources[2].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[3].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
-        assertThat(sources[4].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[5]).isEqualTo(subFileSource)
-        assertThat(sources[6]).isEqualTo(fireSource)
+        assertThat(sources).hasSize(8)
+        assertThat(sources[0]).isEqualTo(DbFilesSource)
+        assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
+        assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
+        assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
+        assertThat(sources[4].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
+        assertThat(sources[5].description).isEqualTo("Group 'Test Group' files")
+        assertThat(sources[6]).isEqualTo(subFileSource)
+        assertThat(sources[7]).isEqualTo(fireSource)
     }
 
     @Test
@@ -114,12 +117,13 @@ class FileSourcesServiceTest(
         val fileSources = testInstance.submissionSources(request)
 
         val sources = fileSources.sources
-        assertThat(sources).hasSize(5)
-        assertThat(sources[0].description).isEqualTo("Request files [test.txt]")
-        assertThat(sources[1].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
-        assertThat(sources[2].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[3]).isEqualTo(subFileSource)
-        assertThat(sources[4]).isEqualTo(fireSource)
+        assertThat(sources).hasSize(6)
+        assertThat(sources[0]).isEqualTo(DbFilesSource)
+        assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
+        assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
+        assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
+        assertThat(sources[4]).isEqualTo(subFileSource)
+        assertThat(sources[5]).isEqualTo(fireSource)
     }
 
     @Test
@@ -136,9 +140,10 @@ class FileSourcesServiceTest(
         val fileSources = testInstance.submissionSources(request)
 
         val sources = fileSources.sources
-        assertThat(sources).hasSize(2)
-        assertThat(sources[0]).isEqualTo(fireSource)
-        assertThat(sources[1]).isEqualTo(subFileSource)
+        assertThat(sources).hasSize(3)
+        assertThat(sources[0]).isEqualTo(DbFilesSource)
+        assertThat(sources[1]).isEqualTo(fireSource)
+        assertThat(sources[2]).isEqualTo(subFileSource)
     }
 
     private fun submitter(): SecurityUser {
