@@ -260,7 +260,7 @@ class SubmissionApiTest(
         }
 
         @Test
-        fun `16-10 submission when system has submission base path`() {
+        fun `submission when the system has the basePath property configured`() {
             val submission = tsv {
                 line("Submission", "S-12366")
                 line("Title", "Sample Submission")

@@ -37,23 +37,21 @@ class AccNoServiceTest(
     @AfterEach
     fun afterEach() = clearAllMocks()
 
-    inner class GetRelPath {
-        @ParameterizedTest(name = "prefix is {0}, numeric value is {1} and submission base path is {2}")
-        @CsvSource(
-            "S-DIXA-AN-002, S-DIXA-AN-/002/S-DIXA-AN-002, null",
-            "S-BSST11, S-BSST/011/S-BSST11, null",
-            "S-DIXA-011, S-DIXA-/011/S-DIXA-011, null",
-            "1-AAA, 1-AAA/000/1-AAA, null",
-            "S-SCDT-EMBOJ-2019-103549, S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549, null",
-            "S-SCDT-EMBOR-2017-44445V1, S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1, null",
-            "S-123, base-path/S/123/S-123, base-path/",
-            "S-123, base-path/S/123/S-123, /base-path",
-            nullValues = ["null"]
-        )
-        fun getRelPath(value: String, expected: String, subBasePath: String?) {
-            val testInstance = AccNoService(service, accNoPatternUtil, privilegesService, subBasePath)
-            assertThat(testInstance.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
-        }
+    @ParameterizedTest(name = "When accNo={0}, basePath={1}, expected should be {2}")
+    @CsvSource(
+        "S-DIXA-AN-002, null, S-DIXA-AN-/002/S-DIXA-AN-002",
+        "S-BSST11, null, S-BSST/011/S-BSST11",
+        "S-DIXA-011, null, S-DIXA-/011/S-DIXA-011",
+        "1-AAA, null, 1-AAA/000/1-AAA",
+        "S-SCDT-EMBOJ-2019-103549, null, S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549",
+        "S-SCDT-EMBOR-2017-44445V1, null, S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1",
+        "S-123, base-path/, base-path/S-/123/S-123",
+        "S-123, /base-path, base-path/S-/123/S-123",
+        nullValues = ["null"]
+    )
+    fun getRelPath(value: String, subBasePath: String?, expected: String) {
+        val testInstance = AccNoService(service, accNoPatternUtil, privilegesService, subBasePath)
+        assertThat(testInstance.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
     }
 
     @Nested

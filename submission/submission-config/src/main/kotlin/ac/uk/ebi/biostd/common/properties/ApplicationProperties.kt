@@ -3,10 +3,6 @@ package ac.uk.ebi.biostd.common.properties
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 
-/**
- * @param subBasePath subBasePath extra path added as a prefix of submission relative path. Allows to allocate
- * submissions under different paths
- */
 @ConfigurationProperties(prefix = "app")
 @ConstructorBinding
 data class ApplicationProperties(

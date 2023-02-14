@@ -52,7 +52,7 @@ class AccNoService(
         val prefix = accNo.prefix
         val suffix = accNo.numericValue.orEmpty().padStart(3, '0')
         val basePath = subBasePath?.trim('/')
-        val basicRelPath = "$basePath/$prefix/${suffix.takeLast(PATH_DIGITS)}/$accNo".removePrefix("/")
+        val basicRelPath = "$prefix/${suffix.takeLast(PATH_DIGITS)}/$accNo".removePrefix("/")
         return if (basePath != null) "$basePath/$basicRelPath" else basicRelPath
     }
 
