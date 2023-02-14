@@ -37,7 +37,7 @@ class AccNoServiceTest(
     @AfterEach
     fun afterEach() = clearAllMocks()
 
-    @ParameterizedTest(name = "When accNo={0}, basePath={1}, expected should be {2}")
+    @ParameterizedTest(name = "When accNo={0}, basePath={1}, expected path should be {2}")
     @CsvSource(
         "S-DIXA-AN-002, null, S-DIXA-AN-/002/S-DIXA-AN-002",
         "S-BSST11, null, S-BSST/011/S-BSST11",
