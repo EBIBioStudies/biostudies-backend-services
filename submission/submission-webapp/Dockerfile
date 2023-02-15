@@ -1,9 +1,7 @@
 FROM azul/zulu-openjdk:11
 
-# Set the user and group for the application
-RUN addgroup --system -gid 1001 systemGroup
-RUN adduser --system -uid 1002  systemUser
-USER systemUser:systemGroup
+# BioStudies directory
+RUN mkdir -p /directories
 
 # Also, there is a clean separation between dependencies and application resources in a Spring Boot fat JAR file,
 # and we can use that fact to improve performance. The key is to create layers in the container filesystem.
