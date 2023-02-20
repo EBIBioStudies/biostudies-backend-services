@@ -29,24 +29,28 @@ private const val PROJECT_PATTERN = "!{ABC-}"
 @ExtendWith(MockKExtension::class)
 class AccNoServiceTest(
     @MockK private val service: PersistenceService,
-    @MockK private val privilegesService: IUserPrivilegesService
+    @MockK private val privilegesService: IUserPrivilegesService,
 ) {
     private val accNoPatternUtil: AccNoPatternUtil = AccNoPatternUtil()
-    private val testInstance = AccNoService(service, accNoPatternUtil, privilegesService)
+    private val testInstance = AccNoService(service, accNoPatternUtil, privilegesService, subBasePath = null)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
 
-    @ParameterizedTest(name = "prefix is {0} and numeric value is {1}")
+    @ParameterizedTest(name = "When accNo={0}, basePath={1}, expected path should be {2}")
     @CsvSource(
-        "S-DIXA-AN-002, S-DIXA-AN-/002/S-DIXA-AN-002",
-        "S-BSST11, S-BSST/011/S-BSST11",
-        "S-DIXA-011, S-DIXA-/011/S-DIXA-011",
-        "1-AAA, 1-AAA/000/1-AAA",
-        "S-SCDT-EMBOJ-2019-103549, S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549",
-        "S-SCDT-EMBOR-2017-44445V1, S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1"
+        "S-DIXA-AN-002, null, S-DIXA-AN-/002/S-DIXA-AN-002",
+        "S-BSST11, null, S-BSST/011/S-BSST11",
+        "S-DIXA-011, null, S-DIXA-/011/S-DIXA-011",
+        "1-AAA, null, 1-AAA/000/1-AAA",
+        "S-SCDT-EMBOJ-2019-103549, null, S-SCDT-EMBOJ-2019-/549/S-SCDT-EMBOJ-2019-103549",
+        "S-SCDT-EMBOR-2017-44445V1, null, S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1",
+        "S-123, base-path/, base-path/S-/123/S-123",
+        "S-123, /base-path, base-path/S-/123/S-123",
+        nullValues = ["null"]
     )
-    fun getRelPath(value: String, expected: String) {
+    fun getRelPath(value: String, subBasePath: String?, expected: String) {
+        val testInstance = AccNoService(service, accNoPatternUtil, privilegesService, subBasePath)
         assertThat(testInstance.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
     }
 
