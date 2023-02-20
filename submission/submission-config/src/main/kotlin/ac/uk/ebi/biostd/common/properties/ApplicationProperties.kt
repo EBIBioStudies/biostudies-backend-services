@@ -12,6 +12,7 @@ data class ApplicationProperties(
     val requestFilesPath: String,
     val ftpPath: String,
     val instanceBaseUrl: String,
+    val subBasePath: String?,
     val consumers: Int,
     val maxConsumers: Int,
     val security: SecurityProperties,
