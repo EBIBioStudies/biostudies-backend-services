@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_INDEX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_ACC_NO
@@ -54,6 +55,8 @@ internal val CHANGE_LOG_CLASSES = listOf(
     ChangeLog004::class.java,
     ChangeLog005::class.java,
     ChangeLog006::class.java,
+    ChangeLog007::class.java,
+    ChangeLog008::class.java,
 )
 
 @ChangeLog
@@ -183,6 +186,7 @@ class ChangeLog007 {
 
         template.indexOps(DocSubmissionRequestFile::class.java).apply {
             ensureIndex(Index().on(RQT_FILE_INDEX, ASC))
+            ensureIndex(Index().on(RQT_FILE_FILE, ASC))
             ensureIndex(Index().on(RQT_FILE_PATH, ASC))
             ensureIndex(Index().on(RQT_FILE_SUB_ACC_NO, ASC))
             ensureIndex(Index().on(RQT_FILE_SUB_VERSION, ASC))
@@ -193,7 +197,7 @@ class ChangeLog007 {
 @ChangeLog
 class ChangeLog008 {
     @ChangeSet(order = "008", id = "File List files index", author = "System")
-    fun changeSet007(template: MongockTemplate) {
+    fun changeSet008(template: MongockTemplate) {
         template.indexOps(FileListDocFile::class.java).apply {
             ensureIndex(
                 Index()

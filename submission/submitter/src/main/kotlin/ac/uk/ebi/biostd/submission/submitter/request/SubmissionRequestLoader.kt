@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.submitter.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
@@ -35,9 +34,10 @@ class SubmissionRequestLoader(
     private fun loadSubmissionFiles(sub: ExtSubmission, startingAt: Int) {
         filesRequestService
             .getSubmissionRequestFiles(sub.accNo, sub.version, startingAt)
+            .filterNot { it.file is FireFile }
             .map {
                 logger.info { "${sub.accNo} ${sub.owner} Started loading file ${it.index}, path='${it.path}'" }
-                it.copy(file = loadFileAttributes(it.file))
+                it.copy(file = loadFileAttributes(it.file as NfsFile))
             }
             .forEach {
                 requestService.updateRequestFile(it)
@@ -45,8 +45,5 @@ class SubmissionRequestLoader(
             }
     }
 
-    private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {
-        is FireFile -> file
-        is NfsFile -> file.copy(md5 = file.file.md5(), size = file.file.size())
-    }
+    private fun loadFileAttributes(file: NfsFile) = file.copy(md5 = file.file.md5(), size = file.file.size())
 }

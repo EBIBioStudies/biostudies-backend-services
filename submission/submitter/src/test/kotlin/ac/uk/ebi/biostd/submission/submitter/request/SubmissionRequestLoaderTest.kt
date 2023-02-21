@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersist
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
@@ -51,20 +52,23 @@ class SubmissionRequestLoaderTest(
     }
 
     @Test
-    fun `load request`() {
+    fun `load request`(
+        @MockK fireFile: FireFile
+    ) {
         val loadedRequestSlot = slot<SubmissionRequest>()
         val requestFileSlot = slot<SubmissionRequestFile>()
         val file = tempFolder.createFile("dummy.txt")
         val nfsFile = NfsFile("dummy.txt", "Files/dummy.txt", file, file.absolutePath, "NOT_CALCULATED", -1)
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Study", files = listOf(left(nfsFile))))
-        val indexedRequestFile = SubmissionRequestFile(sub.accNo, sub.version, 1, "dummy.txt", nfsFile)
+        val indexedFile1 = SubmissionRequestFile(sub.accNo, sub.version, 1, "dummy.txt", nfsFile)
+        val indexedFile2 = SubmissionRequestFile(sub.accNo, sub.version, 2, "fire.txt", fireFile)
         val indexedRequest = SubmissionRequest(sub, "TMP_123", "user@test.org", INDEXED, 1, 0, testTime)
 
         every { requestService.getIndexedRequest(sub.accNo, sub.version) } returns indexedRequest
         every { requestService.saveSubmissionRequest(capture(loadedRequestSlot)) } returns (sub.accNo to sub.version)
         every {
             filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)
-        } returns listOf(indexedRequestFile).asSequence()
+        } returns listOf(indexedFile1, indexedFile2).asSequence()
         every {
             requestService.updateRequestFile(capture(requestFileSlot))
         } answers { nothing }

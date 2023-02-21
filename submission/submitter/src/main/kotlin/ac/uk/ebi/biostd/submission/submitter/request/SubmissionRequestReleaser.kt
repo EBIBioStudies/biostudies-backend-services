@@ -42,10 +42,8 @@ class SubmissionRequestReleaser(
 
         filesRequestService
             .getSubmissionRequestFiles(sub.accNo, sub.version, request.currentIndex)
-            .mapIndexed { idx, rqtFile ->
-                if (rqtFile.file is FireFile && (rqtFile.file as FireFile).published) rqtFile
-                else rqtFile.copy(file = releaseFile(sub, idx, rqtFile.file))
-            }
+            .filterNot { it.file is FireFile && (it.file as FireFile).published }
+            .mapIndexed { idx, rqtFile -> rqtFile.copy(file = releaseFile(sub, idx, rqtFile.file)) }
             .forEach { requestService.updateRequestFile(it) }
 
         logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
