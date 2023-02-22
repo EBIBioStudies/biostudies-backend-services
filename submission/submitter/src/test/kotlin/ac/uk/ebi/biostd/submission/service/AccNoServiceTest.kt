@@ -47,7 +47,7 @@ class AccNoServiceTest(
         "S-SCDT-EMBOR-2017-44445V1, '', S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1",
         "S-123, base-path/, base-path/S-/123/S-123",
         "S-123, /base-path, base-path/S-/123/S-123",
-        emptyValue =  ""
+        emptyValue = ""
     )
     fun getRelPath(value: String, subBasePath: String, expected: String) {
         val testInstance = AccNoService(service, accNoPatternUtil, privilegesService, subBasePath)
