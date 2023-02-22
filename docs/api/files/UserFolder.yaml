@@ -1,4 +1,4 @@
-get:
+post:
   summary: Create User Folder
   description: Create a folder inside the user's directory.
 
@@ -10,23 +10,13 @@ get:
       name: X-SESSION-TOKEN
       description: User authentication token
       required: true
-    - in: path
-      name: path
-      description: Path of the new folder.
-      required: false
-
-  requestBody:
-    required: true
-    content:
-      application/x-www-form-urlencoded:
-        schema:
-          type: object
-          properties:
-            fileName:
-              description: Name of the new folder
-              example: folder1
-              required: true
-              type: string
+      schema:
+        type: string
+    - name: folder
+      in: query
+      required: true
+      schema:
+        type: string
 
   responses:
     200:

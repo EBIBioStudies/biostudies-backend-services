@@ -12,35 +12,52 @@ post:
 
   parameters:
     - in: header
-      name: X-SESSION-TOKEN
+      name: X-Session-Token
       description: User authentication token
       required: true
-      type: string
+      schema:
+        type: string
+    - in: query
+      name: onBehalfRequest
+      description:
+        This param is used if the submission is performed on behalf of another user. It's not required.
+      schema:
+        type: object
+        required:
+          - userEmail
+        properties:
+          userEmail:
+            type: string
+            description:
+              The submission owner's email should be placed in this parameter.
+          userName:
+            type: string
+          register:
+            type: boolean
+            description:
+              This parameter indicates whether a new user should be registered in case the given owner doesn't exist.
 
-    requestBody:
+    - in: query
+      name: accNo
+      schema:
+        type: string
+      description: The accNo for the submission which files will be included in the search
+    - in: query
+      name: rootPath
+      schema:
+        type: string
+      description: Base path to search for the files in the user folder
+    - in: query
+      name: fileListName
       required: true
-      content:
-        application/x-www-form-urlencoded:
-          schema:
-            type: object
-            properties:
-              fileListName:
-                description: Path of the file list to be validated
-                required: true
-                type: string
-              rootPath:
-                description: Base path to search for the files in the user folder
-                required: false
-                type: string
-              accNo:
-                description: The accNo for the submission which files will be included in the search
-                required: false
-                type: string
+      schema:
+        type: string
+      description: Path of the file list to be validated
 
-    responses:
-      200:
-        description: No errors found in the file list
-      401:
-        description: Caused by an invalid X-SESSION-TOKEN
-      500:
-        description: The file list has errors
+  responses:
+    200:
+      description: No errors found in the file list
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN
+    500:
+      description: The file list has errors

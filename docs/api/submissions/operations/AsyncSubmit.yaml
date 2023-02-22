@@ -12,20 +12,26 @@ post:
     - Async Submissions
 
   parameters:
-    - in: header
-      name: X-SESSION-TOKEN
-      description: User authentication token
-      required: true
-      type: string
-    - in: header
-      name: Submission_Type
-      description: |
-        Page tab format used to perform the submission. Accepted values based on the format are:
-        * JSON: application/json
-        * TSV: text/plain
-        * XML: text/xml
-      required: true
-      type: string
+    - name: Content-Type
+      in: header
+      schema:
+        type: string
+        enum:
+          - multipart/form-data
+          - application/json
+    - name: Submission_Type
+      in: header
+      schema:
+        type: string
+        enum:
+          - application/json
+          - text/plain
+          - text/xml
+    - name: X-Session-Token
+      in: header
+      schema:
+        type: string
+      example: <auth-token>
 
     - in: query
       name: onBehalf
@@ -33,47 +39,114 @@ post:
         In case the submission is performed on behalf of another user, the submission owner's email should be placed in
         this parameter.
       required: false
-      type: string
+      schema:
+        type: string
+
     - in: query
-      name: register
+      name: onBehalfRequest
       description:
-        In case the submission is performed on behalf of another user, this parameter indicates whether a new user should
-        be registered in case the given owner doesn't exist.
-      required: false
-      type: string
+        This param is used if the submission is performed on behalf of another user. It's not required.
+      schema:
+        type: object
+        required:
+          - userEmail
+        properties:
+          userEmail:
+            type: string
+            description:
+              The submission owner's email should be placed in this parameter.
+          userName:
+            type: string
+          register:
+            type: boolean
+            description:
+              This parameter indicates whether a new user should be registered in case the given owner doesn't exist.
+
     - in: query
-      name: name
-      description: Name that will be used to create the new user in case the "sse" parameter is set to true.
-      required: false
-      type: string
+      name: preferredSources
+      schema:
+        type: array
+        items:
+          type: string
+          example:
+            - FIRE
+            - SUBMISSION
+            - USER_SPACE
+    - in: query
+      name: attributes
+      schema:
+        type: array
+        items:
+          type: object
+          required:
+            - name
+          properties:
+            name:
+              type: string
+            value:
+              type: string
+    - in: query
+      name: storageMode
+      schema:
+        type: string
+        enum:
+          - FIRE
+          - NFS
 
   requestBody:
     required: true
     content:
-      application/x-www-form-urlencoded:
+      application/json:
         schema:
           type: object
-          properties:
-            submission:
-              description: Submission page tab in the chosen format
-              required: true
-              type: string
+          example:
+            accno: <accNo>
             attributes:
-              description:
-                List of attributes that allow overriding any value at the submission level in the submitted page tab. The
-                values should be passed in the key=value format i.e. title=new title
-              required: false
-              type: string
+              - name: Title
+                value: <submission-title>
+              - name: ReleaseDate
+                value: <release-date>
+            section:
+              accno: <accno-section>
+              type: <section-type>
+              attributes:
+                - name: File List
+                  value: <fileList-fileName>
       multipart/form-data:
         schema:
           type: object
+          required:
+            - submission
+            - fileMode
           properties:
-            files:
+            submission:
+              type: string
+              example: |-
+                {
+                    "accno": <accNo>,
+                    "attributes" :[{
+                        "name" : Title,
+                        "value" : <submission-title>
+                    },
+                    {
+                        "name" : "ReleaseDate",
+                        "value" : "2021-05-30"
+                    }],
+                    "section" : {
+                        "accno" : <accno-section>,
+                        "type" : <section-type>,
+                        "attributes" : [{
+                                        "name" : File List,
+                                        "value" : <fileList-fileName>
+                                    }]
+                    }
+                }
+            fileMode:
+              type: string
+              example: COPY
+            Files:
               type: array
               items:
-                description: Files to be attached to the submission
-                example: file1.txt
-                required: false
                 type: string
                 format: binary
 
