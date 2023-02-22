@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.submission.exceptions.UserCanNotProvideAccessNumber
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
+import ebi.ac.uk.base.nullIfBlank
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
@@ -15,7 +16,7 @@ class AccNoService(
     private val service: PersistenceService,
     private val patternUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService,
-    private val subBasePath: String?,
+    private val subBasePath: String,
 ) {
     @Suppress("ThrowsCount")
     fun calculateAccNo(request: AccNoServiceRequest): AccNumber {
@@ -51,7 +52,7 @@ class AccNoService(
     internal fun getRelPath(accNo: AccNumber): String {
         val prefix = accNo.prefix
         val suffix = accNo.numericValue.orEmpty().padStart(3, '0')
-        val basePath = subBasePath?.trim('/')
+        val basePath = subBasePath.trim('/').nullIfBlank()
         val basicRelPath = "$prefix/${suffix.takeLast(PATH_DIGITS)}/$accNo".removePrefix("/")
         return if (basePath != null) "$basePath/$basicRelPath" else basicRelPath
     }
