@@ -43,3 +43,8 @@ internal object FileListValidationParameters {
     const val ROOT_PATH = "Base path to search for the files in the user folder"
     const val ACC_NO = "The accNo for the submission which files will be included in the search"
 }
+
+internal object TransferenceParameters {
+    const val ACC_NO = "Accession number of the submission to be transferred"
+    const val TARGET = "Determinate where submission need to be transferred to. Valid values are: FIRE/NFS"
+}

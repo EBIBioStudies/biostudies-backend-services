@@ -8,8 +8,6 @@ import java.time.OffsetDateTime
 
 enum class ExtSubmissionMethod { FILE, PAGE_TAB, UNKNOWN }
 
-enum class ExtProcessingStatus { PROCESSED, PROCESSING }
-
 enum class ExtFileType(val value: String) {
     FILE("file"),
     DIR("directory");

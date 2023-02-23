@@ -15,9 +15,12 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import com.google.common.collect.ImmutableList
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -60,20 +63,22 @@ class SubmissionDocDataRepository(
         return mongoTemplate.aggregate(aggregation, Result::class.java).uniqueMappedResult?.maxVersion
     }
 
-    fun expireActiveProcessedVersions(accNo: String) {
-        val criteria = where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0))
-        mongoTemplate.updateMulti(
-            Query(criteria),
-            ExtendedUpdate().multiply(SUB_VERSION, -1),
-            DocSubmission::class.java
-        )
-    }
-
     fun expireVersions(submissions: List<String>) {
         mongoTemplate.updateMulti(
             Query(where(SUB_ACC_NO).`in`(submissions).andOperator(where(SUB_VERSION).gt(0))),
             ExtendedUpdate().multiply(SUB_VERSION, -1).set(SUB_MODIFICATION_TIME, Instant.now()),
             DocSubmission::class.java
+        )
+        val fileListQuery = Query(
+            where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO).`in`(submissions)
+                .andOperator(where(FILE_LIST_DOC_FILE_SUBMISSION_VERSION).gt(0))
+        )
+        mongoTemplate.updateMulti(
+            fileListQuery,
+            ExtendedUpdate()
+                .multiply(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, -1)
+                .set(SUB_MODIFICATION_TIME, Instant.now()),
+            FileListDocFile::class.java
         )
     }
 

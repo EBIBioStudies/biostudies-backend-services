@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.storageMode
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.fileSequence
@@ -23,10 +24,7 @@ class SubmissionRequestFinalizer(
         val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
         val previous = queryService.findLatestInactiveByAccNo(accNo, includeFileListFiles = true)
 
-        if (previous != null) {
-            if (sub.storageMode == previous.storageMode) deleteRemainingFiles(sub, previous)
-            else storageService.deleteSubmissionFiles(previous)
-        }
+        if (previous != null) deleteRemainingFiles(sub, previous)
 
         requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED))
         return sub
@@ -41,7 +39,7 @@ class SubmissionRequestFinalizer(
         val subFiles = subFilesSet(sub)
         logger.info { "${sub.accNo} ${sub.owner} Started deleting remaining submission files" }
         serializationService.fileSequence(previous)
-            .filterNot { subFiles.contains(it.filePath) }
+            .filter { subFiles.contains(it.filePath).not() || it.storageMode != sub.storageMode }
             .forEachIndexed { index, file -> deleteFile(index, file) }
         logger.info { "${sub.accNo} ${sub.owner} Finished deleting remaining submission files" }
     }

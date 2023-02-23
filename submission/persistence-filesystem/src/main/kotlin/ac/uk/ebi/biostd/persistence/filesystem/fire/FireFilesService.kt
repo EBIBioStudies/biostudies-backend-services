@@ -7,6 +7,7 @@ import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.asFireFile
 import ebi.ac.uk.extended.model.expectedPath
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
@@ -86,26 +87,14 @@ class FireFilesService(
         val apiFile = matches.find { it.path == expectedPath }
             ?: matches.find { it.path == null }
             ?: client.save(file.file, file.md5, file.size)
-        val fireFile = asFireFile(file, apiFile.fireOid, apiFile.path, apiFile.published)
+        val fireFile = file.asFireFile(apiFile.fireOid, apiFile.path, apiFile.published)
         return getOrCreate(fireFile, expectedPath)
     }
 
     private fun setMetadata(fireOid: String, file: ExtFile, expectedPath: String, published: Boolean): FireFile {
         client.setPath(fireOid, expectedPath)
-        return asFireFile(file, fireOid, expectedPath, published)
+        return file.asFireFile(fireOid, expectedPath, published)
     }
-
-    private fun asFireFile(file: ExtFile, fireId: String, firePath: String?, published: Boolean): FireFile = FireFile(
-        fireId = fireId,
-        firePath = firePath,
-        published = published,
-        filePath = file.filePath,
-        relPath = file.relPath,
-        md5 = file.md5,
-        size = file.size,
-        type = file.type,
-        attributes = file.attributes
-    )
 
     override fun deleteFtpLinks(sub: ExtSubmission) {
         // No need to delete FTP links on FIRE

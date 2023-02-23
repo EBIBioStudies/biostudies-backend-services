@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.client.integration.web.ExtSubmissionOperations
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.util.date.toStringInstant
 import ebi.ac.uk.util.web.optionalQueryParam
@@ -57,6 +58,10 @@ class ExtSubmissionClient(
             "$EXT_SUBMISSIONS_URL/async",
             HttpEntity(getMultipartBody(extSubmission))
         )
+    }
+
+    override fun transferSubmission(accNo: String, target: StorageMode) {
+        restTemplate.postForEntity<String>("$EXT_SUBMISSIONS_URL/$accNo/transfer/$target")
     }
 
     private fun asUrl(extPageQuery: ExtPageQuery): String =

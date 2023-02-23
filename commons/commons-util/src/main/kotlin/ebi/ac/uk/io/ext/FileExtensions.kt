@@ -12,7 +12,7 @@ import kotlin.text.Charsets.UTF_8
 
 fun File.notExist() = Files.exists(toPath()).not()
 
-fun File.asFileList(): List<File> = FileUtils.listFiles(this)
+fun File.listFilesOrEmpty(): List<File> = FileUtils.listFiles(this)
 
 fun File.allSubFiles(): List<File> = FileUtils.listAllFiles(this)
 

@@ -3,12 +3,18 @@ package ac.uk.ebi.biostd.persistence.doc.db.data
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocCollection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import ebi.ac.uk.extended.model.createNfsFile
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -28,16 +34,18 @@ import java.time.Instant.ofEpochSecond
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-@ExtendWith(SpringExtension::class)
+@ExtendWith(SpringExtension::class, TemporaryFolderExtension::class)
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
-internal class SubmissionDocDataRepositoryTest {
-    @Autowired
-    lateinit var testInstance: SubmissionDocDataRepository
-
+internal class SubmissionDocDataRepositoryTest(
+    private val tempFolder: TemporaryFolder,
+    @Autowired private val testInstance: SubmissionDocDataRepository,
+    @Autowired private val fileListDocFileRepo: FileListDocFileDocDataRepository,
+) {
     @BeforeEach
     fun beforeEach() {
         testInstance.deleteAll()
+        fileListDocFileRepo.deleteAll()
     }
 
     @Nested
@@ -55,13 +63,40 @@ internal class SubmissionDocDataRepositoryTest {
     inner class ExpireSubmissions {
         @Test
         fun `expire active processed versions`() {
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -1))
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = 2))
+            val referencedFile = tempFolder.createFile("referenced.txt")
+            val file = createNfsFile("referenced.txt", "Files/referenced.txt", referencedFile)
+            val fileListFile = FileListDocFile(
+                id = ObjectId(),
+                submissionId = testDocSubmission.id,
+                file = file.toDocFile(),
+                fileListName = "file-list",
+                index = 1,
+                submissionVersion = 1,
+                submissionAccNo = "S-BSST4"
+            )
 
-            testInstance.expireActiveProcessedVersions("S-BSST4")
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4"))
+            fileListDocFileRepo.save(fileListFile)
+
+            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = 2))
+            fileListDocFileRepo.save(fileListFile.copy(id = ObjectId(), submissionVersion = 2))
+
+            testInstance.expireVersions(listOf("S-BSST4"))
 
             assertThat(testInstance.getByAccNoAndVersion("S-BSST4", version = -1)).isNotNull
             assertThat(testInstance.getByAccNoAndVersion("S-BSST4", version = -2)).isNotNull
+            assertThat(
+                fileListDocFileRepo
+                    .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName("S-BSST4", 0, "file-list")
+            ).isEmpty()
+            assertThat(
+                fileListDocFileRepo
+                    .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName("S-BSST4", -1, "file-list")
+            ).hasSize(1)
+            assertThat(
+                fileListDocFileRepo
+                    .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName("S-BSST4", -2, "file-list")
+            ).hasSize(1)
         }
     }
 

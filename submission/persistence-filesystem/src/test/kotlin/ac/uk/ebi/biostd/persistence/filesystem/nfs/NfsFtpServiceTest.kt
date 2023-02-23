@@ -5,8 +5,8 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
-import ebi.ac.uk.io.ext.asFileList
 import ebi.ac.uk.io.ext.createNewFile
+import ebi.ac.uk.io.ext.listFilesOrEmpty
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.paths.SubmissionFolderResolver
@@ -65,12 +65,12 @@ internal class NfsFtpServiceTest(
     }
 
     private fun assertFolder(ftpFolder: File) {
-        val directory = ftpFolder.asFileList().first()
+        val directory = ftpFolder.listFilesOrEmpty().first()
         assertThat(directory).hasName(expectedDirectory.name)
         assertThat(directory).isDirectory()
         assertThat(Files.getPosixFilePermissions(directory.toPath())).hasSameElementsAs(RWXR_XR_X)
 
-        val files = directory.asFileList().sortedBy { it.name }
+        val files = directory.listFilesOrEmpty().sortedBy { it.name }
         assertFile(files.first(), expectedFile1.name, expectedFile1.readText())
     }
 
