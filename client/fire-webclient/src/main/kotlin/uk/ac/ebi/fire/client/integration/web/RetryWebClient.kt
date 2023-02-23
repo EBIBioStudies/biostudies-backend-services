@@ -25,14 +25,9 @@ internal class RetryWebClient(
         template.execute(opt) { fireClient.unsetPath(fireOid) }
     }
 
-    override fun downloadByPath(path: String): File? {
+    override fun downloadByPath(path: String): File {
         val opt = "Download file path='$path'"
         return template.execute(opt) { fireClient.downloadByPath(path) }
-    }
-
-    override fun downloadByFireId(fireOid: String, fileName: String): File {
-        val opt = "Download file fireOid='$fireOid', fileName='$fileName'"
-        return template.execute(opt) { fireClient.downloadByFireId(fireOid, fileName) }
     }
 
     override fun findByMd5(md5: String): List<FireApiFile> {

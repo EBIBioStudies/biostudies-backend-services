@@ -120,23 +120,6 @@ class FireWebClientTest(
     }
 
     @Test
-    fun `download by fireId`() {
-        val file = tmpFolder.createFile("test.txt", "test content")
-
-        every {
-            template.getForObject("/objects/blob/fireOId", ByteArray::class.java)
-        } returns file.readBytes()
-
-        val downloadedFile = testInstance.downloadByFireId("fireOId", "file1.txt")
-
-        assertThat(downloadedFile.readText()).isEqualTo("test content")
-        assertThat(downloadedFile.absolutePath).isEqualTo("${tmpFolder.root.absolutePath}/file1.txt")
-        verify(exactly = 1) {
-            template.getForObject("/objects/blob/fireOId", ByteArray::class.java)
-        }
-    }
-
-    @Test
     fun `find by md5`(@MockK fireFile: FireApiFile) {
         every { template.getForObject<Array<FireApiFile>>("/objects/md5/the-md5") } returns arrayOf(fireFile)
 

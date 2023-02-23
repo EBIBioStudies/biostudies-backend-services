@@ -48,14 +48,9 @@ internal class FireWebClient(
 
     override fun downloadByPath(
         path: String,
-    ): File? = findByPath(path)?.let {
-        downloadFireFile(path.substringAfterLast("/"), "/objects/blob/path/$path")
+    ): File {
+        return downloadFireFile(path.substringAfterLast("/"), "/objects/blob/path/$path")
     }
-
-    override fun downloadByFireId(
-        fireOid: String,
-        fileName: String,
-    ): File = downloadFireFile(fileName, "/objects/blob/$fireOid")
 
     private fun downloadFireFile(fileName: String, downloadUrl: String): File {
         val tmpFile = File(tmpDirPath, fileName)
