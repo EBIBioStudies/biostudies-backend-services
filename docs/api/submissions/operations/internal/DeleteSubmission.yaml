@@ -1,6 +1,6 @@
 delete:
-  summary: Delete submissions
-  description: Deletes the submissions with the accession numbers in the given list.
+  summary: Delete submission
+  description: Deletes the submission with the given accession number.
 
   tags:
     - Submissions
@@ -11,12 +11,11 @@ delete:
       description: User authentication token
       required: true
       type: String
-
-    - in: query
-        name: submissions
-        description: Comma separated list with accession numbers of the submissions to be deleted.
-        required: true
-        type: string
+    - in: path
+      name: accNo
+      description: Submission accession number
+      required: true
+      type: string
 
   responses:
     200:
