@@ -1,0 +1,4 @@
+post:
+  $ref: 'SubmitInternal.yaml'
+delete:
+  $ref: 'DeleteSubmissions.yaml'

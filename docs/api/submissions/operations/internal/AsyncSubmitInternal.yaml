@@ -27,6 +27,26 @@ post:
       required: true
       type: string
 
+    - in: query
+      name: onBehalf
+      description:
+        In case the submission is performed on behalf of another user, the submission owner's email should be placed in
+        this parameter.
+      required: false
+      type: string
+    - in: query
+      name: register
+      description:
+        In case the submission is performed on behalf of another user, this parameter indicates whether a new user 
+        should be registered in case the given owner doesn't exist.
+      required: false
+      type: string
+    - in: query
+      name: name
+      description: Name that will be used to create the new user in case the "register" parameter is set to true.
+      required: false
+      type: string
+
   requestBody:
     required: true
     content:
@@ -37,6 +57,12 @@ post:
             submission:
               description: Submission page tab in the chosen format
               required: true
+              type: string
+            attributes:
+              description:
+                List of attributes that allow overriding any value at the submission level in the submitted page tab. The
+                values should be passed in the key=value format i.e. title=new title
+              required: false
               type: string
       multipart/form-data:
         schema:
