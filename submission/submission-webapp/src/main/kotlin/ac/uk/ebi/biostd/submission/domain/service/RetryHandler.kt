@@ -21,7 +21,7 @@ class RetryHandler(
     @EventListener(ApplicationReadyEvent::class)
     fun onStart() {
         logger.info { "Re processing pending submission on application start" }
-        requestService.getProcessingRequests()
+        requestService.getProcessingRequests(Duration.of(3, ChronoUnit.HOURS))
             .forEach { (accNo, version) -> reTriggerSafely(accNo, version) }
     }
 
