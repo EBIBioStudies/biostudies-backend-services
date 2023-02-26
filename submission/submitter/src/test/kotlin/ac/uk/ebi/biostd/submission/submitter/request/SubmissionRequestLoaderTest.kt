@@ -7,7 +7,9 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import arrow.core.Either.Companion.left
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
@@ -51,9 +53,11 @@ class SubmissionRequestLoaderTest(
     }
 
     @Test
-    fun `load request`() {
+    fun `load request`(
+        @MockK fireFile: FireFile,
+    ) {
         val loadedRequestSlot = slot<SubmissionRequest>()
-        val requestFileSlot = slot<SubmissionRequestFile>()
+        val filSlot = slot<ExtFile>()
         val file = tempFolder.createFile("dummy.txt")
         val nfsFile = NfsFile("dummy.txt", "Files/dummy.txt", file, file.absolutePath, "NOT_CALCULATED", -1)
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Study", files = listOf(left(nfsFile))))
@@ -65,15 +69,13 @@ class SubmissionRequestLoaderTest(
         every {
             filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)
         } returns listOf(indexedRequestFile).asSequence()
-        every {
-            requestService.updateRequestFile(capture(requestFileSlot))
-        } answers { nothing }
+        every { requestService.updateRqtIndex(sub.accNo, sub.version, 1, capture(filSlot)) } answers { nothing }
 
         testInstance.loadRequest(sub.accNo, sub.version)
 
-        val requestFile = requestFileSlot.captured
-        assertThat(requestFile.file.md5).isEqualTo(file.md5())
-        assertThat(requestFile.file.size).isEqualTo(file.size())
+        val requestFile = filSlot.captured
+        assertThat(requestFile.md5).isEqualTo(file.md5())
+        assertThat(requestFile.size).isEqualTo(file.size())
 
         val loadedRequest = loadedRequestSlot.captured
         assertThat(loadedRequest.submission).isEqualTo(sub)
@@ -86,7 +88,6 @@ class SubmissionRequestLoaderTest(
 
         verify(exactly = 1) {
             requestService.saveSubmissionRequest(loadedRequest)
-            requestService.updateRequestFile(requestFile)
         }
     }
 }

@@ -72,8 +72,8 @@ class SubmissionRequestReleaserTest(
         every { storageService.releaseSubmissionFile(nfsFile, relPath, mode) } answers { releasedFile }
         every { requestService.saveSubmissionRequest(rqt.withNewStatus(CHECK_RELEASED)) } answers { accNo to version }
         every { requestService.getFilesCopiedRequest(accNo, version) } returns rqt
-        every { requestService.updateRequestFile(nfsRqtFile.copy(file = releasedFile)) } answers { nothing }
-        every { requestService.updateRequestFile(fireRqtFile) } answers { nothing }
+        every { requestService.updateRqtIndex(accNo, version, 1, releasedFile) } answers { nothing }
+        every { requestService.updateRqtIndex(accNo, version, 2, null) } answers { nothing }
 
         testInstance.checkReleased(accNo, version)
 

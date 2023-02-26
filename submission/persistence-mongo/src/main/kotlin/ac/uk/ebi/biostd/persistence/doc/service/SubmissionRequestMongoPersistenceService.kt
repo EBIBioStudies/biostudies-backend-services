@@ -11,11 +11,11 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
+import ebi.ac.uk.extended.model.ExtFile
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
@@ -51,9 +51,9 @@ class SubmissionRequestMongoPersistenceService(
         return request.accNo to request.version
     }
 
-    override fun updateRequestFile(file: SubmissionRequestFile) {
-        requestRepository.updateSubmissionRequestFile(file)
-        requestRepository.updateIndex(file.accNo, file.version, file.index)
+    override fun updateRqtIndex(accNo: String, version: Int, index: Int, file: ExtFile?) {
+        if (file != null) requestRepository.updateSubmissionRequestFile(accNo, version, file)
+        requestRepository.updateIndex(accNo, version, index)
     }
 
     override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {

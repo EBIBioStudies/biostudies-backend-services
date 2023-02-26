@@ -26,26 +26,25 @@ class SubmissionRequestLoader(
 
         logger.info { "${sub.accNo} ${sub.owner} Started loading submission files" }
 
-        loadSubmissionFiles(sub, request.currentIndex)
+        loadSubmissionFiles(accNo, version, sub, request.currentIndex)
         requestService.saveSubmissionRequest(request.withNewStatus(LOADED))
 
         logger.info { "${sub.accNo} ${sub.owner} Finished loading submission files" }
     }
 
-    private fun loadSubmissionFiles(sub: ExtSubmission, startingAt: Int) {
+    private fun loadSubmissionFiles(accNo: String, version: Int, sub: ExtSubmission, startingAt: Int) {
         filesRequestService
-            .getSubmissionRequestFiles(sub.accNo, sub.version, startingAt)
-            .map {
-                logger.info { "${sub.accNo} ${sub.owner} Started loading file ${it.index}, path='${it.path}'" }
-                it.copy(file = loadFileAttributes(it.file))
-            }
+            .getSubmissionRequestFiles(accNo, sub.version, startingAt)
             .forEach {
-                requestService.updateRequestFile(it)
-                logger.info { "${sub.accNo} ${sub.owner} Finished loading file ${it.index}, path='${it.path}'" }
+                when (val file = it.file) {
+                    is FireFile -> requestService.updateRqtIndex(accNo, version, it.index)
+                    is NfsFile -> requestService.updateRqtIndex(accNo, version, it.index, file = loadAttributes(file))
+                }
+                logger.info { "$accNo ${sub.owner} Finished loading file ${it.index}, path='${it.path}'" }
             }
     }
 
-    private fun loadFileAttributes(file: ExtFile): ExtFile = when (file) {
+    private fun loadAttributes(file: ExtFile): ExtFile = when (file) {
         is FireFile -> file
         is NfsFile -> file.copy(md5 = file.file.md5(), size = file.file.size())
     }

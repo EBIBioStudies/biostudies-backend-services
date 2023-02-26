@@ -32,6 +32,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
+import ebi.ac.uk.extended.model.ExtFile
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
@@ -96,11 +97,10 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java)
     }
 
-    fun updateSubmissionRequestFile(rqtFile: SubmissionRequestFile) {
-        val file = BasicDBObject.parse(extSerializationService.serialize(rqtFile.file))
-        val update = update(RQT_FILE_FILE, file).set(RQT_FILE_INDEX, rqtFile.index)
-        val where = where(RQT_FILE_SUB_ACC_NO).`is`(rqtFile.accNo)
-            .andOperator(where(RQT_FILE_SUB_VERSION).`is`(rqtFile.version), where(RQT_FILE_PATH).`is`(rqtFile.path))
+    fun updateSubmissionRequestFile(accNo: String, version: Int, file: ExtFile) {
+        val update = update(RQT_FILE_FILE, BasicDBObject.parse(extSerializationService.serialize(file)))
+        val where = where(RQT_FILE_SUB_ACC_NO).`is`(accNo)
+            .andOperator(where(RQT_FILE_SUB_VERSION).`is`(version), where(RQT_FILE_PATH).`is`(file.filePath))
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java)
     }
 

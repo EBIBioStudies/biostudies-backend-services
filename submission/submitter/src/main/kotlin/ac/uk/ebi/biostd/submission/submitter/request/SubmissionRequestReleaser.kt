@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.fileSequence
@@ -30,25 +31,32 @@ class SubmissionRequestReleaser(
      */
     fun checkReleased(accNo: String, version: Int) {
         val request = requestService.getFilesCopiedRequest(accNo, version)
-        if (request.submission.released) releaseRequest(request)
+        if (request.submission.released) releaseRequest(accNo, version, request)
         requestService.saveSubmissionRequest(request.withNewStatus(CHECK_RELEASED))
     }
 
     private fun releaseRequest(
+        accNo: String,
+        version: Int,
         request: SubmissionRequest,
     ) {
         val sub = request.submission
-        logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
-
+        logger.info { "$accNo ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
         filesRequestService
             .getSubmissionRequestFiles(sub.accNo, sub.version, request.currentIndex)
-            .mapIndexed { idx, rqtFile ->
-                if (rqtFile.file is FireFile && (rqtFile.file as FireFile).published) rqtFile
-                else rqtFile.copy(file = releaseFile(sub, idx, rqtFile.file))
-            }
-            .forEach { requestService.updateRequestFile(it) }
+            .forEach {
+                when (val file = it.file) {
+                    is NfsFile ->
+                        requestService.updateRqtIndex(accNo, version, it.index, releaseFile(sub, it.index, file))
 
-        logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
+                    is FireFile -> {
+                        if (file.published) requestService.updateRqtIndex(accNo, version, it.index)
+                        else requestService.updateRqtIndex(accNo, version, it.index, releaseFile(sub, it.index, file))
+                    }
+                }
+            }
+
+        logger.info { "$accNo ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
     }
 
     /**
