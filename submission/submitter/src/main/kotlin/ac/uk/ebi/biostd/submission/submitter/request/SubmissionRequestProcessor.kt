@@ -36,8 +36,8 @@ class SubmissionRequestProcessor(
                 it to storageService.persistSubmissionFile(sub, it.file)
             }
             .forEach { (record, releasedFile) ->
-                when {
-                    record.equals(releasedFile) -> requestService.updateRqtIndex(accNo, version, record.index)
+                when (releasedFile) {
+                    record.file -> requestService.updateRqtIndex(accNo, version, record.index)
                     else -> requestService.updateRqtIndex(accNo, version, record.index, releasedFile)
                 }
                 logger.info {
