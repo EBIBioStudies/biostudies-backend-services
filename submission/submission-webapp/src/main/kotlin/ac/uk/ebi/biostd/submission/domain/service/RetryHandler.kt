@@ -13,6 +13,7 @@ private val logger = KotlinLogging.logger {}
 /**
  * Re trigger pending per processing request on application start.
  */
+@Suppress("MagicNumber")
 class RetryHandler(
     private val extSubmissionService: ExtSubmissionService,
     private val requestService: SubmissionRequestPersistenceService,
@@ -21,12 +22,11 @@ class RetryHandler(
     @EventListener(ApplicationReadyEvent::class)
     fun onStart() {
         logger.info { "Re processing pending submission on application start" }
-        requestService.getProcessingRequests()
+        requestService.getProcessingRequests(Duration.of(3, ChronoUnit.HOURS))
             .forEach { (accNo, version) -> reTriggerSafely(accNo, version) }
     }
 
     @Scheduled(cron = "0 0 */3 * * ?")
-    @Suppress("MagicNumber")
     fun onSchedule() {
         logger.info { "Scheduled re processing of pending submission" }
         requestService.getProcessingRequests(Duration.of(3, ChronoUnit.HOURS))
