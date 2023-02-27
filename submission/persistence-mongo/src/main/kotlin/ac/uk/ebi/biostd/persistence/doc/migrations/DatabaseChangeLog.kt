@@ -228,5 +228,14 @@ class ChangeLog009 {
                     .on(RQT_FILE_PATH, ASC)
             )
         }
+
+        template.indexOps(DocSubmissionRequestFile::class.java).apply {
+            ensureIndex(
+                Index()
+                    .on(RQT_FILE_SUB_ACC_NO, ASC)
+                    .on(RQT_FILE_SUB_VERSION, ASC)
+                    .on(RQT_FILE_INDEX, ASC)
+            )
+        }
     }
 }

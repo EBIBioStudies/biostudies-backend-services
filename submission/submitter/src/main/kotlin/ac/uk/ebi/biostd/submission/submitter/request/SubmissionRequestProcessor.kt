@@ -35,13 +35,13 @@ class SubmissionRequestProcessor(
                 logger.info { "$accNo ${sub.owner} Started persisting file ${it.index}, path='${it.path}'" }
                 it to storageService.persistSubmissionFile(sub, it.file)
             }
-            .forEach { (record, releasedFile) ->
+            .forEach { (rqt, releasedFile) ->
                 when (releasedFile) {
-                    record.file -> requestService.updateRqtIndex(accNo, version, record.index)
-                    else -> requestService.updateRqtIndex(accNo, version, record.index, releasedFile)
+                    rqt.file -> requestService.updateRqtIndex(accNo, version, rqt.index)
+                    else -> requestService.updateRqtIndex(rqt, releasedFile)
                 }
                 logger.info {
-                    "$accNo ${sub.owner} Finished persisting file ${record.index}, path='${record.path}'"
+                    "$accNo ${sub.owner} Finished persisting file ${rqt.index}, path='${rqt.path}'"
                 }
             }
     }

@@ -69,7 +69,7 @@ class SubmissionRequestLoaderTest(
         every {
             filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)
         } returns listOf(indexedRequestFile).asSequence()
-        every { requestService.updateRqtIndex(sub.accNo, sub.version, 1, capture(filSlot)) } answers { nothing }
+        every { requestService.updateRqtIndex(indexedRequestFile, capture(filSlot)) } answers { nothing }
 
         testInstance.loadRequest(sub.accNo, sub.version)
 

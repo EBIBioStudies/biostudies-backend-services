@@ -49,7 +49,7 @@ class SubmissionRequestProcessorTest(
         every { storageService.persistSubmissionFile(submission, nfsFile) } answers { releasedFile }
         every { requestService.saveSubmissionRequest(rqt.withNewStatus(FILES_COPIED)) } answers { accNo to version }
         every { requestService.getCleanedRequest(accNo, version) } returns rqt
-        every { requestService.updateRqtIndex(accNo, version, 1, releasedFile) } answers { nothing }
+        every { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
 
         testInstance.processRequest(accNo, version)
 

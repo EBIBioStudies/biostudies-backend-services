@@ -64,7 +64,9 @@ interface SubmissionRequestPersistenceService {
 
     fun createSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 
-    fun updateRqtIndex(accNo: String, version: Int, index: Int, file: ExtFile? = null)
+    fun updateRqtIndex(accNo: String, version: Int, index: Int)
+
+    fun updateRqtIndex(requestFile: SubmissionRequestFile, file: ExtFile)
 
     fun getPendingRequest(accNo: String, version: Int): SubmissionRequest
 
@@ -82,6 +84,8 @@ interface SubmissionRequestPersistenceService {
 
     fun getRequestStatus(accNo: String, version: Int): RequestStatus
 }
+
+data class UpdatedFile(val path: String, val file: ExtFile)
 
 interface SubmissionRequestFilesPersistenceService {
     fun saveSubmissionRequestFile(file: SubmissionRequestFile)

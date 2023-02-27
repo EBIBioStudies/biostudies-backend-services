@@ -97,10 +97,10 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java)
     }
 
-    fun updateSubmissionRequestFile(accNo: String, version: Int, file: ExtFile) {
+    fun updateSubmissionRequestFile(accNo: String, version: Int, filePath: String, file: ExtFile) {
         val update = update(RQT_FILE_FILE, BasicDBObject.parse(extSerializationService.serialize(file)))
         val where = where(RQT_FILE_SUB_ACC_NO).`is`(accNo)
-            .andOperator(where(RQT_FILE_SUB_VERSION).`is`(version), where(RQT_FILE_PATH).`is`(file.filePath))
+            .andOperator(where(RQT_FILE_SUB_VERSION).`is`(version), where(RQT_FILE_PATH).`is`(filePath))
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java)
     }
 

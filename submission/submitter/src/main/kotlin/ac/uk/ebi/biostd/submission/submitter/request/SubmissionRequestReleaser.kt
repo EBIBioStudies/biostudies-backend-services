@@ -47,11 +47,11 @@ class SubmissionRequestReleaser(
             .forEach {
                 when (val file = it.file) {
                     is NfsFile ->
-                        requestService.updateRqtIndex(accNo, version, it.index, releaseFile(sub, it.index, file))
+                        requestService.updateRqtIndex(it, releaseFile(sub, it.index, file))
 
                     is FireFile -> {
                         if (file.published) requestService.updateRqtIndex(accNo, version, it.index)
-                        else requestService.updateRqtIndex(accNo, version, it.index, releaseFile(sub, it.index, file))
+                        else requestService.updateRqtIndex(it, releaseFile(sub, it.index, file))
                     }
                 }
             }
