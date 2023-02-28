@@ -4,6 +4,7 @@ import ebi.ac.uk.model.Submission
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
+import uk.ac.ebi.biostd.client.cli.dto.TransferRequest
 import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 
 @Suppress("TooManyFunctions")
@@ -16,6 +17,11 @@ internal class SubmissionService {
     fun submitAsync(request: SubmissionRequest) = performRequest {
         val client = bioWebClient(request.securityConfig)
         client.asyncSubmitSingle(request.submissionFile, request.filesConfig)
+    }
+
+    fun transfer(request: TransferRequest) = performRequest {
+        val client = bioWebClient(request.securityConfig)
+        client.transferSubmission(request.accNo, request.target)
     }
 
     fun delete(request: DeletionRequest) = performRequest {

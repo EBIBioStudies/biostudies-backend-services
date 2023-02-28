@@ -38,6 +38,7 @@ import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -224,16 +225,18 @@ class SubmitterConfig {
 
     @Configuration
     @Suppress("MagicNumber")
+    @EnableConfigurationProperties
     class ServiceConfig(
         private val service: PersistenceService,
         private val queryService: SubmissionMetaQueryService,
         private val userPrivilegesService: IUserPrivilegesService,
+        private val properties: ApplicationProperties,
     ) {
         @Bean
         fun accNoPatternUtil() = AccNoPatternUtil()
 
         @Bean
-        fun accNoService() = AccNoService(service, accNoPatternUtil(), userPrivilegesService)
+        fun accNoService() = AccNoService(service, accNoPatternUtil(), userPrivilegesService, properties.subBasePath)
 
         @Bean
         fun parentInfoService(beanFactory: BeanFactory) = ParentInfoService(beanFactory, queryService)

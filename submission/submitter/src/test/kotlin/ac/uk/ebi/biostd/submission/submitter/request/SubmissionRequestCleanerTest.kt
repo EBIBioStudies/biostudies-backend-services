@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode.FIRE
-import ebi.ac.uk.extended.model.StorageMode.NFS
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -71,31 +70,7 @@ class SubmissionRequestCleanerTest(
     }
 
     @Test
-    fun `clean common files with current version different storage mode`(
-        @MockK new: ExtSubmission,
-        @MockK current: ExtSubmission,
-        @MockK loadedRequest: SubmissionRequest,
-        @MockK cleanedRequest: SubmissionRequest,
-    ) {
-        every { new.storageMode } returns FIRE
-        every { current.storageMode } returns NFS
-        every { loadedRequest.submission } returns new
-        every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
-        every { queryService.findExtByAccNo("S-BSST1", true) } returns current
-        every { requestService.getLoadedRequest("S-BSST1", 2) } returns loadedRequest
-        every { requestService.saveSubmissionRequest(cleanedRequest) } returns ("S-BSST1" to 2)
-
-        testInstance.cleanCurrentVersion("S-BSST1", 2)
-
-        verify(exactly = 1) { requestService.saveSubmissionRequest(cleanedRequest) }
-        verify(exactly = 0) {
-            storageService.deleteFtpLinks(any())
-            storageService.deleteSubmissionFile(any(), any())
-        }
-    }
-
-    @Test
-    fun `clean common files with current version same storage mode`(
+    fun `clean common files with current version`(
         @MockK newFile: ExtFile,
         @MockK currentFile: ExtFile,
         @MockK loadedRequest: SubmissionRequest,

@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.model.constants.SUBMISSION
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -153,6 +154,19 @@ class ExtSubmissionClientTest(
         assertHttpEntity(captured)
         verify(exactly = 1) { extSerializationService.serialize(extSubmission) }
         verify(exactly = 1) { restTemplate.postForEntity("$EXT_SUBMISSIONS_URL/async", captured, String::class.java) }
+    }
+
+    @Test
+    fun `transfer submission`() {
+        every {
+            restTemplate.postForEntity("$EXT_SUBMISSIONS_URL/S-BSST1/transfer/FIRE", null, String::class.java)
+        } returns ResponseEntity("ExtSubmission", OK)
+
+        testInstance.transferSubmission("S-BSST1", FIRE)
+
+        verify(exactly = 1) {
+            restTemplate.postForEntity("$EXT_SUBMISSIONS_URL/S-BSST1/transfer/FIRE", null, String::class.java)
+        }
     }
 
     private fun assertHttpEntity(entity: HttpEntity<LinkedMultiValueMap<String, Any>>) {

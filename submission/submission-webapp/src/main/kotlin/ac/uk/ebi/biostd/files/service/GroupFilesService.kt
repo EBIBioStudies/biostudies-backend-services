@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.files.model.FilesSpec
 import ac.uk.ebi.biostd.files.utils.transferTo
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.FileUtils
-import ebi.ac.uk.io.ext.asFileList
+import ebi.ac.uk.io.ext.listFilesOrEmpty
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
@@ -15,7 +15,7 @@ class GroupFilesService {
     fun listFiles(groupName: String, user: SecurityUser, path: String): FilesSpec {
         val groupPath = getGroupPath(groupName, user)
         val file = groupPath.resolve(path).toFile()
-        return FilesSpec(groupPath, file.asFileList())
+        return FilesSpec(groupPath, file.listFilesOrEmpty())
     }
 
     fun uploadFiles(groupName: String, user: SecurityUser, path: String, files: Array<MultipartFile>) {

@@ -30,11 +30,13 @@ import ebi.ac.uk.model.extensions.title
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
@@ -44,13 +46,13 @@ import kotlin.test.assertFailsWith
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT)
 class SubmissionApiTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val sequenceRepository: SequenceDataRepository,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
-    @LocalServerPort val serverPort: Int
+    @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -245,6 +247,38 @@ class SubmissionApiTest(
         val expectedFile = File("$submissionPath/${submitted.relPath}/Files/file_16-9.txt")
         assertThat(submissionFiles).containsOnly(expectedFile)
         assertThat(expectedFile).hasContent("16-9 file content")
+    }
+
+    @Nested
+    @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=base/path"])
+    inner class SubmitWebBasePath(@LocalServerPort val serverPort: Int) {
+        private lateinit var webClient: BioWebClient
+
+        @BeforeAll
+        fun init() {
+            webClient = getWebClient(serverPort, SuperUser)
+        }
+
+        @Test
+        fun `submission when the system has the basePath property configured`() {
+            val submission = tsv {
+                line("Submission", "S-12366")
+                line("Title", "Sample Submission")
+                line()
+
+                line("Study")
+                line()
+
+                line("File", "file12366.txt")
+                line()
+            }.toString()
+            webClient.uploadFiles(listOf(tempFolder.createFile("file12366.txt", "An example content")))
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val extSub = submissionRepository.getExtByAccNo("S-12366")
+            assertThat(extSub.relPath).isEqualTo("base/path/S-/366/S-12366")
+        }
     }
 
     private fun getSimpleSubmission(accNo: String) =

@@ -14,7 +14,8 @@ const val PATH_DIGITS = 3
 class AccNoService(
     private val service: PersistenceService,
     private val patternUtil: AccNoPatternUtil,
-    private val privilegesService: IUserPrivilegesService
+    private val privilegesService: IUserPrivilegesService,
+    private val subBasePath: String?,
 ) {
     @Suppress("ThrowsCount")
     fun calculateAccNo(request: AccNoServiceRequest): AccNumber {
@@ -50,7 +51,9 @@ class AccNoService(
     internal fun getRelPath(accNo: AccNumber): String {
         val prefix = accNo.prefix
         val suffix = accNo.numericValue.orEmpty().padStart(3, '0')
-        return "$prefix/${suffix.takeLast(PATH_DIGITS)}/$accNo".removePrefix("/")
+        val basePath = subBasePath?.trim('/')
+        val basicRelPath = "$prefix/${suffix.takeLast(PATH_DIGITS)}/$accNo".removePrefix("/")
+        return if (basePath != null) "$basePath/$basicRelPath" else basicRelPath
     }
 
     private fun getPattern(parentPattern: String?) = when (parentPattern) {
@@ -64,5 +67,5 @@ data class AccNoServiceRequest(
     val accNo: String? = null,
     val isNew: Boolean = true,
     val project: String? = null,
-    val projectPattern: String? = null
+    val projectPattern: String? = null,
 )

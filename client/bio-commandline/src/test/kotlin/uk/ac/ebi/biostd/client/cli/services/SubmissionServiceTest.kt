@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient.Companion.creat
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.PrintMessage
 import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.Submission
 import io.mockk.clearAllMocks
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
+import uk.ac.ebi.biostd.client.cli.dto.TransferRequest
 import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 
 @ExtendWith(MockKExtension::class)
@@ -67,6 +69,22 @@ internal class SubmissionServiceTest {
                 subRequest.submissionFile,
                 subRequest.filesConfig
             )
+        }
+    }
+
+    @Test
+    fun `transfer submission`() {
+        val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
+        val request = TransferRequest(ACC_NO, NFS, securityConfig)
+
+        every { bioWebClient.transferSubmission(ACC_NO, NFS) } answers { nothing }
+        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns bioWebClient
+
+        testInstance.transfer(request)
+
+        verify(exactly = 1) {
+            bioWebClient.transferSubmission(ACC_NO, NFS)
+            create(SERVER).getAuthenticatedClient(USER, PASSWORD)
         }
     }
 

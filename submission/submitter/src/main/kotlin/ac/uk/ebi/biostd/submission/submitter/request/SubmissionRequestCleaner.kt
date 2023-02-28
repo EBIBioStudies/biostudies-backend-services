@@ -25,9 +25,9 @@ class SubmissionRequestCleaner(
         val new = request.submission
         val current = queryService.findExtByAccNo(accNo, includeFileListFiles = true)
 
-        if (current != null && new.storageMode == current.storageMode) {
+        if (current != null) {
             logger.info { "${new.accNo} ${new.owner} Started cleaning common files of version ${new.version}" }
-            prepareSubmissionFiles(new, current)
+            deleteCommonFiles(new, current)
             storageService.deleteFtpLinks(current)
             logger.info { "${new.accNo} ${new.owner} Finished cleaning common files of version ${new.version}" }
         }
@@ -35,7 +35,7 @@ class SubmissionRequestCleaner(
         requestService.saveSubmissionRequest(request.withNewStatus(status = CLEANED))
     }
 
-    private fun prepareSubmissionFiles(new: ExtSubmission, current: ExtSubmission) {
+    private fun deleteCommonFiles(new: ExtSubmission, current: ExtSubmission) {
         fun deleteFile(index: Int, file: ExtFile) {
             logger.info { "${current.accNo} ${current.owner} Deleting file $index, path='${file.filePath}'" }
             storageService.deleteSubmissionFile(current, file)

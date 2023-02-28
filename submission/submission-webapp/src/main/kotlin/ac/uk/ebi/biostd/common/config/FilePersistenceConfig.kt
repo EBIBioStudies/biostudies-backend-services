@@ -42,7 +42,7 @@ class FilePersistenceConfig(
     fun nfsFtpService(): NfsFtpService = NfsFtpService(folderResolver)
 
     @Bean
-    fun nfsFileService(): NfsFilesService = NfsFilesService(folderResolver)
+    fun nfsFileService(): NfsFilesService = NfsFilesService(fireClient, folderResolver)
 
     @Bean
     fun fireFtpService(): FireFtpService = FireFtpService(fireClient)
