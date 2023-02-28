@@ -9,7 +9,7 @@ enum class PreferredSource { FIRE, SUBMISSION, USER_SPACE }
 interface FilesSource {
     val description: String
 
-    fun getExtFile(path: String, dbFile: DbFile? = null, attributes: List<Attribute> = emptyList()): ExtFile?
+    fun getExtFile(path: String, attributes: List<Attribute>): ExtFile?
 
     fun getFile(path: String): File?
 }

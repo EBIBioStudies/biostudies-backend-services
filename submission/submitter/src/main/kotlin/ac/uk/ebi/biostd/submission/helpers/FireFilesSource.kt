@@ -5,11 +5,10 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.sources.ConfiguredDbFile
-import ebi.ac.uk.io.sources.DbFile
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.UploadedDbFile
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
+import ebi.ac.uk.model.constants.FileFields
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
@@ -19,13 +18,12 @@ class FireFilesSource(
 ) : FilesSource {
     override fun getExtFile(
         path: String,
-        dbFile: DbFile?,
         attributes: List<Attribute>,
     ): ExtFile? {
-        return when (dbFile) {
+        val md5Attribute = attributes.firstOrNull { it.name == FileFields.DB_MD5.value }
+        return when (val md5 = md5Attribute?.value) {
             null -> null
-            is ConfiguredDbFile -> null
-            is UploadedDbFile -> fireClient.findByMd5(dbFile.md5).first().asFireFile(path, attributes)
+            else -> fireClient.findByMd5(md5).first().asFireFile(path, attributes)
         }
     }
 

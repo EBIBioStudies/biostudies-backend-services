@@ -7,7 +7,7 @@ import java.io.File
 class FilesListSource(private val files: List<File>) : FilesSource {
     override val description: String = "Request files [${files.joinToString { it.name }}]"
 
-    override fun getExtFile(path: String, dbFile: DbFile?, attributes: List<Attribute>): ExtFile? =
+    override fun getExtFile(path: String, attributes: List<Attribute>): ExtFile? =
         files.firstOrNull { it.name == path }?.let { create(path, it, attributes) }
 
     override fun getFile(path: String): File? = files.firstOrNull { it.name == path }

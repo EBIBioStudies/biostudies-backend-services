@@ -41,7 +41,7 @@ internal class ExtSerializationServiceExtTest(
         val filesCount = testInstance.serialize(files.asSequence(), fileList1.outputStream())
 
         val result = testInstance.fileSequence(submission).toList()
-        assertThat(filesCount).isEqualTo(997)
+        assertThat(filesCount).isEqualTo(files.size)
         assertThat(result).containsExactlyInAnyOrder(pageTabFile, sectionFile, sectionTableFile, *files.toTypedArray())
     }
 
