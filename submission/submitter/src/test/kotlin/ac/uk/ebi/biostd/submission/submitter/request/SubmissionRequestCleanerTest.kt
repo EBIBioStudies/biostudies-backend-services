@@ -66,6 +66,7 @@ class SubmissionRequestCleanerTest(
         verify(exactly = 0) {
             storageService.deleteFtpLinks(any())
             storageService.deleteSubmissionFile(any(), any())
+            requestService.updateRqtIndex(any(), any(), any())
         }
     }
 
@@ -89,6 +90,7 @@ class SubmissionRequestCleanerTest(
         every { storageService.deleteFtpLinks(current) } answers { nothing }
         every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
         every { queryService.findExtByAccNo("S-BSST1", true) } returns current
+        every { requestService.updateRqtIndex("S-BSST1", 2, 1) } answers { nothing }
         every { requestService.getLoadedRequest("S-BSST1", 2) } returns loadedRequest
         every { serializationService.fileSequence(current) } returns sequenceOf(currentFile)
         every { requestService.saveSubmissionRequest(cleanedRequest) } returns ("S-BSST1" to 2)
@@ -99,6 +101,7 @@ class SubmissionRequestCleanerTest(
 
         verify(exactly = 1) {
             storageService.deleteFtpLinks(current)
+            requestService.updateRqtIndex("S-BSST1", 2, 1)
             requestService.saveSubmissionRequest(cleanedRequest)
             storageService.deleteSubmissionFile(current, currentFile)
         }
