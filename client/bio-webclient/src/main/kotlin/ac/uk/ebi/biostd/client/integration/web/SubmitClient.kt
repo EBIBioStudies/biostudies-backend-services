@@ -101,6 +101,7 @@ interface ExtSubmissionOperations {
     fun getReferencedFiles(filesUrl: String): ExtFileTable
     fun submitExtAsync(extSubmission: ExtSubmission)
     fun submitExt(extSubmission: ExtSubmission): ExtSubmission
+    fun transferSubmission(accNo: String, target: StorageMode)
 }
 
 interface PermissionOperations {

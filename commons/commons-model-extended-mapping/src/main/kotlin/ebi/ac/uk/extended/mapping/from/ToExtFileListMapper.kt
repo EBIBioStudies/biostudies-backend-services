@@ -1,5 +1,6 @@
 package ebi.ac.uk.extended.mapping.from
 
+import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ebi.ac.uk.extended.model.ExtFileList
@@ -34,14 +35,22 @@ class ToExtFileListMapper(
         target: File,
         sources: FileSourcesList,
     ): File {
+
+        fun copy(
+            input: InputStream,
+            format: SubFormat,
+            target: OutputStream,
+        ) {
+            val sourceFiles = serializationService.deserializeFileList(input, format)
+                .onEachIndexed { idx, bioFile -> logger.info { "$accNo, Mapping file $idx, path='${bioFile.path}'" } }
+                .map { sources.toExtFile(it) }
+            val files = extSerializationService.serialize(sourceFiles, target)
+            if (files < 1) throw InvalidFileListException.emptyFileList(source.name)
+        }
+
         logger.info { "$accNo, Started mapping/check file list ${source.name} of submission '$accNo'" }
-        use(source.inputStream(), target.outputStream()) { input, output -> copy(input, format, output, sources) }
+        use(source.inputStream(), target.outputStream()) { input, output -> copy(input, format, output) }
         logger.info { "$accNo, Finished mapping/check file list ${source.name} of submission '$accNo'" }
         return target
-    }
-
-    private fun copy(input: InputStream, format: SubFormat, target: OutputStream, fileSource: FileSourcesList) {
-        val sourceFiles = serializationService.deserializeFileList(input, format).map { fileSource.toExtFile(it) }
-        extSerializationService.serialize(sourceFiles, target)
     }
 }

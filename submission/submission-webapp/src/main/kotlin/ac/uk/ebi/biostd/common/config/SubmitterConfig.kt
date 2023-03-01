@@ -187,7 +187,6 @@ class SubmitterConfig {
         collectionInfoService: CollectionInfoService,
         properties: ApplicationProperties,
         toExtSectionMapper: ToExtSectionMapper,
-        fileListValidator: FileListValidator,
     ): SubmissionProcessor =
         SubmissionProcessor(
             persistenceService,
@@ -197,7 +196,6 @@ class SubmitterConfig {
             collectionInfoService,
             properties,
             toExtSectionMapper,
-            fileListValidator,
         )
 
     @Configuration

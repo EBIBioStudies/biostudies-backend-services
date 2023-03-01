@@ -1,14 +1,13 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
+import ac.uk.ebi.biostd.submission.domain.exceptions.InvalidTransferTargetException
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.StorageMode.FIRE
-import ebi.ac.uk.extended.model.StorageMode.NFS
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -19,16 +18,13 @@ import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("LongParameterList")
 class ExtSubmissionService(
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val queryService: SubmissionPersistenceQueryService,
     private val privilegesService: IUserPrivilegesService,
     private val securityService: ISecurityQueryService,
-    private val properties: ApplicationProperties,
     private val eventsPublisherService: EventsPublisherService,
 ) {
-
     fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
         return submissionSubmitter.handleRequest(accNo, version)
     }
@@ -53,12 +49,21 @@ class ExtSubmissionService(
         eventsPublisherService.submissionRequest(accNo, version)
     }
 
+    fun transferSubmission(user: String, accNo: String, target: StorageMode) {
+        logger.info { "$accNo $user Received transfer request with target='$target'" }
+        val source = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        require(source.storageMode != target) { throw InvalidTransferTargetException() }
+
+        val transfer = processSubmission(user, source.copy(storageMode = target))
+        val (accNo, version) = submissionSubmitter.createRequest(ExtSubmitRequest(transfer, transfer.submitter))
+        eventsPublisherService.submissionRequest(accNo, version)
+    }
+
     private fun processSubmission(user: String, extSubmission: ExtSubmission): ExtSubmission {
         validateSubmission(extSubmission, user)
         return extSubmission.copy(
             submitter = user,
             modificationTime = OffsetDateTime.now(),
-            storageMode = if (properties.persistence.enableFire) FIRE else NFS
         )
     }
 

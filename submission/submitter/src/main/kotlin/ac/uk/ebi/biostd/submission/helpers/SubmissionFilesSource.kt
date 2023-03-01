@@ -7,7 +7,6 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.copyWithAttributes
-import ebi.ac.uk.io.sources.DbFile
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PathSource
 import ebi.ac.uk.model.Attribute
@@ -24,7 +23,7 @@ class SubmissionFilesSource(
     override val description: String
         get() = "Previous version files"
 
-    override fun getExtFile(path: String, dbFile: DbFile?, attributes: List<Attribute>): ExtFile? {
+    override fun getExtFile(path: String, attributes: List<Attribute>): ExtFile? {
         return findSubmissionFile(path)?.copyWithAttributes(attributes.map { it.toExtAttribute() })
     }
 

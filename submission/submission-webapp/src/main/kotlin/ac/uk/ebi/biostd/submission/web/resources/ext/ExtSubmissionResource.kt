@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.WebExtPage
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -47,6 +48,13 @@ class ExtSubmissionResource(
         @PathVariable accNo: String,
         @PathVariable version: Int,
     ): ExtSubmission = extSubmissionService.reTriggerSubmission(accNo, version)
+
+    @PostMapping("/{accNo}/transfer/{target}")
+    fun transferSubmission(
+        @BioUser user: SecurityUser,
+        @PathVariable accNo: String,
+        @PathVariable target: StorageMode,
+    ) = extSubmissionService.transferSubmission(user.email, accNo, target)
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")

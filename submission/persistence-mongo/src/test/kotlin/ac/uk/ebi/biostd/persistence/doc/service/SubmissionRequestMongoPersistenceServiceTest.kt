@@ -96,7 +96,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
         requestRepository.upsertSubmissionRequestFile(requestFile)
         requestRepository.save(testRequest())
 
-        testInstance.updateRequestFile(requestFile.copy(file = extFile.copy(md5 = "changedMd5")))
+        testInstance.updateRqtIndex(requestFile, file = extFile.copy(md5 = "changedMd5"))
 
         val request = requestRepository.getByAccNoAndVersion("S-BSST0", 1)
         assertThat(request.modificationTime).isEqualTo(testInstant)

@@ -6,7 +6,7 @@ import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RW_RW____
-import ebi.ac.uk.io.ext.asFileList
+import ebi.ac.uk.io.ext.listFilesOrEmpty
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
@@ -37,7 +37,7 @@ class UserFilesService {
     fun listFiles(user: SecurityUser, path: String): FilesSpec {
         val userPath = user.magicFolder.path
         val file = userPath.resolve(path).toFile()
-        return FilesSpec(userPath, file.asFileList())
+        return FilesSpec(userPath, file.listFilesOrEmpty())
     }
 
     fun createFolder(user: SecurityUser, path: String, folderName: String) {

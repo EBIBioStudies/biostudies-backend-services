@@ -17,7 +17,7 @@ JAVA_HOME=/nfs/biostudies/.adm/java/zulu11.45.27-ca-jdk11.0.10-linux_x64
 
 # Kill and wait for process to be finished
 while $(kill -9 ${PID} 2>/dev/null); do sleep 1;done;
-rm -rf start_logs.txt
+mv start_logs.txt logs/start_logs_$(date +%s).txt
 
 ## deploy new version of application
 nohup ${JAVA_HOME}/bin/java JVM_PARAMS \

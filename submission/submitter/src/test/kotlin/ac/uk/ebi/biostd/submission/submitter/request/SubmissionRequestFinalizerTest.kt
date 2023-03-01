@@ -5,8 +5,9 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import io.mockk.clearAllMocks
@@ -59,40 +60,40 @@ class SubmissionRequestFinalizerTest(
         testInstance.finalizeRequest("S-BSST1", 1)
 
         verify(exactly = 1) { requestService.saveSubmissionRequest(processedRequest) }
-        verify(exactly = 0) {
-            storageService.deleteSubmissionFiles(any())
-            storageService.deleteSubmissionFile(any(), any())
-        }
+        verify(exactly = 0) { storageService.deleteSubmissionFile(any(), any()) }
     }
 
     @Test
     fun `delete remaining from previous version different storage mode`(
         @MockK new: ExtSubmission,
+        @MockK previousFile: NfsFile,
         @MockK previous: ExtSubmission,
         @MockK persistedRequest: SubmissionRequest,
         @MockK processedRequest: SubmissionRequest,
     ) {
         every { new.storageMode } returns FIRE
         every { previous.storageMode } returns NFS
+        every { previousFile.filePath } returns "a/b/text.txt"
         every { queryService.getExtByAccNo("S-BSST1", true) } returns new
+        every { serializationService.fileSequence(new) } returns emptySequence()
         every { persistedRequest.withNewStatus(PROCESSED) } returns processedRequest
-        every { storageService.deleteSubmissionFiles(previous) } answers { nothing }
         every { queryService.findLatestInactiveByAccNo("S-BSST1", true) } returns previous
         every { requestService.getPersistedRequest("S-BSST1", 2) } returns persistedRequest
+        every { serializationService.fileSequence(previous) } returns sequenceOf(previousFile)
+        every { storageService.deleteSubmissionFile(previous, previousFile) } answers { nothing }
         every { requestService.saveSubmissionRequest(processedRequest) } returns ("S-BSST1" to 1)
 
         testInstance.finalizeRequest("S-BSST1", 2)
 
-        verify(exactly = 0) { storageService.deleteSubmissionFile(any(), any()) }
         verify(exactly = 1) {
-            storageService.deleteSubmissionFiles(previous)
             requestService.saveSubmissionRequest(processedRequest)
+            storageService.deleteSubmissionFile(previous, previousFile)
         }
     }
 
     @Test
-    fun `delete remaining from previous version same storage mode`(
-        @MockK subFile: ExtFile,
+    fun `delete remaining from previous version`(
+        @MockK subFile: FireFile,
         @MockK new: ExtSubmission,
         @MockK previous: ExtSubmission,
         @MockK persistedRequest: SubmissionRequest,
@@ -114,7 +115,6 @@ class SubmissionRequestFinalizerTest(
 
         testInstance.finalizeRequest("S-BSST1", 2)
 
-        verify(exactly = 0) { storageService.deleteSubmissionFiles(any()) }
         verify(exactly = 1) {
             storageService.deleteSubmissionFile(previous, subFile)
             requestService.saveSubmissionRequest(processedRequest)

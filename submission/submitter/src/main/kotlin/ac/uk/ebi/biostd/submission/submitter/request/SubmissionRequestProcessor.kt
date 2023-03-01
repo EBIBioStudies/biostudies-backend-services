@@ -23,21 +23,26 @@ class SubmissionRequestProcessor(
 
         logger.info { "$accNo ${sub.owner} Started persisting submission files on ${sub.storageMode}" }
 
-        persistSubmissionFiles(sub, request.currentIndex)
+        persistSubmissionFiles(sub, accNo, version, request.currentIndex)
         requestService.saveSubmissionRequest(request.withNewStatus(FILES_COPIED))
         logger.info { "$accNo ${sub.owner} Finished persisting submission files on ${sub.storageMode}" }
     }
 
-    private fun persistSubmissionFiles(sub: ExtSubmission, startingAt: Int) {
+    private fun persistSubmissionFiles(sub: ExtSubmission, accNo: String, version: Int, startingAt: Int) {
         filesRequestService
-            .getSubmissionRequestFiles(sub.accNo, sub.version, startingAt)
+            .getSubmissionRequestFiles(accNo, version, startingAt)
             .map {
-                logger.info { "${sub.accNo} ${sub.owner} Started persisting file ${it.index}, path='${it.path}'" }
-                it.copy(file = storageService.persistSubmissionFile(sub, it.file))
+                logger.info { "$accNo ${sub.owner} Started persisting file ${it.index}, path='${it.path}'" }
+                it to storageService.persistSubmissionFile(sub, it.file)
             }
-            .forEach {
-                requestService.updateRequestFile(it)
-                logger.info { "${sub.accNo} ${sub.owner} Finished persisting file ${it.index}, path='${it.path}'" }
+            .forEach { (rqt, releasedFile) ->
+                when (releasedFile) {
+                    rqt.file -> requestService.updateRqtIndex(accNo, version, rqt.index)
+                    else -> requestService.updateRqtIndex(rqt, releasedFile)
+                }
+                logger.info {
+                    "$accNo ${sub.owner} Finished persisting file ${rqt.index}, path='${rqt.path}'"
+                }
             }
     }
 }

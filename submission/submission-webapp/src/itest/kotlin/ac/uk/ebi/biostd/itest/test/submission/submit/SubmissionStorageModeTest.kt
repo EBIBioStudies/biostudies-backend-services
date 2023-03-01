@@ -11,7 +11,9 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.nfsFtpPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.nfsSubmissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ebi.ac.uk.asserts.assertThat
@@ -24,9 +26,10 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
-import ebi.ac.uk.io.ext.asFileList
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.io.ext.listFilesOrEmpty
 import org.assertj.core.api.Assertions.assertThat
+import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -36,6 +39,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.time.Duration.ofSeconds
 import kotlin.reflect.KClass
 
 @Import(FilePersistenceConfig::class)
@@ -43,6 +47,7 @@ import kotlin.reflect.KClass
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionStorageModeTest(
     @Autowired val securityTestService: SecurityTestService,
+    @Autowired val submissionRequestRepository: SubmissionRequestRepository,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val serializationService: ExtSerializationService,
     @Autowired val sequenceRepository: SequenceDataRepository,
@@ -80,8 +85,8 @@ class SubmissionStorageModeTest(
         assertFileListFile(nfsSub.section.fileList!!, NfsFile::class)
 
         // No Files in FIRE submit folder/ftp folder
-        assertThat(fireSubmissionPath.resolve(fireSub.relPath).asFileList().filter { it.isFile }).isEmpty()
-        assertThat(fireFtpPath.resolve(fireSub.relPath).asFileList().filter { it.isFile }).isEmpty()
+        assertThat(fireSubmissionPath.resolve(fireSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
+        assertThat(fireFtpPath.resolve(fireSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
     }
 
     @Test
@@ -107,8 +112,57 @@ class SubmissionStorageModeTest(
         assertFileListFile(fireSub.section.fileList!!, FireFile::class)
 
         // No Files in NFS submit folder/ftp
-        assertThat(nfsSubmissionPath.resolve(fireSub.relPath).asFileList().filter { it.isFile }).isEmpty()
-        assertThat(nfsFtpPath.resolve(fireSub.relPath).asFileList().filter { it.isFile }).isEmpty()
+        assertThat(nfsSubmissionPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
+        assertThat(nfsFtpPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
+    }
+
+    @Test
+    fun `10-3 transfer from NFS to FIRE`() {
+        val submission = createSubmission("S-STR-MODE-3")
+
+        assertThat(webClient.submitSingle(submission, TSV, NFS)).isSuccessful()
+        val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-3", includeFileListFiles = true)
+
+        webClient.transferSubmission("S-STR-MODE-3", FIRE)
+        await()
+            .atMost(ofSeconds(10))
+            .until { submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-3", 2).status == PROCESSED }
+
+        val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-3", includeFileListFiles = true)
+        assertThat(fireSub.storageMode).isEqualTo(FIRE)
+        assertThat(fireSub.version).isEqualTo(2)
+
+        assertThat(fireSub.section.files.first()).hasLeftValueSatisfying { assertFile(it, FireFile::class) }
+        assertThat(fireSub.section.fileList).isNotNull()
+        assertFileListFile(fireSub.section.fileList!!, FireFile::class)
+
+        assertThat(nfsSubmissionPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
+        assertThat(nfsFtpPath.resolve(nfsSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
+    }
+
+    @Test
+    fun `10-4 transfer from FIRE to NFS`() {
+        val submission = createSubmission("S-STR-MODE-4")
+
+        assertThat(webClient.submitSingle(submission, TSV, FIRE)).isSuccessful()
+        val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-4", includeFileListFiles = true)
+
+        webClient.transferSubmission("S-STR-MODE-4", NFS)
+        await()
+            .atMost(ofSeconds(10))
+            .until { submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-4", 2).status == PROCESSED }
+
+        val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-4", includeFileListFiles = true)
+
+        assertThat(nfsSub.storageMode).isEqualTo(NFS)
+        assertThat(nfsSub.version).isEqualTo(2)
+
+        assertThat(nfsSub.section.files.first()).hasLeftValueSatisfying { assertFile(it, NfsFile::class) }
+        assertThat(nfsSub.section.fileList).isNotNull()
+        assertFileListFile(nfsSub.section.fileList!!, NfsFile::class)
+
+        assertThat(fireSubmissionPath.resolve(fireSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
+        assertThat(fireFtpPath.resolve(fireSub.relPath).listFilesOrEmpty().filter { it.isFile }).isEmpty()
     }
 
     private fun assertFile(file: ExtFile, expectType: KClass<*>) {

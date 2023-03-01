@@ -97,7 +97,6 @@ class SubmissionConfig(
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         userPrivilegeService: IUserPrivilegesService,
         securityQueryService: ISecurityQueryService,
-        properties: ApplicationProperties,
         eventsPublisherService: EventsPublisherService,
     ): ExtSubmissionService =
         ExtSubmissionService(
@@ -105,7 +104,6 @@ class SubmissionConfig(
             submissionPersistenceQueryService,
             userPrivilegeService,
             securityQueryService,
-            properties,
             eventsPublisherService,
         )
 

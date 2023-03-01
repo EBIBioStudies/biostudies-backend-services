@@ -12,8 +12,6 @@ servers:
 tags:
   - name: Security
   - name: Projects
-  - name: Groups
-  - name: Group Files
   - name: User Files
   - name: Search Submissions
   - name: Submissions
@@ -26,21 +24,9 @@ paths:
     $ref: 'security/Logout.yaml'
   /auth/profile:
     $ref: 'security/UserInfo.yaml'
-  /auth/password/change:
-    $ref: 'security/ChangePassword.yaml'
-  /auth/password/reset:
-    $ref: 'security/ResetPassword.yaml'
 
   /projects:
     $ref: 'projects/UserProjects.yaml'
-
-  /groups:
-    $ref: 'groups/UserGroups.yaml'
-
-  /files/groups/{groupName}/{path}:
-    $ref: 'files/GroupFiles.yaml'
-  /folder/groups/{groupName}/{path}:
-    $ref: 'files/GroupFolder.yaml'
 
   /files/user/{path}:
     $ref: 'files/UserFiles.yaml'
@@ -59,12 +45,3 @@ paths:
 
   /submissions/fileLists/validate:
     $ref: 'submissions/fileList/ValidateFileList.yaml'
-
-  /submissions/{accNo}:
-    $ref: 'submissions/operations/DeleteSubmission.yaml'
-  /submissions/{accNo}.json:
-    $ref: 'submissions/search/JsonSubmission.yaml'
-  /submissions/{accNo}.tsv:
-    $ref: 'submissions/search/TsvSubmission.yaml'
-  /submissions/{accNo}.xml:
-    $ref: 'submissions/search/XmlSubmission.yaml'

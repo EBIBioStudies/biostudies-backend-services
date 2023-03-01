@@ -10,13 +10,14 @@ servers:
     description: PROD
   - url: 'http://biostudies-beta.ebi.ac.uk:8788'
     description: BETA
-  - url: 'http://biostudy-bia.ebi.ac.uk:8788'
+  - url: 'http://biostudies-dev.ebi.ac.uk:8788'
     description: DEV
 
 tags:
   - name: Security
   - name: Extended Submissions
   - name: Refresh
+  - name: Submissions
   - name: Submission Drafts
   - name: Submission Stats
   - name: FTP
@@ -32,12 +33,44 @@ paths:
     $ref: 'security/ActivateUser.yaml'
   /auth/check-registration:
     $ref: 'security/CheckUserRegistration.yaml'
+  /auth/password/change:
+    $ref: 'security/ChangePassword.yaml'
+  /auth/password/reset:
+    $ref: 'security/ResetPassword.yaml'
   /auth/password/setup:
     $ref: 'security/SetUpPassword.yaml'
   /auth/retryact:
     $ref: 'security/RetryUserActivation.yaml'
   /auth/refresh-user:
     $ref: 'security/RefreshUser.yaml'
+
+  /groups:
+    $ref: 'groups/UserGroups.yaml'
+
+  /files/groups/{groupName}/{path}:
+    $ref: 'files/GroupFiles.yaml'
+  /folder/groups/{groupName}/{path}:
+    $ref: 'files/GroupFolder.yaml'
+
+  /submissions/{accNo}.json:
+    $ref: 'submissions/search/JsonSubmission.yaml'
+  /submissions/{accNo}.tsv:
+    $ref: 'submissions/search/TsvSubmission.yaml'
+  /submissions/{accNo}.xml:
+    $ref: 'submissions/search/XmlSubmission.yaml'
+
+  /submissions:
+    $ref: 'submissions/operations/internal/SubmissionInternalOperations.yaml'
+  /submissions/direct:
+    $ref: 'submissions/operations/internal/DirectSubmitInternal.yaml'
+
+  /submissions/async:
+    $ref: 'submissions/operations/internal/AsyncSubmitInternal.yaml'
+  /submissions/direct/async:
+    $ref: 'submissions/operations/internal/AsyncDirectSubmitInternal.yaml'
+
+  /submissions/{accNo}:
+    $ref: 'submissions/operations/internal/DeleteSubmission.yaml'
 
   /submissions/extended:
     $ref: 'submissions/extended/ExtSubmissionOperations.yaml'

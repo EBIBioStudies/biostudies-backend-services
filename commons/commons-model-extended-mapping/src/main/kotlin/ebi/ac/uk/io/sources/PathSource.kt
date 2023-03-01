@@ -7,7 +7,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 class PathSource(override val description: String, private val sourcePath: Path) : FilesSource {
-    override fun getExtFile(path: String, dbFile: DbFile?, attributes: List<Attribute>): ExtFile? =
+    override fun getExtFile(path: String, attributes: List<Attribute>): ExtFile? =
         findFile(path)?.let { create(path, it, attributes) }
 
     override fun getFile(path: String): File? = findFile(path)
