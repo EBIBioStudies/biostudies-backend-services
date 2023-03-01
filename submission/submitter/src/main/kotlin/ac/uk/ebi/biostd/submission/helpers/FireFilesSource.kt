@@ -4,7 +4,6 @@ import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.io.sources.ConfiguredDbFile
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
@@ -42,18 +41,5 @@ fun FireApiFile.asFireFile(filePath: String, attributes: List<Attribute>): FireF
         md5 = objectMd5,
         size = objectSize,
         type = ExtFileType.FILE,
-        attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
-    )
-
-fun asFireFile(path: String, db: ConfiguredDbFile, attributes: List<Attribute>): FireFile =
-    FireFile(
-        fireId = db.id,
-        firePath = db.path,
-        published = db.published,
-        filePath = path,
-        relPath = "Files/$path",
-        md5 = db.md5,
-        type = ExtFileType.FILE,
-        size = db.size,
         attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
     )

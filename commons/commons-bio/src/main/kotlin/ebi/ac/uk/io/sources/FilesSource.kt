@@ -13,16 +13,3 @@ interface FilesSource {
 
     fun getFile(path: String): File?
 }
-
-sealed interface DbFile {
-    val md5: String
-}
-
-data class UploadedDbFile(override val md5: String) : DbFile
-data class ConfiguredDbFile(
-    val id: String,
-    override val md5: String,
-    val path: String,
-    val size: Long,
-    val published: Boolean,
-) : DbFile
