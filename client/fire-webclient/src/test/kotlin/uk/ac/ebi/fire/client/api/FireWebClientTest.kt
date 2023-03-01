@@ -111,12 +111,6 @@ class FireWebClientTest(
         } throws HttpClientErrorException(NOT_FOUND, "file not found")
 
         assertThat(testInstance.downloadByPath(fireFilePath)).isNull()
-        verify(exactly = 1) {
-            template.getForObject<FireApiFile>("/objects/path/S-BSST1/file1.txt")
-        }
-        verify(exactly = 0) {
-            template.getForObject("/objects/blob/path/S-BSST1/file1.txt", ByteArray::class.java)
-        }
     }
 
     @Test

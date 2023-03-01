@@ -52,6 +52,5 @@ class SubmissionRequestCleaner(
     private fun newFilesMap(new: ExtSubmission) =
         filesRequestService
             .getSubmissionRequestFiles(new.accNo, new.version, 0)
-            .groupBy { it.path }
-            .mapValues { it.value.first().file.md5 }
+            .associate { it.path to it.file.md5 }
 }

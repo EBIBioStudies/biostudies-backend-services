@@ -53,7 +53,7 @@ internal class FireWebClient(
     }
 
     private fun downloadFireFile(fileName: String, downloadUrl: String): File? {
-        return when (val fileContent = template.getForObject<ByteArray?>(downloadUrl)) {
+        return when (val fileContent = template.getForObjectOrNull<ByteArray?>(downloadUrl)) {
             null -> null
             else -> {
                 val tmpFile = File(tmpDirPath, fileName)
