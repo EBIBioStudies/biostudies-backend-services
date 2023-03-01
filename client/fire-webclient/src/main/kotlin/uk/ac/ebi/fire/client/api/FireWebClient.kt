@@ -48,15 +48,19 @@ internal class FireWebClient(
 
     override fun downloadByPath(
         path: String,
-    ): File {
+    ): File? {
         return downloadFireFile(path.substringAfterLast("/"), "/objects/blob/path/$path")
     }
 
-    private fun downloadFireFile(fileName: String, downloadUrl: String): File {
-        val tmpFile = File(tmpDirPath, fileName)
-        val fileContent = template.getForObject<ByteArray?>(downloadUrl)
-        Files.write(tmpFile.toPath(), fileContent ?: byteArrayOf())
-        return tmpFile
+    private fun downloadFireFile(fileName: String, downloadUrl: String): File? {
+        return when (val fileContent = template.getForObject<ByteArray?>(downloadUrl)) {
+            null -> null
+            else -> {
+                val tmpFile = File(tmpDirPath, fileName)
+                Files.write(tmpFile.toPath(), fileContent)
+                tmpFile
+            }
+        }
     }
 
     override fun findByMd5(md5: String): List<FireApiFile> =

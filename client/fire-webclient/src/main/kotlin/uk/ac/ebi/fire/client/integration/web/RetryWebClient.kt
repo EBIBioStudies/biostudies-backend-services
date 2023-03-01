@@ -25,7 +25,7 @@ internal class RetryWebClient(
         template.execute(opt) { fireClient.unsetPath(fireOid) }
     }
 
-    override fun downloadByPath(path: String): File {
+    override fun downloadByPath(path: String): File? {
         val opt = "Download file path='$path'"
         return template.execute(opt) { fireClient.downloadByPath(path) }
     }
