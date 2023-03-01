@@ -211,6 +211,7 @@ class FileListValidationTest(
                         The following files could not be found:
                           - Plate1.tif
                         List of available sources:
+                          - Provided Db files
                           - biostudies-mgmt-filelist-v@ebi.ac.uk user files
                           - EBI internal files Archive
                 """.trimIndent()
@@ -239,6 +240,7 @@ class FileListValidationTest(
                         The following files could not be found:
                           - Plate1.tif
                         List of available sources:
+                          - Provided Db files
                           - biostudies-mgmt-filelist-v@ebi.ac.uk user files
                           - EBI internal files Archive
                 """.trimIndent()

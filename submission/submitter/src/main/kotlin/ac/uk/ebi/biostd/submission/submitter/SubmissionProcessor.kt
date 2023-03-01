@@ -11,7 +11,6 @@ import ac.uk.ebi.biostd.submission.service.CollectionResponse
 import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesRequest
 import ac.uk.ebi.biostd.submission.service.TimesService
-import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.extended.mapping.from.toExtAttributes
@@ -20,16 +19,13 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod
 import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.StorageMode
-import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.constants.SUBMISSION_RESERVED_ATTRIBUTES
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.model.extensions.accNoTemplate
-import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.attachTo
-import ebi.ac.uk.model.extensions.fileListName
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
@@ -57,12 +53,10 @@ class SubmissionProcessor(
     private val collectionInfoService: CollectionInfoService,
     private val properties: ApplicationProperties,
     private val toExtSectionMapper: ToExtSectionMapper,
-    private val fileListValidator: FileListValidator,
 ) {
 
     fun processSubmission(rqt: SubmitRequest): ExtSubmission {
         val (submission, submitter, sources, method, onBehalfUser, _, previousVersion, storageMode) = rqt
-        validateFileLists(submission, sources)
         val isNew = previousVersion == null
         val (parentTags, parentReleaseTime, parentPattern) = parentInfoService.getParentInfo(submission.attachTo)
         val (createTime, modTime, releaseTime) = getTimes(submission, previousVersion?.creationTime, parentReleaseTime)
@@ -97,13 +91,6 @@ class SubmissionProcessor(
             attributes = submission.attributes.toExtAttributes(SUBMISSION_RESERVED_ATTRIBUTES),
             storageMode = storageMode ?: if (properties.persistence.enableFire) StorageMode.FIRE else StorageMode.NFS
         )
-    }
-
-    private fun validateFileLists(submission: Submission, sources: FileSourcesList) {
-        submission
-            .allSections()
-            .mapNotNull { it.fileListName }
-            .forEach { fileListValidator.validateFileList(it, sources) }
     }
 
     private fun getMethod(method: SubmissionMethod): ExtSubmissionMethod {

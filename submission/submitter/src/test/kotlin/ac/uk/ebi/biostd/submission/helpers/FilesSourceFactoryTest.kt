@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.createNfsFile
+import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -23,6 +24,7 @@ class FilesSourceFactoryTest(
     @MockK private val applicationProperties: ApplicationProperties,
     @MockK private val queryService: SubmissionPersistenceQueryService,
 ) {
+    private val attributes = emptyList<Attribute>()
     private val testInstance = FilesSourceFactory(fireClient, applicationProperties, queryService)
 
     @Test
@@ -37,8 +39,8 @@ class FilesSourceFactoryTest(
 
         val fileSource = testInstance.createSubmissionSource(sub)
 
-        assertThat(fileSource.getExtFile("ghost.txt")).isNull()
-        assertThat(fileSource.getExtFile("ref.txt")).isEqualTo(refFile)
-        assertThat(fileSource.getExtFile("inner.txt")).isEqualTo(innerFile)
+        assertThat(fileSource.getExtFile("ghost.txt", attributes)).isNull()
+        assertThat(fileSource.getExtFile("ref.txt", attributes)).isEqualTo(refFile)
+        assertThat(fileSource.getExtFile("inner.txt", attributes)).isEqualTo(innerFile)
     }
 }

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
+import ac.uk.ebi.biostd.submission.helpers.DbFilesSource
 import ac.uk.ebi.biostd.submission.helpers.FilesSourceFactory
 import ac.uk.ebi.biostd.submission.model.GroupSource
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -19,14 +20,12 @@ private val DEFAULT_SOURCES = listOf(USER_SPACE, SUBMISSION, FIRE)
 class FileSourcesService(
     private val filesSourcesFactory: FilesSourceFactory,
 ) {
-    fun submissionSources(fileSourcesRequest: FileSourcesRequest): FileSourcesList {
-        val (owner, submitter, files, rootPath, submission, preferredSources) = fileSourcesRequest
+    fun submissionSources(rqt: FileSourcesRequest): FileSourcesList {
+        val (owner, submitter, files, rootPath, submission, preferredSources) = rqt
         val preferred = preferredSources.ifEmpty { DEFAULT_SOURCES }
         val sources = buildList {
-            if (files != null) {
-                add(FilesListSource(files))
-            }
-
+            if (submitter.superuser) add(DbFilesSource)
+            if (files != null) add(FilesListSource(files))
             preferred.forEach {
                 when (it) {
                     FIRE -> add(filesSourcesFactory.createFireSource())

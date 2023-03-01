@@ -4,12 +4,10 @@ import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.io.sources.ConfiguredDbFile
-import ebi.ac.uk.io.sources.DbFile
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.UploadedDbFile
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
+import ebi.ac.uk.model.constants.FileFields
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
@@ -19,12 +17,12 @@ class FireFilesSource(
 ) : FilesSource {
     override fun getExtFile(
         path: String,
-        dbFile: DbFile?,
         attributes: List<Attribute>,
     ): ExtFile? {
-        return when (dbFile) {
+        val md5Attribute = attributes.firstOrNull { it.name == FileFields.DB_MD5.value }
+        return when (val md5 = md5Attribute?.value) {
             null -> null
-            else -> fireClient.findByDb(dbFile, path, attributes)
+            else -> fireClient.findByMd5(md5).first().asFireFile(path, attributes)
         }
     }
 
@@ -43,25 +41,5 @@ fun FireApiFile.asFireFile(filePath: String, attributes: List<Attribute>): FireF
         md5 = objectMd5,
         size = objectSize,
         type = ExtFileType.FILE,
-        attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
-    )
-
-private fun FireClient.findByDb(dbFile: DbFile, path: String, attributes: List<Attribute>): FireFile {
-    return when (dbFile) {
-        is UploadedDbFile -> findByMd5(dbFile.md5).first().asFireFile(path, attributes)
-        is ConfiguredDbFile -> asFireFile(path, dbFile, attributes)
-    }
-}
-
-fun asFireFile(path: String, db: ConfiguredDbFile, attributes: List<Attribute>): FireFile =
-    FireFile(
-        fireId = db.id,
-        firePath = db.path,
-        published = db.published,
-        filePath = path,
-        relPath = "Files/$path",
-        md5 = db.md5,
-        type = ExtFileType.FILE,
-        size = db.size,
         attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
     )

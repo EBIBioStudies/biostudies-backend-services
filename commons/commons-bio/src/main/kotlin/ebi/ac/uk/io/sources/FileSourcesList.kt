@@ -8,9 +8,8 @@ import java.io.File
 value class FileSourcesList(val sources: List<FilesSource>) {
     fun getExtFile(
         path: String,
-        dbFile: DbFile? = null,
-        attributes: List<Attribute> = emptyList()
-    ): ExtFile? = sources.firstNotNullOfOrNull { it.getExtFile(path, dbFile, attributes) }
+        attributes: List<Attribute>,
+    ): ExtFile? = sources.firstNotNullOfOrNull { it.getExtFile(path, attributes) }
 
     fun getFile(path: String): File? = sources.firstNotNullOfOrNull { it.getFile(path) }
 }

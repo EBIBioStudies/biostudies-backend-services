@@ -51,7 +51,7 @@ data class Properties(val includeFileListFiles: Boolean) : StringWriter()
 @Suppress("TooManyFunctions")
 class ExtSerializationService private constructor(val mapper: ObjectMapper) {
     fun serialize(sub: ExtSubmission, props: Properties = Properties(false)): String = serializeElement(sub, props)
-    fun serialize(files: Sequence<ExtFile>, stream: OutputStream) = mapper.serializeList(files, stream)
+    fun serialize(files: Sequence<ExtFile>, stream: OutputStream): Int = mapper.serializeList(files, stream)
     fun serialize(file: ExtFile): String = serializeElement(file)
     fun serialize(table: ExtFileTable): String = serializeElement(table)
     fun serialize(extPage: WebExtPage): String = serializeElement(extPage)

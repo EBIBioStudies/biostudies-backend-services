@@ -30,7 +30,6 @@ class FileListResource(
     ) {
         val onBehalfUser = onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) }
         val request = FileListValidationRequest(accNo, rootPath, fileListName, user, onBehalfUser)
-
         fileListValidator.validateFileList(request)
     }
 }
