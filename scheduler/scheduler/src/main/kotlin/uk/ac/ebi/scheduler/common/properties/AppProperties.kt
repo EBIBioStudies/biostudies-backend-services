@@ -8,11 +8,13 @@ import org.springframework.stereotype.Component
 @Component
 class AppProperties {
     lateinit var appsFolder: String
-    lateinit var notificationsUrl: String
     lateinit var javaHome: String
 
     @NestedConfigurationProperty
     var dailyScheduling: DailyScheduling = DailyScheduling()
+
+    @NestedConfigurationProperty
+    var slack: SlackConfiguration = SlackConfiguration()
 }
 
 class DailyScheduling {
@@ -21,4 +23,9 @@ class DailyScheduling {
     var notifier: Boolean = false
     var releaser: Boolean = true
     var exporter: Boolean = true
+}
+
+class SlackConfiguration {
+    lateinit var pmcNotificationsUrl: String
+    lateinit var schedulerNotificationsUrl: String
 }

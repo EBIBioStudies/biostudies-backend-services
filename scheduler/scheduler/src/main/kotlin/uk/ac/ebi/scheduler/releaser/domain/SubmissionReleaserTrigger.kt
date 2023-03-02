@@ -10,10 +10,10 @@ import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
 import ac.uk.ebi.scheduler.properties.ReleaserMode.RELEASE
 import ac.uk.ebi.scheduler.properties.SubmissionReleaserProperties
-import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import mu.KotlinLogging
 import uk.ac.ebi.scheduler.common.SYSTEM_NAME
+import uk.ac.ebi.scheduler.common.config.SchedulerNotificationsSender
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.releaser.api.SubmissionReleaserProperties as SchedulerReleaserProps
 
@@ -22,11 +22,11 @@ internal const val RELEASER_SUBSYSTEM = "Submission Releaser"
 
 private val logger = KotlinLogging.logger {}
 
-class SubmissionReleaserTrigger(
+internal class SubmissionReleaserTrigger(
     private val appProperties: AppProperties,
     private val properties: SchedulerReleaserProps,
     private val clusterOperations: ClusterOperations,
-    private val notificationsSender: NotificationsSender,
+    private val schedulerNotificationsSender: SchedulerNotificationsSender,
 ) {
     fun triggerSubmissionReleaser(debugPort: Int? = null): Job {
         logger.info { "triggering submission releaser job" }
@@ -45,7 +45,7 @@ class SubmissionReleaserTrigger(
 
     private fun triggerJob(mode: ReleaserMode, debugPort: Int?): Job {
         val job = submissionReleaserJob(mode, debugPort)
-        notificationsSender.send(
+        schedulerNotificationsSender.send(
             Report(
                 SYSTEM_NAME,
                 RELEASER_SUBSYSTEM,

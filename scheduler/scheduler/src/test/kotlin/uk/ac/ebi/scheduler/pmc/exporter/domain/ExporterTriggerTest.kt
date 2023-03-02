@@ -8,8 +8,8 @@ import ac.uk.ebi.scheduler.properties.ExporterMode
 import ac.uk.ebi.scheduler.properties.ExporterMode.PMC
 import ac.uk.ebi.scheduler.properties.ExporterMode.PUBLIC_ONLY
 import arrow.core.Try
-import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
+import io.mockk.called
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -21,6 +21,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.scheduler.common.config.PmcNotificationsSender
+import uk.ac.ebi.scheduler.common.config.SchedulerNotificationsSender
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.BioStudies
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties
@@ -35,11 +37,18 @@ class ExporterTriggerTest(
     @MockK private val job: Job,
     @MockK private val appProperties: AppProperties,
     @MockK private val clusterOperations: ClusterOperations,
-    @MockK private val notificationsSender: NotificationsSender,
+    @MockK private val pcmNotificationsSender: PmcNotificationsSender,
+    @MockK private val schedulerNotificationsSender: SchedulerNotificationsSender,
 ) {
     private val jobSpecs = slot<JobSpec>()
     private val jobReport = slot<Report>()
-    private val testInstance = ExporterTrigger(appProperties, testProperties(), clusterOperations, notificationsSender)
+    private val testInstance = ExporterTrigger(
+        appProperties,
+        testProperties(),
+        clusterOperations,
+        pcmNotificationsSender,
+        schedulerNotificationsSender,
+    )
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -48,7 +57,8 @@ class ExporterTriggerTest(
     fun beforeEach() {
         every { job.id } returns "ABC123"
         every { job.queue } returns "submissions-releaser-queue"
-        every { notificationsSender.send(capture(jobReport)) } answers { nothing }
+        every { pcmNotificationsSender.send(capture(jobReport)) } answers { nothing }
+        every { schedulerNotificationsSender.send(capture(jobReport)) } answers { nothing }
         every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
         every { appProperties.appsFolder } returns "/apps-folder"
         every { appProperties.javaHome } returns "/home/jdk11"
@@ -57,20 +67,23 @@ class ExporterTriggerTest(
     @Test
     fun triggerPmcExport() {
         testInstance.triggerPmcExport()
-        verifyClusterOperations()
+        verify(exactly = 1) {
+            clusterOperations.triggerJob(jobSpecs.captured)
+            pcmNotificationsSender.send(jobReport.captured)
+        }
+        verify { schedulerNotificationsSender wasNot called }
         verifyJobSpecs(jobSpecs.captured, PMC, "pmcFile", "/an/output/path/1")
     }
 
     @Test
     fun triggerPublicExport() {
         testInstance.triggerPublicExport()
-        verifyClusterOperations()
+        verify(exactly = 1) {
+            clusterOperations.triggerJob(jobSpecs.captured)
+            schedulerNotificationsSender.send(jobReport.captured)
+        }
+        verify { pcmNotificationsSender wasNot called }
         verifyJobSpecs(jobSpecs.captured, PUBLIC_ONLY, "publicOnlyStudies", "/an/output/path/2")
-    }
-
-    private fun verifyClusterOperations() {
-        verify(exactly = 1) { notificationsSender.send(jobReport.captured) }
-        verify(exactly = 1) { clusterOperations.triggerJob(jobSpecs.captured) }
     }
 
     private fun verifyJobSpecs(specs: JobSpec, mode: ExporterMode, fileName: String, outputPath: String) {

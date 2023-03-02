@@ -6,7 +6,7 @@ import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForEntity
 
-class NotificationsSender(
+open class NotificationsSender(
     private val restTemplate: RestTemplate,
     private val notificationUrl: String
 ) {

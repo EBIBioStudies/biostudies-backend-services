@@ -9,7 +9,6 @@ import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
 import ac.uk.ebi.scheduler.properties.ReleaserMode.RELEASE
 import arrow.core.Try
-import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -22,6 +21,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.scheduler.common.config.SchedulerNotificationsSender
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.releaser.api.BioStudies
 import uk.ac.ebi.scheduler.releaser.api.NotificationTimes
@@ -34,7 +34,7 @@ class SubmissionReleaserTriggerTest(
     @MockK private val job: Job,
     @MockK private val appProperties: AppProperties,
     @MockK private val clusterOperations: ClusterOperations,
-    @MockK private val notificationsSender: NotificationsSender,
+    @MockK private val notificationsSender: SchedulerNotificationsSender,
 ) {
     private val jobSpecs = slot<JobSpec>()
     private val jobReport = slot<Report>()

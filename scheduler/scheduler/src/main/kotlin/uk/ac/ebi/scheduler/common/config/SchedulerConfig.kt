@@ -1,7 +1,6 @@
 package uk.ac.ebi.scheduler.common.config
 
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
-import ebi.ac.uk.commons.http.slack.NotificationsSender
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
@@ -31,25 +30,32 @@ internal class SchedulerConfig {
         clusterOperations: ClusterOperations,
         properties: PmcProcessorProp,
         appProperties: AppProperties,
-        notificationsSender: NotificationsSender,
-    ): PmcLoaderService = PmcLoaderService(clusterOperations, properties, appProperties, notificationsSender)
+        pmcNotificationsSender: PmcNotificationsSender,
+    ): PmcLoaderService = PmcLoaderService(clusterOperations, properties, appProperties, pmcNotificationsSender)
 
     @Bean
     fun submissionReleaserTrigger(
         appProperties: AppProperties,
         clusterOperations: ClusterOperations,
-        notificationsSender: NotificationsSender,
+        schedulerNotificationsSender: SchedulerNotificationsSender,
         releaserProperties: SubmissionReleaserProperties,
     ): SubmissionReleaserTrigger =
-        SubmissionReleaserTrigger(appProperties, releaserProperties, clusterOperations, notificationsSender)
+        SubmissionReleaserTrigger(appProperties, releaserProperties, clusterOperations, schedulerNotificationsSender)
 
     @Bean
     fun exporterTrigger(
         appProperties: AppProperties,
         clusterOperations: ClusterOperations,
         exporterProperties: ExporterProperties,
-        notificationsSender: NotificationsSender,
-    ): ExporterTrigger = ExporterTrigger(appProperties, exporterProperties, clusterOperations, notificationsSender)
+        pmcNotificationsSender: PmcNotificationsSender,
+        schedulerNotificationsSender: SchedulerNotificationsSender,
+    ): ExporterTrigger = ExporterTrigger(
+        appProperties,
+        exporterProperties,
+        clusterOperations,
+        pmcNotificationsSender,
+        schedulerNotificationsSender,
+    )
 
     @Bean
     fun scheduler(

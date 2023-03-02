@@ -11,10 +11,10 @@ import ac.uk.ebi.scheduler.properties.PmcMode.LOAD
 import ac.uk.ebi.scheduler.properties.PmcMode.PROCESS
 import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT
 import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT_SINGLE
-import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import mu.KotlinLogging
 import uk.ac.ebi.scheduler.common.SYSTEM_NAME
+import uk.ac.ebi.scheduler.common.config.PmcNotificationsSender
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.importer.api.PmcProcessorProp
 
@@ -26,13 +26,13 @@ internal const val SUBMITTER_SUBSYSTEM = "PMC Submitter Trigger"
 
 internal class PmcLoaderService private constructor(
     private val pmcLoaderService: PmcLoader,
-    private val notificationsSender: NotificationsSender,
+    private val pmcNotificationsSender: PmcNotificationsSender,
 ) {
     constructor(
         clusterOperations: ClusterOperations,
         properties: PmcProcessorProp,
         appProperties: AppProperties,
-        notificationsSender: NotificationsSender,
+        notificationsSender: PmcNotificationsSender,
     ) : this(PmcLoader(clusterOperations, properties, appProperties), notificationsSender)
 
     fun loadFile(folder: String?, file: String?, debugPort: Int? = null): Job {
@@ -43,7 +43,7 @@ internal class PmcLoaderService private constructor(
             debugPort?.let { add("debugPort='$it'") }
         }.joinToString()
 
-        notificationsSender.send(
+        pmcNotificationsSender.send(
             Report(
                 SYSTEM_NAME,
                 LOADER_SUBSYSTEM,
@@ -59,7 +59,7 @@ internal class PmcLoaderService private constructor(
             sourceFile?.let { add("sourceFile='$it'") }
             debugPort?.let { add("debugPort='$it'") }
         }.joinToString()
-        notificationsSender.send(
+        pmcNotificationsSender.send(
             Report(
                 SYSTEM_NAME,
                 PROCESSOR_SUBSYSTEM,
@@ -71,7 +71,7 @@ internal class PmcLoaderService private constructor(
 
     fun triggerSubmitter(sourceFile: String?, debugPort: Int? = null): Job {
         val job = pmcLoaderService.triggerSubmitter(sourceFile, debugPort)
-        notificationsSender.send(
+        pmcNotificationsSender.send(
             Report(
                 SYSTEM_NAME,
                 SUBMITTER_SUBSYSTEM,
@@ -83,7 +83,7 @@ internal class PmcLoaderService private constructor(
 
     fun triggerSubmitSingle(debugPort: Int? = null, submissionId: String): Job {
         val job = pmcLoaderService.triggerSubmitSingle(submissionId, debugPort)
-        notificationsSender.send(
+        pmcNotificationsSender.send(
             Report(
                 SYSTEM_NAME,
                 SUBMITTER_SUBSYSTEM,
@@ -172,7 +172,7 @@ private class PmcLoader(
             temp = properties.temp,
             mongodbUri = properties.mongoUri,
             mongodbDatabase = properties.mongoDatabase,
-            notificationsUrl = appProperties.notificationsUrl,
+            notificationsUrl = appProperties.slack.pmcNotificationsUrl,
             pmcBaseUrl = "http://www.ft-loading.europepmc.org",
             bioStudiesUser = properties.bioStudiesUser,
             bioStudiesPassword = properties.bioStudiesPassword,

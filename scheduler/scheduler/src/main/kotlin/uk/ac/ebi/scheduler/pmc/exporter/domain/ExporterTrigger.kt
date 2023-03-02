@@ -13,6 +13,8 @@ import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import mu.KotlinLogging
 import uk.ac.ebi.scheduler.common.SYSTEM_NAME
+import uk.ac.ebi.scheduler.common.config.PmcNotificationsSender
+import uk.ac.ebi.scheduler.common.config.SchedulerNotificationsSender
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties as ExporterProps
 
@@ -25,33 +27,41 @@ class ExporterTrigger(
     private val appProperties: AppProperties,
     private val exporterProperties: ExporterProps,
     private val clusterOperations: ClusterOperations,
-    private val notificationsSender: NotificationsSender,
+    private val pmcNotificationsSender: PmcNotificationsSender,
+    private val schedulerNotificationsSender: SchedulerNotificationsSender,
 ) {
     fun triggerPmcExport(debugPort: Int? = null): Job {
         logger.info { "Triggering PMC export job" }
 
-        return triggerExport(
+        val config = ExporterJobConfig(
             PMC,
             exporterProperties.pmc.fileName,
             exporterProperties.pmc.outputPath,
-            debugPort
+            debugPort,
+            pmcNotificationsSender,
         )
+
+        return triggerExport(config)
     }
 
     fun triggerPublicExport(debugPort: Int? = null): Job {
         logger.info { "Triggering public only export job" }
 
-        return triggerExport(
+        val config = ExporterJobConfig(
             PUBLIC_ONLY,
             exporterProperties.publicOnly.fileName,
             exporterProperties.publicOnly.outputPath,
-            debugPort
+            debugPort,
+            schedulerNotificationsSender,
         )
+
+        return triggerExport(config)
     }
 
-    private fun triggerExport(mode: ExporterMode, fileName: String, outputPath: String, debugPort: Int?): Job {
-        val job = exporterJob(mode, fileName, outputPath, debugPort)
-        notificationsSender.send(
+    private fun triggerExport(config: ExporterJobConfig): Job {
+        val mode = config.mode
+        val job = exporterJob(config)
+        config.notifier.send(
             Report(
                 SYSTEM_NAME,
                 EXPORTER_SUBSYSTEM,
@@ -62,7 +72,8 @@ class ExporterTrigger(
         return job
     }
 
-    private fun exporterJob(mode: ExporterMode, fileName: String, outputPath: String, debugPort: Int?): Job {
+    private fun exporterJob(config: ExporterJobConfig): Job {
+        val (mode, fileName, outputPath, debugPort, _) = config
         val exporterProperties = getConfigProperties(mode, fileName, outputPath)
         val cmd = exporterProperties.asCmd(appProperties.appsFolder, debugPort)
         val jobTry = clusterOperations.triggerJob(JobSpec(cores = EXPORTER_CORES, ram = TWENTYFOUR_GB, command = cmd))
@@ -85,4 +96,12 @@ class ExporterTrigger(
             exporterProperties.bioStudies.user,
             exporterProperties.bioStudies.password
         )
+
+    private data class ExporterJobConfig(
+        val mode: ExporterMode,
+        val fileName: String,
+        val outputPath: String,
+        val debugPort: Int?,
+        val notifier: NotificationsSender,
+    )
 }
