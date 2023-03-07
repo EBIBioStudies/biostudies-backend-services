@@ -49,14 +49,10 @@ internal class FireWebClient(
     override fun downloadByPath(
         path: String,
     ): File? {
-        return downloadFireFile(path.substringAfterLast("/"), "/objects/blob/path/$path")
-    }
-
-    private fun downloadFireFile(fileName: String, downloadUrl: String): File? {
-        return when (val fileContent = template.getForObjectOrNull<ByteArray?>(downloadUrl)) {
+        return when (val fileContent = template.getForObjectOrNull<ByteArray?>("/objects/blob/path/$path")) {
             null -> null
             else -> {
-                val tmpFile = File(tmpDirPath, fileName)
+                val tmpFile = File(tmpDirPath, path.substringAfterLast("/"))
                 Files.write(tmpFile.toPath(), fileContent)
                 tmpFile
             }
