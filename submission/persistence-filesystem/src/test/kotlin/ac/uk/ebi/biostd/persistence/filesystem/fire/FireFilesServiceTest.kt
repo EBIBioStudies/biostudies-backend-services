@@ -62,7 +62,7 @@ internal class FireFilesServiceTest(
 
             val newFile = tempFolder.createFile("file.txt", "content")
             val newFireFile = fireApiFile(firePath = null)
-            every { fireClient.downloadByFireId(file.fireId, file.fileName) } returns newFile
+            every { fireClient.downloadByPath("/another-path/file.txt") } returns newFile
             every { fireClient.save(newFile, file.md5, file.size) } answers { newFireFile }
             every { fireClient.setPath(newFireFile.fireOid, "/001/Files/folder/file.txt") } answers { nothing }
 
@@ -145,7 +145,7 @@ internal class FireFilesServiceTest(
 
         @Test
         fun `delete submission files`(
-            @MockK submission: ExtSubmission
+            @MockK submission: ExtSubmission,
         ) {
             val file = fireFile(md5 = "md1", firePath = "path_1")
 
@@ -161,7 +161,7 @@ internal class FireFilesServiceTest(
 
         @Test
         fun `delete submission file`(
-            @MockK submission: ExtSubmission
+            @MockK submission: ExtSubmission,
         ) {
             val file = fireFile(firePath = "a file path")
             every { fireClient.delete(file.fireId) } answers { nothing }
@@ -174,7 +174,7 @@ internal class FireFilesServiceTest(
         @Test
         fun `delete nfs file`(
             @MockK nfsFile: NfsFile,
-            @MockK submission: ExtSubmission
+            @MockK submission: ExtSubmission,
         ) {
             val exception = assertFails { testInstance.deleteSubmissionFile(submission, nfsFile) }
             assertThat(exception.message).isEqualTo("FireFilesService should only handle FireFile")

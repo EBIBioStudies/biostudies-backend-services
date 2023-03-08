@@ -38,7 +38,7 @@ class SubmissionFilesSource(
     private fun getFile(file: ExtFile): File? {
         return when (file) {
             is NfsFile -> nfsFiles.getFile(file.filePath)
-            is FireFile -> fireClient.downloadByFireId(file.fireId, file.fileName)
+            is FireFile -> fireClient.downloadByPath(file.firePath!!)
         }
     }
 }

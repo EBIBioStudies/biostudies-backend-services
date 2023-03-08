@@ -13,8 +13,6 @@ interface FireClient {
 
     fun downloadByPath(path: String): File?
 
-    fun downloadByFireId(fireOid: String, fileName: String): File
-
     fun findByMd5(md5: String): List<FireApiFile>
 
     fun findByPath(path: String): FireApiFile?

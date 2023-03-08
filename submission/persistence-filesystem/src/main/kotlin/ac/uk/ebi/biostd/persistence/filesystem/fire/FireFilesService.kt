@@ -68,16 +68,16 @@ class FireFilesService(
     }
 
     private fun getOrCreate(
-        file: FireFile,
+        fireFile: FireFile,
         expectedPath: String,
     ): FireFile {
-        return when (file.firePath) {
-            expectedPath -> file
-            null -> setMetadata(file.fireId, file, expectedPath, file.published)
+        return when (val path = fireFile.firePath) {
+            expectedPath -> fireFile
+            null -> setMetadata(fireFile.fireId, fireFile, expectedPath, fireFile.published)
             else -> {
-                val downloaded = client.downloadByFireId(file.fireId, file.fileName)
-                val saved = client.save(downloaded, file.md5, file.size)
-                setMetadata(saved.fireOid, file, expectedPath, false)
+                val file = requireNotNull(client.downloadByPath(path)) { "Could not download file with path $path" }
+                val saved = client.save(file, fireFile.md5, fireFile.size)
+                setMetadata(saved.fireOid, fireFile, expectedPath, false)
             }
         }
     }
