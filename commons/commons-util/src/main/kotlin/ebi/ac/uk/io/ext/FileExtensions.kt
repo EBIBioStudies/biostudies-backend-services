@@ -29,7 +29,8 @@ fun File.newFile(name: String): File {
     return file
 }
 
-fun File.createTempFile(prefix: String, suffix: String): File = Files.createTempFile(toPath(), prefix, suffix).toFile()
+fun File.createTempFile(prefix: String? = null, suffix: String? = null): File =
+    Files.createTempFile(toPath(), prefix, suffix).toFile()
 
 fun File.createNewFile(name: String, text: String): File {
     val file = resolve(name)

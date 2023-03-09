@@ -24,8 +24,9 @@ internal class FileListTsvStreamDeserializer {
         val reader = fileList.bufferedReader()
         val (files, headers) = reader.readLine().split(TAB).destructure()
         if (files != FILES_TABLE.value) throw InvalidElementException("First header value should be 'Files'")
-
-        return reader.lineSequence().mapIndexed { index, row -> deserializeRow(index + 1, row.split(TAB), headers) }
+        return reader.lineSequence()
+            .filter { it.isNotBlank() }
+            .mapIndexed { index, row -> deserializeRow(index + 1, row.split(TAB), headers) }
     }
 
     private fun processFirstFile(firstFile: BioFile, writer: BufferedWriter) {
