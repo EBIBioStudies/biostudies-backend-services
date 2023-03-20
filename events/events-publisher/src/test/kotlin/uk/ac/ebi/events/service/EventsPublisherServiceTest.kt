@@ -1,5 +1,10 @@
 package uk.ac.ebi.events.service
 
+import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
+import ac.uk.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
+import ac.uk.ebi.biostd.common.events.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
+import ac.uk.ebi.biostd.common.events.SUBMISSIONS_REQUEST_ROUTING_KEY
+import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestMessage
 import ebi.ac.uk.extended.events.RequestPersisted
@@ -19,13 +24,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.amqp.rabbit.core.RabbitTemplate
-import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
 import uk.ac.ebi.events.config.EventsProperties
-import uk.ac.ebi.events.config.SECURITY_NOTIFICATIONS_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_RELEASE_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_ROUTING_KEY
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -79,30 +78,6 @@ class EventsPublisherServiceTest(
 
         verify(exactly = 1) {
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, notification)
-        }
-    }
-
-    @Test
-    fun submissionReleased() {
-        val notificationSlot = slot<SubmissionMessage>()
-
-        every { eventsProperties.instanceBaseUrl } returns "http://biostudies:8788"
-        every {
-            rabbitTemplate.convertAndSend(
-                BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, capture(notificationSlot)
-            )
-        } answers { nothing }
-
-        testInstance.submissionReleased("S-BSST0", "test@ebi.ac.uk")
-
-        val notification = notificationSlot.captured
-        assertThat(notification.accNo).isEqualTo("S-BSST0")
-        assertThat(notification.pagetabUrl).isEqualTo("http://biostudies:8788/submissions/S-BSST0.json")
-        assertThat(notification.extTabUrl).isEqualTo("http://biostudies:8788/submissions/extended/S-BSST0")
-        assertThat(notification.extUserUrl).isEqualTo("http://biostudies:8788/security/users/extended/test@ebi.ac.uk")
-
-        verify(exactly = 1) {
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, notification)
         }
     }
 

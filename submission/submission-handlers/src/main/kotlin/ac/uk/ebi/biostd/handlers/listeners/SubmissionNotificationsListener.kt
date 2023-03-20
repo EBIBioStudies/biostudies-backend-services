@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.handlers.listeners
 
+import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
 import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
-import ac.uk.ebi.biostd.handlers.config.BIOSTUDIES_EXCHANGE
 import ac.uk.ebi.biostd.handlers.config.FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.handlers.config.RELEASE_NOTIFICATIONS_QUEUE
