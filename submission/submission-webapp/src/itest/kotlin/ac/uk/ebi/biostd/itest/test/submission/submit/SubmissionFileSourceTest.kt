@@ -212,8 +212,8 @@ class SubmissionFileSourceTest(
             line()
         }.toString()
 
-        val file1 = tempFolder.createFile("file1.txt", "content-1")
-        val file2 = tempFolder.createFile("file2.txt", "content-2")
+        val file1 = tempFolder.createFile(".zattrs2", "content-1")
+        val file2 = tempFolder.createFile(".zattrs", "content-2")
 
         webClient.uploadFiles(listOf(file1), "directory")
         webClient.uploadFiles(listOf(file2), "directory/subdirectory")
@@ -224,8 +224,8 @@ class SubmissionFileSourceTest(
         assertThat(submitted.section.files).hasSize(1)
         assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
             assertThat(it.type).isEqualTo(ExtFileType.DIR)
-            assertThat(it.size).isEqualTo(326L)
-            assertThat(it.md5).isEqualTo("8BD1F30C5389037D06A3CA20E5549B45")
+            assertThat(it.size).isEqualTo(320)
+            assertThat(it.md5).isEqualTo("BC2B346329A096D838E316CF38733510")
 
             val subZip = tempFolder.createDirectory("target")
             ZipUtil.unpack(File("$submissionPath/${submitted.relPath}/Files/directory.zip"), subZip)
@@ -234,8 +234,8 @@ class SubmissionFileSourceTest(
                 .map { file -> file.toRelativeString(subZip) to file.readText() }
 
             assertThat(files).containsExactly(
-                "file1.txt" to file1.readText(),
-                "subdirectory/file2.txt" to file2.readText()
+                ".zattrs2" to file1.readText(),
+                "subdirectory/.zattrs" to file2.readText()
             )
         }
     }
