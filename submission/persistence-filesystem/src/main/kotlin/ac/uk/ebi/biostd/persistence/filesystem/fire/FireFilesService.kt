@@ -96,13 +96,13 @@ class FireFilesService(
         return file.asFireFile(fireOid, expectedPath, published)
     }
 
-    override fun deleteFtpLinks(sub: ExtSubmission) {
-        // No need to delete FTP links on FIRE
-    }
-
     override fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {
         require(file is FireFile) { "FireFilesService should only handle FireFile" }
         client.delete(file.fireId)
+    }
+
+    override fun deleteFtpFile(sub: ExtSubmission, file: ExtFile) {
+        // No need to delete FTP links on FIRE as file deleting complete this
     }
 
     override fun deleteSubmissionFiles(sub: ExtSubmission) {
