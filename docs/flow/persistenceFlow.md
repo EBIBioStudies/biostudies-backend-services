@@ -11,6 +11,10 @@ sequenceDiagram
 
     %% send http request
     person-->>submitter: Send submission via http
+    submitter-->>person: Files and PageTab validation errors
+
+    alt if submission is validated
+
 
     %% create request
     Note left of submitter:creation
@@ -66,5 +70,7 @@ sequenceDiagram
     Note left of submitter:finalising    
     loop for each file in previous but not in current version
         submitter->>store: Delete file
+    end
+    
     end
 ```
