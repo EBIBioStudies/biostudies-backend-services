@@ -197,7 +197,6 @@ class SubmissionFileSourceTest(
         assertThat(referencedFileFireId).isEqualTo(fireFile3.fireOid)
     }
 
-
     @Nested
     inner class SubmissionsWithFolders {
         @Test
@@ -249,7 +248,6 @@ class SubmissionFileSourceTest(
             return files
         }
     }
-
 
     @Test
     fun `6-4 multiple file references`() {
