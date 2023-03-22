@@ -25,7 +25,7 @@ fun main(args: Array<String>) {
 
 class SubmissionReleaserExecutor(
     private val applicationProperties: ApplicationProperties,
-    private val submissionReleaserService: SubmissionReleaserService
+    private val submissionReleaserService: SubmissionReleaserService,
 ) : CommandLineRunner, ApplicationContextAware {
     private lateinit var context: ApplicationContext
 

@@ -15,7 +15,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.scheduler.releaser.config.NotificationTimes
 import uk.ac.ebi.scheduler.releaser.model.ReleaseData
 import uk.ac.ebi.scheduler.releaser.persistence.ReleaserRepository
@@ -28,7 +27,7 @@ class SubmissionReleaserServiceTest(
     @MockK private val bioWebClient: BioWebClient,
     @MockK private val notificationTimes: NotificationTimes,
     @MockK private val releaserRepository: ReleaserRepository,
-    @MockK private val eventsPublisherService: EventsPublisherService
+    @MockK private val eventsPublisherService: EventsPublisherService,
 ) {
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 10, 11, 0, 0, UTC).toInstant()
     private val testInstance =
@@ -56,9 +55,9 @@ class SubmissionReleaserServiceTest(
 
         testInstance.notifySubmissionReleases()
 
-        verify(exactly = 1) { eventsPublisherService.submissionReleased("S-BSST0", "owner0@mail.org") }
-        verify(exactly = 1) { eventsPublisherService.submissionReleased("S-BSST1", "owner1@mail.org") }
-        verify(exactly = 1) { eventsPublisherService.submissionReleased("S-BSST2", "owner2@mail.org") }
+        verify(exactly = 1) { eventsPublisherService.subToBePublished("S-BSST0", "owner0@mail.org") }
+        verify(exactly = 1) { eventsPublisherService.subToBePublished("S-BSST1", "owner1@mail.org") }
+        verify(exactly = 1) { eventsPublisherService.subToBePublished("S-BSST2", "owner2@mail.org") }
     }
 
     @Test
@@ -68,7 +67,6 @@ class SubmissionReleaserServiceTest(
 
         every { bioWebClient.releaseSubmission(capture(requestSlot)) } answers { nothing }
         every { releaserRepository.findAllUntil(mockNow.asOffsetAtEndOfDay().toLocalDate()) } returns listOf(released)
-        every { eventsPublisherService.submissionsRefresh(released.accNo, released.owner) } answers { nothing }
 
         testInstance.releaseDailySubmissions()
 
@@ -77,7 +75,6 @@ class SubmissionReleaserServiceTest(
         assertThat(releaseRequest.accNo).isEqualTo("S-BSST0")
         assertThat(releaseRequest.owner).isEqualTo("owner0@mail.org")
         assertThat(releaseRequest.relPath).isEqualTo("S-BSST/000/S-BSST0")
-        verify(exactly = 1) { eventsPublisherService.submissionsRefresh(released.accNo, released.owner) }
     }
 
     @Test
@@ -96,7 +93,7 @@ class SubmissionReleaserServiceTest(
         val to = OffsetDateTime.of(2020, month, day, 23, 59, 59, 0, UTC).toLocalDate()
 
         every { releaserRepository.findAllBetween(from, to) } returns listOf(response)
-        every { eventsPublisherService.submissionReleased(response.accNo, response.owner) } answers { nothing }
+        every { eventsPublisherService.subToBePublished(response.accNo, response.owner) } answers { nothing }
     }
 
     private fun mockInstantNow() {
