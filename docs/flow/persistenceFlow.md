@@ -1,5 +1,4 @@
-Sequence Diagram NFS
-%%{init: { 'theme':'neutral', 'sequence': {'useMaxWidth':false} } }%%
+Submission Persistence Flow Diagram
 
 ```mermaid
 sequenceDiagram
