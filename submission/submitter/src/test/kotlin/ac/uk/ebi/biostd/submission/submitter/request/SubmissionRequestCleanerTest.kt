@@ -7,8 +7,8 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -64,29 +64,32 @@ class SubmissionRequestCleanerTest(
 
         verify(exactly = 1) { requestService.saveSubmissionRequest(cleanedRequest) }
         verify(exactly = 0) {
-            storageService.deleteFtpLinks(any())
+            storageService.deleteFtpFile(any(), any())
             storageService.deleteSubmissionFile(any(), any())
         }
     }
 
     @Test
     fun `clean common files with current version`(
-        @MockK newFile: ExtFile,
-        @MockK currentFile: ExtFile,
+        @MockK newFile: FireFile,
+        @MockK currentFile: FireFile,
         @MockK loadedRequest: SubmissionRequest,
         @MockK cleanedRequest: SubmissionRequest,
         @MockK requestFile: SubmissionRequestFile,
     ) {
         val new = mockSubmission()
-        val current = mockSubmission()
-        every { requestFile.file } returns newFile
-        every { loadedRequest.submission } returns new
         every { newFile.md5 } returns "new-md5"
-        every { currentFile.md5 } returns "current-md5"
-        every { requestFile.path } returns "a/b/file.txt"
         every { newFile.filePath } returns "a/b/file.txt"
+
+        val current = mockSubmission()
+        every { requestFile.path } returns "a/b/file.txt"
+        every { requestFile.file } returns newFile
+        every { currentFile.md5 } returns "current-md5"
         every { currentFile.filePath } returns "a/b/file.txt"
-        every { storageService.deleteFtpLinks(current) } answers { nothing }
+
+        every { loadedRequest.submission } returns new
+
+        every { storageService.deleteFtpFile(current, currentFile) } answers { nothing }
         every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
         every { queryService.findExtByAccNo("S-BSST1", true) } returns current
         every { requestService.getLoadedRequest("S-BSST1", 2) } returns loadedRequest
@@ -98,7 +101,7 @@ class SubmissionRequestCleanerTest(
         testInstance.cleanCurrentVersion("S-BSST1", 2)
 
         verify(exactly = 1) {
-            storageService.deleteFtpLinks(current)
+            storageService.deleteFtpFile(current, currentFile)
             requestService.saveSubmissionRequest(cleanedRequest)
             storageService.deleteSubmissionFile(current, currentFile)
         }

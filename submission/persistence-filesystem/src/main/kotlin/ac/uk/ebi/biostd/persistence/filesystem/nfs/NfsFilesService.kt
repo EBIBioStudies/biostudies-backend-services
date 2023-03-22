@@ -63,7 +63,7 @@ class NfsFilesService(
     }
 
     override fun deleteSubmissionFiles(sub: ExtSubmission) {
-        deleteFtpLinks(sub)
+        deleteFtpFolder(sub)
         deleteSubFolder(sub)
     }
 
@@ -72,9 +72,10 @@ class NfsFilesService(
         FileUtils.deleteFile(folderResolver.getSubFolder(sub.relPath).resolve(file.relPath).toFile())
     }
 
-    override fun deleteFtpLinks(sub: ExtSubmission) {
+    override fun deleteFtpFile(sub: ExtSubmission, file: ExtFile) {
         logger.info { "${sub.accNo} ${sub.owner} Started un-publishing files of submission ${sub.accNo} on NFS" }
-        FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(sub.relPath).toFile())
+        val subFolder = folderResolver.getSubmissionFtpFolder(sub.relPath)
+        FileUtils.deleteFile(subFolder.resolve(file.relPath).toFile())
         logger.info { "${sub.accNo} ${sub.owner} Finished un-publishing files of submission ${sub.accNo} on NFS" }
     }
 
@@ -82,5 +83,11 @@ class NfsFilesService(
         logger.info { "${sub.accNo} ${sub.owner} Started deleting files of submission ${sub.accNo} on NFS" }
         FileUtils.deleteFile(folderResolver.getSubFolder(sub.relPath).toFile())
         logger.info { "${sub.accNo} ${sub.owner} Finished deleting files of submission ${sub.accNo} on NFS" }
+    }
+
+    private fun deleteFtpFolder(sub: ExtSubmission) {
+        logger.info { "${sub.accNo} ${sub.owner} Started un-publishing files of submission ${sub.accNo} on NFS" }
+        FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(sub.relPath).toFile())
+        logger.info { "${sub.accNo} ${sub.owner} Finished un-publishing files of submission ${sub.accNo} on NFS" }
     }
 }
