@@ -64,6 +64,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             file = Paths.get(fullPath).toFile(),
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<NumericNode>(FILE_SIZE).longValue(),
+            type = ExtFileType.fromString(node.getNode<TextNode>(FILE_TYPE).textValue()),
             attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }
         )
     }

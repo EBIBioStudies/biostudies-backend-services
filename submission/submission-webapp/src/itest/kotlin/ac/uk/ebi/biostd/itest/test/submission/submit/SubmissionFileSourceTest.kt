@@ -238,13 +238,60 @@ class SubmissionFileSourceTest(
             }
         }
 
+        @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+        fun `6-3-2 re submission with directory with files on FIRE`() {
+            val submission = tsv {
+                line("Submission", "S-FSTST8")
+                line("Title", "Simple Submission With directory")
+                line()
+
+                line("Study")
+                line()
+
+                line("File", "directory")
+                line("Type", "test")
+                line()
+            }.toString()
+
+            val file1 = tempFolder.createFile("file1.txt", "content-1")
+            webClient.uploadFiles(listOf(file1), "directory")
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val submitted = submissionRepository.getExtByAccNo("S-FSTST8")
+            assertThat(submitted.section.files).hasSize(1)
+            assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(161L)
+                assertThat(it.md5).isEqualTo("D2B8C7BFA31857BF778B4000E7FA8975")
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory.zip")
+                assertThat(files).containsExactly("file1.txt" to file1.readText())
+            }
+
+            val file2 = tempFolder.createFile("file1.txt", "updated-content-1")
+            webClient.uploadFiles(listOf(file2), "directory")
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val updated = submissionRepository.getExtByAccNo("S-FSTST8")
+            assertThat(updated.section.files).hasSize(1)
+            assertThat(updated.section.files.first()).hasLeftValueSatisfying {
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(169L)
+                assertThat(it.md5).isEqualTo("537D49F318EC4DA1C5B82DD9025D789E")
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory.zip")
+                assertThat(files).containsExactly("file1.txt" to file2.readText())
+            }
+        }
+
         private fun getZipFiles(filePath: String): List<Pair<String, String>> {
             val subZip = tempFolder.createDirectory("target")
             ZipUtil.unpack(File(filePath), subZip)
             val files = subZip.allSubFiles()
                 .filter { file -> file.isDirectory.not() }
                 .map { file -> file.toRelativeString(subZip) to file.readText() }
-            subZip.delete()
+            subZip.deleteRecursively()
             return files
         }
     }

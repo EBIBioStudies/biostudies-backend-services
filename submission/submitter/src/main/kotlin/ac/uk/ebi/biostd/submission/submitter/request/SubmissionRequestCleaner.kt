@@ -60,7 +60,8 @@ class SubmissionRequestCleaner(
     private fun newFilesMap(new: ExtSubmission): Map<String, FileEntry> {
         return filesRequestService
             .getSubmissionRequestFiles(new.accNo, new.version, 0)
-            .associate { it.path to FileEntry(it.file.md5, it.file.storageMode) }
+            .map { it.file }
+            .associate { it.filePath to FileEntry(it.md5, it.storageMode) }
     }
 
     private data class FileEntry(val md5: String, val storageMode: StorageMode)
