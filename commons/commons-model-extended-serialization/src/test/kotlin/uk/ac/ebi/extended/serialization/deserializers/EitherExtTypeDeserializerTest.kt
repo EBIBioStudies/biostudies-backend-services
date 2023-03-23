@@ -73,6 +73,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
             "md5" to file.md5()
             "size" to file.size()
             "extType" to "nfsFile"
+            "type" to "file"
         }.toString()
 
         val extFile = testInstance.readValue<Either<ExtFile, ExtFileTable>>(json)
@@ -101,6 +102,7 @@ class EitherExtTypeDeserializerTest(private val tempFolder: TemporaryFolder) {
                     "size" to file.size()
                     "md5" to file.md5()
                     "extType" to "nfsFile"
+                    "type" to "file"
                 }
             )
             "extType" to "filesTable"

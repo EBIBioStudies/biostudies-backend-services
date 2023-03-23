@@ -48,12 +48,15 @@ import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.serialization.common.FilesResolver
+import java.io.File
 import java.nio.file.Paths
 
 @Suppress("LongParameterList")
 @Configuration
 @Import(ServiceConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class, SerializationConfiguration::class)
-class SubmitterConfig {
+class SubmitterConfig(
+    private val properties: ApplicationProperties,
+) {
     @Bean
     fun requestIndexer(
         serializationService: ExtSerializationService,
@@ -65,7 +68,8 @@ class SubmitterConfig {
     fun requestLoader(
         filesRequestService: SubmissionRequestFilesPersistenceService,
         requestService: SubmissionRequestPersistenceService,
-    ): SubmissionRequestLoader = SubmissionRequestLoader(filesRequestService, requestService)
+    ): SubmissionRequestLoader =
+        SubmissionRequestLoader(filesRequestService, requestService, File(properties.fireTempDirPath))
 
     @Bean
     fun requestSaver(

@@ -34,8 +34,7 @@ internal class FireFilesServiceTest(
     @MockK private val submission: ExtSubmission,
     @MockK private val serializationService: ExtSerializationService,
 ) {
-    private val fireTempDirPath = tempFolder.createDirectory("fire-temp")
-    private val testInstance = FireFilesService(fireClient, fireTempDirPath, serializationService)
+    private val testInstance = FireFilesService(fireClient, serializationService)
 
     @BeforeEach
     fun beforeEach() {
