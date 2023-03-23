@@ -60,9 +60,9 @@ class ExtSubmissionSubmitter(
 
     fun processRequest(accNo: String, version: Int): Unit = requestProcessor.processRequest(accNo, version)
 
-    fun saveRequest(accNo: String, version: Int): ExtSubmission = requestSaver.saveRequest(accNo, version)
-
     fun checkReleased(accNo: String, version: Int): Unit = requestReleaser.checkReleased(accNo, version)
+
+    fun saveRequest(accNo: String, version: Int): ExtSubmission = requestSaver.saveRequest(accNo, version)
 
     fun finalizeRequest(accNo: String, version: Int): ExtSubmission = requestFinalizer.finalizeRequest(accNo, version)
 
