@@ -9,6 +9,7 @@ import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
@@ -50,8 +51,8 @@ class SubmissionRequestLoader(
     }
 
     private fun loadAttributes(sub: ExtSubmission, file: NfsFile): ExtFile {
-        return when (file.type) {
-            ExtFileType.DIR -> asCompressedFile(sub.accNo, sub.version, file)
+        return when {
+            file.type == ExtFileType.DIR && sub.storageMode == FIRE -> asCompressedFile(sub.accNo, sub.version, file)
             else -> file.copy(md5 = file.file.md5(), size = file.file.size())
         }
     }
