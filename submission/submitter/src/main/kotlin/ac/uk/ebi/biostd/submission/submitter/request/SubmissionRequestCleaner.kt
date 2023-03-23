@@ -61,7 +61,7 @@ class SubmissionRequestCleaner(
         return filesRequestService
             .getSubmissionRequestFiles(new.accNo, new.version, 0)
             .map { it.file }
-            .associate { it.filePath to FileEntry(it.md5, it.storageMode) }
+            .associate { it.filePath to FileEntry(it.md5, new.storageMode) }
     }
 
     private data class FileEntry(val md5: String, val storageMode: StorageMode)
