@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
-import ac.uk.ebi.biostd.common.events.SUBMISSIONS_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
@@ -17,20 +16,21 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
-internal const val SUBMISSION_REQUEST_QUEUE = "submission-request-submitter-queue"
 internal const val LISTENER_FACTORY_NAME = "processingListenerFactory"
 
 @Configuration
-class JmsConfig {
+class JmsConfig(
+    private val properties: ApplicationProperties,
+) {
     @Bean
     fun exchange(): TopicExchange = TopicExchange(BIOSTUDIES_EXCHANGE)
 
     @Bean
-    fun requestQueue(): Queue = Queue(SUBMISSION_REQUEST_QUEUE, false)
+    fun requestQueue(): Queue = Queue(properties.notifications.requestQueue, false)
 
     @Bean
     fun requestBinding(exchange: TopicExchange): Binding =
-        BindingBuilder.bind(requestQueue()).to(exchange).with(SUBMISSIONS_REQUEST_ROUTING_KEY)
+        BindingBuilder.bind(requestQueue()).to(exchange).with(properties.notifications.requestRoutingKey)
 
     @Bean
     fun myRabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate {

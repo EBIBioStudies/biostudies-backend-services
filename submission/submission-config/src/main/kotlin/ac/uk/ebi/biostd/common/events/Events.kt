@@ -15,8 +15,5 @@ const val SECURITY_NOTIFICATIONS_ROUTING_KEY = "bio.security.notification"
 /* Indicates the ui that a submission need to be refreshed */
 const val SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY = "bio.submission.partials"
 
-/* Internal only. Used when a new submission request is created and all the following steps. */
-const val SUBMISSIONS_REQUEST_ROUTING_KEY = "bio.submission.requested"
-
 /* Internal only. Used when a new submission request fail at any stage. */
 const val SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY = "bio.submission.failed"

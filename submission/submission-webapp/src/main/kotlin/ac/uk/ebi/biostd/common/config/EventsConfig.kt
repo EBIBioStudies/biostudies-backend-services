@@ -9,20 +9,22 @@ import uk.ac.ebi.events.config.EventsPublisherConfig
 import uk.ac.ebi.events.service.EventsPublisherService
 
 @Configuration
-class EventsConfig {
+class EventsConfig(
+    private val applicationProperties: ApplicationProperties,
+) {
     @Bean
-    fun eventsProperties(
-        applicationProperties: ApplicationProperties
-    ): EventsProperties = EventsProperties(instanceBaseUrl = applicationProperties.instanceBaseUrl)
+    fun eventsProperties(): EventsProperties =
+        EventsProperties(instanceBaseUrl = applicationProperties.instanceBaseUrl)
 
     @Bean
     fun eventsPublisherConfig(
         eventsProperties: EventsProperties,
-        connectionFactory: ConnectionFactory
-    ): EventsPublisherConfig = EventsPublisherConfig(eventsProperties, connectionFactory)
+        connectionFactory: ConnectionFactory,
+    ): EventsPublisherConfig =
+        EventsPublisherConfig(eventsProperties, connectionFactory, applicationProperties.notifications)
 
     @Bean
     fun eventsPublisherService(
-        eventsPublisherConfig: EventsPublisherConfig
+        eventsPublisherConfig: EventsPublisherConfig,
     ): EventsPublisherService = eventsPublisherConfig.eventsPublisherService()
 }
