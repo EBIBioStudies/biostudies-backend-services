@@ -40,23 +40,23 @@ class SubmissionQueryResource(
     @GetMapping("/{accNo}.tsv", produces = [TEXT_PLAIN])
     fun asTsv(@PathVariable accNo: String) = submissionService.getSubmission(accNo, SubFormat.TSV)
 
-    @GetMapping("/{accNo}/{fileListPath}.tsv")
+    @GetMapping("/{accNo}/{fileList}.tsv")
     fun asTsv(
         @PathVariable accNo: String,
-        @PathVariable fileListPath: String,
-    ): ResponseEntity<Resource> = fileListFile(accNo, fileListPath, SubFormat.TSV)
+        @PathVariable fileList: String,
+    ): ResponseEntity<Resource> = fileListFile(accNo, fileList, SubFormat.TSV)
 
-    @GetMapping("/{accNo}/{fileListPath}.xml")
+    @GetMapping("/{accNo}/{fileList}.xml")
     fun asXml(
         @PathVariable accNo: String,
-        @PathVariable fileListPath: String,
-    ): ResponseEntity<Resource> = fileListFile(accNo, fileListPath, SubFormat.XML)
+        @PathVariable fileList: String,
+    ): ResponseEntity<Resource> = fileListFile(accNo, fileList, SubFormat.XML)
 
-    @GetMapping("/{accNo}/{fileListPath}.json")
+    @GetMapping("/{accNo}/{fileList}.json")
     fun asJson(
         @PathVariable accNo: String,
-        @PathVariable fileListPath: String,
-    ): ResponseEntity<Resource> = fileListFile(accNo, fileListPath, SubFormat.JSON)
+        @PathVariable fileList: String,
+    ): ResponseEntity<Resource> = fileListFile(accNo, fileList, SubFormat.JSON)
 
     @GetMapping
     fun getSubmissions(
@@ -64,8 +64,8 @@ class SubmissionQueryResource(
         @ModelAttribute request: SubmissionFilterRequest,
     ): List<SubmissionDto> = submissionsWebHandler.getSubmissions(user, request.asFilter()).map { it.asDto() }
 
-    private fun fileListFile(accNo: String, fileListPath: String, subFormat: SubFormat): ResponseEntity<Resource> {
-        val fileList = submissionService.getFileList(accNo, fileListPath, subFormat)
+    private fun fileListFile(accNo: String, fileListName: String, subFormat: SubFormat): ResponseEntity<Resource> {
+        val fileList = submissionService.getFileList(accNo, fileListName, subFormat)
         val resource = ByteArrayResource(Files.readAllBytes(fileList.toPath()))
         return ResponseEntity.ok()
             .contentLength(fileList.length())
