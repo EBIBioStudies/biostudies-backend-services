@@ -8,7 +8,6 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
-
 class S3Client(
     private val amazonS3Client: AmazonS3,
     private val bucketName: String,

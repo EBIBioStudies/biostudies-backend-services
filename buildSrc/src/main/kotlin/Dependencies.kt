@@ -8,6 +8,7 @@ import TestVersions.JunitExtensionsVersion
 import TestVersions.JunitVersion
 import TestVersions.MockKVersion
 import TestVersions.RabbitmqMockVersion
+import TestVersions.TestContainerS3mockVersion
 import TestVersions.TestContainerVersion
 import TestVersions.WiremockVersion
 import TestVersions.XmlUnitVersion
@@ -60,6 +61,7 @@ object TestVersions {
     const val WiremockVersion = "2.27.2"
     const val RabbitmqMockVersion = "1.1.0"
     const val TestContainerVersion = "1.16.2"
+    const val TestContainerS3mockVersion = "2.11.0"
     const val AwaitilityVersion = "4.2.0"
 }
 
@@ -136,7 +138,7 @@ object TestDependencies {
 
     // Test Containers
     const val TestContainerMysql = "org.testcontainers:mysql:$TestContainerVersion"
-    const val TestContainerS3mock = "com.adobe.testing:s3mock-testcontainers:$TestContainerVersion"
+    const val TestContainerS3mock = "com.adobe.testing:s3mock-testcontainers:$TestContainerS3mockVersion"
     const val TestContainerMongoDb = "org.testcontainers:mongodb:$TestContainerVersion"
     const val TestContainer = "org.testcontainers:testcontainers:$TestContainerVersion"
     const val TestContainerJUnit = "org.testcontainers:junit-jupiter:$TestContainerVersion"

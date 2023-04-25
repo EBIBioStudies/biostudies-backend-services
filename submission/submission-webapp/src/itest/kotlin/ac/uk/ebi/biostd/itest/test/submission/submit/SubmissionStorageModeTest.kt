@@ -101,7 +101,6 @@ class SubmissionStorageModeTest(
         val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-2")
         webClient.uploadFiles(listOf(file, fileListFile, fileList))
 
-
         assertThat(webClient.submitSingle(submission, TSV, NFS)).isSuccessful()
         val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-2", includeFileListFiles = true)
         assertThat(nfsSub.storageMode).isEqualTo(NFS)

@@ -64,7 +64,6 @@ class ITestListener : TestExecutionListener {
         System.setProperty("app.fire.username", FIRE_USERNAME)
         System.setProperty("app.fire.password", FIRE_PASSWORD)
 
-
         s3Container.start()
         System.setProperty("app.fire.s3AccessKey", "anyKey")
         System.setProperty("app.fire.s3SecretKey", "anySecret")

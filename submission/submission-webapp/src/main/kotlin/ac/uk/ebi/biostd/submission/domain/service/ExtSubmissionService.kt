@@ -55,8 +55,8 @@ class ExtSubmissionService(
         require(source.storageMode != target) { throw InvalidTransferTargetException() }
 
         val transfer = processSubmission(user, source.copy(storageMode = target))
-        val (accNo, version) = submissionSubmitter.createRequest(ExtSubmitRequest(transfer, transfer.submitter))
-        eventsPublisherService.submissionRequest(accNo, version)
+        val (rqtAccNo, rqtVersion) = submissionSubmitter.createRequest(ExtSubmitRequest(transfer, transfer.submitter))
+        eventsPublisherService.submissionRequest(rqtAccNo, rqtVersion)
     }
 
     private fun processSubmission(user: String, extSubmission: ExtSubmission): ExtSubmission {

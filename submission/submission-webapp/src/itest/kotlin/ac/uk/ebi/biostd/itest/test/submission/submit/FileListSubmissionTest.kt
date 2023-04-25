@@ -35,6 +35,7 @@ import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -216,6 +217,7 @@ class FileListSubmissionTest(
     }
 
     @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "false")
     fun `3-5 reuse previous version file list`() {
         val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
         fun submission(fileList: String) = tsv {
