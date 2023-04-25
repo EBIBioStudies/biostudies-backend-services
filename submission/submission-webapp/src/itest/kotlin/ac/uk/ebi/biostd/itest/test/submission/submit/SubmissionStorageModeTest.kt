@@ -157,7 +157,7 @@ class SubmissionStorageModeTest(
         assertThat(webClient.submitSingle(submission, TSV, FIRE)).isSuccessful()
         val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-4", includeFileListFiles = true)
 
-        // We upload files manually into S3
+        // We upload files manually into S3 to simulate fire S3 support.
         amazonS3.uploadFile("/S-STR-MODE-/004/S-STR-MODE-4/Files/one_file.txt", file)
         amazonS3.uploadFile("/S-STR-MODE-/004/S-STR-MODE-4/Files/file-list-file.txt", fileListFile)
 
