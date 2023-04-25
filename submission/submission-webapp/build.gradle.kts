@@ -43,6 +43,7 @@ import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
 import TestDependencies.TestContainerMysql
+import TestDependencies.TestContainerS3mock
 import TestDependencies.Wiremock
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
@@ -127,6 +128,7 @@ dependencies {
     testImplementation(XmlUnitMatchers)
 
     testImplementation(TestContainerMysql)
+    testImplementation(TestContainerS3mock)
     testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)
     testImplementation(TestContainerJUnit)

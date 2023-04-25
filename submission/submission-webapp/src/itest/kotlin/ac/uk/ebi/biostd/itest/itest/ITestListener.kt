@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.itest.common.FIRE_USERNAME
 import ac.uk.ebi.biostd.itest.common.SpecificMySQLContainer
 import ac.uk.ebi.biostd.itest.wiremock.TestWireMockTransformer
 import ac.uk.ebi.biostd.itest.wiremock.TestWireMockTransformer.Companion.newTransformer
+import com.adobe.testing.s3mock.testcontainers.S3MockContainer
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.post
@@ -59,10 +60,17 @@ class ITestListener : TestExecutionListener {
                 .willReturn(WireMock.aResponse().withTransformers(TestWireMockTransformer.name))
         )
         fireApiMock.start()
-
         System.setProperty("app.fire.host", fireApiMock.baseUrl())
         System.setProperty("app.fire.username", FIRE_USERNAME)
         System.setProperty("app.fire.password", FIRE_PASSWORD)
+
+
+        s3Container.start()
+        System.setProperty("app.fire.s3AccessKey", "anyKey")
+        System.setProperty("app.fire.s3SecretKey", "anySecret")
+        System.setProperty("app.fire.s3region", "us-east-1")
+        System.setProperty("app.fire.s3endpoint", s3Container.httpEndpoint)
+        System.setProperty("app.fire.s3bucket", defaultBucket)
     }
 
     private fun appPropertiesSetup() {
@@ -78,6 +86,8 @@ class ITestListener : TestExecutionListener {
 
     companion object {
         val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()
+        val defaultBucket = "bio-fire-bucket"
+
         internal val nfsSubmissionPath = testAppFolder.createDirectory("submission")
         internal val fireSubmissionPath = testAppFolder.createDirectory("submission-fire")
         internal val firePath = testAppFolder.createDirectory("fire-db")
@@ -92,9 +102,10 @@ class ITestListener : TestExecutionListener {
         internal val magicDirPath = testAppFolder.createDirectory("magic")
         internal val dropboxPath = testAppFolder.createDirectory("dropbox")
 
-        internal val fireApiMock = createFireApiMock(fireFtpPath)
+        private val fireApiMock = createFireApiMock(fireFtpPath)
         private val mongoContainer = createMongoContainer()
         private val mysqlContainer = createMysqlContainer()
+        private val s3Container = createMockS3Container()
 
         val enableFire get() = System.getProperty("enableFire").toBoolean()
         val storageMode get() = if (enableFire) StorageMode.FIRE else StorageMode.NFS
@@ -111,17 +122,20 @@ class ITestListener : TestExecutionListener {
                 .withInitScript(MYSQL_SCHEMA)
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
+        private fun createMockS3Container(): S3MockContainer {
+            return S3MockContainer("latest")
+                .withInitialBuckets(defaultBucket)
+        }
+
         private fun createFireApiMock(ftpDir: File): WireMockServer {
             val factor = System.getenv("ITEST_FAIL_FACTOR")?.toInt()
             val transformer = newTransformer(fireSubmissionPath.toPath(), ftpDir.toPath(), firePath.toPath(), factor)
-
             return WireMockServer(WireMockConfiguration().dynamicPort().extensions(transformer))
         }
 
         private fun File.createDirectory(path: String): File {
             val file = resolve(path)
             file.mkdir()
-
             return file
         }
     }

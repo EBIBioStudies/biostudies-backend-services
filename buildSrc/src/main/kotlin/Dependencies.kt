@@ -134,6 +134,7 @@ object TestDependencies {
 
     // Test Containers
     const val TestContainerMysql = "org.testcontainers:mysql:$TestContainerVersion"
+    const val TestContainerS3mock = "com.adobe.testing:s3mock-testcontainers:$TestContainerVersion"
     const val TestContainerMongoDb = "org.testcontainers:mongodb:$TestContainerVersion"
     const val TestContainer = "org.testcontainers:testcontainers:$TestContainerVersion"
     const val TestContainerJUnit = "org.testcontainers:junit-jupiter:$TestContainerVersion"

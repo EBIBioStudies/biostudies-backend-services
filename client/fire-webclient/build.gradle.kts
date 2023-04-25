@@ -32,6 +32,7 @@ dependencies {
     implementation(JSONOrg)
     implementation(SpringWeb)
     implementation(SpringRetry)
+    implementation("com.amazonaws:aws-java-sdk-s3:1.12.293")
 
     testApi(project(CommonsTest))
     testApi(project(JsonLibrary))

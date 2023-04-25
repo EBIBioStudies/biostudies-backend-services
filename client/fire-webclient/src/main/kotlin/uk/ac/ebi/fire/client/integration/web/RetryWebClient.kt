@@ -7,7 +7,8 @@ import java.io.File
 
 @Suppress("TooManyFunctions")
 internal class RetryWebClient(
-    private val fireClient: FireClient,
+    private val fireClient: FireWebClient,
+    private val fireS3Client: FireS3Client,
     private val template: RetryTemplate,
 ) : FireClient {
     override fun save(file: File, md5: String, size: Long): FireApiFile {
@@ -23,11 +24,6 @@ internal class RetryWebClient(
     override fun unsetPath(fireOid: String) {
         val opt = "Unset path fireOid='$fireOid'"
         template.execute(opt) { fireClient.unsetPath(fireOid) }
-    }
-
-    override fun downloadByPath(path: String): File? {
-        val opt = "Download file path='$path'"
-        return template.execute(opt) { fireClient.downloadByPath(path) }
     }
 
     override fun findByMd5(md5: String): List<FireApiFile> {
@@ -58,5 +54,10 @@ internal class RetryWebClient(
     override fun delete(fireOid: String) {
         val opt = "Delete file fireOid='$fireOid'"
         template.execute(opt) { fireClient.delete(fireOid) }
+    }
+
+    override fun downloadByPath(path: String): File? {
+        val opt = "Dowload file path='$path'"
+        return template.execute(opt) { fireS3Client.downloadByPath(path) }
     }
 }
