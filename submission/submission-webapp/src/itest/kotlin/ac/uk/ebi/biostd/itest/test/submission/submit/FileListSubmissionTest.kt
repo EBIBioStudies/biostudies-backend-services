@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
@@ -14,6 +15,8 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.model.PutObjectResult
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
@@ -53,8 +56,10 @@ import java.nio.file.Paths
 @Transactional
 class FileListSubmissionTest(
     @Autowired private val securityTestService: SecurityTestService,
-    @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
+    @Autowired private val subRepository: SubmissionPersistenceQueryService,
     @LocalServerPort val serverPort: Int,
+    @Autowired val amazonS3: AmazonS3,
+    @Autowired val properties: ApplicationProperties,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -216,9 +221,12 @@ class FileListSubmissionTest(
         assertThat(referenced.md5).isEqualTo(referencedFile.md5())
     }
 
+    private fun AmazonS3.uploadFile(key: String, file: File): PutObjectResult =
+        amazonS3.putObject(properties.fire.s3bucket, key, file)
+
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "false")
-    fun `3-5 reuse previous version file list`() {
+    fun `3-5-1 reuse previous version file list NFS`() {
         val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
         fun submission(fileList: String) = tsv {
             line("Submission", "S-TEST7")
@@ -250,6 +258,44 @@ class FileListSubmissionTest(
     }
 
     @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+    fun `3-5-2 reuse previous version file list FIRE`() {
+        val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
+        fun submission(fileList: String) = tsv {
+            line("Submission", "S-TEST72")
+            line("Title", "Reuse Previous Version File List")
+            line()
+
+            line("Study")
+            line("File List", fileList)
+            line()
+        }.toString()
+
+        val fileList = tempFolder.createFile(
+            "reusable-file-list.tsv",
+            tsv {
+                line("Files", "GEN")
+                line("File7.txt", "ABC")
+            }.toString()
+        )
+
+        val firstVersion = submission(fileList = "reusable-file-list.tsv")
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
+        assertThat(webClient.submitSingle(firstVersion, TSV, filesConfig)).isSuccessful()
+        assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
+
+        amazonS3.uploadFile(
+            "/S-TEST/072/S-TEST72/Files/reusable-file-list.json",
+            File("$submissionPath/${subRepository.getExtByAccNo("S-TEST72").relPath}/Files/reusable-file-list.json")
+        )
+        fileList.delete()
+
+        val secondVersion = submission(fileList = "reusable-file-list.json")
+        assertThat(webClient.submitSingle(secondVersion, TSV)).isSuccessful()
+        assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
+    }
+
+    @Test
     fun `3-6 empty file list`() {
         val sub = tsv {
             line("Submission", "S-TEST8")
@@ -276,7 +322,7 @@ class FileListSubmissionTest(
     }
 
     private fun assertSubmissionFiles(accNo: String, testFile: String, fileListName: String) {
-        val createdSub = submissionRepository.getExtByAccNo(accNo)
+        val createdSub = subRepository.getExtByAccNo(accNo)
         val subFolder = "$submissionPath/${createdSub.relPath}"
 
         if (enableFire) {
