@@ -57,6 +57,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                         "md5" to "abc-md5"
                         "size" to 55
                         "fullPath" to fileListPageTab.absolutePath
+                        "type" to "file"
                         "extType" to "nfsFile"
                     }
                 )
@@ -94,6 +95,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                     "size" to 55
                     "fullPath" to sectionFile.absolutePath
                     "extType" to "nfsFile"
+                    "type" to "file"
                 },
                 jsonObj {
                     "files" to jsonArray(
@@ -105,6 +107,7 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                             "md5" to "abc-md5"
                             "size" to 55
                             "extType" to "nfsFile"
+                            "type" to "file"
                         }
                     )
                     "extType" to "filesTable"

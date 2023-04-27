@@ -1,5 +1,9 @@
 package ac.uk.ebi.biostd.handlers.config
 
+import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
+import ac.uk.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
+import ac.uk.ebi.biostd.common.events.SUBMISSIONS_PUBLISHED_ROUTING_KEY
+import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.Queue
@@ -7,19 +11,16 @@ import org.springframework.amqp.core.TopicExchange
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
-const val BIOSTUDIES_EXCHANGE = "biostudies-exchange"
-const val SUBMISSIONS_ROUTING_KEY = "bio.submission.published"
-const val SUBMISSIONS_RELEASE_ROUTING_KEY = "bio.submission.published.notification"
-const val SECURITY_NOTIFICATIONS_ROUTING_KEY = "bio.security.notification"
 const val NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY = "bio.notification.failed"
 const val SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY = "bio.submission.failed"
 
-const val LOG_QUEUE = "submission-submitted-log-queue"
-const val ST_LOG_QUEUE = "submission-submitted-st-queue"
-const val FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE = "submission-failed-notifications-queue"
-const val SUBMIT_NOTIFICATIONS_QUEUE = "submission-submitted-notifications-queue"
-const val RELEASE_NOTIFICATIONS_QUEUE = "submission-released-notifications-queue"
-const val SECURITY_NOTIFICATIONS_QUEUE = "security-notifications-queue"
+internal const val LOG_QUEUE = "submission-submitted-log-queue"
+internal const val SECURITY_NOTIFICATIONS_QUEUE = "security-notifications-queue"
+internal const val SUBMIT_NOTIFICATIONS_QUEUE = "submission-submitted-notifications-queue"
+internal const val RELEASE_NOTIFICATIONS_QUEUE = "submission-released-notifications-queue"
+internal const val FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE = "submission-failed-notifications-queue"
+
+private const val ST_LOG_QUEUE = "submission-submitted-st-queue"
 
 private const val DURABLES_QUEUES = true
 
@@ -61,7 +62,7 @@ class QueuesConfig {
 
     @Bean
     fun releaseNotificationsQueueBinding(exchange: TopicExchange): Binding =
-        BindingBuilder.bind(releaseNotificationsQueue()).to(exchange).with(SUBMISSIONS_RELEASE_ROUTING_KEY)
+        BindingBuilder.bind(releaseNotificationsQueue()).to(exchange).with(SUBMISSIONS_PUBLISHED_ROUTING_KEY)
 
     @Bean
     fun failedSubmissionNotificationQueueBinding(exchange: TopicExchange): Binding =

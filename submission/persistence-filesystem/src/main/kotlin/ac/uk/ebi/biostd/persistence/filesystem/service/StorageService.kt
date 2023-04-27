@@ -31,10 +31,10 @@ class StorageService(
         }
     }
 
-    override fun deleteFtpLinks(sub: ExtSubmission) =
+    override fun deleteFtpFile(sub: ExtSubmission, file: ExtFile) =
         when (sub.storageMode) {
-            FIRE -> fireFilesService.deleteFtpLinks(sub)
-            NFS -> nfsFilesService.deleteFtpLinks(sub)
+            FIRE -> fireFilesService.deleteFtpFile(sub, file)
+            NFS -> nfsFilesService.deleteFtpFile(sub, file)
         }
 
     override fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) =

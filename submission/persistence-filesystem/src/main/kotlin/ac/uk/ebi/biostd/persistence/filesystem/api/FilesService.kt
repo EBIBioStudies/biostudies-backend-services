@@ -10,5 +10,5 @@ internal interface FilesService {
 
     fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile)
 
-    fun deleteFtpLinks(sub: ExtSubmission)
+    fun deleteFtpFile(sub: ExtSubmission, file: ExtFile)
 }

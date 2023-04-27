@@ -2,27 +2,20 @@ package ac.uk.ebi.biostd.persistence.filesystem.fire
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileType.DIR
-import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.asFireFile
 import ebi.ac.uk.extended.model.expectedPath
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.fileSequence
 import uk.ac.ebi.fire.client.integration.web.FireClient
-import java.io.File
-import java.nio.file.Files
 
 private val logger = KotlinLogging.logger {}
 
 class FireFilesService(
     private val client: FireClient,
-    private val fireTempDirPath: File,
     private val serializationService: ExtSerializationService,
 ) : FilesService {
     /**
@@ -37,47 +30,21 @@ class FireFilesService(
     override fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): FireFile {
         return when (file) {
             is FireFile -> getOrCreate(file, sub.expectedPath(file))
-            is NfsFile -> {
-                val nfsFile = if (file.type == FILE) file else asCompressedFile(sub.accNo, sub.version, file)
-                return getOrCreate(nfsFile, sub.expectedPath(nfsFile))
-            }
+            is NfsFile -> return getOrCreate(file, sub.expectedPath(file))
         }
-    }
-
-    private fun asCompressedFile(accNo: String, version: Int, directory: NfsFile): NfsFile {
-        fun compress(file: File): File {
-            val tempFolder = fireTempDirPath.resolve("$accNo/$version")
-            tempFolder.mkdirs()
-
-            val target = tempFolder.resolve("${file.name}.zip")
-            Files.deleteIfExists(target.toPath())
-            ZipUtil.pack(file, target)
-            return target
-        }
-
-        val compressed = compress(directory.file)
-        return directory.copy(
-            filePath = "${directory.filePath}.zip",
-            relPath = "${directory.relPath}.zip",
-            file = compressed,
-            fullPath = "${directory.fullPath}.zip",
-            md5 = compressed.md5(),
-            size = compressed.size(),
-            type = DIR
-        )
     }
 
     private fun getOrCreate(
-        file: FireFile,
+        fireFile: FireFile,
         expectedPath: String,
     ): FireFile {
-        return when (file.firePath) {
-            expectedPath -> file
-            null -> setMetadata(file.fireId, file, expectedPath, file.published)
+        return when (val path = fireFile.firePath) {
+            expectedPath -> fireFile
+            null -> setMetadata(fireFile.fireId, fireFile, expectedPath, fireFile.published)
             else -> {
-                val downloaded = client.downloadByFireId(file.fireId, file.fileName)
-                val saved = client.save(downloaded, file.md5, file.size)
-                setMetadata(saved.fireOid, file, expectedPath, false)
+                val file = requireNotNull(client.downloadByPath(path)) { "Could not download file with path $path" }
+                val saved = client.save(file, fireFile.md5, fireFile.size)
+                setMetadata(saved.fireOid, fireFile, expectedPath, false)
             }
         }
     }
@@ -96,13 +63,13 @@ class FireFilesService(
         return file.asFireFile(fireOid, expectedPath, published)
     }
 
-    override fun deleteFtpLinks(sub: ExtSubmission) {
-        // No need to delete FTP links on FIRE
-    }
-
     override fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {
         require(file is FireFile) { "FireFilesService should only handle FireFile" }
         client.delete(file.fireId)
+    }
+
+    override fun deleteFtpFile(sub: ExtSubmission, file: ExtFile) {
+        // No need to delete FTP links on FIRE as file deleting complete this
     }
 
     override fun deleteSubmissionFiles(sub: ExtSubmission) {

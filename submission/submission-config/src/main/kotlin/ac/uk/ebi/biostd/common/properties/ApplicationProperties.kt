@@ -19,6 +19,7 @@ data class ApplicationProperties(
     val fire: FireProperties,
     val validator: ValidatorProperties,
     val persistence: PersistenceProperties,
+    val notifications: NotificationsProperties,
 )
 
 data class RetryProperties(
@@ -42,4 +43,9 @@ data class ValidatorProperties(
 
 data class PersistenceProperties(
     val enableFire: Boolean = false,
+)
+
+data class NotificationsProperties(
+    val requestQueue: String,
+    val requestRoutingKey: String,
 )

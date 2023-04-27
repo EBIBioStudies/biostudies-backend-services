@@ -1,5 +1,11 @@
 package uk.ac.ebi.events.service
 
+import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
+import ac.uk.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
+import ac.uk.ebi.biostd.common.events.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
+import ac.uk.ebi.biostd.common.events.SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY
+import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
+import ac.uk.ebi.biostd.common.properties.NotificationsProperties
 import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
@@ -10,70 +16,62 @@ import ebi.ac.uk.extended.events.RequestMessage
 import ebi.ac.uk.extended.events.RequestPersisted
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SubmissionMessage
-import ebi.ac.uk.util.date.asIsoTime
 import org.springframework.amqp.rabbit.core.RabbitTemplate
-import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
 import uk.ac.ebi.events.config.EventsProperties
-import uk.ac.ebi.events.config.SECURITY_NOTIFICATIONS_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_RELEASE_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_ROUTING_KEY
-import java.time.OffsetDateTime
 
 @Suppress("TooManyFunctions")
 class EventsPublisherService(
     private val rabbitTemplate: RabbitTemplate,
     private val eventsProperties: EventsProperties,
+    private val notificationsProperties: NotificationsProperties,
 ) {
     fun securityNotification(notification: SecurityNotification) =
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SECURITY_NOTIFICATIONS_ROUTING_KEY, notification)
 
     fun requestCreated(accNo: String, version: Int) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestCreated(accNo, version)
+            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestCreated(accNo, version)
         )
 
     fun requestFilesCopied(accNo: String, version: Int) {
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestFilesCopied(accNo, version)
+            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestFilesCopied(accNo, version)
         )
     }
 
     fun requestIndexed(accNo: String, version: Int) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestIndexed(accNo, version)
+            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestIndexed(accNo, version)
         )
 
     fun requestLoaded(accNo: String, version: Int) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestLoaded(accNo, version)
+            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestLoaded(accNo, version)
         )
 
     fun requestCleaned(accNo: String, version: Int) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestCleaned(accNo, version)
+            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestCleaned(accNo, version)
         )
 
     fun checkReleased(accNo: String, version: Int) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestCheckedReleased(accNo, version)
+            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestCheckedReleased(accNo, version)
         )
 
     fun submissionPersisted(accNo: String, version: Int) =
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestPersisted(accNo, version)
+            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestPersisted(accNo, version)
+        )
+
+    fun submissionRequest(accNo: String, version: Int) =
+        rabbitTemplate.convertAndSend(
+            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestCreated(accNo, version)
         )
 
     fun submissionSubmitted(accNo: String, owner: String) =
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, submissionMessage(accNo, owner)
-        )
-
-    fun submissionReleased(accNo: String, owner: String) =
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, submissionMessage(accNo, owner)
         )
 
     fun submissionFailed(request: RequestMessage) =
@@ -84,17 +82,6 @@ class EventsPublisherService(
             BIOSTUDIES_EXCHANGE, SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY, submissionMessage(accNo, owner)
         )
 
-    fun submissionRequest(accNo: String, version: Int) =
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, RequestCreated(accNo, version)
-        )
-
     private fun submissionMessage(accNo: String, owner: String): SubmissionMessage =
-        SubmissionMessage(
-            accNo = accNo,
-            pagetabUrl = "${eventsProperties.instanceBaseUrl}/submissions/$accNo.json",
-            extTabUrl = "${eventsProperties.instanceBaseUrl}/submissions/extended/$accNo",
-            extUserUrl = "${eventsProperties.instanceBaseUrl}/security/users/extended/$owner",
-            eventTime = OffsetDateTime.now().asIsoTime()
-        )
+        SubmissionMessage.createNew(accNo, owner, eventsProperties.instanceBaseUrl)
 }

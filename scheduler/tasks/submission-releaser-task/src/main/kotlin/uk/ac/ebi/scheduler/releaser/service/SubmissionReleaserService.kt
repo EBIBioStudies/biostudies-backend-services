@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ebi.ac.uk.util.date.asOffsetAtEndOfDay
 import ebi.ac.uk.util.date.asOffsetAtStartOfDay
 import mu.KotlinLogging
-import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.scheduler.releaser.config.NotificationTimes
 import uk.ac.ebi.scheduler.releaser.model.ReleaseData
 import uk.ac.ebi.scheduler.releaser.persistence.ReleaserRepository
@@ -42,14 +41,11 @@ class SubmissionReleaserService(
     }
 
     private fun releaseSafely(releaseData: ReleaseData) {
-        runCatching { releaseSubmission(releaseData) }
+        runCatching {
+            bioWebClient.releaseSubmission(releaseData.asReleaseDto())
+        }
             .onFailure { logger.info { "Failed to release submission ${releaseData.accNo}" } }
             .onSuccess { logger.info { "Released submission ${releaseData.accNo}" } }
-    }
-
-    private fun releaseSubmission(releaseData: ReleaseData) {
-        bioWebClient.releaseSubmission(releaseData.asReleaseDto())
-        eventsPublisherService.submissionsRefresh(releaseData.accNo, releaseData.owner)
     }
 
     private fun notifyRelease(date: Instant) {
@@ -64,7 +60,7 @@ class SubmissionReleaserService(
 
     private fun notify(releaseData: ReleaseData) {
         logger.info { "Notifying submission release for ${releaseData.accNo}" }
-        eventsPublisherService.submissionReleased(releaseData.accNo, releaseData.owner)
+        eventsPublisherService.subToBePublished(releaseData.accNo, releaseData.owner)
     }
 
     private fun generateFtpLink(releaseData: ReleaseData) {

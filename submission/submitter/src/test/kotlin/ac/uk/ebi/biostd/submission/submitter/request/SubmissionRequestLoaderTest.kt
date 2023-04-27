@@ -39,7 +39,8 @@ class SubmissionRequestLoaderTest(
 ) {
     private val mockNow = OffsetDateTime.of(2022, 10, 5, 0, 0, 1, 0, UTC)
     private val testTime = OffsetDateTime.of(2022, 10, 4, 0, 0, 1, 0, UTC)
-    private val testInstance = SubmissionRequestLoader(filesRequestService, requestService)
+    private val fireTempDirPath = tempFolder.createDirectory("fire-temp")
+    private val testInstance = SubmissionRequestLoader(filesRequestService, requestService, fireTempDirPath)
 
     @BeforeEach
     fun beforeEach() {

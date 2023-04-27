@@ -2,6 +2,7 @@ import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Projects.CommonsBio
 import Projects.CommonsModelExtended
+import Projects.SubmissionConfig
 import SpringBootDependencies.SpringBootStarterAmqp
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -22,6 +23,7 @@ the<DependencyManagementExtension>().apply {
 dependencies {
     api(project(CommonsModelExtended))
     api(project(CommonsBio))
+    api(project(SubmissionConfig))
 
     implementation(SpringBootStarterAmqp)
     implementation(KotlinReflect)

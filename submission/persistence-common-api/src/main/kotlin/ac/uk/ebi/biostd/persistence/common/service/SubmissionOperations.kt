@@ -85,8 +85,6 @@ interface SubmissionRequestPersistenceService {
     fun getRequestStatus(accNo: String, version: Int): RequestStatus
 }
 
-data class UpdatedFile(val path: String, val file: ExtFile)
-
 interface SubmissionRequestFilesPersistenceService {
     fun saveSubmissionRequestFile(file: SubmissionRequestFile)
 

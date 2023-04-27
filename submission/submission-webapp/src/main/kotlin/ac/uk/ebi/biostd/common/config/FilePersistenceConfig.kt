@@ -50,7 +50,7 @@ class FilePersistenceConfig(
     @Bean
     fun fireFileService(
         serializationService: ExtSerializationService,
-    ): FireFilesService = FireFilesService(fireClient, File(properties.fireTempDirPath), serializationService)
+    ): FireFilesService = FireFilesService(fireClient, serializationService)
 
     @Bean
     fun pageTabService(

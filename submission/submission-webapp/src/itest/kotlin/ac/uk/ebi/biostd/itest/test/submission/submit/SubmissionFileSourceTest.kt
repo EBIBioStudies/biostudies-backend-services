@@ -35,6 +35,7 @@ import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
@@ -196,47 +197,102 @@ class SubmissionFileSourceTest(
         assertThat(referencedFileFireId).isEqualTo(fireFile3.fireOid)
     }
 
-    @Test
-    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `6-3 submission with directory with files on FIRE`() {
-        val submission = tsv {
-            line("Submission", "S-FSTST3")
-            line("Title", "Simple Submission With directory")
-            line()
+    @Nested
+    inner class SubmissionsWithFolders {
+        @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+        fun `6-3-1 submission with directory with files on FIRE`() {
+            val submission = tsv {
+                line("Submission", "S-FSTST3")
+                line("Title", "Simple Submission With directory")
+                line()
 
-            line("Study")
-            line()
+                line("Study")
+                line()
 
-            line("File", "directory")
-            line("Type", "test")
-            line()
-        }.toString()
+                line("File", "directory")
+                line("Type", "test")
+                line()
+            }.toString()
 
-        val file1 = tempFolder.createFile("file1.txt", "content-1")
-        val file2 = tempFolder.createFile("file2.txt", "content-2")
+            val file1 = tempFolder.createFile("file1.txt", "content-1")
+            val file2 = tempFolder.createFile(".file2.txt", "content-2")
 
-        webClient.uploadFiles(listOf(file1), "directory")
-        webClient.uploadFiles(listOf(file2), "directory/subdirectory")
+            webClient.uploadFiles(listOf(file1), "directory")
+            webClient.uploadFiles(listOf(file2), "directory/subdirectory")
 
-        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-        val submitted = submissionRepository.getExtByAccNo("S-FSTST3")
-        assertThat(submitted.section.files).hasSize(1)
-        assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
-            assertThat(it.type).isEqualTo(ExtFileType.DIR)
-            assertThat(it.size).isEqualTo(326L)
-            assertThat(it.md5).isEqualTo("8BD1F30C5389037D06A3CA20E5549B45")
+            val submitted = submissionRepository.getExtByAccNo("S-FSTST3")
+            assertThat(submitted.section.files).hasSize(1)
+            assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(328L)
+                assertThat(it.md5).isEqualTo("18CF763D0BBA08E1AE232C191A3B58CF")
 
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory.zip")
+                assertThat(files).containsExactly(
+                    "file1.txt" to file1.readText(),
+                    "subdirectory/.file2.txt" to file2.readText()
+                )
+            }
+        }
+
+        @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+        fun `6-3-2 re submission with directory with files on FIRE`() {
+            val submission = tsv {
+                line("Submission", "S-FSTST8")
+                line("Title", "Simple Submission With directory")
+                line()
+
+                line("Study")
+                line()
+
+                line("File", "directory")
+                line("Type", "test")
+                line()
+            }.toString()
+
+            val file1 = tempFolder.createFile("file1.txt", "content-1")
+            webClient.uploadFiles(listOf(file1), "directory")
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val submitted = submissionRepository.getExtByAccNo("S-FSTST8")
+            assertThat(submitted.section.files).hasSize(1)
+            assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(161L)
+                assertThat(it.md5).isEqualTo("D2B8C7BFA31857BF778B4000E7FA8975")
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory.zip")
+                assertThat(files).containsExactly("file1.txt" to file1.readText())
+            }
+
+            val file2 = tempFolder.createFile("file1.txt", "updated-content-1")
+            webClient.uploadFiles(listOf(file2), "directory")
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val updated = submissionRepository.getExtByAccNo("S-FSTST8")
+            assertThat(updated.section.files).hasSize(1)
+            assertThat(updated.section.files.first()).hasLeftValueSatisfying {
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(169L)
+                assertThat(it.md5).isEqualTo("537D49F318EC4DA1C5B82DD9025D789E")
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory.zip")
+                assertThat(files).containsExactly("file1.txt" to file2.readText())
+            }
+        }
+
+        private fun getZipFiles(filePath: String): List<Pair<String, String>> {
             val subZip = tempFolder.createDirectory("target")
-            ZipUtil.unpack(File("$submissionPath/${submitted.relPath}/Files/directory.zip"), subZip)
+            ZipUtil.unpack(File(filePath), subZip)
             val files = subZip.allSubFiles()
                 .filter { file -> file.isDirectory.not() }
                 .map { file -> file.toRelativeString(subZip) to file.readText() }
-
-            assertThat(files).containsExactly(
-                "file1.txt" to file1.readText(),
-                "subdirectory/file2.txt" to file2.readText()
-            )
+            subZip.deleteRecursively()
+            return files
         }
     }
 

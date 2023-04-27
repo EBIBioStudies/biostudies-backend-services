@@ -1,5 +1,10 @@
 package uk.ac.ebi.events.service
 
+import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
+import ac.uk.ebi.biostd.common.events.SECURITY_NOTIFICATIONS_ROUTING_KEY
+import ac.uk.ebi.biostd.common.events.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
+import ac.uk.ebi.biostd.common.events.SUBMISSIONS_ROUTING_KEY
+import ac.uk.ebi.biostd.common.properties.NotificationsProperties
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestMessage
 import ebi.ac.uk.extended.events.RequestPersisted
@@ -19,13 +24,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.amqp.rabbit.core.RabbitTemplate
-import uk.ac.ebi.events.config.BIOSTUDIES_EXCHANGE
 import uk.ac.ebi.events.config.EventsProperties
-import uk.ac.ebi.events.config.SECURITY_NOTIFICATIONS_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_RELEASE_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_REQUEST_ROUTING_KEY
-import uk.ac.ebi.events.config.SUBMISSIONS_ROUTING_KEY
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -33,9 +32,10 @@ import java.time.ZoneOffset
 class EventsPublisherServiceTest(
     @MockK private val rabbitTemplate: RabbitTemplate,
     @MockK private val eventsProperties: EventsProperties,
+    @MockK private val notificationsProperties: NotificationsProperties,
 ) {
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 1, 2, 3, 4, ZoneOffset.UTC)
-    private val testInstance = EventsPublisherService(rabbitTemplate, eventsProperties)
+    private val testInstance = EventsPublisherService(rabbitTemplate, eventsProperties, notificationsProperties)
 
     @BeforeEach
     fun beforeEach() {
@@ -83,30 +83,6 @@ class EventsPublisherServiceTest(
     }
 
     @Test
-    fun submissionReleased() {
-        val notificationSlot = slot<SubmissionMessage>()
-
-        every { eventsProperties.instanceBaseUrl } returns "http://biostudies:8788"
-        every {
-            rabbitTemplate.convertAndSend(
-                BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, capture(notificationSlot)
-            )
-        } answers { nothing }
-
-        testInstance.submissionReleased("S-BSST0", "test@ebi.ac.uk")
-
-        val notification = notificationSlot.captured
-        assertThat(notification.accNo).isEqualTo("S-BSST0")
-        assertThat(notification.pagetabUrl).isEqualTo("http://biostudies:8788/submissions/S-BSST0.json")
-        assertThat(notification.extTabUrl).isEqualTo("http://biostudies:8788/submissions/extended/S-BSST0")
-        assertThat(notification.extUserUrl).isEqualTo("http://biostudies:8788/security/users/extended/test@ebi.ac.uk")
-
-        verify(exactly = 1) {
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_RELEASE_ROUTING_KEY, notification)
-        }
-    }
-
-    @Test
     fun submissionFailed(@MockK request: RequestMessage) {
         every {
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY, request)
@@ -122,34 +98,32 @@ class EventsPublisherServiceTest(
     @Test
     fun `request cleaned`() {
         val requestSlot = slot<RequestCleaned>()
-        every {
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, capture(requestSlot))
-        } answers { nothing }
+        every { notificationsProperties.requestRoutingKey } returns rKey
+        every { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, rKey, capture(requestSlot)) } answers { nothing }
 
         testInstance.requestCleaned("S-BSST0", 1)
 
         val request = requestSlot.captured
         assertThat(request.version).isEqualTo(1)
         assertThat(request.accNo).isEqualTo("S-BSST0")
-        verify(exactly = 1) {
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, request)
-        }
+        verify(exactly = 1) { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, rKey, request) }
     }
 
     @Test
     fun `request persisted`() {
         val requestSlot = slot<RequestPersisted>()
-        every {
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, capture(requestSlot))
-        } answers { nothing }
+        every { notificationsProperties.requestRoutingKey } returns rKey
+        every { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, rKey, capture(requestSlot)) } answers { nothing }
 
         testInstance.submissionPersisted("S-BSST0", 1)
 
         val request = requestSlot.captured
         assertThat(request.version).isEqualTo(1)
         assertThat(request.accNo).isEqualTo("S-BSST0")
-        verify(exactly = 1) {
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_REQUEST_ROUTING_KEY, request)
-        }
+        verify(exactly = 1) { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, rKey, request) }
+    }
+
+    private companion object {
+        const val rKey = "key"
     }
 }
