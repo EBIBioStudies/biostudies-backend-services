@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.domain.service
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import org.springframework.data.domain.Page
@@ -24,11 +23,6 @@ class ExtSubmissionQueryService(
         val sub = submissionPersistenceQueryService.getExtByAccNo(accNo, false)
         val files = submissionPersistenceQueryService.getReferencedFiles(sub, fileListName)
         return ExtFileTable(files.toList())
-    }
-
-    fun getReferencedFile(accNo: String, fileListName: String): Sequence<ExtFile> {
-        val sub = submissionPersistenceQueryService.getExtByAccNo(accNo, false)
-        return submissionPersistenceQueryService.getReferencedFiles(sub, fileListName)
     }
 
     fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
