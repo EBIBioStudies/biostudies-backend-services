@@ -13,8 +13,6 @@ import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import mu.KotlinLogging
 import uk.ac.ebi.scheduler.common.SYSTEM_NAME
-import uk.ac.ebi.scheduler.common.config.PmcNotificationsSender
-import uk.ac.ebi.scheduler.common.config.SchedulerNotificationsSender
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties as ExporterProps
 
@@ -27,8 +25,8 @@ class ExporterTrigger(
     private val appProperties: AppProperties,
     private val exporterProperties: ExporterProps,
     private val clusterOperations: ClusterOperations,
-    private val pmcNotificationsSender: PmcNotificationsSender,
-    private val schedulerNotificationsSender: SchedulerNotificationsSender,
+    private val pmcNotificationsSender: NotificationsSender,
+    private val schedulerNotificationsSender: NotificationsSender,
 ) {
     fun triggerPmcExport(debugPort: Int? = null): Job {
         logger.info { "Triggering PMC export job" }

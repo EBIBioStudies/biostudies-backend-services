@@ -10,10 +10,10 @@ import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
 import ac.uk.ebi.scheduler.properties.ReleaserMode.RELEASE
 import ac.uk.ebi.scheduler.properties.SubmissionReleaserProperties
+import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import mu.KotlinLogging
 import uk.ac.ebi.scheduler.common.SYSTEM_NAME
-import uk.ac.ebi.scheduler.common.config.SchedulerNotificationsSender
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.releaser.api.SubmissionReleaserProperties as SchedulerReleaserProps
 
@@ -26,7 +26,7 @@ internal class SubmissionReleaserTrigger(
     private val appProperties: AppProperties,
     private val properties: SchedulerReleaserProps,
     private val clusterOperations: ClusterOperations,
-    private val schedulerNotificationsSender: SchedulerNotificationsSender,
+    private val schedulerNotificationsSender: NotificationsSender,
 ) {
     fun triggerSubmissionReleaser(debugPort: Int? = null): Job {
         logger.info { "triggering submission releaser job" }

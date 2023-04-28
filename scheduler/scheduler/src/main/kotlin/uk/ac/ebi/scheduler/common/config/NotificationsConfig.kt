@@ -1,12 +1,14 @@
 package uk.ac.ebi.scheduler.common.config
 
 import ebi.ac.uk.commons.http.slack.NotificationsSender
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.client.RestTemplate
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 
 @Configuration
+@EnableConfigurationProperties
 internal class NotificationsConfig {
     @Bean
     fun restTemplate(): RestTemplate = RestTemplate()
@@ -15,7 +17,7 @@ internal class NotificationsConfig {
     fun schedulerNotificationsSender(
         restTemplate: RestTemplate,
         appProperties: AppProperties
-    ): SchedulerNotificationsSender = SchedulerNotificationsSender(
+    ): NotificationsSender = NotificationsSender(
         restTemplate,
         appProperties.slack.schedulerNotificationsUrl,
     )
@@ -24,15 +26,5 @@ internal class NotificationsConfig {
     fun pmcNotificationsSender(
         restTemplate: RestTemplate,
         appProperties: AppProperties
-    ): PmcNotificationsSender = PmcNotificationsSender(restTemplate, appProperties.slack.pmcNotificationsUrl)
+    ): NotificationsSender = NotificationsSender(restTemplate, appProperties.slack.pmcNotificationsUrl)
 }
-
-class SchedulerNotificationsSender(
-    restTemplate: RestTemplate,
-    notificationsUrl: String,
-) : NotificationsSender(restTemplate, notificationsUrl)
-
-class PmcNotificationsSender(
-    restTemplate: RestTemplate,
-    notificationsUrl: String,
-) : NotificationsSender(restTemplate, notificationsUrl)

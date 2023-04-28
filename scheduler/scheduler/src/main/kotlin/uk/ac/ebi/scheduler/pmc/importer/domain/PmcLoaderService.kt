@@ -11,10 +11,10 @@ import ac.uk.ebi.scheduler.properties.PmcMode.LOAD
 import ac.uk.ebi.scheduler.properties.PmcMode.PROCESS
 import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT
 import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT_SINGLE
+import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import mu.KotlinLogging
 import uk.ac.ebi.scheduler.common.SYSTEM_NAME
-import uk.ac.ebi.scheduler.common.config.PmcNotificationsSender
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.importer.api.PmcProcessorProp
 
@@ -26,13 +26,13 @@ internal const val SUBMITTER_SUBSYSTEM = "PMC Submitter Trigger"
 
 internal class PmcLoaderService private constructor(
     private val pmcLoaderService: PmcLoader,
-    private val pmcNotificationsSender: PmcNotificationsSender,
+    private val pmcNotificationsSender: NotificationsSender,
 ) {
     constructor(
         clusterOperations: ClusterOperations,
         properties: PmcProcessorProp,
         appProperties: AppProperties,
-        notificationsSender: PmcNotificationsSender,
+        notificationsSender: NotificationsSender,
     ) : this(PmcLoader(clusterOperations, properties, appProperties), notificationsSender)
 
     fun loadFile(folder: String?, file: String?, debugPort: Int? = null): Job {

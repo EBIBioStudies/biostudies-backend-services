@@ -8,6 +8,7 @@ import ac.uk.ebi.scheduler.properties.ExporterMode
 import ac.uk.ebi.scheduler.properties.ExporterMode.PMC
 import ac.uk.ebi.scheduler.properties.ExporterMode.PUBLIC_ONLY
 import arrow.core.Try
+import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import io.mockk.called
 import io.mockk.clearAllMocks
@@ -21,8 +22,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.scheduler.common.config.PmcNotificationsSender
-import uk.ac.ebi.scheduler.common.config.SchedulerNotificationsSender
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.BioStudies
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties
@@ -37,8 +36,8 @@ class ExporterTriggerTest(
     @MockK private val job: Job,
     @MockK private val appProperties: AppProperties,
     @MockK private val clusterOperations: ClusterOperations,
-    @MockK private val pcmNotificationsSender: PmcNotificationsSender,
-    @MockK private val schedulerNotificationsSender: SchedulerNotificationsSender,
+    @MockK private val pcmNotificationsSender: NotificationsSender,
+    @MockK private val schedulerNotificationsSender: NotificationsSender,
 ) {
     private val jobSpecs = slot<JobSpec>()
     private val jobReport = slot<Report>()

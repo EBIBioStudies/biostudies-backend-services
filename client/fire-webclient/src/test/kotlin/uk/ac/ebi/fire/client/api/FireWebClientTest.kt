@@ -84,9 +84,7 @@ class FireWebClientTest(
     }
 
     @Test
-    fun `download by path`(
-        @MockK fireFile: FireApiFile,
-    ) {
+    fun `download by path`() {
         val file = tmpFolder.createFile("test.txt", "test content")
         val fireFilePath = "S-BSST1/file1.txt"
 
