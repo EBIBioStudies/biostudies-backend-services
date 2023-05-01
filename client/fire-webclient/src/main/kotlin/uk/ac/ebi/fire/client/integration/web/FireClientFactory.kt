@@ -20,13 +20,12 @@ private const val FIRE_API_BASE = "fire"
 class FireClientFactory private constructor() {
     companion object {
         fun create(
-            tmpDirPath: String,
             fireConfig: FireConfig,
             s3Config: S3Config,
             retryConfig: RetryConfig,
         ): FireClient =
             RetryWebClient(
-                createHttpClient(tmpDirPath, fireConfig),
+                createHttpClient(fireConfig),
                 createS3Client(s3Config),
                 createRetryTemplate(retryConfig)
             )
@@ -44,7 +43,7 @@ class FireClientFactory private constructor() {
         private fun createS3Client(s3Config: S3Config): FireS3Client =
             S3Client(s3Config.bucket, amazonS3Client(s3Config))
 
-        private fun createHttpClient(tmpDirPath: String, config: FireConfig): FireWebClient {
+        private fun createHttpClient(config: FireConfig): FireWebClient {
             val restTemplate = createRestTemplate(config.fireHost, config.fireVersion, config.username, config.password)
             return FireWebClient(restTemplate)
         }

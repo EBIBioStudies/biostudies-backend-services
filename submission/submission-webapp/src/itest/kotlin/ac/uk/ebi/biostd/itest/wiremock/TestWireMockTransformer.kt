@@ -12,6 +12,11 @@ import ac.uk.ebi.biostd.itest.wiremock.handlers.RequestHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.SetPathHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.UnPublishHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.UnSetPathHandler
+import com.amazonaws.auth.AWSStaticCredentialsProvider
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.client.builder.AwsClientBuilder
+import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.AmazonS3Client
 import com.github.tomakehurst.wiremock.common.FileSource
 import com.github.tomakehurst.wiremock.extension.Parameters
 import com.github.tomakehurst.wiremock.extension.ResponseDefinitionTransformer
@@ -54,8 +59,11 @@ class TestWireMockTransformer constructor(
             ftpFolder: Path,
             dbFolder: Path,
             failFactor: Int?,
+            httpEndpoint: String,
+            defaultBucket: String,
         ): TestWireMockTransformer {
-            val fileSystem = FireMockFileSystem(dbFolder, ftpFolder, subFolder)
+            val s3System = FireS3Service(defaultBucket, amazonS3Client(httpEndpoint))
+            val fileSystem = FireMockFileSystem(dbFolder, ftpFolder, subFolder, s3System)
             val fireDatabase = FireMockDatabase(fileSystem)
 
             return TestWireMockTransformer(
@@ -73,6 +81,16 @@ class TestWireMockTransformer constructor(
                     DownloadHandler(fireDatabase)
                 )
             )
+        }
+
+        fun amazonS3Client(endpoint: String): AmazonS3 {
+            val basicAWSCredentials = BasicAWSCredentials("x", "x")
+            val endpointConfiguration = AwsClientBuilder.EndpointConfiguration(endpoint, "x")
+            return AmazonS3Client.builder()
+                .withEndpointConfiguration(endpointConfiguration)
+                .withPathStyleAccessEnabled(true)
+                .withCredentials(AWSStaticCredentialsProvider(basicAWSCredentials))
+                .build()
         }
     }
 }

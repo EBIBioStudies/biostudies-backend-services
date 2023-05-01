@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.fireFtpPath
@@ -17,8 +16,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
-import com.amazonaws.services.s3.AmazonS3
-import com.amazonaws.services.s3.model.PutObjectResult
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -55,8 +52,6 @@ class SubmissionStorageModeTest(
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val serializationService: ExtSerializationService,
     @Autowired val sequenceRepository: SequenceDataRepository,
-    @Autowired val amazonS3: AmazonS3,
-    @Autowired val properties: ApplicationProperties,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
@@ -156,10 +151,6 @@ class SubmissionStorageModeTest(
         assertThat(webClient.submitSingle(submission, TSV, FIRE)).isSuccessful()
         val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-4", includeFileListFiles = true)
 
-        // We upload files manually into S3 to simulate fire S3 support.
-        amazonS3.uploadFile("/S-STR-MODE-/004/S-STR-MODE-4/Files/one_file.txt", file)
-        amazonS3.uploadFile("/S-STR-MODE-/004/S-STR-MODE-4/Files/file-list-file.txt", fileListFile)
-
         webClient.transferSubmission("S-STR-MODE-4", NFS)
         await()
             .atMost(ofSeconds(10))
@@ -195,9 +186,6 @@ class SubmissionStorageModeTest(
         assertThat(file.attributes.first()).isEqualTo(ExtAttribute("Type2", "file-list-test"))
         assertThat(file).isInstanceOf(expectType.java)
     }
-
-    private fun AmazonS3.uploadFile(key: String, file: File): PutObjectResult =
-        amazonS3.putObject(properties.fire.s3bucket, key, file)
 
     private fun createSubmission(accNo: String): Submission {
         val fileList = tempFolder.createFile(

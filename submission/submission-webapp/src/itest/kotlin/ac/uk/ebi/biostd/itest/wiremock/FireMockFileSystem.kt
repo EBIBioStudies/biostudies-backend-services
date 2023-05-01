@@ -8,6 +8,7 @@ class FireMockFileSystem(
     private val dbFolder: Path,
     private val ftpFolder: Path,
     private val submissionFolder: Path,
+    private val fireS3Service: FireS3Service,
 ) {
     fun saveFile(data: ByteArray, fireOid: String): File {
         val file = dbFolder.resolve(fireOid).toFile()
@@ -24,11 +25,13 @@ class FireMockFileSystem(
     fun setPath(fireOid: String, path: String) {
         val fireFile = dbFolder.resolve(fireOid)
         Files.copy(fireFile, getOrCreateSubFolder(path))
+        fireS3Service.upload(fireFile.toFile(), path)
     }
 
     fun delete(path: String) {
         Files.deleteIfExists(ftpFolder.resolve(path))
         Files.delete(submissionFolder.resolve(path))
+        fireS3Service.deleteFile(path)
     }
 
     fun publish(path: String) {

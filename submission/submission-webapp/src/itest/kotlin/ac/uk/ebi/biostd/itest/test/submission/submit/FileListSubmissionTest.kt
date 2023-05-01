@@ -15,8 +15,6 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import com.amazonaws.services.s3.AmazonS3
-import com.amazonaws.services.s3.model.PutObjectResult
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
@@ -58,7 +56,6 @@ class FileListSubmissionTest(
     @Autowired private val securityTestService: SecurityTestService,
     @Autowired private val subRepository: SubmissionPersistenceQueryService,
     @LocalServerPort val serverPort: Int,
-    @Autowired val amazonS3: AmazonS3,
     @Autowired val properties: ApplicationProperties,
 ) {
     private lateinit var webClient: BioWebClient
@@ -221,9 +218,6 @@ class FileListSubmissionTest(
         assertThat(referenced.md5).isEqualTo(referencedFile.md5())
     }
 
-    private fun AmazonS3.uploadFile(key: String, file: File): PutObjectResult =
-        amazonS3.putObject(properties.fire.s3bucket, key, file)
-
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "false")
     fun `3-5-1 reuse previous version file list NFS`() {
@@ -284,10 +278,6 @@ class FileListSubmissionTest(
         assertThat(webClient.submitSingle(firstVersion, TSV, filesConfig)).isSuccessful()
         assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
 
-        amazonS3.uploadFile(
-            "/S-TEST/072/S-TEST72/Files/reusable-file-list.json",
-            File("$submissionPath/${subRepository.getExtByAccNo("S-TEST72").relPath}/Files/reusable-file-list.json")
-        )
         fileList.delete()
 
         val secondVersion = submission(fileList = "reusable-file-list.json")

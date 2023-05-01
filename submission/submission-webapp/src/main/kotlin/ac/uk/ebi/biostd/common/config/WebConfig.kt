@@ -48,7 +48,6 @@ internal class WebConfig(
         val fireProps = properties.fire
         val retryProps = fireProps.retry
         return FireClientFactory.create(
-            properties.fireTempDirPath,
             FireConfig(
                 fireHost = fireProps.host,
                 fireVersion = fireProps.version,
