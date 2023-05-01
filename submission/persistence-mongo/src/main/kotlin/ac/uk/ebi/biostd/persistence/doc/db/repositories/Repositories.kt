@@ -92,6 +92,7 @@ interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String
 }
 
 interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId> {
+    @Meta(cursorBatchSize = 100, flags = [CursorOption.NO_TIMEOUT])
     fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(
         accNo: String,
         version: Int,

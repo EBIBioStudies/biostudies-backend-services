@@ -49,7 +49,7 @@ interface SubmissionPersistenceQueryService {
      **/
     fun getSubmissionsByUser(owner: String, filter: SubmissionFilter): List<BasicSubmission>
 
-    fun getReferencedFiles(sub: ExtSubmission, fileListName: String): List<ExtFile>
+    fun getReferencedFiles(sub: ExtSubmission, fileListName: String): Sequence<ExtFile>
 
     fun findReferencedFile(sub: ExtSubmission, path: String): ExtFile?
 }
