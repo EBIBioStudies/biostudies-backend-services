@@ -41,13 +41,12 @@ class FireClientFactory private constructor() {
                 .build()
         }
 
-        private fun createS3Client(s3Config: S3Config): FireS3Client {
-            return S3Client(amazonS3Client(s3Config), s3Config.bucket)
-        }
+        private fun createS3Client(s3Config: S3Config): FireS3Client =
+            S3Client(s3Config.bucket, amazonS3Client(s3Config))
 
         private fun createHttpClient(tmpDirPath: String, config: FireConfig): FireWebClient {
             val restTemplate = createRestTemplate(config.fireHost, config.fireVersion, config.username, config.password)
-            return FireWebClient(tmpDirPath, restTemplate)
+            return FireWebClient(restTemplate)
         }
 
         private fun createRetryTemplate(config: RetryConfig): RetryTemplate = RetryTemplateBuilder()

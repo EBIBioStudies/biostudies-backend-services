@@ -9,8 +9,8 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
 class S3Client(
-    private val amazonS3Client: AmazonS3,
     private val bucketName: String,
+    private val amazonS3Client: AmazonS3,
 ) : FireS3Client {
     override fun downloadByPath(path: String): File? {
         val stream = getFireObjectByPath(path).objectContent

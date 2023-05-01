@@ -11,10 +11,9 @@ import org.springframework.web.client.RestOperations
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForObject
 import org.springframework.web.client.postForObject
-import uk.ac.ebi.fire.client.integration.web.FireClient
+import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
-import java.nio.file.Files
 
 internal const val FIRE_FILE_PARAM = "file"
 internal const val FIRE_MD5_HEADER = "x-fire-md5"
@@ -23,10 +22,7 @@ internal const val FIRE_SIZE_HEADER = "x-fire-size"
 private typealias ClientException = HttpClientErrorException
 
 @Suppress("TooManyFunctions")
-internal class FireWebClient(
-    private val tmpDirPath: String,
-    private val template: RestTemplate,
-) : FireClient {
+internal class FireWebClient(private val template: RestTemplate) : FireWebClient {
     override fun save(file: File, md5: String, size: Long): FireApiFile {
         val headers = HttpHeaders().apply {
             set(FIRE_MD5_HEADER, md5)
@@ -44,21 +40,6 @@ internal class FireWebClient(
 
     override fun unsetPath(fireOid: String) {
         template.delete("/objects/$fireOid/firePath")
-    }
-
-    override fun downloadByPath(
-        path: String,
-    ): File? {
-        fun toFile(data: ByteArray): File {
-            val tmpFile = File(tmpDirPath, path.substringAfterLast("/"))
-            Files.write(tmpFile.toPath(), data)
-            return tmpFile
-        }
-
-        return when (val fileContent = template.getForObjectOrNull<ByteArray?>("/objects/blob/path/$path")) {
-            null -> null
-            else -> toFile(fileContent)
-        }
     }
 
     override fun findByMd5(md5: String): List<FireApiFile> =
