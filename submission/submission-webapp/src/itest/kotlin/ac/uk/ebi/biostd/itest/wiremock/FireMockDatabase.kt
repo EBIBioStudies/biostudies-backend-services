@@ -3,8 +3,6 @@ package ac.uk.ebi.biostd.itest.wiremock
 import ac.uk.ebi.biostd.itest.wiremock.handlers.FireException
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.util.regex.match
-import ebi.ac.uk.util.regex.secondGroup
 import org.springframework.http.HttpStatus.CONFLICT
 import uk.ac.ebi.fire.client.model.FileSystemEntry
 import uk.ac.ebi.fire.client.model.FireApiFile
@@ -21,35 +19,33 @@ class FireMockDatabase(
         val fireOid = "${objectId}_${fileName.replace("\\s".toRegex(), "_")}"
         val file = fileSystem.saveFile(data, fireOid)
         val fireFile = FireApiFile(objectId, fireOid, file.md5(), file.size(), Instant.now().toString())
-        recordsById[fireOid] = DbRecord(fireFile, null, null, false)
+        recordsById[fireOid] = DbRecord(fireFile, null, false)
         return fireFile
     }
 
-    fun setPath(fireOid: String, path: String) {
-        val normalizedPath = "(/*)(.*)".toPattern().match(path)!!.secondGroup()
-        val firePath = "/$normalizedPath"
-        if (recordsById.values.firstOrNull { it.firePath == firePath } != null)
+    fun setPath(fireOid: String, firePath: String) {
+        if (recordsById.values.any { it.firePath == firePath })
             throw FireException("Path '$firePath' is already allocated", CONFLICT)
 
         val record = recordsById.getValue(fireOid)
-        recordsById[fireOid] = record.copy(firePath = firePath, fileSystemPath = normalizedPath)
-        fileSystem.setPath(fireOid, normalizedPath)
-        if (record.published) fileSystem.publish(normalizedPath)
+        recordsById[fireOid] = record.copy(firePath = firePath)
+        fileSystem.setPath(fireOid, firePath)
+        if (record.published) fileSystem.publish(firePath)
     }
 
     fun unsetPath(fireOid: String) {
         val record = recordsById.getValue(fireOid)
-        recordsById[fireOid] = record.copy(firePath = null, fileSystemPath = null)
+        recordsById[fireOid] = record.copy(firePath = null)
 
-        if (record.fileSystemPath != null) {
-            fileSystem.delete(record.fileSystemPath)
+        if (record.firePath != null) {
+            fileSystem.delete(record.firePath)
         }
     }
 
     fun delete(fireOid: String) {
         val record = recordsById.getValue(fireOid)
-        if (record.fileSystemPath != null) {
-            fileSystem.delete(record.fileSystemPath)
+        if (record.firePath != null) {
+            fileSystem.delete(record.firePath)
         }
 
         recordsById.remove(fireOid)
@@ -58,22 +54,18 @@ class FireMockDatabase(
     fun publish(fireOid: String): FireApiFile {
         val record = recordsById.getValue(fireOid)
         recordsById[fireOid] = record.copy(published = true)
-        if (record.fileSystemPath != null && record.published.not()) fileSystem.publish(record.fileSystemPath)
+        if (record.firePath != null && record.published.not()) fileSystem.publish(record.firePath)
         return recordsById.getValue(fireOid).toFile()
     }
 
     fun unpublish(fireOid: String) {
         val record = recordsById.getValue(fireOid)
         recordsById[fireOid] = record.copy(published = false)
-        if (record.fileSystemPath != null) fileSystem.unpublish(record.fileSystemPath)
+        if (record.firePath != null) fileSystem.unpublish(record.firePath)
     }
 
     fun findByMd5(md5: String): List<FireApiFile> =
         recordsById.values.map { it.toFile() }.filter { it.objectMd5 == md5 }
-
-    fun findByPath(path: String): FireApiFile? = recordsById.values.firstOrNull { it.fileSystemPath == path }?.toFile()
-
-    fun downloadByPath(path: String): File = fileSystem.findFileByPath(path).toFile()
 
     fun getFile(fireOid: String): File = fileSystem.findFileByFireId(fireOid).toFile()
 }
@@ -81,7 +73,6 @@ class FireMockDatabase(
 data class DbRecord(
     val file: FireApiFile,
     val firePath: String?,
-    val fileSystemPath: String?,
     val published: Boolean,
 ) {
     fun toFile(): FireApiFile = file.copy(filesystemEntry = FileSystemEntry(firePath, published))

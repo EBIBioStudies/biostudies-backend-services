@@ -3,15 +3,15 @@ package uk.ac.ebi.fire.client.integration.web
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 
+interface FireClient : FireWebClient, FireS3Client
+
 @Suppress("TooManyFunctions")
-interface FireClient {
+interface FireWebClient {
     fun save(file: File, md5: String, size: Long): FireApiFile
 
     fun setPath(fireOid: String, path: String)
 
     fun unsetPath(fireOid: String)
-
-    fun downloadByPath(path: String): File?
 
     fun findByMd5(md5: String): List<FireApiFile>
 
@@ -24,4 +24,8 @@ interface FireClient {
     fun unpublish(fireOid: String)
 
     fun delete(fireOid: String)
+}
+
+interface FireS3Client {
+    fun downloadByPath(path: String): File?
 }

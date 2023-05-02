@@ -47,6 +47,7 @@ import org.springframework.web.client.RestTemplate
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
+import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 import java.nio.file.Paths
@@ -268,6 +269,7 @@ class SubmitterConfig(
         fun euToxRiskValidator(
             restTemplate: RestTemplate,
             applicationProperties: ApplicationProperties,
-        ): CollectionValidator = EuToxRiskValidator(restTemplate, applicationProperties.validator)
+            fireClient: FireClient,
+        ): CollectionValidator = EuToxRiskValidator(restTemplate, applicationProperties.validator, fireClient)
     }
 }

@@ -26,17 +26,19 @@ import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpEntity
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForObject
+import uk.ac.ebi.fire.client.integration.web.FireClient
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class EuToxRiskValidatorTest(
     temporaryFolder: TemporaryFolder,
     @MockK private val restTemplate: RestTemplate,
-    @MockK private val validationProperties: ValidatorProperties
+    @MockK private val validationProperties: ValidatorProperties,
+    @MockK private val fireClient: FireClient,
 ) {
     private val testUrl = "http://eutoxrisk.org/validator"
     private val textFile = temporaryFolder.createFile("test.txt")
     private val excelFile = temporaryFolder.createFile("test.xlsx")
-    private val testInstance = EuToxRiskValidator(restTemplate, validationProperties)
+    private val testInstance = EuToxRiskValidator(restTemplate, validationProperties, fireClient)
 
     @BeforeEach
     fun beforeEach() {

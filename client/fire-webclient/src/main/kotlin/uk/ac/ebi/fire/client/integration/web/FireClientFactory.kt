@@ -1,5 +1,10 @@
 package uk.ac.ebi.fire.client.integration.web
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.client.builder.AwsClientBuilder
+import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.AmazonS3Client
 import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.retry.support.RetryTemplate
 import org.springframework.retry.support.RetryTemplateBuilder
@@ -8,25 +13,40 @@ import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.DefaultUriBuilderFactory
 import uk.ac.ebi.fire.client.api.FireWebClient
+import uk.ac.ebi.fire.client.api.S3Client
 
 private const val FIRE_API_BASE = "fire"
 
 class FireClientFactory private constructor() {
     companion object {
-        fun create(tmpDirPath: String, config: FireConfig): FireClient {
-            val restTemplate = createRestTemplate(config.fireHost, config.fireVersion, config.username, config.password)
-            return FireWebClient(tmpDirPath, restTemplate)
-        }
-
         fun create(
-            tmpDirPath: String,
             fireConfig: FireConfig,
+            s3Config: S3Config,
             retryConfig: RetryConfig,
         ): FireClient =
             RetryWebClient(
-                create(tmpDirPath, fireConfig),
+                createHttpClient(fireConfig),
+                createS3Client(s3Config),
                 createRetryTemplate(retryConfig)
             )
+
+        fun amazonS3Client(s3Config: S3Config): AmazonS3 {
+            val basicAWSCredentials = BasicAWSCredentials(s3Config.accessKey, s3Config.secretKey)
+            val endpointConfiguration = AwsClientBuilder.EndpointConfiguration(s3Config.endpoint, s3Config.region)
+            return AmazonS3Client.builder()
+                .withEndpointConfiguration(endpointConfiguration)
+                .withPathStyleAccessEnabled(true)
+                .withCredentials(AWSStaticCredentialsProvider(basicAWSCredentials))
+                .build()
+        }
+
+        private fun createS3Client(s3Config: S3Config): FireS3Client =
+            S3Client(s3Config.bucket, amazonS3Client(s3Config))
+
+        private fun createHttpClient(config: FireConfig): FireWebClient {
+            val restTemplate = createRestTemplate(config.fireHost, config.fireVersion, config.username, config.password)
+            return FireWebClient(restTemplate)
+        }
 
         private fun createRetryTemplate(config: RetryConfig): RetryTemplate = RetryTemplateBuilder()
             .exponentialBackoff(config.initialInterval, config.multiplier, config.maxInterval)
@@ -46,6 +66,14 @@ class FireClientFactory private constructor() {
             }
     }
 }
+
+data class S3Config(
+    val accessKey: String,
+    val secretKey: String,
+    val region: String,
+    val endpoint: String,
+    val bucket: String,
+)
 
 data class FireConfig(
     val fireHost: String,
