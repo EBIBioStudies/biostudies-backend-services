@@ -19,17 +19,3 @@ class Md5QueryHandler(
         return ResponseDefinition.okForJson(matches)
     }
 }
-
-class PathQueryHandler(
-    private val fireDB: FireMockDatabase,
-) : RequestHandler {
-    override val method: RequestMethod = RequestMethod.GET
-    override val urlPattern: Regex = "$FIRE_BASE_URL/path/(.*)".toRegex()
-
-    override fun handle(rqt: Request): ResponseDefinition {
-        val path = urlPattern.getGroup(rqt.url, 1)
-        val fireObject = fireDB.findByPath(path)
-
-        return if (fireObject == null) ResponseDefinition.notFound() else ResponseDefinition.okForJson(fireObject)
-    }
-}

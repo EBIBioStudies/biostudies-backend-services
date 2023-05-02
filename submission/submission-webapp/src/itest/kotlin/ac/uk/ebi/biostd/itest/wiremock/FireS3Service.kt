@@ -8,10 +8,10 @@ class FireS3Service(
     private val amazonS3: AmazonS3,
 ) {
     fun upload(file: File, path: String) {
-        amazonS3.putObject(s3Bucket, "/$path", file)
+        amazonS3.putObject(s3Bucket, path, file)
     }
 
     fun deleteFile(path: String) {
-        amazonS3.deleteObject(s3Bucket, "/$path")
+        amazonS3.deleteObject(s3Bucket, path)
     }
 }

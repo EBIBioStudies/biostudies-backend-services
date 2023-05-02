@@ -5,8 +5,6 @@ import ac.uk.ebi.biostd.itest.wiremock.handlers.DeleteHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.DownloadHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.FileSaveHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.Md5QueryHandler
-import ac.uk.ebi.biostd.itest.wiremock.handlers.PathDownloadHandler
-import ac.uk.ebi.biostd.itest.wiremock.handlers.PathQueryHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.PublishHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.RequestHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.SetPathHandler
@@ -70,10 +68,8 @@ class TestWireMockTransformer constructor(
                 failFactor,
                 listOf(
                     Md5QueryHandler(fireDatabase),
-                    PathQueryHandler(fireDatabase),
                     FileSaveHandler(fireDatabase),
                     DeleteHandler(fireDatabase),
-                    PathDownloadHandler(fireDatabase),
                     SetPathHandler(fireDatabase),
                     UnSetPathHandler(fireDatabase),
                     PublishHandler(fireDatabase),
@@ -83,7 +79,7 @@ class TestWireMockTransformer constructor(
             )
         }
 
-        fun amazonS3Client(endpoint: String): AmazonS3 {
+        private fun amazonS3Client(endpoint: String): AmazonS3 {
             val basicAWSCredentials = BasicAWSCredentials("x", "x")
             val endpointConfiguration = AwsClientBuilder.EndpointConfiguration(endpoint, "x")
             return AmazonS3Client.builder()

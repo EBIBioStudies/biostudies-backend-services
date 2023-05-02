@@ -18,30 +18,33 @@ class FireMockFileSystem(
         return file
     }
 
-    fun findFileByPath(path: String): Path = submissionFolder.resolve(path)
-
     fun findFileByFireId(fireOid: String): Path = dbFolder.resolve(fireOid)
 
-    fun setPath(fireOid: String, path: String) {
+    fun setPath(fireOid: String, absolutePath: String) {
         val fireFile = dbFolder.resolve(fireOid)
-        Files.copy(fireFile, getOrCreateSubFolder(path))
-        fireS3Service.upload(fireFile.toFile(), path)
+
+        val relativePath = absolutePath.removePrefix("/")
+        Files.copy(fireFile, getOrCreateSubFolder(relativePath))
+        fireS3Service.upload(fireFile.toFile(), absolutePath)
     }
 
-    fun delete(path: String) {
-        Files.deleteIfExists(ftpFolder.resolve(path))
-        Files.delete(submissionFolder.resolve(path))
-        fireS3Service.deleteFile(path)
+    fun delete(absolutePath: String) {
+        val relativePath = absolutePath.removePrefix("/")
+        Files.deleteIfExists(ftpFolder.resolve(relativePath))
+        Files.delete(submissionFolder.resolve(relativePath))
+        fireS3Service.deleteFile(relativePath)
     }
 
-    fun publish(path: String) {
-        val source = submissionFolder.resolve(path)
-        val target = getOrCreateFtpFolder(path)
+    fun publish(absolutePath: String) {
+        val relativePath = absolutePath.removePrefix("/")
+        val source = submissionFolder.resolve(relativePath)
+        val target = getOrCreateFtpFolder(relativePath)
         Files.copy(source, target)
     }
 
-    fun unpublish(path: String) {
-        Files.delete(ftpFolder.resolve(path))
+    fun unpublish(absolutePath: String) {
+        val relativePath = absolutePath.removePrefix("/")
+        Files.delete(ftpFolder.resolve(relativePath))
     }
 
     private fun getOrCreateSubFolder(relPath: String): Path {
