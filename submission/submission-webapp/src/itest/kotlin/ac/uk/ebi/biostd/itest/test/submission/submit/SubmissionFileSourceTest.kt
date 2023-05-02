@@ -296,13 +296,13 @@ class SubmissionFileSourceTest(
                 line("Study")
                 line()
 
-                line("File", "directory")
+                line("File", "test-directory")
                 line("Type", "test")
                 line()
             }.toString()
 
             val file1 = tempFolder.createFile("file1.txt", "content-1")
-            webClient.uploadFiles(listOf(file1), "directory")
+            webClient.uploadFiles(listOf(file1), "test-directory")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
@@ -312,7 +312,7 @@ class SubmissionFileSourceTest(
                 assertThat(it.type).isEqualTo(ExtFileType.DIR)
                 assertThat(it.size).isEqualTo(161L)
                 assertThat(it.md5).isEqualTo("D2B8C7BFA31857BF778B4000E7FA8975")
-                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory.zip")
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/test-directory.zip")
                 assertThat(files).containsExactly("file1.txt" to file1.readText())
             }
 
@@ -324,21 +324,20 @@ class SubmissionFileSourceTest(
                 line("Study")
                 line()
 
-                line("File", "directory.zip")
+                line("File", "test-directory.zip")
                 line("type", "directory")
                 line()
             }.toString()
 
-            // We update user folder
             val file2 = tempFolder.createFile("file1.txt", "updated-content-1")
-            webClient.uploadFiles(listOf(file2), "directory")
+            webClient.uploadFiles(listOf(file2), "test-directory")
             assertThat(webClient.submitSingle(newVersion, TSV)).isSuccessful()
 
             val updated = submissionRepository.getExtByAccNo("S-FSTST9")
             assertThat(updated.section.files).hasSize(1)
             assertThat(updated.section.files.first()).hasLeftValueSatisfying {
                 assertThat(it.type).isEqualTo(ExtFileType.DIR)
-                val files = getZipFiles("$submissionPath/${updated.relPath}/Files/directory.zip")
+                val files = getZipFiles("$submissionPath/${updated.relPath}/Files/test-directory.zip")
                 assertThat(files).containsExactly("file1.txt" to file2.readText())
             }
         }
