@@ -15,6 +15,7 @@ import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
+import ebi.ac.uk.model.constants.FileFields
 import ebi.ac.uk.util.collections.findSecond
 
 sealed class TsvChunk(lines: List<TsvChunkLine>) {
@@ -46,7 +47,8 @@ class FileChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
         require(fileName.isNotBlank()) { throw InvalidElementException(REQUIRED_FILE_PATH) }
 
         val attributes = toAttributes(lines)
-        return BioFile(fileName!!, attributes = attributes)
+        val type = attributes.find { it.name == FileFields.TYPE.value }?.value
+        return BioFile(fileName!!, attributes = attributes, type = type ?: FileFields.FILE_TYPE.value)
     }
 }
 

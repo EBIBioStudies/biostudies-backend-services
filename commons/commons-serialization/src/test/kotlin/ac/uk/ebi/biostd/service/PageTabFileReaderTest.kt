@@ -66,7 +66,7 @@ class PageTabFileReaderTest(
         val filesSourceList = FileSourcesList(listOf(filesSource))
         val fileList = tempFolder.createFile("file-list.tsv")
 
-        every { filesSource.getFile("file-list.tsv") } returns fileList
+        every { filesSource.getFileList("file-list.tsv") } returns fileList
 
         assertThat(getFileListFile("file-list.tsv", filesSourceList)).isEqualTo(fileList)
     }
@@ -78,7 +78,7 @@ class PageTabFileReaderTest(
         val tsvFileList = tempFolder.createFile("converted-file-list.tsv")
 
         every { asTsv(fileList) } returns fileList
-        every { filesSource.getFile("file-list.xlsx") } returns tsvFileList
+        every { filesSource.getFileList("file-list.xlsx") } returns tsvFileList
 
         assertThat(getFileListFile("file-list.xlsx", filesSourceList)).isEqualTo(tsvFileList)
     }
@@ -88,7 +88,7 @@ class PageTabFileReaderTest(
         val filesSourceList = FileSourcesList(listOf(filesSource))
         val fileList = tempFolder.createDirectory("file-list")
 
-        every { filesSource.getFile("file-list") } returns fileList
+        every { filesSource.getFileList("file-list") } returns fileList
 
         val exception = assertThrows<InvalidFileListException> { getFileListFile("file-list", filesSourceList) }
         assertThat(exception.message)
@@ -100,7 +100,7 @@ class PageTabFileReaderTest(
         @MockK filesSource: FilesSource,
     ) {
         val filesSourceList = FileSourcesList(listOf(filesSource))
-        every { filesSource.getFile("file-list.xml") } returns null
+        every { filesSource.getFileList("file-list.xml") } returns null
 
         assertThrows<FilesProcessingException> { getFileListFile("file-list.xml", filesSourceList) }
     }

@@ -98,7 +98,6 @@ class SubmissionDraftService(
 
     private fun createDraftFromSubmission(userEmail: String, accNo: String): SubmissionDraft {
         require(userPrivilegesService.canResubmit(userEmail, accNo)) { throw UserCanNotUpdateSubmit(accNo, userEmail) }
-
         val submission = toSubmissionMapper.toSimpleSubmission(submissionQueryService.getExtByAccNo(accNo))
         val content = serializationService.serializeSubmission(submission, JsonPretty)
         return draftPersistenceService.createSubmissionDraft(userEmail, accNo, content)

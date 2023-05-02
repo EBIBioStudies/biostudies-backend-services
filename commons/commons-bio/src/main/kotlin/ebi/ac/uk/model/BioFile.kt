@@ -10,7 +10,6 @@ class BioFile(
     var type: String = FILE_TYPE.value,
     override var attributes: List<Attribute> = listOf()
 ) : Attributable {
-
     override fun equals(other: Any?): Boolean {
         if (other !is BioFile) return false
         if (this === other) return true

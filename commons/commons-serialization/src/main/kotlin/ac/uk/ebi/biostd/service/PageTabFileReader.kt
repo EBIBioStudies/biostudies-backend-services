@@ -17,7 +17,7 @@ object PageTabFileReader {
     fun getFileListFile(
         fileListName: String,
         filesSource: FileSourcesList,
-    ): File = when (val file = filesSource.getFile(fileListName)) {
+    ): File = when (val file = filesSource.getFileList(fileListName)) {
         null -> throw FilesProcessingException(fileListName, filesSource)
         else -> when {
             file.isFile.not() -> throw InvalidFileListException.directoryCantBeFileList(fileListName)

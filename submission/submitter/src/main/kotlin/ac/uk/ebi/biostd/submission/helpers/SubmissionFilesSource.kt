@@ -23,11 +23,11 @@ class SubmissionFilesSource(
     override val description: String
         get() = "Previous version files"
 
-    override fun getExtFile(path: String, attributes: List<Attribute>): ExtFile? {
+    override fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
         return findSubmissionFile(path)?.copyWithAttributes(attributes.map { it.toExtAttribute() })
     }
 
-    override fun getFile(path: String): File? {
+    override fun getFileList(path: String): File? {
         return findSubmissionFile(path)?.let { getFile(it) }
     }
 
@@ -37,7 +37,7 @@ class SubmissionFilesSource(
 
     private fun getFile(file: ExtFile): File? {
         return when (file) {
-            is NfsFile -> nfsFiles.getFile(file.filePath)
+            is NfsFile -> nfsFiles.getFileList(file.filePath)
             is FireFile -> fireClient.downloadByPath(file.firePath!!)
         }
     }

@@ -2,6 +2,7 @@ package ebi.ac.uk.io.sources
 
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.constants.FileFields.FILE_TYPE
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -26,23 +27,23 @@ internal class FileSourcesListTest(
 
         @Test
         fun whenOne() {
-            every { oneFileSource.getExtFile(filePath, attributes) } returns file
-            every { anotherFileSource.getExtFile(filePath, attributes) } returns null
-            assertThat(testInstance.getExtFile(filePath, attributes)).isEqualTo(file)
+            every { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns file
+            every { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
+            assertThat(testInstance.getExtFile(filePath, FILE_TYPE.value, attributes)).isEqualTo(file)
         }
 
         @Test
         fun whenAnother() {
-            every { oneFileSource.getExtFile(filePath, attributes) } returns null
-            every { anotherFileSource.getExtFile(filePath, attributes) } returns file
-            assertThat(testInstance.getExtFile(filePath, attributes)).isEqualTo(file)
+            every { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
+            every { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns file
+            assertThat(testInstance.getExtFile(filePath, FILE_TYPE.value, attributes)).isEqualTo(file)
         }
 
         @Test
         fun whenNone() {
-            every { oneFileSource.getExtFile(filePath, attributes) } returns null
-            every { anotherFileSource.getExtFile(filePath, attributes) } returns null
-            assertThat(testInstance.getExtFile(filePath, attributes)).isNull()
+            every { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
+            every { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
+            assertThat(testInstance.getExtFile(filePath, FILE_TYPE.value, attributes)).isNull()
         }
     }
 }
