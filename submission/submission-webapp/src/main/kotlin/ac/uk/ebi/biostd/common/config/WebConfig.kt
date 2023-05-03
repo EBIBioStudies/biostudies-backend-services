@@ -27,6 +27,7 @@ import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.integration.web.FireClientFactory
 import uk.ac.ebi.fire.client.integration.web.FireConfig
 import uk.ac.ebi.fire.client.integration.web.RetryConfig
+import uk.ac.ebi.fire.client.integration.web.S3Config
 import kotlin.time.Duration.Companion.minutes
 
 @Configuration
@@ -43,22 +44,31 @@ internal class WebConfig(
     fun principalResolver() = AuthenticationPrincipalArgumentResolver()
 
     @Bean
-    fun fireClient(properties: ApplicationProperties): FireClient =
-        FireClientFactory.create(
-            properties.fireTempDirPath,
+    fun fireClient(properties: ApplicationProperties): FireClient {
+        val fireProps = properties.fire
+        val retryProps = fireProps.retry
+        return FireClientFactory.create(
             FireConfig(
-                fireHost = properties.fire.host,
-                fireVersion = properties.fire.version,
-                username = properties.fire.username,
+                fireHost = fireProps.host,
+                fireVersion = fireProps.version,
+                username = fireProps.username,
                 password = properties.fire.password
             ),
+            S3Config(
+                accessKey = fireProps.s3AccessKey,
+                secretKey = fireProps.s3SecretKey,
+                region = fireProps.s3region,
+                endpoint = fireProps.s3endpoint,
+                bucket = fireProps.s3bucket
+            ),
             RetryConfig(
-                maxAttempts = properties.fire.retry.maxAttempts,
-                initialInterval = properties.fire.retry.initialInterval,
-                multiplier = properties.fire.retry.multiplier,
-                maxInterval = properties.fire.retry.maxInterval.minutes.inWholeMilliseconds,
+                maxAttempts = retryProps.maxAttempts,
+                initialInterval = retryProps.initialInterval,
+                multiplier = retryProps.multiplier,
+                maxInterval = retryProps.maxInterval.minutes.inWholeMilliseconds,
             )
         )
+    }
 
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON)

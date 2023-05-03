@@ -1,3 +1,4 @@
+import Dependencies.AwsS3
 import Dependencies.JSONOrg
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
@@ -32,6 +33,7 @@ dependencies {
     implementation(JSONOrg)
     implementation(SpringWeb)
     implementation(SpringRetry)
+    implementation(AwsS3)
 
     testApi(project(CommonsTest))
     testApi(project(JsonLibrary))

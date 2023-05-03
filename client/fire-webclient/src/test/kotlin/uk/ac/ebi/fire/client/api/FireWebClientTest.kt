@@ -1,6 +1,5 @@
 package uk.ac.ebi.fire.client.api
 
-import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -32,7 +31,7 @@ class FireWebClientTest(
     private val tmpFolder: TemporaryFolder,
     @MockK private val template: RestTemplate,
 ) {
-    private val testInstance = FireWebClient(tmpFolder.root.absolutePath, template)
+    private val testInstance = FireWebClient(template)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -81,34 +80,6 @@ class FireWebClientTest(
         testInstance.unsetPath("the-fire-oid")
 
         verify(exactly = 1) { template.delete("/objects/the-fire-oid/firePath") }
-    }
-
-    @Test
-    fun `download by path`() {
-        val file = tmpFolder.createFile("test.txt", "test content")
-        val fireFilePath = "S-BSST1/file1.txt"
-
-        every {
-            template.getForObject("/objects/blob/path/$fireFilePath", ByteArray::class.java)
-        } returns file.readBytes()
-
-        val downloadedFile = testInstance.downloadByPath("S-BSST1/file1.txt")!!
-
-        assertThat(downloadedFile.readText()).isEqualTo("test content")
-        assertThat(downloadedFile.absolutePath).isEqualTo("${tmpFolder.root.absolutePath}/file1.txt")
-        verify(exactly = 1) {
-            template.getForObject("/objects/blob/path/$fireFilePath", ByteArray::class.java)
-        }
-    }
-
-    @Test
-    fun `download by path not found`() {
-        val fireFilePath = "S-BSST1/file1.txt"
-        every {
-            template.getForObject("/objects/blob/path/$fireFilePath", ByteArray::class.java)
-        } throws HttpClientErrorException(NOT_FOUND, "file not found")
-
-        assertThat(testInstance.downloadByPath(fireFilePath)).isNull()
     }
 
     @Test

@@ -22,7 +22,7 @@ class ExtSubmissionQueryService(
     fun getReferencedFiles(accNo: String, fileListName: String): ExtFileTable {
         val sub = submissionPersistenceQueryService.getExtByAccNo(accNo, false)
         val files = submissionPersistenceQueryService.getReferencedFiles(sub, fileListName)
-        return ExtFileTable(files)
+        return ExtFileTable(files.toList())
     }
 
     fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {

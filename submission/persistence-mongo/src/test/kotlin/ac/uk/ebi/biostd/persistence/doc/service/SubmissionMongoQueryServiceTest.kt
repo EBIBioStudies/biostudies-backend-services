@@ -431,7 +431,7 @@ internal class SubmissionMongoQueryServiceTest(
         @Test
         fun `get referenced files`() {
             val submission = testInstance.getExtByAccNo(SUB_ACC_NO)
-            val files = testInstance.getReferencedFiles(submission, "test-file-list")
+            val files = testInstance.getReferencedFiles(submission, "test-file-list").toList()
             assertThat(files).hasSize(2)
 
             val nfsFile = files.first() as NfsFile
@@ -455,7 +455,7 @@ internal class SubmissionMongoQueryServiceTest(
             fileListDocFileRepository.save(nfsFileListFile.copy(submissionAccNo = innerSectionSubmission.accNo))
 
             val submission = testInstance.getExtByAccNo("S-REF1")
-            val files = testInstance.getReferencedFiles(submission, "test-file-list")
+            val files = testInstance.getReferencedFiles(submission, "test-file-list").toList()
             assertThat(files).hasSize(1)
             assertThat((files.first() as NfsFile).file).isEqualTo(nfsReferencedFile)
             assertThat(nfsFile.fullPath).isEqualTo(nfsReferencedFile.absolutePath)
@@ -464,7 +464,10 @@ internal class SubmissionMongoQueryServiceTest(
         @Test
         fun `non existing referenced files`() {
             val submission = testInstance.getExtByAccNo(SUB_ACC_NO)
-            assertThat(testInstance.getReferencedFiles(submission, "non-existing-fileListName")).hasSize(0)
+
+            val result = testInstance.getReferencedFiles(submission, "non-existing-fileListName")
+
+            assertThat(result.toList()).hasSize(0)
         }
     }
 

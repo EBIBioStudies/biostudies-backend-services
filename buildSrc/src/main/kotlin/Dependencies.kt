@@ -8,6 +8,7 @@ import TestVersions.JunitExtensionsVersion
 import TestVersions.JunitVersion
 import TestVersions.MockKVersion
 import TestVersions.RabbitmqMockVersion
+import TestVersions.TestContainerS3mockVersion
 import TestVersions.TestContainerVersion
 import TestVersions.WiremockVersion
 import TestVersions.XmlUnitVersion
@@ -37,6 +38,7 @@ import Versions.OkHttpLoggingVersion
 import Versions.PoiVersion
 import Versions.Retrofit2Version
 import Versions.RxJava2Version
+import Versions.S3Version
 import Versions.ServletVersion
 import Versions.SpringAdminVersion
 import Versions.SpringVersion
@@ -59,6 +61,7 @@ object TestVersions {
     const val WiremockVersion = "2.27.2"
     const val RabbitmqMockVersion = "1.1.0"
     const val TestContainerVersion = "1.16.2"
+    const val TestContainerS3mockVersion = "2.11.0"
     const val AwaitilityVersion = "4.2.0"
 }
 
@@ -88,6 +91,7 @@ object Versions {
     const val JwtVersion = "0.9.1"
     const val H2Version = "1.4.197"
     const val ServletVersion = "4.0.1"
+    const val S3Version = "1.12.293"
     const val HibernateEMVersion = "5.3.5.Final"
     const val JschVersion = "0.1.55"
     const val Retrofit2Version = "2.9.0"
@@ -134,6 +138,7 @@ object TestDependencies {
 
     // Test Containers
     const val TestContainerMysql = "org.testcontainers:mysql:$TestContainerVersion"
+    const val TestContainerS3mock = "com.adobe.testing:s3mock-testcontainers:$TestContainerS3mockVersion"
     const val TestContainerMongoDb = "org.testcontainers:mongodb:$TestContainerVersion"
     const val TestContainer = "org.testcontainers:testcontainers:$TestContainerVersion"
     const val TestContainerJUnit = "org.testcontainers:junit-jupiter:$TestContainerVersion"
@@ -162,6 +167,7 @@ object Dependencies {
     const val MongockSpringDataV3 = "com.github.cloudyrock.mongock:mongodb-springdata-v3-driver:$MongockVersion"
 
     // Misc
+    const val AwsS3 = "com.amazonaws:aws-java-sdk-s3:$S3Version"
     const val ServletApi = "javax.servlet:javax.servlet-api:$ServletVersion"
     const val Logback = "ch.qos.logback:logback-classic:$LogbackVersion"
     const val Jwt = "io.jsonwebtoken:jjwt:$JwtVersion"

@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
@@ -35,6 +36,7 @@ import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -52,8 +54,9 @@ import java.nio.file.Paths
 @Transactional
 class FileListSubmissionTest(
     @Autowired private val securityTestService: SecurityTestService,
-    @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
+    @Autowired private val subRepository: SubmissionPersistenceQueryService,
     @LocalServerPort val serverPort: Int,
+    @Autowired val properties: ApplicationProperties,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -216,7 +219,8 @@ class FileListSubmissionTest(
     }
 
     @Test
-    fun `3-5 reuse previous version file list`() {
+    @EnabledIfSystemProperty(named = "enableFire", matches = "false")
+    fun `3-5-1 reuse previous version file list NFS`() {
         val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
         fun submission(fileList: String) = tsv {
             line("Submission", "S-TEST7")
@@ -248,6 +252,40 @@ class FileListSubmissionTest(
     }
 
     @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+    fun `3-5-2 reuse previous version file list FIRE`() {
+        val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
+        fun submission(fileList: String) = tsv {
+            line("Submission", "S-TEST72")
+            line("Title", "Reuse Previous Version File List")
+            line()
+
+            line("Study")
+            line("File List", fileList)
+            line()
+        }.toString()
+
+        val fileList = tempFolder.createFile(
+            "reusable-file-list.tsv",
+            tsv {
+                line("Files", "GEN")
+                line("File7.txt", "ABC")
+            }.toString()
+        )
+
+        val firstVersion = submission(fileList = "reusable-file-list.tsv")
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
+        assertThat(webClient.submitSingle(firstVersion, TSV, filesConfig)).isSuccessful()
+        assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
+
+        fileList.delete()
+
+        val secondVersion = submission(fileList = "reusable-file-list.json")
+        assertThat(webClient.submitSingle(secondVersion, TSV)).isSuccessful()
+        assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
+    }
+
+    @Test
     fun `3-6 empty file list`() {
         val sub = tsv {
             line("Submission", "S-TEST8")
@@ -274,7 +312,7 @@ class FileListSubmissionTest(
     }
 
     private fun assertSubmissionFiles(accNo: String, testFile: String, fileListName: String) {
-        val createdSub = submissionRepository.getExtByAccNo(accNo)
+        val createdSub = subRepository.getExtByAccNo(accNo)
         val subFolder = "$submissionPath/${createdSub.relPath}"
 
         if (enableFire) {

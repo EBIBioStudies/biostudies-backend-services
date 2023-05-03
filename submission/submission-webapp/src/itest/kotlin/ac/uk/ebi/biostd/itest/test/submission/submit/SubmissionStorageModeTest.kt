@@ -39,6 +39,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.io.File
 import java.time.Duration.ofSeconds
 import kotlin.reflect.KClass
 
@@ -64,7 +65,8 @@ class SubmissionStorageModeTest(
 
     @Test
     fun `10-1 Fire to Nfs`() {
-        val submission = createSubmission("S-STR-MODE-1")
+        val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-1")
+        webClient.uploadFiles(listOf(file, fileListFile, fileList))
 
         assertThat(webClient.submitSingle(submission, TSV, FIRE)).isSuccessful()
         val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-1", includeFileListFiles = true)
@@ -91,7 +93,8 @@ class SubmissionStorageModeTest(
 
     @Test
     fun `10-2 Nfs to Fire`() {
-        val submission = createSubmission("S-STR-MODE-2")
+        val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-2")
+        webClient.uploadFiles(listOf(file, fileListFile, fileList))
 
         assertThat(webClient.submitSingle(submission, TSV, NFS)).isSuccessful()
         val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-2", includeFileListFiles = true)
@@ -118,7 +121,8 @@ class SubmissionStorageModeTest(
 
     @Test
     fun `10-3 transfer from NFS to FIRE`() {
-        val submission = createSubmission("S-STR-MODE-3")
+        val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-3")
+        webClient.uploadFiles(listOf(file, fileListFile, fileList))
 
         assertThat(webClient.submitSingle(submission, TSV, NFS)).isSuccessful()
         val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-3", includeFileListFiles = true)
@@ -142,8 +146,8 @@ class SubmissionStorageModeTest(
 
     @Test
     fun `10-4 transfer from FIRE to NFS`() {
-        val submission = createSubmission("S-STR-MODE-4")
-
+        val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-4")
+        webClient.uploadFiles(listOf(file, fileListFile, fileList))
         assertThat(webClient.submitSingle(submission, TSV, FIRE)).isSuccessful()
         val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-4", includeFileListFiles = true)
 
@@ -183,7 +187,7 @@ class SubmissionStorageModeTest(
         assertThat(file).isInstanceOf(expectType.java)
     }
 
-    private fun createSubmission(accNo: String): String {
+    private fun createSubmission(accNo: String): Submission {
         val fileList = tempFolder.createFile(
             "file-list.tsv",
             tsv {
@@ -206,14 +210,18 @@ class SubmissionStorageModeTest(
             line()
         }.toString()
 
-        webClient.uploadFiles(
-            listOf(
-                tempFolder.createFile("one_file.txt", "content"),
-                tempFolder.createFile("file-list-file.txt", "another content"),
-                fileList
-            )
+        return Submission(
+            submission = submission,
+            file = tempFolder.createFile("one_file.txt", "content"),
+            fileList = fileList,
+            fileListFile = tempFolder.createFile("file-list-file.txt", "another content")
         )
-
-        return submission
     }
+
+    private data class Submission(
+        val submission: String,
+        val file: File,
+        val fileList: File,
+        val fileListFile: File,
+    )
 }

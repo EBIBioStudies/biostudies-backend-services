@@ -29,6 +29,7 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
+import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -50,8 +51,9 @@ class SubmissionConfig(
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         serializationService: SerializationService,
         toSubmissionMapper: ToSubmissionMapper,
+        toFileListMapper: ToFileListMapper,
     ): SubmissionQueryService = SubmissionQueryService(
-        submissionPersistenceQueryService, serializationService, toSubmissionMapper
+        submissionPersistenceQueryService, serializationService, toSubmissionMapper, toFileListMapper
     )
 
     @Bean
