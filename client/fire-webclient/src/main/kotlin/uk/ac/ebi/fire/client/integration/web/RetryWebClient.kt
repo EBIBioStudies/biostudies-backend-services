@@ -25,7 +25,6 @@ internal class RetryWebClient(
         val opt = "Unset path fireOid='$fireOid'"
         template.execute(opt) { fireClient.unsetPath(fireOid) }
     }
-
     override fun findByMd5(md5: String): List<FireApiFile> {
         val opt = "Find file md5='$md5'"
         return template.execute(opt) { fireClient.findByMd5(md5) }

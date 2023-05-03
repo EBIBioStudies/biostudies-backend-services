@@ -12,7 +12,6 @@ interface FireWebClient {
     fun setPath(fireOid: String, path: String)
 
     fun unsetPath(fireOid: String)
-
     fun findByMd5(md5: String): List<FireApiFile>
 
     fun findByPath(path: String): FireApiFile?

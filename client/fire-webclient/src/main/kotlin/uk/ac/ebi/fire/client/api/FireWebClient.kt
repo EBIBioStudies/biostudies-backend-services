@@ -41,7 +41,6 @@ internal class FireWebClient(private val template: RestTemplate) : FireWebClient
     override fun unsetPath(fireOid: String) {
         template.delete("/objects/$fireOid/firePath")
     }
-
     override fun findByMd5(md5: String): List<FireApiFile> =
         template.getForObject<Array<FireApiFile>>("/objects/md5/$md5").toList()
 

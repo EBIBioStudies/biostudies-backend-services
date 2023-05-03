@@ -21,8 +21,6 @@ internal const val RELEASE_NOTIFICATIONS_QUEUE = "submission-released-notificati
 internal const val FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE = "submission-failed-notifications-queue"
 
 private const val ST_LOG_QUEUE = "submission-submitted-st-queue"
-private const val FAILED_NOTIFICATIONS_LOG_QUEUE = "notification-failed-log-queue"
-private const val FAILED_SUBMISSIONS_LOG_QUEUE = "submission-failed-log-queue"
 
 private const val DURABLES_QUEUES = true
 
@@ -45,12 +43,6 @@ class QueuesConfig {
     fun releaseNotificationsQueue(): Queue = Queue(RELEASE_NOTIFICATIONS_QUEUE, DURABLES_QUEUES)
 
     @Bean
-    fun failedNotificationsLogQueue(): Queue = Queue(FAILED_NOTIFICATIONS_LOG_QUEUE, DURABLES_QUEUES)
-
-    @Bean
-    fun failedSubmissionsLogQueue(): Queue = Queue(FAILED_SUBMISSIONS_LOG_QUEUE, DURABLES_QUEUES)
-
-    @Bean
     fun failedSubmissionNotificationsQueue(): Queue = Queue(FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE, DURABLES_QUEUES)
 
     @Bean
@@ -71,14 +63,6 @@ class QueuesConfig {
     @Bean
     fun releaseNotificationsQueueBinding(exchange: TopicExchange): Binding =
         BindingBuilder.bind(releaseNotificationsQueue()).to(exchange).with(SUBMISSIONS_PUBLISHED_ROUTING_KEY)
-
-    @Bean
-    fun failedNotificationLogQueueBinding(exchange: TopicExchange): Binding =
-        BindingBuilder.bind(failedNotificationsLogQueue()).to(exchange).with(NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY)
-
-    @Bean
-    fun failedSubmissionLogQueueBinding(exchange: TopicExchange): Binding =
-        BindingBuilder.bind(failedSubmissionsLogQueue()).to(exchange).with(SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY)
 
     @Bean
     fun failedSubmissionNotificationQueueBinding(exchange: TopicExchange): Binding =

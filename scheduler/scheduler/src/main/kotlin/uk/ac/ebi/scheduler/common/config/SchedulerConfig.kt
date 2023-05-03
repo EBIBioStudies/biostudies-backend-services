@@ -2,11 +2,12 @@ package uk.ac.ebi.scheduler.common.config
 
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import ebi.ac.uk.commons.http.slack.NotificationsSender
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
 import uk.ac.ebi.scheduler.common.properties.AppProperties
-import uk.ac.ebi.scheduler.common.properties.SshProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties
 import uk.ac.ebi.scheduler.pmc.exporter.domain.ExporterTrigger
 import uk.ac.ebi.scheduler.pmc.importer.api.PmcProcessorProp
@@ -17,13 +18,14 @@ import uk.ac.ebi.scheduler.scheduling.DailyScheduler
 
 @Configuration
 @EnableScheduling
+@EnableConfigurationProperties(AppProperties::class)
 internal class SchedulerConfig {
     @Bean
     fun clusterOperations(
-        sshProperties: SshProperties,
+        appProperties: AppProperties,
     ) = ClusterOperations.create(
-        sshProperties.sshKey,
-        sshProperties.server
+        appProperties.ssh.sshKey,
+        appProperties.ssh.server,
     )
 
     @Bean
@@ -31,25 +33,32 @@ internal class SchedulerConfig {
         clusterOperations: ClusterOperations,
         properties: PmcProcessorProp,
         appProperties: AppProperties,
-        notificationsSender: NotificationsSender,
-    ): PmcLoaderService = PmcLoaderService(clusterOperations, properties, appProperties, notificationsSender)
+        @Qualifier("pmcNotificationsSender") pmcNotificationsSender: NotificationsSender,
+    ): PmcLoaderService = PmcLoaderService(clusterOperations, properties, appProperties, pmcNotificationsSender)
 
     @Bean
     fun submissionReleaserTrigger(
         appProperties: AppProperties,
         clusterOperations: ClusterOperations,
-        notificationsSender: NotificationsSender,
         releaserProperties: SubmissionReleaserProperties,
+        @Qualifier("schedulerNotificationsSender") schedulerNotificationsSender: NotificationsSender,
     ): SubmissionReleaserTrigger =
-        SubmissionReleaserTrigger(appProperties, releaserProperties, clusterOperations, notificationsSender)
+        SubmissionReleaserTrigger(appProperties, releaserProperties, clusterOperations, schedulerNotificationsSender)
 
     @Bean
     fun exporterTrigger(
         appProperties: AppProperties,
         clusterOperations: ClusterOperations,
         exporterProperties: ExporterProperties,
-        notificationsSender: NotificationsSender,
-    ): ExporterTrigger = ExporterTrigger(appProperties, exporterProperties, clusterOperations, notificationsSender)
+        @Qualifier("pmcNotificationsSender") pmcNotificationsSender: NotificationsSender,
+        @Qualifier("schedulerNotificationsSender") schedulerNotificationsSender: NotificationsSender,
+    ): ExporterTrigger = ExporterTrigger(
+        appProperties,
+        exporterProperties,
+        clusterOperations,
+        pmcNotificationsSender,
+        schedulerNotificationsSender,
+    )
 
     @Bean
     fun scheduler(

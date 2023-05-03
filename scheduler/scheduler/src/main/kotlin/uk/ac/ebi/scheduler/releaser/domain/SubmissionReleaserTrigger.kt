@@ -22,11 +22,11 @@ internal const val RELEASER_SUBSYSTEM = "Submission Releaser"
 
 private val logger = KotlinLogging.logger {}
 
-class SubmissionReleaserTrigger(
+internal class SubmissionReleaserTrigger(
     private val appProperties: AppProperties,
     private val properties: SchedulerReleaserProps,
     private val clusterOperations: ClusterOperations,
-    private val notificationsSender: NotificationsSender,
+    private val schedulerNotificationsSender: NotificationsSender,
 ) {
     fun triggerSubmissionReleaser(debugPort: Int? = null): Job {
         logger.info { "triggering submission releaser job" }
@@ -45,7 +45,7 @@ class SubmissionReleaserTrigger(
 
     private fun triggerJob(mode: ReleaserMode, debugPort: Int?): Job {
         val job = submissionReleaserJob(mode, debugPort)
-        notificationsSender.send(
+        schedulerNotificationsSender.send(
             Report(
                 SYSTEM_NAME,
                 RELEASER_SUBSYSTEM,

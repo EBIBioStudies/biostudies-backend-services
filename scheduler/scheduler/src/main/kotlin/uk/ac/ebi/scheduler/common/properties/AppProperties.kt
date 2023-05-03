@@ -1,24 +1,33 @@
 package uk.ac.ebi.scheduler.common.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.NestedConfigurationProperty
-import org.springframework.stereotype.Component
+import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConfigurationProperties(prefix = "app")
-@Component
-class AppProperties {
-    lateinit var appsFolder: String
-    lateinit var notificationsUrl: String
-    lateinit var javaHome: String
+@ConstructorBinding
+data class AppProperties(
+    val appsFolder: String,
+    val javaHome: String,
+    val slack: SlackConfiguration,
+    val dailyScheduling: DailyScheduling,
+    val ssh: SshConfiguration,
+)
 
-    @NestedConfigurationProperty
-    var dailyScheduling: DailyScheduling = DailyScheduling()
-}
+data class DailyScheduling(
+    val pmcImport: Boolean = false,
+    val pmcExport: Boolean = false,
+    val notifier: Boolean = false,
+    val releaser: Boolean = true,
+    val exporter: Boolean = true,
+)
 
-class DailyScheduling {
-    var pmcImport: Boolean = false
-    var pmcExport: Boolean = false
-    var notifier: Boolean = false
-    var releaser: Boolean = true
-    var exporter: Boolean = true
-}
+data class SlackConfiguration(
+    val pmcNotificationsUrl: String,
+    val schedulerNotificationsUrl: String,
+)
+
+data class SshConfiguration(
+    val user: String,
+    val sshKey: String,
+    val server: String,
+)

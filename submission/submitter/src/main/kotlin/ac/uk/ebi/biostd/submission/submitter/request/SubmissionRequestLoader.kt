@@ -42,6 +42,7 @@ class SubmissionRequestLoader(
         filesRequestService
             .getSubmissionRequestFiles(accNo, sub.version, startingAt)
             .forEach {
+                logger.info { "$accNo ${sub.owner} Started loading file ${it.index}, path='${it.path}'" }
                 when (val file = it.file) {
                     is FireFile -> requestService.updateRqtIndex(accNo, version, it.index)
                     is NfsFile -> requestService.updateRqtIndex(it, loadAttributes(sub, file))

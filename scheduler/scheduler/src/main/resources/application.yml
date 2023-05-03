@@ -1,6 +1,8 @@
 app:
   apps-folder: # Folder where app jar can be located
-  notificationsUrl: # Slack notifications URL
+  slack:
+    pmcNotificationsUrl: # E-PMC Slack notifications URL
+    schedulerNotificationsUrl:  # Scheduler Slack notifications URL
 
   daily-scheduling:
     pmc-import: # Indicates whether the PMC import pipeline be daily triggered
