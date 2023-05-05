@@ -60,7 +60,10 @@ class SubmissionRequestFinalizerTest(
         testInstance.finalizeRequest("S-BSST1", 1)
 
         verify(exactly = 1) { requestService.saveSubmissionRequest(processedRequest) }
-        verify(exactly = 0) { storageService.deleteSubmissionFile(any(), any()) }
+        verify(exactly = 0) {
+            storageService.deleteSubmissionFolder(any())
+            storageService.deleteSubmissionFile(any(), any())
+        }
     }
 
     @Test
@@ -77,6 +80,7 @@ class SubmissionRequestFinalizerTest(
         every { queryService.getExtByAccNo("S-BSST1", true) } returns new
         every { serializationService.fileSequence(new) } returns emptySequence()
         every { persistedRequest.withNewStatus(PROCESSED) } returns processedRequest
+        every { storageService.deleteSubmissionFolder(previous) } answers { nothing }
         every { queryService.findLatestInactiveByAccNo("S-BSST1", true) } returns previous
         every { requestService.getPersistedRequest("S-BSST1", 2) } returns persistedRequest
         every { serializationService.fileSequence(previous) } returns sequenceOf(previousFile)
@@ -87,8 +91,9 @@ class SubmissionRequestFinalizerTest(
 
         verify(exactly = 1) {
             requestService.saveSubmissionRequest(processedRequest)
-            storageService.deleteSubmissionFile(previous, previousFile)
+            storageService.deleteSubmissionFolder(previous)
         }
+        verify(exactly = 0) { storageService.deleteSubmissionFile(any(), any()) }
     }
 
     @Test
@@ -119,5 +124,6 @@ class SubmissionRequestFinalizerTest(
             storageService.deleteSubmissionFile(previous, subFile)
             requestService.saveSubmissionRequest(processedRequest)
         }
+        verify(exactly = 0) { storageService.deleteSubmissionFolder(any()) }
     }
 }

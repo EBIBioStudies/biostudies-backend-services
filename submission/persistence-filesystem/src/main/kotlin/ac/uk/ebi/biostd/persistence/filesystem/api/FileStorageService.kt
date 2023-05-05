@@ -9,7 +9,7 @@ interface FileStorageService {
 
     fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile
 
-    fun deleteSubmissionFiles(sub: ExtSubmission)
+    fun deleteSubmissionFolder(sub: ExtSubmission)
 
     fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile)
 
