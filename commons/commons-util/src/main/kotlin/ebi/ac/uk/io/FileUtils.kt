@@ -113,7 +113,12 @@ object FileUtils {
 
     fun isDirectory(file: File): Boolean = Files.isDirectory(file.toPath())
 
-    fun size(file: File): Long = if (file.isFile) Files.size(file.toPath()) else calculateDirectorySize(file)
+    fun size(
+        file: File,
+        calculateDirectories: Boolean = true,
+    ): Long {
+        return if (file.isFile || !calculateDirectories) Files.size(file.toPath()) else calculateDirectorySize(file)
+    }
 
     fun md5(file: File): String = if (file.isFile) calculateMd5(file) else ""
 

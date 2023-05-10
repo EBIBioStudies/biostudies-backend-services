@@ -285,7 +285,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
         }
 
         @Test
-        fun `directory size`() {
+        fun `directory size with calculateDirectories enabled`() {
             val directory = temporaryFolder.createDirectory("dir-size-test")
 
             temporaryFolder.createDirectory("dir-size-test/level-1")
@@ -295,6 +295,19 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             val file3 = temporaryFolder.createFile("dir-size-test/level-1/level-2/file3.txt", "test 3")
 
             assertThat(FileUtils.size(directory)).isEqualTo(file1.size() + file2.size() + file3.size())
+        }
+
+        @Test
+        fun `directory size with calculateDirectories disabled`() {
+            val directory = temporaryFolder.createDirectory("dir-size-test")
+
+            temporaryFolder.createDirectory("dir-size-test/level-1")
+            temporaryFolder.createDirectory("dir-size-test/level-1/level-2")
+            temporaryFolder.createFile("dir-size-test/file1.txt", "test 1")
+            temporaryFolder.createFile("dir-size-test/level-1/file2.txt", "test 2")
+            temporaryFolder.createFile("dir-size-test/level-1/level-2/file3.txt", "test 3")
+
+            assertThat(FileUtils.size(directory, calculateDirectories = false)).isEqualTo(128L)
         }
 
         @Test

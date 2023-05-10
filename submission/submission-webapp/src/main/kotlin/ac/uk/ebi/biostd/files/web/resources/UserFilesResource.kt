@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.UserPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
+import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.ContentDisposition
@@ -32,7 +33,9 @@ class UserFilesResource(
     fun listFiles(
         @BioUser user: SecurityUser,
         pathDescriptor: UserPath
-    ) = filesMapper.asUserFiles(fileManager.listFiles(user, pathDescriptor.path))
+    ): List<UserFile> {
+        return filesMapper.asUserFiles(fileManager.listFiles(user, pathDescriptor.path))
+    }
 
     @GetMapping("/files/user/**", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE], params = ["fileName"])
     @ResponseBody
