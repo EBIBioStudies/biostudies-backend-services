@@ -3,6 +3,7 @@ package uk.ac.ebi.scheduler.releaser.service
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ebi.ac.uk.util.date.asOffsetAtEndOfDay
 import ebi.ac.uk.util.date.asOffsetAtStartOfDay
+import ebi.ac.uk.util.date.toDate
 import mu.KotlinLogging
 import uk.ac.ebi.scheduler.releaser.config.NotificationTimes
 import uk.ac.ebi.scheduler.releaser.model.ReleaseData
@@ -30,7 +31,7 @@ class SubmissionReleaserService(
         logger.info { "Releasing submissions up to $to" }
 
         releaserRepository
-            .findAllUntil(to.toLocalDate())
+            .findAllUntil(to.toDate())
             .forEach(::releaseSafely)
     }
 
@@ -54,7 +55,7 @@ class SubmissionReleaserService(
 
         logger.info { "Notifying submissions releases from $from to $to" }
         releaserRepository
-            .findAllBetween(from.toLocalDate(), to.toLocalDate())
+            .findAllBetween(from.toDate(), to.toDate())
             .forEach(::notify)
     }
 
