@@ -60,18 +60,6 @@ class NfsFilesServiceTest(
     }
 
     @Test
-    fun `delete submission files`() {
-        val subFolder = subFolder.createDirectory("S-BSST1")
-        val ftpFolder = ftpFolder.createDirectory("S-BSST1")
-        val sub = basicExtSubmission.copy(relPath = "S-BSST1")
-
-        testInstance.deleteSubmissionFiles(sub)
-
-        assertThat(Files.exists(subFolder.toPath())).isFalse()
-        assertThat(Files.exists(ftpFolder.toPath())).isFalse()
-    }
-
-    @Test
     fun `delete ftp links`() {
         val ftpFolder = ftpFolder.createDirectory("S-BSST2")
         val filesFtpFolder = ftpFolder.createDirectory("Files")

@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.fileSequence
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FileSystemEntry
 import uk.ac.ebi.fire.client.model.FireApiFile
@@ -34,7 +33,7 @@ internal class FireFilesServiceTest(
     @MockK private val submission: ExtSubmission,
     @MockK private val serializationService: ExtSerializationService,
 ) {
-    private val testInstance = FireFilesService(fireClient, serializationService)
+    private val testInstance = FireFilesService(fireClient)
 
     @BeforeEach
     fun beforeEach() {
@@ -140,22 +139,6 @@ internal class FireFilesServiceTest(
         @BeforeEach
         fun beforeEach() {
             mockkStatic("uk.ac.ebi.extended.serialization.service.ExtSerializationServiceExtKt")
-        }
-
-        @Test
-        fun `delete submission files`(
-            @MockK submission: ExtSubmission,
-        ) {
-            val file = fireFile(md5 = "md1", firePath = "path_1")
-
-            every { submission.accNo } returns "S-BSST1"
-            every { submission.owner } returns "user@mail.org"
-            every { serializationService.fileSequence(submission) } returns sequenceOf(file)
-            every { fireClient.delete(file.fireId) } answers { nothing }
-
-            testInstance.deleteSubmissionFiles(submission)
-
-            verify(exactly = 1) { fireClient.delete(file.fireId) }
         }
 
         @Test

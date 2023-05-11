@@ -17,7 +17,6 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
@@ -48,9 +47,7 @@ class FilePersistenceConfig(
     fun fireFtpService(): FireFtpService = FireFtpService(fireClient)
 
     @Bean
-    fun fireFileService(
-        serializationService: ExtSerializationService,
-    ): FireFilesService = FireFilesService(fireClient, serializationService)
+    fun fireFileService(): FireFilesService = FireFilesService(fireClient)
 
     @Bean
     fun pageTabService(

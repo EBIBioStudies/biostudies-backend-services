@@ -42,10 +42,4 @@ class StorageService(
             FIRE -> fireFilesService.deleteSubmissionFile(sub, file)
             NFS -> nfsFilesService.deleteSubmissionFile(sub, file)
         }
-
-    override fun deleteSubmissionFiles(sub: ExtSubmission) =
-        when (sub.storageMode) {
-            FIRE -> fireFilesService.deleteSubmissionFiles(sub)
-            NFS -> nfsFilesService.deleteSubmissionFiles(sub)
-        }
 }
