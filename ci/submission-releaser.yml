@@ -1,6 +1,4 @@
 .deploy-dev-releaser-task:
-  stage: deploy-dev-releaser-task
-  when: manual
   dependencies:
     - build-test
   script: gradle :scheduler:tasks:submission-releaser-task:bootJar updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
@@ -12,9 +10,12 @@ auto-deploy-dev-releaser-task:
     refs:
       - master
 
-.deploy-beta-releaser-task:
-  stage: deploy-beta-releaser-task
+deploy-dev-releaser-task:
+  extends: .deploy-dev-releaser-task
+  stage: deploy-dev-releaser-task
   when: manual
+
+.deploy-beta-releaser-task:
   dependencies:
     - build-test
   script: gradle :scheduler:tasks:submission-releaser-task:bootJar updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
@@ -25,6 +26,11 @@ auto-deploy-beta-releaser-task:
   only:
     refs:
       - beta
+
+deploy-beta-releaser-task:
+  extends: .deploy-beta-releaser-task
+  stage: deploy-beta-releaser-task
+  when: manual
 
 .deploy-prod-releaser-task:
   stage: deploy-prod-releaser-task
@@ -39,3 +45,8 @@ auto-deploy-prod-releaser-task:
   only:
     refs:
       - prod
+
+deploy-prod-releaser-task:
+  extends: .deploy-prod-releaser-task
+  stage: deploy-prod-releaser-task
+  when: manual
