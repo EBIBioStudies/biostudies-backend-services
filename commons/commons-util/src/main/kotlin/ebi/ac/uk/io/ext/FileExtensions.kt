@@ -16,7 +16,7 @@ fun File.listFilesOrEmpty(): List<File> = FileUtils.listFiles(this)
 
 fun File.allSubFiles(): List<File> = FileUtils.listAllFiles(this)
 
-fun File.size() = FileUtils.size(this)
+fun File.size(calculateDirectories: Boolean = true) = FileUtils.size(this, calculateDirectories)
 
 fun File.md5() = FileUtils.md5(this)
 
