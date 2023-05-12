@@ -307,7 +307,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
             temporaryFolder.createFile("dir-size-test/level-1/file2.txt", "test 2")
             temporaryFolder.createFile("dir-size-test/level-1/level-2/file3.txt", "test 3")
 
-            assertThat(FileUtils.size(directory, iterateDirectories = false)).isEqualTo(128L)
+            assertThat(FileUtils.size(directory, iterateDirectories = false)).isEqualTo(Files.size(directory.toPath()))
         }
 
         @Test
