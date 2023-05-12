@@ -33,8 +33,6 @@ deploy-beta-releaser-task:
   when: manual
 
 .deploy-prod-releaser-task:
-  stage: deploy-prod-releaser-task
-  when: manual
   dependencies:
     - build-test
   script: gradle :scheduler:tasks:submission-releaser-task:bootJar updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
