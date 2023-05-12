@@ -27,6 +27,7 @@ auto-deploy-beta-releaser-task:
       - beta
 
 .deploy-prod-releaser-task:
+  stage: deploy-prod-releaser-task
   when: manual
   dependencies:
     - build-test
