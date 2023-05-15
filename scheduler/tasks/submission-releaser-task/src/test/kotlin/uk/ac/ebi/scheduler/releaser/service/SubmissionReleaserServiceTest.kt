@@ -3,6 +3,7 @@ package uk.ac.ebi.scheduler.releaser.service
 import ac.uk.ebi.biostd.client.dto.ReleaseRequestDto
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ebi.ac.uk.util.date.asOffsetAtEndOfDay
+import ebi.ac.uk.util.date.toDate
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -21,6 +22,7 @@ import uk.ac.ebi.scheduler.releaser.persistence.ReleaserRepository
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
+import java.util.Date
 
 @ExtendWith(MockKExtension::class)
 class SubmissionReleaserServiceTest(
@@ -61,12 +63,15 @@ class SubmissionReleaserServiceTest(
     }
 
     @Test
-    fun `release daily submissions`() {
+    fun `release daily submissions`(
+        @MockK to: Date
+    ) {
         val requestSlot = slot<ReleaseRequestDto>()
         val released = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
 
+        every { mockNow.asOffsetAtEndOfDay().toDate() } returns to
         every { bioWebClient.releaseSubmission(capture(requestSlot)) } answers { nothing }
-        every { releaserRepository.findAllUntil(mockNow.asOffsetAtEndOfDay().toLocalDate()) } returns listOf(released)
+        every { releaserRepository.findAllUntil(to) } returns listOf(released)
 
         testInstance.releaseDailySubmissions()
 
@@ -89,8 +94,8 @@ class SubmissionReleaserServiceTest(
     }
 
     private fun mockNotificationQuery(month: Int, day: Int, response: ReleaseData) {
-        val from = OffsetDateTime.of(2020, month, day, 0, 0, 0, 0, UTC).toLocalDate()
-        val to = OffsetDateTime.of(2020, month, day, 23, 59, 59, 0, UTC).toLocalDate()
+        val from = OffsetDateTime.of(2020, month, day, 0, 0, 0, 0, UTC).toDate()
+        val to = OffsetDateTime.of(2020, month, day, 23, 59, 59, 0, UTC).toDate()
 
         every { releaserRepository.findAllBetween(from, to) } returns listOf(response)
         every { eventsPublisherService.subToBePublished(response.accNo, response.owner) } answers { nothing }
@@ -108,6 +113,7 @@ class SubmissionReleaserServiceTest(
     }
 
     private fun mockExtensionFunctions() {
+        mockkStatic("ebi.ac.uk.util.date.OffsetDateTimeKt")
         mockkStatic("ac.uk.ebi.biostd.client.extensions.BioWebClientExtKt")
         mockkStatic("ebi.ac.uk.extended.model.ExtSubmissionExtensionsKt")
     }

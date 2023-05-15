@@ -13,7 +13,7 @@ internal class DailyScheduler(
     private val pmcLoaderService: PmcLoaderService,
     private val submissionReleaserTrigger: SubmissionReleaserTrigger,
 ) {
-    @Scheduled(cron = "0 0 1 * * *")
+    @Scheduled(cron = "0 0 2 * * *")
     fun releaseSubmissions() {
         if (dailyScheduling.releaser) submissionReleaserTrigger.triggerSubmissionReleaser()
     }
