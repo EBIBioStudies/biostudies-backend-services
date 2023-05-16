@@ -17,6 +17,7 @@ class FireFilesSource(
 ) : FilesSource {
     override fun getExtFile(
         path: String,
+        type: String,
         attributes: List<Attribute>,
     ): ExtFile? {
         val md5Attribute = attributes.firstOrNull { it.name == FileFields.DB_MD5.value }
@@ -26,7 +27,7 @@ class FireFilesSource(
         }
     }
 
-    override fun getFile(path: String): File? = null
+    override fun getFileList(path: String): File? = null
 
     override val description: String = "EBI internal files Archive"
 }

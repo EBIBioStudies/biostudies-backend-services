@@ -7,11 +7,11 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.sources.FilesListSource
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.PathSource
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
+import ebi.ac.uk.io.sources.UserPathSource
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 
@@ -52,8 +52,8 @@ class FileSourcesService(
     }
 
     private fun addUserSource(user: SecurityUser, rootPath: String?, sources: MutableList<FilesSource>) {
-        if (rootPath == null) sources.add(PathSource("${user.email} user files", user.magicFolder.path))
-        else sources.add(PathSource("${user.email} user files in /$rootPath", user.magicFolder.resolve(rootPath)))
+        if (rootPath == null) sources.add(UserPathSource("${user.email} user files", user.magicFolder.path))
+        else sources.add(UserPathSource("${user.email} user files in /$rootPath", user.magicFolder.resolve(rootPath)))
 
         sources.addAll(user.groupsFolders.map { GroupSource(it.groupName, it.path) })
     }

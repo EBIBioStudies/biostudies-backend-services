@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ebi.ac.uk.errors.FilesProcessingException
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.BioFile
+import ebi.ac.uk.model.constants.FileFields.FILE_TYPE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.collections.ifNotEmpty
 import java.io.InputStream
@@ -48,7 +49,7 @@ class FileListValidator(
         serializationService
             .deserializeFileList(stream, format)
             .ifEmpty { throw InvalidFileListException.emptyFileList(name) }
-            .filter { filesSource.getExtFile(it.path, it.attributes) == null }
+            .filter { filesSource.getExtFile(it.path, FILE_TYPE.value, it.attributes) == null }
             .take(FILE_LIST_LIMIT)
             .toList()
             .ifNotEmpty { throw FilesProcessingException(it.map(BioFile::path), filesSource) }

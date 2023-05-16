@@ -2,6 +2,7 @@ package ebi.ac.uk.io.sources
 
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.Attribute
+import ebi.ac.uk.model.constants.FileFields.FILE_TYPE
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -19,7 +20,7 @@ internal class FilesListSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun getFile() {
-        val result = testInstance.getExtFile(file.name, attributes)
+        val result = testInstance.getExtFile(file.name, FILE_TYPE.value, attributes)
         assertThat(result).isInstanceOf(NfsFile::class.java)
         assertThat(result).isNotNull()
 
@@ -29,6 +30,6 @@ internal class FilesListSourceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun `get non existing file`() {
-        assertThat(testInstance.getExtFile("ghost.txt", attributes)).isNull()
+        assertThat(testInstance.getExtFile("ghost.txt", FILE_TYPE.value, attributes)).isNull()
     }
 }
