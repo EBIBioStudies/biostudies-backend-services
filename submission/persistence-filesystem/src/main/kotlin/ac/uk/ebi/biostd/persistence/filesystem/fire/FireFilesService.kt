@@ -7,16 +7,10 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.asFireFile
 import ebi.ac.uk.extended.model.expectedPath
-import mu.KotlinLogging
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.fileSequence
 import uk.ac.ebi.fire.client.integration.web.FireClient
-
-private val logger = KotlinLogging.logger {}
 
 class FireFilesService(
     private val client: FireClient,
-    private val serializationService: ExtSerializationService,
 ) : FilesService {
     /**
      * Get or persist the given ext file from FIRE. Note that this method assumes that all the fire files belonging to
@@ -70,19 +64,5 @@ class FireFilesService(
 
     override fun deleteFtpFile(sub: ExtSubmission, file: ExtFile) {
         // No need to delete FTP links on FIRE as file deleting complete this
-    }
-
-    override fun deleteSubmissionFiles(sub: ExtSubmission) {
-        fun deleteFile(index: Int, file: FireFile) {
-            logger.info { "${sub.accNo} ${sub.owner} Deleting file $index, path='${file.filePath}'" }
-            deleteSubmissionFile(sub, file)
-        }
-
-        logger.info { "${sub.accNo} ${sub.owner} Started cleaning submission files for ${sub.accNo}" }
-        serializationService
-            .fileSequence(sub)
-            .filterIsInstance(FireFile::class.java)
-            .forEachIndexed { index, file -> deleteFile(index, file) }
-        logger.info { "${sub.accNo} ${sub.owner} Finished cleaning submission files for ${sub.accNo}" }
     }
 }

@@ -10,6 +10,11 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
+import mu.KotlinLogging
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.fileSequence
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("LongParameterList")
 class StorageService(
@@ -17,6 +22,7 @@ class StorageService(
     private val fireFilesService: FireFilesService,
     private val nfsFtpService: NfsFtpService,
     private val nfsFilesService: NfsFilesService,
+    private val serializationService: ExtSerializationService,
 ) : FileStorageService {
     override fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile =
         when (sub.storageMode) {
@@ -31,21 +37,19 @@ class StorageService(
         }
     }
 
-    override fun deleteFtpFile(sub: ExtSubmission, file: ExtFile) =
-        when (sub.storageMode) {
-            FIRE -> fireFilesService.deleteFtpFile(sub, file)
-            NFS -> nfsFilesService.deleteFtpFile(sub, file)
+    override fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) = when (sub.storageMode) {
+        FIRE -> {
+            fireFilesService.deleteSubmissionFile(sub, file)
+            fireFilesService.deleteFtpFile(sub, file)
         }
 
-    override fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) =
-        when (sub.storageMode) {
-            FIRE -> fireFilesService.deleteSubmissionFile(sub, file)
-            NFS -> nfsFilesService.deleteSubmissionFile(sub, file)
+        NFS -> {
+            nfsFilesService.deleteSubmissionFile(sub, file)
+            nfsFilesService.deleteFtpFile(sub, file)
         }
+    }
 
-    override fun deleteSubmissionFiles(sub: ExtSubmission) =
-        when (sub.storageMode) {
-            FIRE -> fireFilesService.deleteSubmissionFiles(sub)
-            NFS -> nfsFilesService.deleteSubmissionFiles(sub)
-        }
+    override fun deleteSubmissionFiles(sub: ExtSubmission) {
+        serializationService.fileSequence(sub).forEach { file -> deleteSubmissionFile(sub, file) }
+    }
 }

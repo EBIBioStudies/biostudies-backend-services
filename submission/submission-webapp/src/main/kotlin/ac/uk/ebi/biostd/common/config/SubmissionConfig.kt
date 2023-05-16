@@ -71,8 +71,8 @@ class SubmissionConfig(
         extSubmissionSubmitter,
         submissionSubmitter,
         eventsPublisherService,
-        fileStorageService,
         submissionPersistenceService,
+        fileStorageService
     )
 
     @Bean

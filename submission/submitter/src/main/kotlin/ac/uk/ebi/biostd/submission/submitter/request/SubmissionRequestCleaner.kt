@@ -40,7 +40,6 @@ class SubmissionRequestCleaner(
         fun deleteFile(index: Int, file: ExtFile) {
             logger.info { "${current.accNo} ${current.owner} Deleting file $index, path='${file.filePath}'" }
             storageService.deleteSubmissionFile(current, file)
-            storageService.deleteFtpFile(current, file)
         }
 
         fun shouldDelete(newFiles: Map<String, FileEntry>, existing: ExtFile): Boolean =

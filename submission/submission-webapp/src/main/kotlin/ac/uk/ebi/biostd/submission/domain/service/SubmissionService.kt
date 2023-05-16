@@ -24,8 +24,8 @@ class SubmissionService(
     private val extSubmissionSubmitter: ExtSubmissionSubmitter,
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
-    private val fileStorageService: FileStorageService,
     private val submissionPersistenceService: SubmissionPersistenceService,
+    private val fileStorageService: FileStorageService,
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.draftKey}'" }

@@ -30,22 +30,24 @@ class SubmissionRequestFinalizer(
         return sub
     }
 
-    private fun deleteRemainingFiles(sub: ExtSubmission, previous: ExtSubmission) {
+    private fun deleteRemainingFiles(current: ExtSubmission?, previous: ExtSubmission) {
         fun deleteFile(index: Int, file: ExtFile) {
             logger.info { "${previous.accNo} ${previous.owner} Deleting file $index, path='${file.filePath}'" }
             storageService.deleteSubmissionFile(previous, file)
         }
 
-        val subFiles = subFilesSet(sub)
-        logger.info { "${sub.accNo} ${sub.owner} Started deleting remaining submission files" }
+        val subFiles = subFilesSet(current)
+        logger.info { "${previous.accNo} ${previous.owner} Started deleting remaining submission files" }
         serializationService.fileSequence(previous)
-            .filter { subFiles.contains(it.filePath).not() || it.storageMode != sub.storageMode }
+            .filter { subFiles.contains(it.filePath).not() || it.storageMode != current?.storageMode }
             .forEachIndexed { index, file -> deleteFile(index, file) }
-        logger.info { "${sub.accNo} ${sub.owner} Finished deleting remaining submission files" }
+        logger.info { "${previous.accNo} ${previous.owner} Finished deleting remaining submission files" }
     }
 
-    private fun subFilesSet(sub: ExtSubmission) =
-        serializationService.fileSequence(sub)
-            .map { it.filePath }
-            .toSet()
+    private fun subFilesSet(sub: ExtSubmission?): Set<String> {
+        return when (sub) {
+            null -> emptySet()
+            else -> serializationService.fileSequence(sub).mapTo(mutableSetOf()) { it.filePath }
+        }
+    }
 }

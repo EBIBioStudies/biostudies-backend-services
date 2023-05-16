@@ -62,32 +62,18 @@ class NfsFilesService(
         return getOrCreateFolder(submissionPath, permissions).toFile()
     }
 
-    override fun deleteSubmissionFiles(sub: ExtSubmission) {
-        deleteFtpFolder(sub)
-        deleteSubFolder(sub)
-    }
-
     override fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {
         require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
-        FileUtils.deleteFile(folderResolver.getSubFolder(sub.relPath).resolve(file.relPath).toFile())
+
+        val subDirectory = folderResolver.getSubFolder(sub.relPath)
+        val subFile = subDirectory.resolve(file.relPath).toFile()
+        FileUtils.deleteFile(subFile)
     }
 
     override fun deleteFtpFile(sub: ExtSubmission, file: ExtFile) {
         logger.info { "${sub.accNo} ${sub.owner} Started un-publishing files of submission ${sub.accNo} on NFS" }
         val subFolder = folderResolver.getSubmissionFtpFolder(sub.relPath)
         FileUtils.deleteFile(subFolder.resolve(file.relPath).toFile())
-        logger.info { "${sub.accNo} ${sub.owner} Finished un-publishing files of submission ${sub.accNo} on NFS" }
-    }
-
-    private fun deleteSubFolder(sub: ExtSubmission) {
-        logger.info { "${sub.accNo} ${sub.owner} Started deleting files of submission ${sub.accNo} on NFS" }
-        FileUtils.deleteFile(folderResolver.getSubFolder(sub.relPath).toFile())
-        logger.info { "${sub.accNo} ${sub.owner} Finished deleting files of submission ${sub.accNo} on NFS" }
-    }
-
-    private fun deleteFtpFolder(sub: ExtSubmission) {
-        logger.info { "${sub.accNo} ${sub.owner} Started un-publishing files of submission ${sub.accNo} on NFS" }
-        FileUtils.deleteFile(folderResolver.getSubmissionFtpFolder(sub.relPath).toFile())
         logger.info { "${sub.accNo} ${sub.owner} Finished un-publishing files of submission ${sub.accNo} on NFS" }
     }
 }
