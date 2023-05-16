@@ -1,5 +1,7 @@
 package ebi.ac.uk.model.constants
 
+const val COLLECTION_TYPE = "Project"
+
 private const val ACC_NO_FIELD = "accno"
 private const val SECTION_FIELD = "section"
 private const val ATTRIBUTES_FIELD = "attributes"

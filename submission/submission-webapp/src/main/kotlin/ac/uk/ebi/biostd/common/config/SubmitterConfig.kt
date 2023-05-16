@@ -15,9 +15,9 @@ import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.service.AccNoService
-import ac.uk.ebi.biostd.submission.service.CollectionInfoService
+import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
+import ac.uk.ebi.biostd.submission.service.CollectionProcessor
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
-import ac.uk.ebi.biostd.submission.service.ParentInfoService
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionProcessor
@@ -174,12 +174,12 @@ class SubmitterConfig(
     fun submissionSubmitter(
         extSubmissionSubmitter: ExtSubmissionSubmitter,
         submissionProcessor: SubmissionProcessor,
-        parentInfoService: ParentInfoService,
+        collectionValidationService: CollectionValidationService,
         draftService: SubmissionDraftPersistenceService,
     ): SubmissionSubmitter = SubmissionSubmitter(
         extSubmissionSubmitter,
         submissionProcessor,
-        parentInfoService,
+        collectionValidationService,
         draftService,
     )
 
@@ -188,8 +188,7 @@ class SubmitterConfig(
         persistenceService: SubmissionPersistenceService,
         timesService: TimesService,
         accNoService: AccNoService,
-        parentInfoService: ParentInfoService,
-        collectionInfoService: CollectionInfoService,
+        collectionProcessor: CollectionProcessor,
         properties: ApplicationProperties,
         toExtSectionMapper: ToExtSectionMapper,
     ): SubmissionProcessor =
@@ -197,8 +196,7 @@ class SubmitterConfig(
             persistenceService,
             timesService,
             accNoService,
-            parentInfoService,
-            collectionInfoService,
+            collectionProcessor,
             properties,
             toExtSectionMapper,
         )
@@ -244,10 +242,10 @@ class SubmitterConfig(
         fun accNoService() = AccNoService(service, accNoPatternUtil(), userPrivilegesService, properties.subBasePath)
 
         @Bean
-        fun parentInfoService(beanFactory: BeanFactory) = ParentInfoService(beanFactory, queryService)
+        fun parentInfoService(beanFactory: BeanFactory) = CollectionValidationService(beanFactory, queryService)
 
         @Bean
-        fun projectInfoService() = CollectionInfoService(service, accNoPatternUtil(), userPrivilegesService)
+        fun projectInfoService() = CollectionProcessor(service, accNoPatternUtil(), userPrivilegesService)
 
         @Bean
         fun timesService() = TimesService()

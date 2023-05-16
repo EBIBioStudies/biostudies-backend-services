@@ -5,38 +5,42 @@ import ac.uk.ebi.biostd.submission.exceptions.CollectionAccNoTemplateAlreadyExis
 import ac.uk.ebi.biostd.submission.exceptions.CollectionAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.CollectionInvalidAccNoPatternException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
+import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
+import ebi.ac.uk.model.extensions.accNoTemplate
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 
 internal const val ACC_NO_TEMPLATE_REQUIRED = "The AccNoTemplate property is required for collections"
 internal const val ACC_NO_TEMPLATE_INVALID = "The given AccNoTemplate is invalid. Expected pattern is !{TEMPLATE}"
 
-class CollectionInfoService(
+class CollectionProcessor(
     private val service: PersistenceService,
     private val accNoUtil: AccNoPatternUtil,
     private val privilegesService: IUserPrivilegesService
 ) {
-    fun process(request: CollectionRequest): CollectionResponse? {
-        val (submitter, subType, template, accNo, isNew) = request
-
-        if (subType != "Project") return null
+    fun process(request: SubmitRequest): String {
+        val submitter = request.submitter.email
+        val accNo = request.submission.accNo
+        val template = request.submission.accNoTemplate
 
         require(privilegesService.canSubmitCollections(submitter)) {
             throw UserCanNotSubmitProjectsException(submitter)
         }
 
         validatePattern(template)
-
         val accNoPattern = accNoUtil.getPattern(template!!)
-        validateProject(isNew, accNo, accNoPattern)
-        persist(isNew, accNo, accNoPattern)
 
-        return CollectionResponse(request.accNo)
+        if (request.previousVersion != null) {
+            validate(accNo, accNoPattern)
+            persist(accNo, accNoPattern)
+        }
+
+        return accNo
     }
 
-    private fun validateProject(isNew: Boolean, accNo: String, accNoPattern: String) {
-        if (isNew && service.accessTagExists(accNo)) throw CollectionAlreadyExistingException(accNo)
-        if (isNew && service.sequenceAccNoPatternExists(accNoPattern))
+    private fun validate(accNo: String, accNoPattern: String) {
+        if (service.accessTagExists(accNo)) throw CollectionAlreadyExistingException(accNo)
+        if (service.sequenceAccNoPatternExists(accNoPattern))
             throw CollectionAccNoTemplateAlreadyExistsException(accNoPattern)
     }
 
@@ -45,20 +49,8 @@ class CollectionInfoService(
         require(accNoUtil.isPattern(template)) { throw CollectionInvalidAccNoPatternException(ACC_NO_TEMPLATE_INVALID) }
     }
 
-    private fun persist(isNew: Boolean, accNo: String, accNoPattern: String) {
-        if (isNew) {
-            service.saveAccessTag(accNo)
-            service.createAccNoPatternSequence(accNoPattern)
-        }
+    private fun persist(accNo: String, accNoPattern: String) {
+        service.saveAccessTag(accNo)
+        service.createAccNoPatternSequence(accNoPattern)
     }
 }
-
-data class CollectionRequest(
-    val submitter: String,
-    val subType: String,
-    val accNoTemplate: String?,
-    val accNo: String,
-    val isNew: Boolean = true
-)
-
-data class CollectionResponse(val accessTag: String)
