@@ -30,15 +30,10 @@ class SubmissionRequestFinalizer(
         return sub
     }
 
-    fun deleteSubmissionFiles(submission: ExtSubmission) {
-        deleteRemainingFiles(null, submission)
-    }
-
     private fun deleteRemainingFiles(current: ExtSubmission?, previous: ExtSubmission) {
         fun deleteFile(index: Int, file: ExtFile) {
             logger.info { "${previous.accNo} ${previous.owner} Deleting file $index, path='${file.filePath}'" }
             storageService.deleteSubmissionFile(previous, file)
-            storageService.deleteFtpFile(previous, file)
         }
 
         val subFiles = subFilesSet(current)

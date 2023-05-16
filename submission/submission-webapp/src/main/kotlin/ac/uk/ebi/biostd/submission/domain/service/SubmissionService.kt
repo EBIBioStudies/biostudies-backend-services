@@ -2,13 +2,13 @@ package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDelete
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotRelease
 import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestFinalizer
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -25,7 +25,7 @@ class SubmissionService(
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
     private val submissionPersistenceService: SubmissionPersistenceService,
-    private val submissionRequestFinalizer: SubmissionRequestFinalizer,
+    private val fileStorageService: FileStorageService,
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.draftKey}'" }
@@ -40,7 +40,7 @@ class SubmissionService(
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
         require(userPrivilegesService.canDelete(user.email, accNo)) { throw UserCanNotDelete(accNo, user.email) }
-        submissionRequestFinalizer.deleteSubmissionFiles(queryService.getExtByAccNo(accNo, true))
+        fileStorageService.deleteSubmissionFiles(queryService.getExtByAccNo(accNo, true))
         submissionPersistenceService.expireSubmission(accNo)
         eventsPublisherService.submissionsRefresh(accNo, user.email)
     }

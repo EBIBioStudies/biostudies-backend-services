@@ -11,5 +11,5 @@ interface FileStorageService {
 
     fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile)
 
-    fun deleteFtpFile(sub: ExtSubmission, file: ExtFile)
+    fun deleteSubmissionFiles(sub: ExtSubmission)
 }

@@ -81,7 +81,6 @@ class SubmissionRequestFinalizerTest(
         every { requestService.getPersistedRequest("S-BSST1", 2) } returns persistedRequest
         every { serializationService.fileSequence(previous) } returns sequenceOf(previousFile)
         every { storageService.deleteSubmissionFile(previous, previousFile) } answers { nothing }
-        every { storageService.deleteFtpFile(previous, previousFile) } answers { nothing }
         every { requestService.saveSubmissionRequest(processedRequest) } returns ("S-BSST1" to 1)
 
         testInstance.finalizeRequest("S-BSST1", 2)
@@ -112,7 +111,6 @@ class SubmissionRequestFinalizerTest(
         every { serializationService.fileSequence(previous) } returns sequenceOf(subFile)
         every { queryService.findLatestInactiveByAccNo("S-BSST1", true) } returns previous
         every { storageService.deleteSubmissionFile(previous, subFile) } answers { nothing }
-        every { storageService.deleteFtpFile(previous, subFile) } answers { nothing }
         every { requestService.saveSubmissionRequest(processedRequest) } returns ("S-BSST1" to 1)
 
         testInstance.finalizeRequest("S-BSST1", 2)

@@ -17,6 +17,7 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
@@ -35,7 +36,9 @@ class FilePersistenceConfig(
         fireFilesService: FireFilesService,
         nfsFtpService: NfsFtpService,
         nfsFilesService: NfsFilesService,
-    ): FileStorageService = StorageService(fireFtpService, fireFilesService, nfsFtpService, nfsFilesService)
+        extSerializationService: ExtSerializationService,
+    ): FileStorageService =
+        StorageService(fireFtpService, fireFilesService, nfsFtpService, nfsFilesService, extSerializationService)
 
     @Bean
     fun nfsFtpService(): NfsFtpService = NfsFtpService(folderResolver)

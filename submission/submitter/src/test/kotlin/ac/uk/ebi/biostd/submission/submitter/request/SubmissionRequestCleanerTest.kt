@@ -64,7 +64,6 @@ class SubmissionRequestCleanerTest(
 
         verify(exactly = 1) { requestService.saveSubmissionRequest(cleanedRequest) }
         verify(exactly = 0) {
-            storageService.deleteFtpFile(any(), any())
             storageService.deleteSubmissionFile(any(), any())
         }
     }
@@ -89,7 +88,6 @@ class SubmissionRequestCleanerTest(
 
         every { loadedRequest.submission } returns new
 
-        every { storageService.deleteFtpFile(current, currentFile) } answers { nothing }
         every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
         every { queryService.findExtByAccNo("S-BSST1", true) } returns current
         every { requestService.getLoadedRequest("S-BSST1", 2) } returns loadedRequest
@@ -101,7 +99,6 @@ class SubmissionRequestCleanerTest(
         testInstance.cleanCurrentVersion("S-BSST1", 2)
 
         verify(exactly = 1) {
-            storageService.deleteFtpFile(current, currentFile)
             requestService.saveSubmissionRequest(cleanedRequest)
             storageService.deleteSubmissionFile(current, currentFile)
         }

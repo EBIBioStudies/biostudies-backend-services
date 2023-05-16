@@ -72,6 +72,11 @@ app:
     username: # FIRE user
     password: # FIRE password
     version: v1.1
+    s3AccessKey: # FIRE s3 access key
+    s3SecretKey: # FIRE s3 access key
+    s3region: anyRegion # Fire s3 region
+    s3endpoint: # Fire s3 region
+    s3bucket: # Fire s3 region
     retry:
       maxAttempts: 20
       initialInterval: 100
