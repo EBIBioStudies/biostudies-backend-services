@@ -32,9 +32,12 @@ class SubmissionRequestFinalizer(
     private fun deleteRemainingFiles(current: ExtSubmission?, previous: ExtSubmission) {
         val subFiles = subFilesSet(current)
         logger.info { "${previous.accNo} ${previous.owner} Started deleting remaining submission files" }
-        storageService.deleteSubmissionFiles(previous,
+        storageService.deleteSubmissionFiles(
+            previous,
             filter = { subFiles.contains(it.filePath).not() || it.storageMode != current?.storageMode },
-            onEachIndexed = { idx, file -> logger.info { "${previous.accNo} ${previous.owner} Deleting file $idx, path='${file.filePath}'" } }
+            onEachIndexed = { idx, file ->
+                logger.info { "${previous.accNo} ${previous.owner} Deleting file $idx, path='${file.filePath}'" }
+            }
         )
         logger.info { "${previous.accNo} ${previous.owner} Finished deleting remaining submission files" }
     }

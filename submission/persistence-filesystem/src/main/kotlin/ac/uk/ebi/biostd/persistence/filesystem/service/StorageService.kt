@@ -56,6 +56,7 @@ class StorageService(
     ) {
         serializationService.fileSequence(sub)
             .filter(filter)
+            .onEachIndexed(onEachIndexed)
             .forEach { file -> deleteSubmissionFile(sub, file) }
         deleteEmptyFolders(sub)
     }
