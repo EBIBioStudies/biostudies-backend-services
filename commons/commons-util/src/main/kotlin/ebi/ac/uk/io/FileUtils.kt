@@ -6,6 +6,7 @@ import ebi.ac.uk.io.FileUtilsHelper.createFolderHardLinks
 import ebi.ac.uk.io.FileUtilsHelper.createFolderIfNotExist
 import ebi.ac.uk.io.FileUtilsHelper.createParentDirectories
 import ebi.ac.uk.io.FileUtilsHelper.createSymLink
+import ebi.ac.uk.io.ext.isEmpty
 import ebi.ac.uk.io.ext.notExist
 import ebi.ac.uk.io.ext.size
 import org.apache.commons.codec.digest.DigestUtils
@@ -70,6 +71,15 @@ object FileUtils {
             isDirectory(file) -> FileUtilsHelper.deleteFolder(file.toPath())
             exists(file.toPath()) -> Files.delete(file.toPath())
         }
+    }
+
+    fun deleteEmptyDirectories(dir: File) {
+        dir
+            .walkBottomUp()
+            .asSequence()
+            .takeWhile { it != dir }
+            .forEach { deleteEmptyDirectories(it) }
+        if (dir.isDirectory && dir.isEmpty()) Files.delete(dir.toPath())
     }
 
     fun moveFile(

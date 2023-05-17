@@ -65,4 +65,8 @@ class FireFilesService(
     override fun deleteFtpFile(sub: ExtSubmission, file: ExtFile) {
         // No need to delete FTP links on FIRE as file deleting complete this
     }
+
+    override fun deleteEmptyFolders(current: ExtSubmission) {
+        // No need to delete FIRE empty bucket as they only exists as files are in them
+    }
 }

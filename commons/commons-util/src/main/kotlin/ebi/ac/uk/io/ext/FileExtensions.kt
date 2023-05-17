@@ -14,6 +14,8 @@ fun File.notExist() = Files.exists(toPath()).not()
 
 fun File.listFilesOrEmpty(): List<File> = FileUtils.listFiles(this)
 
+fun File.isEmpty(): Boolean = Files.newDirectoryStream(this.toPath()).use { return it.iterator().hasNext().not() }
+
 fun File.allSubFiles(): List<File> = FileUtils.listAllFiles(this)
 
 fun File.size(calculateDirectories: Boolean = true) = FileUtils.size(this, calculateDirectories)

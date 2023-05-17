@@ -268,6 +268,40 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
     }
 
     @Nested
+    inner class DeleteEmptyFolders {
+        @Test
+        fun whenEmpty() {
+            val main = temporaryFolder.createDirectory("main")
+            val sub1 = main.createDirectory("sub1")
+            val sub2 = main.createDirectory("sub2")
+            sub1.createDirectory("sub1Sub1")
+            sub1.createDirectory("sub1Sub2")
+            sub2.createDirectory("sub2Sub1")
+
+            FileUtils.deleteEmptyDirectories(main)
+
+            assertThat(main).doesNotExist()
+        }
+
+        @Test
+        fun whenNotEmpty() {
+            val main = temporaryFolder.createDirectory("main")
+            val sub1 = main.createDirectory("sub1")
+            val sub2 = main.createDirectory("sub2")
+            val sub1Sub1 = sub1.createDirectory("sub1Sub1")
+            val file = sub1Sub1.createFile("one.txt", "text")
+
+            FileUtils.deleteEmptyDirectories(main)
+
+            assertThat(file).exists()
+            assertThat(sub1Sub1).exists()
+            assertThat(sub2).doesNotExist()
+            assertThat(sub1).exists()
+            assertThat(main).exists()
+        }
+    }
+
+    @Nested
     inner class Utilities {
         @Test
         fun `is directory`() {

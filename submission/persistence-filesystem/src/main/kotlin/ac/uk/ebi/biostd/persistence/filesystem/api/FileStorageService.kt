@@ -11,5 +11,9 @@ interface FileStorageService {
 
     fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile)
 
-    fun deleteSubmissionFiles(sub: ExtSubmission)
+    fun deleteSubmissionFiles(
+        sub: ExtSubmission,
+        onEachIndexed: (Int, ExtFile) -> Unit = { _, _ -> },
+        filter: (ExtFile) -> Boolean = { true },
+    )
 }
