@@ -4,8 +4,10 @@ import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.CollectionAccNoTemplateAlreadyExistsException
 import ac.uk.ebi.biostd.submission.exceptions.CollectionAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.CollectionInvalidAccNoPatternException
-import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitCollectionsException
+import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
+import ebi.ac.uk.model.extensions.accNoTemplate
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -18,16 +20,15 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
 @ExtendWith(MockKExtension::class)
-class ExtCollectionInfoServiceTest(
+class CollectionProcessorTest(
+    @MockK private val request: SubmitRequest,
     @MockK private val service: PersistenceService,
     @MockK private val accNoUtil: AccNoPatternUtil,
-    @MockK private val privilegesService: IUserPrivilegesService
+    @MockK private val privilegesService: IUserPrivilegesService,
 ) {
-    private val testInstance = CollectionInfoService(service, accNoUtil, privilegesService)
+    private val testInstance = CollectionProcessor(service, accNoUtil, privilegesService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -35,42 +36,30 @@ class ExtCollectionInfoServiceTest(
     @BeforeEach
     fun beforeEach() {
         initContext()
+        initRequest()
         initAccNoUtil()
-        every { privilegesService.canSubmitCollections("user@test.org") } returns true
     }
 
     @Test
     fun process() {
-        val request = CollectionRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
-        val response = testInstance.process(request)
-
-        assertNotNull(response)
-        assertThat(response.accessTag).isEqualTo("TheProject")
-        verify(exactly = 1) { service.saveAccessTag("TheProject") }
+        assertThat(testInstance.process(request)).isEqualTo("TheCollection")
+        verify(exactly = 1) { service.saveAccessTag("TheCollection") }
         verify(exactly = 1) { service.createAccNoPatternSequence("S-PRJ") }
-    }
-
-    @Test
-    fun `non collection`() {
-        val request = CollectionRequest("user@test.org", "Study", "!{S-PRJ}", "TheProject")
-        assertNull(testInstance.process(request))
     }
 
     @Test
     fun `user cant submit collections`() {
         every { privilegesService.canSubmitCollections("user@test.org") } returns false
 
-        val request = CollectionRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
-        val exception = assertThrows<UserCanNotSubmitProjectsException> { testInstance.process(request) }
-
+        val exception = assertThrows<UserCanNotSubmitCollectionsException> { testInstance.process(request) }
         assertThat(exception.message).isEqualTo("The user user@test.org is not allowed to submit collections")
     }
 
     @Test
     fun `no template`() {
-        val request = CollectionRequest("user@test.org", "Project", null, "TheProject")
-        val exception = assertThrows<CollectionInvalidAccNoPatternException> { testInstance.process(request) }
+        every { request.submission.accNoTemplate } returns null
 
+        val exception = assertThrows<CollectionInvalidAccNoPatternException> { testInstance.process(request) }
         assertThat(exception.message).isEqualTo(ACC_NO_TEMPLATE_REQUIRED)
     }
 
@@ -78,41 +67,45 @@ class ExtCollectionInfoServiceTest(
     fun `invalid pattern`() {
         every { accNoUtil.getPattern("Invalid") } returns ""
         every { accNoUtil.isPattern("Invalid") } returns false
+        every { request.submission.accNoTemplate } returns "Invalid"
 
-        val request = CollectionRequest("user@test.org", "Project", "Invalid", "TheProject")
         val exception = assertThrows<CollectionInvalidAccNoPatternException> { testInstance.process(request) }
         assertThat(exception.message).isEqualTo(ACC_NO_TEMPLATE_INVALID)
     }
 
     @Test
     fun `already existing collection`() {
-        every { service.accessTagExists("TheProject") } returns true
+        every { service.accessTagExists("TheCollection") } returns true
 
-        val request = CollectionRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
         val exception = assertThrows<CollectionAlreadyExistingException> { testInstance.process(request) }
-
-        assertThat(exception.message).isEqualTo("The collection 'TheProject' already exists")
+        assertThat(exception.message).isEqualTo("The collection 'TheCollection' already exists")
     }
 
     @Test
     fun `pattern accNo already in use`() {
         every { service.sequenceAccNoPatternExists("S-PRJ") } returns true
 
-        val request = CollectionRequest("user@test.org", "Project", "!{S-PRJ}", "TheProject")
         val exception = assertThrows<CollectionAccNoTemplateAlreadyExistsException> { testInstance.process(request) }
-
         assertThat(exception.message).isEqualTo("There is a collection already using the accNo template 'S-PRJ'")
     }
 
     private fun initContext() {
-        every { service.saveAccessTag("TheProject") } answers { nothing }
-        every { service.accessTagExists("TheProject") } returns false
+        every { service.saveAccessTag("TheCollection") } answers { nothing }
+        every { service.accessTagExists("TheCollection") } returns false
         every { service.sequenceAccNoPatternExists("S-PRJ") } returns false
         every { service.createAccNoPatternSequence("S-PRJ") } answers { nothing }
+        every { privilegesService.canSubmitCollections("user@test.org") } returns true
     }
 
     private fun initAccNoUtil() {
         every { accNoUtil.getPattern("!{S-PRJ}") } returns "S-PRJ"
         every { accNoUtil.isPattern("!{S-PRJ}") } returns true
+    }
+
+    private fun initRequest() {
+        every { request.previousVersion } returns null
+        every { request.submission.accNo } returns "TheCollection"
+        every { request.submitter.email } returns "user@test.org"
+        every { request.submission.accNoTemplate } returns "!{S-PRJ}"
     }
 }

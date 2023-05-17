@@ -104,11 +104,11 @@ class SubmitWebHandler(
             val (accNo, rootPath) = deserializeSubmission()
             val previous = extSubService.findExtendedSubmission(accNo)
             val sources = fileSourcesService.submissionSources(sourceRequest(rootPath, previous))
-            val submission = deserializeSubmission(sources)
+            val submission = deserializeSubmission(sources).withAttributes(attrs)
             val collection = submission.attachTo?.let { queryService.getBasicCollection(it) }
 
             return SubmitRequest(
-                submission = submission.withAttributes(attrs),
+                submission = submission,
                 submitter = submitter,
                 sources = sources,
                 method = rqt.method,

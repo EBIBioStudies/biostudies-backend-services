@@ -56,9 +56,9 @@ class SubmissionRequestMongoPersistenceService(
         requestRepository.updateIndex(accNo, version, index)
     }
 
-    override fun updateRqtIndex(rqt: SubmissionRequestFile, file: ExtFile) {
-        requestRepository.updateIndex(rqt.accNo, rqt.version, rqt.index)
-        requestRepository.updateSubmissionRequestFile(rqt.accNo, rqt.version, rqt.path, file)
+    override fun updateRqtIndex(requestFile: SubmissionRequestFile, file: ExtFile) {
+        requestRepository.updateIndex(requestFile.accNo, requestFile.version, requestFile.index)
+        requestRepository.updateSubmissionRequestFile(requestFile.accNo, requestFile.version, requestFile.path, file)
     }
 
     override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {

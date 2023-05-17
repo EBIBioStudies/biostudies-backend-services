@@ -14,14 +14,14 @@ class UserCanNotUpdateSubmit(
     user: String
 ) : InvalidPermissionsException("The user {$user} is not allowed to update the submission $accNo")
 
-class UserCanNotSubmitProjectsException(
+class UserCanNotSubmitCollectionsException(
     user: String
 ) : InvalidPermissionsException("The user $user is not allowed to submit collections")
 
-class UserCanNotSubmitToProjectException(
+class UserCanNotSubmitToCollectionException(
     user: String,
-    project: String
-) : InvalidPermissionsException("The user $user is not allowed to submit to $project project")
+    collection: String
+) : InvalidPermissionsException("The user $user is not allowed to submit to $collection collection")
 
 class UserCanNotDelete(
     accNo: String,

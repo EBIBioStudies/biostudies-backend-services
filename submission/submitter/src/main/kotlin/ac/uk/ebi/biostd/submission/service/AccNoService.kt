@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotProvideAccessNumber
-import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToCollectionException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
@@ -36,7 +36,7 @@ class AccNoService(
 
     private fun checkCanSubmitToCollection(collection: String?, submitter: String) {
         if (collection != null && privilegesService.canSubmitToCollection(submitter, collection).not())
-            throw UserCanNotSubmitToProjectException(submitter, collection)
+            throw UserCanNotSubmitToCollectionException(submitter, collection)
     }
 
     private fun checkCanReSubmit(accNo: String, submitter: String) {

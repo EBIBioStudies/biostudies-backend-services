@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.CollectionAccNoTemplateAlreadyExistsException
 import ac.uk.ebi.biostd.submission.exceptions.CollectionAlreadyExistingException
 import ac.uk.ebi.biostd.submission.exceptions.CollectionInvalidAccNoPatternException
-import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitProjectsException
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitCollectionsException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.model.extensions.accNoTemplate
@@ -24,13 +24,13 @@ class CollectionProcessor(
         val template = request.submission.accNoTemplate
 
         require(privilegesService.canSubmitCollections(submitter)) {
-            throw UserCanNotSubmitProjectsException(submitter)
+            throw UserCanNotSubmitCollectionsException(submitter)
         }
 
         validatePattern(template)
         val accNoPattern = accNoUtil.getPattern(template!!)
 
-        if (request.previousVersion != null) {
+        if (request.previousVersion == null) {
             validate(accNo, accNoPattern)
             persist(accNo, accNoPattern)
         }

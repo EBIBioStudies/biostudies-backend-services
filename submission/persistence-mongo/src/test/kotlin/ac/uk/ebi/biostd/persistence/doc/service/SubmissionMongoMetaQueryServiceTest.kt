@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbQueryConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.PropertyOverrideContextInitializer
 import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
+import ac.uk.ebi.biostd.persistence.doc.test.doc.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.doc.RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
@@ -57,10 +58,11 @@ internal class SubmissionMongoMetaQueryServiceTest(
             )
         )
 
-        val (accNo, accNoPattern, validator, releaseTime) = testInstance.getBasicCollection("EuToxRisk")
+        val (accNo, accNoPattern, collections, validator, releaseTime) = testInstance.getBasicCollection("EuToxRisk")
         assertThat(accNo).isEqualTo("EuToxRisk")
         assertThat(accNoPattern).isEqualTo("!{S-TOX}")
         assertThat(validator).isEqualTo("EuToxRiskValidator")
+        assertThat(collections).containsExactly(COLLECTION_ACC_NO)
         assertThat(releaseTime).isEqualTo(RELEASE_TIME.atOffset(UTC).truncatedTo(ChronoUnit.MILLIS))
     }
 

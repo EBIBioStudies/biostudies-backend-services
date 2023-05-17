@@ -111,6 +111,15 @@ class SubExtTest {
     }
 
     @Test
+    fun `is collection`() {
+        val submission = submission("BioImages") {
+            section("Project") {}
+        }
+
+        assertThat(submission.isCollection).isTrue()
+    }
+
+    @Test
     fun `all submission files`() {
         val submission = submission("ABC-123") {
             section("Study") {

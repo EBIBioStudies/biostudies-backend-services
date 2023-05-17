@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
@@ -54,9 +53,7 @@ class SubmissionRequestLoaderTest(
     }
 
     @Test
-    fun `load request`(
-        @MockK fireFile: FireFile,
-    ) {
+    fun `load request`() {
         val loadedRequestSlot = slot<SubmissionRequest>()
         val filSlot = slot<ExtFile>()
         val file = tempFolder.createFile("dummy.txt")
