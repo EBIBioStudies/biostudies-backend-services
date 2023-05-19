@@ -13,7 +13,6 @@ interface FileStorageService {
 
     fun deleteSubmissionFiles(
         sub: ExtSubmission,
-        onEachIndexed: (Int, ExtFile) -> Unit = { _, _ -> },
-        filter: (ExtFile) -> Boolean = { true },
+        process: (Sequence<ExtFile>) -> Sequence<ExtFile> = { it },
     )
 }

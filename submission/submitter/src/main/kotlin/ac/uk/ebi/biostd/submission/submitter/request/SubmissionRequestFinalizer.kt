@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.storageMode
 import mu.KotlinLogging
@@ -31,15 +32,18 @@ class SubmissionRequestFinalizer(
 
     private fun deleteRemainingFiles(current: ExtSubmission?, previous: ExtSubmission) {
         val subFiles = subFilesSet(current)
-        logger.info { "${previous.accNo} ${previous.owner} Started deleting remaining submission files" }
-        storageService.deleteSubmissionFiles(
-            previous,
-            filter = { subFiles.contains(it.filePath).not() || it.storageMode != current?.storageMode },
-            onEachIndexed = { idx, file ->
-                logger.info { "${previous.accNo} ${previous.owner} Deleting file $idx, path='${file.filePath}'" }
-            }
-        )
-        logger.info { "${previous.accNo} ${previous.owner} Finished deleting remaining submission files" }
+        val accNo = previous.accNo
+        val owner = previous.owner
+
+        fun deleteRemainingFiles(allFiles: Sequence<ExtFile>): Sequence<ExtFile> {
+            return allFiles
+                .filter { subFiles.contains(it.filePath).not() || it.storageMode != current?.storageMode }
+                .onEachIndexed { i, file -> logger.info { "$accNo $owner Deleting file $i, path='${file.filePath}'" } }
+        }
+
+        logger.info { "$accNo ${previous.owner} Started deleting remaining submission files" }
+        storageService.deleteSubmissionFiles(previous, ::deleteRemainingFiles)
+        logger.info { "$accNo ${previous.owner} Finished deleting remaining submission files" }
     }
 
     private fun subFilesSet(sub: ExtSubmission?): Set<String> {

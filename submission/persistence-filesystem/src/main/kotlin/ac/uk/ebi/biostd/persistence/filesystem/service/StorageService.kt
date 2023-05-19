@@ -51,13 +51,9 @@ class StorageService(
 
     override fun deleteSubmissionFiles(
         sub: ExtSubmission,
-        onEachIndexed: (Int, ExtFile) -> Unit,
-        filter: (ExtFile) -> Boolean,
+        process: (Sequence<ExtFile>) -> Sequence<ExtFile>,
     ) {
-        serializationService.fileSequence(sub)
-            .filter(filter)
-            .onEachIndexed(onEachIndexed)
-            .forEach { file -> deleteSubmissionFile(sub, file) }
+        process(serializationService.fileSequence(sub)).forEach { file -> deleteSubmissionFile(sub, file) }
         deleteEmptyFolders(sub)
     }
 
