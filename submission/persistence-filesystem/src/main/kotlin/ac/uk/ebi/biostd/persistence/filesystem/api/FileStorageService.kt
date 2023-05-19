@@ -11,5 +11,8 @@ interface FileStorageService {
 
     fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile)
 
-    fun deleteSubmissionFiles(sub: ExtSubmission)
+    fun deleteSubmissionFiles(
+        sub: ExtSubmission,
+        process: (Sequence<ExtFile>) -> Sequence<ExtFile> = { it },
+    )
 }

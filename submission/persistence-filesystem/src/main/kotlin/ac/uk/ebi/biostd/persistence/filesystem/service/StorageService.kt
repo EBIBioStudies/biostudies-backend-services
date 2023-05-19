@@ -49,7 +49,16 @@ class StorageService(
         }
     }
 
-    override fun deleteSubmissionFiles(sub: ExtSubmission) {
-        serializationService.fileSequence(sub).forEach { file -> deleteSubmissionFile(sub, file) }
+    override fun deleteSubmissionFiles(
+        sub: ExtSubmission,
+        process: (Sequence<ExtFile>) -> Sequence<ExtFile>,
+    ) {
+        process(serializationService.fileSequence(sub)).forEach { file -> deleteSubmissionFile(sub, file) }
+        deleteEmptyFolders(sub)
+    }
+
+    private fun deleteEmptyFolders(sub: ExtSubmission) = when (sub.storageMode) {
+        FIRE -> fireFilesService.deleteEmptyFolders(sub)
+        NFS -> nfsFilesService.deleteEmptyFolders(sub)
     }
 }

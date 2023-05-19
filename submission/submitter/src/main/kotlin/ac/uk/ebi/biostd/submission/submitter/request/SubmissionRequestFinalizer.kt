@@ -31,17 +31,19 @@ class SubmissionRequestFinalizer(
     }
 
     private fun deleteRemainingFiles(current: ExtSubmission?, previous: ExtSubmission) {
-        fun deleteFile(index: Int, file: ExtFile) {
-            logger.info { "${previous.accNo} ${previous.owner} Deleting file $index, path='${file.filePath}'" }
-            storageService.deleteSubmissionFile(previous, file)
+        val subFiles = subFilesSet(current)
+        val accNo = previous.accNo
+        val owner = previous.owner
+
+        fun deleteRemainingFiles(allFiles: Sequence<ExtFile>): Sequence<ExtFile> {
+            return allFiles
+                .filter { subFiles.contains(it.filePath).not() || it.storageMode != current?.storageMode }
+                .onEachIndexed { i, file -> logger.info { "$accNo $owner Deleting file $i, path='${file.filePath}'" } }
         }
 
-        val subFiles = subFilesSet(current)
-        logger.info { "${previous.accNo} ${previous.owner} Started deleting remaining submission files" }
-        serializationService.fileSequence(previous)
-            .filter { subFiles.contains(it.filePath).not() || it.storageMode != current?.storageMode }
-            .forEachIndexed { index, file -> deleteFile(index, file) }
-        logger.info { "${previous.accNo} ${previous.owner} Finished deleting remaining submission files" }
+        logger.info { "$accNo ${previous.owner} Started deleting remaining submission files" }
+        storageService.deleteSubmissionFiles(previous, ::deleteRemainingFiles)
+        logger.info { "$accNo ${previous.owner} Finished deleting remaining submission files" }
     }
 
     private fun subFilesSet(sub: ExtSubmission?): Set<String> {

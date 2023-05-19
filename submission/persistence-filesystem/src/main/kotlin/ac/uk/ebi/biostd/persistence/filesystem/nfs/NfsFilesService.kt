@@ -76,4 +76,9 @@ class NfsFilesService(
         FileUtils.deleteFile(subFolder.resolve(file.relPath).toFile())
         logger.info { "${sub.accNo} ${sub.owner} Finished un-publishing files of submission ${sub.accNo} on NFS" }
     }
+
+    override fun deleteEmptyFolders(current: ExtSubmission) {
+        val subFolder = folderResolver.getSubFolder(current.relPath)
+        FileUtils.deleteEmptyDirectories(subFolder.toFile())
+    }
 }
