@@ -1,9 +1,12 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
@@ -13,7 +16,9 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.util.date.toStringDate
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -23,6 +28,7 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -37,6 +43,7 @@ class ResubmissionApiTest(
     @BeforeAll
     fun init() {
         securityTestService.ensureUserRegistration(SuperUser)
+        securityTestService.ensureUserRegistration(RegularUser)
         webClient = getWebClient(serverPort, SuperUser)
     }
 
@@ -45,7 +52,7 @@ class ResubmissionApiTest(
         val submission = tsv {
             line("Submission", "S-RSTST1")
             line("Title", "Simple Submission With Files")
-            line("ReleaseDate", "2020-01-25")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
 
             line("Study")
@@ -104,7 +111,7 @@ class ResubmissionApiTest(
         val submission = tsv {
             line("Submission", "S-RSTST2")
             line("Title", "Simple Submission With Files 2")
-            line("ReleaseDate", "2020-01-25")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
 
             line("Study")
@@ -179,5 +186,66 @@ class ResubmissionApiTest(
         webClient.deleteFile(dataFile, rootPath)
 
         assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+    }
+
+    @Test
+    fun `5-4 regular user tries to resubmit (un-release) with future release date`() {
+        val version1 = tsv {
+            line("Submission", "S-RSTST4")
+            line("Title", "Public Submission")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
+            line()
+            line("Study")
+            line()
+        }.toString()
+
+        val regularUser = RegularUser.email
+        val onBehalfClient = SecurityWebClient
+            .create("http://localhost:$serverPort")
+            .getAuthenticatedClient(SuperUser.email, SuperUser.password, regularUser)
+
+        assertThat(onBehalfClient.submitSingle(version1, TSV)).isSuccessful()
+
+        val version2 = tsv {
+            line("Submission", "S-RSTST4")
+            line("Title", "Unreleased Submission")
+            line("ReleaseDate", "2050-05-22")
+            line()
+            line("Study")
+            line()
+        }.toString()
+
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { getWebClient(serverPort, RegularUser).submitSingle(version2, TSV) }
+            .withMessageContaining("The user {$regularUser} is not allowed to un-release the submission S-RSTST4")
+    }
+
+    @Test
+    fun `5-5 super user tries to resubmit (un-release) with future release date`() {
+        val version1 = tsv {
+            line("Submission", "S-RSTST5")
+            line("Title", "Public Submission")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
+            line()
+            line("Study")
+            line()
+        }.toString()
+
+        val onBehalfClient = SecurityWebClient
+            .create("http://localhost:$serverPort")
+            .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+
+        assertThat(onBehalfClient.submitSingle(version1, TSV)).isSuccessful()
+
+        val version2 = tsv {
+            line("Submission", "S-RSTST5")
+            line("Title", "Unreleased Submission")
+            line("ReleaseDate", "2050-05-22")
+            line()
+            line("Study")
+            line()
+        }.toString()
+
+        assertThat(onBehalfClient.submitSingle(version2, TSV)).isSuccessful()
     }
 }

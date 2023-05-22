@@ -3,7 +3,9 @@ package ac.uk.ebi.biostd.itest.factory
 import ebi.ac.uk.dsl.tsv.Tsv
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.util.date.toStringDate
 import org.assertj.core.api.Assertions.assertThat
+import java.time.OffsetDateTime
 
 fun invalidLinkUrl() = tsv {
     line("Submission", "S-EPMC124")
@@ -27,7 +29,7 @@ fun assertAllInOneSubmissionTsv(tsv: String, accNo: String) {
     val expectedSubmission = tsv {
         line("Submission", accNo)
         line("Title", "venous blood, ∆Monocyte")
-        line("ReleaseDate", "2021-02-12")
+        line("ReleaseDate", OffsetDateTime.now().toStringDate())
         line()
     }
     assertTsvBlock(lines, 1, 4, expectedSubmission)

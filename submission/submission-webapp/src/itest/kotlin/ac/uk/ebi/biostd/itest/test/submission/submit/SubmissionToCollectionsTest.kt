@@ -21,6 +21,7 @@ import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.util.date.toStringDate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -30,6 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.OffsetDateTime
 import java.util.Collections.singletonMap
 import kotlin.test.assertFailsWith
 
@@ -110,10 +112,11 @@ class SubmissionToCollectionsTest(
 
     @Test
     fun `8-4 public submission to private collection`() {
+        val today = OffsetDateTime.now().toStringDate()
         val submission = tsv {
             line("Submission", "S-PRP1")
             line("AttachTo", "Private-Project")
-            line("ReleaseDate", "2015-12-24")
+            line("ReleaseDate", today)
             line("Title", "Public Submission To Private Project")
         }.toString()
 
@@ -121,7 +124,7 @@ class SubmissionToCollectionsTest(
         assertThat(getSimpleSubmission("S-PRP1")).isEqualTo(
             submission("S-PRP1") {
                 title = "Public Submission To Private Project"
-                releaseDate = "2015-12-24"
+                releaseDate = today
                 attachTo = "Private-Project"
             }
         )
@@ -213,7 +216,7 @@ class SubmissionToCollectionsTest(
         val publicProject = tsv {
             line("Submission", "Public-Project")
             line("AccNoTemplate", "!{S-PUP-EXT}")
-            line("ReleaseDate", "2018-09-21")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
 
             line("Project")

@@ -7,10 +7,12 @@ import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
+import ebi.ac.uk.util.date.toStringDate
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.redundent.kotlin.xml.xml
 import org.xmlunit.matchers.EvaluateXPathMatcher.hasXPath
+import java.time.OffsetDateTime.now
 
 internal val expectedAllInOneXmlFileList = xml("table") {
     "file" {
@@ -67,7 +69,7 @@ fun assertAllInOneSubmissionXml(xml: String, accNo: String) {
     assertXmlAttributes(
         xml,
         "//submission",
-        listOf(Attribute("Title", "venous blood, ∆Monocyte"), Attribute("ReleaseDate", "2021-02-12"))
+        listOf(Attribute("Title", "venous blood, ∆Monocyte"), Attribute("ReleaseDate", now().toStringDate()))
     )
 
     assertXmlSection(xml, "//submission/section", allInOneRootSection())

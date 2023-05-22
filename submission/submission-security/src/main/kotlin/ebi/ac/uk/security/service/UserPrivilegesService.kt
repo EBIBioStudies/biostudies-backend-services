@@ -52,6 +52,8 @@ internal class UserPrivilegesService(
 
     override fun canRelease(email: String): Boolean = isSuperUser(email)
 
+    override fun canUnrelease(email: String): Boolean = isSuperUser(email)
+
     private fun hasPermissions(user: String, accessTags: List<String>, accessType: AccessType): Boolean {
         val tags = accessTags.filter { it != PUBLIC_ACCESS_TAG.value }
         return tags.isNotEmpty() && tags.all { userPermissionsService.hasPermission(user, it, accessType) }

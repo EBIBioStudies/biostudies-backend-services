@@ -3,7 +3,9 @@ package ac.uk.ebi.biostd.itest.factory
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.util.date.toStringDate
 import java.io.File
+import java.time.OffsetDateTime
 
 fun submissionSpecJson(tempFolder: File, accNo: String): SubmissionSpec = SubmissionSpec(
     submission = tempFolder.createFile("submission.json", allInOneSubmissionJson(accNo).toString()),
@@ -21,7 +23,7 @@ fun allInOneSubmissionJson(accNo: String) = jsonObj {
         },
         {
             "name" to "ReleaseDate"
-            "value" to "2021-02-12"
+            "value" to OffsetDateTime.now().toStringDate()
         }
     )
     "section" to {

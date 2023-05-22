@@ -1,8 +1,10 @@
 package ac.uk.ebi.biostd.itest.factory
 
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.util.date.toStringDate
 import org.redundent.kotlin.xml.xml
 import java.io.File
+import java.time.OffsetDateTime
 
 fun submissionSpecXml(tempFolder: File, accNo: String): SubmissionSpec = SubmissionSpec(
     submission = tempFolder.createFile("submission.xml", allInOneSubmissionXml(accNo).toString()),
@@ -20,7 +22,7 @@ fun allInOneSubmissionXml(accNo: String) = xml("submission") {
         }
         "attribute" {
             "name" { -"ReleaseDate" }
-            "value" { -"2021-02-12" }
+            "value" { -OffsetDateTime.now().toStringDate() }
         }
     }
 

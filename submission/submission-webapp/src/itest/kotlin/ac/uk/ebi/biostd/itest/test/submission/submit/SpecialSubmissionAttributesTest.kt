@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
+import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
@@ -31,6 +32,7 @@ import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -69,12 +71,9 @@ class SpecialSubmissionAttributesTest(
             line()
         }.toString()
 
-        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-
-        val savedSubmission = submissionRepository.getExtByAccNo("S-RLSD123")
-        assertThat(savedSubmission.accNo).isEqualTo("S-RLSD123")
-        assertThat(savedSubmission.title).isEqualTo("Test Public Submission")
-        assertThat(savedSubmission.released).isTrue
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { webClient.submitSingle(submission, TSV) }
+            .withMessageContaining("Release date cannot be in the past")
     }
 
     @Test
