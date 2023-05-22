@@ -49,6 +49,12 @@ class ExtSubmissionResource(
         @PathVariable version: Int,
     ): ExtSubmission = extSubmissionService.reTriggerSubmission(accNo, version)
 
+    @PostMapping("/refresh/{accNo}")
+    fun refreshSubmission(
+        @BioUser user: SecurityUser,
+        @PathVariable accNo: String,
+    ) = extSubmissionService.refreshSubmission(user.email, accNo)
+
     @PostMapping("/{accNo}/transfer/{target}")
     fun transferSubmission(
         @BioUser user: SecurityUser,
