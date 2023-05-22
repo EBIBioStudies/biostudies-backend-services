@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
-import ac.uk.ebi.biostd.submission.service.ParentInfoService
+import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -22,13 +22,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SubmissionSubmitterTest(
     @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
     @MockK private val submissionProcessor: SubmissionProcessor,
-    @MockK private val parentInfoService: ParentInfoService,
+    @MockK private val collectionValidationService: CollectionValidationService,
     @MockK private val draftService: SubmissionDraftPersistenceService,
 ) {
     private val testInstance = SubmissionSubmitter(
         submissionSubmitter,
         submissionProcessor,
-        parentInfoService,
+        collectionValidationService,
         draftService,
     )
 
@@ -47,7 +47,7 @@ class SubmissionSubmitterTest(
         every { request.accNo } returns submission.accNo
         every { submissionProcessor.processSubmission(request) } returns submission
         every { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
-        every { parentInfoService.executeCollectionValidators(submission) } answers { nothing }
+        every { collectionValidationService.executeCollectionValidators(submission) } answers { nothing }
         every { draftService.setActiveStatus("TMP_123") } answers { nothing }
         every { draftService.setProcessingStatus(submission.owner, "TMP_123") } answers { nothing }
         every { draftService.setAcceptedStatus("S-TEST123") } answers { nothing }
@@ -63,7 +63,7 @@ class SubmissionSubmitterTest(
         assertThat(extRequest.submission).isEqualTo(submission)
         verify(exactly = 1) {
             submissionProcessor.processSubmission(request)
-            parentInfoService.executeCollectionValidators(submission)
+            collectionValidationService.executeCollectionValidators(submission)
             draftService.setProcessingStatus(submission.owner, "TMP_123")
             submissionSubmitter.createRequest(extRequest)
             draftService.setAcceptedStatus("TMP_123")
@@ -96,7 +96,7 @@ class SubmissionSubmitterTest(
             draftService.setActiveStatus("TMP_123")
         }
         verify(exactly = 0) {
-            parentInfoService.executeCollectionValidators(submission)
+            collectionValidationService.executeCollectionValidators(submission)
             submissionSubmitter.createRequest(capture(extRequestSlot))
             draftService.setAcceptedStatus("TMP_123")
         }

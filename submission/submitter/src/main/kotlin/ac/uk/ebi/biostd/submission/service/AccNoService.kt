@@ -2,8 +2,9 @@ package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotProvideAccessNumber
-import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToProjectException
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSubmitToCollectionException
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
+import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ebi.ac.uk.model.AccNumber
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -18,22 +19,24 @@ class AccNoService(
     private val subBasePath: String?,
 ) {
     @Suppress("ThrowsCount")
-    fun calculateAccNo(request: AccNoServiceRequest): AccNumber {
-        val (submitter, accNo, isNew, project, projectPattern) = request
+    fun calculateAccNo(rqt: SubmitRequest): AccNumber {
+        val submitter = rqt.submitter.email
+        val isNew = rqt.previousVersion == null
+        val accNo = rqt.submission.accNo.ifBlank { null }
 
         if (accNo != null && isNew.not()) {
             checkCanReSubmit(accNo, submitter)
             return patternUtil.toAccNumber(accNo)
         }
 
-        checkCanSubmitToProject(project, submitter)
+        checkCanSubmitToCollection(rqt.collection?.accNo, submitter)
         checkCanProvideAcc(accNo, isNew, submitter)
-        return accNo?.let { patternUtil.toAccNumber(it) } ?: calculateAccNo(getPattern(projectPattern))
+        return accNo?.let { patternUtil.toAccNumber(it) } ?: calculateAccNo(getPattern(rqt.collection?.accNoPattern))
     }
 
-    private fun checkCanSubmitToProject(project: String?, submitter: String) {
-        if (project != null && privilegesService.canSubmitToCollection(submitter, project).not())
-            throw UserCanNotSubmitToProjectException(submitter, project)
+    private fun checkCanSubmitToCollection(collection: String?, submitter: String) {
+        if (collection != null && privilegesService.canSubmitToCollection(submitter, collection).not())
+            throw UserCanNotSubmitToCollectionException(submitter, collection)
     }
 
     private fun checkCanReSubmit(accNo: String, submitter: String) {
@@ -61,11 +64,3 @@ class AccNoService(
         else -> patternUtil.getPattern(parentPattern)
     }
 }
-
-data class AccNoServiceRequest(
-    val submitter: String,
-    val accNo: String? = null,
-    val isNew: Boolean = true,
-    val project: String? = null,
-    val projectPattern: String? = null,
-)

@@ -84,7 +84,7 @@ class SubmitPermissionTest(
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV) }
             .withMessageContaining(
-                "The user register_user@ebi.ac.uk is not allowed to submit to TestCollection project"
+                "The user register_user@ebi.ac.uk is not allowed to submit to TestCollection collection"
             )
     }
 

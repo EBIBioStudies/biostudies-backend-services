@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
-import ac.uk.ebi.biostd.submission.service.ParentInfoService
+import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
 import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
@@ -21,7 +21,7 @@ private val logger = KotlinLogging.logger {}
 class SubmissionSubmitter(
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val submissionProcessor: SubmissionProcessor,
-    private val parentInfoService: ParentInfoService,
+    private val collectionValidationService: CollectionValidationService,
     private val draftService: SubmissionDraftPersistenceService,
 ) {
     fun submit(rqt: SubmitRequest): ExtSubmission {
@@ -73,7 +73,7 @@ class SubmissionSubmitter(
 
             rqt.draftKey?.let { startProcessingDraft(rqt.accNo, rqt.owner, it) }
             val processed = submissionProcessor.processSubmission(rqt)
-            parentInfoService.executeCollectionValidators(processed)
+            collectionValidationService.executeCollectionValidators(processed)
             rqt.draftKey?.let { acceptDraft(rqt.accNo, rqt.owner, it) }
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 

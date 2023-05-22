@@ -36,8 +36,7 @@ internal const val ROOT_PATH = "/a/root/path"
 internal const val SECRET_KEY = "a-secret-key"
 internal const val TAG_NAME = "component"
 internal const val TAG_VALUE = "web"
-internal const val PROJECT_ACC_NO = "BioImages"
-internal const val STAT_TYPE = "VIEWS"
+internal const val COLLECTION_ACC_NO = "BioImages"
 internal const val STAT_VALUE = 123L
 internal const val REL_PATH = "S-TEST/123/S-TEST123"
 internal val CREATION_TIME = Instant.now()
@@ -46,7 +45,7 @@ internal val RELEASE_TIME = CREATION_TIME.plus(1, ChronoUnit.DAYS)
 
 internal val testDocSection = DocSection(id = ObjectId(), type = "Study")
 
-internal val testDocCollection = DocCollection(PROJECT_ACC_NO)
+internal val testDocCollection = DocCollection(COLLECTION_ACC_NO)
 
 internal val testDocSubmission: DocSubmission
     get() = DocSubmission(

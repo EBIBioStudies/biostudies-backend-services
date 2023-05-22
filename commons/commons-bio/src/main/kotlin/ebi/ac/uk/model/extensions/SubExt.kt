@@ -3,6 +3,7 @@ package ebi.ac.uk.model.extensions
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.constants.COLLECTION_TYPE
 import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.util.date.asIsoTime
 import ebi.ac.uk.util.date.fromIsoTime
@@ -95,6 +96,9 @@ var Submission.accNoTemplate: String?
     set(value) {
         value?.let { this[SubFields.ACC_NO_TEMPLATE] = it }
     }
+
+val Submission.isCollection: Boolean
+    get() = section.type == COLLECTION_TYPE
 
 /**
  * Overrides the given list of attributes in the current submission.

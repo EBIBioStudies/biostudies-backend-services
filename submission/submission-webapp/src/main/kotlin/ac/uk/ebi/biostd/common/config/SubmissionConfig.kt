@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -147,6 +148,7 @@ class SubmissionConfig(
         userFilesService: UserFilesService,
         extSubmissionQueryService: ExtSubmissionQueryService,
         toSubmissionMapper: ToSubmissionMapper,
+        queryService: SubmissionMetaQueryService,
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
@@ -155,6 +157,7 @@ class SubmissionConfig(
             serializationService,
             userFilesService,
             toSubmissionMapper,
+            queryService,
         )
 
     @Bean

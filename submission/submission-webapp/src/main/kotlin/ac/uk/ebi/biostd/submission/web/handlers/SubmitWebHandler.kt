@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.web.handlers
 
 import ac.uk.ebi.biostd.files.service.UserFilesService
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
@@ -16,6 +17,7 @@ import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.withAttributes
 
@@ -29,6 +31,7 @@ class SubmitWebHandler(
     private val serializationService: SerializationService,
     private val userFilesService: UserFilesService,
     private val toSubmissionMapper: ToSubmissionMapper,
+    private val queryService: SubmissionMetaQueryService,
 ) {
     fun submit(request: ContentSubmitWebRequest): Submission {
         val rqt = buildRequest(request)
@@ -101,15 +104,17 @@ class SubmitWebHandler(
             val (accNo, rootPath) = deserializeSubmission()
             val previous = extSubService.findExtendedSubmission(accNo)
             val sources = fileSourcesService.submissionSources(sourceRequest(rootPath, previous))
-            val submission = deserializeSubmission(sources)
+            val submission = deserializeSubmission(sources).withAttributes(attrs)
+            val collection = submission.attachTo?.let { queryService.getBasicCollection(it) }
 
             return SubmitRequest(
-                submission = submission.withAttributes(attrs),
+                submission = submission,
                 submitter = submitter,
                 sources = sources,
                 method = rqt.method,
                 onBehalfUser = onBehalfUser,
                 draftKey = rqt.draftKey,
+                collection = collection,
                 previousVersion = previous,
                 storageMode = storageMode,
             )
