@@ -112,7 +112,6 @@ class SubmissionRequestMongoPersistenceService(
     private fun getRequest(accNo: String, version: Int, status: RequestStatus): SubmissionRequest {
         val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, status)
         val stored = serializationService.deserialize(request.submission.toString())
-
         return SubmissionRequest(
             submission = stored,
             draftKey = request.draftKey,

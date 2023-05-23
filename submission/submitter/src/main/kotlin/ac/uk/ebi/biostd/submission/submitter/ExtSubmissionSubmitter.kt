@@ -20,7 +20,6 @@ import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestSaver
 import ebi.ac.uk.extended.model.ExtSubmission
-import java.time.OffsetDateTime
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class ExtSubmissionSubmitter(
@@ -39,16 +38,7 @@ class ExtSubmissionSubmitter(
     fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
         val withTabFiles = pageTabService.generatePageTab(rqt.submission)
         val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
-        val request = SubmissionRequest(
-            submission,
-            rqt.draftKey,
-            rqt.notifyTo,
-            status = REQUESTED,
-            totalFiles = 0,
-            currentIndex = 0,
-            modificationTime = OffsetDateTime.now(),
-        )
-
+        val request = SubmissionRequest(submission = submission, notifyTo = rqt.notifyTo, draftKey = rqt.draftKey)
         return requestService.createSubmissionRequest(request)
     }
 

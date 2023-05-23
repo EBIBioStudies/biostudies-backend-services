@@ -102,6 +102,7 @@ interface ExtSubmissionOperations {
     fun submitExtAsync(extSubmission: ExtSubmission)
     fun submitExt(extSubmission: ExtSubmission): ExtSubmission
     fun transferSubmission(accNo: String, target: StorageMode)
+    fun refreshSubmission(accNo: String)
 }
 
 interface PermissionOperations {

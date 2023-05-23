@@ -64,6 +64,10 @@ class ExtSubmissionClient(
         restTemplate.postForEntity<String>("$EXT_SUBMISSIONS_URL/$accNo/transfer/$target")
     }
 
+    override fun refreshSubmission(accNo: String) {
+        restTemplate.postForEntity<String>("$EXT_SUBMISSIONS_URL/refresh/$accNo")
+    }
+
     private fun asUrl(extPageQuery: ExtPageQuery): String =
         UriComponentsBuilder.fromUriString(EXT_SUBMISSIONS_URL)
             .queryParam("offset", extPageQuery.offset)

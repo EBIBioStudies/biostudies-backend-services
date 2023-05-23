@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.common.model
 import ebi.ac.uk.extended.model.ExtSubmission
 import java.time.OffsetDateTime
 
-data class SubmissionRequest(
+data class SubmissionRequest constructor(
     val submission: ExtSubmission,
     val draftKey: String?,
     val notifyTo: String,
@@ -12,6 +12,17 @@ data class SubmissionRequest(
     val currentIndex: Int,
     val modificationTime: OffsetDateTime,
 ) {
+
+    constructor(submission: ExtSubmission, notifyTo: String, draftKey: String? = null) : this(
+        submission,
+        draftKey,
+        notifyTo,
+        status = RequestStatus.REQUESTED,
+        totalFiles = 0,
+        currentIndex = 0,
+        modificationTime = OffsetDateTime.now(),
+    )
+
     /**
      * Update request by setting new status, resetting current Index and updating modification date.
      * Optionally total files can be updated.

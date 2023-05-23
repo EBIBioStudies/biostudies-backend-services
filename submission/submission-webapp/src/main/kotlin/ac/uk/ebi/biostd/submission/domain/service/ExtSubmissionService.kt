@@ -29,6 +29,11 @@ class ExtSubmissionService(
         return submissionSubmitter.handleRequest(accNo, version)
     }
 
+    fun refreshSubmission(user: String, accNo: String): Pair<String, Int> {
+        val submission = queryService.getExtByAccNo(accNo, true)
+        return submissionSubmitter.createRequest(ExtSubmitRequest(submission, user))
+    }
+
     fun submitExt(
         user: String,
         sub: ExtSubmission,
