@@ -22,7 +22,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFiel
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
@@ -64,7 +63,6 @@ class SubmissionRefreshApiTest(
     @Autowired val mongoTemplate: MongoTemplate,
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired val submissionDocRepository: SubmissionDocDataRepository,
     @Autowired val fileListRepository: FileListDocFileDocDataRepository,
     @LocalServerPort val serverPort: Int,
 ) {
@@ -126,7 +124,7 @@ class SubmissionRefreshApiTest(
     }
 
     @Test
-    fun `refresh when submission title is updated`() {
+    fun `25-1 refresh when submission title is updated`() {
         val accNo = "Refresh-title-001"
         createTestSubmission(accNo)
 
@@ -141,7 +139,7 @@ class SubmissionRefreshApiTest(
     }
 
     @Test
-    fun `refresh when submission release date is updated`() {
+    fun `25-2 refresh when submission release date is updated`() {
         val accNo = "Refresh-release-001"
         createTestSubmission(accNo)
 
@@ -156,7 +154,7 @@ class SubmissionRefreshApiTest(
     }
 
     @Test
-    fun `refresh when submission attribute is updated`() {
+    fun `25-3 refresh when submission attribute is updated`() {
         val accNo = "Refresh-attribute-001"
         createTestSubmission(accNo)
 
@@ -171,7 +169,7 @@ class SubmissionRefreshApiTest(
     }
 
     @Test
-    fun `refresh when submission fileListFile attribute is updated`() {
+    fun `25-4 refresh when submission fileListFile attribute is updated`() {
         val accNo = "Refresh-fileList-attribute-001"
         createTestSubmission(accNo)
 
