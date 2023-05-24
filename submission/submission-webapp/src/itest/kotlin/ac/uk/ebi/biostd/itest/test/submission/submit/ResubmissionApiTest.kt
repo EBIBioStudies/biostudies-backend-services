@@ -189,7 +189,7 @@ class ResubmissionApiTest(
     }
 
     @Test
-    fun `5-4 regular user tries to resubmit (un-release) with future release date`() {
+    fun `5-4 regular user un-releases own submission`() {
         val version1 = tsv {
             line("Submission", "S-RSTST4")
             line("Title", "Public Submission")
@@ -221,7 +221,7 @@ class ResubmissionApiTest(
     }
 
     @Test
-    fun `5-5 super user tries to resubmit (un-release) with future release date`() {
+    fun `5-5 super user un-releases submission from another user`() {
         val version1 = tsv {
             line("Submission", "S-RSTST5")
             line("Title", "Public Submission")
