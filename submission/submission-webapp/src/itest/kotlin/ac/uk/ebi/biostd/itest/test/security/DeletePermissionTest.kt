@@ -166,7 +166,7 @@ class DeletePermissionTest(
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
         superUserWebClient.givePermissionToUser(RegularUser.email, "ACollection", DELETE.name)
         val error = assertThrows(WebClientException::class.java) { regularUserWebClient.deleteSubmission("DeleteAcc7") }
-        val expectedMessage = "The user {biostudies-dev@ebi.ac.uk} is not allowed to delete the submission DeleteAcc7"
+        val expectedMessage = "The user {regular@ebi.ac.uk} is not allowed to delete the submission DeleteAcc7"
         assertThat(error.message).contains(expectedMessage)
     }
 
