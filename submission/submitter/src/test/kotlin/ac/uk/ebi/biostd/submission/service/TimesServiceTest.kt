@@ -1,8 +1,11 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
+import ac.uk.ebi.biostd.submission.exceptions.PastReleaseDateException
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUnrelease
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ebi.ac.uk.model.extensions.releaseDate
+import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -18,9 +21,10 @@ import java.time.ZoneOffset.UTC
 
 @ExtendWith(MockKExtension::class)
 class TimesServiceTest(
-    @MockK private val request: SubmitRequest
+    @MockK private val request: SubmitRequest,
+    @MockK private val privilegesService: IUserPrivilegesService,
 ) {
-    private val testInstance = TimesService()
+    private val testInstance = TimesService(privilegesService)
     private val testTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, UTC)
     private val mockNow = OffsetDateTime.of(2018, 12, 31, 0, 0, 0, 0, UTC)
 
@@ -60,8 +64,15 @@ class TimesServiceTest(
 
     @Nested
     inner class ReleaseTime {
+        @BeforeEach
+        fun beforeEach() {
+            every { request.accNo } returns "S-BSST1"
+            every { request.previousVersion } returns null
+            every { request.submitter.email } returns "user@test.org"
+        }
+
         @Test
-        fun `when release date with invalid format`() {
+        fun `when release date has invalid format`() {
             every { request.submission.releaseDate } returns "2018/10/10"
 
             val exception = assertThrows<InvalidDateFormatException> { testInstance.getTimes(request) }
@@ -71,19 +82,63 @@ class TimesServiceTest(
         }
 
         @Test
-        fun `when release date with valid format`() {
+        fun `when no release date`() {
+            val times = testInstance.getTimes(request)
+            assertThat(times.released).isFalse()
+            assertThat(times.releaseTime).isNull()
+        }
+
+        @Test
+        fun `when release date is in the past`() {
+            every { request.submission.releaseDate } returns "2016-10-10T09:27:04.000Z"
+
+            val error = assertThrows<PastReleaseDateException> { testInstance.getTimes(request) }
+            assertThat(error.message).isEqualTo("Release date cannot be in the past")
+        }
+
+        @Test
+        fun `when publishing private submission`() {
+            every { request.submission.releaseDate } returns "2018-12-31T09:27:04.000Z"
+
+            val times = testInstance.getTimes(request)
+            assertThat(times.released).isTrue()
+            assertThat(times.releaseTime).isEqualTo(mockNow)
+        }
+
+        @Test
+        fun `when updating private submission release date`() {
             val releaseTime = OffsetDateTime.of(2019, 10, 10, 0, 0, 0, 0, UTC)
 
+            every { request.previousVersion?.released } returns false
             every { request.submission.releaseDate } returns "2019-10-10T09:27:04.000Z"
 
             val times = testInstance.getTimes(request)
+            assertThat(times.released).isFalse()
             assertThat(times.releaseTime).isEqualTo(releaseTime)
         }
 
         @Test
-        fun `when no release date`() {
+        fun `when submitter cant unrelease`() {
+            every { request.previousVersion?.released } returns true
+            every { privilegesService.canUnrelease("user@test.org") } returns false
+            every { request.submission.releaseDate } returns "2020-10-10T09:27:04.000Z"
+
+            val error = assertThrows<UserCanNotUnrelease> { testInstance.getTimes(request) }
+            assertThat(error.message)
+                .isEqualTo("The user {user@test.org} is not allowed to un-release the submission S-BSST1")
+        }
+
+        @Test
+        fun `when submitter can unrelease`() {
+            val releaseTime = OffsetDateTime.of(2020, 10, 10, 0, 0, 0, 0, UTC)
+
+            every { request.previousVersion?.released } returns true
+            every { privilegesService.canUnrelease("user@test.org") } returns true
+            every { request.submission.releaseDate } returns "2020-10-10T09:27:04.000Z"
+
             val times = testInstance.getTimes(request)
-            assertThat(times.releaseTime).isNull()
+            assertThat(times.released).isFalse()
+            assertThat(times.releaseTime).isEqualTo(releaseTime)
         }
     }
 }

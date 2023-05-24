@@ -10,8 +10,10 @@ import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
+import ebi.ac.uk.util.date.toStringDate
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import java.time.OffsetDateTime.now
 
 internal val expectedAllInOneJsonFileList = jsonArray(
     {
@@ -66,7 +68,7 @@ internal val expectedAllInOneJsonInnerFileList = jsonArray(
 fun assertAllInOneSubmissionJson(json: String, accNo: String) {
     assertThat(json, isJson(withJsonPath("$.accno", equalTo(accNo))))
     assertJsonAttributes(
-        json, "$", listOf(Attribute("Title", "venous blood, ∆Monocyte"), Attribute("ReleaseDate", "2021-02-12"))
+        json, "$", listOf(Attribute("Title", "venous blood, ∆Monocyte"), Attribute("ReleaseDate", now().toStringDate()))
     )
 
     val section = allInOneRootSection()

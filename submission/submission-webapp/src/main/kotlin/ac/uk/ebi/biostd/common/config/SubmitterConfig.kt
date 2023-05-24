@@ -15,7 +15,6 @@ import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.service.AccNoService
-import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
 import ac.uk.ebi.biostd.submission.service.CollectionProcessor
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.service.TimesService
@@ -30,6 +29,7 @@ import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
+import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
 import ac.uk.ebi.biostd.submission.validator.collection.EuToxRiskValidator
 import ac.uk.ebi.biostd.submission.validator.filelist.FileListValidator
@@ -248,7 +248,7 @@ class SubmitterConfig(
         fun projectInfoService() = CollectionProcessor(service, accNoPatternUtil(), userPrivilegesService)
 
         @Bean
-        fun timesService() = TimesService()
+        fun timesService() = TimesService(userPrivilegesService)
     }
 
     @Configuration

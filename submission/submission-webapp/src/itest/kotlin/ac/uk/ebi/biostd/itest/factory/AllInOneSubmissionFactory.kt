@@ -11,10 +11,12 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.util.date.toStringDate
+import java.time.OffsetDateTime
 
 fun allInOneSubmission(accNo: String) = submission(accNo) {
     title = "venous blood, ∆Monocyte"
-    releaseDate = "2021-02-12"
+    releaseDate = OffsetDateTime.now().toStringDate()
 
     section("Study") {
         this.accNo = "SECT-001"

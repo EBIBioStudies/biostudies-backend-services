@@ -14,6 +14,7 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.ExtCollection
+import ebi.ac.uk.util.date.toStringDate
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -24,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -58,7 +60,7 @@ class ExtCollectionSubmitTest(
 
         assertThat(webClient.submitSingle(privateProject, TSV)).isSuccessful()
 
-        // TODO use ext endpoint instead of repository
+        // TODO Pivotal ID #185231067: use ext endpoint instead of repository
         val submittedProject = submissionRepository.getExtByAccNo("PrivateProject")
         assertThat(submittedProject.accNo).isEqualTo("PrivateProject")
         assertThat(submittedProject.title).isEqualTo("A Private Project")
@@ -76,7 +78,7 @@ class ExtCollectionSubmitTest(
             line("Submission", "PublicProject")
             line("Title", "Public Project")
             line("AccNoTemplate", "!{S-PUB-EXT}")
-            line("ReleaseDate", "2015-06-09")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
 
             line("Project")

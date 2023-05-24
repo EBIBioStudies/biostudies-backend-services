@@ -27,6 +27,7 @@ import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.util.date.toStringDate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
@@ -42,6 +43,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
+import java.time.OffsetDateTime
 import kotlin.test.assertFailsWith
 
 @Import(FilePersistenceConfig::class)
@@ -174,7 +176,7 @@ class SubmissionApiTest(
         val submission = tsv {
             line("Submission", "S-500")
             line("Title", "Submission")
-            line("ReleaseDate", "2020-01-25")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
 
             line("Study")
@@ -200,7 +202,7 @@ class SubmissionApiTest(
         val submission = tsv {
             line("Submission", "S-600")
             line("Title", "Submission")
-            line("ReleaseDate", "2020-01-25")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
 
             line("Study")

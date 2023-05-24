@@ -18,4 +18,6 @@ interface IUserPrivilegesService {
     fun canSubmitExtended(submitter: String): Boolean
 
     fun canRelease(email: String): Boolean
+
+    fun canUnrelease(email: String): Boolean
 }

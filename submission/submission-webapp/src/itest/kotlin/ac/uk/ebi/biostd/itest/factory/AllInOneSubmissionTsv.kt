@@ -3,7 +3,9 @@ package ac.uk.ebi.biostd.itest.factory
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.util.date.toStringDate
 import java.io.File
+import java.time.OffsetDateTime
 
 fun submissionSpecTsv(tempFolder: File, accNo: String): SubmissionSpec = SubmissionSpec(
     submission = tempFolder.createFile("submission.tsv", allInOneSubmissionTsv(accNo).toString()),
@@ -16,7 +18,7 @@ fun allInOneSubmissionTsv(accNo: String) = tsv {
     line("# All in one submission")
     line("Submission", accNo)
     line("Title", "venous blood, ∆Monocyte")
-    line("ReleaseDate", "2021-02-12")
+    line("ReleaseDate", OffsetDateTime.now().toStringDate())
     line()
 
     line("Study", "SECT-001")

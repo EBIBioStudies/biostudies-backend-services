@@ -364,7 +364,6 @@ class SubmissionFileSourceTest(
         val firstVersionPagetab = tsv {
             line("Submission", "S-FSTST4")
             line("Title", "Simple Submission With Files")
-            line("ReleaseDate", "2020-01-25")
             line()
 
             line("Study")
@@ -401,7 +400,6 @@ class SubmissionFileSourceTest(
         val secondVersionPagetab = tsv {
             line("Submission", "S-FSTST4")
             line("Title", "Multiple References")
-            line("ReleaseDate", "2020-01-25")
             line()
 
             line("Study")
@@ -471,7 +469,6 @@ class SubmissionFileSourceTest(
         val submission = tsv {
             line("Submission", "S-FSTST6")
             line("Title", "Sample Submission")
-            line("ReleaseDate", "2015-02-20")
             line()
 
             line("Study")

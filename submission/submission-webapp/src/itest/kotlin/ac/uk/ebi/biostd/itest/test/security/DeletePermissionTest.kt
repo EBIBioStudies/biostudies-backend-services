@@ -20,6 +20,7 @@ import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.util.date.toStringDate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
@@ -30,6 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -157,14 +159,14 @@ class DeletePermissionTest(
             line("Submission", "DeleteAcc7")
             line("Title", "Simple Submission")
             line("AttachTo", "ACollection")
-            line("ReleaseDate", "2018-09-21")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
         }.toString()
 
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
         superUserWebClient.givePermissionToUser(RegularUser.email, "ACollection", DELETE.name)
         val error = assertThrows(WebClientException::class.java) { regularUserWebClient.deleteSubmission("DeleteAcc7") }
-        val expectedMessage = "The user {biostudies-dev@ebi.ac.uk} is not allowed to delete the submission DeleteAcc7"
+        val expectedMessage = "The user {regular@ebi.ac.uk} is not allowed to delete the submission DeleteAcc7"
         assertThat(error.message).contains(expectedMessage)
     }
 
@@ -173,7 +175,7 @@ class DeletePermissionTest(
         val submission = tsv {
             line("Submission", "DeleteAcc8")
             line("Title", "Simple Submission")
-            line("ReleaseDate", "2018-09-21")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
         }.toString()
 
@@ -190,7 +192,7 @@ class DeletePermissionTest(
         val submission = tsv {
             line("Submission", "DeleteAcc9")
             line("Title", "Simple Submission")
-            line("ReleaseDate", "2018-09-21")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
         }.toString()
 

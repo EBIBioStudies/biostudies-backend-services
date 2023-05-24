@@ -110,8 +110,8 @@ class SubmissionListApiTest(
     fun `13-5 get submission list by release date`() {
         val submissionList = webClient.getSubmissions(
             mapOf(
-                "rTimeFrom" to "2019-09-24T09:41:44.000Z",
-                "rTimeTo" to "2019-09-28T09:41:44.000Z"
+                "rTimeFrom" to "2119-09-24T09:41:44.000Z",
+                "rTimeTo" to "2119-09-28T09:41:44.000Z"
             )
         )
 
@@ -225,7 +225,7 @@ class SubmissionListApiTest(
     private fun getSimpleSubmission(idx: Int) = tsv {
         line("Submission", "LIST-API-$idx")
         line("Title", "Simple Submission $idx - list-api-keyword-$idx")
-        line("ReleaseDate", "2019-09-$idx")
+        line("ReleaseDate", "2119-09-$idx")
         line()
     }.toString()
 }
