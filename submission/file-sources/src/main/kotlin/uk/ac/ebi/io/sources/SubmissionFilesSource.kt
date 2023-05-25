@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.helpers
+package uk.ac.ebi.io.sources
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.extended.mapping.from.toExtAttribute
@@ -8,7 +8,6 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.copyWithAttributes
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.PathSource
 import ebi.ac.uk.model.Attribute
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File

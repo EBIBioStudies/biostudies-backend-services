@@ -1,18 +1,18 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.submission.helpers.DbFilesSource
 import ac.uk.ebi.biostd.submission.helpers.FilesSourceFactory
-import ac.uk.ebi.biostd.submission.model.GroupSource
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
-import ebi.ac.uk.io.sources.FilesListSource
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
-import ebi.ac.uk.io.sources.UserPathSource
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import uk.ac.ebi.io.sources.DbFilesSource
+import uk.ac.ebi.io.sources.FilesListSource
+import uk.ac.ebi.io.sources.GroupSource
+import uk.ac.ebi.io.sources.UserPathSource
 import java.io.File
 
 private val DEFAULT_SOURCES = listOf(USER_SPACE, SUBMISSION, FIRE)

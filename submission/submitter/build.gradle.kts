@@ -10,6 +10,7 @@ import Projects.CommonsBio
 import Projects.CommonsModelExtended
 import Projects.CommonsSerialization
 import Projects.CommonsUtil
+import Projects.SubmissionFileSources
 import Projects.SubmissionSecurity
 import SpringBootDependencies.SpringBootStarterAmqp
 import SpringBootDependencies.SpringBootStarterDataJpa
@@ -34,6 +35,7 @@ dependencies {
     api(project(CommonsBio))
     api(project(CommonsUtil))
     api(project(CommonsSerialization))
+    api(project(SubmissionFileSources))
     api(project(SubmissionSecurity))
 
     implementation(Arrow)

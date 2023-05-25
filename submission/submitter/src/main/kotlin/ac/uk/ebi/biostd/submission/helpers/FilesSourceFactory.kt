@@ -5,9 +5,11 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allInnerSubmissionFiles
 import ebi.ac.uk.io.sources.FilesSource
-import ebi.ac.uk.io.sources.PathSource
 import ebi.ac.uk.paths.FILES_PATH
 import uk.ac.ebi.fire.client.integration.web.FireClient
+import uk.ac.ebi.io.sources.FireFilesSource
+import uk.ac.ebi.io.sources.PathSource
+import uk.ac.ebi.io.sources.SubmissionFilesSource
 import java.nio.file.Paths
 
 class FilesSourceFactory(

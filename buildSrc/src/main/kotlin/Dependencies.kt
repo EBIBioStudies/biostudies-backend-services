@@ -239,6 +239,7 @@ object Projects {
     const val CommonsTest = ":commons:commons-test"
     const val FireWebClient = ":client:fire-webclient"
     const val SubmissionConfig = ":submission:submission-config"
+    const val SubmissionFileSources = ":submission:file-sources"
     const val SubmissionPersistenceCommonApi = ":submission:persistence-common-api"
     const val SubmissionPersistenceFilesystem = ":submission:persistence-filesystem"
     const val SubmissionPersistenceSql = ":submission:persistence-sql"

@@ -1,11 +1,13 @@
 rootProject.name = 'biostudies-backend-services'
 
 include("commons:commons-util")
-include ('commons:commons-excel-util')
-include ("commons:commons-tsv-util")
+include("commons:commons-excel-util")
+include("commons:commons-tsv-util")
 include("commons:commons-json-util")
+
 include("commons:commons-bio")
 include("commons:commons-http")
+
 include("commons:commons-serialization")
 include("commons:commons-serialization-util")
 include("commons:commons-test")
@@ -28,6 +30,7 @@ include("infrastructure")
 include("submission:submitter")
 include("submission:submission-webapp")
 include("submission:submission-security")
+include("submission:file-sources")
 include("submission:notifications")
 include("submission:submission-handlers")
 include("submission:submission-config")
