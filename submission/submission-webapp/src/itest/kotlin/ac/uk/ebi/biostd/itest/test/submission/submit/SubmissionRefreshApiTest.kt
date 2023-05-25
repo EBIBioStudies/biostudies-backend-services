@@ -40,6 +40,7 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
+import ebi.ac.uk.util.date.toStringDate
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -54,6 +55,7 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update.update
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 
 @Import(FilePersistenceConfig::class)
@@ -89,7 +91,7 @@ class SubmissionRefreshApiTest(
         fun testSubmission(accNo: String): Submission {
             return submission(accNo) {
                 title = SUBTITLE
-                releaseDate = RELEASE_DATE_STRING
+                releaseDate = OffsetDateTime.now().toStringDate()
                 rootPath = ROOT_PATH
                 attribute(ATTR_NAME, ATTR_VALUE)
 
@@ -201,7 +203,6 @@ class SubmissionRefreshApiTest(
 
     private companion object {
         const val ROOT_PATH = "test-RootPath"
-        const val RELEASE_DATE_STRING = "2017-07-04"
         const val SUBTITLE = "Simple Submission"
         const val ATTR_NAME = "custom-attribute"
         const val ATTR_VALUE = "custom-attribute-value"
