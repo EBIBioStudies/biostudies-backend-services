@@ -6,7 +6,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.asFireFile
-import ebi.ac.uk.extended.model.expectedPath
+import ebi.ac.uk.extended.model.expectedFirePath
 import uk.ac.ebi.fire.client.integration.web.FireClient
 
 class FireFilesService(
@@ -23,8 +23,8 @@ class FireFilesService(
      */
     override fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): FireFile {
         return when (file) {
-            is FireFile -> getOrCreate(file, sub.expectedPath(file))
-            is NfsFile -> return getOrCreate(file, sub.expectedPath(file))
+            is FireFile -> getOrCreate(file, sub.expectedFirePath(file))
+            is NfsFile -> return getOrCreate(file, sub.expectedFirePath(file))
         }
     }
 
@@ -54,7 +54,7 @@ class FireFilesService(
 
     private fun setMetadata(fireOid: String, file: ExtFile, expectedPath: String, published: Boolean): FireFile {
         client.setPath(fireOid, expectedPath)
-        return file.asFireFile(fireOid, expectedPath, published)
+        return file.asFireFile(fireId = fireOid, firePath = expectedPath, published = published)
     }
 
     override fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {
