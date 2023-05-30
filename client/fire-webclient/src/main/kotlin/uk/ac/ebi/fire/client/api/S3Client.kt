@@ -19,7 +19,7 @@ class S3Client(
         return tmp
     }
 
-    private fun getFireObjectByPath(path: String?): S3Object {
+    private fun getFireObjectByPath(path: String): S3Object {
         val getObjectRequest = GetObjectRequest(bucketName, path)
         return amazonS3Client.getObject(getObjectRequest)
     }
