@@ -1,8 +1,8 @@
-package ac.uk.ebi.biostd.submission.helpers
+package uk.ac.ebi.io.sources
 
 import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileType
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Attribute
@@ -36,6 +36,7 @@ object DbFilesSource : FilesSource {
         val id = attributes[DB_ID.value]
         val path = attributes[DB_PATH.value]
         val published = attributes[DB_PUBLISHED.value]
+
         return if (md5 == null || size == null || id == null || path == null) null
         else FireByPassFile(id, md5, path, size.toLong(), published.toBoolean())
     }
@@ -48,7 +49,7 @@ object DbFilesSource : FilesSource {
             filePath = path,
             relPath = "Files/$path",
             md5 = db.md5,
-            type = ExtFileType.FILE,
+            type = FILE,
             size = db.size,
             attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
         )

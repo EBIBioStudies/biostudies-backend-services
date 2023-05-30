@@ -1,4 +1,4 @@
-package ebi.ac.uk.io.sources
+package uk.ac.ebi.io.sources
 
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.Attribute
