@@ -442,7 +442,7 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(fireFile.fireId).isEqualTo("fire-oid")
             assertThat(fireFile.filePath).isEqualTo("fireReferenced.txt")
             assertThat(fireFile.relPath).isEqualTo("Files/fireReferenced.txt")
-            assertThat(fireFile.firePath).isEqualTo("/${submission.relPath}/Files/fireReferenced.txt")
+            assertThat(fireFile.firePath).isEqualTo("${submission.relPath}/Files/fireReferenced.txt")
         }
 
         @Test

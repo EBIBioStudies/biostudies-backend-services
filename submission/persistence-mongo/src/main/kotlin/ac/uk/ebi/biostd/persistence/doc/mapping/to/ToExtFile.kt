@@ -14,25 +14,25 @@ import java.nio.file.Paths
 
 internal fun DocFile.toExtFile(released: Boolean, subRelPath: String): ExtFile = when (this) {
     is FireDocFile -> FireFile(
-        fireId,
-        "/$subRelPath/$relPath",
-        released,
-        filePath,
-        relPath,
-        md5,
-        fileSize,
-        ExtFileType.fromString(fileType),
-        attributes.toExtAttributes()
+        fireId = fireId,
+        firePath = "$subRelPath/$relPath",
+        published = released,
+        filePath = filePath,
+        relPath = relPath,
+        md5 = md5,
+        size = fileSize,
+        type = ExtFileType.fromString(fileType),
+        attributes = attributes.toExtAttributes()
     )
 
     is NfsDocFile -> NfsFile(
-        filePath,
-        relPath,
-        Paths.get(fullPath).toFile(),
-        fullPath,
-        md5,
-        fileSize,
-        attributes.toExtAttributes()
+        filePath = filePath,
+        relPath = relPath,
+        file = Paths.get(fullPath).toFile(),
+        fullPath = fullPath,
+        md5 = md5,
+        size = fileSize,
+        attributes = attributes.toExtAttributes()
     )
 }
 
