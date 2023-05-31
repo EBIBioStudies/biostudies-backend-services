@@ -31,7 +31,6 @@ object DbFilesSource : FilesSource {
 
     override fun getFileList(path: String): File? = null
 
-
     @Suppress("ComplexCondition")
     private fun getDbFile(attributes: Map<String, String?>): FireByPassFile? {
         fun requireNullOrNotEmpty(field: FileFields): String? {
