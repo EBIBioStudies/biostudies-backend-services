@@ -10,7 +10,7 @@ data class FireApiFile(
     val createTime: String,
     val filesystemEntry: FileSystemEntry? = null,
 ) {
-    val path: String? = filesystemEntry?.path
+    val path: String? = filesystemEntry?.path?.removePrefix("/")
     val published: Boolean = filesystemEntry?.published.orFalse()
 }
 

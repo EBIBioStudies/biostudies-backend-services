@@ -75,5 +75,5 @@ data class DbRecord(
     val firePath: String?,
     val published: Boolean,
 ) {
-    fun toFile(): FireApiFile = file.copy(filesystemEntry = FileSystemEntry(firePath, published))
+    fun toFile(): FireApiFile = file.copy(filesystemEntry = FileSystemEntry(firePath?.let { "/$it" }, published))
 }
