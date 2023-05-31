@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.submission.helpers.DbFilesSource
 import ac.uk.ebi.biostd.submission.helpers.FilesSourceFactory
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
@@ -22,6 +21,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.io.sources.DbFilesSource
 import java.nio.file.Paths
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)

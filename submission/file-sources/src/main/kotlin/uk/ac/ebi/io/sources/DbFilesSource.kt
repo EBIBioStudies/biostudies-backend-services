@@ -1,9 +1,9 @@
-package ac.uk.ebi.biostd.submission.helpers
+package uk.ac.ebi.io.sources
 
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileType
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Attribute
@@ -68,7 +68,7 @@ object DbFilesSource : FilesSource {
             filePath = path,
             relPath = "Files/$path",
             md5 = db.md5,
-            type = ExtFileType.FILE,
+            type = FILE,
             size = db.size,
             attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
         )

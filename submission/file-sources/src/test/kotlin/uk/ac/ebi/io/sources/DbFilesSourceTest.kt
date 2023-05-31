@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.helpers
+package uk.ac.ebi.io.sources
 
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.model.Attribute

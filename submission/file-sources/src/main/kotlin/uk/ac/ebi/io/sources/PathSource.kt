@@ -1,8 +1,11 @@
-package ebi.ac.uk.io.sources
+package uk.ac.ebi.io.sources
 
+import ebi.ac.uk.base.remove
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FileFields.DIRECTORY_TYPE
+import uk.ac.ebi.io.builder.createFile
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -11,10 +14,13 @@ class PathSource(
     override val description: String,
     private val sourcePath: Path,
 ) : FilesSource {
-    override fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? =
-        findFile(path)?.let { create(path, it, attributes) }
+    override fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+        return findFile(path)?.let { createFile(path, it, attributes) }
+    }
 
-    override fun getFileList(path: String): File? = findFile(path)
+    override fun getFileList(path: String): File? {
+        return findFile(path)
+    }
 
     private fun findFile(path: String): File? {
         val filePath = sourcePath.resolve(path)
@@ -26,8 +32,10 @@ class PathSource(
  *  File system directory source. Note that file type and file extension is check in case file is generated zip file
  *  of a folder.
  */
-class UserPathSource(override val description: String, sourcePath: Path) : FilesSource {
-
+class UserPathSource(
+    override val description: String,
+    sourcePath: Path,
+) : FilesSource {
     private val pathSource = PathSource(description, sourcePath)
 
     override fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
@@ -39,4 +47,19 @@ class UserPathSource(override val description: String, sourcePath: Path) : Files
     }
 
     override fun getFileList(path: String): File? = pathSource.getFileList(path)
+}
+
+class GroupSource(
+    groupName: String,
+    private val pathSource: PathSource,
+) : FilesSource by pathSource {
+    private val groupPattern = "/?groups/$groupName/".toRegex()
+
+    constructor(groupName: String, path: Path) : this(groupName, PathSource("Group '$groupName' files", path))
+
+    override fun getExtFile(
+        path: String,
+        type: String,
+        attributes: List<Attribute>,
+    ): ExtFile? = pathSource.getExtFile(path.remove(groupPattern), type, attributes)
 }
