@@ -7,6 +7,7 @@ import ebi.ac.uk.model.constants.FileFields.DB_MD5
 import ebi.ac.uk.model.constants.FileFields.DB_PATH
 import ebi.ac.uk.model.constants.FileFields.DB_PUBLISHED
 import ebi.ac.uk.model.constants.FileFields.DB_SIZE
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -28,6 +29,11 @@ class DbFilesSourceTest {
                 "All bypass attributes [md5, size, id, path, published] " +
                     "need to be present or none, found [null, 10, abc, path, false]"
             )
+    }
+
+    @Test
+    fun whenOnlyMd5() {
+        assertThat(testWhenFields(dbMd5 = "abcMd5")).isNull()
     }
 
     @Test

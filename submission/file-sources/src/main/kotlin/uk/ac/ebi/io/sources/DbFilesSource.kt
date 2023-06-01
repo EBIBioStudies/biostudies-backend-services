@@ -32,7 +32,7 @@ object DbFilesSource : FilesSource {
     override fun getFileList(path: String): File? = null
 
     @Suppress("ComplexCondition")
-    private fun getDbFile(attributes: Map<String, String?>): FireByPassFile? {
+    private fun getDbFile(attributes: Map<String, String?>): ByPassFile? {
         fun requireNullOrNotEmpty(field: FileFields): String? {
             val value = attributes[field.value]
             require(value == null || value.isNotBlank()) { "${field.value} can not be an empty string" }
@@ -46,21 +46,24 @@ object DbFilesSource : FilesSource {
         }
 
         val md5 = requireNullOrNotEmpty(DB_MD5)
-        val size = requireNullOrNotEmpty(DB_SIZE)
+        val size = requireNullOrNotEmpty(DB_SIZE)?.toLong()
         val id = requireNullOrNotEmpty(DB_ID)
         val path = checkPath()
-        val published = requireNullOrNotEmpty(DB_PUBLISHED)
-        val values = listOf(md5, size, id, path, published)
-        return when {
-            values.all { it == null } -> null
-            values.all { it != null } -> FireByPassFile(id!!, md5!!, path!!, size!!.toLong(), published.toBoolean())
-            else -> throw IllegalArgumentException(
-                "All bypass attributes [md5, size, id, path, published] need to be present or none, found $values"
-            )
-        }
+        val public = requireNullOrNotEmpty(DB_PUBLISHED)?.toBoolean()
+
+        if (size != null && id != null && path != null && md5 != null && public != null)
+            return ByPassFile(id, md5, path, size, public)
+
+        if (size == null && id == null && path == null && public == null)
+            return null
+
+        throw IllegalArgumentException(
+            "All bypass attributes [md5, size, id, path, published] need to be present or none, " +
+                "found [$md5, $size, $id, $path, $public]"
+        )
     }
 
-    private fun asFireFile(path: String, db: FireByPassFile, attributes: List<Attribute>): FireFile =
+    private fun asFireFile(path: String, db: ByPassFile, attributes: List<Attribute>): FireFile =
         FireFile(
             fireId = db.id,
             firePath = db.path,
@@ -73,7 +76,7 @@ object DbFilesSource : FilesSource {
             attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
         )
 
-    private data class FireByPassFile(
+    private data class ByPassFile(
         val id: String,
         val md5: String,
         val path: String,
