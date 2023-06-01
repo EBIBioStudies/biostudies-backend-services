@@ -3,14 +3,11 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
-import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
@@ -18,12 +15,10 @@ import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.max
 
-@Suppress("TooManyFunctions")
 internal class SubmissionMongoPersistenceQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
     private val serializationService: ExtSerializationService,
-    private val fileListDocFileRepository: FileListDocFileDocDataRepository,
     private val requestRepository: SubmissionRequestDocDataRepository,
 ) : SubmissionPersistenceQueryService {
     override fun existByAccNo(accNo: String): Boolean {
@@ -70,27 +65,6 @@ internal class SubmissionMongoPersistenceQueryService(
             .map { serializationService.deserialize(it.submission.toString()) }
             .map { it.asBasicSubmission(PROCESSING) }
             .plus(findSubmissions(owner, submissionFilter))
-    }
-
-    override fun getReferencedFiles(
-        sub: ExtSubmission,
-        fileListName: String,
-    ): Sequence<ExtFile> {
-        return fileListDocFileRepository
-            .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(sub.accNo, 0, fileListName)
-            .asSequence()
-            .map { it.file.toExtFile(sub.released, sub.relPath) }
-    }
-
-    override fun findReferencedFile(
-        sub: ExtSubmission,
-        path: String,
-    ): ExtFile? {
-        return fileListDocFileRepository
-            .findBySubmissionAccNoAndSubmissionVersionAndFilePath(sub.accNo, sub.version, path)
-            .firstOrNull()
-            ?.file
-            ?.toExtFile(sub.released, sub.relPath)
     }
 
     private fun findSubmissions(owner: String, filter: SubmissionFilter): List<BasicSubmission> =

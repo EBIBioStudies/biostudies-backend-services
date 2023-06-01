@@ -76,12 +76,12 @@ nfs-itest:
   script: gradle clean :submission:submission-webapp:itest -PenableFire=false --rerun-tasks --stacktrace
 
 fire-itest:
-  needs: [ "build-test" ]
+  needs: [ "nfs-itest" ]
   stage: fire-itest
   script: gradle clean :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --stacktrace
 
 fire-caos-itest:
-  needs: [ "build-test" ]
+  needs: [ "fire-itest" ]
   stage: fire-caos-itest
   script: gradle clean :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --stacktrace
   variables:

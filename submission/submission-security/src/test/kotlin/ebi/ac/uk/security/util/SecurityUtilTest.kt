@@ -14,12 +14,12 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.DynamicTest
-import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.extension.ExtendWith
 import java.util.Optional
 
@@ -100,7 +100,7 @@ class SecurityUtilTest(
         @Test
         fun `check password is set as invalid when normal user security token is used`() {
             val userToken = testInstance.createToken(simpleUser)
-            every { userRepository.getById(SecurityTestEntities.userId) } returns simpleUser
+            every { userRepository.getReferenceById(SecurityTestEntities.userId) } returns simpleUser
 
             assertThat(testInstance.checkPassword(ByteArray(1), userToken)).isFalse
         }

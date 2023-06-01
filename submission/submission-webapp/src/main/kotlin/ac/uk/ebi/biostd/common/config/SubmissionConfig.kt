@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
@@ -50,11 +51,16 @@ class SubmissionConfig(
     @Bean
     fun submissionQueryService(
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+        filesRepository: SubmissionFilesPersistenceService,
         serializationService: SerializationService,
         toSubmissionMapper: ToSubmissionMapper,
         toFileListMapper: ToFileListMapper,
     ): SubmissionQueryService = SubmissionQueryService(
-        submissionPersistenceQueryService, serializationService, toSubmissionMapper, toFileListMapper
+        submissionPersistenceQueryService,
+        filesRepository,
+        serializationService,
+        toSubmissionMapper,
+        toFileListMapper,
     )
 
     @Bean
@@ -77,7 +83,7 @@ class SubmissionConfig(
     )
 
     @Bean
-    fun submissionStagesHanlder(
+    fun submissionStagesHandler(
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
     ): SubmissionStagesHandler = SubmissionStagesHandler(submissionSubmitter, eventsPublisherService)
@@ -92,7 +98,8 @@ class SubmissionConfig(
     @Bean
     fun extSubmissionQueryService(
         queryService: SubmissionPersistenceQueryService,
-    ): ExtSubmissionQueryService = ExtSubmissionQueryService(queryService)
+        filesRepository: SubmissionFilesPersistenceService,
+    ): ExtSubmissionQueryService = ExtSubmissionQueryService(filesRepository, queryService)
 
     @Bean
     fun extSubmissionService(

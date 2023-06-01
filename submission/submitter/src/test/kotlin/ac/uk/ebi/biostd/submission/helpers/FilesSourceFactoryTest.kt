@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.helpers
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.createNfsFile
@@ -23,10 +23,10 @@ class FilesSourceFactoryTest(
     private val tempFolder: TemporaryFolder,
     @MockK private val fireClient: FireClient,
     @MockK private val applicationProperties: ApplicationProperties,
-    @MockK private val queryService: SubmissionPersistenceQueryService,
+    @MockK private val filesRepository: SubmissionFilesPersistenceService,
 ) {
     private val attributes = emptyList<Attribute>()
-    private val testInstance = FilesSourceFactory(fireClient, applicationProperties, queryService)
+    private val testInstance = FilesSourceFactory(fireClient, applicationProperties, filesRepository)
 
     @Test
     fun `submission source`() {
@@ -35,8 +35,8 @@ class FilesSourceFactoryTest(
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Exp", files = listOf(left(innerFile))))
 
         every { applicationProperties.submissionPath } returns "sub-path"
-        every { queryService.findReferencedFile(sub, "ghost.txt") } returns null
-        every { queryService.findReferencedFile(sub, "ref.txt") } returns refFile
+        every { filesRepository.findReferencedFile(sub, "ghost.txt") } returns null
+        every { filesRepository.findReferencedFile(sub, "ref.txt") } returns refFile
 
         val fileSource = testInstance.createSubmissionSource(sub)
 

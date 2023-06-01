@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.service.ext
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
@@ -20,9 +21,10 @@ import org.springframework.data.domain.Pageable
 
 @ExtendWith(MockKExtension::class)
 internal class ExtSubmissionPersistenceQueryServiceTest(
+    @MockK private val filesRepository: SubmissionFilesPersistenceService,
     @MockK private val submissionQueryService: SubmissionPersistenceQueryService,
 ) {
-    private val testInstance = ExtSubmissionQueryService(submissionQueryService)
+    private val testInstance = ExtSubmissionQueryService(filesRepository, submissionQueryService)
 
     @Test
     fun `get ext submission`() {
