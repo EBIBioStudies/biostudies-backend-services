@@ -10,6 +10,7 @@ data class FireApiFile(
     val createTime: String,
     val filesystemEntry: FileSystemEntry? = null,
 ) {
+    // The path shouldn't contain an initial slash in order to avoid inconsistencies with S3
     val path: String? = filesystemEntry?.path?.removePrefix("/")
     val published: Boolean = filesystemEntry?.published.orFalse()
 }
