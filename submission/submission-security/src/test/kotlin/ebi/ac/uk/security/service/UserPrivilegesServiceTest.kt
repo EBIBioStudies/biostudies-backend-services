@@ -171,14 +171,14 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `super user unrelease`() {
-        assertThat(testInstance.canUnrelease("superuser@mail.com")).isTrue
+    fun `super user suppress`() {
+        assertThat(testInstance.canSuppress("superuser@mail.com")).isTrue
     }
 
     @Test
-    fun `regular user unrelease`() {
+    fun `regular user suppress`() {
         every { superuser.superuser } returns false
-        assertThat(testInstance.canUnrelease("superuser@mail.com")).isFalse
+        assertThat(testInstance.canSuppress("superuser@mail.com")).isFalse
     }
 
     private fun initUsers() {

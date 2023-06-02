@@ -189,7 +189,7 @@ class ResubmissionApiTest(
     }
 
     @Test
-    fun `5-4 regular user un-releases own submission`() {
+    fun `5-4 regular user suppresses own submission`() {
         val version1 = tsv {
             line("Submission", "S-RSTST4")
             line("Title", "Public Submission")
@@ -208,7 +208,7 @@ class ResubmissionApiTest(
 
         val version2 = tsv {
             line("Submission", "S-RSTST4")
-            line("Title", "Unreleased Submission")
+            line("Title", "Suppressed Submission")
             line("ReleaseDate", "2050-05-22")
             line()
             line("Study")
@@ -217,11 +217,11 @@ class ResubmissionApiTest(
 
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { getWebClient(serverPort, RegularUser).submitSingle(version2, TSV) }
-            .withMessageContaining("The user {$regularUser} is not allowed to un-release the submission S-RSTST4")
+            .withMessageContaining("The user {$regularUser} is not allowed to suppress the submission S-RSTST4")
     }
 
     @Test
-    fun `5-5 super user un-releases submission from another user`() {
+    fun `5-5 super user suppresses submission from another user`() {
         val version1 = tsv {
             line("Submission", "S-RSTST5")
             line("Title", "Public Submission")
@@ -239,7 +239,7 @@ class ResubmissionApiTest(
 
         val version2 = tsv {
             line("Submission", "S-RSTST5")
-            line("Title", "Unreleased Submission")
+            line("Title", "Suppressed Submission")
             line("ReleaseDate", "2050-05-22")
             line()
             line("Study")

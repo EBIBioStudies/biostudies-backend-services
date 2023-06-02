@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
 import ac.uk.ebi.biostd.submission.exceptions.PastReleaseDateException
-import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUnrelease
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSuppress
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.extensions.releaseDate
@@ -43,12 +43,12 @@ class TimesService(
 
         return when {
             releaseTime.isBefore(today) -> throw PastReleaseDateException()
-            releaseTime.isAfter(today) && isReleased && cantUnrelease(user) -> throw UserCanNotUnrelease(accNo, user)
+            releaseTime.isAfter(today) && isReleased && cantSuppress(user) -> throw UserCanNotSuppress(accNo, user)
             else -> releaseTime
         }
     }
 
-    private fun cantUnrelease(user: String) = privilegesService.canUnrelease(user).not()
+    private fun cantSuppress(user: String) = privilegesService.canSuppress(user).not()
 
     private fun parseDate(date: String): OffsetDateTime =
         runCatching { LocalDate.parse(date) }

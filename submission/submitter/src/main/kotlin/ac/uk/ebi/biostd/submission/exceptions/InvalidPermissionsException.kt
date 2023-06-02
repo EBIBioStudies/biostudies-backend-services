@@ -33,7 +33,7 @@ class UserCanNotRelease(
     user: String
 ) : InvalidPermissionsException("The user {$user} is not allowed to release the submission $accNo")
 
-class UserCanNotUnrelease(
+class UserCanNotSuppress(
     accNo: String,
     user: String
-) : InvalidPermissionsException("The user {$user} is not allowed to un-release the submission $accNo")
+) : InvalidPermissionsException("The user {$user} is not allowed to suppress the submission $accNo")

@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
 import ac.uk.ebi.biostd.submission.exceptions.PastReleaseDateException
-import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUnrelease
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSuppress
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -118,22 +118,22 @@ class TimesServiceTest(
         }
 
         @Test
-        fun `when submitter cant unrelease`() {
+        fun `when submitter cant suppress`() {
             every { request.previousVersion?.released } returns true
-            every { privilegesService.canUnrelease("user@test.org") } returns false
+            every { privilegesService.canSuppress("user@test.org") } returns false
             every { request.submission.releaseDate } returns "2020-10-10T09:27:04.000Z"
 
-            val error = assertThrows<UserCanNotUnrelease> { testInstance.getTimes(request) }
+            val error = assertThrows<UserCanNotSuppress> { testInstance.getTimes(request) }
             assertThat(error.message)
-                .isEqualTo("The user {user@test.org} is not allowed to un-release the submission S-BSST1")
+                .isEqualTo("The user {user@test.org} is not allowed to suppress the submission S-BSST1")
         }
 
         @Test
-        fun `when submitter can unrelease`() {
+        fun `when submitter can suppress`() {
             val releaseTime = OffsetDateTime.of(2020, 10, 10, 0, 0, 0, 0, UTC)
 
             every { request.previousVersion?.released } returns true
-            every { privilegesService.canUnrelease("user@test.org") } returns true
+            every { privilegesService.canSuppress("user@test.org") } returns true
             every { request.submission.releaseDate } returns "2020-10-10T09:27:04.000Z"
 
             val times = testInstance.getTimes(request)

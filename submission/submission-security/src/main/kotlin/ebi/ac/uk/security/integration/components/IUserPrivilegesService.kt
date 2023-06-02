@@ -19,5 +19,5 @@ interface IUserPrivilegesService {
 
     fun canRelease(email: String): Boolean
 
-    fun canUnrelease(email: String): Boolean
+    fun canSuppress(email: String): Boolean
 }
