@@ -75,5 +75,6 @@ data class DbRecord(
     val firePath: String?,
     val published: Boolean,
 ) {
-    fun toFile(): FireApiFile = file.copy(filesystemEntry = FileSystemEntry(firePath, published))
+    // The path is normalized to ALWAYS include an initial slash in order to mimic how FIRE's HTTP endpoint
+    fun toFile(): FireApiFile = file.copy(filesystemEntry = FileSystemEntry(firePath?.let { "/$it" }, published))
 }
