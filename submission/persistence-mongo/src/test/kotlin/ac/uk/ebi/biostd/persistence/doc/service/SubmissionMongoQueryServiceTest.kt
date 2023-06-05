@@ -7,39 +7,24 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
-import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
-import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
-import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
-import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
-import ac.uk.ebi.biostd.persistence.doc.test.doc.SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
-import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
-import arrow.core.Either
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
-import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.NfsFile
-import ebi.ac.uk.extended.model.createNfsFile
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import ebi.ac.uk.util.collections.second
-import io.github.glytching.junit.extension.folder.TemporaryFolder
-import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
@@ -51,8 +36,6 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -63,8 +46,6 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig.extSerializationService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.serialization.common.FilesResolver
-import java.nio.file.Files
 import java.time.Duration.ofSeconds
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -75,14 +56,12 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as att
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmission
 
-@ExtendWith(MockKExtension::class, SpringExtension::class, TemporaryFolderExtension::class)
+@ExtendWith(MockKExtension::class, SpringExtension::class)
 @Testcontainers
-@SpringBootTest(classes = [MongoDbReposConfig::class, MongoDbServicesConfig::class, TestConfiguration::class])
+@SpringBootTest(classes = [MongoDbReposConfig::class, MongoDbServicesConfig::class, TestConfig::class])
 internal class SubmissionMongoQueryServiceTest(
-    private val tempFolder: TemporaryFolder,
     @Autowired private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
-    @Autowired private val fileListDocFileRepository: FileListDocFileDocDataRepository,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
 ) {
     private val serializationService: ExtSerializationService = extSerializationService()
@@ -91,14 +70,12 @@ internal class SubmissionMongoQueryServiceTest(
             submissionRepo,
             toExtSubmissionMapper,
             serializationService,
-            fileListDocFileRepository,
             requestRepository,
         )
 
     @AfterEach
     fun afterEach() {
         submissionRepo.deleteAll()
-        fileListDocFileRepository.deleteAll()
     }
 
     @Nested
@@ -383,94 +360,6 @@ internal class SubmissionMongoQueryServiceTest(
         )
     }
 
-    @Nested
-    inner class GetReferencedFiles {
-        private val nfsReferencedFile = tempFolder.createFile("nfsReferenced.txt")
-        private val nfsFile = createNfsFile("nfsReferenced.txt", "Files/nfsReferenced.txt", nfsReferencedFile)
-        private val nfsFileListFile = FileListDocFile(
-            id = ObjectId(),
-            submissionId = testDocSubmission.id,
-            file = nfsFile.toDocFile(),
-            fileListName = "test-file-list",
-            index = 1,
-            submissionVersion = testDocSubmission.version,
-            submissionAccNo = testDocSubmission.accNo
-        )
-        private val fireReferencedFile = tempFolder.createFile("fireReferenced.txt")
-        private val fireFile = FireFile(
-            fireId = "fire-oid",
-            firePath = null,
-            published = false,
-            filePath = "fireReferenced.txt",
-            relPath = "Files/fireReferenced.txt",
-            md5 = fireReferencedFile.md5(),
-            size = fireReferencedFile.size(),
-            type = FILE,
-            attributes = emptyList()
-        )
-        private val fireFileListFile = FileListDocFile(
-            ObjectId(),
-            testDocSubmission.id,
-            fireFile.toDocFile(),
-            fileListName = "test-file-list",
-            index = 2,
-            submissionVersion = testDocSubmission.version,
-            submissionAccNo = testDocSubmission.accNo
-        )
-        private val fileList = DocFileList("test-file-list")
-        private val submission =
-            testDocSubmission.copy(section = DocSection(id = ObjectId(), type = "Study", fileList = fileList))
-
-        @BeforeEach
-        fun beforeEach() {
-            submissionRepo.save(submission)
-            fileListDocFileRepository.save(nfsFileListFile)
-            fileListDocFileRepository.save(fireFileListFile)
-        }
-
-        @Test
-        fun `get referenced files`() {
-            val submission = testInstance.getExtByAccNo(SUB_ACC_NO)
-            val files = testInstance.getReferencedFiles(submission, "test-file-list").toList()
-            assertThat(files).hasSize(2)
-
-            val nfsFile = files.first() as NfsFile
-            assertThat(nfsFile.file).isEqualTo(nfsReferencedFile)
-            assertThat(nfsFile.fullPath).isEqualTo(nfsReferencedFile.absolutePath)
-
-            val fireFile = files.second() as FireFile
-            assertThat(fireFile.fireId).isEqualTo("fire-oid")
-            assertThat(fireFile.filePath).isEqualTo("fireReferenced.txt")
-            assertThat(fireFile.relPath).isEqualTo("Files/fireReferenced.txt")
-            assertThat(fireFile.firePath).isEqualTo("${submission.relPath}/Files/fireReferenced.txt")
-        }
-
-        @Test
-        fun `get referenced files for inner section`() {
-            val innerSection = DocSection(id = ObjectId(), type = "Experiment", fileList = fileList)
-            val rootSection = DocSection(id = ObjectId(), type = "Study", sections = listOf(Either.left(innerSection)))
-            val innerSectionSubmission = testDocSubmission.copy(accNo = "S-REF1", section = rootSection)
-
-            submissionRepo.save(innerSectionSubmission)
-            fileListDocFileRepository.save(nfsFileListFile.copy(submissionAccNo = innerSectionSubmission.accNo))
-
-            val submission = testInstance.getExtByAccNo("S-REF1")
-            val files = testInstance.getReferencedFiles(submission, "test-file-list").toList()
-            assertThat(files).hasSize(1)
-            assertThat((files.first() as NfsFile).file).isEqualTo(nfsReferencedFile)
-            assertThat(nfsFile.fullPath).isEqualTo(nfsReferencedFile.absolutePath)
-        }
-
-        @Test
-        fun `non existing referenced files`() {
-            val submission = testInstance.getExtByAccNo(SUB_ACC_NO)
-
-            val result = testInstance.getReferencedFiles(submission, "non-existing-fileListName")
-
-            assertThat(result.toList()).hasSize(0)
-        }
-    }
-
     @Test
     fun `get non existing submission`() {
         val exception = assertThrows<SubmissionNotFoundException> { testInstance.getExtByAccNo("S-BSST3") }
@@ -488,13 +377,5 @@ internal class SubmissionMongoQueryServiceTest(
             register.add("spring.data.mongodb.uri") { mongoContainer.getReplicaSetUrl("biostudies-test") }
             register.add("spring.data.mongodb.database") { "biostudies-test" }
         }
-    }
-}
-
-@Configuration
-class TestConfiguration {
-    @Bean
-    fun fileResolver(): FilesResolver {
-        return FilesResolver(Files.createTempDirectory("sub-requests").toFile())
     }
 }

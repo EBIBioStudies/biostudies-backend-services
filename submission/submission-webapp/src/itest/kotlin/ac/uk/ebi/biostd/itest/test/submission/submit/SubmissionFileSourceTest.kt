@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
 import ebi.ac.uk.asserts.assertThat
@@ -54,6 +55,7 @@ import java.nio.file.Paths
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
 class SubmissionFileSourceTest(
+    @Autowired private val filesRepository: SubmissionFilesPersistenceService,
     @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired private val securityTestService: SecurityTestService,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
@@ -100,7 +102,7 @@ class SubmissionFileSourceTest(
         assertThat(webClient.submitSingle(submission("FileList.tsv"), TSV, filesConfig)).isSuccessful()
 
         val firstVersion = submissionRepository.getExtByAccNo("S-FSTST1")
-        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles(firstVersion, "FileList")
+        val firstVersionReferencedFiles = filesRepository.getReferencedFiles(firstVersion, "FileList")
         val subFilesPath = "$submissionPath/${firstVersion.relPath}/Files"
         val innerFile = Paths.get("$subFilesPath/File1.txt")
         val referencedFile = Paths.get("$subFilesPath/File2.txt")
@@ -127,7 +129,7 @@ class SubmissionFileSourceTest(
 
         if (enableFire) {
             val secondVersion = submissionRepository.getExtByAccNo("S-FSTST1")
-            val secondVersionReferencedFiles = submissionRepository.getReferencedFiles(secondVersion, "FileList")
+            val secondVersionReferencedFiles = filesRepository.getReferencedFiles(secondVersion, "FileList")
 
             val firstVersionFireId = (firstVersion.allSectionsFiles.first() as FireFile).fireId
             val secondVersionFireId = (secondVersion.allSectionsFiles.first() as FireFile).fireId
@@ -180,7 +182,7 @@ class SubmissionFileSourceTest(
         assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
 
         val persistedSubmission = submissionRepository.getExtByAccNo("S-FSTST2")
-        val firstVersionReferencedFiles = submissionRepository.getReferencedFiles(persistedSubmission, "FileList")
+        val firstVersionReferencedFiles = filesRepository.getReferencedFiles(persistedSubmission, "FileList")
         val subFilesPath = "$submissionPath/${persistedSubmission.relPath}/Files"
         val innerFile = Paths.get("$subFilesPath/File4.txt")
         val referencedFile = Paths.get("$subFilesPath/File3.txt")
@@ -385,7 +387,7 @@ class SubmissionFileSourceTest(
         assertThat(submission.version).isEqualTo(1)
         assertThat(File("$submissionPath/${submission.relPath}/Files/MultipleReferences.txt")).exists()
 
-        val refFiles = submissionRepository.getReferencedFiles(submission, "FirstVersionFileList").toList()
+        val refFiles = filesRepository.getReferencedFiles(submission, "FirstVersionFileList").toList()
         assertThat(refFiles).hasSize(2)
         assertThat(refFiles.first().attributes).containsExactly(ExtAttribute("Type", "Ref 1"))
         assertThat(refFiles.second().attributes).containsExactly(ExtAttribute("Type", "Ref 2"))
@@ -423,7 +425,7 @@ class SubmissionFileSourceTest(
         assertThat(filesV2).hasSize(1)
         assertThat(filesV2.first().attributes).containsExactly(ExtAttribute("Type", "Another reference"))
 
-        val refFilesV2 = submissionRepository.getReferencedFiles(subV2, "SecondVersionFileList").toList()
+        val refFilesV2 = filesRepository.getReferencedFiles(subV2, "SecondVersionFileList").toList()
         assertThat(refFilesV2).hasSize(1)
         assertThat(refFilesV2.first().attributes).containsExactly(ExtAttribute("Type", "A reference"))
     }

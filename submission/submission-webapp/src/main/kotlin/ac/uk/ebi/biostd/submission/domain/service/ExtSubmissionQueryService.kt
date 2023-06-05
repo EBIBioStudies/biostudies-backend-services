@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -10,6 +11,7 @@ import org.springframework.data.domain.PageImpl
 import java.time.OffsetDateTime
 
 class ExtSubmissionQueryService(
+    private val filesRepository: SubmissionFilesPersistenceService,
     private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
 ) {
 
@@ -21,7 +23,7 @@ class ExtSubmissionQueryService(
 
     fun getReferencedFiles(accNo: String, fileListName: String): ExtFileTable {
         val sub = submissionPersistenceQueryService.getExtByAccNo(accNo, false)
-        val files = submissionPersistenceQueryService.getReferencedFiles(sub, fileListName)
+        val files = filesRepository.getReferencedFiles(sub, fileListName)
         return ExtFileTable(files.toList())
     }
 
