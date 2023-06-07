@@ -217,7 +217,7 @@ class ResubmissionApiTest(
 
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { getWebClient(serverPort, RegularUser).submitSingle(version2, TSV) }
-            .withMessageContaining("The user {$regularUser} is not allowed to suppress the submission S-RSTST4")
+            .withMessageContaining("The release date of a public study cannot be changed")
     }
 
     @Test
