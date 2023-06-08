@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
+import ac.uk.ebi.biostd.submission.exceptions.InvalidReleaseDateException
 import ac.uk.ebi.biostd.submission.exceptions.PastReleaseDateException
-import ac.uk.ebi.biostd.submission.exceptions.UserCanNotSuppress
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.extensions.releaseDate
@@ -36,19 +36,29 @@ class TimesService(
         request: SubmitRequest,
     ): OffsetDateTime {
         val releaseTime = parseDate(releaseDate)
-        val accNo = request.accNo
         val user = request.submitter.email
         val today = now.toInstant().asOffsetAtStartOfDay()
         val isReleased = request.previousVersion?.released.orFalse()
+        val previousReleaseTime = request.previousVersion?.releaseTime?.toInstant()?.asOffsetAtStartOfDay()
+
+        fun checkFutureReleaseTime() = when {
+            isReleased && privilegesService.canSuppress(user).not() -> throw InvalidReleaseDateException()
+            else -> releaseTime
+        }
+
+        fun checkPastReleaseTime() = when {
+            isReleased -> throw InvalidReleaseDateException()
+            previousReleaseTime == null -> throw PastReleaseDateException()
+            else -> releaseTime
+        }
 
         return when {
-            releaseTime.isBefore(today) -> throw PastReleaseDateException()
-            releaseTime.isAfter(today) && isReleased && cantSuppress(user) -> throw UserCanNotSuppress(accNo, user)
+            previousReleaseTime?.isEqual(releaseTime).orFalse() -> releaseTime
+            releaseTime.isAfter(today) -> checkFutureReleaseTime()
+            releaseTime.isBefore(today) -> checkPastReleaseTime()
             else -> releaseTime
         }
     }
-
-    private fun cantSuppress(user: String) = privilegesService.canSuppress(user).not()
 
     private fun parseDate(date: String): OffsetDateTime =
         runCatching { LocalDate.parse(date) }
