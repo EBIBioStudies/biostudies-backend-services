@@ -133,6 +133,8 @@ task deploy {
                 execute "sed -i -e 's~APP_PORT~$appPort~g' $deployPath/update.sh"
                 execute "sed -i -e 's~APP_NAME~$artifactName~g' $deployPath/update.sh"
                 execute "sed -i -e 's~DEBUG_PORT~$debugPort~g' $deployPath/update.sh"
+                execute "sed -i -e 's~BS_USER~`whoami`~g' $deployPath/update.sh"
+                execute "sed -i -e 's~HOST~`hostname -s`~g' $deployPath/update.sh"
 
                 if (project.hasProperty("jvmParams")) {
                     execute "sed -i -e 's~JVM_PARAMS~$jvmParams~g' $deployPath/update.sh"
