@@ -50,6 +50,13 @@ class SecurityApiTest(
         }
     }
 
+    @Test
+    fun `22-4 register duplicated user`() {
+        webClient.registerUser(RegisterRequest("duplicated", "dupuser@ebi.ac.uk", "pass"))
+        assertThatExceptionOfType(ResourceAccessException::class.java)
+            .isThrownBy { webClient.registerUser(RegisterRequest("duplicated", "DupUser@ebi.ac.uk", "pass")) }
+    }
+
     object NewUser : TestUser {
         override val username = "New User"
         override val email = "new-biostudies-mgmt@ebi.ac.uk"
