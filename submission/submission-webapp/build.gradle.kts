@@ -110,6 +110,7 @@ dependencies {
     implementation(SpringfoxSwagger)
     implementation(SpringfoxSwaggerUI)
     implementation(KotlinLogging)
+    implementation("commons-net:commons-net:3.9.0")
 
     testImplementation(project(ClientBioWebClient))
     testImplementation(testFixtures(project(CommonsSerialization)))

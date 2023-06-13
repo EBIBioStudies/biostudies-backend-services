@@ -8,7 +8,7 @@ import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
-import ebi.ac.uk.security.integration.model.api.MagicFolder
+import ebi.ac.uk.security.integration.model.api.NfsMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -147,7 +147,7 @@ class FileSourcesServiceTest(
     }
 
     private fun submitter(): SecurityUser {
-        val userFolder = MagicFolder(
+        val userFolder = NfsMagicFolder(
             relativePath = Paths.get("69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
             path = Paths.get("$filesFolder/69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3")
         )
@@ -174,7 +174,7 @@ class FileSourcesServiceTest(
     }
 
     private fun onBehalfUser(): SecurityUser {
-        val userFolder = MagicFolder(
+        val userFolder = NfsMagicFolder(
             relativePath = Paths.get("43/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
             path = Paths.get("$filesFolder/43/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3")
         )

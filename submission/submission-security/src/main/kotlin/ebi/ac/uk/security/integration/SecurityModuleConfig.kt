@@ -15,6 +15,7 @@ import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.service.CaptchaVerifier
 import ebi.ac.uk.security.service.GroupService
+import ebi.ac.uk.security.service.MagicFolderUtil
 import ebi.ac.uk.security.service.ProfileService
 import ebi.ac.uk.security.service.SecurityQueryService
 import ebi.ac.uk.security.service.SecurityService
@@ -35,7 +36,7 @@ class SecurityModuleConfig(
     private val queryService: SubmissionMetaQueryService,
     private val userPermissionsService: UserPermissionsService,
     private val eventsPublisherService: EventsPublisherService,
-    private var props: SecurityProperties
+    private var props: SecurityProperties,
 ) {
     fun securityService(): ISecurityService = securityService
     fun securityQueryService(): ISecurityQueryService = securityQueryService
@@ -44,9 +45,18 @@ class SecurityModuleConfig(
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
     private val groupService by lazy { GroupService(groupRepository, userRepo, props.filesDirPath) }
+    private val magicFolderUtil by lazy { MagicFolderUtil(props) }
     private val securityQueryService by lazy { SecurityQueryService(securityUtil, profileService, userRepo) }
     private val securityService by lazy {
-        SecurityService(userRepo, securityUtil, props, profileService, captchaVerifier, eventsPublisherService)
+        SecurityService(
+            userRepo,
+            securityUtil,
+            magicFolderUtil,
+            props,
+            profileService,
+            captchaVerifier,
+            eventsPublisherService
+        )
     }
 
     private val securityFilter by lazy { SecurityFilter(props.environment, securityQueryService) }

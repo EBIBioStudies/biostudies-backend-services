@@ -3,7 +3,7 @@ package ebi.ac.uk.security.service
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
-import ebi.ac.uk.security.integration.model.api.MagicFolder
+import ebi.ac.uk.security.integration.model.api.NfsMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -33,7 +33,7 @@ class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun getUserProfile() {
-        val expectedUserFolder = MagicFolder(
+        val expectedUserFolder = NfsMagicFolder(
             relativePath = Paths.get("69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
             path = Paths.get("$filesDir/69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3")
         )

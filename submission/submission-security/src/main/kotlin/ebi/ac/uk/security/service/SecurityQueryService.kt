@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.DbUser
+import ac.uk.ebi.biostd.persistence.model.MagicFolderType
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
@@ -41,6 +42,7 @@ class SecurityQueryService(
             email = email,
             fullName = username,
             secret = securityUtil.newKey(),
+            magicFolderType = MagicFolderType.NFS,
             passwordDigest = ByteArray(0),
             notificationsEnabled = false
         )

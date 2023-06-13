@@ -5,6 +5,8 @@ import javax.persistence.CascadeType.MERGE
 import javax.persistence.CascadeType.PERSIST
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
 import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
@@ -76,6 +78,10 @@ class DbUser(
     @Column
     var notificationsEnabled: Boolean = false,
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "magic_folder_type")
+    var magicFolderType: MagicFolderType,
+
     @Column
     var orcid: String? = null,
 ) {
@@ -110,6 +116,10 @@ class Parameter {
 
     @XmlElement(name = "value")
     var value: String? = null
+}
+
+enum class MagicFolderType {
+    FTP, NFS
 }
 
 fun DbUser.addGroup(userGroup: DbUserGroup): DbUser = also { groups.add(userGroup) }

@@ -2,6 +2,7 @@ package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.model.DbUser
+import ac.uk.ebi.biostd.persistence.model.MagicFolderType
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.ActivateByEmailRequest
 import ebi.ac.uk.api.security.ChangePasswordRequest
@@ -13,9 +14,6 @@ import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
-import ebi.ac.uk.io.FileUtils
-import ebi.ac.uk.io.RWXRWX___
-import ebi.ac.uk.io.RWX__X___
 import ebi.ac.uk.model.User
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
@@ -33,14 +31,13 @@ import ebi.ac.uk.security.persistence.getInactiveByEmail
 import ebi.ac.uk.security.util.SecurityUtil
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.events.service.EventsPublisherService
-import java.nio.file.Path
-import java.nio.file.Paths
 
 @Suppress("TooManyFunctions")
 @Transactional
 open class SecurityService(
     private val userRepository: UserDataRepository,
     private val securityUtil: SecurityUtil,
+    private val magicFolderUtil: MagicFolderUtil,
     private val securityProps: SecurityProperties,
     private val profileService: ProfileService,
     private val captchaVerifier: CaptchaVerifier,
@@ -152,15 +149,8 @@ open class SecurityService(
         val dbUser = userRepository.save(toActivate.apply { activationKey = null; active = true })
         val securityUser = profileService.asSecurityUser(dbUser)
 
-        FileUtils.getOrCreateFolder(securityUser.magicFolder.path.parent, RWX__X___)
-        FileUtils.getOrCreateFolder(securityUser.magicFolder.path, RWXRWX___)
-        FileUtils.createSymbolicLink(symLinkPath(securityUser.email), securityUser.magicFolder.path, RWXRWX___)
+        magicFolderUtil.createMagicFolder(securityUser)
         return securityUser
-    }
-
-    private fun symLinkPath(userEmail: String): Path {
-        val prefixFolder = userEmail.substring(0, 1).lowercase()
-        return Paths.get("${securityProps.magicDirPath}/$prefixFolder/$userEmail")
     }
 
     private fun asUser(registerRequest: RegisterRequest) = DbUser(
@@ -169,6 +159,7 @@ open class SecurityService(
         orcid = registerRequest.orcid,
         secret = securityUtil.newKey(),
         notificationsEnabled = registerRequest.notificationsEnabled,
+        magicFolderType = MagicFolderType.NFS,
         passwordDigest = securityUtil.getPasswordDigest(registerRequest.password)
     )
 }
