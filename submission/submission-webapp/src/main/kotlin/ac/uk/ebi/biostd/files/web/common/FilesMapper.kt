@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.files.web.common
 
 import ac.uk.ebi.biostd.files.model.FilesSpec
 import ebi.ac.uk.api.UserFile
+import kotlin.io.path.Path
 import ac.uk.ebi.biostd.files.model.UserFile as UserFolderFile
 
 private const val USER_FOLDER_NAME = "user"
@@ -17,6 +18,6 @@ class FilesMapper {
     }
 
     private fun asUserFile(file: UserFolderFile, prefix: String): UserFile {
-        return UserFile(file.name, "$prefix/${file.path}", file.fileSize, file.type)
+        return UserFile(file.name, Path(prefix).resolve(file.path).toString(), file.fileSize, file.type)
     }
 }

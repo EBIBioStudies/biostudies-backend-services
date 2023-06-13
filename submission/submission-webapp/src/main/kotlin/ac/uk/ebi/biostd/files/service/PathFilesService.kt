@@ -15,7 +15,7 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 
-class PathFilesService(
+class PathFilesService private constructor(
     private val basePath: File,
 ) : FileService {
 
@@ -67,7 +67,7 @@ class PathFilesService(
             .map {
                 UserFile(
                     name = it.name,
-                    path = it.relativeTo(basePath).toString(),
+                    path = it.parentFile.relativeTo(basePath).toString(),
                     fileSize = it.size(calculateDirectories = false),
                     type = UserFileType.getType(it)
                 )
