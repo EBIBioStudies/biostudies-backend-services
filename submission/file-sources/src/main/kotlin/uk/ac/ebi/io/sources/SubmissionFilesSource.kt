@@ -12,7 +12,7 @@ import ebi.ac.uk.model.Attribute
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
-class SubmissionFilesSource(
+internal class SubmissionFilesSource(
     private val sub: ExtSubmission,
     private val nfsFiles: PathSource,
     private val fireClient: FireClient,
