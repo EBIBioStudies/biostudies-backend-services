@@ -2,6 +2,7 @@ package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
+import ac.uk.ebi.biostd.persistence.model.MagicFolderType
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.NfsMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -26,6 +27,7 @@ class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
         groups = mutableSetOf(testGroup),
         passwordDigest = "".toByteArray(),
         superuser = true,
+        magicFolderType = MagicFolderType.NFS,
         notificationsEnabled = true
     )
 

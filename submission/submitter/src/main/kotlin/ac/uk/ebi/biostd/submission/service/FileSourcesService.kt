@@ -8,7 +8,9 @@ import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
+import ebi.ac.uk.security.integration.model.api.NfsMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import ebi.ac.uk.security.integration.model.api.resolve
 import uk.ac.ebi.io.sources.DbFilesSource
 import uk.ac.ebi.io.sources.FilesListSource
 import uk.ac.ebi.io.sources.GroupSource
@@ -52,9 +54,11 @@ class FileSourcesService(
     }
 
     private fun addUserSource(user: SecurityUser, rootPath: String?, sources: MutableList<FilesSource>) {
-        if (rootPath == null) sources.add(UserPathSource("${user.email} user files", user.magicFolder.path))
-        else sources.add(UserPathSource("${user.email} user files in /$rootPath", user.magicFolder.resolve(rootPath)))
-
+        val magicFolder = user.magicFolder
+        if (magicFolder is NfsMagicFolder) {
+            if (rootPath == null) sources.add(UserPathSource("${user.email} user files", magicFolder.path))
+            else sources.add(UserPathSource("${user.email} user files in /$rootPath", magicFolder.resolve(rootPath)))
+        }
         sources.addAll(user.groupsFolders.map { GroupSource(it.groupName, it.path) })
     }
 }

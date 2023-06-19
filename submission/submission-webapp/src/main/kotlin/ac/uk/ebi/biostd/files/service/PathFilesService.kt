@@ -11,6 +11,8 @@ import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RW_RW____
 import ebi.ac.uk.io.ext.listFilesOrEmpty
 import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.security.integration.model.api.FtpMagicFolder
+import ebi.ac.uk.security.integration.model.api.NfsMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
@@ -26,7 +28,10 @@ class PathFilesService private constructor(
         }
 
         fun forUser(user: SecurityUser): PathFilesService {
-            return PathFilesService(user.magicFolder.path.toFile())
+            when (val folder = user.magicFolder) {
+                is FtpMagicFolder -> TODO()
+                is NfsMagicFolder -> return PathFilesService(folder.path.toFile())
+            }
         }
 
         private fun getGroupPath(user: SecurityUser, groupName: String): File {

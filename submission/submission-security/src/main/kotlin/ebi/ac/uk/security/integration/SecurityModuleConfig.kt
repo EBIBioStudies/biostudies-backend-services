@@ -15,7 +15,6 @@ import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.service.CaptchaVerifier
 import ebi.ac.uk.security.service.GroupService
-import ebi.ac.uk.security.service.MagicFolderUtil
 import ebi.ac.uk.security.service.ProfileService
 import ebi.ac.uk.security.service.SecurityQueryService
 import ebi.ac.uk.security.service.SecurityService
@@ -45,13 +44,11 @@ class SecurityModuleConfig(
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
     private val groupService by lazy { GroupService(groupRepository, userRepo, props.filesDirPath) }
-    private val magicFolderUtil by lazy { MagicFolderUtil(props) }
     private val securityQueryService by lazy { SecurityQueryService(securityUtil, profileService, userRepo) }
     private val securityService by lazy {
         SecurityService(
             userRepo,
             securityUtil,
-            magicFolderUtil,
             props,
             profileService,
             captchaVerifier,

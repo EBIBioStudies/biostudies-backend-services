@@ -17,6 +17,7 @@ import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
+import ebi.ac.uk.security.integration.model.api.NfsMagicFolder
 import ebi.ac.uk.security.test.SecurityTestEntities
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.activateByEmailRequest
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.captcha
@@ -142,7 +143,8 @@ internal class SecurityServiceTest(
             assertThat(dbUser.activationKey).isNull()
             assertThat(dbUser.login).isNull()
 
-            val userFolder = securityUser.magicFolder.path
+            assertThat(securityUser.magicFolder).isInstanceOf(NfsMagicFolder::class.java)
+            val userFolder = (securityUser.magicFolder as NfsMagicFolder).path
             assertFile(userFolder.parent, RWX__X___)
             assertFile(userFolder, RWXRWX___)
             assertSymbolicLink(magicFolderRoot.resolve("b/$email").toPath(), userFolder)

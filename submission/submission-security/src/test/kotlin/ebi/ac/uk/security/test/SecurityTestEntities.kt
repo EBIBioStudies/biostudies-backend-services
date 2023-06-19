@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.test
 
 import ac.uk.ebi.biostd.persistence.model.DbUser
+import ac.uk.ebi.biostd.persistence.model.MagicFolderType
 import ebi.ac.uk.api.security.ActivateByEmailRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest
@@ -62,6 +63,7 @@ internal class SecurityTestEntities {
                 email = email,
                 fullName = name,
                 secret = secret,
+                magicFolderType = MagicFolderType.NFS,
                 passwordDigest = passwordDigest
             )
 
@@ -71,6 +73,7 @@ internal class SecurityTestEntities {
                 email = email,
                 fullName = name,
                 secret = secret,
+                magicFolderType = MagicFolderType.NFS,
                 passwordDigest = passwordDigest,
                 superuser = true
             )
