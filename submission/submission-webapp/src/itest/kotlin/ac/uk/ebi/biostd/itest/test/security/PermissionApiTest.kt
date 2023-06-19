@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
+import ac.uk.ebi.biostd.persistence.model.MagicFolderType
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -91,7 +92,8 @@ class PermissionApiTest(
             fullName = "fullName",
             secret = "secret",
             keyTime = 2,
-            passwordDigest = ByteArray(1)
+            passwordDigest = ByteArray(1),
+            magicFolderType = MagicFolderType.NFS
         )
         val dbAccessTag = DbAccessTag(id = 2, name = "accessTagName")
         const val fakeUser = "fakeUser"

@@ -22,9 +22,12 @@ data class SecurityUser(
 
 data class SecurityPermission(val accessType: AccessType, val accessTag: String)
 
-sealed class MagicFolder
-data class FtpMagicFolder(val relativePath: Path) : MagicFolder()
-data class NfsMagicFolder(val relativePath: Path, val path: Path) : MagicFolder()
+sealed interface MagicFolder {
+    val relativePath: Path
+}
+
+data class FtpMagicFolder(override val relativePath: Path) : MagicFolder
+data class NfsMagicFolder(override val relativePath: Path, val path: Path) : MagicFolder
 
 fun NfsMagicFolder.resolve(subPath: String): Path = path.resolve(subPath)
 

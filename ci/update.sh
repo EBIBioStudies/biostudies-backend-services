@@ -9,6 +9,8 @@
 #   APP NAME: deploy jar artifact name, i.e. my-application.jar
 #   DEBUG PORT: application debug port
 #
+[ $(whoami) != "BS_USER" ] && echo "Must be BS_USER to run" && exit 1
+[ $(hostname -s) != "HOST" ] && echo "Must be run on HOST" && exit 1
 cd $(dirname $0)
 
 # Obtain the process id by checking any process running with the application name
