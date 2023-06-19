@@ -3,10 +3,10 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.iterator.getRequestFilesAsSequence
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import kotlin.streams.asSequence
 
 class SubmissionRequestFilesMongoPersistenceService(
     private val extSerializationService: ExtSerializationService,
@@ -29,8 +29,7 @@ class SubmissionRequestFilesMongoPersistenceService(
         startingAt: Int,
     ): Sequence<SubmissionRequestFile> {
         return requestFilesRepository
-            .findAllByAccNoAndVersionAndIndexGreaterThan(accNo, version, startingAt)
-            .asSequence()
+            .getRequestFilesAsSequence(accNo, version, startingAt)
             .map { it.toSubmissionRequestFile() }
     }
 
