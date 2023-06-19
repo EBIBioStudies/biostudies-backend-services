@@ -1,8 +1,8 @@
 package ebi.ac.uk.security.service
 
+import ac.uk.ebi.biostd.common.properties.MagicFolderType
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
-import ac.uk.ebi.biostd.persistence.model.MagicFolderType
 import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
 import ebi.ac.uk.security.integration.model.api.NfsMagicFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser

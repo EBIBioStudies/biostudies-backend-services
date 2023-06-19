@@ -2,7 +2,6 @@ package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.model.DbUser
-import ac.uk.ebi.biostd.persistence.model.MagicFolderType
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.ActivateByEmailRequest
 import ebi.ac.uk.api.security.ChangePasswordRequest
@@ -174,7 +173,7 @@ open class SecurityService(
 
     private fun symLinkPath(userEmail: String): Path {
         val prefixFolder = userEmail.substring(0, 1).lowercase()
-        return Paths.get("${securityProps.magicDirPath}/$prefixFolder/$userEmail")
+        return Paths.get("${securityProps.filesProperties.magicDirPath}/$prefixFolder/$userEmail")
     }
 
     private fun asUser(registerRequest: RegisterRequest) = DbUser(
@@ -183,7 +182,7 @@ open class SecurityService(
         orcid = registerRequest.orcid,
         secret = securityUtil.newKey(),
         notificationsEnabled = registerRequest.notificationsEnabled,
-        magicFolderType = MagicFolderType.NFS,
+        magicFolderType = securityProps.filesProperties.defaultMode,
         passwordDigest = securityUtil.getPasswordDigest(registerRequest.password)
     )
 }

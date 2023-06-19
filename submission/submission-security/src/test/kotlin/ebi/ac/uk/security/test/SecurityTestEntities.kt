@@ -1,7 +1,7 @@
 package ebi.ac.uk.security.test
 
+import ac.uk.ebi.biostd.common.properties.MagicFolderType
 import ac.uk.ebi.biostd.persistence.model.DbUser
-import ac.uk.ebi.biostd.persistence.model.MagicFolderType
 import ebi.ac.uk.api.security.ActivateByEmailRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.ResetPasswordRequest

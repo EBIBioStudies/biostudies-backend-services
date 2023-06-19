@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.model
 
+import ac.uk.ebi.biostd.common.properties.MagicFolderType
 import java.time.OffsetDateTime
 import javax.persistence.CascadeType.MERGE
 import javax.persistence.CascadeType.PERSIST
@@ -116,10 +117,6 @@ class Parameter {
 
     @XmlElement(name = "value")
     var value: String? = null
-}
-
-enum class MagicFolderType {
-    FTP, NFS
 }
 
 fun DbUser.addGroup(userGroup: DbUserGroup): DbUser = also { groups.add(userGroup) }
