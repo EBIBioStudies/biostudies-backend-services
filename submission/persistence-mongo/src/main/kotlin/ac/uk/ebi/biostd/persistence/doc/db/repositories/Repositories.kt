@@ -18,12 +18,8 @@ import org.springframework.data.mongodb.repository.Meta
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.mongodb.repository.Query
 import java.time.Instant
-import java.util.stream.Stream
 
 interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
-    @Query(value = "{ 'accNo': '?0', 'version': { \$gte: 0 } }", fields = "{ relPath : 1, released: 2 }")
-    fun getSubData(accNo: String): SubmissionProjection
-
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     fun findByAccNo(accNo: String): DocSubmission?
 
@@ -67,12 +63,8 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
 }
 
 interface SubmissionRequestFilesRepository : MongoRepository<DocSubmissionRequestFile, ObjectId> {
-    @Meta(cursorBatchSize = 100, flags = [CursorOption.NO_TIMEOUT])
-    fun findAllByAccNoAndVersionAndIndexGreaterThan(
-        accNo: String,
-        version: Int,
-        index: Int,
-    ): Stream<DocSubmissionRequestFile>
+    @Query("{ 'accNo': ?0, 'version': ?1, 'index': { \$gt: ?2 } }")
+    fun findRequestFiles(accNo: String, version: Int, index: Int, pageable: Pageable): Page<DocSubmissionRequestFile>
 
     fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
 }

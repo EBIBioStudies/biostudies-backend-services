@@ -43,7 +43,7 @@ class ToExtFileListMapper(
         ) {
             val sourceFiles = serializationService.deserializeFileList(input, format)
                 .onEachIndexed { idx, bioFile -> logger.info { "$accNo, Mapping file $idx, path='${bioFile.path}'" } }
-                .map { sources.toExtFile(it) }
+                .map { sources.getExtFile(it.path, it.type, it.attributes) }
             val files = extSerializationService.serialize(sourceFiles, target)
             if (files < 1) throw InvalidFileListException.emptyFileList(source.name)
         }
