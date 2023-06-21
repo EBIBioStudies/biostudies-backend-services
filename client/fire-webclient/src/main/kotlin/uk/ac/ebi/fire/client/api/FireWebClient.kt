@@ -45,6 +45,7 @@ internal class FireWebClient(
     override fun unsetPath(fireOid: String) {
         client.delete("/objects/$fireOid/firePath")
     }
+
     override fun findByMd5(md5: String): List<FireApiFile> {
         return client.getForObject<Array<FireApiFile>>("/objects/md5/$md5").toList()
     }
