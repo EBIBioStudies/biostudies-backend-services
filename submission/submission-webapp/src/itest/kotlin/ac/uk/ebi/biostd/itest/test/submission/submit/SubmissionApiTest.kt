@@ -29,6 +29,7 @@ import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.toStringDate
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
@@ -251,6 +252,33 @@ class SubmissionApiTest(
         assertThat(expectedFile).hasContent("16-9 file content")
     }
 
+    @Test
+    fun `16-10 submission containing invalid file path`() {
+        tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP")
+        tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP/#4")
+        val file1 = tempFolder.createFile("file_16-10.txt")
+        val file2 = tempFolder.createFile("merged-4.tif")
+        val submission = tsv {
+            line("Submission", "S-BSST1610")
+            line("Title", "Submission")
+            line("ReleaseDate", "2030-01-25")
+            line()
+
+            line("Study")
+            line()
+
+            line("Files")
+            line("file_16-10.txt")
+            line("h_EglN1-Δβ2β3-GFP/#4/merged-4.tif")
+            line()
+        }.toString()
+
+        webClient.uploadFiles(listOf(file1, file2))
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { webClient.submitSingle(submission, TSV) }
+            .withMessageContaining("The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-4.tif")
+    }
+
     @Nested
     @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=base/path"])
     inner class SubmitWebBasePath(@LocalServerPort val serverPort: Int) {
@@ -262,7 +290,7 @@ class SubmissionApiTest(
         }
 
         @Test
-        fun `submission when the system has the basePath property configured`() {
+        fun `16-11 submission when the system has the basePath property configured`() {
             val submission = tsv {
                 line("Submission", "S-12366")
                 line("Title", "Sample Submission")

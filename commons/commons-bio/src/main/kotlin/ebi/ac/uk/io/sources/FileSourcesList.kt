@@ -1,13 +1,17 @@
 package ebi.ac.uk.io.sources
 
 import ebi.ac.uk.errors.FilesProcessingException
+import ebi.ac.uk.errors.InvalidPathException
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.model.Attribute
 import java.io.File
 
+private val validPathPattern = "^(?!.*\\./)[0-9A-Za-z!-_*'(). ]+\$".toRegex()
+
 @JvmInline
 value class FileSourcesList(val sources: List<FilesSource>) {
     fun findExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+        require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
         return sources.firstNotNullOfOrNull { it.getExtFile(path, type, attributes) }
     }
 
