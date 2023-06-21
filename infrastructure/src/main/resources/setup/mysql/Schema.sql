@@ -52,7 +52,7 @@ CREATE TABLE User
     fullName             VARCHAR(255) NULL,
     keyTime              BIGINT NOT NULL,
     login                VARCHAR(255) NULL,
-    magic_folder_type    VARCHAR(255) NOT NULL,
+    storageMode          VARCHAR(255) NOT NULL,
     passwordDigest       LONGBLOB NULL,
     secret               VARCHAR(255) NULL,
     superuser            BIT    NOT NULL,

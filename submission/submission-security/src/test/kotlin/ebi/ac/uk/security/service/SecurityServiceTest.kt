@@ -1,8 +1,8 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.common.properties.FilesProperties
-import ac.uk.ebi.biostd.common.properties.MagicFolderType
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.ChangePasswordRequest
@@ -131,7 +131,7 @@ internal class SecurityServiceTest(
             every { securityProps.filesProperties } returns filesProperties
             every { userRepository.save(capture(savedUserSlot)) } answers { savedUserSlot.captured }
             every { filesProperties.magicDirPath } returns magicFolderRoot.absolutePath
-            every { filesProperties.defaultMode } returns MagicFolderType.NFS
+            every { filesProperties.defaultMode } returns StorageMode.NFS
             every { securityProps.requireActivation } returns false
             every { securityUtil.newKey() } returns SECRET_KEY
 
@@ -171,7 +171,7 @@ internal class SecurityServiceTest(
             val activationUrl = "https://dummy-backend.com/active/1234"
 
             every { securityProps.filesProperties } returns filesProperties
-            every { filesProperties.defaultMode } returns MagicFolderType.NFS
+            every { filesProperties.defaultMode } returns StorageMode.NFS
             every { securityProps.requireActivation } returns true
             every { securityUtil.newKey() } returns SECRET_KEY andThen ACTIVATION_KEY
             every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl

@@ -14,12 +14,12 @@ data class SecurityProperties(
     val filesProperties: FilesProperties,
 )
 
-enum class MagicFolderType {
+enum class StorageMode {
     FTP, NFS
 }
 
 data class FilesProperties(
-    val defaultMode: MagicFolderType,
+    val defaultMode: StorageMode,
     val filesDirPath: String,
     val magicDirPath: String,
 )

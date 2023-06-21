@@ -1,6 +1,6 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.common.properties.MagicFolderType
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
@@ -25,7 +25,7 @@ class ProfileService(private val filesDirPath: Path) {
         orcid = user.orcid,
         secret = user.secret,
         superuser = user.superuser,
-        magicFolder = userMagicFolder(user.magicFolderType, user.secret, user.id),
+        magicFolder = userMagicFolder(user.storageMode, user.secret, user.id),
         groupsFolders = groupsMagicFolder(user.groups),
         permissions = getPermissions(user.permissions),
         notificationsEnabled = user.notificationsEnabled
@@ -39,7 +39,7 @@ class ProfileService(private val filesDirPath: Path) {
 
     private fun groupMagicFolder(it: DbUserGroup) = Paths.get("$filesDirPath/${magicPath(it.secret, it.id, "b")}")
 
-    private fun userMagicFolder(folderType: MagicFolderType, secret: String, id: Long): MagicFolder {
+    private fun userMagicFolder(folderType: StorageMode, secret: String, id: Long): MagicFolder {
         fun nfsFolder(): NfsMagicFolder {
             val relativePath = magicPath(secret, id, "a")
             return NfsMagicFolder(Paths.get(relativePath), Paths.get("$filesDirPath/$relativePath"))
@@ -51,8 +51,8 @@ class ProfileService(private val filesDirPath: Path) {
         }
 
         return when (folderType) {
-            MagicFolderType.FTP -> ftpFolder()
-            MagicFolderType.NFS -> nfsFolder()
+            StorageMode.FTP -> ftpFolder()
+            StorageMode.NFS -> nfsFolder()
         }
     }
 

@@ -182,7 +182,7 @@ open class SecurityService(
         orcid = registerRequest.orcid,
         secret = securityUtil.newKey(),
         notificationsEnabled = registerRequest.notificationsEnabled,
-        magicFolderType = securityProps.filesProperties.defaultMode,
+        storageMode = securityProps.filesProperties.defaultMode,
         passwordDigest = securityUtil.getPasswordDigest(registerRequest.password)
     )
 }

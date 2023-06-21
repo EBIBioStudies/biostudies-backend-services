@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.model
 
-import ac.uk.ebi.biostd.common.properties.MagicFolderType
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import java.time.OffsetDateTime
 import javax.persistence.CascadeType.MERGE
 import javax.persistence.CascadeType.PERSIST
@@ -80,8 +80,8 @@ class DbUser(
     var notificationsEnabled: Boolean = false,
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "magic_folder_type")
-    var magicFolderType: MagicFolderType,
+    @Column(name = "storageMode")
+    var storageMode: StorageMode,
 
     @Column
     var orcid: String? = null,
