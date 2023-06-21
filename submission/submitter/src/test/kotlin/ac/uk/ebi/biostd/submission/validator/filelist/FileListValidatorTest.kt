@@ -9,8 +9,11 @@ import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.errors.FilesProcessingException
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
+import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
@@ -24,25 +27,26 @@ import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.io.sources.PathSource
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FileListValidatorTest(
     private val tempFolder: TemporaryFolder,
+    @MockK private val extFile: ExtFile,
+    @MockK private val source: FilesSource,
     @MockK private val fileSourcesService: FileSourcesService,
     @MockK private val submissionQueryService: SubmissionPersistenceQueryService,
 ) {
     private val serializationService = SerializationConfig.serializationService()
-    private val filesSource = FileSourcesList(listOf(PathSource("Description", tempFolder.root.toPath())))
+    private val filesSource = FileSourcesList(listOf(source))
     private val testInstance = FileListValidator(fileSourcesService, serializationService, submissionQueryService)
 
-    @BeforeAll
-    fun beforeAll() {
-        tempFolder.createFile("ref.txt")
+    @BeforeEach
+    fun beforeEach() {
+        every { source.getExtFile("ref.txt", "file", listOf(Attribute("Type", "test"))) } returns extFile
     }
 
     @AfterEach
@@ -55,14 +59,15 @@ class FileListValidatorTest(
         @MockK extSubmission: ExtSubmission,
     ) {
         val fileSourcesSlot = slot<FileSourcesRequest>()
-        every { submissionQueryService.findExtByAccNo("S-BSST0") } returns extSubmission
-        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
-
         val content = tsv {
             line("Files", "Type")
             line("ref.txt", "test")
         }
-        tempFolder.createFile("valid.tsv", content.toString())
+        val valid = tempFolder.createFile("valid.tsv", content.toString())
+
+        every { source.getFileList("valid.tsv") } returns valid
+        every { submissionQueryService.findExtByAccNo("S-BSST0") } returns extSubmission
+        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
 
         val request = FileListValidationRequest("S-BSST0", "root-path", "valid.tsv", submitter, onBehalfUser)
         testInstance.validateFileList(request)
@@ -87,10 +92,14 @@ class FileListValidatorTest(
         @MockK extSubmission: ExtSubmission,
     ) {
         val fileSourcesSlot = slot<FileSourcesRequest>()
+        val invalid = tempFolder.createFile("fail.xlsx")
+
+        every { source.getFileList("fail.xlsx") } returns invalid
         every { submissionQueryService.findExtByAccNo("S-BSST0") } returns extSubmission
         every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
+        every { source.getExtFile("ghost.txt", "file", listOf(Attribute("Type", "fail"))) } returns null
 
-        excel(tempFolder.createFile("fail.xlsx")) {
+        excel(invalid) {
             sheet("page tab") {
                 row {
                     cell("Files")
@@ -128,9 +137,10 @@ class FileListValidatorTest(
         @MockK onBehalfUser: SecurityUser,
     ) {
         val fileSourcesSlot = slot<FileSourcesRequest>()
-        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
+        val empty = tempFolder.createFile("empty.tsv", "Files\tType")
 
-        tempFolder.createFile("empty.tsv", "Files\tType")
+        every { source.getFileList("empty.tsv") } returns empty
+        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
 
         val request = FileListValidationRequest(null, null, "empty.tsv", submitter, onBehalfUser)
         val exception = assertThrows<InvalidFileListException> { testInstance.validateFileList(request) }

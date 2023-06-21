@@ -29,21 +29,21 @@ internal class FileSourcesListTest(
         fun whenOne() {
             every { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns file
             every { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
-            assertThat(testInstance.getExtFile(filePath, FILE_TYPE.value, attributes)).isEqualTo(file)
+            assertThat(testInstance.findExtFile(filePath, FILE_TYPE.value, attributes)).isEqualTo(file)
         }
 
         @Test
         fun whenAnother() {
             every { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
             every { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns file
-            assertThat(testInstance.getExtFile(filePath, FILE_TYPE.value, attributes)).isEqualTo(file)
+            assertThat(testInstance.findExtFile(filePath, FILE_TYPE.value, attributes)).isEqualTo(file)
         }
 
         @Test
         fun whenNone() {
             every { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
             every { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
-            assertThat(testInstance.getExtFile(filePath, FILE_TYPE.value, attributes)).isNull()
+            assertThat(testInstance.findExtFile(filePath, FILE_TYPE.value, attributes)).isNull()
         }
     }
 }
