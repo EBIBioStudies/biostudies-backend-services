@@ -3,8 +3,8 @@ package ebi.ac.uk.security.service
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
-import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
-import ebi.ac.uk.security.integration.model.api.NfsMagicFolder
+import ebi.ac.uk.security.integration.model.api.GroupFolder
+import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -35,12 +35,12 @@ class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
 
     @Test
     fun getUserProfile() {
-        val expectedUserFolder = NfsMagicFolder(
+        val expectedUserFolder = NfsUserFolder(
             relativePath = Paths.get("69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
             path = Paths.get("$filesDir/69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3")
         )
 
-        val expectedGroupFolder = GroupMagicFolder(
+        val expectedGroupFolder = GroupFolder(
             groupName = "Test Group",
             description = "Test Group Description",
             path = Paths.get("$filesDir/fd/9f87b3-9de8-4036-be7a-3ac8cbc44ddd-b0")
@@ -54,7 +54,7 @@ class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
             orcid = "0000-0002-1825-0097",
             secret = "69214a2f-f80b-4f33-86b7-26d3bd0453aa",
             superuser = true,
-            magicFolder = expectedUserFolder,
+            userFolder = expectedUserFolder,
             groupsFolders = listOf(expectedGroupFolder),
             permissions = emptySet(),
             notificationsEnabled = true

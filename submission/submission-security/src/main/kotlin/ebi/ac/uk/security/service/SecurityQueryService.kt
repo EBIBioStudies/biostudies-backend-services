@@ -1,6 +1,6 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.common.properties.StorageMode
+import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
@@ -14,6 +14,7 @@ class SecurityQueryService(
     private val securityUtil: SecurityUtil,
     private val profileService: ProfileService,
     private val userRepository: UserDataRepository,
+    private val securityProperties: SecurityProperties,
 ) : ISecurityQueryService {
     override fun existsByEmail(email: String, onlyActive: Boolean): Boolean {
         return if (onlyActive) userRepository.existsByEmailAndActive(email, true)
@@ -42,7 +43,7 @@ class SecurityQueryService(
             email = email,
             fullName = username,
             secret = securityUtil.newKey(),
-            storageMode = StorageMode.NFS,
+            storageMode = securityProperties.filesProperties.defaultMode,
             passwordDigest = ByteArray(0),
             notificationsEnabled = false
         )

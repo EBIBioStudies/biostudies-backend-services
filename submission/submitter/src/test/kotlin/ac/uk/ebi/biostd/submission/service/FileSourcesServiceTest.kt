@@ -7,8 +7,8 @@ import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
-import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
-import ebi.ac.uk.security.integration.model.api.NfsMagicFolder
+import ebi.ac.uk.security.integration.model.api.GroupFolder
+import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -147,12 +147,12 @@ class FileSourcesServiceTest(
     }
 
     private fun submitter(): SecurityUser {
-        val userFolder = NfsMagicFolder(
+        val userFolder = NfsUserFolder(
             relativePath = Paths.get("69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
             path = Paths.get("$filesFolder/69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3")
         )
 
-        val groupFolder = GroupMagicFolder(
+        val groupFolder = GroupFolder(
             groupName = "Test Group",
             description = "Test Group Description",
             path = Paths.get("$filesFolder/fd/9f87b3-9de8-4036-be7a-3ac8cbc44ddd-b0")
@@ -166,7 +166,7 @@ class FileSourcesServiceTest(
             orcid = "0000-0002-1825-0097",
             secret = "69214a2f-f80b-4f33-86b7-26d3bd0453aa",
             superuser = true,
-            magicFolder = userFolder,
+            userFolder = userFolder,
             groupsFolders = listOf(groupFolder),
             permissions = emptySet(),
             notificationsEnabled = true
@@ -174,12 +174,12 @@ class FileSourcesServiceTest(
     }
 
     private fun onBehalfUser(): SecurityUser {
-        val userFolder = NfsMagicFolder(
+        val userFolder = NfsUserFolder(
             relativePath = Paths.get("43/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
             path = Paths.get("$filesFolder/43/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3")
         )
 
-        val groupFolder = GroupMagicFolder(
+        val groupFolder = GroupFolder(
             groupName = "Test Group",
             description = "Test Group Description",
             path = Paths.get("$filesFolder/fd/9f87b3-9de8-4036-be7a-3ac8cbc44ddd-b0")
@@ -193,7 +193,7 @@ class FileSourcesServiceTest(
             orcid = "1234-5678-9101-1121",
             secret = "98214a2f-f80b-4f33-86a4-26d3bd0453aa",
             superuser = true,
-            magicFolder = userFolder,
+            userFolder = userFolder,
             groupsFolders = listOf(groupFolder),
             permissions = emptySet(),
             notificationsEnabled = true

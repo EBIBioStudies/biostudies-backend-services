@@ -4,12 +4,12 @@ import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
-import ebi.ac.uk.security.integration.model.api.FtpMagicFolder
-import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
-import ebi.ac.uk.security.integration.model.api.MagicFolder
-import ebi.ac.uk.security.integration.model.api.NfsMagicFolder
+import ebi.ac.uk.security.integration.model.api.FtpUserFolder
+import ebi.ac.uk.security.integration.model.api.GroupFolder
+import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityPermission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import ebi.ac.uk.security.integration.model.api.UserFolder
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -25,7 +25,7 @@ class ProfileService(private val filesDirPath: Path) {
         orcid = user.orcid,
         secret = user.secret,
         superuser = user.superuser,
-        magicFolder = userMagicFolder(user.storageMode, user.secret, user.id),
+        userFolder = userMagicFolder(user.storageMode, user.secret, user.id),
         groupsFolders = groupsMagicFolder(user.groups),
         permissions = getPermissions(user.permissions),
         notificationsEnabled = user.notificationsEnabled
@@ -34,20 +34,20 @@ class ProfileService(private val filesDirPath: Path) {
     private fun getPermissions(permissions: Set<DbAccessPermission>): Set<SecurityPermission> =
         permissions.mapTo(mutableSetOf()) { SecurityPermission(it.accessType, it.accessTag.name) }
 
-    private fun groupsMagicFolder(groups: Set<DbUserGroup>): List<GroupMagicFolder> =
-        groups.map { GroupMagicFolder(it.name, groupMagicFolder(it), it.description) }
+    private fun groupsMagicFolder(groups: Set<DbUserGroup>): List<GroupFolder> =
+        groups.map { GroupFolder(it.name, groupMagicFolder(it), it.description) }
 
     private fun groupMagicFolder(it: DbUserGroup) = Paths.get("$filesDirPath/${magicPath(it.secret, it.id, "b")}")
 
-    private fun userMagicFolder(folderType: StorageMode, secret: String, id: Long): MagicFolder {
-        fun nfsFolder(): NfsMagicFolder {
+    private fun userMagicFolder(folderType: StorageMode, secret: String, id: Long): UserFolder {
+        fun nfsFolder(): NfsUserFolder {
             val relativePath = magicPath(secret, id, "a")
-            return NfsMagicFolder(Paths.get(relativePath), Paths.get("$filesDirPath/$relativePath"))
+            return NfsUserFolder(Paths.get(relativePath), Paths.get("$filesDirPath/$relativePath"))
         }
 
-        fun ftpFolder(): FtpMagicFolder {
+        fun ftpFolder(): FtpUserFolder {
             val relativePath = magicPath(secret, id, "a")
-            return FtpMagicFolder(Paths.get(relativePath))
+            return FtpUserFolder(Paths.get(relativePath))
         }
 
         return when (folderType) {

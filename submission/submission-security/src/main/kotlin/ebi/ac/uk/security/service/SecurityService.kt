@@ -23,8 +23,8 @@ import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
-import ebi.ac.uk.security.integration.model.api.FtpMagicFolder
-import ebi.ac.uk.security.integration.model.api.NfsMagicFolder
+import ebi.ac.uk.security.integration.model.api.FtpUserFolder
+import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.persistence.getActiveByEmail
@@ -159,13 +159,13 @@ open class SecurityService(
     }
 
     private fun createMagicFolder(user: SecurityUser) {
-        when (user.magicFolder) {
-            is FtpMagicFolder -> TODO()
-            is NfsMagicFolder -> createNfsMagicFolder(user.email, user.magicFolder)
+        when (user.userFolder) {
+            is FtpUserFolder -> TODO()
+            is NfsUserFolder -> createNfsMagicFolder(user.email, user.userFolder)
         }
     }
 
-    private fun createNfsMagicFolder(email: String, magicFolder: NfsMagicFolder) {
+    private fun createNfsMagicFolder(email: String, magicFolder: NfsUserFolder) {
         FileUtils.getOrCreateFolder(magicFolder.path.parent, RWX__X___)
         FileUtils.getOrCreateFolder(magicFolder.path, RWXRWX___)
         FileUtils.createSymbolicLink(symLinkPath(email), magicFolder.path, RWXRWX___)
