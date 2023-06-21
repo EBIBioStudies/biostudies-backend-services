@@ -1,61 +1,63 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.submission.helpers.FilesSourceFactory
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
-import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import uk.ac.ebi.io.sources.DbFilesSource
-import uk.ac.ebi.io.sources.FilesListSource
-import uk.ac.ebi.io.sources.GroupSource
-import uk.ac.ebi.io.sources.UserPathSource
+import uk.ac.ebi.io.builder.FilesSourceListBuilder
+import uk.ac.ebi.io.builder.addDbFilesSource
+import uk.ac.ebi.io.builder.addFilesListSource
+import uk.ac.ebi.io.builder.addFireFilesSource
+import uk.ac.ebi.io.builder.addGroupSource
+import uk.ac.ebi.io.builder.addSubmissionSource
+import uk.ac.ebi.io.builder.addUserSource
+import uk.ac.ebi.io.builder.buildFilesSourceList
 import java.io.File
 
 private val DEFAULT_SOURCES = listOf(USER_SPACE, SUBMISSION, FIRE)
 
 class FileSourcesService(
-    private val filesSourcesFactory: FilesSourceFactory,
+    private val builder: FilesSourceListBuilder,
 ) {
     fun submissionSources(rqt: FileSourcesRequest): FileSourcesList {
         val (owner, submitter, files, rootPath, submission, preferredSources) = rqt
         val preferred = preferredSources.ifEmpty { DEFAULT_SOURCES }
-        val sources = buildList {
-            if (submitter.superuser) add(DbFilesSource)
-            if (files != null) add(FilesListSource(files))
+        val sources = builder.buildFilesSourceList {
+            if (submitter.superuser) addDbFilesSource()
+            if (files != null) addFilesListSource(files)
             preferred.forEach {
                 when (it) {
-                    FIRE -> add(filesSourcesFactory.createFireSource())
+                    FIRE -> addFireFilesSource()
                     USER_SPACE -> addUserSources(rootPath, owner, submitter, this)
-                    SUBMISSION -> if (submission != null) add(filesSourcesFactory.createSubmissionSource(submission))
+                    SUBMISSION -> if (submission != null) addSubmissionSource(submission)
                 }
             }
         }
 
-        return FileSourcesList(sources)
+        return sources
     }
 
     private fun addUserSources(
         rootPath: String?,
         owner: SecurityUser?,
         submitter: SecurityUser,
-        sources: MutableList<FilesSource>,
+        builder: FilesSourceListBuilder,
     ) {
-        addUserSource(submitter, rootPath, sources)
+        addUserSource(submitter, rootPath, builder)
 
         if (owner != null) {
-            addUserSource(owner, rootPath, sources)
+            addUserSource(owner, rootPath, builder)
         }
     }
 
-    private fun addUserSource(user: SecurityUser, rootPath: String?, sources: MutableList<FilesSource>) {
-        if (rootPath == null) sources.add(UserPathSource("${user.email} user files", user.magicFolder.path))
-        else sources.add(UserPathSource("${user.email} user files in /$rootPath", user.magicFolder.resolve(rootPath)))
+    private fun addUserSource(user: SecurityUser, rootPath: String?, builder: FilesSourceListBuilder) {
+        if (rootPath == null) builder.addUserSource("${user.email} user files", user.magicFolder.path)
+        else builder.addUserSource("${user.email} user files in /$rootPath", user.magicFolder.resolve(rootPath))
 
-        sources.addAll(user.groupsFolders.map { GroupSource(it.groupName, it.path) })
+        user.groupsFolders.forEach { builder.addGroupSource(it.groupName, it.path) }
     }
 }
 

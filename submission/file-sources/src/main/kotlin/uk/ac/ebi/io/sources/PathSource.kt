@@ -10,7 +10,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 
-class PathSource(
+internal class PathSource(
     override val description: String,
     private val sourcePath: Path,
 ) : FilesSource {
@@ -32,7 +32,7 @@ class PathSource(
  *  File system directory source. Note that file type and file extension is check in case file is generated zip file
  *  of a folder.
  */
-class UserPathSource(
+internal class UserPathSource(
     override val description: String,
     sourcePath: Path,
 ) : FilesSource {
@@ -43,13 +43,16 @@ class UserPathSource(
             DIRECTORY_TYPE.value -> path.removeSuffix(".zip")
             else -> path
         }
+
         return pathSource.getExtFile(filePath, type, attributes)
     }
 
-    override fun getFileList(path: String): File? = pathSource.getFileList(path)
+    override fun getFileList(path: String): File? {
+        return pathSource.getFileList(path)
+    }
 }
 
-class GroupSource(
+internal class GroupPathSource(
     groupName: String,
     private val pathSource: PathSource,
 ) : FilesSource by pathSource {
@@ -57,9 +60,7 @@ class GroupSource(
 
     constructor(groupName: String, path: Path) : this(groupName, PathSource("Group '$groupName' files", path))
 
-    override fun getExtFile(
-        path: String,
-        type: String,
-        attributes: List<Attribute>,
-    ): ExtFile? = pathSource.getExtFile(path.remove(groupPattern), type, attributes)
+    override fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+        return pathSource.getExtFile(path.remove(groupPattern), type, attributes)
+    }
 }

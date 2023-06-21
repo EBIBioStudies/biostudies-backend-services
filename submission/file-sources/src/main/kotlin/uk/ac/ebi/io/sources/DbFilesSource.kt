@@ -17,7 +17,7 @@ import java.io.File
 /**
  * Source that allows the submitter to use store files directly in fire and bypass backend mechanism.
  */
-object DbFilesSource : FilesSource {
+internal object DbFilesSource : FilesSource {
     override val description: String
         get() = "Provided Db files"
 

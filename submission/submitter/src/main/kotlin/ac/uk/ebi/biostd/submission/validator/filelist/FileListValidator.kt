@@ -49,7 +49,7 @@ class FileListValidator(
         serializationService
             .deserializeFileList(stream, format)
             .ifEmpty { throw InvalidFileListException.emptyFileList(name) }
-            .filter { filesSource.getExtFile(it.path, FILE_TYPE.value, it.attributes) == null }
+            .filter { filesSource.findExtFile(it.path, FILE_TYPE.value, it.attributes) == null }
             .take(FILE_LIST_LIMIT)
             .toList()
             .ifNotEmpty { throw FilesProcessingException(it.map(BioFile::path), filesSource) }
