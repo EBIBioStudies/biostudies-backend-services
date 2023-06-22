@@ -11,10 +11,10 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.http.codec.ClientCodecConfigurer
 import org.springframework.retry.support.RetryTemplate
 import org.springframework.retry.support.RetryTemplateBuilder
-import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.netty.http.client.HttpClient
 import uk.ac.ebi.fire.client.api.FireWebClient
 import uk.ac.ebi.fire.client.api.S3Client
@@ -54,7 +54,7 @@ class FireClientFactory private constructor() {
 
         private fun createRetryTemplate(config: RetryConfig): RetryTemplate = RetryTemplateBuilder()
             .exponentialBackoff(config.initialInterval, config.multiplier, config.maxInterval)
-            .retryOn(listOf(HttpServerErrorException::class.java, ResourceAccessException::class.java))
+            .retryOn(listOf(WebClientResponseException::class.java, ResourceAccessException::class.java))
             .maxAttempts(config.maxAttempts)
             .build()
 
