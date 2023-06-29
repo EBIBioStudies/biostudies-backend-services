@@ -1,5 +1,8 @@
 package ebi.ac.uk.security.service
 
+import ac.uk.ebi.biostd.common.properties.FilesProperties
+import ac.uk.ebi.biostd.common.properties.SecurityProperties
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
@@ -23,9 +26,10 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SecurityQueryServiceTest(
     @MockK private val securityUtil: SecurityUtil,
     @MockK private val profileService: ProfileService,
-    @MockK private val userRepository: UserDataRepository
+    @MockK private val userRepository: UserDataRepository,
+    @MockK private val securityProperties: SecurityProperties,
 ) {
-    private val testInstance = SecurityQueryService(securityUtil, profileService, userRepository)
+    private val testInstance = SecurityQueryService(securityUtil, profileService, userRepository, securityProperties)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -49,7 +53,7 @@ class SecurityQueryServiceTest(
     @Test
     fun `get user`(
         @MockK dbUser: DbUser,
-        @MockK securityUser: SecurityUser
+        @MockK securityUser: SecurityUser,
     ) {
         every { profileService.asSecurityUser(dbUser) } returns securityUser
         every { userRepository.findByEmail("user@test.org") } returns dbUser
@@ -68,7 +72,7 @@ class SecurityQueryServiceTest(
     @Test
     fun `get user profile`(
         @MockK dbUser: DbUser,
-        @MockK userInfo: UserInfo
+        @MockK userInfo: UserInfo,
     ) {
         every { profileService.getUserProfile(dbUser, "the-token") } returns userInfo
         every { securityUtil.checkToken("the-token") } returns dbUser
@@ -87,7 +91,7 @@ class SecurityQueryServiceTest(
     @Test
     fun `get or create when the user exists`(
         @MockK dbUser: DbUser,
-        @MockK securityUser: SecurityUser
+        @MockK securityUser: SecurityUser,
     ) {
         every { profileService.asSecurityUser(dbUser) } returns securityUser
         every { userRepository.findByEmail("user@test.org") } returns dbUser
@@ -98,9 +102,12 @@ class SecurityQueryServiceTest(
     @Test
     fun `get or create when the user does not exist`(
         @MockK dbUser: DbUser,
-        @MockK securityUser: SecurityUser
+        @MockK securityUser: SecurityUser,
+        @MockK fileProperties: FilesProperties,
     ) {
         val dbUserSlot = slot<DbUser>()
+        every { securityProperties.filesProperties } returns fileProperties
+        every { fileProperties.defaultMode } returns StorageMode.NFS
         every { securityUtil.newKey() } returns "a-new-key"
         every { userRepository.save(capture(dbUserSlot)) } returns dbUser
         every { profileService.asSecurityUser(dbUser) } returns securityUser
@@ -113,7 +120,7 @@ class SecurityQueryServiceTest(
     @Test
     fun `get or register when the user exists`(
         @MockK dbUser: DbUser,
-        @MockK securityUser: SecurityUser
+        @MockK securityUser: SecurityUser,
     ) {
         every { profileService.asSecurityUser(dbUser) } returns securityUser
         every { userRepository.findByEmail("user@test.org") } returns dbUser

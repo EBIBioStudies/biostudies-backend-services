@@ -55,11 +55,11 @@ class ITestListener : TestExecutionListener {
 
     private fun fireSetup() {
         s3Container.start()
-        System.setProperty("app.fire.s3AccessKey", awsAccessKey)
-        System.setProperty("app.fire.s3SecretKey", awsSecretKey)
-        System.setProperty("app.fire.s3region", awsRegion)
-        System.setProperty("app.fire.s3endpoint", s3Container.httpEndpoint)
-        System.setProperty("app.fire.s3bucket", defaultBucket)
+        System.setProperty("app.fire.s3.accessKey", awsAccessKey)
+        System.setProperty("app.fire.s3.secretKey", awsSecretKey)
+        System.setProperty("app.fire.s3.region", awsRegion)
+        System.setProperty("app.fire.s3.endpoint", s3Container.httpEndpoint)
+        System.setProperty("app.fire.s3.bucket", defaultBucket)
 
         fireApiMock.stubFor(
             post(WireMock.urlMatching("/objects"))
@@ -78,8 +78,8 @@ class ITestListener : TestExecutionListener {
         System.setProperty("app.fireTempDirPath", fireTempFolder.absolutePath)
         System.setProperty("app.tempDirPath", tempDirPath.absolutePath)
         System.setProperty("app.requestFilesPath", requestFilesPath.absolutePath)
-        System.setProperty("app.security.filesDirPath", dropboxPath.absolutePath)
-        System.setProperty("app.security.magicDirPath", magicDirPath.absolutePath)
+        System.setProperty("app.security.filesProperties.filesDirPath", dropboxPath.absolutePath)
+        System.setProperty("app.security.filesProperties.magicDirPath", magicDirPath.absolutePath)
         System.setProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")
     }
 

@@ -36,6 +36,7 @@ import Versions.MongockVersion
 import Versions.MySqlVersion
 import Versions.OkHttpLoggingVersion
 import Versions.PoiVersion
+import Versions.ReactorNettyVersion
 import Versions.Retrofit2Version
 import Versions.RxJava2Version
 import Versions.S3Version
@@ -105,6 +106,7 @@ object Versions {
     const val Log4JVersion = "1.7.29"
     const val JavaValidationApiVersion = "2.0.1.Final"
     const val ZipUtilVersion = "1.15"
+    const val ReactorNettyVersion = "1.1.8"
 }
 
 object TestDependencies {
@@ -146,6 +148,7 @@ object TestDependencies {
 
 object Dependencies {
     const val SpringWeb = "org.springframework:spring-web:$SpringVersion"
+    const val SpringWebFlux = "org.springframework:spring-webflux:$SpringVersion"
     const val SpringAutoConfigure = "org.springframework.boot:spring-boot-autoconfigure"
 
     // Web related
@@ -157,6 +160,7 @@ object Dependencies {
     const val JacksonXml = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$JacksonVersion"
     const val Retrofit2 = "com.squareup.retrofit2:retrofit:$Retrofit2Version"
     const val OkHttpLogging = "com.squareup.okhttp3:logging-interceptor:$OkHttpLoggingVersion"
+    const val ReactorNetty = "io.projectreactor.netty:reactor-netty:$ReactorNettyVersion"
 
     // Persistence
     const val MySql = "mysql:mysql-connector-java:$MySqlVersion"
@@ -206,6 +210,7 @@ object SpringBootDependencies {
     const val SpringBootStarter = "org.springframework.boot:spring-boot-starter"
     const val SpringBootStarterTest = "org.springframework.boot:spring-boot-starter-test"
     const val SpringBootStarterWeb = "org.springframework.boot:spring-boot-starter-web"
+    const val SpringBootStarterWebFlux = "org.springframework.boot:spring-boot-starter-webflux"
     const val SpringBootStarterMongo = "org.springframework.boot:spring-boot-starter-data-mongodb"
     const val SpringBootStarterAmqp = "org.springframework.boot:spring-boot-starter-amqp"
     const val SpringBootConfigurationProcessor = "org.springframework.boot:spring-boot-configuration-processor"

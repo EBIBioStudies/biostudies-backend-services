@@ -12,8 +12,8 @@ data class SecurityUser(
     val orcid: String?,
     val secret: String,
     val superuser: Boolean,
-    val magicFolder: MagicFolder,
-    val groupsFolders: List<GroupMagicFolder>,
+    val userFolder: UserFolder,
+    val groupsFolders: List<GroupFolder>,
     val permissions: Set<SecurityPermission>,
     val notificationsEnabled: Boolean,
 ) {
@@ -22,8 +22,13 @@ data class SecurityUser(
 
 data class SecurityPermission(val accessType: AccessType, val accessTag: String)
 
-data class MagicFolder(val relativePath: Path, val path: Path) {
-    fun resolve(subPath: String): Path = path.resolve(subPath)
+sealed interface UserFolder {
+    val relativePath: Path
 }
 
-data class GroupMagicFolder(val groupName: String, val path: Path, val description: String? = null)
+data class FtpUserFolder(override val relativePath: Path) : UserFolder
+data class NfsUserFolder(override val relativePath: Path, val path: Path) : UserFolder
+
+fun NfsUserFolder.resolve(subPath: String): Path = path.resolve(subPath)
+
+data class GroupFolder(val groupName: String, val path: Path, val description: String? = null)

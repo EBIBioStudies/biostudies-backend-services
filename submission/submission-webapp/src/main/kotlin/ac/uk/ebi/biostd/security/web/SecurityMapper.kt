@@ -19,7 +19,7 @@ class SecurityMapper {
             deny = emptyList(),
             orcid = user.orcid.orEmpty(),
             allow = getAllow(user),
-            secret = user.magicFolder.relativePath.toString(),
+            secret = user.userFolder.relativePath.toString(),
         )
     }
 

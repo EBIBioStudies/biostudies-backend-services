@@ -63,7 +63,7 @@ interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, St
 }
 
 interface SubmissionRequestFilesRepository : MongoRepository<DocSubmissionRequestFile, ObjectId> {
-    @Query("{ 'accNo': ?0, 'version': ?1, 'index': { \$gt: ?2 } }")
+    @Query("{ 'accNo': ?0, 'version': ?1, 'index': { \$gt: ?2 } }", sort = "{ index: 1 }")
     fun findRequestFiles(accNo: String, version: Int, index: Int, pageable: Pageable): Page<DocSubmissionRequestFile>
 
     fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
