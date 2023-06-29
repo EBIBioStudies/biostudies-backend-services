@@ -1,5 +1,7 @@
 package uk.ac.ebi.fire.client.api
 
+import ebi.ac.uk.commons.http.ext.delete
+import ebi.ac.uk.commons.http.ext.getForObject
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks

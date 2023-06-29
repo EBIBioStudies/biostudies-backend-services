@@ -1,12 +1,11 @@
 package ac.uk.ebi.biostd.client.api
 
-import ac.uk.ebi.biostd.client.extensions.map
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
+import ac.uk.ebi.biostd.client.extensions.submitBlocking
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.SubmitOperations
 import ac.uk.ebi.biostd.integration.SerializationService
-import ac.uk.ebi.biostd.integration.SubFormat
-import ebi.ac.uk.api.ClientResponse
+import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
 import ebi.ac.uk.api.ON_BEHALF_PARAM
 import ebi.ac.uk.api.REGISTER_PARAM
 import ebi.ac.uk.api.STORAGE_MODE
@@ -14,18 +13,19 @@ import ebi.ac.uk.api.USER_NAME_PARAM
 import ebi.ac.uk.api.dto.NonRegistration
 import ebi.ac.uk.api.dto.RegisterConfig
 import ebi.ac.uk.api.dto.UserRegistration
+import ebi.ac.uk.commons.http.ext.RequestParams
+import ebi.ac.uk.commons.http.ext.post
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.util.web.optionalQueryParam
-import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
-import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.postForEntity
+import org.springframework.web.reactive.function.BodyInserters
+import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriComponentsBuilder
 
 internal class SubmitClient(
-    private val template: RestTemplate,
+    private val client: WebClient,
     private val serializationService: SerializationService,
 ) : SubmitOperations {
 
@@ -36,11 +36,11 @@ internal class SubmitClient(
         register: RegisterConfig,
     ): SubmissionResponse {
         val serializedSubmission = serializationService.serializeSubmission(submission, format.asSubFormat())
-        val entity = HttpEntity(serializedSubmission, formatHeaders(format))
-        return template
-            .postForEntity<String>(buildUrl(register, storageMode), entity)
-            .map { body -> serializationService.deserializeSubmission(body, SubFormat.JSON) }
-            .let { ClientResponse(it.body!!, it.statusCodeValue) }
+        return client.post()
+            .uri(buildUrl(register, storageMode))
+            .body(BodyInserters.fromValue(serializedSubmission))
+            .headers { it.addAll(formatHeaders(format)) }
+            .submitBlocking(serializationService, JSON)
     }
 
     override fun submitSingle(
@@ -49,11 +49,11 @@ internal class SubmitClient(
         storageMode: StorageMode?,
         register: RegisterConfig,
     ): SubmissionResponse {
-        val entity = HttpEntity(submission, formatHeaders(format))
-        return template
-            .postForEntity<String>(buildUrl(register, storageMode), entity)
-            .map { body -> serializationService.deserializeSubmission(body, SubFormat.JSON) }
-            .let { ClientResponse(it.body!!, it.statusCodeValue) }
+        return client.post()
+            .uri(buildUrl(register, storageMode))
+            .body(BodyInserters.fromValue(submission))
+            .headers { it.addAll(formatHeaders(format)) }
+            .submitBlocking(serializationService, JSON)
     }
 
     override fun submitAsync(
@@ -63,20 +63,19 @@ internal class SubmitClient(
         register: RegisterConfig,
     ) {
         val headers = formatHeaders(format)
-        val url = buildUrl(register, storageMode)
-        val entity = HttpEntity(submission, headers)
-        template.postForEntity<Void>(url.plus("/async"), entity)
+        val url = buildUrl(register, storageMode).plus("/async")
+
+        client.post(url, RequestParams(headers, submission))
     }
 
     override fun submitSingleFromDraftAsync(draftKey: String) {
-        template.postForEntity<Void>("$SUBMISSIONS_URL/drafts/$draftKey/submit")
+        client.post("$SUBMISSIONS_URL/drafts/$draftKey/submit")
     }
 
     override fun submitSingleFromDraft(draftKey: String): SubmissionResponse {
-        return template
-            .postForEntity<String>("$SUBMISSIONS_URL/drafts/$draftKey/submit/sync")
-            .map { body -> serializationService.deserializeSubmission(body, SubFormat.JSON) }
-            .let { ClientResponse(it.body!!, it.statusCodeValue) }
+        return client.post()
+            .uri("$SUBMISSIONS_URL/drafts/$draftKey/submit/sync")
+            .submitBlocking(serializationService, JSON)
     }
 
     private fun buildUrl(config: RegisterConfig, storageMode: StorageMode?): String {

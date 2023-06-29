@@ -1,16 +1,18 @@
 package uk.ac.ebi.fire.client.api
 
+import ebi.ac.uk.commons.http.ext.RequestParams
+import ebi.ac.uk.commons.http.ext.delete
+import ebi.ac.uk.commons.http.ext.getForObject
+import ebi.ac.uk.commons.http.ext.postForObject
+import ebi.ac.uk.commons.http.ext.put
+import ebi.ac.uk.commons.http.ext.retrieveBlocking
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestOperations
-import org.springframework.web.client.getForObject
-import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClient.RequestBodyUriSpec
-import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
@@ -83,42 +85,6 @@ private inline fun <reified T> WebClient.getOrNull(url: String): T? {
 }
 
 // TODO these methods will be moved to a separate common package in future PRs
-internal data class RequestParams(
-    val headers: HttpHeaders? = null,
-    val body: LinkedMultiValueMap<String, Any>? = null
-)
-
-internal inline fun <reified T> WebClient.getForObject(url: String): T {
-    return get().uri(url).retrieveBlocking<T>()!!
-}
-
-internal inline fun <reified T> WebClient.postForObject(url: String, params: RequestParams? = null): T {
-    return post().retrieveBlocking<T>(url, params)!!
-}
-
-internal fun WebClient.put(url: String, params: RequestParams) {
-    put().retrieveBlocking<String>(url, params)
-}
-
 internal inline fun <reified T> WebClient.putForObject(url: String, params: RequestParams? = null): T {
     return put().retrieveBlocking<T>(url, params)!!
-}
-
-internal fun WebClient.delete(url: String) {
-    delete().uri(url).retrieveBlocking<String>()
-}
-
-internal inline fun <reified T> RequestHeadersSpec<*>.retrieveBlocking(): T? {
-    return retrieve().bodyToMono(T::class.java).block()
-}
-
-internal inline fun <reified T> RequestBodyUriSpec.retrieveBlocking(url: String, params: RequestParams? = null): T? {
-    val uriSpec = uri(url)
-    params?.headers?.let { headers -> uriSpec.headers { it.addAll(headers) } }
-    params?.body?.let { body -> uriSpec.body(BodyInserters.fromMultipartData(body)) }
-
-    return uriSpec
-        .retrieve()
-        .bodyToMono(T::class.java)
-        .block()
 }

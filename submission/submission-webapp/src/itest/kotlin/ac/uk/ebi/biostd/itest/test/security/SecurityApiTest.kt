@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import org.springframework.web.client.ResourceAccessException
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -45,9 +44,9 @@ class SecurityApiTest(
     fun `22-3 login when inactive`() {
         webClient.checkUser(CheckUserRequest(InactiveUser.email, InactiveUser.username))
 
-        assertThatExceptionOfType(ResourceAccessException::class.java).isThrownBy {
-            webClient.login(LoginRequest(InactiveUser.email, InactiveUser.password))
-        }
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { webClient.login(LoginRequest(InactiveUser.email, InactiveUser.password)) }
+            .withMessageContaining("Authentication Error: Invalid email address or password")
     }
 
     object NewUser : TestUser {

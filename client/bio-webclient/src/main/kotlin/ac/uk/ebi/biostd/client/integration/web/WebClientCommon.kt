@@ -1,53 +1,32 @@
 package ac.uk.ebi.biostd.client.integration.web
 
-import ac.uk.ebi.biostd.client.exception.BioWebClientErrorHandler
-import ac.uk.ebi.biostd.client.interceptor.HttpHeaderInterceptor
-import ac.uk.ebi.biostd.client.interceptor.ServerValidationInterceptor
-import ebi.ac.uk.model.constants.APPLICATION_JSON
-import ebi.ac.uk.util.collections.replace
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpHeaders.ACCEPT
-import org.springframework.http.MediaType
-import org.springframework.http.client.ClientHttpRequestInterceptor
-import org.springframework.http.converter.HttpMessageConverter
-import org.springframework.http.converter.StringHttpMessageConverter
-import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter
-import org.springframework.web.client.RestTemplate
+import ac.uk.ebi.biostd.client.exception.bioWebClientErrorHandler
+import io.netty.handler.timeout.ReadTimeoutHandler
+import io.netty.handler.timeout.WriteTimeoutHandler
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
+import org.springframework.http.codec.ClientCodecConfigurer
+import org.springframework.web.reactive.function.client.ExchangeStrategies
+import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.DefaultUriBuilderFactory
-import java.nio.charset.StandardCharsets.UTF_8
+import reactor.netty.http.client.HttpClient
 
-internal fun template(baseUrl: String): RestTemplate {
-    return RestTemplate().apply {
-        errorHandler = BioWebClientErrorHandler()
-        messageConverters = getConverters(messageConverters)
-        interceptors = interceptors()
-        uriTemplateHandler = DefaultUriBuilderFactory(baseUrl)
-    }
+internal fun webClientBuilder(baseUrl: String): WebClient.Builder {
+    val exchangeStrategies =
+        ExchangeStrategies.builder().codecs { configurer ->
+            if (configurer is ClientCodecConfigurer) {
+                configurer.defaultCodecs().maxInMemorySize(-1)
+            }
+        }.build()
+
+    val httpClient =
+        HttpClient.create().doOnConnected { connection ->
+            connection.addHandlerLast(ReadTimeoutHandler(0))
+            connection.addHandlerLast(WriteTimeoutHandler(0))
+        }
+
+    return WebClient.builder()
+        .uriBuilderFactory(DefaultUriBuilderFactory(baseUrl))
+        .clientConnector(ReactorClientHttpConnector(httpClient))
+        .filter(bioWebClientErrorHandler())
+        .exchangeStrategies(exchangeStrategies)
 }
-
-internal fun <T> jsonHttpEntityOf(value: T): HttpEntity<T> {
-    val headers = HttpHeaders()
-    headers.contentType = MediaType.APPLICATION_JSON
-    headers.accept = listOf(MediaType.APPLICATION_JSON)
-    return HttpEntity(value, headers)
-}
-
-/**
- * Filter out XML and String ISO_8859_1 converters. First one because no XML message is required (Api use json) and
- * second one as UTF8 format is favor.
- */
-private fun getConverters(converters: List<HttpMessageConverter<*>>): List<HttpMessageConverter<*>> {
-    return converters
-        .filterNot { it is MappingJackson2XmlHttpMessageConverter }
-        .replace(StringHttpMessageConverter(UTF_8)) { it is StringHttpMessageConverter }
-}
-
-/**
- * Declare two interceptors.
- *
- * @see ServerValidationInterceptor which handle errors are provide formatted error message.
- * @see HttpHeaderInterceptor which provide json default accept header.
- */
-private fun interceptors(): List<ClientHttpRequestInterceptor> =
-    listOf(ServerValidationInterceptor(), HttpHeaderInterceptor(ACCEPT, APPLICATION_JSON))

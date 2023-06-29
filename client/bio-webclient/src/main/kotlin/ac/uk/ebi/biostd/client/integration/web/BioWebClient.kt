@@ -1,10 +1,14 @@
 package ac.uk.ebi.biostd.client.integration.web
 
 import ac.uk.ebi.biostd.client.api.SubmitClientImpl
-import ac.uk.ebi.biostd.client.interceptor.OnBehalfInterceptor
-import ac.uk.ebi.biostd.client.interceptor.TokenInterceptor
 import ac.uk.ebi.biostd.common.SerializationConfig
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.util.DefaultUriBuilderFactory
+import org.springframework.web.util.UriComponentsBuilder
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
+
+private const val ON_BEHALF_PARAM = "onBehalf"
+private const val AUTH_HEADER = "X-SESSION-TOKEN"
 
 class BioWebClient internal constructor(
     private val submissionClient: SubmitClient,
@@ -15,7 +19,7 @@ class BioWebClient internal constructor(
             token: String,
         ): BioWebClient = BioWebClient(
             SubmitClientImpl(
-                createRestTemplate(baseUrl, token),
+                createWebClient(baseUrl, token),
                 SerializationConfig.serializationService(),
                 ExtSerializationConfig.extSerializationService()
             )
@@ -27,19 +31,24 @@ class BioWebClient internal constructor(
             onBehalf: String,
         ): BioWebClient = BioWebClient(
             SubmitClientImpl(
-                createRestTemplate(baseUrl, token, onBehalf),
+                createWebClient(baseUrl, token, onBehalf),
                 SerializationConfig.serializationService(),
                 ExtSerializationConfig.extSerializationService()
             )
         )
 
-        private fun createRestTemplate(baseUrl: String, token: String) = template(baseUrl).apply {
-            interceptors.add(TokenInterceptor(token))
-        }
+        private fun createWebClient(
+            baseUrl: String,
+            token: String,
+            onBehalf: String? = null,
+        ): WebClient {
+            val uriBuilder = UriComponentsBuilder.fromHttpUrl(baseUrl)
+            onBehalf?.let { uriBuilder.queryParam(ON_BEHALF_PARAM, onBehalf) }
 
-        private fun createRestTemplate(baseUrl: String, token: String, onBehalf: String) =
-            createRestTemplate(baseUrl, token).apply {
-                interceptors.add(OnBehalfInterceptor(onBehalf))
-            }
+            return webClientBuilder(baseUrl)
+                .uriBuilderFactory(DefaultUriBuilderFactory(uriBuilder))
+                .defaultHeader(AUTH_HEADER, token)
+                .build()
+        }
     }
 }
