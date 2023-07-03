@@ -1,6 +1,8 @@
 package ebi.ac.uk.security.service
 
+import ac.uk.ebi.biostd.common.properties.FilesProperties
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.ChangePasswordRequest
@@ -17,6 +19,7 @@ import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
+import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.test.SecurityTestEntities
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.activateByEmailRequest
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.captcha
@@ -121,12 +124,14 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `register a user when activation is not required`() {
+        fun `register a user when activation is not required`(@MockK filesProperties: FilesProperties) {
             val savedUserSlot = slot<DbUser>()
             val magicFolderRoot = temporaryFolder.createDirectory("users")
 
+            every { securityProps.filesProperties } returns filesProperties
             every { userRepository.save(capture(savedUserSlot)) } answers { savedUserSlot.captured }
-            every { securityProps.magicDirPath } returns magicFolderRoot.absolutePath
+            every { filesProperties.magicDirPath } returns magicFolderRoot.absolutePath
+            every { filesProperties.defaultMode } returns StorageMode.NFS
             every { securityProps.requireActivation } returns false
             every { securityUtil.newKey() } returns SECRET_KEY
 
@@ -142,7 +147,8 @@ internal class SecurityServiceTest(
             assertThat(dbUser.activationKey).isNull()
             assertThat(dbUser.login).isNull()
 
-            val userFolder = securityUser.magicFolder.path
+            assertThat(securityUser.userFolder).isInstanceOf(NfsUserFolder::class.java)
+            val userFolder = (securityUser.userFolder as NfsUserFolder).path
             assertFile(userFolder.parent, RWX__X___)
             assertFile(userFolder, RWXRWX___)
             assertSymbolicLink(magicFolderRoot.resolve("b/$email").toPath(), userFolder)
@@ -159,11 +165,13 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `register a user when activation is required`() {
+        fun `register a user when activation is required`(@MockK filesProperties: FilesProperties) {
             val savedUserSlot = slot<DbUser>()
             val activationSlot = slot<SecurityNotification>()
             val activationUrl = "https://dummy-backend.com/active/1234"
 
+            every { securityProps.filesProperties } returns filesProperties
+            every { filesProperties.defaultMode } returns StorageMode.NFS
             every { securityProps.requireActivation } returns true
             every { securityUtil.newKey() } returns SECRET_KEY andThen ACTIVATION_KEY
             every { securityUtil.getActivationUrl(instanceKey, path, ACTIVATION_KEY) } returns activationUrl
@@ -206,7 +214,7 @@ internal class SecurityServiceTest(
             val user = simpleUser
             every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns user
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
-            every { securityProps.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
+            every { securityProps.filesProperties.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
 
             testInstance.activate(ACTIVATION_KEY)
 
@@ -270,7 +278,7 @@ internal class SecurityServiceTest(
             every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns user
             every { securityUtil.getPasswordDigest(password) } returns passwordDigest
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
-            every { securityProps.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
+            every { securityProps.filesProperties.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
 
             val updated = testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, "new password"))
             assertThat(updated.email).isEqualTo(user.email)
@@ -284,7 +292,7 @@ internal class SecurityServiceTest(
             every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns simpleUser
             every { securityUtil.getPasswordDigest(password) } returns passwordDigest
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
-            every { securityProps.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
+            every { securityProps.filesProperties.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
 
             val updated = testInstance.changePassword(ChangePasswordRequest(ACTIVATION_KEY, "new password"))
             assertThat(updated.email).isEqualTo(simpleUser.email)
@@ -392,7 +400,7 @@ internal class SecurityServiceTest(
             every { userRepository.findByActivationKeyAndActive("key", true) } returns user
             every { userRepository.findByActivationKeyAndActive("key", false) } returns user
             every { securityUtil.getPasswordDigest("password") } returns "diggested-password".toByteArray()
-            every { securityProps.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
+            every { securityProps.filesProperties.magicDirPath } returns temporaryFolder.createDirectory("users").absolutePath
 
             testInstance.activateAndSetupPassword(request)
 

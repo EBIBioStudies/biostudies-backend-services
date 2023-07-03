@@ -17,7 +17,7 @@ interface TestSecurityUser {
         orcid = "0000-0002-1825-0097",
         secret = "69214a2f-f80b-4f33-86b7-26d3bd0453aa",
         superuser = superuser,
-        magicFolder = mockk(),
+        userFolder = mockk(),
         groupsFolders = listOf(mockk()),
         permissions = emptySet(),
         notificationsEnabled = notificationsEnabled
