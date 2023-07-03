@@ -5,6 +5,7 @@ import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.ReactorNetty
 import Dependencies.SpringWebFlux
+import Projects.CommonsHttp
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.JsonLibrary
@@ -27,6 +28,7 @@ the<DependencyManagementExtension>().apply {
 
 dependencies {
     api(project(CommonsUtil))
+    api(project(CommonsHttp))
 
     implementation(KotlinReflect)
     implementation(KotlinStdLib)

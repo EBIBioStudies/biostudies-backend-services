@@ -1,7 +1,8 @@
 import Dependencies.JSONOrg
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
-import Dependencies.SpringWeb
+import Dependencies.ReactorNetty
+import Dependencies.SpringWebFlux
 import Projects.CommonsBio
 import Projects.CommonsHttp
 import Projects.CommonsModelExtendedSerialization
@@ -21,7 +22,8 @@ dependencies {
     implementation(KotlinStdLib)
     implementation(JSONOrg)
     implementation(KotlinStdLib)
-    implementation(SpringWeb)
+    implementation(ReactorNetty)
+    implementation(SpringWebFlux)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
