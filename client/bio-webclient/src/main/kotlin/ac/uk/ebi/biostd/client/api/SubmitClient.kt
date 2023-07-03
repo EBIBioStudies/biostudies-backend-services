@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.client.api
 
+import ac.uk.ebi.biostd.client.extensions.deserializeResponse
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
-import ac.uk.ebi.biostd.client.extensions.submitBlocking
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.SubmitOperations
 import ac.uk.ebi.biostd.integration.SerializationService
@@ -36,11 +36,13 @@ internal class SubmitClient(
         register: RegisterConfig,
     ): SubmissionResponse {
         val serializedSubmission = serializationService.serializeSubmission(submission, format.asSubFormat())
-        return client.post()
+        val response = client.post()
             .uri(buildUrl(register, storageMode))
             .body(BodyInserters.fromValue(serializedSubmission))
             .headers { it.addAll(formatHeaders(format)) }
-            .submitBlocking(serializationService, JSON)
+            .retrieve()
+
+        return serializationService.deserializeResponse(response, JSON).block()!!
     }
 
     override fun submitSingle(
@@ -49,11 +51,13 @@ internal class SubmitClient(
         storageMode: StorageMode?,
         register: RegisterConfig,
     ): SubmissionResponse {
-        return client.post()
+        val response = client.post()
             .uri(buildUrl(register, storageMode))
             .body(BodyInserters.fromValue(submission))
             .headers { it.addAll(formatHeaders(format)) }
-            .submitBlocking(serializationService, JSON)
+            .retrieve()
+
+        return serializationService.deserializeResponse(response, JSON).block()!!
     }
 
     override fun submitAsync(
@@ -73,9 +77,11 @@ internal class SubmitClient(
     }
 
     override fun submitSingleFromDraft(draftKey: String): SubmissionResponse {
-        return client.post()
+        val response = client.post()
             .uri("$SUBMISSIONS_URL/drafts/$draftKey/submit/sync")
-            .submitBlocking(serializationService, JSON)
+            .retrieve()
+
+        return serializationService.deserializeResponse(response, JSON).block()!!
     }
 
     private fun buildUrl(config: RegisterConfig, storageMode: StorageMode?): String {

@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.common.getMultipartBody
+import ac.uk.ebi.biostd.client.extensions.deserializeResponse
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
-import ac.uk.ebi.biostd.client.extensions.submitBlocking
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.MultipartSubmitOperations
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
@@ -38,11 +38,13 @@ internal class MultiPartSubmitClient(
             attrs.entries.forEach { add(ATTRIBUTES, ExtAttributeDetail(it.key, it.value)) }
         }
 
-        return client.post()
+        val response = client.post()
             .uri("$SUBMIT_URL/direct")
             .body(BodyInserters.fromMultipartData(multiPartBody))
             .headers { it.addAll(headers) }
-            .submitBlocking(serializationService, JsonPretty)
+            .retrieve()
+
+        return serializationService.deserializeResponse(response, JsonPretty).block()!!
     }
 
     override fun submitSingle(
@@ -73,11 +75,13 @@ internal class MultiPartSubmitClient(
         body: LinkedMultiValueMap<String, Any>,
         url: String = SUBMIT_URL,
     ): SubmissionResponse {
-        return client.post()
+        val response = client.post()
             .uri(url)
             .body(BodyInserters.fromMultipartData(body))
             .headers { it.addAll(headers) }
-            .submitBlocking(serializationService, JsonPretty)
+            .retrieve()
+
+        return serializationService.deserializeResponse(response, JsonPretty).block()!!
     }
 
     private fun createHeaders(format: SubmissionFormat) = HttpHeaders().apply {
