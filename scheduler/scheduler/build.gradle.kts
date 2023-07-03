@@ -1,5 +1,6 @@
 import Dependencies.Arrow
 import Dependencies.KotlinLogging
+import Dependencies.SpringWebFlux
 import Projects.CommonsHttp
 import Projects.SchedulerClusterClient
 import Projects.SchedulerTaskProperties
@@ -36,6 +37,7 @@ dependencies {
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringBootStartedAdminClient)
     implementation(SpringBootStarterWeb)
+    implementation(SpringWebFlux)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

@@ -23,22 +23,25 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.core.io.FileSystemResource
-import org.springframework.http.HttpEntity
-import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.postForObject
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
 import uk.ac.ebi.fire.client.integration.web.FireClient
+import java.util.function.Consumer
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class EuToxRiskValidatorTest(
     temporaryFolder: TemporaryFolder,
-    @MockK private val restTemplate: RestTemplate,
+    @MockK private val client: WebClient,
     @MockK private val validationProperties: ValidatorProperties,
     @MockK private val fireClient: FireClient,
+    @MockK private val requestSpec: RequestBodySpec,
 ) {
     private val testUrl = "http://eutoxrisk.org/validator"
     private val textFile = temporaryFolder.createFile("test.txt")
     private val excelFile = temporaryFolder.createFile("test.xlsx")
-    private val testInstance = EuToxRiskValidator(restTemplate, validationProperties, fireClient)
+    private val testInstance = EuToxRiskValidator(client, validationProperties, fireClient)
 
     @BeforeEach
     fun beforeEach() {
@@ -50,7 +53,8 @@ class EuToxRiskValidatorTest(
 
     @Test
     fun validate() {
-        val requestSlot = slot<HttpEntity<FileSystemResource>>()
+        val bodySlot = slot<FileSystemResource>()
+        val headersSlot = slot<Consumer<HttpHeaders>>()
         val submission = basicExtSubmission.copy(
             section = ExtSection(
                 type = "Study",
@@ -60,14 +64,24 @@ class EuToxRiskValidatorTest(
             )
         )
 
+        every { client.post().uri(testUrl) } returns requestSpec
+        every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
+        every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
         every {
-            restTemplate.postForObject<EuToxRiskValidatorResponse>(testUrl, capture(requestSlot))
+            requestSpec.retrieve().bodyToMono(EuToxRiskValidatorResponse::class.java).block()
         } returns EuToxRiskValidatorResponse(listOf())
 
         testInstance.validate(submission)
 
+        val body = bodySlot.captured
+        val headers = headersSlot.captured
+        headers.andThen {
+            assertThat(it[HttpHeaders.CONTENT_TYPE]!!.first()).isEqualTo(MediaType.APPLICATION_JSON)
+        }
         verify(exactly = 1) {
-            restTemplate.postForObject(testUrl, requestSlot.captured, EuToxRiskValidatorResponse::class.java)
+            client.post().uri(testUrl)
+            requestSpec.bodyValue(body)
+            requestSpec.retrieve().bodyToMono(EuToxRiskValidatorResponse::class.java).block()
         }
     }
 
@@ -82,12 +96,13 @@ class EuToxRiskValidatorTest(
 
         testInstance.validate(submission)
 
-        verify { restTemplate wasNot called }
+        verify { client wasNot called }
     }
 
     @Test
     fun `validate with errors`() {
-        val requestSlot = slot<HttpEntity<FileSystemResource>>()
+        val bodySlot = slot<FileSystemResource>()
+        val headersSlot = slot<Consumer<HttpHeaders>>()
         val submission = basicExtSubmission.copy(
             section = ExtSection(
                 type = "Study",
@@ -103,16 +118,27 @@ class EuToxRiskValidatorTest(
             )
         )
 
+        every { client.post().uri(testUrl) } returns requestSpec
+        every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
+        every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
         every {
-            restTemplate.postForObject<EuToxRiskValidatorResponse>(testUrl, capture(requestSlot))
+            requestSpec.retrieve().bodyToMono(EuToxRiskValidatorResponse::class.java).block()
         } returns EuToxRiskValidatorResponse(listOf(EuToxRiskValidatorMessage("an error")))
 
         val error = assertThrows<CollectionValidationException> { testInstance.validate(submission) }
         assertThat(error.message).isEqualTo(
             "The submission doesn't comply with the collection requirements. Errors: [an error]"
         )
+
+        val body = bodySlot.captured
+        val headers = headersSlot.captured
+        headers.andThen {
+            assertThat(it[HttpHeaders.CONTENT_TYPE]!!.first()).isEqualTo(MediaType.APPLICATION_JSON)
+        }
         verify(exactly = 1) {
-            restTemplate.postForObject(testUrl, requestSlot.captured, EuToxRiskValidatorResponse::class.java)
+            client.post().uri(testUrl)
+            requestSpec.bodyValue(body)
+            requestSpec.retrieve().bodyToMono(EuToxRiskValidatorResponse::class.java).block()
         }
     }
 

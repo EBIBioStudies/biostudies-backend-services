@@ -6,6 +6,7 @@ import Dependencies.KotlinStdLib
 import Dependencies.Logback
 import Dependencies.RxJava2
 import Dependencies.ServletApi
+import Dependencies.SpringWebFlux
 import Projects.CommonsBio
 import Projects.CommonsHttp
 import Projects.CommonsTest
@@ -51,6 +52,7 @@ dependencies {
     implementation(SpringBootStarterSecurity)
     implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterWeb)
+    implementation(SpringWebFlux)
     implementation(ServletApi)
 
     testApi(project(CommonsTest))

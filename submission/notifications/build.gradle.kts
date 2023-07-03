@@ -3,6 +3,7 @@ import Dependencies.CommonsIO
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.RxJava2
+import Dependencies.SpringWebFlux
 import Projects.CommonsModelExtended
 import Projects.CommonsTest
 import Projects.CommonsUtil
@@ -40,6 +41,7 @@ dependencies {
     implementation(SpringBootStarterMail)
     implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterDataJpa)
+    implementation(SpringWebFlux)
 
     implementation(Arrow)
     implementation(CommonsIO)

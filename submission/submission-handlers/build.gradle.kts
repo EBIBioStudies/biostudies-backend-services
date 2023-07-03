@@ -3,6 +3,7 @@ import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.MySql
+import Dependencies.SpringWebFlux
 import Projects.CommonsHttp
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedSerialization
@@ -42,6 +43,7 @@ dependencies {
     implementation(SpringBootStarterAmqp)
     implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterDataJpa)
+    implementation(SpringWebFlux)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

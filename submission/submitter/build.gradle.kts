@@ -6,7 +6,9 @@ import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.RxJava2
+import Dependencies.SpringWebFlux
 import Projects.CommonsBio
+import Projects.CommonsHttp
 import Projects.CommonsModelExtended
 import Projects.CommonsSerialization
 import Projects.CommonsUtil
@@ -34,6 +36,7 @@ the<DependencyManagementExtension>().apply {
 dependencies {
     api(project(CommonsBio))
     api(project(CommonsUtil))
+    api(project(CommonsHttp))
     api(project(CommonsSerialization))
     api(project(SubmissionFileSources))
     api(project(SubmissionSecurity))
@@ -50,6 +53,7 @@ dependencies {
 
     implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterWeb)
+    implementation(SpringWebFlux)
 
     testImplementation(SpringBootStarterAmqp)
     testImplementation(testFixtures(project(CommonsModelExtended)))

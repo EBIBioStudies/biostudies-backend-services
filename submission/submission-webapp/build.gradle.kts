@@ -7,6 +7,7 @@ import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.MySql
 import Dependencies.RxJava2
+import Dependencies.SpringWebFlux
 import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
 import Projects.ClientBioWebClient
@@ -109,6 +110,7 @@ dependencies {
     implementation(RxJava2)
     implementation(SpringfoxSwagger)
     implementation(SpringfoxSwaggerUI)
+    implementation(SpringWebFlux)
     implementation(KotlinLogging)
 
     testImplementation(project(ClientBioWebClient))
