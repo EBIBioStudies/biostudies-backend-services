@@ -1,6 +1,7 @@
 import Dependencies.Arrow
 import Dependencies.CommonsFileUpload
 import Dependencies.CommonsIO
+import Dependencies.CommonsNet
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
@@ -101,6 +102,7 @@ dependencies {
 
     implementation(Arrow)
     implementation(CommonsFileUpload)
+    implementation(CommonsNet)
     implementation(CommonsIO)
     implementation(MySql)
     implementation(KotlinReflect)

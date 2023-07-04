@@ -31,6 +31,7 @@ class ITestListener : TestExecutionListener {
         mongoSetup()
         mySqlSetup()
         fireSetup()
+        ftpSetup()
         appPropertiesSetup()
     }
 
@@ -38,6 +39,7 @@ class ITestListener : TestExecutionListener {
         mongoContainer.stop()
         mysqlContainer.stop()
         fireApiMock.stop()
+        ftpContainer.stop()
     }
 
     private fun mongoSetup() {
@@ -51,6 +53,15 @@ class ITestListener : TestExecutionListener {
         System.setProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
         System.setProperty("spring.datasource.username", mysqlContainer.username)
         System.setProperty("spring.datasource.password", mysqlContainer.password)
+    }
+
+    private fun ftpSetup() {
+        ftpContainer.start()
+
+        System.setProperty("app.security.filesProperties.ftpUser", ftpUser)
+        System.setProperty("app.security.filesProperties.ftpPassword", ftpPassword)
+        System.setProperty("app.security.filesProperties.ftpUrl", ftpContainer.getUrl())
+        System.setProperty("app.security.filesProperties.ftpPort", ftpContainer.getFtpPort().toString())
     }
 
     private fun fireSetup() {
@@ -91,6 +102,9 @@ class ITestListener : TestExecutionListener {
         private const val awsRegion = "anyRegion"
         private const val failFactorEnv = "ITEST_FAIL_FACTOR"
 
+        private const val ftpUser = "ftpUser"
+        private const val ftpPassword = "ftpPassword"
+
         internal val nfsSubmissionPath = testAppFolder.createDirectory("submission")
         internal val fireSubmissionPath = testAppFolder.createDirectory("submission-fire")
         internal val firePath = testAppFolder.createDirectory("fire-db")
@@ -109,6 +123,7 @@ class ITestListener : TestExecutionListener {
         private val mongoContainer = createMongoContainer()
         private val mysqlContainer = createMysqlContainer()
         private val s3Container = createMockS3Container()
+        private val ftpContainer = createFtpContainer()
 
         val enableFire get() = System.getProperty("enableFire").toBoolean()
         val storageMode get() = if (enableFire) StorageMode.FIRE else StorageMode.NFS
@@ -125,10 +140,11 @@ class ITestListener : TestExecutionListener {
                 .withInitScript(MYSQL_SCHEMA)
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
-        private fun createMockS3Container(): S3MockContainer {
-            return S3MockContainer("latest")
-                .withInitialBuckets(defaultBucket)
-        }
+        private fun createMockS3Container(): S3MockContainer = S3MockContainer("latest")
+            .withInitialBuckets(defaultBucket)
+
+        private fun createFtpContainer() =
+            FtpContainer(CreationParams(user = ftpUser, password = ftpPassword, "latest"))
 
         private fun createFireApiMock(s3MockContainer: S3MockContainer): WireMockServer {
             val factor = System.getenv(failFactorEnv)?.toInt()

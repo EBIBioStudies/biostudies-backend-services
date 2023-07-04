@@ -11,6 +11,7 @@ import Projects.CommonsHttp
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.EventsPublisher
+import Projects.FtpWebClient
 import Projects.SubmissionPersistenceSql
 import SpringBootDependencies.SpringBootStarterAmqp
 import SpringBootDependencies.SpringBootStarterDataJpa
@@ -39,6 +40,7 @@ dependencies {
     api(project(CommonsBio))
     api(project(CommonsHttp))
     api(project(EventsPublisher))
+    api(project(FtpWebClient))
     api(project(SubmissionPersistenceSql))
 
     implementation(Arrow)

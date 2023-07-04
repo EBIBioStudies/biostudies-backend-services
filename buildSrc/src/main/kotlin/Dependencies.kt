@@ -243,6 +243,7 @@ object Projects {
     const val CommonsSerializationUtil = ":commons:commons-serialization-util"
     const val CommonsTest = ":commons:commons-test"
     const val FireWebClient = ":client:fire-webclient"
+    const val FtpWebClient = ":client:ftp-webclient"
     const val SubmissionConfig = ":submission:submission-config"
     const val SubmissionFileSources = ":submission:file-sources"
     const val SubmissionPersistenceCommonApi = ":submission:persistence-common-api"
