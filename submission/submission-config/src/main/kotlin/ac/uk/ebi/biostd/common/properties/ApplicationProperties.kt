@@ -35,12 +35,15 @@ data class FireProperties(
     val username: String,
     val password: String,
     val retry: RetryProperties,
+    val s3: S3Properties,
+)
 
-    val s3AccessKey: String,
-    val s3SecretKey: String,
-    val s3region: String,
-    val s3endpoint: String,
-    val s3bucket: String,
+data class S3Properties(
+    val accessKey: String,
+    val secretKey: String,
+    val region: String,
+    val endpoint: String,
+    val bucket: String,
 )
 
 data class ValidatorProperties(

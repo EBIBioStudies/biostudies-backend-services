@@ -4,12 +4,14 @@ import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.api.security.UserProfile
-import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.postForObject
+import ebi.ac.uk.commons.http.ext.RequestParams
+import ebi.ac.uk.commons.http.ext.post
+import ebi.ac.uk.commons.http.ext.postForObject
+import org.springframework.web.reactive.function.client.WebClient
 
 class SecurityWebClient private constructor(
     private val baseUrl: String,
-    private val restTemplate: RestTemplate
+    private val client: WebClient,
 ) : SecurityOperations {
     override fun getAuthenticatedClient(
         user: String,
@@ -24,18 +26,19 @@ class SecurityWebClient private constructor(
         }
     }
 
-    override fun login(loginRequest: LoginRequest): UserProfile =
-        restTemplate.postForObject("/auth/login", jsonHttpEntityOf(loginRequest))
+    override fun login(loginRequest: LoginRequest): UserProfile {
+        return client.postForObject<UserProfile>("/auth/login", RequestParams(body = loginRequest))
+    }
 
     override fun registerUser(registerRequest: RegisterRequest) {
-        restTemplate.postForLocation("/auth/register", jsonHttpEntityOf(registerRequest))
+        client.post("/auth/register", RequestParams(body = registerRequest))
     }
 
     override fun checkUser(checkUserRequest: CheckUserRequest) {
-        restTemplate.postForLocation("/auth/check-registration", jsonHttpEntityOf(checkUserRequest))
+        client.post("/auth/check-registration", RequestParams(body = checkUserRequest))
     }
 
     companion object {
-        fun create(baseUrl: String) = SecurityWebClient(baseUrl, template(baseUrl))
+        fun create(baseUrl: String) = SecurityWebClient(baseUrl, webClientBuilder(baseUrl).build())
     }
 }

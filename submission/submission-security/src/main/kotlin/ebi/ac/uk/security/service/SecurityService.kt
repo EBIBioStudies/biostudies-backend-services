@@ -23,6 +23,8 @@ import ebi.ac.uk.security.integration.exception.LoginException
 import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
+import ebi.ac.uk.security.integration.model.api.FtpUserFolder
+import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 import ebi.ac.uk.security.persistence.getActiveByEmail
@@ -152,15 +154,26 @@ open class SecurityService(
         val dbUser = userRepository.save(toActivate.apply { activationKey = null; active = true })
         val securityUser = profileService.asSecurityUser(dbUser)
 
-        FileUtils.getOrCreateFolder(securityUser.magicFolder.path.parent, RWX__X___)
-        FileUtils.getOrCreateFolder(securityUser.magicFolder.path, RWXRWX___)
-        FileUtils.createSymbolicLink(symLinkPath(securityUser.email), securityUser.magicFolder.path, RWXRWX___)
+        createMagicFolder(securityUser)
         return securityUser
+    }
+
+    private fun createMagicFolder(user: SecurityUser) {
+        when (user.userFolder) {
+            is FtpUserFolder -> TODO()
+            is NfsUserFolder -> createNfsMagicFolder(user.email, user.userFolder)
+        }
+    }
+
+    private fun createNfsMagicFolder(email: String, magicFolder: NfsUserFolder) {
+        FileUtils.getOrCreateFolder(magicFolder.path.parent, RWX__X___)
+        FileUtils.getOrCreateFolder(magicFolder.path, RWXRWX___)
+        FileUtils.createSymbolicLink(symLinkPath(email), magicFolder.path, RWXRWX___)
     }
 
     private fun symLinkPath(userEmail: String): Path {
         val prefixFolder = userEmail.substring(0, 1).lowercase()
-        return Paths.get("${securityProps.magicDirPath}/$prefixFolder/$userEmail")
+        return Paths.get("${securityProps.filesProperties.magicDirPath}/$prefixFolder/$userEmail")
     }
 
     private fun asUser(registerRequest: RegisterRequest) = DbUser(
@@ -169,6 +182,7 @@ open class SecurityService(
         orcid = registerRequest.orcid,
         secret = securityUtil.newKey(),
         notificationsEnabled = registerRequest.notificationsEnabled,
+        storageMode = securityProps.filesProperties.defaultMode,
         passwordDigest = securityUtil.getPasswordDigest(registerRequest.password)
     )
 }

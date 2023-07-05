@@ -35,7 +35,7 @@ class SecurityModuleConfig(
     private val queryService: SubmissionMetaQueryService,
     private val userPermissionsService: UserPermissionsService,
     private val eventsPublisherService: EventsPublisherService,
-    private var props: SecurityProperties
+    private var props: SecurityProperties,
 ) {
     fun securityService(): ISecurityService = securityService
     fun securityQueryService(): ISecurityQueryService = securityQueryService
@@ -43,10 +43,17 @@ class SecurityModuleConfig(
     fun securityFilter(): ISecurityFilter = securityFilter
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
-    private val groupService by lazy { GroupService(groupRepository, userRepo, props.filesDirPath) }
-    private val securityQueryService by lazy { SecurityQueryService(securityUtil, profileService, userRepo) }
+    private val groupService by lazy { GroupService(groupRepository, userRepo, props.filesProperties.filesDirPath) }
+    private val securityQueryService by lazy { SecurityQueryService(securityUtil, profileService, userRepo, props) }
     private val securityService by lazy {
-        SecurityService(userRepo, securityUtil, props, profileService, captchaVerifier, eventsPublisherService)
+        SecurityService(
+            userRepo,
+            securityUtil,
+            props,
+            profileService,
+            captchaVerifier,
+            eventsPublisherService
+        )
     }
 
     private val securityFilter by lazy { SecurityFilter(props.environment, securityQueryService) }
@@ -57,7 +64,7 @@ class SecurityModuleConfig(
     private val captchaVerifier by lazy { CaptchaVerifier(RestTemplate(), props) }
     private val objectMapper by lazy { JacksonFactory.createMapper() }
     private val jwtParser by lazy { Jwts.parser()!! }
-    private val profileService by lazy { ProfileService(Paths.get(props.filesDirPath)) }
+    private val profileService by lazy { ProfileService(Paths.get(props.filesProperties.filesDirPath)) }
     private val securityUtil by lazy {
         SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
     }

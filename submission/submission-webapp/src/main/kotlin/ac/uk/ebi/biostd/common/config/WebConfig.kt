@@ -55,11 +55,11 @@ internal class WebConfig(
                 password = properties.fire.password
             ),
             S3Config(
-                accessKey = fireProps.s3AccessKey,
-                secretKey = fireProps.s3SecretKey,
-                region = fireProps.s3region,
-                endpoint = fireProps.s3endpoint,
-                bucket = fireProps.s3bucket
+                accessKey = fireProps.s3.accessKey,
+                secretKey = fireProps.s3.secretKey,
+                region = fireProps.s3.region,
+                endpoint = fireProps.s3.endpoint,
+                bucket = fireProps.s3.bucket
             ),
             RetryConfig(
                 maxAttempts = retryProps.maxAttempts,

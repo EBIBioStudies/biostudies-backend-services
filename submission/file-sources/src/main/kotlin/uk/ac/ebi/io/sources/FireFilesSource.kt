@@ -10,15 +10,12 @@ import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 
-class FireFilesSource(
+internal class FireFilesSource(
     private val fireClient: FireClient,
 ) : FilesSource {
-    override fun getExtFile(
-        path: String,
-        type: String,
-        attributes: List<Attribute>,
-    ): ExtFile? {
+    override fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
         val md5Attribute = attributes.firstOrNull { it.name == FileFields.DB_MD5.value }
+
         return when (val md5 = md5Attribute?.value) {
             null -> null
             else -> fireClient.findByMd5(md5).first().asFireFile(path, attributes)
@@ -30,7 +27,7 @@ class FireFilesSource(
     override val description: String = "EBI internal files Archive"
 }
 
-fun FireApiFile.asFireFile(filePath: String, attributes: List<Attribute>): FireFile =
+private fun FireApiFile.asFireFile(filePath: String, attributes: List<Attribute>): FireFile =
     FireFile(
         fireId = fireOid,
         firePath = path,
