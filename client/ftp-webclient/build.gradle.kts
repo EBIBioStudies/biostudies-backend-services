@@ -2,6 +2,8 @@ import Dependencies.CommonsNet
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Projects.CommonsUtil
+import TestDependencies.BaseTestCompileDependencies
+import TestDependencies.BaseTestRuntimeDependencies
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
@@ -18,8 +20,10 @@ the<DependencyManagementExtension>().apply {
 
 dependencies {
     api(project(CommonsUtil))
-
     implementation(KotlinStdLib)
     implementation(KotlinLogging)
     implementation(CommonsNet)
+
+    BaseTestCompileDependencies.forEach { testImplementation(it) }
+    BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

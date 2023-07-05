@@ -39,6 +39,11 @@ class FtpClient(
         }
     }
 
+    /**
+     * Executes operations creating a new Ftp Client class every time as
+     * @see [documented](https://cwiki.apache.org/confluence/display/COMMONS/Net+FrequentlyAskedQuestions)
+     * class is not thread safe.
+     */
     private fun <T> execute(function: (FTPClient) -> T): T {
         val ftp = FTPClient()
         ftp.connect(ftpUrl, ftpPort)
