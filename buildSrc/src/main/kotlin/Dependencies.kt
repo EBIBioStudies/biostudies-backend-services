@@ -147,7 +147,6 @@ object TestDependencies {
 }
 
 object Dependencies {
-    const val SpringWeb = "org.springframework:spring-web:$SpringVersion"
     const val SpringWebFlux = "org.springframework:spring-webflux:$SpringVersion"
     const val SpringAutoConfigure = "org.springframework.boot:spring-boot-autoconfigure"
 
