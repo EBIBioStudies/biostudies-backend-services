@@ -3,12 +3,13 @@ package ac.uk.ebi.biostd.files.service
 import ac.uk.ebi.biostd.files.exception.UserGroupNotFound
 import ac.uk.ebi.biostd.files.service.ftp.FtpFileService
 import ac.uk.ebi.biostd.files.service.nfs.PathFilesService
+import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 
-class FileServiceFactory(private val ftpClient: ebi.ac.uk.ftp.FtpClient) {
+class FileServiceFactory(private val ftpClient: FtpClient) {
     fun forUserGroup(user: SecurityUser, groupName: String): FileService {
         return PathFilesService(getGroupPath(user, groupName))
     }

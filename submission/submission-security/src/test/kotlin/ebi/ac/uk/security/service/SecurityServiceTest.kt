@@ -122,7 +122,7 @@ internal class SecurityServiceTest(
         fun beforeEach() {
             every { userRepository.existsByEmail(email) } returns false
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
-            every { securityUtil.getPasswordDigest(password) } returns ebi.ac.uk.security.service.passwordDigest
+            every { securityUtil.getPasswordDigest(password) } returns passwordDigest
             every { securityProps.checkCaptcha } returns true
             every { captchaVerifier.verifyCaptcha(captcha) } returns Unit
         }
@@ -145,7 +145,7 @@ internal class SecurityServiceTest(
             assertThat(dbUser.fullName).isEqualTo(name)
             assertThat(dbUser.email).isEqualTo(email)
             assertThat(dbUser.orcid).isEqualTo(orcid)
-            assertThat(dbUser.passwordDigest).isEqualTo(ebi.ac.uk.security.service.passwordDigest)
+            assertThat(dbUser.passwordDigest).isEqualTo(passwordDigest)
 
             assertThat(dbUser.superuser).isFalse
             assertThat(dbUser.activationKey).isNull()

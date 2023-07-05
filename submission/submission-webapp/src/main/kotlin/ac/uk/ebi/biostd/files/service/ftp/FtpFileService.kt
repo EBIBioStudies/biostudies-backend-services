@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.files.model.FilesSpec
 import ac.uk.ebi.biostd.files.model.UserFile
 import ac.uk.ebi.biostd.files.service.FileService
 import ebi.ac.uk.api.UserFileType
+import ebi.ac.uk.ftp.FtpClient
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 import java.nio.file.Files
@@ -12,7 +13,7 @@ import kotlin.io.path.outputStream
 
 class FtpFileService(
     private val basePath: Path,
-    private val ftp: ebi.ac.uk.ftp.FtpClient,
+    private val ftp: FtpClient,
 ) : FileService {
     override fun uploadFile(path: String, file: File) {
         ftp.uploadFile(basePath.resolve(path).resolve(file.name)) { file.inputStream() }

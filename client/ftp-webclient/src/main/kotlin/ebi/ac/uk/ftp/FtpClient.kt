@@ -1,5 +1,6 @@
 package ebi.ac.uk.ftp
 
+import org.apache.commons.net.ftp.FTPClient
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path
@@ -38,8 +39,8 @@ class FtpClient(
         }
     }
 
-    private fun <T> execute(function: (org.apache.commons.net.ftp.FTPClient) -> T): T {
-        val ftp = org.apache.commons.net.ftp.FTPClient()
+    private fun <T> execute(function: (FTPClient) -> T): T {
+        val ftp = FTPClient()
         ftp.connect(ftpUrl, ftpPort)
         ftp.enterLocalPassiveMode()
         ftp.login(ftpUser, ftpPassword)
