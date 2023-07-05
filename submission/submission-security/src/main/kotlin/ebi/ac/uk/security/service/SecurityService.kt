@@ -177,7 +177,7 @@ open class SecurityService(
     }
 
     private fun asUser(registerRequest: RegisterRequest) = DbUser(
-        email = registerRequest.email,
+        email = registerRequest.email.lowercase(),
         fullName = registerRequest.name,
         orcid = registerRequest.orcid,
         secret = securityUtil.newKey(),
