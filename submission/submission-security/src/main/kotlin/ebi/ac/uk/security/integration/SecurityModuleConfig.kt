@@ -22,7 +22,7 @@ import ebi.ac.uk.security.service.UserPrivilegesService
 import ebi.ac.uk.security.util.SecurityUtil
 import ebi.ac.uk.security.web.SecurityFilter
 import io.jsonwebtoken.Jwts
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Paths
 
@@ -61,7 +61,7 @@ class SecurityModuleConfig(
         UserPrivilegesService(userRepo, tagsDataRepository, queryService, userPermissionsService)
     }
 
-    private val captchaVerifier by lazy { CaptchaVerifier(RestTemplate(), props) }
+    private val captchaVerifier by lazy { CaptchaVerifier(WebClient.builder().build(), props) }
     private val objectMapper by lazy { JacksonFactory.createMapper() }
     private val jwtParser by lazy { Jwts.parser()!! }
     private val profileService by lazy { ProfileService(Paths.get(props.filesProperties.filesDirPath)) }

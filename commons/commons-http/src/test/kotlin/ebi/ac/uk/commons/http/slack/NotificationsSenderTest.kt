@@ -8,34 +8,45 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.ACCEPT
+import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.MediaType.APPLICATION_JSON
-import org.springframework.http.ResponseEntity
-import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.postForEntity
-import java.util.Optional
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
+import java.util.function.Consumer
 
 @ExtendWith(MockKExtension::class)
 class NotificationsSenderTest(
-    @MockK private val restTemplate: RestTemplate
+    @MockK private val client: WebClient,
+    @MockK private val requestSpec: RequestBodySpec,
 ) {
-    private val testInstance = NotificationsSender(restTemplate, "http://notifications:8080")
+    private val testInstance = NotificationsSender(client, "http://notifications:8080")
 
     @Test
     fun send() {
-        val requestSlot = slot<HttpEntity<Notification>>()
+        val bodySlot = slot<Notification>()
+        val headersSlot = slot<Consumer<HttpHeaders>>()
         val notification = Report("system", "subsystem", "result")
 
-        every {
-            restTemplate.postForEntity<String>("http://notifications:8080", capture(requestSlot))
-        } returns ResponseEntity.of(Optional.of(""))
+        every { client.post().uri("http://notifications:8080") } returns requestSpec
+        every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
+        every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
+        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns ""
 
         testInstance.send(notification)
 
-        val request = requestSlot.captured
-        assertThat(request.headers.contentType).isEqualTo(APPLICATION_JSON)
-        assertThat(request.headers.accept).containsExactly(APPLICATION_JSON)
-        assertThat(request.body).isEqualTo(notification.asNotification())
-        verify(exactly = 1) { restTemplate.postForEntity<String>("http://notifications:8080", request) }
+        val body = bodySlot.captured
+        val headers = headersSlot.captured
+        assertThat(body).isEqualTo(notification.asNotification())
+        headers.andThen {
+            assertThat(it[ACCEPT]!!.first()).isEqualTo(APPLICATION_JSON)
+            assertThat(it[CONTENT_TYPE]!!.first()).isEqualTo(APPLICATION_JSON)
+        }
+        verify(exactly = 1) {
+            client.post().uri("http://notifications:8080")
+            requestSpec.bodyValue(body)
+            requestSpec.retrieve().bodyToMono(String::class.java).block()
+        }
     }
 }

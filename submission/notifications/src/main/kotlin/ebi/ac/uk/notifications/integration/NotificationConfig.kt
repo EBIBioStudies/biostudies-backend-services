@@ -10,7 +10,7 @@ import ebi.ac.uk.notifications.service.SimpleEmailService
 import ebi.ac.uk.notifications.util.TemplateLoader
 import org.springframework.core.io.ResourceLoader
 import org.springframework.mail.javamail.JavaMailSenderImpl
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.reactive.function.client.WebClient
 
 class NotificationConfig(
     private val resourceLoader: ResourceLoader,
@@ -21,7 +21,7 @@ class NotificationConfig(
 
     fun securityNotificationService(): SecurityNotificationService = securityNotificationService
 
-    private val restTemplate by lazy { RestTemplate() }
+    private val webClient by lazy { WebClient.builder().build() }
 
     private val emailService by lazy { SimpleEmailService(mailSender) }
 
@@ -36,7 +36,7 @@ class NotificationConfig(
     }
 
     private val rtTicketService: RtTicketService by lazy {
-        RtTicketService(notificationDataService, RtClient(notificationProperties.rt, restTemplate))
+        RtTicketService(notificationDataService, RtClient(notificationProperties.rt, webClient))
     }
 
     private val rtNotificationService: RtNotificationService by lazy {

@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.ResourceLoader
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
@@ -50,16 +50,15 @@ class Listeners {
 class Services {
     @Bean
     fun bioStudiesWebConsumer(
-        restTemplate: RestTemplate,
+        client: WebClient,
         extSerializationService: ExtSerializationService
-    ): BioStudiesWebConsumer = BioStudiesWebConsumer(restTemplate, extSerializationService)
+    ): BioStudiesWebConsumer = BioStudiesWebConsumer(client, extSerializationService)
 
     @Bean
     fun notificationsSender(
-        restTemplate: RestTemplate,
+        client: WebClient,
         applicationProperties: ApplicationProperties
-    ): NotificationsSender =
-        NotificationsSender(restTemplate, applicationProperties.notifications.slackUrl)
+    ): NotificationsSender = NotificationsSender(client, applicationProperties.notifications.slackUrl)
 
     @Bean
     fun extSerializationService(): ExtSerializationService = ExtSerializationConfig.extSerializationService()

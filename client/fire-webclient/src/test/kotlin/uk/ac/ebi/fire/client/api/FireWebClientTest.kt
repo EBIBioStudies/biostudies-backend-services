@@ -16,11 +16,12 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.reactive.function.BodyInserters.MultipartInserter
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
 import uk.ac.ebi.fire.client.model.FireApiFile
@@ -41,26 +42,27 @@ class FireWebClientTest(
         @MockK fireFile: FireApiFile,
         @MockK requestSpec: RequestBodySpec,
     ) {
-        val bodySlot = slot<MultipartInserter>()
+        val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
         val headersSlot = slot<Consumer<HttpHeaders>>()
         val file = tmpFolder.createFile("save-test.txt")
 
         every { client.post().uri("/objects") } returns requestSpec
-        every { requestSpec.body(capture(bodySlot)) } answers { nothing }
-        every { requestSpec.headers(capture(headersSlot)) } answers { nothing }
+        every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
+        every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
         every { requestSpec.retrieve().bodyToMono(FireApiFile::class.java).block() } returns fireFile
 
         testInstance.save(file, "the-md5", 55)
 
         val body = bodySlot.captured
         val headers = headersSlot.captured
+        assertThat(body[FIRE_FILE_PARAM]!!.first()).isEqualTo(FileSystemResource(file))
         headers.andThen {
             assertThat(it[FIRE_MD5_HEADER]!!.first()).isEqualTo("the-md5")
             assertThat(it[FIRE_SIZE_HEADER]!!.first()).isEqualTo("55")
         }
         verify(exactly = 1) {
             client.post().uri("/objects")
-            requestSpec.body(body)
+            requestSpec.bodyValue(body)
             requestSpec.retrieve().bodyToMono(FireApiFile::class.java).block()
         }
     }
@@ -72,8 +74,8 @@ class FireWebClientTest(
         val headersSlot = slot<Consumer<HttpHeaders>>()
 
         every { client.put().uri("/objects/the-fire-oid/firePath") } returns requestSpec
-        every { requestSpec.headers(capture(headersSlot)) } answers { nothing }
-        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } answers { nothing }
+        every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
+        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns ""
 
         testInstance.setPath("the-fire-oid", "/a/new/path/file2.txt")
 

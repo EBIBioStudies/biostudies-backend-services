@@ -9,6 +9,7 @@ import Dependencies.MongockSpringDataV3
 import Dependencies.MongockSpringV5
 import Dependencies.OkHttpLogging
 import Dependencies.Retrofit2
+import Dependencies.SpringWebFlux
 import Projects.ClientBioWebClient
 import Projects.CommonsHttp
 import Projects.CommonsSerialization
@@ -58,6 +59,7 @@ dependencies {
     implementation(SpringBootStarterMongo)
     implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterConfigProcessor)
+    implementation(SpringWebFlux)
 
     testImplementation(TestContainerMongoDb)
     testImplementation(SpringBootStarterTest)

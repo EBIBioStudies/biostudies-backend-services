@@ -1,9 +1,6 @@
 package ebi.ac.uk.commons.http.ext
 
 import org.springframework.http.HttpHeaders
-import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
-import org.springframework.web.reactive.function.BodyInserters.fromMultipartData
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodyUriSpec
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec
@@ -35,12 +32,7 @@ inline fun <reified T> RequestHeadersSpec<*>.retrieveBlocking(): T? {
 inline fun <reified T> RequestBodyUriSpec.retrieveBlocking(url: String, params: RequestParams? = null): T? {
     val uriSpec = uri(url)
     params?.headers?.let { headers -> uriSpec.headers { it.addAll(headers) } }
-    params?.body?.let { body ->
-        when (body) {
-            is LinkedMultiValueMap<*, *> -> uriSpec.body(fromMultipartData(body as MultiValueMap<String, *>))
-            else -> uriSpec.bodyValue(body)
-        }
-    }
+    params?.body?.let { body -> uriSpec.bodyValue(body) }
 
     return uriSpec
         .retrieve()

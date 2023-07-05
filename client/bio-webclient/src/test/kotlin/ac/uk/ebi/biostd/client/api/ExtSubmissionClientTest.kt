@@ -6,16 +6,18 @@ import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtPage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.model.constants.SUBMISSION
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.web.reactive.function.BodyInserters.MultipartInserter
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -123,20 +125,22 @@ class ExtSubmissionClientTest(
         @MockK extSubmission: ExtSubmission,
         @MockK requestSpec: RequestBodySpec,
     ) {
-        val bodySlot = slot<MultipartInserter>()
+        val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
 
         every { extSerializationService.serialize(extSubmission) } returns "ExtSubmission"
         every { extSerializationService.deserialize("ExtSubmission") } returns extSubmission
 
         every { client.post().uri(EXT_SUBMISSIONS_URL) } returns requestSpec
-        every { requestSpec.body(capture(bodySlot)) } answers { nothing }
+        every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
         every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "ExtSubmission"
 
         testInstance.submitExt(extSubmission)
 
         val body = bodySlot.captured
+        assertThat(body[SUBMISSION]).hasSize(1)
+        assertThat(body[SUBMISSION]!!.first()).isEqualTo("ExtSubmission")
         verify(exactly = 1) {
-            requestSpec.body(body)
+            requestSpec.bodyValue(body)
             client.post().uri(EXT_SUBMISSIONS_URL)
             extSerializationService.serialize(extSubmission)
             extSerializationService.deserialize("ExtSubmission")
@@ -149,18 +153,20 @@ class ExtSubmissionClientTest(
         @MockK extSubmission: ExtSubmission,
         @MockK requestSpec: RequestBodySpec,
     ) {
-        val bodySlot = slot<MultipartInserter>()
+        val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
 
         every { extSerializationService.serialize(extSubmission) } returns "ExtSubmission"
         every { client.post().uri("$EXT_SUBMISSIONS_URL/async") } returns requestSpec
-        every { requestSpec.body(capture(bodySlot)) } answers { nothing }
+        every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
         every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "ExtSubmission"
 
         testInstance.submitExtAsync(extSubmission)
 
         val body = bodySlot.captured
+        assertThat(body[SUBMISSION]).hasSize(1)
+        assertThat(body[SUBMISSION]!!.first()).isEqualTo("ExtSubmission")
         verify(exactly = 1) {
-            requestSpec.body(body)
+            requestSpec.bodyValue(body)
             client.post().uri("$EXT_SUBMISSIONS_URL/async")
             extSerializationService.serialize(extSubmission)
             requestSpec.retrieve().bodyToMono(String::class.java).block()

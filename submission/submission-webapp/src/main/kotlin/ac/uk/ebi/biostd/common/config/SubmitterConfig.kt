@@ -43,7 +43,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
@@ -254,7 +254,7 @@ class SubmitterConfig(
     @Configuration
     class ValidatorConfig {
         @Bean
-        fun restTemplate(): RestTemplate = RestTemplate()
+        fun webClient(): WebClient = WebClient.builder().build()
 
         @Bean
         fun fileListValidator(
@@ -265,9 +265,9 @@ class SubmitterConfig(
 
         @Bean(name = ["EuToxRiskValidator"])
         fun euToxRiskValidator(
-            restTemplate: RestTemplate,
+            client: WebClient,
             applicationProperties: ApplicationProperties,
             fireClient: FireClient,
-        ): CollectionValidator = EuToxRiskValidator(restTemplate, applicationProperties.validator, fireClient)
+        ): CollectionValidator = EuToxRiskValidator(client, applicationProperties.validator, fireClient)
     }
 }
