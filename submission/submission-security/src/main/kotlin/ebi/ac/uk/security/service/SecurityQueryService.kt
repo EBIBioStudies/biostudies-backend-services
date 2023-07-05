@@ -40,7 +40,7 @@ class SecurityQueryService(
 
     private fun createUserInactive(email: String, username: String): DbUser {
         val user = DbUser(
-            email = email,
+            email = email.lowercase(),
             fullName = username,
             secret = securityUtil.newKey(),
             storageMode = securityProperties.filesProperties.defaultMode,

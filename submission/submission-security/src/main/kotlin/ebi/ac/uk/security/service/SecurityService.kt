@@ -184,7 +184,7 @@ open class SecurityService(
     }
 
     private fun asUser(rqt: RegisterRequest) = DbUser(
-        email = rqt.email,
+        email = rqt.email.lowercase(),
         fullName = rqt.name,
         orcid = rqt.orcid,
         secret = securityUtil.newKey(),
