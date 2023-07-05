@@ -19,3 +19,10 @@ class RegisterRequest(
     @JsonProperty("recaptcha2-response")
     val captcha: String? = null
 )
+
+class CheckUserRequest(
+    @field:Email(message = "The provided email is not valid")
+    val userEmail: String,
+
+    val userName: String,
+)
