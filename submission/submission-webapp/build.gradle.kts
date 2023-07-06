@@ -123,8 +123,8 @@ dependencies {
     testImplementation(rabitMqMock)
     testImplementation(Wiremock)
 
-    testImplementation("org.slf4j:slf4j-reload4j:2.0.7")
     testImplementation("org.slf4j:slf4j-api:2.0.7")
+    testImplementation("org.slf4j:slf4j-reload4j:2.0.7")
 
     testImplementation(KotlinXmlBuilder)
     testImplementation(JsonPathAssert)

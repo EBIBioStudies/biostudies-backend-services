@@ -17,14 +17,18 @@ import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.db.MYSQL_SCHEMA
 import ebi.ac.uk.db.MYSQL_VERSION
 import ebi.ac.uk.extended.model.StorageMode
+import mu.KotlinLogging
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestPlan
 import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName.parse
 import java.io.File
 import java.nio.file.Files
 import java.time.Duration.ofSeconds
+
+private val logger = KotlinLogging.logger {}
 
 class ITestListener : TestExecutionListener {
     override fun testPlanExecutionStarted(testPlan: TestPlan) {
@@ -56,7 +60,12 @@ class ITestListener : TestExecutionListener {
     }
 
     private fun ftpSetup() {
-        ftpContainer.start()
+        try {
+            ftpContainer.start()
+            ftpContainer.followOutput(Slf4jLogConsumer(logger))
+        } catch (e: Exception) {
+            logger.error(e) { "Failed here ------------------------------" }
+        }
 
         System.setProperty("app.security.filesProperties.ftpUser", ftpUser)
         System.setProperty("app.security.filesProperties.ftpPassword", ftpPassword)
