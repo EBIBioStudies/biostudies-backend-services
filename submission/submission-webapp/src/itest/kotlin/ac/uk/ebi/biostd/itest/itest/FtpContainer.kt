@@ -6,7 +6,6 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.time.Duration
 
-
 data class CreationParams(val user: String, val password: String, val version: String)
 
 class FtpContainer(private val params: CreationParams) :
