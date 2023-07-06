@@ -1,6 +1,7 @@
 package ebi.ac.uk.ftp
 
 import org.apache.commons.net.ftp.FTPClient
+import org.apache.commons.net.ftp.FTPSClient
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path
@@ -29,7 +30,10 @@ class FtpClient(
     }
 
     fun listFiles(path: Path): List<org.apache.commons.net.ftp.FTPFile> {
-        return execute { ftp -> ftp.listFiles(path.toString()).toList() }
+        return execute { ftp ->
+            ftp.changeWorkingDirectory(path.toString())
+            ftp.listFiles().toList()
+        }
     }
 
     fun deleteFile(path: Path) {
@@ -45,11 +49,12 @@ class FtpClient(
      * class is not thread safe.
      */
     private fun <T> execute(function: (FTPClient) -> T): T {
-        val ftp = FTPClient()
+        val ftp = FTPSClient()
         ftp.connect(ftpUrl, ftpPort)
-        ftp.enterLocalPassiveMode()
         ftp.login(ftpUser, ftpPassword)
+        ftp.enterLocalPassiveMode()
         val result = function(ftp)
+        ftp.logout()
         ftp.disconnect()
         return result
     }

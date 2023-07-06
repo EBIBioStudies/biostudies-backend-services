@@ -2,25 +2,34 @@ package ac.uk.ebi.biostd.itest.itest
 
 import org.testcontainers.containers.FixedHostPortGenericContainer
 import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy
-import java.net.ServerSocket
+import java.time.Duration
 
 data class CreationParams(val user: String, val password: String, val version: String)
 
 class FtpContainer(private val params: CreationParams) :
-    FixedHostPortGenericContainer<FtpContainer>("delfer/alpine-ftp-server:${params.version}") {
+    FixedHostPortGenericContainer<FtpContainer>("stilliard/pure-ftpd") {
     override fun start() {
-        val freePort = ServerSocket(0).use { socket -> socket.localPort }
-        withFixedExposedPort(freePort, freePort)
-            .withEnv("MIN_PORT", freePort.toString())
-            .withEnv("MAX_PORT", freePort.toString())
-            .withExposedPorts(21)
-            .withEnv("USERS", "${params.user}|${params.password}")
+        withFixedExposedPort(30000, 30000)
+        withFixedExposedPort(30001, 30001)
+        withFixedExposedPort(30002, 30002)
+        withFixedExposedPort(30003, 30003)
+        withExposedPorts(21)
+            .withEnv("FTP_USER_NAME", params.user)
+            .withEnv("FTP_USER_PASS", params.password)
+            .withEnv("ADDED_FLAGS", "--tls=1")
+            .withEnv("TLS_USE_DSAPRAM", "true")
+            .withEnv("FTP_PASSIVE_PORTS", "30000:30003")
+            .withEnv("PUBLICHOST", "0.0.0.0")
+            .withEnv("FTP_USER_HOME", "/home/ftpUser")
+            .withEnv("TLS_CN", "localhost")
+            .withEnv("TLS_ORG", "YourOrg")
+            .withEnv("TLS_C", "DE")
             .waitingFor(FtpPortWaitStrategy)
         super.start()
     }
 
     fun getUrl(): String {
-        return containerIpAddress
+        return "0.0.0.0"
     }
 
     fun getFtpPort(): Int {
@@ -29,7 +38,9 @@ class FtpContainer(private val params: CreationParams) :
 }
 
 object FtpPortWaitStrategy : HostPortWaitStrategy() {
-    override fun getLivenessCheckPorts(): Set<Int> {
-        return setOf(waitStrategyTarget.getMappedPort(21))
+    init {
+        startupTimeout = Duration.ofMinutes(10)
     }
+
+    override fun getLivenessCheckPorts(): Set<Int> = setOf(waitStrategyTarget.getMappedPort(21))
 }

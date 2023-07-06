@@ -61,8 +61,9 @@ class ITestListener : TestExecutionListener {
 
     private fun ftpSetup() {
         try {
-            ftpContainer.start()
-            ftpContainer.followOutput(Slf4jLogConsumer(logger))
+            ftpContainer
+                .withLogConsumer(Slf4jLogConsumer(logger))
+                .start()
         } catch (e: Exception) {
             logger.error(e) { "Failed here ------------------------------" }
         }
