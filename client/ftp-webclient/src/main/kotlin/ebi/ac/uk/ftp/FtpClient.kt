@@ -1,10 +1,13 @@
 package ebi.ac.uk.ftp
 
+import mu.KotlinLogging
 import org.apache.commons.net.ftp.FTPClient
 import org.apache.commons.net.ftp.FTPSClient
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path
+
+private val logger = KotlinLogging.logger {}
 
 fun interface InputStreamSource {
     fun inputStream(): InputStream
@@ -50,6 +53,7 @@ class FtpClient(
      */
     private fun <T> execute(function: (FTPClient) -> T): T {
         val ftp = FTPSClient()
+        logger.info { "connecting to $ftpUrl, $ftpPort" }
         ftp.connect(ftpUrl, ftpPort)
         ftp.login(ftpUser, ftpPassword)
         ftp.enterLocalPassiveMode()

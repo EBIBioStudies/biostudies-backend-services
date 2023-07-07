@@ -1,8 +1,10 @@
 package ac.uk.ebi.biostd.itest.itest
 
 import org.testcontainers.containers.FixedHostPortGenericContainer
+import org.testcontainers.containers.wait.strategy.HostPortWaitStrategy
 import java.net.ServerSocket
 import java.net.Socket
+import java.time.Duration
 
 data class CreationParams(val user: String, val password: String, val version: String)
 
@@ -25,6 +27,7 @@ class FtpContainer(private val params: CreationParams) :
             .withEnv("TLS_CN", "localhost")
             .withEnv("TLS_ORG", "YourOrg")
             .withEnv("TLS_C", "DE")
+            .waitingFor(FtpPortWaitStrategy)
         super.start()
     }
 
@@ -58,4 +61,12 @@ class FtpContainer(private val params: CreationParams) :
     }
 
     private data class PortRange(val port1: Int, val port2: Int, val port3: Int, val port4: Int)
+
+    object FtpPortWaitStrategy : HostPortWaitStrategy() {
+        init {
+            startupTimeout = Duration.ofMinutes(10)
+        }
+
+        override fun getLivenessCheckPorts(): Set<Int> = setOf(waitStrategyTarget.getMappedPort(21))
+    }
 }
