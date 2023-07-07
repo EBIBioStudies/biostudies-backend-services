@@ -21,7 +21,6 @@ import mu.KotlinLogging
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestPlan
 import org.testcontainers.containers.MongoDBContainer
-import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName.parse
 import java.io.File
@@ -42,8 +41,8 @@ class ITestListener : TestExecutionListener {
     override fun testPlanExecutionFinished(testPlan: TestPlan) {
         mongoContainer.stop()
         mysqlContainer.stop()
-        fireApiMock.stop()
-        ftpContainer.stop()
+        fireServer.stop()
+        ftpServer.stop()
     }
 
     private fun mongoSetup() {
@@ -60,18 +59,12 @@ class ITestListener : TestExecutionListener {
     }
 
     private fun ftpSetup() {
-        try {
-            ftpContainer
-                .withLogConsumer(Slf4jLogConsumer(logger))
-                .start()
-        } catch (e: Exception) {
-            logger.error(e) { "Failed here ------------------------------" }
-        }
+        ftpServer.start()
 
         System.setProperty("app.security.filesProperties.ftpUser", ftpUser)
         System.setProperty("app.security.filesProperties.ftpPassword", ftpPassword)
-        System.setProperty("app.security.filesProperties.ftpUrl", ftpContainer.getUrl())
-        System.setProperty("app.security.filesProperties.ftpPort", ftpContainer.getFtpPort().toString())
+        System.setProperty("app.security.filesProperties.ftpUrl", ftpServer.getUrl())
+        System.setProperty("app.security.filesProperties.ftpPort", ftpServer.ftpPort.toString())
     }
 
     private fun fireSetup() {
@@ -82,13 +75,13 @@ class ITestListener : TestExecutionListener {
         System.setProperty("app.fire.s3.endpoint", s3Container.httpEndpoint)
         System.setProperty("app.fire.s3.bucket", defaultBucket)
 
-        fireApiMock.stubFor(
+        fireServer.stubFor(
             post(WireMock.urlMatching("/objects"))
                 .withBasicAuth(FIRE_USERNAME, FIRE_PASSWORD)
                 .willReturn(WireMock.aResponse().withTransformers(TestWireMockTransformer.name))
         )
-        fireApiMock.start()
-        System.setProperty("app.fire.host", fireApiMock.baseUrl())
+        fireServer.start()
+        System.setProperty("app.fire.host", fireServer.baseUrl())
         System.setProperty("app.fire.username", FIRE_USERNAME)
         System.setProperty("app.fire.password", FIRE_PASSWORD)
     }
@@ -129,11 +122,12 @@ class ITestListener : TestExecutionListener {
         internal val magicDirPath = testAppFolder.createDirectory("magic")
         internal val dropboxPath = testAppFolder.createDirectory("dropbox")
 
-        private val fireApiMock: WireMockServer by lazy { createFireApiMock(s3Container) }
+        private val fireServer: WireMockServer by lazy { createFireApiMock(s3Container) }
+        private val ftpServer = createFtpServer()
+
         private val mongoContainer = createMongoContainer()
         private val mysqlContainer = createMysqlContainer()
         private val s3Container = createMockS3Container()
-        private val ftpContainer = createFtpContainer()
 
         val enableFire get() = System.getProperty("enableFire").toBoolean()
         val storageMode get() = if (enableFire) StorageMode.FIRE else StorageMode.NFS
@@ -153,8 +147,15 @@ class ITestListener : TestExecutionListener {
         private fun createMockS3Container(): S3MockContainer = S3MockContainer("latest")
             .withInitialBuckets(defaultBucket)
 
-        private fun createFtpContainer() =
-            FtpContainer(CreationParams(user = ftpUser, password = ftpPassword, "latest"))
+        private fun createFtpServer(): FtpServer {
+            return FtpServer.createServer(
+                FtpConfig(
+                    sslConfig = SslConfig(File(this::class.java.getResource("/mykeystore.jks").toURI()), "123456"),
+                    userName = ftpUser,
+                    password = ftpPassword
+                )
+            )
+        }
 
         private fun createFireApiMock(s3MockContainer: S3MockContainer): WireMockServer {
             val factor = System.getenv(failFactorEnv)?.toInt()

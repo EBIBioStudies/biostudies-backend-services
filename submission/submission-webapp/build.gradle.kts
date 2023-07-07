@@ -125,6 +125,7 @@ dependencies {
 
     testImplementation("org.slf4j:slf4j-api:2.0.7")
     testImplementation("org.slf4j:slf4j-reload4j:2.0.7")
+    testImplementation("org.apache.ftpserver:ftpserver:1.2.0")
 
     testImplementation(KotlinXmlBuilder)
     testImplementation(JsonPathAssert)
