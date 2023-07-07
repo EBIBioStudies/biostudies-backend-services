@@ -22,17 +22,18 @@ class FtpContainer(private val params: CreationParams) :
             .withEnv("ADDED_FLAGS", "--tls=1")
             .withEnv("TLS_USE_DSAPRAM", "true")
             .withEnv("FTP_PASSIVE_PORTS", "$freePort:${freePort + 3}")
-            .withEnv("PUBLICHOST", "0.0.0.0")
+            .withEnv("PUBLICHOST", "ftp")
             .withEnv("FTP_USER_HOME", "/home/ftpUser")
             .withEnv("TLS_CN", "localhost")
             .withEnv("TLS_ORG", "YourOrg")
             .withEnv("TLS_C", "DE")
             .waitingFor(FtpPortWaitStrategy)
+            .withCreateContainerCmdModifier { cmd -> cmd.withName("ftp") }
         super.start()
     }
 
     fun getUrl(): String {
-        return "0.0.0.0"
+        return "ftp"
     }
 
     fun getFtpPort(): Int {
