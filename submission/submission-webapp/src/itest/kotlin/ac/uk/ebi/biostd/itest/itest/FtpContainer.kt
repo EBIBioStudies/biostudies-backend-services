@@ -22,7 +22,7 @@ class FtpContainer(private val params: CreationParams) :
             .withEnv("ADDED_FLAGS", "--tls=1")
             .withEnv("TLS_USE_DSAPRAM", "true")
             .withEnv("FTP_PASSIVE_PORTS", "$p1:$p4")
-            .withEnv("PUBLICHOST", containerIpAddress)
+            .withEnv("PUBLICHOST", getUrl())
             .withEnv("FTP_USER_HOME", "/home/ftpUser")
             .withEnv("TLS_CN", "localhost")
             .withEnv("TLS_ORG", "YourOrg")
@@ -32,7 +32,7 @@ class FtpContainer(private val params: CreationParams) :
     }
 
     fun getUrl(): String {
-        return containerIpAddress
+        return "172.22.10.250"
     }
 
     fun getFtpPort(): Int {
