@@ -50,7 +50,7 @@ class FtpServer(
             // Enable passive mode
             val dataConnFactory = DataConnectionConfigurationFactory()
             dataConnFactory.isImplicitSsl = false
-            dataConnFactory.passiveExternalAddress = "0.0.0.0"
+            dataConnFactory.passiveExternalAddress = "127.0.0.1"
             listenerFactory.dataConnectionConfiguration = dataConnFactory.createDataConnectionConfiguration()
 
             // Configure maximum connections
