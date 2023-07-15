@@ -1,5 +1,6 @@
 import TestVersions.AssertJVersion
 import TestVersions.AwaitilityVersion
+import TestVersions.FtpServerVersion
 import TestVersions.JaxbApiVersion
 import TestVersions.JsonAssertVersion
 import TestVersions.JsonPathAssertVersion
@@ -8,6 +9,7 @@ import TestVersions.JunitExtensionsVersion
 import TestVersions.JunitVersion
 import TestVersions.MockKVersion
 import TestVersions.RabbitmqMockVersion
+import TestVersions.Slf4jVersion
 import TestVersions.TestContainerS3mockVersion
 import TestVersions.TestContainerVersion
 import TestVersions.WiremockVersion
@@ -64,6 +66,8 @@ object TestVersions {
     const val TestContainerVersion = "1.16.2"
     const val TestContainerS3mockVersion = "2.11.0"
     const val AwaitilityVersion = "4.2.0"
+    const val FtpServerVersion = "1.2.0"
+    const val Slf4jVersion = "2.0.7"
 }
 
 object Versions {
@@ -132,6 +136,9 @@ object TestDependencies {
 
     const val H2 = "com.h2database:h2:$H2Version"
     const val Awaitility = "org.awaitility:awaitility:$AwaitilityVersion"
+    const val FtpServer = "org.apache.ftpserver:ftpserver:$FtpServerVersion"
+    const val slf4jApi = "org.slf4j:slf4j-api:$Slf4jVersion"
+    const val slf4jImp = "org.slf4j:slf4j-reload4j:$Slf4jVersion"
 
     // Json/Http
     const val JsonPathAssert = "com.jayway.jsonpath:json-path-assert:$JsonPathAssertVersion"

@@ -38,6 +38,7 @@ import SpringBootDependencies.SpringRetry
 import TestDependencies.Awaitility
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.FtpServer
 import TestDependencies.JsonPathAssert
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.TestContainer
@@ -49,6 +50,8 @@ import TestDependencies.Wiremock
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
 import TestDependencies.rabitMqMock
+import TestDependencies.slf4jApi
+import TestDependencies.slf4jImp
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 buildscript {
@@ -123,9 +126,9 @@ dependencies {
     testImplementation(rabitMqMock)
     testImplementation(Wiremock)
 
-    testImplementation("org.slf4j:slf4j-api:2.0.7")
-    testImplementation("org.slf4j:slf4j-reload4j:2.0.7")
-    testImplementation("org.apache.ftpserver:ftpserver:1.2.0")
+    testImplementation(slf4jApi)
+    testImplementation(slf4jImp)
+    testImplementation(FtpServer)
 
     testImplementation(KotlinXmlBuilder)
     testImplementation(JsonPathAssert)

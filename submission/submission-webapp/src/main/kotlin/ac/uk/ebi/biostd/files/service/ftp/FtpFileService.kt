@@ -26,7 +26,9 @@ class FtpFileService(
 
     override fun getFile(path: String, fileName: String): File {
         val target = Files.createTempFile(path, fileName)
-        ftp.downloadFile(basePath.resolve(path).resolve(fileName), target.outputStream())
+        val ftpPath = basePath.resolve(path).resolve(fileName)
+
+        target.outputStream().use { ftp.downloadFile(ftpPath, it) }
         return target.toFile()
     }
 
