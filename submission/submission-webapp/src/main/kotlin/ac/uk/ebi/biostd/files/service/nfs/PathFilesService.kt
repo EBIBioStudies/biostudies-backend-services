@@ -1,8 +1,8 @@
-package ac.uk.ebi.biostd.files.service
+package ac.uk.ebi.biostd.files.service.nfs
 
-import ac.uk.ebi.biostd.files.exception.UserGroupNotFound
 import ac.uk.ebi.biostd.files.model.FilesSpec
 import ac.uk.ebi.biostd.files.model.UserFile
+import ac.uk.ebi.biostd.files.service.FileService
 import ac.uk.ebi.biostd.files.utils.transferTo
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.io.FileUtils
@@ -11,37 +11,12 @@ import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RW_RW____
 import ebi.ac.uk.io.ext.listFilesOrEmpty
 import ebi.ac.uk.io.ext.size
-import ebi.ac.uk.security.integration.model.api.FtpUserFolder
-import ebi.ac.uk.security.integration.model.api.NfsUserFolder
-import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.web.multipart.MultipartFile
 import java.io.File
 
-class PathFilesService private constructor(
+class PathFilesService internal constructor(
     private val basePath: File,
 ) : FileService {
-
-    companion object {
-
-        fun forUserGroup(user: SecurityUser, groupName: String): FileService {
-            return PathFilesService(getGroupPath(user, groupName))
-        }
-
-        fun forUser(user: SecurityUser): PathFilesService {
-            when (val folder = user.userFolder) {
-                is FtpUserFolder -> TODO()
-                is NfsUserFolder -> return PathFilesService(folder.path.toFile())
-            }
-        }
-
-        private fun getGroupPath(user: SecurityUser, groupName: String): File {
-            val group = user.groupsFolders
-                .find { it.groupName == groupName }
-                ?: throw UserGroupNotFound(user, groupName)
-            return group.path.toFile()
-        }
-    }
-
     override fun uploadFile(path: String, file: File) {
         FileUtils.copyOrReplaceFile(
             source = file,

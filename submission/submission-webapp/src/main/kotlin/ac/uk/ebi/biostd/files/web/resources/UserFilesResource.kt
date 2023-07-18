@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.files.web.resources
 
-import ac.uk.ebi.biostd.files.service.PathFilesService
+import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.UserPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile
 @PreAuthorize("isAuthenticated()")
 class UserFilesResource(
     private val filesMapper: FilesMapper,
+    private val fileServiceFactory: FileServiceFactory,
 ) {
     @GetMapping("/files/user/**")
     @ResponseBody
@@ -33,7 +34,7 @@ class UserFilesResource(
         @BioUser user: SecurityUser,
         pathDescriptor: UserPath,
     ): List<UserFile> {
-        val filesService = PathFilesService.forUser(user)
+        val filesService = fileServiceFactory.forUser(user)
         return filesMapper.asUserFiles(filesService.listFiles(pathDescriptor.path))
     }
 
@@ -44,7 +45,7 @@ class UserFilesResource(
         @RequestParam(name = "fileName") fileName: String,
         pathDescriptor: UserPath,
     ): ResponseEntity<FileSystemResource> {
-        val filesService = PathFilesService.forUser(user)
+        val filesService = fileServiceFactory.forUser(user)
         val fileSystemResource = FileSystemResource(filesService.getFile(pathDescriptor.path, fileName))
         val contentDisposition = ContentDisposition
             .builder("inline")
@@ -65,7 +66,7 @@ class UserFilesResource(
         pathDescriptor: UserPath,
         @RequestParam("files") files: Array<MultipartFile>,
     ) {
-        val filesService = PathFilesService.forUser(user)
+        val filesService = fileServiceFactory.forUser(user)
         filesService.uploadFiles(pathDescriptor.path, files.toList())
     }
 
@@ -76,7 +77,7 @@ class UserFilesResource(
         @RequestParam(name = "fileName") fileName: String,
         pathDescriptor: UserPath,
     ) {
-        val filesService = PathFilesService.forUser(user)
+        val filesService = fileServiceFactory.forUser(user)
         filesService.deleteFile(pathDescriptor.path, fileName)
     }
 
@@ -87,7 +88,7 @@ class UserFilesResource(
         @RequestParam(name = "folder") folder: String,
         pathDescriptor: UserPath,
     ) {
-        val filesService = PathFilesService.forUser(user)
+        val filesService = fileServiceFactory.forUser(user)
         filesService.createFolder(pathDescriptor.path, folder)
     }
 }

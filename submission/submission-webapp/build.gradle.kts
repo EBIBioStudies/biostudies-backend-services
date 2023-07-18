@@ -1,6 +1,7 @@
 import Dependencies.Arrow
 import Dependencies.CommonsFileUpload
 import Dependencies.CommonsIO
+import Dependencies.CommonsNet
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
@@ -38,6 +39,7 @@ import SpringBootDependencies.SpringRetry
 import TestDependencies.Awaitility
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.FtpServer
 import TestDependencies.JsonPathAssert
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.TestContainer
@@ -49,6 +51,8 @@ import TestDependencies.Wiremock
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
 import TestDependencies.rabitMqMock
+import TestDependencies.slf4jApi
+import TestDependencies.slf4jImp
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 buildscript {
@@ -102,6 +106,7 @@ dependencies {
 
     implementation(Arrow)
     implementation(CommonsFileUpload)
+    implementation(CommonsNet)
     implementation(CommonsIO)
     implementation(MySql)
     implementation(KotlinReflect)
@@ -122,6 +127,10 @@ dependencies {
     testImplementation(SpringBootStarterTest)
     testImplementation(rabitMqMock)
     testImplementation(Wiremock)
+
+    testImplementation(slf4jApi)
+    testImplementation(slf4jImp)
+    testImplementation(FtpServer)
 
     testImplementation(KotlinXmlBuilder)
     testImplementation(JsonPathAssert)

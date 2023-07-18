@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+
 val sourceSets = the<SourceSetContainer>()
 
 sourceSets {
@@ -24,6 +26,8 @@ val itest = tasks.create<Test>("itest") {
     systemProperty("enableFire", enableFire)
 
     useJUnitPlatform()
+    testLogging.exceptionFormat = FULL
+    testLogging.showStandardStreams = true
     extensions.configure(JacocoTaskExtension::class) {
         setDestinationFile(file("$buildDir/jacoco/jacocoITest.exec"))
         classDumpDir = file("$buildDir/jacoco/classpathdumps")

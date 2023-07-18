@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.files.web.resources
 
-import ac.uk.ebi.biostd.files.service.PathFilesService
+import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.GroupPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile
 @PreAuthorize("isAuthenticated()")
 class GroupFilesResource(
     private val filesMapper: FilesMapper,
+    private val fileServiceFactory: FileServiceFactory,
 ) {
     @GetMapping("/files/groups/{groupName}/**")
     @ResponseBody
@@ -32,7 +33,7 @@ class GroupFilesResource(
         pathDescriptor: GroupPath,
         @PathVariable groupName: String,
     ): List<UserFile> {
-        val groupService = PathFilesService.forUserGroup(user, groupName)
+        val groupService = fileServiceFactory.forUserGroup(user, groupName)
         return filesMapper.asGroupFiles(groupName, groupService.listFiles(pathDescriptor.path))
     }
 
@@ -44,7 +45,7 @@ class GroupFilesResource(
         @RequestParam(name = "fileName") fileName: String,
         pathDescriptor: GroupPath,
     ): FileSystemResource {
-        val groupService = PathFilesService.forUserGroup(user, groupName)
+        val groupService = fileServiceFactory.forUserGroup(user, groupName)
         return FileSystemResource(groupService.getFile(pathDescriptor.path, fileName))
     }
 
@@ -56,7 +57,7 @@ class GroupFilesResource(
         @PathVariable groupName: String,
         @RequestParam("files") files: Array<MultipartFile>,
     ) {
-        val groupService = PathFilesService.forUserGroup(user, groupName)
+        val groupService = fileServiceFactory.forUserGroup(user, groupName)
         groupService.uploadFiles(pathDescriptor.path, files.toList())
     }
 
@@ -68,7 +69,7 @@ class GroupFilesResource(
         @RequestParam(name = "fileName") fileName: String,
         pathDescriptor: GroupPath,
     ) {
-        val groupService = PathFilesService.forUserGroup(user, groupName)
+        val groupService = fileServiceFactory.forUserGroup(user, groupName)
         groupService.deleteFile(pathDescriptor.path, fileName)
     }
 
@@ -80,7 +81,7 @@ class GroupFilesResource(
         @RequestParam(name = "folder") folder: String,
         pathDescriptor: GroupPath,
     ) {
-        val groupService = PathFilesService.forUserGroup(user, groupName)
+        val groupService = fileServiceFactory.forUserGroup(user, groupName)
         groupService.createFolder(pathDescriptor.path, folder)
     }
 }
