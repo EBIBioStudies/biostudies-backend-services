@@ -2,17 +2,17 @@ import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("io.gitlab.arturbosch.detekt") version "1.19.0"
-    id("org.jetbrains.kotlin.jvm") version "1.6.10"
-    id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
-    id("org.hidetake.ssh") version "2.10.1"
-    id("jacoco")
+    id(Plugins.DetektPlugin) version PluginVersions.DetektVersion
+    id(Plugins.KotlinPlugin) version PluginVersions.KotlinPluginVersion
+    id(Plugins.KtLintPlugin) version PluginVersions.KtLintVersion
+    id(Plugins.SshPlugin) version PluginVersions.SshVersion
+    id(Plugins.JacocoPlugin)
 }
 
 apply(from = "deploy.gradle")
 
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.19.0")
+    detektPlugins(Plugins.DetektFormattingPlugin)
 }
 
 allprojects {
@@ -20,9 +20,9 @@ allprojects {
         mavenCentral()
     }
 
-    apply(plugin = "org.jetbrains.kotlin.jvm")
-    apply(plugin = "io.gitlab.arturbosch.detekt")
-    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    apply(plugin = Plugins.KotlinPlugin)
+    apply(plugin = Plugins.DetektPlugin)
+    apply(plugin = Plugins.KtLintPlugin)
     apply(from = "$rootDir/gradle/jacoco.gradle.kts")
 
     tasks {
