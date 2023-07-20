@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
@@ -15,6 +16,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -25,7 +27,12 @@ class SubmissionRequestProcessorTest(
     @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val filesService: SubmissionRequestFilesPersistenceService,
 ) {
-    private val testInstance = SubmissionRequestProcessor(storageService, requestService, filesService)
+    private val testInstance = SubmissionRequestProcessor(
+        TEST_CONCURRENCY,
+        storageService,
+        requestService,
+        filesService,
+    )
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -45,7 +52,7 @@ class SubmissionRequestProcessorTest(
         every { rqt.currentIndex } returns 1
         every { submission.accNo } returns accNo
         every { submission.version } returns version
-        every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns sequenceOf(nfsRqtFile)
+        every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile)
         every { storageService.persistSubmissionFile(submission, nfsFile) } answers { releasedFile }
         every { requestService.saveSubmissionRequest(rqt.withNewStatus(FILES_COPIED)) } answers { accNo to version }
         every { requestService.getCleanedRequest(accNo, version) } returns rqt

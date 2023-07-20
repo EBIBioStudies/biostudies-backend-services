@@ -20,7 +20,8 @@ internal fun <T> RetryTemplate.execute(opt: String, func: () -> T): T {
     logger.debug(opt) { "Started executing operation: $opt" }
     val response = execute(
         onError = { error, cxt ->
-            logger.warn(error) { "Failed to perform operation: $opt. Attempt # ${cxt.retryCount + 1}" }
+            val errorMsg = error.cause?.message ?: error.message
+            logger.warn { "Failed to perform operation: $opt on attempt # ${cxt.retryCount + 1} with error: $errorMsg" }
         },
         func = { measureTimedValue(func) }
     )

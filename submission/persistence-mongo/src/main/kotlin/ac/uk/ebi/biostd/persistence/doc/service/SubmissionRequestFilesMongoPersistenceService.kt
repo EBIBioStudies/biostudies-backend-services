@@ -3,9 +3,11 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.iterator.getRequestFilesAsSequence
+import ac.uk.ebi.biostd.persistence.doc.db.iterator.getRequestFilesAsFlow
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 class SubmissionRequestFilesMongoPersistenceService(
@@ -26,10 +28,10 @@ class SubmissionRequestFilesMongoPersistenceService(
     override fun getSubmissionRequestFiles(
         accNo: String,
         version: Int,
-        startingAt: Int,
-    ): Sequence<SubmissionRequestFile> {
+        startingAt: Int
+    ): Flow<SubmissionRequestFile> {
         return requestFilesRepository
-            .getRequestFilesAsSequence(accNo, version, startingAt)
+            .getRequestFilesAsFlow(accNo, version, startingAt)
             .map { it.toSubmissionRequestFile() }
     }
 

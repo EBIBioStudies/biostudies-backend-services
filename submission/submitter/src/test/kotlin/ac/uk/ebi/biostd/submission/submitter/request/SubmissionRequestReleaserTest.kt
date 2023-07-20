@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
@@ -19,6 +20,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -33,6 +35,7 @@ class SubmissionRequestReleaserTest(
     @MockK private val filesService: SubmissionRequestFilesPersistenceService,
 ) {
     private val testInstance = SubmissionRequestReleaser(
+        TEST_CONCURRENCY,
         storageService,
         ExtSerializationService(),
         queryService,
@@ -68,7 +71,7 @@ class SubmissionRequestReleaserTest(
         every { submission.released } returns true
         every { submission.relPath } returns relPath
         every { submission.storageMode } returns mode
-        every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns sequenceOf(nfsRqtFile, fireRqtFile)
+        every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile, fireRqtFile)
         every { storageService.releaseSubmissionFile(nfsFile, relPath, mode) } answers { releasedFile }
         every { requestService.saveSubmissionRequest(rqt.withNewStatus(CHECK_RELEASED)) } answers { accNo to version }
         every { requestService.getFilesCopiedRequest(accNo, version) } returns rqt

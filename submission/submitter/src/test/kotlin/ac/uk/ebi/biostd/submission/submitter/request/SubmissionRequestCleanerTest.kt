@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
+import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
@@ -17,6 +18,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,6 +35,7 @@ class SubmissionRequestCleanerTest(
     @MockK private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
     private val testInstance = SubmissionRequestCleaner(
+        TEST_CONCURRENCY,
         storageService,
         serializationService,
         queryService,
@@ -94,7 +97,7 @@ class SubmissionRequestCleanerTest(
         every { serializationService.fileSequence(current) } returns sequenceOf(currentFile)
         every { requestService.saveSubmissionRequest(cleanedRequest) } returns ("S-BSST1" to 2)
         every { storageService.deleteSubmissionFile(current, currentFile) } answers { nothing }
-        every { filesRequestService.getSubmissionRequestFiles("S-BSST1", 2, 0) } returns sequenceOf(requestFile)
+        every { filesRequestService.getSubmissionRequestFiles("S-BSST1", 2, 0) } returns flowOf(requestFile)
 
         testInstance.cleanCurrentVersion("S-BSST1", 2)
 

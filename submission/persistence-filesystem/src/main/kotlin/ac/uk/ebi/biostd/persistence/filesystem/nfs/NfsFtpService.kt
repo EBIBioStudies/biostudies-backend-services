@@ -14,11 +14,13 @@ class NfsFtpService(
     private val folderResolver: SubmissionFolderResolver,
 ) : FtpService {
     override fun releaseSubmissionFile(file: ExtFile, subRelPath: String): ExtFile {
-        val nfsFile = file as NfsFile
-        val ftpFolder = getFtpFolder(subRelPath).toPath()
-        val subFolder = folderResolver.getSubFolder(subRelPath)
-        FileUtils.createHardLink(nfsFile.file, subFolder, ftpFolder, Permissions(RW_R__R__, RWXR_XR_X))
-        return nfsFile
+        return synchronized(this) {
+            val nfsFile = file as NfsFile
+            val ftpFolder = getFtpFolder(subRelPath).toPath()
+            val subFolder = folderResolver.getSubFolder(subRelPath)
+            FileUtils.createHardLink(nfsFile.file, subFolder, ftpFolder, Permissions(RW_R__R__, RWXR_XR_X))
+            nfsFile
+        }
     }
 
     private fun getFtpFolder(relPath: String): File =
