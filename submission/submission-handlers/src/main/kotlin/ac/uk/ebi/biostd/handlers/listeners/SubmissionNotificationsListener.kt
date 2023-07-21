@@ -3,6 +3,8 @@ package ac.uk.ebi.biostd.handlers.listeners
 import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
 import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ac.uk.ebi.biostd.handlers.api.BioStudiesWebConsumer
+import ac.uk.ebi.biostd.handlers.common.HANDLERS_SUBSYSTEM
+import ac.uk.ebi.biostd.handlers.common.SYSTEM_NAME
 import ac.uk.ebi.biostd.handlers.config.FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE
 import ac.uk.ebi.biostd.handlers.config.NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY
 import ac.uk.ebi.biostd.handlers.config.RELEASE_NOTIFICATIONS_QUEUE
@@ -18,8 +20,6 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 
 private val logger = KotlinLogging.logger {}
-private const val SYSTEM_NAME = "Submitter"
-private const val HANDLERS_SUBSYSTEM = "Submission Handlers"
 private const val ERROR_MESSAGE = "Problem processing notification for submission %s"
 
 class SubmissionNotificationsListener(
