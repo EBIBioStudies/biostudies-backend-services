@@ -1,0 +1,37 @@
+<doi_batch xmlns="http://www.crossref.org/schema/4.4.1">
+    <head>
+        <doi_batch_id>1600683060</doi_batch_id>
+        <timestamp>1600683060</timestamp>
+        <depositor>
+            <depositor_name>EMBL-EBI</depositor_name>
+            <email_address>biostudies@ebi.ac.uk</email_address>
+        </depositor>
+        <registrant>EMBL-EBI</registrant>
+    </head>
+    <body>
+        <database>
+            <database_metadata language="en">
+                <titles>
+                    <title>BioStudies Database</title>
+                </titles>
+            </database_metadata>
+            <dataset>
+                <contributors>
+                    <person_name contributor_role="author" sequence="0">
+                        <given_name>John</given_name>
+                        <surname>Doe</surname>
+                        <affiliation>EMBL</affiliation>
+                        <ORCID authenticated="false">12-32-45-82</ORCID>
+                    </person_name>
+                </contributors>
+                <titles>
+                    <title>Test Submission</title>
+                </titles>
+                <doi_data>
+                    <doi>10.6019/S-TEST123</doi>
+                    <resource>https://www.biostudies.ac.uk/studies/S-TEST123</resource>
+                </doi_data>
+            </dataset>
+        </database>
+    </body>
+</doi_batch>

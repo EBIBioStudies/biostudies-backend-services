@@ -36,6 +36,7 @@ class ITestListener : TestExecutionListener {
         fireSetup()
         ftpSetup()
         appPropertiesSetup()
+        doiSetup()
     }
 
     override fun testPlanExecutionFinished(testPlan: TestPlan) {
@@ -95,6 +96,13 @@ class ITestListener : TestExecutionListener {
         System.setProperty("app.security.filesProperties.filesDirPath", dropboxPath.absolutePath)
         System.setProperty("app.security.filesProperties.magicDirPath", magicDirPath.absolutePath)
         System.setProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")
+    }
+
+    private fun doiSetup() {
+        System.setProperty("app.doi.endpoint", "https://test.crossref.org/servlet/deposit")
+        System.setProperty("app.doi.uiUrl", "https://www.ebi.ac.uk/biostudies/")
+        System.setProperty("app.doi.user", "a-user")
+        System.setProperty("app.doi.password", "a-password")
     }
 
     companion object {

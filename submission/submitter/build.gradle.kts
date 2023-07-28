@@ -19,6 +19,7 @@ import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.KotlinXmlBuilder
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
@@ -50,6 +51,7 @@ dependencies {
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
     implementation(KotlinLogging)
+    implementation(KotlinXmlBuilder)
 
     implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterWeb)

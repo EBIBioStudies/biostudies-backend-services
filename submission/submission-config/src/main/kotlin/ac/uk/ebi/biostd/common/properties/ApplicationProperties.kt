@@ -20,6 +20,7 @@ data class ApplicationProperties(
     val validator: ValidatorProperties,
     val persistence: PersistenceProperties,
     val notifications: NotificationsProperties,
+    val doi: DoiProperties,
 )
 
 data class RetryProperties(
@@ -57,4 +58,11 @@ data class PersistenceProperties(
 data class NotificationsProperties(
     val requestQueue: String,
     val requestRoutingKey: String,
+)
+
+data class DoiProperties(
+    val endpoint: String,
+    val uiUrl: String,
+    val user: String,
+    val password: String
 )

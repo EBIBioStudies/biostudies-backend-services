@@ -4,7 +4,10 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
+import ac.uk.ebi.biostd.submission.service.DoiService
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
+import ebi.ac.uk.extended.model.ExtAttribute
+import ebi.ac.uk.model.constants.SubFields.DOI_REQUESTED
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -20,12 +23,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 class SubmissionSubmitterTest(
+    @MockK private val doiService: DoiService,
     @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
     @MockK private val submissionProcessor: SubmissionProcessor,
     @MockK private val collectionValidationService: CollectionValidationService,
     @MockK private val draftService: SubmissionDraftPersistenceService,
 ) {
     private val testInstance = SubmissionSubmitter(
+        doiService,
         submissionSubmitter,
         submissionProcessor,
         collectionValidationService,
@@ -64,6 +69,47 @@ class SubmissionSubmitterTest(
         verify(exactly = 1) {
             submissionProcessor.processSubmission(request)
             collectionValidationService.executeCollectionValidators(submission)
+            draftService.setProcessingStatus(submission.owner, "TMP_123")
+            submissionSubmitter.createRequest(extRequest)
+            draftService.setAcceptedStatus("TMP_123")
+        }
+        verify(exactly = 0) {
+            draftService.setActiveStatus("TMP_123")
+            doiService.registerDoi(submission)
+        }
+    }
+
+    @Test
+    fun `create request with doi`(
+        @MockK request: SubmitRequest,
+    ) {
+        val submission = basicExtSubmission.copy(attributes = listOf(ExtAttribute(DOI_REQUESTED.value, "")))
+        val extRequestSlot = slot<ExtSubmitRequest>()
+
+        every { request.draftKey } returns "TMP_123"
+        every { request.owner } returns submission.owner
+        every { request.accNo } returns submission.accNo
+        every { doiService.registerDoi(submission) } answers { nothing }
+        every { submissionProcessor.processSubmission(request) } returns submission
+        every { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
+        every { collectionValidationService.executeCollectionValidators(submission) } answers { nothing }
+        every { draftService.setActiveStatus("TMP_123") } answers { nothing }
+        every { draftService.setProcessingStatus(submission.owner, "TMP_123") } answers { nothing }
+        every { draftService.setAcceptedStatus("S-TEST123") } answers { nothing }
+        every { draftService.deleteSubmissionDraft(submission.submitter, "S-TEST123") } answers { nothing }
+        every {
+            submissionSubmitter.createRequest(capture(extRequestSlot))
+        } returns (submission.accNo to submission.version)
+
+        testInstance.createRequest(request)
+
+        val extRequest = extRequestSlot.captured
+        assertThat(extRequest.draftKey).isEqualTo("TMP_123")
+        assertThat(extRequest.submission).isEqualTo(submission)
+        verify(exactly = 1) {
+            submissionProcessor.processSubmission(request)
+            collectionValidationService.executeCollectionValidators(submission)
+            doiService.registerDoi(submission)
             draftService.setProcessingStatus(submission.owner, "TMP_123")
             submissionSubmitter.createRequest(extRequest)
             draftService.setAcceptedStatus("TMP_123")

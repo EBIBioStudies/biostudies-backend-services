@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
+import ac.uk.ebi.biostd.submission.service.DoiService
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
 import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
@@ -13,12 +14,14 @@ import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestPersisted
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.constants.SubFields.DOI_REQUESTED
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 class SubmissionSubmitter(
+    private val doiService: DoiService,
     private val submissionSubmitter: ExtSubmissionSubmitter,
     private val submissionProcessor: SubmissionProcessor,
     private val collectionValidationService: CollectionValidationService,
@@ -74,6 +77,7 @@ class SubmissionSubmitter(
             rqt.draftKey?.let { startProcessingDraft(rqt.accNo, rqt.owner, it) }
             val processed = submissionProcessor.processSubmission(rqt)
             collectionValidationService.executeCollectionValidators(processed)
+            if (processed.requiresDoi) doiService.registerDoi(processed)
             rqt.draftKey?.let { acceptDraft(rqt.accNo, rqt.owner, it) }
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 
@@ -99,4 +103,7 @@ class SubmissionSubmitter(
         draftService.setActiveStatus(draftKey)
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACTIVE" }
     }
+
+    private val ExtSubmission.requiresDoi: Boolean
+        get() = attributes.find { it.name == DOI_REQUESTED.value } != null
 }
