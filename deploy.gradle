@@ -112,6 +112,15 @@ task updateReleaserArtifact {
     finalizedBy "deployArtifact"
 }
 
+task updateMigratorArtifact {
+    doFirst {
+        project.ext.artifactPath = "scheduler/tasks/submission-migrator-task/build/libs"
+        project.ext.artifactName = "submission-migrator-task-1.0.0.jar"
+    }
+
+    finalizedBy "deployArtifact"
+}
+
 task deployArtifact {
     doLast {
         ssh.run {

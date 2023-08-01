@@ -1,0 +1,10 @@
+spring:
+  data:
+    mongodb:
+      database: # The name of the database to access the data
+      uri: # The database connection URI
+app:
+  bioStudies:
+    url: # BioStudies backend URL
+    user: # BioStudies manager user
+    password: # BioStudies manager password
