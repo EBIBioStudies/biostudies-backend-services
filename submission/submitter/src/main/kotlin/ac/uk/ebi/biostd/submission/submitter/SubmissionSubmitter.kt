@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.DoiService
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
+import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
@@ -77,7 +78,8 @@ class SubmissionSubmitter(
             rqt.draftKey?.let { startProcessingDraft(rqt.accNo, rqt.owner, it) }
             val processed = submissionProcessor.processSubmission(rqt)
             collectionValidationService.executeCollectionValidators(processed)
-            if (processed.requiresDoi) doiService.registerDoi(processed)
+            val doiPreviouslyRequested = rqt.previousVersion?.doiRequested.orFalse()
+            if (doiPreviouslyRequested.not() && processed.doiRequested) doiService.registerDoi(processed)
             rqt.draftKey?.let { acceptDraft(rqt.accNo, rqt.owner, it) }
             logger.info { "${rqt.accNo} ${rqt.owner} Finished processing submission request" }
 
@@ -104,6 +106,6 @@ class SubmissionSubmitter(
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACTIVE" }
     }
 
-    private val ExtSubmission.requiresDoi: Boolean
+    private val ExtSubmission.doiRequested: Boolean
         get() = attributes.find { it.name == DOI_REQUESTED.value } != null
 }

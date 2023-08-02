@@ -17,12 +17,14 @@ import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 class SubmissionSubmitterTest(
+    @MockK private val request: SubmitRequest,
     @MockK private val doiService: DoiService,
     @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
     @MockK private val submissionProcessor: SubmissionProcessor,
@@ -40,23 +42,19 @@ class SubmissionSubmitterTest(
     @AfterEach
     fun afterEach() = clearAllMocks()
 
+    @BeforeEach
+    fun beforeEach() {
+        setUpRequest()
+        setUpDraftService()
+    }
+
     @Test
-    fun `create request`(
-        @MockK request: SubmitRequest,
-    ) {
+    fun `create request`() {
         val submission = basicExtSubmission
         val extRequestSlot = slot<ExtSubmitRequest>()
 
-        every { request.draftKey } returns "TMP_123"
-        every { request.owner } returns submission.owner
-        every { request.accNo } returns submission.accNo
         every { submissionProcessor.processSubmission(request) } returns submission
-        every { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
         every { collectionValidationService.executeCollectionValidators(submission) } answers { nothing }
-        every { draftService.setActiveStatus("TMP_123") } answers { nothing }
-        every { draftService.setProcessingStatus(submission.owner, "TMP_123") } answers { nothing }
-        every { draftService.setAcceptedStatus("S-TEST123") } answers { nothing }
-        every { draftService.deleteSubmissionDraft(submission.submitter, "S-TEST123") } answers { nothing }
         every {
             submissionSubmitter.createRequest(capture(extRequestSlot))
         } returns (submission.accNo to submission.version)
@@ -80,23 +78,13 @@ class SubmissionSubmitterTest(
     }
 
     @Test
-    fun `create request with doi`(
-        @MockK request: SubmitRequest,
-    ) {
+    fun `create request with doi`() {
         val submission = basicExtSubmission.copy(attributes = listOf(ExtAttribute(DOI_REQUESTED.value, "")))
         val extRequestSlot = slot<ExtSubmitRequest>()
 
-        every { request.draftKey } returns "TMP_123"
-        every { request.owner } returns submission.owner
-        every { request.accNo } returns submission.accNo
         every { doiService.registerDoi(submission) } answers { nothing }
         every { submissionProcessor.processSubmission(request) } returns submission
-        every { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
         every { collectionValidationService.executeCollectionValidators(submission) } answers { nothing }
-        every { draftService.setActiveStatus("TMP_123") } answers { nothing }
-        every { draftService.setProcessingStatus(submission.owner, "TMP_123") } answers { nothing }
-        every { draftService.setAcceptedStatus("S-TEST123") } answers { nothing }
-        every { draftService.deleteSubmissionDraft(submission.submitter, "S-TEST123") } answers { nothing }
         every {
             submissionSubmitter.createRequest(capture(extRequestSlot))
         } returns (submission.accNo to submission.version)
@@ -120,18 +108,41 @@ class SubmissionSubmitterTest(
     }
 
     @Test
-    fun `create with failure on validation`(
-        @MockK request: SubmitRequest,
-    ) {
+    fun `create request with doi already existing`() {
+        val submission = basicExtSubmission.copy(attributes = listOf(ExtAttribute(DOI_REQUESTED.value, "")))
+        val extRequestSlot = slot<ExtSubmitRequest>()
+
+        every { request.previousVersion } returns submission
+        every { doiService.registerDoi(submission) } answers { nothing }
+        every { submissionProcessor.processSubmission(request) } returns submission
+        every { collectionValidationService.executeCollectionValidators(submission) } answers { nothing }
+        every {
+            submissionSubmitter.createRequest(capture(extRequestSlot))
+        } returns (submission.accNo to submission.version)
+
+        testInstance.createRequest(request)
+
+        val extRequest = extRequestSlot.captured
+        assertThat(extRequest.draftKey).isEqualTo("TMP_123")
+        assertThat(extRequest.submission).isEqualTo(submission)
+        verify(exactly = 1) {
+            submissionProcessor.processSubmission(request)
+            collectionValidationService.executeCollectionValidators(submission)
+            draftService.setProcessingStatus(submission.owner, "TMP_123")
+            submissionSubmitter.createRequest(extRequest)
+            draftService.setAcceptedStatus("TMP_123")
+        }
+        verify(exactly = 0) {
+            doiService.registerDoi(submission)
+            draftService.setActiveStatus("TMP_123")
+        }
+    }
+
+    @Test
+    fun `create with failure on validation`() {
         val submission = basicExtSubmission
         val extRequestSlot = slot<ExtSubmitRequest>()
 
-        every { request.draftKey } returns "TMP_123"
-        every { request.owner } returns submission.owner
-        every { request.accNo } returns submission.accNo
-        every { draftService.setActiveStatus("TMP_123") } answers { nothing }
-        every { draftService.setProcessingStatus(submission.owner, "TMP_123") } answers { nothing }
-        every { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
         every { submissionProcessor.processSubmission(request) } throws RuntimeException("validation error")
 
         assertThrows<InvalidSubmissionException> { testInstance.createRequest(request) }
@@ -146,5 +157,20 @@ class SubmissionSubmitterTest(
             submissionSubmitter.createRequest(capture(extRequestSlot))
             draftService.setAcceptedStatus("TMP_123")
         }
+    }
+
+    private fun setUpRequest() {
+        every { request.draftKey } returns "TMP_123"
+        every { request.owner } returns basicExtSubmission.owner
+        every { request.accNo } returns basicExtSubmission.accNo
+        every { request.previousVersion } returns null
+    }
+
+    private fun setUpDraftService() {
+        every { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
+        every { draftService.setActiveStatus("TMP_123") } answers { nothing }
+        every { draftService.setAcceptedStatus("S-TEST123") } answers { nothing }
+        every { draftService.setProcessingStatus(basicExtSubmission.owner, "TMP_123") } answers { nothing }
+        every { draftService.deleteSubmissionDraft(basicExtSubmission.submitter, "S-TEST123") } answers { nothing }
     }
 }
