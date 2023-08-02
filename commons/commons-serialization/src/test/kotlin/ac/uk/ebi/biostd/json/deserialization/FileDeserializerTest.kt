@@ -46,7 +46,7 @@ class FileDeserializerTest {
     }
 
     @Test
-    fun `deserialize with attributes`() {
+    fun `deserialize file with attributes`() {
         val fileJson = jsonObj {
             "path" to "/path/file.txt"
             "attributes" to jsonArray({
@@ -57,6 +57,22 @@ class FileDeserializerTest {
 
         val file = testInstance.readValue<BioFile>(fileJson)
         val expected = BioFile("/path/file.txt", attributes = listOf(Attribute("attr name", "attr value")))
+
+        assertThat(file).isEqualTo(expected)
+    }
+
+    @Test
+    fun `deserialize directory with attributes`() {
+        val fileJson = jsonObj {
+            "path" to "/path/inner/folder"
+            "attributes" to jsonArray({
+                "name" to "attr name"
+                "value" to "attr value"
+            })
+        }.toString()
+
+        val file = testInstance.readValue<BioFile>(fileJson)
+        val expected = BioFile("/path/inner/folder", attributes = listOf(Attribute("attr name", "attr value")))
 
         assertThat(file).isEqualTo(expected)
     }

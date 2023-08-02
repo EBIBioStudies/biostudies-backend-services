@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.json.deserialization
 
-import ac.uk.ebi.biostd.validation.InvalidElementException
-import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
+import ac.uk.ebi.biostd.common.getFilePath
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
@@ -23,10 +22,8 @@ internal class FileJsonDeserializer : StdDeserializer<BioFile>(BioFile::class.ja
         val node: JsonNode = mapper.readTree(jp)
         val path = node.getNode<TextNode>(PATH.value).textValue()
 
-        require(path.isNotBlank()) { throw InvalidElementException(REQUIRED_FILE_PATH) }
-
         return BioFile(
-            path = path,
+            path = getFilePath(path),
             attributes = mapper.convertOrDefault(node, ATTRIBUTES.value) { emptyList() },
             type = node.findNode<TextNode>(TYPE.value)?.textValue() ?: FILE_TYPE.value
         )
