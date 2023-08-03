@@ -1,4 +1,5 @@
 
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Projects.ClientBioWebClient
@@ -27,6 +28,7 @@ dependencies {
     api(project(SubmissionPersistenceMongo))
 
     implementation(Awaitility)
+    implementation(KotlinCoroutines)
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
     implementation(SpringBootStarter)

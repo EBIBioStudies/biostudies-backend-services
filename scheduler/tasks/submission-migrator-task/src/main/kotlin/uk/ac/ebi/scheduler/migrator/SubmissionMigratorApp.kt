@@ -1,5 +1,6 @@
 package uk.ac.ebi.scheduler.migrator
 
+import kotlinx.coroutines.runBlocking
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -24,7 +25,7 @@ class SubmissionMigratorExecutor(
     private lateinit var context: ApplicationContext
 
     override fun run(vararg args: String?) {
-        submissionMigratorService.migrateSubmissions()
+        runBlocking { submissionMigratorService.migrateSubmissions() }
     }
 
     override fun setApplicationContext(applicationContext: ApplicationContext) {
