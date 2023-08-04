@@ -45,9 +45,13 @@ app:
     environment: TEST
     requireActivation: false
     filesProperties:
+      defaultMode: NFS
       filesDirPath:
       magicDirPath:
-      defaultMode: NFS
+      ftpUser:
+      ftpPassword:
+      ftpUrl:
+      ftpPort:
   validator:
     euToxRiskValidationApi: # EU-ToxRisk validation API
   featureFlags:

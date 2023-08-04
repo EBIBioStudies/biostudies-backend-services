@@ -154,7 +154,7 @@ class SubmissionListApiTest(
             assertThat(it.accno).isEqualTo("SECT-123")
             assertThat(it.version).isEqualTo(1)
             assertThat(it.method).isEqualTo(PAGE_TAB)
-            assertThat(it.title).isEqualTo("Submission subTitle")
+            assertThat(it.title).isEqualTo("Submission With Section")
             assertThat(it.status).isEqualTo("PROCESSED")
         }
     }

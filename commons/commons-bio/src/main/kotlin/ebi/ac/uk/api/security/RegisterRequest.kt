@@ -15,9 +15,10 @@ class RegisterRequest(
     var path: String? = null,
     var orcid: String? = null,
     val notificationsEnabled: Boolean = false,
+    val userFolderType: String? = null,
 
     @JsonProperty("recaptcha2-response")
-    val captcha: String? = null
+    val captcha: String? = null,
 )
 
 class CheckUserRequest(

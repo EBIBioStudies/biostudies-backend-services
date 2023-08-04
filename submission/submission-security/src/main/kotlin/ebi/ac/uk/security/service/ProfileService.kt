@@ -14,7 +14,10 @@ import ebi.ac.uk.security.integration.model.api.UserInfo
 import java.nio.file.Path
 import java.nio.file.Paths
 
-class ProfileService(private val filesDirPath: Path) {
+class ProfileService(
+    private val filesDirPath: Path,
+    private val environment: String,
+) {
     fun getUserProfile(user: DbUser, token: String): UserInfo = UserInfo(asSecurityUser(user), token)
 
     fun asSecurityUser(user: DbUser): SecurityUser = SecurityUser(
@@ -47,7 +50,7 @@ class ProfileService(private val filesDirPath: Path) {
 
         fun ftpFolder(): FtpUserFolder {
             val relativePath = magicPath(secret, id, "a")
-            return FtpUserFolder(Paths.get(relativePath))
+            return FtpUserFolder(Paths.get("$environment/$relativePath"))
         }
 
         return when (folderType) {

@@ -22,6 +22,15 @@ spring:
     username: # RabbitMQ user
     password: # RabbitMQ password
 
+
+logging:
+  file:
+    path: logs
+  logback:
+    rollingpolicy:
+      file-name-pattern: logs/start_logs.%d{yyyy-MM-dd}.%i.log.gz
+      max-file-size: 100MB
+
 app:
   notifications:
     smtp: smtp.ebi.ac.uk

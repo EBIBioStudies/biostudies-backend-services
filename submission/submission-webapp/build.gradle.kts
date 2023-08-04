@@ -1,6 +1,7 @@
 import Dependencies.Arrow
 import Dependencies.CommonsFileUpload
 import Dependencies.CommonsIO
+import Dependencies.CommonsNet
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
@@ -38,6 +39,7 @@ import SpringBootDependencies.SpringRetry
 import TestDependencies.Awaitility
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.FtpServer
 import TestDependencies.JsonPathAssert
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.TestContainer
@@ -49,6 +51,8 @@ import TestDependencies.Wiremock
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
 import TestDependencies.rabitMqMock
+import TestDependencies.slf4jApi
+import TestDependencies.slf4jImp
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 buildscript {
@@ -60,12 +64,12 @@ buildscript {
 }
 
 plugins {
-    id("com.gorylenko.gradle-git-properties") version "2.4.0-rc1"
-    id("org.jetbrains.kotlin.plugin.spring") version "1.6.10"
-    id("io.spring.dependency-management") version "1.0.12.RELEASE"
-    id("org.springframework.boot") version "2.7.1"
-    id("org.jetbrains.kotlin.plugin.jpa") version "1.6.10"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.6.10"
+    id(Plugins.GitProperties) version PluginVersions.GitPropertiesVersion
+    id(Plugins.KotlinSpringPlugin) version PluginVersions.KotlinPluginVersion
+    id(Plugins.KotlinJpaPlugin) version PluginVersions.KotlinPluginVersion
+    id(Plugins.KotlinAllOpenPlugin) version PluginVersions.KotlinPluginVersion
+    id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion
+    id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
 }
 
 allOpen {
@@ -102,6 +106,7 @@ dependencies {
 
     implementation(Arrow)
     implementation(CommonsFileUpload)
+    implementation(CommonsNet)
     implementation(CommonsIO)
     implementation(MySql)
     implementation(KotlinReflect)
@@ -122,6 +127,10 @@ dependencies {
     testImplementation(SpringBootStarterTest)
     testImplementation(rabitMqMock)
     testImplementation(Wiremock)
+
+    testImplementation(slf4jApi)
+    testImplementation(slf4jImp)
+    testImplementation(FtpServer)
 
     testImplementation(KotlinXmlBuilder)
     testImplementation(JsonPathAssert)

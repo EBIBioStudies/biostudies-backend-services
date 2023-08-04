@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
@@ -154,6 +155,7 @@ class SubmissionConfig(
         extSubmissionQueryService: ExtSubmissionQueryService,
         toSubmissionMapper: ToSubmissionMapper,
         queryService: SubmissionMetaQueryService,
+        fileServiceFactory: FileServiceFactory,
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
@@ -162,6 +164,7 @@ class SubmissionConfig(
             serializationService,
             toSubmissionMapper,
             queryService,
+            fileServiceFactory
         )
 
     @Bean

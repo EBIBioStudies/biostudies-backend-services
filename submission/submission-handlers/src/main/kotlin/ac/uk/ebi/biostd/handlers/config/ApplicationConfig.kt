@@ -42,8 +42,14 @@ class Listeners {
 
     @Bean
     fun securityNotificationsListener(
-        securityNotificationService: SecurityNotificationService
-    ): SecurityNotificationListener = SecurityNotificationListener(securityNotificationService)
+        rabbitTemplate: RabbitTemplate,
+        notificationsSender: NotificationsSender,
+        securityNotificationService: SecurityNotificationService,
+    ): SecurityNotificationListener = SecurityNotificationListener(
+        rabbitTemplate,
+        notificationsSender,
+        securityNotificationService,
+    )
 }
 
 @Configuration
