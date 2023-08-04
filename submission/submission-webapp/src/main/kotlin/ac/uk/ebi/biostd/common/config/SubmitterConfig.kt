@@ -85,7 +85,7 @@ class SubmitterConfig(
             fileProcessingService,
             persistenceService,
             filesRequestService,
-            eventsPublisherService
+            eventsPublisherService,
         )
     }
 
@@ -136,11 +136,13 @@ class SubmitterConfig(
     fun submissionRequestFinalizer(
         storageService: FileStorageService,
         serializationService: ExtSerializationService,
+        eventsPublisherService: EventsPublisherService,
         queryService: SubmissionPersistenceQueryService,
         requestService: SubmissionRequestPersistenceService,
     ): SubmissionRequestFinalizer = SubmissionRequestFinalizer(
         storageService,
         serializationService,
+        eventsPublisherService,
         queryService,
         requestService,
     )

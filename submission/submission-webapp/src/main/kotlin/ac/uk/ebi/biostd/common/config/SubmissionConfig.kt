@@ -39,6 +39,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.events.service.EventsPublisherService
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.net.URI
 
 @Configuration
@@ -84,16 +85,25 @@ class SubmissionConfig(
 
     @Bean
     fun submissionStagesHandler(
+        statsService: SubmissionStatsService,
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
-    ): SubmissionStagesHandler = SubmissionStagesHandler(submissionSubmitter, eventsPublisherService)
+    ): SubmissionStagesHandler = SubmissionStagesHandler(statsService, submissionSubmitter, eventsPublisherService)
 
     @Bean
     fun submissionStatsService(
         statsFileHandler: StatsFileHandler,
         tempFileGenerator: TempFileGenerator,
         submissionStatsService: StatsDataService,
-    ): SubmissionStatsService = SubmissionStatsService(statsFileHandler, tempFileGenerator, submissionStatsService)
+        extSerializationService: ExtSerializationService,
+        extSubmissionQueryService: ExtSubmissionQueryService,
+    ): SubmissionStatsService = SubmissionStatsService(
+        statsFileHandler,
+        tempFileGenerator,
+        submissionStatsService,
+        extSerializationService,
+        extSubmissionQueryService,
+    )
 
     @Bean
     fun extSubmissionQueryService(
