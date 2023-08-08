@@ -19,6 +19,7 @@ import Projects.SubmissionConfig
 import Projects.SubmissionPersistenceCommonApi
 import Projects.SubmissionPersistenceFilesystem
 import SpringBootDependencies.SpringBootStarterMongo
+import SpringBootDependencies.SpringBootStarterReactiveMongo
 import SpringBootDependencies.SpringBootStarterTest
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -58,6 +59,7 @@ dependencies {
     implementation(MongockSpringDataV3)
     implementation(MongockSpringV5)
     implementation(SpringBootStarterMongo)
+    implementation(SpringBootStarterReactiveMongo)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

@@ -12,14 +12,14 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACCEPTED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update.update
 
 class SubmissionDraftDocDataRepository(
     private val submissionDraftRepository: SubmissionDraftRepository,
-    private val mongoTemplate: MongoTemplate,
+    private val mongoTemplate: ReactiveMongoTemplate,
 ) : SubmissionDraftRepository by submissionDraftRepository {
     fun saveDraft(userId: String, key: String, content: String): DocSubmissionDraft {
         val draft = DocSubmissionDraft(userId, key, content, ACTIVE)
@@ -33,12 +33,12 @@ class SubmissionDraftDocDataRepository(
         val query = Query(
             where(USER_ID).`is`(userEmail).andOperator(where(KEY).`is`(key), where(STATUS).ne(ACCEPTED))
         )
-        mongoTemplate.updateFirst(query, update(STATUS, newStatus), DocSubmissionDraft::class.java)
+        mongoTemplate.updateFirst(query, update(STATUS, newStatus), DocSubmissionDraft::class.java).block()
     }
 
     fun setStatus(key: String, status: DraftStatus) {
         val query = Query(where(KEY).`is`(key).andOperator(where(STATUS).ne(ACCEPTED)))
-        mongoTemplate.updateMulti(query, update(STATUS, status), DocSubmissionDraft::class.java)
+        mongoTemplate.updateMulti(query, update(STATUS, status), DocSubmissionDraft::class.java).block()
     }
 
     fun updateDraftContent(userId: String, key: String, content: String) {
@@ -46,7 +46,7 @@ class SubmissionDraftDocDataRepository(
             Query(where(USER_ID).`is`(userId).andOperator(where(KEY).`is`(key), where(STATUS).`is`(ACTIVE))),
             update(CONTENT, content),
             DocSubmissionDraft::class.java
-        )
+        ).block()
     }
 
     fun createDraft(userId: String, key: String, content: String): DocSubmissionDraft {

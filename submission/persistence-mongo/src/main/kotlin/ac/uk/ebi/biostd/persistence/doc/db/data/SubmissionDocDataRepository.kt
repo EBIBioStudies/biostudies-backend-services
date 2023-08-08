@@ -26,7 +26,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation.group
 import org.springframework.data.mongodb.core.aggregation.Aggregation.limit
 import org.springframework.data.mongodb.core.aggregation.Aggregation.match
@@ -45,11 +45,11 @@ import java.time.Instant
 @Suppress("SpreadOperator", "TooManyFunctions")
 class SubmissionDocDataRepository(
     private val submissionRepository: SubmissionMongoRepository,
-    private val mongoTemplate: MongoTemplate,
+    private val mongoTemplate: ReactiveMongoTemplate,
 ) : SubmissionMongoRepository by submissionRepository {
     fun setAsReleased(accNo: String) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
-        mongoTemplate.updateFirst(query, update(SUB_RELEASED, true), DocSubmission::class.java)
+        mongoTemplate.updateFirst(query, update(SUB_RELEASED, true), DocSubmission::class.java).block()
     }
 
     fun getCurrentMaxVersion(accNo: String): Int? {
@@ -60,7 +60,8 @@ class SubmissionDocDataRepository(
             sort(Sort.Direction.DESC, "maxVersion")
         )
 
-        return mongoTemplate.aggregate(aggregation, Result::class.java).uniqueMappedResult?.maxVersion
+        val result = mongoTemplate.aggregate(aggregation, Result::class.java).blockFirst()
+        return result?.maxVersion
     }
 
     fun expireVersions(submissions: List<String>) {
@@ -68,7 +69,8 @@ class SubmissionDocDataRepository(
             Query(where(SUB_ACC_NO).`in`(submissions).andOperator(where(SUB_VERSION).gt(0))),
             ExtendedUpdate().multiply(SUB_VERSION, -1).set(SUB_MODIFICATION_TIME, Instant.now()),
             DocSubmission::class.java
-        )
+        ).block()
+
         val fileListQuery = Query(
             where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO).`in`(submissions)
                 .andOperator(where(FILE_LIST_DOC_FILE_SUBMISSION_VERSION).gt(0))
@@ -79,7 +81,7 @@ class SubmissionDocDataRepository(
                 .multiply(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, -1)
                 .set(SUB_MODIFICATION_TIME, Instant.now()),
             FileListDocFile::class.java
-        )
+        ).block()
     }
 
     fun getCollections(accNo: String): List<DocCollection> =
@@ -91,7 +93,9 @@ class SubmissionDocDataRepository(
             *createSubmissionAggregation(filter, email).toTypedArray()
         ).withOptions(aggregationOptions())
 
-        return mongoTemplate.aggregate(aggregation, DocSubmission::class.java).mappedResults
+        return mongoTemplate.aggregate(aggregation, DocSubmission::class.java)
+            .collectList()
+            .block()!!
     }
 
     fun getSubmissionsPage(filter: SubmissionFilter): Page<DocSubmission> {
@@ -100,10 +104,11 @@ class SubmissionDocDataRepository(
             *createCountAggregation(filter).toTypedArray()
         ).withOptions(aggregationOptions())
 
+        val result = mongoTemplate.aggregate(aggregation, CountResult::class.java)
         return PageImpl(
             getSubmissions(filter),
             PageRequest.of(filter.pageNumber, filter.limit),
-            mongoTemplate.aggregate(aggregation, CountResult::class.java).uniqueMappedResult?.submissions ?: 0
+            result.blockFirst()?.submissions ?: 0
         )
     }
 
