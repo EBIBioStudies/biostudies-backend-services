@@ -48,7 +48,7 @@ class SubmissionPerformanceTest(
         val files = 100
         val delay = System.getenv(fixedDelayEnv).toLong()
 
-        val subFiles = (1..files).map { tempFolder.createFile("${it}.txt") }
+        val subFiles = (1..files).map { tempFolder.createFile("$it.txt") }
         webClient.uploadFiles(subFiles)
 
         val performanceSubmission = tsv {
