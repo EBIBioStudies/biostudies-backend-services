@@ -13,12 +13,12 @@ import uk.ac.ebi.scheduler.migrator.service.SubmissionMigratorService
 @EnableConfigurationProperties(ApplicationProperties::class)
 class ApplicationConfig(
     private val migratorRepository: MigratorRepository,
-    private val appProperties: ApplicationProperties,
+    private val properties: ApplicationProperties,
 ) {
     @Bean
     fun submissionMigratorService(
         bioWebClient: BioWebClient,
-    ): SubmissionMigratorService = SubmissionMigratorService(bioWebClient, migratorRepository)
+    ): SubmissionMigratorService = SubmissionMigratorService(properties.concurrency, bioWebClient, migratorRepository)
 
     @Bean
     fun submissionMigratorExecutor(
@@ -28,6 +28,6 @@ class ApplicationConfig(
     @Bean
     fun bioWebClient(): BioWebClient =
         SecurityWebClient
-            .create(appProperties.bioStudies.url)
-            .getAuthenticatedClient(appProperties.bioStudies.user, appProperties.bioStudies.password)
+            .create(properties.bioStudies.url)
+            .getAuthenticatedClient(properties.bioStudies.user, properties.bioStudies.password)
 }

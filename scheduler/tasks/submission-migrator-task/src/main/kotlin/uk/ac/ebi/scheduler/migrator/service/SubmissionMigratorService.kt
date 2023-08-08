@@ -16,6 +16,7 @@ import java.time.Duration
 private val logger = KotlinLogging.logger {}
 
 class SubmissionMigratorService(
+    private val concurrency: Int,
     private val bioWebClient: BioWebClient,
     private val migratorRepository: MigratorRepository,
 ) {
@@ -23,7 +24,7 @@ class SubmissionMigratorService(
         withContext(Dispatchers.Default) {
             migratorRepository
                 .getReadyToMigrate()
-                .chunked(5)
+                .chunked(concurrency)
                 .forEach { dataChunk ->
                     dataChunk
                         .map { async { migrateSafely(it) } }

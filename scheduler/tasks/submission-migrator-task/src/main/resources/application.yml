@@ -4,6 +4,7 @@ spring:
       database: # The name of the database to access the data
       uri: # The database connection URI
 app:
+  concurrency: # Number of submissions processed concurrently
   bioStudies:
     url: # BioStudies backend URL
     user: # BioStudies manager user

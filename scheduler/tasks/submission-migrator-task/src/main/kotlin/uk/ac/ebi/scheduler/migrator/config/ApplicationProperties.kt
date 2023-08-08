@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConfigurationProperties(prefix = "app")
 @ConstructorBinding
 data class ApplicationProperties(
+    val concurrency: Int,
     val bioStudies: BioStudies,
 )
 
