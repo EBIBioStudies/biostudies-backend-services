@@ -33,7 +33,7 @@ class SubmitAsyncResource(
         headers = ["$SUBMISSION_TYPE=$TEXT_XML"],
         produces = [APPLICATION_JSON_VALUE]
     )
-    fun submitXml(
+    suspend fun submitXml(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestBody submission: String,
@@ -50,7 +50,7 @@ class SubmitAsyncResource(
         produces = [APPLICATION_JSON_VALUE]
     )
     @ResponseBody
-    fun submitTsv(
+    suspend fun submitTsv(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestBody submission: String,
@@ -66,7 +66,7 @@ class SubmitAsyncResource(
         headers = ["$SUBMISSION_TYPE=$APPLICATION_JSON"],
         produces = [APPLICATION_JSON_VALUE]
     )
-    fun submitJson(
+    suspend fun submitJson(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestBody submission: String,

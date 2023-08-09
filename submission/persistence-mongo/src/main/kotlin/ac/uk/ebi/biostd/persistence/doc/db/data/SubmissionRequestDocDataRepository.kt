@@ -48,17 +48,21 @@ class SubmissionRequestDocDataRepository(
     private val extSerializationService: ExtSerializationService,
     private val submissionRequestRepository: SubmissionRequestRepository,
 ) : SubmissionRequestRepository by submissionRequestRepository {
+
     fun saveRequest(request: DocSubmissionRequest): Pair<DocSubmissionRequest, Boolean> {
         val result = mongoTemplate.upsert(
             Query(where(RQT_ACC_NO).`is`(request.accNo).andOperator(where(RQT_STATUS).ne(PROCESSED))),
             request.asSetOnInsert(),
             DocSubmissionRequest::class.java
-        ).block()
+        ).block()!!
         val created = result.matchedCount < 1
         return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING) to created
     }
 
-    fun findActiveRequests(filter: SubmissionFilter, email: String? = null): Pair<Int, List<DocSubmissionRequest>> {
+    fun findActiveRequests(
+        filter: SubmissionFilter,
+        email: String? = null,
+    ): Pair<Int, List<DocSubmissionRequest>> {
         val query = Query().addCriteria(createQuery(filter, email))
         val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java).block()
         return when {

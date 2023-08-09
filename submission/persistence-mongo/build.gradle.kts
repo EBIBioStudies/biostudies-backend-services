@@ -3,6 +3,8 @@ import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
 import Dependencies.Guava
 import Dependencies.JSONOrg
+import Dependencies.KotlinCoroutines
+import Dependencies.KotlinCoroutinesReactor
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Dependencies.MongockBom
@@ -55,6 +57,8 @@ dependencies {
     implementation(JSONOrg)
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
+    implementation(KotlinCoroutines)
+    implementation(KotlinCoroutinesReactor)
     implementation(MongockBom)
     implementation(MongockSpringDataV3)
     implementation(MongockSpringV5)

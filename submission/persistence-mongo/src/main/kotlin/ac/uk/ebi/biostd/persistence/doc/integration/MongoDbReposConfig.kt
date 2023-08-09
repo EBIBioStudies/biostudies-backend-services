@@ -7,8 +7,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionDraftRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionDraftRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionStatsRepository
