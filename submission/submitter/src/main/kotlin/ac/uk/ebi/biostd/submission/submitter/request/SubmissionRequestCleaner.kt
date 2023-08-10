@@ -36,15 +36,15 @@ class SubmissionRequestCleaner(
 
         if (current != null) {
             logger.info { "${new.accNo} ${new.owner} Started cleaning common files of version ${new.version}" }
-            deleteCommonFiles(new, current)
+            runBlocking { deleteCommonFiles(new, current) }
             logger.info { "${new.accNo} ${new.owner} Finished cleaning common files of version ${new.version}" }
         }
 
         requestService.saveSubmissionRequest(request.withNewStatus(status = CLEANED))
     }
 
-    private fun deleteCommonFiles(new: ExtSubmission, current: ExtSubmission) {
-        fun deleteFile(index: Int, file: ExtFile) {
+    private suspend fun deleteCommonFiles(new: ExtSubmission, current: ExtSubmission) {
+        suspend fun deleteFile(index: Int, file: ExtFile) {
             logger.info { "${current.accNo} ${current.owner} Deleting file $index, path='${file.filePath}'" }
             storageService.deleteSubmissionFile(current, file)
         }

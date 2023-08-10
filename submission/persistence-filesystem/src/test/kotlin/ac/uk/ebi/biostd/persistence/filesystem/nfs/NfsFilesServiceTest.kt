@@ -15,6 +15,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -38,7 +39,7 @@ class NfsFilesServiceTest(
         val sub = basicExtSubmission
         val file = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
 
-        val persisted = testInstance.persistSubmissionFile(sub, file) as NfsFile
+        val persisted = runBlocking { testInstance.persistSubmissionFile(sub, file) } as NfsFile
 
         assertThat(persisted.fullPath).isEqualTo("${subFolder.absolutePath}/${sub.relPath}/${file.relPath}")
         assertThat(Files.exists(Paths.get("${subFolder.absolutePath}/${sub.relPath}/${file.relPath}"))).isTrue()
@@ -52,7 +53,7 @@ class NfsFilesServiceTest(
 
         every { fireClient.downloadByPath("/a/file.txt") } returns downloaded
 
-        val persisted = testInstance.persistSubmissionFile(sub, fireFile) as NfsFile
+        val persisted = runBlocking { testInstance.persistSubmissionFile(sub, fireFile) } as NfsFile
 
         verify(exactly = 1) { fireClient.downloadByPath("/a/file.txt") }
         assertThat(persisted.fullPath).isEqualTo("${subFolder.absolutePath}/${sub.relPath}/${fireFile.relPath}")
@@ -80,7 +81,7 @@ class NfsFilesServiceTest(
         val nfsFile = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
 
         val sub = basicExtSubmission.copy(relPath = "S-BSST3")
-        testInstance.deleteSubmissionFile(sub, nfsFile)
+        runBlocking { testInstance.deleteSubmissionFile(sub, nfsFile) }
 
         assertThat(Files.exists(file.toPath())).isFalse()
     }
@@ -90,7 +91,7 @@ class NfsFilesServiceTest(
         @MockK fireFile: FireFile,
         @MockK submission: ExtSubmission,
     ) {
-        val exception = assertFails { testInstance.deleteSubmissionFile(submission, fireFile) }
+        val exception = assertFails { runBlocking { testInstance.deleteSubmissionFile(submission, fireFile) } }
         assertThat(exception.message).isEqualTo("NfsFilesService should only handle NfsFile")
     }
 }

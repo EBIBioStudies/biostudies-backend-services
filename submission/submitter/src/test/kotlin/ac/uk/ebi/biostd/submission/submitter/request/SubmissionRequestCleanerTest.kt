@@ -19,6 +19,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -67,7 +68,7 @@ class SubmissionRequestCleanerTest(
 
         verify(exactly = 1) { requestService.saveSubmissionRequest(cleanedRequest) }
         verify(exactly = 0) {
-            storageService.deleteSubmissionFile(any(), any())
+            runBlocking { storageService.deleteSubmissionFile(any(), any()) }
         }
     }
 
@@ -96,14 +97,14 @@ class SubmissionRequestCleanerTest(
         every { requestService.getLoadedRequest("S-BSST1", 2) } returns loadedRequest
         every { serializationService.fileSequence(current) } returns sequenceOf(currentFile)
         every { requestService.saveSubmissionRequest(cleanedRequest) } returns ("S-BSST1" to 2)
-        every { storageService.deleteSubmissionFile(current, currentFile) } answers { nothing }
+        every { runBlocking { storageService.deleteSubmissionFile(current, currentFile) } } answers { nothing }
         every { filesRequestService.getSubmissionRequestFiles("S-BSST1", 2, 0) } returns flowOf(requestFile)
 
         testInstance.cleanCurrentVersion("S-BSST1", 2)
 
         verify(exactly = 1) {
             requestService.saveSubmissionRequest(cleanedRequest)
-            storageService.deleteSubmissionFile(current, currentFile)
+            runBlocking { storageService.deleteSubmissionFile(current, currentFile) }
         }
     }
 

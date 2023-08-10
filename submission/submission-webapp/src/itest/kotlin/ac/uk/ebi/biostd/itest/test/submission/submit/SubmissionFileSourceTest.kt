@@ -34,6 +34,7 @@ import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.second
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
@@ -149,8 +150,8 @@ class SubmissionFileSourceTest(
         val file3Md5 = file3.md5()
         val file4Md5 = file4.md5()
 
-        val fireFile3 = fireClient.save(file3, file3Md5, 55L)
-        val fireFile4 = fireClient.save(file4, file4Md5, 55L)
+        val fireFile3 = runBlocking { fireClient.save(file3, file3Md5, 55L) }
+        val fireFile4 = runBlocking { fireClient.save(file4, file4Md5, 55L) }
 
         val submission = tsv {
             line("Submission", "S-FSTST2")

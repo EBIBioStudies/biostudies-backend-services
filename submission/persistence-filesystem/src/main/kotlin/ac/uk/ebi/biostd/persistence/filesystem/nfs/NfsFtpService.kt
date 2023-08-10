@@ -13,7 +13,7 @@ import java.io.File
 class NfsFtpService(
     private val folderResolver: SubmissionFolderResolver,
 ) : FtpService {
-    override fun releaseSubmissionFile(file: ExtFile, subRelPath: String): ExtFile {
+    override suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String): ExtFile {
         return synchronized(this) {
             val nfsFile = file as NfsFile
             val ftpFolder = getFtpFolder(subRelPath).toPath()

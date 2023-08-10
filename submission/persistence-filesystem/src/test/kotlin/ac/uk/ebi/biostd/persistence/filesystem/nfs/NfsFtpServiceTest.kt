@@ -16,6 +16,7 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -59,7 +60,7 @@ internal class NfsFtpServiceTest(
             size = expectedFile1.size(),
         )
 
-        testInstance.releaseSubmissionFile(nfsFile, REL_PATH)
+        runBlocking { testInstance.releaseSubmissionFile(nfsFile, REL_PATH) }
 
         assertFolder(folderResolver.getSubmissionFtpFolder(REL_PATH).toFile())
     }

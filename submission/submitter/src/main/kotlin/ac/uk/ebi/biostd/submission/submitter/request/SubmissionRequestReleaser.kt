@@ -39,23 +39,23 @@ class SubmissionRequestReleaser(
      */
     fun checkReleased(accNo: String, version: Int) {
         val request = requestService.getFilesCopiedRequest(accNo, version)
-        if (request.submission.released) releaseRequest(accNo, version, request)
+        if (request.submission.released) runBlocking { releaseRequest(accNo, version, request) }
         requestService.saveSubmissionRequest(request.withNewStatus(CHECK_RELEASED))
     }
 
-    private fun releaseRequest(
+    private suspend fun releaseRequest(
         accNo: String,
         version: Int,
         request: SubmissionRequest,
     ) {
         val sub = request.submission
         logger.info { "$accNo ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
-        runBlocking { releaseSubmissionFiles(accNo, version, sub, request.currentIndex) }
+        releaseSubmissionFiles(accNo, version, sub, request.currentIndex)
         logger.info { "$accNo ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
     }
 
     private suspend fun releaseSubmissionFiles(accNo: String, version: Int, sub: ExtSubmission, startingAt: Int) {
-        fun releaseFile(reqFile: SubmissionRequestFile) {
+        suspend fun releaseFile(reqFile: SubmissionRequestFile) {
             when (val file = reqFile.file) {
                 is NfsFile ->
                     requestService.updateRqtIndex(reqFile, releaseFile(sub, reqFile.index, file))
@@ -81,25 +81,25 @@ class SubmissionRequestReleaser(
      */
     fun releaseSubmission(accNo: String) {
         val submission = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        releaseSubmission(submission)
+        runBlocking { releaseSubmission(submission) }
     }
 
     /**
      * Generates/refresh FTP status for a given submission.
      */
-    fun generateFtp(accNo: String) {
+    suspend fun generateFtp(accNo: String) {
         val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
         releaseSubmission(sub)
     }
 
-    private fun releaseFile(sub: ExtSubmission, idx: Int, file: ExtFile): ExtFile {
+    private suspend fun releaseFile(sub: ExtSubmission, idx: Int, file: ExtFile): ExtFile {
         logger.info { "${sub.accNo}, ${sub.owner} Started publishing file $idx - ${file.filePath}" }
         val releasedFile = fileStorageService.releaseSubmissionFile(file, sub.relPath, sub.storageMode)
         logger.info { "${sub.accNo}, ${sub.owner} Finished publishing file $idx - ${file.filePath}" }
         return releasedFile
     }
 
-    private fun releaseSubmission(sub: ExtSubmission) {
+    private suspend fun releaseSubmission(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
         serializationService.fileSequence(sub)
             .filterNot { it is FireFile && it.published }

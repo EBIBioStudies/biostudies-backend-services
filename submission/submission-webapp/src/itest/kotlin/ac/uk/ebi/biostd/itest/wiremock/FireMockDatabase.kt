@@ -24,15 +24,18 @@ class FireMockDatabase(
         return fireFile
     }
 
-    fun setPath(fireOid: String, firePath: String) {
+    fun setPath(fireOid: String, firePath: String): FireApiFile {
         if (recordsById.values.any { it.firePath == firePath }) {
             throw FireException("Path '$firePath' is already allocated", CONFLICT)
         }
 
-        val record = recordsById.getValue(fireOid)
-        recordsById[fireOid] = record.copy(firePath = firePath)
+        val record = recordsById.getValue(fireOid).copy(firePath = firePath)
+        recordsById[fireOid] = record
         fileSystem.setPath(fireOid, firePath)
+
         if (record.published) fileSystem.publish(firePath)
+
+        return record.toFile()
     }
 
     fun unsetPath(fireOid: String) {

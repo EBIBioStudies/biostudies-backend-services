@@ -36,7 +36,7 @@ class SubmissionRequestProcessor(
     }
 
     private suspend fun persistSubmissionFiles(sub: ExtSubmission, accNo: String, version: Int, startingAt: Int) {
-        fun persistFile(rqtFile: SubmissionRequestFile) {
+        suspend fun persistFile(rqtFile: SubmissionRequestFile) {
             logger.info { "$accNo ${sub.owner} Started persisting file ${rqtFile.index}, path='${rqtFile.path}'" }
             when (val persisted = storageService.persistSubmissionFile(sub, rqtFile.file)) {
                 rqtFile.file -> requestService.updateRqtIndex(accNo, version, rqtFile.index)

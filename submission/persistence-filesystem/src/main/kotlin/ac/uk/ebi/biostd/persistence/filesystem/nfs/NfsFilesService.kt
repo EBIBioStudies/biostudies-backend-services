@@ -25,7 +25,7 @@ class NfsFilesService(
     private val fireClient: FireClient,
     private val folderResolver: SubmissionFolderResolver,
 ) : FilesService {
-    override fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile {
+    override suspend fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile {
         return when (file) {
             is FireFile -> persistFireFile(sub, file)
             is NfsFile -> persistNfsFile(sub, file)
@@ -64,7 +64,7 @@ class NfsFilesService(
         return getOrCreateFolder(submissionPath, permissions).toFile()
     }
 
-    override fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {
+    override suspend fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {
         require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
 
         val subDirectory = folderResolver.getSubFolder(sub.relPath)

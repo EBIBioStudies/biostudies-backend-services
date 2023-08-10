@@ -1,5 +1,7 @@
 import Dependencies.AwsS3
 import Dependencies.JSONOrg
+import Dependencies.KotlinCoroutines
+import Dependencies.KotlinCoroutinesReactive
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -30,14 +32,16 @@ dependencies {
     api(project(CommonsUtil))
     api(project(CommonsHttp))
 
+    implementation(AwsS3)
+    implementation(JSONOrg)
+    implementation(KotlinCoroutines)
+    implementation(KotlinCoroutinesReactive)
+    implementation(KotlinLogging)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
-    implementation(KotlinLogging)
-    implementation(JSONOrg)
-    implementation(SpringWebFlux)
     implementation(ReactorNetty)
     implementation(SpringRetry)
-    implementation(AwsS3)
+    implementation(SpringWebFlux)
 
     testApi(project(CommonsTest))
     testApi(project(JsonLibrary))

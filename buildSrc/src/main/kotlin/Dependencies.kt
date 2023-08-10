@@ -196,6 +196,7 @@ object Dependencies {
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"
     const val KotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$KotlinVersion"
     const val KotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$KotlinCoroutinesVersion"
+    const val KotlinCoroutinesReactive = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$KotlinCoroutinesVersion"
     const val KotlinLogging = "io.github.microutils:kotlin-logging:$KotlinLoggingVersion"
 
     // Arrow

@@ -1,4 +1,5 @@
 import Dependencies.Arrow
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -45,6 +46,7 @@ dependencies {
     implementation(ZipUtil)
 
     testImplementation(project(CommonsTest))
+    testImplementation(KotlinCoroutines)
     testImplementation(testFixtures(project(CommonsModelExtendedSerialization)))
     testImplementation(testFixtures(project(CommonsModelExtended)))
     BaseTestCompileDependencies.forEach { testImplementation(it) }

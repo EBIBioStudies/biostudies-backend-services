@@ -21,6 +21,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -72,7 +73,7 @@ class SubmissionRequestReleaserTest(
         every { submission.relPath } returns relPath
         every { submission.storageMode } returns mode
         every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile, fireRqtFile)
-        every { storageService.releaseSubmissionFile(nfsFile, relPath, mode) } answers { releasedFile }
+        every { runBlocking { storageService.releaseSubmissionFile(nfsFile, relPath, mode) } } answers { releasedFile }
         every { requestService.saveSubmissionRequest(rqt.withNewStatus(CHECK_RELEASED)) } answers { accNo to version }
         every { requestService.getFilesCopiedRequest(accNo, version) } returns rqt
         every { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
@@ -82,7 +83,7 @@ class SubmissionRequestReleaserTest(
 
         verify(exactly = 1) {
             requestService.saveSubmissionRequest(rqt.withNewStatus(CHECK_RELEASED))
-            storageService.releaseSubmissionFile(nfsFile, relPath, mode)
+            runBlocking { storageService.releaseSubmissionFile(nfsFile, relPath, mode) }
         }
     }
 

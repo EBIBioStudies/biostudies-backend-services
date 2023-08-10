@@ -3,9 +3,10 @@ package ac.uk.ebi.biostd.persistence.filesystem.fire
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.FireFile
 import io.mockk.clearAllMocks
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -45,9 +46,9 @@ class FireFtpServiceTest(
             objectSize = 123L,
             createTime = "2022-09-21"
         )
-        every { fireClient.publish(fireFile.fireId) } answers { apiFile }
+        coEvery { fireClient.publish(fireFile.fireId) } answers { apiFile }
 
-        val file = testInstance.releaseSubmissionFile(fireFile, "/rel/path")
+        val file = runBlocking { testInstance.releaseSubmissionFile(fireFile, "/rel/path") }
 
         assertThat(file.published).isTrue()
         assertThat(file.firePath).isEqualTo("fire-path")
