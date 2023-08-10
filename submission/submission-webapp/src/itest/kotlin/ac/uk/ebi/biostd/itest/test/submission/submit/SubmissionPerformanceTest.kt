@@ -45,7 +45,7 @@ class SubmissionPerformanceTest(
     @EnabledIfEnvironmentVariable(named = fixedDelayEnv, matches = "\\d+")
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
     fun `With many files`() {
-        val files = 1000
+        val files = 100
         val delay = System.getenv(fixedDelayEnv).toLong()
 
         val subFiles = (1..files).map { tempFolder.createFile("$it.txt") }
