@@ -44,27 +44,33 @@ class SubmissionPerformanceTest(
     @Test
     @EnabledIfEnvironmentVariable(named = fixedDelayEnv, matches = "\\d+")
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `test with many files`() {
-        val files = 100
+    fun `With many files`() {
+        val files = 1000
         val delay = System.getenv(fixedDelayEnv).toLong()
 
         val subFiles = (1..files).map { tempFolder.createFile("$it.txt") }
         webClient.uploadFiles(subFiles)
 
-        val performanceSubmission = tsv {
+        val fileList = tempFolder.createFile(
+            "FileList.tsv",
+            tsv {
+                line("Files")
+                subFiles.forEach { line(it.name) }
+            }.toString()
+        )
+        webClient.uploadFile(fileList)
+
+        val submission = tsv {
             line("Submission", "SPER-1")
             line("Title", "Performance Submission")
             line()
 
             line("Study")
-            line()
-
-            line("Files")
-            subFiles.forEach { line(it.name) }
+            line("File List", "FileList.tsv")
             line()
         }.toString()
 
-        val executionTime = measureTime { webClient.submitSingle(performanceSubmission, SubmissionFormat.TSV) }
+        val executionTime = measureTime { webClient.submitSingle(submission, SubmissionFormat.TSV) }
 
         // Execution time is bounded by 9 times the delay on each Fire operation
         val expectedTime = (9.0 * (files * delay)).toLong()
