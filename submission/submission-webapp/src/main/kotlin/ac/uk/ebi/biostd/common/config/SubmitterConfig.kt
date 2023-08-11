@@ -131,7 +131,6 @@ class SubmitterConfig(
         requestService: SubmissionRequestPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
     ): SubmissionRequestCleaner = SubmissionRequestCleaner(
-        properties.persistence.concurrency,
         storageService,
         serializationService,
         queryService,

@@ -35,12 +35,12 @@ import SpringBootDependencies.SpringBootStarterSecurity
 import SpringBootDependencies.SpringBootStarterTest
 import SpringBootDependencies.SpringBootStarterValidation
 import SpringBootDependencies.SpringBootStarterWeb
-import SpringBootDependencies.SpringRetry
 import TestDependencies.Awaitility
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.FtpServer
 import TestDependencies.JsonPathAssert
+import TestDependencies.KotlinCoroutinesTest
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
@@ -101,7 +101,6 @@ dependencies {
     implementation(SpringBootStarterSecurity)
     implementation(SpringBootStarterActuator)
     implementation(SpringBootStarterValidation)
-    implementation(SpringRetry)
     implementation(SpringBootStartedAdminClient)
 
     implementation(Arrow)
@@ -118,6 +117,7 @@ dependencies {
     implementation(SpringWebFlux)
     implementation(KotlinLogging)
 
+    testImplementation(KotlinCoroutinesTest)
     testImplementation(project(ClientBioWebClient))
     testImplementation(testFixtures(project(CommonsSerialization)))
     testImplementation(testFixtures(project(CommonsModelExtended)))

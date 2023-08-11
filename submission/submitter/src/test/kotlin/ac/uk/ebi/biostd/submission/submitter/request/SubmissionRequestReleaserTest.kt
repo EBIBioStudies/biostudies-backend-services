@@ -16,12 +16,13 @@ import ebi.ac.uk.extended.model.StorageMode
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.called
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -73,7 +74,7 @@ class SubmissionRequestReleaserTest(
         every { submission.relPath } returns relPath
         every { submission.storageMode } returns mode
         every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile, fireRqtFile)
-        every { runBlocking { storageService.releaseSubmissionFile(nfsFile, relPath, mode) } } answers { releasedFile }
+        coEvery { storageService.releaseSubmissionFile(nfsFile, relPath, mode) } returns releasedFile
         every { requestService.saveSubmissionRequest(rqt.withNewStatus(CHECK_RELEASED)) } answers { accNo to version }
         every { requestService.getFilesCopiedRequest(accNo, version) } returns rqt
         every { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
@@ -81,9 +82,9 @@ class SubmissionRequestReleaserTest(
 
         testInstance.checkReleased(accNo, version)
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             requestService.saveSubmissionRequest(rqt.withNewStatus(CHECK_RELEASED))
-            runBlocking { storageService.releaseSubmissionFile(nfsFile, relPath, mode) }
+            storageService.releaseSubmissionFile(nfsFile, relPath, mode)
         }
     }
 

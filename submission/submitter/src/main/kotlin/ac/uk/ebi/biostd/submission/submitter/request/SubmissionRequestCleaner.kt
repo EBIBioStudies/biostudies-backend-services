@@ -9,12 +9,9 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.storageMode
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.fileSequence
@@ -22,7 +19,6 @@ import uk.ac.ebi.extended.serialization.service.fileSequence
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestCleaner(
-    private val concurrency: Int,
     private val storageService: FileStorageService,
     private val serializationService: ExtSerializationService,
     private val queryService: SubmissionPersistenceQueryService,
@@ -55,7 +51,7 @@ class SubmissionRequestCleaner(
                 else -> newFile.md5 != existing.md5 && new.storageMode == existing.storageMode
             }
 
-        val newFiles = runBlocking { newFilesMap(new) }
+        val newFiles = newFilesMap(new)
         logger.info { "${current.accNo} ${current.owner} Started cleaning common submission files" }
         serializationService.fileSequence(current)
             .filter { shouldDelete(newFiles, it) }
@@ -64,17 +60,11 @@ class SubmissionRequestCleaner(
     }
 
     private suspend fun newFilesMap(new: ExtSubmission): Map<String, FileEntry> {
-        var files: Map<String, FileEntry>
-        withContext(Dispatchers.Default) {
-            files = filesRequestService
-                .getSubmissionRequestFiles(new.accNo, new.version, 0)
-                .map { it.file }
-                .buffer(concurrency)
-                .toList()
-                .associate { it.filePath to FileEntry(it.md5, new.storageMode) }
-        }
-
-        return files
+        return filesRequestService
+            .getSubmissionRequestFiles(new.accNo, new.version, 0)
+            .map { it.file }
+            .toList()
+            .associate { it.filePath to FileEntry(it.md5, new.storageMode) }
     }
 
     private data class FileEntry(val md5: String, val storageMode: StorageMode)

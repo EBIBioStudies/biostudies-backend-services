@@ -1,5 +1,4 @@
 import Dependencies.Arrow
-import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -15,6 +14,7 @@ import Projects.FireWebClient
 import Projects.SubmissionPersistenceCommonApi
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.KotlinCoroutinesTest
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
@@ -46,7 +46,7 @@ dependencies {
     implementation(ZipUtil)
 
     testImplementation(project(CommonsTest))
-    testImplementation(KotlinCoroutines)
+    testImplementation(KotlinCoroutinesTest)
     testImplementation(testFixtures(project(CommonsModelExtendedSerialization)))
     testImplementation(testFixtures(project(CommonsModelExtended)))
     BaseTestCompileDependencies.forEach { testImplementation(it) }

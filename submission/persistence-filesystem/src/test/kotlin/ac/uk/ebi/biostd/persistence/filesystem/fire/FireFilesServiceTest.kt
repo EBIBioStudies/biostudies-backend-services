@@ -16,7 +16,8 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.verify
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -28,6 +29,7 @@ import uk.ac.ebi.fire.client.model.FireApiFile
 import java.util.UUID
 import kotlin.test.assertFails
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class FireFilesServiceTest(
     private val tempFolder: TemporaryFolder,
@@ -46,17 +48,17 @@ internal class FireFilesServiceTest(
     @Nested
     inner class WhenFireFile {
         @Test
-        fun `when fire file has the expected path`() {
+        fun `when fire file has the expected path`() = runTest {
             val file = fireFile(firePath = "001/Files/folder/file.txt")
 
-            val result = runBlocking { testInstance.persistSubmissionFile(submission, file) }
+            val result = testInstance.persistSubmissionFile(submission, file)
 
             assertThat(result).isEqualTo(file)
             verify { fireClient wasNot Called }
         }
 
         @Test
-        fun `when fire file has not the expected path`() {
+        fun `when fire file has not the expected path`() = runTest {
             val file = fireFile(firePath = "/another-path/file.txt")
 
             val newFile = tempFolder.createFile("file.txt", "content")
@@ -67,7 +69,7 @@ internal class FireFilesServiceTest(
             coEvery { fireClient.save(newFile, file.md5, file.size) } answers { newFireFile }
             coEvery { fireClient.setPath(newFireFile.fireOid, "001/Files/folder/file.txt") } returns fileWithPath
 
-            val result = runBlocking { testInstance.persistSubmissionFile(submission, file) }
+            val result = testInstance.persistSubmissionFile(submission, file)
 
             assertThat(result.fileName).isEqualTo(file.fileName)
             assertThat(result.fireId).isEqualTo(newFireFile.fireOid)
@@ -75,13 +77,13 @@ internal class FireFilesServiceTest(
         }
 
         @Test
-        fun `when fire file has not path`() {
+        fun `when fire file has not path`() = runTest {
             val file = fireFile(firePath = null)
             val fileWithPath = fireApiFile(firePath = "001/Files/folder/file.txt")
 
             coEvery { fireClient.setPath(file.fireId, "001/Files/folder/file.txt") } returns fileWithPath
 
-            val result = runBlocking { testInstance.persistSubmissionFile(submission, file) }
+            val result = testInstance.persistSubmissionFile(submission, file)
 
             assertThat(result.fileName).isEqualTo(file.fileName)
             assertThat(result.fireId).isEqualTo(file.fireId)
@@ -92,13 +94,13 @@ internal class FireFilesServiceTest(
     @Nested
     inner class WhenNfsFile {
         @Test
-        fun `when fire file has the expected path`() {
+        fun `when fire file has the expected path`() = runTest {
             val fireApiFile = fireApiFile(firePath = "001/Files/folder/file.txt")
             val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
 
             coEvery { fireClient.findByMd5(file.md5) } returns listOf(fireApiFile)
 
-            val result = runBlocking { testInstance.persistSubmissionFile(submission, file) }
+            val result = testInstance.persistSubmissionFile(submission, file)
 
             assertThat(result.md5).isEqualTo(file.md5)
             assertThat(result.size).isEqualTo(file.size)
@@ -108,7 +110,7 @@ internal class FireFilesServiceTest(
         }
 
         @Test
-        fun `when fire file has not the expected path`() {
+        fun `when fire file has not the expected path`() = runTest {
             val fireApiFile = fireApiFile(firePath = "another/file.txt")
             val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
             coEvery { fireClient.findByMd5(file.md5) } returns listOf(fireApiFile)
@@ -118,7 +120,7 @@ internal class FireFilesServiceTest(
             coEvery { fireClient.save(file.file, file.md5, file.size) } returns newFile
             coEvery { fireClient.setPath(newFile.fireOid, "001/Files/folder/file.txt") } returns fileWithPath
 
-            val result = runBlocking { testInstance.persistSubmissionFile(submission, file) }
+            val result = testInstance.persistSubmissionFile(submission, file)
 
             assertThat(result.fileName).isEqualTo(file.fileName)
             assertThat(result.fireId).isEqualTo(newFile.fireOid)
@@ -126,7 +128,7 @@ internal class FireFilesServiceTest(
         }
 
         @Test
-        fun `when fire file has not path`() {
+        fun `when fire file has not path`() = runTest {
             val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
             val fireFile = fireApiFile(firePath = null)
             val fileWithPath = fireApiFile(firePath = "001/Files/folder/file.txt")
@@ -134,7 +136,7 @@ internal class FireFilesServiceTest(
             coEvery { fireClient.findByMd5(file.md5) } returns listOf(fireFile)
             coEvery { fireClient.setPath(fireFile.fireOid, "001/Files/folder/file.txt") } returns fileWithPath
 
-            val result = runBlocking { testInstance.persistSubmissionFile(submission, file) }
+            val result = testInstance.persistSubmissionFile(submission, file)
 
             assertThat(result.fileName).isEqualTo(file.fileName)
             assertThat(result.fireId).isEqualTo(fireFile.fireOid)
@@ -152,11 +154,11 @@ internal class FireFilesServiceTest(
         @Test
         fun `delete submission file`(
             @MockK submission: ExtSubmission,
-        ) {
+        ) = runTest {
             val file = fireFile(firePath = "a file path")
             coEvery { fireClient.delete(file.fireId) } answers { nothing }
 
-            runBlocking { testInstance.deleteSubmissionFile(submission, file) }
+            testInstance.deleteSubmissionFile(submission, file)
 
             coVerify(exactly = 1) { fireClient.delete(file.fireId) }
         }
@@ -165,8 +167,8 @@ internal class FireFilesServiceTest(
         fun `delete nfs file`(
             @MockK nfsFile: NfsFile,
             @MockK submission: ExtSubmission,
-        ) {
-            val exception = assertFails { runBlocking { testInstance.deleteSubmissionFile(submission, nfsFile) } }
+        ) = runTest {
+            val exception = assertFails { testInstance.deleteSubmissionFile(submission, nfsFile) }
             assertThat(exception.message).isEqualTo("FireFilesService should only handle FireFile")
         }
     }

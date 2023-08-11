@@ -34,7 +34,7 @@ import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.second
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
@@ -144,14 +144,14 @@ class SubmissionFileSourceTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `6-2 submission with FIRE source only`() {
+    fun `6-2 submission with FIRE source only`() = runTest {
         val file3 = tempFolder.createFile("File3.txt", "content file 3")
         val file4 = tempFolder.createFile("File4.txt", "content file 4")
         val file3Md5 = file3.md5()
         val file4Md5 = file4.md5()
 
-        val fireFile3 = runBlocking { fireClient.save(file3, file3Md5, 55L) }
-        val fireFile4 = runBlocking { fireClient.save(file4, file4Md5, 55L) }
+        val fireFile3 = fireClient.save(file3, file3Md5, 55L)
+        val fireFile4 = fireClient.save(file4, file4Md5, 55L)
 
         val submission = tsv {
             line("Submission", "S-FSTST2")

@@ -15,7 +15,8 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,6 +25,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.test.assertFails
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class NfsFilesServiceTest(
     private val tempFolder: TemporaryFolder,
@@ -35,25 +37,25 @@ class NfsFilesServiceTest(
     private val testInstance = NfsFilesService(fireClient, folderResolver)
 
     @Test
-    fun `persist NFS file`() {
+    fun `persist NFS file`() = runTest {
         val sub = basicExtSubmission
         val file = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
 
-        val persisted = runBlocking { testInstance.persistSubmissionFile(sub, file) } as NfsFile
+        val persisted = testInstance.persistSubmissionFile(sub, file) as NfsFile
 
         assertThat(persisted.fullPath).isEqualTo("${subFolder.absolutePath}/${sub.relPath}/${file.relPath}")
         assertThat(Files.exists(Paths.get("${subFolder.absolutePath}/${sub.relPath}/${file.relPath}"))).isTrue()
     }
 
     @Test
-    fun `persist FIRE file`() {
+    fun `persist FIRE file`() = runTest {
         val sub = basicExtSubmission
         val downloaded = tempFolder.createFile("file.txt")
         val fireFile = FireFile("fire-id", "/a/file.txt", true, "file.txt", "file.txt", "md5", 1L, FILE, emptyList())
 
         every { fireClient.downloadByPath("/a/file.txt") } returns downloaded
 
-        val persisted = runBlocking { testInstance.persistSubmissionFile(sub, fireFile) } as NfsFile
+        val persisted = testInstance.persistSubmissionFile(sub, fireFile) as NfsFile
 
         verify(exactly = 1) { fireClient.downloadByPath("/a/file.txt") }
         assertThat(persisted.fullPath).isEqualTo("${subFolder.absolutePath}/${sub.relPath}/${fireFile.relPath}")
@@ -74,14 +76,14 @@ class NfsFilesServiceTest(
     }
 
     @Test
-    fun `delete submission file`() {
+    fun `delete submission file`() = runTest {
         val subFolder = subFolder.createDirectory("S-BSST3")
         val filesFolder = subFolder.createDirectory("Files")
         val file = filesFolder.createFile("file1.txt")
         val nfsFile = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
 
         val sub = basicExtSubmission.copy(relPath = "S-BSST3")
-        runBlocking { testInstance.deleteSubmissionFile(sub, nfsFile) }
+        testInstance.deleteSubmissionFile(sub, nfsFile)
 
         assertThat(Files.exists(file.toPath())).isFalse()
     }
@@ -90,8 +92,8 @@ class NfsFilesServiceTest(
     fun `delete fire file`(
         @MockK fireFile: FireFile,
         @MockK submission: ExtSubmission,
-    ) {
-        val exception = assertFails { runBlocking { testInstance.deleteSubmissionFile(submission, fireFile) } }
+    ) = runTest {
+        val exception = assertFails { testInstance.deleteSubmissionFile(submission, fireFile) }
         assertThat(exception.message).isEqualTo("NfsFilesService should only handle NfsFile")
     }
 }

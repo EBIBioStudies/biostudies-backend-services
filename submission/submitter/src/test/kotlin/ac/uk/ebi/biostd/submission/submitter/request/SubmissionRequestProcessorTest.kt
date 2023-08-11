@@ -12,12 +12,12 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -54,7 +54,7 @@ class SubmissionRequestProcessorTest(
         every { submission.accNo } returns accNo
         every { submission.version } returns version
         every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile)
-        every { runBlocking { storageService.persistSubmissionFile(submission, nfsFile) } } answers { releasedFile }
+        coEvery { storageService.persistSubmissionFile(submission, nfsFile) } returns releasedFile
         every { requestService.saveSubmissionRequest(rqt.withNewStatus(FILES_COPIED)) } answers { accNo to version }
         every { requestService.getCleanedRequest(accNo, version) } returns rqt
         every { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }

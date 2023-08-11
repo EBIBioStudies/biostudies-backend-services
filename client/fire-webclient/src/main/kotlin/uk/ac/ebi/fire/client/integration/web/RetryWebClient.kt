@@ -1,6 +1,5 @@
 package uk.ac.ebi.fire.client.integration.web
 
-import execute
 import kotlinx.coroutines.runBlocking
 import uk.ac.ebi.fire.client.model.FireApiFile
 import uk.ac.ebi.fire.client.retry.SuspendRetryTemplate

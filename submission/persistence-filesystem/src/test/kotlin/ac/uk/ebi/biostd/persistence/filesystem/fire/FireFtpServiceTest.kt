@@ -6,7 +6,8 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -16,6 +17,7 @@ import uk.ac.ebi.fire.client.model.FileSystemEntry
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.util.UUID
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class)
 class FireFtpServiceTest(
     @MockK private val fireClient: FireClient,
@@ -26,7 +28,7 @@ class FireFtpServiceTest(
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun `release submission file`() {
+    fun `release submission file`() = runTest {
         val fireFile = FireFile(
             fireId = "fireId",
             firePath = null,
@@ -48,7 +50,7 @@ class FireFtpServiceTest(
         )
         coEvery { fireClient.publish(fireFile.fireId) } answers { apiFile }
 
-        val file = runBlocking { testInstance.releaseSubmissionFile(fireFile, "/rel/path") }
+        val file = testInstance.releaseSubmissionFile(fireFile, "/rel/path")
 
         assertThat(file.published).isTrue()
         assertThat(file.firePath).isEqualTo("fire-path")

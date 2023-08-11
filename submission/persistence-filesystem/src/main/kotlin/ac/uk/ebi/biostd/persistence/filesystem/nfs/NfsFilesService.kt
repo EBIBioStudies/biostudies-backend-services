@@ -33,13 +33,11 @@ class NfsFilesService(
     }
 
     private fun persistNfsFile(sub: ExtSubmission, file: NfsFile): ExtFile {
-        return synchronized(this) {
-            val permissions = sub.permissions()
-            val subFile = getSubFile(sub, permissions, file.relPath)
-            if (subFile.notExist()) copyOrReplaceFile(file.file, subFile, permissions)
+        val permissions = sub.permissions()
+        val subFile = getSubFile(sub, permissions, file.relPath)
+        if (subFile.notExist()) copyOrReplaceFile(file.file, subFile, permissions)
 
-            file.copy(fullPath = subFile.absolutePath, file = subFile)
-        }
+        return file.copy(fullPath = subFile.absolutePath, file = subFile)
     }
 
     private fun persistFireFile(sub: ExtSubmission, file: FireFile): ExtFile {

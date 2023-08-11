@@ -8,12 +8,12 @@ import uk.ac.ebi.fire.client.model.FileSystemEntry
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 import java.time.Instant
-import java.util.Collections
+import java.util.concurrent.ConcurrentHashMap
 
 class FireMockDatabase(
     private val fileSystem: FireMockFileSystem,
 ) {
-    private val recordsById: MutableMap<String, DbRecord> = Collections.synchronizedMap(mutableMapOf())
+    private val recordsById: MutableMap<String, DbRecord> = ConcurrentHashMap<String, DbRecord>()
 
     fun saveFile(fileName: String, data: ByteArray): FireApiFile {
         val objectId = Instant.now().nano

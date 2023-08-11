@@ -9,9 +9,9 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.verify
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -30,6 +30,7 @@ import reactor.core.publisher.Mono
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.util.function.Consumer
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FireWebClientTest(
     private val tmpFolder: TemporaryFolder,
@@ -44,7 +45,7 @@ class FireWebClientTest(
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun save() {
+    fun save() = runTest {
         val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
         val headersSlot = slot<Consumer<HttpHeaders>>()
         val file = tmpFolder.createFile("save-test.txt")
@@ -54,7 +55,7 @@ class FireWebClientTest(
         every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
         every { requestSpec.retrieve().bodyToMono<FireApiFile>() } returns Mono.just(fireFile)
 
-        runBlocking { testInstance.save(file, "the-md5", 55) }
+        testInstance.save(file, "the-md5", 55)
 
         val body = bodySlot.captured
         val headers = headersSlot.captured
@@ -71,14 +72,14 @@ class FireWebClientTest(
     }
 
     @Test
-    fun `set path`() {
+    fun `set path`() = runTest {
         val headersSlot = slot<Consumer<HttpHeaders>>()
 
         every { client.put().uri("/objects/the-fire-oid/firePath") } returns requestSpec
         every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
         every { requestSpec.retrieve().bodyToMono<FireApiFile>() } returns Mono.just(fireFile)
 
-        val response = runBlocking { testInstance.setPath("the-fire-oid", "/a/new/path/file2.txt") }
+        val response = testInstance.setPath("the-fire-oid", "/a/new/path/file2.txt")
 
         val headers = headersSlot.captured
         headers.andThen {
@@ -95,10 +96,10 @@ class FireWebClientTest(
     }
 
     @Test
-    fun `unset path`() {
+    fun `unset path`() = runTest {
         every { client.delete().uri("/objects/the-fire-oid/firePath").exchange() } returns Mono.just(response)
 
-        runBlocking { testInstance.unsetPath("the-fire-oid") }
+        testInstance.unsetPath("the-fire-oid")
 
         verify(exactly = 1) {
             client.delete().uri("/objects/the-fire-oid/firePath").exchange()
@@ -119,12 +120,12 @@ class FireWebClientTest(
     }
 
     @Test
-    fun `find by md5`() {
+    fun `find by md5`() = runTest {
         every {
             client.get().uri("/objects/md5/the-md5").retrieve().bodyToMono<Array<FireApiFile>>()
         } returns Mono.just(arrayOf(fireFile))
 
-        val files = runBlocking { testInstance.findByMd5("the-md5") }
+        val files = testInstance.findByMd5("the-md5")
 
         assertThat(files).hasSize(1)
         assertThat(files.first()).isEqualTo(fireFile)
@@ -134,12 +135,12 @@ class FireWebClientTest(
     }
 
     @Test
-    fun `find by path`() {
+    fun `find by path`() = runTest {
         every {
             client.get().uri("/objects/path/my/path").retrieve().bodyToMono<FireApiFile>()
         } returns Mono.just(fireFile)
 
-        val file = runBlocking { testInstance.findByPath("my/path") }
+        val file = testInstance.findByPath("my/path")
 
         assertThat(file).isEqualTo(fireFile)
         verify(exactly = 1) {
@@ -148,12 +149,12 @@ class FireWebClientTest(
     }
 
     @Test
-    fun `find all by path`() {
+    fun `find all by path`() = runTest {
         every {
             client.get().uri("/objects/entries/path/my/path").retrieve().bodyToMono<Array<FireApiFile>>()
         } returns Mono.just(arrayOf(fireFile))
 
-        val files = runBlocking { testInstance.findAllInPath("my/path") }
+        val files = testInstance.findAllInPath("my/path")
 
         assertThat(files).hasSize(1)
         assertThat(files.first()).isEqualTo(fireFile)
@@ -163,12 +164,12 @@ class FireWebClientTest(
     }
 
     @Test
-    fun `find all by path when FireClientException with NOT_FOUND status code`() {
+    fun `find all by path when FireClientException with NOT_FOUND status code`() = runTest {
         every {
             client.get().uri("/objects/entries/path/my/path").retrieve().bodyToMono<Array<FireApiFile>>()
         } throws(HttpClientErrorException(NOT_FOUND, "no files found in the given path"))
 
-        val files = runBlocking { testInstance.findAllInPath("my/path") }
+        val files = testInstance.findAllInPath("my/path")
 
         assertThat(files).hasSize(0)
         verify(exactly = 1) {
@@ -177,13 +178,12 @@ class FireWebClientTest(
     }
 
     @Test
-    fun `find all by path when httpException without a status code other than NOT_FOUND`() {
+    fun `find all by path when httpException without a status code other than NOT_FOUND`() = runTest {
         every {
             client.get().uri("/objects/entries/path/my/path").retrieve().bodyToMono<Array<FireApiFile>>()
         } throws(HttpClientErrorException(HttpStatus.BAD_REQUEST))
 
-        assertThatExceptionOfType(HttpClientErrorException::class.java)
-            .isThrownBy { runBlocking { testInstance.findAllInPath("my/path") } }
+        assertThrows<HttpClientErrorException> { testInstance.findAllInPath("my/path") }
 
         verify(exactly = 1) {
             client.get().uri("/objects/entries/path/my/path").retrieve().bodyToMono<Array<FireApiFile>>()
@@ -191,12 +191,12 @@ class FireWebClientTest(
     }
 
     @Test
-    fun `find by path when FireClientException with NOT_FOUND status code`() {
+    fun `find by path when FireClientException with NOT_FOUND status code`() = runTest {
         every {
             client.get().uri("/objects/path/my/path").retrieve().bodyToMono<FireApiFile>()
         } throws(HttpClientErrorException(NOT_FOUND, "no file found with the given path"))
 
-        val file = runBlocking { testInstance.findByPath("my/path") }
+        val file = testInstance.findByPath("my/path")
 
         assertThat(file).isNull()
         verify(exactly = 1) {
@@ -205,12 +205,12 @@ class FireWebClientTest(
     }
 
     @Test
-    fun `find by path when httpException without a status code other than NOT_FOUND`() {
+    fun `find by path when httpException without a status code other than NOT_FOUND`() = runTest {
         every {
             client.get().uri("/objects/path/my/path").retrieve().bodyToMono<FireApiFile>()
         } throws(HttpClientErrorException(HttpStatus.BAD_REQUEST))
 
-        assertThrows<HttpClientErrorException> { runBlocking { testInstance.findByPath("my/path") } }
+        assertThrows<HttpClientErrorException> { testInstance.findByPath("my/path") }
 
         verify(exactly = 1) {
             client.get().uri("/objects/path/my/path").retrieve().bodyToMono<FireApiFile>()
@@ -218,21 +218,21 @@ class FireWebClientTest(
     }
 
     @Test
-    fun publish() {
+    fun publish() = runTest {
         every {
             client.put().uri("/objects/the-fire-oid/publish").retrieve().bodyToMono<FireApiFile>()
         } returns Mono.just(fireFile)
 
-        val response = runBlocking { testInstance.publish("the-fire-oid") }
+        val response = testInstance.publish("the-fire-oid")
 
         assertThat(response).isEqualTo(fireFile)
     }
 
     @Test
-    fun unpublish() {
+    fun unpublish() = runTest {
         every { client.delete().uri("/objects/the-fire-oid/publish").exchange() } returns Mono.just(response)
 
-        runBlocking { testInstance.unpublish("the-fire-oid") }
+        testInstance.unpublish("the-fire-oid")
 
         verify(exactly = 1) {
             client.delete().uri("/objects/the-fire-oid/publish").exchange()
@@ -240,10 +240,10 @@ class FireWebClientTest(
     }
 
     @Test
-    fun delete() {
+    fun delete() = runTest {
         every { client.delete().uri("/objects/the-fire-oid").exchange() } returns Mono.just(response)
 
-        runBlocking { testInstance.delete("the-fire-oid") }
+        testInstance.delete("the-fire-oid")
 
         verify(exactly = 1) {
             client.delete().uri("/objects/the-fire-oid").exchange()
