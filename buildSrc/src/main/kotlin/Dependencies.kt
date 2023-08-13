@@ -117,6 +117,7 @@ object TestDependencies {
     const val AssertJ = "org.assertj:assertj-core:$AssertJVersion"
     const val MockK = "io.mockk:mockk:$MockKVersion"
     const val KotlinTestJunit = "org.jetbrains.kotlin:kotlin-test-junit:$KotlinVersion"
+    const val KotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:$KotlinCoroutinesVersion"
 
     const val Junit5Console = "org.junit.platform:junit-platform-console:$JunitEngineVersion"
     const val Junit = "org.junit.jupiter:junit-jupiter:$JunitVersion"

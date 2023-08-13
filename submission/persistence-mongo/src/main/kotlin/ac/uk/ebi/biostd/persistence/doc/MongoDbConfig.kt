@@ -59,8 +59,8 @@ class MongoDbConfig(
     }
 
     @Bean
-    fun mongoDbFactory(): MongoDatabaseFactory {
-        return SimpleMongoClientDatabaseFactory(mongoClient(), mongoDatabase)
+    fun mongoDbFactory(mongoClient: MongoClient): MongoDatabaseFactory {
+        return SimpleMongoClientDatabaseFactory(mongoClient, mongoDatabase)
     }
 
     companion object {
