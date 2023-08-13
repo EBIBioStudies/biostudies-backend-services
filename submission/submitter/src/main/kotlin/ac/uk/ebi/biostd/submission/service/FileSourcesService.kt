@@ -6,17 +6,8 @@ import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
-import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import ebi.ac.uk.security.integration.model.api.resolve
 import uk.ac.ebi.io.builder.FilesSourceListBuilder
-import uk.ac.ebi.io.builder.addDbFilesSource
-import uk.ac.ebi.io.builder.addFilesListSource
-import uk.ac.ebi.io.builder.addFireFilesSource
-import uk.ac.ebi.io.builder.addGroupSource
-import uk.ac.ebi.io.builder.addSubmissionSource
-import uk.ac.ebi.io.builder.addUserSource
-import uk.ac.ebi.io.builder.buildFilesSourceList
 import java.io.File
 
 private val DEFAULT_SOURCES = listOf(USER_SPACE, SUBMISSION, FIRE)
@@ -56,11 +47,9 @@ class FileSourcesService(
     }
 
     private fun addUserSource(user: SecurityUser, rootPath: String?, builder: FilesSourceListBuilder) {
-        val userFolder = user.userFolder
-        if (userFolder is NfsUserFolder) {
-            if (rootPath == null) builder.addUserSource("${user.email} user files", userFolder.path)
-            else builder.addUserSource("${user.email} user files in /$rootPath", userFolder.resolve(rootPath))
-        }
+        if (rootPath == null) builder.addUserSource(user, "${user.email} user files")
+        else builder.addUserSource(user, "${user.email} user files in /$rootPath", rootPath)
+
         user.groupsFolders.forEach { builder.addGroupSource(it.groupName, it.path) }
     }
 }
