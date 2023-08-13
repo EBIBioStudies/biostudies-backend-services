@@ -17,16 +17,3 @@ internal fun createFile(path: String, file: File, attributes: List<Attribute>): 
         attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
     )
 }
-
-internal fun createFile2(path: String, file: File, attributes: List<Attribute>): NfsFile {
-    return NfsFile(
-        filePath = path,
-        relPath = "Files/$path",
-        file = file,
-        fullPath = file.absolutePath,
-        md5 = "NOT_CALCULATED",
-        size = -1,
-        attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
-    )
-}
-

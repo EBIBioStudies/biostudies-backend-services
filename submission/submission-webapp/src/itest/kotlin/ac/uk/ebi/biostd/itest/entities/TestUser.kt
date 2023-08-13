@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.entities
 
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ebi.ac.uk.api.security.RegisterRequest
 
 interface TestUser {
@@ -8,5 +9,9 @@ interface TestUser {
     val password: String
     val superUser: Boolean
 
-    fun asRegisterRequest(): RegisterRequest = RegisterRequest(username, email, password)
+    val storageMode: StorageMode
+        get() = StorageMode.NFS
+
+    fun asRegisterRequest(): RegisterRequest =
+        RegisterRequest(username, email, password, storageMode = storageMode.name)
 }

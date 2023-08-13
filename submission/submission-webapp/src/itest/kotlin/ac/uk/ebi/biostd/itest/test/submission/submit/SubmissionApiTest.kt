@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.entities.FtpSuperUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.ftpPath
@@ -309,6 +310,39 @@ class SubmissionApiTest(
             val extSub = submissionRepository.getExtByAccNo("S-12366")
             assertThat(extSub.relPath).isEqualTo("base/path/S-/366/S-12366")
         }
+    }
+
+    @Test
+    fun `16-12 User with Ftp based folder submission`() {
+        securityTestService.ensureUserRegistration(FtpSuperUser)
+        webClient = getWebClient(serverPort, SuperUser)
+
+        val file = tempFolder.createFile("single.txt")
+        webClient.uploadFile(file)
+
+        val fileList = tempFolder.createFile(
+            "FileList.tsv",
+            tsv {
+                line("Files")
+                line(file.name)
+            }.toString()
+        )
+
+        webClient.uploadFile(fileList)
+
+        val submission = tsv {
+            line("Submission", "SFTP-1")
+            line("Title", "FTP user Submission")
+            line()
+
+            line("Study")
+            line("File List", "FileList.tsv")
+            line()
+        }.toString()
+
+        val result = webClient.submitSingle(submission, TSV)
+
+        assertThat(result).isSuccessful()
     }
 
     private fun getSimpleSubmission(accNo: String) =

@@ -33,8 +33,6 @@ class FtpSource(
         return target.toFile()
     }
 
-    private fun downloadFile
-
     override fun getFileList(path: String): File? {
         return findFile(path)
     }
