@@ -20,6 +20,7 @@ import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.OK
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.reactive.function.client.ClientResponse
@@ -97,6 +98,7 @@ class FireWebClientTest(
 
     @Test
     fun `unset path`() = runTest {
+        every { response.statusCode() } returns OK
         every { client.delete().uri("/objects/the-fire-oid/firePath").exchange() } returns Mono.just(response)
 
         testInstance.unsetPath("the-fire-oid")
@@ -230,6 +232,7 @@ class FireWebClientTest(
 
     @Test
     fun unpublish() = runTest {
+        every { response.statusCode() } returns OK
         every { client.delete().uri("/objects/the-fire-oid/publish").exchange() } returns Mono.just(response)
 
         testInstance.unpublish("the-fire-oid")
@@ -241,6 +244,7 @@ class FireWebClientTest(
 
     @Test
     fun delete() = runTest {
+        every { response.statusCode() } returns OK
         every { client.delete().uri("/objects/the-fire-oid").exchange() } returns Mono.just(response)
 
         testInstance.delete("the-fire-oid")

@@ -198,6 +198,7 @@ object Dependencies {
     const val KotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$KotlinVersion"
     const val KotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$KotlinCoroutinesVersion"
     const val KotlinCoroutinesReactive = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$KotlinCoroutinesVersion"
+    const val KotlinCoroutinesReactor = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$KotlinCoroutinesVersion"
     const val KotlinLogging = "io.github.microutils:kotlin-logging:$KotlinLoggingVersion"
 
     // Arrow
@@ -219,6 +220,7 @@ object SpringBootDependencies {
     const val SpringBootStarterTest = "org.springframework.boot:spring-boot-starter-test"
     const val SpringBootStarterWeb = "org.springframework.boot:spring-boot-starter-web"
     const val SpringBootStarterWebFlux = "org.springframework.boot:spring-boot-starter-webflux"
+    const val SpringBootStarterReactiveMongo = "org.springframework.boot:spring-boot-starter-data-mongodb-reactive"
     const val SpringBootStarterMongo = "org.springframework.boot:spring-boot-starter-data-mongodb"
     const val SpringBootStarterAmqp = "org.springframework.boot:spring-boot-starter-amqp"
     const val SpringBootConfigurationProcessor = "org.springframework.boot:spring-boot-configuration-processor"
