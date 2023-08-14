@@ -3,6 +3,8 @@ import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
 import Dependencies.Guava
 import Dependencies.JSONOrg
+import Dependencies.KotlinCoroutines
+import Dependencies.KotlinCoroutinesReactor
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Dependencies.MongockBom
@@ -19,9 +21,11 @@ import Projects.SubmissionConfig
 import Projects.SubmissionPersistenceCommonApi
 import Projects.SubmissionPersistenceFilesystem
 import SpringBootDependencies.SpringBootStarterMongo
+import SpringBootDependencies.SpringBootStarterReactiveMongo
 import SpringBootDependencies.SpringBootStarterTest
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.KotlinCoroutinesTest
 import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
@@ -54,10 +58,13 @@ dependencies {
     implementation(JSONOrg)
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
+    implementation(KotlinCoroutines)
+    implementation(KotlinCoroutinesReactor)
     implementation(MongockBom)
     implementation(MongockSpringDataV3)
     implementation(MongockSpringV5)
     implementation(SpringBootStarterMongo)
+    implementation(SpringBootStarterReactiveMongo)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
@@ -70,6 +77,7 @@ dependencies {
     testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)
     testImplementation(TestContainerJUnit)
+    testImplementation(KotlinCoroutinesTest)
 }
 
 tasks.named<BootJar>("bootJar") {

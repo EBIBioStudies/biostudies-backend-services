@@ -33,7 +33,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtFile
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
@@ -44,23 +44,27 @@ import java.time.Instant
 
 @Suppress("TooManyFunctions")
 class SubmissionRequestDocDataRepository(
-    private val mongoTemplate: MongoTemplate,
+    private val mongoTemplate: ReactiveMongoTemplate,
     private val extSerializationService: ExtSerializationService,
     private val submissionRequestRepository: SubmissionRequestRepository,
 ) : SubmissionRequestRepository by submissionRequestRepository {
+
     fun saveRequest(request: DocSubmissionRequest): Pair<DocSubmissionRequest, Boolean> {
         val result = mongoTemplate.upsert(
             Query(where(RQT_ACC_NO).`is`(request.accNo).andOperator(where(RQT_STATUS).ne(PROCESSED))),
             request.asSetOnInsert(),
             DocSubmissionRequest::class.java
-        )
+        ).block()!!
         val created = result.matchedCount < 1
         return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING) to created
     }
 
-    fun findActiveRequests(filter: SubmissionFilter, email: String? = null): Pair<Int, List<DocSubmissionRequest>> {
+    fun findActiveRequests(
+        filter: SubmissionFilter,
+        email: String? = null,
+    ): Pair<Int, List<DocSubmissionRequest>> {
         val query = Query().addCriteria(createQuery(filter, email))
-        val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java)
+        val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java).block()
         return when {
             requestCount <= filter.offset -> requestCount.toInt() to emptyList()
             else -> findActiveRequests(query, filter.offset, filter.limit)
@@ -73,6 +77,8 @@ class SubmissionRequestDocDataRepository(
         limit: Int,
     ): Pair<Int, MutableList<DocSubmissionRequest>> {
         val result = mongoTemplate.find(query.skip(skip).limit(limit), DocSubmissionRequest::class.java)
+            .collectList()
+            .block()!!
         return result.count() to result
     }
 
@@ -85,7 +91,7 @@ class SubmissionRequestDocDataRepository(
         val update = Update().set(RQT_IDX, index).set(RQT_MODIFICATION_TIME, Instant.now())
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
 
-        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java)
+        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).block()
     }
 
     fun upsertSubmissionRequestFile(rqtFile: SubmissionRequestFile) {
@@ -94,14 +100,14 @@ class SubmissionRequestDocDataRepository(
         val where = where(RQT_FILE_SUB_ACC_NO).`is`(rqtFile.accNo)
             .andOperator(where(RQT_FILE_SUB_VERSION).`is`(rqtFile.version), where(RQT_FILE_PATH).`is`(rqtFile.path))
 
-        mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java)
+        mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java).block()
     }
 
     fun updateSubmissionRequestFile(accNo: String, version: Int, filePath: String, file: ExtFile) {
         val update = update(RQT_FILE_FILE, BasicDBObject.parse(extSerializationService.serialize(file)))
         val where = where(RQT_FILE_SUB_ACC_NO).`is`(accNo)
             .andOperator(where(RQT_FILE_SUB_VERSION).`is`(version), where(RQT_FILE_PATH).`is`(filePath))
-        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java)
+        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java).block()
     }
 
     fun updateSubmissionRequest(rqt: DocSubmissionRequest) {
@@ -114,7 +120,7 @@ class SubmissionRequestDocDataRepository(
             .set(RQT_TOTAL_FILES, rqt.totalFiles)
             .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
 
-        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java)
+        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).block()
     }
 
     private fun criteriaArray(filter: SubmissionFilter): Array<Criteria> =

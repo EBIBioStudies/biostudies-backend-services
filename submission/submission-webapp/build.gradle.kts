@@ -41,6 +41,7 @@ import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.FtpServer
 import TestDependencies.JsonPathAssert
+import TestDependencies.KotlinCoroutinesTest
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
@@ -143,6 +144,7 @@ dependencies {
     testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)
     testImplementation(TestContainerJUnit)
+    testImplementation(KotlinCoroutinesTest)
 }
 
 apply(from = "$rootDir/gradle/itest.gradle.kts")

@@ -1,53 +1,55 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig
+import ac.uk.ebi.biostd.persistence.doc.MongoDbReactiveConfig
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionDraftRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionDraftRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionStatsRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
-@Import(MongoDbConfig::class, SerializationConfiguration::class)
+@Import(MongoDbConfig::class, MongoDbReactiveConfig::class, SerializationConfiguration::class)
 class MongoDbReposConfig {
     @Bean
     internal fun submissionDocDataRepository(
-        mongoTemplate: MongoTemplate,
+        reactivateMongoTemplate: ReactiveMongoTemplate,
         submissionMongoRepository: SubmissionMongoRepository,
-    ): SubmissionDocDataRepository = SubmissionDocDataRepository(submissionMongoRepository, mongoTemplate)
+    ): SubmissionDocDataRepository = SubmissionDocDataRepository(submissionMongoRepository, reactivateMongoTemplate)
 
     @Bean
     internal fun submissionStatsDataRepository(
-        mongoTemplate: MongoTemplate,
+        reactivateMongoTemplate: ReactiveMongoTemplate,
         submissionStatsRepository: SubmissionStatsRepository,
-    ): SubmissionStatsDataRepository = SubmissionStatsDataRepository(mongoTemplate, submissionStatsRepository)
+    ): SubmissionStatsDataRepository = SubmissionStatsDataRepository(reactivateMongoTemplate, submissionStatsRepository)
 
     @Bean
     internal fun submissionRequestDocDataRepository(
-        mongoTemplate: MongoTemplate,
+        reactivateMongoTemplate: ReactiveMongoTemplate,
         extSerializationService: ExtSerializationService,
         submissionRequestRepository: SubmissionRequestRepository,
     ): SubmissionRequestDocDataRepository = SubmissionRequestDocDataRepository(
-        mongoTemplate,
+        reactivateMongoTemplate,
         extSerializationService,
         submissionRequestRepository,
     )
 
     @Bean
     internal fun submissionDraftDocDataRepository(
-        mongoTemplate: MongoTemplate,
+        reactivateMongoTemplate: ReactiveMongoTemplate,
         submissionDraftRepository: SubmissionDraftRepository,
-    ): SubmissionDraftDocDataRepository = SubmissionDraftDocDataRepository(submissionDraftRepository, mongoTemplate)
+    ): SubmissionDraftDocDataRepository =
+        SubmissionDraftDocDataRepository(submissionDraftRepository, reactivateMongoTemplate)
 
     @Bean
     internal fun fileListDocFileDocDataRepository(
