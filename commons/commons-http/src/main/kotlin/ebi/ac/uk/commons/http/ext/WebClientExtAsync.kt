@@ -19,7 +19,8 @@ suspend inline fun <reified T> WebClient.putForObjectAsync(url: String, params: 
 }
 
 suspend fun WebClient.deleteAsync(url: String) {
-    delete().uri(url).awaitExchange()
+    val response = delete().uri(url).awaitExchange()
+    if (response.statusCode().isError) throw Exception(response.toString())
 }
 
 suspend inline fun <reified T> RequestHeadersSpec<*>.retrieveAsync(): T {
