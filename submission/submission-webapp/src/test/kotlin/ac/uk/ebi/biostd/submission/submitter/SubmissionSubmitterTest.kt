@@ -12,6 +12,7 @@ import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class SubmissionSubmitterTest(
     @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
     @MockK private val submissionProcessor: SubmissionProcessor,

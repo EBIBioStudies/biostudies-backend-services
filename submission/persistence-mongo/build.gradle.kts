@@ -56,6 +56,7 @@ dependencies {
     implementation(CommonsLang3)
     implementation(Guava)
     implementation(JSONOrg)
+    implementation(KotlinCoroutines)
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
     implementation(KotlinCoroutines)

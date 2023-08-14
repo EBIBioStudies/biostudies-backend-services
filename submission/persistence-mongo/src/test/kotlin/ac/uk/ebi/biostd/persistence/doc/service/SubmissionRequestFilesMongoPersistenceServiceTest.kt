@@ -11,6 +11,8 @@ import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -103,7 +105,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
 
         @Test
         fun `get all submission request files`() {
-            val files = testInstance.getSubmissionRequestFiles("S-BSST1", 1, 0).toList()
+            val files = runBlocking { testInstance.getSubmissionRequestFiles("S-BSST1", 1, 0).toList() }
             assertThat(files).hasSize(4)
             assertThat(files[0].index).isEqualTo(1)
             assertThat(files[0].file).isEqualTo(extFile1)
@@ -117,7 +119,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
 
         @Test
         fun `get submission request files starting at N`() {
-            val files = testInstance.getSubmissionRequestFiles("S-BSST1", 1, 2).toList()
+            val files = runBlocking { testInstance.getSubmissionRequestFiles("S-BSST1", 1, 2).toList() }
             assertThat(files).hasSize(2)
             assertThat(files[0].index).isEqualTo(3)
             assertThat(files[0].file).isEqualTo(extFile3)

@@ -7,23 +7,25 @@ interface FireClient : FireWebClient, FireS3Client
 
 @Suppress("TooManyFunctions")
 interface FireWebClient {
-    fun save(file: File, md5: String, size: Long): FireApiFile
+    suspend fun save(file: File, md5: String, size: Long): FireApiFile
 
-    fun setPath(fireOid: String, path: String)
+    suspend fun setPath(fireOid: String, path: String): FireApiFile
 
-    fun unsetPath(fireOid: String)
+    suspend fun unsetPath(fireOid: String)
 
-    fun findByMd5(md5: String): List<FireApiFile>
+    suspend fun findByMd5(md5: String): List<FireApiFile>
 
-    fun findByPath(path: String): FireApiFile?
+    fun findByMd5Sync(md5: String): List<FireApiFile>
 
-    fun findAllInPath(path: String): List<FireApiFile>
+    suspend fun findByPath(path: String): FireApiFile?
 
-    fun publish(fireOid: String): FireApiFile
+    suspend fun findAllInPath(path: String): List<FireApiFile>
 
-    fun unpublish(fireOid: String)
+    suspend fun publish(fireOid: String): FireApiFile
 
-    fun delete(fireOid: String)
+    suspend fun unpublish(fireOid: String)
+
+    suspend fun delete(fireOid: String)
 }
 
 interface FireS3Client {

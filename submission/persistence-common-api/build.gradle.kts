@@ -25,6 +25,7 @@ dependencies {
 
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
+    implementation(KotlinCoroutines)
     implementation(SpringDataCommons)
     implementation(KotlinCoroutines)
     implementation(KotlinCoroutinesReactor)

@@ -31,7 +31,6 @@ class SubmissionRequestIndexerTest(
     @Test
     fun `index request`(
         @MockK pendingRqt: SubmissionRequest,
-        @MockK rqtFile: SubmissionRequestFile,
     ) {
         val requestFileSlot = slot<SubmissionRequestFile>()
         val file = tempFolder.createFile("requested.txt")
@@ -42,7 +41,6 @@ class SubmissionRequestIndexerTest(
         every { requestService.getPendingRequest("S-BSST0", 1) } returns pendingRqt
         every { requestService.saveSubmissionRequest(pendingRqt.indexed(1)) } answers { "S-BSST0" to 1 }
         every { filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
-        every { filesRequestService.getSubmissionRequestFiles("S-BSST0", 1, 0) } returns sequenceOf(rqtFile)
 
         testInstance.indexRequest("S-BSST0", 1)
 

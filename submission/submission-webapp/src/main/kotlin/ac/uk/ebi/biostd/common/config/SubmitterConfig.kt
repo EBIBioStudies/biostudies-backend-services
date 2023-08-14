@@ -69,8 +69,12 @@ class SubmitterConfig(
     fun requestLoader(
         filesRequestService: SubmissionRequestFilesPersistenceService,
         requestService: SubmissionRequestPersistenceService,
-    ): SubmissionRequestLoader =
-        SubmissionRequestLoader(filesRequestService, requestService, File(properties.fireTempDirPath))
+    ): SubmissionRequestLoader = SubmissionRequestLoader(
+        properties.persistence.concurrency,
+        filesRequestService,
+        requestService,
+        File(properties.fireTempDirPath)
+    )
 
     @Bean
     fun requestSaver(
@@ -95,6 +99,7 @@ class SubmitterConfig(
         requestService: SubmissionRequestPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
     ): SubmissionRequestProcessor = SubmissionRequestProcessor(
+        properties.persistence.concurrency,
         storageService,
         requestService,
         filesRequestService,
@@ -109,6 +114,7 @@ class SubmitterConfig(
         submissionPersistenceService: SubmissionPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
     ): SubmissionRequestReleaser = SubmissionRequestReleaser(
+        properties.persistence.concurrency,
         fileStorageService,
         serializationService,
         submissionPersistenceQueryService,

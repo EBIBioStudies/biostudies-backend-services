@@ -27,6 +27,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkStatic
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -38,6 +39,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Instant
 
 @ExtendWith(MockKExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class SubmissionDraftServiceTest(
     @MockK private val submitWebHandler: SubmitWebHandler,
     @MockK private val toSubmissionMapper: ToSubmissionMapper,
