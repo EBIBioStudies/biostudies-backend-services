@@ -1,5 +1,6 @@
 import Dependencies.JacksonCore
 import Dependencies.JacksonKotlin
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.ServletApi
@@ -18,6 +19,7 @@ dependencies {
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
 
+    testImplementation(KotlinCoroutines)
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

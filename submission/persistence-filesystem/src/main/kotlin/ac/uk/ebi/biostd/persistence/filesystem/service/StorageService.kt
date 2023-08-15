@@ -24,20 +24,20 @@ class StorageService(
     private val nfsFilesService: NfsFilesService,
     private val serializationService: ExtSerializationService,
 ) : FileStorageService {
-    override fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile =
+    override suspend fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile =
         when (sub.storageMode) {
             FIRE -> fireFilesService.persistSubmissionFile(sub, file)
             NFS -> nfsFilesService.persistSubmissionFile(sub, file)
         }
 
-    override fun releaseSubmissionFile(file: ExtFile, subRelPath: String, mode: StorageMode): ExtFile {
+    override suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String, mode: StorageMode): ExtFile {
         return when (mode) {
             FIRE -> fireFtpService.releaseSubmissionFile(file, subRelPath)
             NFS -> nfsFtpService.releaseSubmissionFile(file, subRelPath)
         }
     }
 
-    override fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) = when (sub.storageMode) {
+    override suspend fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) = when (sub.storageMode) {
         FIRE -> {
             fireFilesService.deleteSubmissionFile(sub, file)
             fireFilesService.deleteFtpFile(sub, file)
@@ -49,7 +49,7 @@ class StorageService(
         }
     }
 
-    override fun deleteSubmissionFiles(
+    override suspend fun deleteSubmissionFiles(
         sub: ExtSubmission,
         process: (Sequence<ExtFile>) -> Sequence<ExtFile>,
     ) {

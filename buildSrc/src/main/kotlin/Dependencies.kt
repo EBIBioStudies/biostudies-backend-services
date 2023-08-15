@@ -117,6 +117,7 @@ object TestDependencies {
     const val AssertJ = "org.assertj:assertj-core:$AssertJVersion"
     const val MockK = "io.mockk:mockk:$MockKVersion"
     const val KotlinTestJunit = "org.jetbrains.kotlin:kotlin-test-junit:$KotlinVersion"
+    const val KotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:$KotlinCoroutinesVersion"
 
     const val Junit5Console = "org.junit.platform:junit-platform-console:$JunitEngineVersion"
     const val Junit = "org.junit.jupiter:junit-jupiter:$JunitVersion"
@@ -196,6 +197,8 @@ object Dependencies {
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"
     const val KotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$KotlinVersion"
     const val KotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$KotlinCoroutinesVersion"
+    const val KotlinCoroutinesReactive = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$KotlinCoroutinesVersion"
+    const val KotlinCoroutinesReactor = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$KotlinCoroutinesVersion"
     const val KotlinLogging = "io.github.microutils:kotlin-logging:$KotlinLoggingVersion"
 
     // Arrow
@@ -217,12 +220,12 @@ object SpringBootDependencies {
     const val SpringBootStarterTest = "org.springframework.boot:spring-boot-starter-test"
     const val SpringBootStarterWeb = "org.springframework.boot:spring-boot-starter-web"
     const val SpringBootStarterWebFlux = "org.springframework.boot:spring-boot-starter-webflux"
+    const val SpringBootStarterReactiveMongo = "org.springframework.boot:spring-boot-starter-data-mongodb-reactive"
     const val SpringBootStarterMongo = "org.springframework.boot:spring-boot-starter-data-mongodb"
     const val SpringBootStarterAmqp = "org.springframework.boot:spring-boot-starter-amqp"
     const val SpringBootConfigurationProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterActuator = "org.springframework.boot:spring-boot-starter-actuator"
     const val SpringBootStarterValidation = "org.springframework.boot:spring-boot-starter-validation"
-    const val SpringRetry = "org.springframework.retry:spring-retry:1.3.3"
     const val SpringBootStarterDataJpa = "org.springframework.boot:spring-boot-starter-data-jpa"
     const val SpringBootStarterConfigProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterSecurity = "org.springframework.boot:spring-boot-starter-security"

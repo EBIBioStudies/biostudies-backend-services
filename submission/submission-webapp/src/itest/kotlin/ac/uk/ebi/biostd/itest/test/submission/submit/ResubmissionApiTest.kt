@@ -311,7 +311,7 @@ class ResubmissionApiTest(
         assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
 
         mongoTemplate.updateMulti(
-            Query(where(SUB_ACC_NO).`in`("S-RSTST6").andOperator(where(SUB_VERSION).gt(0))),
+            Query(where(SUB_ACC_NO).`in`("S-RSTST7").andOperator(where(SUB_VERSION).gt(0))),
             ExtendedUpdate().set(SUB_RELEASE_TIME, OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, UTC).toInstant()),
             DocSubmission::class.java
         )

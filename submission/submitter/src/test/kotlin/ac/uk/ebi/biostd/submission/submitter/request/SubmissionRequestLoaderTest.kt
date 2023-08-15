@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
 import arrow.core.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
@@ -22,6 +23,7 @@ import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkStatic
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -39,7 +41,12 @@ class SubmissionRequestLoaderTest(
     private val mockNow = OffsetDateTime.of(2022, 10, 5, 0, 0, 1, 0, UTC)
     private val testTime = OffsetDateTime.of(2022, 10, 4, 0, 0, 1, 0, UTC)
     private val fireTempDirPath = tempFolder.createDirectory("fire-temp")
-    private val testInstance = SubmissionRequestLoader(filesRequestService, requestService, fireTempDirPath)
+    private val testInstance = SubmissionRequestLoader(
+        TEST_CONCURRENCY,
+        filesRequestService,
+        requestService,
+        fireTempDirPath,
+    )
 
     @BeforeEach
     fun beforeEach() {
@@ -66,7 +73,7 @@ class SubmissionRequestLoaderTest(
         every { requestService.saveSubmissionRequest(capture(loadedRequestSlot)) } returns (sub.accNo to sub.version)
         every {
             filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)
-        } returns listOf(indexedRequestFile).asSequence()
+        } returns flowOf(indexedRequestFile)
         every { requestService.updateRqtIndex(indexedRequestFile, capture(filSlot)) } answers { nothing }
 
         testInstance.loadRequest(sub.accNo, sub.version)

@@ -15,6 +15,8 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -23,6 +25,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.test.assertFails
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class NfsFilesServiceTest(
     private val tempFolder: TemporaryFolder,
@@ -34,7 +37,7 @@ class NfsFilesServiceTest(
     private val testInstance = NfsFilesService(fireClient, folderResolver)
 
     @Test
-    fun `persist NFS file`() {
+    fun `persist NFS file`() = runTest {
         val sub = basicExtSubmission
         val file = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
 
@@ -45,7 +48,7 @@ class NfsFilesServiceTest(
     }
 
     @Test
-    fun `persist FIRE file`() {
+    fun `persist FIRE file`() = runTest {
         val sub = basicExtSubmission
         val downloaded = tempFolder.createFile("file.txt")
         val fireFile = FireFile("fire-id", "/a/file.txt", true, "file.txt", "file.txt", "md5", 1L, FILE, emptyList())
@@ -73,7 +76,7 @@ class NfsFilesServiceTest(
     }
 
     @Test
-    fun `delete submission file`() {
+    fun `delete submission file`() = runTest {
         val subFolder = subFolder.createDirectory("S-BSST3")
         val filesFolder = subFolder.createDirectory("Files")
         val file = filesFolder.createFile("file1.txt")
@@ -89,7 +92,7 @@ class NfsFilesServiceTest(
     fun `delete fire file`(
         @MockK fireFile: FireFile,
         @MockK submission: ExtSubmission,
-    ) {
+    ) = runTest {
         val exception = assertFails { testInstance.deleteSubmissionFile(submission, fireFile) }
         assertThat(exception.message).isEqualTo("NfsFilesService should only handle NfsFile")
     }

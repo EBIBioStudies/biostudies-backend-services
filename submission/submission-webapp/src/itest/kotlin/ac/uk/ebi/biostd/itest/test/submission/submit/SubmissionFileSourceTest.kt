@@ -34,6 +34,7 @@ import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.second
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
@@ -143,7 +144,7 @@ class SubmissionFileSourceTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `6-2 submission with FIRE source only`() {
+    fun `6-2 submission with FIRE source only`() = runTest {
         val file3 = tempFolder.createFile("File3.txt", "content file 3")
         val file4 = tempFolder.createFile("File4.txt", "content file 4")
         val file3Md5 = file3.md5()
