@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.util.date.toStringDate
 import org.assertj.core.api.Assertions.assertThat
@@ -21,6 +22,7 @@ import org.awaitility.Awaitility.await
 import org.awaitility.Durations.TEN_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -48,24 +50,25 @@ class SubmissionStatsTest(
     }
 
     @Test
-    fun `26-1 files size stat calculation on submit`() {
+    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+    fun `26-1 files size stat calculation on submit over FIRE`() {
         val version1 = tsv {
             line("Submission", "S-STTS1")
-            line("Title", "Stats Registration Test")
+            line("Title", "Stats Registration Test Over FIRE")
             line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
 
             line("Study")
             line()
 
-            line("File", "file section.doc")
+            line("File", "stats file 1.doc")
             line("Type", "test")
             line()
         }.toString()
 
         val version2 = tsv {
             line("Submission", "S-STTS1")
-            line("Title", "Stats Registration Test")
+            line("Title", "Stats Registration Test Over FIRE")
             line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
 
@@ -74,7 +77,7 @@ class SubmissionStatsTest(
             line("File List", "file-list.tsv")
             line()
 
-            line("File", "file section.doc")
+            line("File", "stats file 1.doc")
             line("Type", "test")
             line()
 
@@ -82,40 +85,113 @@ class SubmissionStatsTest(
             line("Type", "Subsection")
             line()
 
-            line("File", "fileSubSection.txt")
+            line("File", "statsFile2.txt")
             line("Type", "Attached")
             line()
         }.toString()
 
         val fileListContent = tsv {
             line("Files", "Type")
-            line("a/fileFileList.pdf", "inner")
+            line("a/statsFile3.pdf", "inner")
             line("a", "folder")
         }.toString()
 
         webClient.uploadFiles(
             listOf(
-                tempFolder.createFile("fileSubSection.txt", "content"),
+                tempFolder.createFile("statsFile2.txt", "content"),
                 tempFolder.createFile("file-list.tsv", fileListContent),
-                tempFolder.createFile("file section.doc", "doc content"),
+                tempFolder.createFile("stats file 1.doc", "doc content"),
             )
         )
-        webClient.uploadFiles(listOf(tempFolder.createFile("fileFileList.pdf", "pdf content")), "a")
+        webClient.uploadFiles(listOf(tempFolder.createFile("statsFile3.pdf", "pdf content")), "a")
 
         assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
         await().atMost(TEN_SECONDS).until { statsDataService.findByAccNo("S-STTS1").isNotEmpty() }
         val statVersion1 = statsDataService.findByAccNo("S-STTS1")
         assertThat(statVersion1).hasSize(1)
-        assertThat(statVersion1.first().value).isEqualTo(1181L)
+        assertThat(statVersion1.first().value).isEqualTo(1211L)
         assertThat(statVersion1.first().type).isEqualTo(FILES_SIZE)
         assertThat(statVersion1.first().accNo).isEqualTo("S-STTS1")
 
         assertThat(webClient.submitSingle(version2, TSV)).isSuccessful()
-        await().atMost(TEN_SECONDS).until { statsDataService.findByAccNo("S-STTS1").first().value != 1181L }
+        await().atMost(TEN_SECONDS).until { statsDataService.findByAccNo("S-STTS1").first().value != 1211L }
         val stats = statsDataService.findByAccNo("S-STTS1")
         assertThat(stats).hasSize(1)
-        assertThat(stats.first().value).isEqualTo(3521L)
+        assertThat(stats.first().value).isEqualTo(3529L)
         assertThat(stats.first().type).isEqualTo(FILES_SIZE)
         assertThat(stats.first().accNo).isEqualTo("S-STTS1")
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "false")
+    fun `26-2 files size stat calculation on submit over NFS`() {
+        val version1 = tsv {
+            line("Submission", "S-STTS2")
+            line("Title", "Stats Registration Test Over NFS")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
+            line()
+
+            line("Study")
+            line()
+
+            line("File", "stats file 1.doc")
+            line("Type", "test")
+            line()
+        }.toString()
+
+        val version2 = tsv {
+            line("Submission", "S-STTS2")
+            line("Title", "Stats Registration Test Over NFS")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
+            line()
+
+            line("Study")
+            line("Type", "Experiment")
+            line("File List", "file-list.tsv")
+            line()
+
+            line("File", "stats file 1.doc")
+            line("Type", "test")
+            line()
+
+            line("Experiment", "Exp1")
+            line("Type", "Subsection")
+            line()
+
+            line("File", "statsFile2.txt")
+            line("Type", "Attached")
+            line()
+        }.toString()
+
+        val fileListContent = tsv {
+            line("Files", "Type")
+            line("a/statsFile3.pdf", "inner")
+            line("a", "folder")
+        }.toString()
+
+        webClient.uploadFiles(
+            listOf(
+                tempFolder.createFile("statsFile2.txt", "content"),
+                tempFolder.createFile("file-list.tsv", fileListContent),
+                tempFolder.createFile("stats file 1.doc", "doc content"),
+            )
+        )
+        webClient.uploadFiles(listOf(tempFolder.createFile("statsFile3.pdf", "pdf content")), "a")
+
+        assertThat(webClient.submitSingle(version1, TSV, NFS)).isSuccessful()
+        await().atMost(TEN_SECONDS).until { statsDataService.findByAccNo("S-STTS2").isNotEmpty() }
+        val statVersion1 = statsDataService.findByAccNo("S-STTS2")
+        assertThat(statVersion1).hasSize(1)
+        assertThat(statVersion1.first().value).isEqualTo(1208L)
+        assertThat(statVersion1.first().type).isEqualTo(FILES_SIZE)
+        assertThat(statVersion1.first().accNo).isEqualTo("S-STTS2")
+
+        assertThat(webClient.submitSingle(version2, TSV, NFS)).isSuccessful()
+        await().atMost(TEN_SECONDS).until { statsDataService.findByAccNo("S-STTS2").first().value != 1208L }
+        val stats = statsDataService.findByAccNo("S-STTS2")
+        assertThat(stats).hasSize(1)
+        assertThat(stats.first().value).isEqualTo(3364L)
+        assertThat(stats.first().type).isEqualTo(FILES_SIZE)
+        assertThat(stats.first().accNo).isEqualTo("S-STTS2")
     }
 }
