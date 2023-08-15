@@ -60,7 +60,7 @@ class SubmissionStatsService(
         val sub = extSubmissionQueryService.getExtendedSubmission(accNo, includeFileListFiles = true)
         logger.info { "${sub.accNo} ${sub.owner} Started calculating submission stats" }
 
-        val subFilesSize = serializationService.fileSequence(sub).fold(0L) { acc, extFile -> acc + extFile.size }
+        val subFilesSize = serializationService.fileSequence(sub).sumOf { it.size }
         val subFilesSizeStat = submissionStatsService.save(SingleSubmissionStat(sub.accNo, subFilesSize, FILES_SIZE))
 
         logger.info { "${sub.accNo} ${sub.owner} Finished calculating submission stats. Files size: $subFilesSize" }
