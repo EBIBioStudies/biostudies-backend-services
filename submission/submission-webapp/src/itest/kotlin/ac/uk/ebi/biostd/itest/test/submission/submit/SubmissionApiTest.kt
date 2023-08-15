@@ -315,7 +315,7 @@ class SubmissionApiTest(
     @Test
     fun `16-12 User with Ftp based folder submission`() {
         securityTestService.ensureUserRegistration(FtpSuperUser)
-        webClient = getWebClient(serverPort, SuperUser)
+        webClient = getWebClient(serverPort, FtpSuperUser)
 
         val file = tempFolder.createFile("single.txt")
         webClient.uploadFile(file)
