@@ -1,11 +1,13 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.common.config.LISTENER_FACTORY_NAME
+import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
 import ebi.ac.uk.extended.events.RequestFilesCopied
+import ebi.ac.uk.extended.events.RequestFinalized
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
@@ -19,6 +21,7 @@ private val logger = KotlinLogging.logger {}
 
 @RabbitListener(queues = ["\${app.notifications.requestQueue}"], containerFactory = LISTENER_FACTORY_NAME)
 class SubmissionStagesHandler(
+    private val statsService: SubmissionStatsService,
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
 ) {
@@ -81,6 +84,14 @@ class SubmissionStagesHandler(
         processSafely(rqt) {
             logger.info { "$accNo, Received processed message for submission $accNo, version: $version" }
             submissionSubmitter.finalizeRequest(rqt)
+        }
+    }
+
+    @RabbitHandler
+    fun calculateStats(rqt: RequestFinalized) {
+        processSafely(rqt) {
+            logger.info { "$accNo, Received finalized message for submission $accNo, version: $version" }
+            statsService.calculateSubFilesSize(accNo)
         }
     }
 

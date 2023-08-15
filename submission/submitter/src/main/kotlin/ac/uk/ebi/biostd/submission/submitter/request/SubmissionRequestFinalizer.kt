@@ -9,6 +9,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.storageMode
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.fileSequence
 
@@ -17,6 +18,7 @@ private val logger = KotlinLogging.logger {}
 class SubmissionRequestFinalizer(
     private val storageService: FileStorageService,
     private val serializationService: ExtSerializationService,
+    private val eventsPublisherService: EventsPublisherService,
     private val queryService: SubmissionPersistenceQueryService,
     private val requestService: SubmissionRequestPersistenceService,
 ) {
@@ -28,6 +30,8 @@ class SubmissionRequestFinalizer(
         if (previous != null) runBlocking { deleteRemainingFiles(sub, previous) }
 
         requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED))
+        eventsPublisherService.submissionFinalized(accNo, version)
+
         return sub
     }
 

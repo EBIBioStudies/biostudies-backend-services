@@ -216,8 +216,10 @@ internal object FileUtilsHelper {
         target: Path,
         permissions: Permissions,
     ) {
-        Files.copy(source, createParentDirectories(target, permissions.folder), REPLACE_EXISTING)
-        Files.setPosixFilePermissions(target, permissions.file)
+        runSafely {
+            Files.copy(source, createParentDirectories(target, permissions.folder), REPLACE_EXISTING)
+            Files.setPosixFilePermissions(target, permissions.file)
+        }
     }
 
     fun moveFile(
@@ -244,16 +246,21 @@ internal object FileUtilsHelper {
 
         return directoryPath
     }
+    private fun createDirectory(path: Path, permissions: Set<PosixFilePermission>) {
+        runSafely {
+            Files.createDirectory(path)
+            Files.setPosixFilePermissions(path, permissions)
+        }
+    }
 
     /*
-     * This method requires ignoring exceptions of the type FileAlreadyExistsException in order to become thread safe.
+     * Some methods require ignoring exceptions of the type FileAlreadyExistsException in order to become thread safe.
      * See this discussion for more details:
      * https://github.com/EBIBioStudies/biostudies-backend-services/pull/733#discussion_r1280085979
      */
-    private fun createDirectory(path: Path, permissions: Set<PosixFilePermission>) {
+    private fun runSafely(func: () -> Unit) {
         runCatching {
-            Files.createDirectory(path)
-            Files.setPosixFilePermissions(path, permissions)
+            func()
         }.onFailure {
             if ((it is FileAlreadyExistsException).not()) throw it
         }
