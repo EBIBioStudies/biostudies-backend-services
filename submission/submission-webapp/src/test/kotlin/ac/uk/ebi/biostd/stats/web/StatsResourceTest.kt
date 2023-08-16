@@ -8,11 +8,14 @@ import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
-import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -42,10 +45,10 @@ class StatsResourceTest(
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun `find by accNo`() {
+    fun `find by accNo`() = runTest {
         val expectedResponse = jsonArray(testJsonStat)
 
-        every { submissionStatsService.findByAccNo("S-TEST123") } returns listOf(testStat)
+        coEvery { submissionStatsService.findByAccNo("S-TEST123") } returns listOf(testStat)
 
         mvc.get("/stats/submission/S-TEST123") {
             accept = APPLICATION_JSON
@@ -56,11 +59,11 @@ class StatsResourceTest(
     }
 
     @Test
-    fun `find by type`() {
+    fun `find by type`() = runTest {
         val filter = slot<PaginationFilter>()
         val expectedResponse = jsonArray(testJsonStat)
 
-        every { submissionStatsService.findByType("views", capture(filter)) } returns listOf(testStat)
+        every { submissionStatsService.findByType("views", capture(filter)) } returns flowOf(testStat)
 
         mvc.get("/stats/views") {
             param("limit", "1")
@@ -76,8 +79,8 @@ class StatsResourceTest(
     }
 
     @Test
-    fun `find by type and accNo`() {
-        every { submissionStatsService.findByAccNoAndType("S-TEST123", "views") } returns testStat
+    fun `find by type and accNo`() = runTest {
+        coEvery { submissionStatsService.findByAccNoAndType("S-TEST123", "views") } returns testStat
 
         mvc.get("/stats/views/S-TEST123") {
             accept = APPLICATION_JSON
@@ -88,10 +91,10 @@ class StatsResourceTest(
     }
 
     @Test
-    fun `register stat`() {
+    fun `register stat`() = runTest {
         val statSlot = slot<SubmissionStat>()
 
-        every { submissionStatsService.register(capture(statSlot)) } returns testStat
+        coEvery { submissionStatsService.register(capture(statSlot)) } returns testStat
 
         mvc.post("/stats") {
             accept = APPLICATION_JSON
@@ -102,15 +105,15 @@ class StatsResourceTest(
             content { json(testJsonStat.toString()) }
         }
 
-        verify(exactly = 1) { submissionStatsService.register(statSlot.captured) }
+        coVerify(exactly = 1) { submissionStatsService.register(statSlot.captured) }
     }
 
     @Test
-    fun `register from file`() {
+    fun `register from file`() = runTest {
         val multipartStatsFile = slot<MultipartFile>()
         val body = jsonArray(testJsonStat).toString()
 
-        every { submissionStatsService.register("views", capture(multipartStatsFile)) } returns listOf(testStat)
+        coEvery { submissionStatsService.register("views", capture(multipartStatsFile)) } returns listOf(testStat)
 
         mvc.multipart("/stats/views") {
             accept = APPLICATION_JSON
@@ -120,15 +123,15 @@ class StatsResourceTest(
             content { json(body) }
         }
 
-        verify(exactly = 1) { submissionStatsService.register("views", multipartStatsFile.captured) }
+        coVerify(exactly = 1) { submissionStatsService.register("views", multipartStatsFile.captured) }
     }
 
     @Test
-    fun `increment from file`() {
+    fun `increment from file`() = runTest {
         val multipartStatsFile = slot<MultipartFile>()
         val body = jsonArray(testJsonStat).toString()
 
-        every { submissionStatsService.increment("views", capture(multipartStatsFile)) } returns listOf(testStat)
+        coEvery { submissionStatsService.increment("views", capture(multipartStatsFile)) } returns listOf(testStat)
 
         mvc.multipart("/stats/views/increment") {
             accept = APPLICATION_JSON
@@ -138,7 +141,7 @@ class StatsResourceTest(
             content { json(body) }
         }
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionStatsService.increment("views", multipartStatsFile.captured)
         }
     }
