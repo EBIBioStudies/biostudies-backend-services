@@ -219,7 +219,7 @@ class SubmissionFileSourceTest(
                 line("Type", "test")
                 line()
 
-                line("File", "folder/inner/")
+                line("File", "folder/inner")
                 line("Type", "inner folder")
                 line()
             }.toString()
@@ -378,7 +378,7 @@ class SubmissionFileSourceTest(
                 line("Type", "test")
                 line()
 
-                line("File", "folder/inner/")
+                line("File", "folder/inner")
                 line("Type", "inner folder")
                 line()
             }.toString()

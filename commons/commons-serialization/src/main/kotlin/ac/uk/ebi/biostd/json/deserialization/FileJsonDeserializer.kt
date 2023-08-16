@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.json.deserialization
 
-import ac.uk.ebi.biostd.common.getFilePath
+import ac.uk.ebi.biostd.common.validatedFilePath
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
@@ -23,7 +23,7 @@ internal class FileJsonDeserializer : StdDeserializer<BioFile>(BioFile::class.ja
         val path = node.getNode<TextNode>(PATH.value).textValue()
 
         return BioFile(
-            path = getFilePath(path),
+            path = validatedFilePath(path),
             attributes = mapper.convertOrDefault(node, ATTRIBUTES.value) { emptyList() },
             type = node.findNode<TextNode>(TYPE.value)?.textValue() ?: FILE_TYPE.value
         )

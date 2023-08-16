@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.xml.deserializer
 
-import ac.uk.ebi.biostd.common.getFilePath
+import ac.uk.ebi.biostd.common.validatedFilePath
 import ac.uk.ebi.biostd.xml.deserializer.common.BaseXmlDeserializer
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
@@ -14,7 +14,7 @@ class FileStandaloneXmlDeserializer(
         val path = node.getNodeAttribute(FileFields.PATH)
 
         return BioFile(
-            path = getFilePath(path),
+            path = validatedFilePath(path),
             attributes = attributeXmlDeserializer.deserializeList(node.findNode(FileFields.ATTRIBUTES))
         )
     }

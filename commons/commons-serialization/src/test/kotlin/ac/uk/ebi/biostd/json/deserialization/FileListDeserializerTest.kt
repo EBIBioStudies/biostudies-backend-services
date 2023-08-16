@@ -24,7 +24,7 @@ class FileListDeserializerTest(
     fun `deserialize file list as sequence`() {
         val json = jsonArray(
             jsonObj { "path" to "File1.txt" },
-            jsonObj { "path" to "inner/folder/" },
+            jsonObj { "path" to "inner/folder" },
         ).toString()
         tempFolder.createFile("FileList.json", json).inputStream().use {
             val files = testInstance.deserializeList<BioFile>(it).toList()

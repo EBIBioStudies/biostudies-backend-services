@@ -191,7 +191,7 @@ fun submissionWithFiles() = submissionWithRootSection().apply {
     line()
     line("File", "12870_2017_1225_MOESM1_ESM.docx")
     line()
-    line("File", "inner/folder/")
+    line("File", "inner/folder")
     line()
 }
 

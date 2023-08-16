@@ -3,6 +3,7 @@
 package ebi.ac.uk.io.ext
 
 import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.io.RWXRWX___
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.charset.Charset
@@ -22,7 +23,7 @@ fun File.size(calculateDirectories: Boolean = true) = FileUtils.size(this, calcu
 
 fun File.md5() = FileUtils.md5(this)
 
-fun File.createDirectory(name: String): File = Files.createDirectory(toPath().resolve(name)).toFile()
+fun File.createDirectory(name: String): File = FileUtils.getOrCreateFolder(toPath().resolve(name), RWXRWX___).toFile()
 
 fun File.newFile(name: String): File {
     val file = resolve(name)

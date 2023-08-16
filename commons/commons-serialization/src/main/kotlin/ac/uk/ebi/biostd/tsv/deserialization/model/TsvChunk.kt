@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.tsv.deserialization.model
 
-import ac.uk.ebi.biostd.common.getFilePath
+import ac.uk.ebi.biostd.common.validatedFilePath
 import ac.uk.ebi.biostd.tsv.deserialization.common.asTable
 import ac.uk.ebi.biostd.tsv.deserialization.common.findId
 import ac.uk.ebi.biostd.tsv.deserialization.common.getIdOrElse
@@ -42,7 +42,7 @@ internal class LinkChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
 class FileChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
     fun asFile(): BioFile {
-        val fileName = getFilePath(header.findSecond())
+        val fileName = validatedFilePath(header.findSecond())
         val attributes = toAttributes(lines)
         val type = attributes.find { it.name == FileFields.TYPE.value }?.value
         return BioFile(fileName, attributes = attributes, type = type ?: FileFields.FILE_TYPE.value)
@@ -56,7 +56,7 @@ internal class LinksTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 internal class FileTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
     fun asTable() = FilesTable(
         asTable(this) { name, attributes ->
-            BioFile(getFilePath(name), attributes = attributes)
+            BioFile(validatedFilePath(name), attributes = attributes)
         }
     )
 }

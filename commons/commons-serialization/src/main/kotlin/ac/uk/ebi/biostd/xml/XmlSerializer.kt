@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.xml
 
-import ac.uk.ebi.biostd.common.getFilePath
+import ac.uk.ebi.biostd.common.validatedFilePath
 import ac.uk.ebi.biostd.xml.deserializer.AttributeXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.DetailsXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.FileStandaloneXmlDeserializer
@@ -121,7 +121,7 @@ class FileXmlStreamDeserializer : StdDeserializer<BioFile>(BioFile::class.java) 
         val path = (node.get(FileFields.PATH.value) as TextNode).textValue().trim()
 
         return BioFile(
-            path = getFilePath(path),
+            path = validatedFilePath(path),
             attributes = mapper.convertArray(node, "attributes", "attribute", Array<Attribute>::class.java).toList()
         )
     }
