@@ -12,6 +12,7 @@ import ebi.ac.uk.io.ext.size
 import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
 import java.io.InputStream
+import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
 import java.nio.file.Files.deleteIfExists
 import java.nio.file.Files.exists
@@ -215,8 +216,10 @@ internal object FileUtilsHelper {
         target: Path,
         permissions: Permissions,
     ) {
-        Files.copy(source, createParentDirectories(target, permissions.folder), REPLACE_EXISTING)
-        Files.setPosixFilePermissions(target, permissions.file)
+        runSafely {
+            Files.copy(source, createParentDirectories(target, permissions.folder), REPLACE_EXISTING)
+            Files.setPosixFilePermissions(target, permissions.file)
+        }
     }
 
     fun moveFile(
@@ -243,17 +246,31 @@ internal object FileUtilsHelper {
 
         return directoryPath
     }
-
     private fun createDirectory(path: Path, permissions: Set<PosixFilePermission>) {
-        Files.createDirectory(path)
-        Files.setPosixFilePermissions(path, permissions)
+        runSafely {
+            Files.createDirectory(path)
+            Files.setPosixFilePermissions(path, permissions)
+        }
+    }
+
+    /*
+     * Some methods require ignoring exceptions of the type FileAlreadyExistsException in order to become thread safe.
+     * See this discussion for more details:
+     * https://github.com/EBIBioStudies/biostudies-backend-services/pull/733#discussion_r1280085979
+     */
+    private fun runSafely(func: () -> Unit) {
+        runCatching {
+            func()
+        }.onFailure {
+            if ((it is FileAlreadyExistsException).not()) throw it
+        }
     }
 
     fun deleteFolder(path: Path) {
         if (exists(path)) {
             Files.walk(path)
                 .sorted(Comparator.reverseOrder())
-                .forEach { Files.deleteIfExists(it) }
+                .forEach { deleteIfExists(it) }
         }
     }
 }

@@ -6,7 +6,7 @@ import ebi.ac.uk.extended.model.allFileList
 import ebi.ac.uk.extended.model.allSectionsFiles
 
 /**
- * Return a sequence with all file list of a submission. Pagetab files are retrieved first, followed by section files
+ * Return a sequence with all the files of a submission. Pagetab files are retrieved first, followed by section files
  * and file list files.
  */
 fun ExtSerializationService.fileSequence(submission: ExtSubmission): Sequence<ExtFile> {

@@ -18,7 +18,7 @@ internal class FireFilesSource(
 
         return when (val md5 = md5Attribute?.value) {
             null -> null
-            else -> fireClient.findByMd5(md5).first().asFireFile(path, attributes)
+            else -> fireClient.findByMd5Sync(md5).first().asFireFile(path, attributes)
         }
     }
 

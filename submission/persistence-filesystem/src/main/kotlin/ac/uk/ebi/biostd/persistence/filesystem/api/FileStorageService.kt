@@ -5,13 +5,13 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 
 interface FileStorageService {
-    fun releaseSubmissionFile(file: ExtFile, subRelPath: String, mode: StorageMode): ExtFile
+    suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String, mode: StorageMode): ExtFile
 
-    fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile
+    suspend fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile
 
-    fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile)
+    suspend fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile)
 
-    fun deleteSubmissionFiles(
+    suspend fun deleteSubmissionFiles(
         sub: ExtSubmission,
         process: (Sequence<ExtFile>) -> Sequence<ExtFile> = { it },
     )

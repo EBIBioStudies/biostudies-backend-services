@@ -1,6 +1,5 @@
 package uk.ac.ebi.fire.client.api
 
-import ebi.ac.uk.commons.http.ext.delete
 import ebi.ac.uk.commons.http.ext.getForObject
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -10,8 +9,9 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -20,17 +20,25 @@ import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.OK
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
+import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.core.publisher.Mono
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.util.function.Consumer
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FireWebClientTest(
     private val tmpFolder: TemporaryFolder,
     @MockK private val client: WebClient,
+    @MockK private val fireFile: FireApiFile,
+    @MockK private val response: ClientResponse,
+    @MockK private val requestSpec: RequestBodySpec,
 ) {
     private val testInstance = FireWebClient(client)
 
@@ -38,10 +46,7 @@ class FireWebClientTest(
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun save(
-        @MockK fireFile: FireApiFile,
-        @MockK requestSpec: RequestBodySpec,
-    ) {
+    fun save() = runTest {
         val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
         val headersSlot = slot<Consumer<HttpHeaders>>()
         val file = tmpFolder.createFile("save-test.txt")
@@ -49,7 +54,7 @@ class FireWebClientTest(
         every { client.post().uri("/objects") } returns requestSpec
         every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
         every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
-        every { requestSpec.retrieve().bodyToMono(FireApiFile::class.java).block() } returns fireFile
+        every { requestSpec.retrieve().bodyToMono<FireApiFile>() } returns Mono.just(fireFile)
 
         testInstance.save(file, "the-md5", 55)
 
@@ -63,21 +68,19 @@ class FireWebClientTest(
         verify(exactly = 1) {
             client.post().uri("/objects")
             requestSpec.bodyValue(body)
-            requestSpec.retrieve().bodyToMono(FireApiFile::class.java).block()
+            requestSpec.retrieve().bodyToMono<FireApiFile>()
         }
     }
 
     @Test
-    fun `set path`(
-        @MockK requestSpec: RequestBodySpec,
-    ) {
+    fun `set path`() = runTest {
         val headersSlot = slot<Consumer<HttpHeaders>>()
 
         every { client.put().uri("/objects/the-fire-oid/firePath") } returns requestSpec
         every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
-        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns ""
+        every { requestSpec.retrieve().bodyToMono<FireApiFile>() } returns Mono.just(fireFile)
 
-        testInstance.setPath("the-fire-oid", "/a/new/path/file2.txt")
+        val response = testInstance.setPath("the-fire-oid", "/a/new/path/file2.txt")
 
         val headers = headersSlot.captured
         headers.andThen {
@@ -85,27 +88,31 @@ class FireWebClientTest(
         }
         verify(exactly = 1) {
             client.put().uri("/objects/the-fire-oid/firePath")
-            requestSpec.retrieve().bodyToMono(String::class.java).block()
+            requestSpec.retrieve().bodyToMono<FireApiFile>()
         }
         verify(exactly = 0) {
             requestSpec.body(any())
         }
+        assertThat(response).isEqualTo(fireFile)
     }
 
     @Test
-    fun `unset path`() {
-        every { client.delete("/objects/the-fire-oid/firePath") } answers { nothing }
+    fun `unset path`() = runTest {
+        every { response.statusCode() } returns OK
+        every { client.delete().uri("/objects/the-fire-oid/firePath").exchange() } returns Mono.just(response)
 
         testInstance.unsetPath("the-fire-oid")
 
-        verify(exactly = 1) { client.delete("/objects/the-fire-oid/firePath") }
+        verify(exactly = 1) {
+            client.delete().uri("/objects/the-fire-oid/firePath").exchange()
+        }
     }
 
     @Test
-    fun `find by md5`(@MockK fireFile: FireApiFile) {
+    fun `find by md5 sync`() {
         every { client.getForObject<Array<FireApiFile>>("/objects/md5/the-md5") } returns arrayOf(fireFile)
 
-        val files = testInstance.findByMd5("the-md5")
+        val files = testInstance.findByMd5Sync("the-md5")
 
         assertThat(files).hasSize(1)
         assertThat(files.first()).isEqualTo(fireFile)
@@ -115,107 +122,135 @@ class FireWebClientTest(
     }
 
     @Test
-    fun `find by path`(@MockK fireFile: FireApiFile) {
-        every { client.getForObject<FireApiFile>("/objects/path/my/path") } returns fireFile
+    fun `find by md5`() = runTest {
+        every {
+            client.get().uri("/objects/md5/the-md5").retrieve().bodyToMono<Array<FireApiFile>>()
+        } returns Mono.just(arrayOf(fireFile))
+
+        val files = testInstance.findByMd5("the-md5")
+
+        assertThat(files).hasSize(1)
+        assertThat(files.first()).isEqualTo(fireFile)
+        verify(exactly = 1) {
+            client.get().uri("/objects/md5/the-md5").retrieve().bodyToMono<Array<FireApiFile>>()
+        }
+    }
+
+    @Test
+    fun `find by path`() = runTest {
+        every {
+            client.get().uri("/objects/path/my/path").retrieve().bodyToMono<FireApiFile>()
+        } returns Mono.just(fireFile)
 
         val file = testInstance.findByPath("my/path")
 
         assertThat(file).isEqualTo(fireFile)
-        verify(exactly = 1) { client.getForObject<FireApiFile>("/objects/path/my/path") }
+        verify(exactly = 1) {
+            client.get().uri("/objects/path/my/path").retrieve().bodyToMono<FireApiFile>()
+        }
     }
 
     @Test
-    fun `find all by path`(@MockK fireFile: FireApiFile) {
+    fun `find all by path`() = runTest {
         every {
-            client.getForObject<Array<FireApiFile>>("/objects/entries/path/my/path")
-        } returns arrayOf(fireFile)
+            client.get().uri("/objects/entries/path/my/path").retrieve().bodyToMono<Array<FireApiFile>>()
+        } returns Mono.just(arrayOf(fireFile))
 
         val files = testInstance.findAllInPath("my/path")
 
         assertThat(files).hasSize(1)
         assertThat(files.first()).isEqualTo(fireFile)
         verify(exactly = 1) {
-            client.getForObject<Array<FireApiFile>>("/objects/entries/path/my/path")
+            client.get().uri("/objects/entries/path/my/path").retrieve().bodyToMono<Array<FireApiFile>>()
         }
     }
 
     @Test
-    fun `find all by path when FireClientException with NOT_FOUND status code`() {
+    fun `find all by path when FireClientException with NOT_FOUND status code`() = runTest {
         every {
-            client.getForObject<Array<FireApiFile>>("/objects/entries/path/my/path")
-        }.throws(HttpClientErrorException(NOT_FOUND, "no files found in the given path"))
+            client.get().uri("/objects/entries/path/my/path").retrieve().bodyToMono<Array<FireApiFile>>()
+        } throws(HttpClientErrorException(NOT_FOUND, "no files found in the given path"))
 
         val files = testInstance.findAllInPath("my/path")
 
         assertThat(files).hasSize(0)
         verify(exactly = 1) {
-            client.getForObject<Array<FireApiFile>>("/objects/entries/path/my/path")
+            client.get().uri("/objects/entries/path/my/path").retrieve().bodyToMono<Array<FireApiFile>>()
         }
     }
 
     @Test
-    fun `find all by path when httpException without a status code other than NOT_FOUND`() {
+    fun `find all by path when httpException without a status code other than NOT_FOUND`() = runTest {
         every {
-            client.getForObject<Array<FireApiFile>>("/objects/entries/path/my/path")
-        }.throws(HttpClientErrorException(HttpStatus.BAD_REQUEST))
+            client.get().uri("/objects/entries/path/my/path").retrieve().bodyToMono<Array<FireApiFile>>()
+        } throws(HttpClientErrorException(HttpStatus.BAD_REQUEST))
 
-        assertThatExceptionOfType(HttpClientErrorException::class.java)
-            .isThrownBy { testInstance.findAllInPath("my/path") }
+        assertThrows<HttpClientErrorException> { testInstance.findAllInPath("my/path") }
 
         verify(exactly = 1) {
-            client.getForObject<Array<FireApiFile>>("/objects/entries/path/my/path")
+            client.get().uri("/objects/entries/path/my/path").retrieve().bodyToMono<Array<FireApiFile>>()
         }
     }
 
     @Test
-    fun `find by path when FireClientException with NOT_FOUND status code`() {
+    fun `find by path when FireClientException with NOT_FOUND status code`() = runTest {
         every {
-            client.getForObject<FireApiFile>("/objects/path/my/path")
-        }.throws(HttpClientErrorException(NOT_FOUND, "no file found with the given path"))
+            client.get().uri("/objects/path/my/path").retrieve().bodyToMono<FireApiFile>()
+        } throws(HttpClientErrorException(NOT_FOUND, "no file found with the given path"))
 
         val file = testInstance.findByPath("my/path")
 
         assertThat(file).isNull()
-        verify(exactly = 1) { client.getForObject<FireApiFile>("/objects/path/my/path") }
+        verify(exactly = 1) {
+            client.get().uri("/objects/path/my/path").retrieve().bodyToMono<FireApiFile>()
+        }
     }
 
     @Test
-    fun `find by path when httpException without a status code other than NOT_FOUND`() {
+    fun `find by path when httpException without a status code other than NOT_FOUND`() = runTest {
         every {
-            client.getForObject<FireApiFile>("/objects/path/my/path")
-        }.throws(HttpClientErrorException(HttpStatus.BAD_REQUEST))
+            client.get().uri("/objects/path/my/path").retrieve().bodyToMono<FireApiFile>()
+        } throws(HttpClientErrorException(HttpStatus.BAD_REQUEST))
 
         assertThrows<HttpClientErrorException> { testInstance.findByPath("my/path") }
 
-        verify(exactly = 1) { client.getForObject<FireApiFile>("/objects/path/my/path") }
+        verify(exactly = 1) {
+            client.get().uri("/objects/path/my/path").retrieve().bodyToMono<FireApiFile>()
+        }
     }
 
     @Test
-    fun publish(@MockK apiFile: FireApiFile) {
+    fun publish() = runTest {
         every {
-            client.putForObject<FireApiFile>("/objects/the-fire-oid/publish")
-        } returns apiFile
+            client.put().uri("/objects/the-fire-oid/publish").retrieve().bodyToMono<FireApiFile>()
+        } returns Mono.just(fireFile)
 
         val response = testInstance.publish("the-fire-oid")
 
-        assertThat(response).isEqualTo(apiFile)
+        assertThat(response).isEqualTo(fireFile)
     }
 
     @Test
-    fun unpublish() {
-        every { client.delete("/objects/the-fire-oid/publish") } answers { nothing }
+    fun unpublish() = runTest {
+        every { response.statusCode() } returns OK
+        every { client.delete().uri("/objects/the-fire-oid/publish").exchange() } returns Mono.just(response)
 
         testInstance.unpublish("the-fire-oid")
 
-        verify(exactly = 1) { client.delete("/objects/the-fire-oid/publish") }
+        verify(exactly = 1) {
+            client.delete().uri("/objects/the-fire-oid/publish").exchange()
+        }
     }
 
     @Test
-    fun delete() {
-        every { client.delete("/objects/the-fire-oid") } answers { nothing }
+    fun delete() = runTest {
+        every { response.statusCode() } returns OK
+        every { client.delete().uri("/objects/the-fire-oid").exchange() } returns Mono.just(response)
 
         testInstance.delete("the-fire-oid")
 
-        verify(exactly = 1) { client.delete("/objects/the-fire-oid") }
+        verify(exactly = 1) {
+            client.delete().uri("/objects/the-fire-oid").exchange()
+        }
     }
 }
