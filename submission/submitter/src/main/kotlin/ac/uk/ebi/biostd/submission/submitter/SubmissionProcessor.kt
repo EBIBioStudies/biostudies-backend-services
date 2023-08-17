@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionProcessor
+import ac.uk.ebi.biostd.submission.service.DoiService
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.extended.mapping.from.toExtAttributes
@@ -27,6 +28,7 @@ private val logger = KotlinLogging.logger {}
 
 @Suppress("LongParameterList")
 class SubmissionProcessor(
+    private val doiService: DoiService,
     private val persistenceService: SubmissionPersistenceService,
     private val timesService: TimesService,
     private val accNoService: AccNoService,
@@ -42,6 +44,7 @@ class SubmissionProcessor(
 
         logger.info { "${rqt.accNo} ${rqt.owner} Assigned accNo '$accNoString' to draft with key '${rqt.draftKey}'" }
 
+        val doi = doiService.calculateDoi(accNoString, rqt)
         val version = persistenceService.getNextVersion(accNoString)
         val secretKey = previousVersion?.secretKey ?: UUID.randomUUID().toString()
         val relPath = accNoService.getRelPath(accNo)
@@ -55,6 +58,7 @@ class SubmissionProcessor(
             schemaVersion = DEFAULT_SCHEMA_VERSION,
             method = getMethod(method),
             title = submission.title,
+            doi = doi,
             relPath = relPath,
             rootPath = submission.rootPath,
             released = released,

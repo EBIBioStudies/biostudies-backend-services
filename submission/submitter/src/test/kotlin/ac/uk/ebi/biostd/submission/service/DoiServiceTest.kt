@@ -3,15 +3,19 @@ package ac.uk.ebi.biostd.submission.service
 import ac.uk.ebi.biostd.common.properties.DoiProperties
 import ac.uk.ebi.biostd.submission.exceptions.InvalidAuthorAffiliationException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidAuthorNameException
+import ac.uk.ebi.biostd.submission.exceptions.InvalidDoiException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidOrgException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidOrgNamesException
 import ac.uk.ebi.biostd.submission.exceptions.MissingAuthorAffiliationException
 import ac.uk.ebi.biostd.submission.exceptions.MissingDoiFieldException
 import ac.uk.ebi.biostd.submission.exceptions.MissingTitleException
-import arrow.core.Either.Companion.left
-import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.test.basicExtSubmission
+import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
+import ac.uk.ebi.biostd.submission.model.SubmitRequest
+import ebi.ac.uk.dsl.attribute
+import ebi.ac.uk.dsl.section
+import ebi.ac.uk.dsl.submission
+import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.extensions.title
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -38,6 +42,8 @@ import java.time.ZoneOffset.UTC
 @ExtendWith(MockKExtension::class)
 class DoiServiceTest(
     @MockK private val webClient: WebClient,
+    @MockK private val submitRequest: SubmitRequest,
+    @MockK private val previousVersion: ExtSubmission,
 ) {
     private val testInstance = DoiService(webClient, properties)
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 10, 11, 0, 0, UTC).toInstant()
@@ -49,6 +55,7 @@ class DoiServiceTest(
     fun beforeEach() {
         mockkStatic(Instant::class)
         every { Instant.now() } returns mockNow
+        every { submitRequest.previousVersion } returns null
     }
 
     @Test
@@ -56,20 +63,35 @@ class DoiServiceTest(
         @MockK requestSpec: RequestBodySpec,
     ) {
         val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
-        val org = section("Organization", "o1", "Name" to "EMBL")
-        val author = section("Author", null, "Name" to "John Doe", "Affiliation" to "o1", "ORCID" to "12-32-45-82")
-        val rootSection = ExtSection(type = "Study", sections = listOf(left(org), left(author)))
-        val submission = basicExtSubmission.copy(section = rootSection)
+        val submission = submission {
+            title = "Test Submission"
+            attribute("DOI", "")
 
+            section("Study") {
+                section("Organization") {
+                    accNo = "o1"
+                    attribute("Name", "EMBL")
+                }
+
+                section("Author") {
+                    attribute("Name", "John Doe")
+                    attribute("ORCID", "12-32-45-82")
+                    attribute("Affiliation", "o1", ref = true)
+                }
+            }
+        }
+
+        every { submitRequest.submission } returns submission
         every { webClient.post().uri(properties.endpoint) } returns requestSpec
         every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
         every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "OK"
 
-        testInstance.registerDoi(submission)
-
+        val doi = testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
         val body = bodySlot.captured
         val requestFile = body[FILE_PARAM]!!.first() as FileSystemResource
         val expectedXml = Files.readString(Paths.get("src/test/resources/ExpectedDOIRequest.xml"))
+
+        assertThat(doi).isEqualTo("$BS_DOI_ID/$TEST_ACC_NO")
         assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(expectedXml)
         assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
         assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
@@ -82,9 +104,73 @@ class DoiServiceTest(
     }
 
     @Test
+    fun `doi not requested`() {
+        val submission = submission {
+            title = "Test Submission"
+
+            section("Study") {
+                attribute("Type", "Experiment")
+            }
+        }
+
+        every { submitRequest.submission } returns submission
+
+        assertThat(testInstance.calculateDoi(TEST_ACC_NO, submitRequest)).isNull()
+        verify(exactly = 0) { webClient.post() }
+    }
+
+    @Test
+    fun `already existing DOI`() {
+        val previousVersionDoi = "$BS_DOI_ID/$TEST_ACC_NO"
+        val submission = submission {
+            title = "Test Submission"
+            attribute("DOI", "$BS_DOI_ID/$TEST_ACC_NO")
+
+            section("Study") {
+                attribute("Type", "Experiment")
+            }
+        }
+
+        every { submitRequest.submission } returns submission
+        every { previousVersion.doi } returns previousVersionDoi
+        every { submitRequest.previousVersion } returns previousVersion
+
+        val doi = testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
+
+        assertThat(doi).isEqualTo(previousVersionDoi)
+        verify(exactly = 0) { webClient.post() }
+    }
+
+    @Test
+    fun `invalid given DOI`() {
+        val submission = submission {
+            title = "Test Submission"
+            attribute("DOI", "10.287.71/$TEST_ACC_NO")
+
+            section("Study") {
+                attribute("Type", "Experiment")
+            }
+        }
+
+        every { submitRequest.submission } returns submission
+        every { previousVersion.doi } returns "$BS_DOI_ID/$TEST_ACC_NO"
+        every { submitRequest.previousVersion } returns previousVersion
+
+        val exception = assertThrows<InvalidDoiException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
+
+        assertThat(exception.message).isEqualTo("The given DOI should match the previous version")
+        verify(exactly = 0) { webClient.post() }
+    }
+
+    @Test
     fun `missing title`() {
-        val submission = basicExtSubmission.copy(title = null)
-        val exception = assertThrows<MissingTitleException> { testInstance.registerDoi(submission) }
+        val submission = submission {
+            attribute("DOI", "")
+        }
+
+        every { submitRequest.submission } returns submission
+
+        val exception = assertThrows<MissingTitleException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
 
         verify(exactly = 0) { webClient.post() }
         assertThat(exception.message).isEqualTo("A title is required for DOI registration")
@@ -92,8 +178,20 @@ class DoiServiceTest(
 
     @Test
     fun `missing organization`() {
-        val submission = basicExtSubmission
-        val exception = assertThrows<MissingDoiFieldException> { testInstance.registerDoi(submission) }
+        val submission = submission {
+            title = "Test Submission"
+            attribute("DOI", "")
+
+            section("Study") {
+                section("Author") {
+                    attribute("Name", "John Doe")
+                }
+            }
+        }
+
+        every { submitRequest.submission } returns submission
+
+        val exception = assertThrows<MissingDoiFieldException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
 
         verify(exactly = 0) { webClient.post() }
         assertThat(exception.message).isEqualTo("The required DOI field 'organization' could not be found")
@@ -101,10 +199,20 @@ class DoiServiceTest(
 
     @Test
     fun `missing organization accNo`() {
-        val org = section("Organization", null, "Name" to "EMBL")
-        val rootSection = ExtSection(type = "Study", sections = listOf(left(org)))
-        val submission = basicExtSubmission.copy(section = rootSection)
-        val exception = assertThrows<InvalidOrgException> { testInstance.registerDoi(submission) }
+        val submission = submission {
+            title = "Test Submission"
+            attribute("DOI", "")
+
+            section("Study") {
+                section("Organization") {
+                    attribute("Name", "EMBL")
+                }
+            }
+        }
+
+        every { submitRequest.submission } returns submission
+
+        val exception = assertThrows<InvalidOrgException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
 
         verify(exactly = 0) { webClient.post() }
         assertThat(exception.message).isEqualTo("Organizations are required to have an accession")
@@ -112,12 +220,31 @@ class DoiServiceTest(
 
     @Test
     fun `missing organization name`() {
-        val org1 = section("Organization", "o1", "Institute" to "EMBL")
-        val org2 = section("Organization", "o2", "Name" to "EMBL-EBI")
-        val org3 = section("Organization", "o3", "Institute" to "American Society")
-        val rootSection = ExtSection(type = "Study", sections = listOf(left(org1), left(org2), left(org3)))
-        val submission = basicExtSubmission.copy(section = rootSection)
-        val exception = assertThrows<InvalidOrgNamesException> { testInstance.registerDoi(submission) }
+        val submission = submission {
+            title = "Test Submission"
+            attribute("DOI", "")
+
+            section("Study") {
+                section("Organization") {
+                    accNo = "o1"
+                    attribute("Institue", "American Society")
+                }
+
+                section("Organization") {
+                    accNo = "o2"
+                    attribute("Name", "EMBL")
+                }
+
+                section("Organization") {
+                    accNo = "o3"
+                    attribute("Research Associate", "Astrazeneca")
+                }
+            }
+        }
+
+        every { submitRequest.submission } returns submission
+
+        val exception = assertThrows<InvalidOrgNamesException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
 
         verify(exactly = 0) { webClient.post() }
         assertThat(exception.message).isEqualTo("The following organization names are empty: o1, o3")
@@ -125,11 +252,29 @@ class DoiServiceTest(
 
     @Test
     fun `missing author name`() {
-        val org = section("Organization", "o1", "Name" to "EMBL")
-        val author = section("Author", null, "P.I." to "John Doe", "Affiliation" to "o1", "ORCID" to "12-32-45-82")
-        val rootSection = ExtSection(type = "Study", sections = listOf(left(org), left(author)))
-        val submission = basicExtSubmission.copy(section = rootSection)
-        val exception = assertThrows<InvalidAuthorNameException> { testInstance.registerDoi(submission) }
+        val submission = submission {
+            title = "Test Submission"
+            attribute("DOI", "")
+
+            section("Study") {
+                section("Organization") {
+                    accNo = "o1"
+                    attribute("Name", "EMBL")
+                }
+
+                section("Author") {
+                    attribute("P.I.", "John Doe")
+                    attribute("ORCID", "12-32-45-82")
+                    attribute("Affiliation", "o1", ref = true)
+                }
+            }
+        }
+
+        every { submitRequest.submission } returns submission
+
+        val exception = assertThrows<InvalidAuthorNameException> {
+            testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
+        }
 
         verify(exactly = 0) { webClient.post() }
         assertThat(exception.message).isEqualTo("Authors are required to have a name")
@@ -137,11 +282,28 @@ class DoiServiceTest(
 
     @Test
     fun `missing affiliation`() {
-        val org = section("Organization", "o1", "Name" to "EMBL")
-        val author = section("Author", null, "Name" to "John Doe", "ORCID" to "12-32-45-82")
-        val rootSection = ExtSection(type = "Study", sections = listOf(left(org), left(author)))
-        val submission = basicExtSubmission.copy(section = rootSection)
-        val exception = assertThrows<MissingAuthorAffiliationException> { testInstance.registerDoi(submission) }
+        val submission = submission {
+            title = "Test Submission"
+            attribute("DOI", "")
+
+            section("Study") {
+                section("Organization") {
+                    accNo = "o1"
+                    attribute("Name", "EMBL")
+                }
+
+                section("Author") {
+                    attribute("Name", "John Doe")
+                    attribute("ORCID", "12-32-45-82")
+                }
+            }
+        }
+
+        every { submitRequest.submission } returns submission
+
+        val exception = assertThrows<MissingAuthorAffiliationException> {
+            testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
+        }
 
         verify(exactly = 0) { webClient.post() }
         assertThat(exception.message).isEqualTo("Authors are required to have an affiliation")
@@ -149,21 +311,38 @@ class DoiServiceTest(
 
     @Test
     fun `invalid affiliation`() {
-        val org = section("Organization", "o1", "Name" to "EMBL")
-        val author = section("Author", null, "Name" to "John Doe", "Affiliation" to "o2", "ORCID" to "12-32-45-82")
-        val rootSection = ExtSection(type = "Study", sections = listOf(left(org), left(author)))
-        val submission = basicExtSubmission.copy(section = rootSection)
-        val exception = assertThrows<InvalidAuthorAffiliationException> { testInstance.registerDoi(submission) }
+        val submission = submission {
+            title = "Test Submission"
+            attribute("DOI", "")
+
+            section("Study") {
+                section("Organization") {
+                    accNo = "o1"
+                    attribute("Name", "EMBL")
+                }
+
+                section("Author") {
+                    attribute("Name", "John Doe")
+                    attribute("ORCID", "12-32-45-82")
+                    attribute("Affiliation", "o2", ref = true)
+                }
+            }
+        }
+
+        every { submitRequest.submission } returns submission
+
+        val exception = assertThrows<InvalidAuthorAffiliationException> {
+            testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
+        }
 
         verify(exactly = 0) { webClient.post() }
         assertThat(exception.message)
             .isEqualTo("The organization 'o2' affiliated to the author 'John Doe' could not be found")
     }
 
-    private fun section(type: String, accNo: String?, vararg attributes: Pair<String, String>) =
-        ExtSection(type = type, accNo = accNo, attributes = attributes.map { ExtAttribute(it.first, it.second) })
-
     companion object {
+        private const val TEST_ACC_NO = "S-TEST123"
+
         private val properties = DoiProperties(
             endpoint = "https://test-endpoint.org",
             uiUrl = "https://www.biostudies.ac.uk",

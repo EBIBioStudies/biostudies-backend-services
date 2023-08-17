@@ -17,6 +17,9 @@ internal class DoiRequest(
     private val instanceUrl: String,
     private val contributors: List<Contributor>,
 ) {
+    val doi: String
+        get() = "$BS_DOI_ID/$accNo"
+
     fun asXmlRequest(): String {
         val timestamp = Instant.now().epochSecond.toString()
         return xml("doi_batch") {
@@ -62,7 +65,7 @@ internal class DoiRequest(
                             "title" { -title }
                         }
                         "doi_data" {
-                            "doi" { -"$BS_DOI_ID/$accNo" }
+                            "doi" { -doi }
                             "resource" { -"$instanceUrl/studies/$accNo" }
                         }
                     }

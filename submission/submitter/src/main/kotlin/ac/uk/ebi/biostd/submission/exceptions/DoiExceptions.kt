@@ -18,3 +18,5 @@ class InvalidAuthorAffiliationException(
     author: String,
     organization: String,
 ) : RuntimeException("The organization '$organization' affiliated to the author '$author' could not be found")
+
+class InvalidDoiException : RuntimeException("The given DOI should match the previous version")

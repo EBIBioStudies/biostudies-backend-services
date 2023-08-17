@@ -12,6 +12,7 @@ val basicExtSubmission = ExtSubmission(
     version = 1,
     schemaVersion = "1.0",
     title = "Test Submission",
+    doi = null,
     owner = "owner@email.org",
     submitter = "submitter@email.org",
     method = PAGE_TAB,

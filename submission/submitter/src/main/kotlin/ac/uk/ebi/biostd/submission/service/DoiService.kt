@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.service
 import ac.uk.ebi.biostd.common.properties.DoiProperties
 import ac.uk.ebi.biostd.submission.exceptions.InvalidAuthorAffiliationException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidAuthorNameException
+import ac.uk.ebi.biostd.submission.exceptions.InvalidDoiException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidOrgException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidOrgNamesException
 import ac.uk.ebi.biostd.submission.exceptions.MissingAuthorAffiliationException
@@ -10,13 +11,15 @@ import ac.uk.ebi.biostd.submission.exceptions.MissingDoiFieldException
 import ac.uk.ebi.biostd.submission.exceptions.MissingTitleException
 import ac.uk.ebi.biostd.submission.model.Contributor
 import ac.uk.ebi.biostd.submission.model.DoiRequest
+import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.post
-import ebi.ac.uk.extended.model.ExtSection
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.allSections
-import ebi.ac.uk.extended.model.computedTitle
 import ebi.ac.uk.io.FileUtils
+import ebi.ac.uk.model.Section
+import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.constants.SubFields.DOI
+import ebi.ac.uk.model.extensions.allSections
+import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.ifNotEmpty
 import mu.KotlinLogging
 import org.springframework.core.io.FileSystemResource
@@ -45,10 +48,23 @@ class DoiService(
     private val webClient: WebClient,
     private val properties: DoiProperties,
 ) {
-    fun registerDoi(sub: ExtSubmission) {
-        val title = requireNotNull(sub.computedTitle) { throw MissingTitleException() }
-        val request = DoiRequest(sub.accNo, title, properties.uiUrl, getContributors(sub))
-        val requestFile = Files.createTempFile("${TEMP_FILE_NAME}_${sub.accNo}", ".xml").toFile()
+    fun calculateDoi(accNo: String, rqt: SubmitRequest): String? {
+        val doi = rqt.submission.find(DOI) ?: return null
+        val previousDoi = rqt.previousVersion?.doi
+
+        if (previousDoi != null) {
+            require(doi == previousDoi) { throw InvalidDoiException() }
+            return doi
+        }
+
+        return registerDoi(accNo, rqt)
+    }
+
+    private fun registerDoi(accNo: String, rqt: SubmitRequest): String {
+        val sub = rqt.submission
+        val title = requireNotNull(sub.title) { throw MissingTitleException() }
+        val request = DoiRequest(accNo, title, properties.uiUrl, getContributors(sub))
+        val requestFile = Files.createTempFile("${TEMP_FILE_NAME}_${accNo}", ".xml").toFile()
         FileUtils.writeContent(requestFile, request.asXmlRequest())
 
         val body = LinkedMultiValueMap<String, Any>().apply {
@@ -58,19 +74,21 @@ class DoiService(
             add(FILE_PARAM, FileSystemResource(requestFile))
         }
 
-        logger.info { "${sub.accNo} ${sub.owner} Registering DOI" }
+        logger.info { "$accNo ${rqt.owner} Registering DOI" }
         webClient.post(properties.endpoint, RequestParams(body = body))
+
+        return request.doi
     }
 
-    private fun getContributors(sub: ExtSubmission): List<Contributor> {
+    private fun getContributors(sub: Submission): List<Contributor> {
         val organizations = getOrganizations(sub)
-        return sub.allSections
+        return sub.allSections()
             .filter { it.type.lowercase() == AUTHOR_TYPE }
             .ifEmpty { throw MissingDoiFieldException(AUTHOR_TYPE) }
             .map { it.asContributor(organizations) }
     }
 
-    private fun ExtSection.asContributor(orgs: Map<String, String>): Contributor {
+    private fun Section.asContributor(orgs: Map<String, String>): Contributor {
         val attrsMap = attributes.associateBy({ it.name.lowercase() }, { it.value })
         val names = requireNotNull(attrsMap[NAME_ATTR]) { throw InvalidAuthorNameException() }
         val affiliation = requireNotNull(attrsMap[AFFILIATION_ATTR]) { throw MissingAuthorAffiliationException() }
@@ -84,8 +102,8 @@ class DoiService(
         )
     }
 
-    private fun getOrganizations(sub: ExtSubmission): Map<String, String> {
-        val organizations = sub.allSections
+    private fun getOrganizations(sub: Submission): Map<String, String> {
+        val organizations = sub.allSections()
             .filter { it.type.lowercase() == ORG_TYPE }
             .ifEmpty { throw MissingDoiFieldException(ORG_TYPE) }
             .associateBy(
