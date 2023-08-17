@@ -28,7 +28,7 @@ class SubmissionSubmitter(
     private val collectionValidationService: CollectionValidationService,
     private val draftService: SubmissionDraftPersistenceService,
 ) {
-    fun submit(rqt: SubmitRequest): ExtSubmission {
+    suspend fun submit(rqt: SubmitRequest): ExtSubmission {
         val submission = processRequest(rqt)
         val submitRequest = ExtSubmitRequest(submission, notifyTo = rqt.owner, rqt.draftKey)
         val (accNo, version) = submissionSubmitter.createRequest(submitRequest)
@@ -36,7 +36,7 @@ class SubmissionSubmitter(
         return submission
     }
 
-    fun createRequest(rqt: SubmitRequest): ExtSubmission {
+    suspend fun createRequest(rqt: SubmitRequest): ExtSubmission {
         val submission = processRequest(rqt)
         submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.owner, rqt.draftKey))
         return submission
@@ -71,7 +71,7 @@ class SubmissionSubmitter(
     }
 
     @Suppress("TooGenericExceptionCaught")
-    private fun processRequest(rqt: SubmitRequest): ExtSubmission {
+    private suspend fun processRequest(rqt: SubmitRequest): ExtSubmission {
         try {
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
 
@@ -91,17 +91,17 @@ class SubmissionSubmitter(
         }
     }
 
-    private fun acceptDraft(accNo: String, owner: String, draftKey: String) {
+    private suspend fun acceptDraft(accNo: String, owner: String, draftKey: String) {
         draftService.setAcceptedStatus(draftKey)
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACCEPTED" }
     }
 
-    private fun startProcessingDraft(accNo: String, owner: String, draftKey: String) {
+    private suspend fun startProcessingDraft(accNo: String, owner: String, draftKey: String) {
         draftService.setProcessingStatus(owner, draftKey)
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to PROCESSING" }
     }
 
-    private fun reactivateDraft(accNo: String, owner: String, draftKey: String) {
+    private suspend fun reactivateDraft(accNo: String, owner: String, draftKey: String) {
         draftService.setActiveStatus(draftKey)
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACTIVE" }
     }

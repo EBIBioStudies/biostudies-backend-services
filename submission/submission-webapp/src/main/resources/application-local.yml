@@ -54,6 +54,8 @@ app:
     magicDirPath: # Absolute path to the folder to be used for the user/groups magic folders links
     environment: LOCAL
     requireActivation: false
+  persistence:
+    concurrency: 5
   doi:
     endpoint: https://test-endpoint.org
     uiUrl: https://www.biostudies.ac.uk

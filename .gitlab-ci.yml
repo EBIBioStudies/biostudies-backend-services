@@ -79,6 +79,8 @@ fire-itest:
   needs: [ "nfs-itest" ]
   stage: fire-itest
   script: gradle clean :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --stacktrace
+  variables:
+    ITEST_FIXED_DELAY: "50"
 
 fire-caos-itest:
   needs: [ "fire-itest" ]

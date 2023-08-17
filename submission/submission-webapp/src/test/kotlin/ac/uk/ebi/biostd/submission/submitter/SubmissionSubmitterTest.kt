@@ -10,11 +10,14 @@ import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.model.constants.SubFields.DOI_REQUESTED
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
-import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -23,6 +26,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class SubmissionSubmitterTest(
     @MockK private val request: SubmitRequest,
     @MockK private val doiService: DoiService,
@@ -49,7 +53,7 @@ class SubmissionSubmitterTest(
     }
 
     @Test
-    fun `create request`() {
+    fun `create request`() = runTest {
         val submission = basicExtSubmission
         val extRequestSlot = slot<ExtSubmitRequest>()
 
@@ -64,21 +68,21 @@ class SubmissionSubmitterTest(
         val extRequest = extRequestSlot.captured
         assertThat(extRequest.draftKey).isEqualTo("TMP_123")
         assertThat(extRequest.submission).isEqualTo(submission)
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionProcessor.processSubmission(request)
             collectionValidationService.executeCollectionValidators(submission)
             draftService.setProcessingStatus(submission.owner, "TMP_123")
             submissionSubmitter.createRequest(extRequest)
             draftService.setAcceptedStatus("TMP_123")
         }
-        verify(exactly = 0) {
+        coVerify(exactly = 0) {
             draftService.setActiveStatus("TMP_123")
             doiService.registerDoi(submission)
         }
     }
 
     @Test
-    fun `create request with doi`() {
+    fun `create request with doi`() = runTest {
         val submission = basicExtSubmission.copy(attributes = listOf(ExtAttribute(DOI_REQUESTED.value, "")))
         val extRequestSlot = slot<ExtSubmitRequest>()
 
@@ -94,7 +98,7 @@ class SubmissionSubmitterTest(
         val extRequest = extRequestSlot.captured
         assertThat(extRequest.draftKey).isEqualTo("TMP_123")
         assertThat(extRequest.submission).isEqualTo(submission)
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionProcessor.processSubmission(request)
             collectionValidationService.executeCollectionValidators(submission)
             doiService.registerDoi(submission)
@@ -102,13 +106,13 @@ class SubmissionSubmitterTest(
             submissionSubmitter.createRequest(extRequest)
             draftService.setAcceptedStatus("TMP_123")
         }
-        verify(exactly = 0) {
+        coVerify(exactly = 0) {
             draftService.setActiveStatus("TMP_123")
         }
     }
 
     @Test
-    fun `create request with doi already existing`() {
+    fun `create request with doi already existing`() = runTest {
         val submission = basicExtSubmission.copy(attributes = listOf(ExtAttribute(DOI_REQUESTED.value, "")))
         val extRequestSlot = slot<ExtSubmitRequest>()
 
@@ -125,21 +129,21 @@ class SubmissionSubmitterTest(
         val extRequest = extRequestSlot.captured
         assertThat(extRequest.draftKey).isEqualTo("TMP_123")
         assertThat(extRequest.submission).isEqualTo(submission)
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionProcessor.processSubmission(request)
             collectionValidationService.executeCollectionValidators(submission)
             draftService.setProcessingStatus(submission.owner, "TMP_123")
             submissionSubmitter.createRequest(extRequest)
             draftService.setAcceptedStatus("TMP_123")
         }
-        verify(exactly = 0) {
+        coVerify(exactly = 0) {
             doiService.registerDoi(submission)
             draftService.setActiveStatus("TMP_123")
         }
     }
 
     @Test
-    fun `create with failure on validation`() {
+    fun `create with failure on validation`() = runTest {
         val submission = basicExtSubmission
         val extRequestSlot = slot<ExtSubmitRequest>()
 
@@ -147,12 +151,12 @@ class SubmissionSubmitterTest(
 
         assertThrows<InvalidSubmissionException> { testInstance.createRequest(request) }
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionProcessor.processSubmission(request)
             draftService.setProcessingStatus(submission.owner, "TMP_123")
             draftService.setActiveStatus("TMP_123")
         }
-        verify(exactly = 0) {
+        coVerify(exactly = 0) {
             collectionValidationService.executeCollectionValidators(submission)
             submissionSubmitter.createRequest(capture(extRequestSlot))
             draftService.setAcceptedStatus("TMP_123")
@@ -167,10 +171,10 @@ class SubmissionSubmitterTest(
     }
 
     private fun setUpDraftService() {
-        every { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
-        every { draftService.setActiveStatus("TMP_123") } answers { nothing }
-        every { draftService.setAcceptedStatus("S-TEST123") } answers { nothing }
-        every { draftService.setProcessingStatus(basicExtSubmission.owner, "TMP_123") } answers { nothing }
-        every { draftService.deleteSubmissionDraft(basicExtSubmission.submitter, "S-TEST123") } answers { nothing }
+        coEvery { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
+        coEvery { draftService.setActiveStatus("TMP_123") } answers { nothing }
+        coEvery { draftService.setAcceptedStatus("S-TEST123") } answers { nothing }
+        coEvery { draftService.setProcessingStatus(basicExtSubmission.owner, "TMP_123") } answers { nothing }
+        coEvery { draftService.deleteSubmissionDraft(basicExtSubmission.submitter, "S-TEST123") } answers { nothing }
     }
 }

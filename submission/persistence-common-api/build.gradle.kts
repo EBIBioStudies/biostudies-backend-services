@@ -1,3 +1,5 @@
+import Dependencies.KotlinCoroutines
+import Dependencies.KotlinCoroutinesReactor
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Projects.CommonsBio
@@ -23,5 +25,8 @@ dependencies {
 
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
+    implementation(KotlinCoroutines)
     implementation(SpringDataCommons)
+    implementation(KotlinCoroutines)
+    implementation(KotlinCoroutinesReactor)
 }

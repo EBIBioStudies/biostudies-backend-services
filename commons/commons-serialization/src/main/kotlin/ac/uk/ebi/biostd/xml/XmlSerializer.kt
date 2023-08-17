@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.xml
 
-import ac.uk.ebi.biostd.validation.InvalidElementException
-import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
+import ac.uk.ebi.biostd.common.validatedFilePath
 import ac.uk.ebi.biostd.xml.deserializer.AttributeXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.DetailsXmlDeserializer
 import ac.uk.ebi.biostd.xml.deserializer.FileStandaloneXmlDeserializer
@@ -120,10 +119,9 @@ class FileXmlStreamDeserializer : StdDeserializer<BioFile>(BioFile::class.java) 
         val mapper = p.codec as XmlMapper
         val node = p.readValueAsTree<TreeNode>()
         val path = (node.get(FileFields.PATH.value) as TextNode).textValue().trim()
-        require(path.isNotBlank()) { throw InvalidElementException(REQUIRED_FILE_PATH) }
 
         return BioFile(
-            path = path,
+            path = validatedFilePath(path),
             attributes = mapper.convertArray(node, "attributes", "attribute", Array<Attribute>::class.java).toList()
         )
     }

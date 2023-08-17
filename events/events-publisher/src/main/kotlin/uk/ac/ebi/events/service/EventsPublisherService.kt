@@ -10,6 +10,7 @@ import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
 import ebi.ac.uk.extended.events.RequestFilesCopied
+import ebi.ac.uk.extended.events.RequestFinalized
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
@@ -67,6 +68,11 @@ class EventsPublisherService(
     fun submissionRequest(accNo: String, version: Int) =
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestCreated(accNo, version)
+        )
+
+    fun submissionFinalized(accNo: String, version: Int) =
+        rabbitTemplate.convertAndSend(
+            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestFinalized(accNo, version)
         )
 
     fun submissionSubmitted(accNo: String, owner: String) =

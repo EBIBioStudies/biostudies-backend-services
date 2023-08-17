@@ -11,12 +11,15 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -63,7 +66,7 @@ class SubmissionRequestCleanerTest(
         testInstance.cleanCurrentVersion("S-BSST1", 1)
 
         verify(exactly = 1) { requestService.saveSubmissionRequest(cleanedRequest) }
-        verify(exactly = 0) {
+        coVerify(exactly = 0) {
             storageService.deleteSubmissionFile(any(), any())
         }
     }
@@ -93,12 +96,12 @@ class SubmissionRequestCleanerTest(
         every { requestService.getLoadedRequest("S-BSST1", 2) } returns loadedRequest
         every { serializationService.fileSequence(current) } returns sequenceOf(currentFile)
         every { requestService.saveSubmissionRequest(cleanedRequest) } returns ("S-BSST1" to 2)
-        every { storageService.deleteSubmissionFile(current, currentFile) } answers { nothing }
-        every { filesRequestService.getSubmissionRequestFiles("S-BSST1", 2, 0) } returns sequenceOf(requestFile)
+        coEvery { storageService.deleteSubmissionFile(current, currentFile) } answers { nothing }
+        every { filesRequestService.getSubmissionRequestFiles("S-BSST1", 2, 0) } returns flowOf(requestFile)
 
         testInstance.cleanCurrentVersion("S-BSST1", 2)
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             requestService.saveSubmissionRequest(cleanedRequest)
             storageService.deleteSubmissionFile(current, currentFile)
         }

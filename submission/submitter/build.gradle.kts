@@ -2,6 +2,7 @@ import Dependencies.Arrow
 import Dependencies.ArrowData
 import Dependencies.ArrowTypeClasses
 import Dependencies.CommonsIO
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -48,6 +49,7 @@ dependencies {
     implementation(CommonsIO)
     implementation(RxJava2)
 
+    implementation(KotlinCoroutines)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
     implementation(KotlinLogging)

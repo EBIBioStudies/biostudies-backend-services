@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.CHANGE_LOG_COLLECTION
 import ac.uk.ebi.biostd.persistence.doc.CHANGE_LOG_LOCK
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig
 import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig.Companion.createMongockConfig
+import ac.uk.ebi.biostd.persistence.doc.MongoDbReactiveConfig
 import ac.uk.ebi.biostd.persistence.doc.commons.collection
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
@@ -33,8 +34,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.CONTE
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.KEY
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.STATUS
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.USER_ID
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
@@ -70,11 +71,11 @@ import java.time.Duration.ofSeconds
 import java.util.AbstractMap.SimpleEntry
 
 @ExtendWith(SpringExtension::class)
-@SpringBootTest(classes = [MongoDbConfig::class])
+@SpringBootTest(classes = [MongoDbReactiveConfig::class, MongoDbConfig::class])
 @Testcontainers
 internal class DatabaseChangeLogTest(
     @Autowired private val springContext: ApplicationContext,
-    @Autowired private val mongoTemplate: MongoTemplate
+    @Autowired private val mongoTemplate: MongoTemplate,
 ) {
     @BeforeEach
     fun init() {

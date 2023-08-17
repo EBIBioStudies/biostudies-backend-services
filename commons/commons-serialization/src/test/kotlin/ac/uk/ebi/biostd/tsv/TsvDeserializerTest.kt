@@ -386,6 +386,7 @@ class TsvDeserializerTest {
 
                     file("12870_2017_1225_MOESM10_ESM.docx")
                     file("12870_2017_1225_MOESM1_ESM.docx")
+                    file("inner/folder")
                 }
             }
         )
@@ -412,6 +413,11 @@ class TsvDeserializerTest {
                         file("SuperImportantFile1.docx") {
                             attribute("Description", "A super important file")
                             attribute("Usage", "Important stuff")
+                        }
+
+                        file("inner/folder") {
+                            attribute("Description", "A super important folder")
+                            attribute("Usage", "Important inner folder")
                         }
                     }
                 }

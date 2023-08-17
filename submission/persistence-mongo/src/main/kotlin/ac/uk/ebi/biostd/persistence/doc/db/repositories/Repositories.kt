@@ -4,8 +4,6 @@ import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
@@ -67,20 +65,6 @@ interface SubmissionRequestFilesRepository : MongoRepository<DocSubmissionReques
     fun findRequestFiles(accNo: String, version: Int, index: Int, pageable: Pageable): Page<DocSubmissionRequestFile>
 
     fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
-}
-
-interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {
-    fun findByUserIdAndKeyAndStatusIsNot(userId: String, key: String, deleted: DraftStatus): DocSubmissionDraft?
-
-    fun findAllByUserIdAndStatus(
-        userId: String,
-        status: DraftStatus,
-        pageRequest: Pageable,
-    ): List<DocSubmissionDraft>
-
-    fun getById(id: String): DocSubmissionDraft
-
-    fun deleteByUserIdAndKey(userId: String, draftKey: String)
 }
 
 interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId> {

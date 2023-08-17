@@ -8,11 +8,12 @@ import uk.ac.ebi.fire.client.model.FileSystemEntry
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
 import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
 
 class FireMockDatabase(
     private val fileSystem: FireMockFileSystem,
 ) {
-    private val recordsById: MutableMap<String, DbRecord> = mutableMapOf()
+    private val recordsById: MutableMap<String, DbRecord> = ConcurrentHashMap<String, DbRecord>()
 
     fun saveFile(fileName: String, data: ByteArray): FireApiFile {
         val objectId = Instant.now().nano
@@ -23,14 +24,18 @@ class FireMockDatabase(
         return fireFile
     }
 
-    fun setPath(fireOid: String, firePath: String) {
-        if (recordsById.values.any { it.firePath == firePath })
+    fun setPath(fireOid: String, firePath: String): FireApiFile {
+        if (recordsById.values.any { it.firePath == firePath }) {
             throw FireException("Path '$firePath' is already allocated", CONFLICT)
+        }
 
-        val record = recordsById.getValue(fireOid)
-        recordsById[fireOid] = record.copy(firePath = firePath)
+        val record = recordsById.getValue(fireOid).copy(firePath = firePath)
+        recordsById[fireOid] = record
         fileSystem.setPath(fireOid, firePath)
+
         if (record.published) fileSystem.publish(firePath)
+
+        return record.toFile()
     }
 
     fun unsetPath(fireOid: String) {

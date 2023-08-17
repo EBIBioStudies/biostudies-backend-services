@@ -95,6 +95,7 @@ class ITestListener : TestExecutionListener {
         System.setProperty("app.requestFilesPath", requestFilesPath.absolutePath)
         System.setProperty("app.security.filesProperties.filesDirPath", dropboxPath.absolutePath)
         System.setProperty("app.security.filesProperties.magicDirPath", magicDirPath.absolutePath)
+        System.setProperty("app.persistence.concurrency", persistenceConcurrency)
         System.setProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")
     }
 
@@ -112,10 +113,12 @@ class ITestListener : TestExecutionListener {
         private const val awsSecretKey = "anySecret"
         private const val awsRegion = "anyRegion"
         private const val failFactorEnv = "ITEST_FAIL_FACTOR"
+        private const val persistenceConcurrency = "10"
 
         private const val ftpUser = "ftpUser"
         private const val ftpPassword = "ftpPassword"
 
+        internal const val fixedDelayEnv = "ITEST_FIXED_DELAY"
         internal val nfsSubmissionPath = testAppFolder.createDirectory("submission")
         internal val fireSubmissionPath = testAppFolder.createDirectory("submission-fire")
         internal val firePath = testAppFolder.createDirectory("fire-db")
@@ -167,11 +170,13 @@ class ITestListener : TestExecutionListener {
 
         private fun createFireApiMock(s3MockContainer: S3MockContainer): WireMockServer {
             val factor = System.getenv(failFactorEnv)?.toInt()
+            val delay = System.getenv(fixedDelayEnv)?.toLong() ?: 0L
             val transformer = newTransformer(
                 subFolder = fireSubmissionPath.toPath(),
                 ftpFolder = fireFtpPath.toPath(),
                 dbFolder = firePath.toPath(),
                 failFactor = factor,
+                fixedDelay = delay,
                 httpEndpoint = s3MockContainer.httpEndpoint,
                 defaultBucket = defaultBucket
             )

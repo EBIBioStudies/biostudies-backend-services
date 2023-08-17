@@ -19,6 +19,7 @@ import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
@@ -131,7 +132,7 @@ class FileListValidationTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `11-5 valid file list including a file from FIRE`() {
+    fun `11-5 valid file list including a file from FIRE`() = runTest {
         val previousVersion = tsv {
             line("Submission", "S-FLV124")
             line()

@@ -52,6 +52,7 @@ data class ValidatorProperties(
 )
 
 data class PersistenceProperties(
+    val concurrency: Int,
     val enableFire: Boolean = false,
 )
 
