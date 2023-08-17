@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
 import ac.uk.ebi.biostd.stats.web.mapping.toStat
 import ac.uk.ebi.biostd.stats.web.mapping.toStatDto
-import ac.uk.ebi.biostd.stats.web.model.SubmissionStatDto
+import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -32,39 +32,39 @@ class StatsResource(
     @ResponseBody
     suspend fun findByAccNo(
         @PathVariable accNo: String,
-    ): List<SubmissionStatDto> = submissionStatsService.findByAccNo(accNo).map { it.toStatDto() }
+    ): List<SubmissionStat> = submissionStatsService.findByAccNo(accNo).map { it.toStatDto() }
 
     @GetMapping("/{type}", produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     fun findByType(
         @PathVariable type: String,
         @ModelAttribute filter: PaginationFilter,
-    ): Flow<SubmissionStatDto> = submissionStatsService.findByType(type, filter).map { it.toStatDto() }
+    ): Flow<SubmissionStat> = submissionStatsService.findByType(type, filter).map { it.toStatDto() }
 
     @GetMapping("/{type}/{accNo}")
     @ResponseBody
     suspend fun findByTypeAndAccNo(
         @PathVariable type: String,
         @PathVariable accNo: String,
-    ): SubmissionStatDto = submissionStatsService.findByAccNoAndType(accNo, type).toStatDto()
+    ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, type).toStatDto()
 
     @PostMapping
     @ResponseBody
     suspend fun register(
-        @RequestBody stat: SubmissionStatDto,
-    ): SubmissionStatDto = submissionStatsService.register(stat.toStat()).toStatDto()
+        @RequestBody stat: SubmissionStat,
+    ): SubmissionStat = submissionStatsService.register(stat.toStat()).toStatDto()
 
     @PostMapping("/{type}", headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
     @ResponseBody
     suspend fun register(
         @PathVariable type: String,
         @RequestParam("stats") stats: MultipartFile,
-    ): List<SubmissionStatDto> = submissionStatsService.register(type, stats).map { it.toStatDto() }
+    ): List<SubmissionStat> = submissionStatsService.register(type, stats).map { it.toStatDto() }
 
     @PostMapping("/{type}/increment", headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
     @ResponseBody
     suspend fun increment(
         @PathVariable type: String,
         @RequestParam("stats") stats: MultipartFile,
-    ): List<SubmissionStatDto> = submissionStatsService.increment(type, stats).map { it.toStatDto() }
+    ): List<SubmissionStat> = submissionStatsService.increment(type, stats).map { it.toStatDto() }
 }
