@@ -1,14 +1,13 @@
 package ac.uk.ebi.biostd.tsv.deserialization.model
 
+import ac.uk.ebi.biostd.common.validatedFilePath
 import ac.uk.ebi.biostd.tsv.deserialization.common.asTable
 import ac.uk.ebi.biostd.tsv.deserialization.common.findId
 import ac.uk.ebi.biostd.tsv.deserialization.common.getIdOrElse
 import ac.uk.ebi.biostd.tsv.deserialization.common.getType
 import ac.uk.ebi.biostd.tsv.deserialization.common.toAttributes
 import ac.uk.ebi.biostd.validation.InvalidElementException
-import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ac.uk.ebi.biostd.validation.REQUIRED_LINK_URL
-import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
@@ -43,12 +42,10 @@ internal class LinkChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 
 class FileChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
     fun asFile(): BioFile {
-        val fileName = header.findSecond()
-        require(fileName.isNotBlank()) { throw InvalidElementException(REQUIRED_FILE_PATH) }
-
+        val fileName = validatedFilePath(header.findSecond())
         val attributes = toAttributes(lines)
         val type = attributes.find { it.name == FileFields.TYPE.value }?.value
-        return BioFile(fileName!!, attributes = attributes, type = type ?: FileFields.FILE_TYPE.value)
+        return BioFile(fileName, attributes = attributes, type = type ?: FileFields.FILE_TYPE.value)
     }
 }
 
@@ -57,7 +54,11 @@ internal class LinksTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 }
 
 internal class FileTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
-    fun asTable() = FilesTable(asTable(this) { name, attributes -> BioFile(name, attributes = attributes) })
+    fun asTable() = FilesTable(
+        asTable(this) { name, attributes ->
+            BioFile(validatedFilePath(name), attributes = attributes)
+        }
+    )
 }
 
 internal sealed class SectionTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {

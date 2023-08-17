@@ -11,6 +11,7 @@ import java.io.File
  * https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html
  *
  * - Avoid relative paths (./ or ../)
+ * - Avoid trailing slashes
  * - Allow any alphanumeric character (a-z | A-Z | 0-9)
  * - Allow any of the following special characters:
  *     - Exclamation point (!)
@@ -22,7 +23,7 @@ import java.io.File
  *     - Open parenthesis ( ( )
  *     - Close parenthesis ( ) )
  */
-private val validPathPattern = "^(?!.*\\./)[0-9A-Za-z!-_*'(). ]+\$".toRegex()
+private val validPathPattern = "^(?!.*\\./)[0-9A-Za-z!-_*'(). ]+(?<!/)\$".toRegex()
 
 @JvmInline
 value class FileSourcesList(val sources: List<FilesSource>) {
