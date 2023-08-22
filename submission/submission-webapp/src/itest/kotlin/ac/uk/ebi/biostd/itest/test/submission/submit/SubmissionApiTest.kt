@@ -317,11 +317,11 @@ class SubmissionApiTest(
         securityTestService.ensureUserRegistration(FtpSuperUser)
         webClient = getWebClient(serverPort, FtpSuperUser)
 
-        val file = tempFolder.createFile("single.txt")
+        val file = tempFolder.createFile("fileListFtpFile.txt")
         webClient.uploadFile(file)
 
         val fileList = tempFolder.createFile(
-            "FileList.tsv",
+            "FileList-Ftp.tsv",
             tsv {
                 line("Files")
                 line(file.name)
@@ -330,14 +330,18 @@ class SubmissionApiTest(
 
         webClient.uploadFile(fileList)
 
+        val simpleFile = tempFolder.createFile("simpleFtpFile.txt", "An example content")
+        webClient.uploadFiles(listOf(simpleFile))
+
         val submission = tsv {
             line("Submission", "SFTP-1")
             line("Title", "FTP user Submission")
             line()
 
             line("Study")
-            line("File List", "FileList.tsv")
+            line("File List", "FileList-Ftp.tsv")
             line()
+            line("File", "simpleFtpFile.txt")
         }.toString()
 
         val result = webClient.submitSingle(submission, TSV)
