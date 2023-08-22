@@ -47,7 +47,7 @@ class ExtSubmissionClient(
     }
 
     override fun submitExt(extSubmission: ExtSubmission): ExtSubmission {
-        val body = linkedMultiValueMapOf<String, Any>(SUBMISSION to extSerializationService.serialize(extSubmission))
+        val body = linkedMultiValueMapOf(SUBMISSION to extSerializationService.serialize(extSubmission))
         val response = client.postForObject<String>(EXT_SUBMISSIONS_URL, RequestParams(body = body))
         return extSerializationService.deserialize(response)
     }
@@ -55,11 +55,7 @@ class ExtSubmissionClient(
     override fun submitExtAsync(extSubmission: ExtSubmission) {
         client.post(
             "$EXT_SUBMISSIONS_URL/async",
-            RequestParams(
-                body = linkedMultiValueMapOf<String, Any>(
-                    SUBMISSION to extSerializationService.serialize(extSubmission)
-                )
-            )
+            RequestParams(body = linkedMultiValueMapOf(SUBMISSION to extSerializationService.serialize(extSubmission)))
         )
     }
 
