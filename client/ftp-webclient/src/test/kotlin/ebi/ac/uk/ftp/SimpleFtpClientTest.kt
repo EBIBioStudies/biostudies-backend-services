@@ -8,9 +8,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 
-class FtpClientTest {
+class SimpleFtpClientTest {
 
-    private val testInstance = FtpClient(
+    private val testInstance = FtpClient.create(
         ftpUser = "user",
         ftpPassword = "password",
         ftpUrl = "ftp-dummy.uk",

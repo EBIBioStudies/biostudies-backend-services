@@ -22,7 +22,7 @@ class FileConfig {
 
     companion object {
         fun ftpClient(fileProperties: FilesProperties): FtpClient {
-            return FtpClient(
+            return FtpClient.create(
                 ftpUser = fileProperties.ftpUser,
                 ftpPassword = fileProperties.ftpPassword,
                 ftpUrl = fileProperties.ftpUrl,
