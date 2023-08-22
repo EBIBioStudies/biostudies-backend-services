@@ -191,11 +191,14 @@ fun submissionWithFiles() = submissionWithRootSection().apply {
     line()
     line("File", "12870_2017_1225_MOESM1_ESM.docx")
     line()
+    line("File", "inner/folder")
+    line()
 }
 
 fun submissionWithFilesTable() = submissionWithRootSection().apply {
     line("Files", "Description", "Usage")
     line("Abstract.pdf", "An abstract file", "Testing")
     line("SuperImportantFile1.docx", "A super important file", "Important stuff")
+    line("inner/folder", "A super important folder", "Important inner folder")
     line()
 }

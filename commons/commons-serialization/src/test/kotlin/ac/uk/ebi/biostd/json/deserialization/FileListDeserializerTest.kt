@@ -5,6 +5,7 @@ import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.test.createFile
+import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -21,13 +22,15 @@ class FileListDeserializerTest(
 
     @Test
     fun `deserialize file list as sequence`() {
-        val json = jsonArray(jsonObj { "path" to "File1.txt" }).toString()
+        val json = jsonArray(
+            jsonObj { "path" to "File1.txt" },
+            jsonObj { "path" to "inner/folder" },
+        ).toString()
         tempFolder.createFile("FileList.json", json).inputStream().use {
             val files = testInstance.deserializeList<BioFile>(it).toList()
-            assertThat(files).hasSize(1)
-
-            val file = files.first()
-            assertThat(file.path).isEqualTo("File1.txt")
+            assertThat(files).hasSize(2)
+            assertThat(files.first().path).isEqualTo("File1.txt")
+            assertThat(files.second().path).isEqualTo("inner/folder")
         }
     }
 

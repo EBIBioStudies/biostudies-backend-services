@@ -1,17 +1,23 @@
 package ac.uk.ebi.biostd.stats.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
+import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
+import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockkStatic
+import io.mockk.slot
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -20,15 +26,25 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.web.multipart.MultipartFile
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import uk.ac.ebi.extended.serialization.service.fileSequence
 import java.io.File
 
 @ExtendWith(MockKExtension::class)
 class SubmissionStatsServiceTest(
     @MockK private val statsFileHandler: StatsFileHandler,
     @MockK private val tempFileGenerator: TempFileGenerator,
+    @MockK private val queryService: ExtSubmissionQueryService,
     @MockK private val submissionStatsService: StatsDataService,
+    @MockK private val serializationService: ExtSerializationService,
 ) {
-    private val testInstance = SubmissionStatsService(statsFileHandler, tempFileGenerator, submissionStatsService)
+    private val testInstance = SubmissionStatsService(
+        statsFileHandler,
+        tempFileGenerator,
+        submissionStatsService,
+        serializationService,
+        queryService,
+    )
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -111,5 +127,32 @@ class SubmissionStatsServiceTest(
             statsFileHandler.readStats(file, VIEWS)
             submissionStatsService.incrementAll(stats)
         }
+    }
+
+    @Test
+    fun `calculate sub files size`(
+        @MockK file1: ExtFile,
+        @MockK file2: ExtFile,
+        @MockK stat: SubmissionStat,
+        @MockK submission: ExtSubmission,
+    ) = runTest {
+        val savedStatSlot = slot<SubmissionStat>()
+
+        mockkStatic("uk.ac.ebi.extended.serialization.service.ExtSerializationServiceExtKt")
+
+        every { file1.size } returns 2L
+        every { file2.size } returns 3L
+        every { submission.accNo } returns "S-BIAD123"
+        coEvery { submissionStatsService.save(capture(savedStatSlot)) } returns stat
+        every { serializationService.fileSequence(submission) } returns sequenceOf(file1, file2)
+        every { queryService.getExtendedSubmission("S-BIAD123", includeFileListFiles = true) } returns submission
+
+        val result = testInstance.calculateSubFilesSize("S-BIAD123")
+        val savedStat = savedStatSlot.captured
+
+        assertThat(result).isEqualTo(stat)
+        assertThat(savedStat.value).isEqualTo(5L)
+        assertThat(savedStat.type).isEqualTo(FILES_SIZE)
+        assertThat(savedStat.accNo).isEqualTo("S-BIAD123")
     }
 }

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.dto.ExtPageQuery
+import ac.uk.ebi.biostd.client.extensions.linkedMultiValueMapOf
 import ac.uk.ebi.biostd.client.integration.web.ExtSubmissionOperations
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.getForObject
@@ -13,7 +14,6 @@ import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.util.date.toStringInstant
 import ebi.ac.uk.util.web.optionalQueryParam
-import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.util.UriComponentsBuilder
 import org.springframework.web.util.UriUtils.decode
@@ -47,13 +47,20 @@ class ExtSubmissionClient(
     }
 
     override fun submitExt(extSubmission: ExtSubmission): ExtSubmission {
-        val body = getMultipartBody(extSubmission)
+        val body = linkedMultiValueMapOf<String, Any>(SUBMISSION to extSerializationService.serialize(extSubmission))
         val response = client.postForObject<String>(EXT_SUBMISSIONS_URL, RequestParams(body = body))
         return extSerializationService.deserialize(response)
     }
 
     override fun submitExtAsync(extSubmission: ExtSubmission) {
-        client.post("$EXT_SUBMISSIONS_URL/async", RequestParams(body = getMultipartBody(extSubmission)))
+        client.post(
+            "$EXT_SUBMISSIONS_URL/async",
+            RequestParams(
+                body = linkedMultiValueMapOf<String, Any>(
+                    SUBMISSION to extSerializationService.serialize(extSubmission)
+                )
+            )
+        )
     }
 
     override fun transferSubmission(accNo: String, target: StorageMode) {
@@ -74,11 +81,4 @@ class ExtSubmissionClient(
             .optionalQueryParam("released", extPageQuery.released)
             .build()
             .toUriString()
-
-    private fun getMultipartBody(extSubmission: ExtSubmission): LinkedMultiValueMap<String, Any> {
-        val elements = buildList<Pair<String, Any>> {
-            add(SUBMISSION to extSerializationService.serialize(extSubmission))
-        }
-        return LinkedMultiValueMap(elements.groupBy({ it.first }, { it.second }))
-    }
 }

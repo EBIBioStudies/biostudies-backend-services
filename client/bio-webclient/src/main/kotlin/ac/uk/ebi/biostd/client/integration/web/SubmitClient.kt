@@ -96,7 +96,6 @@ interface StatsOperations {
     fun registerStat(stat: SubmissionStat): Unit
     fun registerStats(type: String, statsFile: File): List<SubmissionStat>
     fun incrementStats(type: String, statsFile: File): List<SubmissionStat>
-    fun increment(file: File): Unit
 }
 
 interface DraftSubmissionOperations {
