@@ -14,6 +14,7 @@ import Projects.FireWebClient
 import Projects.SubmissionPersistenceCommonApi
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.KotlinCoroutinesTest
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
@@ -45,6 +46,7 @@ dependencies {
     implementation(ZipUtil)
 
     testImplementation(project(CommonsTest))
+    testImplementation(KotlinCoroutinesTest)
     testImplementation(testFixtures(project(CommonsModelExtendedSerialization)))
     testImplementation(testFixtures(project(CommonsModelExtended)))
     BaseTestCompileDependencies.forEach { testImplementation(it) }

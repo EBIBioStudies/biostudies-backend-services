@@ -1,15 +1,23 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtSubmission
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestProcessor(
+    private val concurrency: Int,
     private val storageService: FileStorageService,
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
@@ -22,27 +30,27 @@ class SubmissionRequestProcessor(
         val sub = request.submission
 
         logger.info { "$accNo ${sub.owner} Started persisting submission files on ${sub.storageMode}" }
-
-        persistSubmissionFiles(sub, accNo, version, request.currentIndex)
+        runBlocking { persistSubmissionFiles(sub, accNo, version, request.currentIndex) }
         requestService.saveSubmissionRequest(request.withNewStatus(FILES_COPIED))
         logger.info { "$accNo ${sub.owner} Finished persisting submission files on ${sub.storageMode}" }
     }
 
-    private fun persistSubmissionFiles(sub: ExtSubmission, accNo: String, version: Int, startingAt: Int) {
-        filesRequestService
-            .getSubmissionRequestFiles(accNo, version, startingAt)
-            .map {
-                logger.info { "$accNo ${sub.owner} Started persisting file ${it.index}, path='${it.path}'" }
-                it to storageService.persistSubmissionFile(sub, it.file)
+    private suspend fun persistSubmissionFiles(sub: ExtSubmission, accNo: String, version: Int, startingAt: Int) {
+        suspend fun persistFile(rqtFile: SubmissionRequestFile) {
+            logger.info { "$accNo ${sub.owner} Started persisting file ${rqtFile.index}, path='${rqtFile.path}'" }
+            when (val persisted = storageService.persistSubmissionFile(sub, rqtFile.file)) {
+                rqtFile.file -> requestService.updateRqtIndex(accNo, version, rqtFile.index)
+                else -> requestService.updateRqtIndex(rqtFile, persisted)
             }
-            .forEach { (rqt, releasedFile) ->
-                when (releasedFile) {
-                    rqt.file -> requestService.updateRqtIndex(accNo, version, rqt.index)
-                    else -> requestService.updateRqtIndex(rqt, releasedFile)
-                }
-                logger.info {
-                    "$accNo ${sub.owner} Finished persisting file ${rqt.index}, path='${rqt.path}'"
-                }
-            }
+            logger.info { "$accNo ${sub.owner} Finished persisting file ${rqtFile.index}, path='${rqtFile.path}'" }
+        }
+
+        withContext(Dispatchers.Default) {
+            filesRequestService
+                .getSubmissionRequestFiles(accNo, sub.version, startingAt)
+                .map { async { persistFile(it) } }
+                .buffer(concurrency)
+                .collect { it.await() }
+        }
     }
 }

@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.xml.deserializer
 
-import ac.uk.ebi.biostd.validation.InvalidElementException
-import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
+import ac.uk.ebi.biostd.common.validatedFilePath
 import ac.uk.ebi.biostd.xml.deserializer.common.BaseXmlDeserializer
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
@@ -13,10 +12,9 @@ class FileStandaloneXmlDeserializer(
 ) : BaseXmlDeserializer<BioFile>() {
     override fun deserialize(node: Node): BioFile {
         val path = node.getNodeAttribute(FileFields.PATH)
-        require(path.isNotBlank()) { throw InvalidElementException(REQUIRED_FILE_PATH) }
 
         return BioFile(
-            path = path,
+            path = validatedFilePath(path),
             attributes = attributeXmlDeserializer.deserializeList(node.findNode(FileFields.ATTRIBUTES))
         )
     }

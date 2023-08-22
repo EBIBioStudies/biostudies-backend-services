@@ -1,10 +1,13 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
+import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
 import ebi.ac.uk.extended.events.RequestFilesCopied
+import ebi.ac.uk.extended.events.RequestFinalized
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestPersisted
@@ -21,10 +24,11 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 @ExtendWith(MockKExtension::class)
 class SubmissionStagesHandlerTest(
+    @MockK private val statsService: SubmissionStatsService,
     @MockK private val submissionSubmitter: SubmissionSubmitter,
     @MockK private val eventsPublisherService: EventsPublisherService,
 ) {
-    private val testInstance = SubmissionStagesHandler(submissionSubmitter, eventsPublisherService)
+    private val testInstance = SubmissionStagesHandler(statsService, submissionSubmitter, eventsPublisherService)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -133,6 +137,20 @@ class SubmissionStagesHandlerTest(
         testInstance.finalizeRequest(request)
 
         verify(exactly = 1) { submissionSubmitter.finalizeRequest(request) }
+        verify(exactly = 0) { eventsPublisherService.submissionSubmitted(any(), any()) }
+    }
+
+    @Test
+    fun `calculate stats`(
+        @MockK stat: SubmissionStat,
+    ) {
+        val request = RequestFinalized("S-BSST0", 1)
+
+        every { statsService.calculateSubFilesSize("S-BSST0") } returns stat
+
+        testInstance.calculateStats(request)
+
+        verify(exactly = 1) { statsService.calculateSubFilesSize("S-BSST0") }
         verify(exactly = 0) { eventsPublisherService.submissionSubmitted(any(), any()) }
     }
 }

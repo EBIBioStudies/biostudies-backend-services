@@ -28,12 +28,14 @@ import ebi.ac.uk.extended.model.allSectionsFiles
 import ebi.ac.uk.io.ext.allSubFiles
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.io.ext.exist
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.second
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
@@ -48,6 +50,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
+import java.nio.file.Path
 import java.nio.file.Paths
 
 @Import(FilePersistenceConfig::class)
@@ -143,7 +146,7 @@ class SubmissionFileSourceTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `6-2 submission with FIRE source only`() {
+    fun `6-2 submission with FIRE source only`() = runTest {
         val file3 = tempFolder.createFile("File3.txt", "content file 3")
         val file4 = tempFolder.createFile("File4.txt", "content file 4")
         val file3Md5 = file3.md5()
@@ -215,18 +218,26 @@ class SubmissionFileSourceTest(
                 line("File", "directory")
                 line("Type", "test")
                 line()
+
+                line("File", "folder/inner")
+                line("Type", "inner folder")
+                line()
             }.toString()
 
             val file1 = tempFolder.createFile("file1.txt", "content-1")
             val file2 = tempFolder.createFile(".file2.txt", "content-2")
+            val file3 = tempFolder.createFile("file3.txt", "content-3")
+            val file4 = tempFolder.createFile("file4.txt", "content-4")
 
             webClient.uploadFiles(listOf(file1), "directory")
             webClient.uploadFiles(listOf(file2), "directory/subdirectory")
+            webClient.uploadFiles(listOf(file3), "folder")
+            webClient.uploadFiles(listOf(file4), "folder/inner")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-FSTST3")
-            assertThat(submitted.section.files).hasSize(1)
+            assertThat(submitted.section.files).hasSize(2)
             assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
                 assertThat(it.type).isEqualTo(ExtFileType.DIR)
                 assertThat(it.size).isEqualTo(328L)
@@ -237,6 +248,14 @@ class SubmissionFileSourceTest(
                     "file1.txt" to file1.readText(),
                     "subdirectory/.file2.txt" to file2.readText()
                 )
+            }
+            assertThat(submitted.section.files.second()).hasLeftValueSatisfying {
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(161L)
+                assertThat(it.md5).isEqualTo("1FBD0EEC5299D755DF21D2DA7567EAA3")
+
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/folder/inner.zip")
+                assertThat(files).containsExactly("file4.txt" to file4.readText())
             }
         }
 
@@ -342,6 +361,66 @@ class SubmissionFileSourceTest(
                 val files = getZipFiles("$submissionPath/${updated.relPath}/Files/test-directory.zip")
                 assertThat(files).containsExactly("file1.txt" to file2.readText())
             }
+        }
+
+        @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "false")
+        fun `6-3-4 submission with directory with files on NFS`() {
+            val submission = tsv {
+                line("Submission", "S-FSTST4")
+                line("Title", "Simple Submission With directory")
+                line()
+
+                line("Study")
+                line()
+
+                line("File", "directory")
+                line("Type", "test")
+                line()
+
+                line("File", "folder/inner")
+                line("Type", "inner folder")
+                line()
+            }.toString()
+
+            val file1 = tempFolder.createFile("file1.txt", "content-1")
+            val file2 = tempFolder.createFile(".file2.txt", "content-2")
+            val file3 = tempFolder.createFile("file3.txt", "content-3")
+            val file4 = tempFolder.createFile("file4.txt", "content-4")
+
+            webClient.uploadFiles(listOf(file1), "directory")
+            webClient.uploadFiles(listOf(file2), "directory/subdirectory")
+            webClient.uploadFiles(listOf(file3), "folder")
+            webClient.uploadFiles(listOf(file4), "folder/inner")
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val submitted = submissionRepository.getExtByAccNo("S-FSTST4")
+            assertThat(submitted.section.files).hasSize(2)
+            assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(18L)
+                assertThat(it.md5).isEmpty()
+
+                val dir = Paths.get("$submissionPath/${submitted.relPath}/Files/directory")
+                assertDirFile(dir.resolve("file1.txt"), "content-1")
+                assertDirFile(dir.resolve("subdirectory/.file2.txt"), "content-2")
+            }
+            assertThat(submitted.section.files.second()).hasLeftValueSatisfying {
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(9L)
+                assertThat(it.md5).isEmpty()
+
+                val dir = Paths.get("$submissionPath/${submitted.relPath}/Files/folder")
+                assertThat(dir.resolve("file3.txt").exist()).isFalse()
+                assertDirFile(dir.resolve("inner/file4.txt"), "content-4")
+            }
+        }
+
+        private fun assertDirFile(filePath: Path, content: String) {
+            assertThat(filePath.exist()).isTrue()
+            assertThat(filePath.toFile().readText()).isEqualTo(content)
         }
 
         private fun getZipFiles(filePath: String): List<Pair<String, String>> {

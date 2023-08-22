@@ -16,6 +16,8 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -25,6 +27,7 @@ import java.nio.file.Files
 
 private const val REL_PATH = "My/Path/To/Submission"
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 internal class NfsFtpServiceTest(
     private val temporaryFolder: TemporaryFolder,
@@ -47,7 +50,7 @@ internal class NfsFtpServiceTest(
     }
 
     @Test
-    fun `release submission file`() {
+    fun `release submission file`() = runTest {
         every { extSubmission.relPath } returns REL_PATH
 
         val nfsFile = NfsFile(

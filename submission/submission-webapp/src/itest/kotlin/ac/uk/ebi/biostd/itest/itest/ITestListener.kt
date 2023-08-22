@@ -94,6 +94,7 @@ class ITestListener : TestExecutionListener {
         System.setProperty("app.requestFilesPath", requestFilesPath.absolutePath)
         System.setProperty("app.security.filesProperties.filesDirPath", dropboxPath.absolutePath)
         System.setProperty("app.security.filesProperties.magicDirPath", magicDirPath.absolutePath)
+        System.setProperty("app.persistence.concurrency", persistenceConcurrency)
         System.setProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")
     }
 
@@ -104,6 +105,7 @@ class ITestListener : TestExecutionListener {
         private const val awsSecretKey = "anySecret"
         private const val awsRegion = "anyRegion"
         private const val failFactorEnv = "ITEST_FAIL_FACTOR"
+        private const val persistenceConcurrency = "10"
 
         private const val ftpUser = "ftpUser"
         private const val ftpPassword = "ftpPassword"

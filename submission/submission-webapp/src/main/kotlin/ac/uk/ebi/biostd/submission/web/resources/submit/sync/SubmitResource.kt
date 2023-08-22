@@ -35,7 +35,7 @@ class SubmitResource(
         produces = [APPLICATION_JSON_VALUE]
     )
     @ResponseBody
-    fun submitXml(
+    suspend fun submitXml(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestBody submission: String,
@@ -52,7 +52,7 @@ class SubmitResource(
         produces = [APPLICATION_JSON_VALUE]
     )
     @ResponseBody
-    fun submitTsv(
+    suspend fun submitTsv(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestBody submission: String,
@@ -69,7 +69,7 @@ class SubmitResource(
         produces = [APPLICATION_JSON_VALUE]
     )
     @ResponseBody
-    fun submitJson(
+    suspend fun submitJson(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestBody submission: String,

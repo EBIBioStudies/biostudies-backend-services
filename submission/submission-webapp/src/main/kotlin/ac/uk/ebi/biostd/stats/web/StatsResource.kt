@@ -65,4 +65,12 @@ class StatsResource(
         @PathVariable type: String,
         @RequestParam("stats") stats: MultipartFile
     ): List<SubmissionStatDto> = submissionStatsService.increment(type, stats).map { it.toStatDto() }
+
+    @PostMapping("/submission/{accNo}/files-size")
+    @ResponseBody
+    fun calculateSubFilesSize(
+        @PathVariable accNo: String,
+    ): SubmissionStatDto {
+        return submissionStatsService.calculateSubFilesSize(accNo).toStatDto()
+    }
 }

@@ -280,6 +280,26 @@ class SubmissionApiTest(
             .withMessageContaining("The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-4.tif")
     }
 
+    @Test
+    fun `16-11 submission containing folder with trailing slash`() {
+        val submission = tsv {
+            line("Submission", "S-BSST1611")
+            line("Title", "Submission")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
+            line()
+
+            line("Study")
+            line()
+
+            line("File", "inner/directory/")
+            line()
+        }.toString()
+
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { webClient.submitSingle(submission, TSV) }
+            .withMessageContaining("The given file path contains invalid characters: inner/directory/")
+    }
+
     @Nested
     @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=base/path"])
     inner class SubmitWebBasePath(@LocalServerPort val serverPort: Int) {
@@ -291,7 +311,7 @@ class SubmissionApiTest(
         }
 
         @Test
-        fun `16-11 submission when the system has the basePath property configured`() {
+        fun `16-12 submission when the system has the basePath property configured`() {
             val submission = tsv {
                 line("Submission", "S-12366")
                 line("Title", "Sample Submission")

@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 
@@ -27,12 +28,12 @@ class SubmissionService(
     private val submissionPersistenceService: SubmissionPersistenceService,
     private val fileStorageService: FileStorageService,
 ) {
-    fun submit(rqt: SubmitRequest): ExtSubmission {
+    suspend fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.draftKey}'" }
         return submissionSubmitter.submit(rqt)
     }
 
-    fun submitAsync(rqt: SubmitRequest) {
+    suspend fun submitAsync(rqt: SubmitRequest) {
         logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request with draft key '${rqt.draftKey}'" }
         val (accNo, version) = submissionSubmitter.createRequest(rqt)
         eventsPublisherService.requestCreated(accNo, version)
@@ -40,7 +41,7 @@ class SubmissionService(
 
     fun deleteSubmission(accNo: String, user: SecurityUser) {
         require(userPrivilegesService.canDelete(user.email, accNo)) { throw UserCanNotDelete(accNo, user.email) }
-        fileStorageService.deleteSubmissionFiles(queryService.getExtByAccNo(accNo, true))
+        runBlocking { fileStorageService.deleteSubmissionFiles(queryService.getExtByAccNo(accNo, true)) }
         submissionPersistenceService.expireSubmission(accNo)
         eventsPublisherService.submissionsRefresh(accNo, user.email)
     }
