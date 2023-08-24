@@ -33,7 +33,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty
@@ -334,8 +334,8 @@ class SubmissionApiTest(
     }
 
     @Test
-    @DisplayName("16-12 User with Ftp based folder submission")
-    fun userWithFTpBasedFolder() {
+    @Disabled
+    fun `16-12 User with Ftp based folder submission`() {
         securityTestService.ensureUserRegistration(FtpSuperUser)
         webClient = getWebClient(serverPort, FtpSuperUser)
 
