@@ -19,6 +19,8 @@ import ebi.ac.uk.util.collections.third
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.AfterEach
@@ -47,41 +49,41 @@ class StatsMongoDataServiceTest(
     private val testInstance = StatsMongoDataService(submissionsRepository, submissionStatsDataRepository)
 
     @AfterEach
-    fun afterEach() = submissionStatsDataRepository.deleteAll()
+    fun afterEach() = runTest { submissionStatsDataRepository.deleteAllStats() }
 
     @Test
-    fun `find all by type`() {
+    fun `find all by type`() = runTest {
         val stats1 = DocSubmissionStats(ObjectId(), "S-TEST1", mapOf(VIEWS.value to 1L))
         val stats2 = DocSubmissionStats(ObjectId(), "S-TEST2", mapOf(VIEWS.value to 2L))
 
-        submissionStatsDataRepository.save(stats1)
-        submissionStatsDataRepository.save(stats2)
+        submissionStatsDataRepository.saveStats(stats1)
+        submissionStatsDataRepository.saveStats(stats2)
 
-        val page1 = testInstance.findByType(VIEWS, PaginationFilter(limit = 1, offset = 0))
+        val page1 = testInstance.findByType(VIEWS, PaginationFilter(limit = 1, offset = 0)).toList()
         assertThat(page1).hasSize(1)
         assertStat(page1.first(), "S-TEST1", 1L)
 
-        val page2 = testInstance.findByType(VIEWS, PaginationFilter(limit = 1, offset = 1))
+        val page2 = testInstance.findByType(VIEWS, PaginationFilter(limit = 1, offset = 1)).toList()
         assertThat(page2).hasSize(1)
         assertStat(page2.first(), "S-TEST2", 2L)
     }
 
     @Test
-    fun `find by accNo and type`() {
+    fun `find by accNo and type`() = runTest {
         val testStat = DocSubmissionStats(ObjectId(), SUB_ACC_NO, mapOf(VIEWS.value to STAT_VALUE))
-        submissionStatsDataRepository.save(testStat)
+        submissionStatsDataRepository.saveStats(testStat)
         assertStat(testInstance.findByAccNoAndType(SUB_ACC_NO, VIEWS), SUB_ACC_NO, STAT_VALUE)
     }
 
     @Test
-    fun `find stats for non existing submission`() {
+    fun `find stats for non existing submission`() = runTest {
         val exception = assertThrows<StatNotFoundException> { testInstance.findByAccNoAndType("S-TEST1", VIEWS) }
         assertThat(exception.message)
             .isEqualTo("There is no submission stat registered with AccNo S-TEST1 and type VIEWS")
     }
 
     @Test
-    fun `save single stat`() {
+    fun `save single stat`() = runTest {
         every { submissionsRepository.existsByAccNo("S-TEST1") } returns true
 
         val stat = SingleSubmissionStat("S-TEST1", 1L, VIEWS)
@@ -91,7 +93,7 @@ class StatsMongoDataServiceTest(
     }
 
     @Test
-    fun `save single stat for non existing submission`() {
+    fun `save single stat for non existing submission`() = runTest {
         every { submissionsRepository.existsByAccNo("S-TEST1") } returns false
 
         val stat = SingleSubmissionStat("S-TEST1", 1L, VIEWS)
@@ -100,7 +102,7 @@ class StatsMongoDataServiceTest(
     }
 
     @Test
-    fun `save all stats`() {
+    fun `save all stats`() = runTest {
         every { submissionsRepository.existsByAccNo("S-TEST1") } returns true
         every { submissionsRepository.existsByAccNo("S-TEST2") } returns true
         every { submissionsRepository.existsByAccNo("S-TEST3") } returns false
@@ -119,7 +121,7 @@ class StatsMongoDataServiceTest(
     }
 
     @Test
-    fun `increment stats`() {
+    fun `increment stats`() = runTest {
         every { submissionsRepository.existsByAccNo("S-TEST1") } returns true
         every { submissionsRepository.existsByAccNo("S-TEST2") } returns true
         every { submissionsRepository.existsByAccNo("S-TEST3") } returns false
@@ -132,7 +134,7 @@ class StatsMongoDataServiceTest(
         )
 
         val existing = DocSubmissionStats(ObjectId(), "S-TEST2", mapOf(VIEWS.value to 3L))
-        submissionStatsDataRepository.save(existing)
+        submissionStatsDataRepository.saveStats(existing)
 
         val result = testInstance.incrementAll(stats)
         assertThat(result).hasSize(2)
