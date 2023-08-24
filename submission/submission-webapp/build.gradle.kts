@@ -35,6 +35,7 @@ import SpringBootDependencies.SpringBootStarterSecurity
 import SpringBootDependencies.SpringBootStarterTest
 import SpringBootDependencies.SpringBootStarterValidation
 import SpringBootDependencies.SpringBootStarterWeb
+import SpringBootDependencies.SpringBootStarterWebFlux
 import TestDependencies.Awaitility
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -95,6 +96,7 @@ dependencies {
     annotationProcessor(SpringBootConfigurationProcessor)
 
     implementation(SpringBootStarterWeb)
+    implementation(SpringBootStarterWebFlux)
     implementation(SpringBootStarterAmqp)
     implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterConfigProcessor)

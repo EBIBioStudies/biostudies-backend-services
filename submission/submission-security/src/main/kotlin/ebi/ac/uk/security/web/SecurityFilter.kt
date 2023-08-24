@@ -20,7 +20,7 @@ const val COOKIE_NAME = "BIOSTDSESS"
 
 internal class SecurityFilter(
     private val environment: String,
-    private val securityQueryService: ISecurityQueryService
+    private val securityQueryService: ISecurityQueryService,
 ) : GenericFilterBean(), ISecurityFilter {
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         getSecurityKey(request as HttpServletRequest)

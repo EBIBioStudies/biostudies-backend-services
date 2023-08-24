@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.client.api
 
-import ac.uk.ebi.biostd.client.common.getMultipartBody
+import ac.uk.ebi.biostd.client.common.multipartBody
 import ac.uk.ebi.biostd.client.extensions.deserializeResponse
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
@@ -34,7 +34,7 @@ internal class MultiPartSubmitClient(
         attrs: Map<String, String>,
     ): SubmissionResponse {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
-        val multiPartBody = getMultipartBody(filesConfig, FileSystemResource(submission)).apply {
+        val multiPartBody = multipartBody(filesConfig, FileSystemResource(submission)).apply {
             attrs.entries.forEach { add(ATTRIBUTES, ExtAttributeDetail(it.key, it.value)) }
         }
 
@@ -53,7 +53,7 @@ internal class MultiPartSubmitClient(
         filesConfig: SubmissionFilesConfig,
     ): SubmissionResponse {
         val headers = createHeaders(format)
-        val body = getMultipartBody(filesConfig, submission)
+        val body = multipartBody(filesConfig, submission)
 
         return submit(headers, body)
     }
@@ -65,7 +65,7 @@ internal class MultiPartSubmitClient(
     ): SubmissionResponse {
         val headers = createHeaders(format)
         val serializedSubmission = serializationService.serializeSubmission(submission, format.asSubFormat())
-        val body = getMultipartBody(filesConfig, serializedSubmission)
+        val body = multipartBody(filesConfig, serializedSubmission)
 
         return submit(headers, body)
     }

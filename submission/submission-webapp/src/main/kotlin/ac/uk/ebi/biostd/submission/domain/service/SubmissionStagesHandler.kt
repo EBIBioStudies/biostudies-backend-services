@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
 import ebi.ac.uk.extended.events.RequestPersisted
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.amqp.rabbit.annotation.RabbitListener
@@ -91,7 +92,7 @@ class SubmissionStagesHandler(
     fun calculateStats(rqt: RequestFinalized) {
         processSafely(rqt) {
             logger.info { "$accNo, Received finalized message for submission $accNo, version: $version" }
-            statsService.calculateSubFilesSize(accNo)
+            runBlocking { statsService.calculateSubFilesSize(accNo) }
         }
     }
 
