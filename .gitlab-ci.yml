@@ -68,23 +68,23 @@ stages:
 
 build-test:
   stage: build-test
-  script: gradle clean build test -x itest -x jacocoTestCoverageVerification buildArtifacts --info
+  script: gradle build test -x itest -x jacocoTestCoverageVerification buildArtifacts --info
 
 nfs-itest:
   needs: [ "build-test" ]
   stage: nfs-itest
-  script: gradle clean :submission:submission-webapp:itest -PenableFire=false
+  script: gradle :submission:submission-webapp:itest -PenableFire=false --rerun-tasks --stacktrace
 
 fire-itest:
   needs: [ "nfs-itest" ]
   stage: fire-itest
-  script: gradle clean :submission:submission-webapp:itest -PenableFire=true
+  script: gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --stacktrace
   variables:
     ITEST_FIXED_DELAY: "50"
 
 fire-caos-itest:
   needs: [ "fire-itest" ]
   stage: fire-caos-itest
-  script: gradle clean :submission:submission-webapp:itest -PenableFire=true
+  script: gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --stacktrace
   variables:
     ITEST_FAIL_FACTOR: "8"
