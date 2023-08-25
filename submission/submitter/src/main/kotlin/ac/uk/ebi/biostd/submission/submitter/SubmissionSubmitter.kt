@@ -71,6 +71,7 @@ class SubmissionSubmitter(
         try {
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
 
+            // TODO doi field isn't being persisted
             rqt.draftKey?.let { startProcessingDraft(rqt.accNo, rqt.owner, it) }
             val processed = submissionProcessor.processSubmission(rqt)
             collectionValidationService.executeCollectionValidators(processed)

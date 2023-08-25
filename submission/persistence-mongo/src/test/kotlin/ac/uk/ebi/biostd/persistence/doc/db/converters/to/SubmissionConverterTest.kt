@@ -107,6 +107,7 @@ internal class SubmissionConverterTest(
             owner = submissionOwner,
             submitter = submissionSubmitter,
             title = submissionTitle,
+            doi = submissionDoi,
             method = DocSubmissionMethod.PAGE_TAB,
             relPath = submissionRelPath,
             rootPath = submissionRootPath,
@@ -132,6 +133,7 @@ internal class SubmissionConverterTest(
         const val submissionOwner = "owner@mail.org"
         const val submissionSubmitter = "submitter@mail.org"
         const val submissionTitle = "TestSubmission"
+        const val submissionDoi = "TestDOI"
         const val submissionRelPath = "/a/rel/path"
         const val submissionRootPath = "/a/root/path"
         const val submissionReleased = false

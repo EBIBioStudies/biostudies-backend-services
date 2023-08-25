@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_DOI
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
@@ -57,6 +58,7 @@ internal val CHANGE_LOG_CLASSES = listOf(
     ChangeLog007::class.java,
     ChangeLog008::class.java,
     ChangeLog009::class.java,
+    ChangeLog010::class.java,
 )
 
 @ChangeLog
@@ -237,5 +239,13 @@ class ChangeLog009 {
                     .on(RQT_FILE_INDEX, ASC)
             )
         }
+    }
+}
+
+@ChangeLog
+class ChangeLog010 {
+    @ChangeSet(order = "010", id = "DOI Field", author = "System")
+    fun changeSet010(template: MongockTemplate) {
+        template.updateMulti(Query(), Update().set(SUB_DOI, null), DocSubmission::class.java)
     }
 }

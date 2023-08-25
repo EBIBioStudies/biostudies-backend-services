@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_DOI
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
@@ -268,6 +269,26 @@ internal class DatabaseChangeLogTest(
         runMigrations(ChangeLog007::class.java)
 
         assertSubmissionFilesIndexes()
+    }
+
+    @Test
+    fun `run migration 010`() {
+        val submission = testDocSubmission.copy(id = ObjectId())
+        val submissionCollection = mongoTemplate.createCollection<DocSubmission>()
+        val collectionName = submissionCollection.namespace.collectionName
+        mongoTemplate.insert(submission, collectionName)
+        mongoTemplate.updateMulti(Query(), Update().unset(SUB_DOI), DocSubmission::class.java)
+
+        val submissions = mongoTemplate.findAll<Document>(collectionName)
+        assertThat(submissions).hasSize(1)
+        assertThat(submissions.first().containsKey(SUB_DOI)).isFalse()
+
+        runMigrations(ChangeLog010::class.java)
+
+        val subAfterMigration = mongoTemplate.findAll<Document>(collectionName)
+        assertThat(subAfterMigration).hasSize(1)
+        assertThat(subAfterMigration.first().containsKey(SUB_DOI)).isTrue()
+        assertThat(subAfterMigration.first()[SUB_DOI]).isNull()
     }
 
     private fun runMigrations(clazz: Class<*>) {

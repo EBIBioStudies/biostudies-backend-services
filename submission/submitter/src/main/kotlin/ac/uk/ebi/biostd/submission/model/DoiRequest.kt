@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.model
 
 import ebi.ac.uk.util.collections.ifNotEmpty
+import org.redundent.kotlin.xml.PrintOptions
 import org.redundent.kotlin.xml.xml
 import java.time.Instant
 
@@ -23,7 +24,10 @@ internal class DoiRequest(
     fun asXmlRequest(): String {
         val timestamp = Instant.now().epochSecond.toString()
         return xml("doi_batch") {
-            xmlns = "http://www.crossref.org/schema/4.4.1"
+            xmlns = XML_NAMESPACE
+            attribute("xmlns:xsi", XML_SCHEMA_INSTANCE)
+            attribute("version", XML_SCHEMA_VERSION)
+            attribute("xsi:schemaLocation", "$XML_SCHEMA_LOCATION_1 $XML_SCHEMA_LOCATION_2")
             "head" {
                 "doi_batch_id" { -timestamp }
                 "timestamp" { -timestamp }
@@ -44,10 +48,10 @@ internal class DoiRequest(
                     "dataset" {
                         contributors.ifNotEmpty {
                             "contributors" {
-                                contributors.forEachIndexed { index, contributor ->
+                                contributors.forEach { contributor ->
                                     "person_name" {
                                         attribute("contributor_role", "author")
-                                        attribute("sequence", index)
+                                        attribute("sequence", "first")
                                         "given_name" { -contributor.name }
                                         "surname" { -contributor.surname }
                                         "affiliation" { -contributor.affiliation }
@@ -71,7 +75,7 @@ internal class DoiRequest(
                     }
                 }
             }
-        }.toString()
+        }.toString(PrintOptions(pretty = true, singleLineTextElements = true, indent = " "))
     }
 
     companion object {
@@ -79,5 +83,10 @@ internal class DoiRequest(
         const val BS_TITLE = "BioStudies Database"
         const val DEPOSITOR = "EMBL-EBI"
         const val EMAIL = "biostudies@ebi.ac.uk"
+        const val XML_NAMESPACE = "http://www.crossref.org/schema/4.4.1"
+        const val XML_SCHEMA_VERSION = "4.4.1"
+        const val XML_SCHEMA_INSTANCE = "http://www.w3.org/2001/XMLSchema-instance"
+        const val XML_SCHEMA_LOCATION_1 = "http://www.crossref.org/schema/4.4.1"
+        const val XML_SCHEMA_LOCATION_2 = "http://www.crossref.org/schema/deposit/crossref4.4.1.xsd"
     }
 }

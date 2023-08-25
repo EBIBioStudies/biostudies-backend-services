@@ -56,6 +56,7 @@ internal val testDocSubmission: DocSubmission
         owner = OWNER,
         submitter = SUBMITTER,
         title = SUB_TITLE,
+        doi = null,
         method = PAGE_TAB,
         relPath = REL_PATH,
         rootPath = ROOT_PATH,

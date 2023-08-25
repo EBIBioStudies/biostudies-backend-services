@@ -181,13 +181,11 @@ class SubmitterConfig(
 
     @Bean
     fun submissionSubmitter(
-        doiService: DoiService,
         extSubmissionSubmitter: ExtSubmissionSubmitter,
         submissionProcessor: SubmissionProcessor,
         collectionValidationService: CollectionValidationService,
         draftService: SubmissionDraftPersistenceService,
     ): SubmissionSubmitter = SubmissionSubmitter(
-        doiService,
         extSubmissionSubmitter,
         submissionProcessor,
         collectionValidationService,
@@ -196,6 +194,7 @@ class SubmitterConfig(
 
     @Bean
     fun submissionProcessor(
+        doiService: DoiService,
         persistenceService: SubmissionPersistenceService,
         timesService: TimesService,
         accNoService: AccNoService,
@@ -204,6 +203,7 @@ class SubmitterConfig(
         toExtSectionMapper: ToExtSectionMapper,
     ): SubmissionProcessor =
         SubmissionProcessor(
+            doiService,
             persistenceService,
             timesService,
             accNoService,

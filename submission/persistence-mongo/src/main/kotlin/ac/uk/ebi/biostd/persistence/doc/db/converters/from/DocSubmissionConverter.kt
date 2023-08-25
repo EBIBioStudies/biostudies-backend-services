@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_CREATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_DOI
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_METHOD
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
@@ -45,6 +46,7 @@ class DocSubmissionConverter(
         owner = source.getString(SUB_OWNER),
         submitter = source.getString(SUB_SUBMITTER),
         title = source.getString(SUB_TITLE),
+        doi = source.getString(SUB_DOI),
         method = DocSubmissionMethod.fromString(source.getString(SUB_METHOD)),
         relPath = source.getString(SUB_REL_PATH),
         rootPath = source.getString(SUB_ROOT_PATH),

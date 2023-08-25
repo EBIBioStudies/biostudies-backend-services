@@ -27,6 +27,7 @@ data class DocSubmission(
     val owner: String,
     val submitter: String,
     val title: String?,
+    val doi: String?,
     val method: DocSubmissionMethod,
     val relPath: String,
     val rootPath: String?,

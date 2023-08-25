@@ -23,23 +23,11 @@ import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.ifNotEmpty
 import mu.KotlinLogging
 import org.springframework.core.io.FileSystemResource
+import org.springframework.http.HttpHeaders
+import org.springframework.http.MediaType.MULTIPART_FORM_DATA
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 import java.nio.file.Files
-
-internal const val AFFILIATION_ATTR = "affiliation"
-internal const val NAME_ATTR = "name"
-internal const val ORCID_ATTR = "orcid"
-
-internal const val ORG_TYPE = "organization"
-internal const val AUTHOR_TYPE = "author"
-
-internal const val FILE_PARAM = "fname"
-internal const val OPERATION_PARAM = "operation"
-internal const val OPERATION_PARAM_VALUE = "doMDUpload"
-internal const val PASSWORD_PARAM = "login_password"
-internal const val USER_PARAM = "login_id"
-internal const val TEMP_FILE_NAME = "doi-request"
 
 private val logger = KotlinLogging.logger {}
 
@@ -49,12 +37,12 @@ class DoiService(
     private val properties: DoiProperties,
 ) {
     fun calculateDoi(accNo: String, rqt: SubmitRequest): String? {
-        val doi = rqt.submission.find(DOI) ?: return null
+        val doi = rqt.submission.attributes.find { it.name == DOI.name } ?: return null
         val previousDoi = rqt.previousVersion?.doi
 
         if (previousDoi != null) {
-            require(doi == previousDoi) { throw InvalidDoiException() }
-            return doi
+            require(doi.value == previousDoi) { throw InvalidDoiException() }
+            return previousDoi
         }
 
         return registerDoi(accNo, rqt)
@@ -67,6 +55,7 @@ class DoiService(
         val requestFile = Files.createTempFile("${TEMP_FILE_NAME}_${accNo}", ".xml").toFile()
         FileUtils.writeContent(requestFile, request.asXmlRequest())
 
+        val headers = HttpHeaders().apply { contentType = MULTIPART_FORM_DATA }
         val body = LinkedMultiValueMap<String, Any>().apply {
             add(USER_PARAM, properties.user)
             add(PASSWORD_PARAM, properties.password)
@@ -74,8 +63,8 @@ class DoiService(
             add(FILE_PARAM, FileSystemResource(requestFile))
         }
 
-        logger.info { "$accNo ${rqt.owner} Registering DOI" }
-        webClient.post(properties.endpoint, RequestParams(body = body))
+        webClient.post(properties.endpoint, RequestParams(headers, body))
+        logger.info { "$accNo ${rqt.owner} Registered DOI: '${request.doi}'" }
 
         return request.doi
     }
@@ -116,5 +105,21 @@ class DoiService(
             .ifNotEmpty { entries -> throw InvalidOrgNamesException(entries.map { it.key }) }
 
         return organizations
+    }
+
+    companion object {
+        internal const val AFFILIATION_ATTR = "affiliation"
+        internal const val NAME_ATTR = "name"
+        internal const val ORCID_ATTR = "orcid"
+
+        internal const val ORG_TYPE = "organization"
+        internal const val AUTHOR_TYPE = "author"
+
+        internal const val FILE_PARAM = "fname"
+        internal const val OPERATION_PARAM = "operation"
+        internal const val OPERATION_PARAM_VALUE = "doMDUpload"
+        internal const val PASSWORD_PARAM = "login_password"
+        internal const val USER_PARAM = "login_id"
+        internal const val TEMP_FILE_NAME = "doi-request"
     }
 }

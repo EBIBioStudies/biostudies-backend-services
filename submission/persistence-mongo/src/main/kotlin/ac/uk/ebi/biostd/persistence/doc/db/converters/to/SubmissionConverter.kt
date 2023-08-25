@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_CREATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_DOI
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_METHOD
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
@@ -49,6 +50,7 @@ class SubmissionConverter(
         submissionDoc[SUB_OWNER] = submission.owner
         submissionDoc[SUB_SUBMITTER] = submission.submitter
         submissionDoc[SUB_TITLE] = submission.title
+        submissionDoc[SUB_DOI] = submission.doi
         submissionDoc[SUB_METHOD] = submission.method.value
         submissionDoc[SUB_REL_PATH] = submission.relPath
         submissionDoc[SUB_ROOT_PATH] = submission.rootPath

@@ -52,6 +52,7 @@ object SubmissionFactory {
         owner = owner,
         submitter = submitter,
         title = title,
+        doi = null,
         method = method,
         relPath = relPath,
         rootPath = rootPath,
@@ -69,24 +70,25 @@ object SubmissionFactory {
     )
 
     const val ACC_NO = "S-TEST123"
-    const val VERSION = 1
-    const val SCHEMA_VERSION = "1.0"
-    const val OWNER = "owner@email.org"
-    const val SUBMITTER = "submitter@email.org"
-    const val TITLE = "Default Submission Title"
-    val METHOD = ExtSubmissionMethod.PAGE_TAB
-    const val REL_PATH = "S-TEST/123/S-TEST123"
-    const val ROOT_PATH = "SUBMISSION_ROOT_PATH"
-    const val RELEASED = false
-    const val SECRET_KEY = "SUBMISSION_SECRET_KEY"
-    val RELEASE_TIME: OffsetDateTime = OffsetDateTime.of(2019, 9, 21, 0, 0, 0, 0, UTC)
-    val MODIFICATION_TIME: OffsetDateTime = OffsetDateTime.of(2020, 9, 21, 0, 0, 0, 0, UTC)
-    val CREATION_TIME: OffsetDateTime = OffsetDateTime.of(2018, 9, 21, 0, 0, 0, 0, UTC)
-    val ATTRIBUTES = emptyList<ExtAttribute>()
-    val TAGS = emptyList<ExtTag>()
-    val COLLECTIONS = emptyList<ExtCollection>()
-    val SECTION = defaultSection()
-    val PAGE_TAG_FILES = emptyList<ExtFile>()
+    private const val VERSION = 1
+    private const val SCHEMA_VERSION = "1.0"
+    private const val OWNER = "owner@email.org"
+    private const val SUBMITTER = "submitter@email.org"
+    private const val TITLE = "Default Submission Title"
+    private const val REL_PATH = "S-TEST/123/S-TEST123"
+    private const val ROOT_PATH = "SUBMISSION_ROOT_PATH"
+    private const val RELEASED = false
+    private const val SECRET_KEY = "SUBMISSION_SECRET_KEY"
+
+    private val RELEASE_TIME: OffsetDateTime = OffsetDateTime.of(2019, 9, 21, 0, 0, 0, 0, UTC)
+    private val METHOD = ExtSubmissionMethod.PAGE_TAB
+    private val MODIFICATION_TIME: OffsetDateTime = OffsetDateTime.of(2020, 9, 21, 0, 0, 0, 0, UTC)
+    private val CREATION_TIME: OffsetDateTime = OffsetDateTime.of(2018, 9, 21, 0, 0, 0, 0, UTC)
+    private val ATTRIBUTES = emptyList<ExtAttribute>()
+    private val TAGS = emptyList<ExtTag>()
+    private val COLLECTIONS = emptyList<ExtCollection>()
+    private val SECTION = defaultSection()
+    private val PAGE_TAG_FILES = emptyList<ExtFile>()
 }
 
 object SectionFactory {
@@ -108,13 +110,13 @@ object SectionFactory {
         links = links,
     )
 
-    const val ACC_NO = "accNo"
-    const val TYPE = "Study"
-    val FILE_LIST = null
-    val ATTRIBUTES = emptyList<ExtAttribute>()
-    val SECTIONS = emptyList<Either<ExtSection, ExtSectionTable>>()
-    val FILES = emptyList<Either<ExtFile, ExtFileTable>>()
-    val LINKS = emptyList<Either<ExtLink, ExtLinkTable>>()
+    private const val ACC_NO = "accNo"
+    private const val TYPE = "Study"
+    private val FILE_LIST = null
+    private val ATTRIBUTES = emptyList<ExtAttribute>()
+    private val SECTIONS = emptyList<Either<ExtSection, ExtSectionTable>>()
+    private val FILES = emptyList<Either<ExtFile, ExtFileTable>>()
+    private val LINKS = emptyList<Either<ExtLink, ExtLinkTable>>()
 }
 
 object FireFileFactory {
@@ -138,13 +140,13 @@ object FireFileFactory {
         attributes = attributes
     )
 
-    const val FILE_PATH = "folder/file.txt"
-    const val REL_PATH = "Files/folder/file.txt"
-    const val FIRE_ID = "fireId"
-    const val FIRE_PATH = "submission/Files/folder/file.txt"
-    const val MD5 = "md5"
-    const val SIZE = 1L
-    val ATTRIBUTES = emptyList<ExtAttribute>()
+    private const val FILE_PATH = "folder/file.txt"
+    private const val REL_PATH = "Files/folder/file.txt"
+    private const val FIRE_ID = "fireId"
+    private const val FIRE_PATH = "submission/Files/folder/file.txt"
+    private const val MD5 = "md5"
+    private const val SIZE = 1L
+    private val ATTRIBUTES = emptyList<ExtAttribute>()
 }
 
 object FileListFactory {
@@ -161,9 +163,9 @@ object FileListFactory {
     )
 
     const val FILE_PATH = "folder/fileList.txt"
-    val FILES = emptyList<ExtFile>()
-    const val FILES_URL = "filesUrl"
-    val PAGE_TAG_FILES = emptyList<ExtFile>()
+    private val FILES = emptyList<ExtFile>()
+    private const val FILES_URL = "filesUrl"
+    private val PAGE_TAG_FILES = emptyList<ExtFile>()
 }
 
 object AttributeFactory {
@@ -176,7 +178,7 @@ object AttributeFactory {
 
     ) = ExtAttribute(name, value, reference, nameAttrs, valueAttrs)
 
-    const val NAME = "name"
-    const val VALUE = "value"
-    const val REFERENCE = false
+    private const val NAME = "name"
+    private const val VALUE = "value"
+    private const val REFERENCE = false
 }

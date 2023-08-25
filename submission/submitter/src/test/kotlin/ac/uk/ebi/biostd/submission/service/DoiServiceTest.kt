@@ -11,10 +11,16 @@ import ac.uk.ebi.biostd.submission.exceptions.MissingDoiFieldException
 import ac.uk.ebi.biostd.submission.exceptions.MissingTitleException
 import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
+import ac.uk.ebi.biostd.submission.service.DoiService.Companion.FILE_PARAM
+import ac.uk.ebi.biostd.submission.service.DoiService.Companion.OPERATION_PARAM
+import ac.uk.ebi.biostd.submission.service.DoiService.Companion.OPERATION_PARAM_VALUE
+import ac.uk.ebi.biostd.submission.service.DoiService.Companion.PASSWORD_PARAM
+import ac.uk.ebi.biostd.submission.service.DoiService.Companion.USER_PARAM
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import ebi.ac.uk.model.extensions.title
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -30,6 +36,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.core.io.FileSystemResource
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
@@ -38,6 +46,7 @@ import java.nio.file.Paths
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
+import java.util.function.Consumer
 
 @ExtendWith(MockKExtension::class)
 class DoiServiceTest(
@@ -62,6 +71,7 @@ class DoiServiceTest(
     fun `doi registration`(
         @MockK requestSpec: RequestBodySpec,
     ) {
+        val headersSlot = slot<Consumer<HttpHeaders>>()
         val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
         val submission = submission {
             title = "Test Submission"
@@ -84,10 +94,12 @@ class DoiServiceTest(
         every { submitRequest.submission } returns submission
         every { webClient.post().uri(properties.endpoint) } returns requestSpec
         every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
+        every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
         every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "OK"
 
         val doi = testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
         val body = bodySlot.captured
+        val headers = headersSlot.captured
         val requestFile = body[FILE_PARAM]!!.first() as FileSystemResource
         val expectedXml = Files.readString(Paths.get("src/test/resources/ExpectedDOIRequest.xml"))
 
@@ -96,6 +108,7 @@ class DoiServiceTest(
         assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
         assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
         assertThat(body[OPERATION_PARAM]!!.first()).isEqualTo(OPERATION_PARAM_VALUE)
+        headers.andThen { assertThat(it[CONTENT_TYPE]!!.first()).isEqualTo(MULTIPART_FORM_DATA) }
         verify(exactly = 1) {
             webClient.post().uri(properties.endpoint)
             requestSpec.bodyValue(body)
