@@ -13,10 +13,13 @@ import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestPersisted
 import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -110,7 +113,7 @@ class SubmissionStagesHandlerTest(
 
     @Test
     fun `save submission`(
-        @MockK submission: ExtSubmission
+        @MockK submission: ExtSubmission,
     ) {
         val request = RequestCheckedReleased("S-BSTT0", 1)
 
@@ -143,14 +146,14 @@ class SubmissionStagesHandlerTest(
     @Test
     fun `calculate stats`(
         @MockK stat: SubmissionStat,
-    ) {
+    ) = runTest {
         val request = RequestFinalized("S-BSST0", 1)
 
-        every { statsService.calculateSubFilesSize("S-BSST0") } returns stat
+        coEvery { statsService.calculateSubFilesSize("S-BSST0") } returns stat
 
         testInstance.calculateStats(request)
 
-        verify(exactly = 1) { statsService.calculateSubFilesSize("S-BSST0") }
+        coVerify(exactly = 1) { statsService.calculateSubFilesSize("S-BSST0") }
         verify(exactly = 0) { eventsPublisherService.submissionSubmitted(any(), any()) }
     }
 }
