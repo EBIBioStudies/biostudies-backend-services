@@ -189,7 +189,7 @@ open class SecurityService(
         orcid = rqt.orcid,
         secret = securityUtil.newKey(),
         notificationsEnabled = rqt.notificationsEnabled,
-        storageMode = rqt.userFolderType?.let { StorageMode.valueOf(it) } ?: props.filesProperties.defaultMode,
+        storageMode = rqt.storageMode?.let { StorageMode.valueOf(it) } ?: props.filesProperties.defaultMode,
         passwordDigest = securityUtil.getPasswordDigest(rqt.password)
     )
 }

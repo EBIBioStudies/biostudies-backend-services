@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.security.integration.model.api.GroupFolder
@@ -25,12 +26,13 @@ import java.nio.file.Paths
 class FileSourcesServiceTest(
     tempFolder: TemporaryFolder,
     @MockK private val fireClient: FireClient,
+    @MockK private val ftpClient: FtpClient,
     @MockK private val filesRepo: SubmissionFilesPersistenceService,
 ) {
     private val tempFile = tempFolder.createFile("test.txt")
     private val filesFolder = tempFolder.createDirectory("files")
     private val subFolder = tempFolder.createDirectory("submissions")
-    private val builder = FilesSourceListBuilder(subFolder.toPath(), fireClient, filesRepo)
+    private val builder = FilesSourceListBuilder(subFolder.toPath(), fireClient, ftpClient, filesRepo)
     private val testInstance = FileSourcesService(builder)
     private val extSubmission = basicExtSubmission.copy(storageMode = StorageMode.FIRE)
 

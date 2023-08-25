@@ -104,7 +104,7 @@ class UserFileApiTest(
         override val password = "12345"
         override val superUser = true
 
-        override fun asRegisterRequest() = RegisterRequest(username, email, password, userFolderType = "NFS")
+        override fun asRegisterRequest() = RegisterRequest(username, email, password, storageMode = "NFS")
     }
 
     object FilesFtpUser : TestUser {
@@ -113,6 +113,6 @@ class UserFileApiTest(
         override val password = "12345"
         override val superUser = true
 
-        override fun asRegisterRequest() = RegisterRequest(username, email, password, userFolderType = "FTP")
+        override fun asRegisterRequest() = RegisterRequest(username, email, password, storageMode = "FTP")
     }
 }

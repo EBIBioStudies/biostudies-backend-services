@@ -1,10 +1,11 @@
-
 import Projects.CommonsBio
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedMapping
 import Projects.CommonsTest
 import Projects.FireWebClient
+import Projects.FtpWebClient
 import Projects.SubmissionPersistenceCommonApi
+import Projects.SubmissionSecurity
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
@@ -26,6 +27,8 @@ dependencies {
     api(project(CommonsModelExtended))
     api(project(CommonsModelExtendedMapping))
     api(project(FireWebClient))
+    api(project(FtpWebClient))
+    api(project(SubmissionSecurity))
     api(project(SubmissionPersistenceCommonApi))
 
     testApi(project(CommonsTest))
