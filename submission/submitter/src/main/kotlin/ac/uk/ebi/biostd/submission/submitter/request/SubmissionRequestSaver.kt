@@ -24,9 +24,9 @@ class SubmissionRequestSaver(
         val sub = request.submission
 
         logger.info { "$accNo ${sub.owner} Started saving submission '${sub.accNo}', version={${sub.version}}" }
-        val assemble = assembleSubmission(sub)
+        val assembled = assembleSubmission(sub)
         persistenceService.expirePreviousVersions(sub.accNo)
-        val saved = persistenceService.saveSubmission(assemble)
+        val saved = persistenceService.saveSubmission(assembled)
         logger.info { "$accNo ${sub.owner} Finished saving submission '${sub.accNo}', version={${sub.version}}" }
 
         requestService.saveSubmissionRequest(request.withNewStatus(PERSISTED))

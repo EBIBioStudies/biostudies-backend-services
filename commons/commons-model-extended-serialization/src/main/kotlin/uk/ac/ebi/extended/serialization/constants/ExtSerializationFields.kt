@@ -38,7 +38,7 @@ object ExtSerializationFields {
     const val OWNER = "owner"
     const val SUBMITTER = "submitter"
     const val TITLE = "title"
-    const val DOI = "DOI"
+    const val DOI = "doi"
     const val METHOD = "method"
     const val REL_PATH = "relPath"
     const val ROOT_PATH = "rootPath"

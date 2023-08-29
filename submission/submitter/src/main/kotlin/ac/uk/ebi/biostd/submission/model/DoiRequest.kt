@@ -5,14 +5,14 @@ import org.redundent.kotlin.xml.PrintOptions
 import org.redundent.kotlin.xml.xml
 import java.time.Instant
 
-internal data class Contributor(
+data class Contributor(
     val name: String,
     val surname: String,
     val affiliation: String,
     val orcid: String?
 )
 
-internal class DoiRequest(
+class DoiRequest(
     private val accNo: String,
     private val title: String,
     private val instanceUrl: String,
