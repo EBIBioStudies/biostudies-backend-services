@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.from
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_DOC_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PAGE_TAB_FILES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PROJECT_DOC_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
@@ -66,5 +66,5 @@ class DocSubmissionConverter(
     private fun toDocTag(doc: Document): DocTag =
         DocTag(name = doc.getString(TAG_DOC_NAME), value = doc.getString(TAG_DOC_VALUE))
 
-    private fun toDocCollection(doc: Document): DocCollection = DocCollection(accNo = doc.getString(PROJECT_DOC_ACC_NO))
+    private fun toDocCollection(doc: Document) = DocCollection(accNo = doc.getString(COLLECTION_DOC_ACC_NO))
 }

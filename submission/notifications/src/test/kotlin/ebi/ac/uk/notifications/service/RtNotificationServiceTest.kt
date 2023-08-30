@@ -309,6 +309,7 @@ internal class RtNotificationServiceTest(
         owner = "owner@mail.org",
         submitter = "submitter@mail.org",
         title = title,
+        doi = "10.983/S-TEST1",
         method = ExtSubmissionMethod.PAGE_TAB,
         relPath = "/a/rel/path",
         rootPath = "/a/root/path",

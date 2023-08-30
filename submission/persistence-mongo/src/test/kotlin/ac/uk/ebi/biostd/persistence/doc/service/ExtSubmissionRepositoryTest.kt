@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import ebi.ac.uk.test.basicExtSubmission
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,11 +32,8 @@ import uk.ac.ebi.extended.test.FileListFactory.FILE_PATH
 import uk.ac.ebi.extended.test.FileListFactory.defaultFileList
 import uk.ac.ebi.extended.test.FireFileFactory.defaultFireFile
 import uk.ac.ebi.extended.test.SectionFactory.defaultSection
-import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO
-import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.time.Duration
-import kotlin.text.Typography.section
 
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class, TestConfig::class])
@@ -66,7 +64,7 @@ class ExtSubmissionRepositoryTest(
     @Test
     fun `save submission`() {
         val section = defaultSection(fileList = defaultFileList(files = listOf(defaultFireFile())))
-        val submission = defaultSubmission(section = section, version = 1)
+        val submission = basicExtSubmission.copy(section = section)
 
         val result = testInstance.saveSubmission(submission)
 
@@ -91,12 +89,12 @@ class ExtSubmissionRepositoryTest(
 
     @Test
     fun `expire previous versions`() {
-        subDataRepository.save(docSubmission.copy(accNo = ACC_NO, version = 1))
+        subDataRepository.save(docSubmission.copy(accNo = "S-TEST123", version = 1))
         assertThat(subDataRepository.findAll()).hasSize(1)
 
-        testInstance.expirePreviousVersions(ACC_NO)
+        testInstance.expirePreviousVersions("S-TEST123")
 
-        assertThat(subDataRepository.getSubmission(ACC_NO, -1)).isNotNull()
+        assertThat(subDataRepository.getSubmission("S-TEST123", -1)).isNotNull()
         assertThat(subDataRepository.findAll()).hasSize(1)
     }
 

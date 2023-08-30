@@ -48,25 +48,25 @@ internal class DocSubmissionConverterTest(
     private fun assertThatAll(result: DocSubmission) {
         assertThat(result).isInstanceOf(DocSubmission::class.java)
         assertThat(result.id).isEqualTo(subId)
-        assertThat(result.accNo).isEqualTo(subAccNo)
-        assertThat(result.version).isEqualTo(subVersion)
-        assertThat(result.schemaVersion).isEqualTo(subSchemaVersion)
-        assertThat(result.owner).isEqualTo(subOwner)
-        assertThat(result.submitter).isEqualTo(subSubmitter)
-        assertThat(result.title).isEqualTo(subTitle)
-        assertThat(result.method).isEqualTo(DocSubmissionMethod.fromString(subMethod))
-        assertThat(result.relPath).isEqualTo(subRelPath)
-        assertThat(result.rootPath).isEqualTo(subRootPath)
-        assertThat(result.released).isEqualTo(subReleased)
-        assertThat(result.secretKey).isEqualTo(subSecretKey)
+        assertThat(result.accNo).isEqualTo(SUB_ACC_NO)
+        assertThat(result.version).isEqualTo(VERSION)
+        assertThat(result.schemaVersion).isEqualTo(SCHEMA_VERSION)
+        assertThat(result.owner).isEqualTo(OWNER)
+        assertThat(result.submitter).isEqualTo(SUBMITTER)
+        assertThat(result.title).isEqualTo(TITLE)
+        assertThat(result.method).isEqualTo(DocSubmissionMethod.fromString(METHOD))
+        assertThat(result.relPath).isEqualTo(REL_PATH)
+        assertThat(result.rootPath).isEqualTo(ROOT_PATH)
+        assertThat(result.released).isEqualTo(RELEASED)
+        assertThat(result.secretKey).isEqualTo(SECRET_KEY)
         assertThat(result.releaseTime).isEqualTo(subReleaseTime.toInstant())
         assertThat(result.modificationTime).isEqualTo(subModificationTime.toInstant())
         assertThat(result.creationTime).isEqualTo(subCreationTime.toInstant())
         assertThat(result.section).isEqualTo(docSection)
         assertThat(result.attributes).isEqualTo(listOf(docAttribute))
-        assertThat(result.tags[0].name).isEqualTo(tagDocName)
-        assertThat(result.tags[0].value).isEqualTo(tagDocValue)
-        assertThat(result.collections[0].accNo).isEqualTo(projectDocAccNo)
+        assertThat(result.tags[0].name).isEqualTo(TAG_DOC_NAME)
+        assertThat(result.tags[0].value).isEqualTo(TAG_DOC_VALUE)
+        assertThat(result.collections[0].accNo).isEqualTo(COLLECTION_DOC_ACC_NO)
         assertThat(result.pageTabFiles).isEqualTo(listOf(docFile))
         assertThat(result.storageMode).isEqualTo(StorageMode.NFS)
     }
@@ -79,18 +79,18 @@ internal class DocSubmissionConverterTest(
         val subDocument = Document()
         subDocument[DocSubmissionFields.CLASS_FIELD] = docSubmissionClass
         subDocument[DocSubmissionFields.SUB_ID] = subId
-        subDocument[DocSubmissionFields.SUB_ACC_NO] = subAccNo
-        subDocument[DocSubmissionFields.SUB_VERSION] = subVersion
-        subDocument[DocSubmissionFields.SUB_SCHEMA_VERSION] = subSchemaVersion
-        subDocument[DocSubmissionFields.SUB_OWNER] = subOwner
-        subDocument[DocSubmissionFields.SUB_SUBMITTER] = subSubmitter
-        subDocument[DocSubmissionFields.SUB_TITLE] = subTitle
-        subDocument[DocSubmissionFields.SUB_METHOD] = subMethod
-        subDocument[DocSubmissionFields.SUB_REL_PATH] = subRelPath
-        subDocument[DocSubmissionFields.SUB_ROOT_PATH] = subRootPath
-        subDocument[DocSubmissionFields.SUB_RELEASED] = subReleased
-        subDocument[DocSubmissionFields.SUB_SECRET_KEY] = subSecretKey
-        subDocument[DocSubmissionFields.SUB_STATUS] = subStatus
+        subDocument[DocSubmissionFields.SUB_ACC_NO] = SUB_ACC_NO
+        subDocument[DocSubmissionFields.SUB_VERSION] = VERSION
+        subDocument[DocSubmissionFields.SUB_SCHEMA_VERSION] = SCHEMA_VERSION
+        subDocument[DocSubmissionFields.SUB_OWNER] = OWNER
+        subDocument[DocSubmissionFields.SUB_SUBMITTER] = SUBMITTER
+        subDocument[DocSubmissionFields.SUB_TITLE] = TITLE
+        subDocument[DocSubmissionFields.SUB_METHOD] = METHOD
+        subDocument[DocSubmissionFields.SUB_REL_PATH] = REL_PATH
+        subDocument[DocSubmissionFields.SUB_ROOT_PATH] = ROOT_PATH
+        subDocument[DocSubmissionFields.SUB_RELEASED] = RELEASED
+        subDocument[DocSubmissionFields.SUB_SECRET_KEY] = SECRET_KEY
+        subDocument[DocSubmissionFields.SUB_STATUS] = STATUS
         subDocument[DocSubmissionFields.SUB_RELEASE_TIME] = subReleaseTime
         subDocument[DocSubmissionFields.SUB_MODIFICATION_TIME] = subModificationTime
         subDocument[DocSubmissionFields.SUB_CREATION_TIME] = subCreationTime
@@ -99,43 +99,44 @@ internal class DocSubmissionConverterTest(
         subDocument[DocSubmissionFields.SUB_TAGS] = listOf(createTagDocument())
         subDocument[DocSubmissionFields.SUB_PROJECTS] = listOf(createProjectDocument())
         subDocument[DocSubmissionFields.PAGE_TAB_FILES] = listOf(fileDocument)
-        subDocument[DocSubmissionFields.STORAGE_MODE] = storageMode
+        subDocument[DocSubmissionFields.STORAGE_MODE] = STORAGE_MODE
         return subDocument
     }
 
     private fun createTagDocument(): Document {
         val tagDoc = Document()
-        tagDoc[DocSubmissionFields.TAG_DOC_NAME] = tagDocName
-        tagDoc[DocSubmissionFields.TAG_DOC_VALUE] = tagDocValue
+        tagDoc[DocSubmissionFields.TAG_DOC_NAME] = TAG_DOC_NAME
+        tagDoc[DocSubmissionFields.TAG_DOC_VALUE] = TAG_DOC_VALUE
         return tagDoc
     }
 
     private fun createProjectDocument(): Document {
         val projectDoc = Document()
-        projectDoc[DocSubmissionFields.PROJECT_DOC_ACC_NO] = projectDocAccNo
+        projectDoc[DocSubmissionFields.COLLECTION_DOC_ACC_NO] = COLLECTION_DOC_ACC_NO
         return projectDoc
     }
 
     companion object {
-        val subId = ObjectId(1, 1)
-        const val subAccNo = "accNo"
-        const val projectDocAccNo = "accNo"
-        const val subVersion = 1
-        const val subSchemaVersion = "1.0"
-        const val subOwner = "owner"
-        const val subSubmitter = "submitter"
-        const val subTitle = "title"
-        const val subMethod = "FILE"
-        const val subStatus = "PROCESSED"
-        const val subRelPath = "relPath"
-        const val subRootPath = "rootPath"
-        const val subReleased = false
-        const val subSecretKey = "secretKey"
-        val subReleaseTime: Date = Date(110)
-        val subModificationTime: Date = Date(220)
-        val subCreationTime: Date = Date(330)
-        const val tagDocName = "name"
-        const val tagDocValue = "value"
-        const val storageMode = "NFS"
+        private val subId = ObjectId(1, 1)
+        private val subReleaseTime: Date = Date(110)
+        private val subModificationTime: Date = Date(220)
+        private val subCreationTime: Date = Date(330)
+
+        private const val SUB_ACC_NO = "accNo"
+        private const val COLLECTION_DOC_ACC_NO = "accNo"
+        private const val VERSION = 1
+        private const val SCHEMA_VERSION = "1.0"
+        private const val OWNER = "owner"
+        private const val SUBMITTER = "submitter"
+        private const val TITLE = "title"
+        private const val METHOD = "FILE"
+        private const val STATUS = "PROCESSED"
+        private const val REL_PATH = "relPath"
+        private const val ROOT_PATH = "rootPath"
+        private const val RELEASED = false
+        private const val SECRET_KEY = "secretKey"
+        private const val TAG_DOC_NAME = "name"
+        private const val TAG_DOC_VALUE = "value"
+        private const val STORAGE_MODE = "NFS"
     }
 }

@@ -89,6 +89,15 @@ var Submission.title: String?
     }
 
 /**
+ * Obtain the submission title attribute if present.
+ */
+var Submission.doi: String?
+    get() = find(SubFields.DOI)
+    set(value) {
+        value?.let { this[SubFields.DOI] = it }
+    }
+
+/**
  * Obtain the submission accession number template if present.
  */
 var Submission.accNoTemplate: String?

@@ -111,7 +111,7 @@ object DocSectionFields {
 object DocSubmissionFields {
     val DOC_SUBMISSION_CLASS: String = DocSubmission::class.java.canonicalName
     val DOC_TAG_CLASS: String = DocTag::class.java.canonicalName
-    val DOC_PROJECT_CLASS: String = DocCollection::class.java.canonicalName
+    val DOC_COLLECTION_CLASS: String = DocCollection::class.java.canonicalName
 
     const val CLASS_FIELD = "_class"
     const val SUB = "submission"
@@ -138,7 +138,7 @@ object DocSubmissionFields {
     const val SUB_PROJECTS = "collections"
     const val TAG_DOC_NAME = "name"
     const val TAG_DOC_VALUE = "value"
-    const val PROJECT_DOC_ACC_NO = "accNo"
+    const val COLLECTION_DOC_ACC_NO = "accNo"
     const val SUB_STATS = "stats"
     const val PAGE_TAB_FILES = "pageTabFiles"
     const val STORAGE_MODE = "storageMode"

@@ -19,6 +19,7 @@ import ebi.ac.uk.util.collections.third
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -42,6 +43,7 @@ import java.time.Duration.ofSeconds
 @ExtendWith(MockKExtension::class, SpringExtension::class)
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
+@OptIn(ExperimentalCoroutinesApi::class)
 class StatsMongoDataServiceTest(
     @MockK private val submissionsRepository: SubmissionMongoRepository,
     @Autowired private val submissionStatsDataRepository: SubmissionStatsDataRepository,

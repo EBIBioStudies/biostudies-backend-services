@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -29,6 +30,7 @@ import java.time.Duration.ofSeconds
 @ExtendWith(SpringExtension::class)
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
+@OptIn(ExperimentalCoroutinesApi::class)
 class SubmissionStatsDataRepositoryTest {
     @Autowired
     lateinit var testInstance: SubmissionStatsDataRepository

@@ -67,6 +67,7 @@ class ExtSubmissionExtensionsTest(
         storageMode = StorageMode.FIRE,
         submitter = "submitter@mail.org",
         title = subTitle,
+        doi = "10.983/S-TEST1",
         method = ExtSubmissionMethod.PAGE_TAB,
         relPath = "/a/rel/path",
         rootPath = null,

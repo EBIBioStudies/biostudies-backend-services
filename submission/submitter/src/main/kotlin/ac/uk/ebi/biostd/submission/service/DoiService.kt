@@ -31,7 +31,7 @@ import java.nio.file.Files
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("ThrowsCount")
+@Suppress("ThrowsCount", "ReturnCount")
 class DoiService(
     private val webClient: WebClient,
     private val properties: DoiProperties,
@@ -52,7 +52,7 @@ class DoiService(
         val sub = rqt.submission
         val title = requireNotNull(sub.title) { throw MissingTitleException() }
         val request = DoiRequest(accNo, title, properties.uiUrl, getContributors(sub))
-        val requestFile = Files.createTempFile("${TEMP_FILE_NAME}_${accNo}", ".xml").toFile()
+        val requestFile = Files.createTempFile("${TEMP_FILE_NAME}_$accNo", ".xml").toFile()
         FileUtils.writeContent(requestFile, request.asXmlRequest())
 
         val headers = HttpHeaders().apply { contentType = MULTIPART_FORM_DATA }

@@ -1,11 +1,9 @@
-@file:Suppress("LongParameterList", "MagicNumber")
+@file:Suppress("LongParameterList")
 
 package uk.ac.ebi.extended.test
 
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtAttributeDetail
-import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -14,82 +12,8 @@ import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.ExtSubmissionMethod
-import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.StorageMode
 import uk.ac.ebi.extended.serialization.service.createExtFileList
-import uk.ac.ebi.extended.test.SectionFactory.defaultSection
-import java.time.OffsetDateTime
-import java.time.ZoneOffset.UTC
-
-object SubmissionFactory {
-    fun defaultSubmission(
-        accNo: String = ACC_NO,
-        version: Int = VERSION,
-        schemaVersion: String = SCHEMA_VERSION,
-        owner: String = OWNER,
-        submitter: String = SUBMITTER,
-        title: String? = TITLE,
-        method: ExtSubmissionMethod = METHOD,
-        relPath: String = REL_PATH,
-        rootPath: String? = ROOT_PATH,
-        released: Boolean = RELEASED,
-        secretKey: String = SECRET_KEY,
-        releaseTime: OffsetDateTime? = RELEASE_TIME,
-        modificationTime: OffsetDateTime = MODIFICATION_TIME,
-        creationTime: OffsetDateTime = CREATION_TIME,
-        section: ExtSection = SECTION,
-        attributes: List<ExtAttribute> = ATTRIBUTES,
-        tags: List<ExtTag> = TAGS,
-        collections: List<ExtCollection> = COLLECTIONS,
-        pageTabFiles: List<ExtFile> = PAGE_TAG_FILES,
-    ) = ExtSubmission(
-        accNo = accNo,
-        version = version,
-        schemaVersion = schemaVersion,
-        owner = owner,
-        submitter = submitter,
-        title = title,
-        doi = null,
-        method = method,
-        relPath = relPath,
-        rootPath = rootPath,
-        released = released,
-        secretKey = secretKey,
-        releaseTime = releaseTime,
-        modificationTime = modificationTime,
-        creationTime = creationTime,
-        section = section,
-        attributes = attributes,
-        tags = tags,
-        collections = collections,
-        pageTabFiles = pageTabFiles,
-        storageMode = StorageMode.NFS
-    )
-
-    const val ACC_NO = "S-TEST123"
-    private const val VERSION = 1
-    private const val SCHEMA_VERSION = "1.0"
-    private const val OWNER = "owner@email.org"
-    private const val SUBMITTER = "submitter@email.org"
-    private const val TITLE = "Default Submission Title"
-    private const val REL_PATH = "S-TEST/123/S-TEST123"
-    private const val ROOT_PATH = "SUBMISSION_ROOT_PATH"
-    private const val RELEASED = false
-    private const val SECRET_KEY = "SUBMISSION_SECRET_KEY"
-
-    private val RELEASE_TIME: OffsetDateTime = OffsetDateTime.of(2019, 9, 21, 0, 0, 0, 0, UTC)
-    private val METHOD = ExtSubmissionMethod.PAGE_TAB
-    private val MODIFICATION_TIME: OffsetDateTime = OffsetDateTime.of(2020, 9, 21, 0, 0, 0, 0, UTC)
-    private val CREATION_TIME: OffsetDateTime = OffsetDateTime.of(2018, 9, 21, 0, 0, 0, 0, UTC)
-    private val ATTRIBUTES = emptyList<ExtAttribute>()
-    private val TAGS = emptyList<ExtTag>()
-    private val COLLECTIONS = emptyList<ExtCollection>()
-    private val SECTION = defaultSection()
-    private val PAGE_TAG_FILES = emptyList<ExtFile>()
-}
 
 object SectionFactory {
     fun defaultSection(
@@ -110,13 +34,13 @@ object SectionFactory {
         links = links,
     )
 
-    private const val ACC_NO = "accNo"
-    private const val TYPE = "Study"
-    private val FILE_LIST = null
-    private val ATTRIBUTES = emptyList<ExtAttribute>()
-    private val SECTIONS = emptyList<Either<ExtSection, ExtSectionTable>>()
-    private val FILES = emptyList<Either<ExtFile, ExtFileTable>>()
-    private val LINKS = emptyList<Either<ExtLink, ExtLinkTable>>()
+    const val ACC_NO = "accNo"
+    const val TYPE = "Study"
+    val FILE_LIST = null
+    val ATTRIBUTES = emptyList<ExtAttribute>()
+    val SECTIONS = emptyList<Either<ExtSection, ExtSectionTable>>()
+    val FILES = emptyList<Either<ExtFile, ExtFileTable>>()
+    val LINKS = emptyList<Either<ExtLink, ExtLinkTable>>()
 }
 
 object FireFileFactory {
@@ -140,13 +64,13 @@ object FireFileFactory {
         attributes = attributes
     )
 
-    private const val FILE_PATH = "folder/file.txt"
-    private const val REL_PATH = "Files/folder/file.txt"
-    private const val FIRE_ID = "fireId"
-    private const val FIRE_PATH = "submission/Files/folder/file.txt"
-    private const val MD5 = "md5"
-    private const val SIZE = 1L
-    private val ATTRIBUTES = emptyList<ExtAttribute>()
+    const val FILE_PATH = "folder/file.txt"
+    const val REL_PATH = "Files/folder/file.txt"
+    const val FIRE_ID = "fireId"
+    const val FIRE_PATH = "submission/Files/folder/file.txt"
+    const val MD5 = "md5"
+    const val SIZE = 1L
+    val ATTRIBUTES = emptyList<ExtAttribute>()
 }
 
 object FileListFactory {
@@ -163,22 +87,7 @@ object FileListFactory {
     )
 
     const val FILE_PATH = "folder/fileList.txt"
-    private val FILES = emptyList<ExtFile>()
-    private const val FILES_URL = "filesUrl"
-    private val PAGE_TAG_FILES = emptyList<ExtFile>()
-}
-
-object AttributeFactory {
-    fun defaultAttribute(
-        name: String = NAME,
-        value: String = VALUE,
-        reference: Boolean = REFERENCE,
-        nameAttrs: List<ExtAttributeDetail> = listOf(),
-        valueAttrs: List<ExtAttributeDetail> = listOf(),
-
-    ) = ExtAttribute(name, value, reference, nameAttrs, valueAttrs)
-
-    private const val NAME = "name"
-    private const val VALUE = "value"
-    private const val REFERENCE = false
+    val FILES = emptyList<ExtFile>()
+    const val FILES_URL = "filesUrl"
+    val PAGE_TAG_FILES = emptyList<ExtFile>()
 }

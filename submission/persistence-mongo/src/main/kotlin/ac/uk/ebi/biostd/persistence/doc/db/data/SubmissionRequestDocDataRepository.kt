@@ -64,7 +64,8 @@ class SubmissionRequestDocDataRepository(
         email: String? = null,
     ): Pair<Int, List<DocSubmissionRequest>> {
         val query = Query().addCriteria(createQuery(filter, email))
-        val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java).block()
+        val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java).block()!!
+
         return when {
             requestCount <= filter.offset -> requestCount.toInt() to emptyList()
             else -> findActiveRequests(query, filter.offset, filter.limit)

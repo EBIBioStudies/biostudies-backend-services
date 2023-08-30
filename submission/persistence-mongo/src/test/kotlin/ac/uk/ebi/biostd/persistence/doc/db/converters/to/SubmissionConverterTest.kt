@@ -65,17 +65,17 @@ internal class SubmissionConverterTest(
         val result = testInstance.convert(docSubmission)
 
         assertThat(result[SUB_ID]).isEqualTo(submissionId)
-        assertThat(result[SUB_ACC_NO]).isEqualTo(submissionAccNo)
-        assertThat(result[SUB_VERSION]).isEqualTo(submissionVersion)
-        assertThat(result[SUB_SCHEMA_VERSION]).isEqualTo(submissionSchemaVersion)
-        assertThat(result[SUB_OWNER]).isEqualTo(submissionOwner)
-        assertThat(result[SUB_SUBMITTER]).isEqualTo(submissionSubmitter)
-        assertThat(result[SUB_TITLE]).isEqualTo(submissionTitle)
+        assertThat(result[SUB_ACC_NO]).isEqualTo(ACC_NO)
+        assertThat(result[SUB_VERSION]).isEqualTo(VERSION)
+        assertThat(result[SUB_SCHEMA_VERSION]).isEqualTo(SCHEMA_VERSION)
+        assertThat(result[SUB_OWNER]).isEqualTo(OWNER)
+        assertThat(result[SUB_SUBMITTER]).isEqualTo(SUBMITTER)
+        assertThat(result[SUB_TITLE]).isEqualTo(TITLE)
         assertThat(result[SUB_METHOD]).isEqualTo(DocSubmissionMethod.PAGE_TAB.value)
-        assertThat(result[SUB_REL_PATH]).isEqualTo(submissionRelPath)
-        assertThat(result[SUB_ROOT_PATH]).isEqualTo(submissionRootPath)
-        assertThat(result[SUB_RELEASED]).isEqualTo(submissionReleased)
-        assertThat(result[SUB_SECRET_KEY]).isEqualTo(submissionSecretKey)
+        assertThat(result[SUB_REL_PATH]).isEqualTo(REL_PATH)
+        assertThat(result[SUB_ROOT_PATH]).isEqualTo(ROOT_PATH)
+        assertThat(result[SUB_RELEASED]).isEqualTo(RELEASED)
+        assertThat(result[SUB_SECRET_KEY]).isEqualTo(SECRET_KEY)
         assertThat(result[SUB_RELEASE_TIME]).isEqualTo(submissionReleaseTime)
         assertThat(result[SUB_MODIFICATION_TIME]).isEqualTo(submissionModificationTime)
         assertThat(result[SUB_CREATION_TIME]).isEqualTo(submissionCreationTime)
@@ -86,12 +86,12 @@ internal class SubmissionConverterTest(
 
         val tags = result.getAs<List<Document>>(DocSubmissionFields.SUB_TAGS)
         val tag = tags.first()
-        assertThat(tag[DocSubmissionFields.TAG_DOC_NAME]).isEqualTo(docTagName)
-        assertThat(tag[DocSubmissionFields.TAG_DOC_VALUE]).isEqualTo(docTagValue)
+        assertThat(tag[DocSubmissionFields.TAG_DOC_NAME]).isEqualTo(TAG_NAME)
+        assertThat(tag[DocSubmissionFields.TAG_DOC_VALUE]).isEqualTo(TAG_VALUE)
 
         val projects = result.getAs<List<Document>>(DocSubmissionFields.SUB_PROJECTS)
         val project = projects.first()
-        assertThat(project[DocSubmissionFields.PROJECT_DOC_ACC_NO]).isEqualTo(docProjectAccNo)
+        assertThat(project[DocSubmissionFields.COLLECTION_DOC_ACC_NO]).isEqualTo(COLLECTION_ACC_NO)
     }
 
     private fun createDocSubmission(
@@ -101,18 +101,18 @@ internal class SubmissionConverterTest(
     ): DocSubmission {
         return DocSubmission(
             id = submissionId,
-            accNo = submissionAccNo,
-            version = submissionVersion,
-            schemaVersion = submissionSchemaVersion,
-            owner = submissionOwner,
-            submitter = submissionSubmitter,
-            title = submissionTitle,
-            doi = submissionDoi,
+            accNo = ACC_NO,
+            version = VERSION,
+            schemaVersion = SCHEMA_VERSION,
+            owner = OWNER,
+            submitter = SUBMITTER,
+            title = TITLE,
+            doi = DOI,
             method = DocSubmissionMethod.PAGE_TAB,
-            relPath = submissionRelPath,
-            rootPath = submissionRootPath,
-            released = submissionReleased,
-            secretKey = submissionSecretKey,
+            relPath = REL_PATH,
+            rootPath = ROOT_PATH,
+            released = RELEASED,
+            secretKey = SECRET_KEY,
             releaseTime = submissionReleaseTime,
             modificationTime = submissionModificationTime,
             creationTime = submissionCreationTime,
@@ -126,27 +126,27 @@ internal class SubmissionConverterTest(
     }
 
     private companion object {
-        val submissionId = ObjectId()
-        const val submissionAccNo = "S-TEST1"
-        const val submissionVersion = 1
-        const val submissionSchemaVersion = "1.0"
-        const val submissionOwner = "owner@mail.org"
-        const val submissionSubmitter = "submitter@mail.org"
-        const val submissionTitle = "TestSubmission"
-        const val submissionDoi = "TestDOI"
-        const val submissionRelPath = "/a/rel/path"
-        const val submissionRootPath = "/a/root/path"
-        const val submissionReleased = false
-        const val submissionSecretKey = "a-secret-key"
-        val submissionReleaseTime: Instant = Instant.ofEpochSecond(1)
-        val submissionModificationTime: Instant = Instant.ofEpochSecond(2)
-        val submissionCreationTime: Instant = Instant.ofEpochSecond(3)
+        private val submissionId = ObjectId()
+        private const val ACC_NO = "S-TEST1"
+        private const val VERSION = 1
+        private const val SCHEMA_VERSION = "1.0"
+        private const val OWNER = "owner@mail.org"
+        private const val SUBMITTER = "submitter@mail.org"
+        private const val TITLE = "TestSubmission"
+        private const val DOI = "10.983/S-TEST1"
+        private const val REL_PATH = "/a/rel/path"
+        private const val ROOT_PATH = "/a/root/path"
+        private const val RELEASED = false
+        private const val SECRET_KEY = "a-secret-key"
+        private val submissionReleaseTime: Instant = Instant.ofEpochSecond(1)
+        private val submissionModificationTime: Instant = Instant.ofEpochSecond(2)
+        private val submissionCreationTime: Instant = Instant.ofEpochSecond(3)
 
-        private const val docTagName = "component"
-        private const val docTagValue = "web"
-        val submissionTags = listOf(DocTag(docTagName, docTagValue))
+        private const val TAG_NAME = "component"
+        private const val TAG_VALUE = "web"
+        private val submissionTags = listOf(DocTag(TAG_NAME, TAG_VALUE))
 
-        private const val docProjectAccNo = "BioImages"
-        val submissionProjects = listOf(DocCollection(docProjectAccNo))
+        private const val COLLECTION_ACC_NO = "BioImages"
+        private val submissionProjects = listOf(DocCollection(COLLECTION_ACC_NO))
     }
 }
