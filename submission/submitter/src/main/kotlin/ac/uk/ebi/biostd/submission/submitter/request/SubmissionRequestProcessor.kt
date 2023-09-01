@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 
@@ -25,12 +24,12 @@ class SubmissionRequestProcessor(
     /**
      * Process the current submission files. Note that [ExtSubmission] returned does not include file list files.
      */
-    fun processRequest(accNo: String, version: Int) {
+    suspend fun processRequest(accNo: String, version: Int) {
         val request = requestService.getCleanedRequest(accNo, version)
         val sub = request.submission
 
         logger.info { "$accNo ${sub.owner} Started persisting submission files on ${sub.storageMode}" }
-        runBlocking { persistSubmissionFiles(sub, accNo, version, request.currentIndex) }
+        persistSubmissionFiles(sub, accNo, version, request.currentIndex)
         requestService.saveSubmissionRequest(request.withNewStatus(FILES_COPIED))
         logger.info { "$accNo ${sub.owner} Finished persisting submission files on ${sub.storageMode}" }
     }

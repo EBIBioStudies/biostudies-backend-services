@@ -17,7 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import java.io.File
@@ -34,12 +33,12 @@ class SubmissionRequestLoader(
     /**
      * Calculate md5 and size for every file in submission request.
      */
-    fun loadRequest(accNo: String, version: Int) {
+    suspend fun loadRequest(accNo: String, version: Int) {
         val request = requestService.getIndexedRequest(accNo, version)
         val sub = request.submission
 
         logger.info { "${sub.accNo} ${sub.owner} Started loading submission files" }
-        runBlocking { loadSubmissionFiles(accNo, version, sub, request.currentIndex) }
+        loadSubmissionFiles(accNo, version, sub, request.currentIndex)
         requestService.saveSubmissionRequest(request.withNewStatus(LOADED))
         logger.info { "${sub.accNo} ${sub.owner} Finished loading submission files" }
     }

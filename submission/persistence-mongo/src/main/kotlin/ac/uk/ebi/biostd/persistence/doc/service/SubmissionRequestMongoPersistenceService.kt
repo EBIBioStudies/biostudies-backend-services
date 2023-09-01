@@ -41,7 +41,7 @@ class SubmissionRequestMongoPersistenceService(
         return request.map { it.accNo to it.version }
     }
 
-    override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
+    override suspend fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
         requestRepository.updateSubmissionRequest(asRequest(rqt))
         return rqt.submission.accNo to rqt.submission.version
     }

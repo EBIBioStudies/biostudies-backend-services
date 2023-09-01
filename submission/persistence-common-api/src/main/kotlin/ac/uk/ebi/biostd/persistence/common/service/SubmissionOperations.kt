@@ -63,7 +63,7 @@ interface SubmissionRequestPersistenceService {
 
     fun getProcessingRequests(since: TemporalAmount? = null): List<Pair<String, Int>>
 
-    fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
+    suspend fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 
     fun createSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 

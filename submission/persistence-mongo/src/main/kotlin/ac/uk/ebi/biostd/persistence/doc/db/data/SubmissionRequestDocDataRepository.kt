@@ -33,6 +33,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtFile
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
@@ -64,7 +65,7 @@ class SubmissionRequestDocDataRepository(
         email: String? = null,
     ): Pair<Int, List<DocSubmissionRequest>> {
         val query = Query().addCriteria(createQuery(filter, email))
-        val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java).block()
+        val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java).block()!!
         return when {
             requestCount <= filter.offset -> requestCount.toInt() to emptyList()
             else -> findActiveRequests(query, filter.offset, filter.limit)
@@ -110,7 +111,7 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java).block()
     }
 
-    fun updateSubmissionRequest(rqt: DocSubmissionRequest) {
+    suspend fun updateSubmissionRequest(rqt: DocSubmissionRequest) {
         val query = Query(where(SUB_ACC_NO).`is`(rqt.accNo).andOperator(where(SUB_VERSION).`is`(rqt.version)))
         val update = Update()
             .set(SUB_STATUS, rqt.status)
@@ -120,7 +121,7 @@ class SubmissionRequestDocDataRepository(
             .set(RQT_TOTAL_FILES, rqt.totalFiles)
             .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
 
-        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).block()
+        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 
     private fun criteriaArray(filter: SubmissionFilter): Array<Criteria> =
