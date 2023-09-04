@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceSer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
-import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 import java.nio.file.Files
 
@@ -35,7 +34,6 @@ class SubmissionQueryService(
     }
 
     fun getSubmissions(
-        user: SecurityUser,
         filter: SubmissionFilter,
-    ): List<BasicSubmission> = submissionPersistenceQueryService.getSubmissionsByUser(user.email, filter)
+    ): List<BasicSubmission> = submissionPersistenceQueryService.getSubmissionsByUser(filter)
 }

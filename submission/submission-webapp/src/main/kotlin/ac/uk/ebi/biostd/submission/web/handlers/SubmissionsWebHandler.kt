@@ -9,7 +9,7 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 
 class SubmissionsWebHandler(
     private val submissionService: SubmissionService,
-    private val submissionQueryService: SubmissionQueryService
+    private val submissionQueryService: SubmissionQueryService,
 ) {
     fun deleteSubmission(accNo: String, user: SecurityUser): Unit = submissionService.deleteSubmission(accNo, user)
 
@@ -19,6 +19,5 @@ class SubmissionsWebHandler(
     fun releaseSubmission(request: ReleaseRequest, user: SecurityUser): Unit =
         submissionService.releaseSubmission(request, user)
 
-    fun getSubmissions(user: SecurityUser, filter: SubmissionFilter): List<BasicSubmission> =
-        submissionQueryService.getSubmissions(user, filter)
+    fun getSubmissions(filter: SubmissionFilter): List<BasicSubmission> = submissionQueryService.getSubmissions(filter)
 }

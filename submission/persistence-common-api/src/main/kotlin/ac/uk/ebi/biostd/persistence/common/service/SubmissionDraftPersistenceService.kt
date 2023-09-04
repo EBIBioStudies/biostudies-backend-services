@@ -16,7 +16,7 @@ interface SubmissionDraftPersistenceService {
 
     fun getActiveSubmissionDrafts(
         userEmail: String,
-        filter: PaginationFilter = PaginationFilter(),
+        filter: PaginationFilter,
     ): List<SubmissionDraft>
 
     fun createSubmissionDraft(userEmail: String, key: String, content: String): SubmissionDraft

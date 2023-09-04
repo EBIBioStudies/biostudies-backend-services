@@ -62,7 +62,8 @@ class SubmissionQueryResource(
     fun getSubmissions(
         @BioUser user: SecurityUser,
         @ModelAttribute request: SubmissionFilterRequest,
-    ): List<SubmissionDto> = submissionsWebHandler.getSubmissions(user, request.asFilter()).map { it.asDto() }
+    ): List<SubmissionDto> =
+        submissionsWebHandler.getSubmissions(request.asFilter(user.email, user.superuser)).map { it.asDto() }
 
     private fun fileListFile(accNo: String, fileListName: String, subFormat: SubFormat): ResponseEntity<Resource> {
         val fileList = submissionService.getFileList(accNo, fileListName, subFormat)

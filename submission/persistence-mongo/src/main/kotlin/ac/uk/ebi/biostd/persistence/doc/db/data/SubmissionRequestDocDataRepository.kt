@@ -58,8 +58,8 @@ class SubmissionRequestDocDataRepository(
         return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING) to created
     }
 
-    fun findActiveRequests(filter: SubmissionFilter, email: String? = null): Pair<Int, List<DocSubmissionRequest>> {
-        val query = Query().addCriteria(createQuery(filter, email))
+    fun findActiveRequests(filter: SubmissionFilter): Pair<Int, List<DocSubmissionRequest>> {
+        val query = Query().addCriteria(createQuery(filter))
         val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java)
         return when {
             requestCount <= filter.offset -> requestCount.toInt() to emptyList()
@@ -77,8 +77,8 @@ class SubmissionRequestDocDataRepository(
     }
 
     @Suppress("SpreadOperator")
-    private fun createQuery(filter: SubmissionFilter, email: String? = null): Criteria =
-        where("$SUB.$SUB_OWNER").`is`(email)
+    private fun createQuery(filter: SubmissionFilter): Criteria =
+        where("$SUB.$SUB_OWNER").`is`(filter.filterUser)
             .andOperator(*criteriaArray(filter))
 
     fun updateIndex(accNo: String, version: Int, index: Int) {

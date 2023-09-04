@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
+import ac.uk.ebi.biostd.persistence.common.request.SimpleFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.commons.ExtendedUpdate
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
@@ -21,7 +23,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepositor
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import com.google.common.collect.ImmutableList
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -36,6 +37,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation.sort
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation
 import org.springframework.data.mongodb.core.aggregation.AggregationOptions
 import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators.Abs.absoluteValueOf
+import org.springframework.data.mongodb.core.aggregation.MatchOperation
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
@@ -85,16 +87,17 @@ class SubmissionDocDataRepository(
     fun getCollections(accNo: String): List<DocCollection> =
         submissionRepository.findSubmissionCollections(accNo)?.collections ?: emptyList()
 
-    fun getSubmissions(filter: SubmissionFilter, email: String? = null): List<DocSubmission> {
+    fun getSubmissions(filter: SubFilter): List<DocSubmission> {
+        val aggregations = createSubmissionAggregation(filter)
         val aggregation = newAggregation(
             DocSubmission::class.java,
-            *createSubmissionAggregation(filter, email).toTypedArray()
+            *aggregations.toTypedArray()
         ).withOptions(aggregationOptions())
 
         return mongoTemplate.aggregate(aggregation, DocSubmission::class.java).mappedResults
     }
 
-    fun getSubmissionsPage(filter: SubmissionFilter): Page<DocSubmission> {
+    fun getSubmissionsPage(filter: SubFilter): Page<DocSubmission> {
         val aggregation = newAggregation(
             DocSubmission::class.java,
             *createCountAggregation(filter).toTypedArray()
@@ -110,36 +113,48 @@ class SubmissionDocDataRepository(
     fun getSubmission(acc: String, version: Int) = submissionRepository.getByAccNoAndVersion(acc, version)
 
     companion object {
-        private fun createCountAggregation(filter: SubmissionFilter) =
+        private fun createCountAggregation(filter: SubFilter) =
             createAggregation(filter).plus(group().count().`as`("submissions"))
 
-        private fun createSubmissionAggregation(filter: SubmissionFilter, email: String? = null) =
-            createAggregation(filter, email, filter.offset to filter.limit.toLong())
+        private fun createSubmissionAggregation(filter: SubFilter) =
+            createAggregation(filter, filter.offset to filter.limit.toLong())
 
         private fun aggregationOptions() = AggregationOptions.builder().allowDiskUse(true).build()
 
         private fun createAggregation(
-            filter: SubmissionFilter,
-            email: String? = null,
+            filter: SubFilter,
             offsetLimit: Pair<Long, Long>? = null,
         ): List<AggregationOperation> = buildList {
-            add(match(where(SUB_VERSION).gt(0).andOperator(*createQuery(filter, email))))
+            add(match(where(SUB_VERSION).gt(0)))
+            addAll(createQuery(filter))
             add(sort(Sort.Direction.DESC, SUB_MODIFICATION_TIME))
             offsetLimit?.let { add(skip(it.first)); add(limit(it.second)) }
         }
 
-        private fun createQuery(filter: SubmissionFilter, email: String? = null): Array<Criteria> =
-            ImmutableList.Builder<Criteria>().apply {
-                email?.let { add(where(SUB_OWNER).`is`(email)) }
-                filter.accNo?.let { add(where(SUB_ACC_NO).`is`(it)) }
-                filter.notIncludeAccNo?.let { add(where(SUB_ACC_NO).nin(it)) }
-                filter.type?.let { add(where("$SUB_SECTION.$SEC_TYPE").`is`(it)) }
-                filter.rTimeFrom?.let { add(where(SUB_RELEASE_TIME).gte(it.toInstant())) }
-                filter.rTimeTo?.let { add(where(SUB_RELEASE_TIME).lte(it.toInstant())) }
-                filter.keywords?.let { add(keywordsCriteria(it)) }
-                filter.released?.let { add(where(SUB_RELEASED).`is`(it)) }
-                filter.collection?.let { add(where("$SUB_PROJECTS.$SUB_ACC_NO").`in`(it)) }
-            }.build().toTypedArray()
+        private fun createQuery(filter: SubFilter): List<MatchOperation> {
+            return buildList {
+                when (filter) {
+                    is SimpleFilter -> {}
+                    is SubmissionFilter -> {
+                        if (filter.findAnyAccNo && filter.accNo != null) {
+                            add(match(where(SUB_ACC_NO).`is`(filter.accNo)))
+                        } else {
+                            add(match(where(SUB_OWNER).`is`(filter.filterUser)))
+                            filter.accNo?.let { add(match(where(SUB_ACC_NO).`is`(it))) }
+                        }
+
+                        filter.type?.let { add(match(where("$SUB_SECTION.$SEC_TYPE").`is`(it))) }
+                        filter.keywords?.let { add(match(keywordsCriteria(it))) }
+                    }
+                }
+                filter.notIncludeAccNo?.let { add(match(where(SUB_ACC_NO).nin(it))) }
+                filter.rTimeFrom?.let { add(match(where(SUB_RELEASE_TIME).gte(it.toInstant()))) }
+                filter.rTimeTo?.let { add(match(where(SUB_RELEASE_TIME).lte(it.toInstant()))) }
+                filter.collection?.let { add(match(where("$SUB_PROJECTS.$SUB_ACC_NO").`in`(it))) }
+                filter.released?.let { add(match(where(SUB_RELEASED).`is`(it))) }
+
+            }
+        }
 
         private fun keywordsCriteria(keywords: String) = Criteria().orOperator(
             where(SUB_TITLE).regex("(?i).*$keywords.*"),

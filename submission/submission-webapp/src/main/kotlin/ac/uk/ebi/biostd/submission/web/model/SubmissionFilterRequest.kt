@@ -13,11 +13,13 @@ class SubmissionFilterRequest(
     val keywords: String? = null,
     val released: Boolean? = null,
     val limit: Int = 15,
-    val offset: Long = 0
+    val offset: Long = 0,
 )
 
-fun SubmissionFilterRequest.asFilter(): SubmissionFilter =
+fun SubmissionFilterRequest.asFilter(user: String, superuser: Boolean): SubmissionFilter =
     SubmissionFilter(
+        filterUser = user,
+        findAnyAccNo = superuser,
         accNo = accNo,
         version = version,
         type = type,

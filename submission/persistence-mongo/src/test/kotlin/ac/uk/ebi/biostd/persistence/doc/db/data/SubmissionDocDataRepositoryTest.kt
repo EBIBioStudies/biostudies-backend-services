@@ -107,7 +107,7 @@ internal class SubmissionDocDataRepositoryTest(
             testInstance.save(testDocSubmission.copy(accNo = "accNo1", owner = "anotherEmail"))
             val doc2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", owner = "ownerEmail"))
 
-            val result = testInstance.getSubmissions(SubmissionFilter(), "ownerEmail")
+            val result = testInstance.getSubmissions(SubmissionFilter("ownerEmail"))
 
             assertThat(result).containsOnly(doc2)
         }
@@ -119,7 +119,7 @@ internal class SubmissionDocDataRepositoryTest(
                 testDocSubmission.copy(accNo = "accNo2", section = testDocSection.copy(type = "work"))
             )
 
-            val result = testInstance.getSubmissions(SubmissionFilter(type = "work"))
+            val result = testInstance.getSubmissions(SubmissionFilter("manager@ebi.ac.uk", type = "work"))
 
             assertThat(result).containsOnly(doc2)
         }
@@ -129,7 +129,7 @@ internal class SubmissionDocDataRepositoryTest(
             testInstance.save(testDocSubmission.copy(accNo = "accNo1"))
             val doc2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2"))
 
-            val result = testInstance.getSubmissions(SubmissionFilter(accNo = "accNo2"))
+            val result = testInstance.getSubmissions(SubmissionFilter("manager@ebi.ac.uk", accNo = "accNo2"))
 
             assertThat(result).containsOnly(doc2)
         }
@@ -141,6 +141,7 @@ internal class SubmissionDocDataRepositoryTest(
 
             val result = testInstance.getSubmissions(
                 SubmissionFilter(
+                    "manager@ebi.ac.uk",
                     rTimeFrom = OffsetDateTime.ofInstant(ofEpochSecond(10), ZoneOffset.UTC),
                     rTimeTo = OffsetDateTime.ofInstant(ofEpochSecond(20), ZoneOffset.UTC)
                 )
@@ -154,7 +155,7 @@ internal class SubmissionDocDataRepositoryTest(
             testInstance.save(testDocSubmission.copy(accNo = "accNo1", title = "another"))
             val doc2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", title = "title"))
 
-            val result = testInstance.getSubmissions(SubmissionFilter(keywords = "title"), null)
+            val result = testInstance.getSubmissions(SubmissionFilter("manager@ebi.ac.uk", keywords = "title"))
 
             assertThat(result).containsOnly(doc2)
         }
@@ -164,7 +165,7 @@ internal class SubmissionDocDataRepositoryTest(
             testInstance.save(testDocSubmission.copy(accNo = "accNo1", released = true))
             val doc2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", released = false))
 
-            val result = testInstance.getSubmissions(SubmissionFilter(released = false), null)
+            val result = testInstance.getSubmissions(SubmissionFilter("manager@ebi.ac.uk", released = false))
 
             assertThat(result).containsOnly(doc2)
         }
