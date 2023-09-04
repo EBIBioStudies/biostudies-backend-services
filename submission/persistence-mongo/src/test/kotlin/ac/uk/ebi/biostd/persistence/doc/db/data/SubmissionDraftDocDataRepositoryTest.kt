@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
@@ -97,11 +98,11 @@ class SubmissionDraftDocDataRepositoryTest(
         testInstance.saveDraft(testActiveDocDraft)
         testInstance.saveDraft(testProcessingDocDraft)
 
-        val activeDrafts = testInstance.findAllByUserIdAndStatus(USER_ID, ACTIVE).toList()
+        val activeDrafts = testInstance.findAllByUserIdAndStatus(USER_ID, ACTIVE, PageRequest()).toList()
         assertThat(activeDrafts).hasSize(1)
         assertThat(activeDrafts.first()).isEqualTo(testActiveDocDraft)
 
-        val processingDrafts = testInstance.findAllByUserIdAndStatus(USER_ID1, PROCESSING).toList()
+        val processingDrafts = testInstance.findAllByUserIdAndStatus(USER_ID1, PROCESSING, PageRequest()).toList()
         assertThat(processingDrafts).hasSize(1)
         assertThat(processingDrafts.first()).isEqualTo(testProcessingDocDraft)
 

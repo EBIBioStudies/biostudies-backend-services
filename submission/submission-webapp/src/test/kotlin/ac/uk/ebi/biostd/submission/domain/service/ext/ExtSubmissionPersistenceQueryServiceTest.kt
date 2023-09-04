@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.service.ext
 
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SimpleFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
@@ -37,7 +37,7 @@ internal class ExtSubmissionPersistenceQueryServiceTest(
 
     @Test
     fun `filtering extended submissions`(@MockK extSubmission: ExtSubmission) {
-        val filter = slot<SubmissionFilter>()
+        val filter = slot<SimpleFilter>()
         val request = ExtPageRequest(
             fromRTime = "2019-09-21T15:00:00Z",
             toRTime = "2020-09-21T15:00:00Z",

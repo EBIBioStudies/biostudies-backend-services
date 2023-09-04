@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
-import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
@@ -36,7 +36,7 @@ internal class SubmissionDraftResource(
     @ResponseBody
     fun getSubmissionDrafts(
         @BioUser user: SecurityUser,
-        @ModelAttribute filter: PaginationFilter,
+        @ModelAttribute filter: PageRequest,
     ): Flow<ResponseSubmissionDraft> =
         submissionDraftService.getActiveSubmissionDrafts(user.email, filter).map { it.asResponseDraft() }
 

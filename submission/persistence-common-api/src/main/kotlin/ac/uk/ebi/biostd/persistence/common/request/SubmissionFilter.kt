@@ -1,13 +1,31 @@
 package ac.uk.ebi.biostd.persistence.common.request
 
+import org.springframework.data.domain.PageRequest
 import java.time.OffsetDateTime
 
-sealed interface SubFilter : PaginationFilter {
+data class PageRequest(
+    val limit: Int = 15,
+    val offset: Long = 0,
+) {
+    val pageNumber: Int
+        get() = (offset / limit).toInt()
+
+    fun asDataPageRequest(): PageRequest {
+        return PageRequest.of(pageNumber, limit)
+    }
+}
+
+sealed interface SubFilter {
     val rTimeFrom: OffsetDateTime?
     val rTimeTo: OffsetDateTime?
     val notIncludeAccNo: Set<String>?
     val collection: String?
     val released: Boolean?
+    val limit: Int
+    val offset: Long
+
+    val pageNumber: Int
+        get() = (offset / limit).toInt()
 }
 
 data class SimpleFilter(
