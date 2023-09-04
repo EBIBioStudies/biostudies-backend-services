@@ -157,7 +157,6 @@ class SubmissionDocDataRepository(
                 filter.rTimeTo?.let { add(match(where(SUB_RELEASE_TIME).lte(it.toInstant()))) }
                 filter.collection?.let { add(match(where("$SUB_PROJECTS.$SUB_ACC_NO").`in`(it))) }
                 filter.released?.let { add(match(where(SUB_RELEASED).`is`(it))) }
-
             }
         }
 

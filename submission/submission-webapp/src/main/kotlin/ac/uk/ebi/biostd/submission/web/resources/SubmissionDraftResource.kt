@@ -34,7 +34,7 @@ internal class SubmissionDraftResource(
 ) {
     @GetMapping
     @ResponseBody
-    suspend fun getSubmissionDrafts(
+    fun getSubmissionDrafts(
         @BioUser user: SecurityUser,
         @ModelAttribute filter: PaginationFilter,
     ): Flow<ResponseSubmissionDraft> =

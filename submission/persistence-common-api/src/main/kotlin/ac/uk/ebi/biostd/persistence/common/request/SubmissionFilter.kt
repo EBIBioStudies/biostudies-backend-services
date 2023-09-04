@@ -28,7 +28,6 @@ data class SubmissionFilter(
     val version: Long? = null,
     val type: String? = null,
 
-
     override val rTimeFrom: OffsetDateTime? = null,
     override val rTimeTo: OffsetDateTime? = null,
     override val released: Boolean? = null,

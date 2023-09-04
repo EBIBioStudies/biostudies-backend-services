@@ -16,6 +16,7 @@ interface PaginationFilter {
 
         operator fun invoke(): PaginationFilter = DEFAULT
 
+        @Suppress("MagicNumber")
         private object DEFAULT : PaginationFilter {
             override val limit: Int
                 get() = 15
