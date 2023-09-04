@@ -18,12 +18,15 @@ import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.SUBMISSION_OWNER
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSection
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
+import ebi.ac.uk.model.constants.SectionFields.TITLE
 import ebi.ac.uk.util.collections.second
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -138,17 +141,25 @@ internal class SubmissionMongoQueryServiceTest(
 
         @Test
         fun `filtered by keyword on submission title`() {
-            saveAsRequest(extSubmission.copy(accNo = "acc1", title = "title", section = section), REQUESTED)
+            val sect1 = section.copy(attributes = listOf(ExtAttribute(TITLE.value, "section title 1")))
+            val sect3 = testDocSection.copy(attributes = listOf(DocAttribute(TITLE.value, "section title 3")))
+
+            saveAsRequest(extSubmission.copy(accNo = "acc1", title = "sub title 1", section = sect1), REQUESTED)
             saveAsRequest(extSubmission.copy(accNo = "acc2", title = "wrongT1tl3", section = section), REQUESTED)
-            submissionRepo.save(docSubmission.copy(accNo = "acc3", title = "title"))
+            submissionRepo.save(docSubmission.copy(accNo = "acc3", title = "title", section = sect3))
 
             val result = testInstance.getSubmissionsByUser(
                 SubmissionFilter(SUBMISSION_OWNER, keywords = "title", limit = 2)
             )
 
             assertThat(result).hasSize(2)
-            assertThat(result.first().accNo).isEqualTo("acc1")
-            assertThat(result.second().accNo).isEqualTo("acc3")
+            val first = result.first()
+            assertThat(first.accNo).isEqualTo("acc1")
+            assertThat(first.title).isEqualTo("section title 1")
+
+            val second = result.second()
+            assertThat(second.accNo).isEqualTo("acc3")
+            assertThat(second.title).isEqualTo("section title 3")
         }
 
         @Test

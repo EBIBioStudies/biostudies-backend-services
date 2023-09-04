@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.entities.FtpSuperUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.ftpPath
@@ -32,6 +33,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty
@@ -279,6 +281,26 @@ class SubmissionApiTest(
             .withMessageContaining("The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-4.tif")
     }
 
+    @Test
+    fun `16-11 submission containing folder with trailing slash`() {
+        val submission = tsv {
+            line("Submission", "S-BSST1611")
+            line("Title", "Submission")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
+            line()
+
+            line("Study")
+            line()
+
+            line("File", "inner/directory/")
+            line()
+        }.toString()
+
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { webClient.submitSingle(submission, TSV) }
+            .withMessageContaining("The given file path contains invalid characters: inner/directory/")
+    }
+
     @Nested
     @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=base/path"])
     inner class SubmitWebBasePath(@LocalServerPort val serverPort: Int) {
@@ -290,7 +312,7 @@ class SubmissionApiTest(
         }
 
         @Test
-        fun `16-11 submission when the system has the basePath property configured`() {
+        fun `16-12 submission when the system has the basePath property configured`() {
             val submission = tsv {
                 line("Submission", "S-12366")
                 line("Title", "Sample Submission")
@@ -309,6 +331,44 @@ class SubmissionApiTest(
             val extSub = submissionRepository.getExtByAccNo("S-12366")
             assertThat(extSub.relPath).isEqualTo("base/path/S-/366/S-12366")
         }
+    }
+
+    @Test
+    @Disabled
+    fun `16-12 User with Ftp based folder submission`() {
+        securityTestService.ensureUserRegistration(FtpSuperUser)
+        webClient = getWebClient(serverPort, FtpSuperUser)
+
+        val file = tempFolder.createFile("fileListFtpFile.txt")
+        webClient.uploadFile(file)
+
+        val fileList = tempFolder.createFile(
+            "FileList-Ftp.tsv",
+            tsv {
+                line("Files")
+                line(file.name)
+            }.toString()
+        )
+
+        webClient.uploadFile(fileList)
+
+        val simpleFile = tempFolder.createFile("simpleFtpFile.txt", "An example content")
+        webClient.uploadFiles(listOf(simpleFile))
+
+        val submission = tsv {
+            line("Submission", "SFTP-1")
+            line("Title", "FTP user Submission")
+            line()
+
+            line("Study")
+            line("File List", "FileList-Ftp.tsv")
+            line()
+            line("File", "simpleFtpFile.txt")
+        }.toString()
+
+        val result = webClient.submitSingle(submission, TSV)
+
+        assertThat(result).isSuccessful()
     }
 
     private fun getSimpleSubmission(accNo: String) =

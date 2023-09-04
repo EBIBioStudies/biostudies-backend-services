@@ -21,14 +21,14 @@ class FireFilesService(
      * different path) and if so, even if the file exists in FIRE, it gets duplicated to ensure consistency. TODO:
      * handle scenario when the same file appear two times in the same submission and it was already in fire.
      */
-    override fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): FireFile {
+    override suspend fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): FireFile {
         return when (file) {
             is FireFile -> getOrCreate(file, sub.expectedFirePath(file))
             is NfsFile -> return getOrCreate(file, sub.expectedFirePath(file))
         }
     }
 
-    private fun getOrCreate(
+    private suspend fun getOrCreate(
         fireFile: FireFile,
         expectedPath: String,
     ): FireFile {
@@ -43,7 +43,7 @@ class FireFilesService(
         }
     }
 
-    private fun getOrCreate(file: NfsFile, expectedPath: String): FireFile {
+    private suspend fun getOrCreate(file: NfsFile, expectedPath: String): FireFile {
         val matches = client.findByMd5(file.md5)
         val apiFile = matches.find { it.path == expectedPath }
             ?: matches.find { it.path == null }
@@ -52,12 +52,17 @@ class FireFilesService(
         return getOrCreate(fireFile, expectedPath)
     }
 
-    private fun setMetadata(fireOid: String, file: ExtFile, expectedPath: String, published: Boolean): FireFile {
+    private suspend fun setMetadata(
+        fireOid: String,
+        file: ExtFile,
+        expectedPath: String,
+        published: Boolean,
+    ): FireFile {
         client.setPath(fireOid, expectedPath)
         return file.asFireFile(fireId = fireOid, firePath = expectedPath, published = published)
     }
 
-    override fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {
+    override suspend fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {
         require(file is FireFile) { "FireFilesService should only handle FireFile" }
         client.delete(file.fireId)
     }

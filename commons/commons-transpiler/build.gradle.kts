@@ -11,7 +11,7 @@ import TestDependencies.KotlinTestJunit
 import TestDependencies.MockK
 
 plugins {
-    id("com.github.johnrengelman.shadow") version "5.0.0"
+    id(Plugins.ShadowPlugin) version PluginVersions.ShadowPluginVersion
 }
 
 dependencies {

@@ -24,10 +24,10 @@ import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
 plugins {
-    id("io.spring.dependency-management") version "1.0.12.RELEASE"
-    id("org.springframework.boot") version "2.7.1" apply false
-    id("org.jetbrains.kotlin.plugin.jpa") version "1.6.10"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.6.10"
+    id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
+    id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion apply false
+    id(Plugins.KotlinJpaPlugin) version PluginVersions.KotlinPluginVersion
+    id(Plugins.KotlinAllOpenPlugin) version PluginVersions.KotlinPluginVersion
 }
 
 allOpen {

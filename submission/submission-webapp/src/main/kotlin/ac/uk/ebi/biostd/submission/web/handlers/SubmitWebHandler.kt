@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.handlers
 
-import ac.uk.ebi.biostd.files.service.PathFilesService
+import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
@@ -31,29 +31,30 @@ class SubmitWebHandler(
     private val serializationService: SerializationService,
     private val toSubmissionMapper: ToSubmissionMapper,
     private val queryService: SubmissionMetaQueryService,
+    private val fileServiceFactory: FileServiceFactory,
 ) {
-    fun submit(request: ContentSubmitWebRequest): Submission {
+    suspend fun submit(request: ContentSubmitWebRequest): Submission {
         val rqt = buildRequest(request)
         val extSubmission = subService.submit(rqt)
         return toSubmissionMapper.toSimpleSubmission(extSubmission)
     }
 
-    fun submit(request: FileSubmitWebRequest): Submission {
+    suspend fun submit(request: FileSubmitWebRequest): Submission {
         val rqt = buildRequest(request)
-        val fileService = PathFilesService.forUser(request.config.submitter)
+        val fileService = fileServiceFactory.forUser(request.config.submitter)
         fileService.uploadFile(DIRECT_UPLOAD_PATH, request.submission)
         val extSubmission = subService.submit(rqt)
         return toSubmissionMapper.toSimpleSubmission(extSubmission)
     }
 
-    fun submitAsync(request: ContentSubmitWebRequest) {
+    suspend fun submitAsync(request: ContentSubmitWebRequest) {
         val rqt = buildRequest(request)
         subService.submitAsync(rqt)
     }
 
-    fun submitAsync(request: FileSubmitWebRequest) {
+    suspend fun submitAsync(request: FileSubmitWebRequest) {
         val rqt = buildRequest(request)
-        val fileService = PathFilesService.forUser(request.config.submitter)
+        val fileService = fileServiceFactory.forUser(request.config.submitter)
         fileService.uploadFile(DIRECT_UPLOAD_PATH, request.submission)
         subService.submitAsync(rqt)
     }

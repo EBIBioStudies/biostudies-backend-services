@@ -5,27 +5,27 @@ import ebi.ac.uk.notifications.exception.InvalidResponseException
 import ebi.ac.uk.notifications.exception.InvalidTicketIdException
 import io.mockk.clearAllMocks
 import io.mockk.every
-import io.mockk.mockk
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.http.HttpStatus.ACCEPTED
-import org.springframework.http.HttpStatus.BAD_REQUEST
-import org.springframework.http.HttpStatus.GATEWAY_TIMEOUT
-import org.springframework.http.HttpStatus.UNAUTHORIZED
-import org.springframework.http.ResponseEntity
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.util.LinkedMultiValueMap
-import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.postForEntity
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
 
-class RtClientTest {
-    private val rtConfig = mockk<RtConfig>()
-    private val restTemplate = mockk<RestTemplate>()
-    private val testInstance = RtClient(rtConfig, restTemplate)
-    private val testBody = LinkedMultiValueMap<String, String>(
+@ExtendWith(MockKExtension::class)
+class RtClientTest(
+    @MockK private val client: WebClient,
+    @MockK private val rtConfig: RtConfig,
+    @MockK private val requestSpec: RequestBodySpec,
+) {
+    private val testInstance = RtClient(rtConfig, client)
+    private val testBody = LinkedMultiValueMap(
         mapOf(
             "content" to listOf(
                 "Queue: test-queue\nSubject: Test\nStatus: resolved\nRequestor: test@mail.org\nCF-Accession: S-TEST1\nText: A notification"
@@ -49,7 +49,9 @@ class RtClientTest {
         val response = "RT/4.2.16 200 Ok\n\n# Ticket 80338 created.\n\n"
         val url = "http://test-desk/REST/1.0/ticket/new?user=test-user&pass=123456"
 
-        every { restTemplate.postForEntity<String>(url, testBody) } returns ResponseEntity(response, ACCEPTED)
+        every { client.post().uri(url) } returns requestSpec
+        every { requestSpec.bodyValue(testBody) } returns requestSpec
+        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns response
 
         val ticketId = testInstance.createTicket("S-TEST1", "Test", "test@mail.org", "A notification")
         assertThat(ticketId).isEqualTo("80338")
@@ -58,15 +60,21 @@ class RtClientTest {
     @Test
     fun `comment ticket`() {
         val url = "http://test-desk/REST/1.0/ticket/80338/comment?user=test-user&pass=123456"
-        val testBody = LinkedMultiValueMap<String, String>(
+        val testBody = LinkedMultiValueMap(
             mapOf("content" to listOf("id: 80338\nAction: correspond\nStatus: resolved\nText: A comment"))
         )
 
-        every { restTemplate.postForEntity<String>(url, testBody) } returns ResponseEntity("response", ACCEPTED)
+        every { client.post().uri(url) } returns requestSpec
+        every { requestSpec.bodyValue(testBody) } returns requestSpec
+        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "response"
 
         testInstance.commentTicket("80338", "A comment")
 
-        verify(exactly = 1) { restTemplate.postForEntity<String>(url, testBody) }
+        verify(exactly = 1) {
+            client.post().uri(url)
+            requestSpec.bodyValue(testBody)
+            requestSpec.retrieve().bodyToMono(String::class.java).block()
+        }
     }
 
     @Test
@@ -74,9 +82,9 @@ class RtClientTest {
         val url = "http://test-desk/REST/1.0/ticket/new?user=test-user&pass=123"
 
         every { rtConfig.password } returns "123"
-        every {
-            restTemplate.postForEntity<String>(url, testBody)
-        } returns ResponseEntity("Wrong user/password", UNAUTHORIZED)
+        every { client.post().uri(url) } returns requestSpec
+        every { requestSpec.bodyValue(testBody) } returns requestSpec
+        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "Wrong user/password"
 
         assertThrows<InvalidTicketIdException> {
             testInstance.createTicket("S-TEST1", "Test", "test@mail.org", "A notification")
@@ -89,7 +97,9 @@ class RtClientTest {
         val url = "http://test-desk/REST/1.0/ticket/new?user=test-user&pass=1234"
 
         every { rtConfig.password } returns "1234"
-        every { restTemplate.postForEntity<String>(url, testBody) } returns ResponseEntity(response, BAD_REQUEST)
+        every { client.post().uri(url) } returns requestSpec
+        every { requestSpec.bodyValue(testBody) } returns requestSpec
+        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns response
 
         assertThrows<InvalidTicketIdException> {
             testInstance.createTicket("S-TEST1", "Test", "test@mail.org", "A notification")
@@ -101,7 +111,9 @@ class RtClientTest {
         val url = "http://test-desk/REST/1.0/ticket/new?user=test-user&pass=12"
 
         every { rtConfig.password } returns "12"
-        every { restTemplate.postForEntity<String>(url, testBody) } returns ResponseEntity(GATEWAY_TIMEOUT)
+        every { client.post().uri(url) } returns requestSpec
+        every { requestSpec.bodyValue(testBody) } returns requestSpec
+        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns null
 
         assertThrows<InvalidResponseException> {
             testInstance.createTicket("S-TEST1", "Test", "test@mail.org", "A notification")

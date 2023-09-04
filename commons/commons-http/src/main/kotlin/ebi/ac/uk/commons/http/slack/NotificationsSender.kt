@@ -1,14 +1,14 @@
 package ebi.ac.uk.commons.http.slack
 
-import org.springframework.http.HttpEntity
+import ebi.ac.uk.commons.http.ext.RequestParams
+import ebi.ac.uk.commons.http.ext.post
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType.APPLICATION_JSON
-import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.postForEntity
+import org.springframework.web.reactive.function.client.WebClient
 
 class NotificationsSender(
-    private val restTemplate: RestTemplate,
-    private val notificationUrl: String
+    private val client: WebClient,
+    private val notificationUrl: String,
 ) {
     fun send(notification: SystemNotification) {
         val headers = HttpHeaders().apply {
@@ -16,6 +16,6 @@ class NotificationsSender(
             contentType = APPLICATION_JSON
         }
 
-        restTemplate.postForEntity<String>(notificationUrl, HttpEntity(notification.asNotification(), headers))
+        client.post(notificationUrl, RequestParams(headers, notification.asNotification()))
     }
 }

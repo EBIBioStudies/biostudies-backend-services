@@ -87,16 +87,22 @@ app:
     captchaKey: # Captcha validation token
     checkCaptcha: false
     tokenHash: # Token used for hash authentication
-    filesDirPath: # Absolute path to the folder to be used for the user/groups files
-    magicDirPath: #  Absolute path to create user magic folder for dropbox simple access
     environment: # Current application execution environment
     requireActivation: # Indicates whether a new user need activation before being used
     instanceKeys:
       dev: # Instance key for the submission tool DEV environment
       beta: # Instance key for the submission tool BETA environment
       prod: # Instance key for the submission tool PROD environment
+    fileProperties:
+      filesDirPath: # Absolute path to the folder to be used for the user/groups files
+      magicDirPath: #  Absolute path to create user magic folder for dropbox simple access
+      ftpUser: # the ftp user
+      ftpPassword: # the ftp password
+      ftpUrl: # the ftp url without port
+      ftpPort: # the ftp port
   persistence:
     enableFire: true
+    concurrency: # Number of files processed concurrently
   mongo:
     execute-migrations: true
     migration-package: ac.uk.ebi.biostd.persistence.doc.migrations

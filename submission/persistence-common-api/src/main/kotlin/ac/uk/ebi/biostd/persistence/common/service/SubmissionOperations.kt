@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.request.SubFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import kotlinx.coroutines.flow.Flow
 import org.springframework.data.domain.Page
 import java.time.temporal.TemporalAmount
 
@@ -93,7 +94,7 @@ interface SubmissionRequestFilesPersistenceService {
 
     fun getSubmissionRequestFile(accNo: String, version: Int, filePath: String): SubmissionRequestFile
 
-    fun getSubmissionRequestFiles(accNo: String, version: Int, startingAt: Int): Sequence<SubmissionRequestFile>
+    fun getSubmissionRequestFiles(accNo: String, version: Int, startingAt: Int): Flow<SubmissionRequestFile>
 }
 
 interface SubmissionMetaQueryService {

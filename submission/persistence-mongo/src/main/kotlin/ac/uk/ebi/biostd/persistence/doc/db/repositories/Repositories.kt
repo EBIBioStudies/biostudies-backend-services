@@ -2,13 +2,9 @@ package ac.uk.ebi.biostd.persistence.doc.db.repositories
 
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Page
@@ -69,20 +65,6 @@ interface SubmissionRequestFilesRepository : MongoRepository<DocSubmissionReques
     fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
 }
 
-interface SubmissionDraftRepository : MongoRepository<DocSubmissionDraft, String> {
-    fun findByUserIdAndKeyAndStatusIsNot(userId: String, key: String, deleted: DraftStatus): DocSubmissionDraft?
-
-    fun findAllByUserIdAndStatus(
-        userId: String,
-        status: DraftStatus,
-        pageRequest: Pageable,
-    ): List<DocSubmissionDraft>
-
-    fun getById(id: String): DocSubmissionDraft
-
-    fun deleteByUserIdAndKey(userId: String, draftKey: String)
-}
-
 interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId> {
     @Meta(cursorBatchSize = 100, flags = [CursorOption.NO_TIMEOUT])
     fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(
@@ -103,16 +85,4 @@ interface FileListDocFileRepository : MongoRepository<FileListDocFile, ObjectId>
         version: Int,
         filePath: String,
     ): List<FileListDocFile>
-}
-
-interface SubmissionStatsRepository : MongoRepository<DocSubmissionStats, ObjectId> {
-    fun getByAccNo(accNo: String): DocSubmissionStats
-
-    fun findByAccNo(accNo: String): DocSubmissionStats?
-
-    @Query("{ 'accNo': '?0', 'stats.?1': { \$exists: true } }")
-    fun findByAccNoAndStatType(accNo: String, statType: SubmissionStatType): DocSubmissionStats?
-
-    @Query("{ 'stats.?0': { \$exists: true } }")
-    fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Page<DocSubmissionStats>
 }

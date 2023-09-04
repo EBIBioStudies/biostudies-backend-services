@@ -11,6 +11,7 @@ import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
+import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
@@ -58,7 +59,9 @@ import kotlin.test.assertNotNull
 
 private const val ACTIVATION_KEY: String = "code"
 private const val SECRET_KEY: String = "secretKey"
-private val PASSWORD_DIGEST: ByteArray = ByteArray(0)
+private const val ENVIRONMENT: String = "env-test"
+
+private val passwordDigest: ByteArray = ByteArray(0)
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class SecurityServiceTest(
@@ -68,14 +71,16 @@ internal class SecurityServiceTest(
     @MockK private val securityUtil: SecurityUtil,
     @MockK private val captchaVerifier: CaptchaVerifier,
     @MockK private val eventsPublisherService: EventsPublisherService,
+    @MockK private val ftpClient: FtpClient,
 ) {
     private val testInstance: SecurityService = SecurityService(
         userRepository,
         securityUtil,
         securityProps,
-        ProfileService(temporaryFolder.root.toPath()),
+        ProfileService(temporaryFolder.root.toPath(), ENVIRONMENT),
         captchaVerifier,
-        eventsPublisherService
+        eventsPublisherService,
+        ftpClient
     )
 
     @Nested
@@ -118,7 +123,7 @@ internal class SecurityServiceTest(
         fun beforeEach() {
             every { userRepository.existsByEmail(email) } returns false
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
-            every { securityUtil.getPasswordDigest(password) } returns PASSWORD_DIGEST
+            every { securityUtil.getPasswordDigest(password) } returns passwordDigest
             every { securityProps.checkCaptcha } returns true
             every { captchaVerifier.verifyCaptcha(captcha) } returns Unit
         }
@@ -141,7 +146,7 @@ internal class SecurityServiceTest(
             assertThat(dbUser.fullName).isEqualTo(name)
             assertThat(dbUser.email).isEqualTo(email)
             assertThat(dbUser.orcid).isEqualTo(orcid)
-            assertThat(dbUser.passwordDigest).isEqualTo(PASSWORD_DIGEST)
+            assertThat(dbUser.passwordDigest).isEqualTo(passwordDigest)
 
             assertThat(dbUser.superuser).isFalse
             assertThat(dbUser.activationKey).isNull()

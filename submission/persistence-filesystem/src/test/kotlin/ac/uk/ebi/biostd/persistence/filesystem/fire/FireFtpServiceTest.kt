@@ -3,9 +3,11 @@ package ac.uk.ebi.biostd.persistence.filesystem.fire
 import ebi.ac.uk.extended.model.ExtFileType
 import ebi.ac.uk.extended.model.FireFile
 import io.mockk.clearAllMocks
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -15,6 +17,7 @@ import uk.ac.ebi.fire.client.model.FileSystemEntry
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.util.UUID
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class)
 class FireFtpServiceTest(
     @MockK private val fireClient: FireClient,
@@ -25,7 +28,7 @@ class FireFtpServiceTest(
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun `release submission file`() {
+    fun `release submission file`() = runTest {
         val fireFile = FireFile(
             fireId = "fireId",
             firePath = null,
@@ -45,7 +48,7 @@ class FireFtpServiceTest(
             objectSize = 123L,
             createTime = "2022-09-21"
         )
-        every { fireClient.publish(fireFile.fireId) } answers { apiFile }
+        coEvery { fireClient.publish(fireFile.fireId) } answers { apiFile }
 
         val file = testInstance.releaseSubmissionFile(fireFile, "/rel/path")
 

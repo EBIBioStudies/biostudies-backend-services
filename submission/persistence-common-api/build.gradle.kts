@@ -1,3 +1,5 @@
+import Dependencies.KotlinCoroutines
+import Dependencies.KotlinCoroutinesReactor
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Projects.CommonsBio
@@ -7,8 +9,8 @@ import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
 plugins {
-    id("io.spring.dependency-management") version "1.0.12.RELEASE"
-    id("org.springframework.boot") version "2.7.1" apply false
+    id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion apply false
+    id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
 }
 
 the<DependencyManagementExtension>().apply {
@@ -23,5 +25,8 @@ dependencies {
 
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
+    implementation(KotlinCoroutines)
     implementation(SpringDataCommons)
+    implementation(KotlinCoroutines)
+    implementation(KotlinCoroutinesReactor)
 }

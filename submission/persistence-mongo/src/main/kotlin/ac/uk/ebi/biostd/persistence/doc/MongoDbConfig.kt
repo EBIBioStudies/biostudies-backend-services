@@ -1,23 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc
 
-import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocAttributeConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileListConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileListDocFileConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocFileTableConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocLinkConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocLinkTableConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocSectionConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.from.DocSubmissionConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.AttributeConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileListConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileListDocFileConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.FileTableConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.LinkTableConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SectionConverter
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.SubmissionConverter
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.migrations.CHANGE_LOG_CLASSES
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
@@ -34,10 +16,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.convert.converter.Converter
-import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration
+import org.springframework.data.mongodb.MongoDatabaseFactory
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.convert.MongoCustomConversions
+import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory
+import org.springframework.data.mongodb.core.convert.MappingMongoConverter
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 
 const val CHANGE_LOG_COLLECTION = "submitter_mongockChangeLog"
@@ -55,70 +37,30 @@ const val CHANGE_LOG_LOCK = "submitter_mongockLock"
 class MongoDbConfig(
     @Value("\${spring.data.mongodb.database}") val mongoDatabase: String,
     @Value("\${spring.data.mongodb.uri}") val mongoUri: String,
-) : AbstractMongoClientConfiguration() {
-
-    override fun getDatabaseName(): String = mongoDatabase
+) {
 
     @Bean
     @ConditionalOnProperty(prefix = "app.mongo", name = ["execute-migrations"], havingValue = "true")
     fun mongockApplicationRunner(
         springContext: ApplicationContext,
-        mongoTemplate: MongoTemplate
+        mongoTemplate: MongoTemplate,
     ): ApplicationRunner {
         return createMongockConfig(mongoTemplate, springContext, CHANGE_LOG_CLASSES)
     }
 
     @Bean
-    override fun mongoClient(): MongoClient {
+    fun mongoClient(): MongoClient {
         return MongoClients.create(mongoUri)
     }
 
     @Bean
-    override fun customConversions(): MongoCustomConversions {
-        val converters = mutableListOf<Converter<*, *>>()
-        converters.add(docSubmissionConverter())
-        converters.add(submissionConverter())
-        converters.add(FileConverter(AttributeConverter()))
-        converters.add(DocFileConverter(DocAttributeConverter()))
-        converters.add(FileListDocFileConverter(FileConverter(AttributeConverter())))
-        converters.add(DocFileListDocFileConverter(DocFileConverter(DocAttributeConverter())))
-        return MongoCustomConversions(converters)
+    fun mongoTemplate(databaseFactory: MongoDatabaseFactory, converter: MappingMongoConverter): MongoTemplate {
+        return MongoTemplate(databaseFactory, converter)
     }
 
-    private fun docSubmissionConverter(): DocSubmissionConverter {
-        val docAttributeConverter = DocAttributeConverter()
-        val docFileConverter = DocFileConverter(docAttributeConverter)
-        val docFileListConverter = DocFileListConverter(docFileConverter)
-        val docFileTableConverter = DocFileTableConverter(docFileConverter)
-        val docLinkConverter = DocLinkConverter(docAttributeConverter)
-        val docLinksTableConverter = DocLinkTableConverter(docLinkConverter)
-        val docSectionConverter = DocSectionConverter(
-            docAttributeConverter,
-            docLinkConverter,
-            docLinksTableConverter,
-            docFileConverter,
-            docFileTableConverter,
-            docFileListConverter
-        )
-        return DocSubmissionConverter(docFileConverter, docSectionConverter, docAttributeConverter)
-    }
-
-    private fun submissionConverter(): SubmissionConverter {
-        val attributeConverter = AttributeConverter()
-        val fileConverter = FileConverter(attributeConverter)
-        val fileListConverter = FileListConverter(fileConverter)
-        val fileTableConverter = FileTableConverter(fileConverter)
-        val linkConverter = LinkConverter(attributeConverter)
-        val linksTableConverter = LinkTableConverter(linkConverter)
-        val sectionConverter = SectionConverter(
-            attributeConverter,
-            linkConverter,
-            linksTableConverter,
-            fileConverter,
-            fileTableConverter,
-            fileListConverter
-        )
-        return SubmissionConverter(sectionConverter, attributeConverter, fileConverter)
+    @Bean
+    fun mongoDbFactory(mongoClient: MongoClient): MongoDatabaseFactory {
+        return SimpleMongoClientDatabaseFactory(mongoClient, mongoDatabase)
     }
 
     companion object {

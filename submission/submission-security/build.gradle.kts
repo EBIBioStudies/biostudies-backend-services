@@ -6,11 +6,13 @@ import Dependencies.KotlinStdLib
 import Dependencies.Logback
 import Dependencies.RxJava2
 import Dependencies.ServletApi
+import Dependencies.SpringWebFlux
 import Projects.CommonsBio
 import Projects.CommonsHttp
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.EventsPublisher
+import Projects.FtpWebClient
 import Projects.SubmissionPersistenceSql
 import SpringBootDependencies.SpringBootStarterAmqp
 import SpringBootDependencies.SpringBootStarterDataJpa
@@ -23,8 +25,8 @@ import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
 plugins {
-    id("io.spring.dependency-management") version "1.0.12.RELEASE"
-    id("org.springframework.boot") version "2.7.1" apply false
+    id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion apply false
+    id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
 }
 
 the<DependencyManagementExtension>().apply {
@@ -39,6 +41,7 @@ dependencies {
     api(project(CommonsBio))
     api(project(CommonsHttp))
     api(project(EventsPublisher))
+    api(project(FtpWebClient))
     api(project(SubmissionPersistenceSql))
 
     implementation(Arrow)
@@ -51,6 +54,7 @@ dependencies {
     implementation(SpringBootStarterSecurity)
     implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterWeb)
+    implementation(SpringWebFlux)
     implementation(ServletApi)
 
     testApi(project(CommonsTest))

@@ -1,6 +1,7 @@
 package ebi.ac.uk.security.service
 
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.ActivateByEmailRequest
@@ -13,6 +14,7 @@ import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
+import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
@@ -38,15 +40,16 @@ import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
 import java.nio.file.Paths
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 @Transactional
 open class SecurityService(
     private val userRepository: UserDataRepository,
     private val securityUtil: SecurityUtil,
-    private val securityProps: SecurityProperties,
+    private val props: SecurityProperties,
     private val profileService: ProfileService,
     private val captchaVerifier: CaptchaVerifier,
     private val eventsPublisherService: EventsPublisherService,
+    private val ftpClient: FtpClient,
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo {
         val user = userRepository.getActiveByLoginOrEmail(request.login)
@@ -59,11 +62,11 @@ open class SecurityService(
     }
 
     override fun registerUser(request: RegisterRequest): SecurityUser {
-        if (securityProps.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
+        if (props.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
 
         return when {
             userRepository.existsByEmail(request.email) -> throw UserAlreadyRegister(request.email)
-            securityProps.requireActivation -> register(request)
+            props.requireActivation -> register(request)
             else -> activate(asUser(request))
         }
     }
@@ -108,7 +111,7 @@ open class SecurityService(
     }
 
     override fun resetPassword(request: ResetPasswordRequest) {
-        if (securityProps.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
+        if (props.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
         resetNotification(request.email, request.instanceKey, request.path)
     }
 
@@ -160,9 +163,13 @@ open class SecurityService(
 
     private fun createMagicFolder(user: SecurityUser) {
         when (user.userFolder) {
-            is FtpUserFolder -> TODO()
+            is FtpUserFolder -> createFtpMagicFolder(user.userFolder)
             is NfsUserFolder -> createNfsMagicFolder(user.email, user.userFolder)
         }
+    }
+
+    private fun createFtpMagicFolder(magicFolder: FtpUserFolder) {
+        ftpClient.createFolder(magicFolder.relativePath)
     }
 
     private fun createNfsMagicFolder(email: String, magicFolder: NfsUserFolder) {
@@ -173,16 +180,16 @@ open class SecurityService(
 
     private fun symLinkPath(userEmail: String): Path {
         val prefixFolder = userEmail.substring(0, 1).lowercase()
-        return Paths.get("${securityProps.filesProperties.magicDirPath}/$prefixFolder/$userEmail")
+        return Paths.get("${props.filesProperties.magicDirPath}/$prefixFolder/$userEmail")
     }
 
-    private fun asUser(registerRequest: RegisterRequest) = DbUser(
-        email = registerRequest.email.lowercase(),
-        fullName = registerRequest.name,
-        orcid = registerRequest.orcid,
+    private fun asUser(rqt: RegisterRequest) = DbUser(
+        email = rqt.email.lowercase(),
+        fullName = rqt.name,
+        orcid = rqt.orcid,
         secret = securityUtil.newKey(),
-        notificationsEnabled = registerRequest.notificationsEnabled,
-        storageMode = securityProps.filesProperties.defaultMode,
-        passwordDigest = securityUtil.getPasswordDigest(registerRequest.password)
+        notificationsEnabled = rqt.notificationsEnabled,
+        storageMode = rqt.storageMode?.let { StorageMode.valueOf(it) } ?: props.filesProperties.defaultMode,
+        passwordDigest = securityUtil.getPasswordDigest(rqt.password)
     )
 }

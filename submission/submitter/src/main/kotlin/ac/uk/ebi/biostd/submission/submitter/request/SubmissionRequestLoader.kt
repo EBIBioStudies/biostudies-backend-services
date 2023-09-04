@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.submitter.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
@@ -12,6 +13,12 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import java.io.File
 import java.nio.file.Files
@@ -19,6 +26,7 @@ import java.nio.file.Files
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestLoader(
+    private val concurrency: Int,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
     private val requestService: SubmissionRequestPersistenceService,
     private val fireTempDirPath: File,
@@ -31,24 +39,31 @@ class SubmissionRequestLoader(
         val sub = request.submission
 
         logger.info { "${sub.accNo} ${sub.owner} Started loading submission files" }
-
-        loadSubmissionFiles(accNo, version, sub, request.currentIndex)
+        runBlocking { loadSubmissionFiles(accNo, version, sub, request.currentIndex) }
         requestService.saveSubmissionRequest(request.withNewStatus(LOADED))
-
         logger.info { "${sub.accNo} ${sub.owner} Finished loading submission files" }
     }
 
-    private fun loadSubmissionFiles(accNo: String, version: Int, sub: ExtSubmission, startingAt: Int) {
-        filesRequestService
-            .getSubmissionRequestFiles(accNo, sub.version, startingAt)
-            .forEach {
-                logger.info { "$accNo ${sub.owner} Started loading file ${it.index}, path='${it.path}'" }
-                when (val file = it.file) {
-                    is FireFile -> requestService.updateRqtIndex(accNo, version, it.index)
-                    is NfsFile -> requestService.updateRqtIndex(it, loadAttributes(sub, file))
+    private suspend fun loadSubmissionFiles(accNo: String, version: Int, sub: ExtSubmission, startingAt: Int) {
+        fun loadFile(rqtFile: SubmissionRequestFile) {
+            logger.info { "$accNo ${sub.owner} Started loading file ${rqtFile.index}, path='${rqtFile.path}'" }
+            when (val file = rqtFile.file) {
+                is FireFile -> requestService.updateRqtIndex(accNo, version, rqtFile.index)
+                is NfsFile -> {
+                    val attrs = loadAttributes(sub, file)
+                    requestService.updateRqtIndex(rqtFile, attrs)
                 }
-                logger.info { "$accNo ${sub.owner} Finished loading file ${it.index}, path='${it.path}'" }
             }
+            logger.info { "$accNo ${sub.owner} Finished loading file ${rqtFile.index}, path='${rqtFile.path}'" }
+        }
+
+        withContext(Dispatchers.Default) {
+            filesRequestService
+                .getSubmissionRequestFiles(accNo, sub.version, startingAt)
+                .map { async { loadFile(it) } }
+                .buffer(concurrency)
+                .collect { it.await() }
+        }
     }
 
     private fun loadAttributes(sub: ExtSubmission, file: NfsFile): ExtFile {

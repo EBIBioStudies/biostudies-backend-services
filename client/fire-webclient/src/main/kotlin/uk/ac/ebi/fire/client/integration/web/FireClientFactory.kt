@@ -9,15 +9,12 @@ import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.handler.timeout.WriteTimeoutHandler
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.http.codec.ClientCodecConfigurer
-import org.springframework.retry.support.RetryTemplate
-import org.springframework.retry.support.RetryTemplateBuilder
-import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.netty.http.client.HttpClient
 import uk.ac.ebi.fire.client.api.FireWebClient
 import uk.ac.ebi.fire.client.api.S3Client
+import uk.ac.ebi.fire.client.retry.SuspendRetryTemplate
 
 private const val FIRE_API_BASE = "fire"
 
@@ -31,7 +28,7 @@ class FireClientFactory private constructor() {
             RetryWebClient(
                 createHttpClient(fireConfig),
                 createS3Client(s3Config),
-                createRetryTemplate(retryConfig)
+                SuspendRetryTemplate(retryConfig)
             )
 
         private fun amazonS3Client(s3Config: S3Config): AmazonS3 {
@@ -51,12 +48,6 @@ class FireClientFactory private constructor() {
             val webClient = createWebClient(config.fireHost, config.fireVersion, config.username, config.password)
             return FireWebClient(webClient)
         }
-
-        private fun createRetryTemplate(config: RetryConfig): RetryTemplate = RetryTemplateBuilder()
-            .exponentialBackoff(config.initialInterval, config.multiplier, config.maxInterval)
-            .retryOn(listOf(WebClientResponseException::class.java, ResourceAccessException::class.java))
-            .maxAttempts(config.maxAttempts)
-            .build()
 
         private fun createWebClient(
             fireHost: String,

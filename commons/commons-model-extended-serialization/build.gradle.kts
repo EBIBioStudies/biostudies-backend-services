@@ -3,7 +3,7 @@ import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
-import Dependencies.SpringWeb
+import Dependencies.SpringWebFlux
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedTest
 import Projects.CommonsSerializationUtil
@@ -27,7 +27,7 @@ dependencies {
     implementation(JacksonXml)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
-    implementation(SpringWeb)
+    implementation(SpringWebFlux)
 
     testApi(project(CommonsTest))
     BaseTestCompileDependencies.forEach { testImplementation(it) }
