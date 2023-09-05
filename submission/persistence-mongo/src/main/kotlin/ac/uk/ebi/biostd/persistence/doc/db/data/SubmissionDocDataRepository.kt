@@ -4,18 +4,14 @@ import ac.uk.ebi.biostd.persistence.common.request.SimpleFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.commons.ExtendedUpdate
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_PROJECTS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
@@ -38,9 +34,9 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperation
 import org.springframework.data.mongodb.core.aggregation.AggregationOptions
 import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators.Abs.absoluteValueOf
 import org.springframework.data.mongodb.core.aggregation.MatchOperation
-import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.TextCriteria
 import org.springframework.data.mongodb.core.query.Update.update
 import java.time.Instant
 
@@ -130,7 +126,6 @@ class SubmissionDocDataRepository(
             filter: SubFilter,
             offsetLimit: Pair<Long, Long>? = null,
         ): List<AggregationOperation> = buildList {
-            add(match(where(SUB_VERSION).gt(0)))
             addAll(createQuery(filter))
             add(sort(Sort.Direction.DESC, SUB_MODIFICATION_TIME))
             offsetLimit?.let { add(skip(it.first)); add(limit(it.second)) }
@@ -141,6 +136,10 @@ class SubmissionDocDataRepository(
                 when (filter) {
                     is SimpleFilter -> {}
                     is SubmissionFilter -> {
+                        filter.keywords?.let { add(match(keywordsCriteria(it))) }
+                        filter.type?.let { add(match(where("$SUB_SECTION.$SEC_TYPE").`is`(it))) }
+                        add(match(where(SUB_VERSION).gt(0)))
+
                         if (filter.findAnyAccNo && filter.accNo != null) {
                             add(match(where(SUB_ACC_NO).`is`(filter.accNo)))
                         } else {
@@ -148,24 +147,20 @@ class SubmissionDocDataRepository(
                             filter.accNo?.let { add(match(where(SUB_ACC_NO).`is`(it))) }
                         }
 
-                        filter.type?.let { add(match(where("$SUB_SECTION.$SEC_TYPE").`is`(it))) }
-                        filter.keywords?.let { add(match(keywordsCriteria(it))) }
                     }
                 }
                 filter.notIncludeAccNo?.let { add(match(where(SUB_ACC_NO).nin(it))) }
                 filter.rTimeFrom?.let { add(match(where(SUB_RELEASE_TIME).gte(it.toInstant()))) }
                 filter.rTimeTo?.let { add(match(where(SUB_RELEASE_TIME).lte(it.toInstant()))) }
-                filter.collection?.let { add(match(where("$SUB_PROJECTS.$SUB_ACC_NO").`in`(it))) }
+                filter.collection?.let { add(match(where("$SUB_COLLECTIONS.$SUB_ACC_NO").`in`(it))) }
                 filter.released?.let { add(match(where(SUB_RELEASED).`is`(it))) }
             }
         }
 
-        private fun keywordsCriteria(keywords: String) = Criteria().orOperator(
-            where(SUB_TITLE).regex("(?i).*$keywords.*"),
-            where("$SUB_SECTION.$SEC_ATTRIBUTES").elemMatch(
-                where(ATTRIBUTE_DOC_NAME).`is`("Title").and(ATTRIBUTE_DOC_VALUE).regex("(?i).*$keywords.*")
-            )
-        )
+        private fun keywordsCriteria(keywords: String): TextCriteria =
+            TextCriteria.forDefaultLanguage()
+                .matchingAny(*keywords.split("\\s").toTypedArray())
+                .caseSensitive(false)
     }
 }
 

@@ -4,6 +4,8 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
+import ac.uk.ebi.biostd.persistence.doc.migrations.ensureSubmissionIndexes
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocCollection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection
@@ -21,6 +23,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -41,11 +44,14 @@ internal class SubmissionDocDataRepositoryTest(
     private val tempFolder: TemporaryFolder,
     @Autowired private val testInstance: SubmissionDocDataRepository,
     @Autowired private val fileListDocFileRepo: FileListDocFileDocDataRepository,
+    @Autowired private val mongoTemplate: MongoTemplate,
 ) {
+
     @BeforeEach
     fun beforeEach() {
         testInstance.deleteAll()
         fileListDocFileRepo.deleteAll()
+        mongoTemplate.ensureSubmissionIndexes<DocSubmission>()
     }
 
     @Nested
@@ -169,12 +175,15 @@ internal class SubmissionDocDataRepositoryTest(
 
         @Test
         fun `by keywords`() {
-            testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1", title = "another"))
-            val d2 = testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo2", title = "title"))
+            val doc1 = testDocSubmission.copy(owner = OWNER, accNo = "accNo1", title = "one two")
+            val doc2 = testDocSubmission.copy(owner = OWNER, accNo = "accNo2", title = "two four")
 
-            val result = testInstance.getSubmissions(SubmissionFilter(OWNER, keywords = "title"))
+            testInstance.saveAll(listOf(doc1, doc2))
 
-            assertThat(result).containsOnly(d2)
+            assertThat(testInstance.getSubmissions(SubmissionFilter(OWNER, keywords = "one"))).containsOnly(doc1)
+            assertThat(testInstance.getSubmissions(SubmissionFilter(OWNER, keywords = "two"))).containsOnly(doc1, doc2)
+            assertThat(testInstance.getSubmissions(SubmissionFilter(OWNER, keywords = "four"))).containsOnly(doc2)
+
         }
 
         @Test

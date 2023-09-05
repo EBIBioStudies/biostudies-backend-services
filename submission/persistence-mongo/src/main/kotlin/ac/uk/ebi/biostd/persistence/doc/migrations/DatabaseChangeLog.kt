@@ -1,17 +1,21 @@
 package ac.uk.ebi.biostd.persistence.doc.migrations
 
 import ac.uk.ebi.biostd.persistence.doc.commons.ensureExists
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILEPATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
@@ -26,9 +30,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFiel
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.Companion.STATUS
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
@@ -36,206 +37,157 @@ import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import com.github.cloudyrock.mongock.ChangeLog
 import com.github.cloudyrock.mongock.ChangeSet
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
-import ebi.ac.uk.model.constants.SectionFields.TITLE
+import ebi.ac.uk.base.EMPTY
 import org.springframework.data.domain.Sort.Direction.ASC
-import org.springframework.data.domain.Sort.Direction.DESC
+import org.springframework.data.mongodb.core.MongoOperations
 import org.springframework.data.mongodb.core.index.Index
-import org.springframework.data.mongodb.core.index.PartialIndexFilter
-import org.springframework.data.mongodb.core.query.Criteria.where
-import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder as TextIndex
 
 internal const val TITLE_INDEX_NAME = "title_index"
-internal val CHANGE_LOG_CLASSES = listOf(
-    ChangeLog001::class.java,
-    ChangeLog002::class.java,
-    ChangeLog003::class.java,
-    ChangeLog004::class.java,
-    ChangeLog005::class.java,
-    ChangeLog006::class.java,
-    ChangeLog007::class.java,
-    ChangeLog008::class.java,
-    ChangeLog009::class.java,
-)
+internal val CHANGE_LOG_CLASSES = listOf(ChangeLog001::class.java)
 
 @ChangeLog
 class ChangeLog001 {
-    @ChangeSet(order = "001", id = "Create Schema", author = "System")
+    @ChangeSet(order = "001", id = "Create Schema Indexes", author = "System")
     fun changeSet001(template: MongockTemplate) {
         template.ensureExists(DocSubmission::class.java)
+        template.ensureSubmissionIndexes<DocSubmission>()
+
         template.ensureExists(DocSubmissionRequest::class.java)
+        template.ensureSubmissionRequestIndexes()
+        template.ensureRequestFileIndexes();
 
-        template.indexOps(DocSubmission::class.java).apply {
-            ensureIndex(Index().on(SUB_ACC_NO, ASC))
-            ensureIndex(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC))
-            ensureIndex(Index().on(SUB_OWNER, ASC))
-            ensureIndex(Index().on(SUB_SUBMITTER, ASC))
-            ensureIndex(Index().on("$SUB_SECTION.$SEC_TYPE", ASC))
-            ensureIndex(Index().on(SUB_RELEASE_TIME, ASC))
-            ensureIndex(TextIndex().named(TITLE_INDEX_NAME).onField(SUB_TITLE).build())
-            ensureIndex(Index().on(SUB_RELEASED, ASC))
-        }
-
-        template.indexOps(DocSubmissionRequest::class.java).apply {
-            ensureIndex(Index().on(SUB_ACC_NO, ASC))
-            ensureIndex(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC))
-            ensureIndex(Index().on("$SUB.$SUB_SECTION.$SEC_TYPE", ASC))
-            ensureIndex(Index().on("$SUB.$SUB_ACC_NO", ASC))
-            ensureIndex(Index().on("$SUB.$SUB_OWNER", ASC))
-            ensureIndex(Index().on("$SUB.$SUB_SUBMITTER", ASC))
-            ensureIndex(Index().on("$SUB.$SUB_RELEASE_TIME", ASC))
-            ensureIndex(TextIndex().named(TITLE_INDEX_NAME).onField("$SUB.$SUB_TITLE").build())
-            ensureIndex(Index().on("$SUB.$SUB_RELEASED", ASC))
-        }
+        template.ensureFileListIndexes()
+        template.ensureStats()
     }
 }
 
-@ChangeLog
-class ChangeLog002 {
-    @ChangeSet(order = "002", id = "Section Title Index", author = "System")
-    fun changeSet002(template: MongockTemplate) {
-        template.ensureExists(DocSubmission::class.java)
-        template.ensureExists(DocSubmissionRequest::class.java)
-
-        template.indexOps(DocSubmission::class.java).apply {
-            ensureIndex(TextIndex().named(TITLE_INDEX_NAME).onField(SUB_TITLE).build())
-            dropIndex(TITLE_INDEX_NAME)
-            ensureIndex(
-                TextIndex()
-                    .named(TITLE_INDEX_NAME)
-                    .onField(SUB_TITLE)
-                    .partial(PartialIndexFilter.of(where("$SUB_SECTION.$SUB_ATTRIBUTES.name").`is`(TITLE.value)))
-                    .onField("$SUB_SECTION.$SUB_ATTRIBUTES.value")
-                    .build()
-            )
-        }
-
-        template.indexOps(DocSubmissionRequest::class.java).apply {
-            ensureIndex(TextIndex().named(TITLE_INDEX_NAME).onField("$SUB.$SUB_TITLE").build())
-            dropIndex(TITLE_INDEX_NAME)
-            ensureIndex(
-                TextIndex()
-                    .named(TITLE_INDEX_NAME)
-                    .onField("$SUB.$SUB_TITLE")
-                    .partial(PartialIndexFilter.of(where("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.name").`is`(TITLE.value)))
-                    .onField("$SUB.$SUB_SECTION.$SUB_ATTRIBUTES.value")
-                    .build()
-            )
-        }
+/**
+ * Submission Indexes
+ * 1. AccNo
+ * 2. AccNo - Version
+ * 3. Owner
+ * 4. Submitter
+ * 5. Root Section Type
+ * 6. Release Time
+ * 7. Released
+ * 8. Modification Time
+ * 9. Collection AccNo , Submission version
+ * 10. Collection AccNo , Submission Version, Submission Storage Mode
+ * 11. (Text Index) Submission Title, Submission Attributes, Section Attributes
+ */
+inline fun <reified T> MongoOperations.ensureSubmissionIndexes(prefix: String = EMPTY) {
+    indexOps(T::class.java).apply {
+        ensureIndex(Index().on("$prefix$SUB_ACC_NO", ASC))
+        ensureIndex(Index().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC))
+        ensureIndex(Index().on("$prefix$SUB_OWNER", ASC))
+        ensureIndex(Index().on("$prefix$SUB_SUBMITTER", ASC))
+        ensureIndex(Index().on("$prefix$SUB_SECTION.$SEC_TYPE", ASC))
+        ensureIndex(Index().on("$prefix$SUB_RELEASE_TIME", ASC))
+        ensureIndex(Index().on("$prefix$SUB_RELEASED", ASC))
+        ensureIndex(Index().on("$prefix$SUB_MODIFICATION_TIME", ASC))
+        ensureIndex(Index().on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC).on(SUB_VERSION, ASC))
+        ensureIndex(
+            Index()
+                .on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC)
+                .on("$prefix$SUB_VERSION", ASC)
+                .on("$prefix$STORAGE_MODE", ASC)
+        )
+        ensureIndex(
+            TextIndex()
+                .onField("$prefix$SUB_TITLE")
+                .onField("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_NAME")
+                .onField("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_VALUE")
+                .named("title_text_section.attributes.name_text_section.attributes.value_text")
+                .build()
+        )
     }
 }
 
-@ChangeLog
-class ChangeLog003 {
-    @ChangeSet(order = "003", id = "Submission Modification time", author = "System")
-    fun changeSet003(template: MongockTemplate) {
-        template.indexOps(DocSubmission::class.java).apply {
-            ensureIndex(Index().on(SUB_MODIFICATION_TIME, DESC))
-        }
-
-        template.indexOps(DocSubmissionRequest::class.java).apply {
-            ensureIndex(Index().on("$SUB.$SUB_MODIFICATION_TIME", DESC))
-        }
+/**
+ * submission_requests collection Indexes
+ * 1. AccNo
+ * 2. AccNo - Version
+ * 3. All submission index over internal submission.
+ */
+fun MongoOperations.ensureSubmissionRequestIndexes() {
+    ensureSubmissionIndexes<DocSubmissionRequest>("$SUB.")
+    indexOps(DocSubmissionRequest::class.java).apply {
+        ensureIndex(Index().on(SUB_ACC_NO, ASC))
+        ensureIndex(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC))
     }
 }
 
-@ChangeLog
-class ChangeLog004 {
-    @ChangeSet(order = "004", id = "Submission fields indexes in FileListDocFile", author = "System")
-    fun changeSet004(template: MongockTemplate) {
-        template.ensureExists(FileListDocFile::class.java)
+/**
+ * file_list_files collection indexes
+ * 1. Submission ID
+ * 2. Submission AccNo
+ * 3. Submission Version
+ * 4. File List File Name
+ * 5. Index
+ * 6. Path
+ * 7. Submission AccNo, Submission Version, File.Path
+ */
+fun MongoOperations.ensureFileListIndexes() {
+    ensureExists(FileListDocFile::class.java)
+    indexOps(FileListDocFile::class.java).apply {
+        // Root Index
+        ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_ID, ASC))
+        ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC))
+        ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC))
+        ensureIndex(Index().on(FILE_LIST_DOC_FILE_FILE_LIST_NAME, ASC))
+        ensureIndex(Index().on(FILE_LIST_DOC_FILE_INDEX, ASC))
+        ensureIndex(Index().on(FILE_DOC_FILEPATH, ASC))
 
-        template.indexOps(FileListDocFile::class.java).apply {
-            ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_ID, ASC))
-            ensureIndex(Index().on(FILE_LIST_DOC_FILE_FILE_LIST_NAME, ASC))
-            ensureIndex(Index().on(FILE_LIST_DOC_FILE_INDEX, ASC))
-            ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC))
-            ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC))
-        }
+        ensureIndex(
+            Index()
+                .on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC)
+                .on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC)
+                .on("$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_FILEPATH", ASC)
+        )
     }
 }
 
-@ChangeLog
-class ChangeLog005 {
-    @ChangeSet(order = "005", id = "Set ACTIVE status on existing Drafts", author = "System")
-    fun changeSet005(template: MongockTemplate) {
-        template.updateMulti(Query(), Update().set(STATUS, ACTIVE.name), DocSubmissionDraft::class.java)
+/**
+ * submission_request_files collection indexes
+ * 1. Submission AccNo
+ * 2. Submission Version
+ * 4. Path
+ * 5. Index
+ * 6. Submission AccNo, Submission Version, File.Path
+ */
+fun MongoOperations.ensureRequestFileIndexes() {
+    ensureExists(DocSubmissionRequestFile::class.java)
+    indexOps(DocSubmissionRequestFile::class.java).apply {
+        ensureIndex(Index().on(RQT_FILE_SUB_ACC_NO, ASC))
+        ensureIndex(Index().on(RQT_FILE_SUB_VERSION, ASC))
+        ensureIndex(Index().on(RQT_FILE_PATH, ASC))
+        ensureIndex(Index().on(RQT_FILE_INDEX, ASC))
+        ensureIndex(
+            Index()
+                .on(RQT_FILE_SUB_ACC_NO, ASC)
+                .on(RQT_FILE_SUB_VERSION, ASC)
+                .on(RQT_FILE_PATH, ASC)
+        )
+        ensureIndex(
+            Index()
+                .on(RQT_FILE_SUB_ACC_NO, ASC)
+                .on(RQT_FILE_SUB_VERSION, ASC)
+                .on(RQT_FILE_INDEX, ASC)
+        )
     }
 }
 
-@ChangeLog
-class ChangeLog006 {
-    @ChangeSet(order = "006", id = "Extract stats to a separated collection", author = "System")
-    fun changeSet006(template: MongockTemplate) {
-        template.ensureExists(DocSubmissionStats::class.java)
-
-        template.indexOps(DocSubmissionStats::class.java).apply {
-            ensureIndex(Index().on(SUB_ACC_NO, ASC))
-        }
-
-        template.updateMulti(Query(), Update().unset(SUB_STATS), DocSubmission::class.java)
+/**
+ * submission_stats collection indexes
+ * 1. Submission AccNo
+ */
+fun MongoOperations.ensureStats() {
+    ensureExists(DocSubmissionStats::class.java)
+    indexOps(DocSubmissionRequestFile::class.java).apply {
+        ensureIndex(Index().on(SUB_ACC_NO, ASC))
     }
 }
 
-@ChangeLog
-class ChangeLog007 {
-    @ChangeSet(order = "007", id = "Create submission request files collection", author = "System")
-    fun changeSet007(template: MongockTemplate) {
-        template.ensureExists(DocSubmissionRequestFile::class.java)
 
-        template.indexOps(DocSubmissionRequestFile::class.java).apply {
-            ensureIndex(Index().on(RQT_FILE_INDEX, ASC))
-            ensureIndex(Index().on(RQT_FILE_PATH, ASC))
-            ensureIndex(Index().on(RQT_FILE_SUB_ACC_NO, ASC))
-            ensureIndex(Index().on(RQT_FILE_SUB_VERSION, ASC))
-        }
-    }
-}
 
-@ChangeLog
-class ChangeLog008 {
-    @ChangeSet(order = "008", id = "File List files index", author = "System")
-    fun changeSet008(template: MongockTemplate) {
-        template.indexOps(FileListDocFile::class.java).apply {
-            ensureIndex(
-                Index()
-                    .on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC)
-                    .on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC)
-                    .on("$FILE_LIST_DOC_FILE_FILE.${DocFileFields.FILE_DOC_FILEPATH}", ASC)
-            )
-        }
-    }
-}
-
-@ChangeLog
-class ChangeLog009 {
-    @ChangeSet(order = "009", id = "Compose index", author = "System")
-    fun changeSet009(template: MongockTemplate) {
-        template.indexOps(DocSubmissionRequest::class.java).apply {
-            ensureIndex(
-                Index()
-                    .on(RQT_FILE_SUB_ACC_NO, ASC)
-                    .on(RQT_FILE_SUB_VERSION, ASC)
-            )
-        }
-
-        template.indexOps(DocSubmissionRequestFile::class.java).apply {
-            ensureIndex(
-                Index()
-                    .on(RQT_FILE_SUB_ACC_NO, ASC)
-                    .on(RQT_FILE_SUB_VERSION, ASC)
-                    .on(RQT_FILE_PATH, ASC)
-            )
-        }
-
-        template.indexOps(DocSubmissionRequestFile::class.java).apply {
-            ensureIndex(
-                Index()
-                    .on(RQT_FILE_SUB_ACC_NO, ASC)
-                    .on(RQT_FILE_SUB_VERSION, ASC)
-                    .on(RQT_FILE_INDEX, ASC)
-            )
-        }
-    }
-}

@@ -50,7 +50,7 @@ internal class SubmissionConverterTest(
 
     @MockK val fileConverter: FileConverter,
     @MockK val docFile: DocFile,
-    @MockK val fileDocument: Document
+    @MockK val fileDocument: Document,
 ) {
     private val testInstance = SubmissionConverter(sectionConverter, attributeConverter, fileConverter)
 
@@ -89,15 +89,15 @@ internal class SubmissionConverterTest(
         assertThat(tag[DocSubmissionFields.TAG_DOC_NAME]).isEqualTo(docTagName)
         assertThat(tag[DocSubmissionFields.TAG_DOC_VALUE]).isEqualTo(docTagValue)
 
-        val projects = result.getAs<List<Document>>(DocSubmissionFields.SUB_PROJECTS)
+        val projects = result.getAs<List<Document>>(DocSubmissionFields.SUB_COLLECTIONS)
         val project = projects.first()
-        assertThat(project[DocSubmissionFields.PROJECT_DOC_ACC_NO]).isEqualTo(docProjectAccNo)
+        assertThat(project[DocSubmissionFields.COLLECTION_ACC_NO]).isEqualTo(docProjectAccNo)
     }
 
     private fun createDocSubmission(
         docSection: DocSection,
         docAttribute: DocAttribute,
-        docFile: DocFile
+        docFile: DocFile,
     ): DocSubmission {
         return DocSubmission(
             id = submissionId,
