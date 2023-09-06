@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.doc.migrations.ensureSubmissionIndexes
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.net.URLEncoder.encode
 
@@ -31,12 +33,14 @@ import java.net.URLEncoder.encode
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionListApiTest(
     @Autowired val securityTestService: SecurityTestService,
+    @Autowired val mongoTemplate: MongoTemplate,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
     fun init() {
+        mongoTemplate.ensureSubmissionIndexes()
         securityTestService.ensureUserRegistration(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
 

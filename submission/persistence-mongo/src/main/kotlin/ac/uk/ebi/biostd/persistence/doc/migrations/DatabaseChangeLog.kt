@@ -43,7 +43,6 @@ import org.springframework.data.mongodb.core.MongoOperations
 import org.springframework.data.mongodb.core.index.Index
 import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder as TextIndex
 
-internal const val TITLE_INDEX_NAME = "title_index"
 internal val CHANGE_LOG_CLASSES = listOf(ChangeLog001::class.java)
 
 @ChangeLog
@@ -51,16 +50,18 @@ class ChangeLog001 {
     @ChangeSet(order = "001", id = "Create Schema Indexes", author = "System")
     fun changeSet001(template: MongockTemplate) {
         template.ensureExists(DocSubmission::class.java)
-        template.ensureSubmissionIndexes<DocSubmission>()
+        template.ensureSubmissionIndexes()
 
         template.ensureExists(DocSubmissionRequest::class.java)
         template.ensureSubmissionRequestIndexes()
-        template.ensureRequestFileIndexes();
+        template.ensureRequestFileIndexes()
 
         template.ensureFileListIndexes()
-        template.ensureStats()
+        template.ensureStatsIndexes()
     }
 }
+
+fun MongoOperations.ensureSubmissionIndexes() = ensureSubmissionIndexes<DocSubmission>()
 
 /**
  * Submission Indexes
@@ -76,7 +77,7 @@ class ChangeLog001 {
  * 10. Collection AccNo , Submission Version, Submission Storage Mode
  * 11. (Text Index) Submission Title, Submission Attributes, Section Attributes
  */
-inline fun <reified T> MongoOperations.ensureSubmissionIndexes(prefix: String = EMPTY) {
+private inline fun <reified T> MongoOperations.ensureSubmissionIndexes(prefix: String = EMPTY) {
     indexOps(T::class.java).apply {
         ensureIndex(Index().on("$prefix$SUB_ACC_NO", ASC))
         ensureIndex(Index().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC))
@@ -131,7 +132,6 @@ fun MongoOperations.ensureSubmissionRequestIndexes() {
 fun MongoOperations.ensureFileListIndexes() {
     ensureExists(FileListDocFile::class.java)
     indexOps(FileListDocFile::class.java).apply {
-        // Root Index
         ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_ID, ASC))
         ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC))
         ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC))
@@ -182,12 +182,9 @@ fun MongoOperations.ensureRequestFileIndexes() {
  * submission_stats collection indexes
  * 1. Submission AccNo
  */
-fun MongoOperations.ensureStats() {
+fun MongoOperations.ensureStatsIndexes() {
     ensureExists(DocSubmissionStats::class.java)
-    indexOps(DocSubmissionRequestFile::class.java).apply {
+    indexOps(DocSubmissionStats::class.java).apply {
         ensureIndex(Index().on(SUB_ACC_NO, ASC))
     }
 }
-
-
-

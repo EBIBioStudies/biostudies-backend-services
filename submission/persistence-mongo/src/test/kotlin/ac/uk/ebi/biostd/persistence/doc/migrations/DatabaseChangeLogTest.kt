@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.doc.MongoDbReactiveConfig
 import ac.uk.ebi.biostd.persistence.doc.commons.collection
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_FILEPATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_ACC_NO
@@ -23,6 +24,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
@@ -134,13 +136,19 @@ internal class DatabaseChangeLogTest(
         fun assertFileListIndexes() {
             val listIndexes = mongoTemplate.collection<FileListDocFile>().listIndexes().toList()
             assertThat(mongoTemplate.collectionExists<FileListDocFile>()).isTrue()
-            assertThat(listIndexes).hasSize(6)
+            assertThat(listIndexes).hasSize(8)
             assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
             assertThat(listIndexes[1]).containsEntry("key", Document(FILE_LIST_DOC_FILE_SUBMISSION_ID, 1))
-            assertThat(listIndexes[2]).containsEntry("key", Document(FILE_LIST_DOC_FILE_FILE_LIST_NAME, 1))
-            assertThat(listIndexes[3]).containsEntry("key", Document(FILE_LIST_DOC_FILE_INDEX, 1))
-            assertThat(listIndexes[4]).containsEntry("key", Document(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, 1))
-            assertThat(listIndexes[5]).containsEntry("key", Document(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, 1))
+            assertThat(listIndexes[3]).containsEntry("key", Document(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, 1))
+            assertThat(listIndexes[4]).containsEntry("key", Document(FILE_LIST_DOC_FILE_FILE_LIST_NAME, 1))
+            assertThat(listIndexes[5]).containsEntry("key", Document(FILE_LIST_DOC_FILE_INDEX, 1))
+            assertThat(listIndexes[6]).containsEntry("key", Document(FILE_DOC_FILEPATH, 1))
+            assertThat(listIndexes[7]).containsEntry(
+                "key",
+                Document(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, 1)
+                    .append(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, 1)
+                    .append("$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_FILEPATH", 1)
+            )
         }
 
         fun assertStatsIndexes() {
@@ -154,8 +162,8 @@ internal class DatabaseChangeLogTest(
 
         assertSubmissionIndexes()
         assertRequestIndexes()
-        //assertFileListIndexes()
-        //assertStatsIndexes()
+        assertFileListIndexes()
+        assertStatsIndexes()
     }
 
     private fun runMigrations(clazz: Class<*>) {

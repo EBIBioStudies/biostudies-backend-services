@@ -146,7 +146,6 @@ class SubmissionDocDataRepository(
                             add(match(where(SUB_OWNER).`is`(filter.filterUser)))
                             filter.accNo?.let { add(match(where(SUB_ACC_NO).`is`(it))) }
                         }
-
                     }
                 }
                 filter.notIncludeAccNo?.let { add(match(where(SUB_ACC_NO).nin(it))) }
@@ -157,10 +156,12 @@ class SubmissionDocDataRepository(
             }
         }
 
-        private fun keywordsCriteria(keywords: String): TextCriteria =
-            TextCriteria.forDefaultLanguage()
-                .matchingAny(*keywords.split("\\s").toTypedArray())
+        private fun keywordsCriteria(keywords: String): TextCriteria {
+            val terms = keywords.split("\\s").map { "\"$it\"" }.toTypedArray()
+            return TextCriteria.forDefaultLanguage()
+                .matchingAny(*terms)
                 .caseSensitive(false)
+        }
     }
 }
 

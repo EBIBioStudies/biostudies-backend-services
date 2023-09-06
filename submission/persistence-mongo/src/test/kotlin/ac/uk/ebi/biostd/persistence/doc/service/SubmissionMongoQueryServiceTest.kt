@@ -12,7 +12,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataReposito
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.doc.migrations.ensureSubmissionIndexes
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
@@ -39,6 +41,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -66,6 +69,7 @@ internal class SubmissionMongoQueryServiceTest(
     @Autowired private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
+    @Autowired private val mongoTemplate: MongoTemplate,
 ) {
     private val serializationService: ExtSerializationService = extSerializationService()
     private val testInstance =
@@ -79,6 +83,7 @@ internal class SubmissionMongoQueryServiceTest(
     @AfterEach
     fun afterEach() {
         submissionRepo.deleteAll()
+        mongoTemplate.ensureSubmissionIndexes()
     }
 
     @Nested

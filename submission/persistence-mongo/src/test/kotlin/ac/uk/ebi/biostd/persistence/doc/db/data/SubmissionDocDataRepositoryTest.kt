@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.migrations.ensureSubmissionIndexes
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocCollection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection
@@ -51,7 +50,7 @@ internal class SubmissionDocDataRepositoryTest(
     fun beforeEach() {
         testInstance.deleteAll()
         fileListDocFileRepo.deleteAll()
-        mongoTemplate.ensureSubmissionIndexes<DocSubmission>()
+        mongoTemplate.ensureSubmissionIndexes()
     }
 
     @Nested
@@ -183,7 +182,6 @@ internal class SubmissionDocDataRepositoryTest(
             assertThat(testInstance.getSubmissions(SubmissionFilter(OWNER, keywords = "one"))).containsOnly(doc1)
             assertThat(testInstance.getSubmissions(SubmissionFilter(OWNER, keywords = "two"))).containsOnly(doc1, doc2)
             assertThat(testInstance.getSubmissions(SubmissionFilter(OWNER, keywords = "four"))).containsOnly(doc2)
-
         }
 
         @Test
