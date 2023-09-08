@@ -14,7 +14,6 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.migrations.ensureSubmissionIndexes
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
