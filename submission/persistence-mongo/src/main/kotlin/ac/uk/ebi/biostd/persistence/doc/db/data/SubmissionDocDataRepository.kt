@@ -7,9 +7,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_PROJECTS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
@@ -143,7 +143,7 @@ class SubmissionDocDataRepository(
                 filter.rTimeTo?.let { add(where(SUB_RELEASE_TIME).lte(it.toInstant())) }
                 filter.keywords?.let { add(keywordsCriteria(it)) }
                 filter.released?.let { add(where(SUB_RELEASED).`is`(it)) }
-                filter.collection?.let { add(where("$SUB_PROJECTS.$SUB_ACC_NO").`in`(it)) }
+                filter.collection?.let { add(where("$SUB_COLLECTIONS.$SUB_ACC_NO").`in`(it)) }
             }.build().toTypedArray()
 
         private fun keywordsCriteria(keywords: String) = Criteria().orOperator(

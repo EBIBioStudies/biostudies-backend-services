@@ -13,7 +13,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_METHOD
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_PROJECTS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_REL_PATH
@@ -60,7 +60,7 @@ class SubmissionConverter(
         submissionDoc[SUB_SECTION] = sectionConverter.convert(submission.section)
         submissionDoc[SUB_ATTRIBUTES] = submission.attributes.map { attributeConverter.convert(it) }
         submissionDoc[SUB_TAGS] = submission.tags.map { tagToDocument(it) }
-        submissionDoc[SUB_PROJECTS] = submission.collections.map { collectionToDocument(it) }
+        submissionDoc[SUB_COLLECTIONS] = submission.collections.map { collectionToDocument(it) }
         submissionDoc[PAGE_TAB_FILES] = submission.pageTabFiles.map { fileConverter.convert(it) }
         submissionDoc[STORAGE_MODE] = submission.storageMode.value
         return submissionDoc

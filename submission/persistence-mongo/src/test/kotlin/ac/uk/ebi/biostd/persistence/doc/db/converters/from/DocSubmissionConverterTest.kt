@@ -97,7 +97,7 @@ internal class DocSubmissionConverterTest(
         subDocument[DocSubmissionFields.SUB_SECTION] = sectionDocument
         subDocument[DocSubmissionFields.SUB_ATTRIBUTES] = listOf(attributeDocument)
         subDocument[DocSubmissionFields.SUB_TAGS] = listOf(createTagDocument())
-        subDocument[DocSubmissionFields.SUB_PROJECTS] = listOf(createProjectDocument())
+        subDocument[DocSubmissionFields.SUB_COLLECTIONS] = listOf(createProjectDocument())
         subDocument[DocSubmissionFields.PAGE_TAB_FILES] = listOf(fileDocument)
         subDocument[DocSubmissionFields.STORAGE_MODE] = storageMode
         return subDocument

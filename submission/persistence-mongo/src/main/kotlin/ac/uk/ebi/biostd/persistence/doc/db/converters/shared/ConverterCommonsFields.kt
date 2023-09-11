@@ -134,7 +134,7 @@ object DocSubmissionFields {
     const val SUB_SECTION = "section"
     const val SUB_ATTRIBUTES = "attributes"
     const val SUB_TAGS = "tags"
-    const val SUB_PROJECTS = "collections"
+    const val SUB_COLLECTIONS = "collections"
     const val TAG_DOC_NAME = "name"
     const val TAG_DOC_VALUE = "value"
     const val PROJECT_DOC_ACC_NO = "accNo"

@@ -1,0 +1,8 @@
+spring:
+  data:
+    mongodb:
+      database: # The name of the database to access the data
+      uri: # The database connection URI
+
+app:
+  outputPath: # Path where the stats report file should be placed
