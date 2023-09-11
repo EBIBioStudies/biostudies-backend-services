@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -36,7 +36,7 @@ import java.time.Instant
 @Testcontainers
 @SpringBootTest(classes = [PersistenceConfig::class])
 class StatsReporterDataRepositoryTest(
-    @Autowired private val mongoTemplate: MongoTemplate,
+    @Autowired private val mongoTemplate: ReactiveMongoTemplate,
     @Autowired private val testInstance: StatsReporterDataRepository,
 ) {
     @BeforeEach
@@ -57,7 +57,7 @@ class StatsReporterDataRepositoryTest(
     private fun setUpSubmissions() {
         val arrayExpress = listOf(DocCollection(AE_COLLECTION))
         val bioImages = listOf(DocCollection(IMAGING_COLLECTION))
-        fun save(submission: DocSubmission) = mongoTemplate.save(submission, SUBMISSIONS_COLLECTION_KEY)
+        fun save(submission: DocSubmission) = mongoTemplate.save(submission, SUBMISSIONS_COLLECTION_KEY).block()
 
         save(testSub)
         save(testSub.copy(id = ObjectId(), accNo = "S-BSST2", version = -1))
@@ -71,7 +71,7 @@ class StatsReporterDataRepositoryTest(
     }
 
     private fun setUpStats() {
-        fun save(stat: DocSubmissionStats) = mongoTemplate.save(stat, STATS_COLLECTION_KEY)
+        fun save(stat: DocSubmissionStats) = mongoTemplate.save(stat, STATS_COLLECTION_KEY).block()
 
         save(DocSubmissionStats(ObjectId(), accNo = "S-BSST1", mapOf(FILES_SIZE.value to 1, VIEWS.value to 10)))
         save(DocSubmissionStats(ObjectId(), accNo = "S-BSST2", mapOf(FILES_SIZE.value to 2, VIEWS.value to 12)))

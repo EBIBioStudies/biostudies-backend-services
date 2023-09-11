@@ -6,7 +6,7 @@ import Projects.SubmissionPersistenceCommonApi
 import Projects.SubmissionPersistenceMongo
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
-import SpringBootDependencies.SpringBootStarterMongo
+import SpringBootDependencies.SpringBootStarterReactiveMongo
 import SpringBootDependencies.SpringBootStarterTest
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
@@ -32,7 +32,7 @@ dependencies {
     implementation(SpringBootStarter)
     implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterConfigProcessor)
-    implementation(SpringBootStarterMongo)
+    implementation(SpringBootStarterReactiveMongo)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

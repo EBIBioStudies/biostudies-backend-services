@@ -1,5 +1,6 @@
 package uk.ac.ebi.scheduler.stats.service
 
+import mu.KotlinLogging
 import uk.ac.ebi.scheduler.stats.persistence.StatsReporterDataRepository
 import java.nio.file.Files
 import java.nio.file.Path
@@ -8,6 +9,8 @@ import java.nio.file.StandardOpenOption.APPEND
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.io.path.outputStream
+
+private val logger = KotlinLogging.logger {}
 
 class StatsReporterService(
     private val outputPath: Path,
@@ -23,21 +26,27 @@ class StatsReporterService(
     }
 
     private fun reportImaging(previousMonth: String, currentMonth: String) {
+        logger.info { "Started reporting imaging stats" }
         val filesSize = statsRepository.calculateImagingFilesSize()
         publishReport(previousMonth, currentMonth, filesSize, IMAGING_REPORT_NAME)
+        logger.info { "Finished reporting imaging stats" }
     }
 
     private fun reportNonImaging(previousMonth: String, currentMonth: String) {
+        logger.info { "Started reporting non-imaging stats" }
         val filesSize = statsRepository.calculateNonImagingFilesSize()
         publishReport(previousMonth, currentMonth, filesSize, NON_IMAGING_REPORT_NAME)
+        logger.info { "Finished reporting non-imaging stats" }
     }
 
     private fun publishReport(previousMonth: String, currentMonth: String, value: Long, reportName: String) {
-        val previous = outputPath.resolve("${previousMonth}_$reportName.txt")
-        val current = outputPath.resolve("${currentMonth}_$reportName.txt")
+        val previousReportPath = outputPath.resolve("${previousMonth}_$reportName.txt")
+        val currentReportPath = outputPath.resolve("${currentMonth}_$reportName.txt")
 
-        Files.copy(previous, current, REPLACE_EXISTING)
-        current.outputStream(APPEND).use { it.write("${currentMonth}\t$value".toByteArray()) }
+        logger.info { "Started publishing the report '$reportName' for month '$currentMonth'" }
+        Files.copy(previousReportPath, currentReportPath, REPLACE_EXISTING)
+        currentReportPath.outputStream(APPEND).use { it.write("${currentMonth}\t$value".toByteArray()) }
+        logger.info { "Finished publishing the report '$reportName' for month '$currentMonth'" }
     }
 
     private fun OffsetDateTime.asPreviousMont(months: Long) =

@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_STATS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.aggregation.Aggregation.group
 import org.springframework.data.mongodb.core.aggregation.Aggregation.lookup
 import org.springframework.data.mongodb.core.aggregation.Aggregation.match
@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 
 class StatsReporterDataRepository(
-    private val mongoTemplate: MongoTemplate,
+    private val mongoTemplate: ReactiveMongoTemplate,
 ) {
     fun calculateNonImagingFilesSize(): Long {
         val filter = where(SUB_VERSION).gt(0).orOperator(
@@ -45,7 +45,8 @@ class StatsReporterDataRepository(
 
         return mongoTemplate
             .aggregate(aggregation, Result::class.java)
-            .uniqueMappedResult?.totalFilesSize ?: 0
+            .blockFirst()
+            ?.totalFilesSize ?: 0
     }
 
     companion object {
