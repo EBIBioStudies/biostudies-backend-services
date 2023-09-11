@@ -20,7 +20,7 @@ class SubmissionRequestIndexer(
      * guarantee by @see uk.ac.ebi.extended.serialization.service.ExtSerializationService.fileSequence to reduce time
      * submission main/core data is not available.
      */
-    fun indexRequest(accNo: String, version: Int) {
+    suspend fun indexRequest(accNo: String, version: Int) {
         val request = requestService.getPendingRequest(accNo, version)
         val sub = request.submission
 

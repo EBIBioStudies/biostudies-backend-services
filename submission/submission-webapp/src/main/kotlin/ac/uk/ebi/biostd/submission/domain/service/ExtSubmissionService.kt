@@ -25,7 +25,7 @@ class ExtSubmissionService(
     private val securityService: ISecurityQueryService,
     private val eventsPublisherService: EventsPublisherService,
 ) {
-    fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
+    suspend fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
         return submissionSubmitter.handleRequest(accNo, version)
     }
 
@@ -34,7 +34,7 @@ class ExtSubmissionService(
         return submissionSubmitter.createRequest(ExtSubmitRequest(submission, user))
     }
 
-    fun submitExt(
+    suspend fun submitExt(
         user: String,
         sub: ExtSubmission,
     ): ExtSubmission {

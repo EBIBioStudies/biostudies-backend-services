@@ -92,11 +92,11 @@ class SubmissionStagesHandler(
     fun calculateStats(rqt: RequestFinalized) {
         processSafely(rqt) {
             logger.info { "$accNo, Received finalized message for submission $accNo, version: $version" }
-            runBlocking { statsService.calculateSubFilesSize(accNo) }
+            statsService.calculateSubFilesSize(accNo)
         }
     }
 
-    private fun processSafely(request: RequestMessage, process: RequestMessage.() -> Unit) {
+    private fun processSafely(request: RequestMessage, process: suspend RequestMessage.() -> Unit) = runBlocking {
         runCatching { process(request) }.onFailure { onError(it, request) }
     }
 
