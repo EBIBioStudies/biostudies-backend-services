@@ -18,12 +18,16 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -35,6 +39,7 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
 @ExtendWith(MockKExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class ExtSubmissionServiceTest(
     @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
     @MockK private val submissionRepository: SubmissionPersistenceQueryService,
@@ -68,10 +73,10 @@ class ExtSubmissionServiceTest(
     }
 
     @Test
-    fun `submit extended`() {
+    fun `submit extended`() = runTest {
         val submitRequestSlot = slot<ExtSubmitRequest>()
 
-        every { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
+        coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
         every { submissionSubmitter.createRequest(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
 
         testInstance.submitExt("user@mail.com", extSubmission.copy(storageMode = FIRE))
@@ -80,7 +85,7 @@ class ExtSubmissionServiceTest(
         assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
         assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
         assertThat(submissionRequest.submission.modificationTime).isEqualTo(mockNow)
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionRepository.existByAccNo("ArrayExpress")
             submissionSubmitter.createRequest(submissionRequest)
             submissionSubmitter.handleRequest(extSubmission.accNo, 1)
@@ -92,7 +97,7 @@ class ExtSubmissionServiceTest(
     fun `submit extended async`() {
         val requestSlot = slot<ExtSubmitRequest>()
 
-        every { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
+        coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
         every { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 1)
         every { eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version) } answers { nothing }
 
@@ -103,7 +108,7 @@ class ExtSubmissionServiceTest(
         assertThat(submissionRequest.submission.storageMode).isEqualTo(NFS)
         assertThat(submissionRequest.submission.modificationTime).isEqualTo(mockNow)
 
-        verify(exactly = 0) { submissionSubmitter.handleRequest(any(), any()) }
+        coVerify(exactly = 0) { submissionSubmitter.handleRequest(any(), any()) }
         verify(exactly = 1) {
             submissionRepository.existByAccNo("ArrayExpress")
             securityQueryService.existsByEmail("owner@email.org", false)
@@ -112,7 +117,7 @@ class ExtSubmissionServiceTest(
     }
 
     @Test
-    fun `submit extended with regular user`() {
+    fun `submit extended with regular user`() = runTest {
         val exception = assertThrows<UnauthorizedOperation> {
             testInstance.submitExt("regular@mail.com", extSubmission)
         }
@@ -121,7 +126,7 @@ class ExtSubmissionServiceTest(
     }
 
     @Test
-    fun `submit extended with non existing owner`() {
+    fun `submit extended with non existing owner`() = runTest {
         every { securityQueryService.existsByEmail("owner@email.org", false) } returns false
 
         val exception = assertThrows<UserNotFoundException> {
@@ -132,7 +137,7 @@ class ExtSubmissionServiceTest(
     }
 
     @Test
-    fun `submit extended with non existing collection`() {
+    fun `submit extended with non existing collection`() = runTest {
         every { submissionRepository.existByAccNo("ArrayExpress") } returns false
 
         val exception = assertThrows<CollectionNotFoundException> {
@@ -143,12 +148,12 @@ class ExtSubmissionServiceTest(
     }
 
     @Test
-    fun `submit extended collection`() {
+    fun `submit extended collection`() = runTest {
         val requestSlot = slot<ExtSubmitRequest>()
         val collection = extSubmission.copy(section = ExtSection(type = PROJECT_TYPE), storageMode = FIRE)
 
         every { submissionRepository.existByAccNo("ArrayExpress") } returns false
-        every { submissionSubmitter.handleRequest(collection.accNo, 1) } returns collection
+        coEvery { submissionSubmitter.handleRequest(collection.accNo, 1) } returns collection
         every { submissionSubmitter.createRequest(capture(requestSlot)) } returns (collection.accNo to collection.version)
 
         testInstance.submitExt("user@mail.com", collection)

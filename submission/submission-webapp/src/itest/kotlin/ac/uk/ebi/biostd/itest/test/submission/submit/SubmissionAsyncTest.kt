@@ -24,6 +24,8 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.model.extensions.title
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeAll
@@ -38,6 +40,7 @@ import java.time.Duration.ofSeconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionAsyncTest(
     @Autowired val securityTestService: SecurityTestService,
@@ -84,7 +87,7 @@ class SubmissionAsyncTest(
     }
 
     @Test
-    fun `19-2 check submission stages`() {
+    fun `19-2 check submission stages`() = runTest {
         val submission = tsv {
             line("Submission", "SimpleAsync2")
             line("Title", "Submission Stages")

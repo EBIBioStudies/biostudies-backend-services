@@ -11,6 +11,7 @@ import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
+import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
@@ -70,7 +71,7 @@ internal class SecurityServiceTest(
     @MockK private val securityUtil: SecurityUtil,
     @MockK private val captchaVerifier: CaptchaVerifier,
     @MockK private val eventsPublisherService: EventsPublisherService,
-    @MockK private val ftpClient: ebi.ac.uk.ftp.FtpClient,
+    @MockK private val ftpClient: FtpClient,
 ) {
     private val testInstance: SecurityService = SecurityService(
         userRepository,

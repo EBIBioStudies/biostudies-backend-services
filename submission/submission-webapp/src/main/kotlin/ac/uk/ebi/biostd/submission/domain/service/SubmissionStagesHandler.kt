@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
 import ebi.ac.uk.extended.events.RequestPersisted
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
 import org.springframework.amqp.rabbit.annotation.RabbitListener
@@ -95,7 +96,7 @@ class SubmissionStagesHandler(
         }
     }
 
-    private fun processSafely(request: RequestMessage, process: RequestMessage.() -> Unit) {
+    private fun processSafely(request: RequestMessage, process: suspend RequestMessage.() -> Unit) = runBlocking {
         runCatching { process(request) }.onFailure { onError(it, request) }
     }
 

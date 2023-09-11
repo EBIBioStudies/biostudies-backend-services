@@ -11,10 +11,13 @@ import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.model.constants.ACC_NO
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -22,6 +25,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import java.io.File
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class)
 internal class SubmissionRequestSaverTest(
     @MockK val requestService: SubmissionRequestPersistenceService,
@@ -45,7 +49,7 @@ internal class SubmissionRequestSaverTest(
         @MockK subFile: ExtFile,
         @MockK requestFile: SubmissionRequestFile,
         @MockK updatedFile: File,
-    ) {
+    ) = runTest {
         val accNo = "ABC-123"
         val version = 1
         val filePath = "the-file-path"
@@ -62,7 +66,7 @@ internal class SubmissionRequestSaverTest(
         every { subFile.filePath } returns filePath
 
         every { requestService.getCheckReleased(accNo, version) } answers { request }
-        every { requestService.saveSubmissionRequest(request) } answers { ACC_NO to version }
+        coEvery { requestService.saveSubmissionRequest(request) } answers { ACC_NO to version }
 
         every { request.withNewStatus(PERSISTED) } returns request
         every { request.submission } answers { submission }
@@ -81,7 +85,7 @@ internal class SubmissionRequestSaverTest(
 
         assertThat(response).isEqualTo(submission)
         assertThat(newFile).isEqualTo(updatedSubFile)
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             eventsPublisherService.submissionSubmitted(accNo, notifyTo)
             persistenceService.expirePreviousVersions(accNo)
             persistenceService.saveSubmission(submission)

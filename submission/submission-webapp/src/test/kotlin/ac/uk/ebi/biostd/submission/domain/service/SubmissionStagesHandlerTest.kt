@@ -13,10 +13,13 @@ import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestPersisted
 import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -37,12 +40,12 @@ class SubmissionStagesHandlerTest(
     fun `index request`() {
         val request = RequestCreated("S-BSTT0", 1)
 
-        every { submissionSubmitter.indexRequest(request) } answers { nothing }
+        coEvery { submissionSubmitter.indexRequest(request) } answers { nothing }
         every { eventsPublisherService.requestIndexed("S-BSTT0", 1) } answers { nothing }
 
         testInstance.indexRequest(request)
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionSubmitter.indexRequest(request)
             eventsPublisherService.requestIndexed("S-BSTT0", 1)
         }
@@ -52,12 +55,12 @@ class SubmissionStagesHandlerTest(
     fun `load request`() {
         val request = RequestIndexed("S-BSTT0", 1)
 
-        every { submissionSubmitter.loadRequest(request) } answers { nothing }
+        coEvery { submissionSubmitter.loadRequest(request) } answers { nothing }
         every { eventsPublisherService.requestLoaded("S-BSTT0", 1) } answers { nothing }
 
         testInstance.loadRequest(request)
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionSubmitter.loadRequest(request)
             eventsPublisherService.requestLoaded("S-BSTT0", 1)
         }
@@ -67,12 +70,12 @@ class SubmissionStagesHandlerTest(
     fun `clean request`() {
         val request = RequestLoaded("S-BSTT0", 1)
 
-        every { submissionSubmitter.cleanRequest(request) } answers { nothing }
+        coEvery { submissionSubmitter.cleanRequest(request) } answers { nothing }
         every { eventsPublisherService.requestCleaned("S-BSTT0", 1) } answers { nothing }
 
         testInstance.cleanRequest(request)
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionSubmitter.cleanRequest(request)
             eventsPublisherService.requestCleaned("S-BSTT0", 1)
         }
@@ -82,12 +85,12 @@ class SubmissionStagesHandlerTest(
     fun `copy request files`() {
         val request = RequestCleaned("S-BSTT0", 1)
 
-        every { submissionSubmitter.processRequest(request) } answers { nothing }
+        coEvery { submissionSubmitter.processRequest(request) } answers { nothing }
         every { eventsPublisherService.requestFilesCopied("S-BSTT0", 1) } answers { nothing }
 
         testInstance.copyRequestFiles(request)
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionSubmitter.processRequest(request)
             eventsPublisherService.requestFilesCopied("S-BSTT0", 1)
         }
@@ -97,12 +100,12 @@ class SubmissionStagesHandlerTest(
     fun `check released`() {
         val request = RequestFilesCopied("S-BSTT0", 1)
 
-        every { submissionSubmitter.checkReleased(request) } answers { nothing }
+        coEvery { submissionSubmitter.checkReleased(request) } answers { nothing }
         every { eventsPublisherService.checkReleased("S-BSTT0", 1) } answers { nothing }
 
         testInstance.checkReleased(request)
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionSubmitter.checkReleased(request)
             eventsPublisherService.checkReleased("S-BSTT0", 1)
         }
@@ -110,18 +113,18 @@ class SubmissionStagesHandlerTest(
 
     @Test
     fun `save submission`(
-        @MockK submission: ExtSubmission
+        @MockK submission: ExtSubmission,
     ) {
         val request = RequestCheckedReleased("S-BSTT0", 1)
 
         every { submission.accNo } returns "S-BSST0"
         every { submission.owner } returns "owner@test.org"
-        every { submissionSubmitter.saveRequest(request) } returns submission
+        coEvery { submissionSubmitter.saveRequest(request) } returns submission
         every { eventsPublisherService.submissionPersisted("S-BSTT0", 1) } answers { nothing }
 
         testInstance.saveSubmission(request)
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionSubmitter.saveRequest(request)
             eventsPublisherService.submissionPersisted("S-BSTT0", 1)
         }
@@ -132,25 +135,25 @@ class SubmissionStagesHandlerTest(
     fun `finalize request`() {
         val request = RequestPersisted("S-BSTT0", 1)
 
-        every { submissionSubmitter.finalizeRequest(request) } answers { nothing }
+        coEvery { submissionSubmitter.finalizeRequest(request) } answers { nothing }
 
         testInstance.finalizeRequest(request)
 
-        verify(exactly = 1) { submissionSubmitter.finalizeRequest(request) }
+        coVerify(exactly = 1) { submissionSubmitter.finalizeRequest(request) }
         verify(exactly = 0) { eventsPublisherService.submissionSubmitted(any(), any()) }
     }
 
     @Test
     fun `calculate stats`(
         @MockK stat: SubmissionStat,
-    ) {
+    ) = runTest {
         val request = RequestFinalized("S-BSST0", 1)
 
-        every { statsService.calculateSubFilesSize("S-BSST0") } returns stat
+        coEvery { statsService.calculateSubFilesSize("S-BSST0") } returns stat
 
         testInstance.calculateStats(request)
 
-        verify(exactly = 1) { statsService.calculateSubFilesSize("S-BSST0") }
+        coVerify(exactly = 1) { statsService.calculateSubFilesSize("S-BSST0") }
         verify(exactly = 0) { eventsPublisherService.submissionSubmitted(any(), any()) }
     }
 }

@@ -39,11 +39,7 @@ internal class UserPathSource(
     private val pathSource = PathSource(description, sourcePath)
 
     override fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
-        val filePath = when (type) {
-            DIRECTORY_TYPE.value -> path.removeSuffix(".zip")
-            else -> path
-        }
-
+        val filePath = if (type == DIRECTORY_TYPE.value) path.removeSuffix(".zip") else path
         return pathSource.getExtFile(filePath, type, attributes)
     }
 

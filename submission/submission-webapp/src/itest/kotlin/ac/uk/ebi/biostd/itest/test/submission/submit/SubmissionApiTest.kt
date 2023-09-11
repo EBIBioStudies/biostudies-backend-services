@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.entities.FtpSuperUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.ftpPath
@@ -32,6 +33,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty
@@ -329,6 +331,44 @@ class SubmissionApiTest(
             val extSub = submissionRepository.getExtByAccNo("S-12366")
             assertThat(extSub.relPath).isEqualTo("base/path/S-/366/S-12366")
         }
+    }
+
+    @Test
+    @Disabled
+    fun `16-12 User with Ftp based folder submission`() {
+        securityTestService.ensureUserRegistration(FtpSuperUser)
+        webClient = getWebClient(serverPort, FtpSuperUser)
+
+        val file = tempFolder.createFile("fileListFtpFile.txt")
+        webClient.uploadFile(file)
+
+        val fileList = tempFolder.createFile(
+            "FileList-Ftp.tsv",
+            tsv {
+                line("Files")
+                line(file.name)
+            }.toString()
+        )
+
+        webClient.uploadFile(fileList)
+
+        val simpleFile = tempFolder.createFile("simpleFtpFile.txt", "An example content")
+        webClient.uploadFiles(listOf(simpleFile))
+
+        val submission = tsv {
+            line("Submission", "SFTP-1")
+            line("Title", "FTP user Submission")
+            line()
+
+            line("Study")
+            line("File List", "FileList-Ftp.tsv")
+            line()
+            line("File", "simpleFtpFile.txt")
+        }.toString()
+
+        val result = webClient.submitSingle(submission, TSV)
+
+        assertThat(result).isSuccessful()
     }
 
     private fun getSimpleSubmission(accNo: String) =
