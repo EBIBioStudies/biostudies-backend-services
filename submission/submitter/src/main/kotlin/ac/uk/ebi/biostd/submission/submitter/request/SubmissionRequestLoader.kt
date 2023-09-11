@@ -13,11 +13,10 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
 import java.io.File
 import java.nio.file.Files
@@ -44,7 +43,7 @@ class SubmissionRequestLoader(
     }
 
     private suspend fun loadSubmissionFiles(accNo: String, version: Int, sub: ExtSubmission, startingAt: Int) {
-        fun loadFile(rqtFile: SubmissionRequestFile) {
+        suspend fun loadFile(rqtFile: SubmissionRequestFile) {
             logger.info { "$accNo ${sub.owner} Started loading file ${rqtFile.index}, path='${rqtFile.path}'" }
             when (val file = rqtFile.file) {
                 is FireFile -> requestService.updateRqtIndex(accNo, version, rqtFile.index)
@@ -56,7 +55,7 @@ class SubmissionRequestLoader(
             logger.info { "$accNo ${sub.owner} Finished loading file ${rqtFile.index}, path='${rqtFile.path}'" }
         }
 
-        withContext(Dispatchers.Default) {
+        supervisorScope {
             filesRequestService
                 .getSubmissionRequestFiles(accNo, sub.version, startingAt)
                 .map { async { loadFile(it) } }

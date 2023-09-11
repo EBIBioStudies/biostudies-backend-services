@@ -6,11 +6,10 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersist
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtSubmission
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
@@ -44,7 +43,7 @@ class SubmissionRequestProcessor(
             logger.info { "$accNo ${sub.owner} Finished persisting file ${rqtFile.index}, path='${rqtFile.path}'" }
         }
 
-        withContext(Dispatchers.Default) {
+        supervisorScope {
             filesRequestService
                 .getSubmissionRequestFiles(accNo, sub.version, startingAt)
                 .map { async { persistFile(it) } }

@@ -96,8 +96,8 @@ class SubmissionStagesHandler(
         }
     }
 
-    private fun processSafely(request: RequestMessage, process: suspend RequestMessage.() -> Unit) {
-        runCatching { runBlocking { process(request) } }.onFailure { onError(it, request) }
+    private fun processSafely(request: RequestMessage, process: suspend RequestMessage.() -> Unit) = runBlocking {
+        runCatching { process(request) }.onFailure { onError(it, request) }
     }
 
     private fun onError(exception: Throwable, rqt: RequestMessage) {

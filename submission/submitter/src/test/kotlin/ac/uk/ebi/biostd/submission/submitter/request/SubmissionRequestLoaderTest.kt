@@ -78,7 +78,7 @@ class SubmissionRequestLoaderTest(
         every {
             filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)
         } returns flowOf(indexedRequestFile)
-        every { requestService.updateRqtIndex(indexedRequestFile, capture(filSlot)) } answers { nothing }
+        coEvery { requestService.updateRqtIndex(indexedRequestFile, capture(filSlot)) } answers { nothing }
 
         testInstance.loadRequest(sub.accNo, sub.version)
 

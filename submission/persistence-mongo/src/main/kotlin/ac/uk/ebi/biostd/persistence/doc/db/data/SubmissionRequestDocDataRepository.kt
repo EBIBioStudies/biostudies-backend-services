@@ -88,11 +88,11 @@ class SubmissionRequestDocDataRepository(
         where("$SUB.$SUB_OWNER").`is`(email)
             .andOperator(*criteriaArray(filter))
 
-    fun updateIndex(accNo: String, version: Int, index: Int) {
+    suspend fun updateIndex(accNo: String, version: Int, index: Int) {
         val update = Update().set(RQT_IDX, index).set(RQT_MODIFICATION_TIME, Instant.now())
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
 
-        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).block()
+        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 
     fun upsertSubmissionRequestFile(rqtFile: SubmissionRequestFile) {

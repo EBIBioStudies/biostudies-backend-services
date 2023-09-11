@@ -80,8 +80,8 @@ class SubmissionRequestReleaserTest(
         coEvery { storageService.releaseSubmissionFile(nfsFile, relPath, mode) } returns releasedFile
         coEvery { requestService.saveSubmissionRequest(rqt.withNewStatus(CHECK_RELEASED)) } answers { accNo to version }
         every { requestService.getFilesCopiedRequest(accNo, version) } returns rqt
-        every { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
-        every { requestService.updateRqtIndex(accNo, version, 2) } answers { nothing }
+        coEvery { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
+        coEvery { requestService.updateRqtIndex(accNo, version, 2) } answers { nothing }
 
         testInstance.checkReleased(accNo, version)
 

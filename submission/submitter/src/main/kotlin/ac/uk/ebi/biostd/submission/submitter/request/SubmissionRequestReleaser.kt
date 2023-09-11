@@ -12,12 +12,11 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.fileSequence
@@ -67,7 +66,7 @@ class SubmissionRequestReleaser(
             }
         }
 
-        withContext(Dispatchers.Default) {
+        supervisorScope {
             filesRequestService
                 .getSubmissionRequestFiles(sub.accNo, sub.version, startingAt)
                 .map { async { releaseFile(it) } }

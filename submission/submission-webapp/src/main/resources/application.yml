@@ -9,6 +9,10 @@ spring:
       client:
         enabled: false
 
+  mvc:
+    async:
+      request-timeout: -1
+
   data:
     mongodb:
       database: # Mongo Database Name
