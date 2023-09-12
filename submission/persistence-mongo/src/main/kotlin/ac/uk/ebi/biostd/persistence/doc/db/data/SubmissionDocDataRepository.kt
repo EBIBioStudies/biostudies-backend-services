@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.request.SimpleFilter
-import ac.uk.ebi.biostd.persistence.common.request.SubFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.commons.ExtendedUpdate
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
@@ -85,7 +85,7 @@ class SubmissionDocDataRepository(
     fun getCollections(accNo: String): List<DocCollection> =
         submissionRepository.findSubmissionCollections(accNo)?.collections ?: emptyList()
 
-    fun getSubmissions(filter: SubFilter): List<DocSubmission> {
+    fun getSubmissions(filter: SubmissionFilter): List<DocSubmission> {
         val aggregations = createSubmissionAggregation(filter)
         val aggregation = newAggregation(
             DocSubmission::class.java,
@@ -97,7 +97,7 @@ class SubmissionDocDataRepository(
             .block()!!
     }
 
-    fun getSubmissionsPage(filter: SubFilter): Page<DocSubmission> {
+    fun getSubmissionsPage(filter: SubmissionFilter): Page<DocSubmission> {
         val aggregation = newAggregation(
             DocSubmission::class.java,
             *createCountAggregation(filter).toTypedArray()
@@ -114,16 +114,16 @@ class SubmissionDocDataRepository(
     fun getSubmission(acc: String, version: Int) = submissionRepository.getByAccNoAndVersion(acc, version)
 
     companion object {
-        private fun createCountAggregation(filter: SubFilter) =
+        private fun createCountAggregation(filter: SubmissionFilter) =
             createAggregation(filter).plus(group().count().`as`("submissions"))
 
-        private fun createSubmissionAggregation(filter: SubFilter) =
+        private fun createSubmissionAggregation(filter: SubmissionFilter) =
             createAggregation(filter, filter.offset to filter.limit.toLong())
 
         private fun aggregationOptions() = AggregationOptions.builder().allowDiskUse(true).build()
 
         private fun createAggregation(
-            filter: SubFilter,
+            filter: SubmissionFilter,
             offsetLimit: Pair<Long, Long>? = null,
         ): List<AggregationOperation> = buildList {
             addAll(createQuery(filter))
@@ -131,11 +131,11 @@ class SubmissionDocDataRepository(
             offsetLimit?.let { add(skip(it.first)); add(limit(it.second)) }
         }
 
-        private fun createQuery(filter: SubFilter): List<MatchOperation> {
+        private fun createQuery(filter: SubmissionFilter): List<MatchOperation> {
             return buildList {
                 when (filter) {
                     is SimpleFilter -> {}
-                    is SubmissionFilter -> {
+                    is SubmissionListFilter -> {
                         filter.keywords?.let { add(match(keywordsCriteria(it))) }
                         filter.type?.let { add(match(where("$SUB_SECTION.$SEC_TYPE").`is`(it))) }
                         add(match(where(SUB_VERSION).gt(0)))

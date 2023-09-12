@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
@@ -112,7 +112,7 @@ internal class SubmissionDocDataRepositoryTest(
             testInstance.save(testDocSubmission.copy(accNo = "accNo1", owner = "anotherEmail"))
             val d2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", owner = "ownerEmail"))
 
-            val result = testInstance.getSubmissions(SubmissionFilter("ownerEmail"))
+            val result = testInstance.getSubmissions(SubmissionListFilter("ownerEmail"))
 
             assertThat(result).containsOnly(d2)
         }
@@ -129,7 +129,7 @@ internal class SubmissionDocDataRepositoryTest(
             )
 
             val result = testInstance.getSubmissions(
-                SubmissionFilter(OWNER, type = "work")
+                SubmissionListFilter(OWNER, type = "work")
             )
 
             assertThat(result).containsOnly(d2)
@@ -140,7 +140,7 @@ internal class SubmissionDocDataRepositoryTest(
             testInstance.save(testDocSubmission.copy(accNo = "accNo1"))
             val d2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2"))
 
-            val result = testInstance.getSubmissions(SubmissionFilter(OWNER, findAnyAccNo = true, accNo = "accNo2"))
+            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, findAnyAccNo = true, accNo = "accNo2"))
 
             assertThat(result).containsOnly(d2)
         }
@@ -149,7 +149,7 @@ internal class SubmissionDocDataRepositoryTest(
         fun `by AccNo When is the owner`() {
             val d1 = testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1"))
 
-            val result = testInstance.getSubmissions(SubmissionFilter(OWNER, accNo = "accNo1"))
+            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, accNo = "accNo1"))
 
             assertThat(result).containsOnly(d1)
         }
@@ -162,7 +162,7 @@ internal class SubmissionDocDataRepositoryTest(
             )
 
             val result = testInstance.getSubmissions(
-                SubmissionFilter(
+                SubmissionListFilter(
                     OWNER,
                     rTimeFrom = OffsetDateTime.ofInstant(ofEpochSecond(10), ZoneOffset.UTC),
                     rTimeTo = OffsetDateTime.ofInstant(ofEpochSecond(20), ZoneOffset.UTC)
@@ -179,9 +179,12 @@ internal class SubmissionDocDataRepositoryTest(
 
             testInstance.saveAll(listOf(doc1, doc2))
 
-            assertThat(testInstance.getSubmissions(SubmissionFilter(OWNER, keywords = "one"))).containsOnly(doc1)
-            assertThat(testInstance.getSubmissions(SubmissionFilter(OWNER, keywords = "two"))).containsOnly(doc1, doc2)
-            assertThat(testInstance.getSubmissions(SubmissionFilter(OWNER, keywords = "four"))).containsOnly(doc2)
+            assertThat(testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "one"))).containsOnly(doc1)
+            assertThat(testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "two"))).containsOnly(
+                doc1,
+                doc2
+            )
+            assertThat(testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "four"))).containsOnly(doc2)
         }
 
         @Test
@@ -189,7 +192,7 @@ internal class SubmissionDocDataRepositoryTest(
             testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1", released = true))
             val d2 = testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo2", released = false))
 
-            val result = testInstance.getSubmissions(SubmissionFilter(OWNER, released = false))
+            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, released = false))
 
             assertThat(result).containsOnly(d2)
         }

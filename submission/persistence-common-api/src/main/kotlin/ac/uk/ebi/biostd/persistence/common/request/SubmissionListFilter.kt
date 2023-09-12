@@ -15,7 +15,7 @@ data class PageRequest(
     }
 }
 
-sealed interface SubFilter {
+sealed interface SubmissionFilter {
     val rTimeFrom: OffsetDateTime?
     val rTimeTo: OffsetDateTime?
     val notIncludeAccNo: Set<String>?
@@ -36,9 +36,9 @@ data class SimpleFilter(
     override val released: Boolean?,
     override val limit: Int = 15,
     override val offset: Long = 0,
-) : SubFilter
+) : SubmissionFilter
 
-data class SubmissionFilter(
+data class SubmissionListFilter(
     val filterUser: String,
     val findAnyAccNo: Boolean = false,
     val accNo: String? = null,
@@ -53,4 +53,4 @@ data class SubmissionFilter(
     override val notIncludeAccNo: Set<String>? = null,
     override val limit: Int = 15,
     override val offset: Long = 0,
-) : SubFilter
+) : SubmissionFilter

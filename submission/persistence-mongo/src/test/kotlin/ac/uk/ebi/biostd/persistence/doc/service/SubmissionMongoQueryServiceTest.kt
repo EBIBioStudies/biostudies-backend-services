@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
@@ -130,14 +130,14 @@ internal class SubmissionMongoQueryServiceTest(
             submissionRepo.save(docSubmission.copy(accNo = "accNo1"))
 
             var result = testInstance.getSubmissionsByUser(
-                SubmissionFilter(SUBMISSION_OWNER, accNo = "accNo1", limit = 1)
+                SubmissionListFilter(SUBMISSION_OWNER, accNo = "accNo1", limit = 1)
             )
 
             assertThat(result).hasSize(1)
             assertThat(result.first()).isEqualTo(savedRequest.asBasicSubmission(PROCESSING))
 
             result = testInstance.getSubmissionsByUser(
-                SubmissionFilter(SUBMISSION_OWNER, accNo = "accNo1", limit = 2)
+                SubmissionListFilter(SUBMISSION_OWNER, accNo = "accNo1", limit = 2)
             )
             assertThat(result).hasSize(1)
             assertThat(result.first()).isEqualTo(savedRequest.asBasicSubmission(PROCESSING))
@@ -153,7 +153,7 @@ internal class SubmissionMongoQueryServiceTest(
             submissionRepo.save(docSubmission.copy(accNo = "acc3", title = "title", section = sect3))
 
             val result = testInstance.getSubmissionsByUser(
-                SubmissionFilter(SUBMISSION_OWNER, keywords = "title", limit = 2)
+                SubmissionListFilter(SUBMISSION_OWNER, keywords = "title", limit = 2)
             )
 
             assertThat(result).hasSize(2)
@@ -179,7 +179,7 @@ internal class SubmissionMongoQueryServiceTest(
             submissionRepo.save(docSubmission.copy(accNo = "acc4", section = docSectionNoMatch))
 
             val result = testInstance.getSubmissionsByUser(
-                SubmissionFilter(SUBMISSION_OWNER, keywords = "match", limit = 2)
+                SubmissionListFilter(SUBMISSION_OWNER, keywords = "match", limit = 2)
             )
 
             assertThat(result).hasSize(2)
@@ -198,7 +198,7 @@ internal class SubmissionMongoQueryServiceTest(
             submissionRepo.save(docSubmission.copy(accNo = "accNo3", section = docSection1))
 
             val result = testInstance.getSubmissionsByUser(
-                SubmissionFilter(SUBMISSION_OWNER, type = "type1", limit = 2)
+                SubmissionListFilter(SUBMISSION_OWNER, type = "type1", limit = 2)
             )
 
             assertThat(result).hasSize(2)
@@ -224,7 +224,7 @@ internal class SubmissionMongoQueryServiceTest(
             )
 
             val result = testInstance.getSubmissionsByUser(
-                SubmissionFilter(
+                SubmissionListFilter(
                     SUBMISSION_OWNER,
                     rTimeFrom = OffsetDateTime.of(2005, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
                     limit = 2
@@ -254,7 +254,7 @@ internal class SubmissionMongoQueryServiceTest(
             )
 
             val result = testInstance.getSubmissionsByUser(
-                SubmissionFilter(
+                SubmissionListFilter(
                     SUBMISSION_OWNER,
                     rTimeTo = OffsetDateTime.of(2005, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC),
                     limit = 3
@@ -273,7 +273,7 @@ internal class SubmissionMongoQueryServiceTest(
             submissionRepo.save(docSubmission.copy(accNo = "accNo3", released = true))
 
             val result = testInstance.getSubmissionsByUser(
-                SubmissionFilter(SUBMISSION_OWNER, released = true, limit = 2)
+                SubmissionListFilter(SUBMISSION_OWNER, released = true, limit = 2)
             )
 
             assertThat(result).hasSize(2)
@@ -294,7 +294,7 @@ internal class SubmissionMongoQueryServiceTest(
             saveAsRequest(extSubmission.copy(accNo = "accNo3", version = 2), CLEANED)
             saveAsRequest(extSubmission.copy(accNo = "accNo4", version = 2), FILES_COPIED)
 
-            val result = testInstance.getSubmissionsByUser(SubmissionFilter(SUBMISSION_OWNER))
+            val result = testInstance.getSubmissionsByUser(SubmissionListFilter(SUBMISSION_OWNER))
 
             assertThat(result).hasSize(5)
             assertThat(result[0].accNo).isEqualTo("accNo1")
@@ -330,7 +330,7 @@ internal class SubmissionMongoQueryServiceTest(
             submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = -1))
 
             val result = testInstance.getSubmissionsByUser(
-                SubmissionFilter(SUBMISSION_OWNER, accNo = "accNo1", limit = 3)
+                SubmissionListFilter(SUBMISSION_OWNER, accNo = "accNo1", limit = 3)
             )
 
             assertThat(result).hasSize(1)
@@ -347,7 +347,7 @@ internal class SubmissionMongoQueryServiceTest(
             )
 
             val result = testInstance.getSubmissionsByUser(
-                SubmissionFilter(SUBMISSION_OWNER, accNo = "accNo1", limit = 3)
+                SubmissionListFilter(SUBMISSION_OWNER, accNo = "accNo1", limit = 3)
             )
 
             assertThat(result).hasSize(1)

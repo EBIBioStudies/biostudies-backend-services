@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import ac.uk.ebi.biostd.persistence.common.request.SubFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -50,11 +50,11 @@ internal class SubmissionMongoPersistenceQueryService(
         return toExtSubmissionMapper.toExtSubmission(document, includeFileListFiles)
     }
 
-    override fun getExtendedSubmissions(filter: SubFilter): Page<ExtSubmission> {
+    override fun getExtendedSubmissions(filter: SubmissionFilter): Page<ExtSubmission> {
         return submissionRepo.getSubmissionsPage(filter).map { toExtSubmissionMapper.toExtSubmission(it, false) }
     }
 
-    override fun getSubmissionsByUser(filter: SubmissionFilter): List<BasicSubmission> {
+    override fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission> {
         val (requestsCount, requests) = requestRepository.findActiveRequests(filter)
         val submissionFilter = filter.copy(
             limit = filter.limit - requests.size,
@@ -68,7 +68,7 @@ internal class SubmissionMongoPersistenceQueryService(
             .plus(findSubmissions(submissionFilter))
     }
 
-    private fun findSubmissions(filter: SubmissionFilter): List<BasicSubmission> =
+    private fun findSubmissions(filter: SubmissionListFilter): List<BasicSubmission> =
         when (filter.limit) {
             0 -> emptyList()
             else -> submissionRepo.getSubmissions(filter).map { it.asBasicSubmission(PROCESSED) }

@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.db.data
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_ACC_NO
@@ -59,7 +59,7 @@ class SubmissionRequestDocDataRepository(
         return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING) to created
     }
 
-    fun findActiveRequests(filter: SubmissionFilter): Pair<Int, List<DocSubmissionRequest>> {
+    fun findActiveRequests(filter: SubmissionListFilter): Pair<Int, List<DocSubmissionRequest>> {
         val query = Query().addCriteria(createQuery(filter))
         val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java).block()!!
         return when {
@@ -80,7 +80,7 @@ class SubmissionRequestDocDataRepository(
     }
 
     @Suppress("SpreadOperator")
-    private fun createQuery(filter: SubmissionFilter): Criteria =
+    private fun createQuery(filter: SubmissionListFilter): Criteria =
         where("$SUB.$SUB_OWNER").`is`(filter.filterUser)
             .andOperator(*criteriaArray(filter))
 
@@ -120,7 +120,7 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).block()
     }
 
-    private fun criteriaArray(filter: SubmissionFilter): Array<Criteria> =
+    private fun criteriaArray(filter: SubmissionListFilter): Array<Criteria> =
         ImmutableList.Builder<Criteria>().apply {
             add(where(SUB_STATUS).`in`(PROCESSING))
             filter.accNo?.let { add(where("$SUB.$SUB_ACC_NO").`is`(it)) }
