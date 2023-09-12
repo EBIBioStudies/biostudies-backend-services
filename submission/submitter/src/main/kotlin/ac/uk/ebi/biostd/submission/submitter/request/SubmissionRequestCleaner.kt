@@ -11,7 +11,6 @@ import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.storageMode
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.fileSequence
@@ -25,14 +24,14 @@ class SubmissionRequestCleaner(
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
-    fun cleanCurrentVersion(accNo: String, version: Int) {
+    suspend fun cleanCurrentVersion(accNo: String, version: Int) {
         val request = requestService.getLoadedRequest(accNo, version)
         val new = request.submission
         val current = queryService.findExtByAccNo(accNo, includeFileListFiles = true)
 
         if (current != null) {
             logger.info { "${new.accNo} ${new.owner} Started cleaning common files of version ${new.version}" }
-            runBlocking { deleteCommonFiles(new, current) }
+            deleteCommonFiles(new, current)
             logger.info { "${new.accNo} ${new.owner} Finished cleaning common files of version ${new.version}" }
         }
 

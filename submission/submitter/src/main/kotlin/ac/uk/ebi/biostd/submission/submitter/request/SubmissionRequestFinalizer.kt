@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.storageMode
-import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -22,12 +21,12 @@ class SubmissionRequestFinalizer(
     private val queryService: SubmissionPersistenceQueryService,
     private val requestService: SubmissionRequestPersistenceService,
 ) {
-    fun finalizeRequest(accNo: String, version: Int): ExtSubmission {
+    suspend fun finalizeRequest(accNo: String, version: Int): ExtSubmission {
         val request = requestService.getPersistedRequest(accNo, version)
         val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
         val previous = queryService.findLatestInactiveByAccNo(accNo, includeFileListFiles = true)
 
-        if (previous != null) runBlocking { deleteRemainingFiles(sub, previous) }
+        if (previous != null) deleteRemainingFiles(sub, previous)
 
         requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED))
         eventsPublisherService.submissionFinalized(accNo, version)

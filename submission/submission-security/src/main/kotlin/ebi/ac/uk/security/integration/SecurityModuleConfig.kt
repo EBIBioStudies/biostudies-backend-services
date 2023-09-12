@@ -84,7 +84,7 @@ class SecurityModuleConfig(
             SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
 
         fun ftpClient(fileProperties: FilesProperties): FtpClient {
-            return FtpClient(
+            return FtpClient.create(
                 ftpUser = fileProperties.ftpUser,
                 ftpPassword = fileProperties.ftpPassword,
                 ftpUrl = fileProperties.ftpUrl,

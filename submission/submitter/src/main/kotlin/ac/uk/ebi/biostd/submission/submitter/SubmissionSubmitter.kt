@@ -38,31 +38,31 @@ class SubmissionSubmitter(
         return submission
     }
 
-    fun indexRequest(rqt: RequestCreated) {
+    suspend fun indexRequest(rqt: RequestCreated) {
         submissionSubmitter.indexRequest(rqt.accNo, rqt.version)
     }
 
-    fun loadRequest(rqt: RequestIndexed) {
+    suspend fun loadRequest(rqt: RequestIndexed) {
         return submissionSubmitter.loadRequest(rqt.accNo, rqt.version)
     }
 
-    fun cleanRequest(rqt: RequestLoaded) {
+    suspend fun cleanRequest(rqt: RequestLoaded) {
         submissionSubmitter.cleanRequest(rqt.accNo, rqt.version)
     }
 
-    fun processRequest(rqt: RequestCleaned) {
+    suspend fun processRequest(rqt: RequestCleaned) {
         submissionSubmitter.processRequest(rqt.accNo, rqt.version)
     }
 
-    fun checkReleased(rqt: RequestFilesCopied) {
+    suspend fun checkReleased(rqt: RequestFilesCopied) {
         submissionSubmitter.checkReleased(rqt.accNo, rqt.version)
     }
 
-    fun saveRequest(rqt: RequestCheckedReleased): ExtSubmission {
+    suspend fun saveRequest(rqt: RequestCheckedReleased): ExtSubmission {
         return submissionSubmitter.saveRequest(rqt.accNo, rqt.version)
     }
 
-    fun finalizeRequest(rqt: RequestPersisted) {
+    suspend fun finalizeRequest(rqt: RequestPersisted) {
         submissionSubmitter.finalizeRequest(rqt.accNo, rqt.version)
     }
 

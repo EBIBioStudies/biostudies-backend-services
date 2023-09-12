@@ -20,6 +20,8 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.AfterEach
@@ -42,6 +44,7 @@ import java.time.Instant
 
 @ExtendWith(MockKExtension::class, SpringExtension::class, TemporaryFolderExtension::class)
 @Testcontainers
+@OptIn(ExperimentalCoroutinesApi::class)
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 class SubmissionRequestMongoPersistenceServiceTest(
     private val tempFolder: TemporaryFolder,
@@ -89,7 +92,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
     }
 
     @Test
-    fun `update requestFile`() {
+    fun `update requestFile`() = runTest {
         val extFile = createNfsFile("requested.txt", "Files/requested.txt", tempFolder.createFile("requested.txt"))
         val requestFile = SubmissionRequestFile("S-BSST0", 1, index = 2, "requested.txt", extFile)
 

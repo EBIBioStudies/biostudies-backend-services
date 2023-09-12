@@ -19,7 +19,7 @@ class SubmissionRequestSaver(
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
     private val eventsPublisherService: EventsPublisherService,
 ) {
-    fun saveRequest(accNo: String, version: Int): ExtSubmission {
+    suspend fun saveRequest(accNo: String, version: Int): ExtSubmission {
         val request = requestService.getCheckReleased(accNo, version)
         val sub = request.submission
 

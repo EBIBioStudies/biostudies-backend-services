@@ -63,13 +63,13 @@ interface SubmissionRequestPersistenceService {
 
     fun getProcessingRequests(since: TemporalAmount? = null): List<Pair<String, Int>>
 
-    fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
+    suspend fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 
     fun createSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 
-    fun updateRqtIndex(accNo: String, version: Int, index: Int)
+    suspend fun updateRqtIndex(accNo: String, version: Int, index: Int)
 
-    fun updateRqtIndex(requestFile: SubmissionRequestFile, file: ExtFile)
+    suspend fun updateRqtIndex(requestFile: SubmissionRequestFile, file: ExtFile)
 
     fun getPendingRequest(accNo: String, version: Int): SubmissionRequest
 

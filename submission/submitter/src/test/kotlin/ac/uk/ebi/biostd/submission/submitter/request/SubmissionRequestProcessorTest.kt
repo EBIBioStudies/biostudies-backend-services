@@ -13,15 +13,18 @@ import ebi.ac.uk.extended.model.NfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestProcessorTest(
     @MockK private val storageService: FileStorageService,
@@ -44,7 +47,7 @@ class SubmissionRequestProcessorTest(
         @MockK rqt: SubmissionRequest,
         @MockK nfsFile: NfsFile,
         @MockK releasedFile: FireFile,
-    ) {
+    ) = runTest {
         val accNo = "ABC-123"
         val version = 1
 
@@ -55,13 +58,13 @@ class SubmissionRequestProcessorTest(
         every { submission.version } returns version
         every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile)
         coEvery { storageService.persistSubmissionFile(submission, nfsFile) } returns releasedFile
-        every { requestService.saveSubmissionRequest(rqt.withNewStatus(FILES_COPIED)) } answers { accNo to version }
+        coEvery { requestService.saveSubmissionRequest(rqt.withNewStatus(FILES_COPIED)) } answers { accNo to version }
         every { requestService.getCleanedRequest(accNo, version) } returns rqt
-        every { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
+        coEvery { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
 
         testInstance.processRequest(accNo, version)
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             requestService.saveSubmissionRequest(rqt.withNewStatus(FILES_COPIED))
         }
     }
