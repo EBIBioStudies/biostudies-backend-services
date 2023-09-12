@@ -17,6 +17,8 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.WebExtPage
 import ebi.ac.uk.model.constants.SUBMISSION
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -90,18 +92,18 @@ class ExtSubmissionResourceTest(
         bioUserResolver.securityUser = user
         every { tempFileGenerator.asFiles(capture(fileLists)) } returns emptyList()
         every { extSerializationService.serialize(extSubmission) } returns submissionJson
-        every { extSubmissionService.submitExt(user.email, extSubmission) } returns extSubmission
+        coEvery { extSubmissionService.submitExt(user.email, extSubmission) } returns extSubmission
         every { extSerializationService.deserialize(submissionJson) } returns extSubmission
 
         mvc.multipart("/submissions/extended") {
             content = submissionJson
             param(SUBMISSION, submissionJson)
-        }.andExpect {
+        }.asyncDispatch().andExpect {
             status { isOk() }
             content { json(submissionJson) }
         }
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             extSerializationService.serialize(extSubmission)
             extSubmissionService.submitExt(user.email, extSubmission)
             extSerializationService.deserialize(submissionJson)

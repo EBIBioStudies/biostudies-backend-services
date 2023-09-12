@@ -44,13 +44,13 @@ class ExtSubmissionResource(
     ): ExtFileTable = extSubmissionQueryService.getReferencedFiles(accNo, fileListPath.path)
 
     @PostMapping("/re-trigger/{accNo}/{version}")
-    fun reTriggerSubmission(
+    suspend fun reTriggerSubmission(
         @PathVariable accNo: String,
         @PathVariable version: Int,
     ): ExtSubmission = extSubmissionService.reTriggerSubmission(accNo, version)
 
     @PostMapping("/refresh/{accNo}")
-    fun refreshSubmission(
+    suspend fun refreshSubmission(
         @BioUser user: SecurityUser,
         @PathVariable accNo: String,
     ) = extSubmissionService.refreshSubmission(user.email, accNo)
@@ -64,7 +64,7 @@ class ExtSubmissionResource(
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    fun submitExtended(
+    suspend fun submitExtended(
         @BioUser user: SecurityUser,
         @RequestParam(SUBMISSION) extSubmission: String,
     ): ExtSubmission = extSubmissionService.submitExt(

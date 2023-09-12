@@ -33,6 +33,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtFile
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
@@ -84,11 +85,11 @@ class SubmissionRequestDocDataRepository(
         where("$SUB.$SUB_OWNER").`is`(filter.filterUser)
             .andOperator(*criteriaArray(filter))
 
-    fun updateIndex(accNo: String, version: Int, index: Int) {
+    suspend fun updateIndex(accNo: String, version: Int, index: Int) {
         val update = Update().set(RQT_IDX, index).set(RQT_MODIFICATION_TIME, Instant.now())
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
 
-        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).block()
+        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 
     fun upsertSubmissionRequestFile(rqtFile: SubmissionRequestFile) {
@@ -107,7 +108,7 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java).block()
     }
 
-    fun updateSubmissionRequest(rqt: DocSubmissionRequest) {
+    suspend fun updateSubmissionRequest(rqt: DocSubmissionRequest) {
         val query = Query(where(SUB_ACC_NO).`is`(rqt.accNo).andOperator(where(SUB_VERSION).`is`(rqt.version)))
         val update = Update()
             .set(SUB_STATUS, rqt.status)
@@ -117,7 +118,7 @@ class SubmissionRequestDocDataRepository(
             .set(RQT_TOTAL_FILES, rqt.totalFiles)
             .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
 
-        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).block()
+        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 
     private fun criteriaArray(filter: SubmissionListFilter): Array<Criteria> =

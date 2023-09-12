@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
@@ -34,7 +35,7 @@ class RetryHandler(
     }
 
     private fun reTriggerSafely(accNo: String, version: Int) {
-        runCatching { extSubmissionService.reTriggerSubmission(accNo, version) }
+        runCatching { runBlocking { extSubmissionService.reTriggerSubmission(accNo, version) } }
             .onFailure { logger.error { "Failed to re triggering request accNo='$accNo', version='$version'" } }
             .onSuccess { logger.info { "Completed processing of request accNo='$accNo', version='$version'" } }
     }
