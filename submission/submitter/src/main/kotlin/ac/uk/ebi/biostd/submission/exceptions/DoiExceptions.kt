@@ -4,9 +4,7 @@ class MissingDoiFieldException(field: String) : RuntimeException("The required D
 
 class MissingTitleException : RuntimeException("A title is required for DOI registration")
 
-class InvalidOrgNamesException(
-    organizations: List<String>
-) : RuntimeException("The following organization names are empty: ${organizations.joinToString(", ")}")
+class InvalidOrgNameException(org: String) : RuntimeException("The following organization name is empty: '$org'")
 
 class InvalidOrgException : RuntimeException("Organizations are required to have an accession")
 
@@ -19,4 +17,9 @@ class InvalidAuthorAffiliationException(
     organization: String,
 ) : RuntimeException("The organization '$organization' affiliated to the author '$author' could not be found")
 
-class InvalidDoiException : RuntimeException("The given DOI should match the previous version")
+class RemovedDoiException(previous: String) : RuntimeException("The previous DOI: '$previous' cannot be removed")
+
+class InvalidDoiException(
+    given: String,
+    previous: String,
+) : RuntimeException("The given DOI '$given' should match the previous DOI '$previous'")

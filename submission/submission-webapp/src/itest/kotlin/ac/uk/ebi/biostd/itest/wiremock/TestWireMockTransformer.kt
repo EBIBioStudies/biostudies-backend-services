@@ -25,7 +25,7 @@ import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import java.nio.file.Path
 import kotlin.random.Random
 
-class TestWireMockTransformer constructor(
+class TestWireMockTransformer(
     private val failFactor: Int?,
     private val fixedDelay: Long,
     private val handlers: List<RequestHandler>,

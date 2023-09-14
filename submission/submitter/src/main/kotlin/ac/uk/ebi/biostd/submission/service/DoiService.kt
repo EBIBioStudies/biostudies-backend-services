@@ -5,13 +5,16 @@ import ac.uk.ebi.biostd.submission.exceptions.InvalidAuthorAffiliationException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidAuthorNameException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDoiException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidOrgException
-import ac.uk.ebi.biostd.submission.exceptions.InvalidOrgNamesException
+import ac.uk.ebi.biostd.submission.exceptions.InvalidOrgNameException
 import ac.uk.ebi.biostd.submission.exceptions.MissingAuthorAffiliationException
 import ac.uk.ebi.biostd.submission.exceptions.MissingDoiFieldException
 import ac.uk.ebi.biostd.submission.exceptions.MissingTitleException
+import ac.uk.ebi.biostd.submission.exceptions.RemovedDoiException
 import ac.uk.ebi.biostd.submission.model.Contributor
 import ac.uk.ebi.biostd.submission.model.DoiRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
+import ebi.ac.uk.commons.http.builder.httpHeadersOf
+import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.post
 import ebi.ac.uk.io.FileUtils
@@ -20,14 +23,13 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields.DOI
 import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.title
-import ebi.ac.uk.util.collections.ifNotEmpty
 import mu.KotlinLogging
 import org.springframework.core.io.FileSystemResource
-import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA
-import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 import java.nio.file.Files
+import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
@@ -41,7 +43,9 @@ class DoiService(
         val previousDoi = rqt.previousVersion?.doi
 
         if (previousDoi != null) {
-            require(doi.value == previousDoi) { throw InvalidDoiException() }
+            val value = doi.value
+            requireNotNull(value) { throw RemovedDoiException(previousDoi) }
+            require(value == previousDoi) { throw InvalidDoiException(value, previousDoi) }
             return previousDoi
         }
 
@@ -50,18 +54,19 @@ class DoiService(
 
     private fun registerDoi(accNo: String, rqt: SubmitRequest): String {
         val sub = rqt.submission
+        val timestamp = Instant.now().epochSecond.toString()
         val title = requireNotNull(sub.title) { throw MissingTitleException() }
-        val request = DoiRequest(accNo, title, properties.uiUrl, getContributors(sub))
+        val request = DoiRequest(accNo, title, timestamp, properties.uiUrl, getContributors(sub))
         val requestFile = Files.createTempFile("${TEMP_FILE_NAME}_$accNo", ".xml").toFile()
         FileUtils.writeContent(requestFile, request.asXmlRequest())
 
-        val headers = HttpHeaders().apply { contentType = MULTIPART_FORM_DATA }
-        val body = LinkedMultiValueMap<String, Any>().apply {
-            add(USER_PARAM, properties.user)
-            add(PASSWORD_PARAM, properties.password)
-            add(OPERATION_PARAM, OPERATION_PARAM_VALUE)
-            add(FILE_PARAM, FileSystemResource(requestFile))
-        }
+        val headers = httpHeadersOf(CONTENT_TYPE to MULTIPART_FORM_DATA)
+        val body = linkedMultiValueMapOf(
+            USER_PARAM to properties.user,
+            PASSWORD_PARAM to properties.password,
+            OPERATION_PARAM to OPERATION_PARAM_VALUE,
+            FILE_PARAM to FileSystemResource(requestFile),
+        )
 
         webClient.post(properties.endpoint, RequestParams(headers, body))
         logger.info { "$accNo ${rqt.owner} Registered DOI: '${request.doi}'" }
@@ -71,49 +76,62 @@ class DoiService(
 
     private fun getContributors(sub: Submission): List<Contributor> {
         val organizations = getOrganizations(sub)
-        return sub.allSections()
-            .filter { it.type.lowercase() == AUTHOR_TYPE }
-            .ifEmpty { throw MissingDoiFieldException(AUTHOR_TYPE) }
-            .map { it.asContributor(organizations) }
+        val contributors = sub.allSections().filter { it.type == AUTHOR_TYPE }
+        validateContributors(contributors, organizations)
+
+        return contributors.map { it.asContributor(organizations) }
     }
 
-    private fun Section.asContributor(orgs: Map<String, String>): Contributor {
-        val attrsMap = attributes.associateBy({ it.name.lowercase() }, { it.value })
-        val names = requireNotNull(attrsMap[NAME_ATTR]) { throw InvalidAuthorNameException() }
-        val affiliation = requireNotNull(attrsMap[AFFILIATION_ATTR]) { throw MissingAuthorAffiliationException() }
-        val org = requireNotNull(orgs[affiliation]) { throw InvalidAuthorAffiliationException(names, affiliation) }
+    private fun validateContributors(contributors: List<Section>, organizations: Map<String, String>) {
+        fun validate(contributor: Section) {
+            val names = requireNotNull(contributor.find(NAME_ATTR)) { throw InvalidAuthorNameException() }
+            val org = requireNotNull(contributor.find(AFFILIATION_ATTR)) { throw MissingAuthorAffiliationException() }
+            requireNotNull(organizations[org]) { throw InvalidAuthorAffiliationException(names, org) }
+        }
+
+        contributors
+            .ifEmpty { throw MissingDoiFieldException(AUTHOR_TYPE) }
+            .forEach(::validate)
+    }
+
+    private fun Section.asContributor(organizations: Map<String, String>): Contributor {
+        val names = find(NAME_ATTR)!!
+        val affiliation = find(AFFILIATION_ATTR)!!
 
         return Contributor(
             name = names.substringBeforeLast(" ", ""),
             surname = names.substringAfterLast(" "),
-            affiliation = org,
-            orcid = attrsMap[ORCID_ATTR]
+            affiliation = organizations[affiliation]!!,
+            orcid = find(ORCID_ATTR)
         )
     }
 
     private fun getOrganizations(sub: Submission): Map<String, String> {
-        val organizations = sub.allSections()
-            .filter { it.type.lowercase() == ORG_TYPE }
+        val organizations = sub.allSections().filter { it.type == ORG_TYPE }
+        validateOrganizations(organizations)
+
+        return organizations.associateBy({ it.accNo!! }, { it.find(NAME_ATTR)!! })
+    }
+
+    private fun validateOrganizations(organizations: List<Section>) {
+        fun validate(org: Section) {
+            val accNo = org.accNo
+            requireNotNull(accNo) { throw InvalidOrgException() }
+            requireNotNull(org.find(NAME_ATTR)) { throw InvalidOrgNameException(accNo) }
+        }
+
+        organizations
             .ifEmpty { throw MissingDoiFieldException(ORG_TYPE) }
-            .associateBy(
-                { requireNotNull(it.accNo) { throw InvalidOrgException() } },
-                { org -> org.attributes.find { it.name.lowercase() == NAME_ATTR }?.value.orEmpty() },
-            )
-
-        organizations.entries
-            .filter { it.value.isEmpty() }
-            .ifNotEmpty { entries -> throw InvalidOrgNamesException(entries.map { it.key }) }
-
-        return organizations
+            .forEach(::validate)
     }
 
     companion object {
-        internal const val AFFILIATION_ATTR = "affiliation"
-        internal const val NAME_ATTR = "name"
-        internal const val ORCID_ATTR = "orcid"
+        internal const val AFFILIATION_ATTR = "Affiliation"
+        internal const val NAME_ATTR = "Name"
+        internal const val ORCID_ATTR = "ORCID"
 
-        internal const val ORG_TYPE = "organization"
-        internal const val AUTHOR_TYPE = "author"
+        internal const val ORG_TYPE = "Organization"
+        internal const val AUTHOR_TYPE = "Author"
 
         internal const val FILE_PARAM = "fname"
         internal const val OPERATION_PARAM = "operation"

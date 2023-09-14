@@ -5,10 +5,11 @@ import ac.uk.ebi.biostd.submission.exceptions.InvalidAuthorAffiliationException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidAuthorNameException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDoiException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidOrgException
-import ac.uk.ebi.biostd.submission.exceptions.InvalidOrgNamesException
+import ac.uk.ebi.biostd.submission.exceptions.InvalidOrgNameException
 import ac.uk.ebi.biostd.submission.exceptions.MissingAuthorAffiliationException
 import ac.uk.ebi.biostd.submission.exceptions.MissingDoiFieldException
 import ac.uk.ebi.biostd.submission.exceptions.MissingTitleException
+import ac.uk.ebi.biostd.submission.exceptions.RemovedDoiException
 import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.DoiService.Companion.FILE_PARAM
@@ -41,8 +42,6 @@ import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
@@ -101,10 +100,9 @@ class DoiServiceTest(
         val body = bodySlot.captured
         val headers = headersSlot.captured
         val requestFile = body[FILE_PARAM]!!.first() as FileSystemResource
-        val expectedXml = Files.readString(Paths.get("src/test/resources/ExpectedDOIRequest.xml"))
 
         assertThat(doi).isEqualTo("$BS_DOI_ID/$TEST_ACC_NO")
-        assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(expectedXml)
+        assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(EXPECTED_DOI_REQUEST)
         assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
         assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
         assertThat(body[OPERATION_PARAM]!!.first()).isEqualTo(OPERATION_PARAM_VALUE)
@@ -156,9 +154,11 @@ class DoiServiceTest(
 
     @Test
     fun `invalid given DOI`() {
+        val doi = "10.287.71/$TEST_ACC_NO"
+        val previousDoi = "$BS_DOI_ID/$TEST_ACC_NO"
         val submission = submission {
             title = "Test Submission"
-            attribute("DOI", "10.287.71/$TEST_ACC_NO")
+            attribute("DOI", doi)
 
             section("Study") {
                 attribute("Type", "Experiment")
@@ -166,12 +166,34 @@ class DoiServiceTest(
         }
 
         every { submitRequest.submission } returns submission
-        every { previousVersion.doi } returns "$BS_DOI_ID/$TEST_ACC_NO"
+        every { previousVersion.doi } returns previousDoi
         every { submitRequest.previousVersion } returns previousVersion
 
         val exception = assertThrows<InvalidDoiException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
 
-        assertThat(exception.message).isEqualTo("The given DOI should match the previous version")
+        assertThat(exception.message).isEqualTo("The given DOI '$doi' should match the previous DOI '$previousDoi'")
+        verify(exactly = 0) { webClient.post() }
+    }
+
+    @Test
+    fun `removed DOI`() {
+        val previousDoi = "$BS_DOI_ID/$TEST_ACC_NO"
+        val submission = submission {
+            title = "Test Submission"
+            attribute("DOI", null)
+
+            section("Study") {
+                attribute("Type", "Experiment")
+            }
+        }
+
+        every { submitRequest.submission } returns submission
+        every { previousVersion.doi } returns previousDoi
+        every { submitRequest.previousVersion } returns previousVersion
+
+        val exception = assertThrows<RemovedDoiException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
+
+        assertThat(exception.message).isEqualTo("The previous DOI: '$previousDoi' cannot be removed")
         verify(exactly = 0) { webClient.post() }
     }
 
@@ -207,7 +229,7 @@ class DoiServiceTest(
         val exception = assertThrows<MissingDoiFieldException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
 
         verify(exactly = 0) { webClient.post() }
-        assertThat(exception.message).isEqualTo("The required DOI field 'organization' could not be found")
+        assertThat(exception.message).isEqualTo("The required DOI field 'Organization' could not be found")
     }
 
     @Test
@@ -240,7 +262,7 @@ class DoiServiceTest(
             section("Study") {
                 section("Organization") {
                     accNo = "o1"
-                    attribute("Institue", "American Society")
+                    attribute("Name", "American Society")
                 }
 
                 section("Organization") {
@@ -257,10 +279,10 @@ class DoiServiceTest(
 
         every { submitRequest.submission } returns submission
 
-        val exception = assertThrows<InvalidOrgNamesException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
+        val exception = assertThrows<InvalidOrgNameException> { testInstance.calculateDoi(TEST_ACC_NO, submitRequest) }
 
         verify(exactly = 0) { webClient.post() }
-        assertThat(exception.message).isEqualTo("The following organization names are empty: o1, o3")
+        assertThat(exception.message).isEqualTo("The following organization name is empty: 'o3'")
     }
 
     @Test
@@ -326,7 +348,7 @@ class DoiServiceTest(
     fun `invalid affiliation`() {
         val submission = submission {
             title = "Test Submission"
-            attribute("DOI", "")
+            attribute("DOI", null)
 
             section("Study") {
                 section("Organization") {
@@ -362,5 +384,49 @@ class DoiServiceTest(
             user = "a-user",
             password = "a-password",
         )
+
+        private const val EXPECTED_DOI_REQUEST = """
+            <doi_batch
+                xmlns="http://www.crossref.org/schema/4.4.1"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                version="4.4.1" xsi:schemaLocation="http://www.crossref.org/schema/4.4.1
+                http://www.crossref.org/schema/deposit/crossref4.4.1.xsd">
+                <head>
+                    <doi_batch_id>1600683060</doi_batch_id>
+                    <timestamp>1600683060</timestamp>
+                    <depositor>
+                        <depositor_name>EMBL-EBI</depositor_name>
+                        <email_address>biostudies@ebi.ac.uk</email_address>
+                    </depositor>
+                    <registrant>EMBL-EBI</registrant>
+                </head>
+                <body>
+                    <database>
+                        <database_metadata language="en">
+                            <titles>
+                                <title>BioStudies Database</title>
+                            </titles>
+                        </database_metadata>
+                        <dataset>
+                            <contributors>
+                                <person_name contributor_role="author" sequence="first">
+                                    <given_name>John</given_name>
+                                    <surname>Doe</surname>
+                                    <affiliation>EMBL</affiliation>
+                                    <ORCID authenticated="false">12-32-45-82</ORCID>
+                                </person_name>
+                            </contributors>
+                            <titles>
+                                <title>Test Submission</title>
+                            </titles>
+                            <doi_data>
+                                <doi>10.6019/S-TEST123</doi>
+                                <resource>https://www.biostudies.ac.uk/studies/S-TEST123</resource>
+                            </doi_data>
+                        </dataset>
+                    </database>
+                </body>
+            </doi_batch>
+        """
     }
 }

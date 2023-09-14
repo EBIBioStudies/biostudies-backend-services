@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.itest.wiremock.TestWireMockTransformer
 import ac.uk.ebi.biostd.itest.wiremock.TestWireMockTransformer.Companion.newTransformer
 import com.adobe.testing.s3mock.testcontainers.S3MockContainer
 import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder.okForJson
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
@@ -17,7 +18,6 @@ import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.db.MYSQL_SCHEMA
 import ebi.ac.uk.db.MYSQL_VERSION
 import ebi.ac.uk.extended.model.StorageMode
-import mu.KotlinLogging
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestPlan
 import org.testcontainers.containers.MongoDBContainer
@@ -26,8 +26,6 @@ import org.testcontainers.utility.DockerImageName.parse
 import java.io.File
 import java.nio.file.Files
 import java.time.Duration.ofSeconds
-
-private val logger = KotlinLogging.logger {}
 
 class ITestListener : TestExecutionListener {
     override fun testPlanExecutionStarted(testPlan: TestPlan) {
@@ -62,19 +60,19 @@ class ITestListener : TestExecutionListener {
     private fun ftpSetup() {
         ftpServer.start()
 
-        System.setProperty("app.security.filesProperties.ftpUser", ftpUser)
-        System.setProperty("app.security.filesProperties.ftpPassword", ftpPassword)
+        System.setProperty("app.security.filesProperties.ftpUser", FTP_USER)
+        System.setProperty("app.security.filesProperties.ftpPassword", FTP_PASSWORD)
         System.setProperty("app.security.filesProperties.ftpUrl", ftpServer.getUrl())
         System.setProperty("app.security.filesProperties.ftpPort", ftpServer.ftpPort.toString())
     }
 
     private fun fireSetup() {
         s3Container.start()
-        System.setProperty("app.fire.s3.accessKey", awsAccessKey)
-        System.setProperty("app.fire.s3.secretKey", awsSecretKey)
-        System.setProperty("app.fire.s3.region", awsRegion)
+        System.setProperty("app.fire.s3.accessKey", AWS_ACCESS_KEY)
+        System.setProperty("app.fire.s3.secretKey", AWS_SECRET_KEY)
+        System.setProperty("app.fire.s3.region", AWS_REGION)
         System.setProperty("app.fire.s3.endpoint", s3Container.httpEndpoint)
-        System.setProperty("app.fire.s3.bucket", defaultBucket)
+        System.setProperty("app.fire.s3.bucket", DEFAULT_BUCKET)
 
         fireServer.stubFor(
             post(WireMock.urlMatching("/objects"))
@@ -95,12 +93,13 @@ class ITestListener : TestExecutionListener {
         System.setProperty("app.requestFilesPath", requestFilesPath.absolutePath)
         System.setProperty("app.security.filesProperties.filesDirPath", dropboxPath.absolutePath)
         System.setProperty("app.security.filesProperties.magicDirPath", magicDirPath.absolutePath)
-        System.setProperty("app.persistence.concurrency", persistenceConcurrency)
+        System.setProperty("app.persistence.concurrency", PERSISTENCE_CONCURRENCY)
         System.setProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")
     }
 
     private fun doiSetup() {
-        System.setProperty("app.doi.endpoint", "https://test.crossref.org/servlet/deposit")
+        doiServer.start()
+        System.setProperty("app.doi.endpoint", "${doiServer.baseUrl()}/deposit")
         System.setProperty("app.doi.uiUrl", "https://www.ebi.ac.uk/biostudies/")
         System.setProperty("app.doi.user", "a-user")
         System.setProperty("app.doi.password", "a-password")
@@ -108,20 +107,20 @@ class ITestListener : TestExecutionListener {
 
     companion object {
         private val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()
-        private const val defaultBucket = "bio-fire-bucket"
-        private const val awsAccessKey = "anyKey"
-        private const val awsSecretKey = "anySecret"
-        private const val awsRegion = "anyRegion"
-        private const val failFactorEnv = "ITEST_FAIL_FACTOR"
-        private const val persistenceConcurrency = "10"
+        private const val DEFAULT_BUCKET = "bio-fire-bucket"
+        private const val AWS_ACCESS_KEY = "anyKey"
+        private const val AWS_SECRET_KEY = "anySecret"
+        private const val AWS_REGION = "anyRegion"
+        private const val FAIL_FACTOR_ENV = "ITEST_FAIL_FACTOR"
+        private const val PERSISTENCE_CONCURRENCY = "10"
 
-        private const val ftpUser = "ftpUser"
-        private const val ftpPassword = "ftpPassword"
+        private const val FTP_USER = "ftpUser"
+        private const val FTP_PASSWORD = "ftpPassword"
 
-        internal const val fixedDelayEnv = "ITEST_FIXED_DELAY"
+        internal const val FIXED_DELAY_ENV = "ITEST_FIXED_DELAY"
         internal val nfsSubmissionPath = testAppFolder.createDirectory("submission")
         internal val fireSubmissionPath = testAppFolder.createDirectory("submission-fire")
-        internal val firePath = testAppFolder.createDirectory("fire-db")
+        private val firePath = testAppFolder.createDirectory("fire-db")
 
         internal val fireTempFolder = testAppFolder.createDirectory("fire-temp")
         internal val nfsFtpPath = testAppFolder.createDirectory("ftpPath")
@@ -133,7 +132,8 @@ class ITestListener : TestExecutionListener {
         internal val magicDirPath = testAppFolder.createDirectory("magic")
         internal val dropboxPath = testAppFolder.createDirectory("dropbox")
 
-        private val fireServer: WireMockServer by lazy { createFireApiMock(s3Container) }
+        private val fireServer: WireMockServer by lazy { createFireApiMock() }
+        private val doiServer: WireMockServer by lazy { createDoiApiMock() }
         private val ftpServer = createFtpServer()
 
         private val mongoContainer = createMongoContainer()
@@ -156,29 +156,36 @@ class ITestListener : TestExecutionListener {
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         private fun createMockS3Container(): S3MockContainer = S3MockContainer("latest")
-            .withInitialBuckets(defaultBucket)
+            .withInitialBuckets(DEFAULT_BUCKET)
 
         private fun createFtpServer(): FtpServer {
             return FtpServer.createServer(
                 FtpConfig(
                     sslConfig = SslConfig(File(this::class.java.getResource("/mykeystore.jks").toURI()), "123456"),
-                    userName = ftpUser,
-                    password = ftpPassword
+                    userName = FTP_USER,
+                    password = FTP_PASSWORD
                 )
             )
         }
 
-        private fun createFireApiMock(s3MockContainer: S3MockContainer): WireMockServer {
-            val factor = System.getenv(failFactorEnv)?.toInt()
-            val delay = System.getenv(fixedDelayEnv)?.toLong() ?: 0L
+        private fun createDoiApiMock(): WireMockServer {
+            val doiServer = WireMockServer(WireMockConfiguration().dynamicPort())
+            doiServer.stubFor(post("/deposit").willReturn(okForJson("ok")))
+
+            return doiServer
+        }
+
+        private fun createFireApiMock(): WireMockServer {
+            val factor = System.getenv(FAIL_FACTOR_ENV)?.toInt()
+            val delay = System.getenv(FIXED_DELAY_ENV)?.toLong() ?: 0L
             val transformer = newTransformer(
                 subFolder = fireSubmissionPath.toPath(),
                 ftpFolder = fireFtpPath.toPath(),
                 dbFolder = firePath.toPath(),
                 failFactor = factor,
                 fixedDelay = delay,
-                httpEndpoint = s3MockContainer.httpEndpoint,
-                defaultBucket = defaultBucket
+                httpEndpoint = s3Container.httpEndpoint,
+                defaultBucket = DEFAULT_BUCKET
             )
             return WireMockServer(WireMockConfiguration().dynamicPort().extensions(transformer))
         }

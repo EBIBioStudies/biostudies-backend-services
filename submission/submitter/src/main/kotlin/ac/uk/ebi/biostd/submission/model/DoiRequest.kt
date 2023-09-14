@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.model
 import ebi.ac.uk.util.collections.ifNotEmpty
 import org.redundent.kotlin.xml.PrintOptions
 import org.redundent.kotlin.xml.xml
-import java.time.Instant
 
 data class Contributor(
     val name: String,
@@ -15,6 +14,7 @@ data class Contributor(
 class DoiRequest(
     private val accNo: String,
     private val title: String,
+    private val timestamp: String,
     private val instanceUrl: String,
     private val contributors: List<Contributor>,
 ) {
@@ -22,7 +22,6 @@ class DoiRequest(
         get() = "$BS_DOI_ID/$accNo"
 
     fun asXmlRequest(): String {
-        val timestamp = Instant.now().epochSecond.toString()
         return xml("doi_batch") {
             xmlns = XML_NAMESPACE
             attribute("xmlns:xsi", XML_SCHEMA_INSTANCE)

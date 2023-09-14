@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.client.api
 
-import ac.uk.ebi.biostd.client.extensions.httpHeadersOf
-import ac.uk.ebi.biostd.client.extensions.linkedMultiValueMapOf
 import ac.uk.ebi.biostd.client.integration.web.StatsOperations
+import ebi.ac.uk.commons.http.builder.httpHeadersOf
+import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.getForObject
 import ebi.ac.uk.commons.http.ext.postForObject

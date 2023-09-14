@@ -35,6 +35,7 @@ import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.second
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -55,6 +56,7 @@ import java.nio.file.Paths
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Transactional
 class SubmissionFileSourceTest(

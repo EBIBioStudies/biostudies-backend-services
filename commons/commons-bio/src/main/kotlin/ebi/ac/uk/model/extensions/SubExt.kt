@@ -89,7 +89,7 @@ var Submission.title: String?
     }
 
 /**
- * Obtain the submission title attribute if present.
+ * Obtain the submission DOI attribute if present.
  */
 var Submission.doi: String?
     get() = find(SubFields.DOI)
