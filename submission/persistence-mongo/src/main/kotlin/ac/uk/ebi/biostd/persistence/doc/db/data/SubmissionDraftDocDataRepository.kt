@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
-import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.doc.commons.replaceOrCreate
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionDraftRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
@@ -69,9 +68,9 @@ class SubmissionDraftDocDataRepository(
     fun findAllByUserIdAndStatus(
         userId: String,
         status: DraftStatus,
-        filter: PaginationFilter = PaginationFilter(),
+        pageRequest: PageRequest = PageRequest(),
     ): Flow<DocSubmissionDraft> {
-        val pageRequest = PageRequest.of(filter.pageNumber, filter.limit)
+        val pageRequest = pageRequest.asDataPageRequest()
         return submissionDraftRepository.findAllByUserIdAndStatus(userId, status, pageRequest).asFlow()
     }
 

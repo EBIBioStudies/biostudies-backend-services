@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.stats.domain.service
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
-import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
@@ -30,7 +30,7 @@ class SubmissionStatsService(
 
     fun findByType(
         type: String,
-        filter: PaginationFilter,
+        filter: PageRequest,
     ): Flow<SubmissionStat> = submissionStatsService.findByType(SubmissionStatType.fromString(type.uppercase()), filter)
 
     suspend fun findByAccNoAndType(

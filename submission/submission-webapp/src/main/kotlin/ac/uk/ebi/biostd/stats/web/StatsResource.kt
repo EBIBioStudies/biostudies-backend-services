@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.stats.web
 
-import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
 import ac.uk.ebi.biostd.stats.web.mapping.toStat
 import ac.uk.ebi.biostd.stats.web.mapping.toStatDto
@@ -38,7 +38,7 @@ class StatsResource(
     @ResponseBody
     fun findByType(
         @PathVariable type: String,
-        @ModelAttribute filter: PaginationFilter,
+        @ModelAttribute filter: PageRequest,
     ): Flow<SubmissionStat> = submissionStatsService.findByType(type, filter).map { it.toStatDto() }
 
     @GetMapping("/{type}/{accNo}")

@@ -2,13 +2,13 @@ package ac.uk.ebi.biostd.persistence.common.service
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
-import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import kotlinx.coroutines.flow.Flow
 
 interface StatsDataService {
     suspend fun findByAccNo(accNo: String): List<SubmissionStat>
 
-    fun findByType(submissionStatType: SubmissionStatType, filter: PaginationFilter): Flow<SubmissionStat>
+    fun findByType(submissionStatType: SubmissionStatType, filter: PageRequest): Flow<SubmissionStat>
 
     suspend fun findByAccNoAndType(accNo: String, submissionStatType: SubmissionStatType): SubmissionStat
 
