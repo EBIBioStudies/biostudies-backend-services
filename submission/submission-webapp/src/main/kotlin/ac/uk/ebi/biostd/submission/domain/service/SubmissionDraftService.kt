@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
-import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
@@ -35,7 +35,7 @@ class SubmissionDraftService(
 ) {
     fun getActiveSubmissionDrafts(
         userEmail: String,
-        filter: PaginationFilter = PaginationFilter(),
+        filter: PageRequest = PageRequest(),
     ): Flow<SubmissionDraft> {
         return draftPersistenceService.getActiveSubmissionDrafts(userEmail, filter)
     }

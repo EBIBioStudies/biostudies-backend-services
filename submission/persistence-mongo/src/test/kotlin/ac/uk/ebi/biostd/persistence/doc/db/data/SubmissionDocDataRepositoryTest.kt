@@ -1,9 +1,10 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
+import ac.uk.ebi.biostd.persistence.doc.migrations.ensureSubmissionIndexes
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocCollection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -43,11 +45,14 @@ internal class SubmissionDocDataRepositoryTest(
     private val tempFolder: TemporaryFolder,
     @Autowired private val testInstance: SubmissionDocDataRepository,
     @Autowired private val fileListDocFileRepo: FileListDocFileDocDataRepository,
+    @Autowired private val mongoTemplate: MongoTemplate,
 ) {
+
     @BeforeEach
     fun beforeEach() = runBlocking {
         testInstance.deleteAllSubmissions()
         fileListDocFileRepo.deleteAll()
+        mongoTemplate.ensureSubmissionIndexes()
     }
 
     @Nested
@@ -107,69 +112,98 @@ internal class SubmissionDocDataRepositoryTest(
         @Test
         fun `by email`() = runTest {
             testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo1", owner = "anotherEmail"))
-            val doc2 = testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo2", owner = "ownerEmail"))
+            val d2 = testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo2", owner = "ownerEmail"))
 
-            val result = testInstance.getSubmissions(SubmissionFilter(), "ownerEmail")
+            val result = testInstance.getSubmissions(SubmissionListFilter("ownerEmail"))
 
-            assertThat(result).containsOnly(doc2)
+            assertThat(result).containsOnly(d2)
         }
 
         @Test
         fun `by type`() = runTest {
-            testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo1"))
-            val doc2 = testInstance.saveSubmission(
-                testDocSubmission.copy(accNo = "accNo2", section = testDocSection.copy(type = "work"))
+            testInstance.saveSubmission(testDocSubmission.copy(owner = OWNER, accNo = "accNo1"))
+            val d2 = testInstance.saveSubmission(
+                testDocSubmission.copy(
+                    owner = OWNER,
+                    accNo = "accNo2",
+                    section = testDocSection.copy(type = "work")
+                )
             )
 
-            val result = testInstance.getSubmissions(SubmissionFilter(type = "work"))
+            val result = testInstance.getSubmissions(
+                SubmissionListFilter(OWNER, type = "work")
+            )
 
-            assertThat(result).containsOnly(doc2)
+            assertThat(result).containsOnly(d2)
         }
 
         @Test
-        fun `by AccNo`() = runTest {
+        fun `by AccNo When is not the owner`() = runTest {
             testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo1"))
-            val doc2 = testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo2"))
+            val d2 = testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo2"))
 
-            val result = testInstance.getSubmissions(SubmissionFilter(accNo = "accNo2"))
+            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, findAnyAccNo = true, accNo = "accNo2"))
 
-            assertThat(result).containsOnly(doc2)
+            assertThat(result).containsOnly(d2)
+        }
+
+        @Test
+        fun `by AccNo When is the owner`() = runTest {
+            val d1 = testInstance.saveSubmission(testDocSubmission.copy(owner = OWNER, accNo = "accNo1"))
+
+            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, accNo = "accNo1"))
+
+            assertThat(result).containsOnly(d1)
         }
 
         @Test
         fun `by release time`() = runTest {
-            testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo1", releaseTime = ofEpochSecond(5)))
-            val doc2 =
-                testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo2", releaseTime = ofEpochSecond(15)))
+            testInstance.saveSubmission(
+                testDocSubmission.copy(
+                    owner = OWNER,
+                    accNo = "accNo1",
+                    releaseTime = ofEpochSecond(5)
+                )
+            )
+            val d2 = testInstance.saveSubmission(
+                testDocSubmission.copy(owner = OWNER, accNo = "accNo2", releaseTime = ofEpochSecond(15))
+            )
 
             val result = testInstance.getSubmissions(
-                SubmissionFilter(
+                SubmissionListFilter(
+                    OWNER,
                     rTimeFrom = OffsetDateTime.ofInstant(ofEpochSecond(10), ZoneOffset.UTC),
                     rTimeTo = OffsetDateTime.ofInstant(ofEpochSecond(20), ZoneOffset.UTC)
                 )
             )
 
-            assertThat(result).containsOnly(doc2)
+            assertThat(result).containsOnly(d2)
         }
 
         @Test
         fun `by keywords`() = runTest {
-            testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo1", title = "another"))
-            val doc2 = testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo2", title = "title"))
+            val doc1 = testDocSubmission.copy(owner = OWNER, accNo = "accNo1", title = "one two")
+            val doc2 = testDocSubmission.copy(owner = OWNER, accNo = "accNo2", title = "two four")
 
-            val result = testInstance.getSubmissions(SubmissionFilter(keywords = "title"), null)
+            testInstance.saveAllSubmissions(listOf(doc1, doc2))
 
-            assertThat(result).containsOnly(doc2)
+            assertThat(testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "one"))).containsOnly(doc1)
+            assertThat(testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "two"))).containsOnly(
+                doc1,
+                doc2
+            )
+            assertThat(testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "four"))).containsOnly(doc2)
         }
 
         @Test
         fun `by released`() = runTest {
-            testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo1", released = true))
-            val doc2 = testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo2", released = false))
+            testInstance.saveSubmission(testDocSubmission.copy(owner = OWNER, accNo = "accNo1", released = true))
+            val d2 =
+                testInstance.saveSubmission(testDocSubmission.copy(owner = OWNER, accNo = "accNo2", released = false))
 
-            val result = testInstance.getSubmissions(SubmissionFilter(released = false), null)
+            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, released = false))
 
-            assertThat(result).containsOnly(doc2)
+            assertThat(result).containsOnly(d2)
         }
 
         @Test
@@ -199,6 +233,8 @@ internal class SubmissionDocDataRepositoryTest(
     }
 
     companion object {
+        const val OWNER = "manuserager@ebi.ac.uk"
+
         @Container
         val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
             .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))

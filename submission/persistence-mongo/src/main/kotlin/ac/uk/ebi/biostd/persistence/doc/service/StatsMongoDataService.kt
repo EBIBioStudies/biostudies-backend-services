@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.exception.StatsNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
-import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongoRepository
@@ -13,7 +13,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
-import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.PageRequest as DataPageRequest
 
 class StatsMongoDataService(
     private val submissionsRepository: SubmissionMongoRepository,
@@ -28,10 +28,10 @@ class StatsMongoDataService(
 
     override fun findByType(
         submissionStatType: SubmissionStatType,
-        filter: PaginationFilter,
+        filter: PageRequest,
     ): Flow<SubmissionStat> =
         statsDataRepository
-            .findAllByStatType(submissionStatType, PageRequest.of(filter.pageNumber, filter.limit))
+            .findAllByStatType(submissionStatType, DataPageRequest.of(filter.pageNumber, filter.limit))
             .map { toSubmissionStat(submissionStatType, it) }
             .asFlow()
 

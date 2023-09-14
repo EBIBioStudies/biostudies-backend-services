@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SimpleFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
@@ -28,7 +28,7 @@ class ExtSubmissionQueryService(
     }
 
     suspend fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
-        val filter = SubmissionFilter(
+        val filter = SimpleFilter(
             rTimeFrom = request.fromRTime?.let { OffsetDateTime.parse(request.fromRTime) },
             rTimeTo = request.toRTime?.let { OffsetDateTime.parse(request.toRTime) },
             collection = request.collection,
@@ -36,7 +36,6 @@ class ExtSubmissionQueryService(
             limit = request.limit,
             offset = request.offset
         )
-
         val page = submissionPersistenceQueryService.getExtendedSubmissions(filter)
         return PageImpl(page.content, page.pageable, page.totalElements)
     }

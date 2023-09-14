@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.integration.SubFormat.JsonFormat.JsonPretty
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
-import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
@@ -65,11 +65,11 @@ class SubmissionDraftServiceTest(
 
     @Test
     fun `get active submission drafts`(
-        @MockK paginationFilter: PaginationFilter,
+        @MockK pageRequest: PageRequest,
     ) = runTest {
-        every { draftPersistenceService.getActiveSubmissionDrafts(USER_ID, paginationFilter) } returns flowOf(testDraft)
+        every { draftPersistenceService.getActiveSubmissionDrafts(USER_ID, pageRequest) } returns flowOf(testDraft)
 
-        val result = testInstance.getActiveSubmissionDrafts(USER_ID, paginationFilter).toList()
+        val result = testInstance.getActiveSubmissionDrafts(USER_ID, pageRequest).toList()
 
         assertThat(result).hasSize(1)
         assertThat(result.first()).isEqualTo(testDraft)

@@ -62,7 +62,8 @@ class SubmissionQueryResource(
     suspend fun getSubmissions(
         @BioUser user: SecurityUser,
         @ModelAttribute request: SubmissionFilterRequest,
-    ): List<SubmissionDto> = submissionsWebHandler.getSubmissions(user, request.asFilter()).map { it.asDto() }
+    ): List<SubmissionDto> =
+        submissionsWebHandler.getSubmissions(request.asFilter(user.email, user.superuser)).map { it.asDto() }
 
     private suspend fun fileListFile(
         accNo: String,

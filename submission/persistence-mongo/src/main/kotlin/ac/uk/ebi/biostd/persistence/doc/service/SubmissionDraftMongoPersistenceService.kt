@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
-import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACCEPTED
@@ -36,7 +36,7 @@ class SubmissionDraftMongoPersistenceService(
         draftDocDataRepository.deleteByUserIdAndKey(userEmail, key)
     }
 
-    override fun getActiveSubmissionDrafts(userEmail: String, filter: PaginationFilter): Flow<SubmissionDraft> {
+    override fun getActiveSubmissionDrafts(userEmail: String, filter: PageRequest): Flow<SubmissionDraft> {
         return draftDocDataRepository
             .findAllByUserIdAndStatus(userEmail, ACTIVE, filter)
             .map { SubmissionDraft(it.key, it.content) }

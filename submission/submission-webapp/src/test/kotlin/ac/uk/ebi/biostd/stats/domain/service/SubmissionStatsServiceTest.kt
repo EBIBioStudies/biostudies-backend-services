@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.stats.domain.service
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
-import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
@@ -63,7 +63,7 @@ class SubmissionStatsServiceTest(
     @Test
     fun `find by type`(
         @MockK stat: SubmissionStat,
-        @MockK filter: PaginationFilter,
+        @MockK filter: PageRequest,
     ) = runTest {
         coEvery { submissionStatsService.findByType(VIEWS, filter) } returns flowOf(stat)
 
