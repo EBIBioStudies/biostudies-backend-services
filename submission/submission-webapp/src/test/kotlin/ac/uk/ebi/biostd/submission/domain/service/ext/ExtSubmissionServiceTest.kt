@@ -65,8 +65,8 @@ class ExtSubmissionServiceTest(
     fun beforeEach() {
         mockkStatic(OffsetDateTime::class)
         every { OffsetDateTime.now() } returns mockNow
-        every { submissionRepository.existByAccNo("ArrayExpress") } returns true
-        every { submissionRepository.getExtByAccNo("S-TEST123") } returns extSubmission
+        coEvery { submissionRepository.existByAccNo("ArrayExpress") } returns true
+        coEvery { submissionRepository.getExtByAccNo("S-TEST123") } returns extSubmission
         every { userPrivilegesService.canSubmitExtended("user@mail.com") } returns true
         every { securityQueryService.existsByEmail("owner@email.org", false) } returns true
         every { userPrivilegesService.canSubmitExtended("regular@mail.com") } returns false
@@ -77,7 +77,7 @@ class ExtSubmissionServiceTest(
         val submitRequestSlot = slot<ExtSubmitRequest>()
 
         coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-        every { submissionSubmitter.createRequest(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
+        coEvery { submissionSubmitter.createRequest(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
 
         testInstance.submitExt("user@mail.com", extSubmission.copy(storageMode = FIRE))
 
@@ -94,11 +94,11 @@ class ExtSubmissionServiceTest(
     }
 
     @Test
-    fun `submit extended async`() {
+    fun `submit extended async`() = runTest {
         val requestSlot = slot<ExtSubmitRequest>()
 
         coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-        every { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 1)
+        coEvery { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 1)
         every { eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version) } answers { nothing }
 
         testInstance.submitExtAsync("user@mail.com", extSubmission)
@@ -109,7 +109,7 @@ class ExtSubmissionServiceTest(
         assertThat(submissionRequest.submission.modificationTime).isEqualTo(mockNow)
 
         coVerify(exactly = 0) { submissionSubmitter.handleRequest(any(), any()) }
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionRepository.existByAccNo("ArrayExpress")
             securityQueryService.existsByEmail("owner@email.org", false)
             eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version)
@@ -138,7 +138,7 @@ class ExtSubmissionServiceTest(
 
     @Test
     fun `submit extended with non existing collection`() = runTest {
-        every { submissionRepository.existByAccNo("ArrayExpress") } returns false
+        coEvery { submissionRepository.existByAccNo("ArrayExpress") } returns false
 
         val exception = assertThrows<CollectionNotFoundException> {
             testInstance.submitExt("user@mail.com", extSubmission)
@@ -152,9 +152,9 @@ class ExtSubmissionServiceTest(
         val requestSlot = slot<ExtSubmitRequest>()
         val collection = extSubmission.copy(section = ExtSection(type = PROJECT_TYPE), storageMode = FIRE)
 
-        every { submissionRepository.existByAccNo("ArrayExpress") } returns false
+        coEvery { submissionRepository.existByAccNo("ArrayExpress") } returns false
         coEvery { submissionSubmitter.handleRequest(collection.accNo, 1) } returns collection
-        every { submissionSubmitter.createRequest(capture(requestSlot)) } returns (collection.accNo to collection.version)
+        coEvery { submissionSubmitter.createRequest(capture(requestSlot)) } returns (collection.accNo to collection.version)
 
         testInstance.submitExt("user@mail.com", collection)
 
@@ -163,17 +163,17 @@ class ExtSubmissionServiceTest(
         assertThat(request.submission.storageMode).isEqualTo(FIRE)
         assertThat(request.submission.modificationTime).isEqualTo(mockNow)
 
-        verify(exactly = 0) { submissionRepository.existByAccNo("ArrayExpress") }
+        coVerify(exactly = 0) { submissionRepository.existByAccNo("ArrayExpress") }
         verify(exactly = 1) { securityQueryService.existsByEmail("owner@email.org", false) }
     }
 
     @Test
-    fun `transfer submission`() {
+    fun `transfer submission`() = runTest {
         val requestSlot = slot<ExtSubmitRequest>()
 
         every { eventsPublisher.submissionRequest(extSubmission.accNo, 2) } answers { nothing }
-        every { submissionRepository.getExtByAccNo(extSubmission.accNo, true) } returns extSubmission
-        every { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 2)
+        coEvery { submissionRepository.getExtByAccNo(extSubmission.accNo, true) } returns extSubmission
+        coEvery { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 2)
 
         testInstance.transferSubmission("user@mail.com", extSubmission.accNo, FIRE)
 
@@ -182,7 +182,7 @@ class ExtSubmissionServiceTest(
         assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
         assertThat(submissionRequest.submission.modificationTime).isEqualTo(mockNow)
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionSubmitter.createRequest(submissionRequest)
             eventsPublisher.submissionRequest(extSubmission.accNo, 2)
         }
@@ -190,10 +190,10 @@ class ExtSubmissionServiceTest(
 
     @Test
     fun `transfer submission with invalid target`(
-        @MockK source: ExtSubmission
-    ) {
+        @MockK source: ExtSubmission,
+    ) = runTest {
         every { source.storageMode } returns FIRE
-        every { submissionRepository.getExtByAccNo("S-BSST1", true) } returns source
+        coEvery { submissionRepository.getExtByAccNo("S-BSST1", true) } returns source
 
         val exception = assertThrows<InvalidTransferTargetException> {
             testInstance.transferSubmission("user@mail.com", "S-BSST1", FIRE)

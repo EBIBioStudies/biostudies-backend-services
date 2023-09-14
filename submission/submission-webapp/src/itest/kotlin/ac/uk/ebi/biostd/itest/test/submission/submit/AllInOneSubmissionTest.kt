@@ -17,6 +17,7 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -33,7 +34,7 @@ class AllInOneSubmissionTest(
     @Autowired val subRepository: SubmissionPersistenceQueryService,
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
-    @LocalServerPort val serverPort: Int
+    @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
     private lateinit var allInOneSubmissionHelper: AllInOneSubmissionHelper
@@ -46,7 +47,7 @@ class AllInOneSubmissionTest(
     }
 
     @Test
-    fun `2-1 submit all in one TSV submission`() {
+    fun `2-1 submit all in one TSV submission`() = runTest {
         val (submission, fileList, files, subFileList) = submissionSpecTsv(tempFolder, "S-EPMC124")
         webClient.uploadFile(fileList)
         subFileList?.let { webClient.uploadFile(it.file, it.folder) }
@@ -60,7 +61,7 @@ class AllInOneSubmissionTest(
     }
 
     @Test
-    fun `2-2 submit all in one JSON submission`() {
+    fun `2-2 submit all in one JSON submission`() = runTest {
         val (submission, fileList, files, subFileList) = submissionSpecJson(tempFolder, "S-EPMC125")
         webClient.uploadFile(fileList)
         subFileList?.let { webClient.uploadFile(it.file, it.folder) }
@@ -74,7 +75,7 @@ class AllInOneSubmissionTest(
     }
 
     @Test
-    fun `2-3 submit all in one XML submission`() {
+    fun `2-3 submit all in one XML submission`() = runTest {
         val (submission, fileList, files, subFileList) = submissionSpecXml(tempFolder, "S-EPMC126")
         webClient.uploadFile(fileList)
         subFileList?.let { webClient.uploadFile(it.file, it.folder) }

@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
@@ -16,10 +16,11 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
@@ -49,7 +50,7 @@ class StatsMongoDataServiceTest(
     private val testInstance = StatsMongoDataService(submissionsRepository, submissionStatsDataRepository)
 
     @AfterEach
-    fun afterEach() = runTest { submissionStatsDataRepository.deleteAllStats() }
+    fun afterEach() = runBlocking { submissionStatsDataRepository.deleteAllStats() }
 
     @Test
     fun `find all by type`() = runTest {
@@ -84,7 +85,7 @@ class StatsMongoDataServiceTest(
 
     @Test
     fun `save single stat`() = runTest {
-        every { submissionsRepository.existsByAccNo("S-TEST1") } returns true
+        coEvery { submissionsRepository.existsByAccNo("S-TEST1") } returns true
 
         val stat = SingleSubmissionStat("S-TEST1", 1L, VIEWS)
         val result = testInstance.save(stat)
@@ -94,7 +95,7 @@ class StatsMongoDataServiceTest(
 
     @Test
     fun `save single stat for non existing submission`() = runTest {
-        every { submissionsRepository.existsByAccNo("S-TEST1") } returns false
+        coEvery { submissionsRepository.existsByAccNo("S-TEST1") } returns false
 
         val stat = SingleSubmissionStat("S-TEST1", 1L, VIEWS)
         val exception = assertThrows<SubmissionNotFoundException> { testInstance.save(stat) }
@@ -103,9 +104,9 @@ class StatsMongoDataServiceTest(
 
     @Test
     fun `save all stats`() = runTest {
-        every { submissionsRepository.existsByAccNo("S-TEST1") } returns true
-        every { submissionsRepository.existsByAccNo("S-TEST2") } returns true
-        every { submissionsRepository.existsByAccNo("S-TEST3") } returns false
+        coEvery { submissionsRepository.existsByAccNo("S-TEST1") } returns true
+        coEvery { submissionsRepository.existsByAccNo("S-TEST2") } returns true
+        coEvery { submissionsRepository.existsByAccNo("S-TEST3") } returns false
 
         val stats = listOf(
             SingleSubmissionStat("S-TEST1", 1L, VIEWS),
@@ -122,9 +123,9 @@ class StatsMongoDataServiceTest(
 
     @Test
     fun `increment stats`() = runTest {
-        every { submissionsRepository.existsByAccNo("S-TEST1") } returns true
-        every { submissionsRepository.existsByAccNo("S-TEST2") } returns true
-        every { submissionsRepository.existsByAccNo("S-TEST3") } returns false
+        coEvery { submissionsRepository.existsByAccNo("S-TEST1") } returns true
+        coEvery { submissionsRepository.existsByAccNo("S-TEST2") } returns true
+        coEvery { submissionsRepository.existsByAccNo("S-TEST3") } returns false
 
         val stats = listOf(
             SingleSubmissionStat("S-TEST1", 1L, VIEWS),

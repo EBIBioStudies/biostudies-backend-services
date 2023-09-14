@@ -1,8 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.repositories
 
-import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
@@ -14,26 +12,6 @@ import org.springframework.data.mongodb.repository.Meta
 import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.data.mongodb.repository.Query
 import java.time.Instant
-
-interface SubmissionMongoRepository : MongoRepository<DocSubmission, ObjectId> {
-    @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
-    fun findByAccNo(accNo: String): DocSubmission?
-
-    fun existsByAccNo(accNo: String): Boolean
-
-    fun existsByAccNoAndVersion(accNo: String, version: Int): Boolean
-
-    fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
-
-    fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): List<DocSubmission>
-
-    fun findFirstByAccNoAndVersionLessThanOrderByVersion(accNo: String, version: Int = 0): DocSubmission?
-
-    @Query(value = "{ 'accNo' : ?0, 'version' : { \$gt: 0} }", fields = "{ 'collections.accNo':1 }")
-    fun findSubmissionCollections(accNo: String): SubmissionCollections?
-}
-
-fun SubmissionMongoRepository.getByAccNo(accNo: String) = findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
 
 interface SubmissionRequestRepository : MongoRepository<DocSubmissionRequest, String> {
     fun getByAccNoAndVersionAndStatus(

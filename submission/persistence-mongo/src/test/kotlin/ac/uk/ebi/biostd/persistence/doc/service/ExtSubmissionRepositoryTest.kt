@@ -14,6 +14,9 @@ import ac.uk.ebi.biostd.persistence.doc.test.SubmissionTestHelper.docSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -35,14 +38,13 @@ import uk.ac.ebi.extended.test.SubmissionFactory.ACC_NO
 import uk.ac.ebi.extended.test.SubmissionFactory.defaultSubmission
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.time.Duration
-import kotlin.text.Typography.section
 
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class, TestConfig::class])
 class ExtSubmissionRepositoryTest(
     @Autowired private val filesResolver: FilesResolver,
     @Autowired private val subDataRepository: SubmissionDocDataRepository,
-    @Autowired private val fileListDocFileRepository: FileListDocFileRepository
+    @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
 ) {
     private val extSerializationService = extSerializationService()
     private val toFileListMapper =
@@ -58,13 +60,13 @@ class ExtSubmissionRepositoryTest(
     )
 
     @BeforeEach
-    fun beforeEach() {
-        subDataRepository.deleteAll()
+    fun beforeEach() = runBlocking {
+        subDataRepository.deleteAllSubmissions()
         fileListDocFileRepository.deleteAll()
     }
 
     @Test
-    fun `save submission`() {
+    fun `save submission`() = runTest {
         val section = defaultSection(fileList = defaultFileList(files = listOf(defaultFireFile())))
         val submission = defaultSubmission(section = section, version = 1)
 
@@ -76,7 +78,7 @@ class ExtSubmissionRepositoryTest(
         )
 
         val savedSubmission = subDataRepository.getSubmission(submission.accNo, 1)
-        assertThat(subDataRepository.findAll()).hasSize(1)
+        assertThat(subDataRepository.findAllSubmissions().toList()).hasSize(1)
 
         val fileListDocFiles = fileListDocFileRepository.findAll()
         assertThat(fileListDocFiles).hasSize(1)
@@ -90,14 +92,14 @@ class ExtSubmissionRepositoryTest(
     }
 
     @Test
-    fun `expire previous versions`() {
-        subDataRepository.save(docSubmission.copy(accNo = ACC_NO, version = 1))
-        assertThat(subDataRepository.findAll()).hasSize(1)
+    fun `expire previous versions`() = runTest {
+        subDataRepository.saveSubmission(docSubmission.copy(accNo = ACC_NO, version = 1))
+        assertThat(subDataRepository.findAllSubmissions().toList()).hasSize(1)
 
         testInstance.expirePreviousVersions(ACC_NO)
 
         assertThat(subDataRepository.getSubmission(ACC_NO, -1)).isNotNull()
-        assertThat(subDataRepository.findAll()).hasSize(1)
+        assertThat(subDataRepository.findAllSubmissions().toList()).hasSize(1)
     }
 
     companion object {

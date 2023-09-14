@@ -22,6 +22,7 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.util.date.toStringDate
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -58,7 +59,7 @@ class ResubmissionApiTest(
     }
 
     @Test
-    fun `5-1 resubmit existing submission`() {
+    fun `5-1 resubmit existing submission`() = runTest {
         val submission = tsv {
             line("Submission", "S-RSTST1")
             line("Title", "Simple Submission With Files")
@@ -117,7 +118,7 @@ class ResubmissionApiTest(
     }
 
     @Test
-    fun `5-2 resubmit existing submission with the same files`() {
+    fun `5-2 resubmit existing submission with the same files`() = runTest {
         val submission = tsv {
             line("Submission", "S-RSTST2")
             line("Title", "Simple Submission With Files 2")

@@ -15,16 +15,16 @@ class ExtSubmissionRepository(
     private val subDataRepository: SubmissionDocDataRepository,
     private val fileListDocFileRepository: FileListDocFileRepository,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
-    private val toDocSubmissionMapper: ToDocSubmissionMapper
+    private val toDocSubmissionMapper: ToDocSubmissionMapper,
 ) {
-    fun saveSubmission(submission: ExtSubmission): ExtSubmission =
+    suspend fun saveSubmission(submission: ExtSubmission): ExtSubmission =
         toExtSubmissionMapper.toExtSubmission(persistSubmission(submission), false)
 
-    fun expirePreviousVersions(accNo: String) {
+    suspend fun expirePreviousVersions(accNo: String) {
         subDataRepository.expireVersions(listOf(accNo))
     }
 
-    private fun persistSubmission(submission: ExtSubmission): DocSubmission {
+    private suspend fun persistSubmission(submission: ExtSubmission): DocSubmission {
         val accNo = submission.accNo
         val owner = submission.owner
 
@@ -33,7 +33,7 @@ class ExtSubmissionRepository(
         logger.info { "$accNo $owner Finished mapping submission into doc submission" }
 
         logger.info { "$accNo $owner Started saving submission in the database" }
-        val savedSubmission = subDataRepository.save(docSubmission)
+        val savedSubmission = subDataRepository.saveSubmission(docSubmission)
         logger.info { "$accNo $owner Finished saving submission in the database" }
 
         logger.info { "$accNo $owner Started saving ${files.count()} file list files" }

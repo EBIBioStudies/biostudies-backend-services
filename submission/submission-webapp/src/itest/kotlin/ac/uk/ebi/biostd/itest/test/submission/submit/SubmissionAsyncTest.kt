@@ -18,6 +18,7 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
+import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
@@ -27,7 +28,7 @@ import ebi.ac.uk.model.extensions.title
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.awaitility.Awaitility.await
+import org.awaitility.Durations.ONE_MINUTE
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -36,7 +37,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.time.Duration.ofSeconds
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -59,7 +59,7 @@ class SubmissionAsyncTest(
     }
 
     @Test
-    fun `19-1 simple submit async`() {
+    fun `19-1 simple submit async`() = runTest {
         val submission = tsv {
             line("Submission", "SimpleAsync1")
             line("Title", "Async Submission")
@@ -71,11 +71,9 @@ class SubmissionAsyncTest(
 
         webClient.submitAsync(submission, TSV)
 
-        await()
-            .atMost(ofSeconds(10))
-            .until {
-                submissionRepository.existByAccNoAndVersion("SimpleAsync1", 1)
-            }
+        waitUntil(ONE_MINUTE) {
+            submissionRepository.existByAccNoAndVersion("SimpleAsync1", 1)
+        }
 
         val saved = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("SimpleAsync1"))
         assertThat(saved).isEqualTo(

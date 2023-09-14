@@ -83,15 +83,16 @@ internal class ExtSubmissionSubmitterTest(
     @Nested
     inner class CreateRequest {
         @Test
-        fun `create request`() {
+        fun `create request`() = runTest {
             val submission = basicExtSubmission
             val submissionRequestSlot = slot<SubmissionRequest>()
 
-            every { persistenceService.getNextVersion("S-TEST123") } returns 2
+            coEvery { persistenceService.getNextVersion("S-TEST123") } returns 2
             every { pageTabService.generatePageTab(submission) } returns submission
             every { requestService.createSubmissionRequest(capture(submissionRequestSlot)) } returns ("S-TEST123" to 2)
 
             testInstance.createRequest(ExtSubmitRequest(submission, "user@test.org", "TMP_123"))
+
             val request = submissionRequestSlot.captured
             verify(exactly = 1) {
                 pageTabService.generatePageTab(submission)

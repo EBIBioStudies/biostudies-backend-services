@@ -41,6 +41,7 @@ import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.toStringDate
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -126,7 +127,7 @@ class SubmissionRefreshApiTest(
     }
 
     @Test
-    fun `25-1 refresh when submission title is updated`() {
+    fun `25-1 refresh when submission title is updated`() = runTest {
         val accNo = "Refresh-title-001"
         createTestSubmission(accNo)
 
@@ -141,7 +142,7 @@ class SubmissionRefreshApiTest(
     }
 
     @Test
-    fun `25-2 refresh when submission release date is updated`() {
+    fun `25-2 refresh when submission release date is updated`() = runTest {
         val accNo = "Refresh-release-001"
         createTestSubmission(accNo)
 
@@ -156,7 +157,7 @@ class SubmissionRefreshApiTest(
     }
 
     @Test
-    fun `25-3 refresh when submission attribute is updated`() {
+    fun `25-3 refresh when submission attribute is updated`() = runTest {
         val accNo = "Refresh-attribute-001"
         createTestSubmission(accNo)
 

@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import kotlinx.coroutines.flow.Flow
@@ -57,7 +57,7 @@ class StatsMongoDataService(
             .values
             .toList()
 
-    private fun List<SubmissionStat>.filterValid() =
+    private suspend fun List<SubmissionStat>.filterValid() =
         groupBy { it.accNo.uppercase() }
             .filter { submissionsRepository.existsByAccNo(it.key) }
 

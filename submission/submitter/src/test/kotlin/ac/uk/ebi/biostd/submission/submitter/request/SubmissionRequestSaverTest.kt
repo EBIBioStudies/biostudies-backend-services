@@ -58,8 +58,8 @@ internal class SubmissionRequestSaverTest(
 
         every { subFile.attributes } returns emptyList()
         every { eventsPublisherService.submissionSubmitted(accNo, notifyTo) } answers { nothing }
-        every { persistenceService.expirePreviousVersions(accNo) } answers { nothing }
-        every { persistenceService.saveSubmission(submission) } answers { submission }
+        coEvery { persistenceService.expirePreviousVersions(accNo) } answers { nothing }
+        coEvery { persistenceService.saveSubmission(submission) } answers { submission }
 
         every { submission.accNo } answers { accNo }
         every { submission.version } answers { version }
