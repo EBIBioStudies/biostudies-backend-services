@@ -60,5 +60,5 @@ interface SubmissionMongoRepository : ReactiveCrudRepository<DocSubmission, Obje
     suspend fun findSubmissionCollections(accNo: String): SubmissionCollections?
 }
 
-suspend fun SubmissionMongoRepository.getByAccNo(accNo: String) =
+suspend fun SubmissionMongoRepository.getByAccNo(accNo: String): DocSubmission =
     findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)

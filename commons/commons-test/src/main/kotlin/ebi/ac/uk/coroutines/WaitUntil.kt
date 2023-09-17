@@ -21,7 +21,7 @@ suspend fun waitUntil(
         available: Long,
         interval: Long,
     ): Unit = withContext(Dispatchers.Default) {
-        if (available < interval) throw IllegalArgumentException("Await condition expire")
+        if (available < interval) throw IllegalArgumentException("Await condition expired")
         val result = runCatching { conditionEvaluator() }.getOrElse { false }
         if (result.not()) {
             delay(interval)

@@ -21,7 +21,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
-import kotlinx.coroutines.reactive.awaitFirst
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.domain.Page
@@ -55,8 +54,8 @@ class SubmissionDocDataRepository(
         return submissionRepository.save(docSubmission).awaitSingle()
     }
 
-    suspend fun saveAllSubmissions(submissions: List<DocSubmission>) {
-        submissionRepository.saveAll(submissions).awaitFirst()
+    suspend fun saveAllSubmissions(submissions: List<DocSubmission>): List<DocSubmission> {
+        return submissionRepository.saveAll(submissions).collectList().awaitSingle()
     }
 
     suspend fun deleteAllSubmissions() {
