@@ -39,19 +39,19 @@ class SubmissionService(
         eventsPublisherService.requestCreated(accNo, version)
     }
 
-    fun deleteSubmission(accNo: String, user: SecurityUser) {
+    suspend fun deleteSubmission(accNo: String, user: SecurityUser) {
         require(userPrivilegesService.canDelete(user.email, accNo)) { throw UserCanNotDelete(accNo, user.email) }
         runBlocking { fileStorageService.deleteSubmissionFiles(queryService.getExtByAccNo(accNo, true)) }
         submissionPersistenceService.expireSubmission(accNo)
         eventsPublisherService.submissionsRefresh(accNo, user.email)
     }
 
-    fun deleteSubmissions(submissions: List<String>, user: SecurityUser) {
+    suspend fun deleteSubmissions(submissions: List<String>, user: SecurityUser) {
         submissions.forEach { require(userPrivilegesService.canDelete(user.email, it)) }
         submissions.forEach { deleteSubmission(it, user) }
     }
 
-    fun releaseSubmission(request: ReleaseRequest, user: SecurityUser) {
+    suspend fun releaseSubmission(request: ReleaseRequest, user: SecurityUser) {
         require(userPrivilegesService.canRelease(user.email)) { throw UserCanNotRelease(request.accNo, user.email) }
         extSubmissionSubmitter.release(request.accNo)
         eventsPublisherService.submissionsRefresh(request.accNo, user.email)

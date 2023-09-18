@@ -12,13 +12,13 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.util.date.toStringDate
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Durations.TEN_SECONDS
@@ -31,7 +31,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.time.Duration
 import java.time.OffsetDateTime
 
 @Import(FilePersistenceConfig::class)
@@ -308,27 +307,5 @@ class SubmissionStatsTest(
         webClient.incrementStats("VIEWS", statsFile)
         val stats = webClient.getStatsByTypeAndAccNo("VIEWS", accNo)
         assertThat(stats).isEqualTo(SubmissionStat(accNo, 160L, "VIEWS"))
-    }
-
-    private suspend fun waitUntil(
-        duration: Duration,
-        interval: Duration = Duration.ofMillis(300),
-        conditionEvaluator: suspend () -> Boolean,
-    ) {
-
-        suspend fun waitUntil(
-            conditionEvaluator: suspend () -> Boolean,
-            available: Long,
-            interval: Long,
-        ) {
-            if (available < interval) throw IllegalArgumentException("Await condition expire")
-            val result = runCatching { conditionEvaluator() }.getOrElse { false }
-            if (result.not()) {
-                delay(interval)
-                waitUntil(conditionEvaluator, available - interval, interval)
-            }
-        }
-
-        waitUntil(conditionEvaluator, duration.toMillis(), interval.toMillis())
     }
 }

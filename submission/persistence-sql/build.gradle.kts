@@ -2,6 +2,7 @@ import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
 import Dependencies.JacksonKotlin
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -63,6 +64,7 @@ dependencies {
     implementation(KotlinLogging)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
+    implementation(KotlinCoroutines)
     implementation(SpringAutoConfigure)
     implementation(SpringBootStarterDataJpa)
 

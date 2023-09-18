@@ -1,5 +1,6 @@
 import Dependencies.Arrow
 import Dependencies.CommonsIO
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWebFlux
@@ -18,5 +19,6 @@ dependencies {
     implementation(JunitExtensions)
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
+    implementation(KotlinCoroutines)
     implementation(SpringWebFlux)
 }

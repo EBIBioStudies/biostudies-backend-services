@@ -14,42 +14,45 @@ import org.springframework.data.domain.Page
 import java.time.temporal.TemporalAmount
 
 interface SubmissionPersistenceService {
-    fun saveSubmission(submission: ExtSubmission): ExtSubmission
+    suspend fun saveSubmission(submission: ExtSubmission): ExtSubmission
 
-    fun expirePreviousVersions(accNo: String)
+    suspend fun expirePreviousVersions(accNo: String)
 
-    fun expireSubmissions(accNumbers: List<String>)
+    suspend fun expireSubmissions(accNumbers: List<String>)
 
-    fun expireSubmission(accNo: String) = expireSubmissions(listOf(accNo))
+    suspend fun expireSubmission(accNo: String) = expireSubmissions(listOf(accNo))
 
-    fun setAsReleased(accNo: String)
+    suspend fun setAsReleased(accNo: String)
 
-    fun getNextVersion(accNo: String): Int
+    suspend fun getNextVersion(accNo: String): Int
 }
 
 interface SubmissionPersistenceQueryService {
-    fun existByAccNo(accNo: String): Boolean
+    suspend fun existByAccNo(accNo: String): Boolean
 
-    fun existByAccNoAndVersion(accNo: String, version: Int): Boolean
+    suspend fun existByAccNoAndVersion(accNo: String, version: Int): Boolean
 
-    fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission?
+    suspend fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission?
 
-    fun findLatestInactiveByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission?
+    suspend fun findLatestInactiveByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission?
 
-    fun getExtByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission
+    suspend fun getExtByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission
 
-    fun getExtByAccNoAndVersion(accNo: String, version: Int, includeFileListFiles: Boolean = false): ExtSubmission
+    suspend fun getExtByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+        includeFileListFiles: Boolean = false,
+    ): ExtSubmission
 
-    fun getExtendedSubmissions(filter: SubmissionFilter): Page<ExtSubmission>
+    suspend fun getExtendedSubmissions(filter: SubmissionFilter): Page<ExtSubmission>
 
     /**
      * Return the list of submissions that belongs to a user. Both processed and processing or requesting ones are
      * retrieved.
      *
-     * @param owner the submission owner email
      * @param filter the submission filter
      **/
-    fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission>
+    suspend fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission>
 }
 
 interface SubmissionFilesPersistenceService {
@@ -98,11 +101,11 @@ interface SubmissionRequestFilesPersistenceService {
 }
 
 interface SubmissionMetaQueryService {
-    fun getBasicCollection(accNo: String): BasicCollection
+    suspend fun getBasicCollection(accNo: String): BasicCollection
 
-    fun findLatestBasicByAccNo(accNo: String): BasicSubmission?
+    suspend fun findLatestBasicByAccNo(accNo: String): BasicSubmission?
 
-    fun getAccessTags(accNo: String): List<String>
+    suspend fun getAccessTags(accNo: String): List<String>
 
-    fun existByAccNo(accNo: String): Boolean
+    suspend fun existByAccNo(accNo: String): Boolean
 }

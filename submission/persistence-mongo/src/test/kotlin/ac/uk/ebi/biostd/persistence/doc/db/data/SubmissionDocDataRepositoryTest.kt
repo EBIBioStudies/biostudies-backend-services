@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.migrations.ensureSubmissionIndexes
@@ -14,6 +14,8 @@ import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.createNfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeEach
@@ -47,8 +49,8 @@ internal class SubmissionDocDataRepositoryTest(
 ) {
 
     @BeforeEach
-    fun beforeEach() {
-        testInstance.deleteAll()
+    fun beforeEach() = runBlocking {
+        testInstance.deleteAllSubmissions()
         fileListDocFileRepo.deleteAll()
         mongoTemplate.ensureSubmissionIndexes()
     }
@@ -56,8 +58,8 @@ internal class SubmissionDocDataRepositoryTest(
     @Nested
     inner class ReleaseSubmission {
         @Test
-        fun `release submission`() {
-            testInstance.save(testDocSubmission.copy(accNo = "S-BIAD1", version = 1, released = false))
+        fun `release submission`() = runTest {
+            testInstance.saveSubmission(testDocSubmission.copy(accNo = "S-BIAD1", version = 1, released = false))
             testInstance.setAsReleased("S-BIAD1")
 
             assertThat(testInstance.getByAccNo(accNo = "S-BIAD1").released).isTrue
@@ -67,7 +69,7 @@ internal class SubmissionDocDataRepositoryTest(
     @Nested
     inner class ExpireSubmissions {
         @Test
-        fun `expire active processed versions`() {
+        fun `expire active processed versions`() = runTest {
             val referencedFile = tempFolder.createFile("referenced.txt")
             val file = createNfsFile("referenced.txt", "Files/referenced.txt", referencedFile)
             val fileListFile = FileListDocFile(
@@ -80,10 +82,10 @@ internal class SubmissionDocDataRepositoryTest(
                 submissionAccNo = "S-BSST4"
             )
 
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4"))
+            testInstance.saveSubmission(testDocSubmission.copy(accNo = "S-BSST4"))
             fileListDocFileRepo.save(fileListFile)
 
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = 2))
+            testInstance.saveSubmission(testDocSubmission.copy(accNo = "S-BSST4", version = 2))
             fileListDocFileRepo.save(fileListFile.copy(id = ObjectId(), submissionVersion = 2))
 
             testInstance.expireVersions(listOf("S-BSST4"))
@@ -108,9 +110,9 @@ internal class SubmissionDocDataRepositoryTest(
     @Nested
     inner class GetSubmissions {
         @Test
-        fun `by email`() {
-            testInstance.save(testDocSubmission.copy(accNo = "accNo1", owner = "anotherEmail"))
-            val d2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", owner = "ownerEmail"))
+        fun `by email`() = runTest {
+            testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo1", owner = "anotherEmail"))
+            val d2 = testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo2", owner = "ownerEmail"))
 
             val result = testInstance.getSubmissions(SubmissionListFilter("ownerEmail"))
 
@@ -118,9 +120,9 @@ internal class SubmissionDocDataRepositoryTest(
         }
 
         @Test
-        fun `by type`() {
-            testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1"))
-            val d2 = testInstance.save(
+        fun `by type`() = runTest {
+            testInstance.saveSubmission(testDocSubmission.copy(owner = OWNER, accNo = "accNo1"))
+            val d2 = testInstance.saveSubmission(
                 testDocSubmission.copy(
                     owner = OWNER,
                     accNo = "accNo2",
@@ -136,9 +138,9 @@ internal class SubmissionDocDataRepositoryTest(
         }
 
         @Test
-        fun `by AccNo When is not the owner`() {
-            testInstance.save(testDocSubmission.copy(accNo = "accNo1"))
-            val d2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2"))
+        fun `by AccNo When is not the owner`() = runTest {
+            testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo1"))
+            val d2 = testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo2"))
 
             val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, findAnyAccNo = true, accNo = "accNo2"))
 
@@ -146,8 +148,8 @@ internal class SubmissionDocDataRepositoryTest(
         }
 
         @Test
-        fun `by AccNo When is the owner`() {
-            val d1 = testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1"))
+        fun `by AccNo When is the owner`() = runTest {
+            val d1 = testInstance.saveSubmission(testDocSubmission.copy(owner = OWNER, accNo = "accNo1"))
 
             val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, accNo = "accNo1"))
 
@@ -155,9 +157,15 @@ internal class SubmissionDocDataRepositoryTest(
         }
 
         @Test
-        fun `by release time`() {
-            testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1", releaseTime = ofEpochSecond(5)))
-            val d2 = testInstance.save(
+        fun `by release time`() = runTest {
+            testInstance.saveSubmission(
+                testDocSubmission.copy(
+                    owner = OWNER,
+                    accNo = "accNo1",
+                    releaseTime = ofEpochSecond(5)
+                )
+            )
+            val d2 = testInstance.saveSubmission(
                 testDocSubmission.copy(owner = OWNER, accNo = "accNo2", releaseTime = ofEpochSecond(15))
             )
 
@@ -173,11 +181,11 @@ internal class SubmissionDocDataRepositoryTest(
         }
 
         @Test
-        fun `by keywords`() {
+        fun `by keywords`() = runTest {
             val doc1 = testDocSubmission.copy(owner = OWNER, accNo = "accNo1", title = "one two")
             val doc2 = testDocSubmission.copy(owner = OWNER, accNo = "accNo2", title = "two four")
 
-            testInstance.saveAll(listOf(doc1, doc2))
+            testInstance.saveAllSubmissions(listOf(doc1, doc2))
 
             assertThat(testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "one"))).containsOnly(doc1)
             assertThat(testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "two"))).containsOnly(
@@ -188,9 +196,10 @@ internal class SubmissionDocDataRepositoryTest(
         }
 
         @Test
-        fun `by released`() {
-            testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1", released = true))
-            val d2 = testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo2", released = false))
+        fun `by released`() = runTest {
+            testInstance.saveSubmission(testDocSubmission.copy(owner = OWNER, accNo = "accNo1", released = true))
+            val d2 =
+                testInstance.saveSubmission(testDocSubmission.copy(owner = OWNER, accNo = "accNo2", released = false))
 
             val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, released = false))
 
@@ -198,25 +207,25 @@ internal class SubmissionDocDataRepositoryTest(
         }
 
         @Test
-        fun `by current version`() {
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = -1))
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = 2))
+        fun `by current version`() = runTest {
+            testInstance.saveSubmission(testDocSubmission.copy(accNo = "S-BSST3", version = -1))
+            testInstance.saveSubmission(testDocSubmission.copy(accNo = "S-BSST3", version = 2))
 
             assertThat(testInstance.getCurrentMaxVersion("S-BSST3")).isEqualTo(2)
         }
 
         @Test
-        fun `by current version with all versions deleted`() {
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -1))
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -2))
+        fun `by current version with all versions deleted`() = runTest {
+            testInstance.saveSubmission(testDocSubmission.copy(accNo = "S-BSST4", version = -1))
+            testInstance.saveSubmission(testDocSubmission.copy(accNo = "S-BSST4", version = -2))
 
             assertThat(testInstance.getCurrentMaxVersion("S-BSST4")).isEqualTo(2)
         }
     }
 
     @Test
-    fun getProjects() {
-        testInstance.save(testDocSubmission)
+    fun getProjects() = runTest {
+        testInstance.saveSubmission(testDocSubmission)
 
         val projects = testInstance.getCollections(testDocSubmission.accNo)
 

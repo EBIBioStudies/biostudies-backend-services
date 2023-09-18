@@ -94,8 +94,8 @@ class SubmissionDraftServiceTest(
     @Test
     fun `get draft from submission`() = runTest {
         val submission = basicExtSubmission
-        every { userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY) } returns true
-        every { submissionQueryService.getExtByAccNo(DRAFT_KEY) } returns submission
+        coEvery { userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY) } returns true
+        coEvery { submissionQueryService.getExtByAccNo(DRAFT_KEY) } returns submission
         coEvery { draftPersistenceService.findSubmissionDraft(USER_ID, DRAFT_KEY) } returns null
         coEvery { draftPersistenceService.createSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDraft
         every {
@@ -115,7 +115,7 @@ class SubmissionDraftServiceTest(
 
     @Test
     fun `get draft from submission without permissions`() = runTest {
-        every { userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY) } returns false
+        coEvery { userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY) } returns false
         coEvery { draftPersistenceService.findSubmissionDraft(USER_ID, DRAFT_KEY) } returns null
 
         val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.getOrCreateSubmissionDraft(USER_ID, DRAFT_KEY) }

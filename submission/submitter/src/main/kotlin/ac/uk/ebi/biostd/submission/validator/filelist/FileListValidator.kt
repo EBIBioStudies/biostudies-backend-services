@@ -24,7 +24,7 @@ class FileListValidator(
      * Validates the given file list by deserializing it and checking each file presence by generating a file source
      * with the given parameters. Note that in case of missing files only first 1000 are reported.
      */
-    fun validateFileList(request: FileListValidationRequest) {
+    suspend fun validateFileList(request: FileListValidationRequest) {
         val (accNo, rootPath, fileListName, submitter, onBehalfUser) = request
         val submission = accNo?.let { submissionQueryService.findExtByAccNo(accNo, includeFileListFiles = false) }
         val fileSourcesRequest = FileSourcesRequest(

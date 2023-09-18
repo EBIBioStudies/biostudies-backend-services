@@ -59,7 +59,7 @@ class SubmitWebHandler(
         subService.submitAsync(rqt)
     }
 
-    private fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {
+    private suspend fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {
         val (submitter, onBehalfUser, attrs, storageMode) = rqt.config
         val (files, preferredSources) = rqt.filesConfig
 
@@ -102,7 +102,7 @@ class SubmitWebHandler(
          * 3. Submission is deserialized including file sources to check both pagetab structure and file presence.
          * 4. Overridden attributes are set.
          */
-        fun processSubmission(): SubmitRequest {
+        suspend fun processSubmission(): SubmitRequest {
             val (accNo, rootPath) = deserializeSubmission()
             val previous = extSubService.findExtendedSubmission(accNo)
             val sources = fileSourcesService.submissionSources(sourceRequest(rootPath, previous))

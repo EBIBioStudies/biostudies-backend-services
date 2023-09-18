@@ -28,6 +28,7 @@ import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.listFilesOrEmpty
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeAll
@@ -64,7 +65,7 @@ class SubmissionStorageModeTest(
     }
 
     @Test
-    fun `10-1 Fire to Nfs`() {
+    fun `10-1 Fire to Nfs`() = runTest {
         val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-1")
         webClient.uploadFiles(listOf(file, fileListFile, fileList))
 
@@ -92,7 +93,7 @@ class SubmissionStorageModeTest(
     }
 
     @Test
-    fun `10-2 Nfs to Fire`() {
+    fun `10-2 Nfs to Fire`() = runTest {
         val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-2")
         webClient.uploadFiles(listOf(file, fileListFile, fileList))
 
@@ -120,7 +121,7 @@ class SubmissionStorageModeTest(
     }
 
     @Test
-    fun `10-3 transfer from NFS to FIRE`() {
+    fun `10-3 transfer from NFS to FIRE`() = runTest {
         val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-3")
         webClient.uploadFiles(listOf(file, fileListFile, fileList))
 
@@ -145,7 +146,7 @@ class SubmissionStorageModeTest(
     }
 
     @Test
-    fun `10-4 transfer from FIRE to NFS`() {
+    fun `10-4 transfer from FIRE to NFS`() = runTest {
         val (submission, file, fileList, fileListFile) = createSubmission("S-STR-MODE-4")
         webClient.uploadFiles(listOf(file, fileListFile, fileList))
         assertThat(webClient.submitSingle(submission, TSV, FIRE)).isSuccessful()

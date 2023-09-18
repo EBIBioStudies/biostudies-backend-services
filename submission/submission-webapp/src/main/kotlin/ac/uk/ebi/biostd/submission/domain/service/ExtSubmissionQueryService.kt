@@ -15,19 +15,19 @@ class ExtSubmissionQueryService(
     private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
 ) {
 
-    fun getExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission =
+    suspend fun getExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission =
         submissionPersistenceQueryService.getExtByAccNo(accNo, includeFileListFiles)
 
-    fun findExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission? =
+    suspend fun findExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission? =
         submissionPersistenceQueryService.findExtByAccNo(accNo, includeFileListFiles)
 
-    fun getReferencedFiles(accNo: String, fileListName: String): ExtFileTable {
+    suspend fun getReferencedFiles(accNo: String, fileListName: String): ExtFileTable {
         val sub = submissionPersistenceQueryService.getExtByAccNo(accNo, false)
         val files = filesRepository.getReferencedFiles(sub, fileListName)
         return ExtFileTable(files.toList())
     }
 
-    fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
+    suspend fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
         val filter = SimpleFilter(
             rTimeFrom = request.fromRTime?.let { OffsetDateTime.parse(request.fromRTime) },
             rTimeTo = request.toRTime?.let { OffsetDateTime.parse(request.toRTime) },

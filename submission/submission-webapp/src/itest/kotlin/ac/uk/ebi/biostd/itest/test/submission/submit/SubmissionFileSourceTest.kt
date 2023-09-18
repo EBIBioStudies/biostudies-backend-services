@@ -74,7 +74,7 @@ class SubmissionFileSourceTest(
     }
 
     @Test
-    fun `6-1 resubmission with SUBMISSION file source as priority over USER_SPACE`() {
+    fun `6-1 resubmission with SUBMISSION file source as priority over USER_SPACE`() = runTest {
         fun submission(fileList: String) = tsv {
             line("Submission", "S-FSTST1")
             line("Title", "Preferred Source Submission")
@@ -206,7 +206,7 @@ class SubmissionFileSourceTest(
     inner class SubmissionsWithFolders {
         @Test
         @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-        fun `6-3-1 submission with directory with files on FIRE`() {
+        fun `6-3-1 submission with directory with files on FIRE`() = runTest {
             val submission = tsv {
                 line("Submission", "S-FSTST3")
                 line("Title", "Simple Submission With directory")
@@ -261,7 +261,7 @@ class SubmissionFileSourceTest(
 
         @Test
         @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-        fun `6-3-2 re submission with directory with files on FIRE`() {
+        fun `6-3-2 re submission with directory with files on FIRE`() = runTest {
             val submission = tsv {
                 line("Submission", "S-FSTST8")
                 line("Title", "Simple Submission With directory")
@@ -308,7 +308,7 @@ class SubmissionFileSourceTest(
 
         @Test
         @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-        fun `6-3-3 re submission with directory with files on FIRE, User folder should be prioritized`() {
+        fun `6-3-3 re submission with directory with files on FIRE, User folder should be prioritized`() = runTest {
             val submission = tsv {
                 line("Submission", "S-FSTST9")
                 line("Title", "Simple Submission with directory")
@@ -365,7 +365,7 @@ class SubmissionFileSourceTest(
 
         @Test
         @EnabledIfSystemProperty(named = "enableFire", matches = "false")
-        fun `6-3-4 submission with directory with files on NFS`() {
+        fun `6-3-4 submission with directory with files on NFS`() = runTest {
             val submission = tsv {
                 line("Submission", "S-FSTST4")
                 line("Title", "Simple Submission With directory")
@@ -435,7 +435,7 @@ class SubmissionFileSourceTest(
     }
 
     @Test
-    fun `6-4 multiple file references`() {
+    fun `6-4 multiple file references`() = runTest {
         val firstVersionFileList = tsv {
             line("Files", "Type")
             line("MultipleReferences.txt", "Ref 1")
@@ -510,7 +510,7 @@ class SubmissionFileSourceTest(
     }
 
     @Test
-    fun `6-5 submission with group file`() {
+    fun `6-5 submission with group file`() = runTest {
         val groupName = "The-Group"
         val submission = tsv {
             line("Submission", "S-FSTST5")
@@ -546,7 +546,7 @@ class SubmissionFileSourceTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `6-6 Submission bypassing fire`() {
+    fun `6-6 Submission bypassing fire`() = runTest {
         val submission = tsv {
             line("Submission", "S-FSTST6")
             line("Title", "Sample Submission")
@@ -581,7 +581,7 @@ class SubmissionFileSourceTest(
     }
 
     @Test
-    fun `6-7 resubmission with SUBMISSION source ONLY`() {
+    fun `6-7 resubmission with SUBMISSION source ONLY`() = runTest {
         val submission = tsv {
             line("Submission", "S-FSTST7")
             line("Title", "Submission Source Only")

@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc
 
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.migrations.CHANGE_LOG_CLASSES
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
@@ -28,7 +28,7 @@ const val CHANGE_LOG_LOCK = "submitter_mongockLock"
 @Configuration
 @EnableMongoRepositories(
     basePackageClasses = [
-        SubmissionMongoRepository::class,
+        FileListDocFileRepository::class,
         DocSubmission::class,
         FileListDocFile::class
     ]

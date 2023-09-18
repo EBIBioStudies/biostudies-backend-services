@@ -15,10 +15,14 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
@@ -45,6 +49,23 @@ class SubmissionDocDataRepository(
     private val submissionRepository: SubmissionMongoRepository,
     private val mongoTemplate: ReactiveMongoTemplate,
 ) : SubmissionMongoRepository by submissionRepository {
+
+    suspend fun saveSubmission(docSubmission: DocSubmission): DocSubmission {
+        return submissionRepository.save(docSubmission).awaitSingle()
+    }
+
+    suspend fun saveAllSubmissions(submissions: List<DocSubmission>): List<DocSubmission> {
+        return submissionRepository.saveAll(submissions).collectList().awaitSingle()
+    }
+
+    suspend fun deleteAllSubmissions() {
+        submissionRepository.deleteAll().awaitSingleOrNull()
+    }
+
+    fun findAllSubmissions(): Flow<DocSubmission> {
+        return submissionRepository.findAll().asFlow()
+    }
+
     fun setAsReleased(accNo: String) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
         mongoTemplate.updateFirst(query, update(SUB_RELEASED, true), DocSubmission::class.java).block()
@@ -62,12 +83,12 @@ class SubmissionDocDataRepository(
         return result?.maxVersion
     }
 
-    fun expireVersions(submissions: List<String>) {
+    suspend fun expireVersions(submissions: List<String>) {
         mongoTemplate.updateMulti(
             Query(where(SUB_ACC_NO).`in`(submissions).andOperator(where(SUB_VERSION).gt(0))),
             ExtendedUpdate().multiply(SUB_VERSION, -1).set(SUB_MODIFICATION_TIME, Instant.now()),
             DocSubmission::class.java
-        ).block()
+        ).awaitSingleOrNull()
 
         val fileListQuery = Query(
             where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO).`in`(submissions)
@@ -79,11 +100,12 @@ class SubmissionDocDataRepository(
                 .multiply(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, -1)
                 .set(SUB_MODIFICATION_TIME, Instant.now()),
             FileListDocFile::class.java
-        ).block()
+        ).awaitSingleOrNull()
     }
 
-    fun getCollections(accNo: String): List<DocCollection> =
-        submissionRepository.findSubmissionCollections(accNo)?.collections ?: emptyList()
+    suspend fun getCollections(accNo: String): List<DocCollection> {
+        return submissionRepository.findSubmissionCollections(accNo)?.collections ?: emptyList()
+    }
 
     fun getSubmissions(filter: SubmissionFilter): List<DocSubmission> {
         val aggregations = createSubmissionAggregation(filter)
@@ -111,7 +133,8 @@ class SubmissionDocDataRepository(
         )
     }
 
-    fun getSubmission(acc: String, version: Int) = submissionRepository.getByAccNoAndVersion(acc, version)
+    suspend fun getSubmission(acc: String, version: Int): DocSubmission =
+        submissionRepository.getByAccNoAndVersion(acc, version)
 
     companion object {
         private fun createCountAggregation(filter: SubmissionFilter) =

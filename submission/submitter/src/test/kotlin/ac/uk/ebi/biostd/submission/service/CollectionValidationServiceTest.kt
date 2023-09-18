@@ -8,10 +8,13 @@ import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -22,7 +25,7 @@ import java.time.ZoneOffset.UTC
 @ExtendWith(MockKExtension::class)
 class CollectionValidationServiceTest(
     @MockK private val beanFactory: BeanFactory,
-    @MockK private val queryService: SubmissionMetaQueryService
+    @MockK private val queryService: SubmissionMetaQueryService,
 ) {
     private val testInstance = CollectionValidationService(beanFactory, queryService)
 
@@ -31,8 +34,8 @@ class CollectionValidationServiceTest(
 
     @Test
     fun `execute collection validators`(
-        @MockK validator: CollectionValidator
-    ) {
+        @MockK validator: CollectionValidator,
+    ) = runTest {
         val submission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
         val basicProject = BasicCollection(
             accNo = "ArrayExpress",
@@ -43,7 +46,7 @@ class CollectionValidationServiceTest(
         )
 
         every { validator.validate(submission) } answers { nothing }
-        every { queryService.getBasicCollection("ArrayExpress") } returns basicProject
+        coEvery { queryService.getBasicCollection("ArrayExpress") } returns basicProject
         every { beanFactory.getBean("ArrayExpressValidator", CollectionValidator::class.java) } returns validator
 
         testInstance.executeCollectionValidators(submission)
@@ -53,8 +56,8 @@ class CollectionValidationServiceTest(
 
     @Test
     fun `execute collection validators over new collection`(
-        @MockK validator: CollectionValidator
-    ) {
+        @MockK validator: CollectionValidator,
+    ) = runTest {
         val submission = basicExtSubmission.copy(
             section = ExtSection(type = "Project"),
             collections = listOf(ExtCollection("ArrayExpress"))
@@ -62,7 +65,7 @@ class CollectionValidationServiceTest(
 
         testInstance.executeCollectionValidators(submission)
 
-        verify(exactly = 0) {
+        coVerify(exactly = 0) {
             validator.validate(submission)
             queryService.getBasicCollection("ArrayExpress")
         }
