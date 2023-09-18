@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.exception.StatNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
-import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
@@ -61,11 +61,11 @@ class StatsMongoDataServiceTest(
         submissionStatsDataRepository.saveStats(stats1)
         submissionStatsDataRepository.saveStats(stats2)
 
-        val page1 = testInstance.findByType(VIEWS, PaginationFilter(limit = 1, offset = 0)).toList()
+        val page1 = testInstance.findByType(VIEWS, PageRequest(limit = 1, offset = 0)).toList()
         assertThat(page1).hasSize(1)
         assertStat(page1.first(), "S-TEST1", 1L)
 
-        val page2 = testInstance.findByType(VIEWS, PaginationFilter(limit = 1, offset = 1)).toList()
+        val page2 = testInstance.findByType(VIEWS, PageRequest(limit = 1, offset = 1)).toList()
         assertThat(page2).hasSize(1)
         assertStat(page2.first(), "S-TEST2", 2L)
     }

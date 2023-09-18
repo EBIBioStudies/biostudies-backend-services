@@ -50,7 +50,7 @@ internal class SubmissionConverterTest(
 
     @MockK val fileConverter: FileConverter,
     @MockK val docFile: DocFile,
-    @MockK val fileDocument: Document
+    @MockK val fileDocument: Document,
 ) {
     private val testInstance = SubmissionConverter(sectionConverter, attributeConverter, fileConverter)
 
@@ -89,15 +89,15 @@ internal class SubmissionConverterTest(
         assertThat(tag[DocSubmissionFields.TAG_DOC_NAME]).isEqualTo(TAG_NAME)
         assertThat(tag[DocSubmissionFields.TAG_DOC_VALUE]).isEqualTo(TAG_VALUE)
 
-        val projects = result.getAs<List<Document>>(DocSubmissionFields.SUB_PROJECTS)
-        val project = projects.first()
-        assertThat(project[DocSubmissionFields.COLLECTION_DOC_ACC_NO]).isEqualTo(COLLECTION_ACC_NO)
+        val collections = result.getAs<List<Document>>(DocSubmissionFields.SUB_COLLECTIONS)
+        val collection = collections.first()
+        assertThat(collection[DocSubmissionFields.COLLECTION_ACC_NO]).isEqualTo(COLLECTION_ACC_NO)
     }
 
     private fun createDocSubmission(
         docSection: DocSection,
         docAttribute: DocAttribute,
-        docFile: DocFile
+        docFile: DocFile,
     ): DocSubmission {
         return DocSubmission(
             id = submissionId,
@@ -119,7 +119,7 @@ internal class SubmissionConverterTest(
             section = docSection,
             attributes = listOf(docAttribute),
             tags = submissionTags,
-            collections = submissionProjects,
+            collections = submissionCollections,
             pageTabFiles = listOf(docFile),
             storageMode = StorageMode.NFS
         )
@@ -147,6 +147,6 @@ internal class SubmissionConverterTest(
         private val submissionTags = listOf(DocTag(TAG_NAME, TAG_VALUE))
 
         private const val COLLECTION_ACC_NO = "BioImages"
-        private val submissionProjects = listOf(DocCollection(COLLECTION_ACC_NO))
+        private val submissionCollections = listOf(DocCollection(COLLECTION_ACC_NO))
     }
 }

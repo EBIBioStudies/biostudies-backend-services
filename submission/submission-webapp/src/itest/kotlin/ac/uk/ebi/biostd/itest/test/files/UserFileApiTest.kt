@@ -33,7 +33,6 @@ class UserFileApiTest(
     @Autowired val securityTestService: SecurityTestService,
     @LocalServerPort val serverPort: Int,
 ) {
-
     @BeforeAll
     fun init() {
         securityTestService.ensureUserRegistration(FilesUser)

@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.common.service
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
-import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import kotlinx.coroutines.flow.Flow
 
 interface SubmissionDraftPersistenceService {
@@ -17,7 +17,7 @@ interface SubmissionDraftPersistenceService {
 
     fun getActiveSubmissionDrafts(
         userEmail: String,
-        filter: PaginationFilter = PaginationFilter(),
+        filter: PageRequest = PageRequest(),
     ): Flow<SubmissionDraft>
 
     suspend fun createSubmissionDraft(userEmail: String, key: String, content: String): SubmissionDraft

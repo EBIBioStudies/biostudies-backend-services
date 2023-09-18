@@ -1,20 +1,20 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_COLLECTION_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_SUBMISSION_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_TAG_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PAGE_TAB_FILES
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_DOC_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_CREATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_DOI
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_METHOD
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_PROJECTS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_REL_PATH
@@ -38,7 +38,7 @@ import org.springframework.core.convert.converter.Converter
 class SubmissionConverter(
     private val sectionConverter: SectionConverter,
     private val attributeConverter: AttributeConverter,
-    private val fileConverter: FileConverter
+    private val fileConverter: FileConverter,
 ) : Converter<DocSubmission, Document> {
     override fun convert(submission: DocSubmission): Document {
         val submissionDoc = Document()
@@ -62,7 +62,7 @@ class SubmissionConverter(
         submissionDoc[SUB_SECTION] = sectionConverter.convert(submission.section)
         submissionDoc[SUB_ATTRIBUTES] = submission.attributes.map { attributeConverter.convert(it) }
         submissionDoc[SUB_TAGS] = submission.tags.map { tagToDocument(it) }
-        submissionDoc[SUB_PROJECTS] = submission.collections.map { collectionToDocument(it) }
+        submissionDoc[SUB_COLLECTIONS] = submission.collections.map { collectionToDocument(it) }
         submissionDoc[PAGE_TAB_FILES] = submission.pageTabFiles.map { fileConverter.convert(it) }
         submissionDoc[STORAGE_MODE] = submission.storageMode.value
         return submissionDoc
@@ -79,7 +79,7 @@ class SubmissionConverter(
     private fun collectionToDocument(docCollection: DocCollection): Document {
         val projectDoc = Document()
         projectDoc[classField] = DOC_COLLECTION_CLASS
-        projectDoc[COLLECTION_DOC_ACC_NO] = docCollection.accNo
+        projectDoc[COLLECTION_ACC_NO] = docCollection.accNo
         return projectDoc
     }
 }

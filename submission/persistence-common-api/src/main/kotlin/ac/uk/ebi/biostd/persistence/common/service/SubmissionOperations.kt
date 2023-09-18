@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.Flow
@@ -48,7 +49,7 @@ interface SubmissionPersistenceQueryService {
      * @param owner the submission owner email
      * @param filter the submission filter
      **/
-    fun getSubmissionsByUser(owner: String, filter: SubmissionFilter): List<BasicSubmission>
+    fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission>
 }
 
 interface SubmissionFilesPersistenceService {
