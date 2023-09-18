@@ -20,7 +20,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.domain.Page
@@ -66,12 +68,12 @@ class SubmissionDocDataRepository(
         return submissionRepository.findAll().asFlow()
     }
 
-    fun setAsReleased(accNo: String) {
+    suspend fun setAsReleased(accNo: String) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
-        mongoTemplate.updateFirst(query, update(SUB_RELEASED, true), DocSubmission::class.java).block()
+        mongoTemplate.updateFirst(query, update(SUB_RELEASED, true), DocSubmission::class.java).awaitSingleOrNull()
     }
 
-    fun getCurrentMaxVersion(accNo: String): Int? {
+    suspend fun getCurrentMaxVersion(accNo: String): Int? {
         val aggregation = newAggregation(
             DocSubmission::class.java,
             match(where(SUB_ACC_NO).`is`(accNo)),
@@ -79,7 +81,7 @@ class SubmissionDocDataRepository(
             sort(Sort.Direction.DESC, "maxVersion")
         )
 
-        val result = mongoTemplate.aggregate(aggregation, Result::class.java).blockFirst()
+        val result = mongoTemplate.aggregate(aggregation, Result::class.java).awaitFirstOrNull()
         return result?.maxVersion
     }
 
@@ -107,19 +109,17 @@ class SubmissionDocDataRepository(
         return submissionRepository.findSubmissionCollections(accNo)?.collections ?: emptyList()
     }
 
-    fun getSubmissions(filter: SubmissionFilter): List<DocSubmission> {
+    fun getSubmissions(filter: SubmissionFilter): Flow<DocSubmission> {
         val aggregations = createSubmissionAggregation(filter)
         val aggregation = newAggregation(
             DocSubmission::class.java,
             *aggregations.toTypedArray()
         ).withOptions(aggregationOptions())
 
-        return mongoTemplate.aggregate(aggregation, DocSubmission::class.java)
-            .collectList()
-            .block()!!
+        return mongoTemplate.aggregate(aggregation, DocSubmission::class.java).asFlow()
     }
 
-    fun getSubmissionsPage(filter: SubmissionFilter): Page<DocSubmission> {
+    suspend fun getSubmissionsPage(filter: SubmissionFilter): Page<DocSubmission> {
         val aggregation = newAggregation(
             DocSubmission::class.java,
             *createCountAggregation(filter).toTypedArray()
@@ -127,9 +127,9 @@ class SubmissionDocDataRepository(
 
         val result = mongoTemplate.aggregate(aggregation, CountResult::class.java)
         return PageImpl(
-            getSubmissions(filter),
+            getSubmissions(filter).toList(),
             PageRequest.of(filter.pageNumber, filter.limit),
-            result.blockFirst()?.submissions ?: 0
+            result.awaitFirstOrNull()?.submissions ?: 0
         )
     }
 

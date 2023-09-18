@@ -8,6 +8,7 @@ import ebi.ac.uk.db.MONGO_VERSION
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -36,8 +37,8 @@ class SubmissionMongoPersistenceServiceTest(
     private val testInstance = SubmissionMongoPersistenceService(submissionRepository, subDataRepository)
 
     @AfterEach
-    fun afterEach() {
-        subDataRepository.deleteAll()
+    fun afterEach() = runBlocking {
+        subDataRepository.deleteAllSubmissions()
     }
 
     @Nested

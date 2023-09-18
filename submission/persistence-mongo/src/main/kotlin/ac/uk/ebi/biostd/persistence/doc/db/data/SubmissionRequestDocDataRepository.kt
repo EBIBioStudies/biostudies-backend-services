@@ -27,12 +27,13 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionReques
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtFile
+import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
@@ -50,33 +51,37 @@ class SubmissionRequestDocDataRepository(
     private val submissionRequestRepository: SubmissionRequestRepository,
 ) : SubmissionRequestRepository by submissionRequestRepository {
 
-    fun saveRequest(request: DocSubmissionRequest): Pair<DocSubmissionRequest, Boolean> {
+    suspend fun deleteAllRequest() {
+        submissionRequestRepository.deleteAll().awaitSingleOrNull()
+    }
+
+    suspend fun saveRequest(request: DocSubmissionRequest): Pair<DocSubmissionRequest, Boolean> {
         val result = mongoTemplate.upsert(
             Query(where(RQT_ACC_NO).`is`(request.accNo).andOperator(where(RQT_STATUS).ne(PROCESSED))),
             request.asSetOnInsert(),
             DocSubmissionRequest::class.java
-        ).block()!!
+        ).awaitSingle()
         val created = result.matchedCount < 1
         return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING) to created
     }
 
-    fun findActiveRequests(filter: SubmissionListFilter): Pair<Int, List<DocSubmissionRequest>> {
+    suspend fun findActiveRequests(filter: SubmissionListFilter): Pair<Int, List<DocSubmissionRequest>> {
         val query = Query().addCriteria(createQuery(filter))
-        val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java).block()!!
+        val requestCount = mongoTemplate.count(query, DocSubmissionRequest::class.java).awaitSingle()
         return when {
             requestCount <= filter.offset -> requestCount.toInt() to emptyList()
             else -> findActiveRequests(query, filter.offset, filter.limit)
         }
     }
 
-    private fun findActiveRequests(
+    private suspend fun findActiveRequests(
         query: Query,
         skip: Long,
         limit: Int,
     ): Pair<Int, MutableList<DocSubmissionRequest>> {
         val result = mongoTemplate.find(query.skip(skip).limit(limit), DocSubmissionRequest::class.java)
             .collectList()
-            .block()!!
+            .awaitSingle()
         return result.count() to result
     }
 
@@ -92,20 +97,20 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 
-    fun upsertSubmissionRequestFile(rqtFile: SubmissionRequestFile) {
+    suspend fun upsertSubmissionRequestFile(rqtFile: SubmissionRequestFile) {
         val file = BasicDBObject.parse(extSerializationService.serialize(rqtFile.file))
         val update = update(RQT_FILE_FILE, file).set(RQT_FILE_INDEX, rqtFile.index)
         val where = where(RQT_FILE_SUB_ACC_NO).`is`(rqtFile.accNo)
             .andOperator(where(RQT_FILE_SUB_VERSION).`is`(rqtFile.version), where(RQT_FILE_PATH).`is`(rqtFile.path))
 
-        mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java).block()
+        mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
     }
 
-    fun updateSubmissionRequestFile(accNo: String, version: Int, filePath: String, file: ExtFile) {
+    suspend fun updateSubmissionRequestFile(accNo: String, version: Int, filePath: String, file: ExtFile) {
         val update = update(RQT_FILE_FILE, BasicDBObject.parse(extSerializationService.serialize(file)))
         val where = where(RQT_FILE_SUB_ACC_NO).`is`(accNo)
             .andOperator(where(RQT_FILE_SUB_VERSION).`is`(version), where(RQT_FILE_PATH).`is`(filePath))
-        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java).block()
+        mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
     }
 
     suspend fun updateSubmissionRequest(rqt: DocSubmissionRequest) {

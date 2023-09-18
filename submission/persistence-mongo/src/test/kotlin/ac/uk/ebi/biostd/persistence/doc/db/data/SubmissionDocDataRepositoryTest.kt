@@ -14,6 +14,7 @@ import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.createNfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -114,7 +115,7 @@ internal class SubmissionDocDataRepositoryTest(
             testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo1", owner = "anotherEmail"))
             val d2 = testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo2", owner = "ownerEmail"))
 
-            val result = testInstance.getSubmissions(SubmissionListFilter("ownerEmail"))
+            val result = testInstance.getSubmissions(SubmissionListFilter("ownerEmail")).toList()
 
             assertThat(result).containsOnly(d2)
         }
@@ -130,9 +131,7 @@ internal class SubmissionDocDataRepositoryTest(
                 )
             )
 
-            val result = testInstance.getSubmissions(
-                SubmissionListFilter(OWNER, type = "work")
-            )
+            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, type = "work")).toList()
 
             assertThat(result).containsOnly(d2)
         }
@@ -142,7 +141,9 @@ internal class SubmissionDocDataRepositoryTest(
             testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo1"))
             val d2 = testInstance.saveSubmission(testDocSubmission.copy(accNo = "accNo2"))
 
-            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, findAnyAccNo = true, accNo = "accNo2"))
+            val result = testInstance
+                .getSubmissions(SubmissionListFilter(OWNER, findAnyAccNo = true, accNo = "accNo2"))
+                .toList()
 
             assertThat(result).containsOnly(d2)
         }
@@ -151,7 +152,7 @@ internal class SubmissionDocDataRepositoryTest(
         fun `by AccNo When is the owner`() = runTest {
             val d1 = testInstance.saveSubmission(testDocSubmission.copy(owner = OWNER, accNo = "accNo1"))
 
-            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, accNo = "accNo1"))
+            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, accNo = "accNo1")).toList()
 
             assertThat(result).containsOnly(d1)
         }
@@ -175,7 +176,7 @@ internal class SubmissionDocDataRepositoryTest(
                     rTimeFrom = OffsetDateTime.ofInstant(ofEpochSecond(10), ZoneOffset.UTC),
                     rTimeTo = OffsetDateTime.ofInstant(ofEpochSecond(20), ZoneOffset.UTC)
                 )
-            )
+            ).toList()
 
             assertThat(result).containsOnly(d2)
         }
@@ -187,12 +188,14 @@ internal class SubmissionDocDataRepositoryTest(
 
             testInstance.saveAllSubmissions(listOf(doc1, doc2))
 
-            assertThat(testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "one"))).containsOnly(doc1)
-            assertThat(testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "two"))).containsOnly(
-                doc1,
-                doc2
-            )
-            assertThat(testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "four"))).containsOnly(doc2)
+            val r1 = testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "one")).toList()
+            assertThat(r1).containsOnly(doc1)
+
+            val r2 = testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "two")).toList()
+            assertThat(r2).containsOnly(doc1, doc2)
+
+            val r3 = testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "four")).toList()
+            assertThat(r3).containsOnly(doc2)
         }
 
         @Test
@@ -201,7 +204,7 @@ internal class SubmissionDocDataRepositoryTest(
             val d2 =
                 testInstance.saveSubmission(testDocSubmission.copy(owner = OWNER, accNo = "accNo2", released = false))
 
-            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, released = false))
+            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, released = false)).toList()
 
             assertThat(result).containsOnly(d2)
         }

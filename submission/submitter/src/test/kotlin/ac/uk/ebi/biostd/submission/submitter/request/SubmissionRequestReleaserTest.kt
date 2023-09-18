@@ -79,7 +79,7 @@ class SubmissionRequestReleaserTest(
         every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile, fireRqtFile)
         coEvery { storageService.releaseSubmissionFile(nfsFile, relPath, mode) } returns releasedFile
         coEvery { requestService.saveSubmissionRequest(rqt.withNewStatus(CHECK_RELEASED)) } answers { accNo to version }
-        every { requestService.getFilesCopiedRequest(accNo, version) } returns rqt
+        coEvery { requestService.getFilesCopiedRequest(accNo, version) } returns rqt
         coEvery { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
         coEvery { requestService.updateRqtIndex(accNo, version, 2) } answers { nothing }
 
@@ -99,7 +99,7 @@ class SubmissionRequestReleaserTest(
         val accNo = "S-TEST123"
         val version = 1
 
-        every { requestService.getFilesCopiedRequest(accNo, version) } returns rqt
+        coEvery { requestService.getFilesCopiedRequest(accNo, version) } returns rqt
         every { rqt.submission } returns submission
         every { submission.released } returns false
         every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
