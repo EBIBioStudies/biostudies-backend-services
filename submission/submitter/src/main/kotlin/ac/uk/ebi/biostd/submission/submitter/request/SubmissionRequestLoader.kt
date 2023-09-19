@@ -73,7 +73,7 @@ class SubmissionRequestLoader(
 
     private fun asCompressedFile(accNo: String, version: Int, directory: NfsFile): NfsFile {
         fun compress(file: File): File {
-            val tempFolder = fireTempDirPath.resolve("$accNo/$version")
+            val tempFolder = fireTempDirPath.resolve("$accNo/$version/${directory.filePath.substringBeforeLast("/")}")
             tempFolder.mkdirs()
 
             val target = tempFolder.resolve("${file.name}.zip")

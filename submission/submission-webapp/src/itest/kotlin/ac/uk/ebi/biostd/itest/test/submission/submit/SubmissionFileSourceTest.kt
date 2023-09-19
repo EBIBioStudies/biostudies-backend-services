@@ -209,7 +209,7 @@ class SubmissionFileSourceTest(
         fun `6-3-1 submission with directory with files on FIRE`() = runTest {
             val submission = tsv {
                 line("Submission", "S-FSTST3")
-                line("Title", "Simple Submission With directory")
+                line("Title", "Simple Submission With directory on FIRE")
                 line()
 
                 line("Study")
@@ -219,8 +219,8 @@ class SubmissionFileSourceTest(
                 line("Type", "test")
                 line()
 
-                line("File", "folder/inner")
-                line("Type", "inner folder")
+                line("File", "folder/inner/directory")
+                line("Type", "inner directory")
                 line()
             }.toString()
 
@@ -232,7 +232,7 @@ class SubmissionFileSourceTest(
             webClient.uploadFiles(listOf(file1), "directory")
             webClient.uploadFiles(listOf(file2), "directory/subdirectory")
             webClient.uploadFiles(listOf(file3), "folder")
-            webClient.uploadFiles(listOf(file4), "folder/inner")
+            webClient.uploadFiles(listOf(file4), "folder/inner/directory")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
@@ -254,7 +254,7 @@ class SubmissionFileSourceTest(
                 assertThat(it.size).isEqualTo(161L)
                 assertThat(it.md5).isEqualTo("1FBD0EEC5299D755DF21D2DA7567EAA3")
 
-                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/folder/inner.zip")
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/folder/inner/directory.zip")
                 assertThat(files).containsExactly("file4.txt" to file4.readText())
             }
         }
@@ -368,7 +368,7 @@ class SubmissionFileSourceTest(
         fun `6-3-4 submission with directory with files on NFS`() = runTest {
             val submission = tsv {
                 line("Submission", "S-FSTST4")
-                line("Title", "Simple Submission With directory")
+                line("Title", "Simple Submission With directory on NFS")
                 line()
 
                 line("Study")
@@ -378,8 +378,8 @@ class SubmissionFileSourceTest(
                 line("Type", "test")
                 line()
 
-                line("File", "folder/inner")
-                line("Type", "inner folder")
+                line("File", "folder/inner/directory")
+                line("Type", "inner directory")
                 line()
             }.toString()
 
@@ -391,7 +391,7 @@ class SubmissionFileSourceTest(
             webClient.uploadFiles(listOf(file1), "directory")
             webClient.uploadFiles(listOf(file2), "directory/subdirectory")
             webClient.uploadFiles(listOf(file3), "folder")
-            webClient.uploadFiles(listOf(file4), "folder/inner")
+            webClient.uploadFiles(listOf(file4), "folder/inner/directory")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
@@ -414,7 +414,7 @@ class SubmissionFileSourceTest(
 
                 val dir = Paths.get("$submissionPath/${submitted.relPath}/Files/folder")
                 assertThat(dir.resolve("file3.txt").exist()).isFalse()
-                assertDirFile(dir.resolve("inner/file4.txt"), "content-4")
+                assertDirFile(dir.resolve("inner/directory/file4.txt"), "content-4")
             }
         }
 
