@@ -82,8 +82,8 @@ internal class SubmissionMongoQueryServiceTest(
         )
 
     @AfterEach
-    fun afterEach() {
-        submissionRepo.deleteAll()
+    fun afterEach() = runBlocking {
+        submissionRepo.deleteAllSubmissions()
         mongoTemplate.ensureSubmissionIndexes()
     }
 
@@ -120,8 +120,8 @@ internal class SubmissionMongoQueryServiceTest(
         private val section = rootSection.copy(fileList = null, files = listOf(), sections = listOf())
 
         @BeforeEach
-        fun beforeEach() = runBlocking {
-            requestRepository.deleteAll()
+        fun beforeEach(): Unit = runBlocking {
+            requestRepository.deleteAllRequest()
             submissionRepo.deleteAllSubmissions()
         }
 
@@ -356,7 +356,7 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(result.first().title).isEqualTo("one")
         }
 
-        private fun saveAsRequest(extSubmission: ExtSubmission, status: RequestStatus): ExtSubmission {
+        private suspend fun saveAsRequest(extSubmission: ExtSubmission, status: RequestStatus): ExtSubmission {
             requestRepository.saveRequest(asRequest(extSubmission, status))
             return extSubmission
         }

@@ -34,7 +34,7 @@ class SubmissionRequestSaver(
         return saved
     }
 
-    private fun assembleSubmission(sub: ExtSubmission): ExtSubmission {
+    private suspend fun assembleSubmission(sub: ExtSubmission): ExtSubmission {
         return fileProcessingService.processFiles(sub) { file ->
             val requestFile = filesRequestService.getSubmissionRequestFile(sub.accNo, sub.version, file.filePath)
             return@processFiles requestFile.file.copyWithAttributes(file.attributes)

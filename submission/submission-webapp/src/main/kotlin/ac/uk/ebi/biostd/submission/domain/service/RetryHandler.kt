@@ -21,17 +21,17 @@ class RetryHandler(
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
-    fun onStart() {
+    fun onStart() = runBlocking {
         logger.info { "Re processing pending submission on application start" }
         requestService.getProcessingRequests(Duration.of(3, ChronoUnit.HOURS))
-            .forEach { (accNo, version) -> reTriggerSafely(accNo, version) }
+            .collect { (accNo, version) -> reTriggerSafely(accNo, version) }
     }
 
     @Scheduled(cron = "0 0 */3 * * ?")
-    fun onSchedule() {
+    fun onSchedule() = runBlocking {
         logger.info { "Scheduled re processing of pending submission" }
         requestService.getProcessingRequests(Duration.of(3, ChronoUnit.HOURS))
-            .forEach { (accNo, version) -> reTriggerSafely(accNo, version) }
+            .collect { (accNo, version) -> reTriggerSafely(accNo, version) }
     }
 
     private fun reTriggerSafely(accNo: String, version: Int) {
