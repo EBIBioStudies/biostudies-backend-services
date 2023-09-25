@@ -35,6 +35,7 @@ import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.second
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -105,7 +106,7 @@ class SubmissionFileSourceTest(
         assertThat(webClient.submitSingle(submission("FileList.tsv"), TSV, filesConfig)).isSuccessful()
 
         val firstVersion = submissionRepository.getExtByAccNo("S-FSTST1")
-        val firstVersionReferencedFiles = filesRepository.getReferencedFiles(firstVersion, "FileList")
+        val firstVersionReferencedFiles = filesRepository.getReferencedFiles(firstVersion, "FileList").toList()
         val subFilesPath = "$submissionPath/${firstVersion.relPath}/Files"
         val innerFile = Paths.get("$subFilesPath/File1.txt")
         val referencedFile = Paths.get("$subFilesPath/File2.txt")
@@ -132,7 +133,7 @@ class SubmissionFileSourceTest(
 
         if (enableFire) {
             val secondVersion = submissionRepository.getExtByAccNo("S-FSTST1")
-            val secondVersionReferencedFiles = filesRepository.getReferencedFiles(secondVersion, "FileList")
+            val secondVersionReferencedFiles = filesRepository.getReferencedFiles(secondVersion, "FileList").toList()
 
             val firstVersionFireId = (firstVersion.allSectionsFiles.first() as FireFile).fireId
             val secondVersionFireId = (secondVersion.allSectionsFiles.first() as FireFile).fireId
@@ -185,7 +186,7 @@ class SubmissionFileSourceTest(
         assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
 
         val persistedSubmission = submissionRepository.getExtByAccNo("S-FSTST2")
-        val firstVersionReferencedFiles = filesRepository.getReferencedFiles(persistedSubmission, "FileList")
+        val firstVersionReferencedFiles = filesRepository.getReferencedFiles(persistedSubmission, "FileList").toList()
         val subFilesPath = "$submissionPath/${persistedSubmission.relPath}/Files"
         val innerFile = Paths.get("$subFilesPath/File4.txt")
         val referencedFile = Paths.get("$subFilesPath/File3.txt")

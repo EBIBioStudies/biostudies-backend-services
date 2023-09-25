@@ -1,9 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc
 
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.migrations.CHANGE_LOG_CLASSES
-import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
-import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver
 import com.github.cloudyrock.spring.v5.MongockSpring5
 import com.github.cloudyrock.spring.v5.MongockSpring5.MongockApplicationRunner
@@ -20,19 +17,11 @@ import org.springframework.data.mongodb.MongoDatabaseFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 
 const val CHANGE_LOG_COLLECTION = "submitter_mongockChangeLog"
 const val CHANGE_LOG_LOCK = "submitter_mongockLock"
 
 @Configuration
-@EnableMongoRepositories(
-    basePackageClasses = [
-        FileListDocFileRepository::class,
-        DocSubmission::class,
-        FileListDocFile::class
-    ]
-)
 @EnableConfigurationProperties
 class MongoDbConfig(
     @Value("\${spring.data.mongodb.database}") val mongoDatabase: String,

@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
+import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocFileListMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSectionMapper
@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -44,7 +45,7 @@ import java.time.Duration
 class ExtSubmissionRepositoryTest(
     @Autowired private val filesResolver: FilesResolver,
     @Autowired private val subDataRepository: SubmissionDocDataRepository,
-    @Autowired private val fileListDocFileRepository: FileListDocFileRepository,
+    @Autowired private val fileListDocFileRepository: FileListDocFileDocDataRepository,
 ) {
     private val extSerializationService = extSerializationService()
     private val toFileListMapper =
@@ -62,7 +63,7 @@ class ExtSubmissionRepositoryTest(
     @BeforeEach
     fun beforeEach() = runBlocking {
         subDataRepository.deleteAllSubmissions()
-        fileListDocFileRepository.deleteAll()
+        fileListDocFileRepository.deleteAllFiles()
     }
 
     @Test
@@ -80,7 +81,7 @@ class ExtSubmissionRepositoryTest(
         val savedSubmission = subDataRepository.getSubmission(submission.accNo, 1)
         assertThat(subDataRepository.findAllSubmissions().toList()).hasSize(1)
 
-        val fileListDocFiles = fileListDocFileRepository.findAll()
+        val fileListDocFiles = fileListDocFileRepository.findAll().asFlow().toList()
         assertThat(fileListDocFiles).hasSize(1)
         val fileListDocFile = fileListDocFiles.first()
         assertThat(fileListDocFile.file).isEqualTo(defaultFireFile().toDocFile())

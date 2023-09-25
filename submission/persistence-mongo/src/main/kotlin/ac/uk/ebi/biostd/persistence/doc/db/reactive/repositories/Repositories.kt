@@ -9,8 +9,10 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
+import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Pageable
+import org.springframework.data.mongodb.repository.Meta
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import reactor.core.publisher.Flux
@@ -99,4 +101,26 @@ interface SubmissionRequestFilesRepository : ReactiveCrudRepository<DocSubmissio
     ): Flux<DocSubmissionRequestFile>
 
     suspend fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
+}
+
+interface FileListDocFileRepository : ReactiveCrudRepository<FileListDocFile, ObjectId> {
+    @Meta(cursorBatchSize = 100, flags = [org.springframework.data.mongodb.core.query.Meta.CursorOption.NO_TIMEOUT])
+    fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(
+        accNo: String,
+        version: Int,
+        fileListName: String,
+    ): Flux<FileListDocFile>
+
+    fun findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
+        accNo: String,
+        version: Int,
+        fileListName: String,
+    ): Flux<FileListDocFile>
+
+    @Query("{ 'submissionAccNo': ?0, 'submissionVersion': ?1, 'file.filePath': ?2}")
+    fun findBySubmissionAccNoAndSubmissionVersionAndFilePath(
+        accNo: String,
+        version: Int,
+        filePath: String,
+    ): Flux<FileListDocFile>
 }

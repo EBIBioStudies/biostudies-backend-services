@@ -8,10 +8,12 @@ import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -23,11 +25,11 @@ class ToExtTableTest {
         @MockK fileSource: FilesSource,
         @MockK fileTable: FilesTable,
         @MockK extFile: ExtFile,
-    ) {
+    ) = runTest {
         val file = BioFile("file.txt")
         val sources = FileSourcesList(listOf(fileSource))
 
-        every { fileSource.getExtFile(file.path, file.type, file.attributes) } returns extFile
+        coEvery { fileSource.getExtFile(file.path, file.type, file.attributes) } returns extFile
         every { fileTable.elements } returns listOf(file)
 
         val result = fileTable.toExtTable(sources)

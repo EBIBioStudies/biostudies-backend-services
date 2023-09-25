@@ -13,17 +13,20 @@ import ebi.ac.uk.util.file.ExcelReader.asTsv
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkObject
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.test.assertFailsWith
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class PageTabFileReaderTest(
@@ -62,35 +65,35 @@ class PageTabFileReaderTest(
     }
 
     @Test
-    fun `get file list file`(@MockK filesSource: FilesSource) {
+    fun `get file list file`(@MockK filesSource: FilesSource) = runTest {
         val filesSourceList = FileSourcesList(listOf(filesSource))
         val fileList = tempFolder.createFile("file-list.tsv")
 
-        every { filesSource.getFileList("file-list.tsv") } returns fileList
+        coEvery { filesSource.getFileList("file-list.tsv") } returns fileList
 
         assertThat(getFileListFile("file-list.tsv", filesSourceList)).isEqualTo(fileList)
     }
 
     @Test
-    fun `get xlsx file list file`(@MockK filesSource: FilesSource) {
+    fun `get xlsx file list file`(@MockK filesSource: FilesSource) = runTest {
         val filesSourceList = FileSourcesList(listOf(filesSource))
         val fileList = tempFolder.createFile("file-list.xlsx")
         val tsvFileList = tempFolder.createFile("converted-file-list.tsv")
 
         every { asTsv(fileList) } returns fileList
-        every { filesSource.getFileList("file-list.xlsx") } returns tsvFileList
+        coEvery { filesSource.getFileList("file-list.xlsx") } returns tsvFileList
 
         assertThat(getFileListFile("file-list.xlsx", filesSourceList)).isEqualTo(tsvFileList)
     }
 
     @Test
-    fun `get directory list file`(@MockK filesSource: FilesSource) {
+    fun `get directory list file`(@MockK filesSource: FilesSource) = runTest {
         val filesSourceList = FileSourcesList(listOf(filesSource))
         val fileList = tempFolder.createDirectory("file-list")
 
-        every { filesSource.getFileList("file-list") } returns fileList
+        coEvery { filesSource.getFileList("file-list") } returns fileList
 
-        val exception = assertThrows<InvalidFileListException> { getFileListFile("file-list", filesSourceList) }
+        val exception = assertFailsWith<InvalidFileListException> { getFileListFile("file-list", filesSourceList) }
         assertThat(exception.message)
             .isEqualTo("Problem processing file list 'file-list': A directory can't be used as File List")
     }
@@ -98,10 +101,10 @@ class PageTabFileReaderTest(
     @Test
     fun `file list not found`(
         @MockK filesSource: FilesSource,
-    ) {
+    ) = runTest {
         val filesSourceList = FileSourcesList(listOf(filesSource))
-        every { filesSource.getFileList("file-list.xml") } returns null
+        coEvery { filesSource.getFileList("file-list.xml") } returns null
 
-        assertThrows<FilesProcessingException> { getFileListFile("file-list.xml", filesSourceList) }
+        assertFailsWith<FilesProcessingException> { getFileListFile("file-list.xml", filesSourceList) }
     }
 }

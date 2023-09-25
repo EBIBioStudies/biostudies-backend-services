@@ -6,12 +6,15 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.io.use
 import ebi.ac.uk.model.FileList
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 
+@Suppress("TooManyFunctions")
 class ToFileListMapper(
     private val serializationService: SerializationService,
     private val extSerializationService: ExtSerializationService,
@@ -25,6 +28,11 @@ class ToFileListMapper(
     }
 
     fun serialize(fileListFiles: Sequence<ExtFile>, targetFormat: SubFormat, file: File): File {
+        toFile(fileListFiles, targetFormat, file)
+        return file
+    }
+
+    suspend fun serialize(fileListFiles: Flow<ExtFile>, targetFormat: SubFormat, file: File): File {
         toFile(fileListFiles, targetFormat, file)
         return file
     }
@@ -45,7 +53,17 @@ class ToFileListMapper(
         return target
     }
 
+    private suspend fun toFile(source: Flow<ExtFile>, targetFormat: SubFormat, target: File): File {
+        target.outputStream().use { copy(source, targetFormat, it) }
+        return target
+    }
+
     private fun copy(source: Sequence<ExtFile>, targetFormat: SubFormat, target: OutputStream) {
+        val sourceFiles = source.map { it.toFile() }
+        serializationService.serializeFileList(sourceFiles, targetFormat, target)
+    }
+
+    private suspend fun copy(source: Flow<ExtFile>, targetFormat: SubFormat, target: OutputStream) {
         val sourceFiles = source.map { it.toFile() }
         serializationService.serializeFileList(sourceFiles, targetFormat, target)
     }

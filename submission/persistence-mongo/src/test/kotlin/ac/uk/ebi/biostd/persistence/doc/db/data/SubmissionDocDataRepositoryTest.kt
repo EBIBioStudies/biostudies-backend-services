@@ -15,6 +15,7 @@ import ebi.ac.uk.extended.model.createNfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -52,7 +53,7 @@ internal class SubmissionDocDataRepositoryTest(
     @BeforeEach
     fun beforeEach() = runBlocking {
         testInstance.deleteAllSubmissions()
-        fileListDocFileRepo.deleteAll()
+        fileListDocFileRepo.deleteAllFiles()
         mongoTemplate.ensureSubmissionIndexes()
     }
 
@@ -84,27 +85,33 @@ internal class SubmissionDocDataRepositoryTest(
             )
 
             testInstance.saveSubmission(testDocSubmission.copy(accNo = "S-BSST4"))
-            fileListDocFileRepo.save(fileListFile)
+            fileListDocFileRepo.saveFile(fileListFile)
 
             testInstance.saveSubmission(testDocSubmission.copy(accNo = "S-BSST4", version = 2))
-            fileListDocFileRepo.save(fileListFile.copy(id = ObjectId(), submissionVersion = 2))
+            fileListDocFileRepo.saveFile(fileListFile.copy(id = ObjectId(), submissionVersion = 2))
 
             testInstance.expireVersions(listOf("S-BSST4"))
 
             assertThat(testInstance.getByAccNoAndVersion("S-BSST4", version = -1)).isNotNull
             assertThat(testInstance.getByAccNoAndVersion("S-BSST4", version = -2)).isNotNull
-            assertThat(
-                fileListDocFileRepo
-                    .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName("S-BSST4", 0, "file-list")
-            ).isEmpty()
-            assertThat(
-                fileListDocFileRepo
-                    .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName("S-BSST4", -1, "file-list")
-            ).hasSize(1)
-            assertThat(
-                fileListDocFileRepo
-                    .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName("S-BSST4", -2, "file-list")
-            ).hasSize(1)
+
+            val r1 = fileListDocFileRepo
+                .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName("S-BSST4", 0, "file-list")
+                .asFlow()
+                .toList()
+            assertThat(r1).isEmpty()
+
+            val r2 = fileListDocFileRepo
+                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName("S-BSST4", -1, "file-list")
+                .asFlow()
+                .toList()
+            assertThat(r2).hasSize(1)
+
+            val r3 = fileListDocFileRepo
+                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName("S-BSST4", -2, "file-list")
+                .asFlow()
+                .toList()
+            assertThat(r3).hasSize(1)
         }
     }
 
