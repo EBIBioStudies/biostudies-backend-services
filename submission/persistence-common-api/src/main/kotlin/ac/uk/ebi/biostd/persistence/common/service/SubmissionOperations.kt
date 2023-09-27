@@ -63,39 +63,39 @@ interface SubmissionFilesPersistenceService {
 
 @Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
-    fun hasActiveRequest(accNo: String): Boolean
+    suspend fun hasActiveRequest(accNo: String): Boolean
 
-    fun getProcessingRequests(since: TemporalAmount? = null): List<Pair<String, Int>>
+    fun getProcessingRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
 
     suspend fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 
-    fun createSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
+    suspend fun createSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
 
     suspend fun updateRqtIndex(accNo: String, version: Int, index: Int)
 
     suspend fun updateRqtIndex(requestFile: SubmissionRequestFile, file: ExtFile)
 
-    fun getPendingRequest(accNo: String, version: Int): SubmissionRequest
+    suspend fun getPendingRequest(accNo: String, version: Int): SubmissionRequest
 
-    fun getIndexedRequest(accNo: String, version: Int): SubmissionRequest
+    suspend fun getIndexedRequest(accNo: String, version: Int): SubmissionRequest
 
-    fun getLoadedRequest(accNo: String, version: Int): SubmissionRequest
+    suspend fun getLoadedRequest(accNo: String, version: Int): SubmissionRequest
 
-    fun getCleanedRequest(accNo: String, version: Int): SubmissionRequest
+    suspend fun getCleanedRequest(accNo: String, version: Int): SubmissionRequest
 
-    fun getCheckReleased(accNo: String, version: Int): SubmissionRequest
+    suspend fun getCheckReleased(accNo: String, version: Int): SubmissionRequest
 
-    fun getFilesCopiedRequest(accNo: String, version: Int): SubmissionRequest
+    suspend fun getFilesCopiedRequest(accNo: String, version: Int): SubmissionRequest
 
-    fun getPersistedRequest(accNo: String, version: Int): SubmissionRequest
+    suspend fun getPersistedRequest(accNo: String, version: Int): SubmissionRequest
 
-    fun getRequestStatus(accNo: String, version: Int): RequestStatus
+    suspend fun getRequestStatus(accNo: String, version: Int): RequestStatus
 }
 
 interface SubmissionRequestFilesPersistenceService {
-    fun saveSubmissionRequestFile(file: SubmissionRequestFile)
+    suspend fun saveSubmissionRequestFile(file: SubmissionRequestFile)
 
-    fun getSubmissionRequestFile(accNo: String, version: Int, filePath: String): SubmissionRequestFile
+    suspend fun getSubmissionRequestFile(accNo: String, version: Int, filePath: String): SubmissionRequestFile
 
     fun getSubmissionRequestFiles(accNo: String, version: Int, startingAt: Int): Flow<SubmissionRequestFile>
 }

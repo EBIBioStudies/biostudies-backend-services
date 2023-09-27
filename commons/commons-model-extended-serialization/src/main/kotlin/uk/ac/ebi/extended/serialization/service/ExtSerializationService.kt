@@ -19,6 +19,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.WebExtPage
+import kotlinx.coroutines.flow.Flow
 import uk.ac.ebi.extended.serialization.deserializers.EitherExtTypeDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtAttributeDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileDeserializer
@@ -39,6 +40,7 @@ import uk.ac.ebi.extended.serialization.serializers.ExtSectionsTableSerializer
 import uk.ac.ebi.extended.serialization.serializers.ExtSubmissionSerializer
 import uk.ac.ebi.extended.serialization.serializers.OffsetDateTimeSerializer
 import uk.ac.ebi.serialization.extensions.deserializeList
+import uk.ac.ebi.serialization.extensions.serializeFlow
 import uk.ac.ebi.serialization.extensions.serializeList
 import uk.ac.ebi.serialization.serializers.EitherSerializer
 import java.io.InputStream
@@ -52,6 +54,7 @@ data class Properties(val includeFileListFiles: Boolean) : StringWriter()
 class ExtSerializationService private constructor(val mapper: ObjectMapper) {
     fun serialize(sub: ExtSubmission, props: Properties = Properties(false)): String = serializeElement(sub, props)
     fun serialize(files: Sequence<ExtFile>, stream: OutputStream): Int = mapper.serializeList(files, stream)
+    suspend fun serialize(files: Flow<ExtFile>, stream: OutputStream): Int = mapper.serializeFlow(files, stream)
     fun serialize(file: ExtFile): String = serializeElement(file)
     fun serialize(table: ExtFileTable): String = serializeElement(table)
     fun serialize(extPage: WebExtPage): String = serializeElement(extPage)

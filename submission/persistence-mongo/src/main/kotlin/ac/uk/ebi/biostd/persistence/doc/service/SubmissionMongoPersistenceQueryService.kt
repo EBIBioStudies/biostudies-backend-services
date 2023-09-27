@@ -12,6 +12,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.max
@@ -72,9 +74,9 @@ internal class SubmissionMongoPersistenceQueryService(
             .plus(findSubmissions(submissionFilter))
     }
 
-    private fun findSubmissions(filter: SubmissionListFilter): List<BasicSubmission> =
+    private suspend fun findSubmissions(filter: SubmissionListFilter): List<BasicSubmission> =
         when (filter.limit) {
             0 -> emptyList()
-            else -> submissionRepo.getSubmissions(filter).map { it.asBasicSubmission(PROCESSED) }
+            else -> submissionRepo.getSubmissions(filter).map { it.asBasicSubmission(PROCESSED) }.toList()
         }
 }

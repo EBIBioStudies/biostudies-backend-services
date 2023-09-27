@@ -13,10 +13,11 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.ExtAttribute
@@ -30,7 +31,6 @@ import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.listFilesOrEmpty
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.awaitility.Awaitility.await
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -129,9 +129,9 @@ class SubmissionStorageModeTest(
         val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-3", includeFileListFiles = true)
 
         webClient.transferSubmission("S-STR-MODE-3", FIRE)
-        await()
-            .atMost(ofSeconds(10))
-            .until { submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-3", 2).status == PROCESSED }
+        waitUntil(ofSeconds(10)) {
+            submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-3", 2).status == PROCESSED
+        }
 
         val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-3", includeFileListFiles = true)
         assertThat(fireSub.storageMode).isEqualTo(FIRE)
@@ -153,9 +153,10 @@ class SubmissionStorageModeTest(
         val fireSub = submissionRepository.getExtByAccNo("S-STR-MODE-4", includeFileListFiles = true)
 
         webClient.transferSubmission("S-STR-MODE-4", NFS)
-        await()
-            .atMost(ofSeconds(10))
-            .until { submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-4", 2).status == PROCESSED }
+
+        waitUntil(ofSeconds(10)) {
+            submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-4", 2).status == PROCESSED
+        }
 
         val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-4", includeFileListFiles = true)
 

@@ -1,16 +1,20 @@
 package ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories
 
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionCollections
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 import reactor.core.publisher.Flux
+import java.time.Instant
 
 interface SubmissionDraftRepository : ReactiveCrudRepository<DocSubmissionDraft, String> {
     suspend fun findByUserIdAndKeyAndStatusIsNot(
@@ -62,3 +66,37 @@ interface SubmissionMongoRepository : ReactiveCrudRepository<DocSubmission, Obje
 
 suspend fun SubmissionMongoRepository.getByAccNo(accNo: String): DocSubmission =
     findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
+
+interface SubmissionRequestRepository : ReactiveCrudRepository<DocSubmissionRequest, String> {
+    suspend fun getByAccNoAndVersionAndStatus(
+        accNo: String,
+        version: Int,
+        status: RequestStatus,
+    ): DocSubmissionRequest
+
+    suspend fun existsByAccNoAndStatusIn(accNo: String, status: Set<RequestStatus>): Boolean
+    suspend fun getByAccNoAndStatusIn(accNo: String, status: Set<RequestStatus>): DocSubmissionRequest
+
+    suspend fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
+
+    fun findByStatusIn(status: Set<RequestStatus>): Flux<DocSubmissionRequest>
+
+    fun findByStatusInAndModificationTimeLessThan(
+        status: Set<RequestStatus>,
+        since: Instant,
+    ): Flux<DocSubmissionRequest>
+
+    suspend fun getById(id: ObjectId): DocSubmissionRequest
+    suspend fun findByAccNo(accNo: String): Flux<DocSubmissionRequest>
+}
+
+interface SubmissionRequestFilesRepository : ReactiveCrudRepository<DocSubmissionRequestFile, ObjectId> {
+    @Query("{ 'accNo': ?0, 'version': ?1, 'index': { \$gt: ?2 } }", sort = "{ index: 1 }")
+    fun findRequestFiles(
+        accNo: String,
+        version: Int,
+        index: Int,
+    ): Flux<DocSubmissionRequestFile>
+
+    suspend fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
+}
