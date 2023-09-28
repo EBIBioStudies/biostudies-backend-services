@@ -56,8 +56,8 @@ class SubmissionMongoFilesPersistenceServiceTest(
     private val testInstance = SubmissionMongoFilesPersistenceService(fileListDocFileRepository)
 
     @AfterEach
-    fun afterEach() = runBlocking {
-        fileListDocFileRepository.deleteAllFiles()
+    fun afterEach(): Unit = runBlocking {
+        fileListDocFileRepository.deleteAll()
     }
 
     private val nfsReferencedFile = tempFolder.createFile("nfsReferenced.txt")
@@ -94,10 +94,10 @@ class SubmissionMongoFilesPersistenceServiceTest(
     )
 
     @BeforeEach
-    fun beforeEach() = runBlocking {
+    fun beforeEach(): Unit = runBlocking {
         setUpMockSubmission()
-        fileListDocFileRepository.saveFile(nfsFileListFile)
-        fileListDocFileRepository.saveFile(fireFileListFile)
+        fileListDocFileRepository.save(nfsFileListFile)
+        fileListDocFileRepository.save(fireFileListFile)
     }
 
     @Test

@@ -53,10 +53,6 @@ class SubmissionRequestDocDataRepository(
     private val submissionRequestRepository: SubmissionRequestRepository,
 ) : SubmissionRequestRepository by submissionRequestRepository {
 
-    suspend fun deleteAllRequest() {
-        submissionRequestRepository.deleteAll().awaitSingleOrNull()
-    }
-
     suspend fun saveRequest(request: DocSubmissionRequest): Pair<DocSubmissionRequest, Boolean> {
         val result = mongoTemplate.upsert(
             Query(where(RQT_ACC_NO).`is`(request.accNo).andOperator(where(RQT_STATUS).ne(PROCESSED))),

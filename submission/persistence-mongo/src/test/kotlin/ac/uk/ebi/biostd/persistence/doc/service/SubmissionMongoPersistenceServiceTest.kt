@@ -38,14 +38,14 @@ class SubmissionMongoPersistenceServiceTest(
 
     @AfterEach
     fun afterEach() = runBlocking {
-        subDataRepository.deleteAllSubmissions()
+        subDataRepository.deleteAll()
     }
 
     @Nested
     inner class ExpireSubmissions {
         @Test
         fun `expire submission`() = runTest {
-            subDataRepository.saveSubmission(testDocSubmission.copy(accNo = "S-BSST1", version = 1))
+            subDataRepository.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1))
             testInstance.expireSubmission("S-BSST1")
 
             assertThat(subDataRepository.findByAccNo("S-BSST1")).isNull()

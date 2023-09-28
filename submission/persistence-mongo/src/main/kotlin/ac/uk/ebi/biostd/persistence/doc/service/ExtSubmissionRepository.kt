@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
-import kotlinx.coroutines.reactive.awaitLast
+import kotlinx.coroutines.flow.collect
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
@@ -36,11 +36,11 @@ class ExtSubmissionRepository(
         logger.info { "$accNo $owner Finished mapping submission into doc submission" }
 
         logger.info { "$accNo $owner Started saving submission in the database" }
-        val savedSubmission = subDataRepository.saveSubmission(docSubmission)
+        val savedSubmission = subDataRepository.save(docSubmission)
         logger.info { "$accNo $owner Finished saving submission in the database" }
 
         logger.info { "$accNo $owner Started saving ${files.count()} file list files" }
-        files.chunked(FILES_CHUNK_SIZE).forEach { fileListDocFileRepository.saveAll(it).awaitLast() }
+        files.chunked(FILES_CHUNK_SIZE).forEach { fileListDocFileRepository.saveAll(it).collect() }
         logger.info { "$accNo $owner Finished saving ${files.count()} file list files" }
 
         return savedSubmission

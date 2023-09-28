@@ -70,7 +70,7 @@ suspend fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmission
  * 10. Collection AccNo , Submission Version, Submission Storage Mode
  * 11. (Text Index) Submission Title, Submission Attributes, Section Attributes
  */
-private inline suspend fun <reified T> ReactiveMongoOperations.ensureSubmissionIndexes(prefix: String = EMPTY) {
+private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionIndexes(prefix: String = EMPTY) {
     indexOps(T::class.java).apply {
         ensureIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC)).awaitSingleOrNull()
         ensureIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()

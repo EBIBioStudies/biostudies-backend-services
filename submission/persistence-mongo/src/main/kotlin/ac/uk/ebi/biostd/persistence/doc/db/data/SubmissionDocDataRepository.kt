@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -54,22 +53,6 @@ class SubmissionDocDataRepository(
     private val submissionRepository: SubmissionMongoRepository,
     private val mongoTemplate: ReactiveMongoTemplate,
 ) : SubmissionMongoRepository by submissionRepository {
-
-    suspend fun saveSubmission(docSubmission: DocSubmission): DocSubmission {
-        return submissionRepository.save(docSubmission).awaitSingle()
-    }
-
-    suspend fun saveAllSubmissions(submissions: List<DocSubmission>): List<DocSubmission> {
-        return submissionRepository.saveAll(submissions).collectList().awaitSingle()
-    }
-
-    suspend fun deleteAllSubmissions() {
-        submissionRepository.deleteAll().awaitSingleOrNull()
-    }
-
-    fun findAllSubmissions(): Flow<DocSubmission> {
-        return submissionRepository.findAll().asFlow()
-    }
 
     suspend fun setAsReleased(accNo: String) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
@@ -168,7 +151,7 @@ class SubmissionDocDataRepository(
                 )
 
             fun subTitleContains(keywords: String): Criteria {
-                return where(SUB_TITLE).regex("/.*$keywords.*", "i")
+                return where(SUB_TITLE).regex(".*$keywords.*", "i")
             }
 
             fun keywordsFilter(keywords: String): Criteria {

@@ -14,11 +14,11 @@ import org.bson.types.ObjectId
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.Meta
 import org.springframework.data.mongodb.repository.Query
-import org.springframework.data.repository.reactive.ReactiveCrudRepository
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import reactor.core.publisher.Flux
 import java.time.Instant
 
-interface SubmissionDraftRepository : ReactiveCrudRepository<DocSubmissionDraft, String> {
+interface SubmissionDraftRepository : CoroutineCrudRepository<DocSubmissionDraft, String> {
     suspend fun findByUserIdAndKeyAndStatusIsNot(
         userId: String,
         key: String,
@@ -36,7 +36,7 @@ interface SubmissionDraftRepository : ReactiveCrudRepository<DocSubmissionDraft,
     suspend fun deleteByUserIdAndKey(userId: String, draftKey: String)
 }
 
-interface SubmissionStatsRepository : ReactiveCrudRepository<DocSubmissionStats, ObjectId> {
+interface SubmissionStatsRepository : CoroutineCrudRepository<DocSubmissionStats, ObjectId> {
     suspend fun getByAccNo(accNo: String): DocSubmissionStats
 
     suspend fun findByAccNo(accNo: String): DocSubmissionStats?
@@ -48,7 +48,7 @@ interface SubmissionStatsRepository : ReactiveCrudRepository<DocSubmissionStats,
     fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Flux<DocSubmissionStats>
 }
 
-interface SubmissionMongoRepository : ReactiveCrudRepository<DocSubmission, ObjectId> {
+interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, ObjectId> {
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     suspend fun findByAccNo(accNo: String): DocSubmission?
 
@@ -69,7 +69,7 @@ interface SubmissionMongoRepository : ReactiveCrudRepository<DocSubmission, Obje
 suspend fun SubmissionMongoRepository.getByAccNo(accNo: String): DocSubmission =
     findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
 
-interface SubmissionRequestRepository : ReactiveCrudRepository<DocSubmissionRequest, String> {
+interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionRequest, String> {
     suspend fun getByAccNoAndVersionAndStatus(
         accNo: String,
         version: Int,
@@ -92,7 +92,7 @@ interface SubmissionRequestRepository : ReactiveCrudRepository<DocSubmissionRequ
     suspend fun findByAccNo(accNo: String): Flux<DocSubmissionRequest>
 }
 
-interface SubmissionRequestFilesRepository : ReactiveCrudRepository<DocSubmissionRequestFile, ObjectId> {
+interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissionRequestFile, ObjectId> {
     @Query("{ 'accNo': ?0, 'version': ?1, 'index': { \$gt: ?2 } }", sort = "{ index: 1 }")
     fun findRequestFiles(
         accNo: String,
@@ -103,7 +103,7 @@ interface SubmissionRequestFilesRepository : ReactiveCrudRepository<DocSubmissio
     suspend fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
 }
 
-interface FileListDocFileRepository : ReactiveCrudRepository<FileListDocFile, ObjectId> {
+interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, ObjectId> {
     @Meta(cursorBatchSize = 100, flags = [org.springframework.data.mongodb.core.query.Meta.CursorOption.NO_TIMEOUT])
     fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(
         accNo: String,

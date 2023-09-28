@@ -22,7 +22,6 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -66,7 +65,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
 
     @AfterEach
     fun afterEach() = runBlocking {
-        requestRepository.deleteAllRequest()
+        requestRepository.deleteAll()
         unmockkStatic(Instant::class)
     }
 
@@ -86,8 +85,8 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 modificationTime = modificationTime
             )
 
-        requestRepository.save(testRequest("abc", 1, Instant.now().minusSeconds(10), CLEANED)).awaitSingle()
-        requestRepository.save(testRequest("zxy", 2, Instant.now().minusSeconds(20), FILES_COPIED)).awaitSingle()
+        requestRepository.save(testRequest("abc", 1, Instant.now().minusSeconds(10), CLEANED))
+        requestRepository.save(testRequest("zxy", 2, Instant.now().minusSeconds(20), FILES_COPIED))
 
         assertThat(testInstance.getProcessingRequests().toList()).containsExactly("abc" to 1, "zxy" to 2)
         assertThat(testInstance.getProcessingRequests(ofSeconds(5)).toList()).containsExactly("abc" to 1, "zxy" to 2)
@@ -100,7 +99,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
         val requestFile = SubmissionRequestFile("S-BSST0", 1, index = 2, "requested.txt", extFile)
 
         requestRepository.upsertSubmissionRequestFile(requestFile)
-        requestRepository.save(testRequest()).awaitSingle()
+        requestRepository.save(testRequest())
 
         testInstance.updateRqtIndex(requestFile, file = extFile.copy(md5 = "changedMd5"))
 

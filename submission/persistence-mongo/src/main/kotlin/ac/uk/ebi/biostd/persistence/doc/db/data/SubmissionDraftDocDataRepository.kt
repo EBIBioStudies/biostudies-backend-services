@@ -14,7 +14,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACT
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
@@ -30,14 +29,6 @@ class SubmissionDraftDocDataRepository(
             Query(where(USER_ID).`is`(userId).andOperator(where(KEY).`is`(key), where(STATUS).`is`(ACTIVE))),
             draft
         )
-    }
-
-    fun findAllDraft(): Flow<DocSubmissionDraft> {
-        return submissionDraftRepository.findAll().asFlow()
-    }
-
-    suspend fun findDraftById(id: String): DocSubmissionDraft? {
-        return submissionDraftRepository.findById(id).awaitSingleOrNull()
     }
 
     suspend fun setStatus(userEmail: String, key: String, newStatus: DraftStatus) {
@@ -62,7 +53,7 @@ class SubmissionDraftDocDataRepository(
 
     suspend fun createDraft(userId: String, key: String, content: String): DocSubmissionDraft {
         val draft = DocSubmissionDraft(userId, key, content, ACTIVE)
-        return submissionDraftRepository.save(draft).awaitSingle()
+        return submissionDraftRepository.save(draft)
     }
 
     fun findAllByUserIdAndStatus(
@@ -72,13 +63,5 @@ class SubmissionDraftDocDataRepository(
     ): Flow<DocSubmissionDraft> {
         val pageRequest = pageRequest.asDataPageRequest()
         return submissionDraftRepository.findAllByUserIdAndStatus(userId, status, pageRequest).asFlow()
-    }
-
-    suspend fun deleteAllDrafts() {
-        submissionDraftRepository.deleteAll().awaitSingleOrNull()
-    }
-
-    suspend fun saveDraft(testDocDraft: DocSubmissionDraft) {
-        submissionDraftRepository.save(testDocDraft).awaitSingleOrNull()
     }
 }
