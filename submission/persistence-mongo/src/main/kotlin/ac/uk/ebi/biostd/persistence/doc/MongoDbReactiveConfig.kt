@@ -10,7 +10,6 @@ import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration
@@ -44,10 +43,7 @@ class MongoDbReactiveConfig(
 
     @Bean
     @ConditionalOnProperty(prefix = "app.mongo", name = ["execute-migrations"], havingValue = "true")
-    fun mongockApplicationRunner(
-        springContext: ApplicationContext,
-        reactiveMongoClient: ReactiveMongoTemplate,
-    ): ApplicationRunner {
+    fun createApplicationRunner(reactiveMongoClient: ReactiveMongoTemplate): ApplicationRunner {
         return object : ApplicationRunner {
             override fun run(args: ApplicationArguments) {
                 runBlocking {

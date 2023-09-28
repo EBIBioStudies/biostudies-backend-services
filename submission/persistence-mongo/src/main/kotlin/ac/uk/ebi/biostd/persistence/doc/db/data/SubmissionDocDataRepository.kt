@@ -157,17 +157,18 @@ class SubmissionDocDataRepository(
             offsetLimit?.let { add(skip(it.first)); add(limit(it.second)) }
         }
 
+        @Suppress("ComplexMethod")
         private fun createQuery(filter: SubmissionFilter): List<MatchOperation> {
             fun sectionTitleContains(keywords: String) =
                 where("$SUB_SECTION.$SUB_ATTRIBUTES").elemMatch(
                     Criteria().andOperator(
                         where("name").`is`("Title"),
-                        where("value").regex(".*${keywords}.*", "i")
+                        where("value").regex(".*$keywords.*", "i")
                     )
                 )
 
             fun subTitleContains(keywords: String): Criteria {
-                return where(SUB_TITLE).regex("/.*${keywords}.*/i")
+                return where(SUB_TITLE).regex("/.*$keywords.*", "i")
             }
 
             fun keywordsFilter(keywords: String): Criteria {

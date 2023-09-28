@@ -54,7 +54,7 @@ suspend fun ReactiveMongoTemplate.executeMigrations() {
     ensureStatsIndexes()
 }
 
-fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmissionIndexes<DocSubmission>()
+suspend fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmissionIndexes<DocSubmission>()
 
 /**
  * Submission Indexes
@@ -70,23 +70,25 @@ fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmissionIndexes<
  * 10. Collection AccNo , Submission Version, Submission Storage Mode
  * 11. (Text Index) Submission Title, Submission Attributes, Section Attributes
  */
-private inline fun <reified T> ReactiveMongoOperations.ensureSubmissionIndexes(prefix: String = EMPTY) {
+private inline suspend fun <reified T> ReactiveMongoOperations.ensureSubmissionIndexes(prefix: String = EMPTY) {
     indexOps(T::class.java).apply {
-        ensureIndex(Index().on("$prefix$SUB_ACC_NO", ASC))
-        ensureIndex(Index().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC))
-        ensureIndex(Index().on("$prefix$SUB_OWNER", ASC))
-        ensureIndex(Index().on("$prefix$SUB_SUBMITTER", ASC))
-        ensureIndex(Index().on("$prefix$SUB_SECTION.$SEC_TYPE", ASC))
-        ensureIndex(Index().on("$prefix$SUB_RELEASE_TIME", ASC))
-        ensureIndex(Index().on("$prefix$SUB_RELEASED", ASC))
-        ensureIndex(Index().on("$prefix$SUB_MODIFICATION_TIME", ASC))
-        ensureIndex(Index().on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC).on(SUB_VERSION, ASC))
+        ensureIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_OWNER", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_SUBMITTER", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_SECTION.$SEC_TYPE", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_RELEASE_TIME", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_RELEASED", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_MODIFICATION_TIME", ASC)).awaitSingleOrNull()
+        ensureIndex(
+            backgroundIndex().on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC).on(SUB_VERSION, ASC)
+        ).awaitSingleOrNull()
         ensureIndex(
             Index()
                 .on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC)
                 .on("$prefix$SUB_VERSION", ASC)
                 .on("$prefix$STORAGE_MODE", ASC)
-        )
+        ).awaitSingleOrNull()
         ensureIndex(
             TextIndex()
                 .onField("$prefix$SUB_TITLE")
@@ -94,7 +96,7 @@ private inline fun <reified T> ReactiveMongoOperations.ensureSubmissionIndexes(p
                 .onField("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_VALUE")
                 .named("title_text_section.attributes.name_text_section.attributes.value_text")
                 .build()
-        )
+        ).awaitSingleOrNull()
     }
 }
 
@@ -111,6 +113,8 @@ suspend fun ReactiveMongoOperations.ensureSubmissionRequestIndexes() {
         ensureIndex(backgroundIndex().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
     }
 }
+
+fun backgroundIndex() = Index().background()
 
 /**
  * file_list_files collection indexes
