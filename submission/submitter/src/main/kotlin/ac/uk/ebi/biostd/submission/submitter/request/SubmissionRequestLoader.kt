@@ -11,6 +11,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.io.ext.createTempFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import kotlinx.coroutines.async
@@ -19,7 +20,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
 import java.io.File
-import java.nio.file.Files
 
 private val logger = KotlinLogging.logger {}
 
@@ -73,12 +73,12 @@ class SubmissionRequestLoader(
 
     private fun asCompressedFile(accNo: String, version: Int, directory: NfsFile): NfsFile {
         fun compress(file: File): File {
-            val tempFolder = fireTempDirPath.resolve("$accNo/$version/${directory.filePath.substringBeforeLast("/")}")
+            val tempFolder = fireTempDirPath.resolve("$accNo/$version")
             tempFolder.mkdirs()
 
-            val target = tempFolder.resolve("${file.name}.zip")
-            Files.deleteIfExists(target.toPath())
+            val target = tempFolder.createTempFile(directory.fileName, ".zip")
             ZipUtil.pack(file, target)
+
             return target
         }
 
