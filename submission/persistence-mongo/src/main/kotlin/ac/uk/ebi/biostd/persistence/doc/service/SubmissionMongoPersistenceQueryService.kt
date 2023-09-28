@@ -15,6 +15,8 @@ import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.max
 
@@ -57,7 +59,9 @@ internal class SubmissionMongoPersistenceQueryService(
     }
 
     override suspend fun getExtendedSubmissions(filter: SubmissionFilter): Page<ExtSubmission> {
-        return submissionRepo.getSubmissionsPage(filter).map { toExtSubmissionMapper.toExtSubmission(it, false) }
+        val page = submissionRepo.getSubmissionsPage(filter)
+        val items = page.content.map { toExtSubmissionMapper.toExtSubmission(it, false) }
+        return PageImpl(items.toList(), PageRequest.of(filter.pageNumber, filter.limit), page.totalElements)
     }
 
     override suspend fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission> {

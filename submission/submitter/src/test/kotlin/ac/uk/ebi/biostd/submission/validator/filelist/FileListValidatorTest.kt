@@ -49,7 +49,7 @@ class FileListValidatorTest(
 
     @BeforeEach
     fun beforeEach() {
-        every { source.getExtFile("ref.txt", "file", listOf(Attribute("Type", "test"))) } returns extFile
+        coEvery { source.getExtFile("ref.txt", "file", listOf(Attribute("Type", "test"))) } returns extFile
     }
 
     @AfterEach
@@ -68,7 +68,7 @@ class FileListValidatorTest(
         }
         val valid = tempFolder.createFile("valid.tsv", content.toString())
 
-        every { source.getFileList("valid.tsv") } returns valid
+        coEvery { source.getFileList("valid.tsv") } returns valid
         coEvery { submissionQueryService.findExtByAccNo("S-BSST0") } returns extSubmission
         every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
 
@@ -97,10 +97,10 @@ class FileListValidatorTest(
         val fileSourcesSlot = slot<FileSourcesRequest>()
         val invalid = tempFolder.createFile("fail.xlsx")
 
-        every { source.getFileList("fail.xlsx") } returns invalid
+        coEvery { source.getFileList("fail.xlsx") } returns invalid
         coEvery { submissionQueryService.findExtByAccNo("S-BSST0") } returns extSubmission
         every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
-        every { source.getExtFile("ghost.txt", "file", listOf(Attribute("Type", "fail"))) } returns null
+        coEvery { source.getExtFile("ghost.txt", "file", listOf(Attribute("Type", "fail"))) } returns null
 
         excel(invalid) {
             sheet("page tab") {
@@ -142,7 +142,7 @@ class FileListValidatorTest(
         val fileSourcesSlot = slot<FileSourcesRequest>()
         val empty = tempFolder.createFile("empty.tsv", "Files\tType")
 
-        every { source.getFileList("empty.tsv") } returns empty
+        coEvery { source.getFileList("empty.tsv") } returns empty
         every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
 
         val request = FileListValidationRequest(null, null, "empty.tsv", submitter, onBehalfUser)

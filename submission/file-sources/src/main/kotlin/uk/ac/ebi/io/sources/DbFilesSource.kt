@@ -21,13 +21,13 @@ internal object DbFilesSource : FilesSource {
     override val description: String
         get() = "Provided Db files"
 
-    override fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+    override suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
         val valuesMap = attributes.associateBy({ it.name }, { it.value })
         val dbFile = getDbFile(valuesMap)
         return if (dbFile != null) return asFireFile(path, dbFile, attributes) else null
     }
 
-    override fun getFileList(path: String): File? = null
+    override suspend fun getFileList(path: String): File? = null
 
     @Suppress("ComplexCondition")
     private fun getDbFile(attributes: Map<String, String?>): FireByPassFile? {

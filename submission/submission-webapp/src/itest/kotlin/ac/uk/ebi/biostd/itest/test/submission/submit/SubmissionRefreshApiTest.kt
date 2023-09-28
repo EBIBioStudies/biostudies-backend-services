@@ -41,6 +41,8 @@ import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.toStringDate
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -172,7 +174,7 @@ class SubmissionRefreshApiTest(
     }
 
     @Test
-    fun `25-4 refresh when submission fileListFile attribute is updated`() {
+    fun `25-4 refresh when submission fileListFile attribute is updated`() = runTest {
         val accNo = "Refresh-fileList-attribute-001"
         createTestSubmission(accNo)
 
@@ -197,6 +199,9 @@ class SubmissionRefreshApiTest(
 
         val files = fileListRepository
             .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(accNo, 1, FILE_LIST_NAME)
+            .asFlow()
+            .toList()
+
         assertThat(files).hasSize(1)
         assertThat(files.first().file.attributes)
             .isEqualTo(listOf(DocAttribute(FILE_ATTR_NAME, FILE_NEW_ATTR_VALUE)))

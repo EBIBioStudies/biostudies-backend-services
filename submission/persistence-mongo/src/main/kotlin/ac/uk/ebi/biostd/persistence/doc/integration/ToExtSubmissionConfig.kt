@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtFileListMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper

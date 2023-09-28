@@ -7,6 +7,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtFileType
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
@@ -31,7 +34,7 @@ class FileListDocFileRepositoryTest(
 ) {
 
     @Test
-    fun findBySubmissionAccNoAndSubmissionVersionAndFilePath() {
+    fun findBySubmissionAccNoAndSubmissionVersionAndFilePath() = runTest {
         val file = FireDocFile("filename", "filePath", "relPath", "fireId", listOf(), "md5", 1L, ExtFileType.FILE.value)
         val fileListFile = FileListDocFile(
             id = ObjectId(),
@@ -42,9 +45,12 @@ class FileListDocFileRepositoryTest(
             submissionVersion = 1,
             submissionAccNo = "S-TEST123"
         )
-        repository.save(fileListFile)
+        repository.saveFile(fileListFile)
 
-        val result = repository.findBySubmissionAccNoAndSubmissionVersionAndFilePath("S-TEST123", 1, "filePath")
+        val result = repository
+            .findBySubmissionAccNoAndSubmissionVersionAndFilePath("S-TEST123", 1, "filePath")
+            .asFlow()
+            .toList()
 
         assertThat(result).containsExactly(fileListFile)
     }

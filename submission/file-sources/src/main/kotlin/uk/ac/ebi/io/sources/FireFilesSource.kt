@@ -13,7 +13,7 @@ import java.io.File
 internal class FireFilesSource(
     private val fireClient: FireClient,
 ) : FilesSource {
-    override fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+    override suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
         val md5Attribute = attributes.firstOrNull { it.name == FileFields.DB_MD5.value }
 
         return when (val md5 = md5Attribute?.value) {
@@ -22,7 +22,7 @@ internal class FireFilesSource(
         }
     }
 
-    override fun getFileList(path: String): File? = null
+    override suspend fun getFileList(path: String): File? = null
 
     override val description: String = "EBI internal files Archive"
 }

@@ -32,8 +32,10 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.Table
+import kotlinx.coroutines.flow.Flow
 import uk.ac.ebi.serialization.deserializers.EitherDeserializer
 import uk.ac.ebi.serialization.extensions.deserializeList
+import uk.ac.ebi.serialization.extensions.serializeFlow
 import uk.ac.ebi.serialization.extensions.serializeList
 import uk.ac.ebi.serialization.serializers.EitherSerializer
 import java.io.InputStream
@@ -47,6 +49,9 @@ internal class JsonSerializer {
 
     fun serializeFileList(fileList: Sequence<BioFile>, outputStream: OutputStream) =
         mapper.serializeList(fileList, outputStream)
+
+    suspend fun serializeFileList(fileList: Flow<BioFile>, outputStream: OutputStream) =
+        mapper.serializeFlow(fileList, outputStream)
 
     fun deserializeFileList(inputStream: InputStream): Sequence<BioFile> = mapper.deserializeList(inputStream)
 

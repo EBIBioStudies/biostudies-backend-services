@@ -56,9 +56,9 @@ interface SubmissionPersistenceQueryService {
 }
 
 interface SubmissionFilesPersistenceService {
-    fun getReferencedFiles(sub: ExtSubmission, fileListName: String): Sequence<ExtFile>
+    fun getReferencedFiles(sub: ExtSubmission, fileListName: String): Flow<ExtFile>
 
-    fun findReferencedFile(sub: ExtSubmission, path: String): ExtFile?
+    suspend fun findReferencedFile(sub: ExtSubmission, path: String): ExtFile?
 }
 
 @Suppress("TooManyFunctions")

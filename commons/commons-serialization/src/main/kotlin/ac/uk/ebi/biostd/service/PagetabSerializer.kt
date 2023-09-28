@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.xml.XmlSerializer
 import ac.uk.ebi.biostd.xml.XmlStreamSerializer
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Submission
+import kotlinx.coroutines.flow.Flow
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -19,7 +20,7 @@ internal class PagetabSerializer(
     private val jsonSerializer: JsonSerializer = JsonSerializer(),
     private val xmlSerializer: XmlSerializer = XmlSerializer(),
     private val xmlStreamSerializer: XmlStreamSerializer = XmlStreamSerializer(),
-    private val tsvSerializer: TsvSerializer
+    private val tsvSerializer: TsvSerializer,
 ) {
     fun serializeSubmission(submission: Submission, format: SubFormat): String = when (format) {
         XmlFormat -> xmlSerializer.serialize(submission)
@@ -35,6 +36,14 @@ internal class PagetabSerializer(
     }
 
     fun serializeFileList(files: Sequence<BioFile>, format: SubFormat, outputStream: OutputStream) {
+        when (format) {
+            XmlFormat -> xmlStreamSerializer.serializeFileList(files, outputStream)
+            JsonPretty, PlainJson -> jsonSerializer.serializeFileList(files, outputStream)
+            is TsvFormat -> tsvSerializer.serializeFileList(files, outputStream)
+        }
+    }
+
+    suspend fun serializeFileList(files: Flow<BioFile>, format: SubFormat, outputStream: OutputStream) {
         when (format) {
             XmlFormat -> xmlStreamSerializer.serializeFileList(files, outputStream)
             JsonPretty, PlainJson -> jsonSerializer.serializeFileList(files, outputStream)

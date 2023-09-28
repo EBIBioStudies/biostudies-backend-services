@@ -5,6 +5,10 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 
 internal class SubmissionMongoFilesPersistenceService(
     private val fileListDocFileRepository: FileListDocFileDocDataRepository,
@@ -12,20 +16,20 @@ internal class SubmissionMongoFilesPersistenceService(
     override fun getReferencedFiles(
         sub: ExtSubmission,
         fileListName: String,
-    ): Sequence<ExtFile> {
+    ): Flow<ExtFile> {
         return fileListDocFileRepository
             .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(sub.accNo, 0, fileListName)
-            .asSequence()
+            .asFlow()
             .map { it.file.toExtFile(sub.released, sub.relPath) }
     }
 
-    override fun findReferencedFile(
+    override suspend fun findReferencedFile(
         sub: ExtSubmission,
         path: String,
     ): ExtFile? {
         return fileListDocFileRepository
             .findBySubmissionAccNoAndSubmissionVersionAndFilePath(sub.accNo, sub.version, path)
-            .firstOrNull()
+            .awaitFirstOrNull()
             ?.file
             ?.toExtFile(sub.released, sub.relPath)
     }
