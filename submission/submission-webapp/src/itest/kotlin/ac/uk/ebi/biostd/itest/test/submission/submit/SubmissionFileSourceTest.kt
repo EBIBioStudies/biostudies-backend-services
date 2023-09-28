@@ -209,7 +209,7 @@ class SubmissionFileSourceTest(
         fun `6-3-1 submission with directory with files on FIRE`() = runTest {
             val submission = tsv {
                 line("Submission", "S-FSTST3")
-                line("Title", "Simple Submission With directory")
+                line("Title", "Simple Submission With directory on FIRE")
                 line()
 
                 line("Study")
@@ -218,26 +218,18 @@ class SubmissionFileSourceTest(
                 line("File", "directory")
                 line("Type", "test")
                 line()
-
-                line("File", "folder/inner")
-                line("Type", "inner folder")
-                line()
             }.toString()
 
             val file1 = tempFolder.createFile("file1.txt", "content-1")
             val file2 = tempFolder.createFile(".file2.txt", "content-2")
-            val file3 = tempFolder.createFile("file3.txt", "content-3")
-            val file4 = tempFolder.createFile("file4.txt", "content-4")
 
             webClient.uploadFiles(listOf(file1), "directory")
             webClient.uploadFiles(listOf(file2), "directory/subdirectory")
-            webClient.uploadFiles(listOf(file3), "folder")
-            webClient.uploadFiles(listOf(file4), "folder/inner")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-FSTST3")
-            assertThat(submitted.section.files).hasSize(2)
+            assertThat(submitted.section.files).hasSize(1)
             assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
                 assertThat(it.type).isEqualTo(ExtFileType.DIR)
                 assertThat(it.size).isEqualTo(328L)
@@ -248,14 +240,6 @@ class SubmissionFileSourceTest(
                     "file1.txt" to file1.readText(),
                     "subdirectory/.file2.txt" to file2.readText()
                 )
-            }
-            assertThat(submitted.section.files.second()).hasLeftValueSatisfying {
-                assertThat(it.type).isEqualTo(ExtFileType.DIR)
-                assertThat(it.size).isEqualTo(161L)
-                assertThat(it.md5).isEqualTo("1FBD0EEC5299D755DF21D2DA7567EAA3")
-
-                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/folder/inner.zip")
-                assertThat(files).containsExactly("file4.txt" to file4.readText())
             }
         }
 
@@ -364,11 +348,61 @@ class SubmissionFileSourceTest(
         }
 
         @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+        fun `6-3-4 submission with directories with the same name on FIRE`() = runTest {
+            val submission = tsv {
+                line("Submission", "S-FSTST34")
+                line("Title", "Directories With The Same Name on FIRE")
+                line()
+
+                line("Study")
+                line()
+
+                line("File", "duplicated")
+                line("Type", "A")
+                line()
+
+                line("File", "folder/duplicated")
+                line("Type", "B")
+                line()
+            }.toString()
+
+            val fileA = tempFolder.createFile("fileA.txt", "one content")
+            val fileB = tempFolder.createFile("fileB.txt", "another content")
+            val fileC = tempFolder.createFile("fileC.txt", "yet another content")
+
+            webClient.uploadFiles(listOf(fileA), "duplicated")
+            webClient.uploadFiles(listOf(fileC), "folder")
+            webClient.uploadFiles(listOf(fileB), "folder/duplicated")
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val submitted = submissionRepository.getExtByAccNo("S-FSTST34")
+            assertThat(submitted.section.files).hasSize(2)
+            assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(163L)
+                assertThat(it.md5).isEqualTo("EEB90F918DF18A5DA2F5C7626900083B")
+
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/duplicated.zip")
+                assertThat(files).containsExactly("fileA.txt" to fileA.readText())
+            }
+            assertThat(submitted.section.files.second()).hasLeftValueSatisfying {
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(167L)
+                assertThat(it.md5).isEqualTo("414A43404B81150677559D28C0DB9F4B")
+
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/folder/duplicated.zip")
+                assertThat(files).containsExactly("fileB.txt" to fileB.readText())
+            }
+        }
+
+        @Test
         @EnabledIfSystemProperty(named = "enableFire", matches = "false")
-        fun `6-3-4 submission with directory with files on NFS`() = runTest {
+        fun `6-3-5 submission with directory with files on NFS`() = runTest {
             val submission = tsv {
                 line("Submission", "S-FSTST4")
-                line("Title", "Simple Submission With directory")
+                line("Title", "Simple Submission With directory on NFS")
                 line()
 
                 line("Study")
@@ -377,26 +411,18 @@ class SubmissionFileSourceTest(
                 line("File", "directory")
                 line("Type", "test")
                 line()
-
-                line("File", "folder/inner")
-                line("Type", "inner folder")
-                line()
             }.toString()
 
             val file1 = tempFolder.createFile("file1.txt", "content-1")
             val file2 = tempFolder.createFile(".file2.txt", "content-2")
-            val file3 = tempFolder.createFile("file3.txt", "content-3")
-            val file4 = tempFolder.createFile("file4.txt", "content-4")
 
             webClient.uploadFiles(listOf(file1), "directory")
             webClient.uploadFiles(listOf(file2), "directory/subdirectory")
-            webClient.uploadFiles(listOf(file3), "folder")
-            webClient.uploadFiles(listOf(file4), "folder/inner")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
             val submitted = submissionRepository.getExtByAccNo("S-FSTST4")
-            assertThat(submitted.section.files).hasSize(2)
+            assertThat(submitted.section.files).hasSize(1)
             assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
 
                 assertThat(it.type).isEqualTo(ExtFileType.DIR)
@@ -407,14 +433,55 @@ class SubmissionFileSourceTest(
                 assertDirFile(dir.resolve("file1.txt"), "content-1")
                 assertDirFile(dir.resolve("subdirectory/.file2.txt"), "content-2")
             }
-            assertThat(submitted.section.files.second()).hasLeftValueSatisfying {
+        }
+
+        @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "false")
+        fun `6-3-6 submission with directories with the same name on NFS`() = runTest {
+            val submission = tsv {
+                line("Submission", "S-FSTST34")
+                line("Title", "Directories With The Same Name on NFS")
+                line()
+
+                line("Study")
+                line()
+
+                line("File", "duplicated")
+                line("Type", "A")
+                line()
+
+                line("File", "folder/duplicated")
+                line("Type", "B")
+                line()
+            }.toString()
+
+            val fileA = tempFolder.createFile("fileA.txt", "one content")
+            val fileB = tempFolder.createFile("fileB.txt", "another content")
+            val fileC = tempFolder.createFile("fileC.txt", "yet another content")
+
+            webClient.uploadFiles(listOf(fileA), "duplicated")
+            webClient.uploadFiles(listOf(fileC), "folder")
+            webClient.uploadFiles(listOf(fileB), "folder/duplicated")
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val submitted = submissionRepository.getExtByAccNo("S-FSTST34")
+            assertThat(submitted.section.files).hasSize(2)
+            assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
                 assertThat(it.type).isEqualTo(ExtFileType.DIR)
-                assertThat(it.size).isEqualTo(9L)
+                assertThat(it.size).isEqualTo(11L)
                 assertThat(it.md5).isEmpty()
 
-                val dir = Paths.get("$submissionPath/${submitted.relPath}/Files/folder")
-                assertThat(dir.resolve("file3.txt").exist()).isFalse()
-                assertDirFile(dir.resolve("inner/file4.txt"), "content-4")
+                val dir = Paths.get("$submissionPath/${submitted.relPath}/Files/duplicated")
+                assertDirFile(dir.resolve("fileA.txt"), "one content")
+            }
+            assertThat(submitted.section.files.second()).hasLeftValueSatisfying {
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(15L)
+                assertThat(it.md5).isEmpty()
+
+                val dir = Paths.get("$submissionPath/${submitted.relPath}/Files/folder/duplicated")
+                assertDirFile(dir.resolve("fileB.txt"), "another content")
             }
         }
 
