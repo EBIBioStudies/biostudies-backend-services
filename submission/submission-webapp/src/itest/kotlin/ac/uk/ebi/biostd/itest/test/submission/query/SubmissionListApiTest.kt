@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.net.URLEncoder.encode
 
@@ -33,7 +33,7 @@ import java.net.URLEncoder.encode
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionListApiTest(
     @Autowired val securityTestService: SecurityTestService,
-    @Autowired val mongoTemplate: MongoTemplate,
+    @Autowired val mongoTemplate: ReactiveMongoTemplate,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient

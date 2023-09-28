@@ -6,12 +6,14 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.commons.ExtendedUpdate
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_OWNER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SECTION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
@@ -40,6 +42,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperation
 import org.springframework.data.mongodb.core.aggregation.AggregationOptions
 import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators.Abs.absoluteValueOf
 import org.springframework.data.mongodb.core.aggregation.MatchOperation
+import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.TextCriteria
@@ -155,20 +158,40 @@ class SubmissionDocDataRepository(
         }
 
         private fun createQuery(filter: SubmissionFilter): List<MatchOperation> {
+            fun sectionTitleContains(keywords: String) =
+                where("$SUB_SECTION.$SUB_ATTRIBUTES").elemMatch(
+                    Criteria().andOperator(
+                        where("name").`is`("Title"),
+                        where("value").regex(".*${keywords}.*", "i")
+                    )
+                )
+
+            fun subTitleContains(keywords: String): Criteria {
+                return where(SUB_TITLE).regex("/.*${keywords}.*/i")
+            }
+
+            fun keywordsFilter(keywords: String): Criteria {
+                return Criteria().orOperator(subTitleContains(keywords), sectionTitleContains(keywords))
+            }
+
             return buildList {
                 when (filter) {
                     is SimpleFilter -> {}
                     is SubmissionListFilter -> {
-                        filter.keywords?.let { add(match(keywordsCriteria(it))) }
-                        filter.type?.let { add(match(where("$SUB_SECTION.$SEC_TYPE").`is`(it))) }
-                        add(match(where(SUB_VERSION).gt(0)))
+                        when {
+                            filter.findAnyAccNo -> {
+                                if (filter.accNo != null) add(match(where(SUB_ACC_NO).`is`(filter.accNo)))
+                                else filter.keywords?.let { add(match(keywordsCriteria(it))) }
+                            }
 
-                        if (filter.findAnyAccNo && filter.accNo != null) {
-                            add(match(where(SUB_ACC_NO).`is`(filter.accNo)))
-                        } else {
-                            add(match(where(SUB_OWNER).`is`(filter.filterUser)))
-                            filter.accNo?.let { add(match(where(SUB_ACC_NO).`is`(it))) }
+                            else -> {
+                                add(match(where(SUB_OWNER).`is`(filter.filterUser)))
+                                filter.keywords?.let { add(match(keywordsFilter(it))) }
+                            }
                         }
+
+                        add(match(where(SUB_VERSION).gt(0)))
+                        filter.type?.let { add(match(where("$SUB_SECTION.$SEC_TYPE").`is`(it))) }
                     }
                 }
                 filter.notIncludeAccNo?.let { add(match(where(SUB_ACC_NO).nin(it))) }

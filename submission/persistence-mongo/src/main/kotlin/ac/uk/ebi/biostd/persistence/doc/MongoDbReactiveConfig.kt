@@ -1,13 +1,20 @@
 package ac.uk.ebi.biostd.persistence.doc
 
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionDraftRepository
+import ac.uk.ebi.biostd.persistence.doc.migrations.executeMigrations
 import com.mongodb.reactivestreams.client.MongoClient
 import com.mongodb.reactivestreams.client.MongoClients
+import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.ApplicationArguments
+import org.springframework.boot.ApplicationRunner
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories
 
@@ -33,5 +40,20 @@ class MongoDbReactiveConfig(
     @Bean
     override fun customConversions(): MongoCustomConversions {
         return MongoCustomConversions(converters())
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "app.mongo", name = ["execute-migrations"], havingValue = "true")
+    fun mongockApplicationRunner(
+        springContext: ApplicationContext,
+        reactiveMongoClient: ReactiveMongoTemplate,
+    ): ApplicationRunner {
+        return object : ApplicationRunner {
+            override fun run(args: ApplicationArguments) {
+                runBlocking {
+                    reactiveMongoClient.executeMigrations()
+                }
+            }
+        }
     }
 }

@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -47,7 +47,7 @@ internal class SubmissionDocDataRepositoryTest(
     private val tempFolder: TemporaryFolder,
     @Autowired private val testInstance: SubmissionDocDataRepository,
     @Autowired private val fileListDocFileRepo: FileListDocFileDocDataRepository,
-    @Autowired private val mongoTemplate: MongoTemplate,
+    @Autowired private val mongoTemplate: ReactiveMongoTemplate,
 ) {
 
     @BeforeEach

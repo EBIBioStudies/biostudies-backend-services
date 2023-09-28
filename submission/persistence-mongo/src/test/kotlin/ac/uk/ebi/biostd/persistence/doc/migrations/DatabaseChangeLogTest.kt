@@ -1,9 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.migrations
 
-import ac.uk.ebi.biostd.persistence.doc.CHANGE_LOG_COLLECTION
-import ac.uk.ebi.biostd.persistence.doc.CHANGE_LOG_LOCK
-import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig
-import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig.Companion.createMongockConfig
 import ac.uk.ebi.biostd.persistence.doc.MongoDbReactiveConfig
 import ac.uk.ebi.biostd.persistence.doc.commons.collection
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
@@ -39,16 +35,19 @@ import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.DefaultApplicationArguments
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.collectionExists
 import org.springframework.data.mongodb.core.dropCollection
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -63,11 +62,11 @@ import java.time.Duration.ofSeconds
 import java.util.AbstractMap.SimpleEntry
 
 @ExtendWith(SpringExtension::class)
-@SpringBootTest(classes = [MongoDbReactiveConfig::class, MongoDbConfig::class])
+@SpringBootTest(classes = [MongoDbReactiveConfig::class])
 @Testcontainers
 internal class DatabaseChangeLogTest(
     @Autowired private val springContext: ApplicationContext,
-    @Autowired private val mongoTemplate: MongoTemplate,
+    @Autowired private val mongoTemplate: ReactiveMongoTemplate,
 ) {
     @BeforeEach
     fun init() {
@@ -76,13 +75,10 @@ internal class DatabaseChangeLogTest(
         mongoTemplate.dropCollection<DocSubmissionRequestFile>()
         mongoTemplate.dropCollection<DocSubmissionDraft>()
         mongoTemplate.dropCollection<FileListDocFile>()
-
-        mongoTemplate.dropCollection(CHANGE_LOG_COLLECTION)
-        mongoTemplate.dropCollection(CHANGE_LOG_LOCK)
     }
 
     @Test
-    fun `run migration 001`() {
+    fun `run migration 001`() = runTest {
         fun assertSubmissionCoreIndexes(prefix: String = EMPTY, indexes: List<Document>) {
             assertThat(indexes[1]).containsEntry("key", Document("$prefix$SUB_ACC_NO", 1))
             assertThat(indexes[2]).containsEntry("key", Document("$prefix$SUB_ACC_NO", 1).append(SUB_VERSION, 1))
@@ -112,19 +108,19 @@ internal class DatabaseChangeLogTest(
             )
         }
 
-        fun assertSubmissionIndexes() {
-            val submissionIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().toList()
+        suspend fun assertSubmissionIndexes() {
+            val submissionIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().asFlow().toList()
 
-            assertThat(mongoTemplate.collectionExists<DocSubmission>()).isTrue()
+            assertThat(mongoTemplate.collectionExists<DocSubmission>().awaitSingle()).isTrue()
             assertThat(submissionIndexes).hasSize(12)
 
             assertThat(submissionIndexes[0]).containsEntry("key", Document("_id", 1))
             assertSubmissionCoreIndexes(indexes = submissionIndexes)
         }
 
-        fun assertRequestIndexes() {
-            val requestIndexes = mongoTemplate.collection<DocSubmissionRequest>().listIndexes().toList()
-            assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>()).isTrue()
+        suspend fun assertRequestIndexes() {
+            val requestIndexes = mongoTemplate.collection<DocSubmissionRequest>().listIndexes().asFlow().toList()
+            assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>().awaitSingle()).isTrue()
             assertThat(requestIndexes).hasSize(14)
 
             assertThat(requestIndexes[0]).containsEntry("key", Document("_id", 1))
@@ -133,9 +129,9 @@ internal class DatabaseChangeLogTest(
             assertThat(requestIndexes[13]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
         }
 
-        fun assertFileListIndexes() {
-            val listIndexes = mongoTemplate.collection<FileListDocFile>().listIndexes().toList()
-            assertThat(mongoTemplate.collectionExists<FileListDocFile>()).isTrue()
+        suspend fun assertFileListIndexes() {
+            val listIndexes = mongoTemplate.collection<FileListDocFile>().listIndexes().asFlow().toList()
+            assertThat(mongoTemplate.collectionExists<FileListDocFile>().awaitSingle()).isTrue()
             assertThat(listIndexes).hasSize(8)
             assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
             assertThat(listIndexes[1]).containsEntry("key", Document(FILE_LIST_DOC_FILE_SUBMISSION_ID, 1))
@@ -151,24 +147,19 @@ internal class DatabaseChangeLogTest(
             )
         }
 
-        fun assertStatsIndexes() {
-            val statsIndexes = mongoTemplate.collection<DocSubmissionStats>().listIndexes().toList()
+        suspend fun assertStatsIndexes() {
+            val statsIndexes = mongoTemplate.collection<DocSubmissionStats>().listIndexes().asFlow().toList()
             assertThat(statsIndexes).hasSize(2)
             assertThat(statsIndexes[0]).containsEntry("key", Document("_id", 1))
             assertThat(statsIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
         }
 
-        runMigrations(ChangeLog001::class.java)
+        mongoTemplate.executeMigrations()
 
         assertSubmissionIndexes()
         assertRequestIndexes()
         assertFileListIndexes()
         assertStatsIndexes()
-    }
-
-    private fun runMigrations(clazz: Class<*>) {
-        val runner = createMongockConfig(mongoTemplate, springContext, listOf(clazz))
-        runner.run(DefaultApplicationArguments())
     }
 
     companion object {
