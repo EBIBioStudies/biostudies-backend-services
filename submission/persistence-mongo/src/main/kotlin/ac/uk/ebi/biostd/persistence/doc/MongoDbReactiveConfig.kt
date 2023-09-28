@@ -2,6 +2,8 @@ package ac.uk.ebi.biostd.persistence.doc
 
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionDraftRepository
 import ac.uk.ebi.biostd.persistence.doc.migrations.executeMigrations
+import com.mongodb.ConnectionString
+import com.mongodb.MongoClientSettings
 import com.mongodb.reactivestreams.client.MongoClient
 import com.mongodb.reactivestreams.client.MongoClients
 import kotlinx.coroutines.runBlocking
@@ -16,6 +18,7 @@ import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguratio
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories
+import java.util.concurrent.TimeUnit
 
 @Configuration
 @EnableConfigurationProperties
@@ -32,8 +35,20 @@ class MongoDbReactiveConfig(
     override fun getDatabaseName(): String = mongoDatabase
 
     @Bean
+    @Suppress("MagicNumber")
     override fun reactiveMongoClient(): MongoClient {
-        return MongoClients.create(mongoUri)
+        val settings = MongoClientSettings.builder()
+            .applyConnectionString(ConnectionString(mongoUri))
+            .applyToConnectionPoolSettings {
+                it.maxSize(30)
+                it.maxConnectionIdleTime(60, TimeUnit.SECONDS)
+                it.minSize(10)
+            }
+            .applyToSocketSettings {
+                it.connectTimeout(60, TimeUnit.SECONDS)
+            }
+            .build()
+        return MongoClients.create(settings)
     }
 
     @Bean

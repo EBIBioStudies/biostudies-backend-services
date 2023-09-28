@@ -188,14 +188,14 @@ class SubmissionListApiTest(
     }
 
     @Test
-    fun `13-9 submission with spaces`() {
+    fun `13-9 search submission with spaces`() {
         val submission = tsv {
             line("Submission", "SECT-125")
-            line("Title", "the Submission title")
+            line("Title", "the Submission spaces title")
             line()
 
             line("Study")
-            line("Title", "the Submission title")
+            line("Title", "the Submission spaces title")
             line()
         }.toString()
 
@@ -203,7 +203,7 @@ class SubmissionListApiTest(
 
         val submissionList = webClient.getSubmissions(
             mapOf(
-                "keywords" to encode("n title", "UTF-8")
+                "keywords" to encode("spaces title", "UTF-8")
             )
         )
 
@@ -211,7 +211,7 @@ class SubmissionListApiTest(
             assertThat(it.accno).isEqualTo("SECT-125")
             assertThat(it.version).isEqualTo(1)
             assertThat(it.method).isEqualTo(PAGE_TAB)
-            assertThat(it.title).isEqualTo("the Submission title")
+            assertThat(it.title).isEqualTo("the Submission spaces title")
             assertThat(it.status).isEqualTo("PROCESSED")
         }
     }

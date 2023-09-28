@@ -22,6 +22,7 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.util.date.toStringDate
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
@@ -32,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -44,7 +45,7 @@ import java.time.ZoneOffset.UTC
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ResubmissionApiTest(
-    @Autowired val mongoTemplate: MongoTemplate,
+    @Autowired val mongoTemplate: ReactiveMongoTemplate,
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @LocalServerPort val serverPort: Int,
@@ -261,7 +262,7 @@ class ResubmissionApiTest(
     }
 
     @Test
-    fun `5-6 add metadata to a public submission`() {
+    suspend fun `5-6 add metadata to a public submission`() {
         val version1 = tsv {
             line("Submission", "S-RSTST6")
             line("Title", "Simple submission to be updated")
@@ -280,7 +281,7 @@ class ResubmissionApiTest(
             Query(where(SUB_ACC_NO).`in`("S-RSTST6").andOperator(where(SUB_VERSION).gt(0))),
             ExtendedUpdate().set(SUB_RELEASE_TIME, OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, UTC).toInstant()),
             DocSubmission::class.java
-        )
+        ).awaitSingleOrNull()
 
         val version2 = tsv {
             line("Submission", "S-RSTST6")

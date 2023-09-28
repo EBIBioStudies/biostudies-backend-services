@@ -4,6 +4,8 @@ import ac.uk.ebi.biostd.persistence.common.request.SimpleFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.commons.ExtendedUpdate
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
@@ -145,8 +147,8 @@ class SubmissionDocDataRepository(
             fun sectionTitleContains(keywords: String) =
                 where("$SUB_SECTION.$SUB_ATTRIBUTES").elemMatch(
                     Criteria().andOperator(
-                        where("name").`is`("Title"),
-                        where("value").regex(".*$keywords.*", "i")
+                        where(ATTRIBUTE_DOC_NAME).`is`("Title"),
+                        where(ATTRIBUTE_DOC_VALUE).regex(".*$keywords.*", "i")
                     )
                 )
 
@@ -187,7 +189,7 @@ class SubmissionDocDataRepository(
         }
 
         private fun keywordsCriteria(keywords: String): TextCriteria {
-            val terms = keywords.split("\\s").map { "\"$it\"" }.toTypedArray()
+            val terms = keywords.split("\\s".toRegex()).map { "\"$it\"" }.toTypedArray()
             return TextCriteria.forDefaultLanguage()
                 .matchingAny(*terms)
                 .caseSensitive(false)
