@@ -67,3 +67,9 @@ fun String.scape(toScape: String, scapeLiteral: String = "\\"): String = replace
  * Replaces multiple whitespaces with a single space.
  */
 fun String.trim(): String = replace("\\s+".toRegex(), " ")
+
+/**
+ * Compute the given string so it always ends in the provided suffix, no action is taking if string already.
+ */
+fun String.ensureSuffix(suffix: String): String = if (endsWith(suffix)) this else "$this$suffix"
+

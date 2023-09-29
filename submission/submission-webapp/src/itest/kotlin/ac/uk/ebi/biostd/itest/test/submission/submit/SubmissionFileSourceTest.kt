@@ -246,22 +246,22 @@ class SubmissionFileSourceTest(
 
         @Test
         @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-        fun `6-3-2 re submission with directory with files on FIRE`() = runTest {
+        fun `6-3-2-1 re submission with directory with files on FIRE`() = runTest {
             val submission = tsv {
-                line("Submission", "S-FSTST8")
+                line("Submission", "S-FSTST81")
                 line("Title", "Simple Submission With directory")
                 line()
 
                 line("Study")
                 line()
 
-                line("File", "directory")
+                line("File", "directory-1")
                 line("Type", "test")
                 line()
             }.toString()
 
             val file1 = tempFolder.createFile("file1.txt", "content-1")
-            webClient.uploadFiles(listOf(file1), "directory")
+            webClient.uploadFiles(listOf(file1), "directory-1")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
@@ -276,7 +276,7 @@ class SubmissionFileSourceTest(
             }
 
             val file2 = tempFolder.createFile("file1.txt", "updated-content-1")
-            webClient.uploadFiles(listOf(file2), "directory")
+            webClient.uploadFiles(listOf(file2), "directory-1")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
@@ -289,6 +289,38 @@ class SubmissionFileSourceTest(
                 val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory.zip")
                 assertThat(files).containsExactly("file1.txt" to file2.readText())
             }
+        }
+
+        @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+        fun `6-3-2-2 re-submission with directory with files on FIRE using submission source ony`() = runTest {
+            val fileList = tsv {
+                line("Files", "Type")
+                line("directory-2", "test")
+                line()
+            }.toString()
+
+            val submission = tsv {
+                line("Submission", "S-FSTST82")
+                line("Title", "Simple Submission With directory")
+                line()
+
+                line("Study")
+                line("File List", "fileList_with_dir.tsv")
+                line()
+            }.toString()
+
+            val file1 = tempFolder.createFile("file1.txt", "content-1")
+            val fileListFile = tempFolder.createFile("fileList_with_dir.tsv", fileList)
+
+            webClient.uploadFiles(listOf(file1), "directory-2")
+            webClient.uploadFiles(listOf(fileListFile))
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val draft = webClient.getSubmissionDraft("S-FSTST82")
+            val response = webClient.submitSingleFromDraft(draft.key, listOf(SUBMISSION))
+            assertThat(response).isSuccessful()
         }
 
         @Test
