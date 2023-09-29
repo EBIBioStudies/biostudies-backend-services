@@ -265,13 +265,13 @@ class SubmissionFileSourceTest(
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val submitted = submissionRepository.getExtByAccNo("S-FSTST8")
+            val submitted = submissionRepository.getExtByAccNo("S-FSTST81")
             assertThat(submitted.section.files).hasSize(1)
             assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
                 assertThat(it.type).isEqualTo(ExtFileType.DIR)
                 assertThat(it.size).isEqualTo(161L)
                 assertThat(it.md5).isEqualTo("D2B8C7BFA31857BF778B4000E7FA8975")
-                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory.zip")
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory-1.zip")
                 assertThat(files).containsExactly("file1.txt" to file1.readText())
             }
 
@@ -280,13 +280,13 @@ class SubmissionFileSourceTest(
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val updated = submissionRepository.getExtByAccNo("S-FSTST8")
+            val updated = submissionRepository.getExtByAccNo("S-FSTST81")
             assertThat(updated.section.files).hasSize(1)
             assertThat(updated.section.files.first()).hasLeftValueSatisfying {
                 assertThat(it.type).isEqualTo(ExtFileType.DIR)
                 assertThat(it.size).isEqualTo(169L)
                 assertThat(it.md5).isEqualTo("537D49F318EC4DA1C5B82DD9025D789E")
-                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory.zip")
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory-1.zip")
                 assertThat(files).containsExactly("file1.txt" to file2.readText())
             }
         }
