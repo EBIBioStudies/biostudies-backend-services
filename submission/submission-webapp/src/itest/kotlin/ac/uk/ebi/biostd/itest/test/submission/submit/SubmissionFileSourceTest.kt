@@ -293,7 +293,7 @@ class SubmissionFileSourceTest(
 
         @Test
         @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-        fun `6-3-2-2 re-submission with directory with files on FIRE using submission source ony`() = runTest {
+        fun `6-3-2-2 re-submission with directory with files on FIRE using submission source only`() = runTest {
             val fileList = tsv {
                 line("Files", "Type")
                 line("directory-2", "test")
