@@ -16,6 +16,7 @@ import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.SubmissionMethod
 import ebi.ac.uk.model.SubmissionMethod.PAGE_TAB
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -24,7 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.net.URLEncoder.encode
 
@@ -33,13 +34,13 @@ import java.net.URLEncoder.encode
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionListApiTest(
     @Autowired val securityTestService: SecurityTestService,
-    @Autowired val mongoTemplate: MongoTemplate,
+    @Autowired val mongoTemplate: ReactiveMongoTemplate,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
-    fun init() {
+    fun init() = runBlocking {
         mongoTemplate.ensureSubmissionIndexes()
         securityTestService.ensureUserRegistration(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
@@ -187,14 +188,14 @@ class SubmissionListApiTest(
     }
 
     @Test
-    fun `13-9 submission with spaces`() {
+    fun `13-9 search submission with spaces`() {
         val submission = tsv {
             line("Submission", "SECT-125")
-            line("Title", "the Submission title")
+            line("Title", "the Submission spaces title")
             line()
 
             line("Study")
-            line("Title", "the Submission title")
+            line("Title", "the Submission spaces title")
             line()
         }.toString()
 
@@ -202,7 +203,7 @@ class SubmissionListApiTest(
 
         val submissionList = webClient.getSubmissions(
             mapOf(
-                "keywords" to encode("n title", "UTF-8")
+                "keywords" to encode("spaces title", "UTF-8")
             )
         )
 
@@ -210,7 +211,7 @@ class SubmissionListApiTest(
             assertThat(it.accno).isEqualTo("SECT-125")
             assertThat(it.version).isEqualTo(1)
             assertThat(it.method).isEqualTo(PAGE_TAB)
-            assertThat(it.title).isEqualTo("the Submission title")
+            assertThat(it.title).isEqualTo("the Submission spaces title")
             assertThat(it.status).isEqualTo("PROCESSED")
         }
     }

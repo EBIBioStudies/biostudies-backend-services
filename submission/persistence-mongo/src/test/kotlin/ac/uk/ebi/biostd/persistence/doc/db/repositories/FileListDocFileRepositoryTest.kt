@@ -45,7 +45,7 @@ class FileListDocFileRepositoryTest(
             submissionVersion = 1,
             submissionAccNo = "S-TEST123"
         )
-        repository.saveFile(fileListFile)
+        repository.save(fileListFile)
 
         val result = repository
             .findBySubmissionAccNoAndSubmissionVersionAndFilePath("S-TEST123", 1, "filePath")

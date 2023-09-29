@@ -9,6 +9,7 @@ import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.jsonObj
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
@@ -38,7 +39,7 @@ class SubmissionRequestDocDataRepositoryTest(
 ) {
 
     @AfterEach
-    fun afterEach() {
+    fun afterEach() = runBlocking {
         testInstance.deleteAll()
     }
 

@@ -15,7 +15,6 @@ import ac.uk.ebi.biostd.persistence.doc.test.beans.TestConfig
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -62,8 +61,8 @@ class ExtSubmissionRepositoryTest(
 
     @BeforeEach
     fun beforeEach() = runBlocking {
-        subDataRepository.deleteAllSubmissions()
-        fileListDocFileRepository.deleteAllFiles()
+        subDataRepository.deleteAll()
+        fileListDocFileRepository.deleteAll()
     }
 
     @Test
@@ -79,9 +78,9 @@ class ExtSubmissionRepositoryTest(
         )
 
         val savedSubmission = subDataRepository.getSubmission(submission.accNo, 1)
-        assertThat(subDataRepository.findAllSubmissions().toList()).hasSize(1)
+        assertThat(subDataRepository.findAll().toList()).hasSize(1)
 
-        val fileListDocFiles = fileListDocFileRepository.findAll().asFlow().toList()
+        val fileListDocFiles = fileListDocFileRepository.findAll().toList()
         assertThat(fileListDocFiles).hasSize(1)
         val fileListDocFile = fileListDocFiles.first()
         assertThat(fileListDocFile.file).isEqualTo(defaultFireFile().toDocFile())
@@ -94,13 +93,13 @@ class ExtSubmissionRepositoryTest(
 
     @Test
     fun `expire previous versions`() = runTest {
-        subDataRepository.saveSubmission(docSubmission.copy(accNo = ACC_NO, version = 1))
-        assertThat(subDataRepository.findAllSubmissions().toList()).hasSize(1)
+        subDataRepository.save(docSubmission.copy(accNo = ACC_NO, version = 1))
+        assertThat(subDataRepository.findAll().toList()).hasSize(1)
 
         testInstance.expirePreviousVersions(ACC_NO)
 
         assertThat(subDataRepository.getSubmission(ACC_NO, -1)).isNotNull()
-        assertThat(subDataRepository.findAllSubmissions().toList()).hasSize(1)
+        assertThat(subDataRepository.findAll().toList()).hasSize(1)
     }
 
     companion object {

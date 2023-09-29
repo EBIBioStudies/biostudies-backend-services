@@ -42,7 +42,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -70,7 +70,7 @@ internal class SubmissionMongoQueryServiceTest(
     @Autowired private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
-    @Autowired private val mongoTemplate: MongoTemplate,
+    @Autowired private val mongoTemplate: ReactiveMongoTemplate,
 ) {
     private val serializationService: ExtSerializationService = extSerializationService()
     private val testInstance =
@@ -83,7 +83,7 @@ internal class SubmissionMongoQueryServiceTest(
 
     @AfterEach
     fun afterEach() = runBlocking {
-        submissionRepo.deleteAllSubmissions()
+        submissionRepo.deleteAll()
         mongoTemplate.ensureSubmissionIndexes()
     }
 
@@ -91,8 +91,8 @@ internal class SubmissionMongoQueryServiceTest(
     inner class FindSubmissions {
         @Test
         fun `find latest by accNo`() = runTest {
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "S-BSST1", version = -1))
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "S-BSST1", version = 2))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = -1))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 2))
 
             val result = submissionRepo.findByAccNo("S-BSST1")
             assertThat(result).isNotNull()
@@ -101,15 +101,15 @@ internal class SubmissionMongoQueryServiceTest(
 
         @Test
         fun `find latest by accNo for submission with old expired version`() = runTest {
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "S-BSST3", version = -1))
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "S-BSST3", version = -2))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -1))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -2))
             assertThat(submissionRepo.findByAccNo("S-BSST3")).isNull()
         }
 
         @Test
         fun `find latest inactive by accNo`() = runTest {
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "S-BSST3", version = -1))
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "S-BSST3", version = -2))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -1))
+            submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -2))
             val sub = submissionRepo.findFirstByAccNoAndVersionLessThanOrderByVersion(accNo = "S-BSST3")
             assertThat(sub?.version).isEqualTo(-2)
         }
@@ -121,15 +121,15 @@ internal class SubmissionMongoQueryServiceTest(
 
         @BeforeEach
         fun beforeEach(): Unit = runBlocking {
-            requestRepository.deleteAllRequest()
-            submissionRepo.deleteAllSubmissions()
+            requestRepository.deleteAll()
+            submissionRepo.deleteAll()
         }
 
         @Test
         fun `filtered by accNo`() = runTest {
             val subRequest = extSubmission.copy(accNo = "accNo1", version = 2, title = "title1", section = section)
             val savedRequest = saveAsRequest(subRequest, REQUESTED)
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "accNo1"))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo1"))
 
             var result = testInstance.getSubmissionsByUser(
                 SubmissionListFilter(SUBMISSION_OWNER, accNo = "accNo1", limit = 1)
@@ -152,7 +152,7 @@ internal class SubmissionMongoQueryServiceTest(
 
             saveAsRequest(extSubmission.copy(accNo = "acc1", title = "sub title 1", section = sect1), REQUESTED)
             saveAsRequest(extSubmission.copy(accNo = "acc2", title = "wrongT1tl3", section = section), REQUESTED)
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "acc3", title = "title", section = sect3))
+            submissionRepo.save(docSubmission.copy(accNo = "acc3", title = "title", section = sect3))
 
             val result = testInstance.getSubmissionsByUser(
                 SubmissionListFilter(SUBMISSION_OWNER, keywords = "title", limit = 2)
@@ -177,8 +177,8 @@ internal class SubmissionMongoQueryServiceTest(
 
             saveAsRequest(extSubmission.copy(accNo = "acc1", section = extSectionMatch), REQUESTED)
             saveAsRequest(extSubmission.copy(accNo = "acc2", section = extSectionMismatch), REQUESTED)
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "acc3", section = docSectionMatch))
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "acc4", section = docSectionNoMatch))
+            submissionRepo.save(docSubmission.copy(accNo = "acc3", section = docSectionMatch))
+            submissionRepo.save(docSubmission.copy(accNo = "acc4", section = docSectionNoMatch))
 
             val result = testInstance.getSubmissionsByUser(
                 SubmissionListFilter(SUBMISSION_OWNER, keywords = "match", limit = 2)
@@ -197,7 +197,7 @@ internal class SubmissionMongoQueryServiceTest(
 
             saveAsRequest(extSubmission.copy(accNo = "accNo1", section = section1), REQUESTED)
             saveAsRequest(extSubmission.copy(accNo = "accNo2", section = section2), REQUESTED)
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "accNo3", section = docSection1))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo3", section = docSection1))
 
             val result = testInstance.getSubmissionsByUser(
                 SubmissionListFilter(SUBMISSION_OWNER, type = "type1", limit = 2)
@@ -221,7 +221,7 @@ internal class SubmissionMongoQueryServiceTest(
                 extSubmission.copy(accNo = "accNo2", releaseTime = mismatchDate, section = section),
                 REQUESTED
             )
-            submissionRepo.saveSubmission(
+            submissionRepo.save(
                 docSubmission.copy(accNo = "accNo3", releaseTime = matchDate.toInstant())
             )
 
@@ -251,7 +251,7 @@ internal class SubmissionMongoQueryServiceTest(
                 extSubmission.copy(accNo = "accNo2", releaseTime = mismatchDate, section = section),
                 REQUESTED
             )
-            submissionRepo.saveSubmission(
+            submissionRepo.save(
                 docSubmission.copy(accNo = "accNo3", releaseTime = matchDate.toInstant())
             )
 
@@ -272,7 +272,7 @@ internal class SubmissionMongoQueryServiceTest(
         fun `filtered by released`() = runTest {
             saveAsRequest(extSubmission.copy(accNo = "accNo1", released = true, section = section), REQUESTED)
             saveAsRequest(extSubmission.copy(accNo = "accNo2", released = false, section = section), REQUESTED)
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "accNo3", released = true))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo3", released = true))
 
             val result = testInstance.getSubmissionsByUser(
                 SubmissionListFilter(SUBMISSION_OWNER, released = true, limit = 2)
@@ -285,11 +285,11 @@ internal class SubmissionMongoQueryServiceTest(
 
         @Test
         fun `when all`() = runTest {
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "accNo1", version = 1))
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "accNo2", version = 1))
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "accNo3", version = 1))
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "accNo4", version = 1))
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "accNo5", version = 1))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = 1))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo2", version = 1))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo3", version = 1))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo4", version = 1))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo5", version = 1))
 
             saveAsRequest(extSubmission.copy(accNo = "accNo1", version = 2), REQUESTED)
             saveAsRequest(extSubmission.copy(accNo = "accNo2", version = 2), LOADED)
@@ -327,9 +327,9 @@ internal class SubmissionMongoQueryServiceTest(
 
         @Test
         fun `get greatest version submission`() = runTest {
-            val sub1 = submissionRepo.saveSubmission(docSubmission.copy(accNo = "accNo1", version = 3))
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "accNo1", version = -2))
-            submissionRepo.saveSubmission(docSubmission.copy(accNo = "accNo1", version = -1))
+            val sub1 = submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = 3))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = -2))
+            submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = -1))
 
             val result = testInstance.getSubmissionsByUser(
                 SubmissionListFilter(SUBMISSION_OWNER, accNo = "accNo1", limit = 3)

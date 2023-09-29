@@ -33,6 +33,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtFile
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
@@ -50,10 +52,6 @@ class SubmissionRequestDocDataRepository(
     private val extSerializationService: ExtSerializationService,
     private val submissionRequestRepository: SubmissionRequestRepository,
 ) : SubmissionRequestRepository by submissionRequestRepository {
-
-    suspend fun deleteAllRequest() {
-        submissionRequestRepository.deleteAll().awaitSingleOrNull()
-    }
 
     suspend fun saveRequest(request: DocSubmissionRequest): Pair<DocSubmissionRequest, Boolean> {
         val result = mongoTemplate.upsert(
@@ -78,10 +76,10 @@ class SubmissionRequestDocDataRepository(
         query: Query,
         skip: Long,
         limit: Int,
-    ): Pair<Int, MutableList<DocSubmissionRequest>> {
+    ): Pair<Int, List<DocSubmissionRequest>> {
         val result = mongoTemplate.find(query.skip(skip).limit(limit), DocSubmissionRequest::class.java)
-            .collectList()
-            .awaitSingle()
+            .asFlow()
+            .toList()
         return result.count() to result
     }
 

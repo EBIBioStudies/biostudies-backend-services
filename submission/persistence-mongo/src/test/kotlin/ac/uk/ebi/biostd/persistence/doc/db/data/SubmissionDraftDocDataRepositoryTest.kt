@@ -38,12 +38,12 @@ class SubmissionDraftDocDataRepositoryTest(
 
     @BeforeEach
     fun beforeEach() = runBlocking {
-        testInstance.deleteAllDrafts()
+        testInstance.deleteAll()
     }
 
     @Test
     fun getSubmissionDraftByIdAndKey(): Unit = runBlocking {
-        testInstance.saveDraft(testDocDraft)
+        testInstance.save(testDocDraft)
 
         val result = testInstance.findByUserIdAndKeyAndStatusIsNot(
             USER_ID,
@@ -84,19 +84,19 @@ class SubmissionDraftDocDataRepositoryTest(
 
     @Test
     fun deleteSubmissionDraft(): Unit = runBlocking {
-        testInstance.saveDraft(testDocDraft)
+        testInstance.save(testDocDraft)
 
-        assertThat(testInstance.findDraftById(testDocDraft.id)).isNotNull()
+        assertThat(testInstance.findById(testDocDraft.id)).isNotNull()
 
         testInstance.deleteByUserIdAndKey(testDocDraft.userId, testDocDraft.key)
 
-        assertThat(testInstance.findDraftById(testDocDraft.id)).isNull()
+        assertThat(testInstance.findById(testDocDraft.id)).isNull()
     }
 
     @Test
     fun findAllByUserIdAndStatusDraft(): Unit = runBlocking {
-        testInstance.saveDraft(testActiveDocDraft)
-        testInstance.saveDraft(testProcessingDocDraft)
+        testInstance.save(testActiveDocDraft)
+        testInstance.save(testProcessingDocDraft)
 
         val activeDrafts = testInstance.findAllByUserIdAndStatus(USER_ID, ACTIVE, PageRequest()).toList()
         assertThat(activeDrafts).hasSize(1)
@@ -109,8 +109,8 @@ class SubmissionDraftDocDataRepositoryTest(
         testInstance.deleteByUserIdAndKey(testActiveDocDraft.userId, testActiveDocDraft.key)
         testInstance.deleteByUserIdAndKey(testProcessingDocDraft.userId, testProcessingDocDraft.key)
 
-        assertThat(testInstance.findDraftById(testActiveDocDraft.id)).isNull()
-        assertThat(testInstance.findDraftById(testProcessingDocDraft.id)).isNull()
+        assertThat(testInstance.findById(testActiveDocDraft.id)).isNull()
+        assertThat(testInstance.findById(testProcessingDocDraft.id)).isNull()
     }
 
     @Test
@@ -125,13 +125,13 @@ class SubmissionDraftDocDataRepositoryTest(
     fun setProcessingStatus(): Unit = runBlocking {
         testInstance.saveDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
 
-        val beforeChangeStatus = testInstance.findAllDraft().toList()
+        val beforeChangeStatus = testInstance.findAll().toList()
         assertThat(beforeChangeStatus).hasSize(1)
         assertThat(beforeChangeStatus.first().status).isEqualTo(ACTIVE)
 
         testInstance.setStatus(USER_ID, DRAFT_KEY, PROCESSING)
 
-        val afterChangeStatus = testInstance.findAllDraft().toList()
+        val afterChangeStatus = testInstance.findAll().toList()
         assertThat(afterChangeStatus).hasSize(1)
         assertThat(afterChangeStatus.first().status).isEqualTo(PROCESSING)
     }

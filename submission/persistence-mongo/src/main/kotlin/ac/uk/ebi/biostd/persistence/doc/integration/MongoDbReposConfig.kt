@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
-import ac.uk.ebi.biostd.persistence.doc.MongoDbConfig
 import ac.uk.ebi.biostd.persistence.doc.MongoDbReactiveConfig
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
@@ -19,7 +18,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
-@Import(MongoDbConfig::class, MongoDbReactiveConfig::class, SerializationConfiguration::class)
+@Import(MongoDbReactiveConfig::class, SerializationConfiguration::class)
 class MongoDbReposConfig {
     @Bean
     internal fun submissionDocDataRepository(

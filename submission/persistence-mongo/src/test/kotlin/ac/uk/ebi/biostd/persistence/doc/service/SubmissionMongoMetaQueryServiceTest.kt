@@ -48,7 +48,7 @@ internal class SubmissionMongoMetaQueryServiceTest(
 ) {
     @Test
     fun getBasicCollection() = runTest {
-        submissionMongoRepository.saveSubmission(
+        submissionMongoRepository.save(
             testDocSubmission.copy(
                 accNo = "EuToxRisk",
                 version = 1,
@@ -75,7 +75,7 @@ internal class SubmissionMongoMetaQueryServiceTest(
 
     @Test
     fun `collection without pattern`() = runTest {
-        submissionMongoRepository.saveSubmission(
+        submissionMongoRepository.save(
             testDocSubmission.copy(
                 accNo = "PatternLess",
                 version = 1,
@@ -89,9 +89,9 @@ internal class SubmissionMongoMetaQueryServiceTest(
 
     @Test
     fun findLatestBasicByAccNo() = runTest {
-        submissionMongoRepository.saveSubmission(testDocSubmission.copy(accNo = "accNo2", version = -1))
-        submissionMongoRepository.saveSubmission(testDocSubmission.copy(accNo = "accNo2", version = -2))
-        submissionMongoRepository.saveSubmission(testDocSubmission.copy(accNo = "accNo2", version = 4))
+        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = -1))
+        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = -2))
+        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = 4))
 
         val lastVersion = testInstance.findLatestBasicByAccNo("accNo2")
 
@@ -101,14 +101,14 @@ internal class SubmissionMongoMetaQueryServiceTest(
 
     @Test
     fun `exists by AccNo when exists`() = runTest {
-        submissionMongoRepository.saveSubmission(testDocSubmission.copy(accNo = "accNo3", version = 1))
+        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo3", version = 1))
 
         assertThat(submissionMongoRepository.existsByAccNo("accNo3")).isTrue
     }
 
     @Test
     fun `exist by AccNo when don't exists`() = runTest {
-        submissionMongoRepository.saveSubmission(testDocSubmission.copy(accNo = "accNo4", version = 1))
+        submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo4", version = 1))
 
         assertThat(submissionMongoRepository.existsByAccNo("accNo5")).isFalse
     }

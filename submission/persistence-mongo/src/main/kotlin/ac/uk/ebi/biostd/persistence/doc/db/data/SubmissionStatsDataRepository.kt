@@ -21,14 +21,6 @@ class SubmissionStatsDataRepository(
     private val mongoTemplate: ReactiveMongoTemplate,
     private val statsRepository: SubmissionStatsRepository,
 ) : SubmissionStatsRepository by statsRepository {
-    suspend fun saveStats(stats: DocSubmissionStats) {
-        statsRepository.save(stats).awaitSingleOrNull()
-    }
-
-    suspend fun deleteAllStats() {
-        statsRepository.deleteAll().awaitSingleOrNull()
-    }
-
     suspend fun updateOrRegisterStat(stat: SubmissionStat) {
         val query = Query(where(DocSubmissionFields.SUB_ACC_NO).`is`(stat.accNo))
         mongoTemplate

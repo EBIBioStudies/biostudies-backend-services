@@ -52,7 +52,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
     @AfterEach
     fun afterEach() = runBlocking {
         tempFolder.clean()
-        requestRepository.deleteAllRequest()
+        requestRepository.deleteAll()
     }
 
     @Nested
