@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package ebi.ac.uk.base
 
 import org.apache.commons.lang3.BooleanUtils
@@ -72,4 +74,3 @@ fun String.trim(): String = replace("\\s+".toRegex(), " ")
  * Compute the given string so it always ends in the provided suffix, no action is taking if string already.
  */
 fun String.ensureSuffix(suffix: String): String = if (endsWith(suffix)) this else "$this$suffix"
-
