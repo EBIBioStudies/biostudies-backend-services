@@ -10,9 +10,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import kotlinx.coroutines.flow.Flow
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Pageable
-import org.springframework.data.mongodb.repository.Meta
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import reactor.core.publisher.Flux
@@ -104,23 +104,25 @@ interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissi
 }
 
 interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, ObjectId> {
-    @Meta(cursorBatchSize = 100, flags = [org.springframework.data.mongodb.core.query.Meta.CursorOption.NO_TIMEOUT])
+
     fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(
         accNo: String,
         version: Int,
         fileListName: String,
-    ): Flux<FileListDocFile>
+        pageable: Pageable,
+    ): Flow<FileListDocFile>
 
     fun findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
         accNo: String,
         version: Int,
         fileListName: String,
-    ): Flux<FileListDocFile>
+        pageable: Pageable,
+    ): Flow<FileListDocFile>
 
     @Query("{ 'submissionAccNo': ?0, 'submissionVersion': ?1, 'file.filePath': ?2}")
     fun findBySubmissionAccNoAndSubmissionVersionAndFilePath(
         accNo: String,
         version: Int,
         filePath: String,
-    ): Flux<FileListDocFile>
+    ): FileListDocFile?
 }
