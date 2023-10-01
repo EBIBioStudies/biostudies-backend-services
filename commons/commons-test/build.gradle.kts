@@ -1,8 +1,9 @@
 import Dependencies.Arrow
 import Dependencies.CommonsIO
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
-import Dependencies.SpringWeb
+import Dependencies.SpringWebFlux
 import Projects.CommonsBio
 import Projects.CommonsModelExtended
 import TestDependencies.AssertJ
@@ -18,5 +19,6 @@ dependencies {
     implementation(JunitExtensions)
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
-    implementation(SpringWeb)
+    implementation(KotlinCoroutines)
+    implementation(SpringWebFlux)
 }

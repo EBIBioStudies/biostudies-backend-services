@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.xml
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import ebi.ac.uk.model.BioFile
+import kotlinx.coroutines.flow.Flow
 import java.io.InputStream
 import java.io.OutputStream
 import javax.xml.stream.XMLInputFactory
@@ -36,10 +37,18 @@ class XmlStreamSerializer {
 
     fun serializeFileList(fileList: Sequence<BioFile>, outputStream: OutputStream) {
         val streamWriter = XMLOutputFactory.newFactory().createXMLStreamWriter(outputStream)
-
         streamWriter.writeStartDocument()
         streamWriter.writeStartElement("table")
         fileList.forEach { XmlSerializer.mapper.writeValue(streamWriter, it) }
+        streamWriter.writeEndElement()
+        streamWriter.writeEndDocument()
+    }
+
+    suspend fun serializeFileList(fileList: Flow<BioFile>, outputStream: OutputStream) {
+        val streamWriter = XMLOutputFactory.newFactory().createXMLStreamWriter(outputStream)
+        streamWriter.writeStartDocument()
+        streamWriter.writeStartElement("table")
+        fileList.collect { XmlSerializer.mapper.writeValue(streamWriter, it) }
         streamWriter.writeEndElement()
         streamWriter.writeEndDocument()
     }

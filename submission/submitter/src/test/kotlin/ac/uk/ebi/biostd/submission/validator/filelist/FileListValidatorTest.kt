@@ -9,40 +9,47 @@ import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.errors.FilesProcessingException
+import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
+import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.called
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.io.sources.PathSource
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FileListValidatorTest(
     private val tempFolder: TemporaryFolder,
+    @MockK private val extFile: ExtFile,
+    @MockK private val source: FilesSource,
     @MockK private val fileSourcesService: FileSourcesService,
     @MockK private val submissionQueryService: SubmissionPersistenceQueryService,
 ) {
     private val serializationService = SerializationConfig.serializationService()
-    private val filesSource = FileSourcesList(listOf(PathSource("Description", tempFolder.root.toPath())))
+    private val filesSource = FileSourcesList(listOf(source))
     private val testInstance = FileListValidator(fileSourcesService, serializationService, submissionQueryService)
 
-    @BeforeAll
-    fun beforeAll() {
-        tempFolder.createFile("ref.txt")
+    @BeforeEach
+    fun beforeEach() {
+        coEvery { source.getExtFile("ref.txt", "file", listOf(Attribute("Type", "test"))) } returns extFile
     }
 
     @AfterEach
@@ -53,16 +60,17 @@ class FileListValidatorTest(
         @MockK submitter: SecurityUser,
         @MockK onBehalfUser: SecurityUser,
         @MockK extSubmission: ExtSubmission,
-    ) {
+    ) = runTest {
         val fileSourcesSlot = slot<FileSourcesRequest>()
-        every { submissionQueryService.findExtByAccNo("S-BSST0") } returns extSubmission
-        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
-
         val content = tsv {
             line("Files", "Type")
             line("ref.txt", "test")
         }
-        tempFolder.createFile("valid.tsv", content.toString())
+        val valid = tempFolder.createFile("valid.tsv", content.toString())
+
+        coEvery { source.getFileList("valid.tsv") } returns valid
+        coEvery { submissionQueryService.findExtByAccNo("S-BSST0") } returns extSubmission
+        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
 
         val request = FileListValidationRequest("S-BSST0", "root-path", "valid.tsv", submitter, onBehalfUser)
         testInstance.validateFileList(request)
@@ -75,7 +83,7 @@ class FileListValidatorTest(
         assertThat(fileSourceRequest.submission).isEqualTo(extSubmission)
         assertThat(fileSourceRequest.onBehalfUser).isEqualTo(onBehalfUser)
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             submissionQueryService.findExtByAccNo("S-BSST0")
             fileSourcesService.submissionSources(fileSourceRequest)
         }
@@ -85,12 +93,16 @@ class FileListValidatorTest(
     fun `invalid file list`(
         @MockK submitter: SecurityUser,
         @MockK extSubmission: ExtSubmission,
-    ) {
+    ) = runTest {
         val fileSourcesSlot = slot<FileSourcesRequest>()
-        every { submissionQueryService.findExtByAccNo("S-BSST0") } returns extSubmission
-        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
+        val invalid = tempFolder.createFile("fail.xlsx")
 
-        excel(tempFolder.createFile("fail.xlsx")) {
+        coEvery { source.getFileList("fail.xlsx") } returns invalid
+        coEvery { submissionQueryService.findExtByAccNo("S-BSST0") } returns extSubmission
+        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
+        coEvery { source.getExtFile("ghost.txt", "file", listOf(Attribute("Type", "fail"))) } returns null
+
+        excel(invalid) {
             sheet("page tab") {
                 row {
                     cell("Files")
@@ -118,7 +130,7 @@ class FileListValidatorTest(
         assertThat(fileSourceRequest.preferredSources).isEmpty()
         assertThat(fileSourceRequest.submitter).isEqualTo(submitter)
 
-        verify(exactly = 0) { submissionQueryService.findExtByAccNo("S-BSST0") }
+        coVerify(exactly = 0) { submissionQueryService.findExtByAccNo("S-BSST0") }
         verify(exactly = 1) { fileSourcesService.submissionSources(fileSourceRequest) }
     }
 
@@ -126,11 +138,12 @@ class FileListValidatorTest(
     fun `empty file list`(
         @MockK submitter: SecurityUser,
         @MockK onBehalfUser: SecurityUser,
-    ) {
+    ) = runTest {
         val fileSourcesSlot = slot<FileSourcesRequest>()
-        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
+        val empty = tempFolder.createFile("empty.tsv", "Files\tType")
 
-        tempFolder.createFile("empty.tsv", "Files\tType")
+        coEvery { source.getFileList("empty.tsv") } returns empty
+        every { fileSourcesService.submissionSources(capture(fileSourcesSlot)) } returns filesSource
 
         val request = FileListValidationRequest(null, null, "empty.tsv", submitter, onBehalfUser)
         val exception = assertThrows<InvalidFileListException> { testInstance.validateFileList(request) }

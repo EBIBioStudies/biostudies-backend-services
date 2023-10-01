@@ -9,6 +9,8 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.storageMode
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.fileSequence
@@ -22,7 +24,7 @@ class SubmissionRequestCleaner(
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
-    fun cleanCurrentVersion(accNo: String, version: Int) {
+    suspend fun cleanCurrentVersion(accNo: String, version: Int) {
         val request = requestService.getLoadedRequest(accNo, version)
         val new = request.submission
         val current = queryService.findExtByAccNo(accNo, includeFileListFiles = true)
@@ -36,8 +38,8 @@ class SubmissionRequestCleaner(
         requestService.saveSubmissionRequest(request.withNewStatus(status = CLEANED))
     }
 
-    private fun deleteCommonFiles(new: ExtSubmission, current: ExtSubmission) {
-        fun deleteFile(index: Int, file: ExtFile) {
+    private suspend fun deleteCommonFiles(new: ExtSubmission, current: ExtSubmission) {
+        suspend fun deleteFile(index: Int, file: ExtFile) {
             logger.info { "${current.accNo} ${current.owner} Deleting file $index, path='${file.filePath}'" }
             storageService.deleteSubmissionFile(current, file)
         }
@@ -56,10 +58,11 @@ class SubmissionRequestCleaner(
         logger.info { "${current.accNo} ${current.owner} Finished cleaning common submission files" }
     }
 
-    private fun newFilesMap(new: ExtSubmission): Map<String, FileEntry> {
+    private suspend fun newFilesMap(new: ExtSubmission): Map<String, FileEntry> {
         return filesRequestService
             .getSubmissionRequestFiles(new.accNo, new.version, 0)
             .map { it.file }
+            .toList()
             .associate { it.filePath to FileEntry(it.md5, new.storageMode) }
     }
 

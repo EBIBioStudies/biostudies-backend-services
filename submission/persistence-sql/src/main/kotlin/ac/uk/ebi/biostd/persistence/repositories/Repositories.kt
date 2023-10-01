@@ -12,7 +12,6 @@ import ac.uk.ebi.biostd.persistence.model.DbUserData
 import ac.uk.ebi.biostd.persistence.model.DbUserGroup
 import ac.uk.ebi.biostd.persistence.model.USER_DATA_GRAPH
 import ac.uk.ebi.biostd.persistence.model.UserDataId
-import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType.LOAD
 import org.springframework.data.jpa.repository.JpaRepository
@@ -63,7 +62,6 @@ interface AccessPermissionRepository : JpaRepository<DbAccessPermission, Long> {
 
 interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
     fun findByUserEmailAndKey(userEmail: String, key: String): DbUserData?
-    fun findByUserEmail(userEmail: String, pageRequest: Pageable): List<DbUserData>
 
     @Modifying
     fun deleteByUserEmailAndKey(email: String, key: String)

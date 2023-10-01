@@ -11,12 +11,16 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkStatic
-import io.mockk.verify
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -24,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.fileSequence
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class)
 class SubmissionRequestCleanerTest(
     @MockK private val storageService: StorageService,
@@ -53,17 +58,17 @@ class SubmissionRequestCleanerTest(
         @MockK sub: ExtSubmission,
         @MockK loadedRequest: SubmissionRequest,
         @MockK cleanedRequest: SubmissionRequest,
-    ) {
+    ) = runTest {
         every { loadedRequest.submission } returns sub
-        every { queryService.findExtByAccNo("S-BSST1", true) } returns null
+        coEvery { queryService.findExtByAccNo("S-BSST1", true) } returns null
         every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
-        every { requestService.getLoadedRequest("S-BSST1", 1) } returns loadedRequest
-        every { requestService.saveSubmissionRequest(cleanedRequest) } returns ("S-BSST1" to 1)
+        coEvery { requestService.getLoadedRequest("S-BSST1", 1) } returns loadedRequest
+        coEvery { requestService.saveSubmissionRequest(cleanedRequest) } returns ("S-BSST1" to 1)
 
         testInstance.cleanCurrentVersion("S-BSST1", 1)
 
-        verify(exactly = 1) { requestService.saveSubmissionRequest(cleanedRequest) }
-        verify(exactly = 0) {
+        coVerify(exactly = 1) { requestService.saveSubmissionRequest(cleanedRequest) }
+        coVerify(exactly = 0) {
             storageService.deleteSubmissionFile(any(), any())
         }
     }
@@ -75,7 +80,7 @@ class SubmissionRequestCleanerTest(
         @MockK loadedRequest: SubmissionRequest,
         @MockK cleanedRequest: SubmissionRequest,
         @MockK requestFile: SubmissionRequestFile,
-    ) {
+    ) = runTest {
         val new = mockSubmission()
         every { newFile.md5 } returns "new-md5"
         every { newFile.filePath } returns "a/b/file.txt"
@@ -89,16 +94,16 @@ class SubmissionRequestCleanerTest(
         every { loadedRequest.submission } returns new
 
         every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
-        every { queryService.findExtByAccNo("S-BSST1", true) } returns current
-        every { requestService.getLoadedRequest("S-BSST1", 2) } returns loadedRequest
+        coEvery { queryService.findExtByAccNo("S-BSST1", true) } returns current
+        coEvery { requestService.getLoadedRequest("S-BSST1", 2) } returns loadedRequest
         every { serializationService.fileSequence(current) } returns sequenceOf(currentFile)
-        every { requestService.saveSubmissionRequest(cleanedRequest) } returns ("S-BSST1" to 2)
-        every { storageService.deleteSubmissionFile(current, currentFile) } answers { nothing }
-        every { filesRequestService.getSubmissionRequestFiles("S-BSST1", 2, 0) } returns sequenceOf(requestFile)
+        coEvery { requestService.saveSubmissionRequest(cleanedRequest) } returns ("S-BSST1" to 2)
+        coEvery { storageService.deleteSubmissionFile(current, currentFile) } answers { nothing }
+        every { filesRequestService.getSubmissionRequestFiles("S-BSST1", 2, 0) } returns flowOf(requestFile)
 
         testInstance.cleanCurrentVersion("S-BSST1", 2)
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             requestService.saveSubmissionRequest(cleanedRequest)
             storageService.deleteSubmissionFile(current, currentFile)
         }

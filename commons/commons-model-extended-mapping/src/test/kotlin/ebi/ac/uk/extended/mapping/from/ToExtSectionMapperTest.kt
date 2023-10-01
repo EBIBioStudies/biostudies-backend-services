@@ -11,6 +11,7 @@ import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.io.sources.FileSourcesList
+import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FileList
@@ -21,11 +22,13 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.constants.SectionFields
 import ebi.ac.uk.util.collections.second
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -35,7 +38,6 @@ import ebi.ac.uk.asserts.assertThat as assertEither
 class ToExtSectionMapperTest(
     @MockK val fileList: FileList,
     @MockK val attribute: Attribute,
-    @MockK val file: BioFile,
     @MockK val fileTable: FilesTable,
     @MockK val link: Link,
     @MockK val linkTable: LinksTable,
@@ -46,8 +48,10 @@ class ToExtSectionMapperTest(
     @MockK val extFileTable: ExtFileTable,
     @MockK val extLink: ExtLink,
     @MockK val extLinkTable: ExtLinkTable,
+    @MockK val fileSource: FilesSource,
 ) {
-    private val fileSources = mockk<FileSourcesList>(relaxed = true)
+    private val file = BioFile("file.txt")
+    private val fileSources = FileSourcesList(listOf(fileSource))
     private val subSection = Section(type = "subtype", accNo = "accNo1")
     private val subExtSection = ExtSection(type = "subtype", accNo = "accNo1")
     private val section = Section(
@@ -63,20 +67,20 @@ class ToExtSectionMapperTest(
     private val testInstance = ToExtSectionMapper(toExtFileListMapper)
 
     @Test
-    fun toExtSection() {
+    fun toExtSection() = runTest {
+        coEvery { fileSource.getExtFile(file.path, file.type, file.attributes) } returns extFile
+
         mockkStatic(
             TO_EXT_ATTRIBUTE_EXTENSIONS,
-            TO_EXT_FILE_EXTENSIONS,
             TO_EXT_LINK_EXTENSIONS,
             TO_EXT_TABLE_EXTENSIONS
         ) {
             every { attribute.name } returns "attr1"
             every { fileListAttribute.name } returns SectionFields.FILE_LIST.value
             every { attribute.toExtAttribute() } returns extAttribute
-            every { fileSources.toExtFile(file) } returns extFile
-            every { toExtFileListMapper.convert(SUB_ACC, SUB_VERSION, fileList, fileSources) } returns extFileList
+            coEvery { toExtFileListMapper.convert(SUB_ACC, SUB_VERSION, fileList, fileSources) } returns extFileList
             every { link.toExtLink() } returns extLink
-            every { fileTable.toExtTable(fileSources) } returns extFileTable
+            coEvery { fileTable.toExtTable(fileSources) } returns extFileTable
             every { linkTable.toExtTable() } returns extLinkTable
 
             val sectionResult = testInstance.convert(SUB_ACC, SUB_VERSION, section, fileSources)

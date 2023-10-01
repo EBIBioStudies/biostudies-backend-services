@@ -27,6 +27,7 @@ import kotlin.random.Random
 
 class TestWireMockTransformer constructor(
     private val failFactor: Int?,
+    private val fixedDelay: Long,
     private val handlers: List<RequestHandler>,
 ) : ResponseDefinitionTransformer() {
     override fun getName(): String = Companion.name
@@ -37,6 +38,7 @@ class TestWireMockTransformer constructor(
         files: FileSource?,
         parameters: Parameters?,
     ): ResponseDefinition {
+        Thread.sleep(fixedDelay)
         return failIfApply()
             ?: handlers.firstOrNull { it.urlPattern.matches(rqt.url) && it.method == rqt.method }?.handleSafely(rqt)
             ?: throw WebClientException(HttpStatus.BAD_REQUEST, "http method ${rqt.method.name} is not supported")
@@ -57,6 +59,7 @@ class TestWireMockTransformer constructor(
             ftpFolder: Path,
             dbFolder: Path,
             failFactor: Int?,
+            fixedDelay: Long,
             httpEndpoint: String,
             defaultBucket: String,
         ): TestWireMockTransformer {
@@ -66,6 +69,7 @@ class TestWireMockTransformer constructor(
 
             return TestWireMockTransformer(
                 failFactor,
+                fixedDelay,
                 listOf(
                     Md5QueryHandler(fireDatabase),
                     FileSaveHandler(fireDatabase),

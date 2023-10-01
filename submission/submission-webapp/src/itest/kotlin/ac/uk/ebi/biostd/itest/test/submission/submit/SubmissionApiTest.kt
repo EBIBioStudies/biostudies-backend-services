@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.entities.FtpSuperUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.invalidLinkUrl
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.ftpPath
@@ -28,9 +29,12 @@ import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.toStringDate
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty
@@ -67,7 +71,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `16-1 submit with submission object`() {
+    fun `16-1 submit with submission object`() = runTest {
         val submission = submission("SimpleAcc1") {
             title = "Simple Submission"
         }
@@ -81,7 +85,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `16-2 empty accNo`() {
+    fun `16-2 empty accNo`() = runTest {
         val submission = tsv {
             line("Submission")
             line("Title", "Empty AccNo")
@@ -98,7 +102,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `16-3 submission with root path`() {
+    fun `16-3 submission with root path`() = runTest {
         val submission = tsv {
             line("Submission", "S-12364")
             line("Title", "Sample Submission")
@@ -129,7 +133,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `16-4 submission with generic root section`() {
+    fun `16-4 submission with generic root section`() = runTest {
         val submission = tsv {
             line("Submission", "E-MTAB123")
             line("Title", "Generic Submission")
@@ -172,7 +176,7 @@ class SubmissionApiTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "false")
-    fun `16-7 submission for checking ftp files`() {
+    fun `16-7 submission for checking ftp files`() = runTest {
         val submission = tsv {
             line("Submission", "S-500")
             line("Title", "Submission")
@@ -198,7 +202,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `16-8 submission released makes files public`() {
+    fun `16-8 submission released makes files public`() = runTest {
         val submission = tsv {
             line("Submission", "S-600")
             line("Title", "Submission")
@@ -225,7 +229,7 @@ class SubmissionApiTest(
     }
 
     @Test
-    fun `16-9 submission not released makes files private`() {
+    fun `16-9 submission not released makes files private`() = runTest {
         val submission = tsv {
             line("Submission", "S-700")
             line("Title", "Submission")
@@ -251,6 +255,53 @@ class SubmissionApiTest(
         assertThat(expectedFile).hasContent("16-9 file content")
     }
 
+    @Test
+    fun `16-10 submission containing invalid file path`() {
+        tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP")
+        tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP/#4")
+        val file1 = tempFolder.createFile("file_16-10.txt")
+        val file2 = tempFolder.createFile("merged-4.tif")
+        val submission = tsv {
+            line("Submission", "S-BSST1610")
+            line("Title", "Submission")
+            line("ReleaseDate", "2030-01-25")
+            line()
+
+            line("Study")
+            line()
+
+            line("Files")
+            line("file_16-10.txt")
+            line("h_EglN1-Δβ2β3-GFP/#4/merged-4.tif")
+            line()
+        }.toString()
+
+        webClient.uploadFiles(listOf(file1, file2))
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { webClient.submitSingle(submission, TSV) }
+            .withMessageContaining("The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-4.tif")
+    }
+
+    @Test
+    fun `16-11 submission containing folder with trailing slash`() {
+        val submission = tsv {
+            line("Submission", "S-BSST1611")
+            line("Title", "Submission")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
+            line()
+
+            line("Study")
+            line()
+
+            line("File", "inner/directory/")
+            line()
+        }.toString()
+
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { webClient.submitSingle(submission, TSV) }
+            .withMessageContaining("The given file path contains invalid characters: inner/directory/")
+    }
+
     @Nested
     @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=base/path"])
     inner class SubmitWebBasePath(@LocalServerPort val serverPort: Int) {
@@ -262,7 +313,7 @@ class SubmissionApiTest(
         }
 
         @Test
-        fun `submission when the system has the basePath property configured`() {
+        fun `16-12 submission when the system has the basePath property configured`() = runTest {
             val submission = tsv {
                 line("Submission", "S-12366")
                 line("Title", "Sample Submission")
@@ -283,6 +334,44 @@ class SubmissionApiTest(
         }
     }
 
-    private fun getSimpleSubmission(accNo: String) =
+    @Test
+    @Disabled
+    fun `16-12 User with Ftp based folder submission`() = runTest {
+        securityTestService.ensureUserRegistration(FtpSuperUser)
+        webClient = getWebClient(serverPort, FtpSuperUser)
+
+        val file = tempFolder.createFile("fileListFtpFile.txt")
+        webClient.uploadFile(file)
+
+        val fileList = tempFolder.createFile(
+            "FileList-Ftp.tsv",
+            tsv {
+                line("Files")
+                line(file.name)
+            }.toString()
+        )
+
+        webClient.uploadFile(fileList)
+
+        val simpleFile = tempFolder.createFile("simpleFtpFile.txt", "An example content")
+        webClient.uploadFiles(listOf(simpleFile))
+
+        val submission = tsv {
+            line("Submission", "SFTP-1")
+            line("Title", "FTP user Submission")
+            line()
+
+            line("Study")
+            line("File List", "FileList-Ftp.tsv")
+            line()
+            line("File", "simpleFtpFile.txt")
+        }.toString()
+
+        val result = webClient.submitSingle(submission, TSV)
+
+        assertThat(result).isSuccessful()
+    }
+
+    private suspend fun getSimpleSubmission(accNo: String) =
         toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
 }

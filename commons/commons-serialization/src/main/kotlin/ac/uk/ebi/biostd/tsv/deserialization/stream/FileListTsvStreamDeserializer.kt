@@ -8,6 +8,8 @@ import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.constants.TableFields.FILES_TABLE
 import ebi.ac.uk.util.collections.destructure
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import java.io.BufferedWriter
 import java.io.InputStream
 import java.io.OutputStream
@@ -17,6 +19,13 @@ internal class FileListTsvStreamDeserializer {
         val writer = fileList.bufferedWriter()
         processFirstFile(files.first(), writer)
         files.forEach { file -> writeAttributesValues(file, writer) }
+        writer.close()
+    }
+
+    suspend fun serializeFileList(files: Flow<BioFile>, fileList: OutputStream) {
+        val writer = fileList.bufferedWriter()
+        processFirstFile(files.first(), writer)
+        files.collect { file -> writeAttributesValues(file, writer) }
         writer.close()
     }
 

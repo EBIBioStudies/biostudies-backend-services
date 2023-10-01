@@ -8,6 +8,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.storageMode
 import mu.KotlinLogging
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.fileSequence
 
@@ -16,10 +17,11 @@ private val logger = KotlinLogging.logger {}
 class SubmissionRequestFinalizer(
     private val storageService: FileStorageService,
     private val serializationService: ExtSerializationService,
+    private val eventsPublisherService: EventsPublisherService,
     private val queryService: SubmissionPersistenceQueryService,
     private val requestService: SubmissionRequestPersistenceService,
 ) {
-    fun finalizeRequest(accNo: String, version: Int): ExtSubmission {
+    suspend fun finalizeRequest(accNo: String, version: Int): ExtSubmission {
         val request = requestService.getPersistedRequest(accNo, version)
         val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
         val previous = queryService.findLatestInactiveByAccNo(accNo, includeFileListFiles = true)
@@ -27,10 +29,12 @@ class SubmissionRequestFinalizer(
         if (previous != null) deleteRemainingFiles(sub, previous)
 
         requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED))
+        eventsPublisherService.submissionFinalized(accNo, version)
+
         return sub
     }
 
-    private fun deleteRemainingFiles(current: ExtSubmission?, previous: ExtSubmission) {
+    private suspend fun deleteRemainingFiles(current: ExtSubmission?, previous: ExtSubmission) {
         val subFiles = subFilesSet(current)
         val accNo = previous.accNo
         val owner = previous.owner

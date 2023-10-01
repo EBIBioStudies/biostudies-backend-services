@@ -40,6 +40,12 @@ app:
     username: # FIRE user
     password: # FIRE password
     version: v1.1
+    s3:
+      accessKey: anyAccessKey
+      secretKey: anySecreteKey
+      region: anyRegion
+      endpoint: anyEndpoint
+      bucket: anyBucket
   security:
     captchaKey: # Captcha validation token. Not required for local environment
     checkCaptcha: false
@@ -48,3 +54,5 @@ app:
     magicDirPath: # Absolute path to the folder to be used for the user/groups magic folders links
     environment: LOCAL
     requireActivation: false
+  persistence:
+    concurrency: 5

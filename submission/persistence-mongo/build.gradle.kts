@@ -3,11 +3,10 @@ import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
 import Dependencies.Guava
 import Dependencies.JSONOrg
+import Dependencies.KotlinCoroutines
+import Dependencies.KotlinCoroutinesReactor
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
-import Dependencies.MongockBom
-import Dependencies.MongockSpringDataV3
-import Dependencies.MongockSpringV5
 import Projects.CommonsBio
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedMapping
@@ -18,20 +17,21 @@ import Projects.CommonsUtil
 import Projects.SubmissionConfig
 import Projects.SubmissionPersistenceCommonApi
 import Projects.SubmissionPersistenceFilesystem
-import SpringBootDependencies.SpringBootStarterMongo
+import SpringBootDependencies.SpringBootStarterReactiveMongo
 import SpringBootDependencies.SpringBootStarterTest
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.KotlinCoroutinesTest
 import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "1.6.10"
-    id("io.spring.dependency-management") version "1.0.12.RELEASE"
-    id("org.springframework.boot") version "2.7.1"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.6.10"
+    id(Plugins.KotlinAllOpenPlugin) version PluginVersions.KotlinPluginVersion
+    id(Plugins.KotlinSpringPlugin) version PluginVersions.KotlinPluginVersion
+    id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
+    id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion
 }
 
 dependencies {
@@ -52,12 +52,12 @@ dependencies {
     implementation(CommonsLang3)
     implementation(Guava)
     implementation(JSONOrg)
+    implementation(KotlinCoroutines)
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
-    implementation(MongockBom)
-    implementation(MongockSpringDataV3)
-    implementation(MongockSpringV5)
-    implementation(SpringBootStarterMongo)
+    implementation(KotlinCoroutines)
+    implementation(KotlinCoroutinesReactor)
+    implementation(SpringBootStarterReactiveMongo)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
@@ -70,6 +70,7 @@ dependencies {
     testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)
     testImplementation(TestContainerJUnit)
+    testImplementation(KotlinCoroutinesTest)
 }
 
 tasks.named<BootJar>("bootJar") {

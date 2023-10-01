@@ -35,30 +35,33 @@ class ExtSubmissionSubmitter(
     private val requestSaver: SubmissionRequestSaver,
     private val requestFinalizer: SubmissionRequestFinalizer,
 ) {
-    fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
+    suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
         val withTabFiles = pageTabService.generatePageTab(rqt.submission)
         val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         val request = SubmissionRequest(submission = submission, notifyTo = rqt.notifyTo, draftKey = rqt.draftKey)
         return requestService.createSubmissionRequest(request)
     }
 
-    fun indexRequest(accNo: String, version: Int): Unit = requestIndexer.indexRequest(accNo, version)
+    suspend fun indexRequest(accNo: String, version: Int): Unit = requestIndexer.indexRequest(accNo, version)
 
-    fun loadRequest(accNo: String, version: Int): Unit = requestLoader.loadRequest(accNo, version)
+    suspend fun loadRequest(accNo: String, version: Int): Unit = requestLoader.loadRequest(accNo, version)
 
-    fun cleanRequest(accNo: String, version: Int): Unit = requestCleaner.cleanCurrentVersion(accNo, version)
+    suspend fun cleanRequest(accNo: String, version: Int): Unit = requestCleaner.cleanCurrentVersion(accNo, version)
 
-    fun processRequest(accNo: String, version: Int): Unit = requestProcessor.processRequest(accNo, version)
+    suspend fun processRequest(accNo: String, version: Int): Unit = requestProcessor.processRequest(accNo, version)
 
-    fun checkReleased(accNo: String, version: Int): Unit = requestReleaser.checkReleased(accNo, version)
+    suspend fun checkReleased(accNo: String, version: Int): Unit = requestReleaser.checkReleased(accNo, version)
 
-    fun saveRequest(accNo: String, version: Int): ExtSubmission = requestSaver.saveRequest(accNo, version)
+    suspend fun saveRequest(accNo: String, version: Int): ExtSubmission = requestSaver.saveRequest(accNo, version)
 
-    fun finalizeRequest(accNo: String, version: Int): ExtSubmission = requestFinalizer.finalizeRequest(accNo, version)
+    suspend fun finalizeRequest(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission = requestFinalizer.finalizeRequest(accNo, version)
 
-    fun release(accNo: String) = requestReleaser.releaseSubmission(accNo)
+    suspend fun release(accNo: String) = requestReleaser.releaseSubmission(accNo)
 
-    fun handleRequest(accNo: String, version: Int): ExtSubmission {
+    suspend fun handleRequest(accNo: String, version: Int): ExtSubmission {
         return when (requestService.getRequestStatus(accNo, version)) {
             REQUESTED -> completeRequest(accNo, version)
             INDEXED -> loadRequestFiles(accNo, version)
@@ -71,7 +74,7 @@ class ExtSubmissionSubmitter(
         }
     }
 
-    private fun completeRequest(accNo: String, version: Int): ExtSubmission {
+    private suspend fun completeRequest(accNo: String, version: Int): ExtSubmission {
         indexRequest(accNo, version)
         loadRequest(accNo, version)
         cleanRequest(accNo, version)
@@ -81,7 +84,7 @@ class ExtSubmissionSubmitter(
         return finalizeRequest(accNo, version)
     }
 
-    private fun loadRequestFiles(accNo: String, version: Int): ExtSubmission {
+    private suspend fun loadRequestFiles(accNo: String, version: Int): ExtSubmission {
         loadRequest(accNo, version)
         cleanRequest(accNo, version)
         processRequest(accNo, version)
@@ -90,7 +93,7 @@ class ExtSubmissionSubmitter(
         return finalizeRequest(accNo, version)
     }
 
-    private fun cleanRequestFiles(accNo: String, version: Int): ExtSubmission {
+    private suspend fun cleanRequestFiles(accNo: String, version: Int): ExtSubmission {
         cleanRequest(accNo, version)
         processRequest(accNo, version)
         checkReleased(accNo, version)
@@ -98,20 +101,20 @@ class ExtSubmissionSubmitter(
         return finalizeRequest(accNo, version)
     }
 
-    private fun processRequestFiles(accNo: String, version: Int): ExtSubmission {
+    private suspend fun processRequestFiles(accNo: String, version: Int): ExtSubmission {
         processRequest(accNo, version)
         checkReleased(accNo, version)
         saveRequest(accNo, version)
         return finalizeRequest(accNo, version)
     }
 
-    private fun releaseSubmission(accNo: String, version: Int): ExtSubmission {
+    private suspend fun releaseSubmission(accNo: String, version: Int): ExtSubmission {
         checkReleased(accNo, version)
         saveRequest(accNo, version)
         return finalizeRequest(accNo, version)
     }
 
-    private fun saveAndFinalize(accNo: String, version: Int): ExtSubmission {
+    private suspend fun saveAndFinalize(accNo: String, version: Int): ExtSubmission {
         saveRequest(accNo, version)
         return finalizeRequest(accNo, version)
     }

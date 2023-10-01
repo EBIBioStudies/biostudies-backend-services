@@ -5,7 +5,7 @@ import Dependencies.Guava
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
-import Dependencies.SpringWeb
+import Dependencies.SpringWebFlux
 import Dependencies.XlsxStreamer
 import Projects.CommonsTest
 import Projects.ExcelLibrary
@@ -18,15 +18,17 @@ import TestDependencies.XmlUnitCore
 dependencies {
     api(project(TsvLibrary))
     api(project(ExcelLibrary))
+
     compileOnly(Guava)
-    implementation(CommonsIO)
+
     implementation(Arrow)
-    implementation(KotlinLogging)
-    implementation(KotlinStdLib)
-    implementation(KotlinReflect)
-    implementation(XlsxStreamer)
+    implementation(CommonsIO)
     implementation(CommonsLang3)
-    implementation(SpringWeb)
+    implementation(KotlinLogging)
+    implementation(KotlinReflect)
+    implementation(KotlinStdLib)
+    implementation(SpringWebFlux)
+    implementation(XlsxStreamer)
 
     testApi(project(CommonsTest))
     BaseTestCompileDependencies.forEach { testImplementation(it) }

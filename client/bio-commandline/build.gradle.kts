@@ -3,7 +3,6 @@ import Dependencies.CommonsLang3
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.Log4J
-import Dependencies.SpringWeb
 import Projects.BioWebClient
 import Projects.CommonsModelExtendedSerialization
 import Projects.CommonsModelExtendedTest
@@ -16,7 +15,7 @@ import TestDependencies.KotlinTestJunit
 import TestDependencies.MockK
 
 plugins {
-    id("com.github.johnrengelman.shadow") version "5.0.0"
+    id(Plugins.ShadowPlugin) version PluginVersions.ShadowPluginVersion
 }
 
 dependencies {
@@ -26,11 +25,10 @@ dependencies {
     api(project(CommonsUtil))
 
     implementation(CliKt)
-    implementation(Log4J)
-    implementation(SpringWeb)
     implementation(CommonsLang3)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
+    implementation(Log4J)
 
     testImplementation(testFixtures(project(CommonsModelExtendedSerialization)))
     testImplementation(Junit)

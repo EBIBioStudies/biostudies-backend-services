@@ -52,6 +52,7 @@ CREATE TABLE User
     fullName             VARCHAR(255) NULL,
     keyTime              BIGINT NOT NULL,
     login                VARCHAR(255) NULL,
+    storageMode          VARCHAR(255) NOT NULL,
     passwordDigest       LONGBLOB NULL,
     secret               VARCHAR(255) NULL,
     superuser            BIT    NOT NULL,

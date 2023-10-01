@@ -1,10 +1,13 @@
 package ac.uk.ebi.biostd.persistence.model
 
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import java.time.OffsetDateTime
 import javax.persistence.CascadeType.MERGE
 import javax.persistence.CascadeType.PERSIST
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.EnumType
+import javax.persistence.Enumerated
 import javax.persistence.FetchType
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
@@ -75,6 +78,10 @@ class DbUser(
 
     @Column
     var notificationsEnabled: Boolean = false,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "storageMode")
+    var storageMode: StorageMode,
 
     @Column
     var orcid: String? = null,

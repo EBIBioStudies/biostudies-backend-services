@@ -1,52 +1,40 @@
 package ac.uk.ebi.biostd.submission.service
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.submission.helpers.FilesSourceFactory
-import ebi.ac.uk.extended.model.ExtSubmission
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ebi.ac.uk.extended.model.StorageMode
-import ebi.ac.uk.io.sources.FilesSource
+import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
-import ebi.ac.uk.security.integration.model.api.GroupMagicFolder
-import ebi.ac.uk.security.integration.model.api.MagicFolder
+import ebi.ac.uk.security.integration.model.api.GroupFolder
+import ebi.ac.uk.security.integration.model.api.NfsUserFolder
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.io.sources.DbFilesSource
+import uk.ac.ebi.fire.client.integration.web.FireClient
+import uk.ac.ebi.io.builder.FilesSourceListBuilder
 import java.nio.file.Paths
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class FileSourcesServiceTest(
     tempFolder: TemporaryFolder,
-    @MockK private val fireSource: FilesSource,
-    @MockK private val subFileSource: FilesSource,
-    @MockK private val props: ApplicationProperties,
-    @MockK private val extSubmission: ExtSubmission,
-    @MockK private val filesSourceFactory: FilesSourceFactory,
+    @MockK private val fireClient: FireClient,
+    @MockK private val ftpClient: FtpClient,
+    @MockK private val filesRepo: SubmissionFilesPersistenceService,
 ) {
     private val tempFile = tempFolder.createFile("test.txt")
     private val filesFolder = tempFolder.createDirectory("files")
     private val subFolder = tempFolder.createDirectory("submissions")
-    private val testInstance = FileSourcesService(filesSourceFactory)
-
-    @BeforeEach
-    fun beforeEach() {
-        every { extSubmission.accNo } returns "S-BSST1"
-        every { extSubmission.relPath } returns "S-BSST/001/S-BSST1"
-        every { extSubmission.storageMode } returns StorageMode.FIRE
-        every { props.submissionPath } returns subFolder.absolutePath
-        every { filesSourceFactory.createFireSource() } returns fireSource
-        every { filesSourceFactory.createSubmissionSource(extSubmission) } returns subFileSource
-    }
+    private val builder = FilesSourceListBuilder(subFolder.toPath(), fireClient, ftpClient, filesRepo)
+    private val testInstance = FileSourcesService(builder)
+    private val extSubmission = basicExtSubmission.copy(storageMode = StorageMode.FIRE)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -66,26 +54,24 @@ class FileSourcesServiceTest(
 
         val sources = fileSources.sources
         assertThat(sources).hasSize(8)
-        assertThat(sources[0]).isEqualTo(DbFilesSource)
+        assertThat(sources[0].description).isEqualTo("Provided Db files")
         assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
         assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
         assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
         assertThat(sources[4].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
         assertThat(sources[5].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[6]).isEqualTo(subFileSource)
-        assertThat(sources[7]).isEqualTo(fireSource)
+        assertThat(sources[6].description).isEqualTo("Previous version files")
+        assertThat(sources[7].description).isEqualTo("EBI internal files Archive")
     }
 
     @Test
     fun `default submission sources with NFS submission`() {
-        every { extSubmission.storageMode } returns StorageMode.NFS
-
         val request = FileSourcesRequest(
             onBehalfUser = onBehalfUser(),
             submitter = submitter(),
             files = listOf(tempFile),
             rootPath = "root-path",
-            submission = extSubmission,
+            submission = basicExtSubmission,
             preferredSources = emptyList()
         )
 
@@ -93,14 +79,14 @@ class FileSourcesServiceTest(
 
         val sources = fileSources.sources
         assertThat(sources).hasSize(8)
-        assertThat(sources[0]).isEqualTo(DbFilesSource)
+        assertThat(sources[0].description).isEqualTo("Provided Db files")
         assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
         assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
         assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
         assertThat(sources[4].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
         assertThat(sources[5].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[6]).isEqualTo(subFileSource)
-        assertThat(sources[7]).isEqualTo(fireSource)
+        assertThat(sources[6].description).isEqualTo("Previous version files")
+        assertThat(sources[7].description).isEqualTo("EBI internal files Archive")
     }
 
     @Test
@@ -118,12 +104,12 @@ class FileSourcesServiceTest(
 
         val sources = fileSources.sources
         assertThat(sources).hasSize(6)
-        assertThat(sources[0]).isEqualTo(DbFilesSource)
+        assertThat(sources[0].description).isEqualTo("Provided Db files")
         assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
         assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
         assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
-        assertThat(sources[4]).isEqualTo(subFileSource)
-        assertThat(sources[5]).isEqualTo(fireSource)
+        assertThat(sources[4].description).isEqualTo("Previous version files")
+        assertThat(sources[5].description).isEqualTo("EBI internal files Archive")
     }
 
     @Test
@@ -141,18 +127,18 @@ class FileSourcesServiceTest(
 
         val sources = fileSources.sources
         assertThat(sources).hasSize(3)
-        assertThat(sources[0]).isEqualTo(DbFilesSource)
-        assertThat(sources[1]).isEqualTo(fireSource)
-        assertThat(sources[2]).isEqualTo(subFileSource)
+        assertThat(sources[0].description).isEqualTo("Provided Db files")
+        assertThat(sources[1].description).isEqualTo("EBI internal files Archive")
+        assertThat(sources[2].description).isEqualTo("Previous version files")
     }
 
     private fun submitter(): SecurityUser {
-        val userFolder = MagicFolder(
+        val userFolder = NfsUserFolder(
             relativePath = Paths.get("69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
             path = Paths.get("$filesFolder/69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3")
         )
 
-        val groupFolder = GroupMagicFolder(
+        val groupFolder = GroupFolder(
             groupName = "Test Group",
             description = "Test Group Description",
             path = Paths.get("$filesFolder/fd/9f87b3-9de8-4036-be7a-3ac8cbc44ddd-b0")
@@ -166,7 +152,7 @@ class FileSourcesServiceTest(
             orcid = "0000-0002-1825-0097",
             secret = "69214a2f-f80b-4f33-86b7-26d3bd0453aa",
             superuser = true,
-            magicFolder = userFolder,
+            userFolder = userFolder,
             groupsFolders = listOf(groupFolder),
             permissions = emptySet(),
             notificationsEnabled = true
@@ -174,12 +160,12 @@ class FileSourcesServiceTest(
     }
 
     private fun onBehalfUser(): SecurityUser {
-        val userFolder = MagicFolder(
+        val userFolder = NfsUserFolder(
             relativePath = Paths.get("43/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
             path = Paths.get("$filesFolder/43/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3")
         )
 
-        val groupFolder = GroupMagicFolder(
+        val groupFolder = GroupFolder(
             groupName = "Test Group",
             description = "Test Group Description",
             path = Paths.get("$filesFolder/fd/9f87b3-9de8-4036-be7a-3ac8cbc44ddd-b0")
@@ -193,7 +179,7 @@ class FileSourcesServiceTest(
             orcid = "1234-5678-9101-1121",
             secret = "98214a2f-f80b-4f33-86a4-26d3bd0453aa",
             superuser = true,
-            magicFolder = userFolder,
+            userFolder = userFolder,
             groupsFolders = listOf(groupFolder),
             permissions = emptySet(),
             notificationsEnabled = true

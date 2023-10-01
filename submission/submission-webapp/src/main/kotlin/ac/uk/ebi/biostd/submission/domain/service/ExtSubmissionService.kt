@@ -25,16 +25,16 @@ class ExtSubmissionService(
     private val securityService: ISecurityQueryService,
     private val eventsPublisherService: EventsPublisherService,
 ) {
-    fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
+    suspend fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
         return submissionSubmitter.handleRequest(accNo, version)
     }
 
-    fun refreshSubmission(user: String, accNo: String): Pair<String, Int> {
+    suspend fun refreshSubmission(user: String, accNo: String): Pair<String, Int> {
         val submission = queryService.getExtByAccNo(accNo, true)
         return submissionSubmitter.createRequest(ExtSubmitRequest(submission, user))
     }
 
-    fun submitExt(
+    suspend fun submitExt(
         user: String,
         sub: ExtSubmission,
     ): ExtSubmission {
@@ -44,7 +44,7 @@ class ExtSubmissionService(
         return submissionSubmitter.handleRequest(accNo, version)
     }
 
-    fun submitExtAsync(
+    suspend fun submitExtAsync(
         user: String,
         sub: ExtSubmission,
     ) {
@@ -54,7 +54,7 @@ class ExtSubmissionService(
         eventsPublisherService.submissionRequest(accNo, version)
     }
 
-    fun transferSubmission(user: String, accNo: String, target: StorageMode) {
+    suspend fun transferSubmission(user: String, accNo: String, target: StorageMode) {
         logger.info { "$accNo $user Received transfer request with target='$target'" }
         val source = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
         require(source.storageMode != target) { throw InvalidTransferTargetException() }
@@ -64,7 +64,7 @@ class ExtSubmissionService(
         eventsPublisherService.submissionRequest(rqtAccNo, rqtVersion)
     }
 
-    private fun processSubmission(user: String, extSubmission: ExtSubmission): ExtSubmission {
+    private suspend fun processSubmission(user: String, extSubmission: ExtSubmission): ExtSubmission {
         validateSubmission(extSubmission, user)
         return extSubmission.copy(
             submitter = user,
@@ -73,7 +73,7 @@ class ExtSubmissionService(
     }
 
     @Suppress("ThrowsCount")
-    private fun validateSubmission(sub: ExtSubmission, user: String) {
+    private suspend fun validateSubmission(sub: ExtSubmission, user: String) {
         if (privilegesService.canSubmitExtended(user).not()) throw UnauthorizedOperation(user)
         if (securityService.existsByEmail(sub.owner, false).not()) throw UserNotFoundException(sub.owner)
 

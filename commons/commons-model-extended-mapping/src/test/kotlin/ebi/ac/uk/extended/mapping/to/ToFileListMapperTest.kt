@@ -25,7 +25,7 @@ internal class ToFileListMapperTest(
     @MockK val serializationService: SerializationService,
     @MockK val filesResolver: FilesResolver,
     @MockK val extFile: ExtFile,
-    @MockK val bioFile: BioFile
+    @MockK val bioFile: BioFile,
 ) {
     private val extFileList = ExtFileList("fileList", temporaryFolder.createFile("source-file-list.json"))
     private val testInstance = ToFileListMapper(serializationService, extSerializationService, filesResolver)
@@ -33,7 +33,7 @@ internal class ToFileListMapperTest(
     @Test
     fun convert() {
         every { filesResolver.createEmptyFile("fileList") } returns temporaryFolder.createFile("target-file-list.json")
-        every { serializationService.serializeFileList(any(), any(), any()) } answers {
+        every { serializationService.serializeFileList(any<Sequence<BioFile>>(), any(), any()) } answers {
             val sequence = arg<Sequence<BioFile>>(0)
             val format = arg<SubFormat>(1)
             val stream = arg<OutputStream>(2)
@@ -52,7 +52,7 @@ internal class ToFileListMapperTest(
         mockkStatic(TO_FILE_EXTENSIONS)
         every { extFile.toFile() } returns bioFile
         every { extSerializationService.deserializeList(any()) } returns sequenceOf(extFile)
-        every { serializationService.serializeFileList(any(), any(), any()) } answers {
+        every { serializationService.serializeFileList(any<Sequence<BioFile>>(), any(), any()) } answers {
             val sequence = arg<Sequence<BioFile>>(0)
             val format = arg<SubFormat>(1)
             val stream = arg<OutputStream>(2)

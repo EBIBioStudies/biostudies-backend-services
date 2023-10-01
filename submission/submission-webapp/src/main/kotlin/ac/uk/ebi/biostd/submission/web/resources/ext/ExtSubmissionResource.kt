@@ -31,32 +31,32 @@ class ExtSubmissionResource(
     private val extSerializationService: ExtSerializationService,
 ) {
     @GetMapping("/{accNo}")
-    fun getExtended(
+    suspend fun getExtended(
         @PathVariable accNo: String,
         @RequestParam(name = "includeFileList", required = false) includeFileList: Boolean?,
     ): ExtSubmission =
         extSubmissionQueryService.getExtendedSubmission(accNo, includeFileList.orFalse())
 
     @GetMapping("/{accNo}/referencedFiles/**")
-    fun getReferencedFiles(
+    suspend fun getReferencedFiles(
         @PathVariable accNo: String,
         fileListPath: FileListPath,
     ): ExtFileTable = extSubmissionQueryService.getReferencedFiles(accNo, fileListPath.path)
 
     @PostMapping("/re-trigger/{accNo}/{version}")
-    fun reTriggerSubmission(
+    suspend fun reTriggerSubmission(
         @PathVariable accNo: String,
         @PathVariable version: Int,
     ): ExtSubmission = extSubmissionService.reTriggerSubmission(accNo, version)
 
     @PostMapping("/refresh/{accNo}")
-    fun refreshSubmission(
+    suspend fun refreshSubmission(
         @BioUser user: SecurityUser,
         @PathVariable accNo: String,
     ) = extSubmissionService.refreshSubmission(user.email, accNo)
 
     @PostMapping("/{accNo}/transfer/{target}")
-    fun transferSubmission(
+    suspend fun transferSubmission(
         @BioUser user: SecurityUser,
         @PathVariable accNo: String,
         @PathVariable target: StorageMode,
@@ -64,7 +64,7 @@ class ExtSubmissionResource(
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    fun submitExtended(
+    suspend fun submitExtended(
         @BioUser user: SecurityUser,
         @RequestParam(SUBMISSION) extSubmission: String,
     ): ExtSubmission = extSubmissionService.submitExt(
@@ -74,7 +74,7 @@ class ExtSubmissionResource(
 
     @PostMapping("/async")
     @PreAuthorize("isAuthenticated()")
-    fun submitExtendedAsync(
+    suspend fun submitExtendedAsync(
         @BioUser user: SecurityUser,
         @RequestParam(SUBMISSION) extSubmission: String,
     ) = extSubmissionService.submitExtAsync(
@@ -83,6 +83,6 @@ class ExtSubmissionResource(
     )
 
     @GetMapping
-    fun submissions(@ModelAttribute request: ExtPageRequest): WebExtPage =
+    suspend fun submissions(@ModelAttribute request: ExtPageRequest): WebExtPage =
         extPageMapper.asExtPage(extSubmissionQueryService.getExtendedSubmissions(request), request)
 }

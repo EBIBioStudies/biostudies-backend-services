@@ -18,7 +18,7 @@ internal class UserPrivilegesService(
     private val userRepository: UserDataRepository,
     private val tagsDataRepository: AccessTagDataRepo,
     private val submissionQueryService: SubmissionMetaQueryService,
-    private val userPermissionsService: UserPermissionsService
+    private val userPermissionsService: UserPermissionsService,
 ) : IUserPrivilegesService {
     override fun canProvideAccNo(email: String) = isSuperUser(email)
 
@@ -38,12 +38,12 @@ internal class UserPrivilegesService(
                 .distinct()
     }
 
-    override fun canResubmit(submitter: String, accNo: String) =
+    override suspend fun canResubmit(submitter: String, accNo: String) =
         isSuperUser(submitter) ||
             isAuthor(getOwner(accNo), submitter) ||
             hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), UPDATE)
 
-    override fun canDelete(submitter: String, accNo: String) = when {
+    override suspend fun canDelete(submitter: String, accNo: String) = when {
         isSuperUser(submitter) -> true
         isPublic(accNo) -> false
         else -> isAuthor(getOwner(accNo), submitter) ||
@@ -52,7 +52,7 @@ internal class UserPrivilegesService(
 
     override fun canRelease(email: String): Boolean = isSuperUser(email)
 
-    override fun canUnrelease(email: String): Boolean = isSuperUser(email)
+    override fun canSuppress(email: String): Boolean = isSuperUser(email)
 
     private fun hasPermissions(user: String, accessTags: List<String>, accessType: AccessType): Boolean {
         val tags = accessTags.filter { it != PUBLIC_ACCESS_TAG.value }
@@ -65,7 +65,8 @@ internal class UserPrivilegesService(
 
     private fun getUser(email: String) = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
 
-    private fun getOwner(accNo: String) = submissionQueryService.findLatestBasicByAccNo(accNo)?.owner
+    private suspend fun getOwner(accNo: String) = submissionQueryService.findLatestBasicByAccNo(accNo)?.owner
 
-    private fun isPublic(accNo: String) = submissionQueryService.findLatestBasicByAccNo(accNo)?.released.orFalse()
+    private suspend fun isPublic(accNo: String) =
+        submissionQueryService.findLatestBasicByAccNo(accNo)?.released.orFalse()
 }

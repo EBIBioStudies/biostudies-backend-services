@@ -30,7 +30,7 @@ internal class DocSubmissionConverterTest(
 
     @MockK val docFileConverter: DocFileConverter,
     @MockK val subTabFile: Document,
-    @MockK val docFile: DocFile
+    @MockK val docFile: DocFile,
 ) {
     private val testInstance = DocSubmissionConverter(docFileConverter, docSectionConverter, docAttributeConverter)
 
@@ -74,7 +74,7 @@ internal class DocSubmissionConverterTest(
     private fun createSubmissionDocument(
         sectionDocument: Document,
         attributeDocument: Document,
-        fileDocument: Document
+        fileDocument: Document,
     ): Document {
         val subDocument = Document()
         subDocument[DocSubmissionFields.CLASS_FIELD] = docSubmissionClass
@@ -97,7 +97,7 @@ internal class DocSubmissionConverterTest(
         subDocument[DocSubmissionFields.SUB_SECTION] = sectionDocument
         subDocument[DocSubmissionFields.SUB_ATTRIBUTES] = listOf(attributeDocument)
         subDocument[DocSubmissionFields.SUB_TAGS] = listOf(createTagDocument())
-        subDocument[DocSubmissionFields.SUB_PROJECTS] = listOf(createProjectDocument())
+        subDocument[DocSubmissionFields.SUB_COLLECTIONS] = listOf(createProjectDocument())
         subDocument[DocSubmissionFields.PAGE_TAB_FILES] = listOf(fileDocument)
         subDocument[DocSubmissionFields.STORAGE_MODE] = storageMode
         return subDocument
@@ -112,7 +112,7 @@ internal class DocSubmissionConverterTest(
 
     private fun createProjectDocument(): Document {
         val projectDoc = Document()
-        projectDoc[DocSubmissionFields.PROJECT_DOC_ACC_NO] = projectDocAccNo
+        projectDoc[DocSubmissionFields.COLLECTION_ACC_NO] = projectDocAccNo
         return projectDoc
     }
 

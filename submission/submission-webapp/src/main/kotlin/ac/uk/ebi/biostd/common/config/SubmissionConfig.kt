@@ -1,11 +1,12 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.files.service.UserFilesService
+import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
@@ -38,6 +39,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.events.service.EventsPublisherService
+import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.net.URI
 
 @Configuration
@@ -50,11 +52,16 @@ class SubmissionConfig(
     @Bean
     fun submissionQueryService(
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
+        filesRepository: SubmissionFilesPersistenceService,
         serializationService: SerializationService,
         toSubmissionMapper: ToSubmissionMapper,
         toFileListMapper: ToFileListMapper,
     ): SubmissionQueryService = SubmissionQueryService(
-        submissionPersistenceQueryService, serializationService, toSubmissionMapper, toFileListMapper
+        submissionPersistenceQueryService,
+        filesRepository,
+        serializationService,
+        toSubmissionMapper,
+        toFileListMapper,
     )
 
     @Bean
@@ -77,22 +84,32 @@ class SubmissionConfig(
     )
 
     @Bean
-    fun submissionStagesHanlder(
+    fun submissionStagesHandler(
+        statsService: SubmissionStatsService,
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
-    ): SubmissionStagesHandler = SubmissionStagesHandler(submissionSubmitter, eventsPublisherService)
+    ): SubmissionStagesHandler = SubmissionStagesHandler(statsService, submissionSubmitter, eventsPublisherService)
 
     @Bean
     fun submissionStatsService(
         statsFileHandler: StatsFileHandler,
         tempFileGenerator: TempFileGenerator,
         submissionStatsService: StatsDataService,
-    ): SubmissionStatsService = SubmissionStatsService(statsFileHandler, tempFileGenerator, submissionStatsService)
+        extSerializationService: ExtSerializationService,
+        extSubmissionQueryService: ExtSubmissionQueryService,
+    ): SubmissionStatsService = SubmissionStatsService(
+        statsFileHandler,
+        tempFileGenerator,
+        submissionStatsService,
+        extSerializationService,
+        extSubmissionQueryService,
+    )
 
     @Bean
     fun extSubmissionQueryService(
         queryService: SubmissionPersistenceQueryService,
-    ): ExtSubmissionQueryService = ExtSubmissionQueryService(queryService)
+        filesRepository: SubmissionFilesPersistenceService,
+    ): ExtSubmissionQueryService = ExtSubmissionQueryService(filesRepository, queryService)
 
     @Bean
     fun extSubmissionService(
@@ -145,19 +162,19 @@ class SubmissionConfig(
     @Bean
     fun submitHandler(
         submissionService: SubmissionService,
-        userFilesService: UserFilesService,
         extSubmissionQueryService: ExtSubmissionQueryService,
         toSubmissionMapper: ToSubmissionMapper,
         queryService: SubmissionMetaQueryService,
+        fileServiceFactory: FileServiceFactory,
     ): SubmitWebHandler =
         SubmitWebHandler(
             submissionService,
             extSubmissionQueryService,
             fileSourcesService,
             serializationService,
-            userFilesService,
             toSubmissionMapper,
             queryService,
+            fileServiceFactory
         )
 
     @Bean

@@ -9,15 +9,15 @@ interface IUserPrivilegesService {
 
     fun allowedCollections(email: String, accessType: AccessType): List<String>
 
-    fun canResubmit(submitter: String, accNo: String): Boolean
+    suspend fun canResubmit(submitter: String, accNo: String): Boolean
 
     fun canSubmitToCollection(submitter: String, collection: String): Boolean
 
-    fun canDelete(submitter: String, accNo: String): Boolean
+    suspend fun canDelete(submitter: String, accNo: String): Boolean
 
     fun canSubmitExtended(submitter: String): Boolean
 
     fun canRelease(email: String): Boolean
 
-    fun canUnrelease(email: String): Boolean
+    fun canSuppress(email: String): Boolean
 }

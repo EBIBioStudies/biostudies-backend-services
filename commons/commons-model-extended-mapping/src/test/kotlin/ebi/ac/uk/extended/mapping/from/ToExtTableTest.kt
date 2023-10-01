@@ -3,14 +3,17 @@ package ebi.ac.uk.extended.mapping.from
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.io.sources.FileSourcesList
+import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -19,19 +22,19 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ToExtTableTest {
     @Test
     fun `FileTable toExtTable`(
-        @MockK filesSource: FileSourcesList,
-        @MockK file: BioFile,
+        @MockK fileSource: FilesSource,
         @MockK fileTable: FilesTable,
         @MockK extFile: ExtFile,
-    ) {
-        mockkStatic(TO_EXT_FILE_EXTENSIONS) {
-            every { filesSource.toExtFile(file) } returns extFile
-            every { fileTable.elements } returns listOf(file)
+    ) = runTest {
+        val file = BioFile("file.txt")
+        val sources = FileSourcesList(listOf(fileSource))
 
-            val result = fileTable.toExtTable(filesSource)
+        coEvery { fileSource.getExtFile(file.path, file.type, file.attributes) } returns extFile
+        every { fileTable.elements } returns listOf(file)
 
-            assertThat(result.files).containsExactly(extFile)
-        }
+        val result = fileTable.toExtTable(sources)
+
+        assertThat(result.files).containsExactly(extFile)
     }
 
     @Test

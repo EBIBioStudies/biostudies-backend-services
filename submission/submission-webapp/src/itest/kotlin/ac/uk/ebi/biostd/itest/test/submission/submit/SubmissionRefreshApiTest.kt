@@ -41,6 +41,11 @@ import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.toStringDate
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -49,7 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update.update
@@ -62,7 +67,7 @@ import java.time.ZoneOffset.UTC
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionRefreshApiTest(
-    @Autowired val mongoTemplate: MongoTemplate,
+    @Autowired val mongoTemplate: ReactiveMongoTemplate,
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired val fileListRepository: FileListDocFileDocDataRepository,
@@ -126,13 +131,13 @@ class SubmissionRefreshApiTest(
     }
 
     @Test
-    fun `25-1 refresh when submission title is updated`() {
+    fun `25-1 refresh when submission title is updated`() = runTest {
         val accNo = "Refresh-title-001"
         createTestSubmission(accNo)
 
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
         val update = update(SUB_TITLE, NEW_SUBTITLE)
-        mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
+        mongoTemplate.updateFirst(query, update, DocSubmission::class.java).awaitSingleOrNull()
 
         webClient.refreshSubmission(accNo)
 
@@ -141,13 +146,13 @@ class SubmissionRefreshApiTest(
     }
 
     @Test
-    fun `25-2 refresh when submission release date is updated`() {
+    fun `25-2 refresh when submission release date is updated`() = runTest {
         val accNo = "Refresh-release-001"
         createTestSubmission(accNo)
 
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
         val update = update(SUB_RELEASE_TIME, newReleaseDate.toInstant())
-        mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
+        mongoTemplate.updateFirst(query, update, DocSubmission::class.java).awaitSingleOrNull()
 
         webClient.refreshSubmission(accNo)
 
@@ -156,13 +161,13 @@ class SubmissionRefreshApiTest(
     }
 
     @Test
-    fun `25-3 refresh when submission attribute is updated`() {
+    fun `25-3 refresh when submission attribute is updated`() = runTest {
         val accNo = "Refresh-attribute-001"
         createTestSubmission(accNo)
 
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
         val update = update(SUB_ATTRIBUTES, listOf(DocAttribute(ATTR_NAME, NEW_ATTR_VALUE)))
-        mongoTemplate.updateFirst(query, update, DocSubmission::class.java)
+        mongoTemplate.updateFirst(query, update, DocSubmission::class.java).awaitSingleOrNull()
 
         webClient.refreshSubmission(accNo)
 
@@ -171,14 +176,14 @@ class SubmissionRefreshApiTest(
     }
 
     @Test
-    fun `25-4 refresh when submission fileListFile attribute is updated`() {
+    fun `25-4 refresh when submission fileListFile attribute is updated`() = runTest {
         val accNo = "Refresh-fileList-attribute-001"
         createTestSubmission(accNo)
 
         val docSubmission = mongoTemplate.findOne(
             Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0))),
             DocSubmission::class.java
-        )!!
+        ).awaitSingle()
         val query = Query(
             where(FILE_LIST_DOC_FILE_SUBMISSION_ID).`is`(docSubmission.id)
                 .andOperator(
@@ -190,12 +195,15 @@ class SubmissionRefreshApiTest(
             "$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_ATTRIBUTES",
             listOf(DocAttribute(FILE_ATTR_NAME, FILE_NEW_ATTR_VALUE))
         )
-        mongoTemplate.updateFirst(query, update, FileListDocFile::class.java)
+        mongoTemplate.updateFirst(query, update, FileListDocFile::class.java).awaitSingleOrNull()
 
         webClient.refreshSubmission(accNo)
 
         val files = fileListRepository
             .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(accNo, 1, FILE_LIST_NAME)
+            .asFlow()
+            .toList()
+
         assertThat(files).hasSize(1)
         assertThat(files.first().file.attributes)
             .isEqualTo(listOf(DocAttribute(FILE_ATTR_NAME, FILE_NEW_ATTR_VALUE)))

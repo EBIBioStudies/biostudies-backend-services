@@ -8,25 +8,27 @@ import ac.uk.ebi.biostd.client.integration.web.GroupFilesOperations
 import ac.uk.ebi.biostd.client.integration.web.MultipartAsyncSubmitOperations
 import ac.uk.ebi.biostd.client.integration.web.MultipartSubmitOperations
 import ac.uk.ebi.biostd.client.integration.web.PermissionOperations
+import ac.uk.ebi.biostd.client.integration.web.StatsOperations
 import ac.uk.ebi.biostd.client.integration.web.SubmissionOperations
 import ac.uk.ebi.biostd.client.integration.web.SubmitClient
 import ac.uk.ebi.biostd.client.integration.web.SubmitOperations
 import ac.uk.ebi.biostd.integration.SerializationService
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 internal class SubmitClientImpl(
-    private val template: RestTemplate,
+    private val client: WebClient,
     private val serializationService: SerializationService,
     private val extSerializationService: ExtSerializationService,
 ) : SubmitClient,
-    FilesOperations by UserFilesClient(template),
-    GroupFilesOperations by GroupFilesClient(template),
-    SubmissionOperations by SubmissionClient(template),
-    SubmitOperations by SubmitClient(template, serializationService),
-    MultipartSubmitOperations by MultiPartSubmitClient(template, serializationService),
-    MultipartAsyncSubmitOperations by MultiPartAsyncSubmitClient(template, serializationService),
-    GeneralOperations by CommonOperationsClient(template),
-    DraftSubmissionOperations by SubmissionDraftClient(template),
-    ExtSubmissionOperations by ExtSubmissionClient(template, extSerializationService),
-    PermissionOperations by PermissionOperationsClient(template)
+    FilesOperations by UserFilesClient(client),
+    GroupFilesOperations by GroupFilesClient(client),
+    SubmissionOperations by SubmissionClient(client),
+    SubmitOperations by SubmitClient(client, serializationService),
+    MultipartSubmitOperations by MultiPartSubmitClient(client, serializationService),
+    MultipartAsyncSubmitOperations by MultiPartAsyncSubmitClient(client, serializationService),
+    GeneralOperations by CommonOperationsClient(client),
+    DraftSubmissionOperations by SubmissionDraftClient(client),
+    ExtSubmissionOperations by ExtSubmissionClient(client, extSerializationService),
+    PermissionOperations by PermissionOperationsClient(client),
+    StatsOperations by StatsClient(client)

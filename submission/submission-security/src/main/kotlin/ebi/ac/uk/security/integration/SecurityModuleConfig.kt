@@ -1,5 +1,6 @@
 package ebi.ac.uk.security.integration
 
+import ac.uk.ebi.biostd.common.properties.FilesProperties
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
@@ -7,7 +8,9 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.TokenDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
+import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.commons.http.JacksonFactory
+import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
@@ -21,8 +24,9 @@ import ebi.ac.uk.security.service.SecurityService
 import ebi.ac.uk.security.service.UserPrivilegesService
 import ebi.ac.uk.security.util.SecurityUtil
 import ebi.ac.uk.security.web.SecurityFilter
+import io.jsonwebtoken.JwtParser
 import io.jsonwebtoken.Jwts
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Paths
 
@@ -35,7 +39,7 @@ class SecurityModuleConfig(
     private val queryService: SubmissionMetaQueryService,
     private val userPermissionsService: UserPermissionsService,
     private val eventsPublisherService: EventsPublisherService,
-    private var props: SecurityProperties
+    private var props: SecurityProperties,
 ) {
     fun securityService(): ISecurityService = securityService
     fun securityQueryService(): ISecurityQueryService = securityQueryService
@@ -43,10 +47,19 @@ class SecurityModuleConfig(
     fun securityFilter(): ISecurityFilter = securityFilter
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
-    private val groupService by lazy { GroupService(groupRepository, userRepo, props.filesDirPath) }
-    private val securityQueryService by lazy { SecurityQueryService(securityUtil, profileService, userRepo) }
+    private val groupService by lazy { GroupService(groupRepository, userRepo, props.filesProperties.filesDirPath) }
+    private val ftpClient by lazy { ftpClient(props.filesProperties) }
+    private val securityQueryService by lazy { SecurityQueryService(securityUtil, profileService, userRepo, props) }
     private val securityService by lazy {
-        SecurityService(userRepo, securityUtil, props, profileService, captchaVerifier, eventsPublisherService)
+        SecurityService(
+            userRepo,
+            securityUtil,
+            props,
+            profileService,
+            captchaVerifier,
+            eventsPublisherService,
+            ftpClient
+        )
     }
 
     private val securityFilter by lazy { SecurityFilter(props.environment, securityQueryService) }
@@ -54,11 +67,36 @@ class SecurityModuleConfig(
         UserPrivilegesService(userRepo, tagsDataRepository, queryService, userPermissionsService)
     }
 
-    private val captchaVerifier by lazy { CaptchaVerifier(RestTemplate(), props) }
+    private val captchaVerifier by lazy { CaptchaVerifier(WebClient.builder().build(), props) }
     private val objectMapper by lazy { JacksonFactory.createMapper() }
     private val jwtParser by lazy { Jwts.parser()!! }
-    private val profileService by lazy { ProfileService(Paths.get(props.filesDirPath)) }
-    private val securityUtil by lazy {
-        SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
+    private val profileService by lazy { profileService(props) }
+    private val securityUtil by lazy { securityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props) }
+
+    companion object {
+        fun securityUtil(
+            jwtParser: JwtParser,
+            objectMapper: ObjectMapper,
+            tokenRepo: TokenDataRepository,
+            userRepo: UserDataRepository,
+            props: SecurityProperties,
+        ): SecurityUtil =
+            SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
+
+        fun ftpClient(fileProperties: FilesProperties): FtpClient {
+            return FtpClient.create(
+                ftpUser = fileProperties.ftpUser,
+                ftpPassword = fileProperties.ftpPassword,
+                ftpUrl = fileProperties.ftpUrl,
+                ftpPort = fileProperties.ftpPort,
+            )
+        }
+
+        fun profileService(props: SecurityProperties): ProfileService {
+            return ProfileService(
+                Paths.get(props.filesProperties.filesDirPath),
+                props.environment
+            )
+        }
     }
 }

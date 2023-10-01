@@ -17,6 +17,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataReposito
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtFile
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactive.asFlow
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
@@ -29,67 +32,67 @@ class SubmissionRequestMongoPersistenceService(
     private val serializationService: ExtSerializationService,
     private val requestRepository: SubmissionRequestDocDataRepository,
 ) : SubmissionRequestPersistenceService {
-    override fun hasActiveRequest(accNo: String): Boolean {
+    override suspend fun hasActiveRequest(accNo: String): Boolean {
         return requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING)
     }
 
-    override fun getProcessingRequests(since: TemporalAmount?): List<Pair<String, Int>> {
+    override fun getProcessingRequests(since: TemporalAmount?): Flow<Pair<String, Int>> {
         val request = when (since) {
             null -> requestRepository.findByStatusIn(PROCESSING)
             else -> requestRepository.findByStatusInAndModificationTimeLessThan(PROCESSING, Instant.now().minus(since))
         }
-        return request.map { it.accNo to it.version }
+        return request.asFlow().map { it.accNo to it.version }
     }
 
-    override fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
+    override suspend fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
         requestRepository.updateSubmissionRequest(asRequest(rqt))
         return rqt.submission.accNo to rqt.submission.version
     }
 
-    override fun createSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
+    override suspend fun createSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
         val (request, created) = requestRepository.saveRequest(asRequest(rqt))
         if (created.not()) throw ConcurrentSubException(request.accNo, request.version)
         return request.accNo to request.version
     }
 
-    override fun updateRqtIndex(accNo: String, version: Int, index: Int) {
+    override suspend fun updateRqtIndex(accNo: String, version: Int, index: Int) {
         requestRepository.updateIndex(accNo, version, index)
     }
 
-    override fun updateRqtIndex(requestFile: SubmissionRequestFile, file: ExtFile) {
+    override suspend fun updateRqtIndex(requestFile: SubmissionRequestFile, file: ExtFile) {
         requestRepository.updateIndex(requestFile.accNo, requestFile.version, requestFile.index)
         requestRepository.updateSubmissionRequestFile(requestFile.accNo, requestFile.version, requestFile.path, file)
     }
 
-    override fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
+    override suspend fun getPendingRequest(accNo: String, version: Int): SubmissionRequest {
         return getRequest(accNo, version, REQUESTED)
     }
 
-    override fun getIndexedRequest(accNo: String, version: Int): SubmissionRequest {
+    override suspend fun getIndexedRequest(accNo: String, version: Int): SubmissionRequest {
         return getRequest(accNo, version, INDEXED)
     }
 
-    override fun getLoadedRequest(accNo: String, version: Int): SubmissionRequest {
+    override suspend fun getLoadedRequest(accNo: String, version: Int): SubmissionRequest {
         return getRequest(accNo, version, LOADED)
     }
 
-    override fun getCleanedRequest(accNo: String, version: Int): SubmissionRequest {
+    override suspend fun getCleanedRequest(accNo: String, version: Int): SubmissionRequest {
         return getRequest(accNo, version, CLEANED)
     }
 
-    override fun getCheckReleased(accNo: String, version: Int): SubmissionRequest {
+    override suspend fun getCheckReleased(accNo: String, version: Int): SubmissionRequest {
         return getRequest(accNo, version, CHECK_RELEASED)
     }
 
-    override fun getFilesCopiedRequest(accNo: String, version: Int): SubmissionRequest {
+    override suspend fun getFilesCopiedRequest(accNo: String, version: Int): SubmissionRequest {
         return getRequest(accNo, version, FILES_COPIED)
     }
 
-    override fun getPersistedRequest(accNo: String, version: Int): SubmissionRequest {
+    override suspend fun getPersistedRequest(accNo: String, version: Int): SubmissionRequest {
         return getRequest(accNo, version, PERSISTED)
     }
 
-    override fun getRequestStatus(accNo: String, version: Int): RequestStatus {
+    override suspend fun getRequestStatus(accNo: String, version: Int): RequestStatus {
         return requestRepository.getByAccNoAndVersion(accNo, version).status
     }
 
@@ -109,7 +112,7 @@ class SubmissionRequestMongoPersistenceService(
         )
     }
 
-    private fun getRequest(accNo: String, version: Int, status: RequestStatus): SubmissionRequest {
+    private suspend fun getRequest(accNo: String, version: Int, status: RequestStatus): SubmissionRequest {
         val request = requestRepository.getByAccNoAndVersionAndStatus(accNo, version, status)
         val stored = serializationService.deserialize(request.submission.toString())
         return SubmissionRequest(

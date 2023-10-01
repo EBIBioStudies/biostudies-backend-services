@@ -11,31 +11,38 @@ import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.io.ext.createFile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Named
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import java.nio.file.Paths
+import java.util.stream.Stream
 
 @ExtendWith(SpringExtension::class)
+@TestInstance(PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserFileApiTest(
     @Autowired val securityTestService: SecurityTestService,
-    @LocalServerPort val serverPort: Int
+    @LocalServerPort val serverPort: Int,
 ) {
-    private lateinit var webClient: BioWebClient
 
     @BeforeAll
     fun init() {
         securityTestService.ensureUserRegistration(FilesUser)
-        webClient = getWebClient(serverPort, FilesUser)
+        securityTestService.ensureUserRegistration(FilesFtpUser)
     }
 
-    @Test
-    fun `17-1 upload download delete file and retrieve in user root folder`() {
+    @ParameterizedTest(name = "17-1 upload download delete file and retrieve in {0} root folder")
+    @MethodSource("webClients")
+    fun rootFolder(webClient: BioWebClient) {
         val file = tempFolder.createFile("FileList1.txt", "An example content")
         webClient.uploadFiles(listOf(file), relativePath = "")
 
@@ -47,8 +54,9 @@ class UserFileApiTest(
         assertThat(webClient.listUserFiles(relativePath = "")).isEmpty()
     }
 
-    @Test
-    fun `17-2 upload download delete file and retrieve in user folder`() {
+    @ParameterizedTest(name = "17-2 upload download delete file and retrieve in {0} folder")
+    @MethodSource("webClients")
+    fun userFolder(webClient: BioWebClient) {
         val file = tempFolder.createFile("FileList1.txt", "An example content")
         webClient.uploadFiles(listOf(file), relativePath = "test-folder")
 
@@ -61,8 +69,9 @@ class UserFileApiTest(
         webClient.deleteFile("test-folder")
     }
 
-    @Test
-    fun `17-3 upload download delete file and retrieve in user folder with space`() {
+    @ParameterizedTest(name = "17-3 upload download delete file and retrieve in {0} folder with space")
+    @MethodSource("webClients")
+    fun folderWithSpace(webClient: BioWebClient) {
         val file = tempFolder.createFile("FileList1.txt", "An example content")
         webClient.uploadFiles(listOf(file), relativePath = "test folder")
 
@@ -83,12 +92,27 @@ class UserFileApiTest(
         assertThat(file).hasContent(downloadFile.readText())
     }
 
+    private fun webClients(): Stream<Arguments> {
+        val fileArg = Arguments.of(Named.of("Nfs storage user", getWebClient(serverPort, FilesUser)))
+        val ftpArg = Arguments.of(Named.of("Ftp storage user", getWebClient(serverPort, FilesFtpUser)))
+        return Stream.of(fileArg, ftpArg)
+    }
+
     object FilesUser : TestUser {
         override val username = "Files User"
         override val email = "files-biostudies-mgmt@ebi.ac.uk"
         override val password = "12345"
         override val superUser = true
 
-        override fun asRegisterRequest() = RegisterRequest(username, email, password)
+        override fun asRegisterRequest() = RegisterRequest(username, email, password, storageMode = "NFS")
+    }
+
+    object FilesFtpUser : TestUser {
+        override val username = "Files Ftp User"
+        override val email = "files-biostudiesftp--mgmt@ebi.ac.uk"
+        override val password = "12345"
+        override val superUser = true
+
+        override fun asRegisterRequest() = RegisterRequest(username, email, password, storageMode = "FTP")
     }
 }

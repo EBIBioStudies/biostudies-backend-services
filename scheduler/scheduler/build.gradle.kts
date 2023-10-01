@@ -1,5 +1,6 @@
 import Dependencies.Arrow
 import Dependencies.KotlinLogging
+import Dependencies.SpringWebFlux
 import Projects.CommonsHttp
 import Projects.SchedulerClusterClient
 import Projects.SchedulerTaskProperties
@@ -12,9 +13,9 @@ import TestDependencies.BaseTestRuntimeDependencies
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "1.6.10"
-    id("io.spring.dependency-management") version "1.0.12.RELEASE"
-    id("org.springframework.boot") version "2.7.1"
+    id(Plugins.KotlinSpringPlugin) version PluginVersions.KotlinPluginVersion
+    id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion
+    id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
 }
 
 repositories {
@@ -36,6 +37,7 @@ dependencies {
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringBootStartedAdminClient)
     implementation(SpringBootStarterWeb)
+    implementation(SpringWebFlux)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }

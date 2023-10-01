@@ -6,34 +6,29 @@ package ac.uk.ebi.biostd.submission.exceptions
 sealed class InvalidPermissionsException(message: String) : RuntimeException(message)
 
 class UserCanNotProvideAccessNumber(
-    user: String
+    user: String,
 ) : InvalidPermissionsException("The user {$user} is not allowed to provide accession number directly")
 
 class UserCanNotUpdateSubmit(
     accNo: String,
-    user: String
+    user: String,
 ) : InvalidPermissionsException("The user {$user} is not allowed to update the submission $accNo")
 
 class UserCanNotSubmitCollectionsException(
-    user: String
+    user: String,
 ) : InvalidPermissionsException("The user $user is not allowed to submit collections")
 
 class UserCanNotSubmitToCollectionException(
     user: String,
-    collection: String
+    collection: String,
 ) : InvalidPermissionsException("The user $user is not allowed to submit to $collection collection")
 
 class UserCanNotDelete(
     accNo: String,
-    user: String
-) : InvalidPermissionsException("The user {$user} is not allowed to delete the submission $accNo")
+    user: String,
+) : InvalidPermissionsException("The user $user is not allowed to delete the submission $accNo")
 
 class UserCanNotRelease(
     accNo: String,
-    user: String
-) : InvalidPermissionsException("The user {$user} is not allowed to release the submission $accNo")
-
-class UserCanNotUnrelease(
-    accNo: String,
-    user: String
-) : InvalidPermissionsException("The user {$user} is not allowed to un-release the submission $accNo")
+    user: String,
+) : InvalidPermissionsException("The user $user is not allowed to release the submission $accNo")

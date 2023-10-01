@@ -1,5 +1,6 @@
 import TestVersions.AssertJVersion
 import TestVersions.AwaitilityVersion
+import TestVersions.FtpServerVersion
 import TestVersions.JaxbApiVersion
 import TestVersions.JsonAssertVersion
 import TestVersions.JsonPathAssertVersion
@@ -8,6 +9,7 @@ import TestVersions.JunitExtensionsVersion
 import TestVersions.JunitVersion
 import TestVersions.MockKVersion
 import TestVersions.RabbitmqMockVersion
+import TestVersions.Slf4jVersion
 import TestVersions.TestContainerS3mockVersion
 import TestVersions.TestContainerVersion
 import TestVersions.WiremockVersion
@@ -36,6 +38,7 @@ import Versions.MongockVersion
 import Versions.MySqlVersion
 import Versions.OkHttpLoggingVersion
 import Versions.PoiVersion
+import Versions.ReactorNettyVersion
 import Versions.Retrofit2Version
 import Versions.RxJava2Version
 import Versions.S3Version
@@ -63,6 +66,8 @@ object TestVersions {
     const val TestContainerVersion = "1.16.2"
     const val TestContainerS3mockVersion = "2.11.0"
     const val AwaitilityVersion = "4.2.0"
+    const val FtpServerVersion = "1.2.0"
+    const val Slf4jVersion = "2.0.7"
 }
 
 object Versions {
@@ -105,12 +110,14 @@ object Versions {
     const val Log4JVersion = "1.7.29"
     const val JavaValidationApiVersion = "2.0.1.Final"
     const val ZipUtilVersion = "1.15"
+    const val ReactorNettyVersion = "1.1.8"
 }
 
 object TestDependencies {
     const val AssertJ = "org.assertj:assertj-core:$AssertJVersion"
     const val MockK = "io.mockk:mockk:$MockKVersion"
     const val KotlinTestJunit = "org.jetbrains.kotlin:kotlin-test-junit:$KotlinVersion"
+    const val KotlinCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:$KotlinCoroutinesVersion"
 
     const val Junit5Console = "org.junit.platform:junit-platform-console:$JunitEngineVersion"
     const val Junit = "org.junit.jupiter:junit-jupiter:$JunitVersion"
@@ -130,6 +137,9 @@ object TestDependencies {
 
     const val H2 = "com.h2database:h2:$H2Version"
     const val Awaitility = "org.awaitility:awaitility:$AwaitilityVersion"
+    const val FtpServer = "org.apache.ftpserver:ftpserver:$FtpServerVersion"
+    const val slf4jApi = "org.slf4j:slf4j-api:$Slf4jVersion"
+    const val slf4jImp = "org.slf4j:slf4j-reload4j:$Slf4jVersion"
 
     // Json/Http
     const val JsonPathAssert = "com.jayway.jsonpath:json-path-assert:$JsonPathAssertVersion"
@@ -145,7 +155,7 @@ object TestDependencies {
 }
 
 object Dependencies {
-    const val SpringWeb = "org.springframework:spring-web:$SpringVersion"
+    const val SpringWebFlux = "org.springframework:spring-webflux:$SpringVersion"
     const val SpringAutoConfigure = "org.springframework.boot:spring-boot-autoconfigure"
 
     // Web related
@@ -157,6 +167,7 @@ object Dependencies {
     const val JacksonXml = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$JacksonVersion"
     const val Retrofit2 = "com.squareup.retrofit2:retrofit:$Retrofit2Version"
     const val OkHttpLogging = "com.squareup.okhttp3:logging-interceptor:$OkHttpLoggingVersion"
+    const val ReactorNetty = "io.projectreactor.netty:reactor-netty:$ReactorNettyVersion"
 
     // Persistence
     const val MySql = "mysql:mysql-connector-java:$MySqlVersion"
@@ -186,6 +197,8 @@ object Dependencies {
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"
     const val KotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$KotlinVersion"
     const val KotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$KotlinCoroutinesVersion"
+    const val KotlinCoroutinesReactive = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$KotlinCoroutinesVersion"
+    const val KotlinCoroutinesReactor = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$KotlinCoroutinesVersion"
     const val KotlinLogging = "io.github.microutils:kotlin-logging:$KotlinLoggingVersion"
 
     // Arrow
@@ -206,12 +219,13 @@ object SpringBootDependencies {
     const val SpringBootStarter = "org.springframework.boot:spring-boot-starter"
     const val SpringBootStarterTest = "org.springframework.boot:spring-boot-starter-test"
     const val SpringBootStarterWeb = "org.springframework.boot:spring-boot-starter-web"
+    const val SpringBootStarterWebFlux = "org.springframework.boot:spring-boot-starter-webflux"
+    const val SpringBootStarterReactiveMongo = "org.springframework.boot:spring-boot-starter-data-mongodb-reactive"
     const val SpringBootStarterMongo = "org.springframework.boot:spring-boot-starter-data-mongodb"
     const val SpringBootStarterAmqp = "org.springframework.boot:spring-boot-starter-amqp"
     const val SpringBootConfigurationProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterActuator = "org.springframework.boot:spring-boot-starter-actuator"
     const val SpringBootStarterValidation = "org.springframework.boot:spring-boot-starter-validation"
-    const val SpringRetry = "org.springframework.retry:spring-retry:1.3.3"
     const val SpringBootStarterDataJpa = "org.springframework.boot:spring-boot-starter-data-jpa"
     const val SpringBootStarterConfigProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterSecurity = "org.springframework.boot:spring-boot-starter-security"
@@ -238,6 +252,7 @@ object Projects {
     const val CommonsSerializationUtil = ":commons:commons-serialization-util"
     const val CommonsTest = ":commons:commons-test"
     const val FireWebClient = ":client:fire-webclient"
+    const val FtpWebClient = ":client:ftp-webclient"
     const val SubmissionConfig = ":submission:submission-config"
     const val SubmissionFileSources = ":submission:file-sources"
     const val SubmissionPersistenceCommonApi = ":submission:persistence-common-api"

@@ -24,7 +24,7 @@ class SubmissionSubmitter(
     private val collectionValidationService: CollectionValidationService,
     private val draftService: SubmissionDraftPersistenceService,
 ) {
-    fun submit(rqt: SubmitRequest): ExtSubmission {
+    suspend fun submit(rqt: SubmitRequest): ExtSubmission {
         val submission = processRequest(rqt)
         val submitRequest = ExtSubmitRequest(submission, notifyTo = rqt.owner, rqt.draftKey)
         val (accNo, version) = submissionSubmitter.createRequest(submitRequest)
@@ -32,42 +32,42 @@ class SubmissionSubmitter(
         return submission
     }
 
-    fun createRequest(rqt: SubmitRequest): ExtSubmission {
+    suspend fun createRequest(rqt: SubmitRequest): ExtSubmission {
         val submission = processRequest(rqt)
         submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.owner, rqt.draftKey))
         return submission
     }
 
-    fun indexRequest(rqt: RequestCreated) {
+    suspend fun indexRequest(rqt: RequestCreated) {
         submissionSubmitter.indexRequest(rqt.accNo, rqt.version)
     }
 
-    fun loadRequest(rqt: RequestIndexed) {
+    suspend fun loadRequest(rqt: RequestIndexed) {
         return submissionSubmitter.loadRequest(rqt.accNo, rqt.version)
     }
 
-    fun cleanRequest(rqt: RequestLoaded) {
+    suspend fun cleanRequest(rqt: RequestLoaded) {
         submissionSubmitter.cleanRequest(rqt.accNo, rqt.version)
     }
 
-    fun processRequest(rqt: RequestCleaned) {
+    suspend fun processRequest(rqt: RequestCleaned) {
         submissionSubmitter.processRequest(rqt.accNo, rqt.version)
     }
 
-    fun checkReleased(rqt: RequestFilesCopied) {
+    suspend fun checkReleased(rqt: RequestFilesCopied) {
         submissionSubmitter.checkReleased(rqt.accNo, rqt.version)
     }
 
-    fun saveRequest(rqt: RequestCheckedReleased): ExtSubmission {
+    suspend fun saveRequest(rqt: RequestCheckedReleased): ExtSubmission {
         return submissionSubmitter.saveRequest(rqt.accNo, rqt.version)
     }
 
-    fun finalizeRequest(rqt: RequestPersisted) {
+    suspend fun finalizeRequest(rqt: RequestPersisted) {
         submissionSubmitter.finalizeRequest(rqt.accNo, rqt.version)
     }
 
     @Suppress("TooGenericExceptionCaught")
-    private fun processRequest(rqt: SubmitRequest): ExtSubmission {
+    private suspend fun processRequest(rqt: SubmitRequest): ExtSubmission {
         try {
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
 
@@ -85,17 +85,17 @@ class SubmissionSubmitter(
         }
     }
 
-    private fun acceptDraft(accNo: String, owner: String, draftKey: String) {
+    private suspend fun acceptDraft(accNo: String, owner: String, draftKey: String) {
         draftService.setAcceptedStatus(draftKey)
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACCEPTED" }
     }
 
-    private fun startProcessingDraft(accNo: String, owner: String, draftKey: String) {
+    private suspend fun startProcessingDraft(accNo: String, owner: String, draftKey: String) {
         draftService.setProcessingStatus(owner, draftKey)
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to PROCESSING" }
     }
 
-    private fun reactivateDraft(accNo: String, owner: String, draftKey: String) {
+    private suspend fun reactivateDraft(accNo: String, owner: String, draftKey: String) {
         draftService.setActiveStatus(draftKey)
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACTIVE" }
     }

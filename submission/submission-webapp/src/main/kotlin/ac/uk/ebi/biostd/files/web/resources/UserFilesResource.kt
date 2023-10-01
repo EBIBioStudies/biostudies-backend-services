@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.files.web.resources
 
-import ac.uk.ebi.biostd.files.service.UserFilesService
+import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.files.web.common.FilesMapper
 import ac.uk.ebi.biostd.files.web.common.UserPath
 import ac.uk.ebi.biostd.submission.converters.BioUser
@@ -26,15 +26,16 @@ import org.springframework.web.multipart.MultipartFile
 @PreAuthorize("isAuthenticated()")
 class UserFilesResource(
     private val filesMapper: FilesMapper,
-    private val fileManager: UserFilesService
+    private val fileServiceFactory: FileServiceFactory,
 ) {
     @GetMapping("/files/user/**")
     @ResponseBody
     fun listFiles(
         @BioUser user: SecurityUser,
-        pathDescriptor: UserPath
+        pathDescriptor: UserPath,
     ): List<UserFile> {
-        return filesMapper.asUserFiles(fileManager.listFiles(user, pathDescriptor.path))
+        val filesService = fileServiceFactory.forUser(user)
+        return filesMapper.asUserFiles(filesService.listFiles(pathDescriptor.path))
     }
 
     @GetMapping("/files/user/**", produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE], params = ["fileName"])
@@ -42,17 +43,15 @@ class UserFilesResource(
     fun downloadFile(
         @BioUser user: SecurityUser,
         @RequestParam(name = "fileName") fileName: String,
-        pathDescriptor: UserPath
+        pathDescriptor: UserPath,
     ): ResponseEntity<FileSystemResource> {
-        val fileSystemResource = FileSystemResource(
-            fileManager.getFile(user, pathDescriptor.path, fileName)
-        )
+        val filesService = fileServiceFactory.forUser(user)
+        val fileSystemResource = FileSystemResource(filesService.getFile(pathDescriptor.path, fileName))
         val contentDisposition = ContentDisposition
             .builder("inline")
             .filename(fileSystemResource.filename)
             .build()
         val headers = HttpHeaders().apply { setContentDisposition(contentDisposition) }
-
         return ResponseEntity
             .ok()
             .headers(headers)
@@ -65,22 +64,31 @@ class UserFilesResource(
     fun uploadFile(
         @BioUser user: SecurityUser,
         pathDescriptor: UserPath,
-        @RequestParam("files") files: Array<MultipartFile>
-    ) = fileManager.uploadFiles(user, pathDescriptor.path, files.toList())
+        @RequestParam("files") files: Array<MultipartFile>,
+    ) {
+        val filesService = fileServiceFactory.forUser(user)
+        filesService.uploadFiles(pathDescriptor.path, files.toList())
+    }
 
     @DeleteMapping("/files/user/**")
     @ResponseStatus(value = HttpStatus.OK)
     fun deleteFile(
         @BioUser user: SecurityUser,
         @RequestParam(name = "fileName") fileName: String,
-        pathDescriptor: UserPath
-    ) = fileManager.deleteFile(user, pathDescriptor.path, fileName)
+        pathDescriptor: UserPath,
+    ) {
+        val filesService = fileServiceFactory.forUser(user)
+        filesService.deleteFile(pathDescriptor.path, fileName)
+    }
 
     @PostMapping("/folder/user/**")
     @ResponseStatus(value = HttpStatus.OK)
     fun createFolder(
         @BioUser user: SecurityUser,
         @RequestParam(name = "folder") folder: String,
-        pathDescriptor: UserPath
-    ) = fileManager.createFolder(user, pathDescriptor.path, folder)
+        pathDescriptor: UserPath,
+    ) {
+        val filesService = fileServiceFactory.forUser(user)
+        filesService.createFolder(pathDescriptor.path, folder)
+    }
 }

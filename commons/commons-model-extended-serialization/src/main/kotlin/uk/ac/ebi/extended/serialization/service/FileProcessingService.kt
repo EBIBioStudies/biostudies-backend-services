@@ -9,6 +9,8 @@ import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.use
 import ebi.ac.uk.util.collections.mapLeft
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
@@ -34,21 +36,24 @@ fun iterateSections(section: ExtSection, process: (file: ExtSection) -> TrackSec
     )
 }
 
+typealias ProcessFunction = suspend (file: ExtFile) -> ExtFile
+typealias ProcessFunctionIndexed = (file: ExtFile, index: Int) -> ExtFile
+
 class FileProcessingService(
     private val serializationService: ExtSerializationService,
     private val fileResolver: FilesResolver,
 ) {
-    fun processFilesIndexed(
+    suspend fun processFilesIndexed(
         submission: ExtSubmission,
-        processFile: (file: ExtFile, index: Int) -> ExtFile,
+        processFile: ProcessFunctionIndexed,
     ): ExtSubmission {
         val index = AtomicInteger()
         return processFiles(submission) { file -> processFile(file, index.incrementAndGet()) }
     }
 
-    fun processFiles(
+    suspend fun processFiles(
         submission: ExtSubmission,
-        processFile: (file: ExtFile) -> ExtFile,
+        processFile: ProcessFunction,
     ): ExtSubmission {
         val newSection = processSectionFiles(
             submission.accNo,
@@ -61,54 +66,55 @@ class FileProcessingService(
         )
     }
 
-    private fun processSectionFiles(
+    private suspend fun processSectionFiles(
         subAccNo: String,
         subVersion: Int,
         section: ExtSection,
-        processFile: (file: ExtFile) -> ExtFile,
+        processFile: ProcessFunction,
     ): ExtSection = section.copy(
         files = section.files.map { processFiles(it, processFile) },
         fileList = section.fileList?.let { processFileList(subAccNo, subVersion, it, processFile) },
         sections = section.sections.map { processSections(it, subAccNo, subVersion, processFile) }
     )
 
-    private fun processFileList(
+    private suspend fun processFileList(
         subAccNo: String,
         subVersion: Int,
         fileList: ExtFileList,
-        processFile: (file: ExtFile) -> ExtFile,
+        processFile: ProcessFunction,
     ): ExtFileList {
         val newFileList = fileResolver.createExtEmptyFile(subAccNo, subVersion, fileList.fileName)
         return fileList.copy(
             file = copyFile(fileList.file, newFileList, processFile),
-            pageTabFiles = fileList.pageTabFiles.map(processFile),
+            pageTabFiles = fileList.pageTabFiles.map { processFile(it) },
         )
     }
 
-    private fun copyFile(inputFile: File, outputFile: File, processFile: (file: ExtFile) -> ExtFile): File {
+    private suspend fun copyFile(inputFile: File, outputFile: File, processFile: ProcessFunction): File {
         use(
             inputFile.inputStream(),
             outputFile.outputStream()
         ) { input, output ->
-            serializationService.serialize(serializationService.deserializeList(input).map { processFile(it) }, output)
+            val files = serializationService.deserializeList(input).asFlow()
+            serializationService.serialize(files.map { processFile(it) }, output)
         }
 
         return outputFile
     }
 
-    private fun processFiles(
+    private suspend fun processFiles(
         either: Either<ExtFile, ExtFileTable>,
-        processFile: (file: ExtFile) -> ExtFile,
+        processFile: ProcessFunction,
     ) = either.bimap(
         { extFile -> processFile(extFile) },
         { extTable -> extTable.copy(files = extTable.files.map { processFile(it) }) }
     )
 
-    private fun processSections(
+    private suspend fun processSections(
         subSection: Either<ExtSection, ExtSectionTable>,
         subAccNo: String,
         subVersion: Int,
-        processFile: (file: ExtFile) -> ExtFile,
+        processFile: ProcessFunction,
     ) = subSection.bimap(
         { processSectionFiles(subAccNo, subVersion, it, processFile) },
         { it.copy(sections = it.sections.map { sub -> processSectionFiles(subAccNo, subVersion, sub, processFile) }) }

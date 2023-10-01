@@ -14,7 +14,7 @@ object PageTabFileReader {
         return if (file.extension == "xlsx") asTsv(file) else file
     }
 
-    fun getFileListFile(
+    suspend fun getFileListFile(
         fileListName: String,
         filesSource: FileSourcesList,
     ): File = when (val file = filesSource.getFileList(fileListName)) {

@@ -8,12 +8,16 @@ import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.use
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.canonicalName
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
 
@@ -22,13 +26,13 @@ class ToExtFileListMapper(
     private val serializationService: SerializationService,
     private val filesResolver: FilesResolver,
 ) {
-    fun convert(accNo: String, version: Int, fileList: FileList, fileSource: FileSourcesList): ExtFileList {
+    suspend fun convert(accNo: String, version: Int, fileList: FileList, fileSource: FileSourcesList): ExtFileList {
         val name = fileList.canonicalName
         val target = filesResolver.createExtEmptyFile(accNo, version, name)
         return ExtFileList(name, toExtFile(accNo, fileList.file, SubFormat.fromFile(fileList.file), target, fileSource))
     }
 
-    private fun toExtFile(
+    private suspend fun toExtFile(
         accNo: String,
         source: File,
         format: SubFormat,
@@ -36,14 +40,16 @@ class ToExtFileListMapper(
         sources: FileSourcesList,
     ): File {
 
-        fun copy(
+        suspend fun copy(
             input: InputStream,
             format: SubFormat,
             target: OutputStream,
         ) {
+            val idx = AtomicInteger(0)
             val sourceFiles = serializationService.deserializeFileList(input, format)
-                .onEachIndexed { idx, bioFile -> logger.info { "$accNo, Mapping file $idx, path='${bioFile.path}'" } }
-                .map { sources.toExtFile(it) }
+                .asFlow()
+                .onEach { file -> logger.info { "$accNo, Mapping file ${idx.getAndIncrement()}, path='${file.path}'" } }
+                .map { sources.getExtFile(it.path, it.type, it.attributes) }
             val files = extSerializationService.serialize(sourceFiles, target)
             if (files < 1) throw InvalidFileListException.emptyFileList(source.name)
         }

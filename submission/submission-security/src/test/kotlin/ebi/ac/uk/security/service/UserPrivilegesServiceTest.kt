@@ -10,9 +10,11 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -30,7 +32,7 @@ class UserPrivilegesServiceTest(
     @MockK private val userRepository: UserDataRepository,
     @MockK private val queryService: SubmissionMetaQueryService,
     @MockK private val tagsDataRepository: AccessTagDataRepo,
-    @MockK private val userPermissionsService: UserPermissionsService
+    @MockK private val userPermissionsService: UserPermissionsService,
 ) {
     private val testInstance =
         UserPrivilegesService(userRepository, tagsDataRepository, queryService, userPermissionsService)
@@ -76,7 +78,7 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `resubmit as super user`() {
+    fun `resubmit as super user`() = runTest {
         assertThat(testInstance.canResubmit("superuser@mail.com", "accNo")).isTrue
     }
 
@@ -92,65 +94,65 @@ class UserPrivilegesServiceTest(
 
     @Test
     fun `author user with tag access resubmits a submission that is in a collection`(
-        @MockK basicSubmission: BasicSubmission
-    ) {
+        @MockK basicSubmission: BasicSubmission,
+    ) = runTest {
         every { basicSubmission.owner } returns "author@mail.com"
-        every { queryService.findLatestBasicByAccNo("accNo") } returns basicSubmission
+        coEvery { queryService.findLatestBasicByAccNo("accNo") } returns basicSubmission
 
         assertThat(testInstance.canResubmit("author@mail.com", "accNo")).isTrue
     }
 
     @Test
-    fun `super user deletes a submission`() {
+    fun `super user deletes a submission`() = runTest {
         assertThat(testInstance.canDelete("superuser@mail.com", "accNo")).isTrue
     }
 
     @Test
     fun `author user deletes own private submission`(
-        @MockK basicSubmission: BasicSubmission
-    ) {
+        @MockK basicSubmission: BasicSubmission,
+    ) = runTest {
         every { basicSubmission.released } returns false
         every { basicSubmission.owner } returns "author@mail.com"
-        every { queryService.findLatestBasicByAccNo("accNo") } returns basicSubmission
+        coEvery { queryService.findLatestBasicByAccNo("accNo") } returns basicSubmission
 
         assertThat(testInstance.canDelete("author@mail.com", "accNo")).isTrue
     }
 
     @Test
     fun `author user deletes own public submission`(
-        @MockK basicSubmission: BasicSubmission
-    ) {
+        @MockK basicSubmission: BasicSubmission,
+    ) = runTest {
         every { basicSubmission.released } returns true
         every { basicSubmission.owner } returns "author@mail.com"
-        every { queryService.findLatestBasicByAccNo("accNo") } returns basicSubmission
+        coEvery { queryService.findLatestBasicByAccNo("accNo") } returns basicSubmission
 
         assertThat(testInstance.canDelete("author@mail.com", "accNo")).isFalse
     }
 
     @Test
-    fun `other author user deletes not own submission`() {
+    fun `other author user deletes not own submission`() = runTest {
         assertThat(testInstance.canDelete("author@mail.com", "accNo")).isFalse
     }
 
     @Test
-    fun `other author user deletes private submission with tag`() {
-        every { queryService.getAccessTags("accNo") } returns listOf("A-Collection")
+    fun `other author user deletes private submission with tag`() = runTest {
+        coEvery { queryService.getAccessTags("accNo") } returns listOf("A-Collection")
         every { userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Collection", DELETE) } returns true
 
         assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isTrue
     }
 
     @Test
-    fun `other author user deletes public submission with tag`() {
+    fun `other author user deletes public submission with tag`() = runTest {
         every { basicSubmission.released } returns true
-        every { queryService.getAccessTags("accNo") } returns listOf("A-Collection")
+        coEvery { queryService.getAccessTags("accNo") } returns listOf("A-Collection")
         every { userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Collection", DELETE) } returns true
 
         assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isFalse
     }
 
     @Test
-    fun `other author user deletes submission without tag`() {
+    fun `other author user deletes submission without tag`() = runTest {
         assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isFalse
     }
 
@@ -171,14 +173,14 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `super user unrelease`() {
-        assertThat(testInstance.canUnrelease("superuser@mail.com")).isTrue
+    fun `super user suppress`() {
+        assertThat(testInstance.canSuppress("superuser@mail.com")).isTrue
     }
 
     @Test
-    fun `regular user unrelease`() {
+    fun `regular user suppress`() {
         every { superuser.superuser } returns false
-        assertThat(testInstance.canUnrelease("superuser@mail.com")).isFalse
+        assertThat(testInstance.canSuppress("superuser@mail.com")).isFalse
     }
 
     private fun initUsers() {
@@ -200,7 +202,7 @@ class UserPrivilegesServiceTest(
     private fun initSubmissionQueries() {
         every { basicSubmission.released } returns false
         every { basicSubmission.owner } returns "nottheauthor@mail.com"
-        every { queryService.getAccessTags("accNo") } returns emptyList()
-        every { queryService.findLatestBasicByAccNo("accNo") } returns basicSubmission
+        coEvery { queryService.getAccessTags("accNo") } returns emptyList()
+        coEvery { queryService.findLatestBasicByAccNo("accNo") } returns basicSubmission
     }
 }

@@ -32,39 +32,44 @@ class SubmissionQueryResource(
 ) {
     @GetMapping("/{accNo}.json", produces = [APPLICATION_JSON])
     @ResponseBody
-    fun asJson(@PathVariable accNo: String) = submissionService.getSubmission(accNo, SubFormat.JSON)
+    suspend fun asJson(@PathVariable accNo: String) = submissionService.getSubmission(accNo, SubFormat.JSON)
 
     @GetMapping("/{accNo}.xml", produces = [TEXT_XML])
-    fun asXml(@PathVariable accNo: String) = submissionService.getSubmission(accNo, SubFormat.XML)
+    suspend fun asXml(@PathVariable accNo: String) = submissionService.getSubmission(accNo, SubFormat.XML)
 
     @GetMapping("/{accNo}.tsv", produces = [TEXT_PLAIN])
-    fun asTsv(@PathVariable accNo: String) = submissionService.getSubmission(accNo, SubFormat.TSV)
+    suspend fun asTsv(@PathVariable accNo: String) = submissionService.getSubmission(accNo, SubFormat.TSV)
 
     @GetMapping("/{accNo}/{fileList}.tsv")
-    fun asTsv(
+    suspend fun asTsv(
         @PathVariable accNo: String,
         @PathVariable fileList: String,
     ): ResponseEntity<Resource> = fileListFile(accNo, fileList, SubFormat.TSV)
 
     @GetMapping("/{accNo}/{fileList}.xml")
-    fun asXml(
+    suspend fun asXml(
         @PathVariable accNo: String,
         @PathVariable fileList: String,
     ): ResponseEntity<Resource> = fileListFile(accNo, fileList, SubFormat.XML)
 
     @GetMapping("/{accNo}/{fileList}.json")
-    fun asJson(
+    suspend fun asJson(
         @PathVariable accNo: String,
         @PathVariable fileList: String,
     ): ResponseEntity<Resource> = fileListFile(accNo, fileList, SubFormat.JSON)
 
     @GetMapping
-    fun getSubmissions(
+    suspend fun getSubmissions(
         @BioUser user: SecurityUser,
         @ModelAttribute request: SubmissionFilterRequest,
-    ): List<SubmissionDto> = submissionsWebHandler.getSubmissions(user, request.asFilter()).map { it.asDto() }
+    ): List<SubmissionDto> =
+        submissionsWebHandler.getSubmissions(request.asFilter(user.email, user.superuser)).map { it.asDto() }
 
-    private fun fileListFile(accNo: String, fileListName: String, subFormat: SubFormat): ResponseEntity<Resource> {
+    private suspend fun fileListFile(
+        accNo: String,
+        fileListName: String,
+        subFormat: SubFormat,
+    ): ResponseEntity<Resource> {
         val fileList = submissionService.getFileList(accNo, fileListName, subFormat)
         val resource = ByteArrayResource(Files.readAllBytes(fileList.toPath()))
         return ResponseEntity.ok()

@@ -31,6 +31,7 @@ import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -65,7 +66,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `9-1 XLS submission`() {
+    fun `9-1 XLS submission`() = runTest {
         val excelPageTab = excel(File("${tempFolder.absolutePath}/ExcelSubmission.xlsx")) {
             sheet("page tab") {
                 row {
@@ -114,7 +115,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `9-1-2 XLS submission with line break`() {
+    fun `9-1-2 XLS submission with line break`() = runTest {
         val excelPageTab = excel(File("${tempFolder.absolutePath}/ExcelSubmission-2.xlsx")) {
             sheet("page tab") {
                 row {
@@ -149,7 +150,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `9-2 TSV submission`() {
+    fun `9-2 TSV submission`() = runTest {
         val submission = tsv {
             line("Submission", "S-TEST1")
             line("Title", "Test Submission")
@@ -177,7 +178,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `9-3 JSON submission`() {
+    fun `9-3 JSON submission`() = runTest {
         val submission = jsonObj {
             "accno" to "S-TEST2"
             "attributes" to jsonArray({
@@ -219,7 +220,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `9-4 XML submission`() {
+    fun `9-4 XML submission`() = runTest {
         val submission = xml("submission") {
             attribute("accno", "S-TEST3")
             "attributes" {
@@ -268,7 +269,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `9-5 direct submission with overriden attributes`() {
+    fun `9-5 direct submission with overriden attributes`() = runTest {
         val submission = tempFolder.createFile(
             "submission.tsv",
             tsv {
@@ -309,7 +310,7 @@ class MultipartFileSubmissionApiTest(
             .withMessageContaining("Unsupported page tab format submission.txt")
     }
 
-    private fun assertSubmissionFiles(accNo: String, testFile: String) {
+    private suspend fun assertSubmissionFiles(accNo: String, testFile: String) {
         val createdSub = submissionRepository.getExtByAccNo(accNo)
         val subFolder = "$submissionPath/${createdSub.relPath}"
 

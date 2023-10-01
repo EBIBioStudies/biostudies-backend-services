@@ -43,9 +43,15 @@ app:
   security:
     tokenHash: biostd-test
     environment: TEST
-    filesDirPath:
-    magicDirPath:
     requireActivation: false
+    filesProperties:
+      defaultMode: NFS
+      filesDirPath:
+      magicDirPath:
+      ftpUser:
+      ftpPassword:
+      ftpUrl:
+      ftpPort:
   validator:
     euToxRiskValidationApi: # EU-ToxRisk validation API
   featureFlags:

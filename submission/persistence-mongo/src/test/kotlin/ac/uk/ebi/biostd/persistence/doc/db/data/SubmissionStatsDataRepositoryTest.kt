@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeEach
@@ -32,12 +33,12 @@ class SubmissionStatsDataRepositoryTest {
     lateinit var testInstance: SubmissionStatsDataRepository
 
     @BeforeEach
-    fun beforeEach() {
+    fun beforeEach() = runTest {
         testInstance.deleteAll()
     }
 
     @Test
-    fun `update non existing stat`() {
+    fun `update non existing stat`() = runTest {
         val accNo = "S-BSST2"
         testInstance.updateOrRegisterStat(SingleSubmissionStat(accNo, 4L, VIEWS))
 
@@ -47,7 +48,7 @@ class SubmissionStatsDataRepositoryTest {
     }
 
     @Test
-    fun `update existing stat`() {
+    fun `update existing stat`() = runTest {
         val accNo = "S-BSST1"
         testInstance.save(DocSubmissionStats(ObjectId(), accNo, mapOf(FILES_SIZE.value to 1L)))
         testInstance.updateOrRegisterStat(SingleSubmissionStat(accNo, 4L, VIEWS))
@@ -59,7 +60,7 @@ class SubmissionStatsDataRepositoryTest {
     }
 
     @Test
-    fun `increment stat`() {
+    fun `increment stat`() = runTest {
         val accNo = "S-BSST3"
         val increments = listOf(SingleSubmissionStat(accNo, 4L, VIEWS), SingleSubmissionStat(accNo, 8L, VIEWS))
 

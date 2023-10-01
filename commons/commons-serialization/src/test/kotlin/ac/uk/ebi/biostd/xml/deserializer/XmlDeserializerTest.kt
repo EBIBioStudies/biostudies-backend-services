@@ -67,11 +67,23 @@ class XmlDeserializerTest {
     }
 
     @Test
+    fun `deserialize directory`() {
+        val xml = xml("file") {
+            "path" { -"inner/folder" }
+        }.toString()
+
+        assertThat(testInstance.deserialize(xml, BioFile::class.java)).isEqualTo(BioFile("inner/folder"))
+    }
+
+    @Test
     fun `deserialize files table`() {
-        val expected = FilesTable(listOf(BioFile("file1.txt")))
+        val expected = FilesTable(listOf(BioFile("file1.txt"), BioFile("inner/folder/")))
         val xml = xml("table") {
             "file" {
                 "path" { -"file1.txt" }
+            }
+            "file" {
+                "path" { -"inner/folder/" }
             }
         }.toString()
 

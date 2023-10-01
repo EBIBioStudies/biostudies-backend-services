@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.integration
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -11,14 +12,12 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDraftDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestFilesRepository
-import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtFileListMapper
-import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.CollectionMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoPersistenceService
+import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionRequestFilesMongoPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionRequestMongoPersistenceService
@@ -34,12 +33,11 @@ import uk.ac.ebi.serialization.common.FilesResolver
     MongoDbReposConfig::class,
     MongoDbQueryConfig::class,
     SerializationConfiguration::class,
-    ToSubmissionConfig::class
+    ToExtSubmissionConfig::class,
 )
 class MongoDbServicesConfig {
     @Bean
     internal fun submissionQueryService(
-        fileListDocFileRepository: FileListDocFileDocDataRepository,
         submissionDocDataRepository: SubmissionDocDataRepository,
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
         serializationService: ExtSerializationService,
@@ -48,9 +46,13 @@ class MongoDbServicesConfig {
         submissionDocDataRepository,
         toExtSubmissionMapper,
         serializationService,
-        fileListDocFileRepository,
         submissionRequestDocDataRepository,
     )
+
+    @Bean
+    internal fun submissionFilesPersistenceService(
+        fileListDocFileRepository: FileListDocFileDocDataRepository,
+    ): SubmissionFilesPersistenceService = SubmissionMongoFilesPersistenceService(fileListDocFileRepository)
 
     @Bean
     internal fun submissionRequestPersistenceService(
@@ -59,7 +61,7 @@ class MongoDbServicesConfig {
     ): SubmissionRequestPersistenceService = SubmissionRequestMongoPersistenceService(serializationService, requestRepo)
 
     @Bean
-    internal fun submissionFilesPersistenceService(
+    internal fun submissionRequestFilesPersistenceService(
         extSerializationService: ExtSerializationService,
         requestRepository: SubmissionRequestDocDataRepository,
         requestFilesRepository: SubmissionRequestFilesRepository,
@@ -73,23 +75,6 @@ class MongoDbServicesConfig {
     internal fun projectDataService(
         submissionDocDataRepository: SubmissionDocDataRepository,
     ): CollectionDataService = CollectionMongoDataService(submissionDocDataRepository)
-
-    @Bean
-    internal fun toExtFileListMapper(
-        fileListDocFileRepository: FileListDocFileRepository,
-        extSerializationService: ExtSerializationService,
-        extFilesResolver: FilesResolver,
-    ): ToExtFileListMapper = ToExtFileListMapper(fileListDocFileRepository, extSerializationService, extFilesResolver)
-
-    @Bean
-    internal fun toExtSectionMapper(
-        toExtFileListMapper: ToExtFileListMapper,
-    ): ToExtSectionMapper = ToExtSectionMapper(toExtFileListMapper)
-
-    @Bean
-    internal fun toExtSubmissionMapper(
-        toExtSectionMapper: ToExtSectionMapper,
-    ): ToExtSubmissionMapper = ToExtSubmissionMapper(toExtSectionMapper)
 
     @Bean
     internal fun submissionDraftMongoService(

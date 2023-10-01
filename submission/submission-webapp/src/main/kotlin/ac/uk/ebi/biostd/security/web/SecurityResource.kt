@@ -45,8 +45,9 @@ class SecurityResource(
 
     @PostMapping(value = ["/check-registration"])
     @ResponseBody
-    fun checkUser(@Valid @RequestBody register: CheckUserRequest): SecurityUser =
-        securityQueryService.getOrCreateInactive(register.userEmail, register.userName)
+    fun checkUser(@Valid @RequestBody register: CheckUserRequest): SecurityUser {
+        return securityQueryService.getOrCreateInactive(register.userEmail, register.userName)
+    }
 
     @PostMapping(value = ["/signin", "/login"])
     @ResponseBody

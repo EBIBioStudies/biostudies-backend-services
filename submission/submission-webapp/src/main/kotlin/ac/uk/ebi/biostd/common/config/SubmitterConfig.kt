@@ -43,7 +43,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Lazy
-import org.springframework.web.client.RestTemplate
+import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
@@ -69,8 +69,12 @@ class SubmitterConfig(
     fun requestLoader(
         filesRequestService: SubmissionRequestFilesPersistenceService,
         requestService: SubmissionRequestPersistenceService,
-    ): SubmissionRequestLoader =
-        SubmissionRequestLoader(filesRequestService, requestService, File(properties.fireTempDirPath))
+    ): SubmissionRequestLoader = SubmissionRequestLoader(
+        properties.persistence.concurrency,
+        filesRequestService,
+        requestService,
+        File(properties.fireTempDirPath)
+    )
 
     @Bean
     fun requestSaver(
@@ -85,7 +89,7 @@ class SubmitterConfig(
             fileProcessingService,
             persistenceService,
             filesRequestService,
-            eventsPublisherService
+            eventsPublisherService,
         )
     }
 
@@ -95,6 +99,7 @@ class SubmitterConfig(
         requestService: SubmissionRequestPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
     ): SubmissionRequestProcessor = SubmissionRequestProcessor(
+        properties.persistence.concurrency,
         storageService,
         requestService,
         filesRequestService,
@@ -109,6 +114,7 @@ class SubmitterConfig(
         submissionPersistenceService: SubmissionPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
     ): SubmissionRequestReleaser = SubmissionRequestReleaser(
+        properties.persistence.concurrency,
         fileStorageService,
         serializationService,
         submissionPersistenceQueryService,
@@ -136,11 +142,13 @@ class SubmitterConfig(
     fun submissionRequestFinalizer(
         storageService: FileStorageService,
         serializationService: ExtSerializationService,
+        eventsPublisherService: EventsPublisherService,
         queryService: SubmissionPersistenceQueryService,
         requestService: SubmissionRequestPersistenceService,
     ): SubmissionRequestFinalizer = SubmissionRequestFinalizer(
         storageService,
         serializationService,
+        eventsPublisherService,
         queryService,
         requestService,
     )
@@ -254,7 +262,7 @@ class SubmitterConfig(
     @Configuration
     class ValidatorConfig {
         @Bean
-        fun restTemplate(): RestTemplate = RestTemplate()
+        fun webClient(): WebClient = WebClient.builder().build()
 
         @Bean
         fun fileListValidator(
@@ -265,9 +273,9 @@ class SubmitterConfig(
 
         @Bean(name = ["EuToxRiskValidator"])
         fun euToxRiskValidator(
-            restTemplate: RestTemplate,
+            client: WebClient,
             applicationProperties: ApplicationProperties,
             fireClient: FireClient,
-        ): CollectionValidator = EuToxRiskValidator(restTemplate, applicationProperties.validator, fireClient)
+        ): CollectionValidator = EuToxRiskValidator(client, applicationProperties.validator, fireClient)
     }
 }

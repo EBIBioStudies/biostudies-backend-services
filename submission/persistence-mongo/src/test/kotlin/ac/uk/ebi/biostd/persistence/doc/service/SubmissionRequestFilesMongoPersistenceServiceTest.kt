@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestFilesRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
@@ -11,6 +11,9 @@ import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -47,15 +50,15 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
         )
 
     @AfterEach
-    fun afterEach() {
+    fun afterEach() = runBlocking {
         tempFolder.clean()
-        requestFilesRepository.deleteAll()
+        requestRepository.deleteAll()
     }
 
     @Nested
     inner class Registration {
         @Test
-        fun `register request file`() {
+        fun `register request file`() = runTest {
             val extFile = createNfsFile("requested.txt", "Files/requested.txt", tempFolder.createFile("requested.txt"))
             val requestFile = SubmissionRequestFile("S-BSST0", 1, 1, "requested.txt", extFile)
 
@@ -66,7 +69,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
         }
 
         @Test
-        fun `update request file`() {
+        fun `update request file`() = runTest {
             val first = createNfsFile("first.txt", "Files/first.txt", tempFolder.createFile("first.txt"))
             val second = createNfsFile("second.txt", "Files/second.txt", tempFolder.createFile("second.txt"))
 
@@ -89,7 +92,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
         private val extFile4 = createNfsFile("file4.txt", "Files/file4.txt", tempFolder.createFile("file4.txt"))
 
         @BeforeEach
-        fun beforeEach() {
+        fun beforeEach() = runBlocking {
             val requestFile1 = SubmissionRequestFile("S-BSST1", 1, 1, "file1.txt", extFile1)
             val requestFile2 = SubmissionRequestFile("S-BSST1", 1, 2, "file2.txt", extFile2)
             val requestFile3 = SubmissionRequestFile("S-BSST1", 1, 3, "file3.txt", extFile3)
@@ -103,7 +106,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
 
         @Test
         fun `get all submission request files`() {
-            val files = testInstance.getSubmissionRequestFiles("S-BSST1", 1, 0).toList()
+            val files = runBlocking { testInstance.getSubmissionRequestFiles("S-BSST1", 1, 0).toList() }
             assertThat(files).hasSize(4)
             assertThat(files[0].index).isEqualTo(1)
             assertThat(files[0].file).isEqualTo(extFile1)
@@ -117,7 +120,7 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
 
         @Test
         fun `get submission request files starting at N`() {
-            val files = testInstance.getSubmissionRequestFiles("S-BSST1", 1, 2).toList()
+            val files = runBlocking { testInstance.getSubmissionRequestFiles("S-BSST1", 1, 2).toList() }
             assertThat(files).hasSize(2)
             assertThat(files[0].index).isEqualTo(3)
             assertThat(files[0].file).isEqualTo(extFile3)

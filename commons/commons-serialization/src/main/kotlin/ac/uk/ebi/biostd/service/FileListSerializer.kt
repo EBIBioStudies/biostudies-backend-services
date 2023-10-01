@@ -19,7 +19,7 @@ internal class FileListSerializer(
         return serializer.deserializeFileList(inputStream, format)
     }
 
-    internal fun deserializeFileList(submission: Submission, source: FileSourcesList): Submission {
+    internal suspend fun deserializeFileList(submission: Submission, source: FileSourcesList): Submission {
         submission.allSections()
             .filter { section -> section.fileListName != null }
             .map { section -> section to section.fileListName!! }
@@ -27,7 +27,7 @@ internal class FileListSerializer(
         return submission
     }
 
-    private fun getFileList(name: String, fileSource: FileSourcesList): FileList {
+    private suspend fun getFileList(name: String, fileSource: FileSourcesList): FileList {
         val file = getFileListFile(name, fileSource)
         file.inputStream().use { checkFileList(name, SubFormat.fromFile(file), it) }
         return FileList(name, file)
@@ -44,6 +44,7 @@ internal class FileListSerializer(
     private fun errorMsg(exception: Throwable) = when (exception) {
         is ClassCastException, is InvalidChunkSizeException,
         -> "The provided page tab doesn't match the file list format"
+
         else -> exception.message.orEmpty()
     }
 }

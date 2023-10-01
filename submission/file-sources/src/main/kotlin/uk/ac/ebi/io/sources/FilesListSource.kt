@@ -6,12 +6,12 @@ import ebi.ac.uk.model.Attribute
 import uk.ac.ebi.io.builder.createFile
 import java.io.File
 
-class FilesListSource(private val files: List<File>) : FilesSource {
+internal class FilesListSource(private val files: List<File>) : FilesSource {
     override val description: String = "Request files [${files.joinToString { it.name }}]"
 
-    override fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+    override suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
         return files.firstOrNull { it.name == path }?.let { createFile(path, it, attributes) }
     }
 
-    override fun getFileList(path: String): File? = files.firstOrNull { it.name == path }
+    override suspend fun getFileList(path: String): File? = files.firstOrNull { it.name == path }
 }

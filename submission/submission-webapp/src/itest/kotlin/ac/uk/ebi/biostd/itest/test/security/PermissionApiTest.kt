@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.itest.test.security
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
+import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -91,7 +92,8 @@ class PermissionApiTest(
             fullName = "fullName",
             secret = "secret",
             keyTime = 2,
-            passwordDigest = ByteArray(1)
+            passwordDigest = ByteArray(1),
+            storageMode = StorageMode.NFS
         )
         val dbAccessTag = DbAccessTag(id = 2, name = "accessTagName")
         const val fakeUser = "fakeUser"
