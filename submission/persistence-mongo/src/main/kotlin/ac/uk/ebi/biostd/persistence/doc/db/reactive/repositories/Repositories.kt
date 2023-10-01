@@ -15,7 +15,6 @@ import org.bson.types.ObjectId
 import org.springframework.data.domain.Pageable
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
-import reactor.core.publisher.Flux
 import java.time.Instant
 
 interface SubmissionDraftRepository : CoroutineCrudRepository<DocSubmissionDraft, String> {
@@ -29,7 +28,7 @@ interface SubmissionDraftRepository : CoroutineCrudRepository<DocSubmissionDraft
         userId: String,
         status: DocSubmissionDraft.DraftStatus,
         pageRequest: Pageable,
-    ): Flux<DocSubmissionDraft>
+    ): Flow<DocSubmissionDraft>
 
     suspend fun getById(id: String): DocSubmissionDraft
 
@@ -45,7 +44,7 @@ interface SubmissionStatsRepository : CoroutineCrudRepository<DocSubmissionStats
     suspend fun findByAccNoAndStatType(accNo: String, statType: SubmissionStatType): DocSubmissionStats?
 
     @Query("{ 'stats.?0': { \$exists: true } }")
-    fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Flux<DocSubmissionStats>
+    fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Flow<DocSubmissionStats>
 }
 
 interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, ObjectId> {
@@ -58,7 +57,7 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
 
     suspend fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
 
-    fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): Flux<DocSubmission>
+    fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): Flow<DocSubmission>
 
     suspend fun findFirstByAccNoAndVersionLessThanOrderByVersion(accNo: String, version: Int = 0): DocSubmission?
 
@@ -81,15 +80,15 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
 
     suspend fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
 
-    fun findByStatusIn(status: Set<RequestStatus>): Flux<DocSubmissionRequest>
+    fun findByStatusIn(status: Set<RequestStatus>): Flow<DocSubmissionRequest>
 
     fun findByStatusInAndModificationTimeLessThan(
         status: Set<RequestStatus>,
         since: Instant,
-    ): Flux<DocSubmissionRequest>
+    ): Flow<DocSubmissionRequest>
 
     suspend fun getById(id: ObjectId): DocSubmissionRequest
-    suspend fun findByAccNo(accNo: String): Flux<DocSubmissionRequest>
+    suspend fun findByAccNo(accNo: String): Flow<DocSubmissionRequest>
 }
 
 interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissionRequestFile, ObjectId> {
@@ -98,7 +97,7 @@ interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissi
         accNo: String,
         version: Int,
         index: Int,
-    ): Flux<DocSubmissionRequestFile>
+    ): Flow<DocSubmissionRequestFile>
 
     suspend fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
 }
