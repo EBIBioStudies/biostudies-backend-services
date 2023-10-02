@@ -12,7 +12,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACCEPTED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft.DraftStatus.ACTIVE
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria.where
@@ -62,6 +61,6 @@ class SubmissionDraftDocDataRepository(
         pageRequest: PageRequest = PageRequest(),
     ): Flow<DocSubmissionDraft> {
         val pageRequest = pageRequest.asDataPageRequest()
-        return submissionDraftRepository.findAllByUserIdAndStatus(userId, status, pageRequest).asFlow()
+        return submissionDraftRepository.findAllByUserIdAndStatus(userId, status, pageRequest)
     }
 }

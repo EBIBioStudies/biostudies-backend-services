@@ -19,7 +19,6 @@ import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.reactive.asFlow
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
@@ -41,7 +40,7 @@ class SubmissionRequestMongoPersistenceService(
             null -> requestRepository.findByStatusIn(PROCESSING)
             else -> requestRepository.findByStatusInAndModificationTimeLessThan(PROCESSING, Instant.now().minus(since))
         }
-        return request.asFlow().map { it.accNo to it.version }
+        return request.map { it.accNo to it.version }
     }
 
     override suspend fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int> {
