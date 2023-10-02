@@ -16,7 +16,6 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -98,19 +97,16 @@ internal class SubmissionDocDataRepositoryTest(
 
             val r1 = fileListDocFileRepo
                 .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName("S-BSST4", 0, "file-list")
-                .asFlow()
                 .toList()
             assertThat(r1).isEmpty()
 
             val r2 = fileListDocFileRepo
                 .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName("S-BSST4", -1, "file-list")
-                .asFlow()
                 .toList()
             assertThat(r2).hasSize(1)
 
             val r3 = fileListDocFileRepo
                 .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName("S-BSST4", -2, "file-list")
-                .asFlow()
                 .toList()
             assertThat(r3).hasSize(1)
         }

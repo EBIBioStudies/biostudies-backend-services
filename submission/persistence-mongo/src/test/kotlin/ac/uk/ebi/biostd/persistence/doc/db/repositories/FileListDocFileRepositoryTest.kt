@@ -7,8 +7,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtFileType
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
@@ -49,10 +47,8 @@ class FileListDocFileRepositoryTest(
 
         val result = repository
             .findBySubmissionAccNoAndSubmissionVersionAndFilePath("S-TEST123", 1, "filePath")
-            .asFlow()
-            .toList()
 
-        assertThat(result).containsExactly(fileListFile)
+        assertThat(result).isEqualTo(fileListFile)
     }
 
     companion object {

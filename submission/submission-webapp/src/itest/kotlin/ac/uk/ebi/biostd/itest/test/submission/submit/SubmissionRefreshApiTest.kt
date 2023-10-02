@@ -42,7 +42,6 @@ import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.test.runTest
@@ -201,7 +200,6 @@ class SubmissionRefreshApiTest(
 
         val files = fileListRepository
             .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(accNo, 1, FILE_LIST_NAME)
-            .asFlow()
             .toList()
 
         assertThat(files).hasSize(1)

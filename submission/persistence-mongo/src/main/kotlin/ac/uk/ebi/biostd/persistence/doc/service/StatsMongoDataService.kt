@@ -12,7 +12,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMongo
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.flow.map
 import org.springframework.data.domain.PageRequest as DataPageRequest
 
 class StatsMongoDataService(
@@ -33,7 +33,6 @@ class StatsMongoDataService(
         statsDataRepository
             .findAllByStatType(submissionStatType, DataPageRequest.of(filter.pageNumber, filter.limit))
             .map { toSubmissionStat(submissionStatType, it) }
-            .asFlow()
 
     override suspend fun findByAccNoAndType(accNo: String, submissionStatType: SubmissionStatType): SubmissionStat =
         statsDataRepository

@@ -8,7 +8,6 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.jsonObj
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -106,7 +105,7 @@ class SubmissionRequestDocDataRepositoryTest(
 
         assertThat(created).isFalse()
 
-        val submissions = testInstance.findByAccNo(newRequest.accNo).asFlow().toList()
+        val submissions = testInstance.findByAccNo(newRequest.accNo).toList()
         assertThat(submissions).hasSize(1)
 
         val request = submissions.first()
