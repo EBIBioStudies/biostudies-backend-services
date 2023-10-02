@@ -54,6 +54,7 @@ import TestDependencies.XmlUnitMatchers
 import TestDependencies.rabitMqMock
 import TestDependencies.slf4jApi
 import TestDependencies.slf4jImp
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 buildscript {
@@ -71,6 +72,7 @@ plugins {
     id(Plugins.KotlinAllOpenPlugin) version PluginVersions.KotlinPluginVersion
     id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion
     id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
+    id(Plugins.GradleRetry) version PluginVersions.GradleRetryVersion
 }
 
 allOpen {
@@ -148,14 +150,49 @@ dependencies {
     testImplementation(KotlinCoroutinesTest)
 }
 
-apply(from = "$rootDir/gradle/itest.gradle.kts")
-
 tasks.named<BootJar>("bootJar") {
     archiveBaseName.set("submission-webapp")
     archiveVersion.set("1.0.0")
     dependsOn("generateGitProperties")
 }
 
-tasks.named<Copy>("processItestResources") {
-    duplicatesStrategy = DuplicatesStrategy.WARN
+sourceSets {
+    create("itest") {
+        java.srcDir(file("src/itest/java"))
+        resources.srcDir(file("src/itest/resources"))
+        compileClasspath += sourceSets["main"].output + configurations["testRuntimeClasspath"]
+        runtimeClasspath += output + sourceSets["main"].output + compileClasspath
+    }
 }
+
+val copySqlSchema = tasks.create<Copy>("copySqlSchema") {
+    from("$rootDir/infrastructure/src/main/resources/setup/mysql/Schema.sql")
+    into("$buildDir/resources/itest")
+}
+
+val itest = tasks.create<Test>("itest") {
+    dependsOn(copySqlSchema)
+    testClassesDirs = sourceSets["itest"].output.classesDirs
+    classpath = sourceSets["itest"].runtimeClasspath
+
+    val enableFire = project.property("enableFire")!!
+    println("##### Running integration tests with fireEnable=$enableFire #######")
+    systemProperty("enableFire", enableFire)
+
+    useJUnitPlatform()
+    testLogging.exceptionFormat = TestExceptionFormat.FULL
+    testLogging.showStandardStreams = true
+    extensions.configure(JacocoTaskExtension::class) {
+        setDestinationFile(file("$buildDir/jacoco/jacocoITest.exec"))
+        classDumpDir = file("$buildDir/jacoco/classpathdumps")
+    }
+
+    retry {
+        maxRetries.set(3)
+        maxFailures.set(10)
+        failOnPassedAfterRetry.set(false)
+    }
+}
+
+tasks.getByName<JacocoCoverageVerification>("jacocoTestCoverageVerification") { dependsOn(itest) }
+tasks.named<Copy>("processItestResources") { duplicatesStrategy = DuplicatesStrategy.WARN }
