@@ -41,9 +41,9 @@ class SubmissionRequestIndexerTest(
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Study", files = listOf(left(extFile))))
 
         every { pendingRqt.submission } returns sub
-        every { requestService.getPendingRequest("S-BSST0", 1) } returns pendingRqt
+        coEvery { requestService.getPendingRequest("S-BSST0", 1) } returns pendingRqt
         coEvery { requestService.saveSubmissionRequest(pendingRqt.indexed(1)) } answers { "S-BSST0" to 1 }
-        every { filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
+        coEvery { filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
 
         testInstance.indexRequest("S-BSST0", 1)
 

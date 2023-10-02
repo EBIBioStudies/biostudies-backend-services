@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionWithoutPatternException
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionMongoRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbQueryConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoMetaQueryServiceTest.PropertyOverrideContextInitializer
@@ -14,6 +14,7 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.model.constants.SubFields.ACC_NO_TEMPLATE
 import ebi.ac.uk.model.constants.SubFields.COLLECTION_VALIDATOR
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -42,11 +43,11 @@ import java.time.temporal.ChronoUnit
 @SpringBootTest(classes = [MongoDbQueryConfig::class, TestConfig::class])
 @ContextConfiguration(initializers = [PropertyOverrideContextInitializer::class])
 internal class SubmissionMongoMetaQueryServiceTest(
-    @Autowired private val submissionMongoRepository: SubmissionMongoRepository,
-    @Autowired private val testInstance: SubmissionMongoMetaQueryService
+    @Autowired private val submissionMongoRepository: SubmissionDocDataRepository,
+    @Autowired private val testInstance: SubmissionMongoMetaQueryService,
 ) {
     @Test
-    fun getBasicCollection() {
+    fun getBasicCollection() = runTest {
         submissionMongoRepository.save(
             testDocSubmission.copy(
                 accNo = "EuToxRisk",
@@ -67,13 +68,13 @@ internal class SubmissionMongoMetaQueryServiceTest(
     }
 
     @Test
-    fun `non existing collection`() {
+    fun `non existing collection`() = runTest {
         val error = assertThrows<CollectionNotFoundException> { testInstance.getBasicCollection("NonExisting") }
         assertThat(error.message).isEqualTo("The collection 'NonExisting' was not found")
     }
 
     @Test
-    fun `collection without pattern`() {
+    fun `collection without pattern`() = runTest {
         submissionMongoRepository.save(
             testDocSubmission.copy(
                 accNo = "PatternLess",
@@ -87,7 +88,7 @@ internal class SubmissionMongoMetaQueryServiceTest(
     }
 
     @Test
-    fun findLatestBasicByAccNo() {
+    fun findLatestBasicByAccNo() = runTest {
         submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = -1))
         submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = -2))
         submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo2", version = 4))
@@ -99,14 +100,14 @@ internal class SubmissionMongoMetaQueryServiceTest(
     }
 
     @Test
-    fun `exists by AccNo when exists`() {
+    fun `exists by AccNo when exists`() = runTest {
         submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo3", version = 1))
 
         assertThat(submissionMongoRepository.existsByAccNo("accNo3")).isTrue
     }
 
     @Test
-    fun `exist by AccNo when don't exists`() {
+    fun `exist by AccNo when don't exists`() = runTest {
         submissionMongoRepository.save(testDocSubmission.copy(accNo = "accNo4", version = 1))
 
         assertThat(submissionMongoRepository.existsByAccNo("accNo5")).isFalse

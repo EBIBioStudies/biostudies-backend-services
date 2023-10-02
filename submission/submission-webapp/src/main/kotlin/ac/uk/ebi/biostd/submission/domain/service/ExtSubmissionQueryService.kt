@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
+import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import java.time.OffsetDateTime
@@ -15,19 +16,19 @@ class ExtSubmissionQueryService(
     private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
 ) {
 
-    fun getExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission =
+    suspend fun getExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission =
         submissionPersistenceQueryService.getExtByAccNo(accNo, includeFileListFiles)
 
-    fun findExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission? =
+    suspend fun findExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission? =
         submissionPersistenceQueryService.findExtByAccNo(accNo, includeFileListFiles)
 
-    fun getReferencedFiles(accNo: String, fileListName: String): ExtFileTable {
+    suspend fun getReferencedFiles(accNo: String, fileListName: String): ExtFileTable {
         val sub = submissionPersistenceQueryService.getExtByAccNo(accNo, false)
-        val files = filesRepository.getReferencedFiles(sub, fileListName)
+        val files = filesRepository.getReferencedFiles(sub, fileListName).toList()
         return ExtFileTable(files.toList())
     }
 
-    fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
+    suspend fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
         val filter = SimpleFilter(
             rTimeFrom = request.fromRTime?.let { OffsetDateTime.parse(request.fromRTime) },
             rTimeTo = request.toRTime?.let { OffsetDateTime.parse(request.toRTime) },

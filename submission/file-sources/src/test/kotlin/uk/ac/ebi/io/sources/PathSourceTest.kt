@@ -6,6 +6,7 @@ import ebi.ac.uk.model.constants.FileFields.FILE_TYPE
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,7 +25,7 @@ internal class PathSourceTest(temporaryFolder: TemporaryFolder) {
     }
 
     @Test
-    fun getFile() {
+    fun getFile() = runTest {
         val result = testInstance.getExtFile(file.name, FILE_TYPE.value, attributes)
 
         assertThat(result).isInstanceOf(NfsFile::class.java)

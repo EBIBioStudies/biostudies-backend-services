@@ -22,19 +22,19 @@ internal class SubmissionFilesSource(
     override val description: String
         get() = "Previous version files"
 
-    override fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+    override suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
         return findSubmissionFile(path)?.copyWithAttributes(attributes.map { it.toExtAttribute() })
     }
 
-    override fun getFileList(path: String): File? {
+    override suspend fun getFileList(path: String): File? {
         return findSubmissionFile(path)?.let { getFile(it) }
     }
 
-    private fun findSubmissionFile(path: String): ExtFile? {
+    private suspend fun findSubmissionFile(path: String): ExtFile? {
         return previousVersionFiles[path] ?: filesRepository.findReferencedFile(sub, path)
     }
 
-    private fun getFile(file: ExtFile): File? {
+    private suspend fun getFile(file: ExtFile): File? {
         return when (file) {
             is NfsFile -> nfsFiles.getFileList(file.filePath)
             is FireFile -> fireClient.downloadByPath(file.firePath!!)

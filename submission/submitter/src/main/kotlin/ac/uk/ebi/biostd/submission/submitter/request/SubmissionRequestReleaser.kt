@@ -15,7 +15,6 @@ import ebi.ac.uk.extended.model.NfsFile
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -78,9 +77,9 @@ class SubmissionRequestReleaser(
     /**
      * Release the given submission by changing record status database and publishing files.
      */
-    fun releaseSubmission(accNo: String) {
+    suspend fun releaseSubmission(accNo: String) {
         val submission = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        runBlocking { releaseSubmission(submission) }
+        releaseSubmission(submission)
     }
 
     /**

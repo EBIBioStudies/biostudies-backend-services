@@ -52,9 +52,9 @@ class SubmissionSubmitterTest(
         val submission = basicExtSubmission
         val extRequestSlot = slot<ExtSubmitRequest>()
 
-        every { submissionProcessor.processSubmission(request) } returns submission
-        every { collectionValidationService.executeCollectionValidators(submission) } answers { nothing }
-        every {
+        coEvery { submissionProcessor.processSubmission(request) } returns submission
+        coEvery { collectionValidationService.executeCollectionValidators(submission) } answers { nothing }
+        coEvery {
             submissionSubmitter.createRequest(capture(extRequestSlot))
         } returns (submission.accNo to submission.version)
 
@@ -80,7 +80,7 @@ class SubmissionSubmitterTest(
         val submission = basicExtSubmission
         val extRequestSlot = slot<ExtSubmitRequest>()
 
-        every { submissionProcessor.processSubmission(request) } throws RuntimeException("validation error")
+        coEvery { submissionProcessor.processSubmission(request) } throws RuntimeException("validation error")
 
         assertThrows<InvalidSubmissionException> { testInstance.createRequest(request) }
 

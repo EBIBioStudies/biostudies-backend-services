@@ -8,6 +8,8 @@ import ebi.ac.uk.db.MONGO_VERSION
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
@@ -35,14 +37,14 @@ class SubmissionMongoPersistenceServiceTest(
     private val testInstance = SubmissionMongoPersistenceService(submissionRepository, subDataRepository)
 
     @AfterEach
-    fun afterEach() {
+    fun afterEach() = runBlocking {
         subDataRepository.deleteAll()
     }
 
     @Nested
     inner class ExpireSubmissions {
         @Test
-        fun `expire submission`() {
+        fun `expire submission`() = runTest {
             subDataRepository.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1))
             testInstance.expireSubmission("S-BSST1")
 
@@ -50,7 +52,7 @@ class SubmissionMongoPersistenceServiceTest(
         }
 
         @Test
-        fun `expire submissions`() {
+        fun `expire submissions`() = runTest {
             subDataRepository.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1))
             subDataRepository.save(testDocSubmission.copy(accNo = "S-BSST101", version = 1))
             testInstance.expireSubmissions(listOf("S-BSST1", "S-BSST101"))

@@ -24,6 +24,9 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.AfterEach
@@ -53,7 +56,7 @@ class SubmissionMongoFilesPersistenceServiceTest(
     private val testInstance = SubmissionMongoFilesPersistenceService(fileListDocFileRepository)
 
     @AfterEach
-    fun afterEach() {
+    fun afterEach(): Unit = runBlocking {
         fileListDocFileRepository.deleteAll()
     }
 
@@ -91,14 +94,14 @@ class SubmissionMongoFilesPersistenceServiceTest(
     )
 
     @BeforeEach
-    fun beforeEach() {
+    fun beforeEach(): Unit = runBlocking {
         setUpMockSubmission()
         fileListDocFileRepository.save(nfsFileListFile)
         fileListDocFileRepository.save(fireFileListFile)
     }
 
     @Test
-    fun `get referenced files`() {
+    fun `get referenced files`() = runTest {
         val files = testInstance.getReferencedFiles(submission, "test-file-list").toList()
         assertThat(files).hasSize(2)
 
@@ -114,7 +117,7 @@ class SubmissionMongoFilesPersistenceServiceTest(
     }
 
     @Test
-    fun `non existing referenced files`() {
+    fun `non existing referenced files`() = runTest {
         val result = testInstance.getReferencedFiles(submission, "non-existing-fileListName")
 
         assertThat(result.toList()).hasSize(0)

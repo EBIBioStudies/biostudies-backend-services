@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
@@ -31,6 +30,7 @@ import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -56,7 +56,6 @@ class FileListSubmissionTest(
     @Autowired private val securityTestService: SecurityTestService,
     @Autowired private val subRepository: SubmissionPersistenceQueryService,
     @LocalServerPort val serverPort: Int,
-    @Autowired val properties: ApplicationProperties,
 ) {
     private lateinit var webClient: BioWebClient
 
@@ -67,7 +66,7 @@ class FileListSubmissionTest(
     }
 
     @Test
-    fun `3-1 JSON submission with TSV file list`() {
+    fun `3-1 JSON submission with TSV file list`() = runTest {
         val submission = jsonObj {
             "accno" to "S-TEST4"
             "attributes" to jsonArray({
@@ -107,7 +106,7 @@ class FileListSubmissionTest(
     }
 
     @Test
-    fun `3-2 JSON submission with XSL file list`() {
+    fun `3-2 JSON submission with XSL file list`() = runTest {
         val submission = jsonObj {
             "accno" to "S-TEST5"
             "attributes" to jsonArray({
@@ -220,7 +219,7 @@ class FileListSubmissionTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "false")
-    fun `3-5-1 reuse previous version file list NFS`() {
+    fun `3-5-1 reuse previous version file list NFS`() = runTest {
         val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
         fun submission(fileList: String) = tsv {
             line("Submission", "S-TEST7")
@@ -253,7 +252,7 @@ class FileListSubmissionTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `3-5-2 reuse previous version file list FIRE`() {
+    fun `3-5-2 reuse previous version file list FIRE`() = runTest {
         val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
         fun submission(fileList: String) = tsv {
             line("Submission", "S-TEST72")
@@ -311,7 +310,7 @@ class FileListSubmissionTest(
         fileList.delete()
     }
 
-    private fun assertSubmissionFiles(accNo: String, testFile: String, fileListName: String) {
+    private suspend fun assertSubmissionFiles(accNo: String, testFile: String, fileListName: String) {
         val createdSub = subRepository.getExtByAccNo(accNo)
         val subFolder = "$submissionPath/${createdSub.relPath}"
 

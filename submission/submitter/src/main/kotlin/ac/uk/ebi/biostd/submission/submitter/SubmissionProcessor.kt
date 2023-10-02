@@ -36,7 +36,7 @@ class SubmissionProcessor(
     private val properties: ApplicationProperties,
     private val toExtSectionMapper: ToExtSectionMapper,
 ) {
-    fun processSubmission(rqt: SubmitRequest): ExtSubmission {
+    suspend fun processSubmission(rqt: SubmitRequest): ExtSubmission {
         val (submission, submitter, sources, method, onBehalfUser, _, _, previousVersion, storageMode) = rqt
         val (creationTime, modificationTime, releaseTime, released) = timesService.getTimes(rqt)
         val accNo = accNoService.calculateAccNo(rqt)

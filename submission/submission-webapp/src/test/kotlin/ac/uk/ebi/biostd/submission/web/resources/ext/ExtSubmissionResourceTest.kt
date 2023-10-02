@@ -23,7 +23,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
-import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -69,15 +68,16 @@ class ExtSubmissionResourceTest(
         val submissionJson = jsonObj { "accNo" to "S-TEST123" }.toString()
         bioUserResolver.securityUser = TestSuperUser.asSecurityUser()
         every { extSerializationService.serialize(extSubmission) } returns submissionJson
-        every { extSubmissionQueryService.getExtendedSubmission("S-TEST123") } returns extSubmission
+        coEvery { extSubmissionQueryService.getExtendedSubmission("S-TEST123") } returns extSubmission
 
         mvc.get("/submissions/extended/S-TEST123")
+            .asyncDispatch()
             .andExpect {
                 status { isOk() }
                 content { json(submissionJson) }
             }
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             extSerializationService.serialize(extSubmission)
             extSubmissionQueryService.getExtendedSubmission("S-TEST123")
         }
@@ -118,17 +118,17 @@ class ExtSubmissionResourceTest(
 
         bioUserResolver.securityUser = user
         every { tempFileGenerator.asFiles(capture(fileLists)) } returns emptyList()
-        every { extSubmissionService.submitExtAsync(user.email, extSubmission) } answers { nothing }
+        coEvery { extSubmissionService.submitExtAsync(user.email, extSubmission) } answers { nothing }
         every { extSerializationService.deserialize(submissionJson) } returns extSubmission
 
         mvc.multipart("/submissions/extended/async") {
             content = submissionJson
             param(SUBMISSION, submissionJson)
-        }.andExpect {
+        }.asyncDispatch().andExpect {
             status { isOk() }
         }
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             extSubmissionService.submitExtAsync(user.email, extSubmission)
             extSerializationService.deserialize(submissionJson)
         }
@@ -141,15 +141,16 @@ class ExtSubmissionResourceTest(
         val filesJson = jsonObj { "files" to "ext-file-table" }.toString()
 
         every { extSerializationService.serialize(extFileTable) } returns filesJson
-        every { extSubmissionQueryService.getReferencedFiles("S-TEST123", "file-list") } returns extFileTable
+        coEvery { extSubmissionQueryService.getReferencedFiles("S-TEST123", "file-list") } returns extFileTable
 
         mvc.get("/submissions/extended/S-TEST123/referencedFiles/file-list")
+            .asyncDispatch()
             .andExpect {
                 status { isOk() }
                 content { json(filesJson) }
             }
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             extSerializationService.serialize(extFileTable)
             extSubmissionQueryService.getReferencedFiles("S-TEST123", "file-list")
         }
@@ -162,15 +163,21 @@ class ExtSubmissionResourceTest(
         val filesJson = jsonObj { "files" to "ext-file-table" }.toString()
 
         every { extSerializationService.serialize(extFileTable) } returns filesJson
-        every { extSubmissionQueryService.getReferencedFiles("S-TEST123", "my/folder/file-list") } returns extFileTable
+        coEvery {
+            extSubmissionQueryService.getReferencedFiles(
+                "S-TEST123",
+                "my/folder/file-list"
+            )
+        } returns extFileTable
 
         mvc.get("/submissions/extended/S-TEST123/referencedFiles/my/folder/file-list")
+            .asyncDispatch()
             .andExpect {
                 status { isOk() }
                 content { json(filesJson) }
             }
 
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             extSerializationService.serialize(extFileTable)
             extSubmissionQueryService.getReferencedFiles("S-TEST123", "my/folder/file-list")
         }
@@ -192,9 +199,10 @@ class ExtSubmissionResourceTest(
 
         every { extSerializationService.serialize(webExtPage) } returns response
         every { extPageMapper.asExtPage(pageable, capture(extPageRequestSlot)) } returns webExtPage
-        every { extSubmissionQueryService.getExtendedSubmissions(capture(extPageRequestSlot)) } returns pageable
+        coEvery { extSubmissionQueryService.getExtendedSubmissions(capture(extPageRequestSlot)) } returns pageable
 
         mvc.get("/submissions/extended?limit=1&offset=0&fromRTime=2019-09-21T15:03:45Z&toRTime=2019-09-22T15:03:45Z")
+            .asyncDispatch()
             .andExpect {
                 status { isOk() }
                 content { json(response) }
@@ -202,7 +210,7 @@ class ExtSubmissionResourceTest(
 
         val extPageRequest = extPageRequestSlot.captured
         verifyExtPageRequest(extPageRequest)
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             extSerializationService.serialize(webExtPage)
             extPageMapper.asExtPage(pageable, extPageRequest)
             extSubmissionQueryService.getExtendedSubmissions(extPageRequest)

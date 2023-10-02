@@ -7,8 +7,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
@@ -30,14 +28,13 @@ import java.time.Duration.ofSeconds
 @ExtendWith(SpringExtension::class)
 @Testcontainers
 @SpringBootTest(classes = [MongoDbReposConfig::class])
-@OptIn(ExperimentalCoroutinesApi::class)
 class SubmissionStatsDataRepositoryTest {
     @Autowired
     lateinit var testInstance: SubmissionStatsDataRepository
 
     @BeforeEach
     fun beforeEach() = runTest {
-        testInstance.deleteAll().awaitSingleOrNull()
+        testInstance.deleteAll()
     }
 
     @Test
@@ -53,7 +50,7 @@ class SubmissionStatsDataRepositoryTest {
     @Test
     fun `update existing stat`() = runTest {
         val accNo = "S-BSST1"
-        testInstance.saveStats(DocSubmissionStats(ObjectId(), accNo, mapOf(FILES_SIZE.value to 1L)))
+        testInstance.save(DocSubmissionStats(ObjectId(), accNo, mapOf(FILES_SIZE.value to 1L)))
         testInstance.updateOrRegisterStat(SingleSubmissionStat(accNo, 4L, VIEWS))
 
         val stats = testInstance.getByAccNo(accNo).stats
@@ -67,7 +64,7 @@ class SubmissionStatsDataRepositoryTest {
         val accNo = "S-BSST3"
         val increments = listOf(SingleSubmissionStat(accNo, 4L, VIEWS), SingleSubmissionStat(accNo, 8L, VIEWS))
 
-        testInstance.saveStats(DocSubmissionStats(ObjectId(), accNo, mapOf(VIEWS.value to 1L)))
+        testInstance.save(DocSubmissionStats(ObjectId(), accNo, mapOf(VIEWS.value to 1L)))
         testInstance.incrementStat(accNo, increments)
 
         val stats = testInstance.getByAccNo(accNo).stats

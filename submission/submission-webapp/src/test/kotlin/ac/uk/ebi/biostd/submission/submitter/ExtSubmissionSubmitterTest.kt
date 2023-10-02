@@ -29,7 +29,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.slot
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -83,17 +82,18 @@ internal class ExtSubmissionSubmitterTest(
     @Nested
     inner class CreateRequest {
         @Test
-        fun `create request`() {
+        fun `create request`() = runTest {
             val submission = basicExtSubmission
             val submissionRequestSlot = slot<SubmissionRequest>()
 
-            every { persistenceService.getNextVersion("S-TEST123") } returns 2
+            coEvery { persistenceService.getNextVersion("S-TEST123") } returns 2
             every { pageTabService.generatePageTab(submission) } returns submission
-            every { requestService.createSubmissionRequest(capture(submissionRequestSlot)) } returns ("S-TEST123" to 2)
+            coEvery { requestService.createSubmissionRequest(capture(submissionRequestSlot)) } returns ("S-TEST123" to 2)
 
             testInstance.createRequest(ExtSubmitRequest(submission, "user@test.org", "TMP_123"))
+
             val request = submissionRequestSlot.captured
-            verify(exactly = 1) {
+            coVerify(exactly = 1) {
                 pageTabService.generatePageTab(submission)
                 requestService.createSubmissionRequest(request)
             }
@@ -111,7 +111,7 @@ internal class ExtSubmissionSubmitterTest(
     inner class HandleRequest {
         @Test
         fun `when requested`() = runTest {
-            every { requestService.getRequestStatus("accNo", 1) } returns REQUESTED
+            coEvery { requestService.getRequestStatus("accNo", 1) } returns REQUESTED
             coEvery { requestIndexer.indexRequest("accNo", 1) } answers { nothing }
             coEvery { requestLoader.loadRequest("accNo", 1) } answers { nothing }
             coEvery { requestProcessor.processRequest("accNo", 1) } answers { nothing }
@@ -137,7 +137,7 @@ internal class ExtSubmissionSubmitterTest(
 
         @Test
         fun `when loaded`() = runTest {
-            every { requestService.getRequestStatus("accNo", 1) } returns LOADED
+            coEvery { requestService.getRequestStatus("accNo", 1) } returns LOADED
             coEvery { requestProcessor.processRequest("accNo", 1) } answers { nothing }
             coEvery { requestReleaser.checkReleased("accNo", 1) } answers { nothing }
             coEvery { requestCleaner.cleanCurrentVersion("accNo", 1) } answers { nothing }
@@ -163,7 +163,7 @@ internal class ExtSubmissionSubmitterTest(
 
         @Test
         fun `when cleaned`() = runTest {
-            every { requestService.getRequestStatus("accNo", 1) } returns CLEANED
+            coEvery { requestService.getRequestStatus("accNo", 1) } returns CLEANED
             coEvery { requestProcessor.processRequest("accNo", 1) } answers { nothing }
             coEvery { requestReleaser.checkReleased("accNo", 1) } answers { nothing }
             coEvery { requestSaver.saveRequest("accNo", 1) } answers { sub }
@@ -188,7 +188,7 @@ internal class ExtSubmissionSubmitterTest(
 
         @Test
         fun `when files copied`() = runTest {
-            every { requestService.getRequestStatus("accNo", 1) } returns FILES_COPIED
+            coEvery { requestService.getRequestStatus("accNo", 1) } returns FILES_COPIED
             coEvery { requestReleaser.checkReleased("accNo", 1) } answers { nothing }
             coEvery { requestSaver.saveRequest("accNo", 1) } answers { sub }
             coEvery { requestFinalizer.finalizeRequest("accNo", 1) } returns sub
@@ -212,7 +212,7 @@ internal class ExtSubmissionSubmitterTest(
 
         @Test
         fun `when checked released`() = runTest {
-            every { requestService.getRequestStatus("accNo", 1) } returns CHECK_RELEASED
+            coEvery { requestService.getRequestStatus("accNo", 1) } returns CHECK_RELEASED
             coEvery { requestSaver.saveRequest("accNo", 1) } returns sub
             coEvery { requestFinalizer.finalizeRequest("accNo", 1) } returns sub
 
@@ -236,7 +236,7 @@ internal class ExtSubmissionSubmitterTest(
         @Test
         fun `when persisted`() = runTest {
             coEvery { requestFinalizer.finalizeRequest("accNo", 1) } returns sub
-            every { requestService.getRequestStatus("accNo", 1) } returns PERSISTED
+            coEvery { requestService.getRequestStatus("accNo", 1) } returns PERSISTED
 
             testInstance.handleRequest("accNo", 1)
 
@@ -256,7 +256,7 @@ internal class ExtSubmissionSubmitterTest(
 
         @Test
         fun `when processed`() = runTest {
-            every { requestService.getRequestStatus("accNo", 1) } returns PROCESSED
+            coEvery { requestService.getRequestStatus("accNo", 1) } returns PROCESSED
 
             val exception = assertThrows<IllegalStateException> { testInstance.handleRequest("accNo", 1) }
             assertThat(exception.message).isEqualTo("Request accNo=accNo, version='1' has been already processed")

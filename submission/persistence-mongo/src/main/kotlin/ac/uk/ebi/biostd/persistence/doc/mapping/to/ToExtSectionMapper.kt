@@ -10,7 +10,7 @@ import ebi.ac.uk.extended.model.ExtSectionTable
 
 @Suppress("LongParameterList")
 class ToExtSectionMapper(private val fileListMapper: ToExtFileListMapper) {
-    fun toExtSection(
+    suspend fun toExtSection(
         section: DocSection,
         subAccNo: String,
         subVersion: Int,
@@ -35,7 +35,7 @@ class ToExtSectionMapper(private val fileListMapper: ToExtFileListMapper) {
         links = section.links.map { it.toExtLinks() }
     )
 
-    private fun DocFileList.toExtFileList(
+    private suspend fun DocFileList.toExtFileList(
         subAccNo: String,
         subVersion: Int,
         released: Boolean,
@@ -44,7 +44,7 @@ class ToExtSectionMapper(private val fileListMapper: ToExtFileListMapper) {
     ): ExtFileList =
         fileListMapper.toExtFileList(this, subAccNo, subVersion, released, subRelPath, includeFileListFiles)
 
-    private fun Either<DocSection, DocSectionTable>.toExtSections(
+    private suspend fun Either<DocSection, DocSectionTable>.toExtSections(
         subAccNo: String,
         subVersion: Int,
         released: Boolean,

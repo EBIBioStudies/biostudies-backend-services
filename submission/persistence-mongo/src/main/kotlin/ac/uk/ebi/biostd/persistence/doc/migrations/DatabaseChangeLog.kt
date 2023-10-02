@@ -34,34 +34,27 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
-import com.github.cloudyrock.mongock.ChangeLog
-import com.github.cloudyrock.mongock.ChangeSet
-import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate
 import ebi.ac.uk.base.EMPTY
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.domain.Sort.Direction.ASC
-import org.springframework.data.mongodb.core.MongoOperations
+import org.springframework.data.mongodb.core.ReactiveMongoOperations
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.index.Index
 import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder as TextIndex
 
-internal val CHANGE_LOG_CLASSES = listOf(ChangeLog001::class.java)
+suspend fun ReactiveMongoTemplate.executeMigrations() {
+    ensureExists(DocSubmission::class.java)
+    ensureSubmissionIndexes()
 
-@ChangeLog
-class ChangeLog001 {
-    @ChangeSet(order = "001", id = "Create Schema Indexes", author = "System")
-    fun changeSet001(template: MongockTemplate) {
-        template.ensureExists(DocSubmission::class.java)
-        template.ensureSubmissionIndexes()
+    ensureExists(DocSubmissionRequest::class.java)
+    ensureSubmissionRequestIndexes()
+    ensureRequestFileIndexes()
 
-        template.ensureExists(DocSubmissionRequest::class.java)
-        template.ensureSubmissionRequestIndexes()
-        template.ensureRequestFileIndexes()
-
-        template.ensureFileListIndexes()
-        template.ensureStatsIndexes()
-    }
+    ensureFileListIndexes()
+    ensureStatsIndexes()
 }
 
-fun MongoOperations.ensureSubmissionIndexes() = ensureSubmissionIndexes<DocSubmission>()
+suspend fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmissionIndexes<DocSubmission>()
 
 /**
  * Submission Indexes
@@ -77,23 +70,25 @@ fun MongoOperations.ensureSubmissionIndexes() = ensureSubmissionIndexes<DocSubmi
  * 10. Collection AccNo , Submission Version, Submission Storage Mode
  * 11. (Text Index) Submission Title, Submission Attributes, Section Attributes
  */
-private inline fun <reified T> MongoOperations.ensureSubmissionIndexes(prefix: String = EMPTY) {
+private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionIndexes(prefix: String = EMPTY) {
     indexOps(T::class.java).apply {
-        ensureIndex(Index().on("$prefix$SUB_ACC_NO", ASC))
-        ensureIndex(Index().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC))
-        ensureIndex(Index().on("$prefix$SUB_OWNER", ASC))
-        ensureIndex(Index().on("$prefix$SUB_SUBMITTER", ASC))
-        ensureIndex(Index().on("$prefix$SUB_SECTION.$SEC_TYPE", ASC))
-        ensureIndex(Index().on("$prefix$SUB_RELEASE_TIME", ASC))
-        ensureIndex(Index().on("$prefix$SUB_RELEASED", ASC))
-        ensureIndex(Index().on("$prefix$SUB_MODIFICATION_TIME", ASC))
-        ensureIndex(Index().on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC).on(SUB_VERSION, ASC))
+        ensureIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_ACC_NO", ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_OWNER", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_SUBMITTER", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_SECTION.$SEC_TYPE", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_RELEASE_TIME", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_RELEASED", ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on("$prefix$SUB_MODIFICATION_TIME", ASC)).awaitSingleOrNull()
+        ensureIndex(
+            backgroundIndex().on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC).on(SUB_VERSION, ASC)
+        ).awaitSingleOrNull()
         ensureIndex(
             Index()
                 .on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC)
                 .on("$prefix$SUB_VERSION", ASC)
                 .on("$prefix$STORAGE_MODE", ASC)
-        )
+        ).awaitSingleOrNull()
         ensureIndex(
             TextIndex()
                 .onField("$prefix$SUB_TITLE")
@@ -101,7 +96,7 @@ private inline fun <reified T> MongoOperations.ensureSubmissionIndexes(prefix: S
                 .onField("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_VALUE")
                 .named("title_text_section.attributes.name_text_section.attributes.value_text")
                 .build()
-        )
+        ).awaitSingleOrNull()
     }
 }
 
@@ -111,13 +106,15 @@ private inline fun <reified T> MongoOperations.ensureSubmissionIndexes(prefix: S
  * 2. AccNo - Version
  * 3. All submission index over internal submission.
  */
-fun MongoOperations.ensureSubmissionRequestIndexes() {
+suspend fun ReactiveMongoOperations.ensureSubmissionRequestIndexes() {
     ensureSubmissionIndexes<DocSubmissionRequest>("$SUB.")
     indexOps(DocSubmissionRequest::class.java).apply {
-        ensureIndex(Index().on(SUB_ACC_NO, ASC))
-        ensureIndex(Index().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC))
+        ensureIndex(backgroundIndex().on(SUB_ACC_NO, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(SUB_ACC_NO, ASC).on(SUB_VERSION, ASC)).awaitSingleOrNull()
     }
 }
+
+fun backgroundIndex() = Index().background()
 
 /**
  * file_list_files collection indexes
@@ -129,22 +126,22 @@ fun MongoOperations.ensureSubmissionRequestIndexes() {
  * 6. Path
  * 7. Submission AccNo, Submission Version, File.Path
  */
-fun MongoOperations.ensureFileListIndexes() {
+suspend fun ReactiveMongoOperations.ensureFileListIndexes() {
     ensureExists(FileListDocFile::class.java)
     indexOps(FileListDocFile::class.java).apply {
-        ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_ID, ASC))
-        ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC))
-        ensureIndex(Index().on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC))
-        ensureIndex(Index().on(FILE_LIST_DOC_FILE_FILE_LIST_NAME, ASC))
-        ensureIndex(Index().on(FILE_LIST_DOC_FILE_INDEX, ASC))
-        ensureIndex(Index().on(FILE_DOC_FILEPATH, ASC))
+        ensureIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_SUBMISSION_ID, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_FILE_LIST_NAME, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(FILE_LIST_DOC_FILE_INDEX, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(FILE_DOC_FILEPATH, ASC)).awaitSingleOrNull()
 
         ensureIndex(
             Index()
                 .on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC)
                 .on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC)
                 .on("$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_FILEPATH", ASC)
-        )
+        ).awaitSingleOrNull()
     }
 }
 
@@ -156,25 +153,25 @@ fun MongoOperations.ensureFileListIndexes() {
  * 5. Index
  * 6. Submission AccNo, Submission Version, File.Path
  */
-fun MongoOperations.ensureRequestFileIndexes() {
+suspend fun ReactiveMongoOperations.ensureRequestFileIndexes() {
     ensureExists(DocSubmissionRequestFile::class.java)
     indexOps(DocSubmissionRequestFile::class.java).apply {
-        ensureIndex(Index().on(RQT_FILE_SUB_ACC_NO, ASC))
-        ensureIndex(Index().on(RQT_FILE_SUB_VERSION, ASC))
-        ensureIndex(Index().on(RQT_FILE_PATH, ASC))
-        ensureIndex(Index().on(RQT_FILE_INDEX, ASC))
+        ensureIndex(backgroundIndex().on(RQT_FILE_SUB_ACC_NO, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(RQT_FILE_SUB_VERSION, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(RQT_FILE_PATH, ASC)).awaitSingleOrNull()
+        ensureIndex(backgroundIndex().on(RQT_FILE_INDEX, ASC)).awaitSingleOrNull()
         ensureIndex(
             Index()
                 .on(RQT_FILE_SUB_ACC_NO, ASC)
                 .on(RQT_FILE_SUB_VERSION, ASC)
                 .on(RQT_FILE_PATH, ASC)
-        )
+        ).awaitSingleOrNull()
         ensureIndex(
             Index()
                 .on(RQT_FILE_SUB_ACC_NO, ASC)
                 .on(RQT_FILE_SUB_VERSION, ASC)
                 .on(RQT_FILE_INDEX, ASC)
-        )
+        ).awaitSingleOrNull()
     }
 }
 
@@ -182,9 +179,9 @@ fun MongoOperations.ensureRequestFileIndexes() {
  * submission_stats collection indexes
  * 1. Submission AccNo
  */
-fun MongoOperations.ensureStatsIndexes() {
+suspend fun ReactiveMongoOperations.ensureStatsIndexes() {
     ensureExists(DocSubmissionStats::class.java)
     indexOps(DocSubmissionStats::class.java).apply {
-        ensureIndex(Index().on(SUB_ACC_NO, ASC))
+        ensureIndex(backgroundIndex().on(SUB_ACC_NO, ASC)).awaitSingleOrNull()
     }
 }

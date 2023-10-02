@@ -30,6 +30,8 @@ import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import ebi.ac.uk.model.constants.SectionFields.TITLE
 import ebi.ac.uk.util.collections.second
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.AfterEach
@@ -40,7 +42,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -68,7 +70,7 @@ internal class SubmissionMongoQueryServiceTest(
     @Autowired private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
-    @Autowired private val mongoTemplate: MongoTemplate,
+    @Autowired private val mongoTemplate: ReactiveMongoTemplate,
 ) {
     private val serializationService: ExtSerializationService = extSerializationService()
     private val testInstance =
@@ -80,7 +82,7 @@ internal class SubmissionMongoQueryServiceTest(
         )
 
     @AfterEach
-    fun afterEach() {
+    fun afterEach() = runBlocking {
         submissionRepo.deleteAll()
         mongoTemplate.ensureSubmissionIndexes()
     }
@@ -88,7 +90,7 @@ internal class SubmissionMongoQueryServiceTest(
     @Nested
     inner class FindSubmissions {
         @Test
-        fun `find latest by accNo`() {
+        fun `find latest by accNo`() = runTest {
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = -1))
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST1", version = 2))
 
@@ -98,14 +100,14 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         @Test
-        fun `find latest by accNo for submission with old expired version`() {
+        fun `find latest by accNo for submission with old expired version`() = runTest {
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -1))
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -2))
             assertThat(submissionRepo.findByAccNo("S-BSST3")).isNull()
         }
 
         @Test
-        fun `find latest inactive by accNo`() {
+        fun `find latest inactive by accNo`() = runTest {
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -1))
             submissionRepo.save(docSubmission.copy(accNo = "S-BSST3", version = -2))
             val sub = submissionRepo.findFirstByAccNoAndVersionLessThanOrderByVersion(accNo = "S-BSST3")
@@ -118,13 +120,13 @@ internal class SubmissionMongoQueryServiceTest(
         private val section = rootSection.copy(fileList = null, files = listOf(), sections = listOf())
 
         @BeforeEach
-        fun init() {
+        fun beforeEach(): Unit = runBlocking {
             requestRepository.deleteAll()
             submissionRepo.deleteAll()
         }
 
         @Test
-        fun `filtered by accNo`() {
+        fun `filtered by accNo`() = runTest {
             val subRequest = extSubmission.copy(accNo = "accNo1", version = 2, title = "title1", section = section)
             val savedRequest = saveAsRequest(subRequest, REQUESTED)
             submissionRepo.save(docSubmission.copy(accNo = "accNo1"))
@@ -144,7 +146,7 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         @Test
-        fun `filtered by keyword on submission title`() {
+        fun `filtered by keyword on submission title`() = runTest {
             val sect1 = section.copy(attributes = listOf(ExtAttribute(TITLE.value, "section title 1")))
             val sect3 = testDocSection.copy(attributes = listOf(DocAttribute(TITLE.value, "section title 3")))
 
@@ -167,7 +169,7 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         @Test
-        fun `filtered by keyword on section title`() {
+        fun `filtered by keyword on section title`() = runTest {
             val extSectionMatch = section.copy(attributes = listOf(attribute.copy(name = "Title", value = "match")))
             val extSectionMismatch = section.copy(attributes = listOf(attribute.copy(name = "Title", value = "m_atch")))
             val docSectionMatch = docSection.copy(attributes = listOf(DocAttribute(name = "Title", value = "match")))
@@ -188,7 +190,7 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         @Test
-        fun `filtered by type`() {
+        fun `filtered by type`() = runTest {
             val section1 = section.copy(type = "type1")
             val section2 = section.copy(type = "type2")
             val docSection1 = docSection.copy(type = "type1")
@@ -207,7 +209,7 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         @Test
-        fun `filtered by from release time`() {
+        fun `filtered by from release time`() = runTest {
             val matchDate = OffsetDateTime.of(2010, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
             val mismatchDate = OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
@@ -237,7 +239,7 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         @Test
-        fun `filtered by to release time`() {
+        fun `filtered by to release time`() = runTest {
             val matchDate = OffsetDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
             val mismatchDate = OffsetDateTime.of(2010, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
 
@@ -267,7 +269,7 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         @Test
-        fun `filtered by released`() {
+        fun `filtered by released`() = runTest {
             saveAsRequest(extSubmission.copy(accNo = "accNo1", released = true, section = section), REQUESTED)
             saveAsRequest(extSubmission.copy(accNo = "accNo2", released = false, section = section), REQUESTED)
             submissionRepo.save(docSubmission.copy(accNo = "accNo3", released = true))
@@ -282,7 +284,7 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         @Test
-        fun `when all`() {
+        fun `when all`() = runTest {
             submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = 1))
             submissionRepo.save(docSubmission.copy(accNo = "accNo2", version = 1))
             submissionRepo.save(docSubmission.copy(accNo = "accNo3", version = 1))
@@ -324,7 +326,7 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         @Test
-        fun `get greatest version submission`() {
+        fun `get greatest version submission`() = runTest {
             val sub1 = submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = 3))
             submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = -2))
             submissionRepo.save(docSubmission.copy(accNo = "accNo1", version = -1))
@@ -338,7 +340,7 @@ internal class SubmissionMongoQueryServiceTest(
         }
 
         @Test
-        fun `get only requests with status REQUESTED`() {
+        fun `get only requests with status REQUESTED`() = runTest {
             saveAsRequest(extSubmission.copy(accNo = "accNo1", title = "one", section = section), REQUESTED)
             saveAsRequest(extSubmission.copy(accNo = "accNo1", title = "two", section = section), REQUEST_PROCESSED)
             saveAsRequest(
@@ -354,7 +356,7 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(result.first().title).isEqualTo("one")
         }
 
-        private fun saveAsRequest(extSubmission: ExtSubmission, status: RequestStatus): ExtSubmission {
+        private suspend fun saveAsRequest(extSubmission: ExtSubmission, status: RequestStatus): ExtSubmission {
             requestRepository.saveRequest(asRequest(extSubmission, status))
             return extSubmission
         }
@@ -374,7 +376,7 @@ internal class SubmissionMongoQueryServiceTest(
     }
 
     @Test
-    fun `get non existing submission`() {
+    fun `get non existing submission`() = runTest {
         val exception = assertThrows<SubmissionNotFoundException> { testInstance.getExtByAccNo("S-BSST3") }
         assertThat(exception.message).isEqualTo("The submission 'S-BSST3' was not found")
     }

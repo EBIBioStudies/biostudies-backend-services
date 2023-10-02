@@ -35,7 +35,7 @@ class ExtSubmissionSubmitter(
     private val requestSaver: SubmissionRequestSaver,
     private val requestFinalizer: SubmissionRequestFinalizer,
 ) {
-    fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
+    suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
         val withTabFiles = pageTabService.generatePageTab(rqt.submission)
         val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         val request = SubmissionRequest(submission = submission, notifyTo = rqt.notifyTo, draftKey = rqt.draftKey)
@@ -59,7 +59,7 @@ class ExtSubmissionSubmitter(
         version: Int,
     ): ExtSubmission = requestFinalizer.finalizeRequest(accNo, version)
 
-    fun release(accNo: String) = requestReleaser.releaseSubmission(accNo)
+    suspend fun release(accNo: String) = requestReleaser.releaseSubmission(accNo)
 
     suspend fun handleRequest(accNo: String, version: Int): ExtSubmission {
         return when (requestService.getRequestStatus(accNo, version)) {

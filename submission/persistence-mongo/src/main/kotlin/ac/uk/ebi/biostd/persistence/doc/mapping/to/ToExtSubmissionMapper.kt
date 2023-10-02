@@ -13,7 +13,7 @@ internal const val FILES_DIR = "Files"
 class ToExtSubmissionMapper(
     private val toExtSectionMapper: ToExtSectionMapper,
 ) {
-    internal fun toExtSubmission(sub: DocSubmission, includeFileListFiles: Boolean): ExtSubmission =
+    internal suspend fun toExtSubmission(sub: DocSubmission, includeFileListFiles: Boolean): ExtSubmission =
         ExtSubmission(
             accNo = sub.accNo,
             owner = sub.owner,

@@ -58,14 +58,14 @@ internal class SubmissionRequestSaverTest(
 
         every { subFile.attributes } returns emptyList()
         every { eventsPublisherService.submissionSubmitted(accNo, notifyTo) } answers { nothing }
-        every { persistenceService.expirePreviousVersions(accNo) } answers { nothing }
-        every { persistenceService.saveSubmission(submission) } answers { submission }
+        coEvery { persistenceService.expirePreviousVersions(accNo) } answers { nothing }
+        coEvery { persistenceService.saveSubmission(submission) } answers { submission }
 
         every { submission.accNo } answers { accNo }
         every { submission.version } answers { version }
         every { subFile.filePath } returns filePath
 
-        every { requestService.getCheckReleased(accNo, version) } answers { request }
+        coEvery { requestService.getCheckReleased(accNo, version) } answers { request }
         coEvery { requestService.saveSubmissionRequest(request) } answers { ACC_NO to version }
 
         every { request.withNewStatus(PERSISTED) } returns request
@@ -73,11 +73,11 @@ internal class SubmissionRequestSaverTest(
         every { request.notifyTo } answers { notifyTo }
         every { requestFile.file } returns updatedSubFile
 
-        every { filesService.getSubmissionRequestFile(accNo, version, filePath) } returns requestFile
+        coEvery { filesService.getSubmissionRequestFile(accNo, version, filePath) } returns requestFile
 
         var newFile: ExtFile? = null
-        every { processingService.processFiles(submission, any()) } answers {
-            newFile = secondArg<(file: ExtFile) -> ExtFile>()(subFile)
+        coEvery { processingService.processFiles(submission, any()) } coAnswers {
+            newFile = secondArg<suspend (file: ExtFile) -> ExtFile>()(subFile)
             submission
         }
 

@@ -73,7 +73,7 @@ class SubmissionRequestLoaderTest(
         val indexedRequestFile = SubmissionRequestFile(sub.accNo, sub.version, 1, "dummy.txt", nfsFile)
         val indexedRequest = SubmissionRequest(sub, "TMP_123", "user@test.org", INDEXED, 1, 0, testTime)
 
-        every { requestService.getIndexedRequest(sub.accNo, sub.version) } returns indexedRequest
+        coEvery { requestService.getIndexedRequest(sub.accNo, sub.version) } returns indexedRequest
         coEvery { requestService.saveSubmissionRequest(capture(loadedRequestSlot)) } returns (sub.accNo to sub.version)
         every {
             filesRequestService.getSubmissionRequestFiles(sub.accNo, sub.version, 0)

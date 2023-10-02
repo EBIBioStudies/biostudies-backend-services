@@ -31,9 +31,9 @@ import java.nio.file.Paths
 internal class AllInOneSubmissionHelper(
     private val submissionPath: File,
     private val submissionRepository: SubmissionPersistenceQueryService,
-    private val toSubmissionMapper: ToSubmissionMapper
+    private val toSubmissionMapper: ToSubmissionMapper,
 ) {
-    internal fun assertSavedSubmission(
+    internal suspend fun assertSavedSubmission(
         accNo: String,
         method: ExtSubmissionMethod = ExtSubmissionMethod.PAGE_TAB,
     ) {
@@ -53,7 +53,7 @@ internal class AllInOneSubmissionHelper(
         assertAllInOneSubmissionTsv(getSubFileContent("$submissionFolderPath/$accNo.tsv"), accNo)
     }
 
-    fun assertNfsPagetabFiles(accNo: String) {
+    suspend fun assertNfsPagetabFiles(accNo: String) {
         val submission = submissionRepository.getExtByAccNo(accNo)
         val subFolder = "$submissionPath/${submission.relPath}"
 
@@ -72,7 +72,7 @@ internal class AllInOneSubmissionHelper(
         assertFileListsPagetabFiles(subFolder)
     }
 
-    fun assertFirePagetabFiles(accNo: String) {
+    suspend fun assertFirePagetabFiles(accNo: String) {
         val submission = submissionRepository.getExtByAccNo(accNo)
         val subFolder = "$submissionPath/${submission.relPath}"
 

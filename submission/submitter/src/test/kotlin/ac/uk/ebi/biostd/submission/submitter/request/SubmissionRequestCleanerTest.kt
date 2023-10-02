@@ -60,9 +60,9 @@ class SubmissionRequestCleanerTest(
         @MockK cleanedRequest: SubmissionRequest,
     ) = runTest {
         every { loadedRequest.submission } returns sub
-        every { queryService.findExtByAccNo("S-BSST1", true) } returns null
+        coEvery { queryService.findExtByAccNo("S-BSST1", true) } returns null
         every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
-        every { requestService.getLoadedRequest("S-BSST1", 1) } returns loadedRequest
+        coEvery { requestService.getLoadedRequest("S-BSST1", 1) } returns loadedRequest
         coEvery { requestService.saveSubmissionRequest(cleanedRequest) } returns ("S-BSST1" to 1)
 
         testInstance.cleanCurrentVersion("S-BSST1", 1)
@@ -94,8 +94,8 @@ class SubmissionRequestCleanerTest(
         every { loadedRequest.submission } returns new
 
         every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
-        every { queryService.findExtByAccNo("S-BSST1", true) } returns current
-        every { requestService.getLoadedRequest("S-BSST1", 2) } returns loadedRequest
+        coEvery { queryService.findExtByAccNo("S-BSST1", true) } returns current
+        coEvery { requestService.getLoadedRequest("S-BSST1", 2) } returns loadedRequest
         every { serializationService.fileSequence(current) } returns sequenceOf(currentFile)
         coEvery { requestService.saveSubmissionRequest(cleanedRequest) } returns ("S-BSST1" to 2)
         coEvery { storageService.deleteSubmissionFile(current, currentFile) } answers { nothing }

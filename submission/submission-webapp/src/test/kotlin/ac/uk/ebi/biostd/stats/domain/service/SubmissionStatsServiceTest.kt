@@ -147,7 +147,7 @@ class SubmissionStatsServiceTest(
         every { submission.accNo } returns "S-BIAD123"
         coEvery { submissionStatsService.save(capture(savedStatSlot)) } returns stat
         every { serializationService.fileSequence(submission) } returns sequenceOf(file1, file2)
-        every { queryService.getExtendedSubmission("S-BIAD123", includeFileListFiles = true) } returns submission
+        coEvery { queryService.getExtendedSubmission("S-BIAD123", includeFileListFiles = true) } returns submission
 
         val result = testInstance.calculateSubFilesSize("S-BIAD123")
         val savedStat = savedStatSlot.captured

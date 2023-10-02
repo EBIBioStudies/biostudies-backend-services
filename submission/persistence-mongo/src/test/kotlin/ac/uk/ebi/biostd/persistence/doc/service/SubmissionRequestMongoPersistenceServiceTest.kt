@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestFilesRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
@@ -21,6 +21,8 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
@@ -62,13 +64,13 @@ class SubmissionRequestMongoPersistenceServiceTest(
     }
 
     @AfterEach
-    fun afterEach() {
+    fun afterEach() = runBlocking {
         requestRepository.deleteAll()
         unmockkStatic(Instant::class)
     }
 
     @Test
-    fun getProcessingRequests() {
+    fun getProcessingRequests() = runTest {
         fun testRequest(accNo: String, version: Int, modificationTime: Instant, status: RequestStatus) =
             DocSubmissionRequest(
                 id = ObjectId(),
@@ -86,9 +88,9 @@ class SubmissionRequestMongoPersistenceServiceTest(
         requestRepository.save(testRequest("abc", 1, Instant.now().minusSeconds(10), CLEANED))
         requestRepository.save(testRequest("zxy", 2, Instant.now().minusSeconds(20), FILES_COPIED))
 
-        assertThat(testInstance.getProcessingRequests()).containsExactly("abc" to 1, "zxy" to 2)
-        assertThat(testInstance.getProcessingRequests(ofSeconds(5))).containsExactly("abc" to 1, "zxy" to 2)
-        assertThat(testInstance.getProcessingRequests(ofSeconds(15))).containsExactly("zxy" to 2)
+        assertThat(testInstance.getProcessingRequests().toList()).containsExactly("abc" to 1, "zxy" to 2)
+        assertThat(testInstance.getProcessingRequests(ofSeconds(5)).toList()).containsExactly("abc" to 1, "zxy" to 2)
+        assertThat(testInstance.getProcessingRequests(ofSeconds(15)).toList()).containsExactly("zxy" to 2)
     }
 
     @Test

@@ -32,6 +32,7 @@ import ebi.ac.uk.io.ext.createOrReplaceFile
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -78,7 +79,7 @@ class SpecialSubmissionAttributesTest(
     }
 
     @Test
-    fun `15-2 submission with tags`() {
+    fun `15-2 submission with tags`() = runTest {
         val submission = tsv {
             line("Submission", "S-TEST123")
             line("Title", "Submission With Tags")
@@ -102,7 +103,7 @@ class SpecialSubmissionAttributesTest(
     }
 
     @Test
-    fun `15-3 new submission with empty accNo subsection table`() {
+    fun `15-3 new submission with empty accNo subsection table`() = runTest {
         val submission = tsv {
             line("Submission", "S-STBL123")
             line("Title", "Test Section Table")
@@ -136,7 +137,7 @@ class SpecialSubmissionAttributesTest(
     }
 
     @Test
-    fun `15-4 new submission with empty-null attributes`() {
+    fun `15-4 new submission with empty-null attributes`() = runTest {
         fun assertSubmission(submission: ExtSubmission) {
             assertThat(submission.accNo).isEqualTo("S-STBL124")
             assertThat(submission.title).isEqualTo("Test Section Table")
@@ -235,7 +236,7 @@ class SpecialSubmissionAttributesTest(
     }
 
     @Test
-    fun `15-5 new submission with empty-null table attributes`() {
+    fun `15-5 new submission with empty-null table attributes`() = runTest {
         fun assertSubmission(submission: ExtSubmission) {
             assertThat(submission.accNo).isEqualTo("S-STBL124")
             assertThat(submission.title).isEqualTo("Test Section Table")
@@ -336,7 +337,7 @@ class SpecialSubmissionAttributesTest(
     }
 
     @Test
-    fun `15-6 submission with DOI`() {
+    fun `15-6 submission with DOI`() = runTest {
         val submission = tsv {
             line("Submission", "S-STBL125")
             line("Title", "Submission with DOI")

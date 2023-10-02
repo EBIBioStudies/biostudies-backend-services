@@ -6,13 +6,17 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.getByAccNo
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.max
 
@@ -22,39 +26,45 @@ internal class SubmissionMongoPersistenceQueryService(
     private val serializationService: ExtSerializationService,
     private val requestRepository: SubmissionRequestDocDataRepository,
 ) : SubmissionPersistenceQueryService {
-    override fun existByAccNo(accNo: String): Boolean {
+    override suspend fun existByAccNo(accNo: String): Boolean {
         return submissionRepo.existsByAccNo(accNo)
     }
 
-    override fun existByAccNoAndVersion(accNo: String, version: Int): Boolean {
+    override suspend fun existByAccNoAndVersion(accNo: String, version: Int): Boolean {
         return submissionRepo.existsByAccNoAndVersion(accNo, version)
     }
 
-    override fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
+    override suspend fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
         val findByAccNo = submissionRepo.findByAccNo(accNo)
         return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
     }
 
-    override fun findLatestInactiveByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
+    override suspend fun findLatestInactiveByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
         val findByAccNo = submissionRepo.findFirstByAccNoAndVersionLessThanOrderByVersion(accNo)
         return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
     }
 
-    override fun getExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission {
+    override suspend fun getExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission {
         val submission = submissionRepo.getByAccNo(accNo)
         return toExtSubmissionMapper.toExtSubmission(submission, includeFileListFiles)
     }
 
-    override fun getExtByAccNoAndVersion(accNo: String, version: Int, includeFileListFiles: Boolean): ExtSubmission {
+    override suspend fun getExtByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+        includeFileListFiles: Boolean,
+    ): ExtSubmission {
         val document = submissionRepo.getByAccNoAndVersion(accNo, version)
         return toExtSubmissionMapper.toExtSubmission(document, includeFileListFiles)
     }
 
-    override fun getExtendedSubmissions(filter: SubmissionFilter): Page<ExtSubmission> {
-        return submissionRepo.getSubmissionsPage(filter).map { toExtSubmissionMapper.toExtSubmission(it, false) }
+    override suspend fun getExtendedSubmissions(filter: SubmissionFilter): Page<ExtSubmission> {
+        val page = submissionRepo.getSubmissionsPage(filter)
+        val items = page.content.map { toExtSubmissionMapper.toExtSubmission(it, false) }
+        return PageImpl(items.toList(), PageRequest.of(filter.pageNumber, filter.limit), page.totalElements)
     }
 
-    override fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission> {
+    override suspend fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission> {
         val (requestsCount, requests) = requestRepository.findActiveRequests(filter)
         val submissionFilter = filter.copy(
             limit = filter.limit - requests.size,
@@ -68,9 +78,9 @@ internal class SubmissionMongoPersistenceQueryService(
             .plus(findSubmissions(submissionFilter))
     }
 
-    private fun findSubmissions(filter: SubmissionListFilter): List<BasicSubmission> =
+    private suspend fun findSubmissions(filter: SubmissionListFilter): List<BasicSubmission> =
         when (filter.limit) {
             0 -> emptyList()
-            else -> submissionRepo.getSubmissions(filter).map { it.asBasicSubmission(PROCESSED) }
+            else -> submissionRepo.getSubmissions(filter).map { it.asBasicSubmission(PROCESSED) }.toList()
         }
 }

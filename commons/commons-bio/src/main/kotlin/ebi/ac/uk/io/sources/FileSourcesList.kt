@@ -27,16 +27,16 @@ private val validPathPattern = "^(?!.*\\./)[0-9A-Za-z!-_*'(). ]+(?<!/)\$".toRege
 
 @JvmInline
 value class FileSourcesList(val sources: List<FilesSource>) {
-    fun findExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+    suspend fun findExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
         require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
         return sources.firstNotNullOfOrNull { it.getExtFile(path, type, attributes) }
     }
 
-    fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile {
+    suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile {
         return findExtFile(path, type, attributes) ?: throw FilesProcessingException(path, this)
     }
 
-    fun getFileList(path: String): File? {
+    suspend fun getFileList(path: String): File? {
         return sources.firstNotNullOfOrNull { it.getFileList(path) }
     }
 }
