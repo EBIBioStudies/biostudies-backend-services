@@ -72,7 +72,7 @@ plugins {
     id(Plugins.KotlinAllOpenPlugin) version PluginVersions.KotlinPluginVersion
     id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion
     id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
-    id("org.gradle.test-retry") version "1.5.5"
+    id(Plugins.GradleRetry) version PluginVersions.GradleRetryVersion
 }
 
 allOpen {
