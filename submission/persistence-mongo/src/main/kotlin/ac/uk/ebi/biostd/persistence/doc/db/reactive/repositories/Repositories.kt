@@ -119,9 +119,9 @@ interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, O
     ): Flow<FileListDocFile>
 
     @Query("{ 'submissionAccNo': ?0, 'submissionVersion': ?1, 'file.filePath': ?2}")
-    fun findBySubmissionAccNoAndSubmissionVersionAndFilePath(
+    suspend fun findBySubmissionAccNoAndSubmissionVersionAndFilePath(
         accNo: String,
         version: Int,
         filePath: String,
-    ): FileListDocFile?
+    ): Flow<FileListDocFile>
 }
