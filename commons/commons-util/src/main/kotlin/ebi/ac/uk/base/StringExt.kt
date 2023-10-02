@@ -71,6 +71,7 @@ fun String.scape(toScape: String, scapeLiteral: String = "\\"): String = replace
 fun String.trim(): String = replace("\\s+".toRegex(), " ")
 
 /**
- * Compute the given string so it always ends in the provided suffix, no action is taking if string already.
+ * Compute the given string so it always ends in theprovided suffix. No action will be taken if the string already
+ * finishes with the expected suffix.
  */
 fun String.ensureSuffix(suffix: String): String = if (endsWith(suffix)) this else "$this$suffix"
