@@ -7,122 +7,119 @@ import ebi.ac.uk.model.constants.FileFields.DB_MD5
 import ebi.ac.uk.model.constants.FileFields.DB_PATH
 import ebi.ac.uk.model.constants.FileFields.DB_PUBLISHED
 import ebi.ac.uk.model.constants.FileFields.DB_SIZE
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 
 class DbFilesSourceTest {
 
     @Test
-    fun whenMissingMd5() {
-        assertThatExceptionOfType(IllegalArgumentException::class.java)
-            .isThrownBy {
-                testWhenFields(
-                    dbSize = "10",
-                    dbId = "abc",
-                    dbPath = "path",
-                    dbPublished = false
-                )
-            }
-            .withMessage(
-                "All bypass attributes [md5, size, id, path, published] " +
-                    "need to be present or none, found [null, 10, abc, path, false]"
+    fun whenMissingMd5() = runTest {
+        val exception = assertThrows<IllegalArgumentException> {
+            testWhenFields(
+                dbSize = "10",
+                dbId = "abc",
+                dbPath = "path",
+                dbPublished = false
             )
+        }
+        assertThat(exception).hasMessage(
+            "All bypass attributes [md5, size, id, path, published] " +
+                "need to be present or none, found [null, 10, abc, path, false]"
+        )
     }
 
     @Test
-    fun whenOnlyMd5() {
+    fun whenOnlyMd5() = runTest {
         assertThat(testWhenFields(dbMd5 = "abcMd5")).isNull()
     }
 
     @Test
-    fun whenMissingDbSize() {
-        assertThatExceptionOfType(IllegalArgumentException::class.java)
-            .isThrownBy {
-                testWhenFields(
-                    dbMd5 = "dbMd5",
-                    dbId = "abc",
-                    dbPath = "path",
-                    dbPublished = false
-                )
-            }
-            .withMessage(
-                "All bypass attributes [md5, size, id, path, published] " +
-                    "need to be present or none, found [dbMd5, null, abc, path, false]"
+    fun whenMissingDbSize() = runTest {
+        val exception = assertThrows<IllegalArgumentException> {
+            testWhenFields(
+                dbMd5 = "dbMd5",
+                dbId = "abc",
+                dbPath = "path",
+                dbPublished = false
             )
+        }
+        assertThat(exception).hasMessage(
+            "All bypass attributes [md5, size, id, path, published] " +
+                "need to be present or none, found [dbMd5, null, abc, path, false]"
+        )
     }
 
     @Test
-    fun whenMissingDbId() {
-        assertThatExceptionOfType(IllegalArgumentException::class.java)
-            .isThrownBy {
-                testWhenFields(
-                    dbSize = "10",
-                    dbMd5 = "dbMd5",
-                    dbPath = "path",
-                    dbPublished = false
-                )
-            }
-            .withMessage(
-                "All bypass attributes [md5, size, id, path, published] " +
-                    "need to be present or none, found [dbMd5, 10, null, path, false]"
+    fun whenMissingDbId() = runTest {
+        val exception = assertThrows<IllegalArgumentException> {
+            testWhenFields(
+                dbSize = "10",
+                dbMd5 = "dbMd5",
+                dbPath = "path",
+                dbPublished = false
             )
+        }
+        assertThat(exception).hasMessage(
+            "All bypass attributes [md5, size, id, path, published] " +
+                "need to be present or none, found [dbMd5, 10, null, path, false]"
+        )
     }
 
     @Nested
     inner class PathCases {
         @Test
-        fun whenMissingPath() {
-            assertThatExceptionOfType(IllegalArgumentException::class.java)
-                .isThrownBy {
-                    testWhenFields(
-                        dbId = "abc",
-                        dbSize = "10",
-                        dbMd5 = "dbMd5",
-                        dbPublished = false
-                    )
-                }
-                .withMessage(
-                    "All bypass attributes [md5, size, id, path, published] " +
-                        "need to be present or none, found [dbMd5, 10, abc, null, false]"
-                )
-        }
-
-        @Test
-        fun whenRelativePath() {
-            assertThatExceptionOfType(IllegalArgumentException::class.java)
-                .isThrownBy {
-                    testWhenFields(
-                        dbId = "abc",
-                        dbSize = "10",
-                        dbPath = "/path",
-                        dbMd5 = "dbMd5",
-                        dbPublished = false
-                    )
-                }
-                .withMessage("Db path '/path' needs to be relative.")
-        }
-    }
-
-    @Test
-    fun whenMissingPublished() {
-        assertThatExceptionOfType(IllegalArgumentException::class.java)
-            .isThrownBy {
+        fun whenMissingPath() = runTest {
+            val exception = assertThrows<IllegalArgumentException> {
                 testWhenFields(
                     dbId = "abc",
                     dbSize = "10",
                     dbMd5 = "dbMd5",
-                    dbPath = "path",
+                    dbPublished = false
                 )
             }
-            .withMessage(
+            assertThat(exception).hasMessage(
                 "All bypass attributes [md5, size, id, path, published] " +
-                    "need to be present or none, found [dbMd5, 10, abc, path, null]"
+                    "need to be present or none, found [dbMd5, 10, abc, null, false]"
             )
+        }
+
+        @Test
+        fun whenRelativePath() = runTest {
+            val exception = assertThrows<IllegalArgumentException> {
+                testWhenFields(
+                    dbId = "abc",
+                    dbSize = "10",
+                    dbPath = "/path",
+                    dbMd5 = "dbMd5",
+                    dbPublished = false
+                )
+            }
+
+            assertThat(exception).hasMessage("Db path '/path' needs to be relative.")
+        }
     }
 
-    private fun testWhenFields(
+    @Test
+    fun whenMissingPublished() = runTest {
+        val exception = assertThrows<IllegalArgumentException> {
+            testWhenFields(
+                dbId = "abc",
+                dbSize = "10",
+                dbMd5 = "dbMd5",
+                dbPath = "path",
+            )
+        }
+
+        assertThat(exception).hasMessage(
+            "All bypass attributes [md5, size, id, path, published] " +
+                "need to be present or none, found [dbMd5, 10, abc, path, null]"
+        )
+    }
+
+    private suspend fun testWhenFields(
         dbMd5: String? = null,
         dbSize: String? = null,
         dbId: String? = null,
