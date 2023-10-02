@@ -16,6 +16,10 @@ spring:
       max-file-size: 10240MB
       max-request-size: 10240MB
 
+  mvc:
+    async:
+      request-timeout: -1
+
   rabbitmq:
     username: guest
     password: guest
