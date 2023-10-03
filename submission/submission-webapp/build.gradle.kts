@@ -56,6 +56,7 @@ import TestDependencies.slf4jApi
 import TestDependencies.slf4jImp
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.springframework.boot.gradle.tasks.bundling.BootJar
+import java.util.concurrent.TimeUnit.MILLISECONDS
 
 buildscript {
     dependencies {
@@ -197,7 +198,9 @@ val itest = tasks.create<Test>("itest") {
         override fun beforeSuite(suite: TestDescriptor) {}
         override fun beforeTest(testDescriptor: TestDescriptor) {}
         override fun afterTest(desc: TestDescriptor, result: TestResult) {
-            logger.quiet("Executing test ${desc.name} [${desc.className}] with result: ${result.resultType}")
+            val time = MILLISECONDS.toSeconds(result.startTime - result.endTime)
+            logger.quiet("Executed test ${desc.name} [${desc.className}] with result: ${result.resultType}, in $time seconds")
+            logger.quiet(result.exception?.stackTraceToString() ?: "Not Register exception")
         }
 
         override fun afterSuite(suite: TestDescriptor, result: TestResult) {}

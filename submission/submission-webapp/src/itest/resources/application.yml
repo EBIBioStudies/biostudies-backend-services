@@ -18,7 +18,7 @@ spring:
 
   mvc:
     async:
-      request-timeout: -1
+      request-timeout: 180000 # 3 minutes
 
   rabbitmq:
     username: guest
