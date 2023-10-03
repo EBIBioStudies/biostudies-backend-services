@@ -180,8 +180,8 @@ val itest = tasks.create<Test>("itest") {
     systemProperty("enableFire", enableFire)
 
     useJUnitPlatform()
-    testLogging.exceptionFormat = TestExceptionFormat.FULL
-    testLogging.showStandardStreams = true
+    testLogging.exceptionFormat = TestExceptionFormat.SHORT
+    testLogging.showStandardStreams = false
     extensions.configure(JacocoTaskExtension::class) {
         setDestinationFile(file("$buildDir/jacoco/jacocoITest.exec"))
         classDumpDir = file("$buildDir/jacoco/classpathdumps")
@@ -192,6 +192,16 @@ val itest = tasks.create<Test>("itest") {
         maxFailures.set(10)
         failOnPassedAfterRetry.set(false)
     }
+
+    addTestListener(object : TestListener {
+        override fun beforeSuite(suite: TestDescriptor) {}
+        override fun beforeTest(testDescriptor: TestDescriptor) {}
+        override fun afterTest(desc: TestDescriptor, result: TestResult) {
+            logger.quiet("Executing test ${desc.name} [${desc.className}] with result: ${result.resultType}")
+        }
+
+        override fun afterSuite(suite: TestDescriptor, result: TestResult) {}
+    })
 }
 
 tasks.getByName<JacocoCoverageVerification>("jacocoTestCoverageVerification") { dependsOn(itest) }
