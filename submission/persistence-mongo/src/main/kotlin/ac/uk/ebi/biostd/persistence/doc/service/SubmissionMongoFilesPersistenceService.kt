@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.toExtFile
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 
 internal class SubmissionMongoFilesPersistenceService(
@@ -26,6 +27,7 @@ internal class SubmissionMongoFilesPersistenceService(
     ): ExtFile? {
         return fileListDocFileRepository
             .findBySubmissionAccNoAndSubmissionVersionAndFilePath(sub.accNo, sub.version, path)
+            .firstOrNull()
             ?.file
             ?.toExtFile(sub.released, sub.relPath)
     }
