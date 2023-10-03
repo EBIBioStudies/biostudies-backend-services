@@ -9,6 +9,7 @@ object PluginVersions {
     const val SshVersion = "2.10.1"
     const val SpringBootPluginVersion = "2.7.1"
     const val SpringDependencyManagementPluginVersion = "1.0.12.RELEASE"
+    const val GradleRetryVersion = "1.5.5"
 }
 
 object Plugins {
@@ -25,4 +26,5 @@ object Plugins {
     const val SshPlugin = "org.hidetake.ssh"
     const val SpringBootPlugin = "org.springframework.boot"
     const val SpringDependencyManagementPlugin = "io.spring.dependency-management"
+    const val GradleRetry = "org.gradle.test-retry"
 }
