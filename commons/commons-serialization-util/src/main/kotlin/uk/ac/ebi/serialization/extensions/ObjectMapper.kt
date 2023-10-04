@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
+import kotlinx.coroutines.flow.Flow
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.concurrent.atomic.AtomicInteger
 
 fun <T : Any> ObjectMapper.serializeList(files: Sequence<T>, outputStream: OutputStream): Int {
     val jsonGenerator = factory.createGenerator(outputStream)
@@ -16,6 +18,20 @@ fun <T : Any> ObjectMapper.serializeList(files: Sequence<T>, outputStream: Outpu
         val count = files.onEach { file -> writeValue(it, file) }.count()
         it.writeEndArray()
         return count
+    }
+}
+
+suspend fun <T : Any> ObjectMapper.serializeFlow(files: Flow<T>, outputStream: OutputStream): Int {
+    val jsonGenerator = factory.createGenerator(outputStream)
+    val count = AtomicInteger(0)
+    jsonGenerator.use {
+        it.writeStartArray()
+        files.collect { file ->
+            writeValue(it, file)
+            count.getAndIncrement()
+        }
+        it.writeEndArray()
+        return count.get()
     }
 }
 

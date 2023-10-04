@@ -3,9 +3,10 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.iterator.getRequestFilesAsSequence
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionRequestFilesRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 class SubmissionRequestFilesMongoPersistenceService(
@@ -13,11 +14,15 @@ class SubmissionRequestFilesMongoPersistenceService(
     private val requestRepository: SubmissionRequestDocDataRepository,
     private val requestFilesRepository: SubmissionRequestFilesRepository,
 ) : SubmissionRequestFilesPersistenceService {
-    override fun saveSubmissionRequestFile(file: SubmissionRequestFile) {
+    override suspend fun saveSubmissionRequestFile(file: SubmissionRequestFile) {
         requestRepository.upsertSubmissionRequestFile(file)
     }
 
-    override fun getSubmissionRequestFile(accNo: String, version: Int, filePath: String): SubmissionRequestFile {
+    override suspend fun getSubmissionRequestFile(
+        accNo: String,
+        version: Int,
+        filePath: String,
+    ): SubmissionRequestFile {
         return requestFilesRepository
             .getByPathAndAccNoAndVersion(filePath, accNo, version)
             .toSubmissionRequestFile()
@@ -27,9 +32,9 @@ class SubmissionRequestFilesMongoPersistenceService(
         accNo: String,
         version: Int,
         startingAt: Int,
-    ): Sequence<SubmissionRequestFile> {
+    ): Flow<SubmissionRequestFile> {
         return requestFilesRepository
-            .getRequestFilesAsSequence(accNo, version, startingAt)
+            .findRequestFiles(accNo, version, startingAt)
             .map { it.toSubmissionRequestFile() }
     }
 

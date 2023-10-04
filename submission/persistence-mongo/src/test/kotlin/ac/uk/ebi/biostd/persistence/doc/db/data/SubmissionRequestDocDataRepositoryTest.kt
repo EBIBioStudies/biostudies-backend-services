@@ -7,6 +7,9 @@ import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.jsonObj
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
 import org.bson.types.ObjectId
@@ -35,12 +38,12 @@ class SubmissionRequestDocDataRepositoryTest(
 ) {
 
     @AfterEach
-    fun afterEach() {
+    fun afterEach() = runBlocking {
         testInstance.deleteAll()
     }
 
     @Test
-    fun saveRequestWhenNew() {
+    fun saveRequestWhenNew() = runTest {
         val request = DocSubmissionRequest(
             id = ObjectId(),
             accNo = "abc-123",
@@ -70,7 +73,7 @@ class SubmissionRequestDocDataRepositoryTest(
     }
 
     @Test
-    fun saveRequestWhenExists() {
+    fun saveRequestWhenExists() = runTest {
         val (existing, _) = testInstance.saveRequest(
             DocSubmissionRequest(
                 id = ObjectId(),
@@ -102,7 +105,7 @@ class SubmissionRequestDocDataRepositoryTest(
 
         assertThat(created).isFalse()
 
-        val submissions = testInstance.findByAccNo(newRequest.accNo)
+        val submissions = testInstance.findByAccNo(newRequest.accNo).toList()
         assertThat(submissions).hasSize(1)
 
         val request = submissions.first()

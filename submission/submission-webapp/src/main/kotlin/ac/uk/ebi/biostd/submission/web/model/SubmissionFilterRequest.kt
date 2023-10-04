@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.web.model
 
-import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
+import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import java.time.OffsetDateTime
 
 @Suppress("LongParameterList")
@@ -13,11 +13,13 @@ class SubmissionFilterRequest(
     val keywords: String? = null,
     val released: Boolean? = null,
     val limit: Int = 15,
-    val offset: Long = 0
+    val offset: Long = 0,
 )
 
-fun SubmissionFilterRequest.asFilter(): SubmissionFilter =
-    SubmissionFilter(
+fun SubmissionFilterRequest.asFilter(user: String, superuser: Boolean): SubmissionListFilter =
+    SubmissionListFilter(
+        filterUser = user,
+        findAnyAccNo = superuser,
         accNo = accNo,
         version = version,
         type = type,

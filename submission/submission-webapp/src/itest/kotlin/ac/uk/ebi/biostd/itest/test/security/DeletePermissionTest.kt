@@ -21,6 +21,7 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.util.date.toStringDate
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
@@ -52,7 +53,7 @@ class DeletePermissionTest(
     }
 
     @Test
-    fun `1-1 submit resubmit and delete submission`() {
+    fun `1-1 submit resubmit and delete submission`() = runTest {
         val submission = tsv {
             line("Submission", "DeleteAcc1")
             line("Title", "Simple Submission")
@@ -79,7 +80,7 @@ class DeletePermissionTest(
     }
 
     @Test
-    fun `1-3 delete private with regular user and tag access permission`() {
+    fun `1-3 delete private with regular user and tag access permission`() = runTest {
         val submission = tsv {
             line("Submission", "DeleteAcc3")
             line("Title", "Simple Submission")
@@ -95,7 +96,7 @@ class DeletePermissionTest(
     }
 
     @Test
-    fun `1-4 resubmit deleted submission`() {
+    fun `1-4 resubmit deleted submission`() = runTest {
         val submission = tsv {
             line("Submission", "DeleteAcc4")
             line("Title", "Simple Submission")
@@ -111,7 +112,7 @@ class DeletePermissionTest(
     }
 
     @Test
-    fun `1-5 delete with collection admin user`() {
+    fun `1-5 delete with collection admin user`() = runTest {
         val submission = tsv {
             line("Submission", "DeleteAcc5")
             line("Title", "Simple Submission")
@@ -127,7 +128,7 @@ class DeletePermissionTest(
     }
 
     @Test
-    fun `1-6 delete subsmissions`() {
+    fun `1-6 delete subsmissions`() = runTest {
         val submission1 = tsv {
             line("Submission", "DeleteAcc6-1")
             line("Title", "Test Section Table")
@@ -166,7 +167,7 @@ class DeletePermissionTest(
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
         superUserWebClient.givePermissionToUser(RegularUser.email, "ACollection", DELETE.name)
         val error = assertThrows(WebClientException::class.java) { regularUserWebClient.deleteSubmission("DeleteAcc7") }
-        val expectedMessage = "The user {regular@ebi.ac.uk} is not allowed to delete the submission DeleteAcc7"
+        val expectedMessage = "The user regular@ebi.ac.uk is not allowed to delete the submission DeleteAcc7"
         assertThat(error.message).contains(expectedMessage)
     }
 
@@ -188,7 +189,7 @@ class DeletePermissionTest(
     }
 
     @Test
-    fun `1-9 superuser deletes public submission`() {
+    fun `1-9 superuser deletes public submission`() = runTest {
         val submission = tsv {
             line("Submission", "DeleteAcc9")
             line("Title", "Simple Submission")
@@ -207,7 +208,7 @@ class DeletePermissionTest(
         assertDeletedSubmission("DeleteAcc9")
     }
 
-    private fun assertDeletedSubmission(accNo: String, version: Int = -1) {
+    private suspend fun assertDeletedSubmission(accNo: String, version: Int = -1) {
         val deletedSubmission = submissionRepository.getExtByAccNoAndVersion(accNo, version)
         assertThat(deletedSubmission.version).isEqualTo(version)
     }

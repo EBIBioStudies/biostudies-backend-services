@@ -4,9 +4,9 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 
 internal interface FilesService {
-    fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile
+    suspend fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile
 
-    fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile)
+    suspend fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile)
 
     fun deleteFtpFile(sub: ExtSubmission, file: ExtFile)
 

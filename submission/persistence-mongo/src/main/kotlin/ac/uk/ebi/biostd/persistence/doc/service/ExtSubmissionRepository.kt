@@ -1,11 +1,12 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.FileListDocFileRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.ToDocSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
+import kotlinx.coroutines.flow.collect
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
@@ -15,16 +16,18 @@ class ExtSubmissionRepository(
     private val subDataRepository: SubmissionDocDataRepository,
     private val fileListDocFileRepository: FileListDocFileRepository,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
-    private val toDocSubmissionMapper: ToDocSubmissionMapper
+    private val toDocSubmissionMapper: ToDocSubmissionMapper,
 ) {
-    fun saveSubmission(submission: ExtSubmission): ExtSubmission =
-        toExtSubmissionMapper.toExtSubmission(persistSubmission(submission), false)
+    suspend fun saveSubmission(submission: ExtSubmission): ExtSubmission {
+        val saved = persistSubmission(submission)
+        return toExtSubmissionMapper.toExtSubmission(saved, false)
+    }
 
-    fun expirePreviousVersions(accNo: String) {
+    suspend fun expirePreviousVersions(accNo: String) {
         subDataRepository.expireVersions(listOf(accNo))
     }
 
-    private fun persistSubmission(submission: ExtSubmission): DocSubmission {
+    private suspend fun persistSubmission(submission: ExtSubmission): DocSubmission {
         val accNo = submission.accNo
         val owner = submission.owner
 
@@ -37,7 +40,7 @@ class ExtSubmissionRepository(
         logger.info { "$accNo $owner Finished saving submission in the database" }
 
         logger.info { "$accNo $owner Started saving ${files.count()} file list files" }
-        files.chunked(FILES_CHUNK_SIZE).forEach { fileListDocFileRepository.saveAll(it) }
+        files.chunked(FILES_CHUNK_SIZE).forEach { fileListDocFileRepository.saveAll(it).collect() }
         logger.info { "$accNo $owner Finished saving ${files.count()} file list files" }
 
         return savedSubmission

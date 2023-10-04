@@ -121,6 +121,15 @@ task updateMigratorArtifact {
     finalizedBy "deployArtifact"
 }
 
+task updateStatsReporterArtifact {
+    doFirst {
+        project.ext.artifactPath = "scheduler/tasks/stats-reporter-task/build/libs"
+        project.ext.artifactName = "stats-reporter-task-1.0.0.jar"
+    }
+
+    finalizedBy "deployArtifact"
+}
+
 task deployArtifact {
     doLast {
         ssh.run {

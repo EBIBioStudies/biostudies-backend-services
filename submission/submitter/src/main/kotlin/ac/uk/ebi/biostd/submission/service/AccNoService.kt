@@ -19,7 +19,7 @@ class AccNoService(
     private val subBasePath: String?,
 ) {
     @Suppress("ThrowsCount")
-    fun calculateAccNo(rqt: SubmitRequest): AccNumber {
+    suspend fun calculateAccNo(rqt: SubmitRequest): AccNumber {
         val submitter = rqt.submitter.email
         val isNew = rqt.previousVersion == null
         val accNo = rqt.submission.accNo.ifBlank { null }
@@ -39,7 +39,7 @@ class AccNoService(
             throw UserCanNotSubmitToCollectionException(submitter, collection)
     }
 
-    private fun checkCanReSubmit(accNo: String, submitter: String) {
+    private suspend fun checkCanReSubmit(accNo: String, submitter: String) {
         if (privilegesService.canResubmit(submitter, accNo).not()) throw UserCanNotUpdateSubmit(accNo, submitter)
     }
 

@@ -39,7 +39,7 @@ class MultipartSubmitResource(
         produces = [APPLICATION_JSON_VALUE]
     )
     @ResponseBody
-    fun submitMultipartJson(
+    suspend fun submitMultipartJson(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) content: String,
@@ -57,7 +57,7 @@ class MultipartSubmitResource(
         produces = [APPLICATION_JSON_VALUE]
     )
     @ResponseBody
-    fun submitMultipartXml(
+    suspend fun submitMultipartXml(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) content: String,
@@ -75,7 +75,7 @@ class MultipartSubmitResource(
         produces = [APPLICATION_JSON_VALUE]
     )
     @ResponseBody
-    fun submitMultipartTsv(
+    suspend fun submitMultipartTsv(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) content: String,
@@ -94,7 +94,7 @@ class MultipartSubmitResource(
         produces = [APPLICATION_JSON_VALUE]
     )
     @ResponseBody
-    fun submitFile(
+    suspend fun submitFile(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) file: MultipartFile,

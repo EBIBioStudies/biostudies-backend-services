@@ -15,6 +15,7 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.util.date.toStringDate
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -48,7 +49,7 @@ class ExtCollectionSubmitTest(
     }
 
     @Test
-    fun `7-1 submit private project`() {
+    fun `7-1 submit private project`() = runTest {
         val privateProject = tsv {
             line("Submission", "PrivateProject")
             line("Title", "A Private Project")
@@ -73,7 +74,7 @@ class ExtCollectionSubmitTest(
     }
 
     @Test
-    fun `7-2 submit public project`() {
+    fun `7-2 submit public project`() = runTest {
         val publicProject = tsv {
             line("Submission", "PublicProject")
             line("Title", "Public Project")

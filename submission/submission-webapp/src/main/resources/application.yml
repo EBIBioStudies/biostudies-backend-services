@@ -9,6 +9,10 @@ spring:
       client:
         enabled: false
 
+  mvc:
+    async:
+      request-timeout: -1
+
   data:
     mongodb:
       database: # Mongo Database Name
@@ -102,6 +106,7 @@ app:
       ftpPort: # the ftp port
   persistence:
     enableFire: true
+    concurrency: # Number of files processed concurrently
   mongo:
     execute-migrations: true
     migration-package: ac.uk.ebi.biostd.persistence.doc.migrations

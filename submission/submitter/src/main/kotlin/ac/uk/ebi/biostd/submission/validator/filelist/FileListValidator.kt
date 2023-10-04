@@ -13,6 +13,10 @@ import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.constants.FileFields.FILE_TYPE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.collections.ifNotEmpty
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import java.io.InputStream
 
 class FileListValidator(
@@ -24,7 +28,7 @@ class FileListValidator(
      * Validates the given file list by deserializing it and checking each file presence by generating a file source
      * with the given parameters. Note that in case of missing files only first 1000 are reported.
      */
-    fun validateFileList(request: FileListValidationRequest) {
+    suspend fun validateFileList(request: FileListValidationRequest) {
         val (accNo, rootPath, fileListName, submitter, onBehalfUser) = request
         val submission = accNo?.let { submissionQueryService.findExtByAccNo(accNo, includeFileListFiles = false) }
         val fileSourcesRequest = FileSourcesRequest(
@@ -39,16 +43,22 @@ class FileListValidator(
         validateFileList(fileListName, fileSources)
     }
 
-    private fun validateFileList(fileListName: String, fileSources: FileSourcesList) {
+    private suspend fun validateFileList(fileListName: String, fileSources: FileSourcesList) {
         val fileListFile = getFileListFile(fileListName, fileSources)
         val format = SubFormat.fromFile(fileListFile)
         fileListFile.inputStream().use { validateFiles(fileListName, it, format, fileSources) }
     }
 
-    private fun validateFiles(name: String, stream: InputStream, format: SubFormat, filesSource: FileSourcesList) {
+    private suspend fun validateFiles(
+        name: String,
+        stream: InputStream,
+        format: SubFormat,
+        filesSource: FileSourcesList,
+    ) {
         serializationService
             .deserializeFileList(stream, format)
             .ifEmpty { throw InvalidFileListException.emptyFileList(name) }
+            .asFlow()
             .filter { filesSource.findExtFile(it.path, FILE_TYPE.value, it.attributes) == null }
             .take(FILE_LIST_LIMIT)
             .toList()

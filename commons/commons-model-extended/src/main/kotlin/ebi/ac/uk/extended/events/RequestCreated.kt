@@ -41,3 +41,8 @@ data class RequestPersisted(
     @JsonProperty("accNo") override val accNo: String,
     @JsonProperty("version") override val version: Int,
 ) : RequestMessage
+
+data class RequestFinalized(
+    @JsonProperty("accNo") override val accNo: String,
+    @JsonProperty("version") override val version: Int,
+) : RequestMessage

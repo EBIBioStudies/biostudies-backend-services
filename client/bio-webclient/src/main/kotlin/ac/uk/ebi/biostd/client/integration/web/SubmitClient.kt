@@ -23,6 +23,7 @@ import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.Group
 import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.model.WebSubmissionDraft
 import java.io.File
 
@@ -36,7 +37,8 @@ interface SubmitClient :
     GeneralOperations,
     DraftSubmissionOperations,
     ExtSubmissionOperations,
-    PermissionOperations
+    PermissionOperations,
+    StatsOperations
 
 typealias SubmissionResponse = ClientResponse<Submission>
 
@@ -86,6 +88,16 @@ interface GeneralOperations {
     fun addUserInGroup(groupName: String, userName: String)
 }
 
+interface StatsOperations {
+    fun getStatsByAccNo(accNo: String): List<SubmissionStat>
+    fun getStatsByType(type: String): List<SubmissionStat>
+    fun getStatsByTypeAndAccNo(type: String, accNo: String): SubmissionStat
+
+    fun registerStat(stat: SubmissionStat): Unit
+    fun registerStats(type: String, statsFile: File): List<SubmissionStat>
+    fun incrementStats(type: String, statsFile: File): List<SubmissionStat>
+}
+
 interface DraftSubmissionOperations {
     fun getAllSubmissionDrafts(limit: Int = 15, offset: Int = 0): List<WebSubmissionDraft>
     fun getSubmissionDraft(accNo: String): WebSubmissionDraft
@@ -126,7 +138,10 @@ interface SubmitOperations {
 
     fun submitSingleFromDraftAsync(draftKey: String)
 
-    fun submitSingleFromDraft(draftKey: String): SubmissionResponse
+    fun submitSingleFromDraft(
+        draftKey: String,
+        preferredSources: List<PreferredSource>? = null,
+    ): SubmissionResponse
 
     fun submitAsync(
         submission: String,

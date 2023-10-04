@@ -7,6 +7,7 @@ import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
+import kotlinx.coroutines.flow.Flow
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -22,7 +23,11 @@ internal class PageTabSerializationService(
     override fun deserializeSubmission(content: String, format: SubFormat): Submission =
         serializer.deserializeSubmission(content, format)
 
-    override fun deserializeSubmission(content: String, format: SubFormat, source: FileSourcesList): Submission =
+    override suspend fun deserializeSubmission(
+        content: String,
+        format: SubFormat,
+        source: FileSourcesList,
+    ): Submission =
         fileListSerializer.deserializeFileList(serializer.deserializeSubmission(content, format), source)
 
     override fun deserializeSubmission(file: File): Submission {
@@ -30,7 +35,7 @@ internal class PageTabSerializationService(
         return deserializeSubmission(pagetabFile.readText(), SubFormat.fromFile(pagetabFile))
     }
 
-    override fun deserializeSubmission(file: File, source: FileSourcesList): Submission =
+    override suspend fun deserializeSubmission(file: File, source: FileSourcesList): Submission =
         fileListSerializer.deserializeFileList(deserializeSubmission(file), source)
 
     override fun deserializeFileList(
@@ -48,6 +53,10 @@ internal class PageTabSerializationService(
         targetFormat: SubFormat,
         outputStream: OutputStream,
     ) {
+        serializer.serializeFileList(files, targetFormat, outputStream)
+    }
+
+    override suspend fun serializeFileList(files: Flow<BioFile>, targetFormat: SubFormat, outputStream: OutputStream) {
         serializer.serializeFileList(files, targetFormat, outputStream)
     }
 }

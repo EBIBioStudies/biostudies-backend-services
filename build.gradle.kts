@@ -31,7 +31,12 @@ allprojects {
             targetCompatibility = "11"
             kotlinOptions {
                 jvmTarget = "11"
-                freeCompilerArgs = freeCompilerArgs + arrayOf("-Xjvm-default=enable", "-opt-in=kotlin.RequiresOptIn")
+                freeCompilerArgs =
+                    freeCompilerArgs + arrayOf(
+                    "-Xjvm-default=enable",
+                    "-opt-in=kotlin.RequiresOptIn",
+                    "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi"
+                )
             }
         }
 

@@ -33,13 +33,13 @@ class SubmitWebHandler(
     private val queryService: SubmissionMetaQueryService,
     private val fileServiceFactory: FileServiceFactory,
 ) {
-    fun submit(request: ContentSubmitWebRequest): Submission {
+    suspend fun submit(request: ContentSubmitWebRequest): Submission {
         val rqt = buildRequest(request)
         val extSubmission = subService.submit(rqt)
         return toSubmissionMapper.toSimpleSubmission(extSubmission)
     }
 
-    fun submit(request: FileSubmitWebRequest): Submission {
+    suspend fun submit(request: FileSubmitWebRequest): Submission {
         val rqt = buildRequest(request)
         val fileService = fileServiceFactory.forUser(request.config.submitter)
         fileService.uploadFile(DIRECT_UPLOAD_PATH, request.submission)
@@ -47,19 +47,19 @@ class SubmitWebHandler(
         return toSubmissionMapper.toSimpleSubmission(extSubmission)
     }
 
-    fun submitAsync(request: ContentSubmitWebRequest) {
+    suspend fun submitAsync(request: ContentSubmitWebRequest) {
         val rqt = buildRequest(request)
         subService.submitAsync(rqt)
     }
 
-    fun submitAsync(request: FileSubmitWebRequest) {
+    suspend fun submitAsync(request: FileSubmitWebRequest) {
         val rqt = buildRequest(request)
         val fileService = fileServiceFactory.forUser(request.config.submitter)
         fileService.uploadFile(DIRECT_UPLOAD_PATH, request.submission)
         subService.submitAsync(rqt)
     }
 
-    private fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {
+    private suspend fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {
         val (submitter, onBehalfUser, attrs, storageMode) = rqt.config
         val (files, preferredSources) = rqt.filesConfig
 
@@ -77,7 +77,7 @@ class SubmitWebHandler(
         /**
          * Deserialize the submission and check file presence in the list of sources.
          */
-        fun deserializeSubmission(source: FileSourcesList): Submission = when (rqt) {
+        suspend fun deserializeSubmission(source: FileSourcesList): Submission = when (rqt) {
             is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format, source)
             is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, source)
         }
@@ -102,7 +102,7 @@ class SubmitWebHandler(
          * 3. Submission is deserialized including file sources to check both pagetab structure and file presence.
          * 4. Overridden attributes are set.
          */
-        fun processSubmission(): SubmitRequest {
+        suspend fun processSubmission(): SubmitRequest {
             val (accNo, rootPath) = deserializeSubmission()
             val previous = extSubService.findExtendedSubmission(accNo)
             val sources = fileSourcesService.submissionSources(sourceRequest(rootPath, previous))

@@ -8,13 +8,14 @@ import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.LockExecutor
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
+import kotlinx.coroutines.runBlocking
 import org.springframework.transaction.annotation.Transactional
 
 internal open class SqlPersistenceService(
     private val sequenceRepository: SequenceDataRepository,
     private val accessTagsDataRepository: AccessTagDataRepo,
     private val lockExecutor: LockExecutor,
-    private val submissionPersistenceQueryService: SubmissionPersistenceQueryService
+    private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
 ) : PersistenceService {
     override fun sequenceAccNoPatternExists(pattern: String): Boolean = sequenceRepository.existsByPrefix(pattern)
 
@@ -23,13 +24,17 @@ internal open class SqlPersistenceService(
     }
 
     @Transactional
-    override fun getSequenceNextValue(pattern: String): Long = lockExecutor.executeLocking(pattern) {
-        val sequence = sequenceRepository.findByPrefix(pattern) ?: throw SequenceNotFoundException(pattern)
-        var next = sequence.counter.count + 1
-        while (submissionPersistenceQueryService.existByAccNo("${sequence.prefix}$next")) next++
+    override fun getSequenceNextValue(pattern: String): Long {
+        fun getNextSequence(pattern: String): Long = runBlocking {
+            val sequence = sequenceRepository.findByPrefix(pattern) ?: throw SequenceNotFoundException(pattern)
+            var next = sequence.counter.count + 1
+            while (submissionPersistenceQueryService.existByAccNo("${sequence.prefix}$next")) next++
 
-        sequence.counter.count = next
-        sequenceRepository.save(sequence).counter.count
+            sequence.counter.count = next
+            val saved = sequenceRepository.save(sequence)
+            saved.counter.count
+        }
+        return lockExecutor.executeLocking(pattern) { getNextSequence(pattern) }
     }
 
     override fun saveAccessTag(accessTag: String) {

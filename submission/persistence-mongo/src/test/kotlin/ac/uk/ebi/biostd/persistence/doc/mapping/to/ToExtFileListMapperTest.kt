@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
@@ -20,6 +20,8 @@ import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Test
@@ -30,7 +32,7 @@ import uk.ac.ebi.serialization.common.FilesResolver
 
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
-    private val fileListDocFileRepository: FileListDocFileRepository = mockk()
+    private val fileListDocFileRepository: FileListDocFileDocDataRepository = mockk()
     private val extSerializationService = ExtSerializationService()
     private val testInstance = ToExtFileListMapper(
         fileListDocFileRepository,
@@ -59,14 +61,14 @@ class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
     )
 
     @Test
-    fun `toExtFileList including FileListFiles`() {
+    fun `toExtFileList including FileListFiles`() = runTest {
         every {
             fileListDocFileRepository.findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
                 "S-TEST123",
                 1,
                 "file-list"
             )
-        } returns listOf(fileListDocFile)
+        } returns flowOf(fileListDocFile)
         val fileList = docFileList.copy(pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile))
 
         val extFileList = testInstance.toExtFileList(fileList, "S-TEST123", 1, false, "SubRelPath", true)
@@ -80,7 +82,7 @@ class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
     }
 
     @Test
-    fun `toExtFileList without FileListFiles`() {
+    fun `toExtFileList without FileListFiles`() = runTest {
         val fileList = docFileList.copy(pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile))
 
         val extFileList = testInstance.toExtFileList(fileList, "S-TEST123", 1, false, "SubRelPath", false)

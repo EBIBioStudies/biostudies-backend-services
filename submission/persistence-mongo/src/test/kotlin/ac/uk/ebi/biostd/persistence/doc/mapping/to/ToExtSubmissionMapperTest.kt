@@ -27,9 +27,10 @@ import ebi.ac.uk.io.ext.newFile
 import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -57,8 +58,17 @@ class ToExtSubmissionMapperTest(
         )
 
     @Test
-    fun `to ext Submission including FileListFiles`() {
-        every { toExtSectionMapper.toExtSection(docSection, "S-TEST123", 1, false, REL_PATH, true) } returns extSection
+    fun `to ext Submission including FileListFiles`() = runTest {
+        coEvery {
+            toExtSectionMapper.toExtSection(
+                docSection,
+                "S-TEST123",
+                1,
+                false,
+                REL_PATH,
+                true
+            )
+        } returns extSection
         val submission = docSubmission.copy(
             section = docSection,
             pageTabFiles = listOf(subNfsDocFile)
@@ -71,8 +81,17 @@ class ToExtSubmissionMapperTest(
     }
 
     @Test
-    fun `to ext Submission without FileListFiles`() {
-        every { toExtSectionMapper.toExtSection(docSection, "S-TEST123", 1, false, REL_PATH, false) } returns extSection
+    fun `to ext Submission without FileListFiles`() = runTest {
+        coEvery {
+            toExtSectionMapper.toExtSection(
+                docSection,
+                "S-TEST123",
+                1,
+                false,
+                REL_PATH,
+                false
+            )
+        } returns extSection
         val submission = docSubmission.copy(
             section = docSection,
             pageTabFiles = listOf(subNfsDocFile)

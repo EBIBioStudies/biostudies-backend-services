@@ -22,11 +22,13 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 import ebi.ac.uk.model.constants.SectionFields
 import ebi.ac.uk.util.collections.second
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -65,8 +67,8 @@ class ToExtSectionMapperTest(
     private val testInstance = ToExtSectionMapper(toExtFileListMapper)
 
     @Test
-    fun toExtSection() {
-        every { fileSource.getExtFile(file.path, file.type, file.attributes) } returns extFile
+    fun toExtSection() = runTest {
+        coEvery { fileSource.getExtFile(file.path, file.type, file.attributes) } returns extFile
 
         mockkStatic(
             TO_EXT_ATTRIBUTE_EXTENSIONS,
@@ -76,9 +78,9 @@ class ToExtSectionMapperTest(
             every { attribute.name } returns "attr1"
             every { fileListAttribute.name } returns SectionFields.FILE_LIST.value
             every { attribute.toExtAttribute() } returns extAttribute
-            every { toExtFileListMapper.convert(SUB_ACC, SUB_VERSION, fileList, fileSources) } returns extFileList
+            coEvery { toExtFileListMapper.convert(SUB_ACC, SUB_VERSION, fileList, fileSources) } returns extFileList
             every { link.toExtLink() } returns extLink
-            every { fileTable.toExtTable(fileSources) } returns extFileTable
+            coEvery { fileTable.toExtTable(fileSources) } returns extFileTable
             every { linkTable.toExtTable() } returns extLinkTable
 
             val sectionResult = testInstance.convert(SUB_ACC, SUB_VERSION, section, fileSources)

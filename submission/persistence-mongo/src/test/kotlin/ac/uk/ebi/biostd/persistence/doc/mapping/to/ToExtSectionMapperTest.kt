@@ -21,9 +21,10 @@ import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -46,13 +47,13 @@ class ToExtSectionMapperTest(
     )
 
     @Test
-    fun `to ext Submission without FileListFiles`() {
+    fun `to ext Submission without FileListFiles`() = runTest {
         val section = docSection.copy(
             files = listOf(Either.left(testNfsDocFile), Either.left(testFireDocFile)),
             fileList = docFileList
         )
 
-        every {
+        coEvery {
             toExtFileListMapper.toExtFileList(
                 docFileList,
                 "subAccNo",
@@ -70,13 +71,13 @@ class ToExtSectionMapperTest(
     }
 
     @Test
-    fun `to ext Submission including FileListFiles`() {
+    fun `to ext Submission including FileListFiles`() = runTest {
         val section = docSection.copy(
             files = listOf(Either.left(testNfsDocFile), Either.left(testFireDocFile)),
             fileList = docFileList
         )
 
-        every {
+        coEvery {
             toExtFileListMapper.toExtFileList(
                 docFileList,
                 "subAccNo",

@@ -1,6 +1,7 @@
 import Dependencies.Arrow
 import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.SpringWebFlux
@@ -27,6 +28,7 @@ dependencies {
     implementation(JacksonXml)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
+    implementation(KotlinCoroutines)
     implementation(SpringWebFlux)
 
     testApi(project(CommonsTest))

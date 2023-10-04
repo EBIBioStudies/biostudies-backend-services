@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionDraft
-import ac.uk.ebi.biostd.persistence.common.request.PaginationFilter
+import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonRawValue
 import com.fasterxml.jackson.annotation.JsonValue
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -34,34 +36,34 @@ internal class SubmissionDraftResource(
     @ResponseBody
     fun getSubmissionDrafts(
         @BioUser user: SecurityUser,
-        @ModelAttribute filter: PaginationFilter,
-    ): List<ResponseSubmissionDraft> =
+        @ModelAttribute filter: PageRequest,
+    ): Flow<ResponseSubmissionDraft> =
         submissionDraftService.getActiveSubmissionDrafts(user.email, filter).map { it.asResponseDraft() }
 
     @GetMapping("/{key}")
     @ResponseBody
-    fun getOrCreateSubmissionDraft(
+    suspend fun getOrCreateSubmissionDraft(
         @BioUser user: SecurityUser,
         @PathVariable key: String,
     ): ResponseSubmissionDraft = submissionDraftService.getOrCreateSubmissionDraft(user.email, key).asResponseDraft()
 
     @GetMapping("/{key}/content")
     @ResponseBody
-    fun getSubmissionDraftContent(
+    suspend fun getSubmissionDraftContent(
         @BioUser user: SecurityUser,
         @PathVariable key: String,
     ): ResponseSubmissionDraftContent =
         ResponseSubmissionDraftContent(submissionDraftService.getSubmissionDraftContent(user.email, key))
 
     @DeleteMapping("/{key}")
-    fun deleteSubmissionDraft(
+    suspend fun deleteSubmissionDraft(
         @BioUser user: SecurityUser,
         @PathVariable key: String,
     ) = submissionDraftService.deleteSubmissionDraft(user.email, key)
 
     @PutMapping("/{key}")
     @ResponseBody
-    fun updateSubmissionDraft(
+    suspend fun updateSubmissionDraft(
         @BioUser user: SecurityUser,
         @RequestBody content: String,
         @PathVariable key: String,
@@ -70,13 +72,13 @@ internal class SubmissionDraftResource(
 
     @PostMapping
     @ResponseBody
-    fun createSubmissionDraft(
+    suspend fun createSubmissionDraft(
         @BioUser user: SecurityUser,
         @RequestBody content: String,
     ): ResponseSubmissionDraft = submissionDraftService.createSubmissionDraft(user.email, content).asResponseDraft()
 
     @PostMapping("/{key}/submit")
-    fun submitDraft(
+    suspend fun submitDraft(
         @PathVariable key: String,
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
@@ -86,7 +88,7 @@ internal class SubmissionDraftResource(
     }
 
     @PostMapping("/{key}/submit/sync")
-    fun submitDraftSync(
+    suspend fun submitDraftSync(
         @PathVariable key: String,
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,

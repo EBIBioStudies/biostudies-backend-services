@@ -36,7 +36,7 @@ class MultipartAsyncSubmitResource(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_JSON_VALUE"],
         produces = [APPLICATION_JSON_VALUE]
     )
-    fun submitMultipartJson(
+    suspend fun submitMultipartJson(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) content: String,
@@ -53,7 +53,7 @@ class MultipartAsyncSubmitResource(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_XML"],
         produces = [APPLICATION_JSON_VALUE]
     )
-    fun submitMultipartXml(
+    suspend fun submitMultipartXml(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) content: String,
@@ -70,7 +70,7 @@ class MultipartAsyncSubmitResource(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_PLAIN"],
         produces = [APPLICATION_JSON_VALUE]
     )
-    fun submitMultipartTsv(
+    suspend fun submitMultipartTsv(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) content: String,
@@ -88,7 +88,7 @@ class MultipartAsyncSubmitResource(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"],
         produces = [APPLICATION_JSON_VALUE]
     )
-    fun submitFile(
+    suspend fun submitFile(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(SUBMISSION) file: MultipartFile,

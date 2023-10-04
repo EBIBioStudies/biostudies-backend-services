@@ -21,7 +21,7 @@ class FileListResource(
     private val fileListValidator: FileListValidator,
 ) {
     @PostMapping("/validate")
-    fun validateFileList(
+    suspend fun validateFileList(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestParam(ACC_NO) accNo: String?,

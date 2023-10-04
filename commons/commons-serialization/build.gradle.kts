@@ -3,6 +3,7 @@ import Dependencies.CommonsCsv
 import Dependencies.Guava
 import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -15,6 +16,7 @@ import Projects.TsvLibrary
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.JsonAssert
+import TestDependencies.KotlinCoroutinesTest
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.Woodstox
 import TestDependencies.XmlUnitAssertJ
@@ -35,6 +37,7 @@ dependencies {
     implementation(KotlinReflect)
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
+    implementation(KotlinCoroutines)
     implementation(Arrow)
     implementation(Guava)
     implementation(JacksonKotlin)
@@ -44,6 +47,7 @@ dependencies {
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
+    testImplementation(KotlinCoroutinesTest)
     testImplementation(XmlUnitCore)
     testImplementation(XmlUnitAssertJ)
     testImplementation(KotlinXmlBuilder)

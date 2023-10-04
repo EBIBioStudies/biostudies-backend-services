@@ -1,5 +1,6 @@
 package uk.ac.ebi.io.sources
 
+import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.FILE
@@ -7,6 +8,7 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
+import ebi.ac.uk.model.constants.FileFields
 import ebi.ac.uk.model.constants.FileFields.DB_ID
 import ebi.ac.uk.model.constants.FileFields.DB_MD5
 import ebi.ac.uk.model.constants.FileFields.DB_PATH
@@ -21,27 +23,47 @@ internal object DbFilesSource : FilesSource {
     override val description: String
         get() = "Provided Db files"
 
-    override fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+    override suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
         val valuesMap = attributes.associateBy({ it.name }, { it.value })
         val dbFile = getDbFile(valuesMap)
         return if (dbFile != null) return asFireFile(path, dbFile, attributes) else null
     }
 
-    override fun getFileList(path: String): File? = null
+    override suspend fun getFileList(path: String): File? = null
 
     @Suppress("ComplexCondition")
-    private fun getDbFile(attributes: Map<String, String?>): FireByPassFile? {
-        val md5 = attributes[DB_MD5.value]
-        val size = attributes[DB_SIZE.value]
-        val id = attributes[DB_ID.value]
-        val path = attributes[DB_PATH.value]
-        val published = attributes[DB_PUBLISHED.value]
+    private fun getDbFile(attributes: Map<String, String?>): ByPassFile? {
+        fun requireNullOrNotEmpty(field: FileFields): String? {
+            val value = attributes[field.value]
+            require(value == null || value.isNotBlank()) { "${field.value} can not be an empty string" }
+            return value
+        }
 
-        return if (md5 == null || size == null || id == null || path == null) null
-        else FireByPassFile(id, md5, path, size.toLong(), published.toBoolean())
+        fun checkPath(): String? {
+            val path = requireNullOrNotEmpty(DB_PATH)
+            if (path?.startsWith("/").orFalse()) throw IllegalArgumentException("Db path '$path' needs to be relative.")
+            return path
+        }
+
+        val md5 = requireNullOrNotEmpty(DB_MD5)
+        val size = requireNullOrNotEmpty(DB_SIZE)?.toLong()
+        val id = requireNullOrNotEmpty(DB_ID)
+        val path = checkPath()
+        val public = requireNullOrNotEmpty(DB_PUBLISHED)?.toBoolean()
+
+        if (size != null && id != null && path != null && md5 != null && public != null)
+            return ByPassFile(id, md5, path, size, public)
+
+        if (size == null && id == null && path == null && public == null)
+            return null
+
+        throw IllegalArgumentException(
+            "All bypass attributes [md5, size, id, path, published] need to be present or none, " +
+                "found [$md5, $size, $id, $path, $public]"
+        )
     }
 
-    private fun asFireFile(path: String, db: FireByPassFile, attributes: List<Attribute>): FireFile =
+    private fun asFireFile(path: String, db: ByPassFile, attributes: List<Attribute>): FireFile =
         FireFile(
             fireId = db.id,
             firePath = db.path,
@@ -54,7 +76,7 @@ internal object DbFilesSource : FilesSource {
             attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
         )
 
-    private data class FireByPassFile(
+    private data class ByPassFile(
         val id: String,
         val md5: String,
         val path: String,

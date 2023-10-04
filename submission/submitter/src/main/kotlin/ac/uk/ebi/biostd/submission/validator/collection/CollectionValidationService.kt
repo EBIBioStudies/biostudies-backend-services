@@ -9,16 +9,16 @@ import org.springframework.beans.factory.BeanFactory
 
 class CollectionValidationService(
     private val beanFactory: BeanFactory,
-    private val queryService: SubmissionMetaQueryService
+    private val queryService: SubmissionMetaQueryService,
 ) {
-    fun executeCollectionValidators(submission: ExtSubmission) = submission.isCollection.ifFalse {
+    suspend fun executeCollectionValidators(submission: ExtSubmission) = submission.isCollection.ifFalse {
         submission
             .collections
             .mapNotNull { loadCollection(it.accNo).validator }
             .forEach { validate(it, submission) }
     }
 
-    private fun loadCollection(accNo: String) = queryService.getBasicCollection(accNo)
+    private suspend fun loadCollection(accNo: String) = queryService.getBasicCollection(accNo)
 
     @Throws(CollectionValidationException::class)
     private fun validate(validator: String, submission: ExtSubmission) = loadValidator(validator).validate(submission)

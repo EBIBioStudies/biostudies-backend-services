@@ -22,6 +22,7 @@ import ebi.ac.uk.model.extensions.attachTo
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.date.toStringDate
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -55,7 +56,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `8-1 accNo generation from collection template`() {
+    fun `8-1 accNo generation from collection template`() = runTest {
         val submission = tsv {
             line("Submission")
             line("AttachTo", "Test-Project")
@@ -71,7 +72,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `8-2 direct submission overriding collection`() {
+    fun `8-2 direct submission overriding collection`() = runTest {
         val submissionFile = tempFolder.createFile(
             "submission.tsv",
             tsv {
@@ -94,7 +95,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `8-3 no release date to private collection`() {
+    fun `8-3 no release date to private collection`() = runTest {
         val submission = tsv {
             line("Submission", "S-PRP0")
             line("AttachTo", "Private-Project")
@@ -111,7 +112,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `8-4 public submission to private collection`() {
+    fun `8-4 public submission to private collection`() = runTest {
         val today = OffsetDateTime.now().toStringDate()
         val submission = tsv {
             line("Submission", "S-PRP1")
@@ -131,7 +132,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `8-5 private submission to public collection`() {
+    fun `8-5 private submission to public collection`() = runTest {
         val submission = tsv {
             line("Submission", "S-PUP0")
             line("AttachTo", "Public-Project")
@@ -150,7 +151,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `8-6 no release date to public collection`() {
+    fun `8-6 no release date to public collection`() = runTest {
         val submission = tsv {
             line("Submission", "S-PUP1")
             line("AttachTo", "Public-Project")
@@ -167,7 +168,7 @@ class SubmissionToCollectionsTest(
     }
 
     @Test
-    fun `8-7 submit to collection with validator`() {
+    fun `8-7 submit to collection with validator`() = runTest {
         val submission = tsv {
             line("Submission", "S-VLD0")
             line("AttachTo", "ValidatedCollection")
@@ -247,6 +248,6 @@ class SubmissionToCollectionsTest(
         assertThat(webClient.submitSingle(validatedCollection, TSV)).isSuccessful()
     }
 
-    private fun getSimpleSubmission(accNo: String) =
+    private suspend fun getSimpleSubmission(accNo: String) =
         toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo(accNo))
 }

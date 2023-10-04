@@ -1,5 +1,6 @@
 import Dependencies.Arrow
 import Dependencies.Jwt
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -21,6 +22,7 @@ import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.JaxbApi
+import TestDependencies.KotlinCoroutinesTest
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
@@ -51,6 +53,7 @@ dependencies {
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(RxJava2)
+    implementation(KotlinCoroutines)
     implementation(SpringBootStarterSecurity)
     implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterWeb)
@@ -58,10 +61,9 @@ dependencies {
     implementation(ServletApi)
 
     testApi(project(CommonsTest))
-
     testImplementation(Logback)
     testImplementation(SpringBootStarterAmqp)
-
+    testImplementation(KotlinCoroutinesTest)
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

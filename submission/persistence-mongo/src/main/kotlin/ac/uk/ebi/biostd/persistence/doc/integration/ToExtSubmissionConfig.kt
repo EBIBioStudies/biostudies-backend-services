@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.integration
 
-import ac.uk.ebi.biostd.persistence.doc.db.repositories.FileListDocFileRepository
+import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtFileListMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSectionMapper
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
@@ -13,10 +13,11 @@ import uk.ac.ebi.serialization.common.FilesResolver
 class ToExtSubmissionConfig {
     @Bean
     internal fun toExtFileListMapper(
-        fileListDocFileRepository: FileListDocFileRepository,
+        fileListDocFileDocDataRepository: FileListDocFileDocDataRepository,
         extSerializationService: ExtSerializationService,
         extFilesResolver: FilesResolver,
-    ): ToExtFileListMapper = ToExtFileListMapper(fileListDocFileRepository, extSerializationService, extFilesResolver)
+    ): ToExtFileListMapper =
+        ToExtFileListMapper(fileListDocFileDocDataRepository, extSerializationService, extFilesResolver)
 
     @Bean
     internal fun toExtSectionMapper(

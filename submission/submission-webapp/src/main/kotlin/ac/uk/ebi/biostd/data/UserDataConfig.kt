@@ -2,16 +2,13 @@ package ac.uk.ebi.biostd.data
 
 import ac.uk.ebi.biostd.data.service.UserDataService
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
-import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
 class UserDataConfig(
     private val userDataDataRepository: UserDataDataRepository,
-    private val userDataRepository: UserDataRepository
 ) {
-
     @Bean
-    fun userDataService() = UserDataService(userDataDataRepository, userDataRepository)
+    fun userDataService() = UserDataService(userDataDataRepository)
 }

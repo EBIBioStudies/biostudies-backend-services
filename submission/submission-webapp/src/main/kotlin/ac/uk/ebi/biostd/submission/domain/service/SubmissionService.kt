@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 
@@ -27,30 +28,30 @@ class SubmissionService(
     private val submissionPersistenceService: SubmissionPersistenceService,
     private val fileStorageService: FileStorageService,
 ) {
-    fun submit(rqt: SubmitRequest): ExtSubmission {
+    suspend fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.draftKey}'" }
         return submissionSubmitter.submit(rqt)
     }
 
-    fun submitAsync(rqt: SubmitRequest) {
+    suspend fun submitAsync(rqt: SubmitRequest) {
         logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request with draft key '${rqt.draftKey}'" }
         val (accNo, version) = submissionSubmitter.createRequest(rqt)
         eventsPublisherService.requestCreated(accNo, version)
     }
 
-    fun deleteSubmission(accNo: String, user: SecurityUser) {
+    suspend fun deleteSubmission(accNo: String, user: SecurityUser) {
         require(userPrivilegesService.canDelete(user.email, accNo)) { throw UserCanNotDelete(accNo, user.email) }
-        fileStorageService.deleteSubmissionFiles(queryService.getExtByAccNo(accNo, true))
+        runBlocking { fileStorageService.deleteSubmissionFiles(queryService.getExtByAccNo(accNo, true)) }
         submissionPersistenceService.expireSubmission(accNo)
         eventsPublisherService.submissionsRefresh(accNo, user.email)
     }
 
-    fun deleteSubmissions(submissions: List<String>, user: SecurityUser) {
+    suspend fun deleteSubmissions(submissions: List<String>, user: SecurityUser) {
         submissions.forEach { require(userPrivilegesService.canDelete(user.email, it)) }
         submissions.forEach { deleteSubmission(it, user) }
     }
 
-    fun releaseSubmission(request: ReleaseRequest, user: SecurityUser) {
+    suspend fun releaseSubmission(request: ReleaseRequest, user: SecurityUser) {
         require(userPrivilegesService.canRelease(user.email)) { throw UserCanNotRelease(request.accNo, user.email) }
         extSubmissionSubmitter.release(request.accNo)
         eventsPublisherService.submissionsRefresh(request.accNo, user.email)

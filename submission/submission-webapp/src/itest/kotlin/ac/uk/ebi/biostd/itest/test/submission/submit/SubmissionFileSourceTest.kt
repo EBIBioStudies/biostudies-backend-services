@@ -28,12 +28,15 @@ import ebi.ac.uk.extended.model.allSectionsFiles
 import ebi.ac.uk.io.ext.allSubFiles
 import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.io.ext.exist
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.second
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Nested
@@ -48,6 +51,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
+import java.nio.file.Path
 import java.nio.file.Paths
 
 @Import(FilePersistenceConfig::class)
@@ -71,7 +75,7 @@ class SubmissionFileSourceTest(
     }
 
     @Test
-    fun `6-1 resubmission with SUBMISSION file source as priority over USER_SPACE`() {
+    fun `6-1 resubmission with SUBMISSION file source as priority over USER_SPACE`() = runTest {
         fun submission(fileList: String) = tsv {
             line("Submission", "S-FSTST1")
             line("Title", "Preferred Source Submission")
@@ -102,7 +106,7 @@ class SubmissionFileSourceTest(
         assertThat(webClient.submitSingle(submission("FileList.tsv"), TSV, filesConfig)).isSuccessful()
 
         val firstVersion = submissionRepository.getExtByAccNo("S-FSTST1")
-        val firstVersionReferencedFiles = filesRepository.getReferencedFiles(firstVersion, "FileList")
+        val firstVersionReferencedFiles = filesRepository.getReferencedFiles(firstVersion, "FileList").toList()
         val subFilesPath = "$submissionPath/${firstVersion.relPath}/Files"
         val innerFile = Paths.get("$subFilesPath/File1.txt")
         val referencedFile = Paths.get("$subFilesPath/File2.txt")
@@ -129,7 +133,7 @@ class SubmissionFileSourceTest(
 
         if (enableFire) {
             val secondVersion = submissionRepository.getExtByAccNo("S-FSTST1")
-            val secondVersionReferencedFiles = filesRepository.getReferencedFiles(secondVersion, "FileList")
+            val secondVersionReferencedFiles = filesRepository.getReferencedFiles(secondVersion, "FileList").toList()
 
             val firstVersionFireId = (firstVersion.allSectionsFiles.first() as FireFile).fireId
             val secondVersionFireId = (secondVersion.allSectionsFiles.first() as FireFile).fireId
@@ -143,7 +147,7 @@ class SubmissionFileSourceTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `6-2 submission with FIRE source only`() {
+    fun `6-2 submission with FIRE source only`() = runTest {
         val file3 = tempFolder.createFile("File3.txt", "content file 3")
         val file4 = tempFolder.createFile("File4.txt", "content file 4")
         val file3Md5 = file3.md5()
@@ -182,7 +186,7 @@ class SubmissionFileSourceTest(
         assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
 
         val persistedSubmission = submissionRepository.getExtByAccNo("S-FSTST2")
-        val firstVersionReferencedFiles = filesRepository.getReferencedFiles(persistedSubmission, "FileList")
+        val firstVersionReferencedFiles = filesRepository.getReferencedFiles(persistedSubmission, "FileList").toList()
         val subFilesPath = "$submissionPath/${persistedSubmission.relPath}/Files"
         val innerFile = Paths.get("$subFilesPath/File4.txt")
         val referencedFile = Paths.get("$subFilesPath/File3.txt")
@@ -203,10 +207,10 @@ class SubmissionFileSourceTest(
     inner class SubmissionsWithFolders {
         @Test
         @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-        fun `6-3-1 submission with directory with files on FIRE`() {
+        fun `6-3-1 submission with directory with files on FIRE`() = runTest {
             val submission = tsv {
                 line("Submission", "S-FSTST3")
-                line("Title", "Simple Submission With directory")
+                line("Title", "Simple Submission With directory on FIRE")
                 line()
 
                 line("Study")
@@ -242,54 +246,86 @@ class SubmissionFileSourceTest(
 
         @Test
         @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-        fun `6-3-2 re submission with directory with files on FIRE`() {
+        fun `6-3-2-1 re submission with directory with files on FIRE`() = runTest {
             val submission = tsv {
-                line("Submission", "S-FSTST8")
+                line("Submission", "S-FSTST81")
                 line("Title", "Simple Submission With directory")
                 line()
 
                 line("Study")
                 line()
 
-                line("File", "directory")
+                line("File", "directory-1")
                 line("Type", "test")
                 line()
             }.toString()
 
             val file1 = tempFolder.createFile("file1.txt", "content-1")
-            webClient.uploadFiles(listOf(file1), "directory")
+            webClient.uploadFiles(listOf(file1), "directory-1")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val submitted = submissionRepository.getExtByAccNo("S-FSTST8")
+            val submitted = submissionRepository.getExtByAccNo("S-FSTST81")
             assertThat(submitted.section.files).hasSize(1)
             assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
                 assertThat(it.type).isEqualTo(ExtFileType.DIR)
                 assertThat(it.size).isEqualTo(161L)
                 assertThat(it.md5).isEqualTo("D2B8C7BFA31857BF778B4000E7FA8975")
-                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory.zip")
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory-1.zip")
                 assertThat(files).containsExactly("file1.txt" to file1.readText())
             }
 
             val file2 = tempFolder.createFile("file1.txt", "updated-content-1")
-            webClient.uploadFiles(listOf(file2), "directory")
+            webClient.uploadFiles(listOf(file2), "directory-1")
 
             assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-            val updated = submissionRepository.getExtByAccNo("S-FSTST8")
+            val updated = submissionRepository.getExtByAccNo("S-FSTST81")
             assertThat(updated.section.files).hasSize(1)
             assertThat(updated.section.files.first()).hasLeftValueSatisfying {
                 assertThat(it.type).isEqualTo(ExtFileType.DIR)
                 assertThat(it.size).isEqualTo(169L)
                 assertThat(it.md5).isEqualTo("537D49F318EC4DA1C5B82DD9025D789E")
-                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory.zip")
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/directory-1.zip")
                 assertThat(files).containsExactly("file1.txt" to file2.readText())
             }
         }
 
         @Test
         @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-        fun `6-3-3 re submission with directory with files on FIRE, User folder should be prioritized`() {
+        fun `6-3-2-2 re-submission with directory with files on FIRE using submission source only`() = runTest {
+            val fileList = tsv {
+                line("Files", "Type")
+                line("directory-2", "test")
+                line()
+            }.toString()
+
+            val submission = tsv {
+                line("Submission", "S-FSTST82")
+                line("Title", "Simple Submission With directory")
+                line()
+
+                line("Study")
+                line("File List", "fileList_with_dir.tsv")
+                line()
+            }.toString()
+
+            val file1 = tempFolder.createFile("file1.txt", "content-1")
+            val fileListFile = tempFolder.createFile("fileList_with_dir.tsv", fileList)
+
+            webClient.uploadFiles(listOf(file1), "directory-2")
+            webClient.uploadFiles(listOf(fileListFile))
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val draft = webClient.getSubmissionDraft("S-FSTST82")
+            val response = webClient.submitSingleFromDraft(draft.key, listOf(SUBMISSION))
+            assertThat(response).isSuccessful()
+        }
+
+        @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+        fun `6-3-3 re submission with directory with files on FIRE, User folder should be prioritized`() = runTest {
             val submission = tsv {
                 line("Submission", "S-FSTST9")
                 line("Title", "Simple Submission with directory")
@@ -344,6 +380,149 @@ class SubmissionFileSourceTest(
             }
         }
 
+        @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+        fun `6-3-4 submission with directories with the same name on FIRE`() = runTest {
+            val submission = tsv {
+                line("Submission", "S-FSTST34")
+                line("Title", "Directories With The Same Name on FIRE")
+                line()
+
+                line("Study")
+                line()
+
+                line("File", "duplicated")
+                line("Type", "A")
+                line()
+
+                line("File", "folder/duplicated")
+                line("Type", "B")
+                line()
+            }.toString()
+
+            val fileA = tempFolder.createFile("fileA.txt", "one content")
+            val fileB = tempFolder.createFile("fileB.txt", "another content")
+            val fileC = tempFolder.createFile("fileC.txt", "yet another content")
+
+            webClient.uploadFiles(listOf(fileA), "duplicated")
+            webClient.uploadFiles(listOf(fileC), "folder")
+            webClient.uploadFiles(listOf(fileB), "folder/duplicated")
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val submitted = submissionRepository.getExtByAccNo("S-FSTST34")
+            assertThat(submitted.section.files).hasSize(2)
+            assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(163L)
+                assertThat(it.md5).isEqualTo("EEB90F918DF18A5DA2F5C7626900083B")
+
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/duplicated.zip")
+                assertThat(files).containsExactly("fileA.txt" to fileA.readText())
+            }
+            assertThat(submitted.section.files.second()).hasLeftValueSatisfying {
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(167L)
+                assertThat(it.md5).isEqualTo("414A43404B81150677559D28C0DB9F4B")
+
+                val files = getZipFiles("$submissionPath/${submitted.relPath}/Files/folder/duplicated.zip")
+                assertThat(files).containsExactly("fileB.txt" to fileB.readText())
+            }
+        }
+
+        @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "false")
+        fun `6-3-5 submission with directory with files on NFS`() = runTest {
+            val submission = tsv {
+                line("Submission", "S-FSTST4")
+                line("Title", "Simple Submission With directory on NFS")
+                line()
+
+                line("Study")
+                line()
+
+                line("File", "directory")
+                line("Type", "test")
+                line()
+            }.toString()
+
+            val file1 = tempFolder.createFile("file1.txt", "content-1")
+            val file2 = tempFolder.createFile(".file2.txt", "content-2")
+
+            webClient.uploadFiles(listOf(file1), "directory")
+            webClient.uploadFiles(listOf(file2), "directory/subdirectory")
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val submitted = submissionRepository.getExtByAccNo("S-FSTST4")
+            assertThat(submitted.section.files).hasSize(1)
+            assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(18L)
+                assertThat(it.md5).isEmpty()
+
+                val dir = Paths.get("$submissionPath/${submitted.relPath}/Files/directory")
+                assertDirFile(dir.resolve("file1.txt"), "content-1")
+                assertDirFile(dir.resolve("subdirectory/.file2.txt"), "content-2")
+            }
+        }
+
+        @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "false")
+        fun `6-3-6 submission with directories with the same name on NFS`() = runTest {
+            val submission = tsv {
+                line("Submission", "S-FSTST34")
+                line("Title", "Directories With The Same Name on NFS")
+                line()
+
+                line("Study")
+                line()
+
+                line("File", "duplicated")
+                line("Type", "A")
+                line()
+
+                line("File", "folder/duplicated")
+                line("Type", "B")
+                line()
+            }.toString()
+
+            val fileA = tempFolder.createFile("fileA.txt", "one content")
+            val fileB = tempFolder.createFile("fileB.txt", "another content")
+            val fileC = tempFolder.createFile("fileC.txt", "yet another content")
+
+            webClient.uploadFiles(listOf(fileA), "duplicated")
+            webClient.uploadFiles(listOf(fileC), "folder")
+            webClient.uploadFiles(listOf(fileB), "folder/duplicated")
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val submitted = submissionRepository.getExtByAccNo("S-FSTST34")
+            assertThat(submitted.section.files).hasSize(2)
+            assertThat(submitted.section.files.first()).hasLeftValueSatisfying {
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(11L)
+                assertThat(it.md5).isEmpty()
+
+                val dir = Paths.get("$submissionPath/${submitted.relPath}/Files/duplicated")
+                assertDirFile(dir.resolve("fileA.txt"), "one content")
+            }
+            assertThat(submitted.section.files.second()).hasLeftValueSatisfying {
+                assertThat(it.type).isEqualTo(ExtFileType.DIR)
+                assertThat(it.size).isEqualTo(15L)
+                assertThat(it.md5).isEmpty()
+
+                val dir = Paths.get("$submissionPath/${submitted.relPath}/Files/folder/duplicated")
+                assertDirFile(dir.resolve("fileB.txt"), "another content")
+            }
+        }
+
+        private fun assertDirFile(filePath: Path, content: String) {
+            assertThat(filePath.exist()).isTrue()
+            assertThat(filePath.toFile().readText()).isEqualTo(content)
+        }
+
         private fun getZipFiles(filePath: String): List<Pair<String, String>> {
             val subZip = tempFolder.createDirectory("target")
             ZipUtil.unpack(File(filePath), subZip)
@@ -356,7 +535,7 @@ class SubmissionFileSourceTest(
     }
 
     @Test
-    fun `6-4 multiple file references`() {
+    fun `6-4 multiple file references`() = runTest {
         val firstVersionFileList = tsv {
             line("Files", "Type")
             line("MultipleReferences.txt", "Ref 1")
@@ -431,7 +610,7 @@ class SubmissionFileSourceTest(
     }
 
     @Test
-    fun `6-5 submission with group file`() {
+    fun `6-5 submission with group file`() = runTest {
         val groupName = "The-Group"
         val submission = tsv {
             line("Submission", "S-FSTST5")
@@ -467,7 +646,7 @@ class SubmissionFileSourceTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `6-6 Submission bypassing fire`() {
+    fun `6-6 Submission bypassing fire`() = runTest {
         val submission = tsv {
             line("Submission", "S-FSTST6")
             line("Title", "Sample Submission")
@@ -502,7 +681,7 @@ class SubmissionFileSourceTest(
     }
 
     @Test
-    fun `6-7 resubmission with SUBMISSION source ONLY`() {
+    fun `6-7 resubmission with SUBMISSION source ONLY`() = runTest {
         val submission = tsv {
             line("Submission", "S-FSTST7")
             line("Title", "Submission Source Only")

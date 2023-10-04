@@ -35,12 +35,13 @@ import SpringBootDependencies.SpringBootStarterSecurity
 import SpringBootDependencies.SpringBootStarterTest
 import SpringBootDependencies.SpringBootStarterValidation
 import SpringBootDependencies.SpringBootStarterWeb
-import SpringBootDependencies.SpringRetry
+import SpringBootDependencies.SpringBootStarterWebFlux
 import TestDependencies.Awaitility
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.FtpServer
 import TestDependencies.JsonPathAssert
+import TestDependencies.KotlinCoroutinesTest
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
@@ -53,6 +54,7 @@ import TestDependencies.XmlUnitMatchers
 import TestDependencies.rabitMqMock
 import TestDependencies.slf4jApi
 import TestDependencies.slf4jImp
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 buildscript {
@@ -70,6 +72,7 @@ plugins {
     id(Plugins.KotlinAllOpenPlugin) version PluginVersions.KotlinPluginVersion
     id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion
     id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
+    id(Plugins.GradleRetry) version PluginVersions.GradleRetryVersion
 }
 
 allOpen {
@@ -95,13 +98,13 @@ dependencies {
     annotationProcessor(SpringBootConfigurationProcessor)
 
     implementation(SpringBootStarterWeb)
+    implementation(SpringBootStarterWebFlux)
     implementation(SpringBootStarterAmqp)
     implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringBootStarterSecurity)
     implementation(SpringBootStarterActuator)
     implementation(SpringBootStarterValidation)
-    implementation(SpringRetry)
     implementation(SpringBootStartedAdminClient)
 
     implementation(Arrow)
@@ -118,6 +121,7 @@ dependencies {
     implementation(SpringWebFlux)
     implementation(KotlinLogging)
 
+    testImplementation(KotlinCoroutinesTest)
     testImplementation(project(ClientBioWebClient))
     testImplementation(testFixtures(project(CommonsSerialization)))
     testImplementation(testFixtures(project(CommonsModelExtended)))
@@ -143,9 +147,8 @@ dependencies {
     testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)
     testImplementation(TestContainerJUnit)
+    testImplementation(KotlinCoroutinesTest)
 }
-
-apply(from = "$rootDir/gradle/itest.gradle.kts")
 
 tasks.named<BootJar>("bootJar") {
     archiveBaseName.set("submission-webapp")
@@ -153,6 +156,55 @@ tasks.named<BootJar>("bootJar") {
     dependsOn("generateGitProperties")
 }
 
-tasks.named<Copy>("processItestResources") {
-    duplicatesStrategy = DuplicatesStrategy.WARN
+sourceSets {
+    create("itest") {
+        java.srcDir(file("src/itest/java"))
+        resources.srcDir(file("src/itest/resources"))
+        compileClasspath += sourceSets["main"].output + configurations["testRuntimeClasspath"]
+        runtimeClasspath += output + sourceSets["main"].output + compileClasspath
+    }
 }
+
+val copySqlSchema = tasks.create<Copy>("copySqlSchema") {
+    from("$rootDir/infrastructure/src/main/resources/setup/mysql/Schema.sql")
+    into("$buildDir/resources/itest")
+}
+
+val itest = tasks.create<Test>("itest") {
+    dependsOn(copySqlSchema)
+    testClassesDirs = sourceSets["itest"].output.classesDirs
+    classpath = sourceSets["itest"].runtimeClasspath
+
+    val enableFire = project.property("enableFire")!!
+    println("##### Running integration tests with fireEnable=$enableFire #######")
+    systemProperty("enableFire", enableFire)
+
+    useJUnitPlatform()
+    testLogging.exceptionFormat = TestExceptionFormat.SHORT
+    testLogging.showStandardStreams = true
+    extensions.configure(JacocoTaskExtension::class) {
+        setDestinationFile(file("$buildDir/jacoco/jacocoITest.exec"))
+        classDumpDir = file("$buildDir/jacoco/classpathdumps")
+    }
+
+    retry {
+        maxRetries.set(3)
+        maxFailures.set(10)
+        failOnPassedAfterRetry.set(false)
+    }
+
+    addTestListener(object : TestListener {
+        override fun beforeSuite(suite: TestDescriptor) {}
+        override fun beforeTest(testDescriptor: TestDescriptor) {}
+        override fun afterTest(desc: TestDescriptor, result: TestResult) {
+            val time = result.endTime - result.startTime
+            logger.quiet("Executed test ${desc.name} [${desc.className}] with result: ${result.resultType}, in $time ms")
+            logger.quiet(result.exception?.stackTraceToString() ?: "Not Register exception")
+        }
+
+        override fun afterSuite(suite: TestDescriptor, result: TestResult) {}
+    })
+}
+
+tasks.getByName<JacocoCoverageVerification>("jacocoTestCoverageVerification") { dependsOn(itest) }
+tasks.named<Copy>("processItestResources") { duplicatesStrategy = DuplicatesStrategy.WARN }

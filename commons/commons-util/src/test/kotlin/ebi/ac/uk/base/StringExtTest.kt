@@ -42,6 +42,12 @@ class StringExtTest {
         assertThat(original.trim()).isEqualTo("Multiple Spaced String")
     }
 
+    @Test
+    fun ensureSuffix() {
+        assertThat("1abc".ensureSuffix("abc")).isEqualTo("1abc")
+        assertThat("xzy".ensureSuffix("abc")).isEqualTo("xzyabc")
+    }
+
     @Nested
     inner class RemoveFirstOccurrence {
         @Test

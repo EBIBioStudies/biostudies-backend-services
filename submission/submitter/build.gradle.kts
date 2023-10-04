@@ -2,6 +2,7 @@ import Dependencies.Arrow
 import Dependencies.ArrowData
 import Dependencies.ArrowTypeClasses
 import Dependencies.CommonsIO
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -19,6 +20,7 @@ import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.KotlinCoroutinesTest
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
@@ -47,6 +49,7 @@ dependencies {
     implementation(CommonsIO)
     implementation(RxJava2)
 
+    implementation(KotlinCoroutines)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
     implementation(KotlinLogging)
@@ -56,6 +59,7 @@ dependencies {
     implementation(SpringWebFlux)
 
     testImplementation(SpringBootStarterAmqp)
+    testImplementation(KotlinCoroutinesTest)
     testImplementation(testFixtures(project(CommonsModelExtended)))
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
