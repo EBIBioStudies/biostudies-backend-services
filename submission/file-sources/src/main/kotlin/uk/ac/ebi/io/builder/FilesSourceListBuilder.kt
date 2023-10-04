@@ -72,7 +72,6 @@ class FilesSourceListBuilder(
             .allInnerSubmissionFiles
             .groupBy { it.filePath }
             .mapValues { it.value.first() }
-
         sources.add(SubmissionFilesSource(submission, nfsFiles, fireClient, previousVersionFiles, filesRepository))
     }
 }

@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.client.api
 import ac.uk.ebi.biostd.client.extensions.deserializeResponse
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
+import ac.uk.ebi.biostd.client.integration.web.SubmissionResponse
 import ac.uk.ebi.biostd.client.integration.web.SubmitOperations
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON
@@ -16,6 +17,7 @@ import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.post
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.util.web.optionalQueryParam
 import org.springframework.http.HttpHeaders
@@ -76,9 +78,13 @@ internal class SubmitClient(
         client.post("$SUBMISSIONS_URL/drafts/$draftKey/submit")
     }
 
-    override fun submitSingleFromDraft(draftKey: String): SubmissionResponse {
+    override fun submitSingleFromDraft(
+        draftKey: String,
+        preferredSources: List<PreferredSource>?,
+    ): SubmissionResponse {
+        val source = preferredSources?.let { "?preferredSources=${it.joinToString()}" }.orEmpty()
         val response = client.post()
-            .uri("$SUBMISSIONS_URL/drafts/$draftKey/submit/sync")
+            .uri("$SUBMISSIONS_URL/drafts/$draftKey/submit/sync$source")
             .retrieve()
 
         return serializationService.deserializeResponse(response, JSON).block()!!
