@@ -1,10 +1,13 @@
 package ac.uk.ebi.cluster.client.model
 
+import ac.uk.ebi.cluster.client.model.CoresSpec.ONE_CORE
+import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.ONE_GB
+
 data class JobSpec(
-    val cores: Int,
-    val ram: MemorySpec,
+    val cores: Int = ONE_CORE,
+    val ram: MemorySpec = ONE_GB,
+    val queue: QueueSpec = StandardQueue,
     val command: String,
-    val runAfter: List<Job> = emptyList(),
 ) {
 
     fun asParameter(): List<String> = buildList {
@@ -17,10 +20,8 @@ data class JobSpec(
         add("-R")
         add("rusage[mem=$ram]")
 
-        if (runAfter.isNotEmpty()) {
-            add("-w")
-            add("'${runAfter.joinToString(separator = " && ") { job -> "done(${job.id})" }}'")
-        }
+        add("-q")
+        add(queue.name)
 
         add(command)
     }

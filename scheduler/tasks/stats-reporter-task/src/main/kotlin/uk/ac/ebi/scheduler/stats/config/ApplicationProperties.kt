@@ -6,5 +6,13 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConfigurationProperties(prefix = "app")
 @ConstructorBinding
 data class ApplicationProperties(
-    val outputPath: String
+    val outputPath: String,
+    val publishPath: String,
+    val ssh: SshConfiguration,
+)
+
+data class SshConfiguration(
+    val user: String,
+    val key: String,
+    val server: String,
 )

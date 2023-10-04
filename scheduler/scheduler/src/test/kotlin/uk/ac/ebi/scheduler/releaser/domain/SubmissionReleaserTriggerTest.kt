@@ -1,6 +1,7 @@
 package uk.ac.ebi.scheduler.releaser.domain
 
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
+import ac.uk.ebi.cluster.client.model.CoresSpec.FOUR_CORES
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
@@ -85,7 +86,7 @@ class SubmissionReleaserTriggerTest(
 
     private fun verifyJobSpecs(specs: JobSpec, mode: ReleaserMode) {
         assertThat(specs.ram).isEqualTo(EIGHT_GB)
-        assertThat(specs.cores).isEqualTo(RELEASER_CORES)
+        assertThat(specs.cores).isEqualTo(FOUR_CORES)
         assertThat(specs.command).isEqualTo(
             """
             "module load openjdk-11.0.1-gcc-9.3.0-unymjzh; \

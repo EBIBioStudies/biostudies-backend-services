@@ -6,11 +6,13 @@ import uk.ac.ebi.scheduler.pmc.exporter.domain.ExporterTrigger
 import uk.ac.ebi.scheduler.pmc.importer.DEFAULT_FOLDER
 import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
+import uk.ac.ebi.scheduler.stats.domain.StatsReporterTrigger
 
 internal class DailyScheduler(
     private val dailyScheduling: DailyScheduling,
     private val exporterTrigger: ExporterTrigger,
     private val pmcLoaderService: PmcLoaderService,
+    private val statsReporterTrigger: StatsReporterTrigger,
     private val submissionReleaserTrigger: SubmissionReleaserTrigger,
 ) {
     @Scheduled(cron = "0 0 2 * * *")
@@ -46,5 +48,10 @@ internal class DailyScheduler(
     @Scheduled(cron = "0 0 21 * * *")
     fun exportPublicSubmissions() {
         if (dailyScheduling.exporter) exporterTrigger.triggerPublicExport()
+    }
+
+    @Scheduled(cron = "0 0 3 4 * *")
+    fun publishSubmissionStatsReport() {
+        if (dailyScheduling.statsReporter) statsReporterTrigger.triggerStatsReporter()
     }
 }

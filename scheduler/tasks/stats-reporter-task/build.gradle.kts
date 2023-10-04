@@ -1,6 +1,8 @@
 
+import Dependencies.Arrow
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
+import Projects.SchedulerClusterClient
 import Projects.SchedulerTaskProperties
 import Projects.SubmissionPersistenceCommonApi
 import Projects.SubmissionPersistenceMongo
@@ -23,10 +25,12 @@ plugins {
 }
 
 dependencies {
+    api(project(SchedulerClusterClient))
     api(project(SchedulerTaskProperties))
     api(project(SubmissionPersistenceCommonApi))
     api(project(SubmissionPersistenceMongo))
 
+    implementation(Arrow)
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
     implementation(SpringBootStarter)

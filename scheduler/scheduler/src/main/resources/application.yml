@@ -10,6 +10,7 @@ app:
     notifier: # Indicates whether the Submission Release Notifier should be daily triggered
     releaser: # Indicates whether the Submission Releaser should be daily triggered
     exporter: # Indicates whether the Exporter should be daily triggered
+    statsReporter: # Indicates whether the Stats Reporter task should be triggered
 
   ssh:
     sshKey: # ssh key path.
@@ -63,9 +64,16 @@ releaser:
     port: # RabbitMQ Port
 
   notification-times:
-    first-warning-days: # Number of days before hand for the first warning to the users about upcoming release
-    second-warning-days: # Number of days before hand for the second warning to the users about upcoming release
-    third-warning-days: # Number of days before hand for the third warning to the users about upcoming release
+    first-warning-days: # Number of days beforehand for the first warning to the users about upcoming release
+    second-warning-days: # Number of days beforehand for the second warning to the users about upcoming release
+    third-warning-days: # Number of days beforehand for the third warning to the users about upcoming release
+
+stats:
+  outputPath: # Path where the stats report files should be generated
+  publishPath: # Path where the stats report files should be published
+  persistence:
+    database: # The name of the database to access the data
+    uri: # The database connection URI
 
 spring:
   boot:

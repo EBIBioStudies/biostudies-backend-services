@@ -1,6 +1,7 @@
 package uk.ac.ebi.scheduler.pmc.exporter.domain
 
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
+import ac.uk.ebi.cluster.client.model.CoresSpec.FOUR_CORES
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.TWENTYFOUR_GB
@@ -29,7 +30,6 @@ import uk.ac.ebi.scheduler.pmc.exporter.api.Ftp
 import uk.ac.ebi.scheduler.pmc.exporter.api.Persistence
 import uk.ac.ebi.scheduler.pmc.exporter.api.Pmc
 import uk.ac.ebi.scheduler.pmc.exporter.api.PublicOnly
-import uk.ac.ebi.scheduler.releaser.domain.RELEASER_CORES
 
 @ExtendWith(MockKExtension::class)
 class ExporterTriggerTest(
@@ -87,7 +87,7 @@ class ExporterTriggerTest(
 
     private fun verifyJobSpecs(specs: JobSpec, mode: ExporterMode, fileName: String, outputPath: String) {
         assertThat(specs.ram).isEqualTo(TWENTYFOUR_GB)
-        assertThat(specs.cores).isEqualTo(RELEASER_CORES)
+        assertThat(specs.cores).isEqualTo(FOUR_CORES)
         assertThat(specs.command).isEqualTo(
             """
             "module load openjdk-11.0.1-gcc-9.3.0-unymjzh; \
