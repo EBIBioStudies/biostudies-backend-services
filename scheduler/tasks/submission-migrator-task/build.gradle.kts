@@ -1,5 +1,6 @@
 
 import Dependencies.KotlinCoroutines
+import Dependencies.KotlinCoroutinesReactive
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Projects.ClientBioWebClient
@@ -29,6 +30,7 @@ dependencies {
 
     implementation(Awaitility)
     implementation(KotlinCoroutines)
+    implementation(KotlinCoroutinesReactive)
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
     implementation(SpringBootStarter)

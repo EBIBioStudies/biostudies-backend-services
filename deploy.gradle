@@ -42,6 +42,17 @@ task deploySubmitter {
     finalizedBy "deploy"
 }
 
+task deployMigratorSubmitter {
+    doFirst {
+        project.ext.artifactPath = "submission/submission-webapp/build/libs"
+        project.ext.artifactName = "submission-webapp-1.0.0.jar"
+        project.ext.appPort = 8789
+        project.ext.debugPort = 8083
+    }
+
+    finalizedBy "deploy"
+}
+
 task deployHandlers {
     doFirst {
         project.ext.artifactPath = "submission/submission-handlers/build/libs"

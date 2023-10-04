@@ -18,7 +18,7 @@ class ApplicationConfig(
     @Bean
     fun submissionMigratorService(
         bioWebClient: BioWebClient,
-    ): SubmissionMigratorService = SubmissionMigratorService(properties.concurrency, bioWebClient, migratorRepository)
+    ): SubmissionMigratorService = SubmissionMigratorService(properties, bioWebClient, migratorRepository)
 
     @Bean
     fun submissionMigratorExecutor(

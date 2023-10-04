@@ -7,6 +7,9 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConstructorBinding
 data class ApplicationProperties(
     val concurrency: Int,
+    val delay: Long,
+    val await: Long,
+    val accNoPattern: String,
     val bioStudies: BioStudies,
 )
 
