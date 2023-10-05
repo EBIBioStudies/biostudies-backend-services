@@ -56,8 +56,9 @@ class FilesSourceListBuilder(
         }
 
         if (folder is FtpUserFolder) {
-            val path = if (rootPath == null) folder.relativePath else folder.relativePath.resolve(rootPath)
-            sources.add(FtpSource(description, path, ftpClient))
+            val ftpPath = if (rootPath == null) folder.relativePath else folder.relativePath.resolve(rootPath)
+            val nfsPath = if (rootPath == null) folder.path else folder.path.resolve(rootPath)
+            sources.add(FtpSource(description, ftpPath = ftpPath, nfsPath = nfsPath, ftpClient = ftpClient))
         }
     }
 

@@ -100,6 +100,7 @@ app:
     fileProperties:
       filesDirPath: # Absolute path to the folder to be used for the user/groups files
       magicDirPath: #  Absolute path to create user magic folder for dropbox simple access
+      ftpDirPath: #  Absolute path of users ftp. Used to access file 
       ftpUser: # the ftp user
       ftpPassword: # the ftp password
       ftpUrl: # the ftp url without port

@@ -15,7 +15,8 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 class ProfileService(
-    private val filesDirPath: Path,
+    private val nfsUserFtpDirPath: Path,
+    private val nfsUserFilesDirPath: Path,
     private val environment: String,
 ) {
     fun getUserProfile(user: DbUser, token: String): UserInfo = UserInfo(asSecurityUser(user), token)
@@ -40,17 +41,21 @@ class ProfileService(
     private fun groupsMagicFolder(groups: Set<DbUserGroup>): List<GroupFolder> =
         groups.map { GroupFolder(it.name, groupMagicFolder(it), it.description) }
 
-    private fun groupMagicFolder(it: DbUserGroup) = Paths.get("$filesDirPath/${magicPath(it.secret, it.id, "b")}")
+    private fun groupMagicFolder(it: DbUserGroup) =
+        Paths.get("$nfsUserFilesDirPath/${magicPath(it.secret, it.id, "b")}")
 
     private fun userMagicFolder(folderType: StorageMode, secret: String, id: Long): UserFolder {
         fun nfsFolder(): NfsUserFolder {
             val relativePath = magicPath(secret, id, "a")
-            return NfsUserFolder(Paths.get(relativePath), Paths.get("$filesDirPath/$relativePath"))
+            return NfsUserFolder(Paths.get(relativePath), Paths.get("$nfsUserFilesDirPath/$relativePath"))
         }
 
         fun ftpFolder(): FtpUserFolder {
             val relativePath = magicPath(secret, id, "a")
-            return FtpUserFolder(Paths.get("$environment/$relativePath"))
+            return FtpUserFolder(
+                relativePath = Paths.get("$environment/$relativePath"),
+                path = Paths.get("$nfsUserFtpDirPath/$environment/$relativePath"),
+            )
         }
 
         return when (folderType) {
