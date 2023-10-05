@@ -73,18 +73,18 @@ build-test:
 nfs-itest:
   needs: [ "build-test" ]
   stage: nfs-itest
-  script: gradle :submission:submission-webapp:itest -PenableFire=false --rerun-tasks --stacktrace
+  script: gradle :submission:submission-webapp:itest -PenableFire=false --rerun-tasks
 
 fire-itest:
   needs: [ "nfs-itest" ]
   stage: fire-itest
-  script: gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --stacktrace
+  script: gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
   variables:
     ITEST_FIXED_DELAY: "50"
 
 fire-caos-itest:
   needs: [ "fire-itest" ]
   stage: fire-caos-itest
-  script: gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks --stacktrace
+  script: gradle :submission:submission-webapp:itest -PenableFire=true --rerun-tasks
   variables:
     ITEST_FAIL_FACTOR: "8"

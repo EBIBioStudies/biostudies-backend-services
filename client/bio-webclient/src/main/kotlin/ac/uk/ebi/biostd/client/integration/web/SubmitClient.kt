@@ -138,7 +138,10 @@ interface SubmitOperations {
 
     fun submitSingleFromDraftAsync(draftKey: String)
 
-    fun submitSingleFromDraft(draftKey: String): SubmissionResponse
+    fun submitSingleFromDraft(
+        draftKey: String,
+        preferredSources: List<PreferredSource>? = null,
+    ): SubmissionResponse
 
     fun submitAsync(
         submission: String,
