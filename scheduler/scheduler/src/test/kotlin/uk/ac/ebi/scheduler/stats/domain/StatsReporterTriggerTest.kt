@@ -64,8 +64,8 @@ class StatsReporterTriggerTest(
         every { appProperties.appsFolder } returns "apps-folder"
         every { appProperties.javaHome } returns "/home/jdk11"
         every { appProperties.ssh.user } returns "test-user"
-        every { appProperties.ssh.sshKey} returns "test-ssh-key"
-        every { appProperties.ssh.server} returns "test-server"
+        every { appProperties.ssh.sshKey } returns "test-ssh-key"
+        every { appProperties.ssh.server } returns "test-server"
     }
 
     private fun verifyJobSpecs(specs: JobSpec) {
