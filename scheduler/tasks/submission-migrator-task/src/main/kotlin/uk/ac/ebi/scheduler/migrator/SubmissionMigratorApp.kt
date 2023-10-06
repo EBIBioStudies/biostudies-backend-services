@@ -15,6 +15,7 @@ import uk.ac.ebi.scheduler.migrator.service.SubmissionMigratorService
 @EnableConfigurationProperties
 class SubmissionMigratorApp
 
+@Suppress("SpreadOperator")
 fun main(args: Array<String>) {
     runApplication<SubmissionMigratorApp>(*args)
 }

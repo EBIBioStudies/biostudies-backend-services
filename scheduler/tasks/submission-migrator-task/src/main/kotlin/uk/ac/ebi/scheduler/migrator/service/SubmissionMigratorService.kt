@@ -33,7 +33,6 @@ class SubmissionMigratorService(
         }
     }
 
-    // TODO tests
     private fun migrateSafely(migrationData: MigrationData) {
         fun migrate() {
             logger.info { "Started migrating submission ${migrationData.accNo} to FIRE" }

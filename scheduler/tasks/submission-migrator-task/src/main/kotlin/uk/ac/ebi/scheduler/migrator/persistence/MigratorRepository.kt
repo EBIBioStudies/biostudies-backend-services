@@ -19,7 +19,7 @@ interface MigratorRepository : CoroutineCrudRepository<DocSubmission, ObjectId> 
         fields = "{ accNo: 1 }"
     )
     fun findReadyToMigrate(accNoPattern: String, pageable: Pageable): Flow<MigrationData>
-    
+
     @ExistsQuery(value = "{ accNo: ?0, storageMode: 'FIRE', version: { \$gte: 0 } }")
     fun isMigrated(accNo: String): Boolean
 }
