@@ -73,6 +73,11 @@ deploy-prod-submitter:
   stage: deploy-prod-submitter
   when: manual
 
+deploy-migrator-submitter:
+  extends: .deploy-migrator-submitter
+  stage: deploy-migrator-submitter
+  when: manual
+
 deploy-sandbox-submitter:
   extends: .deploy-sandbox-submitter
   stage: deploy-sandbox-submitter
