@@ -9,9 +9,14 @@ import uk.ac.ebi.io.builder.createFile
 import java.io.File
 import java.nio.file.Path
 
+/**
+ *  Ftp source. Mix both ftp protocol to validate file presence and direct ftp mount point to access file content.
+ *  This seperation is necesary as files are check in backend instance with no access to FTP file system while
+ *  processing is executed in data mover which can access moint point.
+ */
 class FtpSource(
     override val description: String,
-    private val ftpPath: Path,
+    private val ftpUrl: Path,
     private val nfsPath: Path,
     private val ftpClient: FtpClient,
 ) : FilesSource {
@@ -21,7 +26,7 @@ class FtpSource(
     }
 
     private fun findFile(filePath: String): File? {
-        val ftpPath = ftpPath.resolve(filePath)
+        val ftpPath = ftpUrl.resolve(filePath)
         val files = ftpClient.listFiles(ftpPath)
         if (files.isEmpty()) return null
         return nfsPath.resolve(filePath).toFile()
