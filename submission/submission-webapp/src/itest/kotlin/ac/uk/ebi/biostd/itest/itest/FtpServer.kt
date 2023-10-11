@@ -14,6 +14,7 @@ import kotlin.io.path.absolutePathString
 
 class FtpServer(
     private val server: DefaultFtpServer,
+    val fileSystemDirectory: File,
 ) {
 
     fun start() {
@@ -61,8 +62,9 @@ class FtpServer(
 
             serverFactory.addListener(listenerName, listenerFactory.createListener())
             val server = serverFactory.createServer()
-            serverFactory.userManager.save(newUser(config.userName, config.password))
-            return FtpServer(server as DefaultFtpServer)
+            val user = newUser(config.userName, config.password)
+            serverFactory.userManager.save(user)
+            return FtpServer(server as DefaultFtpServer, File(user.homeDirectory))
         }
 
         private fun newUser(
