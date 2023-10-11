@@ -310,6 +310,34 @@ class FileListSubmissionTest(
         fileList.delete()
     }
 
+    @Test
+    fun `3-7 empty attribute name`() {
+        val referencedFile = tempFolder.createFile("File9.txt", "file 9 content")
+        val sub = tsv {
+            line("Submission", "S-TEST9")
+            line("Title", "Empty Attribute Name")
+            line()
+
+            line("Study")
+            line("File List", "no-attr-name-file-list.tsv")
+            line()
+        }.toString()
+
+        val fileList = tempFolder.createFile(
+            "no-attr-name-file-list.tsv",
+            tsv {
+                line("Files", "GEN", "")
+                line("File9.txt", "ABC", "DEF")
+            }.toString()
+        )
+
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
+        val exception = assertThrows(WebClientException::class.java) { webClient.submitSingle(sub, TSV, filesConfig) }
+        assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        assertThat(exception).hasMessageContaining("Attribute name is required")
+        fileList.delete()
+    }
+
     private suspend fun assertSubmissionFiles(accNo: String, testFile: String, fileListName: String) {
         val createdSub = subRepository.getExtByAccNo(accNo)
         val subFolder = "$submissionPath/${createdSub.relPath}"

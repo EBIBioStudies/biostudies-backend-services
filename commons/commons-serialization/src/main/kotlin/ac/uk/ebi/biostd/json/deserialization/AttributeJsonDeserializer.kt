@@ -5,6 +5,8 @@ import ac.uk.ebi.biostd.common.NAME_ATTRS
 import ac.uk.ebi.biostd.common.REFERENCE
 import ac.uk.ebi.biostd.common.VALUE
 import ac.uk.ebi.biostd.common.VAL_ATTRS
+import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_NAME
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
@@ -24,6 +26,7 @@ internal class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute:
         val node: JsonNode = mapper.readTree(jp)
         val name = node.getNode<TextNode>(NAME).textValue()
         val value = node.findNode<TextNode>(VALUE)?.textValue().nullIfBlank()
+        require(name.isNotBlank()) { throw InvalidElementException(REQUIRED_ATTR_NAME) }
 
         return Attribute(
             name = name,
