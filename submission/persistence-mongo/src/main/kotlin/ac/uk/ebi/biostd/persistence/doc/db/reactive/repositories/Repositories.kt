@@ -10,12 +10,11 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import kotlinx.coroutines.flow.Flow
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Pageable
-import org.springframework.data.mongodb.repository.Meta
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
-import reactor.core.publisher.Flux
 import java.time.Instant
 
 interface SubmissionDraftRepository : CoroutineCrudRepository<DocSubmissionDraft, String> {
@@ -29,7 +28,7 @@ interface SubmissionDraftRepository : CoroutineCrudRepository<DocSubmissionDraft
         userId: String,
         status: DocSubmissionDraft.DraftStatus,
         pageRequest: Pageable,
-    ): Flux<DocSubmissionDraft>
+    ): Flow<DocSubmissionDraft>
 
     suspend fun getById(id: String): DocSubmissionDraft
 
@@ -45,7 +44,7 @@ interface SubmissionStatsRepository : CoroutineCrudRepository<DocSubmissionStats
     suspend fun findByAccNoAndStatType(accNo: String, statType: SubmissionStatType): DocSubmissionStats?
 
     @Query("{ 'stats.?0': { \$exists: true } }")
-    fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Flux<DocSubmissionStats>
+    fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Flow<DocSubmissionStats>
 }
 
 interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, ObjectId> {
@@ -58,7 +57,7 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
 
     suspend fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
 
-    fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): Flux<DocSubmission>
+    fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): Flow<DocSubmission>
 
     suspend fun findFirstByAccNoAndVersionLessThanOrderByVersion(accNo: String, version: Int = 0): DocSubmission?
 
@@ -81,15 +80,15 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
 
     suspend fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
 
-    fun findByStatusIn(status: Set<RequestStatus>): Flux<DocSubmissionRequest>
+    fun findByStatusIn(status: Set<RequestStatus>): Flow<DocSubmissionRequest>
 
     fun findByStatusInAndModificationTimeLessThan(
         status: Set<RequestStatus>,
         since: Instant,
-    ): Flux<DocSubmissionRequest>
+    ): Flow<DocSubmissionRequest>
 
     suspend fun getById(id: ObjectId): DocSubmissionRequest
-    suspend fun findByAccNo(accNo: String): Flux<DocSubmissionRequest>
+    suspend fun findByAccNo(accNo: String): Flow<DocSubmissionRequest>
 }
 
 interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissionRequestFile, ObjectId> {
@@ -98,29 +97,31 @@ interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissi
         accNo: String,
         version: Int,
         index: Int,
-    ): Flux<DocSubmissionRequestFile>
+    ): Flow<DocSubmissionRequestFile>
 
     suspend fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
 }
 
 interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, ObjectId> {
-    @Meta(cursorBatchSize = 100, flags = [org.springframework.data.mongodb.core.query.Meta.CursorOption.NO_TIMEOUT])
+
     fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(
         accNo: String,
         version: Int,
         fileListName: String,
-    ): Flux<FileListDocFile>
+        pageable: Pageable,
+    ): Flow<FileListDocFile>
 
     fun findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
         accNo: String,
         version: Int,
         fileListName: String,
-    ): Flux<FileListDocFile>
+        pageable: Pageable,
+    ): Flow<FileListDocFile>
 
     @Query("{ 'submissionAccNo': ?0, 'submissionVersion': ?1, 'file.filePath': ?2}")
-    fun findBySubmissionAccNoAndSubmissionVersionAndFilePath(
+    suspend fun findBySubmissionAccNoAndSubmissionVersionAndFilePath(
         accNo: String,
         version: Int,
         filePath: String,
-    ): Flux<FileListDocFile>
+    ): Flow<FileListDocFile>
 }

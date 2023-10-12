@@ -7,7 +7,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReque
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.reactive.asFlow
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 class SubmissionRequestFilesMongoPersistenceService(
@@ -36,7 +35,6 @@ class SubmissionRequestFilesMongoPersistenceService(
     ): Flow<SubmissionRequestFile> {
         return requestFilesRepository
             .findRequestFiles(accNo, version, startingAt)
-            .asFlow()
             .map { it.toSubmissionRequestFile() }
     }
 

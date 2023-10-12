@@ -14,7 +14,6 @@ import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
-import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
@@ -49,7 +48,6 @@ open class SecurityService(
     private val profileService: ProfileService,
     private val captchaVerifier: CaptchaVerifier,
     private val eventsPublisherService: EventsPublisherService,
-    private val ftpClient: FtpClient,
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo {
         val user = userRepository.getActiveByLoginOrEmail(request.login)
@@ -168,14 +166,15 @@ open class SecurityService(
         }
     }
 
-    private fun createFtpMagicFolder(magicFolder: FtpUserFolder) {
-        ftpClient.createFolder(magicFolder.relativePath)
+    private fun createFtpMagicFolder(ftpFolder: FtpUserFolder) {
+        FileUtils.getOrCreateFolder(ftpFolder.path.parent, RWX__X___)
+        FileUtils.getOrCreateFolder(ftpFolder.path, RWXRWX___)
     }
 
-    private fun createNfsMagicFolder(email: String, magicFolder: NfsUserFolder) {
-        FileUtils.getOrCreateFolder(magicFolder.path.parent, RWX__X___)
-        FileUtils.getOrCreateFolder(magicFolder.path, RWXRWX___)
-        FileUtils.createSymbolicLink(symLinkPath(email), magicFolder.path, RWXRWX___)
+    private fun createNfsMagicFolder(email: String, nfsFolder: NfsUserFolder) {
+        FileUtils.getOrCreateFolder(nfsFolder.path.parent, RWX__X___)
+        FileUtils.getOrCreateFolder(nfsFolder.path, RWXRWX___)
+        FileUtils.createSymbolicLink(symLinkPath(email), nfsFolder.path, RWXRWX___)
     }
 
     private fun symLinkPath(userEmail: String): Path {

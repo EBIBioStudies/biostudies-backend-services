@@ -64,6 +64,7 @@ class ITestListener : TestExecutionListener {
         System.setProperty("app.security.filesProperties.ftpPassword", FTP_PASSWORD)
         System.setProperty("app.security.filesProperties.ftpUrl", ftpServer.getUrl())
         System.setProperty("app.security.filesProperties.ftpPort", ftpServer.ftpPort.toString())
+        System.setProperty("app.security.filesProperties.ftpDirPath", ftpServer.fileSystemDirectory.absolutePath)
     }
 
     private fun fireSetup() {

@@ -56,8 +56,9 @@ class FilesSourceListBuilder(
         }
 
         if (folder is FtpUserFolder) {
-            val path = if (rootPath == null) folder.relativePath else folder.relativePath.resolve(rootPath)
-            sources.add(FtpSource(description, path, ftpClient))
+            val ftpUrl = if (rootPath == null) folder.relativePath else folder.relativePath.resolve(rootPath)
+            val nfsPath = if (rootPath == null) folder.path else folder.path.resolve(rootPath)
+            sources.add(FtpSource(description, ftpUrl = ftpUrl, nfsPath = nfsPath, ftpClient = ftpClient))
         }
     }
 
@@ -72,7 +73,6 @@ class FilesSourceListBuilder(
             .allInnerSubmissionFiles
             .groupBy { it.filePath }
             .mapValues { it.value.first() }
-
         sources.add(SubmissionFilesSource(submission, nfsFiles, fireClient, previousVersionFiles, filesRepository))
     }
 }
