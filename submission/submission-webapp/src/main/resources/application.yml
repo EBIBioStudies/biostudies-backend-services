@@ -116,3 +116,8 @@ app:
   notifications:
     requestQueue: submission-request-submitter-queue # queue used to handle request stages
     requestRoutingKey: bio.submission.requested # request messages routing key
+  doi:
+    endpoint: # DOI registration endpoint
+    uiUrl: # The BioStudies UI URL which will be associated to the DOI record
+    user: # User for the DOI service
+    password: # Password for the DOI service

@@ -19,6 +19,7 @@ class ToExtSubmissionMapper(
             owner = sub.owner,
             submitter = sub.submitter,
             title = sub.title,
+            doi = sub.doi,
             version = sub.version,
             schemaVersion = sub.schemaVersion,
             method = getMethod(sub.method),

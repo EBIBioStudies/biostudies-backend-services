@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.client.extensions
+package ebi.ac.uk.commons.http.builder
 
 import org.springframework.http.HttpHeaders
 import org.springframework.util.LinkedMultiValueMap

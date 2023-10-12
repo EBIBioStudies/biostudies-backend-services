@@ -11,6 +11,7 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ACC_NO
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTRIBUTES
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.COLLECTIONS
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.CREATION_TIME
+import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.DOI
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.METHOD
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.MOD_TIME
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.OWNER
@@ -43,6 +44,7 @@ class ExtSubmissionSerializer : JsonSerializer<ExtSubmission>() {
         gen.writeStringField(OWNER, submission.owner)
         gen.writeStringField(SUBMITTER, submission.submitter)
         gen.writeStringField(TITLE, submission.title)
+        gen.writeStringField(DOI, submission.doi)
         gen.writeStringField(METHOD, submission.method.name)
         gen.writeStringField(REL_PATH, submission.relPath)
         gen.writeStringField(ROOT_PATH, submission.rootPath)

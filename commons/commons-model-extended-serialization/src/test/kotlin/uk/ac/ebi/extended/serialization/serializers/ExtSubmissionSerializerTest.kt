@@ -73,6 +73,7 @@ class ExtSubmissionSerializerTest {
                 "owner" to "owner@mail.org"
                 "submitter" to "submitter@mail.org"
                 "title" to "Test Submission"
+                "doi" to "10.983/S-TEST1"
                 "method" to ExtSubmissionMethod.PAGE_TAB
                 "relPath" to "/a/rel/path"
                 "rootPath" to "/a/root/path"
@@ -142,6 +143,7 @@ class ExtSubmissionSerializerTest {
                 owner = "owner@mail.org",
                 submitter = "submitter@mail.org",
                 title = "TestSubmission",
+                doi = "10.983/S-TEST1",
                 method = ExtSubmissionMethod.PAGE_TAB,
                 relPath = "/a/rel/path",
                 rootPath = "/a/root/path",

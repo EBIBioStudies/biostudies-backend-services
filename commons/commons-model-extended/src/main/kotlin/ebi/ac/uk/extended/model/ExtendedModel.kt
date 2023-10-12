@@ -112,6 +112,7 @@ data class ExtSubmission(
     var schemaVersion: String,
     val submitter: String,
     val title: String?,
+    val doi: String?,
     val method: ExtSubmissionMethod,
     val relPath: String,
     val rootPath: String?,

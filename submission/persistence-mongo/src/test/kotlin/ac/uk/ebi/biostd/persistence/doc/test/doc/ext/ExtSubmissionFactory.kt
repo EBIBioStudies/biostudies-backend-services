@@ -22,6 +22,7 @@ const val SUBMISSION_REL_PATH = "/a/rel/path"
 const val SUBMISSION_ROOT_PATH = "/a/root/path"
 const val SUBMISSION_RELEASED = true
 const val SUBMISSION_SECRET_KEY = "a-secret-key"
+const val SUBMISSION_DOI = "10.6019/S-TEST1"
 
 val RELEASE_TIME: OffsetDateTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
 val MODIFICATION_TIME: OffsetDateTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
@@ -83,6 +84,7 @@ val fullExtSubmission = ExtSubmission(
     owner = SUBMISSION_OWNER,
     submitter = SUBMISSION_SUBMITTER,
     title = SUBMISSION_TITLE,
+    doi = SUBMISSION_DOI,
     method = SUBMISSION_METHOD,
     relPath = SUBMISSION_REL_PATH,
     rootPath = SUBMISSION_ROOT_PATH,

@@ -93,6 +93,15 @@ class SubExtTest {
     }
 
     @Test
+    fun doi() {
+        val submission = submission("ABC-123") {}
+        submission.doi = "10.6019/ABC-123"
+
+        assertThat(submission.doi).isEqualTo("10.6019/ABC-123")
+        assertExtendedAttribute(submission, SubFields.DOI, "10.6019/ABC-123")
+    }
+
+    @Test
     fun `root path`() {
         val submission = submission("ABC-123") {}
         submission.rootPath = "/some/path"

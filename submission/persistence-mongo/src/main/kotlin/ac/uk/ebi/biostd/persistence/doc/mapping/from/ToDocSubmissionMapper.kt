@@ -23,6 +23,7 @@ class ToDocSubmissionMapper(private val toDocSectionMapper: ToDocSectionMapper) 
             id = submissionId,
             accNo = accNo,
             title = title,
+            doi = doi,
             method = getMethod(method),
             version = version,
             schemaVersion = schemaVersion,
