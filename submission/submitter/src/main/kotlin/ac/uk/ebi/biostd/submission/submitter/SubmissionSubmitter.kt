@@ -70,7 +70,6 @@ class SubmissionSubmitter(
     private suspend fun processRequest(rqt: SubmitRequest): ExtSubmission {
         try {
             logger.info { "${rqt.accNo} ${rqt.owner} Started processing submission request" }
-
             rqt.draftKey?.let { startProcessingDraft(rqt.accNo, rqt.owner, it) }
             val processed = submissionProcessor.processSubmission(rqt)
             collectionValidationService.executeCollectionValidators(processed)

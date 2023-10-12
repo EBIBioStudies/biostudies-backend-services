@@ -95,6 +95,7 @@ class StatsReporterDataRepositoryTest(
             owner = "biostudies-dev@ebi.ac.uk",
             submitter = "biostudies-dev@ebi.ac.uk",
             title = "Test Stats Submission",
+            doi = "10.983/S-BSST1",
             method = PAGE_TAB,
             rootPath = null,
             relPath = "S-BSST/001/S-BSST1",

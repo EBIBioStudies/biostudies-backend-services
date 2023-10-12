@@ -15,7 +15,6 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.extended.test.AttributeFactory.defaultAttribute
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -24,7 +23,6 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
     private val testInstance = ExtSerializationService()
     private val testFile = tempFolder.createFile("results.txt")
     private val nfsFile = tempFolder.createFile("file.txt")
-    private val attributes = (1..4).map { defaultAttribute(name = "name$it") }
 
     @Test
     fun `serialize - deserialize`() {
@@ -37,6 +35,7 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
             owner = "owner@mail.org",
             submitter = "submitter@mail.org",
             title = "Test Submission",
+            doi = "10.983/S-TEST123",
             method = PAGE_TAB,
             relPath = "/a/rel/path",
             rootPath = "/a/root/path",

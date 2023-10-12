@@ -9,6 +9,7 @@ import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
@@ -16,6 +17,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -23,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class SubmissionSubmitterTest(
+    @MockK private val request: SubmitRequest,
     @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
     @MockK private val submissionProcessor: SubmissionProcessor,
     @MockK private val collectionValidationService: CollectionValidationService,
@@ -38,21 +41,19 @@ class SubmissionSubmitterTest(
     @AfterEach
     fun afterEach() = clearAllMocks()
 
+    @BeforeEach
+    fun beforeEach() {
+        setUpRequest()
+        setUpDraftService()
+    }
+
     @Test
-    fun `create request`(@MockK request: SubmitRequest) = runTest {
+    fun `create request`() = runTest {
         val submission = basicExtSubmission
         val extRequestSlot = slot<ExtSubmitRequest>()
 
-        coEvery { request.draftKey } returns "TMP_123"
-        coEvery { request.owner } returns submission.owner
-        coEvery { request.accNo } returns submission.accNo
         coEvery { submissionProcessor.processSubmission(request) } returns submission
-        coEvery { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
         coEvery { collectionValidationService.executeCollectionValidators(submission) } answers { nothing }
-        coEvery { draftService.setActiveStatus("TMP_123") } answers { nothing }
-        coEvery { draftService.setProcessingStatus(submission.owner, "TMP_123") } answers { nothing }
-        coEvery { draftService.setAcceptedStatus("S-TEST123") } answers { nothing }
-        coEvery { draftService.deleteSubmissionDraft(submission.submitter, "S-TEST123") } answers { nothing }
         coEvery {
             submissionSubmitter.createRequest(capture(extRequestSlot))
         } returns (submission.accNo to submission.version)
@@ -75,16 +76,10 @@ class SubmissionSubmitterTest(
     }
 
     @Test
-    fun `create with failure on validation`(@MockK request: SubmitRequest) = runTest {
+    fun `create with failure on validation`() = runTest {
         val submission = basicExtSubmission
         val extRequestSlot = slot<ExtSubmitRequest>()
 
-        coEvery { request.draftKey } returns "TMP_123"
-        coEvery { request.owner } returns submission.owner
-        coEvery { request.accNo } returns submission.accNo
-        coEvery { draftService.setActiveStatus("TMP_123") } answers { nothing }
-        coEvery { draftService.setProcessingStatus(submission.owner, "TMP_123") } answers { nothing }
-        coEvery { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
         coEvery { submissionProcessor.processSubmission(request) } throws RuntimeException("validation error")
 
         assertThrows<InvalidSubmissionException> { testInstance.createRequest(request) }
@@ -99,5 +94,20 @@ class SubmissionSubmitterTest(
             submissionSubmitter.createRequest(capture(extRequestSlot))
             draftService.setAcceptedStatus("TMP_123")
         }
+    }
+
+    private fun setUpRequest() {
+        every { request.draftKey } returns "TMP_123"
+        every { request.owner } returns basicExtSubmission.owner
+        every { request.accNo } returns basicExtSubmission.accNo
+        every { request.previousVersion } returns null
+    }
+
+    private fun setUpDraftService() {
+        coEvery { draftService.setAcceptedStatus("TMP_123") } answers { nothing }
+        coEvery { draftService.setActiveStatus("TMP_123") } answers { nothing }
+        coEvery { draftService.setAcceptedStatus("S-TEST123") } answers { nothing }
+        coEvery { draftService.setProcessingStatus(basicExtSubmission.owner, "TMP_123") } answers { nothing }
+        coEvery { draftService.deleteSubmissionDraft(basicExtSubmission.submitter, "S-TEST123") } answers { nothing }
     }
 }

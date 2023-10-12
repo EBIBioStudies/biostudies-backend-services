@@ -24,6 +24,7 @@ data class FilesProperties(
     val defaultMode: StorageMode,
     val filesDirPath: String,
     val magicDirPath: String,
+    val ftpDirPath: String,
     val ftpUser: String,
     val ftpPassword: String,
     val ftpUrl: String,

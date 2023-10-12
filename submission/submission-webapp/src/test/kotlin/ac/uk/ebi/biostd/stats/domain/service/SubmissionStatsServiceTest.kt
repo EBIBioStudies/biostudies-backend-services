@@ -18,6 +18,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.slot
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -31,6 +32,7 @@ import uk.ac.ebi.extended.serialization.service.fileSequence
 import java.io.File
 
 @ExtendWith(MockKExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class SubmissionStatsServiceTest(
     @MockK private val statsFileHandler: StatsFileHandler,
     @MockK private val tempFileGenerator: TempFileGenerator,

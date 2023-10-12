@@ -77,10 +77,13 @@ internal class SecurityServiceTest(
         userRepository,
         securityUtil,
         securityProps,
-        ProfileService(temporaryFolder.root.toPath(), ENVIRONMENT),
+        ProfileService(
+            nfsUserFilesDirPath = temporaryFolder.createDirectory("nfsFile").toPath(),
+            nfsUserFtpDirPath = temporaryFolder.createDirectory("ftpFiles").toPath(),
+            environment = ENVIRONMENT
+        ),
         captchaVerifier,
-        eventsPublisherService,
-        ftpClient
+        eventsPublisherService
     )
 
     @Nested

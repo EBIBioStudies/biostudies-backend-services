@@ -16,6 +16,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionProcessor
+import ac.uk.ebi.biostd.submission.service.DoiService
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.service.TimesService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
@@ -193,6 +194,7 @@ class SubmitterConfig(
 
     @Bean
     fun submissionProcessor(
+        doiService: DoiService,
         persistenceService: SubmissionPersistenceService,
         timesService: TimesService,
         accNoService: AccNoService,
@@ -201,6 +203,7 @@ class SubmitterConfig(
         toExtSectionMapper: ToExtSectionMapper,
     ): SubmissionProcessor =
         SubmissionProcessor(
+            doiService,
             persistenceService,
             timesService,
             accNoService,
@@ -235,7 +238,6 @@ class SubmitterConfig(
     }
 
     @Configuration
-    @Suppress("MagicNumber")
     @EnableConfigurationProperties
     class ServiceConfig(
         private val service: PersistenceService,
@@ -245,6 +247,9 @@ class SubmitterConfig(
     ) {
         @Bean
         fun accNoPatternUtil() = AccNoPatternUtil()
+
+        @Bean
+        fun doiService(webClient: WebClient) = DoiService(webClient, properties.doi)
 
         @Bean
         fun accNoService() = AccNoService(service, accNoPatternUtil(), userPrivilegesService, properties.subBasePath)

@@ -25,7 +25,6 @@ import java.time.OffsetDateTime
 internal class ExtSerializationServiceExtTest(
     private val tmpFolder: TemporaryFolder,
 ) {
-
     private val testInstance: ExtSerializationService = ExtSerializationService()
 
     @Test
@@ -73,6 +72,7 @@ internal class ExtSerializationServiceExtTest(
             owner = "owner@mail.org",
             submitter = "submitter@mail.org",
             title = "TestSubmission",
+            doi = "10.983/S-TEST1",
             method = ExtSubmissionMethod.PAGE_TAB,
             relPath = "/a/rel/path",
             rootPath = "/a/root/path",

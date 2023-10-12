@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.converters.to
 
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_ACC_NO
-import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_PROJECT_CLASS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_COLLECTION_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_SUBMISSION_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.DOC_TAG_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.PAGE_TAB_FILES
@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_CREATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_DOI
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_METHOD
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
@@ -49,6 +50,7 @@ class SubmissionConverter(
         submissionDoc[SUB_OWNER] = submission.owner
         submissionDoc[SUB_SUBMITTER] = submission.submitter
         submissionDoc[SUB_TITLE] = submission.title
+        submissionDoc[SUB_DOI] = submission.doi
         submissionDoc[SUB_METHOD] = submission.method.value
         submissionDoc[SUB_REL_PATH] = submission.relPath
         submissionDoc[SUB_ROOT_PATH] = submission.rootPath
@@ -76,7 +78,7 @@ class SubmissionConverter(
 
     private fun collectionToDocument(docCollection: DocCollection): Document {
         val projectDoc = Document()
-        projectDoc[classField] = DOC_PROJECT_CLASS
+        projectDoc[classField] = DOC_COLLECTION_CLASS
         projectDoc[COLLECTION_ACC_NO] = docCollection.accNo
         return projectDoc
     }

@@ -19,6 +19,7 @@ import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -38,6 +39,7 @@ import uk.ac.ebi.fire.client.integration.web.FireClient
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class FileListValidationTest(
     @Autowired private val fireClient: FireClient,

@@ -100,6 +100,7 @@ app:
     fileProperties:
       filesDirPath: # Absolute path to the folder to be used for the user/groups files
       magicDirPath: #  Absolute path to create user magic folder for dropbox simple access
+      ftpDirPath: #  Absolute path of users ftp. Used to access file
       ftpUser: # the ftp user
       ftpPassword: # the ftp password
       ftpUrl: # the ftp url without port
@@ -115,3 +116,8 @@ app:
   notifications:
     requestQueue: submission-request-submitter-queue # queue used to handle request stages
     requestRoutingKey: bio.submission.requested # request messages routing key
+  doi:
+    endpoint: # DOI registration endpoint
+    uiUrl: # The BioStudies UI URL which will be associated to the DOI record
+    user: # User for the DOI service
+    password: # Password for the DOI service

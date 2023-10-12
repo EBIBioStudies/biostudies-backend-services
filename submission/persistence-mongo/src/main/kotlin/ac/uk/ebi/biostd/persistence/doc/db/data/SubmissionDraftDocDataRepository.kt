@@ -60,7 +60,7 @@ class SubmissionDraftDocDataRepository(
         status: DraftStatus,
         pageRequest: PageRequest = PageRequest(),
     ): Flow<DocSubmissionDraft> {
-        val pageRequest = pageRequest.asDataPageRequest()
-        return submissionDraftRepository.findAllByUserIdAndStatus(userId, status, pageRequest)
+        val request = pageRequest.asDataPageRequest()
+        return submissionDraftRepository.findAllByUserIdAndStatus(userId, status, request)
     }
 }
