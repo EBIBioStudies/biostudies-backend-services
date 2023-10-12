@@ -8,9 +8,11 @@ import ebi.ac.uk.model.BioFile
 
 internal const val TO_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.to.ToFileKt"
 
-fun ExtFile.toFile(): BioFile {
+fun ExtFile.toFile(calculateDirectories: Boolean = true): BioFile {
     return when (this) {
-        is NfsFile -> BioFile(filePath, file.size(), type.value, attributes.map { it.toAttribute() })
+        is NfsFile ->
+            BioFile(filePath, file.size(calculateDirectories), type.value, attributes.map { it.toAttribute() })
+
         is FireFile -> BioFile(filePath, size, type.value, attributes.map { it.toAttribute() })
     }
 }

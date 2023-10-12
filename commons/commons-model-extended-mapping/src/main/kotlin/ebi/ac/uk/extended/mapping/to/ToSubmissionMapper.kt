@@ -15,9 +15,9 @@ class ToSubmissionMapper(private val toSectionMapper: ToSectionMapper) {
      * Return a simple submission which does not contain submission secret information. Used to generate public
      * submission tab files.
      */
-    fun toSimpleSubmission(sub: ExtSubmission): Submission = Submission(
+    fun toSimpleSubmission(sub: ExtSubmission, calculateDirectories: Boolean = true): Submission = Submission(
         accNo = sub.accNo,
-        section = toSectionMapper.convert(sub.section),
+        section = toSectionMapper.convert(sub.section, calculateDirectories),
         attributes = sub.simpleAttributes(),
         tags = sub.tags.mapTo(mutableListOf()) { Pair(it.name, it.value) }
     )
