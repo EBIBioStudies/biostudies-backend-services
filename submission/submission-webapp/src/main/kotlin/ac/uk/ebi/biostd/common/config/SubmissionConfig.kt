@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
-import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
@@ -23,7 +22,6 @@ import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
 import ac.uk.ebi.biostd.submission.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
-import ac.uk.ebi.biostd.submission.stats.StatsFileHandler
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionStagesHandler
@@ -40,7 +38,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.events.service.EventsPublisherService
-import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.net.URI
 
 @Configuration
@@ -95,21 +92,6 @@ class SubmissionConfig(
     fun submissionMessageListener(
         stagesHandler: SubmissionStagesHandler,
     ): SubmissionMessageListener = SubmissionMessageListener(stagesHandler)
-
-    @Bean
-    fun submissionStatsService(
-        statsFileHandler: StatsFileHandler,
-        tempFileGenerator: TempFileGenerator,
-        submissionStatsService: StatsDataService,
-        extSerializationService: ExtSerializationService,
-        pesistenceQueryService: SubmissionPersistenceQueryService,
-    ): SubmissionStatsService = SubmissionStatsService(
-        statsFileHandler,
-        tempFileGenerator,
-        submissionStatsService,
-        extSerializationService,
-        pesistenceQueryService,
-    )
 
     @Bean
     fun extSubmissionQueryService(

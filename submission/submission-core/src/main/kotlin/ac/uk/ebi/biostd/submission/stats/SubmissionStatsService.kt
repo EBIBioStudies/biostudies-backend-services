@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.stats
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -60,12 +61,7 @@ class SubmissionStatsService(
         logger.info { "${sub.accNo} ${sub.owner} Started calculating submission stats" }
 
         val subFilesSize = serializationService.fileSequence(sub).sumOf { it.size }
-        val subFilesSizeStat = submissionStatsService.save(
-            SingleSubmissionStat(
-                sub.accNo, subFilesSize,
-                SubmissionStatType.FILES_SIZE
-            )
-        )
+        val subFilesSizeStat = submissionStatsService.save(SingleSubmissionStat(sub.accNo, subFilesSize, FILES_SIZE))
 
         logger.info { "${sub.accNo} ${sub.owner} Finished calculating submission stats. Files size: $subFilesSize" }
         return subFilesSizeStat
