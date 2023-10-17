@@ -1,8 +1,6 @@
-package ac.uk.ebi.biostd.submission.domain.service
+package ac.uk.ebi.biostd.submission.submitter
 
-import ac.uk.ebi.biostd.common.config.LISTENER_FACTORY_NAME
-import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
-import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
 import ebi.ac.uk.extended.events.RequestCreated
@@ -14,19 +12,15 @@ import ebi.ac.uk.extended.events.RequestMessage
 import ebi.ac.uk.extended.events.RequestPersisted
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import org.springframework.amqp.rabbit.annotation.RabbitHandler
-import org.springframework.amqp.rabbit.annotation.RabbitListener
 import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
-@RabbitListener(queues = ["\${app.notifications.requestQueue}"], containerFactory = LISTENER_FACTORY_NAME)
 class SubmissionStagesHandler(
     private val statsService: SubmissionStatsService,
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
 ) {
-    @RabbitHandler
     fun indexRequest(rqt: RequestCreated) {
         processSafely(rqt) {
             logger.info { "$accNo, Received Created message for submission $accNo, version: $version" }
@@ -35,7 +29,6 @@ class SubmissionStagesHandler(
         }
     }
 
-    @RabbitHandler
     fun loadRequest(rqt: RequestIndexed) {
         processSafely(rqt) {
             logger.info { "$accNo, Received Created message for submission $accNo, version: $version" }
@@ -44,7 +37,6 @@ class SubmissionStagesHandler(
         }
     }
 
-    @RabbitHandler
     fun cleanRequest(rqt: RequestLoaded) {
         processSafely(rqt) {
             logger.info { "$accNo, Received Loaded message for submission $accNo, version: $version" }
@@ -53,7 +45,6 @@ class SubmissionStagesHandler(
         }
     }
 
-    @RabbitHandler
     fun copyRequestFiles(rqt: RequestCleaned) {
         processSafely(rqt) {
             logger.info { "$accNo, Received Cleaned message for submission $accNo, version: $version" }
@@ -62,7 +53,6 @@ class SubmissionStagesHandler(
         }
     }
 
-    @RabbitHandler
     fun checkReleased(rqt: RequestFilesCopied) {
         processSafely(rqt) {
             logger.info { "$accNo, Received Processed message for submission $accNo, version: $version" }
@@ -71,7 +61,6 @@ class SubmissionStagesHandler(
         }
     }
 
-    @RabbitHandler
     fun saveSubmission(rqt: RequestCheckedReleased) {
         processSafely(rqt) {
             logger.info { "$accNo, Received check released message for submission $accNo, version: $version" }
@@ -80,7 +69,6 @@ class SubmissionStagesHandler(
         }
     }
 
-    @RabbitHandler
     fun finalizeRequest(rqt: RequestPersisted) {
         processSafely(rqt) {
             logger.info { "$accNo, Received processed message for submission $accNo, version: $version" }
@@ -88,7 +76,6 @@ class SubmissionStagesHandler(
         }
     }
 
-    @RabbitHandler
     fun calculateStats(rqt: RequestFinalized) {
         processSafely(rqt) {
             logger.info { "$accNo, Received finalized message for submission $accNo, version: $version" }

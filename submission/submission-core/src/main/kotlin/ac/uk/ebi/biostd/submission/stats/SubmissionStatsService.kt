@@ -1,14 +1,12 @@
-package ac.uk.ebi.biostd.stats.domain.service
+package ac.uk.ebi.biostd.submission.stats
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
-import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
-import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
-import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
+import ac.uk.ebi.biostd.submission.helpers.TempFileGenerator
 import kotlinx.coroutines.flow.Flow
 import mu.KotlinLogging
 import org.springframework.web.multipart.MultipartFile
@@ -22,7 +20,7 @@ class SubmissionStatsService(
     private val tempFileGenerator: TempFileGenerator,
     private val submissionStatsService: StatsDataService,
     private val serializationService: ExtSerializationService,
-    private val extSubmissionQueryService: ExtSubmissionQueryService,
+    private val extSubmissionQueryService: SubmissionPersistenceQueryService,
 ) {
     suspend fun findByAccNo(
         accNo: String,
@@ -58,11 +56,16 @@ class SubmissionStatsService(
     }
 
     suspend fun calculateSubFilesSize(accNo: String): SubmissionStat {
-        val sub = extSubmissionQueryService.getExtendedSubmission(accNo, includeFileListFiles = true)
+        val sub = extSubmissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
         logger.info { "${sub.accNo} ${sub.owner} Started calculating submission stats" }
 
         val subFilesSize = serializationService.fileSequence(sub).sumOf { it.size }
-        val subFilesSizeStat = submissionStatsService.save(SingleSubmissionStat(sub.accNo, subFilesSize, FILES_SIZE))
+        val subFilesSizeStat = submissionStatsService.save(
+            SingleSubmissionStat(
+                sub.accNo, subFilesSize,
+                SubmissionStatType.FILES_SIZE
+            )
+        )
 
         logger.info { "${sub.accNo} ${sub.owner} Finished calculating submission stats. Files size: $subFilesSize" }
         return subFilesSizeStat

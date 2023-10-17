@@ -12,20 +12,21 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
-import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
-import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.RetryHandler
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
+import ac.uk.ebi.biostd.submission.domain.service.SubmissionMessageListener
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
-import ac.uk.ebi.biostd.submission.domain.service.SubmissionStagesHandler
+import ac.uk.ebi.biostd.submission.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
+import ac.uk.ebi.biostd.submission.stats.StatsFileHandler
+import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.submitter.SubmissionStagesHandler
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
@@ -91,18 +92,23 @@ class SubmissionConfig(
     ): SubmissionStagesHandler = SubmissionStagesHandler(statsService, submissionSubmitter, eventsPublisherService)
 
     @Bean
+    fun submissionMessageListener(
+        stagesHandler: SubmissionStagesHandler,
+    ): SubmissionMessageListener = SubmissionMessageListener(stagesHandler)
+
+    @Bean
     fun submissionStatsService(
         statsFileHandler: StatsFileHandler,
         tempFileGenerator: TempFileGenerator,
         submissionStatsService: StatsDataService,
         extSerializationService: ExtSerializationService,
-        extSubmissionQueryService: ExtSubmissionQueryService,
+        pesistenceQueryService: SubmissionPersistenceQueryService,
     ): SubmissionStatsService = SubmissionStatsService(
         statsFileHandler,
         tempFileGenerator,
         submissionStatsService,
         extSerializationService,
-        extSubmissionQueryService,
+        pesistenceQueryService,
     )
 
     @Bean

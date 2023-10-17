@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
+import ac.uk.ebi.biostd.submission.stats.StatsFileHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 

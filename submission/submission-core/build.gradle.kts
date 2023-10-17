@@ -14,6 +14,7 @@ import Projects.CommonsModelExtended
 import Projects.CommonsSerialization
 import Projects.CommonsUtil
 import Projects.SubmissionFileSources
+import Projects.SubmissionPersistenceMongo
 import Projects.SubmissionSecurity
 import SpringBootDependencies.SpringBootStarterAmqp
 import SpringBootDependencies.SpringBootStarterDataJpa
@@ -43,6 +44,7 @@ dependencies {
     api(project(CommonsSerialization))
     api(project(SubmissionFileSources))
     api(project(SubmissionSecurity))
+    api(project(SubmissionPersistenceMongo))
 
     implementation(Arrow)
     implementation(ArrowTypeClasses)
