@@ -18,7 +18,6 @@ import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
-import TestDependencies.KotlinCoroutinesTest
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -48,7 +47,6 @@ dependencies {
     implementation(SpringBootStarterDataJpa)
     implementation(SpringWebFlux)
 
-    testImplementation(KotlinCoroutinesTest)
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }
