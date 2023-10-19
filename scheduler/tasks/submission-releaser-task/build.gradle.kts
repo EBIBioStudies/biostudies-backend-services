@@ -1,3 +1,5 @@
+import Dependencies.KotlinCoroutines
+import Dependencies.KotlinCoroutinesReactive
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Projects.ClientBioWebClient
@@ -9,10 +11,11 @@ import Projects.SubmissionPersistenceMongo
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterAmqp
 import SpringBootDependencies.SpringBootStarterConfigProcessor
-import SpringBootDependencies.SpringBootStarterMongo
+import SpringBootDependencies.SpringBootStarterReactiveMongo
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.KotlinCoroutinesTest
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -31,12 +34,15 @@ dependencies {
 
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
+    implementation(KotlinCoroutines)
+    implementation(KotlinCoroutinesReactive)
     implementation(SpringBootStarterAmqp)
     implementation(SpringBootStarter)
     implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterConfigProcessor)
-    implementation(SpringBootStarterMongo)
+    implementation(SpringBootStarterReactiveMongo)
 
+    testImplementation(KotlinCoroutinesTest)
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

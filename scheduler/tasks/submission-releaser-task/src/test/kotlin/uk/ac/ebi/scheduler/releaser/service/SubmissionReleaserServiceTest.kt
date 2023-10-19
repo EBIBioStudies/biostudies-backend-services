@@ -11,6 +11,8 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -46,7 +48,7 @@ class SubmissionReleaserServiceTest(
     }
 
     @Test
-    fun `notify submission release`() {
+    fun `notify submission release`() = runTest {
         val firstWarningData = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
         val secondWarningData = ReleaseData("S-BSST1", "owner1@mail.org", "S-BSST/001/S-BSST1")
         val thirdWarningData = ReleaseData("S-BSST2", "owner2@mail.org", "S-BSST/002/S-BSST2")
@@ -64,14 +66,14 @@ class SubmissionReleaserServiceTest(
 
     @Test
     fun `release daily submissions`(
-        @MockK to: Date
-    ) {
+        @MockK to: Date,
+    ) = runTest {
         val requestSlot = slot<ReleaseRequestDto>()
         val released = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
 
         every { mockNow.asOffsetAtEndOfDay().toDate() } returns to
         every { bioWebClient.releaseSubmission(capture(requestSlot)) } answers { nothing }
-        every { releaserRepository.findAllUntil(to) } returns listOf(released)
+        every { releaserRepository.findAllUntil(to) } returns flowOf(released)
 
         testInstance.releaseDailySubmissions()
 
@@ -83,10 +85,10 @@ class SubmissionReleaserServiceTest(
     }
 
     @Test
-    fun `generate ftp links`() {
+    fun `generate ftp links`() = runTest {
         val released = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
 
-        every { releaserRepository.findAllReleased() } returns listOf(released)
+        every { releaserRepository.findAllReleased() } returns flowOf(released)
         every { bioWebClient.generateFtpLink("S-BSST/000/S-BSST0") } answers { nothing }
 
         testInstance.generateFtpLinks()
@@ -97,7 +99,7 @@ class SubmissionReleaserServiceTest(
         val from = OffsetDateTime.of(2020, month, day, 0, 0, 0, 0, UTC).toDate()
         val to = OffsetDateTime.of(2020, month, day, 23, 59, 59, 0, UTC).toDate()
 
-        every { releaserRepository.findAllBetween(from, to) } returns listOf(response)
+        every { releaserRepository.findAllBetween(from, to) } returns flowOf(response)
         every { eventsPublisherService.subToBePublished(response.accNo, response.owner) } answers { nothing }
     }
 

@@ -8,12 +8,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
+import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories
 import uk.ac.ebi.scheduler.pmc.exporter.config.ApplicationProperties
 import uk.ac.ebi.scheduler.pmc.exporter.service.ExporterService
 
 @SpringBootApplication
-@EnableMongoRepositories
+@EnableReactiveMongoRepositories
 @EnableConfigurationProperties
 class ExporterApp
 

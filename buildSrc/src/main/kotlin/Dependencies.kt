@@ -34,7 +34,6 @@ import Versions.KotlinLoggingVersion
 import Versions.KotlinVersion
 import Versions.Log4JVersion
 import Versions.LogbackVersion
-import Versions.MongockVersion
 import Versions.MySqlVersion
 import Versions.OkHttpLoggingVersion
 import Versions.PoiVersion
@@ -173,9 +172,6 @@ object Dependencies {
     const val MySql = "mysql:mysql-connector-java:$MySqlVersion"
     const val KMongoCoroutine = "org.litote.kmongo:kmongo-coroutine:$KMongoCoroutineVersion"
     const val KMongoAsync = "org.litote.kmongo:kmongo-async:$KMongoCoroutineVersion"
-    const val MongockBom = "com.github.cloudyrock.mongock:mongock-bom:$MongockVersion"
-    const val MongockSpringV5 = "com.github.cloudyrock.mongock:mongock-spring-v5:$MongockVersion"
-    const val MongockSpringDataV3 = "com.github.cloudyrock.mongock:mongodb-springdata-v3-driver:$MongockVersion"
 
     // Misc
     const val AwsS3 = "com.amazonaws:aws-java-sdk-s3:$S3Version"

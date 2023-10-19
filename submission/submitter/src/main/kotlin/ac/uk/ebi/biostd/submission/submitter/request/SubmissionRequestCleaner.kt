@@ -9,8 +9,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.storageMode
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.fileSequence
@@ -59,11 +58,12 @@ class SubmissionRequestCleaner(
     }
 
     private suspend fun newFilesMap(new: ExtSubmission): Map<String, FileEntry> {
-        return filesRequestService
+        val result = mutableMapOf<String, FileEntry>()
+        filesRequestService
             .getSubmissionRequestFiles(new.accNo, new.version, 0)
-            .map { it.file }
-            .toList()
-            .associate { it.filePath to FileEntry(it.md5, new.storageMode) }
+            .onEach { logger.info { "${new.accNo} Cleaning map construction, adding file ${it.file.filePath}" } }
+            .collect { result[it.file.filePath] = FileEntry(it.file.md5, new.storageMode) }
+        return result
     }
 
     private data class FileEntry(val md5: String, val storageMode: StorageMode)

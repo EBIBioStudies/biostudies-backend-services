@@ -1,6 +1,8 @@
 package uk.ac.ebi.scheduler.pmc.exporter.service
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import ebi.ac.uk.coroutines.chunked
+import kotlinx.coroutines.flow.collectIndexed
 import mu.KotlinLogging
 import uk.ac.ebi.scheduler.pmc.exporter.cli.BioStudiesFtpClient
 import uk.ac.ebi.scheduler.pmc.exporter.config.ApplicationProperties
@@ -9,32 +11,27 @@ import uk.ac.ebi.scheduler.pmc.exporter.model.Link
 import uk.ac.ebi.scheduler.pmc.exporter.model.Links
 import uk.ac.ebi.scheduler.pmc.exporter.model.PmcData
 import uk.ac.ebi.scheduler.pmc.exporter.persistence.PmcRepository
-import uk.ac.ebi.scheduler.pmc.exporter.persistence.pageIterator
 
 internal const val CHUNK_SIZE = 4000
 
 private val logger = KotlinLogging.logger {}
 
 class PmcExporterService(
-    pmcRepository: PmcRepository,
+    private val pmcRepository: PmcRepository,
     private val xmlWriter: XmlMapper,
     private val ftpClient: BioStudiesFtpClient,
     private val appProperties: ApplicationProperties,
 ) {
-    private val pmcDataIterator = pageIterator(pmcRepository)
-
-    fun exportPmcLinks() {
+    suspend fun exportPmcLinks() {
         logger.info { "Started exporting PMC links" }
-
         ftpClient.login()
 
-        pmcDataIterator
-            .asSequence()
-            .mapIndexed { part, page -> writeLinks(part + 1, page.content) }
-            .toList()
+        pmcRepository
+            .findAllSubmissions()
+            .chunked(CHUNK_SIZE)
+            .collectIndexed { index, value -> writeLinks(index + 1, value) }
 
         ftpClient.logout()
-
         logger.info { "Finished exporting PMC links" }
     }
 
