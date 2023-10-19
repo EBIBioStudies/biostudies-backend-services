@@ -28,22 +28,22 @@ internal class SubmissionReleaserTrigger(
     private val clusterOperations: ClusterOperations,
     private val schedulerNotificationsSender: NotificationsSender,
 ) {
-    fun triggerSubmissionReleaser(debugPort: Int? = null): Job {
+    suspend fun triggerSubmissionReleaser(debugPort: Int? = null): Job {
         logger.info { "triggering submission releaser job" }
         return triggerJob(mode = RELEASE, debugPort)
     }
 
-    fun triggerSubmissionReleaseNotifier(debugPort: Int? = null): Job {
+    suspend fun triggerSubmissionReleaseNotifier(debugPort: Int? = null): Job {
         logger.info { "triggering submission release notifier job" }
         return triggerJob(mode = NOTIFY, debugPort)
     }
 
-    fun triggerFtpLinksGenerator(debugPort: Int? = null): Job {
+    suspend fun triggerFtpLinksGenerator(debugPort: Int? = null): Job {
         logger.info { "triggering ftp links generator job" }
         return triggerJob(mode = GENERATE_FTP_LINKS, debugPort)
     }
 
-    private fun triggerJob(mode: ReleaserMode, debugPort: Int?): Job {
+    private suspend fun triggerJob(mode: ReleaserMode, debugPort: Int?): Job {
         val job = submissionReleaserJob(mode, debugPort)
         schedulerNotificationsSender.send(
             Report(

@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
 import ebi.ac.uk.notifications.service.SecurityNotificationService
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -41,6 +42,8 @@ class SecurityNotificationListener(
         val message = String.format(ERROR_MESSAGE, notification.type.name, notification.email)
         logger.error { message }
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, notification)
-        notificationsSender.send(Alert(SYSTEM_NAME, HANDLERS_SUBSYSTEM, message))
+        runBlocking {
+            notificationsSender.send(Alert(SYSTEM_NAME, HANDLERS_SUBSYSTEM, message))
+        }
     }
 }

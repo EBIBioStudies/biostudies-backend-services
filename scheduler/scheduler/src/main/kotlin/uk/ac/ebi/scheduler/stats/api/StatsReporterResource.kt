@@ -12,5 +12,5 @@ internal class StatsReporterResource(
 ) {
     @PostMapping("/api/stats/report")
     @ResponseBody
-    fun reportSubmissionStats(): Job = statsReporterTrigger.triggerStatsReporter()
+    suspend fun reportSubmissionStats(): Job = statsReporterTrigger.triggerStatsReporter()
 }

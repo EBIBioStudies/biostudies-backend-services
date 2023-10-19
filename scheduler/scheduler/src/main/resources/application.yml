@@ -69,7 +69,6 @@ releaser:
     third-warning-days: # Number of days beforehand for the third warning to the users about upcoming release
 
 stats:
-  outputPath: # Path where the stats report files should be generated
   publishPath: # Path where the stats report files should be published
   persistence:
     database: # The name of the database to access the data

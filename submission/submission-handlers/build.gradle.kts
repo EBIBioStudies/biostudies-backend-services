@@ -1,4 +1,5 @@
 import Dependencies.JacksonKotlin
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -17,6 +18,7 @@ import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.KotlinCoroutinesTest
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -35,6 +37,7 @@ dependencies {
     api(project(SubmissionPersistenceCommonApi))
     api(project(SubmissionPersistenceSql))
 
+    implementation(KotlinCoroutines)
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(JacksonKotlin)
@@ -45,6 +48,7 @@ dependencies {
     implementation(SpringBootStarterDataJpa)
     implementation(SpringWebFlux)
 
+    testImplementation(KotlinCoroutinesTest)
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

@@ -11,6 +11,7 @@ import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT_SINGLE
 import ebi.ac.uk.commons.http.slack.Alert
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.beans.factory.getBean
 import org.springframework.context.ApplicationContext
@@ -51,11 +52,15 @@ class PmcTaskExecutor(
             }
         }.fold(
             {
-                notificationSender.send(Report(SYSTEM, mode.description, "Process was completed successfully"))
+                runBlocking {
+                    notificationSender.send(Report(SYSTEM, mode.description, "Process was completed successfully"))
+                }
             },
             {
                 logger.error(it) { "Error executing pmc task, mode = ${props.mode} " }
-                notificationSender.send(Alert(SYSTEM, mode.description, "Error executing process", it.message))
+                runBlocking {
+                    notificationSender.send(Alert(SYSTEM, mode.description, "Error executing process", it.message))
+                }
             },
         )
     }

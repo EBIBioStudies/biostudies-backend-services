@@ -37,7 +37,7 @@ internal class PmcLoaderService private constructor(
         notificationsSender: NotificationsSender,
     ) : this(PmcLoader(clusterOperations, properties, appProperties), notificationsSender)
 
-    fun loadFile(folder: String?, file: String?, debugPort: Int? = null): Job {
+    suspend fun loadFile(folder: String?, file: String?, debugPort: Int? = null): Job {
         val job = pmcLoaderService.loadFile(folder, file, debugPort)
         val params = buildList {
             folder?.let { add("folder='$it'") }
@@ -55,7 +55,7 @@ internal class PmcLoaderService private constructor(
         return job
     }
 
-    fun triggerProcessor(sourceFile: String?, debugPort: Int? = null): Job {
+    suspend fun triggerProcessor(sourceFile: String?, debugPort: Int? = null): Job {
         val job = pmcLoaderService.triggerProcessor(sourceFile, debugPort)
         val params = buildList {
             sourceFile?.let { add("sourceFile='$it'") }
@@ -71,7 +71,7 @@ internal class PmcLoaderService private constructor(
         return job
     }
 
-    fun triggerSubmitter(sourceFile: String?, debugPort: Int? = null): Job {
+    suspend fun triggerSubmitter(sourceFile: String?, debugPort: Int? = null): Job {
         val job = pmcLoaderService.triggerSubmitter(sourceFile, debugPort)
         pmcNotificationsSender.send(
             Report(
@@ -83,7 +83,7 @@ internal class PmcLoaderService private constructor(
         return job
     }
 
-    fun triggerSubmitSingle(debugPort: Int? = null, submissionId: String): Job {
+    suspend fun triggerSubmitSingle(debugPort: Int? = null, submissionId: String): Job {
         val job = pmcLoaderService.triggerSubmitSingle(submissionId, debugPort)
         pmcNotificationsSender.send(
             Report(

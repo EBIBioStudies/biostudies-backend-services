@@ -10,13 +10,13 @@ import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
 internal class SubmissionReleaserResource(private val submissionReleaserTrigger: SubmissionReleaserTrigger) {
     @PostMapping("/api/releaser/release")
     @ResponseBody
-    fun releaseSubmissions(): Job = submissionReleaserTrigger.triggerSubmissionReleaser()
+    suspend fun releaseSubmissions(): Job = submissionReleaserTrigger.triggerSubmissionReleaser()
 
     @PostMapping("/api/releaser/notify")
     @ResponseBody
-    fun notifySubmissionsRelease(): Job = submissionReleaserTrigger.triggerSubmissionReleaseNotifier()
+    suspend fun notifySubmissionsRelease(): Job = submissionReleaserTrigger.triggerSubmissionReleaseNotifier()
 
     @PostMapping("/api/releaser/ftp/generate")
     @ResponseBody
-    fun generateFtpLinks(): Job = submissionReleaserTrigger.triggerFtpLinksGenerator()
+    suspend fun generateFtpLinks(): Job = submissionReleaserTrigger.triggerFtpLinksGenerator()
 }

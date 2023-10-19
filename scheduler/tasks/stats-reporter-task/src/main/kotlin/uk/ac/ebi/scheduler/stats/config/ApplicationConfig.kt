@@ -1,6 +1,5 @@
 package uk.ac.ebi.scheduler.stats.config
 
-import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -16,14 +15,9 @@ class ApplicationConfig(
     private val appProperties: ApplicationProperties,
 ) {
     @Bean
-    fun clusterOperations(): ClusterOperations =
-        ClusterOperations.create(appProperties.ssh.key, appProperties.ssh.server)
-
-    @Bean
     fun statsReporterService(
-        clusterOperations: ClusterOperations,
-        statsRepository: StatsReporterDataRepository
-    ): StatsReporterService = StatsReporterService(appProperties, clusterOperations, statsRepository)
+        statsRepository: StatsReporterDataRepository,
+    ): StatsReporterService = StatsReporterService(appProperties, statsRepository)
 
     @Bean
     fun statsReporterExecutor(service: StatsReporterService): StatsReporterExecutor = StatsReporterExecutor(service)

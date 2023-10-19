@@ -5,9 +5,4 @@ spring:
       uri: # The database connection URI
 
 app:
-  outputPath: # Path where the stats report files should be generated
   publishPath: # Path where the stats report files should be published
-  ssh:
-    user: # ssh user
-    key: # ssh key path
-    server:  # ssh sever to submit jobs from

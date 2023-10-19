@@ -2,6 +2,7 @@ package uk.ac.ebi.scheduler.stats.domain
 
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import ac.uk.ebi.cluster.client.model.CoresSpec.FOUR_CORES
+import ac.uk.ebi.cluster.client.model.DataMoverQueue
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
@@ -22,12 +23,12 @@ class StatsReporterTrigger(
     private val clusterOperations: ClusterOperations,
     private val schedulerNotificationsSender: NotificationsSender,
 ) {
-    fun triggerStatsReporter(debugPort: Int? = null): Job {
+    suspend fun triggerStatsReporter(debugPort: Int? = null): Job {
         logger.info { "Triggering stats reporter job" }
         return triggerJob(debugPort)
     }
 
-    private fun triggerJob(debugPort: Int?): Job {
+    private suspend fun triggerJob(debugPort: Int?): Job {
         val job = statsReporterJob(debugPort)
         schedulerNotificationsSender.send(
             Report(
@@ -46,6 +47,7 @@ class StatsReporterTrigger(
             JobSpec(
                 cores = FOUR_CORES,
                 ram = EIGHT_GB,
+                queue = DataMoverQueue,
                 command = properties.asCmd(appProperties.appsFolder, debugPort)
             )
         )
@@ -56,11 +58,7 @@ class StatsReporterTrigger(
     private fun getConfigProperties() = create(
         properties.persistence.database,
         properties.persistence.uri,
-        properties.outputPath,
         properties.publishPath,
-        appProperties.ssh.user,
-        appProperties.ssh.sshKey,
-        appProperties.ssh.server,
     )
 
     companion object {
