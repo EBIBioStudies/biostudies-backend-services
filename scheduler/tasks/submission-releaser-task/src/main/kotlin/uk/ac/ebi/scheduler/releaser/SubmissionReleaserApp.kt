@@ -3,18 +3,19 @@ package uk.ac.ebi.scheduler.releaser
 import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
 import ac.uk.ebi.scheduler.properties.ReleaserMode.RELEASE
+import kotlinx.coroutines.runBlocking
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
+import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories
 import uk.ac.ebi.scheduler.releaser.config.ApplicationProperties
 import uk.ac.ebi.scheduler.releaser.service.SubmissionReleaserService
 
 @SpringBootApplication
-@EnableMongoRepositories
+@EnableReactiveMongoRepositories
 @EnableConfigurationProperties
 class SubmissionReleaserApp
 
@@ -29,7 +30,7 @@ class SubmissionReleaserExecutor(
 ) : CommandLineRunner, ApplicationContextAware {
     private lateinit var context: ApplicationContext
 
-    override fun run(vararg args: String?) {
+    override fun run(vararg args: String?) = runBlocking {
         when (applicationProperties.mode) {
             NOTIFY -> submissionReleaserService.notifySubmissionReleases()
             RELEASE -> submissionReleaserService.releaseDailySubmissions()

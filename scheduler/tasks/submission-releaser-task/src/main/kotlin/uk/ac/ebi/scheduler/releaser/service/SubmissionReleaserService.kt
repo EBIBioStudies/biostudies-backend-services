@@ -19,26 +19,26 @@ class SubmissionReleaserService(
     private val releaserRepository: ReleaserRepository,
     private val eventsPublisherService: EventsPublisherService,
 ) {
-    fun notifySubmissionReleases() {
+    suspend fun notifySubmissionReleases() {
         val today = Instant.now()
         notifyRelease(today.plus(notificationTimes.firstWarningDays, DAYS))
         notifyRelease(today.plus(notificationTimes.secondWarningDays, DAYS))
         notifyRelease(today.plus(notificationTimes.thirdWarningDays, DAYS))
     }
 
-    fun releaseDailySubmissions() {
+    suspend fun releaseDailySubmissions() {
         val to = Instant.now().asOffsetAtEndOfDay()
         logger.info { "Releasing submissions up to $to" }
 
         releaserRepository
             .findAllUntil(to.toDate())
-            .forEach(::releaseSafely)
+            .collect(::releaseSafely)
     }
 
-    fun generateFtpLinks() {
+    suspend fun generateFtpLinks() {
         releaserRepository
             .findAllReleased()
-            .forEach(::generateFtpLink)
+            .collect(::generateFtpLink)
     }
 
     private fun releaseSafely(releaseData: ReleaseData) {
@@ -49,14 +49,14 @@ class SubmissionReleaserService(
             .onSuccess { logger.info { "Released submission ${releaseData.accNo}" } }
     }
 
-    private fun notifyRelease(date: Instant) {
+    private suspend fun notifyRelease(date: Instant) {
         val from = date.asOffsetAtStartOfDay()
         val to = date.asOffsetAtEndOfDay()
 
         logger.info { "Notifying submissions releases from $from to $to" }
         releaserRepository
             .findAllBetween(from.toDate(), to.toDate())
-            .forEach(::notify)
+            .collect(::notify)
     }
 
     private fun notify(releaseData: ReleaseData) {

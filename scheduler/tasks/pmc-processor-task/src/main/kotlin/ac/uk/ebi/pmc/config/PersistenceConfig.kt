@@ -6,21 +6,14 @@ import ac.uk.ebi.pmc.persistence.repository.InputFileRepository
 import ac.uk.ebi.pmc.persistence.repository.SubFileRepository
 import ac.uk.ebi.pmc.persistence.repository.SubmissionRepository
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
-import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver
-import com.github.cloudyrock.spring.v5.MongockSpring5
-import com.github.cloudyrock.spring.v5.MongockSpring5.MongockApplicationRunner
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
-import com.mongodb.client.MongoClients
 import com.mongodb.reactivestreams.client.MongoClient
+import com.mongodb.reactivestreams.client.MongoClients
 import org.litote.kmongo.reactivestreams.KMongo
-import org.springframework.boot.ApplicationRunner
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration
 
 const val CHANGE_LOG_COLLECTION = "pmc_mongockChangeLog"
 const val CHANGE_LOG_LOCK = "pmc_mongockLock"
@@ -31,22 +24,13 @@ const val SUB_FILES_COL = "pmc_submissions_files"
 const val INPUT_FILES_COL = "pmc_input_files"
 
 @Configuration
-class PersistenceConfig(val properties: PmcImporterProperties) : AbstractMongoClientConfiguration() {
+class PersistenceConfig(val properties: PmcImporterProperties) : AbstractReactiveMongoConfiguration() {
 
     override fun getDatabaseName(): String = properties.mongodbDatabase
 
     @Bean
-    override fun mongoClient(): com.mongodb.client.MongoClient {
+    override fun reactiveMongoClient(): MongoClient {
         return MongoClients.create(properties.mongodbUri)
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "app.data", name = ["execute-migrations"], havingValue = "true")
-    fun mongockApplicationRunner(
-        springContext: ApplicationContext,
-        mongoTemplate: MongoTemplate
-    ): ApplicationRunner {
-        return createMongockConfig(mongoTemplate, springContext, "ac.uk.ebi.pmc.migrations")
     }
 
     @Bean
@@ -74,24 +58,4 @@ class PersistenceConfig(val properties: PmcImporterProperties) : AbstractMongoCl
     @Bean
     fun inputFileRepository(kMongoClient: MongoClient) =
         InputFileRepository(kMongoClient.getCollection(properties.mongodbDatabase, INPUT_FILES_COL))
-
-    companion object {
-        fun createMongockConfig(
-            mongoTemplate: MongoTemplate,
-            springContext: ApplicationContext,
-            migrationPackage: String
-        ): MongockApplicationRunner =
-            MongockSpring5.builder()
-                .setDriver(createDriver(mongoTemplate))
-                .addChangeLogsScanPackage(migrationPackage)
-                .setSpringContext(springContext)
-                .buildApplicationRunner()
-
-        private fun createDriver(mongoTemplate: MongoTemplate): SpringDataMongoV3Driver {
-            val driver = SpringDataMongoV3Driver.withDefaultLock(mongoTemplate)
-            driver.lockRepositoryName = CHANGE_LOG_LOCK
-            driver.changeLogRepositoryName = CHANGE_LOG_COLLECTION
-            return driver
-        }
-    }
 }
