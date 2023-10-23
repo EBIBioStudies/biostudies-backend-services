@@ -14,11 +14,14 @@ import ebi.ac.uk.extended.model.ExtUser
 import ebi.ac.uk.notifications.service.RtNotificationService
 import io.mockk.called
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -131,15 +134,15 @@ class SubmissionNotificationsListenerTest(
     }
 
     @Test
-    fun `notify failed submission`() {
+    fun `notify failed submission`() = runTest {
         val notificationSlot = slot<SystemNotification>()
         val message = FailedRequestMessage("S-BSST1", 1)
 
-        every { notificationsSender.send(capture(notificationSlot)) } answers { nothing }
+        coEvery { notificationsSender.send(capture(notificationSlot)) } answers { nothing }
 
         testInstance.receiveFailedSubmissionMessage(message)
 
-        verify(exactly = 1) { notificationsSender.send(notificationSlot.captured) }
+        coVerify(exactly = 1) { notificationsSender.send(notificationSlot.captured) }
     }
 
     @Test
@@ -147,12 +150,12 @@ class SubmissionNotificationsListenerTest(
         val errorNotificationSlot = slot<SystemNotification>()
 
         every { webConsumer.getExtSubmission("ext-tab-url") } throws Exception()
-        every { notificationsSender.send(capture(errorNotificationSlot)) } answers { nothing }
+        coEvery { notificationsSender.send(capture(errorNotificationSlot)) } answers { nothing }
 
         testInstance.receiveSubmissionReleaseMessage(message)
 
         verify { rtNotificationService wasNot called }
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             webConsumer.getExtSubmission("ext-tab-url")
             notificationsSender.send(errorNotificationSlot.captured)
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)

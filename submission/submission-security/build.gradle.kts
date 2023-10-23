@@ -22,7 +22,6 @@ import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.JaxbApi
-import TestDependencies.KotlinCoroutinesTest
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
@@ -63,7 +62,6 @@ dependencies {
     testApi(project(CommonsTest))
     testImplementation(Logback)
     testImplementation(SpringBootStarterAmqp)
-    testImplementation(KotlinCoroutinesTest)
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

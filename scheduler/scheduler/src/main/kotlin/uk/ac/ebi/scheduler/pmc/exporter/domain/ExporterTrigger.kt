@@ -28,7 +28,7 @@ class ExporterTrigger(
     private val pmcNotificationsSender: NotificationsSender,
     private val schedulerNotificationsSender: NotificationsSender,
 ) {
-    fun triggerPmcExport(debugPort: Int? = null): Job {
+    suspend fun triggerPmcExport(debugPort: Int? = null): Job {
         logger.info { "Triggering PMC export job" }
 
         val config = ExporterJobConfig(
@@ -42,7 +42,7 @@ class ExporterTrigger(
         return triggerExport(config)
     }
 
-    fun triggerPublicExport(debugPort: Int? = null): Job {
+    suspend fun triggerPublicExport(debugPort: Int? = null): Job {
         logger.info { "Triggering public only export job" }
 
         val config = ExporterJobConfig(
@@ -56,7 +56,7 @@ class ExporterTrigger(
         return triggerExport(config)
     }
 
-    private fun triggerExport(config: ExporterJobConfig): Job {
+    private suspend fun triggerExport(config: ExporterJobConfig): Job {
         val mode = config.mode
         val job = exporterJob(config)
         config.notifier.send(

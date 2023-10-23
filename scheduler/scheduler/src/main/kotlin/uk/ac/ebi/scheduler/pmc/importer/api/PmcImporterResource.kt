@@ -13,7 +13,7 @@ import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 internal class PmcImporterResource(private val pmcLoaderService: PmcLoaderService) {
     @PostMapping("/api/pmc/load/folder")
     @ResponseBody
-    fun loadFile(
+    suspend fun loadFile(
         @RequestParam(required = false) debugPort: Int?,
         @RequestHeader(name = "folder", required = false) folder: String?,
         @RequestHeader(name = "file", required = false) file: String?,
@@ -21,7 +21,7 @@ internal class PmcImporterResource(private val pmcLoaderService: PmcLoaderServic
 
     @PostMapping("/api/pmc/process")
     @ResponseBody
-    fun triggerProcessor(
+    suspend fun triggerProcessor(
         @RequestParam(required = false) debugPort: Int?,
         @RequestHeader(name = "sourceFile", required = false) sourceFile: String?,
     ): Job =
@@ -29,7 +29,7 @@ internal class PmcImporterResource(private val pmcLoaderService: PmcLoaderServic
 
     @PostMapping("/api/pmc/submit")
     @ResponseBody
-    fun triggerSubmitter(
+    suspend fun triggerSubmitter(
         @RequestParam(required = false) debugPort: Int?,
         @RequestHeader(name = "sourceFile", required = false) sourceFile: String?,
     ): Job =
@@ -37,7 +37,7 @@ internal class PmcImporterResource(private val pmcLoaderService: PmcLoaderServic
 
     @PostMapping("/api/pmc/submit/{submissionId}")
     @ResponseBody
-    fun triggerSingleSubmitter(
+    suspend fun triggerSingleSubmitter(
         @RequestParam(required = false) debugPort: Int?,
         @PathVariable submissionId: String,
     ): Job =
