@@ -46,6 +46,7 @@ enum class SubFields(override val value: String) : Fields {
     TITLE("Title"),
     ROOT_PATH("RootPath"),
     PUBLIC_ACCESS_TAG("Public"),
+    DOI("DOI"),
 
     RELEASE_DATE("ReleaseDate"),
     RELEASE_TIME("rtime"),

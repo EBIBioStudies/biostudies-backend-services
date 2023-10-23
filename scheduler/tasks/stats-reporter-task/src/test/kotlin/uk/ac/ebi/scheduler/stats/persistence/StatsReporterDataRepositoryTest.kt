@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.StorageMode.FIRE
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeEach
@@ -46,7 +47,7 @@ class StatsReporterDataRepositoryTest(
     }
 
     @Test
-    fun calculateStats() {
+    fun calculateStats() = runTest {
         val imagingStats = testInstance.calculateImagingFilesSize()
         val nonImagingStats = testInstance.calculateNonImagingFilesSize()
 
@@ -95,6 +96,7 @@ class StatsReporterDataRepositoryTest(
             owner = "biostudies-dev@ebi.ac.uk",
             submitter = "biostudies-dev@ebi.ac.uk",
             title = "Test Stats Submission",
+            doi = "10.983/S-BSST1",
             method = PAGE_TAB,
             rootPath = null,
             relPath = "S-BSST/001/S-BSST1",

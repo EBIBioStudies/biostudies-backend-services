@@ -1,15 +1,17 @@
 import Dependencies.Arrow
+import Dependencies.KotlinCoroutines
+import Dependencies.KotlinCoroutinesReactor
 import Dependencies.KotlinLogging
-import Dependencies.SpringWebFlux
 import Projects.CommonsHttp
 import Projects.SchedulerClusterClient
 import Projects.SchedulerTaskProperties
 import SpringBootDependencies.SpringBootStartedAdminClient
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
-import SpringBootDependencies.SpringBootStarterWeb
+import SpringBootDependencies.SpringBootStarterWebFlux
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.KotlinCoroutinesTest
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -32,13 +34,15 @@ dependencies {
     api(project(SchedulerTaskProperties))
 
     implementation(Arrow)
+    implementation(KotlinCoroutines)
+    implementation(KotlinCoroutinesReactor)
     implementation(KotlinLogging)
     implementation(SpringBootStarter)
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringBootStartedAdminClient)
-    implementation(SpringBootStarterWeb)
-    implementation(SpringWebFlux)
+    implementation(SpringBootStarterWebFlux)
 
+    testImplementation(KotlinCoroutinesTest)
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

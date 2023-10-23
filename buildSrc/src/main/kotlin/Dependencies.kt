@@ -125,7 +125,7 @@ object TestDependencies {
     const val rabitMqMock = "com.github.fridujo:rabbitmq-mock:$RabbitmqMockVersion"
 
     val BaseTestCompileDependencies = arrayOf(Junit, JunitExtensions, AssertJ, MockK, KotlinTestJunit)
-    val BaseTestRuntimeDependencies = arrayOf(Junit5Console)
+    val BaseTestRuntimeDependencies = arrayOf(Junit5Console, KotlinCoroutinesTest)
 
     // Xml related
     const val JaxbApi = "javax.xml.bind:jaxb-api:$JaxbApiVersion"

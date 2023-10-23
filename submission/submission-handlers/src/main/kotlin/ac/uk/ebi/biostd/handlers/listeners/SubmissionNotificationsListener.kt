@@ -15,6 +15,7 @@ import ebi.ac.uk.extended.events.FailedRequestMessage
 import ebi.ac.uk.extended.events.SubmissionMessage
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.notifications.service.RtNotificationService
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -60,14 +61,16 @@ class SubmissionNotificationsListener(
     @RabbitListener(queues = [FAILED_SUBMISSIONS_NOTIFICATIONS_QUEUE])
     fun receiveFailedSubmissionMessage(msg: FailedRequestMessage) {
         val errorMessage = "Problem processing submission '${msg.accNo}' with version ${msg.version}."
-        notificationsSender.send(Alert(SYSTEM_NAME, HANDLERS_SUBSYSTEM, errorMessage))
+        runBlocking {
+            notificationsSender.send(Alert(SYSTEM_NAME, HANDLERS_SUBSYSTEM, errorMessage))
+        }
     }
 
-    private fun notifySafely(message: SubmissionMessage, notifyFunction: SubmissionMessage.() -> Unit) {
+    private fun notifySafely(message: SubmissionMessage, notifyFunction: SubmissionMessage.() -> Unit) = runBlocking {
         runCatching { notifyFunction(message) }.onFailure { onError(message) }
     }
 
-    private fun onError(message: SubmissionMessage) {
+    private suspend fun onError(message: SubmissionMessage) {
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, message)
         notificationsSender.send(Alert(SYSTEM_NAME, HANDLERS_SUBSYSTEM, String.format(ERROR_MESSAGE, message.accNo)))
     }

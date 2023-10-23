@@ -1,11 +1,9 @@
-@file:Suppress("LongParameterList", "MagicNumber")
+@file:Suppress("LongParameterList")
 
 package uk.ac.ebi.extended.test
 
 import arrow.core.Either
 import ebi.ac.uk.extended.model.ExtAttribute
-import ebi.ac.uk.extended.model.ExtAttributeDetail
-import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -14,80 +12,8 @@ import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
-import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.extended.model.ExtSubmissionMethod
-import ebi.ac.uk.extended.model.ExtTag
 import ebi.ac.uk.extended.model.FireFile
-import ebi.ac.uk.extended.model.StorageMode
 import uk.ac.ebi.extended.serialization.service.createExtFileList
-import uk.ac.ebi.extended.test.SectionFactory.defaultSection
-import java.time.OffsetDateTime
-import java.time.ZoneOffset.UTC
-
-object SubmissionFactory {
-    fun defaultSubmission(
-        accNo: String = ACC_NO,
-        version: Int = VERSION,
-        schemaVersion: String = SCHEMA_VERSION,
-        owner: String = OWNER,
-        submitter: String = SUBMITTER,
-        title: String? = TITLE,
-        method: ExtSubmissionMethod = METHOD,
-        relPath: String = REL_PATH,
-        rootPath: String? = ROOT_PATH,
-        released: Boolean = RELEASED,
-        secretKey: String = SECRET_KEY,
-        releaseTime: OffsetDateTime? = RELEASE_TIME,
-        modificationTime: OffsetDateTime = MODIFICATION_TIME,
-        creationTime: OffsetDateTime = CREATION_TIME,
-        section: ExtSection = SECTION,
-        attributes: List<ExtAttribute> = ATTRIBUTES,
-        tags: List<ExtTag> = TAGS,
-        collections: List<ExtCollection> = COLLECTIONS,
-        pageTabFiles: List<ExtFile> = PAGE_TAG_FILES,
-    ) = ExtSubmission(
-        accNo = accNo,
-        version = version,
-        schemaVersion = schemaVersion,
-        owner = owner,
-        submitter = submitter,
-        title = title,
-        method = method,
-        relPath = relPath,
-        rootPath = rootPath,
-        released = released,
-        secretKey = secretKey,
-        releaseTime = releaseTime,
-        modificationTime = modificationTime,
-        creationTime = creationTime,
-        section = section,
-        attributes = attributes,
-        tags = tags,
-        collections = collections,
-        pageTabFiles = pageTabFiles,
-        storageMode = StorageMode.NFS
-    )
-
-    const val ACC_NO = "S-TEST123"
-    const val VERSION = 1
-    const val SCHEMA_VERSION = "1.0"
-    const val OWNER = "owner@email.org"
-    const val SUBMITTER = "submitter@email.org"
-    const val TITLE = "Default Submission Title"
-    val METHOD = ExtSubmissionMethod.PAGE_TAB
-    const val REL_PATH = "S-TEST/123/S-TEST123"
-    const val ROOT_PATH = "SUBMISSION_ROOT_PATH"
-    const val RELEASED = false
-    const val SECRET_KEY = "SUBMISSION_SECRET_KEY"
-    val RELEASE_TIME: OffsetDateTime = OffsetDateTime.of(2019, 9, 21, 0, 0, 0, 0, UTC)
-    val MODIFICATION_TIME: OffsetDateTime = OffsetDateTime.of(2020, 9, 21, 0, 0, 0, 0, UTC)
-    val CREATION_TIME: OffsetDateTime = OffsetDateTime.of(2018, 9, 21, 0, 0, 0, 0, UTC)
-    val ATTRIBUTES = emptyList<ExtAttribute>()
-    val TAGS = emptyList<ExtTag>()
-    val COLLECTIONS = emptyList<ExtCollection>()
-    val SECTION = defaultSection()
-    val PAGE_TAG_FILES = emptyList<ExtFile>()
-}
 
 object SectionFactory {
     fun defaultSection(
@@ -164,19 +90,4 @@ object FileListFactory {
     val FILES = emptyList<ExtFile>()
     const val FILES_URL = "filesUrl"
     val PAGE_TAG_FILES = emptyList<ExtFile>()
-}
-
-object AttributeFactory {
-    fun defaultAttribute(
-        name: String = NAME,
-        value: String = VALUE,
-        reference: Boolean = REFERENCE,
-        nameAttrs: List<ExtAttributeDetail> = listOf(),
-        valueAttrs: List<ExtAttributeDetail> = listOf(),
-
-    ) = ExtAttribute(name, value, reference, nameAttrs, valueAttrs)
-
-    const val NAME = "name"
-    const val VALUE = "value"
-    const val REFERENCE = false
 }

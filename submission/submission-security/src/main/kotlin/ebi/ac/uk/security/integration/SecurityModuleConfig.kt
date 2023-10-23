@@ -57,8 +57,7 @@ class SecurityModuleConfig(
             props,
             profileService,
             captchaVerifier,
-            eventsPublisherService,
-            ftpClient
+            eventsPublisherService
         )
     }
 
@@ -94,8 +93,9 @@ class SecurityModuleConfig(
 
         fun profileService(props: SecurityProperties): ProfileService {
             return ProfileService(
-                Paths.get(props.filesProperties.filesDirPath),
-                props.environment
+                nfsUserFtpDirPath = Paths.get(props.filesProperties.ftpDirPath),
+                nfsUserFilesDirPath = Paths.get(props.filesProperties.filesDirPath),
+                environment = props.environment
             )
         }
     }
