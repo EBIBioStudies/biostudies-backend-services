@@ -1,6 +1,8 @@
 package uk.ac.ebi.scheduler.pmc.importer.domain
 
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
+import ac.uk.ebi.cluster.client.model.CoresSpec.EIGHT_CORES
+import ac.uk.ebi.cluster.client.model.CoresSpec.FOUR_CORES
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec
@@ -35,7 +37,7 @@ internal class PmcLoaderService private constructor(
         notificationsSender: NotificationsSender,
     ) : this(PmcLoader(clusterOperations, properties, appProperties), notificationsSender)
 
-    fun loadFile(folder: String?, file: String?, debugPort: Int? = null): Job {
+    suspend fun loadFile(folder: String?, file: String?, debugPort: Int? = null): Job {
         val job = pmcLoaderService.loadFile(folder, file, debugPort)
         val params = buildList {
             folder?.let { add("folder='$it'") }
@@ -53,7 +55,7 @@ internal class PmcLoaderService private constructor(
         return job
     }
 
-    fun triggerProcessor(sourceFile: String?, debugPort: Int? = null): Job {
+    suspend fun triggerProcessor(sourceFile: String?, debugPort: Int? = null): Job {
         val job = pmcLoaderService.triggerProcessor(sourceFile, debugPort)
         val params = buildList {
             sourceFile?.let { add("sourceFile='$it'") }
@@ -69,7 +71,7 @@ internal class PmcLoaderService private constructor(
         return job
     }
 
-    fun triggerSubmitter(sourceFile: String?, debugPort: Int? = null): Job {
+    suspend fun triggerSubmitter(sourceFile: String?, debugPort: Int? = null): Job {
         val job = pmcLoaderService.triggerSubmitter(sourceFile, debugPort)
         pmcNotificationsSender.send(
             Report(
@@ -81,7 +83,7 @@ internal class PmcLoaderService private constructor(
         return job
     }
 
-    fun triggerSubmitSingle(debugPort: Int? = null, submissionId: String): Job {
+    suspend fun triggerSubmitSingle(debugPort: Int? = null, submissionId: String): Job {
         val job = pmcLoaderService.triggerSubmitSingle(submissionId, debugPort)
         pmcNotificationsSender.send(
             Report(
@@ -93,9 +95,6 @@ internal class PmcLoaderService private constructor(
         return job
     }
 }
-
-private const val FOUR_CORES = 4
-private const val EIGHT_CORES = 8
 
 private class PmcLoader(
     private val clusterOperations: ClusterOperations,
@@ -112,7 +111,7 @@ private class PmcLoader(
             JobSpec(
                 FOUR_CORES,
                 MemorySpec.EIGHT_GB,
-                properties.asCmd(appProperties.appsFolder, debugPort)
+                command = properties.asCmd(appProperties.appsFolder, debugPort),
             )
         )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
@@ -125,7 +124,7 @@ private class PmcLoader(
             JobSpec(
                 FOUR_CORES,
                 MemorySpec.EIGHT_GB,
-                properties.asCmd(appProperties.appsFolder, debugPort)
+                command = properties.asCmd(appProperties.appsFolder, debugPort),
             )
         )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
@@ -138,7 +137,7 @@ private class PmcLoader(
             JobSpec(
                 EIGHT_CORES,
                 MemorySpec.TWENTYFOUR_GB,
-                properties.asCmd(appProperties.appsFolder, debugPort)
+                command = properties.asCmd(appProperties.appsFolder, debugPort),
             )
         )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
@@ -151,7 +150,7 @@ private class PmcLoader(
             JobSpec(
                 EIGHT_CORES,
                 MemorySpec.TWENTYFOUR_GB,
-                properties.asCmd(appProperties.appsFolder, debugPort)
+                command = properties.asCmd(appProperties.appsFolder, debugPort),
             )
         )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })

@@ -21,7 +21,6 @@ import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
-import TestDependencies.KotlinCoroutinesTest
 import TestDependencies.KotlinXmlBuilder
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
@@ -63,7 +62,6 @@ dependencies {
     implementation(SpringWebFlux)
 
     testImplementation(SpringBootStarterAmqp)
-    testImplementation(KotlinCoroutinesTest)
     testImplementation(testFixtures(project(CommonsModelExtended)))
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }

@@ -41,7 +41,6 @@ import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.FtpServer
 import TestDependencies.JsonPathAssert
-import TestDependencies.KotlinCoroutinesTest
 import TestDependencies.KotlinXmlBuilder
 import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
@@ -121,7 +120,6 @@ dependencies {
     implementation(SpringWebFlux)
     implementation(KotlinLogging)
 
-    testImplementation(KotlinCoroutinesTest)
     testImplementation(project(ClientBioWebClient))
     testImplementation(testFixtures(project(CommonsSerialization)))
     testImplementation(testFixtures(project(CommonsModelExtended)))
@@ -147,7 +145,6 @@ dependencies {
     testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)
     testImplementation(TestContainerJUnit)
-    testImplementation(KotlinCoroutinesTest)
 }
 
 tasks.named<BootJar>("bootJar") {

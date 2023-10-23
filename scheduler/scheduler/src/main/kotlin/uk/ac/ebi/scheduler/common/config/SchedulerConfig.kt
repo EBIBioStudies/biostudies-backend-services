@@ -15,10 +15,12 @@ import uk.ac.ebi.scheduler.pmc.importer.domain.PmcLoaderService
 import uk.ac.ebi.scheduler.releaser.api.SubmissionReleaserProperties
 import uk.ac.ebi.scheduler.releaser.domain.SubmissionReleaserTrigger
 import uk.ac.ebi.scheduler.scheduling.DailyScheduler
+import uk.ac.ebi.scheduler.stats.api.StatsReporterProperties
+import uk.ac.ebi.scheduler.stats.domain.StatsReporterTrigger
 
 @Configuration
 @EnableScheduling
-@EnableConfigurationProperties(AppProperties::class)
+@EnableConfigurationProperties(AppProperties::class, StatsReporterProperties::class)
 internal class SchedulerConfig {
     @Bean
     fun clusterOperations(
@@ -61,16 +63,31 @@ internal class SchedulerConfig {
     )
 
     @Bean
+    fun statsReporterTrigger(
+        appProperties: AppProperties,
+        properties: StatsReporterProperties,
+        clusterOperations: ClusterOperations,
+        schedulerNotificationsSender: NotificationsSender,
+    ): StatsReporterTrigger = StatsReporterTrigger(
+        appProperties,
+        properties,
+        clusterOperations,
+        schedulerNotificationsSender,
+    )
+
+    @Bean
     fun scheduler(
         appProperties: AppProperties,
         loaderService: PmcLoaderService,
         exporterTrigger: ExporterTrigger,
+        statsTrigger: StatsReporterTrigger,
         releaserTrigger: SubmissionReleaserTrigger,
     ): DailyScheduler =
         DailyScheduler(
             appProperties.dailyScheduling,
             exporterTrigger,
             loaderService,
-            releaserTrigger
+            statsTrigger,
+            releaserTrigger,
         )
 }

@@ -1,6 +1,7 @@
 package uk.ac.ebi.scheduler.releaser.domain
 
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
+import ac.uk.ebi.cluster.client.model.CoresSpec.FOUR_CORES
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
@@ -12,11 +13,14 @@ import arrow.core.Try
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -48,14 +52,17 @@ class SubmissionReleaserTriggerTest(
     fun beforeEach() {
         every { job.id } returns "ABC123"
         every { job.queue } returns "submissions-releaser-queue"
-        every { notificationsSender.send(capture(jobReport)) } answers { nothing }
-        every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+
         every { appProperties.appsFolder } returns "apps-folder"
         every { appProperties.javaHome } returns "/home/jdk11"
+
+        every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+
+        coEvery { notificationsSender.send(capture(jobReport)) } answers { nothing }
     }
 
     @Test
-    fun triggerSubmissionReleaser() {
+    fun triggerSubmissionReleaser() = runTest {
         trigger.triggerSubmissionReleaser()
 
         verifyClusterOperations()
@@ -63,7 +70,7 @@ class SubmissionReleaserTriggerTest(
     }
 
     @Test
-    fun triggerSubmissionReleaseNotifier() {
+    fun triggerSubmissionReleaseNotifier() = runTest {
         trigger.triggerSubmissionReleaseNotifier()
 
         verifyClusterOperations()
@@ -71,7 +78,7 @@ class SubmissionReleaserTriggerTest(
     }
 
     @Test
-    fun triggerFtpLinksGenerator() {
+    fun triggerFtpLinksGenerator() = runTest {
         trigger.triggerFtpLinksGenerator()
 
         verifyClusterOperations()
@@ -79,13 +86,13 @@ class SubmissionReleaserTriggerTest(
     }
 
     private fun verifyClusterOperations() {
-        verify(exactly = 1) { notificationsSender.send(jobReport.captured) }
+        coVerify(exactly = 1) { notificationsSender.send(jobReport.captured) }
         verify(exactly = 1) { clusterOperations.triggerJob(jobSpecs.captured) }
     }
 
     private fun verifyJobSpecs(specs: JobSpec, mode: ReleaserMode) {
         assertThat(specs.ram).isEqualTo(EIGHT_GB)
-        assertThat(specs.cores).isEqualTo(RELEASER_CORES)
+        assertThat(specs.cores).isEqualTo(FOUR_CORES)
         assertThat(specs.command).isEqualTo(
             """
             "module load openjdk-11.0.1-gcc-9.3.0-unymjzh; \
