@@ -2,7 +2,8 @@ package ac.uk.ebi.biostd.stats.web.handlers
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
-import ac.uk.ebi.biostd.stats.web.exceptions.InvalidStatException
+import ac.uk.ebi.biostd.submission.stats.InvalidStatException
+import ac.uk.ebi.biostd.submission.stats.StatsFileHandler
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.test.createFile
@@ -16,7 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
 class StatsFileHandlerTest(
-    private val tempFolder: TemporaryFolder
+    private val tempFolder: TemporaryFolder,
 ) {
     private val testInstance = StatsFileHandler()
 

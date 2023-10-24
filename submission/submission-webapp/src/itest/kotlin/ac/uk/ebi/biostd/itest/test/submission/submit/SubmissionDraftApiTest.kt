@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.data.service.UserDataService
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.common.TestUserDataService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -28,7 +28,7 @@ import uk.ac.ebi.serialization.extensions.getProperty
 @Transactional
 class SubmissionDraftApiTest(
     @Autowired val securityTestService: SecurityTestService,
-    @Autowired val dataService: UserDataService,
+    @Autowired val dataService: TestUserDataService,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient

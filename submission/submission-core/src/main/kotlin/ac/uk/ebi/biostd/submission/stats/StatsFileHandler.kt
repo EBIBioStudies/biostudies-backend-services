@@ -1,9 +1,8 @@
-package ac.uk.ebi.biostd.stats.web.handlers
+package ac.uk.ebi.biostd.submission.stats
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
-import ac.uk.ebi.biostd.stats.web.exceptions.InvalidStatException
 import ebi.ac.uk.util.collections.second
 import java.io.File
 
