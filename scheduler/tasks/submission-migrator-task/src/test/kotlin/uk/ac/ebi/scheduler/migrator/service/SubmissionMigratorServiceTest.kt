@@ -2,13 +2,11 @@ package uk.ac.ebi.scheduler.migrator.service
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMigratorRepository
-import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.getReadyToMigrate
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.MigrationData
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.runTest
@@ -48,9 +46,8 @@ class SubmissionMigratorServiceTest(
     }
 
     private fun setUpPersistence() {
-        mockkStatic(REPO)
         every { migratorRepository.isMigrated(ACC_NO) } returnsMany listOf(false, true)
-        every { migratorRepository.getReadyToMigrate(ACC_NO_PATTERN) } returns listOf(MigrationData(ACC_NO)).asFlow()
+        every { migratorRepository.findReadyToMigrate(ACC_NO_PATTERN) } returns listOf(MigrationData(ACC_NO)).asFlow()
     }
 
     companion object {
@@ -59,6 +56,5 @@ class SubmissionMigratorServiceTest(
         const val CONCURRENCY = 2
         const val ACC_NO = "E-GEOD-123"
         const val ACC_NO_PATTERN = "E-GEOD-"
-        const val REPO = "ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMigratorRepositoryKt"
     }
 }

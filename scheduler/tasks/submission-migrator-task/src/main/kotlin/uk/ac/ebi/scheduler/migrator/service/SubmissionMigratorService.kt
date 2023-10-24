@@ -2,7 +2,6 @@ package uk.ac.ebi.scheduler.migrator.service
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMigratorRepository
-import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.getReadyToMigrate
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.MigrationData
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +25,7 @@ class SubmissionMigratorService(
     suspend fun migrateSubmissions() {
         withContext(Dispatchers.Default) {
             migratorRepository
-                .getReadyToMigrate(properties.accNoPattern)
+                .findReadyToMigrate(properties.accNoPattern)
                 .map { async { migrateSafely(it) } }
                 .buffer(properties.concurrency)
                 .collect { it.await() }
