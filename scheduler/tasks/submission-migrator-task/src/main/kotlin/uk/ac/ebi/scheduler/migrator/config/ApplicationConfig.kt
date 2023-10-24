@@ -2,17 +2,20 @@ package uk.ac.ebi.scheduler.migrator.config
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
+import ac.uk.ebi.biostd.persistence.doc.MongoDbReactiveConfig
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMigratorRepository
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import uk.ac.ebi.scheduler.migrator.SubmissionMigratorExecutor
-import uk.ac.ebi.scheduler.migrator.persistence.MigratorRepository
 import uk.ac.ebi.scheduler.migrator.service.SubmissionMigratorService
 
 @Configuration
+@Import(MongoDbReactiveConfig::class)
 @EnableConfigurationProperties(ApplicationProperties::class)
 class ApplicationConfig(
-    private val migratorRepository: MigratorRepository,
+    private val migratorRepository: SubmissionMigratorRepository,
     private val properties: ApplicationProperties,
 ) {
     @Bean

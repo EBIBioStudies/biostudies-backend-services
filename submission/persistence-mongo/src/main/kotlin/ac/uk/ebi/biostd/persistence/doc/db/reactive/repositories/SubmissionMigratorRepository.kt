@@ -1,9 +1,9 @@
-package uk.ac.ebi.scheduler.migrator.persistence
+package ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories
 
+import ac.uk.ebi.biostd.persistence.doc.commons.pageResultAsFlow
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.MigrationData
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.toList
 import org.bson.types.ObjectId
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -13,7 +13,7 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 
 internal const val CHUNK_SIZE = 10
 
-interface MigratorRepository : CoroutineCrudRepository<DocSubmission, ObjectId> {
+interface SubmissionMigratorRepository : CoroutineCrudRepository<DocSubmission, ObjectId> {
     @Query(
         value = "{ accNo: { \$regex: ?0 }, storageMode: 'NFS', version: { \$gte: 0 } }",
         fields = "{ accNo: 1 }"
@@ -24,14 +24,6 @@ interface MigratorRepository : CoroutineCrudRepository<DocSubmission, ObjectId> 
     fun isMigrated(accNo: String): Boolean
 }
 
-fun MigratorRepository.getReadyToMigrate(accNoPattern: String): Flow<MigrationData> = flow {
-    var index = 0
-    var currentPage = findReadyToMigrate(accNoPattern, PageRequest.of(index, CHUNK_SIZE)).toList()
-
-    while (currentPage.isNotEmpty()) {
-        currentPage.forEach { emit(it) }
-        currentPage = findReadyToMigrate(accNoPattern, PageRequest.of(++index, CHUNK_SIZE)).toList()
-    }
-}
-
-data class MigrationData(val accNo: String)
+fun SubmissionMigratorRepository.getReadyToMigrate(
+    accNoPattern: String
+): Flow<MigrationData> = pageResultAsFlow { _, _ -> findReadyToMigrate(accNoPattern, PageRequest.of(0, CHUNK_SIZE)) }

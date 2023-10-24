@@ -7,11 +7,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
+import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories
 import uk.ac.ebi.scheduler.migrator.service.SubmissionMigratorService
 
 @SpringBootApplication
-@EnableMongoRepositories
+@EnableReactiveMongoRepositories
 @EnableConfigurationProperties
 class SubmissionMigratorApp
 

@@ -14,7 +14,6 @@ import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.Awaitility
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
-import TestDependencies.KotlinCoroutinesTest
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -39,7 +38,6 @@ dependencies {
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringBootStarterMongo)
 
-    testImplementation(KotlinCoroutinesTest)
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

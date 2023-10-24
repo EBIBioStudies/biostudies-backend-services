@@ -1,6 +1,9 @@
 package uk.ac.ebi.scheduler.migrator.service
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMigratorRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.getReadyToMigrate
+import ac.uk.ebi.biostd.persistence.doc.db.repositories.MigrationData
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -13,15 +16,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.scheduler.migrator.config.ApplicationProperties
-import uk.ac.ebi.scheduler.migrator.persistence.MigrationData
-import uk.ac.ebi.scheduler.migrator.persistence.MigratorRepository
-import uk.ac.ebi.scheduler.migrator.persistence.getReadyToMigrate
 
 @ExtendWith(MockKExtension::class)
 class SubmissionMigratorServiceTest(
     @MockK private val properties: ApplicationProperties,
     @MockK private val bioWebClient: BioWebClient,
-    @MockK private val migratorRepository: MigratorRepository,
+    @MockK private val migratorRepository: SubmissionMigratorRepository,
 ) {
     private val testInstance = SubmissionMigratorService(properties, bioWebClient, migratorRepository)
 
@@ -48,7 +48,7 @@ class SubmissionMigratorServiceTest(
     }
 
     private fun setUpPersistence() {
-        mockkStatic(MIGRATOR_REPO)
+        mockkStatic(REPO)
         every { migratorRepository.isMigrated(ACC_NO) } returnsMany listOf(false, true)
         every { migratorRepository.getReadyToMigrate(ACC_NO_PATTERN) } returns listOf(MigrationData(ACC_NO)).asFlow()
     }
@@ -59,6 +59,6 @@ class SubmissionMigratorServiceTest(
         const val CONCURRENCY = 2
         const val ACC_NO = "E-GEOD-123"
         const val ACC_NO_PATTERN = "E-GEOD-"
-        const val MIGRATOR_REPO = "uk.ac.ebi.scheduler.migrator.persistence.MigratorRepositoryKt"
+        const val REPO = "ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMigratorRepositoryKt"
     }
 }
