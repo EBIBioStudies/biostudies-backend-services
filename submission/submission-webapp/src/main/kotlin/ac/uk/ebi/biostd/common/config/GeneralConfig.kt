@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
-import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
+import ac.uk.ebi.biostd.submission.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ebi.ac.uk.ftp.FtpClient
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -17,7 +17,8 @@ import java.nio.file.Paths
 @EnableConfigurationProperties(ApplicationProperties::class)
 internal class GeneralConfig {
     @Bean
-    fun tempFileGenerator(properties: ApplicationProperties) = TempFileGenerator(properties)
+    fun tempFileGenerator(properties: ApplicationProperties): TempFileGenerator =
+        TempFileGenerator(properties.tempDirPath)
 
     @Bean
     fun filesSourceConfig(

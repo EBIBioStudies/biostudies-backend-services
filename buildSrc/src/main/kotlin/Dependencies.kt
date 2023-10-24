@@ -261,7 +261,7 @@ object Projects {
     const val SubmissionPersistenceMongo = ":submission:persistence-mongo"
     const val SubmissionNotification = ":submission:notifications"
     const val SubmissionSecurity = ":submission:submission-security"
-    const val SubmissionSubmitter = ":submission:submitter"
+    const val SubmissionSubmitter = ":submission:submission-core"
     const val ClientBioWebClient = ":client:bio-webclient"
     const val ClientFireWebClient = ":client:fire-webclient"
     const val SchedulerTaskProperties = ":scheduler:common:task-properties"

@@ -1,9 +1,7 @@
 package ac.uk.ebi.biostd.stats.web
 
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
-import ac.uk.ebi.biostd.stats.domain.service.SubmissionStatsService
-import ac.uk.ebi.biostd.stats.web.mapping.toStat
-import ac.uk.ebi.biostd.stats.web.mapping.toStatDto
+import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import kotlinx.coroutines.flow.Flow
