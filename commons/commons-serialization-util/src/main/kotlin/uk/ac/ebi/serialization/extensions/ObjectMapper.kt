@@ -26,7 +26,7 @@ fun <T : Any> ObjectMapper.serializeList(files: Sequence<T>, outputStream: Outpu
 }
 
 suspend fun <T : Any> ObjectMapper.serializeFlow(files: Flow<T>, outputStream: OutputStream): Int {
-    val jsonGenerator = factory.createGenerator(outputStream).apply { useDefaultPrettyPrinter() }
+    val jsonGenerator = factory.createGenerator(outputStream)
     val count = AtomicInteger(0)
     jsonGenerator.use {
         it.writeStartArray()
