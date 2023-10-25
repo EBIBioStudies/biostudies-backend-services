@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.isCollection
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import uk.ac.ebi.scheduler.pmc.exporter.config.ApplicationProperties
 import java.nio.file.Files
@@ -45,15 +46,14 @@ class PublicOnlyExporterService(
     private fun writeSubmissions() {
         bioWebClient
             .getExtSubmissionsAsSequence(ExtPageQuery(released = true, limit = 1))
+            .filter { it.isCollection.not() }
             .forEach(::writeSubmission)
     }
 
-    private fun writeSubmission(extSubmission: ExtSubmission) {
-        if (extSubmission.isCollection.not()) {
-            logger.info { "Exporting public submission '${extSubmission.accNo}'" }
-            val simpleSubmission = toSubmissionMapper.toSimpleSubmission(extSubmission)
-            jsonWriter.writeRawValue(serializationService.serializeSubmission(simpleSubmission, JSON_PRETTY))
-        }
+    private fun writeSubmission(extSubmission: ExtSubmission) = runBlocking {
+        logger.info { "Exporting public submission '${extSubmission.accNo}'" }
+        val simpleSubmission = toSubmissionMapper.toSimpleSubmission(extSubmission)
+        jsonWriter.writeRawValue(serializationService.serializeSubmission(simpleSubmission, JSON_PRETTY))
     }
 
     private fun closeExportFile() {

@@ -12,6 +12,8 @@ import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -57,13 +59,14 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
     }
 
     @Test
-    fun `serialize - deserialize fileList`() {
+    fun `serialize - deserialize fileList`() = runTest {
         val fileList = (1..20_000).map { createNfsFile(it) }.asSequence()
         val iterator = fileList.iterator()
 
         testFile.outputStream().use { testInstance.serialize(fileList, it) }
-        testFile.inputStream()
-            .use { testInstance.deserializeList(it).onEach { assertThat(it).isEqualTo(iterator.next()) } }
+
+        val result = testFile.inputStream().use { testInstance.deserializeListAsFlow(it).toList() }
+        result.onEach { assertThat(it).isEqualTo(iterator.next()) }
     }
 
     private fun createNfsFile(index: Int) = NfsFile(

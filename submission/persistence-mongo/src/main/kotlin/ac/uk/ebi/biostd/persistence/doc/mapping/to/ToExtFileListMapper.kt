@@ -7,9 +7,12 @@ import ebi.ac.uk.extended.model.ExtFileList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
+import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
+
+private val logger = KotlinLogging.logger {}
 
 class ToExtFileListMapper(
     private val fileListDocFileDocDataRepository: FileListDocFileDocDataRepository,
@@ -31,7 +34,7 @@ class ToExtFileListMapper(
     ): ExtFileList {
         fun fileListFiles(): Flow<ExtFile> {
             return fileListDocFileDocDataRepository
-                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(subAccNo, subVersion, fileList.fileName)
+                .findByFileList(subAccNo, subVersion, fileList.fileName)
                 .map { it.file.toExtFile(released, subRelPath) }
         }
 
@@ -44,8 +47,10 @@ class ToExtFileListMapper(
     }
 
     private suspend fun writeFile(subAccNo: String, subVersion: Int, fileListName: String, files: Flow<ExtFile>): File {
+        logger.info { "accNo:'$subAccNo' version: '$subVersion', serializing file list $fileListName" }
         val file = extFilesResolver.createExtEmptyFile(subAccNo, subVersion, fileListName)
         file.outputStream().use { serializationService.serialize(files, it) }
+        logger.info { "accNo:'$subAccNo' version: '$subVersion', completed file list $fileListName serialization" }
         return file
     }
 }

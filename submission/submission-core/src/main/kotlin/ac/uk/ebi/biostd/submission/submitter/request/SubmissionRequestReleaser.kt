@@ -14,11 +14,13 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.fileSequence
+import uk.ac.ebi.extended.serialization.service.filesFlow
 
 private val logger = KotlinLogging.logger {}
 
@@ -99,9 +101,9 @@ class SubmissionRequestReleaser(
 
     private suspend fun releaseSubmission(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
-        serializationService.fileSequence(sub)
+        serializationService.filesFlow(sub)
             .filterNot { it is FireFile && it.published }
-            .forEachIndexed { idx, file -> releaseFile(sub, idx, file) }
+            .collectIndexed { idx, file -> releaseFile(sub, idx, file) }
         persistenceService.setAsReleased(sub.accNo)
         logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
     }

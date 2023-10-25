@@ -20,7 +20,7 @@ class PageTabUtil(
     private val toSubmissionMapper: ToSubmissionMapper,
     private val fileListMapper: ToFileListMapper,
 ) {
-    fun generateSubPageTab(sub: ExtSubmission, target: File): PageTabFiles {
+    suspend fun generateSubPageTab(sub: ExtSubmission, target: File): PageTabFiles {
         val element = toSubmissionMapper.toSimpleSubmission(sub)
         val permissions = sub.permissions()
 
@@ -43,10 +43,10 @@ class PageTabUtil(
         )
     }
 
-    fun generateFileListPageTab(submission: ExtSubmission, filesFolder: File): Map<String, PageTabFiles> =
+    suspend fun generateFileListPageTab(submission: ExtSubmission, filesFolder: File): Map<String, PageTabFiles> =
         submission.allFileList.associate { it.filePath to saveTabFiles(filesFolder, it) }
 
-    private fun saveTabFiles(filesDir: File, fileList: ExtFileList): PageTabFiles {
+    private suspend fun saveTabFiles(filesDir: File, fileList: ExtFileList): PageTabFiles {
         createFolderStructure(filesDir, fileList.filePath)
         val path = fileList.filePath
         return PageTabFiles(

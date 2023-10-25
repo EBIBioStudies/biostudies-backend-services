@@ -12,7 +12,7 @@ import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.fileSequence
+import uk.ac.ebi.extended.serialization.service.filesFlow
 
 private val logger = KotlinLogging.logger {}
 
@@ -53,7 +53,7 @@ class StorageService(
         sub: ExtSubmission,
         process: (Sequence<ExtFile>) -> Sequence<ExtFile>,
     ) {
-        process(serializationService.fileSequence(sub)).forEach { file -> deleteSubmissionFile(sub, file) }
+        serializationService.filesFlow(sub).collect { file -> deleteSubmissionFile(sub, file) }
         deleteEmptyFolders(sub)
     }
 

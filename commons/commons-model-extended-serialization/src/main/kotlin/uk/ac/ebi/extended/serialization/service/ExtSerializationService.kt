@@ -39,7 +39,8 @@ import uk.ac.ebi.extended.serialization.serializers.ExtSectionSerializer
 import uk.ac.ebi.extended.serialization.serializers.ExtSectionsTableSerializer
 import uk.ac.ebi.extended.serialization.serializers.ExtSubmissionSerializer
 import uk.ac.ebi.extended.serialization.serializers.OffsetDateTimeSerializer
-import uk.ac.ebi.serialization.extensions.deserializeList
+import uk.ac.ebi.serialization.extensions.deserializeAsFlow
+import uk.ac.ebi.serialization.extensions.deserializeAsSequence
 import uk.ac.ebi.serialization.extensions.serializeFlow
 import uk.ac.ebi.serialization.extensions.serializeList
 import uk.ac.ebi.serialization.serializers.EitherSerializer
@@ -61,7 +62,8 @@ class ExtSerializationService private constructor(val mapper: ObjectMapper) {
 
     fun deserialize(value: String): ExtSubmission = mapper.readValue(value)
     fun deserializeFile(value: String): ExtFile = mapper.readValue(value)
-    fun deserializeList(stream: InputStream): Sequence<ExtFile> = mapper.deserializeList(stream)
+    fun deserializeListAsSequence(stream: InputStream): Sequence<ExtFile> = mapper.deserializeAsSequence(stream)
+    suspend fun deserializeListAsFlow(stream: InputStream): Flow<ExtFile> = mapper.deserializeAsFlow(stream)
     fun deserializePage(value: String): ExtPage = mapper.readValue(value)
     fun deserializeTable(value: String): ExtFileTable = mapper.readValue(value)
 

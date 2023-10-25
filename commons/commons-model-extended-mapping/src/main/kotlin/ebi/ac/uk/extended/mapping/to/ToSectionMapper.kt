@@ -6,7 +6,7 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.SectionsTable
 
 class ToSectionMapper(private val toFileListMapper: ToFileListMapper) {
-    fun convert(sec: ExtSection): Section = Section(
+    suspend fun convert(sec: ExtSection): Section = Section(
         type = sec.type,
         accNo = sec.accNo,
         fileList = sec.fileList?.let { toFileListMapper.convert(it) },
@@ -16,6 +16,6 @@ class ToSectionMapper(private val toFileListMapper: ToFileListMapper) {
         sections = sec.sections.mapTo(mutableListOf()) { either -> either.bimap({ convert(it) }, { toTable(it) }) }
     )
 
-    private fun toTable(extSectionTable: ExtSectionTable): SectionsTable =
+    private suspend fun toTable(extSectionTable: ExtSectionTable): SectionsTable =
         SectionsTable(extSectionTable.sections.map { section -> convert(section) })
 }
