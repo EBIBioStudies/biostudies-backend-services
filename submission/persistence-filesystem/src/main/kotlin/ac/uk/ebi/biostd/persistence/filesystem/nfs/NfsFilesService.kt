@@ -14,6 +14,8 @@ import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.ext.notExist
 import ebi.ac.uk.paths.SubmissionFolderResolver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
@@ -25,12 +27,13 @@ class NfsFilesService(
     private val fireClient: FireClient,
     private val folderResolver: SubmissionFolderResolver,
 ) : FilesService {
-    override suspend fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile {
-        return when (file) {
-            is FireFile -> persistFireFile(sub, file)
-            is NfsFile -> persistNfsFile(sub, file)
+    override suspend fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile =
+        withContext(Dispatchers.IO) {
+            when (file) {
+                is FireFile -> persistFireFile(sub, file)
+                is NfsFile -> persistNfsFile(sub, file)
+            }
         }
-    }
 
     private fun persistNfsFile(sub: ExtSubmission, file: NfsFile): ExtFile {
         val permissions = sub.permissions()
@@ -62,7 +65,7 @@ class NfsFilesService(
         return getOrCreateFolder(submissionPath, permissions).toFile()
     }
 
-    override suspend fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {
+    override suspend fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) = withContext(Dispatchers.IO) {
         require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
 
         val subDirectory = folderResolver.getSubFolder(sub.relPath)
@@ -70,14 +73,14 @@ class NfsFilesService(
         FileUtils.deleteFile(subFile)
     }
 
-    override fun deleteFtpFile(sub: ExtSubmission, file: ExtFile) {
+    override suspend fun deleteFtpFile(sub: ExtSubmission, file: ExtFile) = withContext(Dispatchers.IO) {
         logger.info { "${sub.accNo} ${sub.owner} Started un-publishing files of submission ${sub.accNo} on NFS" }
         val subFolder = folderResolver.getSubmissionFtpFolder(sub.relPath)
         FileUtils.deleteFile(subFolder.resolve(file.relPath).toFile())
         logger.info { "${sub.accNo} ${sub.owner} Finished un-publishing files of submission ${sub.accNo} on NFS" }
     }
 
-    override fun deleteEmptyFolders(current: ExtSubmission) {
+    override suspend fun deleteEmptyFolders(current: ExtSubmission) = withContext(Dispatchers.IO) {
         val subFolder = folderResolver.getSubFolder(current.relPath)
         FileUtils.deleteEmptyDirectories(subFolder.toFile())
     }

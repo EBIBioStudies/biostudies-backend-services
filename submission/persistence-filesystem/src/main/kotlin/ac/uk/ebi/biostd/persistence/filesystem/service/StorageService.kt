@@ -10,6 +10,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
+import kotlinx.coroutines.flow.Flow
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
@@ -51,13 +52,13 @@ class StorageService(
 
     override suspend fun deleteSubmissionFiles(
         sub: ExtSubmission,
-        process: (Sequence<ExtFile>) -> Sequence<ExtFile>,
+        process: (Flow<ExtFile>) -> Flow<ExtFile>,
     ) {
-        serializationService.filesFlow(sub).collect { file -> deleteSubmissionFile(sub, file) }
+        process(serializationService.filesFlow(sub)).collect { file -> deleteSubmissionFile(sub, file) }
         deleteEmptyFolders(sub)
     }
 
-    private fun deleteEmptyFolders(sub: ExtSubmission) = when (sub.storageMode) {
+    private suspend fun deleteEmptyFolders(sub: ExtSubmission) = when (sub.storageMode) {
         FIRE -> fireFilesService.deleteEmptyFolders(sub)
         NFS -> nfsFilesService.deleteEmptyFolders(sub)
     }

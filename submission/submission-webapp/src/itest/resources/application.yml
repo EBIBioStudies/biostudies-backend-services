@@ -11,6 +11,7 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       use-new-id-generator-mappings: false
 
+
   servlet:
     multipart:
       max-file-size: 10240MB
@@ -21,6 +22,9 @@ spring:
     password: guest
     host: localhost
     port: 5672
+  mvc:
+    async:
+      request-timeout: -1
 
 app:
   submissionPath:
