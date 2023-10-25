@@ -32,6 +32,7 @@ suspend fun <T : Any> ObjectMapper.serializeFlow(files: Flow<T>, outputStream: O
         it.writeStartArray()
         files
             .collect { file ->
+                count.getAndIncrement()
                 writeInIoThread(it, file)
             }
         it.writeEndArray()

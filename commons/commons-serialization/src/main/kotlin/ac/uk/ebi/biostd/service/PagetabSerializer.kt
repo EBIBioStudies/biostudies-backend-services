@@ -51,7 +51,7 @@ internal class PagetabSerializer(
         }
     }
 
-    fun deserializeFileList(input: InputStream, format: SubFormat): Sequence<BioFile> {
+    fun deserializeFileListAsSequence(input: InputStream, format: SubFormat): Sequence<BioFile> {
         return when (format) {
             XmlFormat -> xmlStreamSerializer.deserializeFileList(input)
             is JsonFormat -> jsonSerializer.deserializeFileList(input)

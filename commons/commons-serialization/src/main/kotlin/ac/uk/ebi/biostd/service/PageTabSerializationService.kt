@@ -28,7 +28,7 @@ internal class PageTabSerializationService(
         format: SubFormat,
         source: FileSourcesList,
     ): Submission =
-        fileListSerializer.deserializeFileList(serializer.deserializeSubmission(content, format), source)
+        fileListSerializer.deserializeSubmission(serializer.deserializeSubmission(content, format), source)
 
     override fun deserializeSubmission(file: File): Submission {
         val pagetabFile = readAsPageTab(file)
@@ -36,12 +36,12 @@ internal class PageTabSerializationService(
     }
 
     override suspend fun deserializeSubmission(file: File, source: FileSourcesList): Submission =
-        fileListSerializer.deserializeFileList(deserializeSubmission(file), source)
+        fileListSerializer.deserializeSubmission(deserializeSubmission(file), source)
 
-    override fun deserializeFileList(
+    override fun deserializeFileListAsSequence(
         inputStream: InputStream,
         format: SubFormat,
-    ): Sequence<BioFile> = fileListSerializer.deserializeFileList(inputStream, format)
+    ): Sequence<BioFile> = fileListSerializer.deserializeFileListAsSequence(inputStream, format)
 
     override fun serializeTable(table: FilesTable, format: SubFormat, file: File): File {
         file.outputStream().use { serializer.serializeFileList(table.elements.asSequence(), format, it) }

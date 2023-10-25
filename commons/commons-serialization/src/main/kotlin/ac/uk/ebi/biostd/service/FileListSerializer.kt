@@ -15,11 +15,11 @@ import java.io.InputStream
 internal class FileListSerializer(
     private val serializer: PagetabSerializer,
 ) {
-    internal fun deserializeFileList(inputStream: InputStream, format: SubFormat): Sequence<BioFile> {
-        return serializer.deserializeFileList(inputStream, format)
+    internal fun deserializeFileListAsSequence(inputStream: InputStream, format: SubFormat): Sequence<BioFile> {
+        return serializer.deserializeFileListAsSequence(inputStream, format)
     }
 
-    internal suspend fun deserializeFileList(submission: Submission, source: FileSourcesList): Submission {
+    internal suspend fun deserializeSubmission(submission: Submission, source: FileSourcesList): Submission {
         submission.allSections()
             .filter { section -> section.fileListName != null }
             .map { section -> section to section.fileListName!! }
@@ -35,7 +35,7 @@ internal class FileListSerializer(
 
     private fun checkFileList(name: String, format: SubFormat, stream: InputStream) {
         runCatching {
-            serializer.deserializeFileList(stream, format)
+            serializer.deserializeFileListAsSequence(stream, format)
         }.getOrElse {
             throw InvalidFileListException(name, errorMsg(it))
         }

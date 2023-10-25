@@ -3,6 +3,7 @@ import Dependencies.CommonsCsv
 import Dependencies.Guava
 import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
+import Dependencies.JetBrainsAnnotations
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
@@ -34,6 +35,7 @@ dependencies {
     api(project(TsvLibrary))
     api(project(JsonLibrary))
 
+    compileOnly(JetBrainsAnnotations)
     implementation(KotlinReflect)
     implementation(KotlinLogging)
     implementation(KotlinStdLib)

@@ -25,6 +25,7 @@ import Versions.H2Version
 import Versions.JSONOrgVersion
 import Versions.JacksonVersion
 import Versions.JavaValidationApiVersion
+import Versions.JetBrainsAnnotationsVersion
 import Versions.JschVersion
 import Versions.JwtVersion
 import Versions.KMongoCoroutineVersion
@@ -74,6 +75,7 @@ object Versions {
     const val SpringVersion = "5.2.20.RELEASE"
     const val SpringAdminVersion = "2.3.1"
     const val KotlinVersion = "1.6.10"
+    const val JetBrainsAnnotationsVersion = "24.0.1"
     const val KotlinCoroutinesVersion = "1.6.3"
 
     const val KotlinLoggingVersion = "1.6.20"
@@ -194,6 +196,7 @@ object Dependencies {
     const val ZipUtil = "org.zeroturnaround:zt-zip:$ZipUtilVersion"
 
     // Kotlin specific
+    const val JetBrainsAnnotations = "org.jetbrains:annotations:$JetBrainsAnnotationsVersion"
     const val KotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$KotlinVersion"
     const val KotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:$KotlinVersion"
     const val KotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$KotlinCoroutinesVersion"
