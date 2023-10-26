@@ -50,18 +50,22 @@ inline fun <reified T> ObjectMapper.convertOrDefault(node: JsonNode, property: S
         else -> convertValue(propertyNode)
     }
 
-suspend inline fun <reified T : Any> ObjectMapper.deserializeAsFlow(inputStream: InputStream): Flow<T> =
-    withContext(Dispatchers.IO) {
-        val jsonParser = factory.createParser(inputStream)
-        if (jsonParser.nextToken() != JsonToken.START_ARRAY) throw IllegalStateException("Expected content to be an array")
-        flow<T> {
-            var next = jsonParser.nextToken()
-            while (next != null && next != JsonToken.END_ARRAY) {
-                emit(readValue(jsonParser, T::class.java))
-                next = jsonParser.nextToken()
-            }
+inline fun <reified T : Any> ObjectMapper.deserializeAsFlow(inputStream: InputStream): Flow<T> {
+    val jsonParser = factory.createParser(inputStream)
+    if (jsonParser.nextToken() != JsonToken.START_ARRAY) throw IllegalStateException("Expected content to be an array")
+    return flow<T> {
+        var next = jsonParser.nextTokenInIoThread()
+        while (next != null && next != JsonToken.END_ARRAY) {
+            emit(readInIoThread<T>(jsonParser))
+            next = jsonParser.nextTokenInIoThread()
         }
     }
+}
+
+suspend inline fun <reified T> ObjectMapper.readInIoThread(jsonParser: JsonParser): T =
+    readValue(jsonParser, T::class.java)
+
+suspend fun JsonParser.nextTokenInIoThread(): JsonToken? = nextToken()
 
 inline fun <reified T : Any> ObjectMapper.deserializeAsSequence(inputStream: InputStream): Sequence<T> {
     val jsonParser = factory.createParser(inputStream)
