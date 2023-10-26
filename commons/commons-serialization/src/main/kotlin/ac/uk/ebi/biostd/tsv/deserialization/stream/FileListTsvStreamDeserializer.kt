@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.withContext
@@ -61,16 +62,12 @@ internal class FileListTsvStreamDeserializer {
 
     private fun BufferedReader.asFlow(): Flow<String> {
         return flow {
-            var line = readLineInIoThread()
+            var line = readLine()
             while (line != null) {
                 emit(line)
-                line = readLineInIoThread()
+                line = readLine()
             }
-        }
-    }
-
-    private suspend fun BufferedReader.readLineInIoThread(): String? {
-        return withContext(Dispatchers.IO) { readLine() }
+        }.flowOn(Dispatchers.IO)
     }
 
     private fun deserializeRow(index: Int, row: List<String>, headers: List<String>): BioFile {

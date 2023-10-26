@@ -1,6 +1,5 @@
 package uk.ac.ebi.serialization.extensions
 
-import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
 import com.fasterxml.jackson.databind.JavaType
@@ -10,6 +9,7 @@ import com.fasterxml.jackson.module.kotlin.convertValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import java.io.InputStream
@@ -28,26 +28,24 @@ fun <T : Any> ObjectMapper.serializeList(files: Sequence<T>, outputStream: Outpu
     }
 }
 
-suspend fun <T : Any> ObjectMapper.serializeFlow(files: Flow<T>, outputStream: OutputStream): Int {
-    val jsonGenerator = factory.createGenerator(outputStream)
-    val count = AtomicInteger(0)
-    jsonGenerator.use {
-        it.writeStartArray()
-        files
-            .collect { file ->
-                count.getAndIncrement()
-                logger.info { "writting file ${count.get()}" }
-                writeInIoThread(it, file)
-            }
-        it.writeEndArray()
+suspend fun <T : Any> ObjectMapper.serializeFlow(
+    files: Flow<T>,
+    outputStream: OutputStream,
+): Int =
+    withContext(Dispatchers.IO) {
+        val jsonGenerator = factory.createGenerator(outputStream)
+        val count = AtomicInteger(0)
+        jsonGenerator.use {
+            it.writeStartArray()
+            files
+                .collect { file ->
+                    count.getAndIncrement()
+                    writeValue(it, file)
+                }
+            it.writeEndArray()
+        }
+        count.get()
     }
-
-    return count.get()
-}
-
-suspend fun <T> ObjectMapper.writeInIoThread(generator: JsonGenerator, value: T) {
-    withContext(Dispatchers.IO) { writeValue(generator, value) }
-}
 
 inline fun <reified T> ObjectMapper.convertOrDefault(node: JsonNode, property: String, default: () -> T): T =
     when (val propertyNode: JsonNode? = node.findNode(property)) {
@@ -59,18 +57,13 @@ inline fun <reified T : Any> ObjectMapper.deserializeAsFlow(inputStream: InputSt
     val jsonParser = factory.createParser(inputStream)
     if (jsonParser.nextToken() != JsonToken.START_ARRAY) throw IllegalStateException("Expected content to be an array")
     return flow<T> {
-        var next = jsonParser.nextTokenInIoThread()
+        var next = jsonParser.nextToken()
         while (next != null && next != JsonToken.END_ARRAY) {
-            emit(readInIoThread<T>(jsonParser))
-            next = jsonParser.nextTokenInIoThread()
+            emit(readValue(jsonParser, T::class.java))
+            next = jsonParser.nextToken()
         }
-    }
+    }.flowOn(Dispatchers.IO)
 }
-
-suspend inline fun <reified T> ObjectMapper.readInIoThread(jsonParser: JsonParser): T =
-    withContext(Dispatchers.IO) { readValue(jsonParser, T::class.java) }
-
-suspend fun JsonParser.nextTokenInIoThread(): JsonToken? = withContext(Dispatchers.IO) { nextToken() }
 
 inline fun <reified T : Any> ObjectMapper.deserializeAsSequence(inputStream: InputStream): Sequence<T> {
     val jsonParser = factory.createParser(inputStream)

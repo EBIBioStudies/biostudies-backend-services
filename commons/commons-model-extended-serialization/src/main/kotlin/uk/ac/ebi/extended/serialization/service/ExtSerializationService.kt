@@ -55,17 +55,17 @@ data class Properties(val includeFileListFiles: Boolean) : StringWriter()
 class ExtSerializationService private constructor(val mapper: ObjectMapper) {
     fun serialize(sub: ExtSubmission, props: Properties = Properties(false)): String = serializeElement(sub, props)
     fun serialize(files: Sequence<ExtFile>, stream: OutputStream): Int = mapper.serializeList(files, stream)
-    suspend fun serialize(files: Flow<ExtFile>, stream: OutputStream): Int = mapper.serializeFlow(files, stream)
     fun serialize(file: ExtFile): String = serializeElement(file)
     fun serialize(table: ExtFileTable): String = serializeElement(table)
     fun serialize(extPage: WebExtPage): String = serializeElement(extPage)
+    suspend fun serialize(files: Flow<ExtFile>, stream: OutputStream): Int = mapper.serializeFlow(files, stream)
 
     fun deserialize(value: String): ExtSubmission = mapper.readValue(value)
     fun deserializeFile(value: String): ExtFile = mapper.readValue(value)
-    fun deserializeListAsSequence(stream: InputStream): Sequence<ExtFile> = mapper.deserializeAsSequence(stream)
-    suspend fun deserializeListAsFlow(stream: InputStream): Flow<ExtFile> = mapper.deserializeAsFlow(stream)
     fun deserializePage(value: String): ExtPage = mapper.readValue(value)
     fun deserializeTable(value: String): ExtFileTable = mapper.readValue(value)
+    fun deserializeListAsSequence(stream: InputStream): Sequence<ExtFile> = mapper.deserializeAsSequence(stream)
+    suspend fun deserializeListAsFlow(stream: InputStream): Flow<ExtFile> = mapper.deserializeAsFlow(stream)
 
     /**
      * Serialize a generic element. ONLY for testing purpose.
