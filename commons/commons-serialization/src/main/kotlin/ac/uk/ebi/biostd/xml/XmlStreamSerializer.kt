@@ -5,7 +5,6 @@ import ebi.ac.uk.model.BioFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.io.OutputStream
@@ -28,16 +27,24 @@ class XmlStreamSerializer {
         reader.requireEvent(START_ELEMENT, "table") { "expected <table>" }
 
         return flow {
-            while (reader.hasNext() && reader.isIgnorable()) reader.next()
+            while (reader.hasNext() && reader.isIgnorable()) reader.nextInIoThread()
 
             while (reader.eventType == START_ELEMENT && reader.localName == "file") {
-                emit(XmlSerializer.mapper.readStreamValue<BioFile>(reader))
-                while (reader.hasNext() && reader.isIgnorable()) reader.next()
+                emit(XmlSerializer.mapper.readInIoThread(reader))
+                while (reader.hasNext() && reader.isIgnorable()) reader.nextInIoThread()
             }
 
             reader.requireEvent(END_ELEMENT, "table") { "expected </table>" }
             reader.requireEvent(END_DOCUMENT) { "expecting xml document end" }
-        }.flowOn(Dispatchers.IO)
+        }
+    }
+
+    private suspend fun XmlMapper.readInIoThread(reader: XMLStreamReader): BioFile {
+        return withContext(Dispatchers.IO) { readStreamValue(reader) }
+    }
+
+    private suspend fun XMLStreamReader.nextInIoThread() {
+        withContext(Dispatchers.IO) { next() }
     }
 
     suspend fun serializeFileList(fileList: Flow<BioFile>, outputStream: OutputStream) = withContext(Dispatchers.IO) {

@@ -47,10 +47,10 @@ class ToExtFileListMapper(
     }
 
     private suspend fun writeFile(subAccNo: String, subVersion: Int, fileListName: String, files: Flow<ExtFile>): File {
-        logger.info { "accNo:'$subAccNo' version: '$subVersion', serializing file list $fileListName" }
+        logger.info { "accNo:'$subAccNo' version: '$subVersion', serializing file list '$fileListName'" }
         val file = extFilesResolver.createExtEmptyFile(subAccNo, subVersion, fileListName)
         file.outputStream().use { serializationService.serialize(files, it) }
-        logger.info { "accNo:'$subAccNo' version: '$subVersion', completed file list $fileListName serialization" }
+        logger.info { "accNo:'$subAccNo' version: '$subVersion', completed file list '$fileListName' serialization" }
         return file
     }
 }
