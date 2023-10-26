@@ -10,9 +10,9 @@ import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.util.LinkedMultiValueMap
-import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestOperations
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
@@ -81,9 +81,7 @@ internal class FireWebClient(
  * Perform same as @see [RestOperations.getForObject] but maps 404 status response into null result.
  */
 private suspend inline fun <reified T> WebClient.getOrNull(url: String): T? {
-    val result = runCatching {
+    return runCatching {
         getForObjectAsync<T>(url)
-    }
-
-    return result.getOrElse { if (it is HttpClientErrorException && it.statusCode == NOT_FOUND) null else throw it }
+    }.getOrElse { if (it is WebClientResponseException && it.statusCode == NOT_FOUND) null else throw it }
 }

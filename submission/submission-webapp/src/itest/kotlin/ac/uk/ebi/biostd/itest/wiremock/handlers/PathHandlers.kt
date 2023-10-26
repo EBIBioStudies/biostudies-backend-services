@@ -6,6 +6,19 @@ import com.github.tomakehurst.wiremock.http.RequestMethod
 import com.github.tomakehurst.wiremock.http.ResponseDefinition
 import ebi.ac.uk.util.regex.getGroup
 
+class FindPathHandler(
+    private val fireDB: FireMockDatabase,
+) : RequestHandler {
+    override val method: RequestMethod = RequestMethod.GET
+    override val urlPattern: Regex = "$FIRE_BASE_URL/path/(.*)".toRegex()
+
+    override fun handle(rqt: Request): ResponseDefinition {
+        val firePath = urlPattern.getGroup(rqt.url, 1)
+        val file = fireDB.findByPath(firePath)
+        return ResponseDefinition.okForJson(file)
+    }
+}
+
 class SetPathHandler(
     private val fireDB: FireMockDatabase,
 ) : RequestHandler {

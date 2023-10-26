@@ -727,4 +727,44 @@ class SubmissionFileSourceTest(
             assertThat(firstVersionFireId).isEqualTo(secondVersionFireId)
         }
     }
+
+    @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+    fun `6-8 submission with files with the same md5 and different path`() = runTest {
+        val files = (1 .. 20).map { tempFolder.createFile("file$it.txt", "same content") }
+        val fileListPageTab = tsv {
+            line("Files", "Type")
+            files.forEach { line(it.name, "duplicated ${it.name}") }
+            line()
+        }.toString()
+        val submissionPageTab = tsv {
+            line("Submission", "S-FSTST8")
+            line("Title", "Duplicated MD5 Files")
+            line()
+
+            line("Study", "SECT-001")
+            line("Title", "Root Section")
+            line("File List", "DuplicatedFiles.tsv")
+            line()
+
+            line()
+        }.toString()
+        val fileList = tempFolder.createFile("DuplicatedFiles.tsv", fileListPageTab)
+
+        webClient.uploadFiles(files.plus(fileList))
+        assertThat(webClient.submitSingle(submissionPageTab, TSV)).isSuccessful()
+
+        val md5 = files.first().md5()
+        assertThat(files.all { it.md5() == md5 }).isTrue()
+        files.forEach { it.delete() }
+        fileList.delete()
+
+        val submission = submissionRepository.getExtByAccNo("S-FSTST8")
+        val duplicates = filesRepository.getReferencedFiles(submission, "DuplicatedFiles")
+            .toList()
+            .groupBy { (it as FireFile).fireId }
+            .filter { it.value.size > 1 }
+
+        assertThat(duplicates.isEmpty()).isTrue()
+    }
 }

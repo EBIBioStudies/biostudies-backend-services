@@ -10,7 +10,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.sync.Mutex
 import mu.KotlinLogging
+import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger {}
 
@@ -43,12 +45,16 @@ class SubmissionRequestProcessor(
             logger.info { "$accNo ${sub.owner} Finished persisting file ${rqtFile.index}, path='${rqtFile.path}'" }
         }
 
+        val mutexMap = ConcurrentHashMap<String, Mutex>()
         supervisorScope {
             filesRequestService
                 .getSubmissionRequestFiles(accNo, sub.version, startingAt)
-                .map { async { persistFile(it) } }
+                .map {
+                    val mutex = mutexMap.getOrPut(it.file.md5) { Mutex() }.apply { lock() }
+                    mutex to async { persistFile(it) }
+                }
                 .buffer(concurrency)
-                .collect { it.await() }
+                .collect { (mutex, job) -> job.await(); mutex.unlock() }
         }
     }
 }
