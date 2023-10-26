@@ -28,11 +28,6 @@ class ToFileListMapper(
         return file
     }
 
-    fun serialize(fileListFiles: Sequence<ExtFile>, targetFormat: SubFormat, file: File): File {
-        toFile(fileListFiles, targetFormat, file)
-        return file
-    }
-
     suspend fun serialize(fileListFiles: Flow<ExtFile>, targetFormat: SubFormat, file: File): File {
         toFile(fileListFiles, targetFormat, file)
         return file
@@ -49,19 +44,9 @@ class ToFileListMapper(
         return target
     }
 
-    private fun toFile(source: Sequence<ExtFile>, targetFormat: SubFormat, target: File): File {
-        target.outputStream().use { copy(source, targetFormat, it) }
-        return target
-    }
-
     private suspend fun toFile(source: Flow<ExtFile>, targetFormat: SubFormat, target: File): File {
         target.outputStream().use { copy(source, targetFormat, it) }
         return target
-    }
-
-    private fun copy(source: Sequence<ExtFile>, targetFormat: SubFormat, target: OutputStream) {
-        val sourceFiles = source.map { it.toFile() }
-        serializationService.serializeFileList(sourceFiles, targetFormat, target)
     }
 
     private suspend fun copy(source: Flow<ExtFile>, targetFormat: SubFormat, target: OutputStream) {

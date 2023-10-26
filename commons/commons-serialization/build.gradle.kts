@@ -54,4 +54,6 @@ dependencies {
     testImplementation(XmlUnitAssertJ)
     testImplementation(KotlinXmlBuilder)
     testImplementation(JsonAssert)
+
+    testFixturesImplementation(KotlinCoroutines)
 }

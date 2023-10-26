@@ -2,7 +2,11 @@ package ac.uk.ebi.biostd.xml
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import ebi.ac.uk.model.BioFile
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.io.OutputStream
 import javax.xml.stream.XMLInputFactory
@@ -17,34 +21,26 @@ import javax.xml.stream.XMLStreamConstants.START_ELEMENT
 import javax.xml.stream.XMLStreamReader
 
 class XmlStreamSerializer {
-    fun deserializeFileList(inputStream: InputStream): Sequence<BioFile> {
+    fun deserializeFileList(inputStream: InputStream): Flow<BioFile> {
         val reader = XMLInputFactory.newFactory().createXMLStreamReader(inputStream)
 
         reader.requireEvent(START_DOCUMENT) { "expecting xml document start" }
         reader.requireEvent(START_ELEMENT, "table") { "expected <table>" }
-        while (reader.hasNext() && reader.isIgnorable()) reader.next()
 
-        return sequence {
+        return flow {
+            while (reader.hasNext() && reader.isIgnorable()) reader.next()
+
             while (reader.eventType == START_ELEMENT && reader.localName == "file") {
-                yield(XmlSerializer.mapper.readStreamValue(reader))
+                emit(XmlSerializer.mapper.readStreamValue<BioFile>(reader))
                 while (reader.hasNext() && reader.isIgnorable()) reader.next()
             }
 
             reader.requireEvent(END_ELEMENT, "table") { "expected </table>" }
             reader.requireEvent(END_DOCUMENT) { "expecting xml document end" }
-        }
+        }.flowOn(Dispatchers.IO)
     }
 
-    fun serializeFileList(fileList: Sequence<BioFile>, outputStream: OutputStream) {
-        val streamWriter = XMLOutputFactory.newFactory().createXMLStreamWriter(outputStream)
-        streamWriter.writeStartDocument()
-        streamWriter.writeStartElement("table")
-        fileList.forEach { XmlSerializer.mapper.writeValue(streamWriter, it) }
-        streamWriter.writeEndElement()
-        streamWriter.writeEndDocument()
-    }
-
-    suspend fun serializeFileList(fileList: Flow<BioFile>, outputStream: OutputStream) {
+    suspend fun serializeFileList(fileList: Flow<BioFile>, outputStream: OutputStream) = withContext(Dispatchers.IO) {
         val streamWriter = XMLOutputFactory.newFactory().createXMLStreamWriter(outputStream)
         streamWriter.writeStartDocument()
         streamWriter.writeStartElement("table")
