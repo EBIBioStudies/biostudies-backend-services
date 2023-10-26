@@ -63,9 +63,9 @@ inline fun <reified T : Any> ObjectMapper.deserializeAsFlow(inputStream: InputSt
 }
 
 suspend inline fun <reified T> ObjectMapper.readInIoThread(jsonParser: JsonParser): T =
-    readValue(jsonParser, T::class.java)
+    withContext(Dispatchers.IO) { readValue(jsonParser, T::class.java) }
 
-suspend fun JsonParser.nextTokenInIoThread(): JsonToken? = nextToken()
+suspend fun JsonParser.nextTokenInIoThread(): JsonToken? = withContext(Dispatchers.IO) { nextToken() }
 
 inline fun <reified T : Any> ObjectMapper.deserializeAsSequence(inputStream: InputStream): Sequence<T> {
     val jsonParser = factory.createParser(inputStream)
