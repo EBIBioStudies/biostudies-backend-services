@@ -10,7 +10,6 @@ import com.fasterxml.jackson.module.kotlin.convertValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.io.OutputStream
@@ -51,17 +50,18 @@ inline fun <reified T> ObjectMapper.convertOrDefault(node: JsonNode, property: S
         else -> convertValue(propertyNode)
     }
 
-inline fun <reified T : Any> ObjectMapper.deserializeAsFlow(inputStream: InputStream): Flow<T> {
-    val jsonParser = factory.createParser(inputStream)
-    if (jsonParser.nextToken() != JsonToken.START_ARRAY) throw IllegalStateException("Expected content to be an array")
-    return flow<T> {
-        var next = jsonParser.nextToken()
-        while (next != null && next != JsonToken.END_ARRAY) {
-            emit(readValue(jsonParser, T::class.java))
-            next = jsonParser.nextToken()
+suspend inline fun <reified T : Any> ObjectMapper.deserializeAsFlow(inputStream: InputStream): Flow<T> =
+    withContext(Dispatchers.IO) {
+        val jsonParser = factory.createParser(inputStream)
+        if (jsonParser.nextToken() != JsonToken.START_ARRAY) throw IllegalStateException("Expected content to be an array")
+        flow<T> {
+            var next = jsonParser.nextToken()
+            while (next != null && next != JsonToken.END_ARRAY) {
+                emit(readValue(jsonParser, T::class.java))
+                next = jsonParser.nextToken()
+            }
         }
-    }.flowOn(Dispatchers.IO)
-}
+    }
 
 inline fun <reified T : Any> ObjectMapper.deserializeAsSequence(inputStream: InputStream): Sequence<T> {
     val jsonParser = factory.createParser(inputStream)
