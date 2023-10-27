@@ -9,11 +9,12 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.storageMode
+import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.fileSequence
+import uk.ac.ebi.extended.serialization.service.filesFlow
 
 private val logger = KotlinLogging.logger {}
 
@@ -52,18 +53,19 @@ class SubmissionRequestCleaner(
 
         val newFiles = newFilesMap(new)
         logger.info { "${current.accNo} ${current.owner} Started cleaning common submission files" }
-        serializationService.fileSequence(current)
+        serializationService.filesFlow(current)
             .filter { shouldDelete(newFiles, it) }
-            .forEachIndexed { index, file -> deleteFile(index, file) }
+            .collectIndexed { index, file -> deleteFile(index, file) }
         logger.info { "${current.accNo} ${current.owner} Finished cleaning common submission files" }
     }
 
     private suspend fun newFilesMap(new: ExtSubmission): Map<String, FileEntry> {
-        return filesRequestService
+        val response = mutableMapOf<String, FileEntry>()
+        filesRequestService
             .getSubmissionRequestFiles(new.accNo, new.version, 0)
             .map { it.file }
-            .toList()
-            .associate { it.filePath to FileEntry(it.md5, new.storageMode) }
+            .collect { response[it.filePath] = FileEntry(it.md5, new.storageMode) }
+        return response
     }
 
     private data class FileEntry(val md5: String, val storageMode: StorageMode)

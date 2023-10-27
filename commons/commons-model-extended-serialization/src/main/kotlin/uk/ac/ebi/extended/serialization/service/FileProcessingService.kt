@@ -9,7 +9,6 @@ import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.use
 import ebi.ac.uk.util.collections.mapLeft
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
@@ -95,7 +94,7 @@ class FileProcessingService(
             inputFile.inputStream(),
             outputFile.outputStream()
         ) { input, output ->
-            val files = serializationService.deserializeList(input).asFlow()
+            val files = serializationService.deserializeListAsFlow(input)
             serializationService.serialize(files.map { processFile(it) }, output)
         }
 

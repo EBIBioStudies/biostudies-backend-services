@@ -7,10 +7,16 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.storageMode
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toSet
+import kotlinx.coroutines.flow.withIndex
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.fileSequence
+import uk.ac.ebi.extended.serialization.service.filesFlow
 
 private val logger = KotlinLogging.logger {}
 
@@ -39,10 +45,12 @@ class SubmissionRequestFinalizer(
         val accNo = previous.accNo
         val owner = previous.owner
 
-        fun deleteRemainingFiles(allFiles: Sequence<ExtFile>): Sequence<ExtFile> {
+        fun deleteRemainingFiles(allFiles: Flow<ExtFile>): Flow<ExtFile> {
             return allFiles
                 .filter { subFiles.contains(it.filePath).not() || it.storageMode != current?.storageMode }
-                .onEachIndexed { i, file -> logger.info { "$accNo $owner Deleting file $i, path='${file.filePath}'" } }
+                .withIndex()
+                .onEach { (i, file) -> logger.info { "$accNo $owner Deleting file $i, path='${file.filePath}'" } }
+                .map { it.value }
         }
 
         logger.info { "$accNo ${previous.owner} Started deleting remaining submission files" }
@@ -50,10 +58,10 @@ class SubmissionRequestFinalizer(
         logger.info { "$accNo ${previous.owner} Finished deleting remaining submission files" }
     }
 
-    private fun subFilesSet(sub: ExtSubmission?): Set<String> {
+    private suspend fun subFilesSet(sub: ExtSubmission?): Set<String> {
         return when (sub) {
             null -> emptySet()
-            else -> serializationService.fileSequence(sub).mapTo(mutableSetOf()) { it.filePath }
+            else -> serializationService.filesFlow(sub).map { it.filePath }.toSet()
         }
     }
 }

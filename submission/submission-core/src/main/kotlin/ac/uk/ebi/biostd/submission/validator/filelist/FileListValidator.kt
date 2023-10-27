@@ -13,8 +13,8 @@ import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.constants.FileFields.FILE_TYPE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.collections.ifNotEmpty
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import java.io.InputStream
@@ -56,9 +56,8 @@ class FileListValidator(
         filesSource: FileSourcesList,
     ) {
         serializationService
-            .deserializeFileList(stream, format)
-            .ifEmpty { throw InvalidFileListException.emptyFileList(name) }
-            .asFlow()
+            .deserializeFileListAsFlow(stream, format)
+            .onEmpty { throw InvalidFileListException.emptyFileList(name) }
             .filter { filesSource.findExtFile(it.path, FILE_TYPE.value, it.attributes) == null }
             .take(FILE_LIST_LIMIT)
             .toList()

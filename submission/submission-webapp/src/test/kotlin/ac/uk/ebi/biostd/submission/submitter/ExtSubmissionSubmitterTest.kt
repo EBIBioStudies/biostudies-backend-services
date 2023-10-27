@@ -87,7 +87,7 @@ internal class ExtSubmissionSubmitterTest(
             val submissionRequestSlot = slot<SubmissionRequest>()
 
             coEvery { persistenceService.getNextVersion("S-TEST123") } returns 2
-            every { pageTabService.generatePageTab(submission) } returns submission
+            coEvery { pageTabService.generatePageTab(submission) } returns submission
             coEvery { requestService.createSubmissionRequest(capture(submissionRequestSlot)) } returns ("S-TEST123" to 2)
 
             testInstance.createRequest(ExtSubmitRequest(submission, "user@test.org", "TMP_123"))

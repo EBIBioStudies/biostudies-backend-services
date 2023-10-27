@@ -15,6 +15,8 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.StorageMode
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -28,7 +30,7 @@ internal class ExtSerializationServiceExtTest(
     private val testInstance: ExtSerializationService = ExtSerializationService()
 
     @Test
-    fun fileSequence() {
+    fun fileFlow() = runTest {
         val fileList1 = tmpFolder.createFile("f1.json")
         val files = (4..1000).map { createFireFile(it) }
 
@@ -39,7 +41,7 @@ internal class ExtSerializationServiceExtTest(
         val submission = createTestSubmission(fileList1, pageTabFile, sectionFile, sectionTableFile)
         val filesCount = testInstance.serialize(files.asSequence(), fileList1.outputStream())
 
-        val result = testInstance.fileSequence(submission).toList()
+        val result = testInstance.filesFlow(submission).toList()
         assertThat(filesCount).isEqualTo(files.size)
         assertThat(result).containsExactlyInAnyOrder(pageTabFile, sectionFile, sectionTableFile, *files.toTypedArray())
     }

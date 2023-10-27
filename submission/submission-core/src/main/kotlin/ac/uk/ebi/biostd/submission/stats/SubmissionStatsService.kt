@@ -8,11 +8,12 @@ import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ac.uk.ebi.biostd.submission.helpers.TempFileGenerator
+import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.Flow
 import mu.KotlinLogging
 import org.springframework.web.multipart.MultipartFile
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.fileSequence
+import uk.ac.ebi.extended.serialization.service.filesFlow
 
 private val logger = KotlinLogging.logger {}
 
@@ -60,10 +61,15 @@ class SubmissionStatsService(
         val sub = extSubmissionQueryService.getExtByAccNo(accNo, includeFileListFiles = true)
         logger.info { "${sub.accNo} ${sub.owner} Started calculating submission stats" }
 
-        val subFilesSize = serializationService.fileSequence(sub).sumOf { it.size }
+        var subFilesSize = totalSize(sub)
         val subFilesSizeStat = submissionStatsService.save(SingleSubmissionStat(sub.accNo, subFilesSize, FILES_SIZE))
-
         logger.info { "${sub.accNo} ${sub.owner} Finished calculating submission stats. Files size: $subFilesSize" }
         return subFilesSizeStat
+    }
+
+    private suspend fun totalSize(submission: ExtSubmission): Long {
+        var subFilesSize = 0L
+        serializationService.filesFlow(submission).collect { subFilesSize = subFilesSize + it.size }
+        return subFilesSize
     }
 }
