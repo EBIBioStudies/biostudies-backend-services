@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.helpers
+package ac.uk.ebi.biostd.stats.web
 
 import org.apache.commons.io.FilenameUtils
 import org.springframework.web.multipart.MultipartFile

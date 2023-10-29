@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.submission.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.stats.StatsFileHandler
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.extended.model.ExtFile
@@ -27,7 +26,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.web.multipart.MultipartFile
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.io.File
@@ -36,14 +34,12 @@ import java.io.File
 @OptIn(ExperimentalCoroutinesApi::class)
 class SubmissionStatsServiceTest(
     @MockK private val statsFileHandler: StatsFileHandler,
-    @MockK private val tempFileGenerator: TempFileGenerator,
     @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val submissionStatsService: StatsDataService,
     @MockK private val serializationService: ExtSerializationService,
 ) {
     private val testInstance = SubmissionStatsService(
         statsFileHandler,
-        tempFileGenerator,
         submissionStatsService,
         serializationService,
         queryService,
@@ -98,17 +94,15 @@ class SubmissionStatsServiceTest(
     fun `register from file`(
         @MockK file: File,
         @MockK stat: SubmissionStat,
-        @MockK multiPartFile: MultipartFile,
+        @MockK multiPartFile: File,
     ) = runTest {
         val stats = listOf(stat)
         coEvery { submissionStatsService.saveAll(stats) } returns stats
-        every { tempFileGenerator.asFile(multiPartFile) } returns file
         every { statsFileHandler.readStats(file, VIEWS) } returns stats
 
         assertThat(testInstance.register("VIEWS", multiPartFile)).isEqualTo(stats)
         coVerify(exactly = 1) {
             submissionStatsService.saveAll(stats)
-            tempFileGenerator.asFile(multiPartFile)
             statsFileHandler.readStats(file, VIEWS)
         }
     }
@@ -117,16 +111,13 @@ class SubmissionStatsServiceTest(
     fun `increment stats`(
         @MockK file: File,
         @MockK stat: SubmissionStat,
-        @MockK multiPartFile: MultipartFile,
     ) = runTest {
         val stats = listOf(stat)
-        every { tempFileGenerator.asFile(multiPartFile) } returns file
         every { statsFileHandler.readStats(file, VIEWS) } returns stats
         coEvery { submissionStatsService.incrementAll(stats) } returns stats
 
-        assertThat(testInstance.increment("VIEWS", multiPartFile)).isEqualTo(stats)
+        assertThat(testInstance.increment("VIEWS", file)).isEqualTo(stats)
         coVerify(exactly = 1) {
-            tempFileGenerator.asFile(multiPartFile)
             statsFileHandler.readStats(file, VIEWS)
             submissionStatsService.incrementAll(stats)
         }
