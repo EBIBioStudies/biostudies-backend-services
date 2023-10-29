@@ -23,7 +23,6 @@ class SubmissionStagesHandler(
 ) {
     fun indexRequest(rqt: RequestCreated) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received Created message for submission $accNo, version: $version" }
             submissionSubmitter.indexRequest(rqt)
             eventsPublisherService.requestIndexed(rqt.accNo, rqt.version)
         }
@@ -31,7 +30,6 @@ class SubmissionStagesHandler(
 
     fun loadRequest(rqt: RequestIndexed) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received Created message for submission $accNo, version: $version" }
             submissionSubmitter.loadRequest(rqt)
             eventsPublisherService.requestLoaded(rqt.accNo, rqt.version)
         }
@@ -39,7 +37,6 @@ class SubmissionStagesHandler(
 
     fun cleanRequest(rqt: RequestLoaded) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received Loaded message for submission $accNo, version: $version" }
             submissionSubmitter.cleanRequest(rqt)
             eventsPublisherService.requestCleaned(rqt.accNo, rqt.version)
         }
@@ -47,7 +44,6 @@ class SubmissionStagesHandler(
 
     fun copyRequestFiles(rqt: RequestCleaned) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received Cleaned message for submission $accNo, version: $version" }
             submissionSubmitter.processRequest(rqt)
             eventsPublisherService.requestFilesCopied(rqt.accNo, rqt.version)
         }
@@ -55,7 +51,6 @@ class SubmissionStagesHandler(
 
     fun checkReleased(rqt: RequestFilesCopied) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received Processed message for submission $accNo, version: $version" }
             submissionSubmitter.checkReleased(rqt)
             eventsPublisherService.checkReleased(rqt.accNo, rqt.version)
         }
@@ -63,7 +58,6 @@ class SubmissionStagesHandler(
 
     fun saveSubmission(rqt: RequestCheckedReleased) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received check released message for submission $accNo, version: $version" }
             submissionSubmitter.saveRequest(rqt)
             eventsPublisherService.submissionPersisted(rqt.accNo, rqt.version)
         }
@@ -71,14 +65,12 @@ class SubmissionStagesHandler(
 
     fun finalizeRequest(rqt: RequestPersisted) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received processed message for submission $accNo, version: $version" }
             submissionSubmitter.finalizeRequest(rqt)
         }
     }
 
     fun calculateStats(rqt: RequestFinalized) {
         processSafely(rqt) {
-            logger.info { "$accNo, Received finalized message for submission $accNo, version: $version" }
             statsService.calculateSubFilesSize(accNo)
         }
     }

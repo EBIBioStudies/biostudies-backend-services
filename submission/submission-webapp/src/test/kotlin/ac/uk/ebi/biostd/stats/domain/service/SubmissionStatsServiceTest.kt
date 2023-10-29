@@ -94,13 +94,13 @@ class SubmissionStatsServiceTest(
     fun `register from file`(
         @MockK file: File,
         @MockK stat: SubmissionStat,
-        @MockK multiPartFile: File,
     ) = runTest {
         val stats = listOf(stat)
         coEvery { submissionStatsService.saveAll(stats) } returns stats
         every { statsFileHandler.readStats(file, VIEWS) } returns stats
 
-        assertThat(testInstance.register("VIEWS", multiPartFile)).isEqualTo(stats)
+        assertThat(testInstance.register("VIEWS", file)).isEqualTo(stats)
+
         coVerify(exactly = 1) {
             submissionStatsService.saveAll(stats)
             statsFileHandler.readStats(file, VIEWS)

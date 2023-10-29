@@ -1,35 +1,26 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
-import ac.uk.ebi.biostd.submission.domain.service.RetryHandler
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
-import ac.uk.ebi.biostd.submission.domain.service.SubmissionMessageListener
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
-import ac.uk.ebi.biostd.submission.helpers.TempFileGenerator
-import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionStagesHandler
 import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
-import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
@@ -38,15 +29,11 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.events.service.EventsPublisherService
-import java.net.URI
 
+@Suppress("LongParameterList")
 @Configuration
-@Suppress("LongParameterList", "TooManyFunctions")
-@Import(value = [FilePersistenceConfig::class, SecurityBeansConfig::class])
-class SubmissionConfig(
-    private val fileSourcesService: FileSourcesService,
-    private val serializationService: SerializationService,
-) {
+@Import(value = [FilePersistenceConfig::class, SecurityConfig::class])
+class SubmissionConfig {
     @Bean
     fun submissionQueryService(
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
@@ -89,11 +76,6 @@ class SubmissionConfig(
     ): SubmissionStagesHandler = SubmissionStagesHandler(statsService, submissionSubmitter, eventsPublisherService)
 
     @Bean
-    fun submissionMessageListener(
-        stagesHandler: SubmissionStagesHandler,
-    ): SubmissionMessageListener = SubmissionMessageListener(stagesHandler)
-
-    @Bean
     fun extSubmissionQueryService(
         queryService: SubmissionPersistenceQueryService,
         filesRepository: SubmissionFilesPersistenceService,
@@ -114,12 +96,6 @@ class SubmissionConfig(
             securityQueryService,
             eventsPublisherService,
         )
-
-    @Bean
-    fun startApplicationHandler(
-        extSubmissionService: ExtSubmissionService,
-        requestService: SubmissionRequestPersistenceService,
-    ) = RetryHandler(extSubmissionService, requestService)
 
     @Bean
     fun projectService(
@@ -148,37 +124,10 @@ class SubmissionConfig(
         )
 
     @Bean
-    fun submitHandler(
-        submissionService: SubmissionService,
-        extSubmissionQueryService: ExtSubmissionQueryService,
-        toSubmissionMapper: ToSubmissionMapper,
-        queryService: SubmissionMetaQueryService,
-        fileServiceFactory: FileServiceFactory,
-    ): SubmitWebHandler =
-        SubmitWebHandler(
-            submissionService,
-            extSubmissionQueryService,
-            fileSourcesService,
-            serializationService,
-            toSubmissionMapper,
-            queryService,
-            fileServiceFactory
-        )
-
-    @Bean
     fun submitRequestBuilder(
         tempFileGenerator: TempFileGenerator,
         onBehalfUtils: OnBehalfUtils,
     ): SubmitRequestBuilder = SubmitRequestBuilder(tempFileGenerator, onBehalfUtils)
-
-    @Bean
-    fun submissionHandler(
-        submissionService: SubmissionService,
-        submissionQueryService: SubmissionQueryService,
-    ): SubmissionsWebHandler = SubmissionsWebHandler(submissionService, submissionQueryService)
-
-    @Bean
-    fun extPageMapper(properties: ApplicationProperties) = ExtendedPageMapper(URI.create(properties.instanceBaseUrl))
 
     @Bean
     fun onBehalfUtils(securityQueryService: ISecurityQueryService): OnBehalfUtils = OnBehalfUtils(securityQueryService)
