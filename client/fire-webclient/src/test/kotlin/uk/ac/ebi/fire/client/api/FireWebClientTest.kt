@@ -1,6 +1,5 @@
 package uk.ac.ebi.fire.client.api
 
-import ebi.ac.uk.commons.http.ext.getForObject
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
@@ -105,19 +104,6 @@ class FireWebClientTest(
 
         verify(exactly = 1) {
             client.delete().uri("/objects/the-fire-oid/firePath").exchange()
-        }
-    }
-
-    @Test
-    fun `find by md5 sync`() {
-        every { client.getForObject<Array<FireApiFile>>("/objects/md5/the-md5") } returns arrayOf(fireFile)
-
-        val files = testInstance.findByMd5Sync("the-md5")
-
-        assertThat(files).hasSize(1)
-        assertThat(files.first()).isEqualTo(fireFile)
-        verify(exactly = 1) {
-            client.getForObject<Array<FireApiFile>>("/objects/md5/the-md5")
         }
     }
 

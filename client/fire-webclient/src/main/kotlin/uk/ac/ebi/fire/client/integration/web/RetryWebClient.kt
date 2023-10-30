@@ -31,11 +31,6 @@ internal class RetryWebClient(
         return template.execute(opt) { fireClient.findByMd5(md5) }
     }
 
-    override fun findByMd5Sync(md5: String): List<FireApiFile> {
-        val opt = "Find file sync by md5='$md5'"
-        return runBlocking { template.execute(opt) { fireClient.findByMd5(md5) } }
-    }
-
     override suspend fun findByPath(path: String): FireApiFile? {
         val opt = "Find file by path='$path'"
         return template.execute(opt) { fireClient.findByPath(path) }

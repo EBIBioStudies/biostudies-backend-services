@@ -2,7 +2,6 @@ package uk.ac.ebi.fire.client.api
 
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.deleteAsync
-import ebi.ac.uk.commons.http.ext.getForObject
 import ebi.ac.uk.commons.http.ext.getForObjectAsync
 import ebi.ac.uk.commons.http.ext.postForObjectAsync
 import ebi.ac.uk.commons.http.ext.putForObjectAsync
@@ -50,10 +49,6 @@ internal class FireWebClient(
 
     override suspend fun findByMd5(md5: String): List<FireApiFile> {
         return client.getForObjectAsync<Array<FireApiFile>>("/objects/md5/$md5").toList()
-    }
-
-    override fun findByMd5Sync(md5: String): List<FireApiFile> {
-        return client.getForObject<Array<FireApiFile>>("/objects/md5/$md5").toList()
     }
 
     override suspend fun findByPath(path: String): FireApiFile? {

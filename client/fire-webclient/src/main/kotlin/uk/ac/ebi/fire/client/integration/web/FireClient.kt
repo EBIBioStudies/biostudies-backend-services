@@ -15,8 +15,6 @@ interface FireWebClient {
 
     suspend fun findByMd5(md5: String): List<FireApiFile>
 
-    fun findByMd5Sync(md5: String): List<FireApiFile>
-
     suspend fun findByPath(path: String): FireApiFile?
 
     suspend fun findAllInPath(path: String): List<FireApiFile>
