@@ -55,7 +55,7 @@ import java.nio.file.Paths
 
 @Suppress("LongParameterList")
 @Configuration
-@Import(ServiceConfig::class, FilesHandlerConfig::class, SecurityBeansConfig::class, SerializationConfiguration::class)
+@Import(ServiceConfig::class, FilesHandlerConfig::class, SecurityConfig::class, SerializationConfiguration::class)
 class SubmitterConfig(
     private val properties: ApplicationProperties,
 ) {
