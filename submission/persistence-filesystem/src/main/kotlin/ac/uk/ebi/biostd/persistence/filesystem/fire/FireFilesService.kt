@@ -44,11 +44,7 @@ class FireFilesService(
     }
 
     private suspend fun getOrCreate(file: NfsFile, expectedPath: String): FireFile {
-        val previousFile = client.findByPath(expectedPath)
-        val apiFile = when {
-            previousFile != null && previousFile.objectMd5 == file.md5 -> previousFile
-            else -> client.save(file.file, file.md5, file.size)
-        }
+        val apiFile = client.findByPath(expectedPath) ?: client.save(file.file, file.md5, file.size)
         val fireFile = file.asFireFile(apiFile.fireOid, apiFile.path, apiFile.published)
 
         return getOrCreate(fireFile, expectedPath)

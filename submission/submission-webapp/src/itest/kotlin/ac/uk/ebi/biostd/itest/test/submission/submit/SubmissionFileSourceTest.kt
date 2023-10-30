@@ -731,7 +731,7 @@ class SubmissionFileSourceTest(
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
     fun `6-8 submission with files with the same md5 and different path`() = runTest {
-        val files = (1 .. 20).map { tempFolder.createFile("file$it.txt", "same content") }
+        val files = (1..20).map { tempFolder.createFile("file$it.txt", "same content") }
         val fileListPageTab = tsv {
             line("Files", "Type")
             files.forEach { line(it.name, "duplicated ${it.name}") }
@@ -763,8 +763,11 @@ class SubmissionFileSourceTest(
         val duplicates = filesRepository.getReferencedFiles(submission, "DuplicatedFiles")
             .toList()
             .groupBy { (it as FireFile).fireId }
-            .filter { it.value.size > 1 }
 
-        assertThat(duplicates.isEmpty()).isTrue()
+        assertThat(duplicates).allSatisfy { id, fireFiles ->
+            assertThat(fireFiles)
+                .hasSize(1)
+                .withFailMessage("Unexpected duplicated fire file id='{}'", id)
+        }
     }
 }

@@ -18,14 +18,14 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.OK
 import org.springframework.util.LinkedMultiValueMap
-import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import uk.ac.ebi.fire.client.model.FireApiFile
@@ -169,7 +169,7 @@ class FireWebClientTest(
     fun `find all by path when FireClientException with NOT_FOUND status code`() = runTest {
         every {
             client.get().uri("/objects/entries/path/my/path").retrieve().bodyToMono<Array<FireApiFile>>()
-        } throws(HttpClientErrorException(NOT_FOUND, "no files found in the given path"))
+        } throws WebClientResponseException(NOT_FOUND.value(), "no files found in the given path", null, null, null)
 
         val files = testInstance.findAllInPath("my/path")
 
@@ -183,9 +183,9 @@ class FireWebClientTest(
     fun `find all by path when httpException without a status code other than NOT_FOUND`() = runTest {
         every {
             client.get().uri("/objects/entries/path/my/path").retrieve().bodyToMono<Array<FireApiFile>>()
-        } throws(HttpClientErrorException(HttpStatus.BAD_REQUEST))
+        } throws WebClientResponseException(BAD_REQUEST.value(), "no files found in the given path", null, null, null)
 
-        assertThrows<HttpClientErrorException> { testInstance.findAllInPath("my/path") }
+        assertThrows<WebClientResponseException> { testInstance.findAllInPath("my/path") }
 
         verify(exactly = 1) {
             client.get().uri("/objects/entries/path/my/path").retrieve().bodyToMono<Array<FireApiFile>>()
@@ -196,7 +196,7 @@ class FireWebClientTest(
     fun `find by path when FireClientException with NOT_FOUND status code`() = runTest {
         every {
             client.get().uri("/objects/path/my/path").retrieve().bodyToMono<FireApiFile>()
-        } throws(HttpClientErrorException(NOT_FOUND, "no file found with the given path"))
+        } throws WebClientResponseException(NOT_FOUND.value(), "no files found in the given path", null, null, null)
 
         val file = testInstance.findByPath("my/path")
 
@@ -210,9 +210,9 @@ class FireWebClientTest(
     fun `find by path when httpException without a status code other than NOT_FOUND`() = runTest {
         every {
             client.get().uri("/objects/path/my/path").retrieve().bodyToMono<FireApiFile>()
-        } throws(HttpClientErrorException(HttpStatus.BAD_REQUEST))
+        } throws WebClientResponseException(BAD_REQUEST.value(), "no files found in the given path", null, null, null)
 
-        assertThrows<HttpClientErrorException> { testInstance.findByPath("my/path") }
+        assertThrows<WebClientResponseException> { testInstance.findByPath("my/path") }
 
         verify(exactly = 1) {
             client.get().uri("/objects/path/my/path").retrieve().bodyToMono<FireApiFile>()
