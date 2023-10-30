@@ -1,10 +1,8 @@
 package ac.uk.ebi.biostd.common.config.internal
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
-import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
 import org.springframework.context.annotation.Bean
@@ -12,10 +10,7 @@ import org.springframework.context.annotation.Configuration
 import java.net.URI
 
 @Configuration
-class SubmissionWebConfig(
-    private val fileSourcesService: FileSourcesService,
-    private val serializationService: SerializationService,
-) {
+class SubmissionWebConfig {
 
     @Bean
     fun submissionHandler(
