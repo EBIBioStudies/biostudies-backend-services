@@ -1,6 +1,5 @@
-package ac.uk.ebi.biostd.common.config
+package ac.uk.ebi.biostd.common.config.internal
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.web.common.FileListPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.GroupPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
@@ -23,12 +22,6 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.fire.client.integration.web.FireClient
-import uk.ac.ebi.fire.client.integration.web.FireClientFactory
-import uk.ac.ebi.fire.client.integration.web.FireConfig
-import uk.ac.ebi.fire.client.integration.web.RetryConfig
-import uk.ac.ebi.fire.client.integration.web.S3Config
-import kotlin.time.Duration.Companion.minutes
 
 @Configuration
 @Suppress("MagicNumber")
@@ -42,33 +35,6 @@ internal class WebConfig(
 
     @Bean
     fun principalResolver() = AuthenticationPrincipalArgumentResolver()
-
-    @Bean
-    fun fireClient(properties: ApplicationProperties): FireClient {
-        val fireProps = properties.fire
-        val retryProps = fireProps.retry
-        return FireClientFactory.create(
-            FireConfig(
-                fireHost = fireProps.host,
-                fireVersion = fireProps.version,
-                username = fireProps.username,
-                password = properties.fire.password
-            ),
-            S3Config(
-                accessKey = fireProps.s3.accessKey,
-                secretKey = fireProps.s3.secretKey,
-                region = fireProps.s3.region,
-                endpoint = fireProps.s3.endpoint,
-                bucket = fireProps.s3.bucket
-            ),
-            RetryConfig(
-                maxAttempts = retryProps.maxAttempts,
-                initialInterval = retryProps.initialInterval,
-                multiplier = retryProps.multiplier,
-                maxInterval = retryProps.maxInterval.minutes.inWholeMilliseconds,
-            )
-        )
-    }
 
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON)
