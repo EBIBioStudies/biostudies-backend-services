@@ -97,7 +97,7 @@ class SubmissionStatsServiceTest(
     ) = runTest {
         val stats = listOf(stat)
         coEvery { submissionStatsService.saveAll(stats) } returns stats
-        every { statsFileHandler.readStats(file, VIEWS) } returns stats
+        coEvery { statsFileHandler.readStats(file, VIEWS) } returns stats
 
         assertThat(testInstance.register("VIEWS", file)).isEqualTo(stats)
 
@@ -113,7 +113,7 @@ class SubmissionStatsServiceTest(
         @MockK stat: SubmissionStat,
     ) = runTest {
         val stats = listOf(stat)
-        every { statsFileHandler.readStats(file, VIEWS) } returns stats
+        coEvery { statsFileHandler.readStats(file, VIEWS) } returns stats
         coEvery { submissionStatsService.incrementAll(stats) } returns stats
 
         assertThat(testInstance.increment("VIEWS", file)).isEqualTo(stats)

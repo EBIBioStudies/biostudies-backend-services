@@ -4,11 +4,13 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
 import ebi.ac.uk.util.collections.second
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class StatsFileHandler {
-    fun readStats(stats: File, type: SubmissionStatType): List<SubmissionStat> {
-        return stats.readLines()
+    suspend fun readStats(stats: File, type: SubmissionStatType): List<SubmissionStat> = withContext(Dispatchers.IO) {
+        stats.readLines()
             .map { it.split("\t") }
             .map { readStat(it, type) }
     }
