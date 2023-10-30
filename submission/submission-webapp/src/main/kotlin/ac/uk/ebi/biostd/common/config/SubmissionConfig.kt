@@ -1,9 +1,11 @@
 package ac.uk.ebi.biostd.common.config
 
+import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
@@ -15,6 +17,7 @@ import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
+import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.submitter.SubmissionStagesHandler
@@ -102,6 +105,26 @@ class SubmissionConfig {
         collectionSqlDataService: CollectionDataService,
         userPrivilegeService: IUserPrivilegesService,
     ): CollectionService = CollectionService(collectionSqlDataService, userPrivilegeService)
+
+    @Bean
+    fun submitHandler(
+        submissionService: SubmissionService,
+        extSubmissionQueryService: ExtSubmissionQueryService,
+        fileSourcesService: FileSourcesService,
+        serializationService: SerializationService,
+        toSubmissionMapper: ToSubmissionMapper,
+        queryService: SubmissionMetaQueryService,
+        fileServiceFactory: FileServiceFactory,
+    ): SubmitWebHandler =
+        SubmitWebHandler(
+            submissionService,
+            extSubmissionQueryService,
+            fileSourcesService,
+            serializationService,
+            toSubmissionMapper,
+            queryService,
+            fileServiceFactory
+        )
 
     @Bean
     fun submissionDraftService(

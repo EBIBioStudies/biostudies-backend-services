@@ -19,12 +19,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireClient
-import uk.ac.ebi.fire.client.integration.web.FireClientFactory
-import uk.ac.ebi.fire.client.integration.web.FireConfig
-import uk.ac.ebi.fire.client.integration.web.RetryConfig
-import uk.ac.ebi.fire.client.integration.web.S3Config
 import java.io.File
-import kotlin.time.Duration.Companion.minutes
 
 @Configuration
 @Import(value = [SqlPersistenceConfig::class, GeneralConfig::class])
@@ -34,6 +29,7 @@ class FilePersistenceConfig(
     private val serializationService: SerializationService,
     private val fireClient: FireClient,
 ) {
+
     @Bean
     @Suppress("LongParameterList")
     fun fileStorageService(
@@ -67,31 +63,4 @@ class FilePersistenceConfig(
         toSubmissionMapper: ToSubmissionMapper,
         toFileListMapper: ToFileListMapper,
     ): PageTabUtil = PageTabUtil(serializationService, toSubmissionMapper, toFileListMapper)
-
-    @Bean
-    fun fireClient(properties: ApplicationProperties): FireClient {
-        val fireProps = properties.fire
-        val retryProps = fireProps.retry
-        return FireClientFactory.create(
-            FireConfig(
-                fireHost = fireProps.host,
-                fireVersion = fireProps.version,
-                username = fireProps.username,
-                password = properties.fire.password
-            ),
-            S3Config(
-                accessKey = fireProps.s3.accessKey,
-                secretKey = fireProps.s3.secretKey,
-                region = fireProps.s3.region,
-                endpoint = fireProps.s3.endpoint,
-                bucket = fireProps.s3.bucket
-            ),
-            RetryConfig(
-                maxAttempts = retryProps.maxAttempts,
-                initialInterval = retryProps.initialInterval,
-                multiplier = retryProps.multiplier,
-                maxInterval = retryProps.maxInterval.minutes.inWholeMilliseconds,
-            )
-        )
-    }
 }

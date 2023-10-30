@@ -1,9 +1,7 @@
 package ac.uk.ebi.biostd.common.config
 
-import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.stats.StatsFileHandler
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import org.springframework.context.annotation.Bean
@@ -14,10 +12,6 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 class StatsConfig {
     @Bean
     fun statsFileHandler(): StatsFileHandler = StatsFileHandler()
-
-    @Bean
-    fun tempFileGenerator(properties: ApplicationProperties): TempFileGenerator =
-        TempFileGenerator(properties.tempDirPath)
 
     @Bean
     fun submissionStatsService(
