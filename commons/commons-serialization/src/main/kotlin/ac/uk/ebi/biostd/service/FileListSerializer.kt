@@ -10,16 +10,18 @@ import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.allSections
 import ebi.ac.uk.model.extensions.fileListName
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import java.io.InputStream
 
 internal class FileListSerializer(
     private val serializer: PagetabSerializer,
 ) {
-    internal fun deserializeFileList(inputStream: InputStream, format: SubFormat): Sequence<BioFile> {
-        return serializer.deserializeFileList(inputStream, format)
+    internal fun deserializeFileListAsFlow(inputStream: InputStream, format: SubFormat): Flow<BioFile> {
+        return serializer.deserializeFileListAsFlow(inputStream, format)
     }
 
-    internal suspend fun deserializeFileList(submission: Submission, source: FileSourcesList): Submission {
+    internal suspend fun deserializeSubmission(submission: Submission, source: FileSourcesList): Submission {
         submission.allSections()
             .filter { section -> section.fileListName != null }
             .map { section -> section to section.fileListName!! }
@@ -33,9 +35,9 @@ internal class FileListSerializer(
         return FileList(name, file)
     }
 
-    private fun checkFileList(name: String, format: SubFormat, stream: InputStream) {
+    private suspend fun checkFileList(name: String, format: SubFormat, stream: InputStream) {
         runCatching {
-            serializer.deserializeFileList(stream, format)
+            serializer.deserializeFileListAsFlow(stream, format).collect()
         }.getOrElse {
             throw InvalidFileListException(name, errorMsg(it))
         }

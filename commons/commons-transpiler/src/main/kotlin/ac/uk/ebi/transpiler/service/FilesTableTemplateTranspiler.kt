@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.transpiler.mapper.FilesTableTemplateMapper
 import ac.uk.ebi.transpiler.processor.FilesTableTemplateProcessor
 import ac.uk.ebi.transpiler.validator.FilesTableTemplateValidator
+import kotlinx.coroutines.runBlocking
 import java.nio.file.Files
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.readText
@@ -17,7 +18,7 @@ class FilesTableTemplateTranspiler(
     private val templateProcessor: FilesTableTemplateProcessor = FilesTableTemplateProcessor(),
     private val templateValidator: FilesTableTemplateValidator = FilesTableTemplateValidator(),
     private val templateMapper: FilesTableTemplateMapper = FilesTableTemplateMapper(),
-    private val serializationService: SerializationService = SerializationConfig.serializationService()
+    private val serializationService: SerializationService = SerializationConfig.serializationService(),
 ) {
     /**
      * Transforms a files table template to its corresponding files table page tab representation in the desired format.
@@ -37,8 +38,8 @@ class FilesTableTemplateTranspiler(
         baseColumns: List<String>,
         filesPath: String,
         basePath: String,
-        format: SubFormat
-    ): String {
+        format: SubFormat,
+    ): String = runBlocking {
         val tableTemplate = templateProcessor.process(template, baseColumns)
 
         templateValidator.validate(tableTemplate, filesPath)
@@ -46,6 +47,6 @@ class FilesTableTemplateTranspiler(
         val filesTable = templateMapper.map(tableTemplate, filesPath, basePath)
         val file = Files.createTempFile("tempFile.txt", "")
         serializationService.serializeTable(filesTable, format, file.toFile())
-        return file.readText()
+        file.readText()
     }
 }

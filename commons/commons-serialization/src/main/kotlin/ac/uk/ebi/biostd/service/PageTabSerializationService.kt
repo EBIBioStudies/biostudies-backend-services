@@ -8,6 +8,7 @@ import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.FilesTable
 import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -28,7 +29,7 @@ internal class PageTabSerializationService(
         format: SubFormat,
         source: FileSourcesList,
     ): Submission =
-        fileListSerializer.deserializeFileList(serializer.deserializeSubmission(content, format), source)
+        fileListSerializer.deserializeSubmission(serializer.deserializeSubmission(content, format), source)
 
     override fun deserializeSubmission(file: File): Submission {
         val pagetabFile = readAsPageTab(file)
@@ -36,24 +37,16 @@ internal class PageTabSerializationService(
     }
 
     override suspend fun deserializeSubmission(file: File, source: FileSourcesList): Submission =
-        fileListSerializer.deserializeFileList(deserializeSubmission(file), source)
+        fileListSerializer.deserializeSubmission(deserializeSubmission(file), source)
 
-    override fun deserializeFileList(
+    override fun deserializeFileListAsFlow(
         inputStream: InputStream,
         format: SubFormat,
-    ): Sequence<BioFile> = fileListSerializer.deserializeFileList(inputStream, format)
+    ): Flow<BioFile> = fileListSerializer.deserializeFileListAsFlow(inputStream, format)
 
-    override fun serializeTable(table: FilesTable, format: SubFormat, file: File): File {
-        file.outputStream().use { serializer.serializeFileList(table.elements.asSequence(), format, it) }
+    override suspend fun serializeTable(table: FilesTable, format: SubFormat, file: File): File {
+        file.outputStream().use { serializer.serializeFileList(table.elements.asFlow(), format, it) }
         return file
-    }
-
-    override fun serializeFileList(
-        files: Sequence<BioFile>,
-        targetFormat: SubFormat,
-        outputStream: OutputStream,
-    ) {
-        serializer.serializeFileList(files, targetFormat, outputStream)
     }
 
     override suspend fun serializeFileList(files: Flow<BioFile>, targetFormat: SubFormat, outputStream: OutputStream) {

@@ -6,10 +6,17 @@ import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
+import mu.KotlinLogging
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.concurrent.atomic.AtomicInteger
+
+private val logger = KotlinLogging.logger {}
 
 fun <T : Any> ObjectMapper.serializeList(files: Sequence<T>, outputStream: OutputStream): Int {
     val jsonGenerator = factory.createGenerator(outputStream)
@@ -21,19 +28,24 @@ fun <T : Any> ObjectMapper.serializeList(files: Sequence<T>, outputStream: Outpu
     }
 }
 
-suspend fun <T : Any> ObjectMapper.serializeFlow(files: Flow<T>, outputStream: OutputStream): Int {
-    val jsonGenerator = factory.createGenerator(outputStream)
-    val count = AtomicInteger(0)
-    jsonGenerator.use {
-        it.writeStartArray()
-        files.collect { file ->
-            writeValue(it, file)
-            count.getAndIncrement()
+suspend fun <T : Any> ObjectMapper.serializeFlow(
+    files: Flow<T>,
+    outputStream: OutputStream,
+): Int =
+    withContext(Dispatchers.IO) {
+        val jsonGenerator = factory.createGenerator(outputStream)
+        val count = AtomicInteger(0)
+        jsonGenerator.use {
+            it.writeStartArray()
+            files
+                .collect { file ->
+                    count.getAndIncrement()
+                    writeValue(it, file)
+                }
+            it.writeEndArray()
         }
-        it.writeEndArray()
-        return count.get()
+        count.get()
     }
-}
 
 inline fun <reified T> ObjectMapper.convertOrDefault(node: JsonNode, property: String, default: () -> T): T =
     when (val propertyNode: JsonNode? = node.findNode(property)) {
@@ -41,7 +53,19 @@ inline fun <reified T> ObjectMapper.convertOrDefault(node: JsonNode, property: S
         else -> convertValue(propertyNode)
     }
 
-inline fun <reified T : Any> ObjectMapper.deserializeList(inputStream: InputStream): Sequence<T> {
+inline fun <reified T : Any> ObjectMapper.deserializeAsFlow(inputStream: InputStream): Flow<T> {
+    val jsonParser = factory.createParser(inputStream)
+    if (jsonParser.nextToken() != JsonToken.START_ARRAY) throw IllegalStateException("Expected content to be an array")
+    return flow<T> {
+        var next = jsonParser.nextToken()
+        while (next != null && next != JsonToken.END_ARRAY) {
+            emit(readValue(jsonParser, T::class.java))
+            next = jsonParser.nextToken()
+        }
+    }.flowOn(Dispatchers.IO)
+}
+
+inline fun <reified T : Any> ObjectMapper.deserializeAsSequence(inputStream: InputStream): Sequence<T> {
     val jsonParser = factory.createParser(inputStream)
     if (jsonParser.nextToken() != JsonToken.START_ARRAY) throw IllegalStateException("Expected content to be an array")
     return asSequence(jsonParser)

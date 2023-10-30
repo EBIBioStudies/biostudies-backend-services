@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.web.multipart.MultipartFile
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.fileSequence
+import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.io.File
 
 @ExtendWith(MockKExtension::class)
@@ -147,7 +147,7 @@ class SubmissionStatsServiceTest(
         every { file2.size } returns 3L
         every { submission.accNo } returns "S-BIAD123"
         coEvery { submissionStatsService.save(capture(savedStatSlot)) } returns stat
-        every { serializationService.fileSequence(submission) } returns sequenceOf(file1, file2)
+        every { serializationService.filesFlow(submission) } returns flowOf(file1, file2)
         coEvery { queryService.getExtByAccNo("S-BIAD123", includeFileListFiles = true) } returns submission
 
         val result = testInstance.calculateSubFilesSize("S-BIAD123")

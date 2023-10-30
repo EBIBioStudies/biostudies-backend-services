@@ -8,7 +8,6 @@ import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.use
 import ebi.ac.uk.model.FileList
 import ebi.ac.uk.model.canonicalName
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
@@ -46,8 +45,7 @@ class ToExtFileListMapper(
             target: OutputStream,
         ) {
             val idx = AtomicInteger(0)
-            val sourceFiles = serializationService.deserializeFileList(input, format)
-                .asFlow()
+            val sourceFiles = serializationService.deserializeFileListAsFlow(input, format)
                 .onEach { file -> logger.info { "$accNo, Mapping file ${idx.getAndIncrement()}, path='${file.path}'" } }
                 .map { sources.getExtFile(it.path, it.type, it.attributes) }
             val files = extSerializationService.serialize(sourceFiles, target)

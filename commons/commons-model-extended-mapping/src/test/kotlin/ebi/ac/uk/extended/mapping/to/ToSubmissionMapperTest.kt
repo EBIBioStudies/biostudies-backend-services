@@ -11,9 +11,10 @@ import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.model.extensions.rootPath
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.test.basicExtSubmission
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -37,9 +38,9 @@ class ToSubmissionMapperTest(
     private val testInstance = ToSubmissionMapper(toSectionMapper)
 
     @Test
-    fun toSimpleSubmission() {
+    fun toSimpleSubmission() = runTest {
         val section = Section()
-        every { toSectionMapper.convert(extSubmission.section) } returns section
+        coEvery { toSectionMapper.convert(extSubmission.section) } returns section
 
         val submission = testInstance.toSimpleSubmission(extSubmission)
 

@@ -19,13 +19,13 @@ import java.io.InputStream
 internal fun Either<ExtFile, ExtFileTable>.toDocFiles() = bimap(ExtFile::toDocFile, ExtFileTable::toDocFileTable)
 
 class ToDocFileListMapper(
-    private val serializationService: ExtSerializationService
+    private val serializationService: ExtSerializationService,
 ) {
     internal fun convert(
         extFileList: ExtFileList,
         subId: ObjectId,
         accNo: String,
-        version: Int
+        version: Int,
     ): Pair<DocFileList, List<FileListDocFile>> {
         val listFiles = extFileList.file.inputStream().use { getFiles(it, extFileList.filePath, subId, accNo, version) }
         val pageTabFiles = extFileList.pageTabFiles.map { it.toDocFile() }
@@ -37,9 +37,9 @@ class ToDocFileListMapper(
         path: String,
         subId: ObjectId,
         accNo: String,
-        version: Int
+        version: Int,
     ): List<FileListDocFile> =
-        serializationService.deserializeList(stream)
+        serializationService.deserializeListAsSequence(stream)
             .mapIndexed { idx, file -> FileListDocFile(ObjectId(), subId, file.toDocFile(), path, idx, version, accNo) }
             .toList()
 }
@@ -57,6 +57,7 @@ internal fun ExtFile.toDocFile(): DocFile = when (this) {
         fileSize = size,
         fileType = type.value
     )
+
     is NfsFile -> NfsDocFile(
         fileName = fileName,
         filePath = filePath,

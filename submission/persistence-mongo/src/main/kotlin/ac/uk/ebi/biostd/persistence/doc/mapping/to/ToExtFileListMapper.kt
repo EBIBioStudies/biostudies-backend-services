@@ -4,12 +4,17 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
+
+private val logger = KotlinLogging.logger {}
 
 class ToExtFileListMapper(
     private val fileListDocFileDocDataRepository: FileListDocFileDocDataRepository,
@@ -31,8 +36,9 @@ class ToExtFileListMapper(
     ): ExtFileList {
         fun fileListFiles(): Flow<ExtFile> {
             return fileListDocFileDocDataRepository
-                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(subAccNo, subVersion, fileList.fileName)
+                .findByFileList(subAccNo, subVersion, fileList.fileName)
                 .map { it.file.toExtFile(released, subRelPath) }
+                .flowOn(Dispatchers.Default)
         }
 
         val files = if (includeFileListFiles) fileListFiles() else emptyFlow()
@@ -43,9 +49,11 @@ class ToExtFileListMapper(
         )
     }
 
-    private suspend fun writeFile(subAccNo: String, subVersion: Int, fileListName: String, files: Flow<ExtFile>): File {
-        val file = extFilesResolver.createExtEmptyFile(subAccNo, subVersion, fileListName)
+    private suspend fun writeFile(accNo: String, version: Int, fileListName: String, files: Flow<ExtFile>): File {
+        logger.info { "accNo:'$accNo' version: '$version', serializing file list '$fileListName'" }
+        val file = extFilesResolver.createExtEmptyFile(accNo, version, fileListName)
         file.outputStream().use { serializationService.serialize(files, it) }
+        logger.info { "accNo:'$accNo' version: '$version', completed file list '$fileListName' serialization" }
         return file
     }
 }

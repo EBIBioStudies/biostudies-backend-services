@@ -199,7 +199,7 @@ class SubmissionRefreshApiTest(
         webClient.refreshSubmission(accNo)
 
         val files = fileListRepository
-            .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(accNo, 1, FILE_LIST_NAME)
+            .findByFileList(accNo, 1, FILE_LIST_NAME)
             .toList()
 
         assertThat(files).hasSize(1)

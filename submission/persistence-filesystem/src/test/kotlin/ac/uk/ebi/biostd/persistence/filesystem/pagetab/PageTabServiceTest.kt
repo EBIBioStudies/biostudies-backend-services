@@ -13,10 +13,12 @@ import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -40,7 +42,7 @@ internal class PageTabServiceTest(
     private val testInstance = PageTabService(baseTempDir, pageTabUtil)
 
     @Test
-    fun `generate pagetab`() {
+    fun `generate pagetab`() = runTest {
         mockkStatic(LocalDate::class)
         every { LocalDate.now() } returns LocalDate.of(2023, 1, 24)
 
@@ -50,8 +52,8 @@ internal class PageTabServiceTest(
         val rootSection = ExtSection(type = "t1", sections = listOf(Either.left(fileListSection)))
         val sub = basicExtSubmission.copy(section = rootSection)
 
-        every { pageTabUtil.generateSubPageTab(sub, tempDir) } returns PageTabFiles(subJson, subXml, subTsv)
-        every { pageTabUtil.generateFileListPageTab(sub, tempDir) } returns mapOf(
+        coEvery { pageTabUtil.generateSubPageTab(sub, tempDir) } returns PageTabFiles(subJson, subXml, subTsv)
+        coEvery { pageTabUtil.generateFileListPageTab(sub, tempDir) } returns mapOf(
             "a-path" to PageTabFiles(
                 fileListJson,
                 fileListXml,

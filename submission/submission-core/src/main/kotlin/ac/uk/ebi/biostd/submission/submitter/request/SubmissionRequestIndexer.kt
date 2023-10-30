@@ -4,10 +4,11 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.withIndex
 import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.fileSequence
+import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
@@ -36,9 +37,9 @@ class SubmissionRequestIndexer(
     private suspend fun indexSubmissionFiles(sub: ExtSubmission): Int {
         val elements = AtomicInteger(0)
         extSerializationService
-            .fileSequence(sub)
-            .mapIndexed { idx, file -> SubmissionRequestFile(sub.accNo, sub.version, idx + 1, file.filePath, file) }
-            .asFlow()
+            .filesFlow(sub)
+            .withIndex()
+            .map { (idx, file) -> SubmissionRequestFile(sub.accNo, sub.version, idx + 1, file.filePath, file) }
             .collect {
                 logger.info { "${sub.accNo} ${sub.owner} Indexing submission file ${it.index}, path='${it.path}'" }
                 filesRequestService.saveSubmissionRequestFile(it)
