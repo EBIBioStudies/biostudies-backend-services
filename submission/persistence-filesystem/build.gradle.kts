@@ -1,4 +1,5 @@
 import Dependencies.Arrow
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -42,6 +43,7 @@ dependencies {
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(KotlinLogging)
+    implementation(KotlinCoroutines)
     implementation(ZipUtil)
 
     testImplementation(project(CommonsTest))

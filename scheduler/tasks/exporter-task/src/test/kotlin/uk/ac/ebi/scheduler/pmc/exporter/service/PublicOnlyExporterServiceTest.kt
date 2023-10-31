@@ -12,6 +12,7 @@ import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -72,7 +73,7 @@ class PublicOnlyExporterServiceTest(
     private fun mockSerializationService() {
         val serializedSubmission = jsonObj { "accNo" to "S-TEST123" }
 
-        every {
+        coEvery {
             serializationService.serializeSubmission(
                 toSubmissionMapper.toSimpleSubmission(basicExtSubmission),
                 JSON_PRETTY

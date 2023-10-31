@@ -2,6 +2,7 @@ import Dependencies.Arrow
 import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
 import Dependencies.KotlinCoroutines
+import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Projects.CommonsUtil
@@ -18,6 +19,7 @@ dependencies {
     implementation(Woodstox)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
+    implementation(KotlinLogging)
     implementation(KotlinCoroutines)
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }

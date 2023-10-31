@@ -98,7 +98,7 @@ class SubmissionDraftServiceTest(
         coEvery { submissionQueryService.getExtByAccNo(DRAFT_KEY) } returns submission
         coEvery { draftPersistenceService.findSubmissionDraft(USER_ID, DRAFT_KEY) } returns null
         coEvery { draftPersistenceService.createSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDraft
-        every {
+        coEvery {
             serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(submission), JsonPretty)
         } returns DRAFT_CONTENT
 

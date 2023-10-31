@@ -11,11 +11,12 @@ import ac.uk.ebi.transpiler.validator.FilesTableTemplateValidator
 import ebi.ac.uk.model.FilesTable
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
-import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -28,7 +29,7 @@ class FilesTableTemplateTranspilerTest(
     @MockK private val templateValidator: FilesTableTemplateValidator,
     @MockK private val templateMapper: FilesTableTemplateMapper,
     @MockK private val serializationService: SerializationService,
-    temporaryFolder: TemporaryFolder
+    temporaryFolder: TemporaryFolder,
 ) {
     private val testFile = temporaryFolder.createFile("fileSerialization.txt")
     private val slotTempFile = slot<File>()
@@ -47,7 +48,7 @@ class FilesTableTemplateTranspilerTest(
         every { templateProcessor.process(testTemplate, testBaseColumns) } returns testFilesTableTemplate
         every { templateValidator.validate(testFilesTableTemplate, testFilesPath) }.answers { nothing }
         every { templateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder) } returns testFilesTable
-        every { serializationService.serializeTable(testFilesTable, TSV, capture(slotTempFile)) } returns testFile
+        coEvery { serializationService.serializeTable(testFilesTable, TSV, capture(slotTempFile)) } returns testFile
     }
 
     @Test
@@ -55,7 +56,7 @@ class FilesTableTemplateTranspilerTest(
         val result = testInstance.transpile(testTemplate, testBaseColumns, testFilesPath, testParentFolder, Tsv)
 
         assertThat(result).isEqualTo("")
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             templateProcessor.process(testTemplate, testBaseColumns)
             templateValidator.validate(testFilesTableTemplate, testFilesPath)
             templateMapper.map(testFilesTableTemplate, testFilesPath, testParentFolder)

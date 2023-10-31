@@ -111,11 +111,23 @@ interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, O
         pageable: Pageable,
     ): Flow<FileListDocFile>
 
+    fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListNameOrderByIndexAsc(
+        accNo: String,
+        version: Int,
+        fileListName: String,
+    ): Flow<FileListDocFile>
+
     fun findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
         accNo: String,
         version: Int,
         fileListName: String,
         pageable: Pageable,
+    ): Flow<FileListDocFile>
+
+    fun findAllBySubmissionAccNoAndSubmissionVersionAndFileListNameOrderByIndexAsc(
+        accNo: String,
+        version: Int,
+        fileListName: String,
     ): Flow<FileListDocFile>
 
     @Query("{ 'submissionAccNo': ?0, 'submissionVersion': ?1, 'file.filePath': ?2}")

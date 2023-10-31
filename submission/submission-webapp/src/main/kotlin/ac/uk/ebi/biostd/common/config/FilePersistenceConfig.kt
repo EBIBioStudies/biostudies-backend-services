@@ -22,13 +22,14 @@ import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
 @Configuration
-@Import(value = [SqlPersistenceConfig::class, FileSystemConfig::class])
+@Import(value = [SqlPersistenceConfig::class, GeneralConfig::class])
 class FilePersistenceConfig(
     private val folderResolver: SubmissionFolderResolver,
     private val properties: ApplicationProperties,
     private val serializationService: SerializationService,
     private val fireClient: FireClient,
 ) {
+
     @Bean
     @Suppress("LongParameterList")
     fun fileStorageService(

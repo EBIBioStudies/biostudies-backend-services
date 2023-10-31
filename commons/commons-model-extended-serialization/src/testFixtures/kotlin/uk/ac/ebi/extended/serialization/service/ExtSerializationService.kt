@@ -1,6 +1,8 @@
 package uk.ac.ebi.extended.serialization.service
 
 import ebi.ac.uk.extended.model.ExtFile
+import kotlinx.coroutines.flow.toList
 import java.io.File
 
-fun ExtSerializationService.files(file: File): List<ExtFile> = file.inputStream().use { deserializeList(it).toList() }
+suspend fun ExtSerializationService.files(file: File): List<ExtFile> =
+    file.inputStream().use { deserializeListAsFlow(it) }.toList()

@@ -36,4 +36,5 @@ dependencies {
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 
     testFixturesApi(Arrow)
+    testFixturesImplementation(KotlinCoroutines)
 }

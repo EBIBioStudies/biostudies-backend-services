@@ -23,50 +23,12 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.http.HttpMethod.GET
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import uk.ac.ebi.events.service.EventsPublisherService
-
-@Configuration
-@EnableWebSecurity
-@Import(value = [SecurityBeansConfig::class, FilePersistenceConfig::class])
-class SecurityConfig(
-    private val securityFilter: ISecurityFilter,
-    private val accessDeniedHandler: SecurityAccessDeniedHandler,
-    private val authEntryPoint: SecurityAuthEntryPoint
-) : WebSecurityConfigurerAdapter() {
-    @Suppress("SpreadOperator")
-    override fun configure(http: HttpSecurity) {
-        http.csrf()
-            .disable()
-            .addFilterBefore(securityFilter, BasicAuthenticationFilter::class.java)
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeRequests()
-            .antMatchers(GET, "/security/users/extended/**").permitAll()
-            .antMatchers(GET, "/submissions/extended/**").permitAll()
-            .antMatchers(GET, "/submissions/*").permitAll()
-            .antMatchers("/submissions/ftp/*").permitAll()
-            .antMatchers("/auth/**").permitAll()
-            .antMatchers("/v2/**").permitAll()
-            .antMatchers("/webjars/**").permitAll()
-            .antMatchers("/actuator/**").permitAll()
-            .antMatchers("/fire/**").permitAll()
-            .anyRequest().fullyAuthenticated()
-            .and()
-            .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
-            .authenticationEntryPoint(authEntryPoint)
-    }
-}
 
 @Configuration
 @Import(FilePersistenceConfig::class)
 @Suppress("TooManyFunctions")
-class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: ApplicationProperties) {
+class SecurityConfig(private val objectMapper: ObjectMapper, properties: ApplicationProperties) {
     private val securityProps = properties.security
 
     @Bean
@@ -87,7 +49,7 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
         tagsRepository: AccessTagDataRepo,
         groupRepository: UserGroupDataRepository,
         userPermissionsService: UserPermissionsService,
-        eventsPublisherService: EventsPublisherService
+        eventsPublisherService: EventsPublisherService,
     ): SecurityModuleConfig = SecurityModuleConfig(
         userDataRepository,
         tokenRepository,
@@ -104,7 +66,7 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
 
     @Bean
     fun securityQueryService(
-        securityConfig: SecurityModuleConfig
+        securityConfig: SecurityModuleConfig,
     ): ISecurityQueryService = securityConfig.securityQueryService()
 
     @Bean
@@ -124,6 +86,6 @@ class SecurityBeansConfig(private val objectMapper: ObjectMapper, properties: Ap
     fun permissionService(
         permissionRepository: AccessPermissionRepository,
         userDataRepository: UserDataRepository,
-        accessTagDataRepository: AccessTagDataRepo
+        accessTagDataRepository: AccessTagDataRepo,
     ) = PermissionService(permissionRepository, userDataRepository, accessTagDataRepository)
 }

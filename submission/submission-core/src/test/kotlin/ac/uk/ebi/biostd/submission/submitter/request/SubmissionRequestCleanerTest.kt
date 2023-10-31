@@ -26,7 +26,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.fileSequence
+import uk.ac.ebi.extended.serialization.service.filesFlow
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class)
@@ -96,7 +96,7 @@ class SubmissionRequestCleanerTest(
         every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
         coEvery { queryService.findExtByAccNo("S-BSST1", true) } returns current
         coEvery { requestService.getLoadedRequest("S-BSST1", 2) } returns loadedRequest
-        every { serializationService.fileSequence(current) } returns sequenceOf(currentFile)
+        every { serializationService.filesFlow(current) } returns flowOf(currentFile)
         coEvery { requestService.saveSubmissionRequest(cleanedRequest) } returns ("S-BSST1" to 2)
         coEvery { storageService.deleteSubmissionFile(current, currentFile) } answers { nothing }
         every { filesRequestService.getSubmissionRequestFiles("S-BSST1", 2, 0) } returns flowOf(requestFile)

@@ -16,19 +16,9 @@ internal class TsvSerializer(
 ) {
     fun serializeSubmission(element: Submission): String = tsvSerializer.serialize(element)
 
+    suspend fun serializeFileList(files: Flow<BioFile>, outputStream: OutputStream): Unit =
+        streamSerializer.serializeFileList(files, outputStream)
+
     fun deserializeSubmission(pageTab: String): Submission = tsvDeserializer.deserialize(pageTab)
-
-    fun serializeFileList(
-        files: Sequence<BioFile>,
-        outputStream: OutputStream,
-    ) = streamSerializer.serializeFileList(files, outputStream)
-
-    suspend fun serializeFileList(
-        files: Flow<BioFile>,
-        outputStream: OutputStream,
-    ) = streamSerializer.serializeFileList(files, outputStream)
-
-    fun deserializeFileList(
-        inputStream: InputStream,
-    ): Sequence<BioFile> = streamSerializer.deserializeFileList(inputStream)
+    fun deserializeFileList(inputStream: InputStream): Flow<BioFile> = streamSerializer.deserializeFileList(inputStream)
 }

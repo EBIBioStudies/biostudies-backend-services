@@ -8,47 +8,66 @@ import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.constants.TableFields.FILES_TABLE
 import ebi.ac.uk.util.collections.destructure
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.withIndex
+import kotlinx.coroutines.withContext
+import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.InputStream
 import java.io.OutputStream
 
 internal class FileListTsvStreamDeserializer {
-    fun serializeFileList(files: Sequence<BioFile>, fileList: OutputStream) {
-        val writer = fileList.bufferedWriter()
-        processFirstFile(files.first(), writer)
-        files.forEach { file -> writeAttributesValues(file, writer) }
-        writer.close()
-    }
-
     suspend fun serializeFileList(files: Flow<BioFile>, fileList: OutputStream) {
-        val writer = fileList.bufferedWriter()
-        processFirstFile(files.first(), writer)
-        files.collect { file -> writeAttributesValues(file, writer) }
-        writer.close()
+        fileList.bufferedWriter().use { it.writeFiles(files) }
     }
 
-    fun deserializeFileList(fileList: InputStream): Sequence<BioFile> {
+    private suspend fun BufferedWriter.writeFiles(
+        files: Flow<BioFile>,
+    ) {
+        files
+            .collectIndexed { index, file ->
+                if (index == 0) writeHeaders(file)
+                writeAttributesValues(file)
+            }
+    }
+
+    private suspend fun BufferedWriter.writeHeaders(file: BioFile) = withContext(Dispatchers.IO) {
+        val attrsNames = file.attributes.map { it.name }
+        write("Files".plus(TAB).plus(attrsNames.joinToString(TAB.toString())))
+        newLine()
+    }
+
+    private suspend fun BufferedWriter.writeAttributesValues(file: BioFile) = withContext(Dispatchers.IO) {
+        val attrsValues = file.attributes.map { it.value }
+        write(file.path.plus(TAB).plus(attrsValues.joinToString(TAB.toString())))
+        newLine()
+    }
+
+    fun deserializeFileList(fileList: InputStream): Flow<BioFile> {
         val reader = fileList.bufferedReader()
         val (files, headers) = reader.readLine().split(TAB).destructure()
         if (files != FILES_TABLE.value) throw InvalidElementException("First header value should be 'Files'")
-        return reader.lineSequence()
+        return reader
+            .asFlow()
             .filter { it.isNotBlank() }
-            .mapIndexed { index, row -> deserializeRow(index + 1, row.split(TAB), headers) }
+            .withIndex()
+            .map { (index, row) -> deserializeRow(index + 1, row.split(TAB), headers) }
     }
 
-    private fun processFirstFile(firstFile: BioFile, writer: BufferedWriter) {
-        val attrsNames = firstFile.attributes.map { it.name }
-        writer.write("Files".plus(TAB).plus(attrsNames.joinToString(TAB.toString())))
-        writer.newLine()
-        writeAttributesValues(firstFile, writer)
-    }
-
-    private fun writeAttributesValues(file: BioFile, writer: BufferedWriter) {
-        val attrsValues = file.attributes.map { it.value }
-        writer.write(file.path.plus(TAB).plus(attrsValues.joinToString(TAB.toString())))
-        writer.newLine()
+    private fun BufferedReader.asFlow(): Flow<String> {
+        return flow {
+            var line = readLine()
+            while (line != null) {
+                emit(line)
+                line = readLine()
+            }
+        }.flowOn(Dispatchers.IO)
     }
 
     private fun deserializeRow(index: Int, row: List<String>, headers: List<String>): BioFile {

@@ -63,7 +63,7 @@ class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
     @Test
     fun `toExtFileList including FileListFiles`() = runTest {
         every {
-            fileListDocFileRepository.findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
+            fileListDocFileRepository.findByFileList(
                 "S-TEST123",
                 1,
                 "file-list"

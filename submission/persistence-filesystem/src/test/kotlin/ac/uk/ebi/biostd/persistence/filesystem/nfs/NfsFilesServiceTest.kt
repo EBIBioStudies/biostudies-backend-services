@@ -63,7 +63,7 @@ class NfsFilesServiceTest(
     }
 
     @Test
-    fun `delete ftp links`() {
+    fun `delete ftp links`() = runTest {
         val ftpFolder = ftpFolder.createDirectory("S-BSST2")
         val filesFtpFolder = ftpFolder.createDirectory("Files")
         val ftpFile = filesFtpFolder.createFile("file1.txt")

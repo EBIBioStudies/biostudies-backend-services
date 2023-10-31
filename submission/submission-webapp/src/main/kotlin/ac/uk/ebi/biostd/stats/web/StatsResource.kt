@@ -25,46 +25,61 @@ import org.springframework.web.multipart.MultipartFile
 @PreAuthorize("isAuthenticated()")
 class StatsResource(
     private val submissionStatsService: SubmissionStatsService,
+    private val tmpFileGenerator: TempFileGenerator,
 ) {
     @GetMapping("/submission/{accNo}", produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     suspend fun findByAccNo(
         @PathVariable accNo: String,
-    ): List<SubmissionStat> = submissionStatsService.findByAccNo(accNo).map { it.toStatDto() }
+    ): List<SubmissionStat> {
+        return submissionStatsService.findByAccNo(accNo).map { it.toStatDto() }
+    }
 
     @GetMapping("/{type}", produces = [APPLICATION_JSON_VALUE])
     @ResponseBody
     fun findByType(
         @PathVariable type: String,
         @ModelAttribute filter: PageRequest,
-    ): Flow<SubmissionStat> = submissionStatsService.findByType(type, filter).map { it.toStatDto() }
+    ): Flow<SubmissionStat> {
+        return submissionStatsService.findByType(type, filter).map { it.toStatDto() }
+    }
 
     @GetMapping("/{type}/{accNo}")
     @ResponseBody
     suspend fun findByTypeAndAccNo(
         @PathVariable type: String,
         @PathVariable accNo: String,
-    ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, type).toStatDto()
+    ): SubmissionStat {
+        return submissionStatsService.findByAccNoAndType(accNo, type).toStatDto()
+    }
 
     @PostMapping
     @ResponseBody
     suspend fun register(
         @RequestBody stat: SubmissionStat,
-    ): SubmissionStat = submissionStatsService.register(stat.toStat()).toStatDto()
+    ): SubmissionStat {
+        return submissionStatsService.register(stat.toStat()).toStatDto()
+    }
 
     @PostMapping("/{type}", headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
     @ResponseBody
     suspend fun register(
         @PathVariable type: String,
         @RequestParam("stats") stats: MultipartFile,
-    ): List<SubmissionStat> = submissionStatsService.register(type, stats).map { it.toStatDto() }
+    ): List<SubmissionStat> {
+        val statFile = tmpFileGenerator.asFile(stats)
+        return submissionStatsService.register(type, statFile).map { it.toStatDto() }
+    }
 
     @PostMapping("/{type}/increment", headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"])
     @ResponseBody
     suspend fun increment(
         @PathVariable type: String,
         @RequestParam("stats") stats: MultipartFile,
-    ): List<SubmissionStat> = submissionStatsService.increment(type, stats).map { it.toStatDto() }
+    ): List<SubmissionStat> {
+        val statFile = tmpFileGenerator.asFile(stats)
+        return submissionStatsService.increment(type, statFile).map { it.toStatDto() }
+    }
 
     @PostMapping("/submission/{accNo}/files-size")
     @ResponseBody
