@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.FileConfig
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
-import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ebi.ac.uk.ftp.FtpClient
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -27,10 +26,6 @@ import kotlin.time.Duration.Companion.minutes
 @Import(MongoDbServicesConfig::class)
 @EnableConfigurationProperties(ApplicationProperties::class)
 internal class GeneralConfig {
-    @Bean
-    fun tempFileGenerator(properties: ApplicationProperties): TempFileGenerator =
-        TempFileGenerator(properties.tempDirPath)
-
     @Bean
     fun filesSourceListBuilder(config: FilesSourceConfig): FilesSourceListBuilder = config.filesSourceListBuilder()
 
