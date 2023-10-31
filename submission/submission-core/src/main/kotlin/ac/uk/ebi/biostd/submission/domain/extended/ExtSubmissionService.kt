@@ -1,11 +1,9 @@
-package ac.uk.ebi.biostd.submission.domain.service
+package ac.uk.ebi.biostd.submission.domain.extended
 
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
-import ac.uk.ebi.biostd.submission.domain.exceptions.InvalidTransferTargetException
-import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.isCollection
@@ -84,3 +82,5 @@ class ExtSubmissionService(
         }
     }
 }
+
+class InvalidTransferTargetException : RuntimeException("The target and current storage mode must be different")

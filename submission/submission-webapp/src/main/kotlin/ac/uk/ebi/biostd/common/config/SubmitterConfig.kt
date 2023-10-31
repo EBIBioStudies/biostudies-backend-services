@@ -14,21 +14,21 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFinalizer
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
+import ac.uk.ebi.biostd.submission.domain.submission.SubmissionProcessor
+import ac.uk.ebi.biostd.submission.domain.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionProcessor
 import ac.uk.ebi.biostd.submission.service.DoiService
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.service.TimesService
-import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
-import ac.uk.ebi.biostd.submission.submitter.SubmissionProcessor
-import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestFinalizer
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.util.AccNoPatternUtil
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidator
@@ -155,7 +155,7 @@ class SubmitterConfig(
     )
 
     @Bean
-    fun extSubmissionSubmitter(
+    fun submissionRequestService(
         pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,

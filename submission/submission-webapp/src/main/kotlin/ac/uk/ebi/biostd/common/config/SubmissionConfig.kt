@@ -10,18 +10,18 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.stats.web.TempFileGenerator
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
-import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
-import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionStagesHandler
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
-import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
-import ac.uk.ebi.biostd.submission.domain.service.SubmissionService
+import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
+import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
+import ac.uk.ebi.biostd.submission.domain.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
-import ac.uk.ebi.biostd.submission.submitter.ExtSubmissionSubmitter
-import ac.uk.ebi.biostd.submission.submitter.SubmissionStagesHandler
-import ac.uk.ebi.biostd.submission.submitter.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
@@ -74,9 +74,9 @@ class SubmissionConfig {
     @Bean
     fun submissionStagesHandler(
         statsService: SubmissionStatsService,
-        submissionSubmitter: SubmissionSubmitter,
+        extSubmissionSubmitter: ExtSubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
-    ): SubmissionStagesHandler = SubmissionStagesHandler(statsService, submissionSubmitter, eventsPublisherService)
+    ): SubmissionStagesHandler = SubmissionStagesHandler(statsService, extSubmissionSubmitter, eventsPublisherService)
 
     @Bean
     fun extSubmissionQueryService(

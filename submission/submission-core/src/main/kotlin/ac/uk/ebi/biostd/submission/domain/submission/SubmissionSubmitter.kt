@@ -1,17 +1,11 @@
-package ac.uk.ebi.biostd.submission.submitter
+package ac.uk.ebi.biostd.submission.domain.submission
 
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
-import ebi.ac.uk.extended.events.RequestCheckedReleased
-import ebi.ac.uk.extended.events.RequestCleaned
-import ebi.ac.uk.extended.events.RequestCreated
-import ebi.ac.uk.extended.events.RequestFilesCopied
-import ebi.ac.uk.extended.events.RequestIndexed
-import ebi.ac.uk.extended.events.RequestLoaded
-import ebi.ac.uk.extended.events.RequestPersisted
 import ebi.ac.uk.extended.model.ExtSubmission
 import mu.KotlinLogging
 
@@ -36,34 +30,6 @@ class SubmissionSubmitter(
         val submission = processRequest(rqt)
         submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.owner, rqt.draftKey))
         return submission
-    }
-
-    suspend fun indexRequest(rqt: RequestCreated) {
-        submissionSubmitter.indexRequest(rqt.accNo, rqt.version)
-    }
-
-    suspend fun loadRequest(rqt: RequestIndexed) {
-        return submissionSubmitter.loadRequest(rqt.accNo, rqt.version)
-    }
-
-    suspend fun cleanRequest(rqt: RequestLoaded) {
-        submissionSubmitter.cleanRequest(rqt.accNo, rqt.version)
-    }
-
-    suspend fun processRequest(rqt: RequestCleaned) {
-        submissionSubmitter.processRequest(rqt.accNo, rqt.version)
-    }
-
-    suspend fun checkReleased(rqt: RequestFilesCopied) {
-        submissionSubmitter.checkReleased(rqt.accNo, rqt.version)
-    }
-
-    suspend fun saveRequest(rqt: RequestCheckedReleased): ExtSubmission {
-        return submissionSubmitter.saveRequest(rqt.accNo, rqt.version)
-    }
-
-    suspend fun finalizeRequest(rqt: RequestPersisted) {
-        submissionSubmitter.finalizeRequest(rqt.accNo, rqt.version)
     }
 
     @Suppress("TooGenericExceptionCaught")

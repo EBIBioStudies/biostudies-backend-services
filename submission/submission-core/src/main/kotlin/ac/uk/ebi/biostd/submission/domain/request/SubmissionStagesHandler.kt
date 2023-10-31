@@ -1,5 +1,6 @@
-package ac.uk.ebi.biostd.submission.submitter
+package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned
@@ -18,60 +19,66 @@ private val logger = KotlinLogging.logger {}
 
 class SubmissionStagesHandler(
     private val statsService: SubmissionStatsService,
-    private val submissionSubmitter: SubmissionSubmitter,
+    private val submissionSubmitter: ExtSubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
 ) {
     fun indexRequest(rqt: RequestCreated) {
         processSafely(rqt) {
-            submissionSubmitter.indexRequest(rqt)
-            eventsPublisherService.requestIndexed(rqt.accNo, rqt.version)
+            val (accNo, version) = rqt
+            submissionSubmitter.indexRequest(accNo, version)
+            eventsPublisherService.requestIndexed(accNo, version)
         }
     }
 
     fun loadRequest(rqt: RequestIndexed) {
         processSafely(rqt) {
-            submissionSubmitter.loadRequest(rqt)
-            eventsPublisherService.requestLoaded(rqt.accNo, rqt.version)
+            val (accNo, version) = rqt
+            submissionSubmitter.loadRequest(accNo, version)
+            eventsPublisherService.requestLoaded(accNo, version)
         }
     }
 
     fun cleanRequest(rqt: RequestLoaded) {
         processSafely(rqt) {
-            submissionSubmitter.cleanRequest(rqt)
-            eventsPublisherService.requestCleaned(rqt.accNo, rqt.version)
+            val (accNo, version) = rqt
+            submissionSubmitter.cleanRequest(accNo, version)
+            eventsPublisherService.requestCleaned(accNo, version)
         }
     }
 
     fun copyRequestFiles(rqt: RequestCleaned) {
         processSafely(rqt) {
-            submissionSubmitter.processRequest(rqt)
-            eventsPublisherService.requestFilesCopied(rqt.accNo, rqt.version)
+            submissionSubmitter.processRequest(accNo, version)
+            eventsPublisherService.requestFilesCopied(accNo, version)
         }
     }
 
     fun checkReleased(rqt: RequestFilesCopied) {
         processSafely(rqt) {
-            submissionSubmitter.checkReleased(rqt)
-            eventsPublisherService.checkReleased(rqt.accNo, rqt.version)
+            val (accNo, version) = rqt
+            submissionSubmitter.checkReleased(accNo, version)
+            eventsPublisherService.checkReleased(accNo, version)
         }
     }
 
     fun saveSubmission(rqt: RequestCheckedReleased) {
         processSafely(rqt) {
-            submissionSubmitter.saveRequest(rqt)
-            eventsPublisherService.submissionPersisted(rqt.accNo, rqt.version)
+            val (accNo, version) = rqt
+            submissionSubmitter.saveRequest(accNo, version)
+            eventsPublisherService.submissionPersisted(accNo, version)
         }
     }
 
     fun finalizeRequest(rqt: RequestPersisted) {
         processSafely(rqt) {
-            submissionSubmitter.finalizeRequest(rqt)
+            val (accNo, version) = rqt
+            submissionSubmitter.finalizeRequest(accNo, version)
         }
     }
 
     fun calculateStats(rqt: RequestFinalized) {
         processSafely(rqt) {
-            statsService.calculateSubFilesSize(accNo)
+            statsService.calculateSubFilesSize(rqt.accNo)
         }
     }
 

@@ -1,9 +1,8 @@
-package ac.uk.ebi.biostd.submission.domain.service
+package ac.uk.ebi.biostd.submission.domain.extended
 
 import ac.uk.ebi.biostd.persistence.common.request.SimpleFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.toList
@@ -41,3 +40,12 @@ class ExtSubmissionQueryService(
         return PageImpl(page.content, page.pageable, page.totalElements)
     }
 }
+
+class ExtPageRequest(
+    val fromRTime: String? = null,
+    val toRTime: String? = null,
+    val released: Boolean? = null,
+    val collection: String? = null,
+    val offset: Long,
+    val limit: Int,
+)

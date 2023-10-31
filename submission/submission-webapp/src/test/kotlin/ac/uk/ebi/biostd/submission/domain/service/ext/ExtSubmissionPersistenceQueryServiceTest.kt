@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.submission.domain.service.ext
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
-import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
+import ac.uk.ebi.biostd.submission.domain.extended.ExtPageRequest
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.test.basicExtSubmission

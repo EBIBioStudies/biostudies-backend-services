@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.submitter
+package ac.uk.ebi.biostd.submission.domain.submission
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService

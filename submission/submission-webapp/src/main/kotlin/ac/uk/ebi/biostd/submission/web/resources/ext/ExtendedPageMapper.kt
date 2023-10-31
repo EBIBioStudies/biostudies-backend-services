@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.web.resources.ext
 
-import ebi.ac.uk.extended.model.WebExtPage
-import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
+import ac.uk.ebi.biostd.submission.domain.extended.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.WebExtPage
 import ebi.ac.uk.util.web.optionalQueryParam
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable

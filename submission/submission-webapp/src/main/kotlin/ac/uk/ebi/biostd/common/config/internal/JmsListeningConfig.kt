@@ -2,8 +2,8 @@ package ac.uk.ebi.biostd.common.config.internal
 
 import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionStagesHandler
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionMessageListener
-import ac.uk.ebi.biostd.submission.submitter.SubmissionStagesHandler
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.Queue

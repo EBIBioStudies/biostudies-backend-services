@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.submitter.request
+package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile

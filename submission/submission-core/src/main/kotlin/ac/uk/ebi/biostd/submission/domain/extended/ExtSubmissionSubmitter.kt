@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.submitter
+package ac.uk.ebi.biostd.submission.domain.extended
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
@@ -12,13 +12,13 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestCleaner
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestFinalizer
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestIndexer
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestLoader
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestProcessor
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestReleaser
-import ac.uk.ebi.biostd.submission.submitter.request.SubmissionRequestSaver
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFinalizer
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ebi.ac.uk.extended.model.ExtSubmission
 
 @Suppress("LongParameterList", "TooManyFunctions")
