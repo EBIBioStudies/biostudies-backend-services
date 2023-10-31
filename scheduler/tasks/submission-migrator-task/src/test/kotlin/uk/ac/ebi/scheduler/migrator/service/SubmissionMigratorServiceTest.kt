@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionMigratorRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.MigrationData
 import ebi.ac.uk.extended.model.StorageMode.FIRE
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -46,8 +47,8 @@ class SubmissionMigratorServiceTest(
     }
 
     private fun setUpPersistence() {
-        every { migratorRepository.isMigrated(ACC_NO) } returnsMany listOf(false, true)
-        every { migratorRepository.findReadyToMigrate(ACC_NO_PATTERN) } returns listOf(MigrationData(ACC_NO)).asFlow()
+        coEvery { migratorRepository.isMigrated(ACC_NO) } returnsMany listOf(false, true)
+        coEvery { migratorRepository.findReadyToMigrate(ACC_NO_PATTERN) } returns listOf(MigrationData(ACC_NO)).asFlow()
     }
 
     companion object {

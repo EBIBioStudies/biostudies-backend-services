@@ -16,7 +16,7 @@
 .deploy-migrator-submitter:
   dependencies:
     - build-test
-  script: gradle :submission:submission-webapp:bootJar deploySubmitter -Penv=prod -PdeployPath=$APPS_PATH/submitter/prod -PjvmParams=-Xmx16g
+  script: gradle :submission:submission-webapp:bootJar deployMigratorSubmitter -Penv=prod -PdeployPath=$APPS_PATH/submitter/migrator -PjvmParams=-Xmx8g
 
 .deploy-sandbox-submitter:
   dependencies:

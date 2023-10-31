@@ -13,8 +13,8 @@ interface SubmissionMigratorRepository : CoroutineCrudRepository<DocSubmission, 
         value = "{ accNo: { \$regex: ?0 }, storageMode: 'NFS', version: { \$gte: 0 } }",
         fields = "{ accNo: 1 }"
     )
-    fun findReadyToMigrate(accNoPattern: String): Flow<MigrationData>
+    suspend fun findReadyToMigrate(accNoPattern: String): Flow<MigrationData>
 
     @ExistsQuery(value = "{ accNo: ?0, storageMode: 'FIRE', version: { \$gte: 0 } }")
-    fun isMigrated(accNo: String): Boolean
+    suspend fun isMigrated(accNo: String): Boolean
 }
