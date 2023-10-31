@@ -60,6 +60,7 @@ dependencies {
 
     implementation(SpringBootStarterDataJpa)
     implementation(SpringBootStarterWeb)
+    implementation(SpringBootStarterAmqp)
     implementation(SpringWebFlux)
 
     testImplementation(SpringBootStarterAmqp)
