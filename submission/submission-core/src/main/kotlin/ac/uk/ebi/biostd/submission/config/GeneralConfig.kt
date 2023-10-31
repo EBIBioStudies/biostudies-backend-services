@@ -1,7 +1,7 @@
-package ac.uk.ebi.biostd.common.config
+package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.files.FileConfig
+import ac.uk.ebi.biostd.common.properties.FilesProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
@@ -73,5 +73,16 @@ internal class GeneralConfig {
     }
 
     @Bean
-    fun ftpClient(properties: ApplicationProperties) = FileConfig.ftpClient(properties.security.filesProperties)
+    fun ftpClient(properties: ApplicationProperties) = ftpClient(properties.security.filesProperties)
+
+    companion object {
+        fun ftpClient(fileProperties: FilesProperties): FtpClient {
+            return FtpClient.create(
+                ftpUser = fileProperties.ftpUser,
+                ftpPassword = fileProperties.ftpPassword,
+                ftpUrl = fileProperties.ftpUrl,
+                ftpPort = fileProperties.ftpPort,
+            )
+        }
+    }
 }

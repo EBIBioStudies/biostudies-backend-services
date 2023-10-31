@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.common.config
+package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService

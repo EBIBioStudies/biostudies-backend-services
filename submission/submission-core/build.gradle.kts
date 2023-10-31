@@ -28,6 +28,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 plugins {
     id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion apply false
     id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
+    id(Plugins.KotlinSpringPlugin) version PluginVersions.KotlinPluginVersion
 }
 
 the<DependencyManagementExtension>().apply {

@@ -9,7 +9,8 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import ac.uk.ebi.biostd.stats.web.TempFileGenerator
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ac.uk.ebi.biostd.submission.config.SecurityConfig
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionSubmitter
@@ -148,9 +149,8 @@ class SubmissionConfig {
 
     @Bean
     fun submitRequestBuilder(
-        tempFileGenerator: TempFileGenerator,
         onBehalfUtils: OnBehalfUtils,
-    ): SubmitRequestBuilder = SubmitRequestBuilder(tempFileGenerator, onBehalfUtils)
+    ): SubmitRequestBuilder = SubmitRequestBuilder(onBehalfUtils)
 
     @Bean
     fun onBehalfUtils(securityQueryService: ISecurityQueryService): OnBehalfUtils = OnBehalfUtils(securityQueryService)

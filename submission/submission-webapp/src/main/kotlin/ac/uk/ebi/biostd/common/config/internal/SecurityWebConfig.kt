@@ -1,7 +1,9 @@
-package ac.uk.ebi.biostd.common.config
+package ac.uk.ebi.biostd.common.config.internal
 
 import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
 import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ac.uk.ebi.biostd.submission.config.SecurityConfig
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import

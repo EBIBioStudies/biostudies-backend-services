@@ -1,7 +1,5 @@
-package ac.uk.ebi.biostd.common.config
+package ac.uk.ebi.biostd.submission.config
 
-import ac.uk.ebi.biostd.common.config.SubmitterConfig.FilesHandlerConfig
-import ac.uk.ebi.biostd.common.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.PersistenceService
@@ -14,6 +12,8 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
+import ac.uk.ebi.biostd.submission.config.SubmitterConfig.FilesHandlerConfig
+import ac.uk.ebi.biostd.submission.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFinalizer
