@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.submission.web.resources
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.submission.converters.BioUser
-import ac.uk.ebi.biostd.submission.domain.service.SubmissionQueryService
+import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.model.SubmissionFilterRequest
 import ac.uk.ebi.biostd.submission.web.model.asFilter

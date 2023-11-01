@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.web.resources.ext
 
-import ebi.ac.uk.extended.model.WebExtPage
-import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
+import ac.uk.ebi.biostd.submission.domain.extended.ExtPageRequest
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.WebExtPage
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -29,7 +29,7 @@ class ExtendedPageMapperTest {
         @MockK currentPageable: Pageable,
         @MockK extSubmission: ExtSubmission,
         @MockK currentPage: Page<ExtSubmission>,
-        @MockK nextPageable: Pageable
+        @MockK nextPageable: Pageable,
     ) {
         val request = ExtPageRequest(offset = 1, limit = 1, released = true)
 
@@ -50,7 +50,7 @@ class ExtendedPageMapperTest {
         @MockK currentPage: Page<ExtSubmission>,
         @MockK currentPageable: Pageable,
         @MockK previousPageable: Pageable,
-        @MockK nextPageable: Pageable
+        @MockK nextPageable: Pageable,
     ) {
         val from = "2019-09-21T15:03:45Z"
         val to = "2019-09-22T15:03:45Z"
@@ -76,7 +76,7 @@ class ExtendedPageMapperTest {
     private fun mockCurrentPage(
         currentPage: Page<ExtSubmission>,
         currentPageable: Pageable,
-        extSubmission: ExtSubmission
+        extSubmission: ExtSubmission,
     ) {
         every { currentPage.content } returns listOf(extSubmission)
         every { currentPage.totalElements } returns 3

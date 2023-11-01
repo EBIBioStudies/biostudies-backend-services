@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.boot.context.event.ApplicationReadyEvent

@@ -1,9 +1,11 @@
 package ac.uk.ebi.biostd.common.config.internal
 
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.web.common.FileListPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.GroupPathDescriptorResolver
 import ac.uk.ebi.biostd.files.web.common.UserPathDescriptorResolver
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.converters.BioUserResolver
 import ac.uk.ebi.biostd.submission.converters.ExtAttributeDetailConverter
 import ac.uk.ebi.biostd.submission.converters.ExtFileTableConverter
@@ -35,6 +37,10 @@ internal class WebConfig(
 
     @Bean
     fun principalResolver() = AuthenticationPrincipalArgumentResolver()
+
+    @Bean
+    fun tempFileGenerator(properties: ApplicationProperties): TempFileGenerator =
+        TempFileGenerator(properties.tempDirPath)
 
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON)
