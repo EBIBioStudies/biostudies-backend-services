@@ -108,21 +108,6 @@ class FireWebClientTest(
     }
 
     @Test
-    fun `find by md5`() = runTest {
-        every {
-            client.get().uri("/objects/md5/the-md5").retrieve().bodyToMono<Array<FireApiFile>>()
-        } returns Mono.just(arrayOf(fireFile))
-
-        val files = testInstance.findByMd5("the-md5")
-
-        assertThat(files).hasSize(1)
-        assertThat(files.first()).isEqualTo(fireFile)
-        verify(exactly = 1) {
-            client.get().uri("/objects/md5/the-md5").retrieve().bodyToMono<Array<FireApiFile>>()
-        }
-    }
-
-    @Test
     fun `find by path`() = runTest {
         every {
             client.get().uri("/objects/path/my/path").retrieve().bodyToMono<FireApiFile>()

@@ -47,7 +47,7 @@ class NfsFilesService(
         val permissions = sub.permissions()
         val subFile = getSubFile(sub, permissions, file.relPath)
         if (subFile.notExist()) {
-            val fireFile = fireClient.downloadByPath(file.firePath!!)!!
+            val fireFile = fireClient.downloadByPath(file.firePath)!!
             copyOrReplaceFile(fireFile, subFile, permissions)
         }
 

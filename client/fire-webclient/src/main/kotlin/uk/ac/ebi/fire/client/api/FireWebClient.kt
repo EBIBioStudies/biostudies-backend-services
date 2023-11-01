@@ -47,10 +47,6 @@ internal class FireWebClient(
         client.deleteAsync("/objects/$fireOid/firePath")
     }
 
-    override suspend fun findByMd5(md5: String): List<FireApiFile> {
-        return client.getForObjectAsync<Array<FireApiFile>>("/objects/md5/$md5").toList()
-    }
-
     override suspend fun findByPath(path: String): FireApiFile? {
         return client.getOrNull("/objects/path/$path")
     }

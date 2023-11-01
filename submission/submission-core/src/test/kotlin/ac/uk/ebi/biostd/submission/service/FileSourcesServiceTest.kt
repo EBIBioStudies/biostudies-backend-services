@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.service
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.ftp.FtpClient
-import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.security.integration.model.api.GroupFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
@@ -53,7 +52,7 @@ class FileSourcesServiceTest(
         val fileSources = testInstance.submissionSources(request)
 
         val sources = fileSources.sources
-        assertThat(sources).hasSize(8)
+        assertThat(sources).hasSize(7)
         assertThat(sources[0].description).isEqualTo("Provided Db files")
         assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
         assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
@@ -61,7 +60,6 @@ class FileSourcesServiceTest(
         assertThat(sources[4].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
         assertThat(sources[5].description).isEqualTo("Group 'Test Group' files")
         assertThat(sources[6].description).isEqualTo("Previous version files")
-        assertThat(sources[7].description).isEqualTo("EBI internal files Archive")
     }
 
     @Test
@@ -78,7 +76,7 @@ class FileSourcesServiceTest(
         val fileSources = testInstance.submissionSources(request)
 
         val sources = fileSources.sources
-        assertThat(sources).hasSize(8)
+        assertThat(sources).hasSize(7)
         assertThat(sources[0].description).isEqualTo("Provided Db files")
         assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
         assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
@@ -86,7 +84,6 @@ class FileSourcesServiceTest(
         assertThat(sources[4].description).isEqualTo("regular@ebi.ac.uk user files in /root-path")
         assertThat(sources[5].description).isEqualTo("Group 'Test Group' files")
         assertThat(sources[6].description).isEqualTo("Previous version files")
-        assertThat(sources[7].description).isEqualTo("EBI internal files Archive")
     }
 
     @Test
@@ -103,13 +100,12 @@ class FileSourcesServiceTest(
         val fileSources = testInstance.submissionSources(request)
 
         val sources = fileSources.sources
-        assertThat(sources).hasSize(6)
+        assertThat(sources).hasSize(5)
         assertThat(sources[0].description).isEqualTo("Provided Db files")
         assertThat(sources[1].description).isEqualTo("Request files [test.txt]")
         assertThat(sources[2].description).isEqualTo("admin_user@ebi.ac.uk user files in /root-path")
         assertThat(sources[3].description).isEqualTo("Group 'Test Group' files")
         assertThat(sources[4].description).isEqualTo("Previous version files")
-        assertThat(sources[5].description).isEqualTo("EBI internal files Archive")
     }
 
     @Test
@@ -120,16 +116,15 @@ class FileSourcesServiceTest(
             files = null,
             rootPath = null,
             submission = extSubmission,
-            preferredSources = listOf(FIRE, SUBMISSION)
+            preferredSources = listOf(SUBMISSION)
         )
 
         val fileSources = testInstance.submissionSources(request)
 
         val sources = fileSources.sources
-        assertThat(sources).hasSize(3)
+        assertThat(sources).hasSize(2)
         assertThat(sources[0].description).isEqualTo("Provided Db files")
-        assertThat(sources[1].description).isEqualTo("EBI internal files Archive")
-        assertThat(sources[2].description).isEqualTo("Previous version files")
+        assertThat(sources[1].description).isEqualTo("Previous version files")
     }
 
     private fun submitter(): SecurityUser {

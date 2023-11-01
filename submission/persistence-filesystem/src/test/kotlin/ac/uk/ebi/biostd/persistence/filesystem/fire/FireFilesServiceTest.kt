@@ -48,7 +48,7 @@ internal class FireFilesServiceTest(
     @Nested
     inner class WhenFireFile {
         @Test
-        fun `when fire file has the expected path`() = runTest {
+        fun `when fire file`() = runTest {
             val file = fireFile(firePath = "001/Files/folder/file.txt")
 
             val result = testInstance.persistSubmissionFile(submission, file)
@@ -56,45 +56,12 @@ internal class FireFilesServiceTest(
             assertThat(result).isEqualTo(file)
             verify { fireClient wasNot Called }
         }
-
-        @Test
-        fun `when fire file has not the expected path`() = runTest {
-            val file = fireFile(firePath = "/another-path/file.txt")
-
-            val newFile = tempFolder.createFile("file.txt", "content")
-            val newFireFile = fireApiFile(firePath = null)
-            val fileWithPath = fireApiFile(firePath = "001/Files/folder/file.txt")
-
-            every { fireClient.downloadByPath("/another-path/file.txt") } returns newFile
-            coEvery { fireClient.save(newFile, file.md5, file.size) } answers { newFireFile }
-            coEvery { fireClient.setPath(newFireFile.fireOid, "001/Files/folder/file.txt") } returns fileWithPath
-
-            val result = testInstance.persistSubmissionFile(submission, file)
-
-            assertThat(result.fileName).isEqualTo(file.fileName)
-            assertThat(result.fireId).isEqualTo(fileWithPath.fireOid)
-            assertThat(result.firePath).isEqualTo("001/Files/folder/file.txt")
-        }
-
-        @Test
-        fun `when fire file has not path`() = runTest {
-            val file = fireFile(firePath = null)
-            val fileWithPath = fireApiFile(firePath = "001/Files/folder/file.txt")
-
-            coEvery { fireClient.setPath(file.fireId, "001/Files/folder/file.txt") } returns fileWithPath
-
-            val result = testInstance.persistSubmissionFile(submission, file)
-
-            assertThat(result.fileName).isEqualTo(file.fileName)
-            assertThat(result.fireId).isEqualTo(fileWithPath.fireOid)
-            assertThat(result.firePath).isEqualTo("001/Files/folder/file.txt")
-        }
     }
 
     @Nested
     inner class WhenNfsFile {
         @Test
-        fun `when fire file has the expected path`() = runTest {
+        fun `when file is found in fire`() = runTest {
             val fireApiFile = fireApiFile(firePath = "001/Files/folder/file.txt")
             val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
 
@@ -110,7 +77,7 @@ internal class FireFilesServiceTest(
         }
 
         @Test
-        fun `when fire file has not the expected path`() = runTest {
+        fun `when file is not found in fire`() = runTest {
             val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
             coEvery { fireClient.findByPath("001/Files/folder/file.txt") } returns null
 
@@ -118,22 +85,6 @@ internal class FireFilesServiceTest(
             val fileWithPath = fireApiFile(firePath = "001/Files/folder/file.txt")
             coEvery { fireClient.save(file.file, file.md5, file.size) } returns newFile
             coEvery { fireClient.setPath(newFile.fireOid, "001/Files/folder/file.txt") } returns fileWithPath
-
-            val result = testInstance.persistSubmissionFile(submission, file)
-
-            assertThat(result.fileName).isEqualTo(file.fileName)
-            assertThat(result.fireId).isEqualTo(fileWithPath.fireOid)
-            assertThat(result.firePath).isEqualTo("001/Files/folder/file.txt")
-        }
-
-        @Test
-        fun `when fire file has not path`() = runTest {
-            val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
-            val fireFile = fireApiFile(firePath = null)
-            val fileWithPath = fireApiFile(firePath = "001/Files/folder/file.txt")
-
-            coEvery { fireClient.findByPath("001/Files/folder/file.txt") } returns fireFile
-            coEvery { fireClient.setPath(fireFile.fireOid, "001/Files/folder/file.txt") } returns fileWithPath
 
             val result = testInstance.persistSubmissionFile(submission, file)
 
@@ -172,7 +123,7 @@ internal class FireFilesServiceTest(
         }
     }
 
-    private fun fireFile(firePath: String? = null, md5: String = "the md5") = FireFile(
+    private fun fireFile(firePath: String, md5: String = "the md5") = FireFile(
         fireId = UUID.randomUUID().toString(),
         firePath = firePath,
         published = false,
