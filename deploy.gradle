@@ -42,6 +42,17 @@ task deploySubmitter {
     finalizedBy "deploy"
 }
 
+task deployMigratorSubmitter {
+    doFirst {
+        project.ext.artifactPath = "submission/submission-webapp/build/libs"
+        project.ext.artifactName = "submission-webapp-1.0.0.jar"
+        project.ext.appPort = 8789
+        project.ext.debugPort = 8083
+    }
+
+    finalizedBy "deploy"
+}
+
 task deployHandlers {
     doFirst {
         project.ext.artifactPath = "submission/submission-handlers/build/libs"
@@ -107,6 +118,15 @@ task updateReleaserArtifact {
     doFirst {
         project.ext.artifactPath = "scheduler/tasks/submission-releaser-task/build/libs"
         project.ext.artifactName = "submission-releaser-task-1.0.0.jar"
+    }
+
+    finalizedBy "deployArtifact"
+}
+
+task updateMigratorArtifact {
+    doFirst {
+        project.ext.artifactPath = "scheduler/tasks/submission-migrator-task/build/libs"
+        project.ext.artifactName = "submission-migrator-task-1.0.0.jar"
     }
 
     finalizedBy "deployArtifact"

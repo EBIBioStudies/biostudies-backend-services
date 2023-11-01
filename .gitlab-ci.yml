@@ -28,6 +28,7 @@ stages:
   - auto-deploy-dev-submitter
   - auto-deploy-beta-submitter
   - auto-deploy-prod-submitter
+  - auto-deploy-migrator-submitter
   - auto-deploy-sandbox-submitter
   - auto-deploy-dev-handlers
   - auto-deploy-beta-handlers
@@ -40,6 +41,7 @@ stages:
   - deploy-dev-submitter
   - deploy-beta-submitter
   - deploy-prod-submitter
+  - deploy-migrator-submitter
   - build-fat-jar-prod
   - build-push-docker-image-prod
   - deploy-sandbox-submitter
