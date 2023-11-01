@@ -23,7 +23,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,8 +34,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.events.service.EventsPublisherService
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 @ExtendWith(MockKExtension::class)
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -47,7 +44,6 @@ class ExtSubmissionServiceTest(
     @MockK private val securityQueryService: ISecurityQueryService,
     @MockK private val eventsPublisher: EventsPublisherService,
 ) {
-    private val mockNow = OffsetDateTime.of(2023, 9, 21, 1, 2, 3, 4, ZoneOffset.UTC)
     private val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
     private val testInstance =
         ExtSubmissionService(
@@ -63,8 +59,6 @@ class ExtSubmissionServiceTest(
 
     @BeforeEach
     fun beforeEach() {
-        mockkStatic(OffsetDateTime::class)
-        every { OffsetDateTime.now() } returns mockNow
         coEvery { submissionRepository.existByAccNo("ArrayExpress") } returns true
         coEvery { submissionRepository.getExtByAccNo("S-TEST123") } returns extSubmission
         every { userPrivilegesService.canSubmitExtended("user@mail.com") } returns true
@@ -84,7 +78,7 @@ class ExtSubmissionServiceTest(
         val submissionRequest = submitRequestSlot.captured
         assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
         assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
-        assertThat(submissionRequest.submission.modificationTime).isEqualTo(mockNow)
+        assertThat(submissionRequest.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
         coVerify(exactly = 1) {
             submissionRepository.existByAccNo("ArrayExpress")
             submissionSubmitter.createRequest(submissionRequest)
@@ -106,7 +100,7 @@ class ExtSubmissionServiceTest(
         val submissionRequest = requestSlot.captured
         assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
         assertThat(submissionRequest.submission.storageMode).isEqualTo(NFS)
-        assertThat(submissionRequest.submission.modificationTime).isEqualTo(mockNow)
+        assertThat(submissionRequest.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
 
         coVerify(exactly = 0) { submissionSubmitter.handleRequest(any(), any()) }
         coVerify(exactly = 1) {
@@ -154,14 +148,16 @@ class ExtSubmissionServiceTest(
 
         coEvery { submissionRepository.existByAccNo("ArrayExpress") } returns false
         coEvery { submissionSubmitter.handleRequest(collection.accNo, 1) } returns collection
-        coEvery { submissionSubmitter.createRequest(capture(requestSlot)) } returns (collection.accNo to collection.version)
+        coEvery {
+            submissionSubmitter.createRequest(capture(requestSlot))
+        } returns (collection.accNo to collection.version)
 
         testInstance.submitExt("user@mail.com", collection)
 
         val request = requestSlot.captured
         assertThat(request.submission.submitter).isEqualTo("user@mail.com")
         assertThat(request.submission.storageMode).isEqualTo(FIRE)
-        assertThat(request.submission.modificationTime).isEqualTo(mockNow)
+        assertThat(request.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
 
         coVerify(exactly = 0) { submissionRepository.existByAccNo("ArrayExpress") }
         verify(exactly = 1) { securityQueryService.existsByEmail("owner@email.org", false) }
@@ -180,7 +176,7 @@ class ExtSubmissionServiceTest(
         val submissionRequest = requestSlot.captured
         assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
         assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
-        assertThat(submissionRequest.submission.modificationTime).isEqualTo(mockNow)
+        assertThat(submissionRequest.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
 
         coVerify(exactly = 1) {
             submissionSubmitter.createRequest(submissionRequest)
