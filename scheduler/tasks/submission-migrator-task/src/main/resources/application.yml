@@ -1,0 +1,14 @@
+spring:
+  data:
+    mongodb:
+      database: # The name of the database to access the data
+      uri: # The database connection URI
+app:
+  concurrency: # Number of submissions processed concurrently
+  delay: # Number of seconds of delay between each migration request
+  await: # Number of minutes to wait for a migration request to be completed
+  accNoPattern: # Accession pattern to find the submissions to migrate
+  bioStudies:
+    url: # BioStudies backend URL
+    user: # BioStudies manager user
+    password: # BioStudies manager password

@@ -14,7 +14,6 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
-import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
@@ -66,10 +65,7 @@ class ExtSubmissionService(
 
     private suspend fun processSubmission(user: String, extSubmission: ExtSubmission): ExtSubmission {
         validateSubmission(extSubmission, user)
-        return extSubmission.copy(
-            submitter = user,
-            modificationTime = OffsetDateTime.now(),
-        )
+        return extSubmission.copy(submitter = user)
     }
 
     @Suppress("ThrowsCount")
