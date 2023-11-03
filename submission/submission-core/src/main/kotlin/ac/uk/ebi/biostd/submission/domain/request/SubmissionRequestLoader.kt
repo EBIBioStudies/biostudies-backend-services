@@ -14,10 +14,12 @@ import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.io.ext.createTempFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import java.io.File
 
@@ -64,8 +66,8 @@ class SubmissionRequestLoader(
         }
     }
 
-    private fun loadAttributes(sub: ExtSubmission, file: NfsFile): ExtFile {
-        return when {
+    private suspend fun loadAttributes(sub: ExtSubmission, file: NfsFile): ExtFile = withContext(Dispatchers.IO) {
+        when {
             file.type == ExtFileType.DIR && sub.storageMode == FIRE -> asCompressedFile(sub.accNo, sub.version, file)
             else -> file.copy(md5 = file.file.md5(), size = file.file.size())
         }

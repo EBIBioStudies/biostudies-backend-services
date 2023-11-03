@@ -28,6 +28,7 @@ spring:
     port: 5672
 
 app:
+  retrySubmission: false
   submissionPath:
   ftpPath:
   tempDirPath:

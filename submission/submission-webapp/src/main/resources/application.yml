@@ -61,6 +61,7 @@ logging:
     org.springframework.data.mongodb.core.convert.QueryMapper: ERROR # Disable to avoid mapping log population.
 
 app:
+  retrySubmission: false
   enablePropertiesLog: true
   consumers: 10 # number of processing queue consumers.
   maxConsumers: 15 # Max number of processing queue consumers.
