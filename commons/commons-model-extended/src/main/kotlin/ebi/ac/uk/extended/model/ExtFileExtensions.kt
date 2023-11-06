@@ -17,7 +17,7 @@ fun ExtFile.copyWithAttributes(attributes: List<ExtAttribute>): ExtFile {
     }
 }
 
-fun ExtFile.asFireFile(fireId: String, firePath: String?, published: Boolean): FireFile = FireFile(
+fun ExtFile.asFireFile(fireId: String, firePath: String, published: Boolean): FireFile = FireFile(
     fireId,
     firePath,
     published,

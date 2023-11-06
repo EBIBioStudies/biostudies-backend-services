@@ -30,7 +30,6 @@ import ebi.ac.uk.io.ext.createDirectory
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.exist
 import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.model.extensions.title
@@ -143,64 +142,6 @@ class SubmissionFileSourceTest(
             val secondVersionReferencedFireId = (secondVersionReferencedFiles.first() as FireFile).fireId
             assertThat(firstVersionReferencedFireId).isEqualTo(secondVersionReferencedFireId)
         }
-    }
-
-    @Test
-    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `6-2 submission with FIRE source only`() = runTest {
-        val file3 = tempFolder.createFile("File3.txt", "content file 3")
-        val file4 = tempFolder.createFile("File4.txt", "content file 4")
-        val file3Md5 = file3.md5()
-        val file4Md5 = file4.md5()
-
-        val fireFile3 = fireClient.save(file3, file3Md5, 55L)
-        val fireFile4 = fireClient.save(file4, file4Md5, 55L)
-
-        val submission = tsv {
-            line("Submission", "S-FSTST2")
-            line("Title", "FIRE Only File Source Submission")
-            line()
-
-            line("Study", "SECT-001")
-            line("Title", "Root Section")
-            line("File List", "FileList.tsv")
-            line()
-
-            line("File", "File4.txt")
-            line("dbMd5", file4Md5)
-            line()
-
-            line()
-        }.toString()
-
-        val fileList = tempFolder.createFile(
-            "FileList.tsv",
-            tsv {
-                line("Files", "GEN", "dbMd5")
-                line("File3.txt", "ABC", file3Md5)
-            }.toString()
-        )
-
-        val filesConfig =
-            SubmissionFilesConfig(listOf(fileList), storageMode, preferredSources = listOf(FIRE))
-        assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
-
-        val persistedSubmission = submissionRepository.getExtByAccNo("S-FSTST2")
-        val firstVersionReferencedFiles = filesRepository.getReferencedFiles(persistedSubmission, "FileList").toList()
-        val subFilesPath = "$submissionPath/${persistedSubmission.relPath}/Files"
-        val innerFile = Paths.get("$subFilesPath/File4.txt")
-        val referencedFile = Paths.get("$subFilesPath/File3.txt")
-
-        assertThat(innerFile).exists()
-        assertThat(innerFile.toFile().readText()).isEqualTo("content file 4")
-        assertThat(referencedFile).exists()
-        assertThat(referencedFile.toFile().readText()).isEqualTo("content file 3")
-
-        val innerFileFireId = (persistedSubmission.allSectionsFiles.first() as FireFile).fireId
-        assertThat(innerFileFireId).isEqualTo(fireFile4.fireOid)
-
-        val referencedFileFireId = (firstVersionReferencedFiles.first() as FireFile).fireId
-        assertThat(referencedFileFireId).isEqualTo(fireFile3.fireOid)
     }
 
     @Nested
@@ -725,6 +666,49 @@ class SubmissionFileSourceTest(
             val firstVersionFireId = (firstVersion.allSectionsFiles.first() as FireFile).fireId
             val secondVersionFireId = (secondVersion.allSectionsFiles.first() as FireFile).fireId
             assertThat(firstVersionFireId).isEqualTo(secondVersionFireId)
+        }
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
+    fun `6-8 submission with files with the same md5 and different path`() = runTest {
+        val files = (1..20).map { tempFolder.createFile("file$it.txt", "same content") }
+        val fileListPageTab = tsv {
+            line("Files", "Type")
+            files.forEach { line(it.name, "duplicated ${it.name}") }
+            line()
+        }.toString()
+        val submissionPageTab = tsv {
+            line("Submission", "S-FSTST8")
+            line("Title", "Duplicated MD5 Files")
+            line()
+
+            line("Study", "SECT-001")
+            line("Title", "Root Section")
+            line("File List", "DuplicatedFiles.tsv")
+            line()
+
+            line()
+        }.toString()
+        val fileList = tempFolder.createFile("DuplicatedFiles.tsv", fileListPageTab)
+
+        webClient.uploadFiles(files.plus(fileList))
+        assertThat(webClient.submitSingle(submissionPageTab, TSV)).isSuccessful()
+
+        val md5 = files.first().md5()
+        assertThat(files.all { it.md5() == md5 }).isTrue()
+        files.forEach { it.delete() }
+        fileList.delete()
+
+        val submission = submissionRepository.getExtByAccNo("S-FSTST8")
+        val duplicates = filesRepository.getReferencedFiles(submission, "DuplicatedFiles")
+            .toList()
+            .groupBy { (it as FireFile).fireId }
+
+        assertThat(duplicates).allSatisfy { id, fireFiles ->
+            assertThat(fireFiles)
+                .hasSize(1)
+                .withFailMessage("Unexpected duplicated fire file id='{}'", id)
         }
     }
 }
