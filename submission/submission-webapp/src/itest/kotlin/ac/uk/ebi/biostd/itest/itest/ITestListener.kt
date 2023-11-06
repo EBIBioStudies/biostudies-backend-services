@@ -28,13 +28,16 @@ import java.nio.file.Files
 import java.time.Duration.ofSeconds
 
 class ITestListener : TestExecutionListener {
+
+    private val propertyHolder = PropertyHolder()
+
     override fun testPlanExecutionStarted(testPlan: TestPlan) {
         mongoSetup()
         mySqlSetup()
         fireSetup()
         ftpSetup()
-        appPropertiesSetup()
         doiSetup()
+        appPropertiesSetup()
     }
 
     override fun testPlanExecutionFinished(testPlan: TestPlan) {
@@ -46,34 +49,37 @@ class ITestListener : TestExecutionListener {
 
     private fun mongoSetup() {
         mongoContainer.start()
-        System.setProperty("spring.data.mongodb.uri", mongoContainer.getReplicaSetUrl("biostudies-test"))
-        System.setProperty("spring.data.mongodb.database", "biostudies-test")
+        propertyHolder.addProperty("spring.data.mongodb.uri", mongoContainer.getReplicaSetUrl("biostudies-test"))
+        propertyHolder.addProperty("spring.data.mongodb.database", "biostudies-test")
     }
 
     private fun mySqlSetup() {
         mysqlContainer.start()
-        System.setProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
-        System.setProperty("spring.datasource.username", mysqlContainer.username)
-        System.setProperty("spring.datasource.password", mysqlContainer.password)
+        propertyHolder.addProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
+        propertyHolder.addProperty("spring.datasource.username", mysqlContainer.username)
+        propertyHolder.addProperty("spring.datasource.password", mysqlContainer.password)
     }
 
     private fun ftpSetup() {
         ftpServer.start()
 
-        System.setProperty("app.security.filesProperties.ftpUser", FTP_USER)
-        System.setProperty("app.security.filesProperties.ftpPassword", FTP_PASSWORD)
-        System.setProperty("app.security.filesProperties.ftpUrl", ftpServer.getUrl())
-        System.setProperty("app.security.filesProperties.ftpPort", ftpServer.ftpPort.toString())
-        System.setProperty("app.security.filesProperties.ftpDirPath", ftpServer.fileSystemDirectory.absolutePath)
+        propertyHolder.addProperty("app.security.filesProperties.ftpUser", FTP_USER)
+        propertyHolder.addProperty("app.security.filesProperties.ftpPassword", FTP_PASSWORD)
+        propertyHolder.addProperty("app.security.filesProperties.ftpUrl", ftpServer.getUrl())
+        propertyHolder.addProperty("app.security.filesProperties.ftpPort", ftpServer.ftpPort.toString())
+        propertyHolder.addProperty(
+            "app.security.filesProperties.ftpDirPath",
+            ftpServer.fileSystemDirectory.absolutePath
+        )
     }
 
     private fun fireSetup() {
         s3Container.start()
-        System.setProperty("app.fire.s3.accessKey", AWS_ACCESS_KEY)
-        System.setProperty("app.fire.s3.secretKey", AWS_SECRET_KEY)
-        System.setProperty("app.fire.s3.region", AWS_REGION)
-        System.setProperty("app.fire.s3.endpoint", s3Container.httpEndpoint)
-        System.setProperty("app.fire.s3.bucket", DEFAULT_BUCKET)
+        propertyHolder.addProperty("app.fire.s3.accessKey", AWS_ACCESS_KEY)
+        propertyHolder.addProperty("app.fire.s3.secretKey", AWS_SECRET_KEY)
+        propertyHolder.addProperty("app.fire.s3.region", AWS_REGION)
+        propertyHolder.addProperty("app.fire.s3.endpoint", s3Container.httpEndpoint)
+        propertyHolder.addProperty("app.fire.s3.bucket", DEFAULT_BUCKET)
 
         fireServer.stubFor(
             post(WireMock.urlMatching("/objects"))
@@ -81,33 +87,35 @@ class ITestListener : TestExecutionListener {
                 .willReturn(WireMock.aResponse().withTransformers(TestWireMockTransformer.name))
         )
         fireServer.start()
-        System.setProperty("app.fire.host", fireServer.baseUrl())
-        System.setProperty("app.fire.username", FIRE_USERNAME)
-        System.setProperty("app.fire.password", FIRE_PASSWORD)
+        propertyHolder.addProperty("app.fire.host", fireServer.baseUrl())
+        propertyHolder.addProperty("app.fire.username", FIRE_USERNAME)
+        propertyHolder.addProperty("app.fire.password", FIRE_PASSWORD)
     }
 
     private fun appPropertiesSetup() {
-        System.setProperty("app.submissionPath", nfsSubmissionPath.absolutePath)
-        System.setProperty("app.ftpPath", nfsFtpPath.absolutePath)
-        System.setProperty("app.fireTempDirPath", fireTempFolder.absolutePath)
-        System.setProperty("app.tempDirPath", tempDirPath.absolutePath)
-        System.setProperty("app.requestFilesPath", requestFilesPath.absolutePath)
-        System.setProperty("app.security.filesProperties.filesDirPath", dropboxPath.absolutePath)
-        System.setProperty("app.security.filesProperties.magicDirPath", magicDirPath.absolutePath)
-        System.setProperty("app.persistence.concurrency", PERSISTENCE_CONCURRENCY)
-        System.setProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")
+        propertyHolder.addProperty("app.submissionPath", nfsSubmissionPath.absolutePath)
+        propertyHolder.addProperty("app.ftpPath", nfsFtpPath.absolutePath)
+        propertyHolder.addProperty("app.fireTempDirPath", fireTempFolder.absolutePath)
+        propertyHolder.addProperty("app.tempDirPath", tempDirPath.absolutePath)
+        propertyHolder.addProperty("app.requestFilesPath", requestFilesPath.absolutePath)
+        propertyHolder.addProperty("app.security.filesProperties.filesDirPath", dropboxPath.absolutePath)
+        propertyHolder.addProperty("app.security.filesProperties.magicDirPath", magicDirPath.absolutePath)
+        propertyHolder.addProperty("app.persistence.concurrency", PERSISTENCE_CONCURRENCY)
+        propertyHolder.addProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")
+        propertyHolder.writeProperties()
     }
 
     private fun doiSetup() {
         doiServer.start()
-        System.setProperty("app.doi.endpoint", "${doiServer.baseUrl()}/deposit")
-        System.setProperty("app.doi.uiUrl", "https://www.ebi.ac.uk/biostudies/")
-        System.setProperty("app.doi.user", "a-user")
-        System.setProperty("app.doi.password", "a-password")
+        propertyHolder.addProperty("app.doi.endpoint", "${doiServer.baseUrl()}/deposit")
+        propertyHolder.addProperty("app.doi.uiUrl", "https://www.ebi.ac.uk/biostudies/")
+        propertyHolder.addProperty("app.doi.user", "a-user")
+        propertyHolder.addProperty("app.doi.password", "a-password")
     }
 
     companion object {
         private val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()
+
         private const val DEFAULT_BUCKET = "bio-fire-bucket"
         private const val AWS_ACCESS_KEY = "anyKey"
         private const val AWS_SECRET_KEY = "anySecret"

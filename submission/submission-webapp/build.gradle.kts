@@ -141,6 +141,7 @@ dependencies {
     testImplementation(XmlUnitMatchers)
 
     testImplementation(TestContainerMysql)
+    testImplementation("org.yaml:snakeyaml")
     testImplementation(TestContainerS3mock)
     testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)
