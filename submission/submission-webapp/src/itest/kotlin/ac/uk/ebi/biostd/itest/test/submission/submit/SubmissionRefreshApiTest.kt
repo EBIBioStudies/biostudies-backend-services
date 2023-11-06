@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
-import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.createFileList
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -199,7 +199,7 @@ class SubmissionRefreshApiTest(
         webClient.refreshSubmission(accNo)
 
         val files = fileListRepository
-            .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(accNo, 1, FILE_LIST_NAME)
+            .findByFileList(accNo, 1, FILE_LIST_NAME)
             .toList()
 
         assertThat(files).hasSize(1)

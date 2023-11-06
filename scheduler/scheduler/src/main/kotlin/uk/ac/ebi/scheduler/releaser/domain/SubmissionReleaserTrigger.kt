@@ -1,6 +1,7 @@
 package uk.ac.ebi.scheduler.releaser.domain
 
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
+import ac.uk.ebi.cluster.client.model.CoresSpec.FOUR_CORES
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
@@ -17,7 +18,6 @@ import uk.ac.ebi.scheduler.common.SYSTEM_NAME
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.releaser.api.SubmissionReleaserProperties as SchedulerReleaserProps
 
-internal const val RELEASER_CORES = 4
 internal const val RELEASER_SUBSYSTEM = "Submission Releaser"
 
 private val logger = KotlinLogging.logger {}
@@ -28,22 +28,22 @@ internal class SubmissionReleaserTrigger(
     private val clusterOperations: ClusterOperations,
     private val schedulerNotificationsSender: NotificationsSender,
 ) {
-    fun triggerSubmissionReleaser(debugPort: Int? = null): Job {
+    suspend fun triggerSubmissionReleaser(debugPort: Int? = null): Job {
         logger.info { "triggering submission releaser job" }
         return triggerJob(mode = RELEASE, debugPort)
     }
 
-    fun triggerSubmissionReleaseNotifier(debugPort: Int? = null): Job {
+    suspend fun triggerSubmissionReleaseNotifier(debugPort: Int? = null): Job {
         logger.info { "triggering submission release notifier job" }
         return triggerJob(mode = NOTIFY, debugPort)
     }
 
-    fun triggerFtpLinksGenerator(debugPort: Int? = null): Job {
+    suspend fun triggerFtpLinksGenerator(debugPort: Int? = null): Job {
         logger.info { "triggering ftp links generator job" }
         return triggerJob(mode = GENERATE_FTP_LINKS, debugPort)
     }
 
-    private fun triggerJob(mode: ReleaserMode, debugPort: Int?): Job {
+    private suspend fun triggerJob(mode: ReleaserMode, debugPort: Int?): Job {
         val job = submissionReleaserJob(mode, debugPort)
         schedulerNotificationsSender.send(
             Report(
@@ -60,7 +60,7 @@ internal class SubmissionReleaserTrigger(
         val releaserProperties = getConfigProperties(mode, properties)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
-                cores = RELEASER_CORES,
+                cores = FOUR_CORES,
                 ram = EIGHT_GB,
                 command = releaserProperties.asCmd(appProperties.appsFolder, debugPort)
             )

@@ -1,4 +1,6 @@
 
+import Dependencies.Arrow
+import Dependencies.KotlinCoroutinesReactor
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
 import Projects.SchedulerTaskProperties
@@ -11,6 +13,7 @@ import SpringBootDependencies.SpringBootStarterTest
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
+import TestDependencies.KotlinCoroutinesTest
 import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
@@ -27,6 +30,8 @@ dependencies {
     api(project(SubmissionPersistenceCommonApi))
     api(project(SubmissionPersistenceMongo))
 
+    implementation(Arrow)
+    implementation(KotlinCoroutinesReactor)
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
     implementation(SpringBootStarter)
@@ -34,6 +39,7 @@ dependencies {
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringBootStarterReactiveMongo)
 
+    testImplementation(KotlinCoroutinesTest)
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
     testImplementation(SpringBootStarterTest) {

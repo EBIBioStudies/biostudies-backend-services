@@ -7,13 +7,17 @@ import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FileFields
 import uk.ac.ebi.io.builder.createFile
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.outputStream
 
+/**
+ *  Ftp source. Mix both ftp protocol to validate file presence and direct ftp mount point to access file content.
+ *  This seperation is necesary as files are check in backend instance with no access to FTP file system while
+ *  processing is executed in data mover which can access moint point.
+ */
 class FtpSource(
     override val description: String,
-    private val basePath: Path,
+    private val ftpUrl: Path,
+    private val nfsPath: Path,
     private val ftpClient: FtpClient,
 ) : FilesSource {
     override suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
@@ -22,15 +26,10 @@ class FtpSource(
     }
 
     private fun findFile(filePath: String): File? {
-        val ftpPath = basePath.resolve(filePath)
+        val ftpPath = ftpUrl.resolve(filePath)
         val files = ftpClient.listFiles(ftpPath)
         if (files.isEmpty()) return null
-
-        val fileName = filePath.substringAfterLast("/")
-        val target = Files.createTempFile("ftp-file", fileName)
-
-        target.outputStream().use { ftpClient.downloadFile(ftpPath, it) }
-        return target.toFile()
+        return nfsPath.resolve(filePath).toFile()
     }
 
     override suspend fun getFileList(path: String): File? {

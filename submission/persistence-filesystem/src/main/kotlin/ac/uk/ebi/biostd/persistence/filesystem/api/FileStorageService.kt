@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.filesystem.api
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
+import kotlinx.coroutines.flow.Flow
 
 interface FileStorageService {
     suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String, mode: StorageMode): ExtFile
@@ -13,6 +14,6 @@ interface FileStorageService {
 
     suspend fun deleteSubmissionFiles(
         sub: ExtSubmission,
-        process: (Sequence<ExtFile>) -> Sequence<ExtFile> = { it },
+        process: (Flow<ExtFile>) -> Flow<ExtFile> = { it },
     )
 }

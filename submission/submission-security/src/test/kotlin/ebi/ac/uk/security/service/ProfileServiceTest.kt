@@ -16,7 +16,8 @@ import java.nio.file.Paths
 @ExtendWith(TemporaryFolderExtension::class)
 class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
     private val environment = "env-test"
-    private val filesDir = temporaryFolder.root.toPath()
+    private val filesDir = temporaryFolder.createDirectory("userFiles")
+    private val ftpFilesDir = temporaryFolder.createDirectory("ftpFiles")
     private val testGroup = DbUserGroup("Test Group", "Test Group Description", "fd9f87b3-9de8-4036-be7a-3ac8cbc44ddd")
 
     private val testUser = DbUser(
@@ -32,7 +33,11 @@ class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
         notificationsEnabled = true
     )
 
-    private val testInstance = ProfileService(filesDir, environment)
+    private val testInstance = ProfileService(
+        nfsUserFtpDirPath = ftpFilesDir.toPath(),
+        nfsUserFilesDirPath = filesDir.toPath(),
+        environment
+    )
 
     @Test
     fun getUserProfile() {

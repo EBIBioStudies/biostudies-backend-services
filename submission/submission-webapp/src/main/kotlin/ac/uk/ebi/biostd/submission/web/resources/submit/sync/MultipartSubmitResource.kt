@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.web.resources.submit.sync
 
 import ac.uk.ebi.biostd.integration.SubFormat
+import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
@@ -33,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile
 class MultipartSubmitResource(
     private val submitWebHandler: SubmitWebHandler,
     private val submitRequestBuilder: SubmitRequestBuilder,
+    private val tempFileGenerator: TempFileGenerator,
 ) {
     @PostMapping(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_JSON_VALUE"],
@@ -46,7 +48,8 @@ class MultipartSubmitResource(
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ): Submission {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = files?.toList())
+        val subFiles = tempFileGenerator.asFiles(files.orEmpty().toList())
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
         val request = submitRequestBuilder.buildContentRequest(content, SubFormat.JSON, buildRequest)
 
         return submitWebHandler.submit(request)
@@ -64,7 +67,8 @@ class MultipartSubmitResource(
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ): Submission {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = files?.toList())
+        val subFiles = tempFileGenerator.asFiles(files.orEmpty().toList())
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
         val request = submitRequestBuilder.buildContentRequest(content, SubFormat.XML, buildRequest)
 
         return submitWebHandler.submit(request)
@@ -82,7 +86,8 @@ class MultipartSubmitResource(
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ): Submission {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = files?.toList())
+        val subFiles = tempFileGenerator.asFiles(files.orEmpty().toList())
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
         val request = submitRequestBuilder.buildContentRequest(content, SubFormat.TSV, buildRequest)
 
         return submitWebHandler.submit(request)
@@ -101,8 +106,9 @@ class MultipartSubmitResource(
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @ModelAttribute parameters: SubmissionRequestParameters,
     ): Submission {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = files?.toList())
-        val request = submitRequestBuilder.buildFileRequest(file, buildRequest)
+        val subFiles = tempFileGenerator.asFiles(files.orEmpty().toList())
+        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
+        val request = submitRequestBuilder.buildFileRequest(tempFileGenerator.asFile(file), buildRequest)
 
         return submitWebHandler.submit(request)
     }

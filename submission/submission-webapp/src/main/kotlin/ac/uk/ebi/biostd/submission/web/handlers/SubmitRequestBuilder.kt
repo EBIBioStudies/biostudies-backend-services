@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.web.handlers
 
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
-import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.FileSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
@@ -10,10 +9,9 @@ import ac.uk.ebi.biostd.submission.web.model.SubmissionConfig
 import ac.uk.ebi.biostd.submission.web.model.SubmissionFilesConfig
 import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import org.springframework.web.multipart.MultipartFile
+import java.io.File
 
 class SubmitRequestBuilder(
-    private val tempFileGenerator: TempFileGenerator,
     private val onBehalfUtils: OnBehalfUtils,
 ) {
     fun buildContentRequest(
@@ -32,12 +30,11 @@ class SubmitRequestBuilder(
     }
 
     fun buildFileRequest(
-        submission: MultipartFile,
+        submission: File,
         request: SubmitBuilderRequest,
     ): FileSubmitWebRequest {
-        val subFile = tempFileGenerator.asFile(submission)
         val submitConfig = submitConfig(request)
-        return FileSubmitWebRequest(subFile, submitConfig.first, submitConfig.second)
+        return FileSubmitWebRequest(submission, submitConfig.first, submitConfig.second)
     }
 
     private fun submitConfig(request: SubmitBuilderRequest): Pair<SubmissionConfig, SubmissionFilesConfig> {
@@ -49,7 +46,7 @@ class SubmitRequestBuilder(
             storageMode = storageMode
         )
         val filesConfig = SubmissionFilesConfig(
-            files = request.files?.let { tempFileGenerator.asFiles(it) },
+            files = request.files,
             preferredSources = preferredSource
         )
         return submissionConfig to filesConfig
@@ -61,5 +58,5 @@ data class SubmitBuilderRequest(
     val onBehalfRequest: OnBehalfRequest?,
     val submissionRequestParameters: SubmissionRequestParameters,
     val draftKey: String? = null,
-    val files: List<MultipartFile>? = null,
+    val files: List<File>? = null,
 )

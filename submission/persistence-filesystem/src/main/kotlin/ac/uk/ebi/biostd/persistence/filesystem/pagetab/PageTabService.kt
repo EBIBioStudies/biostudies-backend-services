@@ -16,7 +16,7 @@ class PageTabService(
     private val baseTempFolder: File,
     private val pageTabUtil: PageTabUtil,
 ) : PageTabService {
-    override fun generatePageTab(sub: ExtSubmission): ExtSubmission {
+    override suspend fun generatePageTab(sub: ExtSubmission): ExtSubmission {
         val tempFolder = createTempFolder(sub.accNo, sub.version)
         val subFiles = pageTabUtil.generateSubPageTab(sub, tempFolder)
         val fileListFiles = pageTabUtil.generateFileListPageTab(sub, tempFolder)

@@ -11,10 +11,15 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       use-new-id-generator-mappings: false
 
+
   servlet:
     multipart:
       max-file-size: 10240MB
       max-request-size: 10240MB
+
+  mvc:
+    async:
+      request-timeout: -1
 
   rabbitmq:
     username: guest

@@ -25,9 +25,8 @@ internal const val SECRET_KEY = "a-secret-key"
 internal const val TAG_NAME = "component"
 internal const val TAG_VALUE = "web"
 internal const val PROJECT_ACC_NO = "BioImages"
-internal const val STAT_TYPE = "VIEWS"
-internal const val STAT_VALUE = 123L
 internal const val REL_PATH = "S-TEST/123/S-TEST123"
+internal const val DOI = "10.6019/S-TEST123"
 
 val fireDocFile = FireDocFile("filename", "filePath", "relPath", "fireId", listOf(), "md5", 1L, FILE.value)
 val fireDocDirectory = FireDocFile("filename", "filePath", "relPath", "dirFireId", listOf(), "md5", 1L, DIR.value)
@@ -45,6 +44,7 @@ object SubmissionTestHelper {
         owner = OWNER,
         submitter = SUBMITTER,
         title = SUB_TITLE,
+        doi = DOI,
         method = PAGE_TAB,
         relPath = REL_PATH,
         rootPath = ROOT_PATH,

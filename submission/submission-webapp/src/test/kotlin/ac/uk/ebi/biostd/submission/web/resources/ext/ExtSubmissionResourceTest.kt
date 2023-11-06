@@ -3,13 +3,13 @@ package ac.uk.ebi.biostd.submission.web.resources.ext
 import ac.uk.ebi.biostd.factory.TestSuperUser
 import ac.uk.ebi.biostd.files.web.common.FileListPathDescriptorResolver
 import ac.uk.ebi.biostd.resolvers.TestBioUserResolver
+import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.converters.ExtFileTableConverter
 import ac.uk.ebi.biostd.submission.converters.ExtPageSubmissionConverter
 import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
-import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
-import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
-import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionService
-import ac.uk.ebi.biostd.submission.web.model.ExtPageRequest
+import ac.uk.ebi.biostd.submission.domain.extended.ExtPageRequest
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFileTable

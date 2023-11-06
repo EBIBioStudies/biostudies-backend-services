@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener
@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
+import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
 import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.section
@@ -333,5 +334,34 @@ class SpecialSubmissionAttributesTest(
         assertLinks(section.links)
         assertFiles(section.files, fileName)
         assertSubSections(section.sections)
+    }
+
+    @Test
+    fun `15-6 submission with DOI`() = runTest {
+        val submission = tsv {
+            line("Submission", "S-STBL125")
+            line("Title", "Submission with DOI")
+            line("DOI")
+
+            line("Study", "SECT-001")
+            line()
+
+            line("Author")
+            line("Name", "Jane Doe")
+            line("ORCID", "1234-5678-9101-1121")
+            line("Affiliation", "o1")
+            line()
+
+            line("Organization", "o1")
+            line("Name", "EMBL")
+            line()
+        }.toString()
+
+        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+        val savedSubmission = submissionRepository.getExtByAccNo("S-STBL125")
+        assertThat(savedSubmission.accNo).isEqualTo("S-STBL125")
+        assertThat(savedSubmission.title).isEqualTo("Submission with DOI")
+        assertThat(savedSubmission.doi).isEqualTo("$BS_DOI_ID/S-STBL125")
     }
 }

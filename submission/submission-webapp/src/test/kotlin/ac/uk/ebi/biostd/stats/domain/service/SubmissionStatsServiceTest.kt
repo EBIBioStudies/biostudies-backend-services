@@ -5,9 +5,9 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
 import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
-import ac.uk.ebi.biostd.stats.web.handlers.StatsFileHandler
-import ac.uk.ebi.biostd.submission.domain.helpers.TempFileGenerator
-import ac.uk.ebi.biostd.submission.domain.service.ExtSubmissionQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.submission.stats.StatsFileHandler
+import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.clearAllMocks
@@ -18,6 +18,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.slot
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -25,22 +26,20 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.web.multipart.MultipartFile
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import uk.ac.ebi.extended.serialization.service.fileSequence
+import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.io.File
 
 @ExtendWith(MockKExtension::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class SubmissionStatsServiceTest(
     @MockK private val statsFileHandler: StatsFileHandler,
-    @MockK private val tempFileGenerator: TempFileGenerator,
-    @MockK private val queryService: ExtSubmissionQueryService,
+    @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val submissionStatsService: StatsDataService,
     @MockK private val serializationService: ExtSerializationService,
 ) {
     private val testInstance = SubmissionStatsService(
         statsFileHandler,
-        tempFileGenerator,
         submissionStatsService,
         serializationService,
         queryService,
@@ -95,17 +94,15 @@ class SubmissionStatsServiceTest(
     fun `register from file`(
         @MockK file: File,
         @MockK stat: SubmissionStat,
-        @MockK multiPartFile: MultipartFile,
     ) = runTest {
         val stats = listOf(stat)
         coEvery { submissionStatsService.saveAll(stats) } returns stats
-        every { tempFileGenerator.asFile(multiPartFile) } returns file
-        every { statsFileHandler.readStats(file, VIEWS) } returns stats
+        coEvery { statsFileHandler.readStats(file, VIEWS) } returns stats
 
-        assertThat(testInstance.register("VIEWS", multiPartFile)).isEqualTo(stats)
+        assertThat(testInstance.register("VIEWS", file)).isEqualTo(stats)
+
         coVerify(exactly = 1) {
             submissionStatsService.saveAll(stats)
-            tempFileGenerator.asFile(multiPartFile)
             statsFileHandler.readStats(file, VIEWS)
         }
     }
@@ -114,16 +111,13 @@ class SubmissionStatsServiceTest(
     fun `increment stats`(
         @MockK file: File,
         @MockK stat: SubmissionStat,
-        @MockK multiPartFile: MultipartFile,
     ) = runTest {
         val stats = listOf(stat)
-        every { tempFileGenerator.asFile(multiPartFile) } returns file
-        every { statsFileHandler.readStats(file, VIEWS) } returns stats
+        coEvery { statsFileHandler.readStats(file, VIEWS) } returns stats
         coEvery { submissionStatsService.incrementAll(stats) } returns stats
 
-        assertThat(testInstance.increment("VIEWS", multiPartFile)).isEqualTo(stats)
+        assertThat(testInstance.increment("VIEWS", file)).isEqualTo(stats)
         coVerify(exactly = 1) {
-            tempFileGenerator.asFile(multiPartFile)
             statsFileHandler.readStats(file, VIEWS)
             submissionStatsService.incrementAll(stats)
         }
@@ -144,8 +138,8 @@ class SubmissionStatsServiceTest(
         every { file2.size } returns 3L
         every { submission.accNo } returns "S-BIAD123"
         coEvery { submissionStatsService.save(capture(savedStatSlot)) } returns stat
-        every { serializationService.fileSequence(submission) } returns sequenceOf(file1, file2)
-        coEvery { queryService.getExtendedSubmission("S-BIAD123", includeFileListFiles = true) } returns submission
+        every { serializationService.filesFlow(submission) } returns flowOf(file1, file2)
+        coEvery { queryService.getExtByAccNo("S-BIAD123", includeFileListFiles = true) } returns submission
 
         val result = testInstance.calculateSubFilesSize("S-BIAD123")
         val savedStat = savedStatSlot.captured

@@ -19,6 +19,7 @@ data class DailyScheduling(
     val notifier: Boolean = false,
     val releaser: Boolean = true,
     val exporter: Boolean = true,
+    val statsReporter: Boolean = true,
 )
 
 data class SlackConfiguration(

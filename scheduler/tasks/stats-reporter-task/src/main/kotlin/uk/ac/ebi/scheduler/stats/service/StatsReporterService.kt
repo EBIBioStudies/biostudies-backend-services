@@ -1,60 +1,68 @@
 package uk.ac.ebi.scheduler.stats.service
 
 import mu.KotlinLogging
+import uk.ac.ebi.scheduler.stats.config.ApplicationProperties
 import uk.ac.ebi.scheduler.stats.persistence.StatsReporterDataRepository
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.nio.file.StandardOpenOption.APPEND
 import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatter.ofPattern
 import kotlin.io.path.outputStream
 
 private val logger = KotlinLogging.logger {}
 
 class StatsReporterService(
-    private val outputPath: Path,
+    private val appProperties: ApplicationProperties,
     private val statsRepository: StatsReporterDataRepository,
 ) {
-    fun reportStats() {
+    suspend fun reportStats() {
         val now = OffsetDateTime.now()
-        val currentMonth = now.asPreviousMont(1)
-        val previousMonth = now.asPreviousMont(2)
+        val currentMonth = now.asPreviousMonth(1)
+        val previousMonth = now.asPreviousMonth(2)
 
-        reportImaging(previousMonth, currentMonth)
-        reportNonImaging(previousMonth, currentMonth)
+        createImagingReport(previousMonth, currentMonth)
+        createNonImagingReport(previousMonth, currentMonth)
     }
 
-    private fun reportImaging(previousMonth: String, currentMonth: String) {
-        logger.info { "Started reporting imaging stats" }
+    private suspend fun createImagingReport(previousMonth: String, currentMonth: String): Path {
+        logger.info { "Started calculating imaging stats" }
         val filesSize = statsRepository.calculateImagingFilesSize()
-        publishReport(previousMonth, currentMonth, filesSize, IMAGING_REPORT_NAME)
-        logger.info { "Finished reporting imaging stats" }
+        val report = createReportFile(previousMonth, currentMonth, filesSize, IMAGING_REPORT_NAME)
+        logger.info { "Finished calculating imaging stats" }
+
+        return report
     }
 
-    private fun reportNonImaging(previousMonth: String, currentMonth: String) {
-        logger.info { "Started reporting non-imaging stats" }
+    private suspend fun createNonImagingReport(previousMonth: String, currentMonth: String): Path {
+        logger.info { "Started calculating non-imaging stats" }
         val filesSize = statsRepository.calculateNonImagingFilesSize()
-        publishReport(previousMonth, currentMonth, filesSize, NON_IMAGING_REPORT_NAME)
-        logger.info { "Finished reporting non-imaging stats" }
+        val report = createReportFile(previousMonth, currentMonth, filesSize, NON_IMAGING_REPORT_NAME)
+        logger.info { "Finished calculating non-imaging stats" }
+
+        return report
     }
 
-    private fun publishReport(previousMonth: String, currentMonth: String, value: Long, reportName: String) {
+    private fun createReportFile(previousMonth: String, currentMonth: String, value: Long, reportName: String): Path {
+        val outputPath = Paths.get(appProperties.publishPath)
         val previousReportPath = outputPath.resolve("${previousMonth}_$reportName.txt")
         val currentReportPath = outputPath.resolve("${currentMonth}_$reportName.txt")
 
-        logger.info { "Started publishing the report '$reportName' for month '$currentMonth'" }
+        logger.info { "Started publishing report file '$reportName' for month '$currentMonth'" }
         Files.copy(previousReportPath, currentReportPath, REPLACE_EXISTING)
-        currentReportPath.outputStream(APPEND).use { it.write("${currentMonth}\t$value".toByteArray()) }
-        logger.info { "Finished publishing the report '$reportName' for month '$currentMonth'" }
+        currentReportPath.outputStream(APPEND).use { it.write("\n${currentMonth}\t$value".toByteArray()) }
+        logger.info { "Finished publishing report file '$reportName' for month '$currentMonth'" }
+
+        return currentReportPath
     }
 
-    private fun OffsetDateTime.asPreviousMont(months: Long) =
-        minusMonths(months).format(DateTimeFormatter.ofPattern(STATS_DATE_FORMAT_PATTERN))
+    private fun OffsetDateTime.asPreviousMonth(months: Long) = minusMonths(months).format(ofPattern(FORMAT_PATTERN))
 
     companion object {
+        private const val FORMAT_PATTERN = "YYYYMM"
         internal const val IMAGING_REPORT_NAME = "BIA"
         internal const val NON_IMAGING_REPORT_NAME = "BioStudies"
-        private const val STATS_DATE_FORMAT_PATTERN = "YYYYMM"
     }
 }

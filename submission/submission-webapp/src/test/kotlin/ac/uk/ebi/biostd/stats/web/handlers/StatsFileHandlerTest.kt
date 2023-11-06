@@ -2,13 +2,15 @@ package ac.uk.ebi.biostd.stats.web.handlers
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStat
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.VIEWS
-import ac.uk.ebi.biostd.stats.web.exceptions.InvalidStatException
+import ac.uk.ebi.biostd.submission.stats.InvalidStatException
+import ac.uk.ebi.biostd.submission.stats.StatsFileHandler
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -16,12 +18,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
 class StatsFileHandlerTest(
-    private val tempFolder: TemporaryFolder
+    private val tempFolder: TemporaryFolder,
 ) {
     private val testInstance = StatsFileHandler()
 
     @Test
-    fun `read stats`() {
+    fun `read stats`() = runTest {
         val fileContent = tsv {
             line("S-TEST123", 10)
             line("S-TEST124", 20)
@@ -35,7 +37,7 @@ class StatsFileHandlerTest(
     }
 
     @Test
-    fun `invalid stat`() {
+    fun `invalid stat`() = runTest {
         val fileContent = tsv {
             line("S-TEST123", 10)
             line("S-TEST124")

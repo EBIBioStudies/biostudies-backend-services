@@ -12,10 +12,11 @@ import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.extended.test.AttributeFactory.defaultAttribute
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
@@ -24,7 +25,6 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
     private val testInstance = ExtSerializationService()
     private val testFile = tempFolder.createFile("results.txt")
     private val nfsFile = tempFolder.createFile("file.txt")
-    private val attributes = (1..4).map { defaultAttribute(name = "name$it") }
 
     @Test
     fun `serialize - deserialize`() {
@@ -37,6 +37,7 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
             owner = "owner@mail.org",
             submitter = "submitter@mail.org",
             title = "Test Submission",
+            doi = "10.983/S-TEST123",
             method = PAGE_TAB,
             relPath = "/a/rel/path",
             rootPath = "/a/root/path",
@@ -58,13 +59,14 @@ class ExtSerializationServiceTest(private val tempFolder: TemporaryFolder) {
     }
 
     @Test
-    fun `serialize - deserialize fileList`() {
+    fun `serialize - deserialize fileList`() = runTest {
         val fileList = (1..20_000).map { createNfsFile(it) }.asSequence()
         val iterator = fileList.iterator()
 
         testFile.outputStream().use { testInstance.serialize(fileList, it) }
-        testFile.inputStream()
-            .use { testInstance.deserializeList(it).onEach { assertThat(it).isEqualTo(iterator.next()) } }
+
+        val result = testFile.inputStream().use { testInstance.deserializeListAsFlow(it).toList() }
+        result.onEach { assertThat(it).isEqualTo(iterator.next()) }
     }
 
     private fun createNfsFile(index: Int) = NfsFile(

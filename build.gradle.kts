@@ -35,7 +35,7 @@ allprojects {
                     freeCompilerArgs + arrayOf(
                     "-Xjvm-default=enable",
                     "-opt-in=kotlin.RequiresOptIn",
-                    "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi"
+                    "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
                 )
             }
         }

@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.fireFtpPath
@@ -29,6 +29,7 @@ import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.listFilesOrEmpty
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -177,10 +178,10 @@ class SubmissionStorageModeTest(
         assertThat(file).isInstanceOf(expectType.java)
     }
 
-    private fun assertFileListFile(fileList: ExtFileList, expectType: KClass<*>) {
+    private suspend fun assertFileListFile(fileList: ExtFileList, expectType: KClass<*>) {
         assertThat(fileList.fileName).isEqualTo("file-list")
 
-        val files = fileList.file.inputStream().use { serializationService.deserializeList(it).toList() }
+        val files = fileList.file.inputStream().use { serializationService.deserializeListAsFlow(it).toList() }
         assertThat(files).hasSize(1)
 
         val file = files.first()

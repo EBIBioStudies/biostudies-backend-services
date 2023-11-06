@@ -101,12 +101,12 @@ internal class SubmissionDocDataRepositoryTest(
             assertThat(r1).isEmpty()
 
             val r2 = fileListDocFileRepo
-                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName("S-BSST4", -1, "file-list")
+                .findByFileList("S-BSST4", -1, "file-list")
                 .toList()
             assertThat(r2).hasSize(1)
 
             val r3 = fileListDocFileRepo
-                .findAllBySubmissionAccNoAndSubmissionVersionAndFileListName("S-BSST4", -2, "file-list")
+                .findByFileList("S-BSST4", -2, "file-list")
                 .toList()
             assertThat(r3).hasSize(1)
         }

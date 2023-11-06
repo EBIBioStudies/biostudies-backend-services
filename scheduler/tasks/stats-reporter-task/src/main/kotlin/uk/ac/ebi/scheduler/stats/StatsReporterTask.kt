@@ -1,5 +1,6 @@
 package uk.ac.ebi.scheduler.stats
 
+import kotlinx.coroutines.runBlocking
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -26,7 +27,7 @@ class StatsReporterExecutor(
     private lateinit var context: ApplicationContext
 
     override fun run(vararg args: String?) {
-        statsReporterService.reportStats()
+        runBlocking { statsReporterService.reportStats() }
         exitProcess(0)
     }
 

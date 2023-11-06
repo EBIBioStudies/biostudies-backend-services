@@ -7,10 +7,15 @@ import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.model.BioFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -31,13 +36,13 @@ internal class ToFileListMapperTest(
     private val testInstance = ToFileListMapper(serializationService, extSerializationService, filesResolver)
 
     @Test
-    fun convert() {
+    fun convert() = runTest {
         every { filesResolver.createEmptyFile("fileList") } returns temporaryFolder.createFile("target-file-list.json")
-        every { serializationService.serializeFileList(any<Sequence<BioFile>>(), any(), any()) } answers {
-            val sequence = arg<Sequence<BioFile>>(0)
+        coEvery { serializationService.serializeFileList(any<Flow<BioFile>>(), any(), any()) } coAnswers {
+            val flow = arg<Flow<BioFile>>(0)
             val format = arg<SubFormat>(1)
             val stream = arg<OutputStream>(2)
-            stream.use { it.write("${sequence.toList().size}-$format".toByteArray()) }
+            stream.use { it.write("${flow.toList().size}-$format".toByteArray()) }
         }
 
         val fileList = testInstance.convert(extFileList)
@@ -47,16 +52,16 @@ internal class ToFileListMapperTest(
     }
 
     @Test
-    fun serialize() {
+    fun serialize() = runTest {
         val target = temporaryFolder.createFile("target-file-list.json")
         mockkStatic(TO_FILE_EXTENSIONS)
         every { extFile.toFile() } returns bioFile
-        every { extSerializationService.deserializeList(any()) } returns sequenceOf(extFile)
-        every { serializationService.serializeFileList(any<Sequence<BioFile>>(), any(), any()) } answers {
-            val sequence = arg<Sequence<BioFile>>(0)
+        coEvery { extSerializationService.deserializeListAsFlow(any()) } returns flowOf(extFile)
+        coEvery { serializationService.serializeFileList(any<Flow<BioFile>>(), any(), any()) } coAnswers {
+            val flow = arg<Flow<BioFile>>(0)
             val format = arg<SubFormat>(1)
             val stream = arg<OutputStream>(2)
-            stream.use { it.write("${sequence.toList().size}-$format".toByteArray()) }
+            stream.use { it.write("${flow.toList().size}-$format".toByteArray()) }
         }
 
         val result = testInstance.serialize(extFileList, SubFormat.XML, target)

@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Import
 import uk.ac.ebi.scheduler.stats.StatsReporterExecutor
 import uk.ac.ebi.scheduler.stats.persistence.StatsReporterDataRepository
 import uk.ac.ebi.scheduler.stats.service.StatsReporterService
-import java.nio.file.Paths
 
 @Configuration
 @Import(PersistenceConfig::class)
@@ -17,8 +16,8 @@ class ApplicationConfig(
 ) {
     @Bean
     fun statsReporterService(
-        statsRepository: StatsReporterDataRepository
-    ): StatsReporterService = StatsReporterService(Paths.get(appProperties.outputPath), statsRepository)
+        statsRepository: StatsReporterDataRepository,
+    ): StatsReporterService = StatsReporterService(appProperties, statsRepository)
 
     @Bean
     fun statsReporterExecutor(service: StatsReporterService): StatsReporterExecutor = StatsReporterExecutor(service)
