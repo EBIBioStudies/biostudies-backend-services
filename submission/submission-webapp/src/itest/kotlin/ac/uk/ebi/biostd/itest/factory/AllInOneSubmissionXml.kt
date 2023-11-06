@@ -206,13 +206,4 @@ private fun fileList2() = xml("table") {
             }
         }
     }
-    "file" {
-        "path" { -"Folder1" }
-        "attributes" {
-            "attribute" {
-                "name" { -"Type" }
-                "value" { -"referenced directory" }
-            }
-        }
-    }
 }
