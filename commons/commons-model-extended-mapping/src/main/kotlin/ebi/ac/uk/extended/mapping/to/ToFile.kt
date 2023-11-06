@@ -8,10 +8,14 @@ import ebi.ac.uk.model.BioFile
 
 internal const val TO_FILE_EXTENSIONS = "ebi.ac.uk.extended.mapping.to.ToFileKt"
 
-fun ExtFile.toFile(calculateDirectories: Boolean = true): BioFile {
+/**
+ * The file size for inner directories is not calculated in order to avoid timing out requests for submissions that
+ * include big sized directories. @see https://www.pivotaltracker.com/story/show/185900074
+ */
+fun ExtFile.toFile(): BioFile {
     return when (this) {
         is NfsFile ->
-            BioFile(filePath, file.size(calculateDirectories), type.value, attributes.map { it.toAttribute() })
+            BioFile(filePath, file.size(calculateDirectories = false), type.value, attributes.map { it.toAttribute() })
 
         is FireFile -> BioFile(filePath, size, type.value, attributes.map { it.toAttribute() })
     }

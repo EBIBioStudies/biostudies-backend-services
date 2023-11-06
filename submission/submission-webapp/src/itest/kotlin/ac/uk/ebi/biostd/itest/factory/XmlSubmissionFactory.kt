@@ -52,7 +52,7 @@ internal val expectedAllInOneXmlInnerFileList = xml("table") {
         }
     }
     "file" {
-        attribute("size", 27)
+        attribute("size", 160)
         "path" { -"Folder1" }
         "type" { -"directory" }
         "attributes" {

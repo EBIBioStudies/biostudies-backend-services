@@ -54,7 +54,7 @@ internal val expectedAllInOneJsonInnerFileList = jsonArray(
     },
     {
         "path" to "Folder1"
-        "size" to 27
+        "size" to 160
         "attributes" to jsonArray(
             {
                 "name" to "Type"
