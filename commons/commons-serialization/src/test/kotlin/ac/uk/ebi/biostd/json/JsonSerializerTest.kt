@@ -6,13 +6,15 @@ import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Submission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
 class JsonSerializerTest(
-    private val temporaryFolder: TemporaryFolder
+    private val temporaryFolder: TemporaryFolder,
 ) {
     private val testInstance = JsonSerializer.mapper
     private val submission = createVenousBloodMonocyte()
@@ -27,19 +29,17 @@ class JsonSerializerTest(
     }
 
     @Test
-    fun `serialize - deserialize FileList`() {
+    fun `serialize - deserialize FileList`() = runTest {
         val jsonSerializer = JsonSerializer()
         val fileSystem = temporaryFolder.createFile("serialization.json")
         val files = (1..20_000).map { BioFile("folder$it/file.txt", size = 0L, attributes = attributes(it)) }
         val iterator = files.iterator()
 
         fileSystem.outputStream().use { jsonSerializer.serializeFileList(files.asSequence(), it) }
+        val response = fileSystem.inputStream().use { jsonSerializer.deserializeFileList(it).toList() }
 
-        fileSystem.inputStream().use {
-            jsonSerializer.deserializeFileList(it).forEach { file ->
-                assertThat(file).isEqualToComparingFieldByField(iterator.next())
-            }
-        }
+        assertThat(response).allSatisfy { assertThat(it).isEqualToComparingFieldByField(iterator.next()) }
+        assertThat(response).hasSize(20_000)
     }
 
     private fun attributes(numberFile: Int) =

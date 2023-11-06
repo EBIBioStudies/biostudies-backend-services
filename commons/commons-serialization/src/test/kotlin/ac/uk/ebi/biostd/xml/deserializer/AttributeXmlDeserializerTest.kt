@@ -1,10 +1,13 @@
 package ac.uk.ebi.biostd.xml.deserializer
 
+import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_NAME
 import ac.uk.ebi.biostd.xml.common.createXmlDocument
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.redundent.kotlin.xml.xml
 
 class AttributeXmlDeserializerTest {
@@ -68,5 +71,18 @@ class AttributeXmlDeserializerTest {
         )
 
         assertThat(testInstance.deserialize(xmlAttribute)).isEqualTo(Attribute("Organization", "Org1", true))
+    }
+
+    @Test
+    fun `deserialize attribute with empty name`() {
+        val xmlAttribute = createXmlDocument(
+            xml("attribute") {
+                "name" { -"" }
+                "value" { -"ABC" }
+            }.toString()
+        )
+
+        val exception = assertThrows<InvalidElementException> { testInstance.deserialize(xmlAttribute) }
+        assertThat(exception.message).isEqualTo("$REQUIRED_ATTR_NAME. Element was not created.")
     }
 }

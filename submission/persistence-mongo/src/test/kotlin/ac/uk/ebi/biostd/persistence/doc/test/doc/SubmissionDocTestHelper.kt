@@ -39,6 +39,7 @@ internal const val TAG_VALUE = "web"
 internal const val COLLECTION_ACC_NO = "BioImages"
 internal const val STAT_VALUE = 123L
 internal const val REL_PATH = "S-TEST/123/S-TEST123"
+internal const val DOI = "10.6019/S-TEST123"
 internal val CREATION_TIME = Instant.now()
 internal val MODIFICATION_TIME = CREATION_TIME.plus(1, ChronoUnit.HOURS)
 internal val RELEASE_TIME = CREATION_TIME.plus(1, ChronoUnit.DAYS)
@@ -56,6 +57,7 @@ internal val testDocSubmission: DocSubmission
         owner = OWNER,
         submitter = SUBMITTER,
         title = SUB_TITLE,
+        doi = DOI,
         method = PAGE_TAB,
         relPath = REL_PATH,
         rootPath = ROOT_PATH,

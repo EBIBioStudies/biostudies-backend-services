@@ -15,6 +15,8 @@ import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.StorageMode
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -25,11 +27,10 @@ import java.time.OffsetDateTime
 internal class ExtSerializationServiceExtTest(
     private val tmpFolder: TemporaryFolder,
 ) {
-
     private val testInstance: ExtSerializationService = ExtSerializationService()
 
     @Test
-    fun fileSequence() {
+    fun fileFlow() = runTest {
         val fileList1 = tmpFolder.createFile("f1.json")
         val files = (4..1000).map { createFireFile(it) }
 
@@ -40,7 +41,7 @@ internal class ExtSerializationServiceExtTest(
         val submission = createTestSubmission(fileList1, pageTabFile, sectionFile, sectionTableFile)
         val filesCount = testInstance.serialize(files.asSequence(), fileList1.outputStream())
 
-        val result = testInstance.fileSequence(submission).toList()
+        val result = testInstance.filesFlow(submission).toList()
         assertThat(filesCount).isEqualTo(files.size)
         assertThat(result).containsExactlyInAnyOrder(pageTabFile, sectionFile, sectionTableFile, *files.toTypedArray())
     }
@@ -73,6 +74,7 @@ internal class ExtSerializationServiceExtTest(
             owner = "owner@mail.org",
             submitter = "submitter@mail.org",
             title = "TestSubmission",
+            doi = "10.983/S-TEST1",
             method = ExtSubmissionMethod.PAGE_TAB,
             relPath = "/a/rel/path",
             rootPath = "/a/root/path",

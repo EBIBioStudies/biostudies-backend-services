@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.tsv
 
 import ac.uk.ebi.biostd.tsv.deserialization.stream.FileListTsvStreamDeserializer
-import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ebi.ac.uk.dsl.tsv.Tsv
 import ebi.ac.uk.dsl.tsv.line
@@ -13,9 +12,11 @@ import ebi.ac.uk.test.createFile
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 
@@ -26,7 +27,7 @@ class FileListTsvStreamDeserializerTest(
     private val testInstance = FileListTsvStreamDeserializer()
 
     @Test
-    fun `deserialize file list with empty spaces`() {
+    fun `deserialize file list with empty spaces`() = runTest {
         val tsvFile = createTsvFile(
             tsv {
                 line("Files", "Type")
@@ -51,7 +52,7 @@ class FileListTsvStreamDeserializerTest(
     }
 
     @Test
-    fun deserialize() {
+    fun deserialize() = runTest {
         val tsvFile = createTsvFile(
             tsv {
                 line("Files", "Attr1", "Attr2")
@@ -80,29 +81,23 @@ class FileListTsvStreamDeserializerTest(
     }
 
     @Test
-    fun `serialize - deserialize FileList`() {
-        var idx = 0
-        fun bioFile(it: Int): BioFile {
-            return BioFile(
-                path = "folder/file$it.txt",
-                attributes = listOf(Attribute("Attr1", "A$it"), Attribute("Attr2", "B$it"))
-            )
-        }
+    fun `serialize - deserialize FileList`() = runTest {
+        fun attributes(numberFile: Int) =
+            (1..3).map { Attribute(name = "attribute-$it", value = "attribute-$it-file$numberFile-value") }
 
-        val files = sequence { yield(bioFile(idx++)) }
+        val files = (1..20_000).map { BioFile("folder$it/file.txt", size = 0L, attributes = attributes(it)) }
+        val iterator = files.iterator()
 
         val output = tempFolder.createFile("testFile.tsv")
-        output.outputStream().use { testInstance.serializeFileList(files, it) }
+        output.outputStream().use { testInstance.serializeFileList(files.asFlow(), it) }
 
-        output.inputStream().use {
-            testInstance.deserializeFileList(it).forEachIndexed { idx, file ->
-                assertThat(file).isEqualToComparingFieldByField(bioFile(idx))
-            }
-        }
+        val result = output.inputStream().use { testInstance.deserializeFileList(it).toList() }
+        assertThat(result).allSatisfy { assertThat(it).isEqualToComparingFieldByField(iterator.next()) }
+        assertThat(result).hasSize(20000)
     }
 
     @Test
-    fun `file list with empty path`() {
+    fun `file list with empty path`() = runTest {
         val tsv = tsv {
             line("Files", "Attr1", "Attr2")
             line("test.txt", "a", "b")
@@ -111,9 +106,10 @@ class FileListTsvStreamDeserializerTest(
         }
 
         val testFile = tempFolder.createFile("invalid.tsv", tsv.toString())
-        testFile.inputStream().use {
-            val exception = assertThrows<InvalidElementException> { testInstance.deserializeFileList(it).toList() }
-            assertThat(exception.message).isEqualTo("Error at row 3: $REQUIRED_FILE_PATH. Element was not created.")
+        val response = testFile.inputStream().use { runCatching { testInstance.deserializeFileList(it).toList() } }
+        assertThat(response.isFailure).isTrue()
+        response.onFailure {
+            assertThat(it.message).isEqualTo("Error at row 3: $REQUIRED_FILE_PATH. Element was not created.")
         }
     }
 }

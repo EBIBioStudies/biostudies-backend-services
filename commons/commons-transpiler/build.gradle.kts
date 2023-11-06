@@ -1,4 +1,5 @@
 import Dependencies.CliKt
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Projects.CommonsSerialization
@@ -21,6 +22,7 @@ dependencies {
     implementation(CliKt)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
+    implementation(KotlinCoroutines)
 
     testImplementation(Junit)
     testImplementation(JunitExtensions)

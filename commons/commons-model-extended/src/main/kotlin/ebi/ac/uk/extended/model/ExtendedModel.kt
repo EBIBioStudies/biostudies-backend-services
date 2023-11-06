@@ -46,7 +46,7 @@ sealed class ExtFile {
 
 data class FireFile(
     val fireId: String,
-    val firePath: String?,
+    val firePath: String,
     val published: Boolean,
     override val filePath: String,
     override val relPath: String,
@@ -112,6 +112,7 @@ data class ExtSubmission(
     var schemaVersion: String,
     val submitter: String,
     val title: String?,
+    val doi: String?,
     val method: ExtSubmissionMethod,
     val relPath: String,
     val rootPath: String?,

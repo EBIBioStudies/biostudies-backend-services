@@ -5,21 +5,18 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
-import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.storageMode
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
-import ebi.ac.uk.io.ext.md5
-import ebi.ac.uk.io.ext.size
-import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
@@ -34,13 +31,11 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import uk.ac.ebi.fire.client.integration.web.FireClient
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class FileListValidationTest(
-    @Autowired private val fireClient: FireClient,
     @Autowired private val securityTestService: SecurityTestService,
     @LocalServerPort val serverPort: Int,
 ) {
@@ -131,51 +126,6 @@ class FileListValidationTest(
     }
 
     @Test
-    @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `11-5 valid file list including a file from FIRE`() = runTest {
-        val previousVersion = tsv {
-            line("Submission", "S-FLV124")
-            line()
-
-            line("Study")
-            line()
-
-            line("File", "File3.tif")
-            line()
-        }.toString()
-
-        val file1 = tempFolder.createFile("File1.tif", "content-1")
-        val file2 = tempFolder.createFile("File2.tif", "content-2")
-        val file3 = tempFolder.createFile("File3.tif", "content-3")
-        val file1Md5 = file1.md5()
-        val file2Md5 = file2.md5()
-        val file3Md5 = file3.md5()
-
-        val fileListContent = tsv {
-            line("Files", "dbMd5")
-            line("File1.tif", file1Md5)
-            line("File2.tif", file2Md5)
-            line("File3.tif", file3Md5)
-            line()
-        }.toString()
-
-        val fileList = tempFolder.createFile("FireValidFileList.tsv", fileListContent)
-
-        fireClient.save(file2, file2Md5, file2.size())
-        webClient.uploadFiles(listOf(file1, fileList))
-        webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file3), storageMode))
-
-        webClient.validateFileList(fileList.name, accNo = "S-FLV124")
-
-        webClient.deleteFile(file1.name)
-        webClient.deleteFile(fileList.name)
-
-        file1.delete()
-        file2.delete()
-        file3.delete()
-    }
-
-    @Test
     fun `11-6 valid file list with root path`() {
         val file = tempFolder.createFile("File1.tif", "content-1")
         val fileListContent = tsv {
@@ -214,7 +164,6 @@ class FileListValidationTest(
                         List of available sources:
                           - Provided Db files
                           - biostudies-mgmt-filelist-v@ebi.ac.uk user files
-                          - EBI internal files Archive
                 """.trimIndent()
                 "subnodes" to jsonArray()
             }
@@ -243,7 +192,6 @@ class FileListValidationTest(
                         List of available sources:
                           - Provided Db files
                           - biostudies-mgmt-filelist-v@ebi.ac.uk user files
-                          - EBI internal files Archive
                 """.trimIndent()
                 "subnodes" to jsonArray()
             }

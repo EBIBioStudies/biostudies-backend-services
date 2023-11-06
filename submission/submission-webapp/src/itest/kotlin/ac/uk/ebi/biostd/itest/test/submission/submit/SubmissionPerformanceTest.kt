@@ -2,10 +2,10 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
-import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.fixedDelayEnv
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.FIXED_DELAY_ENV
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ebi.ac.uk.dsl.tsv.line
@@ -42,11 +42,11 @@ class SubmissionPerformanceTest(
     }
 
     @Test
-    @EnabledIfEnvironmentVariable(named = fixedDelayEnv, matches = "\\d+")
+    @EnabledIfEnvironmentVariable(named = FIXED_DELAY_ENV, matches = "\\d+")
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
     fun `With many files`() {
         val files = 100
-        val delay = System.getenv(fixedDelayEnv).toLong()
+        val delay = System.getenv(FIXED_DELAY_ENV).toLong()
 
         val subFiles = (1..files).map { tempFolder.createFile("$it.txt") }
         webClient.uploadFiles(subFiles)

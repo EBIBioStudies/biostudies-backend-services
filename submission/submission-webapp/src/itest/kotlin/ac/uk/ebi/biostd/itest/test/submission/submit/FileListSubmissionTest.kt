@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
-import ac.uk.ebi.biostd.common.config.FilePersistenceConfig
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
@@ -307,6 +307,34 @@ class FileListSubmissionTest(
         val exception = assertThrows(WebClientException::class.java) { webClient.submitSingle(sub, TSV, filesConfig) }
         assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
         assertThat(exception).hasMessageContaining("A file list should contain at least one file")
+        fileList.delete()
+    }
+
+    @Test
+    fun `3-7 empty attribute name`() {
+        val referencedFile = tempFolder.createFile("File9.txt", "file 9 content")
+        val sub = tsv {
+            line("Submission", "S-TEST9")
+            line("Title", "Empty Attribute Name")
+            line()
+
+            line("Study")
+            line("File List", "no-attr-name-file-list.tsv")
+            line()
+        }.toString()
+
+        val fileList = tempFolder.createFile(
+            "no-attr-name-file-list.tsv",
+            tsv {
+                line("Files", "GEN", "")
+                line("File9.txt", "ABC", "DEF")
+            }.toString()
+        )
+
+        val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
+        val exception = assertThrows(WebClientException::class.java) { webClient.submitSingle(sub, TSV, filesConfig) }
+        assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+        assertThat(exception).hasMessageContaining("Attribute name is required")
         fileList.delete()
     }
 

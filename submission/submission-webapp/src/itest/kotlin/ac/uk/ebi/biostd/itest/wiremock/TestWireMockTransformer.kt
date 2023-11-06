@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.itest.wiremock.handlers.DeleteHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.DownloadHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.FileSaveHandler
+import ac.uk.ebi.biostd.itest.wiremock.handlers.FindPathHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.Md5QueryHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.PublishHandler
 import ac.uk.ebi.biostd.itest.wiremock.handlers.RequestHandler
@@ -25,7 +26,7 @@ import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import java.nio.file.Path
 import kotlin.random.Random
 
-class TestWireMockTransformer constructor(
+class TestWireMockTransformer(
     private val failFactor: Int?,
     private val fixedDelay: Long,
     private val handlers: List<RequestHandler>,
@@ -74,6 +75,7 @@ class TestWireMockTransformer constructor(
                     Md5QueryHandler(fireDatabase),
                     FileSaveHandler(fireDatabase),
                     DeleteHandler(fireDatabase),
+                    FindPathHandler(fireDatabase),
                     SetPathHandler(fireDatabase),
                     UnSetPathHandler(fireDatabase),
                     PublishHandler(fireDatabase),

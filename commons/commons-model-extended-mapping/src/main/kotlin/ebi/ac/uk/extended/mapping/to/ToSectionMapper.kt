@@ -19,6 +19,6 @@ class ToSectionMapper(private val toFileListMapper: ToFileListMapper) {
         sections = sec.sections.mapTo(mutableListOf()) { either -> either.bimap({ convert(it) }, { toTable(it) }) }
     )
 
-    private fun toTable(extSectionTable: ExtSectionTable): SectionsTable =
+    private suspend fun toTable(extSectionTable: ExtSectionTable): SectionsTable =
         SectionsTable(extSectionTable.sections.map { section -> convert(section) })
 }

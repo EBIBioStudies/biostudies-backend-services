@@ -2,6 +2,8 @@ package ac.uk.ebi.biostd.stats.web.mapping
 
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.doc.model.SingleSubmissionStat
+import ac.uk.ebi.biostd.stats.web.toStat
+import ac.uk.ebi.biostd.stats.web.toStatDto
 import ebi.ac.uk.model.SubmissionStat
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

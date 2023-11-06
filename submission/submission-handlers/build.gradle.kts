@@ -1,4 +1,5 @@
 import Dependencies.JacksonKotlin
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -35,6 +36,7 @@ dependencies {
     api(project(SubmissionPersistenceCommonApi))
     api(project(SubmissionPersistenceSql))
 
+    implementation(KotlinCoroutines)
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(JacksonKotlin)

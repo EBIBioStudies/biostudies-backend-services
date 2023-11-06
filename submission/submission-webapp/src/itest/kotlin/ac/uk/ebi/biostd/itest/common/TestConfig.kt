@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.common
 
+import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.service.SecurityService
 import org.springframework.context.annotation.Bean
@@ -18,4 +19,8 @@ class TestConfig {
 
     @Bean(name = ["FailCollectionValidator"])
     fun failCollectionValidator(): FailCollectionValidator = FailCollectionValidator()
+
+    @Bean
+    fun testUserDataService(userDataDataRepository: UserDataDataRepository) =
+        TestUserDataService(userDataDataRepository)
 }

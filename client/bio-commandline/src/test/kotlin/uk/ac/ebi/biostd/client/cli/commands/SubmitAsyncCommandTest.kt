@@ -68,7 +68,7 @@ internal class SubmitAsyncCommandTest(
         val attachedFile2 = temporaryFolder.createFile("attachedFile2.tsv")
 
         val securityConfig = SecurityConfig("server", "user", "password")
-        val sources = listOf(PreferredSource.SUBMISSION, PreferredSource.FIRE)
+        val sources = listOf(PreferredSource.SUBMISSION, PreferredSource.USER_SPACE)
         val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), StorageMode.NFS, sources)
         val request = SubmissionRequest(submission, securityConfig, filesConfig)
 
@@ -81,7 +81,7 @@ internal class SubmitAsyncCommandTest(
                 "-p", "password",
                 "-i", "$rootFolder/Submission.tsv",
                 "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
-                "-ps", "SUBMISSION,FIRE",
+                "-ps", "SUBMISSION,USER_SPACE",
                 "-sm", "NFS"
             )
         )

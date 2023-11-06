@@ -74,7 +74,7 @@ class SubmissionMongoFilesPersistenceServiceTest(
     private val fireReferencedFile = tempFolder.createFile("fireReferenced.txt")
     private val fireFile = FireFile(
         fireId = "fire-oid",
-        firePath = null,
+        firePath = "fire-path",
         published = false,
         filePath = "fireReferenced.txt",
         relPath = "Files/fireReferenced.txt",

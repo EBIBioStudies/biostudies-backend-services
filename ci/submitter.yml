@@ -13,6 +13,11 @@
     - build-test
   script: gradle :submission:submission-webapp:bootJar deploySubmitter -Penv=prod -PdeployPath=$APPS_PATH/submitter/prod -PjvmParams=-Xmx16g
 
+.deploy-migrator-submitter:
+  dependencies:
+    - build-test
+  script: gradle :submission:submission-webapp:bootJar deployMigratorSubmitter -Penv=prod -PdeployPath=$APPS_PATH/submitter/migrator -PjvmParams=-Xmx8g
+
 .deploy-sandbox-submitter:
   dependencies:
     - build-test
@@ -39,6 +44,13 @@ auto-deploy-prod-submitter:
     refs:
       - prod
 
+auto-deploy-migrator-submitter:
+  extends: .deploy-migrator-submitter
+  stage: auto-deploy-migrator-submitter
+  only:
+    refs:
+      - prod
+
 auto-deploy-sandbox-submitter:
   extends: .deploy-sandbox-submitter
   stage: auto-deploy-sandbox-submitter
@@ -59,6 +71,11 @@ deploy-beta-submitter:
 deploy-prod-submitter:
   extends: .deploy-prod-submitter
   stage: deploy-prod-submitter
+  when: manual
+
+deploy-migrator-submitter:
+  extends: .deploy-migrator-submitter
+  stage: deploy-migrator-submitter
   when: manual
 
 deploy-sandbox-submitter:

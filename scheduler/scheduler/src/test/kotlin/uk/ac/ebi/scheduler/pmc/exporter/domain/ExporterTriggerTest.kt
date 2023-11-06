@@ -1,6 +1,7 @@
 package uk.ac.ebi.scheduler.pmc.exporter.domain
 
 import ac.uk.ebi.cluster.client.lsf.ClusterOperations
+import ac.uk.ebi.cluster.client.model.CoresSpec.FOUR_CORES
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.TWENTYFOUR_GB
@@ -12,11 +13,14 @@ import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import io.mockk.called
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -29,7 +33,6 @@ import uk.ac.ebi.scheduler.pmc.exporter.api.Ftp
 import uk.ac.ebi.scheduler.pmc.exporter.api.Persistence
 import uk.ac.ebi.scheduler.pmc.exporter.api.Pmc
 import uk.ac.ebi.scheduler.pmc.exporter.api.PublicOnly
-import uk.ac.ebi.scheduler.releaser.domain.RELEASER_CORES
 
 @ExtendWith(MockKExtension::class)
 class ExporterTriggerTest(
@@ -56,17 +59,19 @@ class ExporterTriggerTest(
     fun beforeEach() {
         every { job.id } returns "ABC123"
         every { job.queue } returns "submissions-releaser-queue"
-        every { pcmNotificationsSender.send(capture(jobReport)) } answers { nothing }
-        every { schedulerNotificationsSender.send(capture(jobReport)) } answers { nothing }
-        every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
-        every { appProperties.appsFolder } returns "/apps-folder"
+
         every { appProperties.javaHome } returns "/home/jdk11"
+        every { appProperties.appsFolder } returns "/apps-folder"
+
+        every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { pcmNotificationsSender.send(capture(jobReport)) } answers { nothing }
+        coEvery { schedulerNotificationsSender.send(capture(jobReport)) } answers { nothing }
     }
 
     @Test
-    fun triggerPmcExport() {
+    fun triggerPmcExport() = runTest {
         testInstance.triggerPmcExport()
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             clusterOperations.triggerJob(jobSpecs.captured)
             pcmNotificationsSender.send(jobReport.captured)
         }
@@ -75,9 +80,9 @@ class ExporterTriggerTest(
     }
 
     @Test
-    fun triggerPublicExport() {
+    fun triggerPublicExport() = runTest {
         testInstance.triggerPublicExport()
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             clusterOperations.triggerJob(jobSpecs.captured)
             schedulerNotificationsSender.send(jobReport.captured)
         }
@@ -87,7 +92,7 @@ class ExporterTriggerTest(
 
     private fun verifyJobSpecs(specs: JobSpec, mode: ExporterMode, fileName: String, outputPath: String) {
         assertThat(specs.ram).isEqualTo(TWENTYFOUR_GB)
-        assertThat(specs.cores).isEqualTo(RELEASER_CORES)
+        assertThat(specs.cores).isEqualTo(FOUR_CORES)
         assertThat(specs.command).isEqualTo(
             """
             "module load openjdk-11.0.1-gcc-9.3.0-unymjzh; \

@@ -8,7 +8,6 @@ import Projects.SubmissionPersistenceCommonApi
 import Projects.SubmissionSecurity
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
-import TestDependencies.KotlinCoroutinesTest
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
@@ -33,7 +32,6 @@ dependencies {
     api(project(SubmissionPersistenceCommonApi))
 
     testApi(project(CommonsTest))
-    testImplementation(KotlinCoroutinesTest)
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }
