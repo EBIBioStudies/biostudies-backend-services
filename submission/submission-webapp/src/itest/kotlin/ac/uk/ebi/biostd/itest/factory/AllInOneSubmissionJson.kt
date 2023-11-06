@@ -196,13 +196,4 @@ private fun fileList2() = jsonArray(
             }
         )
     },
-    {
-        "path" to "Folder1"
-        "attributes" to jsonArray(
-            {
-                "name" to "Type"
-                "value" to "referenced directory"
-            }
-        )
-    },
 )

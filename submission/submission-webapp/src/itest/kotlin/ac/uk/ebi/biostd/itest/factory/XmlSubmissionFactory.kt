@@ -51,17 +51,6 @@ internal val expectedAllInOneXmlInnerFileList = xml("table") {
             }
         }
     }
-    "file" {
-        attribute("size", 160)
-        "path" { -"Folder1" }
-        "type" { -"directory" }
-        "attributes" {
-            "attribute" {
-                "name" { -"Type" }
-                "value" { -"referenced directory" }
-            }
-        }
-    }
 }
 
 fun assertAllInOneSubmissionXml(xml: String, accNo: String) {

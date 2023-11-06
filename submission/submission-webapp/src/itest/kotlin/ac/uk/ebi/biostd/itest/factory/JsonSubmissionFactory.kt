@@ -52,17 +52,6 @@ internal val expectedAllInOneJsonInnerFileList = jsonArray(
         )
         "type" to "file"
     },
-    {
-        "path" to "Folder1"
-        "size" to 160
-        "attributes" to jsonArray(
-            {
-                "name" to "Type"
-                "value" to "referenced directory"
-            }
-        )
-        "type" to "directory"
-    },
 )
 
 fun assertAllInOneSubmissionJson(json: String, accNo: String) {

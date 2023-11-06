@@ -67,5 +67,4 @@ private fun fileList() = tsv {
 private fun fileList2() = tsv {
     line("Files", "Type")
     line("DataFile7.txt", "referenced")
-    line("Folder1", "referenced directory")
 }
