@@ -3,14 +3,13 @@ package ac.uk.ebi.biostd.submission.service
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.io.sources.FileSourcesList
 import ebi.ac.uk.io.sources.PreferredSource
-import ebi.ac.uk.io.sources.PreferredSource.FIRE
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import uk.ac.ebi.io.builder.FilesSourceListBuilder
 import java.io.File
 
-private val DEFAULT_SOURCES = listOf(USER_SPACE, SUBMISSION, FIRE)
+private val DEFAULT_SOURCES = listOf(USER_SPACE, SUBMISSION)
 
 class FileSourcesService(
     private val builder: FilesSourceListBuilder,
@@ -23,7 +22,6 @@ class FileSourcesService(
             if (files != null) addFilesListSource(files)
             preferred.forEach {
                 when (it) {
-                    FIRE -> addFireFilesSource()
                     USER_SPACE -> addUserSources(rootPath, owner, submitter, this)
                     SUBMISSION -> if (submission != null) addSubmissionSource(submission)
                 }

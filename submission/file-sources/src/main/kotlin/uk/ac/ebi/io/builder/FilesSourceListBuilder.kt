@@ -13,7 +13,6 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.io.sources.DbFilesSource
 import uk.ac.ebi.io.sources.FilesListSource
-import uk.ac.ebi.io.sources.FireFilesSource
 import uk.ac.ebi.io.sources.FtpSource
 import uk.ac.ebi.io.sources.GroupPathSource
 import uk.ac.ebi.io.sources.PathSource
@@ -42,10 +41,6 @@ class FilesSourceListBuilder(
 
     fun addFilesListSource(files: List<File>) {
         sources.add(FilesListSource(files))
-    }
-
-    fun addFireFilesSource() {
-        sources.add(FireFilesSource(fireClient))
     }
 
     fun addUserSource(securityUser: SecurityUser, description: String, rootPath: String? = null) {

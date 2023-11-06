@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.itest.wiremock.handlers.FireException
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import org.springframework.http.HttpStatus.CONFLICT
+import org.springframework.http.HttpStatus.NOT_FOUND
 import uk.ac.ebi.fire.client.model.FileSystemEntry
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
@@ -22,6 +23,12 @@ class FireMockDatabase(
         val fireFile = FireApiFile(objectId, fireOid, file.md5(), file.size(), Instant.now().toString())
         recordsById[fireOid] = DbRecord(fireFile, null, false)
         return fireFile
+    }
+
+    fun findByPath(firePath: String): FireApiFile {
+        return recordsById.values
+            .firstOrNull { it.firePath == firePath }?.toFile()
+            ?: throw FireException("File $firePath was not found", NOT_FOUND)
     }
 
     fun setPath(fireOid: String, firePath: String): FireApiFile {

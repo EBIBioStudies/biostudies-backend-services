@@ -8,6 +8,7 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.asFireFile
 import ebi.ac.uk.extended.model.expectedFirePath
 import uk.ac.ebi.fire.client.integration.web.FireClient
+import uk.ac.ebi.fire.client.model.FireApiFile
 
 class FireFilesService(
     private val client: FireClient,
@@ -23,43 +24,19 @@ class FireFilesService(
      */
     override suspend fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): FireFile {
         return when (file) {
-            is FireFile -> getOrCreate(file, sub.expectedFirePath(file))
-            is NfsFile -> return getOrCreate(file, sub.expectedFirePath(file))
-        }
-    }
-
-    private suspend fun getOrCreate(
-        fireFile: FireFile,
-        expectedPath: String,
-    ): FireFile {
-        return when (val path = fireFile.firePath) {
-            expectedPath -> fireFile
-            null -> setMetadata(fireFile.fireId, fireFile, expectedPath, fireFile.published)
-            else -> {
-                val file = requireNotNull(client.downloadByPath(path)) { "Could not download file with path $path" }
-                val saved = client.save(file, fireFile.md5, fireFile.size)
-                setMetadata(saved.fireOid, fireFile, expectedPath, false)
-            }
+            is FireFile -> file
+            is NfsFile -> getOrCreate(file, sub.expectedFirePath(file))
         }
     }
 
     private suspend fun getOrCreate(file: NfsFile, expectedPath: String): FireFile {
-        val matches = client.findByMd5(file.md5)
-        val apiFile = matches.find { it.path == expectedPath }
-            ?: matches.find { it.path == null }
-            ?: client.save(file.file, file.md5, file.size)
-        val fireFile = file.asFireFile(apiFile.fireOid, apiFile.path, apiFile.published)
-        return getOrCreate(fireFile, expectedPath)
+        val apiFile = client.findByPath(expectedPath) ?: persistToFire(file, expectedPath)
+        return file.asFireFile(apiFile.fireOid, apiFile.path!!, apiFile.published)
     }
 
-    private suspend fun setMetadata(
-        fireOid: String,
-        file: ExtFile,
-        expectedPath: String,
-        published: Boolean,
-    ): FireFile {
-        client.setPath(fireOid, expectedPath)
-        return file.asFireFile(fireId = fireOid, firePath = expectedPath, published = published)
+    private suspend fun persistToFire(file: NfsFile, expectedPath: String): FireApiFile {
+        val saved = client.save(file.file, file.md5, file.size)
+        return client.setPath(saved.fireOid, expectedPath)
     }
 
     override suspend fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {

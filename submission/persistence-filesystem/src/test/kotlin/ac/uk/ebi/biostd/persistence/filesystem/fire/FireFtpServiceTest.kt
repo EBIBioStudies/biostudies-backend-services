@@ -31,7 +31,7 @@ class FireFtpServiceTest(
     fun `release submission file`() = runTest {
         val fireFile = FireFile(
             fireId = "fireId",
-            firePath = null,
+            firePath = "fire-path",
             published = false,
             filePath = "folder/myFile",
             relPath = "Files/folder/myFile",
