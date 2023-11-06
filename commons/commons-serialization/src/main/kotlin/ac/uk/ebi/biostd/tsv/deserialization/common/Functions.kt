@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.validation.INVALID_TABLE_ROW
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
+import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.REQUIRED_TABLE_ROWS
 import ebi.ac.uk.base.nullIfBlank
 import ebi.ac.uk.model.Attribute
@@ -41,6 +42,7 @@ private fun getAttributes(line: TsvChunkLine, chunk: TsvChunk): List<Attribute> 
 private fun getAttributes(values: List<Pair<String, String?>>): List<Attribute> = buildList {
     var previous: Attribute? = null
     for ((header, value) in values) {
+        require(header.isNotBlank()) { throw InvalidElementException(REQUIRED_ATTR_NAME) }
         when {
             isNameDetail(header) -> {
                 if (previous == null) throw InvalidElementException(MISPLACED_ATTR_NAME)

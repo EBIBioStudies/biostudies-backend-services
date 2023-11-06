@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.validation.InvalidChunkSizeException
 import ac.uk.ebi.biostd.validation.InvalidElementException
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.MISPLACED_ATTR_VAL
+import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ac.uk.ebi.biostd.validation.REQUIRED_TABLE_ROWS
 import ac.uk.ebi.biostd.validation.SerializationException
@@ -85,6 +86,18 @@ class TsvDeserializationErrorsTest {
 
         val exception = assertThrows<InvalidElementException> { deserializer.deserializeElement<BioFile>(tsv) }
         assertThat(exception.message).isEqualTo("$REQUIRED_FILE_PATH. Element was not created.")
+    }
+
+    @Test
+    fun `empty attribute name`() {
+        val tsv = tsv {
+            line("File", "file1.txt")
+            line("", "Empty Path")
+            line()
+        }.toString()
+
+        val exception = assertThrows<InvalidElementException> { deserializer.deserializeElement<BioFile>(tsv) }
+        assertThat(exception.message).isEqualTo("$REQUIRED_ATTR_NAME. Element was not created.")
     }
 
     @Test

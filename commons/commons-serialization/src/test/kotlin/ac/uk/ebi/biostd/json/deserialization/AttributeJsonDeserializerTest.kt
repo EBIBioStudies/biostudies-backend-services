@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.json.deserialization
 
 import ac.uk.ebi.biostd.json.JsonSerializer
+import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_NAME
 import com.fasterxml.jackson.module.kotlin.readValue
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -181,5 +183,16 @@ class AttributeJsonDeserializerTest {
         }.toString()
 
         assertThrows<IllegalArgumentException> { testInstance.readValue<Attribute>(attributeJson) }
+    }
+
+    @Test
+    fun `deserialize attribute with empty name`() {
+        val jsonAttribute = jsonObj {
+            "name" to ""
+            "value" to "ABC"
+        }.toString()
+
+        val exception = assertThrows<InvalidElementException> { testInstance.readValue<Attribute>(jsonAttribute) }
+        assertThat(exception.message).isEqualTo("$REQUIRED_ATTR_NAME. Element was not created.")
     }
 }

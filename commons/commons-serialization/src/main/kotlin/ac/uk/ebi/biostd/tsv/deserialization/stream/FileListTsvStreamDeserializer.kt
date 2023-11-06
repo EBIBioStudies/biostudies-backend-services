@@ -1,8 +1,10 @@
 package ac.uk.ebi.biostd.tsv.deserialization.stream
 
 import ac.uk.ebi.biostd.tsv.TAB
+import ac.uk.ebi.biostd.validation.INVALID_FILES_TABLE
 import ac.uk.ebi.biostd.validation.INVALID_TABLE_ROW
 import ac.uk.ebi.biostd.validation.InvalidElementException
+import ac.uk.ebi.biostd.validation.REQUIRED_ATTR_NAME
 import ac.uk.ebi.biostd.validation.REQUIRED_FILE_PATH
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.BioFile
@@ -52,7 +54,9 @@ internal class FileListTsvStreamDeserializer {
     fun deserializeFileList(fileList: InputStream): Flow<BioFile> {
         val reader = fileList.bufferedReader()
         val (files, headers) = reader.readLine().split(TAB).destructure()
-        if (files != FILES_TABLE.value) throw InvalidElementException("First header value should be 'Files'")
+        require(files == FILES_TABLE.value) { throw InvalidElementException(INVALID_FILES_TABLE) }
+        require(headers.none { it.isBlank() }) { throw InvalidElementException(REQUIRED_ATTR_NAME) }
+
         return reader
             .asFlow()
             .filter { it.isNotBlank() }
