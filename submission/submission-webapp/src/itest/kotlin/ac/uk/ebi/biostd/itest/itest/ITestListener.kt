@@ -117,7 +117,6 @@ class ITestListener : TestExecutionListener {
         propertyHolder.addProperty("app.persistence.concurrency", PERSISTENCE_CONCURRENCY)
         propertyHolder.addProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")
 
-
         val file = File(this::class.java.getResource("/application.yml")!!.toURI())
         propertyHolder.addProperty("app.task.configFilePath", file.absolutePath)
 
