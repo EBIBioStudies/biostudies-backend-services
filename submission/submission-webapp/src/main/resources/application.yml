@@ -98,7 +98,7 @@ app:
       dev: # Instance key for the submission tool DEV environment
       beta: # Instance key for the submission tool BETA environment
       prod: # Instance key for the submission tool PROD environment
-    fileProperties:
+    filesProperties:
       filesDirPath: # Absolute path to the folder to be used for the user/groups files
       magicDirPath: #  Absolute path to create user magic folder for dropbox simple access
       ftpDirPath: #  Absolute path of users ftp. Used to access file
