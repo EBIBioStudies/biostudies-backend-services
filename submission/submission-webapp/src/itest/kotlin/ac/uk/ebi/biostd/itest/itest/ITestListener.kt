@@ -17,15 +17,19 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.db.MYSQL_SCHEMA
 import ebi.ac.uk.db.MYSQL_VERSION
+import ebi.ac.uk.db.RABBIT_VERSION
 import ebi.ac.uk.extended.model.StorageMode
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestPlan
 import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.RabbitMQContainer
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName.parse
 import java.io.File
 import java.nio.file.Files
 import java.time.Duration.ofSeconds
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.createTempDirectory
 
 class ITestListener : TestExecutionListener {
 
@@ -34,6 +38,7 @@ class ITestListener : TestExecutionListener {
     override fun testPlanExecutionStarted(testPlan: TestPlan) {
         mongoSetup()
         mySqlSetup()
+        rabittSetup()
         fireSetup()
         ftpSetup()
         doiSetup()
@@ -43,6 +48,7 @@ class ITestListener : TestExecutionListener {
     override fun testPlanExecutionFinished(testPlan: TestPlan) {
         mongoContainer.stop()
         mysqlContainer.stop()
+        rabbitMQContainer.stop()
         fireServer.stop()
         ftpServer.stop()
     }
@@ -58,6 +64,14 @@ class ITestListener : TestExecutionListener {
         propertyHolder.addProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
         propertyHolder.addProperty("spring.datasource.username", mysqlContainer.username)
         propertyHolder.addProperty("spring.datasource.password", mysqlContainer.password)
+    }
+
+    private fun rabittSetup() {
+        rabbitMQContainer.start()
+        propertyHolder.addProperty("spring.rabbitmq.host", rabbitMQContainer.host)
+        propertyHolder.addProperty("spring.rabbitmq.port", rabbitMQContainer.amqpPort)
+        propertyHolder.addProperty("spring.rabbitmq.username", rabbitMQContainer.adminUsername)
+        propertyHolder.addProperty("spring.rabbitmq.password", rabbitMQContainer.adminPassword)
     }
 
     private fun ftpSetup() {
@@ -102,6 +116,15 @@ class ITestListener : TestExecutionListener {
         propertyHolder.addProperty("app.security.filesProperties.magicDirPath", magicDirPath.absolutePath)
         propertyHolder.addProperty("app.persistence.concurrency", PERSISTENCE_CONCURRENCY)
         propertyHolder.addProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")
+
+
+        val file = File(this::class.java.getResource("/application.yml")!!.toURI())
+        propertyHolder.addProperty("app.task.configFilePath", file.absolutePath)
+
+        val file2 = File(this::class.java.getResource("/submission-task-1.0.0.jar")!!.toURI())
+        propertyHolder.addProperty("app.task.jarLocation", file2.absolutePath)
+
+        propertyHolder.addProperty("app.task.logsLocation", createTempDirectory().absolutePathString())
         propertyHolder.writeProperties()
     }
 
@@ -148,6 +171,7 @@ class ITestListener : TestExecutionListener {
         private val mongoContainer = createMongoContainer()
         private val mysqlContainer = createMysqlContainer()
         private val s3Container = createMockS3Container()
+        private val rabbitMQContainer = createRabbitMqContainer()
 
         val enableFire get() = System.getProperty("enableFire").toBoolean()
         val storageMode get() = if (enableFire) StorageMode.FIRE else StorageMode.NFS
@@ -157,6 +181,10 @@ class ITestListener : TestExecutionListener {
         private fun createMongoContainer(): MongoDBContainer =
             MongoDBContainer(parse(MONGO_VERSION))
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+
+        private fun createRabbitMqContainer(): RabbitMQContainer {
+            return RabbitMQContainer(parse(RABBIT_VERSION))
+        }
 
         private fun createMysqlContainer(): SpecificMySQLContainer =
             SpecificMySQLContainer(MYSQL_VERSION)

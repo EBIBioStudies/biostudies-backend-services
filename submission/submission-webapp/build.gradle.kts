@@ -42,15 +42,16 @@ import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.FtpServer
 import TestDependencies.JsonPathAssert
 import TestDependencies.KotlinXmlBuilder
+import TestDependencies.SnakeYaml
 import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
 import TestDependencies.TestContainerMysql
+import TestDependencies.TestContainerRabbitMq
 import TestDependencies.TestContainerS3mock
 import TestDependencies.Wiremock
 import TestDependencies.XmlUnitCore
 import TestDependencies.XmlUnitMatchers
-import TestDependencies.rabitMqMock
 import TestDependencies.slf4jApi
 import TestDependencies.slf4jImp
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
@@ -95,7 +96,6 @@ dependencies {
     api(project(CommonsHttp))
 
     annotationProcessor(SpringBootConfigurationProcessor)
-
     implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterWebFlux)
     implementation(SpringBootStarterAmqp)
@@ -126,8 +126,8 @@ dependencies {
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
+
     testImplementation(SpringBootStarterTest)
-    testImplementation(rabitMqMock)
     testImplementation(Wiremock)
 
     testImplementation(slf4jApi)
@@ -139,9 +139,10 @@ dependencies {
     testImplementation(Awaitility)
     testImplementation(XmlUnitCore)
     testImplementation(XmlUnitMatchers)
+    testImplementation(SnakeYaml)
 
+    testImplementation(TestContainerRabbitMq)
     testImplementation(TestContainerMysql)
-    testImplementation("org.yaml:snakeyaml")
     testImplementation(TestContainerS3mock)
     testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)

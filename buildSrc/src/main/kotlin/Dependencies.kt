@@ -133,6 +133,7 @@ object TestDependencies {
     const val JaxbApi = "javax.xml.bind:jaxb-api:$JaxbApiVersion"
     const val XmlUnitCore = "org.xmlunit:xmlunit-core:$XmlUnitVersion"
     const val XmlUnitMatchers = "org.xmlunit:xmlunit-matchers:$XmlUnitVersion"
+    const val SnakeYaml = "org.yaml:snakeyaml"
     const val XmlUnitAssertJ = "org.xmlunit:xmlunit-assertj:$XmlUnitVersion"
     const val KotlinXmlBuilder = "org.redundent:kotlin-xml-builder:$XmlBuilderVersion"
     const val Woodstox = "com.fasterxml.woodstox:woodstox-core:$WoodstoxVersion"
@@ -150,6 +151,7 @@ object TestDependencies {
 
     // Test Containers
     const val TestContainerMysql = "org.testcontainers:mysql:$TestContainerVersion"
+    const val TestContainerRabbitMq = "org.testcontainers:rabbitmq:$TestContainerVersion"
     const val TestContainerS3mock = "com.adobe.testing:s3mock-testcontainers:$TestContainerS3mockVersion"
     const val TestContainerMongoDb = "org.testcontainers:mongodb:$TestContainerVersion"
     const val TestContainer = "org.testcontainers:testcontainers:$TestContainerVersion"

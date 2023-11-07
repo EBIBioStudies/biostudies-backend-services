@@ -10,7 +10,7 @@ import java.io.File
 class PropertyHolder {
     private val properties = mutableListOf<Pair<String, String>>()
 
-    fun addProperty(name: String, value: String): Boolean = properties.add(name to value)
+    fun addProperty(name: String, value: Any): Boolean = properties.add(name to value.toString())
 
     fun writeProperties() {
         val options = DumperOptions()
