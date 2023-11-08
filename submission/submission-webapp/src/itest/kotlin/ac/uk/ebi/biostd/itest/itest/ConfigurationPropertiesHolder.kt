@@ -7,7 +7,7 @@ import java.io.File
 /**
  * Holds application properties and write them into its YAML representation.
  */
-class PropertyHolder {
+class ConfigurationPropertiesHolder {
     private val properties = mutableListOf<Pair<String, String>>()
 
     fun addProperty(name: String, value: Any): Boolean = properties.add(name to value.toString())
