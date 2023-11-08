@@ -17,10 +17,12 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.db.MYSQL_SCHEMA
 import ebi.ac.uk.db.MYSQL_VERSION
+import ebi.ac.uk.db.RABBIT_VERSION
 import ebi.ac.uk.extended.model.StorageMode
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestPlan
 import org.testcontainers.containers.MongoDBContainer
+import org.testcontainers.containers.RabbitMQContainer
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName.parse
 import java.io.File
@@ -28,52 +30,71 @@ import java.nio.file.Files
 import java.time.Duration.ofSeconds
 
 class ITestListener : TestExecutionListener {
+
+    private val properties = ConfigurationPropertiesHolder()
+
     override fun testPlanExecutionStarted(testPlan: TestPlan) {
         mongoSetup()
         mySqlSetup()
+        rabittSetup()
         fireSetup()
         ftpSetup()
-        appPropertiesSetup()
         doiSetup()
+        appPropertiesSetup()
     }
 
     override fun testPlanExecutionFinished(testPlan: TestPlan) {
         mongoContainer.stop()
         mysqlContainer.stop()
+        rabbitMQContainer.stop()
         fireServer.stop()
         ftpServer.stop()
     }
 
     private fun mongoSetup() {
         mongoContainer.start()
-        System.setProperty("spring.data.mongodb.uri", mongoContainer.getReplicaSetUrl("biostudies-test"))
-        System.setProperty("spring.data.mongodb.database", "biostudies-test")
+        properties.addProperty(
+            "spring.data.mongodb.uri",
+            mongoContainer.getReplicaSetUrl("biostudies-test")
+        )
+        properties.addProperty("spring.data.mongodb.database", "biostudies-test")
     }
 
     private fun mySqlSetup() {
         mysqlContainer.start()
-        System.setProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
-        System.setProperty("spring.datasource.username", mysqlContainer.username)
-        System.setProperty("spring.datasource.password", mysqlContainer.password)
+        properties.addProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
+        properties.addProperty("spring.datasource.username", mysqlContainer.username)
+        properties.addProperty("spring.datasource.password", mysqlContainer.password)
+    }
+
+    private fun rabittSetup() {
+        rabbitMQContainer.start()
+        properties.addProperty("spring.rabbitmq.host", rabbitMQContainer.host)
+        properties.addProperty("spring.rabbitmq.port", rabbitMQContainer.amqpPort)
+        properties.addProperty("spring.rabbitmq.username", rabbitMQContainer.adminUsername)
+        properties.addProperty("spring.rabbitmq.password", rabbitMQContainer.adminPassword)
     }
 
     private fun ftpSetup() {
         ftpServer.start()
 
-        System.setProperty("app.security.filesProperties.ftpUser", FTP_USER)
-        System.setProperty("app.security.filesProperties.ftpPassword", FTP_PASSWORD)
-        System.setProperty("app.security.filesProperties.ftpUrl", ftpServer.getUrl())
-        System.setProperty("app.security.filesProperties.ftpPort", ftpServer.ftpPort.toString())
-        System.setProperty("app.security.filesProperties.ftpDirPath", ftpServer.fileSystemDirectory.absolutePath)
+        properties.addProperty("app.security.filesProperties.ftpUser", FTP_USER)
+        properties.addProperty("app.security.filesProperties.ftpPassword", FTP_PASSWORD)
+        properties.addProperty("app.security.filesProperties.ftpUrl", ftpServer.getUrl())
+        properties.addProperty("app.security.filesProperties.ftpPort", ftpServer.ftpPort.toString())
+        properties.addProperty(
+            "app.security.filesProperties.ftpDirPath",
+            ftpServer.fileSystemDirectory.absolutePath
+        )
     }
 
     private fun fireSetup() {
         s3Container.start()
-        System.setProperty("app.fire.s3.accessKey", AWS_ACCESS_KEY)
-        System.setProperty("app.fire.s3.secretKey", AWS_SECRET_KEY)
-        System.setProperty("app.fire.s3.region", AWS_REGION)
-        System.setProperty("app.fire.s3.endpoint", s3Container.httpEndpoint)
-        System.setProperty("app.fire.s3.bucket", DEFAULT_BUCKET)
+        properties.addProperty("app.fire.s3.accessKey", AWS_ACCESS_KEY)
+        properties.addProperty("app.fire.s3.secretKey", AWS_SECRET_KEY)
+        properties.addProperty("app.fire.s3.region", AWS_REGION)
+        properties.addProperty("app.fire.s3.endpoint", s3Container.httpEndpoint)
+        properties.addProperty("app.fire.s3.bucket", DEFAULT_BUCKET)
 
         fireServer.stubFor(
             post(WireMock.urlMatching("/objects"))
@@ -81,33 +102,41 @@ class ITestListener : TestExecutionListener {
                 .willReturn(WireMock.aResponse().withTransformers(TestWireMockTransformer.name))
         )
         fireServer.start()
-        System.setProperty("app.fire.host", fireServer.baseUrl())
-        System.setProperty("app.fire.username", FIRE_USERNAME)
-        System.setProperty("app.fire.password", FIRE_PASSWORD)
+        properties.addProperty("app.fire.host", fireServer.baseUrl())
+        properties.addProperty("app.fire.username", FIRE_USERNAME)
+        properties.addProperty("app.fire.password", FIRE_PASSWORD)
     }
 
     private fun appPropertiesSetup() {
-        System.setProperty("app.submissionPath", nfsSubmissionPath.absolutePath)
-        System.setProperty("app.ftpPath", nfsFtpPath.absolutePath)
-        System.setProperty("app.fireTempDirPath", fireTempFolder.absolutePath)
-        System.setProperty("app.tempDirPath", tempDirPath.absolutePath)
-        System.setProperty("app.requestFilesPath", requestFilesPath.absolutePath)
-        System.setProperty("app.security.filesProperties.filesDirPath", dropboxPath.absolutePath)
-        System.setProperty("app.security.filesProperties.magicDirPath", magicDirPath.absolutePath)
-        System.setProperty("app.persistence.concurrency", PERSISTENCE_CONCURRENCY)
-        System.setProperty("app.persistence.enableFire", "${System.getProperty("enableFire").toBoolean()}")
+        properties.addProperty("app.submissionPath", nfsSubmissionPath.absolutePath)
+        properties.addProperty("app.ftpPath", nfsFtpPath.absolutePath)
+        properties.addProperty("app.fireTempDirPath", fireTempFolder.absolutePath)
+        properties.addProperty("app.tempDirPath", tempDirPath.absolutePath)
+        properties.addProperty("app.requestFilesPath", requestFilesPath.absolutePath)
+        properties.addProperty("app.security.filesProperties.filesDirPath", dropboxPath.absolutePath)
+        properties.addProperty(
+            "app.security.filesProperties.magicDirPath",
+            magicDirPath.absolutePath
+        )
+        properties.addProperty("app.persistence.concurrency", PERSISTENCE_CONCURRENCY)
+        properties.addProperty(
+            "app.persistence.enableFire",
+            "${System.getProperty("enableFire").toBoolean()}"
+        )
+        properties.writeProperties()
     }
 
     private fun doiSetup() {
         doiServer.start()
-        System.setProperty("app.doi.endpoint", "${doiServer.baseUrl()}/deposit")
-        System.setProperty("app.doi.uiUrl", "https://www.ebi.ac.uk/biostudies/")
-        System.setProperty("app.doi.user", "a-user")
-        System.setProperty("app.doi.password", "a-password")
+        properties.addProperty("app.doi.endpoint", "${doiServer.baseUrl()}/deposit")
+        properties.addProperty("app.doi.uiUrl", "https://www.ebi.ac.uk/biostudies/")
+        properties.addProperty("app.doi.user", "a-user")
+        properties.addProperty("app.doi.password", "a-password")
     }
 
     companion object {
         private val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()
+
         private const val DEFAULT_BUCKET = "bio-fire-bucket"
         private const val AWS_ACCESS_KEY = "anyKey"
         private const val AWS_SECRET_KEY = "anySecret"
@@ -140,6 +169,7 @@ class ITestListener : TestExecutionListener {
         private val mongoContainer = createMongoContainer()
         private val mysqlContainer = createMysqlContainer()
         private val s3Container = createMockS3Container()
+        private val rabbitMQContainer = createRabbitMqContainer()
 
         val enableFire get() = System.getProperty("enableFire").toBoolean()
         val storageMode get() = if (enableFire) StorageMode.FIRE else StorageMode.NFS
@@ -149,6 +179,10 @@ class ITestListener : TestExecutionListener {
         private fun createMongoContainer(): MongoDBContainer =
             MongoDBContainer(parse(MONGO_VERSION))
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+
+        private fun createRabbitMqContainer(): RabbitMQContainer {
+            return RabbitMQContainer(parse(RABBIT_VERSION))
+        }
 
         private fun createMysqlContainer(): SpecificMySQLContainer =
             SpecificMySQLContainer(MYSQL_VERSION)

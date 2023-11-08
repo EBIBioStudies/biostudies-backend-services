@@ -11,7 +11,6 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
       use-new-id-generator-mappings: false
 
-
   servlet:
     multipart:
       max-file-size: 10240MB
@@ -65,5 +64,3 @@ app:
   notifications:
     requestQueue: submission-request-submitter-queue # queue used to handle request stages
     requestRoutingKey: bio.submission.requested # request messages routing key
-
-
