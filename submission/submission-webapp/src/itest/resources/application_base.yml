@@ -3,7 +3,6 @@ logging:
     root: info
 
 spring:
-  datasource:
   jpa:
     show-sql: false
     hibernate:

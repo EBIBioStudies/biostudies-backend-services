@@ -33,7 +33,7 @@ import kotlin.io.path.createTempDirectory
 
 class ITestListener : TestExecutionListener {
 
-    private val configurationPropertiesHolder = ConfigurationPropertiesHolder()
+    private val properties = ConfigurationPropertiesHolder()
 
     override fun testPlanExecutionStarted(testPlan: TestPlan) {
         mongoSetup()
@@ -55,36 +55,36 @@ class ITestListener : TestExecutionListener {
 
     private fun mongoSetup() {
         mongoContainer.start()
-        configurationPropertiesHolder.addProperty(
+        properties.addProperty(
             "spring.data.mongodb.uri",
             mongoContainer.getReplicaSetUrl("biostudies-test")
         )
-        configurationPropertiesHolder.addProperty("spring.data.mongodb.database", "biostudies-test")
+        properties.addProperty("spring.data.mongodb.database", "biostudies-test")
     }
 
     private fun mySqlSetup() {
         mysqlContainer.start()
-        configurationPropertiesHolder.addProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
-        configurationPropertiesHolder.addProperty("spring.datasource.username", mysqlContainer.username)
-        configurationPropertiesHolder.addProperty("spring.datasource.password", mysqlContainer.password)
+        properties.addProperty("spring.datasource.url", mysqlContainer.jdbcUrl)
+        properties.addProperty("spring.datasource.username", mysqlContainer.username)
+        properties.addProperty("spring.datasource.password", mysqlContainer.password)
     }
 
     private fun rabittSetup() {
         rabbitMQContainer.start()
-        configurationPropertiesHolder.addProperty("spring.rabbitmq.host", rabbitMQContainer.host)
-        configurationPropertiesHolder.addProperty("spring.rabbitmq.port", rabbitMQContainer.amqpPort)
-        configurationPropertiesHolder.addProperty("spring.rabbitmq.username", rabbitMQContainer.adminUsername)
-        configurationPropertiesHolder.addProperty("spring.rabbitmq.password", rabbitMQContainer.adminPassword)
+        properties.addProperty("spring.rabbitmq.host", rabbitMQContainer.host)
+        properties.addProperty("spring.rabbitmq.port", rabbitMQContainer.amqpPort)
+        properties.addProperty("spring.rabbitmq.username", rabbitMQContainer.adminUsername)
+        properties.addProperty("spring.rabbitmq.password", rabbitMQContainer.adminPassword)
     }
 
     private fun ftpSetup() {
         ftpServer.start()
 
-        configurationPropertiesHolder.addProperty("app.security.filesProperties.ftpUser", FTP_USER)
-        configurationPropertiesHolder.addProperty("app.security.filesProperties.ftpPassword", FTP_PASSWORD)
-        configurationPropertiesHolder.addProperty("app.security.filesProperties.ftpUrl", ftpServer.getUrl())
-        configurationPropertiesHolder.addProperty("app.security.filesProperties.ftpPort", ftpServer.ftpPort.toString())
-        configurationPropertiesHolder.addProperty(
+        properties.addProperty("app.security.filesProperties.ftpUser", FTP_USER)
+        properties.addProperty("app.security.filesProperties.ftpPassword", FTP_PASSWORD)
+        properties.addProperty("app.security.filesProperties.ftpUrl", ftpServer.getUrl())
+        properties.addProperty("app.security.filesProperties.ftpPort", ftpServer.ftpPort.toString())
+        properties.addProperty(
             "app.security.filesProperties.ftpDirPath",
             ftpServer.fileSystemDirectory.absolutePath
         )
@@ -92,11 +92,11 @@ class ITestListener : TestExecutionListener {
 
     private fun fireSetup() {
         s3Container.start()
-        configurationPropertiesHolder.addProperty("app.fire.s3.accessKey", AWS_ACCESS_KEY)
-        configurationPropertiesHolder.addProperty("app.fire.s3.secretKey", AWS_SECRET_KEY)
-        configurationPropertiesHolder.addProperty("app.fire.s3.region", AWS_REGION)
-        configurationPropertiesHolder.addProperty("app.fire.s3.endpoint", s3Container.httpEndpoint)
-        configurationPropertiesHolder.addProperty("app.fire.s3.bucket", DEFAULT_BUCKET)
+        properties.addProperty("app.fire.s3.accessKey", AWS_ACCESS_KEY)
+        properties.addProperty("app.fire.s3.secretKey", AWS_SECRET_KEY)
+        properties.addProperty("app.fire.s3.region", AWS_REGION)
+        properties.addProperty("app.fire.s3.endpoint", s3Container.httpEndpoint)
+        properties.addProperty("app.fire.s3.bucket", DEFAULT_BUCKET)
 
         fireServer.stubFor(
             post(WireMock.urlMatching("/objects"))
@@ -104,44 +104,44 @@ class ITestListener : TestExecutionListener {
                 .willReturn(WireMock.aResponse().withTransformers(TestWireMockTransformer.name))
         )
         fireServer.start()
-        configurationPropertiesHolder.addProperty("app.fire.host", fireServer.baseUrl())
-        configurationPropertiesHolder.addProperty("app.fire.username", FIRE_USERNAME)
-        configurationPropertiesHolder.addProperty("app.fire.password", FIRE_PASSWORD)
+        properties.addProperty("app.fire.host", fireServer.baseUrl())
+        properties.addProperty("app.fire.username", FIRE_USERNAME)
+        properties.addProperty("app.fire.password", FIRE_PASSWORD)
     }
 
     private fun appPropertiesSetup() {
-        configurationPropertiesHolder.addProperty("app.submissionPath", nfsSubmissionPath.absolutePath)
-        configurationPropertiesHolder.addProperty("app.ftpPath", nfsFtpPath.absolutePath)
-        configurationPropertiesHolder.addProperty("app.fireTempDirPath", fireTempFolder.absolutePath)
-        configurationPropertiesHolder.addProperty("app.tempDirPath", tempDirPath.absolutePath)
-        configurationPropertiesHolder.addProperty("app.requestFilesPath", requestFilesPath.absolutePath)
-        configurationPropertiesHolder.addProperty("app.security.filesProperties.filesDirPath", dropboxPath.absolutePath)
-        configurationPropertiesHolder.addProperty(
+        properties.addProperty("app.submissionPath", nfsSubmissionPath.absolutePath)
+        properties.addProperty("app.ftpPath", nfsFtpPath.absolutePath)
+        properties.addProperty("app.fireTempDirPath", fireTempFolder.absolutePath)
+        properties.addProperty("app.tempDirPath", tempDirPath.absolutePath)
+        properties.addProperty("app.requestFilesPath", requestFilesPath.absolutePath)
+        properties.addProperty("app.security.filesProperties.filesDirPath", dropboxPath.absolutePath)
+        properties.addProperty(
             "app.security.filesProperties.magicDirPath",
             magicDirPath.absolutePath
         )
-        configurationPropertiesHolder.addProperty("app.persistence.concurrency", PERSISTENCE_CONCURRENCY)
-        configurationPropertiesHolder.addProperty(
+        properties.addProperty("app.persistence.concurrency", PERSISTENCE_CONCURRENCY)
+        properties.addProperty(
             "app.persistence.enableFire",
             "${System.getProperty("enableFire").toBoolean()}"
         )
 
         val file = File(this::class.java.getResource("/application.yml")!!.toURI())
-        configurationPropertiesHolder.addProperty("app.task.configFilePath", file.absolutePath)
+        properties.addProperty("app.task.configFilePath", file.absolutePath)
 
         val file2 = File(this::class.java.getResource("/submission-task-1.0.0.jar")!!.toURI())
-        configurationPropertiesHolder.addProperty("app.task.jarLocation", file2.absolutePath)
+        properties.addProperty("app.task.jarLocation", file2.absolutePath)
 
-        configurationPropertiesHolder.addProperty("app.task.logsLocation", createTempDirectory().absolutePathString())
-        configurationPropertiesHolder.writeProperties()
+        properties.addProperty("app.task.logsLocation", createTempDirectory().absolutePathString())
+        properties.writeProperties()
     }
 
     private fun doiSetup() {
         doiServer.start()
-        configurationPropertiesHolder.addProperty("app.doi.endpoint", "${doiServer.baseUrl()}/deposit")
-        configurationPropertiesHolder.addProperty("app.doi.uiUrl", "https://www.ebi.ac.uk/biostudies/")
-        configurationPropertiesHolder.addProperty("app.doi.user", "a-user")
-        configurationPropertiesHolder.addProperty("app.doi.password", "a-password")
+        properties.addProperty("app.doi.endpoint", "${doiServer.baseUrl()}/deposit")
+        properties.addProperty("app.doi.uiUrl", "https://www.ebi.ac.uk/biostudies/")
+        properties.addProperty("app.doi.user", "a-user")
+        properties.addProperty("app.doi.password", "a-password")
     }
 
     companion object {
