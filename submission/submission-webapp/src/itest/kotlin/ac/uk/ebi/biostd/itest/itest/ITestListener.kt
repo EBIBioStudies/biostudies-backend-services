@@ -28,8 +28,6 @@ import org.testcontainers.utility.DockerImageName.parse
 import java.io.File
 import java.nio.file.Files
 import java.time.Duration.ofSeconds
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.createTempDirectory
 
 class ITestListener : TestExecutionListener {
 
@@ -125,14 +123,6 @@ class ITestListener : TestExecutionListener {
             "app.persistence.enableFire",
             "${System.getProperty("enableFire").toBoolean()}"
         )
-
-        val file = File(this::class.java.getResource("/application.yml")!!.toURI())
-        properties.addProperty("app.task.configFilePath", file.absolutePath)
-
-        val file2 = File(this::class.java.getResource("/submission-task-1.0.0.jar")!!.toURI())
-        properties.addProperty("app.task.jarLocation", file2.absolutePath)
-
-        properties.addProperty("app.task.logsLocation", createTempDirectory().absolutePathString())
         properties.writeProperties()
     }
 

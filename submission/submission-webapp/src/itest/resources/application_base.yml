@@ -3,6 +3,7 @@ logging:
     root: info
 
 spring:
+  datasource:
   jpa:
     show-sql: false
     hibernate:
@@ -63,5 +64,3 @@ app:
   notifications:
     requestQueue: submission-request-submitter-queue # queue used to handle request stages
     requestRoutingKey: bio.submission.requested # request messages routing key
-
-
