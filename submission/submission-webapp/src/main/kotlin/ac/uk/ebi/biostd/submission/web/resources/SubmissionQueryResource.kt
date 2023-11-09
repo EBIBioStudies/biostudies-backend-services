@@ -87,6 +87,7 @@ class SubmissionQueryResource(
             modificationTime,
             releaseTime,
             method,
-            status.value
+            status.value,
+            completionPercentage,
         )
 }

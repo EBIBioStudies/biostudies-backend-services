@@ -18,8 +18,7 @@ data class BasicSubmission(
     val modificationTime: OffsetDateTime,
     val creationTime: OffsetDateTime,
     val method: SubmissionMethod?,
-    var status: ProcessingStatus,
+    val status: ProcessingStatus,
+    val completionPercentage: Double,
     val owner: String
-) {
-    val isActive = version > 0
-}
+)

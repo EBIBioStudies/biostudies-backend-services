@@ -15,5 +15,5 @@ class CollectionMongoDataService(
     override fun findCollectionsByAccessTags(tags: List<String>): Flow<BasicSubmission> =
         submissionDocDataRepository
             .getByAccNoInAndVersionGreaterThan(tags, 0)
-            .map { it.asBasicSubmission(PROCESSED) }
+            .map { it.asBasicSubmission(PROCESSED, 1.0) }
 }

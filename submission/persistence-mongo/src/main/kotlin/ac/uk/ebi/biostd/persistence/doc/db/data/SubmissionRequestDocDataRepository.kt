@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING_STAGES
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
@@ -60,7 +60,7 @@ class SubmissionRequestDocDataRepository(
             DocSubmissionRequest::class.java
         ).awaitSingle()
         val created = result.matchedCount < 1
-        return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING) to created
+        return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING_STAGES) to created
     }
 
     suspend fun findActiveRequests(filter: SubmissionListFilter): Pair<Int, List<DocSubmissionRequest>> {
@@ -126,7 +126,7 @@ class SubmissionRequestDocDataRepository(
 
     private fun criteriaArray(filter: SubmissionListFilter): Array<Criteria> =
         ImmutableList.Builder<Criteria>().apply {
-            add(where(SUB_STATUS).`in`(PROCESSING))
+            add(where(SUB_STATUS).`in`(PROCESSING_STAGES))
             filter.accNo?.let { add(where("$SUB.$SUB_ACC_NO").`is`(it)) }
             filter.type?.let { add(where("$SUB.$SUB_SECTION.$SEC_TYPE").`is`(it)) }
             filter.rTimeFrom?.let { add(where("$SUB.$SUB_RELEASE_TIME").gte(it.toString())) }
