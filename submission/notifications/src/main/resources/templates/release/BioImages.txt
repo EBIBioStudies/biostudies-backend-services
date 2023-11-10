@@ -1,0 +1,11 @@
+Dear ${USERNAME},
+
+Your submission with accession number ${SUB_DESCRIPTION} will be made public on ${RELEASE_DATE}.
+
+If you want to keep your submission private after this date or make it public earlier, please log in to the BioStudies Submission Tool at ${ST_URL} and change the release date.
+
+Should you have any further questions, please reply to this message making sure you keep the subject or contact us at ${MAIL_TO}
+
+Best regards,
+
+BioImage Archive Team
