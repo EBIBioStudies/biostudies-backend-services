@@ -9,12 +9,14 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.doc.integration.ExternalConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.SerializationConfiguration
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.ServiceConfig
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.extended.LocalExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
@@ -39,6 +41,7 @@ import ebi.ac.uk.extended.mapping.from.ToExtSectionMapper
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -55,7 +58,13 @@ import java.nio.file.Paths
 
 @Suppress("LongParameterList")
 @Configuration
-@Import(ServiceConfig::class, FilesHandlerConfig::class, SecurityConfig::class, SerializationConfiguration::class)
+@Import(
+    ServiceConfig::class,
+    FilesHandlerConfig::class,
+    SecurityConfig::class,
+    SerializationConfiguration::class,
+    ExternalConfig::class
+)
 class SubmitterConfig(
     private val properties: ApplicationProperties,
 ) {
@@ -155,7 +164,8 @@ class SubmitterConfig(
     )
 
     @Bean
-    fun submissionRequestService(
+    @ConditionalOnMissingBean(ExtSubmissionSubmitter::class)
+    fun extSubmissionSubmitter(
         pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
@@ -166,7 +176,7 @@ class SubmitterConfig(
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
         submissionFinalizer: SubmissionRequestFinalizer,
-    ): ExtSubmissionSubmitter = ExtSubmissionSubmitter(
+    ): ExtSubmissionSubmitter = LocalExtSubmissionSubmitter(
         pageTabService,
         requestService,
         persistenceService,

@@ -33,10 +33,10 @@ allprojects {
                 jvmTarget = "11"
                 freeCompilerArgs =
                     freeCompilerArgs + arrayOf(
-                    "-Xjvm-default=enable",
-                    "-opt-in=kotlin.RequiresOptIn",
-                    "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
-                )
+                        "-Xjvm-default=enable",
+                        "-opt-in=kotlin.RequiresOptIn",
+                        "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+                    )
             }
         }
 
@@ -73,3 +73,4 @@ tasks.register("buildArtifacts") {
         "submission:submission-webapp:bootJar"
     )
 }
+

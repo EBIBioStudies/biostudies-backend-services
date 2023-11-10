@@ -43,7 +43,7 @@ import java.time.ZoneOffset.UTC
 
 @ExtendWith(MockKExtension::class)
 @OptIn(ExperimentalCoroutinesApi::class)
-internal class ExtSubmissionSubmitterTest(
+internal class LocalExtSubmissionSubmitterTest(
     @MockK private val sub: ExtSubmission,
     @MockK private val pageTabService: PageTabService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
@@ -57,7 +57,7 @@ internal class ExtSubmissionSubmitterTest(
     @MockK private val requestFinalizer: SubmissionRequestFinalizer,
 ) {
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 1, 2, 3, 4, UTC)
-    private val testInstance = ExtSubmissionSubmitter(
+    private val testInstance = LocalExtSubmissionSubmitter(
         pageTabService,
         requestService,
         persistenceService,

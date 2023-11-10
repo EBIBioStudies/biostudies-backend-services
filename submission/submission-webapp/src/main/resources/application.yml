@@ -72,6 +72,11 @@ app:
   fireTempDirPath: # Absolute path of the temp folder for FIRE storage
   instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
   #subBasePath: # Allows to allocate submissions under different base path. Commented to avoid empty string binding.
+  task:
+    enable-task-mode: # Wheter the task mode should be enable
+    jar-location: # the submitter task jar location.
+    logs-location: # the submitter task logs location.
+    config-file-path: # the submitter task application.yml file location.
   fire:
     host: # FIRE host
     username: # FIRE user

@@ -175,8 +175,11 @@ val itest = tasks.create<Test>("itest") {
     classpath = sourceSets["itest"].runtimeClasspath
 
     val enableFire = project.property("enableFire")!!
-    println("##### Running integration tests with fireEnable=$enableFire #######")
+    val enableTask = project.property("enableTask")!!
+    println("##### Running integration tests with fireEnable=$enableFire, taskMode=$enableTask #######")
+
     systemProperty("enableFire", enableFire)
+    systemProperty("enableTask", enableTask)
 
     useJUnitPlatform()
     testLogging.exceptionFormat = TestExceptionFormat.SHORT

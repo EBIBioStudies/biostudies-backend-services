@@ -35,7 +35,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 @ExtendWith(MockKExtension::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class ExtSubmissionServiceTest(
-    @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
+    @MockK private val submissionSubmitter: LocalExtSubmissionSubmitter,
     @MockK private val submissionRepository: SubmissionPersistenceQueryService,
     @MockK private val userPrivilegesService: IUserPrivilegesService,
     @MockK private val securityQueryService: ISecurityQueryService,
