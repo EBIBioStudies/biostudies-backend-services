@@ -8,12 +8,9 @@ import org.springframework.boot.runApplication
 
 @SpringBootApplication
 @EnableConfigurationProperties(value = [ApplicationProperties::class, TaskHostProperties::class])
-class SubmissionWebApp {
-    companion object {
-        @JvmStatic
-        @Suppress("SpreadOperator")
-        fun main(args: Array<String>) {
-            runApplication<SubmissionWebApp>(*args)
-        }
-    }
+class SubmissionWebApp
+
+@Suppress("SpreadOperator")
+fun main(args: Array<String>) {
+    runApplication<SubmissionWebApp>(*args)
 }

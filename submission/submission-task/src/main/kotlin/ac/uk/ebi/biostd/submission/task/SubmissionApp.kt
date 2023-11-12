@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.task;
+package ac.uk.ebi.biostd.submission.task
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.common.properties.Mode
@@ -27,8 +27,7 @@ import org.springframework.stereotype.Component
 @SpringBootApplication
 @EnableConfigurationProperties(value = [ApplicationProperties::class, TaskProperties::class])
 @Import(value = [SubmissionConfig::class])
-public class SubmissionApp {
-}
+public class SubmissionApp
 
 @Suppress("SpreadOperator")
 fun main(args: Array<String>) {
@@ -60,6 +59,6 @@ class Execute(
             Mode.CALC_STATS -> submissionStagesHandler.calculateStats(RequestFinalized(accNo, version))
         }
         logger.info { "Command line ${properties.taskMode} completed for submission '$accNo', version : '$version'" }
-        System.exit(SpringApplication.exit(context));
+        System.exit(SpringApplication.exit(context))
     }
 }

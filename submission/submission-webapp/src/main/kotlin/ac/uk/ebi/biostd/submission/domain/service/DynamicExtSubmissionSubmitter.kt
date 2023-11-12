@@ -24,23 +24,23 @@ class DynamicExtSubmissionSubmitter(
     }
 
     private suspend fun copyRequestFilesRemotly(accNo: String, version: Int) = withContext(Dispatchers.IO) {
-        val processId = UUID.randomUUID()
-        val logFile = File(hostProperties.logsLocation, "application-${processId}.log")
+        val pId = UUID.randomUUID()
+        val logs = File(hostProperties.logsLocation, "application-$pId.log")
         val params = buildList<String> {
             add("java")
             add("-jar")
             add(hostProperties.jarLocation)
             add("--spring.config.location=${hostProperties.configFilePath}")
-            add("--accNo=${accNo}")
-            add("--version=${version}")
+            add("--accNo=$accNo")
+            add("--version=$version")
             add("--mode=COPY")
         }
 
-        logger.info { "$accNo, $version, Executing process $processId, task ='${params.joinToString(" ")}', logs='${logFile.absolutePath}'" }
+        logger.info { "$accNo $version process $pId, task ='${params.joinToString(" ")}', logs='${logs.absolutePath}'" }
         val processBuilder = ProcessBuilder(params)
-        processBuilder.redirectOutput(logFile)
+        processBuilder.redirectOutput(logs)
         val process = processBuilder.start()
         val exitCode = process.waitFor()
-        if (exitCode != 0) throw IllegalStateException("Failed to process subsmision '${accNo}' in process  $processId")
+        if (exitCode != 0) throw IllegalStateException("Failed to process subsmision '$accNo' in process  $pId")
     }
 }

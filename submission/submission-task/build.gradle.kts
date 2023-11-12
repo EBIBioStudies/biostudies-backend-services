@@ -32,5 +32,3 @@ tasks.named<BootJar>("bootJar") {
     archiveBaseName.set("submission-task")
     archiveVersion.set("1.0.0")
 }
-
-
