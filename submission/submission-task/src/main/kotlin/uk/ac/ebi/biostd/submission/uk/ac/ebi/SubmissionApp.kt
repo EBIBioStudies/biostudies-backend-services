@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.task
+package uk.ac.ebi.biostd.submission.uk.ac.ebi
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.common.properties.Mode

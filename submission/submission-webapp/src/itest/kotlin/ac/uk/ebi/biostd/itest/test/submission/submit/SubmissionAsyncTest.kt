@@ -59,7 +59,7 @@ class SubmissionAsyncTest(
     }
 
     @Test
-    fun `19-1 simple submit async`() = runTest() {
+    fun `19-1 simple submit async`() = runTest {
 
         val submission = tsv {
             line("Submission", "SimpleAsync1")

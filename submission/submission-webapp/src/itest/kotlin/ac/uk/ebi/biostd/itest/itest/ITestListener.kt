@@ -183,7 +183,7 @@ class ITestListener : TestExecutionListener {
         private val rabbitMQContainer = createRabbitMqContainer()
 
         val enableFire get() = System.getProperty("enableFire").toBoolean()
-        val enableTask get() = System.getProperty("enableTask").toBoolean()
+        val enableTask get() = System.getProperty("enableTaskMode").toBoolean()
         val storageMode get() = if (enableFire) StorageMode.FIRE else StorageMode.NFS
         val submissionPath get() = if (enableFire) fireSubmissionPath else nfsSubmissionPath
         val ftpPath get() = if (enableFire) fireFtpPath else nfsFtpPath

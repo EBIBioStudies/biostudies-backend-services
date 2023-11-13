@@ -1,8 +1,6 @@
-package ac.uk.ebi.biostd.submission.domain.service
+package ac.uk.ebi.biostd.submission.domain.extended
 
 import ac.uk.ebi.biostd.common.properties.TaskHostProperties
-import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionSubmitter
-import ac.uk.ebi.biostd.submission.domain.extended.LocalExtSubmissionSubmitter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
