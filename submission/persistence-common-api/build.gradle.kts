@@ -5,6 +5,8 @@ import Dependencies.KotlinStdLib
 import Projects.CommonsBio
 import Projects.CommonsModelExtended
 import SpringBootDependencies.SpringDataCommons
+import TestDependencies.BaseTestCompileDependencies
+import TestDependencies.BaseTestRuntimeDependencies
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
@@ -29,4 +31,7 @@ dependencies {
     implementation(SpringDataCommons)
     implementation(KotlinCoroutines)
     implementation(KotlinCoroutinesReactor)
+
+    BaseTestCompileDependencies.forEach { testImplementation(it) }
+    BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }

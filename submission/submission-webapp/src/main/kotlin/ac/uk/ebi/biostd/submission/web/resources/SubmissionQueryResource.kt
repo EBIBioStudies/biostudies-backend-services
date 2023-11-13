@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.web.resources
 
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING_STAGES
 import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
@@ -9,6 +10,8 @@ import ac.uk.ebi.biostd.submission.web.model.SubmissionFilterRequest
 import ac.uk.ebi.biostd.submission.web.model.asFilter
 import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.model.constants.APPLICATION_JSON
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
+import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.model.constants.TEXT_XML
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -78,8 +81,9 @@ class SubmissionQueryResource(
             .body(resource)
     }
 
-    private fun BasicSubmission.asDto() =
-        SubmissionDto(
+    private fun BasicSubmission.asDto(): SubmissionDto {
+        val processingStatus = if (PROCESSING_STAGES.contains(status)) PROCESSING else PROCESSED
+        return SubmissionDto(
             accNo,
             title.orEmpty(),
             version,
@@ -87,7 +91,8 @@ class SubmissionQueryResource(
             modificationTime,
             releaseTime,
             method,
-            status.value,
+            processingStatus.value,
             completionPercentage,
         )
+    }
 }

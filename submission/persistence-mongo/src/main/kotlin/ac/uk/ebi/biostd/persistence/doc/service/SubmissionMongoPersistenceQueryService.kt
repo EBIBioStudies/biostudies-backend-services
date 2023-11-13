@@ -1,9 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.FILE_PROCESSING_STAGES
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.WEIGHT_CONSTANT
-import ac.uk.ebi.biostd.persistence.common.model.completion
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -14,15 +12,12 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
-import java.math.RoundingMode.HALF_UP
 import kotlin.math.max
 
 internal class SubmissionMongoPersistenceQueryService(
@@ -77,23 +72,19 @@ internal class SubmissionMongoPersistenceQueryService(
             notIncludeAccNo = requests.map { it.accNo }.toSet()
         )
 
+        fun DocSubmissionRequest.asBasicSubmission() =
+            serializationService
+                .deserialize(submission.toString())
+                .asBasicSubmission(status, totalFiles, currentIndex)
+
         return requests
-            .map { serializationService.deserialize(it.submission.toString()) to it.completionPercentage() }
-            .map { it.first.asBasicSubmission(PROCESSING, it.second) }
+            .map { it.asBasicSubmission() }
             .plus(findSubmissions(submissionFilter))
-    }
-
-    private fun DocSubmissionRequest.completionPercentage(): Double {
-        val fileCompletion = (currentIndex.toDouble() / totalFiles) * WEIGHT_CONSTANT
-        val percentage = if (FILE_PROCESSING_STAGES.contains(status)) status.completion + fileCompletion
-        else status.completion
-
-        return percentage.toBigDecimal().setScale(2, HALF_UP).toDouble()
     }
 
     private suspend fun findSubmissions(filter: SubmissionListFilter): List<BasicSubmission> =
         when (filter.limit) {
             0 -> emptyList()
-            else -> submissionRepo.getSubmissions(filter).map { it.asBasicSubmission(PROCESSED, 1.0) }.toList()
+            else -> submissionRepo.getSubmissions(filter).map { it.asBasicSubmission(PROCESSED) }.toList()
         }
 }

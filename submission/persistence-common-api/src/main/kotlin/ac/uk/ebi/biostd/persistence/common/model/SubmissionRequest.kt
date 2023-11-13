@@ -75,6 +75,7 @@ enum class RequestStatus(internal val weight: Double) {
             FILES_COPIED,
         )
 
+        const val DEFAULT_FILES = 1
         const val WEIGHT_CONSTANT = (1.0 / 7)
     }
 }
