@@ -17,7 +17,7 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
-import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission

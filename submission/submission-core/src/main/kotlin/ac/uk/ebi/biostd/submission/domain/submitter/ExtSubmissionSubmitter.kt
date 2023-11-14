@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.domain.extended
+package ac.uk.ebi.biostd.submission.domain.submitter
 
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ebi.ac.uk.extended.model.ExtSubmission

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.domain.extended
+package ac.uk.ebi.biostd.submission.domain.submitter
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED

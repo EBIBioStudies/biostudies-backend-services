@@ -15,8 +15,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.ServiceConfig
-import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionSubmitter
-import ac.uk.ebi.biostd.submission.domain.extended.LocalExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
@@ -26,6 +24,8 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.LocalExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.service.AccNoService
 import ac.uk.ebi.biostd.submission.service.CollectionProcessor
 import ac.uk.ebi.biostd.submission.service.DoiService
@@ -165,7 +165,7 @@ class SubmitterConfig(
 
     @Bean
     @ConditionalOnMissingBean(ExtSubmissionSubmitter::class)
-    fun extSubmissionSubmitter(
+    fun localExtSubmissionSubmitter(
         pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,

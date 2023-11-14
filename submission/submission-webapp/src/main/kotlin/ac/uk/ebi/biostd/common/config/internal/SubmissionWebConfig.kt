@@ -11,9 +11,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
-import ac.uk.ebi.biostd.submission.domain.extended.DynamicExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
-import ac.uk.ebi.biostd.submission.domain.extended.LocalExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
@@ -26,6 +24,10 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
+import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.ExtendedSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.LocalExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.RemoteExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
@@ -43,7 +45,7 @@ import java.net.URI
 class SubmissionWebConfig {
 
     @Bean
-    fun dynamicExtSubmissionSubmitter(
+    fun extendedSubmissionSubmitter(
         pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
@@ -55,8 +57,8 @@ class SubmissionWebConfig {
         submissionSaver: SubmissionRequestSaver,
         submissionFinalizer: SubmissionRequestFinalizer,
         hostProperties: TaskHostProperties,
-    ): DynamicExtSubmissionSubmitter {
-        val extSubmissionSubmitter = LocalExtSubmissionSubmitter(
+    ): ExtSubmissionSubmitter {
+        val local = LocalExtSubmissionSubmitter(
             pageTabService,
             requestService,
             persistenceService,
@@ -68,7 +70,8 @@ class SubmissionWebConfig {
             submissionSaver,
             submissionFinalizer,
         )
-        return DynamicExtSubmissionSubmitter(extSubmissionSubmitter, hostProperties)
+        val remote = RemoteExtSubmissionSubmitter(hostProperties)
+        return ExtendedSubmissionSubmitter(local, remote, hostProperties)
     }
 
     @Bean
