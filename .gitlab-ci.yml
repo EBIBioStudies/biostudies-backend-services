@@ -56,6 +56,9 @@ stages:
   - deploy-dev-releaser-task
   - deploy-beta-releaser-task
   - deploy-prod-releaser-task
+  - deploy-dev-stats-reporter-task
+  - deploy-beta-stats-reporter-task
+  - deploy-prod-stats-reporter-task
   - deploy-dev-scheduler
   - deploy-beta-scheduler
   - deploy-prod-scheduler
