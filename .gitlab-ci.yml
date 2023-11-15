@@ -11,6 +11,7 @@ include:
   - local: '/ci/pmc-processor.yml'
   - local: '/ci/exporter.yml'
   - local: '/ci/submission-releaser.yml'
+  - local: '/ci/stats-reporter.yml'
   - local: '/ci/scheduler.yml'
   - local: '/ci/bio-admin.yml'
   - local: '/ci/bio-commandline.yml'
@@ -37,6 +38,7 @@ stages:
   - auto-deploy-prod-scheduler
   - auto-deploy-prod-exporter-task
   - auto-deploy-prod-releaser-task
+  - auto-deploy-prod-stats-reporter-task
   - auto-deploy-prod-pmc-processor-task
   - deploy-dev-submitter
   - deploy-beta-submitter
@@ -54,6 +56,9 @@ stages:
   - deploy-dev-releaser-task
   - deploy-beta-releaser-task
   - deploy-prod-releaser-task
+  - deploy-dev-stats-reporter-task
+  - deploy-beta-stats-reporter-task
+  - deploy-prod-stats-reporter-task
   - deploy-dev-scheduler
   - deploy-beta-scheduler
   - deploy-prod-scheduler
