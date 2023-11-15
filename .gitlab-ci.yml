@@ -38,7 +38,7 @@ stages:
   - auto-deploy-prod-scheduler
   - auto-deploy-prod-exporter-task
   - auto-deploy-prod-releaser-task
-  - auto-deploy-prod-stats-reporter
+  - auto-deploy-prod-stats-reporter-task
   - auto-deploy-prod-pmc-processor-task
   - deploy-dev-submitter
   - deploy-beta-submitter
