@@ -6,21 +6,23 @@ import ebi.ac.uk.extended.mapping.to.ToSectionMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.serialization.common.FilesResolver
 
 @Configuration
+@Import(value = [SerializationConfiguration::class])
 class ToSubmissionConfig {
-    @Bean
-    fun toSubmissionMapper(toSectionMapper: ToSectionMapper) = ToSubmissionMapper(toSectionMapper)
-
-    @Bean
-    fun toSectionMapper(toFileListMapper: ToFileListMapper) = ToSectionMapper(toFileListMapper)
-
     @Bean
     fun toFileListMapper(
         serializationService: SerializationService,
         extSerializationService: ExtSerializationService,
-        resolver: FilesResolver
+        resolver: FilesResolver,
     ) = ToFileListMapper(serializationService, extSerializationService, resolver)
+
+    @Bean
+    fun toSectionMapper(toFileListMapper: ToFileListMapper): ToSectionMapper = ToSectionMapper(toFileListMapper)
+
+    @Bean
+    fun toSubmissionMapper(toSectionMapper: ToSectionMapper): ToSubmissionMapper = ToSubmissionMapper(toSectionMapper)
 }

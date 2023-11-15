@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Import
 import uk.ac.ebi.events.service.EventsPublisherService
 
 @Configuration
-@Import(FilePersistenceConfig::class)
+@Import(value = [FilePersistenceConfig::class, JmsPublishingConfig::class])
 @Suppress("TooManyFunctions")
 class SecurityConfig(properties: ApplicationProperties) {
     private val securityProps = properties.security

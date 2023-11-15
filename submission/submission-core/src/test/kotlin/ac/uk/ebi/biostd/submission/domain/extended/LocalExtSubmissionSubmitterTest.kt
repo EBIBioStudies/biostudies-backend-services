@@ -19,6 +19,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
+import ac.uk.ebi.biostd.submission.domain.submitter.LocalExtSubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
@@ -43,7 +44,7 @@ import java.time.ZoneOffset.UTC
 
 @ExtendWith(MockKExtension::class)
 @OptIn(ExperimentalCoroutinesApi::class)
-internal class ExtSubmissionSubmitterTest(
+internal class LocalExtSubmissionSubmitterTest(
     @MockK private val sub: ExtSubmission,
     @MockK private val pageTabService: PageTabService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
@@ -57,7 +58,7 @@ internal class ExtSubmissionSubmitterTest(
     @MockK private val requestFinalizer: SubmissionRequestFinalizer,
 ) {
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 1, 2, 3, 4, UTC)
-    private val testInstance = ExtSubmissionSubmitter(
+    private val testInstance = LocalExtSubmissionSubmitter(
         pageTabService,
         requestService,
         persistenceService,
