@@ -7,18 +7,24 @@ import ac.uk.ebi.cluster.client.model.JobSpec
 import arrow.core.Try
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
+import ebi.ac.uk.coroutines.waitUntil
 import mu.KotlinLogging
+import java.time.Duration
 
+private const val CHECK_COMMAND = "bjobs -o STAT -noheader %s"
+private const val DONE_STATUS = "DONE"
 private const val REDIRECT_LOGS = "-o $LOGS_PATH%J_OUT -e $LOGS_PATH/%J_IN"
 private const val SUBMIT_COMMAND = "bsub $REDIRECT_LOGS"
+
 private val logger = KotlinLogging.logger {}
 
+// TODO I think this could be moved to the :commons project since we'll be moving away from the scheduler as an app
 class ClusterOperations(
     private val responseParser: JobResponseParser,
     private val sessionFunction: () -> Session,
 ) {
 
-    fun triggerJob(jobSpec: JobSpec): Try<Job> {
+    suspend fun triggerJob(jobSpec: JobSpec): Try<Job> {
         val parameters = mutableListOf(SUBMIT_COMMAND)
         parameters.addAll(jobSpec.asParameter())
         val command = parameters.joinToString(separator = " ")
@@ -27,6 +33,21 @@ class ClusterOperations(
             val (exitStatus, response) = executeCommand(command)
             return@runInSession asJobReturn(exitStatus, response)
         }
+    }
+
+    suspend fun awaitJob(
+        jobSpec: JobSpec,
+        maxSecondsDuration: Long = 60,
+    ): Job {
+        suspend fun await(job: Job) = runInSession {
+            waitUntil(Duration.ofSeconds(maxSecondsDuration)) {
+                executeCommand(String.format(CHECK_COMMAND, job.id)).second.trimIndent() == DONE_STATUS
+            }
+
+            job
+        }
+
+        return triggerJob(jobSpec).fold({throw it}, { await(it) })
     }
 
     private fun asJobReturn(exitCode: Int, response: String): Try<Job> {
@@ -50,7 +71,7 @@ class ClusterOperations(
         }
     }
 
-    private fun <T> runInSession(exec: CommandRunner.() -> T): T {
+    private suspend fun <T> runInSession(exec: suspend CommandRunner.() -> T): T {
         val session = sessionFunction()
 
         try {

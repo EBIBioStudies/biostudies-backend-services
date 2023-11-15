@@ -13,6 +13,7 @@ data class SecurityProperties(
     @NestedConfigurationProperty
     val instanceKeys: InstanceKeys = InstanceKeys(),
     val filesProperties: FilesProperties,
+    val ssh: SshProperties,
 )
 
 enum class StorageMode {
@@ -35,4 +36,10 @@ data class InstanceKeys(
     val dev: String = "",
     val beta: String = "",
     val prod: String = "",
+)
+
+data class SshProperties(
+    val user: String,
+    val key: String,
+    val server: String,
 )

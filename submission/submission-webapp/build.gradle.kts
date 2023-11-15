@@ -20,6 +20,7 @@ import Projects.CommonsSerialization
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.ExcelLibrary
+import Projects.SchedulerClusterClient
 import Projects.SubmissionNotification
 import Projects.SubmissionPersistenceMongo
 import Projects.SubmissionPersistenceSql
@@ -94,6 +95,7 @@ dependencies {
     api(project(ExcelLibrary))
     api(project(CommonsTest))
     api(project(CommonsHttp))
+    api(project(SchedulerClusterClient))
 
     annotationProcessor(SpringBootConfigurationProcessor)
     implementation(SpringBootStarterWeb)

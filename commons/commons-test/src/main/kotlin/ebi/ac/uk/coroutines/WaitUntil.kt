@@ -5,6 +5,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.time.Duration
 
+// TODO this should be moved to :commons:commons-util since it's no longer useful just for testing
 @Suppress("MagicNumber")
 suspend fun waitUntil(
     duration: Duration,

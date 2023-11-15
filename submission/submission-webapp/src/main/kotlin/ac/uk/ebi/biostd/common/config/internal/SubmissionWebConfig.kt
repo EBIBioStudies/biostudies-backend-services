@@ -33,6 +33,7 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
+import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
@@ -137,4 +138,9 @@ class SubmissionWebConfig {
 
     @Bean
     fun onBehalfUtils(securityQueryService: ISecurityQueryService): OnBehalfUtils = OnBehalfUtils(securityQueryService)
+
+    @Bean
+    fun clusterClient(
+        properties: ApplicationProperties
+    ): ClusterOperations = ClusterOperations.create(properties.security.ssh.key, properties.security.ssh.server)
 }
