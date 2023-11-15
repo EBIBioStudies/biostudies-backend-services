@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING_STAGES
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.map
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
-import java.time.Instant
+import java.time.Instant.now
 import java.time.ZoneOffset.UTC
 import java.time.temporal.TemporalAmount
 
@@ -32,13 +32,13 @@ class SubmissionRequestMongoPersistenceService(
     private val requestRepository: SubmissionRequestDocDataRepository,
 ) : SubmissionRequestPersistenceService {
     override suspend fun hasActiveRequest(accNo: String): Boolean {
-        return requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING)
+        return requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING_STAGES)
     }
 
     override fun getProcessingRequests(since: TemporalAmount?): Flow<Pair<String, Int>> {
         val request = when (since) {
-            null -> requestRepository.findByStatusIn(PROCESSING)
-            else -> requestRepository.findByStatusInAndModificationTimeLessThan(PROCESSING, Instant.now().minus(since))
+            null -> requestRepository.findByStatusIn(PROCESSING_STAGES)
+            else -> requestRepository.findByStatusInAndModificationTimeLessThan(PROCESSING_STAGES, now().minus(since))
         }
         return request.map { it.accNo to it.version }
     }

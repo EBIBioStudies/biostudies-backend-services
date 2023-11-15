@@ -3,8 +3,11 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.DEFAULT_FILES
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING_STAGES
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
@@ -25,8 +28,6 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import ebi.ac.uk.model.constants.SectionFields.TITLE
 import ebi.ac.uk.util.collections.second
 import io.mockk.junit5.MockKExtension
@@ -57,7 +58,6 @@ import java.time.Duration.ofSeconds
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED as REQUEST_PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
@@ -136,13 +136,13 @@ internal class SubmissionMongoQueryServiceTest(
             )
 
             assertThat(result).hasSize(1)
-            assertThat(result.first()).isEqualTo(savedRequest.asBasicSubmission(PROCESSING))
+            assertThat(result.first()).isEqualTo(savedRequest.asBasicSubmission(REQUESTED, TOTAL_FILES, CURRENT_INDEX))
 
             result = testInstance.getSubmissionsByUser(
                 SubmissionListFilter(SUBMISSION_OWNER, accNo = "accNo1", limit = 2)
             )
             assertThat(result).hasSize(1)
-            assertThat(result.first()).isEqualTo(savedRequest.asBasicSubmission(PROCESSING))
+            assertThat(result.first()).isEqualTo(savedRequest.asBasicSubmission(REQUESTED, TOTAL_FILES, CURRENT_INDEX))
         }
 
         @Test
@@ -301,28 +301,38 @@ internal class SubmissionMongoQueryServiceTest(
             assertThat(result).hasSize(5)
             assertThat(result[0].accNo).isEqualTo("accNo1")
             assertThat(result[0].version).isEqualTo(2)
-            assertThat(result[0].status).isEqualTo(PROCESSING)
-            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo1", RequestStatus.PROCESSING)).isTrue()
+            assertThat(result[0].status).isEqualTo(REQUESTED)
+            assertThat(result[0].totalFiles).isEqualTo(TOTAL_FILES)
+            assertThat(result[0].currentIndex).isEqualTo(CURRENT_INDEX)
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo1", PROCESSING_STAGES)).isTrue()
 
             assertThat(result[1].accNo).isEqualTo("accNo2")
             assertThat(result[1].version).isEqualTo(2)
-            assertThat(result[1].status).isEqualTo(PROCESSING)
-            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo2", RequestStatus.PROCESSING)).isTrue()
+            assertThat(result[1].status).isEqualTo(LOADED)
+            assertThat(result[1].totalFiles).isEqualTo(TOTAL_FILES)
+            assertThat(result[1].currentIndex).isEqualTo(CURRENT_INDEX)
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo2", PROCESSING_STAGES)).isTrue()
 
             assertThat(result[2].accNo).isEqualTo("accNo3")
             assertThat(result[2].version).isEqualTo(2)
-            assertThat(result[2].status).isEqualTo(PROCESSING)
-            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo3", RequestStatus.PROCESSING)).isTrue()
+            assertThat(result[2].status).isEqualTo(CLEANED)
+            assertThat(result[2].totalFiles).isEqualTo(TOTAL_FILES)
+            assertThat(result[2].currentIndex).isEqualTo(CURRENT_INDEX)
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo3", PROCESSING_STAGES)).isTrue()
 
             assertThat(result[3].accNo).isEqualTo("accNo4")
             assertThat(result[3].version).isEqualTo(2)
-            assertThat(result[3].status).isEqualTo(PROCESSING)
-            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo4", RequestStatus.PROCESSING)).isTrue()
+            assertThat(result[3].status).isEqualTo(FILES_COPIED)
+            assertThat(result[3].totalFiles).isEqualTo(TOTAL_FILES)
+            assertThat(result[3].currentIndex).isEqualTo(CURRENT_INDEX)
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo4", PROCESSING_STAGES)).isTrue()
 
             assertThat(result[4].accNo).isEqualTo("accNo5")
             assertThat(result[4].version).isEqualTo(1)
             assertThat(result[4].status).isEqualTo(PROCESSED)
-            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo5", RequestStatus.PROCESSING)).isFalse()
+            assertThat(result[4].totalFiles).isEqualTo(DEFAULT_FILES)
+            assertThat(result[4].currentIndex).isEqualTo(DEFAULT_FILES)
+            assertThat(requestRepository.existsByAccNoAndStatusIn("accNo5", PROCESSING_STAGES)).isFalse()
         }
 
         @Test
@@ -342,10 +352,10 @@ internal class SubmissionMongoQueryServiceTest(
         @Test
         fun `get only requests with status REQUESTED`() = runTest {
             saveAsRequest(extSubmission.copy(accNo = "accNo1", title = "one", section = section), REQUESTED)
-            saveAsRequest(extSubmission.copy(accNo = "accNo1", title = "two", section = section), REQUEST_PROCESSED)
+            saveAsRequest(extSubmission.copy(accNo = "accNo1", title = "two", section = section), PROCESSED)
             saveAsRequest(
                 extSubmission.copy(accNo = "accNo1", title = "three", section = section),
-                REQUEST_PROCESSED
+                PROCESSED,
             )
 
             val result = testInstance.getSubmissionsByUser(
@@ -369,8 +379,8 @@ internal class SubmissionMongoQueryServiceTest(
             draftKey = null,
             notifyTo = submission.owner,
             submission = BasicDBObject.parse(serializationService.serialize(submission)),
-            totalFiles = 6,
-            currentIndex = 0,
+            totalFiles = TOTAL_FILES,
+            currentIndex = CURRENT_INDEX,
             modificationTime = Instant.now()
         )
     }
@@ -382,6 +392,9 @@ internal class SubmissionMongoQueryServiceTest(
     }
 
     companion object {
+        const val TOTAL_FILES = 10
+        const val CURRENT_INDEX = 6
+
         @Container
         val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
             .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))

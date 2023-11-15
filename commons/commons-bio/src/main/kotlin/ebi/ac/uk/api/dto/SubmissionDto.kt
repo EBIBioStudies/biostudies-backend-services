@@ -11,5 +11,6 @@ data class SubmissionDto(
     val mtime: OffsetDateTime,
     val rtime: OffsetDateTime?,
     val method: SubmissionMethod?,
-    val status: String
+    val status: String,
+    val completionPercentage: Double,
 )

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -8,10 +9,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
+import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
-import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import org.springframework.data.domain.Page
@@ -72,9 +72,13 @@ internal class SubmissionMongoPersistenceQueryService(
             notIncludeAccNo = requests.map { it.accNo }.toSet()
         )
 
+        fun DocSubmissionRequest.asBasicSubmission() =
+            serializationService
+                .deserialize(submission.toString())
+                .asBasicSubmission(status, totalFiles, currentIndex)
+
         return requests
-            .map { serializationService.deserialize(it.submission.toString()) }
-            .map { it.asBasicSubmission(PROCESSING) }
+            .map { it.asBasicSubmission() }
             .plus(findSubmissions(submissionFilter))
     }
 
