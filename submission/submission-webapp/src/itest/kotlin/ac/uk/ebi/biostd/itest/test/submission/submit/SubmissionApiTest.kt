@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.FtpSuperUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -16,6 +15,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
@@ -298,7 +298,10 @@ class SubmissionApiTest(
 
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { webClient.submitSingle(submission, TSV) }
-            .withMessageContaining("The given file path contains invalid characters: inner/directory/")
+            .withMessageContainingAll(
+                "The given file path contains invalid characters: inner/directory/",
+                "For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list",
+            )
     }
 
     @Nested
