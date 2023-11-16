@@ -11,7 +11,7 @@ internal fun transferTo(basePath: Path, file: MultipartFile) {
     val expectedFilePath = basePath.resolve(file.originalFilename!!)
     FileUtils.createParentFolders(expectedFilePath, RWXRWX___)
     FileUtils.copyOrReplaceFile(
-        source = file.inputStream,
+        source = file,
         target = expectedFilePath.toFile(),
         permissions = Permissions(RW_RW____, RWXRWX___)
     )
