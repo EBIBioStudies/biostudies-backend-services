@@ -6,7 +6,6 @@ import ac.uk.ebi.cluster.client.model.DataMoverQueue
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
-import ac.uk.ebi.cluster.client.model.logsPath
 import ac.uk.ebi.scheduler.properties.StatsReporterProperties.Companion.create
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
@@ -41,7 +40,7 @@ class StatsReporterTrigger(
         return job
     }
 
-    private fun statsReporterJob(debugPort: Int?): Job {
+    private suspend fun statsReporterJob(debugPort: Int?): Job {
         val properties = getConfigProperties()
         val jobTry = clusterOperations.triggerJob(
             JobSpec(

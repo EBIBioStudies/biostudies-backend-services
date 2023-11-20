@@ -5,7 +5,6 @@ import ac.uk.ebi.cluster.client.model.CoresSpec.FOUR_CORES
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
-import ac.uk.ebi.cluster.client.model.logsPath
 import ac.uk.ebi.scheduler.properties.ReleaserMode
 import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
@@ -56,7 +55,7 @@ internal class SubmissionReleaserTrigger(
         return job
     }
 
-    private fun submissionReleaserJob(mode: ReleaserMode, debugPort: Int?): Job {
+    private suspend fun submissionReleaserJob(mode: ReleaserMode, debugPort: Int?): Job {
         val releaserProperties = getConfigProperties(mode, properties)
         val jobTry = clusterOperations.triggerJob(
             JobSpec(

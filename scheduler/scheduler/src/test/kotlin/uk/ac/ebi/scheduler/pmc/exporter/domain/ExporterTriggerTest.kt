@@ -58,12 +58,13 @@ class ExporterTriggerTest(
     @BeforeEach
     fun beforeEach() {
         every { job.id } returns "ABC123"
-        every { job.queue } returns "submissions-releaser-queue"
+        every { job.queue } returns "standard"
+        every { job.logsPath } returns "/the/logs/path"
 
         every { appProperties.javaHome } returns "/home/jdk11"
         every { appProperties.appsFolder } returns "/apps-folder"
 
-        every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
         coEvery { pcmNotificationsSender.send(capture(jobReport)) } answers { nothing }
         coEvery { schedulerNotificationsSender.send(capture(jobReport)) } answers { nothing }
     }

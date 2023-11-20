@@ -6,7 +6,6 @@ import ac.uk.ebi.cluster.client.model.CoresSpec.FOUR_CORES
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec
-import ac.uk.ebi.cluster.client.model.logsPath
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ac.uk.ebi.scheduler.properties.PmcMode
 import ac.uk.ebi.scheduler.properties.PmcMode.LOAD
@@ -102,7 +101,7 @@ private class PmcLoader(
     private val appProperties: AppProperties,
 ) {
 
-    fun loadFile(folder: String?, file: String?, debugPort: Int?): Job {
+    suspend fun loadFile(folder: String?, file: String?, debugPort: Int?): Job {
         val loadFolder = folder ?: properties.loadFolder
         logger.info { "submitting job to load folder: '$folder'" }
 
@@ -117,7 +116,7 @@ private class PmcLoader(
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    fun triggerProcessor(sourceFile: String?, debugPort: Int?): Job {
+    suspend fun triggerProcessor(sourceFile: String?, debugPort: Int?): Job {
         logger.info { "submitting job to process submissions, source file ${sourceFile ?: "any"}" }
         val properties = getConfigProperties(importMode = PROCESS, sourceFile = sourceFile)
         val jobTry = clusterOperations.triggerJob(
@@ -130,7 +129,7 @@ private class PmcLoader(
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    fun triggerSubmitter(sourceFile: String?, debugPort: Int?): Job {
+    suspend fun triggerSubmitter(sourceFile: String?, debugPort: Int?): Job {
         logger.info { "submitting job to submit submissions, source file ${sourceFile ?: "any"}" }
         val properties = getConfigProperties(importMode = SUBMIT, sourceFile = sourceFile)
         val jobTry = clusterOperations.triggerJob(
@@ -143,7 +142,7 @@ private class PmcLoader(
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    fun triggerSubmitSingle(submissionId: String, debugPort: Int?): Job {
+    suspend fun triggerSubmitSingle(submissionId: String, debugPort: Int?): Job {
         logger.info { "submitting job to submit submissions" }
         val properties = getConfigProperties(importMode = SUBMIT_SINGLE, submissionId = submissionId)
         val jobTry = clusterOperations.triggerJob(

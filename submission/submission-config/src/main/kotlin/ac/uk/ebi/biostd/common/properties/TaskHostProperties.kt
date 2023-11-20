@@ -10,4 +10,12 @@ data class TaskHostProperties(
     val jarLocation: String,
     val logsLocation: String,
     val configFilePath: String,
+    val cluster: ClusterProperties,
+)
+
+data class ClusterProperties(
+    val user: String,
+    val key: String,
+    val server: String,
+    val logsPath: String,
 )

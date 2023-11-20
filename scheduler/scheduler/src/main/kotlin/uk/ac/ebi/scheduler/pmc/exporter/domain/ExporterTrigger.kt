@@ -4,7 +4,6 @@ import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import ac.uk.ebi.cluster.client.model.Job
 import ac.uk.ebi.cluster.client.model.JobSpec
 import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.TWENTYFOUR_GB
-import ac.uk.ebi.cluster.client.model.logsPath
 import ac.uk.ebi.scheduler.properties.ExporterMode
 import ac.uk.ebi.scheduler.properties.ExporterMode.PMC
 import ac.uk.ebi.scheduler.properties.ExporterMode.PUBLIC_ONLY
@@ -70,7 +69,7 @@ class ExporterTrigger(
         return job
     }
 
-    private fun exporterJob(config: ExporterJobConfig): Job {
+    private suspend fun exporterJob(config: ExporterJobConfig): Job {
         val (mode, fileName, outputPath, debugPort, _) = config
         val exporterProperties = getConfigProperties(mode, fileName, outputPath)
         val cmd = exporterProperties.asCmd(appProperties.appsFolder, debugPort)

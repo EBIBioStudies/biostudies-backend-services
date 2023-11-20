@@ -49,9 +49,11 @@ class StatsReporterTriggerTest(
         val jobReport = slot<Report>()
 
         every { job.id } returns "ABC123"
-        every { job.queue } returns "submissions-releaser-queue"
+        every { job.queue } returns "standard"
+        every { job.logsPath } returns "/the/logs/path"
+
         coEvery { notificationsSender.send(capture(jobReport)) } answers { nothing }
-        every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
 
         testInstance.triggerStatsReporter()
 

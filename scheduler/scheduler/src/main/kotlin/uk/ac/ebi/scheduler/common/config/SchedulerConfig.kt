@@ -26,8 +26,9 @@ internal class SchedulerConfig {
     fun clusterOperations(
         appProperties: AppProperties,
     ) = ClusterOperations.create(
-        appProperties.ssh.sshKey,
-        appProperties.ssh.server,
+        appProperties.cluster.sshKey,
+        appProperties.cluster.server,
+        appProperties.cluster.logsPath,
     )
 
     @Bean

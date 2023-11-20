@@ -19,7 +19,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
-import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -51,12 +50,13 @@ class SubmissionReleaserTriggerTest(
     @BeforeEach
     fun beforeEach() {
         every { job.id } returns "ABC123"
-        every { job.queue } returns "submissions-releaser-queue"
+        every { job.queue } returns "standard"
+        every { job.logsPath } returns "/the/logs/path"
 
         every { appProperties.appsFolder } returns "apps-folder"
         every { appProperties.javaHome } returns "/home/jdk11"
 
-        every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
 
         coEvery { notificationsSender.send(capture(jobReport)) } answers { nothing }
     }
@@ -86,8 +86,10 @@ class SubmissionReleaserTriggerTest(
     }
 
     private fun verifyClusterOperations() {
-        coVerify(exactly = 1) { notificationsSender.send(jobReport.captured) }
-        verify(exactly = 1) { clusterOperations.triggerJob(jobSpecs.captured) }
+        coVerify(exactly = 1) {
+            notificationsSender.send(jobReport.captured)
+            clusterOperations.triggerJob(jobSpecs.captured)
+        }
     }
 
     private fun verifyJobSpecs(specs: JobSpec, mode: ReleaserMode) {

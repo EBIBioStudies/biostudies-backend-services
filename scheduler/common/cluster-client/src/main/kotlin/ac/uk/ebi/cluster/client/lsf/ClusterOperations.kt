@@ -13,19 +13,18 @@ import java.time.Duration
 
 private const val CHECK_COMMAND = "bjobs -o STAT -noheader %s"
 private const val DONE_STATUS = "DONE"
-private const val REDIRECT_LOGS = "-o $LOGS_PATH%J_OUT -e $LOGS_PATH/%J_IN"
-private const val SUBMIT_COMMAND = "bsub $REDIRECT_LOGS"
+private const val SUBMIT_COMMAND = "bsub -o %s/%%J_OUT -e %s%%J_IN"
 
 private val logger = KotlinLogging.logger {}
 
-// TODO I think this could be moved to the :commons project since we'll be moving away from the scheduler as an app
+// TODO move this to :client:cluster-client
 class ClusterOperations(
+    private val logsPath: String,
     private val responseParser: JobResponseParser,
     private val sessionFunction: () -> Session,
 ) {
-
     suspend fun triggerJob(jobSpec: JobSpec): Try<Job> {
-        val parameters = mutableListOf(SUBMIT_COMMAND)
+        val parameters = mutableListOf(String.format(SUBMIT_COMMAND, logsPath, logsPath))
         parameters.addAll(jobSpec.asParameter())
         val command = parameters.joinToString(separator = " ")
 
@@ -47,7 +46,7 @@ class ClusterOperations(
             job
         }
 
-        return triggerJob(jobSpec).fold({throw it}, { await(it) })
+        return triggerJob(jobSpec).fold({ throw it }, { await(it) })
     }
 
     private fun asJobReturn(exitCode: Int, response: String): Try<Job> {
@@ -60,10 +59,10 @@ class ClusterOperations(
     companion object {
         private val responseParser = JobResponseParser()
 
-        fun create(sshKey: String, sshMachine: String): ClusterOperations {
+        fun create(sshKey: String, sshMachine: String, logsPath: String): ClusterOperations {
             val sshClient = JSch()
             sshClient.addIdentity(sshKey)
-            return ClusterOperations(responseParser) {
+            return ClusterOperations(logsPath, responseParser) {
                 val session = sshClient.getSession(sshMachine)
                 session.setConfig("StrictHostKeyChecking", "no")
                 return@ClusterOperations session
