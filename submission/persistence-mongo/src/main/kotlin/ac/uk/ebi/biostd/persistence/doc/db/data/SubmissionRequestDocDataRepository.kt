@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
-import ac.uk.ebi.biostd.persistence.common.model.nextStatus
+import ac.uk.ebi.biostd.persistence.common.model.action
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
@@ -87,7 +87,7 @@ class SubmissionRequestDocDataRepository(
     ): Pair<String, DocSubmissionRequest> {
         val statusId = ObjectId()
         val statusChange = DocRequestStatusChanges(
-            status = status.nextStatus,
+            status = status.action,
             statusId = statusId,
             processId = processId,
             startTime = Instant.now(),

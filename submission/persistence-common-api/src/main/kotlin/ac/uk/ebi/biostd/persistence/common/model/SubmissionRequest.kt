@@ -101,7 +101,10 @@ enum class RequestStatus {
     }
 }
 
-val RequestStatus.nextStatus: String
+/**
+ * Retrieves the expected action to be perform when submission request is the given status.
+ */
+val RequestStatus.action: String
     get() {
         return when (this) {
             RequestStatus.REQUESTED -> "Indexing"

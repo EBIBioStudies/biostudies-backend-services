@@ -37,6 +37,7 @@ data class DocSubmissionRequest(
             .setOnInsert(DocRequestFields.RQT_TOTAL_FILES, totalFiles)
             .setOnInsert(DocRequestFields.RQT_IDX, currentIndex)
             .setOnInsert(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
+            .setOnInsert(DocRequestFields.RQT_STATUS_CHANGES, statusChanges)
     }
 }
 
