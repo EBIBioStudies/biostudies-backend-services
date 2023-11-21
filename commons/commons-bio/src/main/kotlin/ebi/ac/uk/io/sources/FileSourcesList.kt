@@ -23,7 +23,7 @@ import java.io.File
  *     - Open parenthesis ( ( )
  *     - Close parenthesis ( ) )
  */
-private val validPathPattern = "^(?!.*\\./)[0-9A-Za-z!-_*'(). ]+(?<!/)\$".toRegex()
+private val validPathPattern = "^(?!\\./)(?!.*/\$)(?!.*\\.\\./)[0-9A-Za-z!\\-_*'(). /]+(?!/\$)\$".toRegex()
 
 @JvmInline
 value class FileSourcesList(val sources: List<FilesSource>) {
