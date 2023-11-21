@@ -8,8 +8,10 @@ import arrow.core.Try
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
 import ebi.ac.uk.coroutines.waitUntil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import java.time.Duration
+import java.time.Duration.ofSeconds
 
 private const val CHECK_COMMAND = "bjobs -o STAT -noheader %s"
 private const val DONE_STATUS = "DONE"
@@ -36,13 +38,22 @@ class ClusterOperations(
 
     suspend fun awaitJob(
         jobSpec: JobSpec,
+        checkJobInterval: Long = 30,
         maxSecondsDuration: Long = 60,
     ): Job {
         suspend fun await(job: Job) = runInSession {
-            waitUntil(Duration.ofSeconds(maxSecondsDuration)) {
-                executeCommand(String.format(CHECK_COMMAND, job.id)).second.trimIndent() == DONE_STATUS
+            logger.info { "Started job ${job.id}" }
+            waitUntil(
+                interval = ofSeconds(checkJobInterval),
+                duration = ofSeconds(maxSecondsDuration),
+            ) {
+                val status = executeCommand(String.format(CHECK_COMMAND, job.id)).second.trimIndent()
+                logger.info { "Waiting for job ${job.id}. Current status $status" }
+
+                status == DONE_STATUS
             }
 
+            logger.info { "Finished job ${job.id}" }
             job
         }
 
@@ -71,13 +82,15 @@ class ClusterOperations(
     }
 
     private suspend fun <T> runInSession(exec: suspend CommandRunner.() -> T): T {
-        val session = sessionFunction()
+        return withContext(Dispatchers.IO) {
+            val session = sessionFunction()
 
-        try {
-            session.connect()
-            return exec(CommandRunner(session))
-        } finally {
-            session.disconnect()
+            try {
+                session.connect()
+                exec(CommandRunner(session))
+            } finally {
+                session.disconnect()
+            }
         }
     }
 }
