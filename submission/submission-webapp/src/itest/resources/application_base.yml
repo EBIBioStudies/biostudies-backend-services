@@ -27,6 +27,7 @@ spring:
     port: 5672
 
 app:
+  instanceId: Biostudies-Itest
   retrySubmission: false
   submissionPath:
   ftpPath:
