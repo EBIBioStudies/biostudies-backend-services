@@ -1,10 +1,10 @@
 Dear ${USERNAME},
 
-Thank you for submitting your data to BioImages Archive. Your ${TITLE} has been assigned the BioImages accession number ${ACC_NO}.
+Thank you for submitting your data to BioImage Archive. Your ${TITLE} has been assigned the BioImages accession number ${ACC_NO}.
 
 You will be able to see it at ${UI_URL}/studies/${ACC_NO} in the next 24 hours. ${RELEASE_MESSAGE}
 
-Should you have any further questions, please reply to this message making sure you keep the subject or contact us at ${MAIL_TO}
+Should you have any further questions, please reply to this message making sure you keep the subject or contact us at bioimage-archive@ebi.ac.uk
 
 Best regards,
 
