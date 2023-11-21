@@ -52,6 +52,7 @@ internal class SubmissionRequestSaverTest(
     ) = runTest {
         val accNo = "ABC-123"
         val version = 1
+        val changeId = "changeId"
         val filePath = "the-file-path"
         val notifyTo = "user@ebi.ac.uk"
         val updatedSubFile = NfsFile("file.txt", "Files/file.txt", updatedFile, "file", "md5", 1, type = FILE)
@@ -65,10 +66,10 @@ internal class SubmissionRequestSaverTest(
         every { submission.version } answers { version }
         every { subFile.filePath } returns filePath
 
-        coEvery { requestService.getCheckReleased(accNo, version) } answers { request }
-        coEvery { requestService.saveSubmissionRequest(request) } answers { ACC_NO to version }
+        coEvery { requestService.getCheckReleased(accNo, version, instanceId) } answers { (changeId to request) }
+        coEvery { requestService.saveRequest(request) } answers { ACC_NO to version }
 
-        every { request.withNewStatus(PERSISTED) } returns request
+        every { request.withNewStatus(PERSISTED, changeId) } returns request
         every { request.submission } answers { submission }
         every { request.notifyTo } answers { notifyTo }
         every { requestFile.file } returns updatedSubFile
@@ -81,7 +82,7 @@ internal class SubmissionRequestSaverTest(
             submission
         }
 
-        val response = testInstance.saveRequest(accNo, version)
+        val response = testInstance.saveRequest(accNo, version, instanceId)
 
         assertThat(response).isEqualTo(submission)
         assertThat(newFile).isEqualTo(updatedSubFile)
@@ -89,7 +90,11 @@ internal class SubmissionRequestSaverTest(
             eventsPublisherService.submissionSubmitted(accNo, notifyTo)
             persistenceService.expirePreviousVersions(accNo)
             persistenceService.saveSubmission(submission)
-            requestService.saveSubmissionRequest(request)
+            requestService.saveRequest(request)
         }
+    }
+
+    private companion object {
+        const val instanceId = "biostudies-prod"
     }
 }

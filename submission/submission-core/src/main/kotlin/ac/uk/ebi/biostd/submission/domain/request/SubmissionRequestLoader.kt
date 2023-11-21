@@ -34,13 +34,15 @@ class SubmissionRequestLoader(
     /**
      * Calculate md5 and size for every file in submission request.
      */
-    suspend fun loadRequest(accNo: String, version: Int) {
-        val request = requestService.getIndexedRequest(accNo, version)
-        val sub = request.submission
+    suspend fun loadRequest(accNo: String, version: Int, handlerName: String) {
+        val (changeId, request) = requestService.getIndexedRequest(accNo, version, handlerName)
+        loadRequest(request.submission, request.currentIndex)
+        requestService.saveRequest(request.withNewStatus(LOADED, changeId = changeId))
+    }
 
+    private suspend fun loadRequest(sub: ExtSubmission, currentIndex: Int) {
         logger.info { "${sub.accNo} ${sub.owner} Started loading submission files" }
-        loadSubmissionFiles(accNo, version, sub, request.currentIndex)
-        requestService.saveSubmissionRequest(request.withNewStatus(LOADED))
+        loadSubmissionFiles(sub.accNo, sub.version, sub, currentIndex)
         logger.info { "${sub.accNo} ${sub.owner} Finished loading submission files" }
     }
 

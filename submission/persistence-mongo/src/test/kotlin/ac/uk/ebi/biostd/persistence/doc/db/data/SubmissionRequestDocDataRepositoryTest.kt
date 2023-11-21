@@ -54,7 +54,8 @@ class SubmissionRequestDocDataRepositoryTest(
             submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
             totalFiles = 5,
             currentIndex = 6,
-            modificationTime = Instant.now()
+            modificationTime = Instant.now(),
+            statusChanges = emptyList()
         )
 
         val (_, created) = testInstance.saveRequest(request)
@@ -85,7 +86,8 @@ class SubmissionRequestDocDataRepositoryTest(
                 submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                 totalFiles = 5,
                 currentIndex = 6,
-                modificationTime = Instant.now()
+                modificationTime = Instant.now(),
+                statusChanges = emptyList()
             )
         )
 
@@ -99,7 +101,8 @@ class SubmissionRequestDocDataRepositoryTest(
             submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
             totalFiles = 51,
             currentIndex = 61,
-            modificationTime = Instant.now().plusSeconds(10)
+            modificationTime = Instant.now().plusSeconds(10),
+            statusChanges = emptyList()
         )
         val (_, created) = testInstance.saveRequest(newRequest)
 

@@ -64,6 +64,7 @@ class SubmissionRequestReleaserTest(
         val version = 1
         val relPath = "sub-relpath"
         val mode = StorageMode.FIRE
+        val changeId = "changeId"
 
         val nfsRqtFile = SubmissionRequestFile(accNo, version, 1, "test1.txt", nfsFile)
         val fireRqtFile = SubmissionRequestFile(accNo, version, 2, "test2.txt", fireFile)
@@ -78,15 +79,15 @@ class SubmissionRequestReleaserTest(
         every { submission.storageMode } returns mode
         every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile, fireRqtFile)
         coEvery { storageService.releaseSubmissionFile(nfsFile, relPath, mode) } returns releasedFile
-        coEvery { requestService.saveSubmissionRequest(rqt.withNewStatus(CHECK_RELEASED)) } answers { accNo to version }
-        coEvery { requestService.getFilesCopiedRequest(accNo, version) } returns rqt
+        coEvery { requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId)) } answers { accNo to version }
+        coEvery { requestService.getFilesCopiedRequest(accNo, version, instanceId) } returns (changeId to rqt)
         coEvery { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
         coEvery { requestService.updateRqtIndex(accNo, version, 2) } answers { nothing }
 
-        testInstance.checkReleased(accNo, version)
+        testInstance.checkReleased(accNo, version, instanceId)
 
         coVerify(exactly = 1) {
-            requestService.saveSubmissionRequest(rqt.withNewStatus(CHECK_RELEASED))
+            requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId))
             storageService.releaseSubmissionFile(nfsFile, relPath, mode)
         }
     }
@@ -98,21 +99,26 @@ class SubmissionRequestReleaserTest(
     ) = runTest {
         val accNo = "S-TEST123"
         val version = 1
+        val changeId = "changeId"
 
-        coEvery { requestService.getFilesCopiedRequest(accNo, version) } returns rqt
+        coEvery { requestService.getFilesCopiedRequest(accNo, version, instanceId) } returns (changeId to rqt)
         every { rqt.submission } returns submission
         every { submission.released } returns false
-        every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
-        coEvery { requestService.saveSubmissionRequest(rqt.withNewStatus(CHECK_RELEASED)) } answers { accNo to version }
+        every { rqt.withNewStatus(CHECK_RELEASED, changeId) } returns rqt
+        coEvery { requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId)) } answers { accNo to version }
 
-        testInstance.checkReleased("S-TEST123", 1)
+        testInstance.checkReleased("S-TEST123", 1, instanceId)
 
         verify {
             storageService wasNot called
             persistenceService wasNot called
         }
         coVerify(exactly = 1) {
-            requestService.saveSubmissionRequest(rqt.withNewStatus(CHECK_RELEASED))
+            requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId))
         }
+    }
+
+    private companion object {
+        const val instanceId = "biostudies-prod"
     }
 }

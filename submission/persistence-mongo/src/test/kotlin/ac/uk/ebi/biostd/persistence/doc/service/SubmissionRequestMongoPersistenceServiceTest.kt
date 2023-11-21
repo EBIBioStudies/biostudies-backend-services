@@ -82,7 +82,8 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                 totalFiles = 5,
                 currentIndex = 0,
-                modificationTime = modificationTime
+                modificationTime = modificationTime,
+                statusChanges = emptyList()
             )
 
         requestRepository.save(testRequest("abc", 1, Instant.now().minusSeconds(10), CLEANED))
@@ -121,7 +122,8 @@ class SubmissionRequestMongoPersistenceServiceTest(
         submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
         totalFiles = 5,
         currentIndex = 0,
-        modificationTime = Instant.ofEpochMilli(1664981300)
+        modificationTime = Instant.ofEpochMilli(1664981300),
+        statusChanges = emptyList()
     )
 
     companion object {

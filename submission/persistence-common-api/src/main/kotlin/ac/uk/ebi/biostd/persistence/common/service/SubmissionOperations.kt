@@ -64,32 +64,21 @@ interface SubmissionFilesPersistenceService {
 @Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
     suspend fun hasActiveRequest(accNo: String): Boolean
-
+    suspend fun saveRequest(rqt: SubmissionRequest): Pair<String, Int>
+    suspend fun createRequest(rqt: SubmissionRequest): Pair<String, Int>
+    suspend fun getRequestStatus(accNo: String, version: Int): RequestStatus
     fun getProcessingRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
 
-    suspend fun saveSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
-
-    suspend fun createSubmissionRequest(rqt: SubmissionRequest): Pair<String, Int>
-
     suspend fun updateRqtIndex(accNo: String, version: Int, index: Int)
-
     suspend fun updateRqtIndex(requestFile: SubmissionRequestFile, file: ExtFile)
 
-    suspend fun getPendingRequest(accNo: String, version: Int): SubmissionRequest
-
-    suspend fun getIndexedRequest(accNo: String, version: Int): SubmissionRequest
-
-    suspend fun getLoadedRequest(accNo: String, version: Int): SubmissionRequest
-
-    suspend fun getCleanedRequest(accNo: String, version: Int): SubmissionRequest
-
-    suspend fun getCheckReleased(accNo: String, version: Int): SubmissionRequest
-
-    suspend fun getFilesCopiedRequest(accNo: String, version: Int): SubmissionRequest
-
-    suspend fun getPersistedRequest(accNo: String, version: Int): SubmissionRequest
-
-    suspend fun getRequestStatus(accNo: String, version: Int): RequestStatus
+    suspend fun getPendingRequest(accNo: String, version: Int, handlerName: String): Pair<String, SubmissionRequest>
+    suspend fun getIndexedRequest(accNo: String, version: Int, handlerName: String): Pair<String, SubmissionRequest>
+    suspend fun getLoadedRequest(accNo: String, version: Int, handlerName: String): Pair<String, SubmissionRequest>
+    suspend fun getCleanedRequest(accNo: String, version: Int, handlerName: String): Pair<String, SubmissionRequest>
+    suspend fun getCheckReleased(accNo: String, version: Int, handlerName: String): Pair<String, SubmissionRequest>
+    suspend fun getFilesCopiedRequest(accNo: String, version: Int, handlerName: String): Pair<String, SubmissionRequest>
+    suspend fun getPersistedRequest(accNo: String, version: Int, handlerName: String): Pair<String, SubmissionRequest>
 }
 
 interface SubmissionRequestFilesPersistenceService {

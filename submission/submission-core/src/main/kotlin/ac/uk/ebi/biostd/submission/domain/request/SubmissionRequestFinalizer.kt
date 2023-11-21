@@ -27,16 +27,18 @@ class SubmissionRequestFinalizer(
     private val queryService: SubmissionPersistenceQueryService,
     private val requestService: SubmissionRequestPersistenceService,
 ) {
-    suspend fun finalizeRequest(accNo: String, version: Int): ExtSubmission {
-        val request = requestService.getPersistedRequest(accNo, version)
-        val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        val previous = queryService.findLatestInactiveByAccNo(accNo, includeFileListFiles = true)
-
-        if (previous != null) deleteRemainingFiles(sub, previous)
-
-        requestService.saveSubmissionRequest(request.withNewStatus(PROCESSED))
+    suspend fun finalizeRequest(accNo: String, version: Int, handlerName: String): ExtSubmission {
+        val (changeId, request) = requestService.getPersistedRequest(accNo, version, handlerName)
+        val sub = finalizeRequest(accNo)
+        requestService.saveRequest(request.withNewStatus(PROCESSED, changeId = changeId))
         eventsPublisherService.submissionFinalized(accNo, version)
+        return sub
+    }
 
+    private suspend fun finalizeRequest(accNo: String): ExtSubmission {
+        val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        val previous = queryService.findLatestInactiveByAccNo(sub.accNo, includeFileListFiles = true)
+        if (previous != null) deleteRemainingFiles(sub, previous)
         return sub
     }
 

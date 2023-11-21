@@ -22,6 +22,7 @@ data class DocSubmissionRequest(
     val totalFiles: Int,
     val currentIndex: Int,
     val modificationTime: Instant,
+    val statusChanges: List<DocRequestStatusChanges>,
 ) {
 
     fun asSetOnInsert(): Update {
@@ -38,6 +39,14 @@ data class DocSubmissionRequest(
             .setOnInsert(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
     }
 }
+
+data class DocRequestStatusChanges(
+    val status: String,
+    val statusId: ObjectId,
+    val processId: String,
+    val startTime: Instant,
+    val endTime: Instant?,
+)
 
 @Document(collection = "submission_request_files")
 data class DocSubmissionRequestFile(

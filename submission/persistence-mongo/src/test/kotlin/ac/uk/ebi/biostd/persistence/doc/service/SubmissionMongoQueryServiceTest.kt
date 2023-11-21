@@ -371,7 +371,8 @@ internal class SubmissionMongoQueryServiceTest(
             submission = BasicDBObject.parse(serializationService.serialize(submission)),
             totalFiles = 6,
             currentIndex = 0,
-            modificationTime = Instant.now()
+            modificationTime = Instant.now(),
+            statusChanges = emptyList()
         )
     }
 

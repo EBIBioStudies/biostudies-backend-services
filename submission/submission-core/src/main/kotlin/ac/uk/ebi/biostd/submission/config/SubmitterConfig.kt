@@ -166,6 +166,7 @@ class SubmitterConfig(
     @Bean
     @ConditionalOnMissingBean(ExtSubmissionSubmitter::class)
     fun localExtSubmissionSubmitter(
+        appProperties: ApplicationProperties,
         pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
@@ -177,6 +178,7 @@ class SubmitterConfig(
         submissionSaver: SubmissionRequestSaver,
         submissionFinalizer: SubmissionRequestFinalizer,
     ): ExtSubmissionSubmitter = LocalExtSubmissionSubmitter(
+        appProperties,
         pageTabService,
         requestService,
         persistenceService,

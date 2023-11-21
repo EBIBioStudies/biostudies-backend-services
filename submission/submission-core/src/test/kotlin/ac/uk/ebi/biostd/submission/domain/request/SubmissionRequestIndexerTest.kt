@@ -35,25 +35,30 @@ class SubmissionRequestIndexerTest(
 
     @Test
     fun `index request`() = runTest {
+        val changeId = "changeId"
         val requestFileSlot = slot<SubmissionRequestFile>()
         val file = tempFolder.createFile("requested.txt")
         val extFile = NfsFile("dummy.txt", "Files/dummy.txt", file, file.absolutePath, "NOT_CALCULATED", -1)
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Study", files = listOf(left(extFile))))
 
         every { pendingRqt.submission } returns sub
-        coEvery { requestService.getPendingRequest("S-BSST0", 1) } returns pendingRqt
-        coEvery { requestService.saveSubmissionRequest(pendingRqt.indexed(1)) } answers { "S-BSST0" to 1 }
+        coEvery { requestService.getPendingRequest("S-BSST0", 1, instanceId) } returns (changeId to pendingRqt)
+        coEvery { requestService.saveRequest(pendingRqt.indexed(1, changeId)) } answers { "S-BSST0" to 1 }
         coEvery { filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
 
-        testInstance.indexRequest("S-BSST0", 1)
+        testInstance.indexRequest("S-BSST0", 1, instanceId)
 
         val requestFile = requestFileSlot.captured
         assertThat(requestFile.index).isEqualTo(1)
 
         coVerify(exactly = 1) {
-            requestService.getPendingRequest("S-BSST0", 1)
-            requestService.saveSubmissionRequest(pendingRqt.indexed(1))
+            requestService.getPendingRequest("S-BSST0", 1, instanceId)
+            requestService.saveRequest(pendingRqt.indexed(1, changeId))
             filesRequestService.saveSubmissionRequestFile(requestFile)
         }
+    }
+
+    private companion object {
+        const val instanceId = "biostudies-prod"
     }
 }
