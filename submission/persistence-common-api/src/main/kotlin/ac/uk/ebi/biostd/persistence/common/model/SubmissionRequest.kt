@@ -67,17 +67,6 @@ data class SubmissionRequest constructor(
     }
 }
 
-enum class RequestProcess {
-    CREATE_REQUEST,
-    INDEX,
-    LOAD,
-    CLEAN,
-    COPY_FILES,
-    CHECK_RELEASE,
-    PERSIST,
-    PROCESS
-}
-
 enum class RequestStatus {
     REQUESTED,
     INDEXED,
