@@ -5,13 +5,11 @@ import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
-import Projects.CommonsTest
 import Projects.CommonsUtil
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 
 dependencies {
-    api(project(CommonsTest))
     api(project(CommonsUtil))
 
     implementation(Arrow)
