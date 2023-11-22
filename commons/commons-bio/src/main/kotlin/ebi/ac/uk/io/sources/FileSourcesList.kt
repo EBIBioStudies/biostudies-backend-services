@@ -30,7 +30,6 @@ private val validPathPattern = buildString {
     append("(?!.*/\$)") // Negative lookahead to exclude "/" at the end
     append("(?!.*\\.\\./)") // Negative lookahead to exclude occurrences of "../"
     append("[0-9A-Za-z!\\-_*'(). /]+") // Character set allowing specified characters
-    append("(?!/\$)") // Negative lookahead to exclude "/" at the end
     append("\$") // End of the line
 }.trimIndent().toRegex()
 
