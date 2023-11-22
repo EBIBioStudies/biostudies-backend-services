@@ -21,6 +21,7 @@ include("commons:commons-model-extended-test")
 include("client:bio-webclient")
 include("client:bio-webclient-demo")
 include("client:bio-commandline")
+include("client:cluster-client")
 include("client:fire-webclient")
 include("client:ftp-webclient")
 
