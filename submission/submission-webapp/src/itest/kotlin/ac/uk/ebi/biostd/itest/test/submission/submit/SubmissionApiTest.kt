@@ -259,7 +259,7 @@ class SubmissionApiTest(
         tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP")
         tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP/#4")
         val file1 = tempFolder.createFile("file_16-10.txt")
-        val file2 = tempFolder.createFile("merged-4.tif")
+        val file2 = tempFolder.createFile("merged-%.tif")
         val submission = tsv {
             line("Submission", "S-BSST1610")
             line("Title", "Submission")
@@ -271,14 +271,14 @@ class SubmissionApiTest(
 
             line("Files")
             line("file_16-10.txt")
-            line("h_EglN1-Δβ2β3-GFP/#4/merged-4.tif")
+            line("h_EglN1-Δβ2β3-GFP/#4/merged-%.tif")
             line()
         }.toString()
 
         webClient.uploadFiles(listOf(file1, file2))
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { webClient.submitSingle(submission, TSV) }
-            .withMessageContaining("The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-4.tif")
+            .withMessageContaining("The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-%.tif")
     }
 
     @Test
