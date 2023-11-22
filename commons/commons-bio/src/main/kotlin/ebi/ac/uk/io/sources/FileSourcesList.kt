@@ -23,7 +23,16 @@ import java.io.File
  *     - Open parenthesis ( ( )
  *     - Close parenthesis ( ) )
  */
-private val validPathPattern = "^(?!\\./)(?!.*/\$)(?!.*\\.\\./)[0-9A-Za-z!\\-_*'(). /]+(?!/\$)\$".toRegex()
+
+private val validPathPattern = buildString {
+    append("^")                        // Start of the line
+    append("(?!\\./)")                 // Negative lookahead to exclude "./"
+    append("(?!.*/\$)")                // Negative lookahead to exclude "/" at the end
+    append("(?!.*\\.\\./)")            // Negative lookahead to exclude occurrences of "../"
+    append("[0-9A-Za-z!\\-_*'(). /]+") // Character set allowing specified characters
+    append("(?!/\$)")                  // Negative lookahead to exclude "/" at the end
+    append("\$")                       // End of the line
+}.trimIndent().toRegex()
 
 @JvmInline
 value class FileSourcesList(val sources: List<FilesSource>) {
