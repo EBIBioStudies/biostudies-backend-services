@@ -80,7 +80,7 @@ internal class LocalExtSubmissionSubmitterTest(
     @BeforeEach
     fun beforeEach() {
         mockkStatic(OffsetDateTime::class)
-        every { properties.instanceId } returns instanceId
+        every { properties.processId } returns instanceId
         every { OffsetDateTime.now() } returns mockNow
     }
 

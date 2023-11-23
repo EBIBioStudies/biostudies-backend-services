@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConfigurationProperties(prefix = "app")
 @ConstructorBinding
 data class ApplicationProperties(
-    val instanceId: String,
+    val processId: String,
     val retrySubmission: Boolean,
     val tempDirPath: String,
     val fireTempDirPath: String,

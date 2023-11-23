@@ -148,7 +148,7 @@ object FileUtils {
     }
 
     fun listFiles(file: File): List<File> =
-        if (isDirectory(file)) Files.list(file.toPath()).map { it.toFile() }.toList() else emptyList()
+        if (isDirectory(file)) Files.list(file.toPath()).use { it.map { it.toFile() }.toList() } else emptyList()
 
     private fun calculateMd5(file: File): String = file.inputStream().use { DigestUtils.md5Hex(it).uppercase() }
 

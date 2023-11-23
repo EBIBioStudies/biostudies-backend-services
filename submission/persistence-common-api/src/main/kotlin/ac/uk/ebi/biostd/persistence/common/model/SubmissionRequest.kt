@@ -21,7 +21,7 @@ data class SubmissionRequest constructor(
     val totalFiles: Int,
     val currentIndex: Int,
     val modificationTime: OffsetDateTime,
-    val statusChanges: List<RequestStatusChanges>,
+    val statusChangesLog: List<RequestStatusChanges>,
 ) {
 
     constructor(submission: ExtSubmission, notifyTo: String, draftKey: String? = null) : this(
@@ -32,15 +32,15 @@ data class SubmissionRequest constructor(
         totalFiles = 0,
         currentIndex = 0,
         modificationTime = OffsetDateTime.now(),
-        statusChanges = emptyList()
+        statusChangesLog = emptyList()
     )
 
     /**
      * Update request by setting new status, resetting current Index and updating modification date.
-     * Optionally total files can be updated.
+     *  Recieve the specific change Id to update endtime.
      */
     fun withNewStatus(status: RequestStatus, changeId: String): SubmissionRequest {
-        val statusChange = statusChanges
+        val statusChange = statusChangesLog
             .filter { it.changeId == changeId }
             .first()
             .copy(endTime = Instant.now())
@@ -48,12 +48,12 @@ data class SubmissionRequest constructor(
             status = status,
             modificationTime = OffsetDateTime.now(),
             currentIndex = 0,
-            statusChanges = statusChanges.replace(statusChange, { it.changeId == changeId })
+            statusChangesLog = statusChangesLog.replace(statusChange, { it.changeId == changeId })
         )
     }
 
     fun indexed(totalFiles: Int, changeId: String): SubmissionRequest {
-        val statusChange = statusChanges
+        val statusChange = statusChangesLog
             .filter { it.changeId == changeId }
             .first()
             .copy(endTime = Instant.now())
@@ -62,7 +62,7 @@ data class SubmissionRequest constructor(
             modificationTime = OffsetDateTime.now(),
             currentIndex = 0,
             totalFiles = totalFiles,
-            statusChanges = statusChanges.replace(statusChange, { it.changeId == changeId })
+            statusChangesLog = statusChangesLog.replace(statusChange, { it.changeId == changeId })
         )
     }
 }

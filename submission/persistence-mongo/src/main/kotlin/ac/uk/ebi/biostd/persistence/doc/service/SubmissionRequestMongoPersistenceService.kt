@@ -71,28 +71,28 @@ class SubmissionRequestMongoPersistenceService(
         return getRequest(accNo, version, REQUESTED, handlerName)
     }
 
-    override suspend fun getIndexedRequest(accNo: String, version: Int, handlerName: String): SubmissionRqt {
-        return getRequest(accNo, version, INDEXED, handlerName)
+    override suspend fun getIndexedRequest(accNo: String, version: Int, processId: String): SubmissionRqt {
+        return getRequest(accNo, version, INDEXED, processId)
     }
 
-    override suspend fun getLoadedRequest(accNo: String, version: Int, handlerName: String): SubmissionRqt {
-        return getRequest(accNo, version, LOADED, handlerName)
+    override suspend fun getLoadedRequest(accNo: String, version: Int, processId: String): SubmissionRqt {
+        return getRequest(accNo, version, LOADED, processId)
     }
 
-    override suspend fun getCleanedRequest(accNo: String, version: Int, handlerName: String): SubmissionRqt {
-        return getRequest(accNo, version, CLEANED, handlerName)
+    override suspend fun getCleanedRequest(accNo: String, version: Int, processId: String): SubmissionRqt {
+        return getRequest(accNo, version, CLEANED, processId)
     }
 
-    override suspend fun getCheckReleased(accNo: String, version: Int, handlerName: String): SubmissionRqt {
-        return getRequest(accNo, version, CHECK_RELEASED, handlerName)
+    override suspend fun getCheckReleased(accNo: String, version: Int, processId: String): SubmissionRqt {
+        return getRequest(accNo, version, CHECK_RELEASED, processId)
     }
 
-    override suspend fun getFilesCopiedRequest(accNo: String, version: Int, handlerName: String): SubmissionRqt {
-        return getRequest(accNo, version, FILES_COPIED, handlerName)
+    override suspend fun getFilesCopiedRequest(accNo: String, version: Int, processId: String): SubmissionRqt {
+        return getRequest(accNo, version, FILES_COPIED, processId)
     }
 
-    override suspend fun getPersistedRequest(accNo: String, version: Int, handlerName: String): SubmissionRqt {
-        return getRequest(accNo, version, PERSISTED, handlerName)
+    override suspend fun getPersistedRequest(accNo: String, version: Int, processId: String): SubmissionRqt {
+        return getRequest(accNo, version, PERSISTED, processId)
     }
 
     override suspend fun getRequestStatus(accNo: String, version: Int): RequestStatus {
@@ -112,7 +112,7 @@ class SubmissionRequestMongoPersistenceService(
             totalFiles = rqt.totalFiles,
             currentIndex = rqt.currentIndex,
             modificationTime = rqt.modificationTime.toInstant(),
-            statusChanges = rqt.statusChanges.map { asDocSubRequestStatusChange(it) }
+            statusChanges = rqt.statusChangesLog.map { asDocSubRequestStatusChange(it) }
         )
     }
 
@@ -140,9 +140,9 @@ class SubmissionRequestMongoPersistenceService(
         accNo: String,
         version: Int,
         status: RequestStatus,
-        handlerName: String,
+        processId: String,
     ): Pair<String, SubmissionRequest> {
-        val (statusId, request) = requestRepository.loadRequest(accNo, version, status, handlerName)
+        val (statusId, request) = requestRepository.getRequest(accNo, version, status, processId)
         val stored = serializationService.deserialize(request.submission.toString())
         val subRequest = SubmissionRequest(
             submission = stored,

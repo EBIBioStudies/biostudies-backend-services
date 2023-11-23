@@ -143,7 +143,7 @@ class SubmissionRequestDocDataRepositoryTest(
         )
         testInstance.saveRequest(rqt)
 
-        val (changeId, request) = testInstance.loadRequest(rqt.accNo, rqt.version, REQUESTED, procesId)
+        val (changeId, request) = testInstance.getRequest(rqt.accNo, rqt.version, REQUESTED, procesId)
 
         val statusChange = request.statusChanges.filter { it.statusId.toString() == changeId }.first()
         assertThat(statusChange.status).isEqualTo(REQUESTED.action)

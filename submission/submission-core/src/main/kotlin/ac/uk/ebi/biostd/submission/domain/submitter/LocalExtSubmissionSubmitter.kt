@@ -45,25 +45,25 @@ class LocalExtSubmissionSubmitter(
     }
 
     override suspend fun indexRequest(accNo: String, version: Int): Unit =
-        requestIndexer.indexRequest(accNo, version, properties.instanceId)
+        requestIndexer.indexRequest(accNo, version, properties.processId)
 
     override suspend fun loadRequest(accNo: String, version: Int): Unit =
-        requestLoader.loadRequest(accNo, version, properties.instanceId)
+        requestLoader.loadRequest(accNo, version, properties.processId)
 
     override suspend fun cleanRequest(accNo: String, version: Int): Unit =
-        requestCleaner.cleanCurrentVersion(accNo, version, properties.instanceId)
+        requestCleaner.cleanCurrentVersion(accNo, version, properties.processId)
 
     override suspend fun processRequest(accNo: String, version: Int): Unit =
-        requestProcessor.processRequest(accNo, version, properties.instanceId)
+        requestProcessor.processRequest(accNo, version, properties.processId)
 
     override suspend fun checkReleased(accNo: String, version: Int): Unit =
-        requestReleaser.checkReleased(accNo, version, properties.instanceId)
+        requestReleaser.checkReleased(accNo, version, properties.processId)
 
     override suspend fun saveRequest(accNo: String, version: Int): ExtSubmission =
-        requestSaver.saveRequest(accNo, version, properties.instanceId)
+        requestSaver.saveRequest(accNo, version, properties.processId)
 
     override suspend fun finalizeRequest(accNo: String, version: Int): ExtSubmission =
-        requestFinalizer.finalizeRequest(accNo, version, properties.instanceId)
+        requestFinalizer.finalizeRequest(accNo, version, properties.processId)
 
     override suspend fun release(accNo: String) = requestReleaser.releaseSubmission(accNo)
 

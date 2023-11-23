@@ -27,8 +27,8 @@ class SubmissionRequestFinalizer(
     private val queryService: SubmissionPersistenceQueryService,
     private val requestService: SubmissionRequestPersistenceService,
 ) {
-    suspend fun finalizeRequest(accNo: String, version: Int, handlerName: String): ExtSubmission {
-        val (changeId, request) = requestService.getPersistedRequest(accNo, version, handlerName)
+    suspend fun finalizeRequest(accNo: String, version: Int, processId: String): ExtSubmission {
+        val (changeId, request) = requestService.getPersistedRequest(accNo, version, processId)
         val sub = finalizeRequest(accNo)
         requestService.saveRequest(request.withNewStatus(PROCESSED, changeId = changeId))
         eventsPublisherService.submissionFinalized(accNo, version)

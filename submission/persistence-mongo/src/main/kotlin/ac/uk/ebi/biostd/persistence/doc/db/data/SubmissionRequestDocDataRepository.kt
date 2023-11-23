@@ -79,7 +79,7 @@ class SubmissionRequestDocDataRepository(
         }
     }
 
-    suspend fun loadRequest(
+    suspend fun getRequest(
         accNo: String,
         version: Int,
         status: RequestStatus,
