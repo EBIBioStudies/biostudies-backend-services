@@ -12,6 +12,7 @@ val SUBMISSION_RESERVED_ATTRIBUTES = setOf(
     SubFields.ATTACH_TO.value,
     SubFields.ON_BEHALF.value,
     SubFields.ROOT_PATH.value,
+    SubFields.DOI.value,
 )
 
 val SECTION_RESERVED_ATTRS = setOf(SectionFields.FILE_LIST.value)

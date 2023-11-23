@@ -108,7 +108,7 @@ class DoiService(
 
     private fun getOrganizations(sub: Submission): Map<String, String> {
         val organizations = sub.allSections()
-            .filter { it.type.lowercase() == ORG_TYPE_1.lowercase() || it.type.lowercase() == ORG_TYPE_2.lowercase() }
+            .filter { validOrgTypes.contains(it.type.lowercase()) }
         validateOrganizations(organizations)
 
         return organizations.associateBy({ it.accNo!! }, { it.findAttr(NAME_ATTR)!! })
@@ -122,7 +122,7 @@ class DoiService(
         }
 
         organizations
-            .ifEmpty { throw MissingDoiFieldException(ORG_TYPE_1) }
+            .ifEmpty { throw MissingDoiFieldException(ORG_TYPE) }
             .forEach(::validate)
     }
 
@@ -134,9 +134,9 @@ class DoiService(
         internal const val NAME_ATTR = "Name"
         internal const val ORCID_ATTR = "ORCID"
 
-        internal const val ORG_TYPE_1 = "Organization"
-        internal const val ORG_TYPE_2 = "Organisation"
+        internal const val ORG_TYPE = "Organization"
         internal const val AUTHOR_TYPE = "Author"
+        internal val validOrgTypes = setOf("organization", "organisation")
 
         internal const val FILE_PARAM = "fname"
         internal const val OPERATION_PARAM = "operation"
