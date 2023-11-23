@@ -10,6 +10,7 @@ import ebi.ac.uk.io.ext.isEmpty
 import ebi.ac.uk.io.ext.notExist
 import ebi.ac.uk.io.ext.size
 import org.apache.commons.codec.digest.DigestUtils
+import org.springframework.core.io.InputStreamSource
 import java.io.File
 import java.io.InputStream
 import java.nio.file.FileAlreadyExistsException
@@ -44,10 +45,12 @@ object FileUtils {
     }
 
     fun copyOrReplaceFile(
-        source: InputStream,
+        source: InputStreamSource,
         target: File,
         permissions: Permissions,
-    ) = FileUtilsHelper.copyFile(source, target.toPath(), permissions)
+    ) {
+        source.inputStream.use { FileUtilsHelper.copyFile(it, target.toPath(), permissions) }
+    }
 
     fun getOrCreateFolder(
         folder: Path,

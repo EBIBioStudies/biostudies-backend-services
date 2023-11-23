@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.domain.submission
 
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
-import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.LocalExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @OptIn(ExperimentalCoroutinesApi::class)
 class SubmissionSubmitterTest(
     @MockK private val request: SubmitRequest,
-    @MockK private val submissionSubmitter: ExtSubmissionSubmitter,
+    @MockK private val submissionSubmitter: LocalExtSubmissionSubmitter,
     @MockK private val submissionProcessor: SubmissionProcessor,
     @MockK private val collectionValidationService: CollectionValidationService,
     @MockK private val draftService: SubmissionDraftPersistenceService,

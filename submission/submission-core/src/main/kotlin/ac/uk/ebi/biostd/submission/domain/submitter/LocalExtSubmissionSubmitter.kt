@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.submission.domain.extended
+package ac.uk.ebi.biostd.submission.domain.submitter
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
@@ -22,7 +22,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ebi.ac.uk.extended.model.ExtSubmission
 
 @Suppress("LongParameterList", "TooManyFunctions")
-class ExtSubmissionSubmitter(
+class LocalExtSubmissionSubmitter(
     private val pageTabService: PageTabService,
     private val requestService: SubmissionRequestPersistenceService,
     private val persistenceService: SubmissionPersistenceService,
@@ -34,34 +34,38 @@ class ExtSubmissionSubmitter(
     private val requestCleaner: SubmissionRequestCleaner,
     private val requestSaver: SubmissionRequestSaver,
     private val requestFinalizer: SubmissionRequestFinalizer,
-) {
-    suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
+) : ExtSubmissionSubmitter {
+    override suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
         val withTabFiles = pageTabService.generatePageTab(rqt.submission)
         val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         val request = SubmissionRequest(submission = submission, notifyTo = rqt.notifyTo, draftKey = rqt.draftKey)
         return requestService.createSubmissionRequest(request)
     }
 
-    suspend fun indexRequest(accNo: String, version: Int): Unit = requestIndexer.indexRequest(accNo, version)
+    override suspend fun indexRequest(accNo: String, version: Int): Unit =
+        requestIndexer.indexRequest(accNo, version)
 
-    suspend fun loadRequest(accNo: String, version: Int): Unit = requestLoader.loadRequest(accNo, version)
+    override suspend fun loadRequest(accNo: String, version: Int): Unit =
+        requestLoader.loadRequest(accNo, version)
 
-    suspend fun cleanRequest(accNo: String, version: Int): Unit = requestCleaner.cleanCurrentVersion(accNo, version)
+    override suspend fun cleanRequest(accNo: String, version: Int): Unit =
+        requestCleaner.cleanCurrentVersion(accNo, version)
 
-    suspend fun processRequest(accNo: String, version: Int): Unit = requestProcessor.processRequest(accNo, version)
+    override suspend fun processRequest(accNo: String, version: Int): Unit =
+        requestProcessor.processRequest(accNo, version)
 
-    suspend fun checkReleased(accNo: String, version: Int): Unit = requestReleaser.checkReleased(accNo, version)
+    override suspend fun checkReleased(accNo: String, version: Int): Unit =
+        requestReleaser.checkReleased(accNo, version)
 
-    suspend fun saveRequest(accNo: String, version: Int): ExtSubmission = requestSaver.saveRequest(accNo, version)
+    override suspend fun saveRequest(accNo: String, version: Int): ExtSubmission =
+        requestSaver.saveRequest(accNo, version)
 
-    suspend fun finalizeRequest(
-        accNo: String,
-        version: Int,
-    ): ExtSubmission = requestFinalizer.finalizeRequest(accNo, version)
+    override suspend fun finalizeRequest(accNo: String, version: Int): ExtSubmission =
+        requestFinalizer.finalizeRequest(accNo, version)
 
-    suspend fun release(accNo: String) = requestReleaser.releaseSubmission(accNo)
+    override suspend fun release(accNo: String) = requestReleaser.releaseSubmission(accNo)
 
-    suspend fun handleRequest(accNo: String, version: Int): ExtSubmission {
+    override suspend fun handleRequest(accNo: String, version: Int): ExtSubmission {
         return when (requestService.getRequestStatus(accNo, version)) {
             REQUESTED -> completeRequest(accNo, version)
             INDEXED -> loadRequestFiles(accNo, version)

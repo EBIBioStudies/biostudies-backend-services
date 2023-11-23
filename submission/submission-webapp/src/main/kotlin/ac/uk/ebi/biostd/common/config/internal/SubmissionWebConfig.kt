@@ -1,18 +1,33 @@
 package ac.uk.ebi.biostd.common.config.internal
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.common.properties.TaskHostProperties
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFinalizer
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
+import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.ExtendedSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.LocalExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.RemoteExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
@@ -28,6 +43,36 @@ import java.net.URI
 @Suppress("LongParameterList")
 @Configuration
 class SubmissionWebConfig {
+
+    @Bean
+    fun extendedSubmissionSubmitter(
+        pageTabService: PageTabService,
+        requestService: SubmissionRequestPersistenceService,
+        persistenceService: SubmissionPersistenceService,
+        requestIndexer: SubmissionRequestIndexer,
+        requestLoader: SubmissionRequestLoader,
+        requestProcessor: SubmissionRequestProcessor,
+        submissionReleaser: SubmissionRequestReleaser,
+        submissionCleaner: SubmissionRequestCleaner,
+        submissionSaver: SubmissionRequestSaver,
+        submissionFinalizer: SubmissionRequestFinalizer,
+        hostProperties: TaskHostProperties,
+    ): ExtSubmissionSubmitter {
+        val local = LocalExtSubmissionSubmitter(
+            pageTabService,
+            requestService,
+            persistenceService,
+            requestIndexer,
+            requestLoader,
+            requestProcessor,
+            submissionReleaser,
+            submissionCleaner,
+            submissionSaver,
+            submissionFinalizer,
+        )
+        val remote = RemoteExtSubmissionSubmitter(hostProperties)
+        return ExtendedSubmissionSubmitter(local, remote, hostProperties)
+    }
 
     @Bean
     fun collectionService(
