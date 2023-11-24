@@ -43,7 +43,6 @@ include("submission:submission-webapp")
 include("submission:submission-task")
 
 include("scheduler:scheduler")
-include("scheduler:common:cluster-client")
 include("scheduler:common:task-properties")
 include("scheduler:tasks:exporter-task")
 include("scheduler:tasks:pmc-processor-task")
