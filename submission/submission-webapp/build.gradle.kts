@@ -13,6 +13,7 @@ import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
 import Projects.ClientBioWebClient
 import Projects.ClientFireWebClient
+import Projects.ClusterClient
 import Projects.CommonsHttp
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedSerialization
@@ -20,7 +21,6 @@ import Projects.CommonsSerialization
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.ExcelLibrary
-import Projects.SchedulerClusterClient
 import Projects.SubmissionNotification
 import Projects.SubmissionPersistenceMongo
 import Projects.SubmissionPersistenceSql
@@ -89,13 +89,13 @@ dependencies {
     api(project(SubmissionSubmitter))
     api(project(SubmissionSecurity))
     api(project(SubmissionNotification))
+    api(project(ClusterClient))
     api(project(CommonsModelExtendedSerialization))
     api(project(CommonsSerialization))
     api(project(CommonsUtil))
     api(project(ExcelLibrary))
     api(project(CommonsTest))
     api(project(CommonsHttp))
-    api(project(SchedulerClusterClient))
 
     annotationProcessor(SpringBootConfigurationProcessor)
     implementation(SpringBootStarterWeb)

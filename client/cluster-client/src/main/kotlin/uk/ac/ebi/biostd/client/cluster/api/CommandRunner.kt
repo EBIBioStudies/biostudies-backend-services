@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.client.cluster.lsf
+package uk.ac.ebi.biostd.client.cluster.api
 
 import com.jcraft.jsch.ChannelExec
 import com.jcraft.jsch.Session

@@ -1,11 +1,5 @@
 package uk.ac.ebi.scheduler.pmc.importer.domain
 
-import ac.uk.ebi.cluster.client.lsf.ClusterOperations
-import ac.uk.ebi.cluster.client.model.CoresSpec.EIGHT_CORES
-import ac.uk.ebi.cluster.client.model.CoresSpec.FOUR_CORES
-import ac.uk.ebi.cluster.client.model.Job
-import ac.uk.ebi.cluster.client.model.JobSpec
-import ac.uk.ebi.cluster.client.model.MemorySpec
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ac.uk.ebi.scheduler.properties.PmcMode
 import ac.uk.ebi.scheduler.properties.PmcMode.LOAD
@@ -15,6 +9,13 @@ import ac.uk.ebi.scheduler.properties.PmcMode.SUBMIT_SINGLE
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import mu.KotlinLogging
+import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.model.CoresSpec.EIGHT_CORES
+import uk.ac.ebi.biostd.client.cluster.model.CoresSpec.FOUR_CORES
+import uk.ac.ebi.biostd.client.cluster.model.Job
+import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.client.cluster.model.MemorySpec
+import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.EIGHT_GB
 import uk.ac.ebi.scheduler.common.SYSTEM_NAME
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.importer.api.PmcProcessorProp
@@ -109,7 +110,7 @@ private class PmcLoader(
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 FOUR_CORES,
-                MemorySpec.EIGHT_GB,
+                EIGHT_GB,
                 command = properties.asCmd(appProperties.appsFolder, debugPort),
             )
         )
@@ -122,7 +123,7 @@ private class PmcLoader(
         val jobTry = clusterOperations.triggerJob(
             JobSpec(
                 FOUR_CORES,
-                MemorySpec.EIGHT_GB,
+                EIGHT_GB,
                 command = properties.asCmd(appProperties.appsFolder, debugPort),
             )
         )

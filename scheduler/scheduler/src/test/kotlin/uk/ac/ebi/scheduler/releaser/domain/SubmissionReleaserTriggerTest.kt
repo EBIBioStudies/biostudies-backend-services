@@ -1,10 +1,5 @@
 package uk.ac.ebi.scheduler.releaser.domain
 
-import ac.uk.ebi.cluster.client.lsf.ClusterOperations
-import ac.uk.ebi.cluster.client.model.CoresSpec.FOUR_CORES
-import ac.uk.ebi.cluster.client.model.Job
-import ac.uk.ebi.cluster.client.model.JobSpec
-import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
 import ac.uk.ebi.scheduler.properties.ReleaserMode
 import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
@@ -25,6 +20,11 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.model.CoresSpec.FOUR_CORES
+import uk.ac.ebi.biostd.client.cluster.model.Job
+import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.EIGHT_GB
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.releaser.api.BioStudies
 import uk.ac.ebi.scheduler.releaser.api.NotificationTimes

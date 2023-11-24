@@ -1,4 +1,4 @@
-package uk.ac.ebi.biostd.client.cluster.lsf
+package uk.ac.ebi.biostd.client.cluster.api
 
 import arrow.core.Try
 import com.jcraft.jsch.JSch
@@ -31,7 +31,7 @@ class ClusterOperations(
 
         return runInSession {
             val (exitStatus, response) = executeCommand(command)
-            return@runInSession asJobReturn(exitStatus, response)
+            return@runInSession asJobReturn(exitStatus, response, logsPath)
         }
     }
 
@@ -59,9 +59,8 @@ class ClusterOperations(
         return triggerJob(jobSpec).fold({ throw it }, { await(it) })
     }
 
-    // TODO this should include the logsPath
-    private fun asJobReturn(exitCode: Int, response: String): Try<Job> {
-        if (exitCode == 0) return Try.just(responseParser.toJob(response))
+    private fun asJobReturn(exitCode: Int, response: String, logsPath: String): Try<Job> {
+        if (exitCode == 0) return Try.just(responseParser.toJob(response, logsPath))
 
         logger.error(response) { "Error submission job, exitCode='$exitCode', response='$response'" }
         return Try.raise(JobSubmitFailException(response))
