@@ -81,11 +81,11 @@ class SubmissionRequestReleaser(
      */
     suspend fun releaseSubmission(accNo: String) {
         val submission = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        releaseSubmission(submission)
+        if (submission.released) releaseSubmission(submission)
     }
 
     /**
-     * Generates/refresh FTP status for a given submission.
+     * Generates/refresh FTP links for a given submission.
      */
     suspend fun generateFtp(accNo: String) {
         val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
@@ -99,12 +99,16 @@ class SubmissionRequestReleaser(
         return releasedFile
     }
 
-    private suspend fun releaseSubmission(sub: ExtSubmission) {
+    private suspend fun releaseSubmissionFiles(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
         serializationService.filesFlow(sub)
             .filterNot { it is FireFile && it.published }
             .collectIndexed { idx, file -> releaseFile(sub, idx, file) }
-        persistenceService.setAsReleased(sub.accNo)
         logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
+    }
+
+    private suspend fun releaseSubmission(sub: ExtSubmission) {
+        releaseSubmissionFiles(sub)
+        persistenceService.setAsReleased(sub.accNo)
     }
 }

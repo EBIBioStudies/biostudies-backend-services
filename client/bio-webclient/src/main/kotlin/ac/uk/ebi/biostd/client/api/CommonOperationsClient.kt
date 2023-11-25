@@ -28,7 +28,7 @@ class CommonOperationsClient(
     }
 
     override suspend fun generateFtpLinks(accNo: String) {
-        val body = linkedMultiValueMapOf("accNo" to listOf(accNo))
+        val body = linkedMultiValueMapOf("accNo" to accNo)
         client.postAsync("$FTP_URL/generate", RequestParams(body = body))
     }
 
