@@ -24,7 +24,7 @@ class SubmissionOperationsResource(
 ) {
     @PostMapping("/ftp/generate")
     suspend fun generateFtpLinks(@RequestParam("accNo", required = true) accNo: String) {
-        submissionReleaser.generateFtp(accNo)
+        submissionReleaser.generateFtpLinks(accNo)
     }
 
     @DeleteMapping("/{accNo}")
