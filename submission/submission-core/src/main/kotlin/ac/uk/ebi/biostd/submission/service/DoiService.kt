@@ -21,8 +21,8 @@ import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SubFields.DOI
+import ebi.ac.uk.model.constants.SubFields.TITLE
 import ebi.ac.uk.model.extensions.allSections
-import ebi.ac.uk.model.extensions.title
 import mu.KotlinLogging
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
@@ -55,7 +55,7 @@ class DoiService(
     private fun registerDoi(accNo: String, rqt: SubmitRequest): String {
         val sub = rqt.submission
         val timestamp = Instant.now().epochSecond.toString()
-        val title = requireNotNull(sub.title) { throw MissingTitleException() }
+        val title = rqt.submission.find(TITLE) ?: rqt.submission.section.find(TITLE) ?: throw MissingTitleException()
         val request = DoiRequest(accNo, title, timestamp, properties.uiUrl, getContributors(sub))
         val requestFile = Files.createTempFile("${TEMP_FILE_NAME}_$accNo", ".xml").toFile()
         FileUtils.writeContent(requestFile, request.asXmlRequest())
@@ -76,16 +76,16 @@ class DoiService(
 
     private fun getContributors(sub: Submission): List<Contributor> {
         val organizations = getOrganizations(sub)
-        val contributors = sub.allSections().filter { it.type == AUTHOR_TYPE }
+        val contributors = sub.allSections().filter { it.type.lowercase() == AUTHOR_TYPE.lowercase() }
         validateContributors(contributors, organizations)
 
         return contributors.map { it.asContributor(organizations) }
     }
 
     private fun validateContributors(contributors: List<Section>, organizations: Map<String, String>) {
-        fun validate(contributor: Section) {
-            val names = requireNotNull(contributor.find(NAME_ATTR)) { throw InvalidAuthorNameException() }
-            val org = requireNotNull(contributor.find(AFFILIATION_ATTR)) { throw MissingAuthorAffiliationException() }
+        fun validate(contr: Section) {
+            val names = requireNotNull(contr.findAttr(NAME_ATTR)) { throw InvalidAuthorNameException() }
+            val org = requireNotNull(contr.findAttr(AFFILIATION_ATTR)) { throw MissingAuthorAffiliationException() }
             requireNotNull(organizations[org]) { throw InvalidAuthorAffiliationException(names, org) }
         }
 
@@ -95,8 +95,8 @@ class DoiService(
     }
 
     private fun Section.asContributor(organizations: Map<String, String>): Contributor {
-        val names = find(NAME_ATTR)!!
-        val affiliation = find(AFFILIATION_ATTR)!!
+        val names = findAttr(NAME_ATTR)!!
+        val affiliation = findAttr(AFFILIATION_ATTR)!!
 
         return Contributor(
             name = names.substringBeforeLast(" ", ""),
@@ -107,10 +107,11 @@ class DoiService(
     }
 
     private fun getOrganizations(sub: Submission): Map<String, String> {
-        val organizations = sub.allSections().filter { it.type == ORG_TYPE }
+        val organizations = sub.allSections()
+            .filter { validOrgTypes.contains(it.type.lowercase()) }
         validateOrganizations(organizations)
 
-        return organizations.associateBy({ it.accNo!! }, { it.find(NAME_ATTR)!! })
+        return organizations.associateBy({ it.accNo!! }, { it.findAttr(NAME_ATTR)!! })
     }
 
     private fun validateOrganizations(organizations: List<Section>) {
@@ -125,6 +126,9 @@ class DoiService(
             .forEach(::validate)
     }
 
+    private fun Section.findAttr(attribute: String): String? =
+        attributes.find { it.name.lowercase() == attribute.lowercase() }?.value
+
     companion object {
         internal const val AFFILIATION_ATTR = "Affiliation"
         internal const val NAME_ATTR = "Name"
@@ -132,6 +136,7 @@ class DoiService(
 
         internal const val ORG_TYPE = "Organization"
         internal const val AUTHOR_TYPE = "Author"
+        internal val validOrgTypes = setOf("organization", "organisation")
 
         internal const val FILE_PARAM = "fname"
         internal const val OPERATION_PARAM = "operation"
