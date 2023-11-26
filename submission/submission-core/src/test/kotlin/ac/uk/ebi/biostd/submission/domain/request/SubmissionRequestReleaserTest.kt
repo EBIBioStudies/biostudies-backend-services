@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersist
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
+import ac.uk.ebi.biostd.submission.exceptions.UnreleasedSubmissionException
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
@@ -25,8 +26,10 @@ import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
@@ -116,6 +119,19 @@ class SubmissionRequestReleaserTest(
         coVerify(exactly = 1) {
             requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId))
         }
+    }
+
+    @Test
+    fun `generate ftp links for private submission`(
+        @MockK submission: ExtSubmission,
+    ) = runTest {
+        every { submission.released } returns false
+        coEvery { queryService.getExtByAccNo("S-BSST0", includeFileListFiles = true) } returns submission
+
+        val exception = assertThrows<UnreleasedSubmissionException> { testInstance.generateFtpLinks("S-BSST0") }
+        assertThat(exception.message).isEqualTo("Can't generate FTP links for a private submission")
+
+        coVerify(exactly = 0) { storageService.releaseSubmissionFile(any(), any(), any()) }
     }
 
     private companion object {

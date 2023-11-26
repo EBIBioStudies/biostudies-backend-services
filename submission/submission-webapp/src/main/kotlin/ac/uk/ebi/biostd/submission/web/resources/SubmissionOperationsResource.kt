@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmissionsWebHandler
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import kotlinx.coroutines.runBlocking
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -24,8 +23,8 @@ class SubmissionOperationsResource(
     private val submissionReleaser: SubmissionRequestReleaser,
 ) {
     @PostMapping("/ftp/generate")
-    fun generateFtpLinks(@RequestParam("accNo", required = true) accNo: String) {
-        runBlocking { submissionReleaser.generateFtp(accNo) }
+    suspend fun generateFtpLinks(@RequestParam("accNo", required = true) accNo: String) {
+        submissionReleaser.generateFtpLinks(accNo)
     }
 
     @DeleteMapping("/{accNo}")

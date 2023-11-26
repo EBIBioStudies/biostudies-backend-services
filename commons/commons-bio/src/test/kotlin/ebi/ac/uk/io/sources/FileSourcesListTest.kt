@@ -97,6 +97,19 @@ internal class FileSourcesListTest(
         }
 
         @Test
+        fun `file with invalid non numeric characters`() = runTest {
+            val error = assertFailsWith<InvalidPathException> {
+                testInstance.findExtFile("Tubuline/E_KA_Exp#8_M1_12%_Tubulin_3min.Tif", FILE_TYPE.value, attributes)
+            }
+            val expectedErrorMessage =
+                """
+                    The given file path contains invalid characters: Tubuline/E_KA_Exp#8_M1_12%_Tubulin_3min.Tif
+                    For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
+                """.trimIndent()
+            assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
+        }
+
+        @Test
         fun `file with trailing slash`() = runTest {
             val error = assertFailsWith<InvalidPathException> {
                 testInstance.findExtFile("folder/inner/", DIRECTORY_TYPE.value, attributes)
