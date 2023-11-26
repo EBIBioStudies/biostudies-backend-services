@@ -1,12 +1,12 @@
 package uk.ac.ebi.scheduler.common.config
 
-import ac.uk.ebi.cluster.client.lsf.ClusterOperations
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
+import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties
 import uk.ac.ebi.scheduler.pmc.exporter.domain.ExporterTrigger
@@ -26,8 +26,9 @@ internal class SchedulerConfig {
     fun clusterOperations(
         appProperties: AppProperties,
     ) = ClusterOperations.create(
-        appProperties.ssh.sshKey,
-        appProperties.ssh.server,
+        appProperties.cluster.sshKey,
+        appProperties.cluster.server,
+        appProperties.cluster.logsPath,
     )
 
     @Bean

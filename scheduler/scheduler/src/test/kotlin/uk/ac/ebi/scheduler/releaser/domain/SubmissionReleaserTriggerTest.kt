@@ -1,10 +1,5 @@
 package uk.ac.ebi.scheduler.releaser.domain
 
-import ac.uk.ebi.cluster.client.lsf.ClusterOperations
-import ac.uk.ebi.cluster.client.model.CoresSpec.FOUR_CORES
-import ac.uk.ebi.cluster.client.model.Job
-import ac.uk.ebi.cluster.client.model.JobSpec
-import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
 import ac.uk.ebi.scheduler.properties.ReleaserMode
 import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
@@ -19,13 +14,17 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
-import io.mockk.verify
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.model.CoresSpec.FOUR_CORES
+import uk.ac.ebi.biostd.client.cluster.model.Job
+import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.EIGHT_GB
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.releaser.api.BioStudies
 import uk.ac.ebi.scheduler.releaser.api.NotificationTimes
@@ -51,12 +50,13 @@ class SubmissionReleaserTriggerTest(
     @BeforeEach
     fun beforeEach() {
         every { job.id } returns "ABC123"
-        every { job.queue } returns "submissions-releaser-queue"
+        every { job.queue } returns "standard"
+        every { job.logsPath } returns "/the/logs/path"
 
         every { appProperties.appsFolder } returns "apps-folder"
         every { appProperties.javaHome } returns "/home/jdk11"
 
-        every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
 
         coEvery { notificationsSender.send(capture(jobReport)) } answers { nothing }
     }
@@ -86,8 +86,10 @@ class SubmissionReleaserTriggerTest(
     }
 
     private fun verifyClusterOperations() {
-        coVerify(exactly = 1) { notificationsSender.send(jobReport.captured) }
-        verify(exactly = 1) { clusterOperations.triggerJob(jobSpecs.captured) }
+        coVerify(exactly = 1) {
+            notificationsSender.send(jobReport.captured)
+            clusterOperations.triggerJob(jobSpecs.captured)
+        }
     }
 
     private fun verifyJobSpecs(specs: JobSpec, mode: ReleaserMode) {

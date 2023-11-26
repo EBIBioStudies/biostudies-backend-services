@@ -1,10 +1,5 @@
 package uk.ac.ebi.scheduler.stats.domain
 
-import ac.uk.ebi.cluster.client.lsf.ClusterOperations
-import ac.uk.ebi.cluster.client.model.CoresSpec.FOUR_CORES
-import ac.uk.ebi.cluster.client.model.Job
-import ac.uk.ebi.cluster.client.model.JobSpec
-import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.EIGHT_GB
 import arrow.core.Try
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
@@ -21,6 +16,11 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.model.CoresSpec.FOUR_CORES
+import uk.ac.ebi.biostd.client.cluster.model.Job
+import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.EIGHT_GB
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.stats.api.Persistence
 import uk.ac.ebi.scheduler.stats.api.StatsReporterProperties
@@ -49,9 +49,11 @@ class StatsReporterTriggerTest(
         val jobReport = slot<Report>()
 
         every { job.id } returns "ABC123"
-        every { job.queue } returns "submissions-releaser-queue"
+        every { job.queue } returns "standard"
+        every { job.logsPath } returns "/the/logs/path"
+
         coEvery { notificationsSender.send(capture(jobReport)) } answers { nothing }
-        every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
 
         testInstance.triggerStatsReporter()
 

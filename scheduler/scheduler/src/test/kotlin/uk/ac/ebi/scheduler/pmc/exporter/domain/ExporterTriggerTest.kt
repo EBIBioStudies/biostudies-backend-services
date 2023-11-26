@@ -1,10 +1,5 @@
 package uk.ac.ebi.scheduler.pmc.exporter.domain
 
-import ac.uk.ebi.cluster.client.lsf.ClusterOperations
-import ac.uk.ebi.cluster.client.model.CoresSpec.FOUR_CORES
-import ac.uk.ebi.cluster.client.model.Job
-import ac.uk.ebi.cluster.client.model.JobSpec
-import ac.uk.ebi.cluster.client.model.MemorySpec.Companion.TWENTYFOUR_GB
 import ac.uk.ebi.scheduler.properties.ExporterMode
 import ac.uk.ebi.scheduler.properties.ExporterMode.PMC
 import ac.uk.ebi.scheduler.properties.ExporterMode.PUBLIC_ONLY
@@ -26,6 +21,11 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.model.CoresSpec.FOUR_CORES
+import uk.ac.ebi.biostd.client.cluster.model.Job
+import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.TWENTYFOUR_GB
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.BioStudies
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties
@@ -58,12 +58,13 @@ class ExporterTriggerTest(
     @BeforeEach
     fun beforeEach() {
         every { job.id } returns "ABC123"
-        every { job.queue } returns "submissions-releaser-queue"
+        every { job.queue } returns "standard"
+        every { job.logsPath } returns "/the/logs/path"
 
         every { appProperties.javaHome } returns "/home/jdk11"
         every { appProperties.appsFolder } returns "/apps-folder"
 
-        every { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
         coEvery { pcmNotificationsSender.send(capture(jobReport)) } answers { nothing }
         coEvery { schedulerNotificationsSender.send(capture(jobReport)) } answers { nothing }
     }

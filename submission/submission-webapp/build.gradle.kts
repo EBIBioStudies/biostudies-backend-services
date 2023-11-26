@@ -13,6 +13,7 @@ import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
 import Projects.ClientBioWebClient
 import Projects.ClientFireWebClient
+import Projects.ClusterClient
 import Projects.CommonsHttp
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedSerialization
@@ -88,6 +89,7 @@ dependencies {
     api(project(SubmissionSubmitter))
     api(project(SubmissionSecurity))
     api(project(SubmissionNotification))
+    api(project(ClusterClient))
     api(project(CommonsModelExtendedSerialization))
     api(project(CommonsSerialization))
     api(project(CommonsUtil))

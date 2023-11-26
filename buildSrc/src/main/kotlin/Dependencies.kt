@@ -246,6 +246,7 @@ object Projects {
     const val TsvLibrary = ":commons:commons-tsv-util"
     const val ExcelLibrary = ":commons:commons-excel-util"
     const val BioWebClient = ":client:bio-webclient"
+    const val ClusterClient = ":client:cluster-client"
     const val CommonsUtil = ":commons:commons-util"
     const val CommonsBio = ":commons:commons-bio"
     const val CommonsHttp = ":commons:commons-http"
@@ -270,6 +271,5 @@ object Projects {
     const val ClientBioWebClient = ":client:bio-webclient"
     const val ClientFireWebClient = ":client:fire-webclient"
     const val SchedulerTaskProperties = ":scheduler:common:task-properties"
-    const val SchedulerClusterClient = ":scheduler:common:cluster-client"
     const val EventsPublisher = ":events:events-publisher"
 }

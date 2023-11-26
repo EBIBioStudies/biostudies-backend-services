@@ -2,8 +2,8 @@ import Dependencies.Arrow
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinCoroutinesReactor
 import Dependencies.KotlinLogging
+import Projects.ClusterClient
 import Projects.CommonsHttp
-import Projects.SchedulerClusterClient
 import Projects.SchedulerTaskProperties
 import SpringBootDependencies.SpringBootStartedAdminClient
 import SpringBootDependencies.SpringBootStarter
@@ -29,8 +29,8 @@ repositories {
 }
 
 dependencies {
+    api(project(ClusterClient))
     api(project(CommonsHttp))
-    api(project(SchedulerClusterClient))
     api(project(SchedulerTaskProperties))
 
     implementation(Arrow)

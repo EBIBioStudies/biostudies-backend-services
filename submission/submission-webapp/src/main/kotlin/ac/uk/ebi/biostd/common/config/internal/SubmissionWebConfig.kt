@@ -36,14 +36,15 @@ import ac.uk.ebi.biostd.submission.web.resources.ext.ExtendedPageMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
 import java.net.URI
 
 @Suppress("LongParameterList")
 @Configuration
 class SubmissionWebConfig {
-
     @Bean
     fun extendedSubmissionSubmitter(
         pageTabService: PageTabService,
@@ -137,4 +138,14 @@ class SubmissionWebConfig {
 
     @Bean
     fun onBehalfUtils(securityQueryService: ISecurityQueryService): OnBehalfUtils = OnBehalfUtils(securityQueryService)
+
+    @Bean
+    @ConditionalOnProperty(prefix = "app.task", name = ["enableTaskMode"], havingValue = "true")
+    fun clusterClient(
+        properties: TaskHostProperties
+    ): ClusterOperations = ClusterOperations.create(
+        properties.cluster.key,
+        properties.cluster.server,
+        properties.cluster.logsPath,
+    )
 }

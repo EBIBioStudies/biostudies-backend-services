@@ -73,10 +73,15 @@ app:
   instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
   #subBasePath: # Allows to allocate submissions under different base path. Commented to avoid empty string binding.
   task:
-    enable-task-mode: # Wheter the task mode should be enable
-    jar-location: # the submitter task jar location.
-    logs-location: # the submitter task logs location.
-    config-file-path: # the submitter task application.yml file location.
+    enableTaskMode: # Whether the task mode should be enabled
+    jarLocation: # the submitter task jar location.
+    logsLocation: # the submitter task logs location.
+    configFilePath: # the submitter task application.yml file location.
+    cluster:
+      user: # cluster user
+      key: # cluster ssh key path.
+      server:  # cluster sever (to submit jobs from)
+      logsPath: # path to place the logs of the dispatched jobs
   fire:
     host: # FIRE host
     username: # FIRE user

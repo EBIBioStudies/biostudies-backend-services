@@ -10,7 +10,7 @@ data class AppProperties(
     val javaHome: String,
     val slack: SlackConfiguration,
     val dailyScheduling: DailyScheduling,
-    val ssh: SshConfiguration,
+    val cluster: ClusterConfiguration,
 )
 
 data class DailyScheduling(
@@ -27,8 +27,9 @@ data class SlackConfiguration(
     val schedulerNotificationsUrl: String,
 )
 
-data class SshConfiguration(
+data class ClusterConfiguration(
     val user: String,
     val sshKey: String,
     val server: String,
+    val logsPath: String,
 )
