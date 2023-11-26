@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ac.uk.ebi.biostd.submission.exceptions.UnreleasedSubmissionException
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
@@ -85,11 +86,12 @@ class SubmissionRequestReleaser(
     }
 
     /**
-     * Generates/refresh FTP status for a given submission.
+     * Generates/refresh FTP links for a given submission.
      */
-    suspend fun generateFtp(accNo: String) {
-        val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        releaseSubmission(sub)
+    suspend fun generateFtpLinks(accNo: String) {
+        val submission = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        require(submission.released) { throw UnreleasedSubmissionException() }
+        releaseSubmissionFiles(submission)
     }
 
     private suspend fun releaseFile(sub: ExtSubmission, idx: Int, file: ExtFile): ExtFile {
@@ -99,12 +101,16 @@ class SubmissionRequestReleaser(
         return releasedFile
     }
 
-    private suspend fun releaseSubmission(sub: ExtSubmission) {
+    private suspend fun releaseSubmissionFiles(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
         serializationService.filesFlow(sub)
             .filterNot { it is FireFile && it.published }
             .collectIndexed { idx, file -> releaseFile(sub, idx, file) }
-        persistenceService.setAsReleased(sub.accNo)
         logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
+    }
+
+    private suspend fun releaseSubmission(sub: ExtSubmission) {
+        releaseSubmissionFiles(sub)
+        persistenceService.setAsReleased(sub.accNo)
     }
 }

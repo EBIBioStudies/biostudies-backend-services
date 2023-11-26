@@ -83,7 +83,7 @@ interface SecurityOperations {
 interface GeneralOperations {
     fun getGroups(): List<Group>
     fun getCollections(): List<Collection>
-    fun generateFtpLink(relPath: String)
+    suspend fun generateFtpLinks(accNo: String)
     fun createGroup(groupName: String, groupDescription: String): UserGroupDto
     fun addUserInGroup(groupName: String, userName: String)
 }
