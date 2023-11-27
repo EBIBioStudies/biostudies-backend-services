@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
+import ac.uk.ebi.biostd.persistence.doc.integration.ToSubmissionConfig
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
@@ -22,7 +23,7 @@ import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 
 @Configuration
-@Import(value = [SqlPersistenceConfig::class, GeneralConfig::class])
+@Import(value = [SqlPersistenceConfig::class, GeneralConfig::class, ToSubmissionConfig::class])
 class FilePersistenceConfig(
     private val folderResolver: SubmissionFolderResolver,
     private val properties: ApplicationProperties,

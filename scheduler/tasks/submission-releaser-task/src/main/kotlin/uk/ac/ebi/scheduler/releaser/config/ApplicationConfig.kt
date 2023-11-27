@@ -2,18 +2,21 @@ package uk.ac.ebi.scheduler.releaser.config
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
+import ac.uk.ebi.biostd.persistence.doc.MongoDbReactiveConfig
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReleaserRepository
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Import
 import uk.ac.ebi.events.config.EventsProperties
 import uk.ac.ebi.scheduler.releaser.SubmissionReleaserExecutor
-import uk.ac.ebi.scheduler.releaser.persistence.ReleaserRepository
 import uk.ac.ebi.scheduler.releaser.service.EventsPublisherService
 import uk.ac.ebi.scheduler.releaser.service.SubmissionReleaserService
 
 @Configuration
+@Import(MongoDbReactiveConfig::class)
 class ApplicationConfig(
-    private val releaserRepository: ReleaserRepository,
+    private val releaserRepository: SubmissionReleaserRepository,
     private val appProperties: ApplicationProperties,
 ) {
     @Bean

@@ -40,6 +40,7 @@ class ITestListener : TestExecutionListener {
         fireSetup()
         ftpSetup()
         doiSetup()
+        submissionTaskSetup()
         appPropertiesSetup()
     }
 
@@ -123,6 +124,7 @@ class ITestListener : TestExecutionListener {
             "app.persistence.enableFire",
             "${System.getProperty("enableFire").toBoolean()}"
         )
+
         properties.writeProperties()
     }
 
@@ -133,6 +135,21 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.doi.user", "a-user")
         properties.addProperty("app.doi.password", "a-password")
     }
+
+    private fun submissionTaskSetup() {
+        properties.addProperty("app.task.enableTaskMode", enableTask)
+        properties.addProperty("app.task.configFilePath", getResource("application.yml")?.absolutePath.orEmpty())
+        properties.addProperty("app.task.jarLocation", getResource("submission-task-1.0.0.jar")?.absolutePath.orEmpty())
+        properties.addProperty("app.task.logsLocation", taskLogsPath.absolutePath)
+
+        properties.addProperty("app.task.cluster.user", "test-user")
+        properties.addProperty("app.task.cluster.key", "test-key")
+        properties.addProperty("app.task.cluster.server", "test-server")
+        properties.addProperty("app.task.cluster.logsPath", clusterLogsPath.absolutePath)
+    }
+
+    private fun getResource(resource: String): File? =
+        this::class.java.getResource("/$resource")?.toURI()?.let { File(it) }
 
     companion object {
         private val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()
@@ -161,6 +178,8 @@ class ITestListener : TestExecutionListener {
         internal val requestFilesPath = testAppFolder.createDirectory("requestFilesPath")
         internal val magicDirPath = testAppFolder.createDirectory("magic")
         internal val dropboxPath = testAppFolder.createDirectory("dropbox")
+        internal val taskLogsPath = testAppFolder.createDirectory("task-logs")
+        internal val clusterLogsPath = testAppFolder.createDirectory("cluster-logs")
 
         private val fireServer: WireMockServer by lazy { createFireApiMock() }
         private val doiServer: WireMockServer by lazy { createDoiApiMock() }
@@ -172,6 +191,7 @@ class ITestListener : TestExecutionListener {
         private val rabbitMQContainer = createRabbitMqContainer()
 
         val enableFire get() = System.getProperty("enableFire").toBoolean()
+        val enableTask get() = System.getProperty("enableTaskMode").toBoolean()
         val storageMode get() = if (enableFire) StorageMode.FIRE else StorageMode.NFS
         val submissionPath get() = if (enableFire) fireSubmissionPath else nfsSubmissionPath
         val ftpPath get() = if (enableFire) fireFtpPath else nfsFtpPath

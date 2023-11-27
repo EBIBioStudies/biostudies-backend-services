@@ -12,9 +12,11 @@ app:
     exporter: # Indicates whether the Exporter should be daily triggered
     statsReporter: # Indicates whether the Stats Reporter task should be triggered
 
-  ssh:
-    sshKey: # ssh key path.
-    sshServer:  ## ssh sever (to submit jobs from)
+  cluster:
+    user: # cluster ssh user
+    sshKey: # cluster ssh key path.
+    sshServer:  # cluster sever (to submit jobs from)
+    logsPath: # path to place the logs of the dispatched jobs
 
 pmc:
   import:

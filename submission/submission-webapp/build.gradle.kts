@@ -13,6 +13,7 @@ import Dependencies.SpringfoxSwagger
 import Dependencies.SpringfoxSwaggerUI
 import Projects.ClientBioWebClient
 import Projects.ClientFireWebClient
+import Projects.ClusterClient
 import Projects.CommonsHttp
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedSerialization
@@ -88,6 +89,7 @@ dependencies {
     api(project(SubmissionSubmitter))
     api(project(SubmissionSecurity))
     api(project(SubmissionNotification))
+    api(project(ClusterClient))
     api(project(CommonsModelExtendedSerialization))
     api(project(CommonsSerialization))
     api(project(CommonsUtil))
@@ -175,8 +177,11 @@ val itest = tasks.create<Test>("itest") {
     classpath = sourceSets["itest"].runtimeClasspath
 
     val enableFire = project.property("enableFire")!!
-    println("##### Running integration tests with fireEnable=$enableFire #######")
+    val enableTask = project.property("enableTaskMode")!!
+    println("##### Running integration tests with fireEnable=$enableFire, taskMode=$enableTask #######")
+
     systemProperty("enableFire", enableFire)
+    systemProperty("enableTaskMode", enableTask)
 
     useJUnitPlatform()
     testLogging.exceptionFormat = TestExceptionFormat.SHORT

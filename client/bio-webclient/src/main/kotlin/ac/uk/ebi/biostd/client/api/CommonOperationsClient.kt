@@ -2,13 +2,14 @@ package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.GeneralOperations
 import ebi.ac.uk.api.dto.UserGroupDto
+import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.getForObject
+import ebi.ac.uk.commons.http.ext.postAsync
 import ebi.ac.uk.commons.http.ext.postForObject
 import ebi.ac.uk.commons.http.ext.put
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.Group
-import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
 
 private const val GROUP_URL = "/groups"
@@ -26,9 +27,9 @@ class CommonOperationsClient(
         return client.getForObject<Array<Collection>>(PROJECTS_URL).toList()
     }
 
-    override fun generateFtpLink(relPath: String) {
-        val body = LinkedMultiValueMap(mapOf("relPath" to listOf(relPath)))
-        client.postForObject<String>("$FTP_URL/generate", RequestParams(body = body))
+    override suspend fun generateFtpLinks(accNo: String) {
+        val body = linkedMultiValueMapOf("accNo" to accNo)
+        client.postAsync("$FTP_URL/generate", RequestParams(body = body))
     }
 
     override fun createGroup(groupName: String, groupDescription: String): UserGroupDto {

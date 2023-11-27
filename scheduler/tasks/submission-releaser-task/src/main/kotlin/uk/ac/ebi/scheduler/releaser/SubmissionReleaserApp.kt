@@ -3,6 +3,7 @@ package uk.ac.ebi.scheduler.releaser
 import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
 import ac.uk.ebi.scheduler.properties.ReleaserMode.RELEASE
+import kotlinx.coroutines.runBlocking
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -30,10 +31,12 @@ class SubmissionReleaserExecutor(
     private lateinit var context: ApplicationContext
 
     override fun run(vararg args: String?) {
-        when (applicationProperties.mode) {
-            NOTIFY -> submissionReleaserService.notifySubmissionReleases()
-            RELEASE -> submissionReleaserService.releaseDailySubmissions()
-            GENERATE_FTP_LINKS -> submissionReleaserService.generateFtpLinks()
+        runBlocking {
+            when (applicationProperties.mode) {
+                NOTIFY -> submissionReleaserService.notifySubmissionReleases()
+                RELEASE -> submissionReleaserService.releaseDailySubmissions()
+                GENERATE_FTP_LINKS -> submissionReleaserService.generateFtpLinks()
+            }
         }
     }
 

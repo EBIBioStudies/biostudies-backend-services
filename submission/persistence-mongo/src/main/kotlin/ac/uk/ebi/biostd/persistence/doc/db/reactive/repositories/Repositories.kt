@@ -13,6 +13,8 @@ import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import kotlinx.coroutines.flow.Flow
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Pageable
+import org.springframework.data.mongodb.core.query.Meta.CursorOption
+import org.springframework.data.mongodb.repository.Meta
 import org.springframework.data.mongodb.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import java.time.Instant
@@ -92,7 +94,12 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
 }
 
 interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissionRequestFile, ObjectId> {
+    /**
+     * Get the submission request files. Note that as some operation may take signifcant amoount of time
+     * (like calculating md5 of a large file) no timeout cursor is used.
+     */
     @Query("{ 'accNo': ?0, 'version': ?1, 'index': { \$gt: ?2 } }", sort = "{ index: 1 }")
+    @Meta(flags = [CursorOption.NO_TIMEOUT])
     fun findRequestFiles(
         accNo: String,
         version: Int,

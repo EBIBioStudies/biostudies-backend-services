@@ -7,11 +7,11 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
-import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionStagesHandler
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionSubmitter
+import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -24,7 +24,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 @Suppress("LongParameterList")
 @Configuration
-@Import(value = [FilePersistenceConfig::class, SecurityConfig::class])
+@Import(value = [FilePersistenceConfig::class, SecurityConfig::class, StatsConfig::class, SubmitterConfig::class])
 class SubmissionConfig {
     @Bean
     fun submissionQueryService(

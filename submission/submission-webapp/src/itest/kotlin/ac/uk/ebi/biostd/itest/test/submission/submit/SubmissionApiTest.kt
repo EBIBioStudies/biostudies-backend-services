@@ -4,7 +4,6 @@ import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.FtpSuperUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -16,6 +15,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.model.DbSequence
 import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
@@ -259,7 +259,7 @@ class SubmissionApiTest(
         tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP")
         tempFolder.createDirectory("h_EglN1-Δβ2β3-GFP/#4")
         val file1 = tempFolder.createFile("file_16-10.txt")
-        val file2 = tempFolder.createFile("merged-4.tif")
+        val file2 = tempFolder.createFile("merged-%.tif")
         val submission = tsv {
             line("Submission", "S-BSST1610")
             line("Title", "Submission")
@@ -271,14 +271,14 @@ class SubmissionApiTest(
 
             line("Files")
             line("file_16-10.txt")
-            line("h_EglN1-Δβ2β3-GFP/#4/merged-4.tif")
+            line("h_EglN1-Δβ2β3-GFP/#4/merged-%.tif")
             line()
         }.toString()
 
         webClient.uploadFiles(listOf(file1, file2))
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { webClient.submitSingle(submission, TSV) }
-            .withMessageContaining("The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-4.tif")
+            .withMessageContaining("The given file path contains invalid characters: h_EglN1-Δβ2β3-GFP/#4/merged-%.tif")
     }
 
     @Test
@@ -298,7 +298,10 @@ class SubmissionApiTest(
 
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { webClient.submitSingle(submission, TSV) }
-            .withMessageContaining("The given file path contains invalid characters: inner/directory/")
+            .withMessageContainingAll(
+                "The given file path contains invalid characters: inner/directory/",
+                "For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list",
+            )
     }
 
     @Nested

@@ -2,6 +2,7 @@ import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
 import Dependencies.Guava
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -24,6 +25,7 @@ dependencies {
     implementation(Arrow)
     implementation(CommonsIO)
     implementation(CommonsLang3)
+    implementation(KotlinCoroutines)
     implementation(KotlinLogging)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)

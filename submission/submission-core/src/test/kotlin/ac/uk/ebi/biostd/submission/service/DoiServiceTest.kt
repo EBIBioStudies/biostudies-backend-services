@@ -265,12 +265,12 @@ class DoiServiceTest(
                     attribute("Name", "American Society")
                 }
 
-                section("Organization") {
+                section("Organisation") {
                     accNo = "o2"
                     attribute("Name", "EMBL")
                 }
 
-                section("Organization") {
+                section("organization") {
                     accNo = "o3"
                     attribute("Research Associate", "Astrazeneca")
                 }
@@ -292,12 +292,12 @@ class DoiServiceTest(
             attribute("DOI", "")
 
             section("Study") {
-                section("Organization") {
+                section("organization") {
                     accNo = "o1"
                     attribute("Name", "EMBL")
                 }
 
-                section("Author") {
+                section("author") {
                     attribute("P.I.", "John Doe")
                     attribute("ORCID", "12-32-45-82")
                     attribute("Affiliation", "o1", ref = true)
@@ -359,7 +359,7 @@ class DoiServiceTest(
                 section("Author") {
                     attribute("Name", "John Doe")
                     attribute("ORCID", "12-32-45-82")
-                    attribute("Affiliation", "o2", ref = true)
+                    attribute("affiliation", "o2", ref = true)
                 }
             }
         }
