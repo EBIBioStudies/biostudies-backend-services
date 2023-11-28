@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
@@ -59,7 +60,7 @@ class SubmissionRequestProcessorTest(
         every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile)
         coEvery { storageService.persistSubmissionFile(submission, nfsFile) } returns releasedFile
         coEvery { requestService.saveRequest(rqt.withNewStatus(FILES_COPIED, changeId)) } answers { accNo to version }
-        coEvery { requestService.getCleanedRequest(accNo, version, instanceId) } returns (changeId to rqt)
+        coEvery { requestService.getRqt(accNo, version, CLEANED, instanceId) } returns (changeId to rqt)
         coEvery { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
 
         testInstance.processRequest(accNo, version, instanceId)

@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -68,7 +69,7 @@ class SubmissionRequestCleanerTest(
         every { sub.version } returns version
         coEvery { queryService.findExtByAccNo(accNo, true) } returns null
         every { loadedRequest.withNewStatus(CLEANED, changeId) } returns cleanedRequest
-        coEvery { requestService.getLoadedRequest(accNo, version, instanceId) } returns (changeId to loadedRequest)
+        coEvery { requestService.getRqt(accNo, version, LOADED, instanceId) } returns (changeId to loadedRequest)
         coEvery { requestService.saveRequest(cleanedRequest) } returns (accNo to version)
 
         testInstance.cleanCurrentVersion(accNo, version, instanceId)
@@ -102,7 +103,7 @@ class SubmissionRequestCleanerTest(
 
         every { loadedRequest.withNewStatus(CLEANED, changeId) } returns cleanedRequest
         coEvery { queryService.findExtByAccNo("S-BSST1", true) } returns current
-        coEvery { requestService.getLoadedRequest("S-BSST1", 2, instanceId) } returns (changeId to loadedRequest)
+        coEvery { requestService.getRqt("S-BSST1", 2, LOADED, instanceId) } returns (changeId to loadedRequest)
         every { serializationService.filesFlow(current) } returns flowOf(currentFile)
         coEvery { requestService.saveRequest(cleanedRequest) } returns ("S-BSST1" to 2)
         coEvery { storageService.deleteSubmissionFile(current, currentFile) } answers { nothing }

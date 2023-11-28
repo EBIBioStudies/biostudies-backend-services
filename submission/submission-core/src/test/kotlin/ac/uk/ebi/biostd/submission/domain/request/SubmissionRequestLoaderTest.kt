@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -76,9 +77,10 @@ class SubmissionRequestLoaderTest(
         every { indexedRequest.currentIndex } returns 3
         every { indexedRequest.withNewStatus(RequestStatus.LOADED, changeId) } returns indexedRequest
         coEvery {
-            requestService.getIndexedRequest(
+            requestService.getRqt(
                 sub.accNo,
                 sub.version,
+                INDEXED,
                 instanceId
             )
         } returns (changeId to indexedRequest)

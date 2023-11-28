@@ -2,14 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatusChanges
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
@@ -67,32 +60,25 @@ class SubmissionRequestMongoPersistenceService(
         requestRepository.updateSubmissionRequestFile(requestFile.accNo, requestFile.version, requestFile.path, file)
     }
 
-    override suspend fun getPendingRequest(accNo: String, version: Int, handlerName: String): SubmissionRqt {
-        return getRequest(accNo, version, REQUESTED, handlerName)
-    }
-
-    override suspend fun getIndexedRequest(accNo: String, version: Int, processId: String): SubmissionRqt {
-        return getRequest(accNo, version, INDEXED, processId)
-    }
-
-    override suspend fun getLoadedRequest(accNo: String, version: Int, processId: String): SubmissionRqt {
-        return getRequest(accNo, version, LOADED, processId)
-    }
-
-    override suspend fun getCleanedRequest(accNo: String, version: Int, processId: String): SubmissionRqt {
-        return getRequest(accNo, version, CLEANED, processId)
-    }
-
-    override suspend fun getCheckReleased(accNo: String, version: Int, processId: String): SubmissionRqt {
-        return getRequest(accNo, version, CHECK_RELEASED, processId)
-    }
-
-    override suspend fun getFilesCopiedRequest(accNo: String, version: Int, processId: String): SubmissionRqt {
-        return getRequest(accNo, version, FILES_COPIED, processId)
-    }
-
-    override suspend fun getPersistedRequest(accNo: String, version: Int, processId: String): SubmissionRqt {
-        return getRequest(accNo, version, PERSISTED, processId)
+    override suspend fun getRqt(
+        accNo: String,
+        version: Int,
+        status: RequestStatus,
+        processId: String,
+    ): SubmissionRqt {
+        val (statusId, request) = requestRepository.getRequest(accNo, version, status, processId)
+        val stored = serializationService.deserialize(request.submission.toString())
+        val subRequest = SubmissionRequest(
+            submission = stored,
+            draftKey = request.draftKey,
+            request.notifyTo,
+            request.status,
+            request.totalFiles,
+            request.currentIndex,
+            request.modificationTime.atOffset(UTC),
+            request.statusChanges.map { asSubRequestStatusChange(it) }
+        )
+        return statusId to subRequest
     }
 
     override suspend fun getRequestStatus(accNo: String, version: Int): RequestStatus {
@@ -134,26 +120,5 @@ class SubmissionRequestMongoPersistenceService(
             rqt.startTime,
             rqt.endTime
         )
-    }
-
-    private suspend fun getRequest(
-        accNo: String,
-        version: Int,
-        status: RequestStatus,
-        processId: String,
-    ): Pair<String, SubmissionRequest> {
-        val (statusId, request) = requestRepository.getRequest(accNo, version, status, processId)
-        val stored = serializationService.deserialize(request.submission.toString())
-        val subRequest = SubmissionRequest(
-            submission = stored,
-            draftKey = request.draftKey,
-            request.notifyTo,
-            request.status,
-            request.totalFiles,
-            request.currentIndex,
-            request.modificationTime.atOffset(UTC),
-            request.statusChanges.map { asSubRequestStatusChange(it) }
-        )
-        return statusId to subRequest
     }
 }

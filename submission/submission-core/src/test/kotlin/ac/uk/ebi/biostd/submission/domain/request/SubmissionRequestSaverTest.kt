@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
@@ -66,7 +67,7 @@ internal class SubmissionRequestSaverTest(
         every { submission.version } answers { version }
         every { subFile.filePath } returns filePath
 
-        coEvery { requestService.getCheckReleased(accNo, version, instanceId) } answers { (changeId to request) }
+        coEvery { requestService.getRqt(accNo, version, CHECK_RELEASED, instanceId) } answers { (changeId to request) }
         coEvery { requestService.saveRequest(request) } answers { ACC_NO to version }
 
         every { request.withNewStatus(PERSISTED, changeId) } returns request

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -23,8 +24,8 @@ class SubmissionRequestProcessor(
     /**
      * Process the current submission files. Note that [ExtSubmission] returned does not include file list files.
      */
-    suspend fun processRequest(accNo: String, version: Int, handlerName: String) {
-        val (changeId, request) = requestService.getCleanedRequest(accNo, version, handlerName)
+    suspend fun processRequest(accNo: String, version: Int, processId: String) {
+        val (changeId, request) = requestService.getRqt(accNo, version, CLEANED, processId)
         processRequest(request.submission, request.currentIndex)
         requestService.saveRequest(request.withNewStatus(FILES_COPIED, changeId))
     }

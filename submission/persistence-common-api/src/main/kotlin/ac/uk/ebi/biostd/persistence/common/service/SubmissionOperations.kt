@@ -72,13 +72,12 @@ interface SubmissionRequestPersistenceService {
     suspend fun updateRqtIndex(accNo: String, version: Int, index: Int)
     suspend fun updateRqtIndex(requestFile: SubmissionRequestFile, file: ExtFile)
 
-    suspend fun getPendingRequest(accNo: String, version: Int, processId: String): Pair<String, SubmissionRequest>
-    suspend fun getIndexedRequest(accNo: String, version: Int, processId: String): Pair<String, SubmissionRequest>
-    suspend fun getLoadedRequest(accNo: String, version: Int, processId: String): Pair<String, SubmissionRequest>
-    suspend fun getCleanedRequest(accNo: String, version: Int, processId: String): Pair<String, SubmissionRequest>
-    suspend fun getCheckReleased(accNo: String, version: Int, processId: String): Pair<String, SubmissionRequest>
-    suspend fun getFilesCopiedRequest(accNo: String, version: Int, processId: String): Pair<String, SubmissionRequest>
-    suspend fun getPersistedRequest(accNo: String, version: Int, processId: String): Pair<String, SubmissionRequest>
+    suspend fun getRqt(
+        accNo: String,
+        version: Int,
+        status: RequestStatus,
+        processId: String,
+    ): Pair<String, SubmissionRequest>
 }
 
 interface SubmissionRequestFilesPersistenceService {
