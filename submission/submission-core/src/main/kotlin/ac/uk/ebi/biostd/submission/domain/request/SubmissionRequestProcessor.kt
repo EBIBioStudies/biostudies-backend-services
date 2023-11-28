@@ -23,14 +23,16 @@ class SubmissionRequestProcessor(
     /**
      * Process the current submission files. Note that [ExtSubmission] returned does not include file list files.
      */
-    suspend fun processRequest(accNo: String, version: Int) {
-        val request = requestService.getCleanedRequest(accNo, version)
-        val sub = request.submission
+    suspend fun processRequest(accNo: String, version: Int, handlerName: String) {
+        val (changeId, request) = requestService.getCleanedRequest(accNo, version, handlerName)
+        processRequest(request.submission, request.currentIndex)
+        requestService.saveRequest(request.withNewStatus(FILES_COPIED, changeId))
+    }
 
-        logger.info { "$accNo ${sub.owner} Started persisting submission files on ${sub.storageMode}" }
-        persistSubmissionFiles(sub, accNo, version, request.currentIndex)
-        requestService.saveSubmissionRequest(request.withNewStatus(FILES_COPIED))
-        logger.info { "$accNo ${sub.owner} Finished persisting submission files on ${sub.storageMode}" }
+    private suspend fun processRequest(sub: ExtSubmission, currentIndex: Int) {
+        logger.info { "${sub.accNo} ${sub.owner} Started persisting submission files on ${sub.storageMode}" }
+        persistSubmissionFiles(sub, sub.accNo, sub.version, currentIndex)
+        logger.info { "${sub.accNo} ${sub.owner} Finished persisting submission files on ${sub.storageMode}" }
     }
 
     private suspend fun persistSubmissionFiles(sub: ExtSubmission, accNo: String, version: Int, startingAt: Int) {

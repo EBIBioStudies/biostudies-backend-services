@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.submitter
 
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
@@ -23,6 +24,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class LocalExtSubmissionSubmitter(
+    private val properties: ApplicationProperties,
     private val pageTabService: PageTabService,
     private val requestService: SubmissionRequestPersistenceService,
     private val persistenceService: SubmissionPersistenceService,
@@ -39,29 +41,29 @@ class LocalExtSubmissionSubmitter(
         val withTabFiles = pageTabService.generatePageTab(rqt.submission)
         val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         val request = SubmissionRequest(submission = submission, notifyTo = rqt.notifyTo, draftKey = rqt.draftKey)
-        return requestService.createSubmissionRequest(request)
+        return requestService.createRequest(request)
     }
 
     override suspend fun indexRequest(accNo: String, version: Int): Unit =
-        requestIndexer.indexRequest(accNo, version)
+        requestIndexer.indexRequest(accNo, version, properties.processId)
 
     override suspend fun loadRequest(accNo: String, version: Int): Unit =
-        requestLoader.loadRequest(accNo, version)
+        requestLoader.loadRequest(accNo, version, properties.processId)
 
     override suspend fun cleanRequest(accNo: String, version: Int): Unit =
-        requestCleaner.cleanCurrentVersion(accNo, version)
+        requestCleaner.cleanCurrentVersion(accNo, version, properties.processId)
 
     override suspend fun processRequest(accNo: String, version: Int): Unit =
-        requestProcessor.processRequest(accNo, version)
+        requestProcessor.processRequest(accNo, version, properties.processId)
 
     override suspend fun checkReleased(accNo: String, version: Int): Unit =
-        requestReleaser.checkReleased(accNo, version)
+        requestReleaser.checkReleased(accNo, version, properties.processId)
 
     override suspend fun saveRequest(accNo: String, version: Int): ExtSubmission =
-        requestSaver.saveRequest(accNo, version)
+        requestSaver.saveRequest(accNo, version, properties.processId)
 
     override suspend fun finalizeRequest(accNo: String, version: Int): ExtSubmission =
-        requestFinalizer.finalizeRequest(accNo, version)
+        requestFinalizer.finalizeRequest(accNo, version, properties.processId)
 
     override suspend fun release(accNo: String) = requestReleaser.releaseSubmission(accNo)
 

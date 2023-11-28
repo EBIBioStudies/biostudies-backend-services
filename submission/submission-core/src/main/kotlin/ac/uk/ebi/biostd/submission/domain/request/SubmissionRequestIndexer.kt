@@ -23,15 +23,17 @@ class SubmissionRequestIndexer(
      * guarantee by @see uk.ac.ebi.extended.serialization.service.ExtSerializationService.fileSequence to reduce time
      * submission main/core data is not available.
      */
-    suspend fun indexRequest(accNo: String, version: Int) {
-        val request = requestService.getPendingRequest(accNo, version)
-        val sub = request.submission
+    suspend fun indexRequest(accNo: String, version: Int, handlerName: String) {
+        val (changeId, request) = requestService.getPendingRequest(accNo, version, handlerName)
+        val totalFiles = indexRequest(request.submission)
+        requestService.saveRequest(request.indexed(totalFiles, changeId = changeId))
+    }
 
+    private suspend fun indexRequest(sub: ExtSubmission): Int {
         logger.info { "${sub.accNo} ${sub.owner} Started indexing submission files" }
         val totalFiles = indexSubmissionFiles(sub)
-        requestService.saveSubmissionRequest(request.indexed(totalFiles))
-
         logger.info { "${sub.accNo} ${sub.owner} Finished indexing submission files" }
+        return totalFiles
     }
 
     private suspend fun indexSubmissionFiles(sub: ExtSubmission): Int {

@@ -19,18 +19,20 @@ class SubmissionRequestSaver(
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
     private val eventsPublisherService: EventsPublisherService,
 ) {
-    suspend fun saveRequest(accNo: String, version: Int): ExtSubmission {
-        val request = requestService.getCheckReleased(accNo, version)
-        val sub = request.submission
+    suspend fun saveRequest(accNo: String, version: Int, handlerName: String): ExtSubmission {
+        val (changeId, request) = requestService.getCheckReleased(accNo, version, handlerName)
+        val saved = saveRequest(request.submission)
+        requestService.saveRequest(request.withNewStatus(PERSISTED, changeId))
+        eventsPublisherService.submissionSubmitted(accNo, request.notifyTo)
+        return saved
+    }
 
-        logger.info { "$accNo ${sub.owner} Started saving submission '${sub.accNo}', version={${sub.version}}" }
+    private suspend fun saveRequest(sub: ExtSubmission): ExtSubmission {
+        logger.info { "${sub.accNo} ${sub.owner} Started saving submission '${sub.accNo}', version={${sub.version}}" }
         val assembled = assembleSubmission(sub)
         persistenceService.expirePreviousVersions(sub.accNo)
         val saved = persistenceService.saveSubmission(assembled)
-        logger.info { "$accNo ${sub.owner} Finished saving submission '${sub.accNo}', version={${sub.version}}" }
-
-        requestService.saveSubmissionRequest(request.withNewStatus(PERSISTED))
-        eventsPublisherService.submissionSubmitted(accNo, request.notifyTo)
+        logger.info { "${sub.accNo} ${sub.owner} Finished saving submission '${sub.accNo}', version={${sub.version}}" }
         return saved
     }
 

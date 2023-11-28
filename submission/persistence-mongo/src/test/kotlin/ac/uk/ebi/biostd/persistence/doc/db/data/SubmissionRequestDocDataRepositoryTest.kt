@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
+import ac.uk.ebi.biostd.persistence.common.model.action
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
@@ -54,7 +56,8 @@ class SubmissionRequestDocDataRepositoryTest(
             submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
             totalFiles = 5,
             currentIndex = 6,
-            modificationTime = Instant.now()
+            modificationTime = Instant.now(),
+            statusChanges = emptyList()
         )
 
         val (_, created) = testInstance.saveRequest(request)
@@ -85,7 +88,8 @@ class SubmissionRequestDocDataRepositoryTest(
                 submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                 totalFiles = 5,
                 currentIndex = 6,
-                modificationTime = Instant.now()
+                modificationTime = Instant.now(),
+                statusChanges = emptyList()
             )
         )
 
@@ -93,13 +97,14 @@ class SubmissionRequestDocDataRepositoryTest(
             id = ObjectId(),
             accNo = "abc-123",
             version = 2,
-            status = RequestStatus.REQUESTED,
+            status = REQUESTED,
             draftKey = "temp-987-b",
             notifyTo = "user-b@test.org",
             submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
             totalFiles = 51,
             currentIndex = 61,
-            modificationTime = Instant.now().plusSeconds(10)
+            modificationTime = Instant.now().plusSeconds(10),
+            statusChanges = emptyList()
         )
         val (_, created) = testInstance.saveRequest(newRequest)
 
@@ -118,6 +123,32 @@ class SubmissionRequestDocDataRepositoryTest(
         assertThat(request.totalFiles).isEqualTo(existing.totalFiles)
         assertThat(request.currentIndex).isEqualTo(existing.currentIndex)
         assertThat(request.modificationTime).isCloseTo(existing.modificationTime, within(100, ChronoUnit.MILLIS))
+    }
+
+    @Test
+    fun loadRequest() = runTest {
+        val procesId = "processId"
+        val rqt = DocSubmissionRequest(
+            id = ObjectId(),
+            accNo = "abc-123",
+            version = 2,
+            status = REQUESTED,
+            draftKey = "temp-987-b",
+            notifyTo = "user-b@test.org",
+            submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
+            totalFiles = 51,
+            currentIndex = 61,
+            modificationTime = Instant.now().plusSeconds(10),
+            statusChanges = emptyList()
+        )
+        testInstance.saveRequest(rqt)
+
+        val (changeId, request) = testInstance.getRequest(rqt.accNo, rqt.version, REQUESTED, procesId)
+
+        val statusChange = request.statusChanges.filter { it.statusId.toString() == changeId }.first()
+        assertThat(statusChange.status).isEqualTo(REQUESTED.action)
+        assertThat(statusChange.startTime).isNotNull()
+        assertThat(statusChange.endTime).isNull()
     }
 
     private companion object {

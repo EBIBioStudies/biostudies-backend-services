@@ -1,8 +1,10 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.model.action
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
@@ -10,7 +12,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQ
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_IDX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_TOTAL_FILES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
@@ -28,6 +32,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionReques
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
+import ac.uk.ebi.biostd.persistence.doc.model.DocRequestStatusChanges
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
@@ -37,6 +42,8 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.bson.types.ObjectId
+import org.springframework.data.mongodb.core.FindAndModifyOptions
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
@@ -70,6 +77,31 @@ class SubmissionRequestDocDataRepository(
             requestCount <= filter.offset -> requestCount.toInt() to emptyList()
             else -> findActiveRequests(query, filter.offset, filter.limit)
         }
+    }
+
+    suspend fun getRequest(
+        accNo: String,
+        version: Int,
+        status: RequestStatus,
+        processId: String,
+    ): Pair<String, DocSubmissionRequest> {
+        val statusId = ObjectId()
+        val statusChange = DocRequestStatusChanges(
+            status = status.action,
+            statusId = statusId,
+            processId = processId,
+            startTime = Instant.now(),
+            endTime = null
+        )
+        val update = Update().addToSet(RQT_STATUS_CHANGES, statusChange)
+        val query = Query(where(RQT_ACC_NO).`is`(accNo).and(RQT_VERSION).`is`(version).and(RQT_STATUS).`is`(status))
+        val result = mongoTemplate.findAndModify(
+            query,
+            update,
+            FindAndModifyOptions.options().returnNew(true),
+            DocSubmissionRequest::class.java
+        ).awaitSingle()
+        return statusId.toString() to result
     }
 
     private suspend fun findActiveRequests(
@@ -120,6 +152,7 @@ class SubmissionRequestDocDataRepository(
             .set(RQT_IDX, rqt.currentIndex)
             .set(RQT_TOTAL_FILES, rqt.totalFiles)
             .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
+            .set(RQT_STATUS_CHANGES, rqt.statusChanges)
 
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }

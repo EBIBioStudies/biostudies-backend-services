@@ -25,18 +25,19 @@ class SubmissionRequestCleaner(
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
-    suspend fun cleanCurrentVersion(accNo: String, version: Int) {
-        val request = requestService.getLoadedRequest(accNo, version)
-        val new = request.submission
-        val current = queryService.findExtByAccNo(accNo, includeFileListFiles = true)
+    suspend fun cleanCurrentVersion(accNo: String, version: Int, handlerName: String) {
+        val (changeId, request) = requestService.getLoadedRequest(accNo, version, handlerName)
+        cleanCurrentVersion(request.submission)
+        requestService.saveRequest(request.withNewStatus(status = CLEANED, changeId = changeId))
+    }
 
+    private suspend fun cleanCurrentVersion(new: ExtSubmission) {
+        val current = queryService.findExtByAccNo(new.accNo, includeFileListFiles = true)
         if (current != null) {
             logger.info { "${new.accNo} ${new.owner} Started cleaning common files of version ${new.version}" }
             deleteCommonFiles(new, current)
             logger.info { "${new.accNo} ${new.owner} Finished cleaning common files of version ${new.version}" }
         }
-
-        requestService.saveSubmissionRequest(request.withNewStatus(status = CLEANED))
     }
 
     private suspend fun deleteCommonFiles(new: ExtSubmission, current: ExtSubmission) {

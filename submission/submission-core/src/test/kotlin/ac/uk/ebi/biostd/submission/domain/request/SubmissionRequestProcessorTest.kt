@@ -50,7 +50,7 @@ class SubmissionRequestProcessorTest(
     ) = runTest {
         val accNo = "ABC-123"
         val version = 1
-
+        val changeId = "changeId"
         val nfsRqtFile = SubmissionRequestFile(accNo, version, 1, "test1.txt", nfsFile)
         every { rqt.submission } returns submission
         every { rqt.currentIndex } returns 1
@@ -58,14 +58,18 @@ class SubmissionRequestProcessorTest(
         every { submission.version } returns version
         every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile)
         coEvery { storageService.persistSubmissionFile(submission, nfsFile) } returns releasedFile
-        coEvery { requestService.saveSubmissionRequest(rqt.withNewStatus(FILES_COPIED)) } answers { accNo to version }
-        coEvery { requestService.getCleanedRequest(accNo, version) } returns rqt
+        coEvery { requestService.saveRequest(rqt.withNewStatus(FILES_COPIED, changeId)) } answers { accNo to version }
+        coEvery { requestService.getCleanedRequest(accNo, version, instanceId) } returns (changeId to rqt)
         coEvery { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
 
-        testInstance.processRequest(accNo, version)
+        testInstance.processRequest(accNo, version, instanceId)
 
         coVerify(exactly = 1) {
-            requestService.saveSubmissionRequest(rqt.withNewStatus(FILES_COPIED))
+            requestService.saveRequest(rqt.withNewStatus(FILES_COPIED, changeId))
         }
+    }
+
+    private companion object {
+        const val instanceId = "biostudies-prod"
     }
 }

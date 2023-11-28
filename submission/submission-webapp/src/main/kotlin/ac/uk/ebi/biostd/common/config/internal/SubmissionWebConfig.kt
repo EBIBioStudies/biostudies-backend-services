@@ -47,6 +47,7 @@ import java.net.URI
 class SubmissionWebConfig {
     @Bean
     fun extendedSubmissionSubmitter(
+        appProperties: ApplicationProperties,
         pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
@@ -60,6 +61,7 @@ class SubmissionWebConfig {
         hostProperties: TaskHostProperties,
     ): ExtSubmissionSubmitter {
         val local = LocalExtSubmissionSubmitter(
+            appProperties,
             pageTabService,
             requestService,
             persistenceService,

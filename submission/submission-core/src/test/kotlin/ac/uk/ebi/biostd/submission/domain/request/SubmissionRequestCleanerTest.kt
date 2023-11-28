@@ -59,15 +59,21 @@ class SubmissionRequestCleanerTest(
         @MockK loadedRequest: SubmissionRequest,
         @MockK cleanedRequest: SubmissionRequest,
     ) = runTest {
+        val changeId = "changeId"
+        val accNo = "S-BSST1"
+        val version = 1
+
         every { loadedRequest.submission } returns sub
-        coEvery { queryService.findExtByAccNo("S-BSST1", true) } returns null
-        every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
-        coEvery { requestService.getLoadedRequest("S-BSST1", 1) } returns loadedRequest
-        coEvery { requestService.saveSubmissionRequest(cleanedRequest) } returns ("S-BSST1" to 1)
+        every { sub.accNo } returns accNo
+        every { sub.version } returns version
+        coEvery { queryService.findExtByAccNo(accNo, true) } returns null
+        every { loadedRequest.withNewStatus(CLEANED, changeId) } returns cleanedRequest
+        coEvery { requestService.getLoadedRequest(accNo, version, instanceId) } returns (changeId to loadedRequest)
+        coEvery { requestService.saveRequest(cleanedRequest) } returns (accNo to version)
 
-        testInstance.cleanCurrentVersion("S-BSST1", 1)
+        testInstance.cleanCurrentVersion(accNo, version, instanceId)
 
-        coVerify(exactly = 1) { requestService.saveSubmissionRequest(cleanedRequest) }
+        coVerify(exactly = 1) { requestService.saveRequest(cleanedRequest) }
         coVerify(exactly = 0) {
             storageService.deleteSubmissionFile(any(), any())
         }
@@ -81,6 +87,7 @@ class SubmissionRequestCleanerTest(
         @MockK cleanedRequest: SubmissionRequest,
         @MockK requestFile: SubmissionRequestFile,
     ) = runTest {
+        val changeId = "changeId"
         val new = mockSubmission()
         every { newFile.md5 } returns "new-md5"
         every { newFile.filePath } returns "a/b/file.txt"
@@ -93,18 +100,18 @@ class SubmissionRequestCleanerTest(
 
         every { loadedRequest.submission } returns new
 
-        every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
+        every { loadedRequest.withNewStatus(CLEANED, changeId) } returns cleanedRequest
         coEvery { queryService.findExtByAccNo("S-BSST1", true) } returns current
-        coEvery { requestService.getLoadedRequest("S-BSST1", 2) } returns loadedRequest
+        coEvery { requestService.getLoadedRequest("S-BSST1", 2, instanceId) } returns (changeId to loadedRequest)
         every { serializationService.filesFlow(current) } returns flowOf(currentFile)
-        coEvery { requestService.saveSubmissionRequest(cleanedRequest) } returns ("S-BSST1" to 2)
+        coEvery { requestService.saveRequest(cleanedRequest) } returns ("S-BSST1" to 2)
         coEvery { storageService.deleteSubmissionFile(current, currentFile) } answers { nothing }
         every { filesRequestService.getSubmissionRequestFiles("S-BSST1", 2, 0) } returns flowOf(requestFile)
 
-        testInstance.cleanCurrentVersion("S-BSST1", 2)
+        testInstance.cleanCurrentVersion("S-BSST1", 2, instanceId)
 
         coVerify(exactly = 1) {
-            requestService.saveSubmissionRequest(cleanedRequest)
+            requestService.saveRequest(cleanedRequest)
             storageService.deleteSubmissionFile(current, currentFile)
         }
     }
@@ -117,5 +124,9 @@ class SubmissionRequestCleanerTest(
         every { mockSubmission.owner } returns "owner@mail.org"
 
         return mockSubmission
+    }
+
+    private companion object {
+        const val instanceId = "biostudies-prod"
     }
 }
