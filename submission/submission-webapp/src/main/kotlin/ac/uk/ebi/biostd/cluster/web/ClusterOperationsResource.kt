@@ -33,7 +33,7 @@ class ClusterOperationsResource(
     }
 
     @GetMapping("/jobs/{jobId}/status")
-    suspend fun submitJob(@PathVariable jobId: String): String {
+    suspend fun jobStatus(@PathVariable jobId: String): String {
         return clusterOperations.jobStatus(jobId)
     }
 

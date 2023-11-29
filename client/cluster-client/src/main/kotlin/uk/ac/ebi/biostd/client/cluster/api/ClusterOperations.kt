@@ -40,7 +40,9 @@ class ClusterOperations(
     suspend fun jobStatus(jobId: String): String {
         logger.info { "Checking Job id ='$jobId' status" }
         return runInSession {
-            executeCommand(String.format(CHECK_COMMAND, jobId)).second.trimIndent()
+            val status = executeCommand(String.format(CHECK_COMMAND, jobId)).second.trimIndent()
+            logger.info { "Job $jobId. Current status $status" }
+            status
         }
     }
 
@@ -52,12 +54,8 @@ class ClusterOperations(
         suspend fun await(job: Job) = runInSession {
             waitUntil(
                 interval = ofSeconds(checkJobInterval),
-                duration = ofSeconds(maxSecondsDuration),
-            ) {
-                val status = jobStatus(job.id)
-                logger.info { "Waiting for job ${job.id}. Current status $status" }
-                status == DONE_STATUS
-            }
+                duration = ofSeconds(maxSecondsDuration)
+            ) { jobStatus(job.id) == DONE_STATUS }
             job
         }
 
