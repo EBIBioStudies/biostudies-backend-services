@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.common.config.internal
+package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.common.properties.TaskHostProperties
@@ -144,7 +144,7 @@ class SubmissionWebConfig {
     @Bean
     @ConditionalOnProperty(prefix = "app.task", name = ["enableTaskMode"], havingValue = "true")
     fun clusterClient(
-        properties: TaskHostProperties
+        properties: TaskHostProperties,
     ): ClusterOperations = ClusterOperations.create(
         properties.cluster.key,
         properties.cluster.server,

@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.common.config.internal
+package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
