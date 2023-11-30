@@ -21,12 +21,12 @@ class ClusterOperationsResource(
     @PostMapping("/health")
     suspend fun clusterHealthCheck(): Job {
         val spec = JobSpec(command = "echo 'hello world'")
-        return clusterOperations.runJob(spec)
+        return clusterOperations.triggerJobSync(spec)
     }
 
     @PostMapping("/submit")
     suspend fun submitJob(@RequestBody job: JobSpecDto): Job {
-        return when (val response = clusterOperations.triggerJob(job.asJobSpec())) {
+        return when (val response = clusterOperations.triggerJobAsync(job.asJobSpec())) {
             is Try.Failure -> throw IllegalStateException(response.exception)
             is Try.Success -> response.value
         }
@@ -37,9 +37,9 @@ class ClusterOperationsResource(
         return clusterOperations.jobStatus(jobId)
     }
 
-    data class JobSpecDto(val command: String, val queue: String, val megaBytes: Int) {
+    data class JobSpecDto(val command: String, val queue: String, val ramMegaBytes: Int) {
         fun asJobSpec(): JobSpec = JobSpec(
-            command = command, queue = QueueSpec.fromName(queue), ram = MemorySpec.fromMegaBytes(megaBytes)
+            command = command, queue = QueueSpec.fromName(queue), ram = MemorySpec.fromMegaBytes(ramMegaBytes)
         )
     }
 }

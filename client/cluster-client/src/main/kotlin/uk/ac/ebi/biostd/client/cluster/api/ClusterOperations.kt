@@ -24,7 +24,7 @@ class ClusterOperations(
     private val responseParser: JobResponseParser,
     private val sessionFunction: () -> Session,
 ) {
-    suspend fun triggerJob(jobSpec: JobSpec): Try<Job> {
+    suspend fun triggerJobAsync(jobSpec: JobSpec): Try<Job> {
         logger.info { "Triggering Job $jobSpec" }
 
         val parameters = mutableListOf(String.format(SUBMIT_COMMAND, logsPath, logsPath))
@@ -46,7 +46,7 @@ class ClusterOperations(
         }
     }
 
-    suspend fun runJob(
+    suspend fun triggerJobSync(
         jobSpec: JobSpec,
         checkJobInterval: Long = 30,
         maxSecondsDuration: Long = 60,
@@ -59,7 +59,7 @@ class ClusterOperations(
             job
         }
 
-        return triggerJob(jobSpec).fold({ throw it }, { await(it) })
+        return triggerJobAsync(jobSpec).fold({ throw it }, { await(it) })
     }
 
     private fun asJobReturn(exitCode: Int, response: String, logsPath: String): Try<Job> {
