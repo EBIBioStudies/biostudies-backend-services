@@ -40,7 +40,7 @@ class SubmissionRequestReleaser(
      * Check the release status of the submission and release it if released flag is true.
      */
     suspend fun checkReleased(accNo: String, version: Int, processId: String) {
-        val (changeId, request) = requestService.getRqt(accNo, version, FILES_COPIED, processId)
+        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, FILES_COPIED, processId)
         if (request.submission.released) releaseRequest(accNo, version, request)
         requestService.saveRequest(request.withNewStatus(CHECK_RELEASED, changeId))
     }

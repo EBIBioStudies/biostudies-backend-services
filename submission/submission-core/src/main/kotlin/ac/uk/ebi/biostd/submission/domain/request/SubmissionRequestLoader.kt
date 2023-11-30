@@ -36,7 +36,7 @@ class SubmissionRequestLoader(
      * Calculate md5 and size for every file in submission request.
      */
     suspend fun loadRequest(accNo: String, version: Int, processId: String) {
-        val (changeId, request) = requestService.getRqt(accNo, version, INDEXED, processId)
+        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, INDEXED, processId)
         loadRequest(request.submission, request.currentIndex)
         requestService.saveRequest(request.withNewStatus(LOADED, changeId = changeId))
     }

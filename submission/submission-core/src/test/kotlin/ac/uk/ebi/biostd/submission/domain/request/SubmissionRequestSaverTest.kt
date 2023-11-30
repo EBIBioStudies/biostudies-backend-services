@@ -67,7 +67,14 @@ internal class SubmissionRequestSaverTest(
         every { submission.version } answers { version }
         every { subFile.filePath } returns filePath
 
-        coEvery { requestService.getRqt(accNo, version, CHECK_RELEASED, instanceId) } answers { (changeId to request) }
+        coEvery {
+            requestService.getSubmissionRequest(
+                accNo,
+                version,
+                CHECK_RELEASED,
+                instanceId
+            )
+        } answers { (changeId to request) }
         coEvery { requestService.saveRequest(request) } answers { ACC_NO to version }
 
         every { request.withNewStatus(PERSISTED, changeId) } returns request

@@ -27,7 +27,7 @@ class SubmissionRequestCleaner(
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
     suspend fun cleanCurrentVersion(accNo: String, version: Int, processId: String) {
-        val (changeId, request) = requestService.getRqt(accNo, version, LOADED, processId)
+        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, LOADED, processId)
         cleanCurrentVersion(request.submission)
         requestService.saveRequest(request.withNewStatus(status = CLEANED, changeId = changeId))
     }

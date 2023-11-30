@@ -60,7 +60,7 @@ class SubmissionRequestMongoPersistenceService(
         requestRepository.updateSubmissionRequestFile(requestFile.accNo, requestFile.version, requestFile.path, file)
     }
 
-    override suspend fun getRqt(
+    override suspend fun getSubmissionRequest(
         accNo: String,
         version: Int,
         status: RequestStatus,

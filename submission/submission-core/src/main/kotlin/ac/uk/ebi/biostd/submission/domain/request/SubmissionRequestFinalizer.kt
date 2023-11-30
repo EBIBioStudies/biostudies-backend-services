@@ -29,7 +29,7 @@ class SubmissionRequestFinalizer(
     private val requestService: SubmissionRequestPersistenceService,
 ) {
     suspend fun finalizeRequest(accNo: String, version: Int, processId: String): ExtSubmission {
-        val (changeId, request) = requestService.getRqt(accNo, version, PERSISTED, processId)
+        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, PERSISTED, processId)
         val sub = finalizeRequest(accNo)
         requestService.saveRequest(request.withNewStatus(PROCESSED, changeId = changeId))
         eventsPublisherService.submissionFinalized(accNo, version)

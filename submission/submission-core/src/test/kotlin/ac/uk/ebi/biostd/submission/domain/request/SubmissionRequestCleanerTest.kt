@@ -69,7 +69,14 @@ class SubmissionRequestCleanerTest(
         every { sub.version } returns version
         coEvery { queryService.findExtByAccNo(accNo, true) } returns null
         every { loadedRequest.withNewStatus(CLEANED, changeId) } returns cleanedRequest
-        coEvery { requestService.getRqt(accNo, version, LOADED, instanceId) } returns (changeId to loadedRequest)
+        coEvery {
+            requestService.getSubmissionRequest(
+                accNo,
+                version,
+                LOADED,
+                instanceId
+            )
+        } returns (changeId to loadedRequest)
         coEvery { requestService.saveRequest(cleanedRequest) } returns (accNo to version)
 
         testInstance.cleanCurrentVersion(accNo, version, instanceId)
@@ -103,7 +110,14 @@ class SubmissionRequestCleanerTest(
 
         every { loadedRequest.withNewStatus(CLEANED, changeId) } returns cleanedRequest
         coEvery { queryService.findExtByAccNo("S-BSST1", true) } returns current
-        coEvery { requestService.getRqt("S-BSST1", 2, LOADED, instanceId) } returns (changeId to loadedRequest)
+        coEvery {
+            requestService.getSubmissionRequest(
+                "S-BSST1",
+                2,
+                LOADED,
+                instanceId
+            )
+        } returns (changeId to loadedRequest)
         every { serializationService.filesFlow(current) } returns flowOf(currentFile)
         coEvery { requestService.saveRequest(cleanedRequest) } returns ("S-BSST1" to 2)
         coEvery { storageService.deleteSubmissionFile(current, currentFile) } answers { nothing }

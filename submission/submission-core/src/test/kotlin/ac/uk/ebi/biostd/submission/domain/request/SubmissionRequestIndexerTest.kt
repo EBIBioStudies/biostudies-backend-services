@@ -44,7 +44,7 @@ class SubmissionRequestIndexerTest(
 
         every { pendingRqt.submission } returns sub
         coEvery {
-            requestService.getRqt(
+            requestService.getSubmissionRequest(
                 "S-BSST0",
                 1,
                 RequestStatus.REQUESTED,
@@ -60,7 +60,7 @@ class SubmissionRequestIndexerTest(
         assertThat(requestFile.index).isEqualTo(1)
 
         coVerify(exactly = 1) {
-            requestService.getRqt("S-BSST0", 1, RequestStatus.REQUESTED, instanceId)
+            requestService.getSubmissionRequest("S-BSST0", 1, RequestStatus.REQUESTED, instanceId)
             requestService.saveRequest(pendingRqt.indexed(1, changeId))
             filesRequestService.saveSubmissionRequestFile(requestFile)
         }

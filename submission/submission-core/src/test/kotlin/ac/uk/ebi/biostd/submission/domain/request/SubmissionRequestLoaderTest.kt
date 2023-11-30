@@ -77,7 +77,7 @@ class SubmissionRequestLoaderTest(
         every { indexedRequest.currentIndex } returns 3
         every { indexedRequest.withNewStatus(RequestStatus.LOADED, changeId) } returns indexedRequest
         coEvery {
-            requestService.getRqt(
+            requestService.getSubmissionRequest(
                 sub.accNo,
                 sub.version,
                 INDEXED,

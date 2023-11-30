@@ -21,7 +21,7 @@ class SubmissionRequestSaver(
     private val eventsPublisherService: EventsPublisherService,
 ) {
     suspend fun saveRequest(accNo: String, version: Int, processId: String): ExtSubmission {
-        val (changeId, request) = requestService.getRqt(accNo, version, CHECK_RELEASED, processId)
+        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, CHECK_RELEASED, processId)
         val saved = saveRequest(request.submission)
         requestService.saveRequest(request.withNewStatus(PERSISTED, changeId))
         eventsPublisherService.submissionSubmitted(accNo, request.notifyTo)

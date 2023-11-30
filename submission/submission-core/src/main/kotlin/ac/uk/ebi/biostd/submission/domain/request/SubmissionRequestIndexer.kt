@@ -25,7 +25,7 @@ class SubmissionRequestIndexer(
      * submission main/core data is not available.
      */
     suspend fun indexRequest(accNo: String, version: Int, processId: String) {
-        val (changeId, request) = requestService.getRqt(accNo, version, REQUESTED, processId)
+        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, REQUESTED, processId)
         val totalFiles = indexRequest(request.submission)
         requestService.saveRequest(request.indexed(totalFiles, changeId = changeId))
     }

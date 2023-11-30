@@ -25,7 +25,7 @@ class SubmissionRequestProcessor(
      * Process the current submission files. Note that [ExtSubmission] returned does not include file list files.
      */
     suspend fun processRequest(accNo: String, version: Int, processId: String) {
-        val (changeId, request) = requestService.getRqt(accNo, version, CLEANED, processId)
+        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, CLEANED, processId)
         processRequest(request.submission, request.currentIndex)
         requestService.saveRequest(request.withNewStatus(FILES_COPIED, changeId))
     }
