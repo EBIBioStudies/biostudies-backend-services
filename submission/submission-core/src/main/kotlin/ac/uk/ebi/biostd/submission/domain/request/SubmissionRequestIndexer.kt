@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -23,8 +24,8 @@ class SubmissionRequestIndexer(
      * guarantee by @see uk.ac.ebi.extended.serialization.service.ExtSerializationService.fileSequence to reduce time
      * submission main/core data is not available.
      */
-    suspend fun indexRequest(accNo: String, version: Int, handlerName: String) {
-        val (changeId, request) = requestService.getPendingRequest(accNo, version, handlerName)
+    suspend fun indexRequest(accNo: String, version: Int, processId: String) {
+        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, REQUESTED, processId)
         val totalFiles = indexRequest(request.submission)
         requestService.saveRequest(request.indexed(totalFiles, changeId = changeId))
     }

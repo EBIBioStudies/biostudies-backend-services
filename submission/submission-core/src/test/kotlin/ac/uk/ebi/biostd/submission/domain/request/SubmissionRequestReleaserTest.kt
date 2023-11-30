@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -83,7 +84,14 @@ class SubmissionRequestReleaserTest(
         every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile, fireRqtFile)
         coEvery { storageService.releaseSubmissionFile(nfsFile, relPath, mode) } returns releasedFile
         coEvery { requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId)) } answers { accNo to version }
-        coEvery { requestService.getFilesCopiedRequest(accNo, version, instanceId) } returns (changeId to rqt)
+        coEvery {
+            requestService.getSubmissionRequest(
+                accNo,
+                version,
+                FILES_COPIED,
+                instanceId
+            )
+        } returns (changeId to rqt)
         coEvery { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
         coEvery { requestService.updateRqtIndex(accNo, version, 2) } answers { nothing }
 
@@ -104,7 +112,14 @@ class SubmissionRequestReleaserTest(
         val version = 1
         val changeId = "changeId"
 
-        coEvery { requestService.getFilesCopiedRequest(accNo, version, instanceId) } returns (changeId to rqt)
+        coEvery {
+            requestService.getSubmissionRequest(
+                accNo,
+                version,
+                FILES_COPIED,
+                instanceId
+            )
+        } returns (changeId to rqt)
         every { rqt.submission } returns submission
         every { submission.released } returns false
         every { rqt.withNewStatus(CHECK_RELEASED, changeId) } returns rqt

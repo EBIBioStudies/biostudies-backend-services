@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -34,8 +35,8 @@ class SubmissionRequestLoader(
     /**
      * Calculate md5 and size for every file in submission request.
      */
-    suspend fun loadRequest(accNo: String, version: Int, handlerName: String) {
-        val (changeId, request) = requestService.getIndexedRequest(accNo, version, handlerName)
+    suspend fun loadRequest(accNo: String, version: Int, processId: String) {
+        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, INDEXED, processId)
         loadRequest(request.submission, request.currentIndex)
         requestService.saveRequest(request.withNewStatus(LOADED, changeId = changeId))
     }

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -42,7 +43,14 @@ class SubmissionRequestIndexerTest(
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Study", files = listOf(left(extFile))))
 
         every { pendingRqt.submission } returns sub
-        coEvery { requestService.getPendingRequest("S-BSST0", 1, instanceId) } returns (changeId to pendingRqt)
+        coEvery {
+            requestService.getSubmissionRequest(
+                "S-BSST0",
+                1,
+                RequestStatus.REQUESTED,
+                instanceId
+            )
+        } returns (changeId to pendingRqt)
         coEvery { requestService.saveRequest(pendingRqt.indexed(1, changeId)) } answers { "S-BSST0" to 1 }
         coEvery { filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
 
@@ -52,7 +60,7 @@ class SubmissionRequestIndexerTest(
         assertThat(requestFile.index).isEqualTo(1)
 
         coVerify(exactly = 1) {
-            requestService.getPendingRequest("S-BSST0", 1, instanceId)
+            requestService.getSubmissionRequest("S-BSST0", 1, RequestStatus.REQUESTED, instanceId)
             requestService.saveRequest(pendingRqt.indexed(1, changeId))
             filesRequestService.saveSubmissionRequestFile(requestFile)
         }

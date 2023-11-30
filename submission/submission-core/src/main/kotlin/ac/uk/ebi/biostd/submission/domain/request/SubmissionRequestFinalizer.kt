@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -28,7 +29,7 @@ class SubmissionRequestFinalizer(
     private val requestService: SubmissionRequestPersistenceService,
 ) {
     suspend fun finalizeRequest(accNo: String, version: Int, processId: String): ExtSubmission {
-        val (changeId, request) = requestService.getPersistedRequest(accNo, version, processId)
+        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, PERSISTED, processId)
         val sub = finalizeRequest(accNo)
         requestService.saveRequest(request.withNewStatus(PROCESSED, changeId = changeId))
         eventsPublisherService.submissionFinalized(accNo, version)
