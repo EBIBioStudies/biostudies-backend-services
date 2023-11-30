@@ -41,6 +41,7 @@ class ITestListener : TestExecutionListener {
         ftpSetup()
         doiSetup()
         submissionTaskSetup()
+        clusterSetup()
         appPropertiesSetup()
     }
 
@@ -137,15 +138,21 @@ class ITestListener : TestExecutionListener {
     }
 
     private fun submissionTaskSetup() {
-        properties.addProperty("app.task.enableTaskMode", enableTask)
-        properties.addProperty("app.task.configFilePath", getResource("application.yml")?.absolutePath.orEmpty())
-        properties.addProperty("app.task.jarLocation", getResource("submission-task-1.0.0.jar")?.absolutePath.orEmpty())
-        properties.addProperty("app.task.logsLocation", taskLogsPath.absolutePath)
+        val configFile = getResource("application.yml")?.absolutePath.orEmpty()
+        val jarLocation = getResource("submission-task-1.0.0.jar")?.absolutePath.orEmpty()
 
-        properties.addProperty("app.task.cluster.user", "test-user")
-        properties.addProperty("app.task.cluster.key", "test-key")
-        properties.addProperty("app.task.cluster.server", "test-server")
-        properties.addProperty("app.task.cluster.logsPath", clusterLogsPath.absolutePath)
+        properties.addProperty("app.submissionTask.enabled", enableTask)
+        properties.addProperty("app.submissionTask.configFilePath", configFile)
+        properties.addProperty("app.submissionTask.jarLocation", jarLocation)
+        properties.addProperty("app.submissionTask.logsLocation", taskLogsPath.absolutePath)
+    }
+
+    private fun clusterSetup() {
+        properties.addProperty("app.cluster.enabled", false)
+        properties.addProperty("app.cluster.user", "test-user")
+        properties.addProperty("app.cluster.key", "test-key")
+        properties.addProperty("app.cluster.server", "test-server")
+        properties.addProperty("app.cluster.logsPath", clusterLogsPath.absolutePath)
     }
 
     private fun getResource(resource: String): File? =

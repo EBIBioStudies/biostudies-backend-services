@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties
@@ -25,7 +26,7 @@ internal class SchedulerConfig {
     @Bean
     fun clusterOperations(
         appProperties: AppProperties,
-    ) = ClusterOperations.create(
+    ): ClusterOperations = ClusterClient.create(
         appProperties.cluster.sshKey,
         appProperties.cluster.server,
         appProperties.cluster.logsPath,

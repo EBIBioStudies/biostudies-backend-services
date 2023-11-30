@@ -22,6 +22,7 @@ import ebi.ac.uk.security.service.ProfileService
 import ebi.ac.uk.security.service.SecurityQueryService
 import ebi.ac.uk.security.service.SecurityService
 import ebi.ac.uk.security.service.UserPrivilegesService
+import ebi.ac.uk.security.util.ClusterFileUtils
 import ebi.ac.uk.security.util.SecurityUtil
 import ebi.ac.uk.security.web.SecurityFilter
 import io.jsonwebtoken.JwtParser
@@ -39,7 +40,8 @@ class SecurityModuleConfig(
     private val queryService: SubmissionMetaQueryService,
     private val userPermissionsService: UserPermissionsService,
     private val eventsPublisherService: EventsPublisherService,
-    private var props: SecurityProperties,
+    private val props: SecurityProperties,
+    private val clusterFileUtils: ClusterFileUtils,
 ) {
     fun securityService(): ISecurityService = securityService
     fun securityQueryService(): ISecurityQueryService = securityQueryService
@@ -57,7 +59,8 @@ class SecurityModuleConfig(
             props,
             profileService,
             captchaVerifier,
-            eventsPublisherService
+            eventsPublisherService,
+            clusterFileUtils,
         )
     }
 

@@ -23,6 +23,8 @@ data class ApplicationProperties(
     val persistence: PersistenceProperties,
     val notifications: NotificationsProperties,
     val doi: DoiProperties,
+    val submissionTask: SubmissionTaskProperties,
+    val cluster: ClusterProperties,
 )
 
 data class RetryProperties(

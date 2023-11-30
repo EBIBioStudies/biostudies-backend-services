@@ -33,7 +33,10 @@ import ebi.ac.uk.security.persistence.getActiveByLoginOrEmail
 import ebi.ac.uk.security.persistence.getByActivationKey
 import ebi.ac.uk.security.persistence.getInactiveByActivationKey
 import ebi.ac.uk.security.persistence.getInactiveByEmail
+import ebi.ac.uk.security.util.ClusterFileUtils
+import ebi.ac.uk.security.util.FilePermissions
 import ebi.ac.uk.security.util.SecurityUtil
+import kotlinx.coroutines.runBlocking
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
@@ -48,6 +51,7 @@ open class SecurityService(
     private val profileService: ProfileService,
     private val captchaVerifier: CaptchaVerifier,
     private val eventsPublisherService: EventsPublisherService,
+    private val clusterFileUtils: ClusterFileUtils,
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo {
         val user = userRepository.getActiveByLoginOrEmail(request.login)
@@ -71,12 +75,12 @@ open class SecurityService(
 
     override fun refreshUser(email: String): SecurityUser {
         val user = userRepository.getActiveByEmail(email)
-        return activate(user)
+        return runBlocking { activate(user) }
     }
 
     override fun activate(activationKey: String) {
         val user = userRepository.getInactiveByActivationKey(activationKey)
-        activate(user)
+        runBlocking { activate(user) }
     }
 
     override fun activateByEmail(request: ActivateByEmailRequest) {
@@ -97,13 +101,13 @@ open class SecurityService(
 
     override fun activateAndSetupPassword(request: ChangePasswordRequest): User {
         val user = userRepository.getInactiveByActivationKey(request.activationKey)
-        activate(user)
+        runBlocking { activate(user) }
         return setPassword(user, request.password)
     }
 
     override fun changePassword(request: ChangePasswordRequest): User {
         val user = userRepository.getByActivationKey(request.activationKey)
-        activate(user)
+        runBlocking { activate(user) }
 
         return setPassword(user, request.password)
     }
@@ -155,20 +159,20 @@ open class SecurityService(
         val dbUser = userRepository.save(toActivate.apply { activationKey = null; active = true })
         val securityUser = profileService.asSecurityUser(dbUser)
 
-        createMagicFolder(securityUser)
+        runBlocking { createMagicFolder(securityUser) }
         return securityUser
     }
 
-    private fun createMagicFolder(user: SecurityUser) {
+    private suspend fun createMagicFolder(user: SecurityUser) {
         when (user.userFolder) {
             is FtpUserFolder -> createFtpMagicFolder(user.userFolder)
             is NfsUserFolder -> createNfsMagicFolder(user.email, user.userFolder)
         }
     }
 
-    private fun createFtpMagicFolder(ftpFolder: FtpUserFolder) {
-        FileUtils.getOrCreateFolder(ftpFolder.path.parent, RWX__X___)
-        FileUtils.getOrCreateFolder(ftpFolder.path, RWXRWX___)
+    private suspend fun createFtpMagicFolder(ftpFolder: FtpUserFolder) {
+        clusterFileUtils.createFolder(ftpFolder.path.parent, FilePermissions.RWX__X___)
+        clusterFileUtils.createFolder(ftpFolder.path, FilePermissions.RWXRWX___)
     }
 
     private fun createNfsMagicFolder(email: String, nfsFolder: NfsUserFolder) {
