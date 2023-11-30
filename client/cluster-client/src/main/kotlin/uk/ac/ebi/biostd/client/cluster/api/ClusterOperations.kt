@@ -24,7 +24,9 @@ class ClusterOperations(
     private val responseParser: JobResponseParser,
     private val sessionFunction: () -> Session,
 ) {
-    suspend fun triggerJob(jobSpec: JobSpec): Try<Job> {
+    suspend fun triggerJobAsync(jobSpec: JobSpec): Try<Job> {
+        logger.info { "Triggering Job $jobSpec" }
+
         val parameters = mutableListOf(String.format(SUBMIT_COMMAND, logsPath, logsPath))
         parameters.addAll(jobSpec.asParameter())
         val command = parameters.joinToString(separator = " ")
@@ -35,28 +37,29 @@ class ClusterOperations(
         }
     }
 
-    suspend fun awaitJob(
+    suspend fun jobStatus(jobId: String): String {
+        logger.info { "Checking Job id ='$jobId' status" }
+        return runInSession {
+            val status = executeCommand(String.format(CHECK_COMMAND, jobId)).second.trimIndent()
+            logger.info { "Job $jobId. Current status $status" }
+            status
+        }
+    }
+
+    suspend fun triggerJobSync(
         jobSpec: JobSpec,
         checkJobInterval: Long = 30,
         maxSecondsDuration: Long = 60,
     ): Job {
         suspend fun await(job: Job) = runInSession {
-            logger.info { "Started job ${job.id}" }
             waitUntil(
                 interval = ofSeconds(checkJobInterval),
-                duration = ofSeconds(maxSecondsDuration),
-            ) {
-                val status = executeCommand(String.format(CHECK_COMMAND, job.id)).second.trimIndent()
-                logger.info { "Waiting for job ${job.id}. Current status $status" }
-
-                status == DONE_STATUS
-            }
-
-            logger.info { "Finished job ${job.id}" }
+                duration = ofSeconds(maxSecondsDuration)
+            ) { jobStatus(job.id) == DONE_STATUS }
             job
         }
 
-        return triggerJob(jobSpec).fold({ throw it }, { await(it) })
+        return triggerJobAsync(jobSpec).fold({ throw it }, { await(it) })
     }
 
     private fun asJobReturn(exitCode: Int, response: String, logsPath: String): Try<Job> {

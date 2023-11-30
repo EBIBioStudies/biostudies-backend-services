@@ -57,7 +57,7 @@ internal class SubmissionReleaserTrigger(
 
     private suspend fun submissionReleaserJob(mode: ReleaserMode, debugPort: Int?): Job {
         val releaserProperties = getConfigProperties(mode, properties)
-        val jobTry = clusterOperations.triggerJob(
+        val jobTry = clusterOperations.triggerJobAsync(
             JobSpec(
                 cores = FOUR_CORES,
                 ram = EIGHT_GB,

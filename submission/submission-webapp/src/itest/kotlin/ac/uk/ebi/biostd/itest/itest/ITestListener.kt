@@ -138,18 +138,26 @@ class ITestListener : TestExecutionListener {
 
     private fun submissionTaskSetup() {
         properties.addProperty("app.task.enableTaskMode", enableTask)
-        properties.addProperty("app.task.configFilePath", getResource("application.yml")?.absolutePath.orEmpty())
-        properties.addProperty("app.task.jarLocation", getResource("submission-task-1.0.0.jar")?.absolutePath.orEmpty())
+        properties.addProperty("app.task.configFilePath", findResource("application.yml")?.absolutePath.orEmpty())
+        properties.addProperty(
+            "app.task.jarLocation",
+            findResource("submission-task-1.0.0.jar")?.absolutePath.orEmpty()
+        )
         properties.addProperty("app.task.logsLocation", taskLogsPath.absolutePath)
 
         properties.addProperty("app.task.cluster.user", "test-user")
-        properties.addProperty("app.task.cluster.key", "test-key")
+        properties.addProperty("app.task.cluster.key", getResource("key").absolutePath)
         properties.addProperty("app.task.cluster.server", "test-server")
         properties.addProperty("app.task.cluster.logsPath", clusterLogsPath.absolutePath)
     }
 
-    private fun getResource(resource: String): File? =
+    private fun findResource(resource: String): File? =
         this::class.java.getResource("/$resource")?.toURI()?.let { File(it) }
+
+    private fun getResource(resourceName: String): File {
+        val resource = findResource(resourceName)
+        return requireNotNull(resource) { "Could not find resource $resourceName" }
+    }
 
     companion object {
         private val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()

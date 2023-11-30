@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.common.config.internal
+package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService

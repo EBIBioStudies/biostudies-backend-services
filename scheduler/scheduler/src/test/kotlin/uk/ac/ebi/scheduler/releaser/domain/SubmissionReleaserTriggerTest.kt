@@ -56,7 +56,7 @@ class SubmissionReleaserTriggerTest(
         every { appProperties.appsFolder } returns "apps-folder"
         every { appProperties.javaHome } returns "/home/jdk11"
 
-        coEvery { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterOperations.triggerJobAsync(capture(jobSpecs)) } returns Try.just(job)
 
         coEvery { notificationsSender.send(capture(jobReport)) } answers { nothing }
     }
@@ -88,7 +88,7 @@ class SubmissionReleaserTriggerTest(
     private fun verifyClusterOperations() {
         coVerify(exactly = 1) {
             notificationsSender.send(jobReport.captured)
-            clusterOperations.triggerJob(jobSpecs.captured)
+            clusterOperations.triggerJobAsync(jobSpecs.captured)
         }
     }
 

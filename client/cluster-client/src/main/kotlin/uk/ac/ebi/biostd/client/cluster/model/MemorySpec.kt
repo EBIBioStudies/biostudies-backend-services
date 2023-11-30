@@ -10,5 +10,9 @@ data class MemorySpec(val value: Int, val measure: CapacityMeasure) {
         val EIGHT_GB = MemorySpec(8, CapacityMeasure.GB)
         val SIXTEEN_GB = MemorySpec(16, CapacityMeasure.GB)
         val TWENTYFOUR_GB = MemorySpec(24, CapacityMeasure.GB)
+
+        fun fromMegaBytes(megaBytes: Int): MemorySpec {
+            return MemorySpec(megaBytes, CapacityMeasure.MB)
+        }
     }
 }

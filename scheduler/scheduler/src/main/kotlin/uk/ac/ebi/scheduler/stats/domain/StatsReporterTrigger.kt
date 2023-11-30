@@ -42,7 +42,7 @@ class StatsReporterTrigger(
 
     private suspend fun statsReporterJob(debugPort: Int?): Job {
         val properties = getConfigProperties()
-        val jobTry = clusterOperations.triggerJob(
+        val jobTry = clusterOperations.triggerJobAsync(
             JobSpec(
                 cores = FOUR_CORES,
                 ram = EIGHT_GB,
