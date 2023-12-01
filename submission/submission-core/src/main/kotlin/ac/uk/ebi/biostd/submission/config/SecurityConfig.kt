@@ -13,10 +13,10 @@ import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.ISecurityService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
-import ebi.ac.uk.security.util.ClusterFileUtils
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
 import uk.ac.ebi.events.service.EventsPublisherService
 
 @Configuration
@@ -35,7 +35,7 @@ class SecurityConfig(properties: ApplicationProperties) {
         groupRepository: UserGroupDataRepository,
         userPermissionsService: UserPermissionsService,
         eventsPublisherService: EventsPublisherService,
-        clusterFileUtils: ClusterFileUtils,
+        clusterClient: ClusterOperations,
     ): SecurityModuleConfig = SecurityModuleConfig(
         userDataRepository,
         tokenRepository,
@@ -45,7 +45,7 @@ class SecurityConfig(properties: ApplicationProperties) {
         userPermissionsService,
         eventsPublisherService,
         securityProps,
-        clusterFileUtils,
+        clusterClient,
     )
 
     @Bean

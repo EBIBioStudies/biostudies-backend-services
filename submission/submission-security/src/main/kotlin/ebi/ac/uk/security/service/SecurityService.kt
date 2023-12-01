@@ -33,14 +33,18 @@ import ebi.ac.uk.security.persistence.getActiveByLoginOrEmail
 import ebi.ac.uk.security.persistence.getByActivationKey
 import ebi.ac.uk.security.persistence.getInactiveByActivationKey
 import ebi.ac.uk.security.persistence.getInactiveByEmail
-import ebi.ac.uk.security.util.ClusterFileUtils
-import ebi.ac.uk.security.util.FilePermissions
 import ebi.ac.uk.security.util.SecurityUtil
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import org.springframework.transaction.annotation.Transactional
+import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
+import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
 import java.nio.file.Paths
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions", "LongParameterList")
 @Transactional
@@ -51,7 +55,7 @@ open class SecurityService(
     private val profileService: ProfileService,
     private val captchaVerifier: CaptchaVerifier,
     private val eventsPublisherService: EventsPublisherService,
-    private val clusterFileUtils: ClusterFileUtils,
+    private val clusterClient: ClusterOperations,
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo {
         val user = userRepository.getActiveByLoginOrEmail(request.login)
@@ -171,8 +175,19 @@ open class SecurityService(
     }
 
     private suspend fun createFtpMagicFolder(ftpFolder: FtpUserFolder) {
-        clusterFileUtils.createFolder(ftpFolder.path.parent, FilePermissions.RWX__X___)
-        clusterFileUtils.createFolder(ftpFolder.path, FilePermissions.RWXRWX___)
+        createClusterFolder(ftpFolder.path.parent, UNIX_RWX__X___)
+        createClusterFolder(ftpFolder.path, UNIX_RWXRWX___)
+    }
+
+    // TODO add defaultMode to application properties
+    // TODO refactor directory creation out of this class since it's too big
+    private suspend fun createClusterFolder(path: Path, permissions: Int) {
+        val command = String.format(CREATE_FOLDER_COMMAND, permissions, path)
+        val job = JobSpec(queue = DataMoverQueue, command = command)
+
+        logger.info { "Started creating the cluster FTP folder $path" }
+        clusterClient.awaitJob(job)
+        logger.info { "Finished creating the cluster FTP folder $path" }
     }
 
     private fun createNfsMagicFolder(email: String, nfsFolder: NfsUserFolder) {
@@ -195,4 +210,10 @@ open class SecurityService(
         storageMode = rqt.storageMode?.let { StorageMode.valueOf(it) } ?: props.filesProperties.defaultMode,
         passwordDigest = securityUtil.getPasswordDigest(rqt.password)
     )
+
+    companion object {
+        internal const val UNIX_RWX__X___ = 710
+        internal const val UNIX_RWXRWX___ = 770
+        internal const val CREATE_FOLDER_COMMAND = "mkdir -m %d -p %s"
+    }
 }

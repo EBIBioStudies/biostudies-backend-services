@@ -22,12 +22,12 @@ import ebi.ac.uk.security.service.ProfileService
 import ebi.ac.uk.security.service.SecurityQueryService
 import ebi.ac.uk.security.service.SecurityService
 import ebi.ac.uk.security.service.UserPrivilegesService
-import ebi.ac.uk.security.util.ClusterFileUtils
 import ebi.ac.uk.security.util.SecurityUtil
 import ebi.ac.uk.security.web.SecurityFilter
 import io.jsonwebtoken.JwtParser
 import io.jsonwebtoken.Jwts
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Paths
 
@@ -41,7 +41,7 @@ class SecurityModuleConfig(
     private val userPermissionsService: UserPermissionsService,
     private val eventsPublisherService: EventsPublisherService,
     private val props: SecurityProperties,
-    private val clusterFileUtils: ClusterFileUtils,
+    private val clusterClient: ClusterOperations,
 ) {
     fun securityService(): ISecurityService = securityService
     fun securityQueryService(): ISecurityQueryService = securityQueryService
@@ -50,6 +50,7 @@ class SecurityModuleConfig(
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
     private val groupService by lazy { GroupService(groupRepository, userRepo, props.filesProperties.filesDirPath) }
+    // TODO remove this
     private val ftpClient by lazy { ftpClient(props.filesProperties) }
     private val securityQueryService by lazy { SecurityQueryService(securityUtil, profileService, userRepo, props) }
     private val securityService by lazy {
@@ -60,7 +61,7 @@ class SecurityModuleConfig(
             profileService,
             captchaVerifier,
             eventsPublisherService,
-            clusterFileUtils,
+            clusterClient,
         )
     }
 
