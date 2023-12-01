@@ -73,16 +73,17 @@ app:
   fireTempDirPath: # Absolute path of the temp folder for FIRE storage
   instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
   #subBasePath: # Allows to allocate submissions under different base path. Commented to avoid empty string binding.
-  task:
-    enableTaskMode: # Whether the task mode should be enabled
+  submissionTask:
+    enabled: # Whether the submission tasks should be executed in the cluster
     jarLocation: # the submitter task jar location.
     logsLocation: # the submitter task logs location.
     configFilePath: # the submitter task application.yml file location.
-    cluster:
-      user: # cluster user
-      key: # cluster ssh key path.
-      server:  # cluster sever (to submit jobs from)
-      logsPath: # path to place the logs of the dispatched jobs
+  cluster:
+    enabled: # Whether the cluster jobs should be triggered remotely
+    user: # cluster user
+    key: # cluster ssh key path.
+    server:  # cluster sever (to submit jobs from)
+    logsPath: # path to place the logs of the dispatched jobs
   fire:
     host: # FIRE host
     username: # FIRE user
@@ -110,6 +111,7 @@ app:
       beta: # Instance key for the submission tool BETA environment
       prod: # Instance key for the submission tool PROD environment
     filesProperties:
+      defaultMode: # The default mode to create user folder. Valid values are: NFS, FTP
       filesDirPath: # Absolute path to the folder to be used for the user/groups files
       magicDirPath: #  Absolute path to create user magic folder for dropbox simple access
       ftpDirPath: #  Absolute path of users ftp. Used to access file

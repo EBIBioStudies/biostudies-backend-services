@@ -179,8 +179,6 @@ open class SecurityService(
         createClusterFolder(ftpFolder.path, UNIX_RWXRWX___)
     }
 
-    // TODO add defaultMode to application properties
-    // TODO refactor directory creation out of this class since it's too big
     private suspend fun createClusterFolder(path: Path, permissions: Int) {
         val command = String.format(CREATE_FOLDER_COMMAND, permissions, path)
         val job = JobSpec(queue = DataMoverQueue, command = command)

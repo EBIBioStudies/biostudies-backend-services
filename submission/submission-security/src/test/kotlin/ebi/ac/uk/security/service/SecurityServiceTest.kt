@@ -19,7 +19,11 @@ import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
+import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
+import ebi.ac.uk.security.service.SecurityService.Companion.CREATE_FOLDER_COMMAND
+import ebi.ac.uk.security.service.SecurityService.Companion.UNIX_RWXRWX___
+import ebi.ac.uk.security.service.SecurityService.Companion.UNIX_RWX__X___
 import ebi.ac.uk.security.test.SecurityTestEntities
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.activateByEmailRequest
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.captcha
@@ -39,6 +43,7 @@ import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -51,6 +56,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
+import uk.ac.ebi.biostd.client.cluster.model.Job
+import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Files
 import java.nio.file.Path
@@ -133,7 +141,9 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `register a user when activation is not required`(@MockK filesProperties: FilesProperties) {
+        fun `register a user when activation is not required NFS mode`(
+            @MockK filesProperties: FilesProperties,
+        ) {
             val savedUserSlot = slot<DbUser>()
             val magicFolderRoot = temporaryFolder.createDirectory("users")
 
@@ -161,6 +171,50 @@ internal class SecurityServiceTest(
             assertFile(userFolder.parent, RWX__X___)
             assertFile(userFolder, RWXRWX___)
             assertSymbolicLink(magicFolderRoot.resolve("b/$email").toPath(), userFolder)
+        }
+
+        @Test
+        fun `register a user when activation is not required FTP mode`(
+            @MockK job: Job,
+            @MockK filesProperties: FilesProperties,
+        ) {
+            val savedUserSlot = slot<DbUser>()
+            val jobSpecSlots = mutableListOf<JobSpec>()
+            val magicFolderRoot = temporaryFolder.createDirectory("users")
+
+            every { securityProps.filesProperties } returns filesProperties
+            coEvery { clusterClient.awaitJob(capture(jobSpecSlots)) } returns job
+            every { userRepository.save(capture(savedUserSlot)) } answers { savedUserSlot.captured }
+            every { filesProperties.magicDirPath } returns magicFolderRoot.absolutePath
+            every { filesProperties.defaultMode } returns StorageMode.FTP
+            every { securityProps.requireActivation } returns false
+            every { securityUtil.newKey() } returns SECRET_KEY
+
+            val securityUser = testInstance.registerUser(registrationRequest)
+            val dbUser = savedUserSlot.captured
+            assertThat(dbUser.active).isTrue
+            assertThat(dbUser.fullName).isEqualTo(name)
+            assertThat(dbUser.email).isEqualTo(email)
+            assertThat(dbUser.orcid).isEqualTo(orcid)
+            assertThat(dbUser.passwordDigest).isEqualTo(passwordDigest)
+
+            assertThat(dbUser.superuser).isFalse
+            assertThat(dbUser.activationKey).isNull()
+            assertThat(dbUser.login).isNull()
+
+            assertThat(securityUser.userFolder).isInstanceOf(FtpUserFolder::class.java)
+            assertThat(jobSpecSlots).hasSize(2)
+
+            val userFolder = (securityUser.userFolder as FtpUserFolder).path
+            val parentFolderJobSpec = jobSpecSlots.first()
+            assertThat(parentFolderJobSpec.queue).isEqualTo(DataMoverQueue)
+            assertThat(parentFolderJobSpec.command)
+                .isEqualTo(String.format(CREATE_FOLDER_COMMAND, UNIX_RWX__X___, userFolder.parent))
+
+            val userFolderJobSpec = jobSpecSlots.second()
+            assertThat(userFolderJobSpec.queue).isEqualTo(DataMoverQueue)
+            assertThat(userFolderJobSpec.command)
+                .isEqualTo(String.format(CREATE_FOLDER_COMMAND, UNIX_RWXRWX___, userFolder))
         }
 
         private fun assertSymbolicLink(link: Path, target: Path) {
