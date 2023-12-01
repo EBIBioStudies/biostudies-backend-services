@@ -18,7 +18,6 @@ import ebi.ac.uk.paths.SubmissionFolderResolver
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
@@ -30,7 +29,6 @@ class FilePersistenceConfig(
     private val properties: ApplicationProperties,
     private val serializationService: SerializationService,
     private val fireClient: FireClient,
-    private val clusterClient: ClusterOperations,
 ) {
     @Bean
     @Suppress("LongParameterList")

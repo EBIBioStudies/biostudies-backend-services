@@ -48,6 +48,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -143,7 +144,7 @@ internal class SecurityServiceTest(
         @Test
         fun `register a user when activation is not required NFS mode`(
             @MockK filesProperties: FilesProperties,
-        ) {
+        ) = runTest {
             val savedUserSlot = slot<DbUser>()
             val magicFolderRoot = temporaryFolder.createDirectory("users")
 
@@ -177,7 +178,7 @@ internal class SecurityServiceTest(
         fun `register a user when activation is not required FTP mode`(
             @MockK job: Job,
             @MockK filesProperties: FilesProperties,
-        ) {
+        ) = runTest {
             val savedUserSlot = slot<DbUser>()
             val jobSpecSlots = mutableListOf<JobSpec>()
             val magicFolderRoot = temporaryFolder.createDirectory("users")
@@ -228,7 +229,9 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `register a user when activation is required`(@MockK filesProperties: FilesProperties) {
+        fun `register a user when activation is required`(
+            @MockK filesProperties: FilesProperties
+        ) = runTest {
             val savedUserSlot = slot<DbUser>()
             val activationSlot = slot<SecurityNotification>()
             val activationUrl = "https://dummy-backend.com/active/1234"
@@ -255,7 +258,7 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `register user when user already exist`() {
+        fun `register user when user already exist`() = runTest {
             every { userRepository.existsByEmail(email) } returns true
 
             val error = assertThrows<UserAlreadyRegister> { testInstance.registerUser(registrationRequest) }
@@ -266,14 +269,14 @@ internal class SecurityServiceTest(
     @Nested
     inner class Activation {
         @Test
-        fun `activate when not pending activation`() {
+        fun `activate when not pending activation`() = runTest {
             every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns null
 
             assertThrows<UserWithActivationKeyNotFoundException> { testInstance.activate(ACTIVATION_KEY) }
         }
 
         @Test
-        fun `activate when user is found`() {
+        fun `activate when user is found`() = runTest {
             val user = simpleUser
             every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns user
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
@@ -321,7 +324,7 @@ internal class SecurityServiceTest(
         private val password = "new password"
 
         @Test
-        fun `change password when not activate user found`() {
+        fun `change password when not activate user found`() = runTest {
             every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns null
 
             assertThrows<UserWithActivationKeyNotFoundException> {
@@ -335,7 +338,7 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `change password when active user`() {
+        fun `change password when active user`() = runTest {
             val user = simpleUser.apply { active = true }
             val passwordDigest = ByteArray(0)
             every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns user
@@ -350,7 +353,7 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `change password when inactive user`() {
+        fun `change password when inactive user`() = runTest {
             val passwordDigest = ByteArray(0)
             every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns simpleUser
             every { securityUtil.getPasswordDigest(password) } returns passwordDigest
@@ -445,7 +448,7 @@ internal class SecurityServiceTest(
         fun afterEach() = clearAllMocks()
 
         @Test
-        fun `activate with invalid activation key`() {
+        fun `activate with invalid activation key`() = runTest {
             val request = ChangePasswordRequest("key", "password")
 
             every { userRepository.findByActivationKeyAndActive("key", false) } returns null
@@ -454,7 +457,7 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `activate and setup password`() {
+        fun `activate and setup password`() = runTest {
             val userSlots = mutableListOf<DbUser>()
             val user = simpleUser.apply { activationKey = "key" }
             val request = ChangePasswordRequest("key", "password")

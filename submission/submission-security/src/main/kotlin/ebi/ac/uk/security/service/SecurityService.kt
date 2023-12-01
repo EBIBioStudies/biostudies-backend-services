@@ -34,7 +34,8 @@ import ebi.ac.uk.security.persistence.getByActivationKey
 import ebi.ac.uk.security.persistence.getInactiveByActivationKey
 import ebi.ac.uk.security.persistence.getInactiveByEmail
 import ebi.ac.uk.security.util.SecurityUtil
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.transaction.annotation.Transactional
 import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
@@ -67,24 +68,25 @@ open class SecurityService(
         securityUtil.invalidateToken(authToken)
     }
 
-    override fun registerUser(request: RegisterRequest): SecurityUser {
+    override suspend fun registerUser(request: RegisterRequest): SecurityUser {
         if (props.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
+        val userExists = withContext(Dispatchers.IO) { userRepository.existsByEmail(request.email) }
 
         return when {
-            userRepository.existsByEmail(request.email) -> throw UserAlreadyRegister(request.email)
+            userExists -> throw UserAlreadyRegister(request.email)
             props.requireActivation -> register(request)
             else -> activate(asUser(request))
         }
     }
 
-    override fun refreshUser(email: String): SecurityUser {
+    override suspend fun refreshUser(email: String): SecurityUser {
         val user = userRepository.getActiveByEmail(email)
-        return runBlocking { activate(user) }
+        return activate(user)
     }
 
-    override fun activate(activationKey: String) {
+    override suspend fun activate(activationKey: String) {
         val user = userRepository.getInactiveByActivationKey(activationKey)
-        runBlocking { activate(user) }
+        activate(user)
     }
 
     override fun activateByEmail(request: ActivateByEmailRequest) {
@@ -103,15 +105,15 @@ open class SecurityService(
         register(user, request.instanceKey, request.path)
     }
 
-    override fun activateAndSetupPassword(request: ChangePasswordRequest): User {
+    override suspend fun activateAndSetupPassword(request: ChangePasswordRequest): User {
         val user = userRepository.getInactiveByActivationKey(request.activationKey)
-        runBlocking { activate(user) }
+        activate(user)
         return setPassword(user, request.password)
     }
 
-    override fun changePassword(request: ChangePasswordRequest): User {
+    override suspend fun changePassword(request: ChangePasswordRequest): User {
         val user = userRepository.getByActivationKey(request.activationKey)
-        runBlocking { activate(user) }
+        activate(user)
 
         return setPassword(user, request.password)
     }
@@ -159,11 +161,11 @@ open class SecurityService(
         return saved
     }
 
-    private fun activate(toActivate: DbUser): SecurityUser {
+    private suspend fun activate(toActivate: DbUser): SecurityUser {
         val dbUser = userRepository.save(toActivate.apply { activationKey = null; active = true })
         val securityUser = profileService.asSecurityUser(dbUser)
 
-        runBlocking { createMagicFolder(securityUser) }
+        createMagicFolder(securityUser)
         return securityUser
     }
 

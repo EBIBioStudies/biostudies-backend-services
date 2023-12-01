@@ -12,5 +12,7 @@ import org.springframework.web.bind.annotation.RestController
 class UserResource(val securityService: ISecurityService) {
     @PostMapping("/auth/refresh-user")
     @ResponseBody
-    fun refreshUser(@RequestBody request: RefreshUserRequest): SecurityUser = securityService.refreshUser(request.email)
+    suspend fun refreshUser(@RequestBody request: RefreshUserRequest): SecurityUser {
+        return securityService.refreshUser(request.email)
+    }
 }

@@ -37,7 +37,7 @@ class SecurityResource(
 ) {
     @PostMapping(value = ["/signup", "/register"])
     @ResponseStatus(value = HttpStatus.CREATED)
-    fun register(@Valid @RequestBody register: RegisterRequest) {
+    suspend fun register(@Valid @RequestBody register: RegisterRequest) {
         securityService.registerUser(register)
     }
 
@@ -62,7 +62,9 @@ class SecurityResource(
 
     @PostMapping(value = ["/activate/{activationKey}"])
     @ResponseBody
-    fun activateByActivationKey(@PathVariable activationKey: String): Unit = securityService.activate(activationKey)
+    suspend fun activateByActivationKey(@PathVariable activationKey: String) {
+        securityService.activate(activationKey)
+    }
 
     @PostMapping(value = ["/retryact"])
     @ResponseBody
@@ -74,13 +76,15 @@ class SecurityResource(
 
     @PostMapping(value = ["/password/change"])
     @ResponseBody
-    fun changePassword(@RequestBody request: ChangePasswordRequest): User = securityService.changePassword(request)
+    suspend fun changePassword(@RequestBody request: ChangePasswordRequest): User {
+        return securityService.changePassword(request)
+    }
 
     @PostMapping(value = ["/password/setup"])
     @ResponseBody
-    fun setUpPassword(
-        @RequestBody request: ChangePasswordRequest
-    ): User = securityService.activateAndSetupPassword(request)
+    suspend fun setUpPassword(@RequestBody request: ChangePasswordRequest): User {
+        return securityService.activateAndSetupPassword(request)
+    }
 
     @GetMapping(value = ["/check", "/profile"])
     @PreAuthorize("isAuthenticated()")
