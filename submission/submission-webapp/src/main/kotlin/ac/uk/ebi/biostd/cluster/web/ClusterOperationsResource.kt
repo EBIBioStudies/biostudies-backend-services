@@ -1,6 +1,9 @@
 package ac.uk.ebi.biostd.cluster.web
 
 import arrow.core.Try
+import org.springframework.core.io.InputStreamResource
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -35,6 +38,14 @@ class ClusterOperationsResource(
     @GetMapping("/jobs/{jobId}/status")
     suspend fun jobStatus(@PathVariable jobId: String): String {
         return clusterOperations.jobStatus(jobId)
+    }
+
+    @GetMapping("/jobs/{jobId}/logs")
+    suspend fun jobLogs(@PathVariable jobId: String): ResponseEntity<InputStreamResource> {
+        val file = clusterOperations.jobLogs(jobId)
+        return ResponseEntity.ok()
+            .contentType(MediaType.TEXT_HTML)
+            .body<InputStreamResource>(InputStreamResource(file.inputStream()))
     }
 
     data class JobSpecDto(val command: String, val queue: String, val ramMegaBytes: Int) {

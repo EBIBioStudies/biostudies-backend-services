@@ -11,11 +11,10 @@ import uk.ac.ebi.biostd.client.cluster.common.JobResponseParser
 import uk.ac.ebi.biostd.client.cluster.common.JobSubmitFailException
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import java.io.File
 import java.time.Duration.ofSeconds
 
-private const val CHECK_COMMAND = "bjobs -o STAT -noheader %s"
 private const val DONE_STATUS = "DONE"
-private const val SUBMIT_COMMAND = "bsub -o %s/%%J_OUT -e %s%%J_IN"
 
 private val logger = KotlinLogging.logger {}
 
@@ -27,7 +26,7 @@ class ClusterOperations(
     suspend fun triggerJobAsync(jobSpec: JobSpec): Try<Job> {
         logger.info { "Triggering Job $jobSpec" }
 
-        val parameters = mutableListOf(String.format(SUBMIT_COMMAND, logsPath, logsPath))
+        val parameters = mutableListOf("bsub -o $logsPath/%J_OUT -e $logsPath/%J_IN")
         parameters.addAll(jobSpec.asParameter())
         val command = parameters.joinToString(separator = " ")
 
@@ -37,10 +36,14 @@ class ClusterOperations(
         }
     }
 
+    fun jobLogs(jobId: String): File {
+        return File("$logsPath/${jobId}J_OUT");
+    }
+
     suspend fun jobStatus(jobId: String): String {
         logger.info { "Checking Job id ='$jobId' status" }
         return runInSession {
-            val status = executeCommand(String.format(CHECK_COMMAND, jobId)).second.trimIndent()
+            val status = executeCommand("bjobs -o STAT -noheader $jobId").second.trimIndent()
             logger.info { "Job $jobId. Current status $status" }
             status
         }
