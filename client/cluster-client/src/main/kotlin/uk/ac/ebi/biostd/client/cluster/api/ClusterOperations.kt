@@ -37,7 +37,7 @@ class ClusterOperations(
     }
 
     fun jobLogs(jobId: String): File {
-        return File("$logsPath/${jobId}J_OUT");
+        return File("$logsPath/${jobId}J_OUT")
     }
 
     suspend fun jobStatus(jobId: String): String {
