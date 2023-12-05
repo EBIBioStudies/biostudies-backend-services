@@ -8,7 +8,7 @@ internal class JobSpecTest {
 
     @Test
     fun asParameter() {
-        val params = JobSpec(1, SIXTEEN_GB, DataMoverQueue, "hostname").asParameter()
+        val params = JobSpec(1, SIXTEEN_GB, DataMoverQueue, "echo hostname").asParameter()
         assertThat(params).containsExactly(
             "-n",
             "1",
@@ -18,7 +18,7 @@ internal class JobSpecTest {
             "rusage[mem=16384]",
             "-q",
             "datamover",
-            "hostname"
+            "'echo hostname'"
         )
     }
 }
