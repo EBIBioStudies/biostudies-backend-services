@@ -15,5 +15,10 @@ sealed class QueueSpec(val name: String) {
     }
 }
 
-object StandardQueue : QueueSpec(STANDARD)
-object DataMoverQueue : QueueSpec(DATA_MOVER)
+object StandardQueue : QueueSpec(STANDARD) {
+    override fun toString() = STANDARD
+}
+
+object DataMoverQueue : QueueSpec(DATA_MOVER) {
+    override fun toString() = DATA_MOVER
+}

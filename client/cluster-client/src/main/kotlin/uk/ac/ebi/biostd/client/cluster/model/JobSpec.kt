@@ -23,6 +23,6 @@ data class JobSpec(
         add("-q")
         add(queue.name)
 
-        add(command)
+        add("'$command'")
     }
 }

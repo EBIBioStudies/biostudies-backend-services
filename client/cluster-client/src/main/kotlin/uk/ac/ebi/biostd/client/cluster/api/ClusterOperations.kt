@@ -25,10 +25,10 @@ class ClusterOperations(
 ) {
     suspend fun triggerJobAsync(jobSpec: JobSpec): Try<Job> {
         logger.info { "Triggering Job $jobSpec" }
-
-        val parameters = mutableListOf("bsub -o $logsPath/%J_OUT -e $logsPath/%J_IN")
+        val parameters = mutableListOf("bsub -o $logsPath -e $logsPath")
         parameters.addAll(jobSpec.asParameter())
         val command = parameters.joinToString(separator = " ")
+        logger.info { "Executing command $parameters" }
 
         return runInSession {
             val (exitStatus, response) = executeCommand(command)
@@ -37,7 +37,7 @@ class ClusterOperations(
     }
 
     fun jobLogs(jobId: String): File {
-        return File("$logsPath/${jobId}J_OUT")
+        return File("$logsPath/${jobId}_OUT")
     }
 
     suspend fun jobStatus(jobId: String): String {

@@ -36,8 +36,8 @@ class ClusterOperationsResource(
     }
 
     @GetMapping("/jobs/{jobId}/status")
-    suspend fun jobStatus(@PathVariable jobId: String): String {
-        return clusterOperations.jobStatus(jobId)
+    suspend fun jobStatus(@PathVariable jobId: String): JobStatus {
+        return JobStatus(clusterOperations.jobStatus(jobId))
     }
 
     @GetMapping("/jobs/{jobId}/logs")
@@ -53,4 +53,6 @@ class ClusterOperationsResource(
             command = command, queue = QueueSpec.fromName(queue), ram = MemorySpec.fromMegaBytes(ramMegaBytes)
         )
     }
+
+    data class JobStatus(val status: String)
 }
