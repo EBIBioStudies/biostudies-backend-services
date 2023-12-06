@@ -40,7 +40,7 @@ class PermissionApiTest(
     private lateinit var regularWebClient: BioWebClient
 
     @BeforeAll
-    fun init() = runBlocking {
+    fun init(): Unit = runBlocking {
         securityTestService.ensureUserRegistration(SuperUser)
         securityTestService.ensureUserRegistration(RegularUser)
 

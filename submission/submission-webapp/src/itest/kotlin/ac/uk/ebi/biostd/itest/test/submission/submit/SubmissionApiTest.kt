@@ -63,7 +63,7 @@ class SubmissionApiTest(
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
-    fun init() = runBlocking {
+    fun init(): Unit = runBlocking {
         securityTestService.ensureUserRegistration(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
 
