@@ -121,7 +121,6 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("$securityProps.filesProperties.filesDirPath", dropboxPath.absolutePath)
         properties.addProperty("$securityProps.filesProperties.magicDirPath", magicDirPath.absolutePath)
 
-
         properties.addProperty("app.persistence.concurrency", PERSISTENCE_CONCURRENCY)
         properties.addProperty(
             "app.persistence.enableFire",
