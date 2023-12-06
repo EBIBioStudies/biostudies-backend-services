@@ -52,5 +52,3 @@ class LocalClusterClient : ClusterClient {
         process.waitFor()
     }
 }
-//mkdir -m 710 -p /var/folders/ss/nj08mk515j9g013jnsv6dmc00000gp/T/ftpUser-ftp3747409275178958406/TEST/c1
-///var/folders/ss/nj08mk515j9g013jnsv6dmc00000gp/T/ftpUser-ftp13632402090457427078/TEST
