@@ -141,7 +141,7 @@ class DoiService(
         internal const val FILE_PARAM = "fname"
         internal const val OPERATION_PARAM = "operation"
         internal const val OPERATION_PARAM_VALUE = "doMDUpload"
-        internal const val PASSWORD_PARAM = "login_password"
+        internal const val PASSWORD_PARAM = "login_passwd"
         internal const val USER_PARAM = "login_id"
         internal const val TEMP_FILE_NAME = "doi-request"
     }
