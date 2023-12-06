@@ -20,7 +20,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.CoresSpec.FOUR_CORES
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
@@ -36,13 +36,13 @@ import uk.ac.ebi.scheduler.releaser.api.SubmissionReleaserProperties
 class SubmissionReleaserTriggerTest(
     @MockK private val job: Job,
     @MockK private val appProperties: AppProperties,
-    @MockK private val clusterOperations: ClusterOperations,
+    @MockK private val clusterClient: ClusterClient,
     @MockK private val notificationsSender: NotificationsSender,
 ) {
     private val jobSpecs = slot<JobSpec>()
     private val jobReport = slot<Report>()
     private val properties = testProperties()
-    private val trigger = SubmissionReleaserTrigger(appProperties, properties, clusterOperations, notificationsSender)
+    private val trigger = SubmissionReleaserTrigger(appProperties, properties, clusterClient, notificationsSender)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -56,7 +56,7 @@ class SubmissionReleaserTriggerTest(
         every { appProperties.appsFolder } returns "apps-folder"
         every { appProperties.javaHome } returns "/home/jdk11"
 
-        coEvery { clusterOperations.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterClient.triggerJob(capture(jobSpecs)) } returns Try.just(job)
 
         coEvery { notificationsSender.send(capture(jobReport)) } answers { nothing }
     }
@@ -88,7 +88,7 @@ class SubmissionReleaserTriggerTest(
     private fun verifyClusterOperations() {
         coVerify(exactly = 1) {
             notificationsSender.send(jobReport.captured)
-            clusterOperations.triggerJob(jobSpecs.captured)
+            clusterClient.triggerJob(jobSpecs.captured)
         }
     }
 

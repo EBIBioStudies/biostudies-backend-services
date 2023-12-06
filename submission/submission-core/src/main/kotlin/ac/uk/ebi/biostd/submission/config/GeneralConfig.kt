@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
-import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
 import uk.ac.ebi.biostd.client.cluster.api.LocalClusterClient
+import uk.ac.ebi.biostd.client.cluster.api.LsfClusterClient
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.integration.web.FireClientFactory
 import uk.ac.ebi.fire.client.integration.web.FireConfig
@@ -79,8 +79,8 @@ internal class GeneralConfig {
     @Bean
     @ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "true")
     fun clusterClient(
-        properties: ApplicationProperties
-    ): ClusterOperations = ClusterClient.create(
+        properties: ApplicationProperties,
+    ): ClusterClient = LsfClusterClient.create(
         properties.cluster.key,
         properties.cluster.server,
         properties.cluster.logsPath,
@@ -88,7 +88,7 @@ internal class GeneralConfig {
 
     @Bean
     @ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "false")
-    fun localClusterClient(): ClusterOperations = LocalClusterClient()
+    fun localClusterClient(): ClusterClient = LocalClusterClient()
 
     @Bean
     fun ftpClient(properties: ApplicationProperties) = ftpClient(properties.security.filesProperties)

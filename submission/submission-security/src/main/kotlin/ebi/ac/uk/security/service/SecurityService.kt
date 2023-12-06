@@ -38,7 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.transaction.annotation.Transactional
-import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.events.service.EventsPublisherService
@@ -56,7 +56,7 @@ open class SecurityService(
     private val profileService: ProfileService,
     private val captchaVerifier: CaptchaVerifier,
     private val eventsPublisherService: EventsPublisherService,
-    private val clusterClient: ClusterOperations,
+    private val clusterClient: ClusterClient,
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo {
         val user = userRepository.getActiveByLoginOrEmail(request.login)

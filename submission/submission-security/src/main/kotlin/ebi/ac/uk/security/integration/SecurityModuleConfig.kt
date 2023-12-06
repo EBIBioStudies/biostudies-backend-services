@@ -25,7 +25,7 @@ import ebi.ac.uk.security.web.SecurityFilter
 import io.jsonwebtoken.JwtParser
 import io.jsonwebtoken.Jwts
 import org.springframework.web.reactive.function.client.WebClient
-import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Paths
 
@@ -39,7 +39,7 @@ class SecurityModuleConfig(
     private val userPermissionsService: UserPermissionsService,
     private val eventsPublisherService: EventsPublisherService,
     private val props: SecurityProperties,
-    private val clusterClient: ClusterOperations,
+    private val clusterClient: ClusterClient,
 ) {
     fun securityService(): ISecurityService = securityService
     fun securityQueryService(): ISecurityQueryService = securityQueryService

@@ -8,7 +8,7 @@ import ac.uk.ebi.scheduler.properties.SubmissionReleaserProperties
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import mu.KotlinLogging
-import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.CoresSpec.FOUR_CORES
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
@@ -24,7 +24,7 @@ private val logger = KotlinLogging.logger {}
 internal class SubmissionReleaserTrigger(
     private val appProperties: AppProperties,
     private val properties: SchedulerReleaserProps,
-    private val clusterOperations: ClusterOperations,
+    private val clusterClient: ClusterClient,
     private val schedulerNotificationsSender: NotificationsSender,
 ) {
     suspend fun triggerSubmissionReleaser(debugPort: Int? = null): Job {
@@ -57,7 +57,7 @@ internal class SubmissionReleaserTrigger(
 
     private suspend fun submissionReleaserJob(mode: ReleaserMode, debugPort: Int?): Job {
         val releaserProperties = getConfigProperties(mode, properties)
-        val jobTry = clusterOperations.triggerJob(
+        val jobTry = clusterClient.triggerJob(
             JobSpec(
                 cores = FOUR_CORES,
                 ram = EIGHT_GB,

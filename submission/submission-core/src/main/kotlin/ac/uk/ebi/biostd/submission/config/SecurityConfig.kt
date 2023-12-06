@@ -16,7 +16,7 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.events.service.EventsPublisherService
 
 @Configuration
@@ -35,7 +35,7 @@ class SecurityConfig(properties: ApplicationProperties) {
         groupRepository: UserGroupDataRepository,
         userPermissionsService: UserPermissionsService,
         eventsPublisherService: EventsPublisherService,
-        clusterClient: ClusterOperations,
+        clusterClient: ClusterClient,
     ): SecurityModuleConfig = SecurityModuleConfig(
         userDataRepository,
         tokenRepository,

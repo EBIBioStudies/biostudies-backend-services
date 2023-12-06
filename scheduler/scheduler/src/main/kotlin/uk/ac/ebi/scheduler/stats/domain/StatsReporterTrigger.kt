@@ -4,7 +4,7 @@ import ac.uk.ebi.scheduler.properties.StatsReporterProperties.Companion.create
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import mu.KotlinLogging
-import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.CoresSpec.FOUR_CORES
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.Job
@@ -19,7 +19,7 @@ private val logger = KotlinLogging.logger {}
 class StatsReporterTrigger(
     private val appProperties: AppProperties,
     private val properties: StatsReporterProperties,
-    private val clusterOperations: ClusterOperations,
+    private val clusterClient: ClusterClient,
     private val schedulerNotificationsSender: NotificationsSender,
 ) {
     suspend fun triggerStatsReporter(debugPort: Int? = null): Job {
@@ -42,7 +42,7 @@ class StatsReporterTrigger(
 
     private suspend fun statsReporterJob(debugPort: Int?): Job {
         val properties = getConfigProperties()
-        val jobTry = clusterOperations.triggerJob(
+        val jobTry = clusterClient.triggerJob(
             JobSpec(
                 cores = FOUR_CORES,
                 ram = EIGHT_GB,

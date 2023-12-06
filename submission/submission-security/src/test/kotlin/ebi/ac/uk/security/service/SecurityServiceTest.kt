@@ -56,7 +56,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
@@ -80,7 +80,7 @@ internal class SecurityServiceTest(
     @MockK private val securityUtil: SecurityUtil,
     @MockK private val captchaVerifier: CaptchaVerifier,
     @MockK private val eventsPublisherService: EventsPublisherService,
-    @MockK private val clusterClient: ClusterOperations,
+    @MockK private val clusterClient: ClusterClient,
 ) {
     private val testInstance: SecurityService = SecurityService(
         userRepository,
@@ -230,7 +230,7 @@ internal class SecurityServiceTest(
 
         @Test
         fun `register a user when activation is required`(
-            @MockK filesProperties: FilesProperties
+            @MockK filesProperties: FilesProperties,
         ) = runTest {
             val savedUserSlot = slot<DbUser>()
             val activationSlot = slot<SecurityNotification>()
