@@ -17,7 +17,7 @@ private const val DONE_STATUS = "DONE"
 
 private val logger = KotlinLogging.logger {}
 
-class LsfClusterClient(
+class RemoteClusterClient(
     private val logsPath: String,
     private val responseParser: JobResponseParser,
     private val sessionFunction: () -> Session,
@@ -69,13 +69,13 @@ class LsfClusterClient(
     companion object {
         private val responseParser = JobResponseParser()
 
-        fun create(sshKey: String, sshMachine: String, logsPath: String): LsfClusterClient {
+        fun create(sshKey: String, sshMachine: String, logsPath: String): RemoteClusterClient {
             val sshClient = JSch()
             sshClient.addIdentity(sshKey)
-            return LsfClusterClient(logsPath, responseParser) {
+            return RemoteClusterClient(logsPath, responseParser) {
                 val session = sshClient.getSession(sshMachine)
                 session.setConfig("StrictHostKeyChecking", "no")
-                return@LsfClusterClient session
+                return@RemoteClusterClient session
             }
         }
     }

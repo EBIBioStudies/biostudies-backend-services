@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.LocalClusterClient
-import uk.ac.ebi.biostd.client.cluster.api.LsfClusterClient
+import uk.ac.ebi.biostd.client.cluster.api.RemoteClusterClient
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.integration.web.FireClientFactory
 import uk.ac.ebi.fire.client.integration.web.FireConfig
@@ -80,7 +80,7 @@ internal class GeneralConfig {
     @ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "true")
     fun clusterClient(
         properties: ApplicationProperties,
-    ): ClusterClient = LsfClusterClient.create(
+    ): ClusterClient = RemoteClusterClient.create(
         properties.cluster.key,
         properties.cluster.server,
         properties.cluster.logsPath,

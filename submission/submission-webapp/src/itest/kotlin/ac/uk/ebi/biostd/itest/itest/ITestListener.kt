@@ -80,14 +80,13 @@ class ITestListener : TestExecutionListener {
     private fun ftpSetup() {
         ftpServer.start()
 
-        properties.addProperty("app.security.filesProperties.ftpUser", FTP_USER)
-        properties.addProperty("app.security.filesProperties.ftpPassword", FTP_PASSWORD)
-        properties.addProperty("app.security.filesProperties.ftpUrl", ftpServer.getUrl())
-        properties.addProperty("app.security.filesProperties.ftpPort", ftpServer.ftpPort.toString())
-        properties.addProperty(
-            "app.security.filesProperties.ftpDirPath",
-            ftpServer.fileSystemDirectory.absolutePath
-        )
+        val ftpProperties = "app.security.filesProperties"
+        properties.addProperty("$ftpProperties.ftpUser", FTP_USER)
+        properties.addProperty("$ftpProperties.ftpPassword", FTP_PASSWORD)
+        properties.addProperty("$ftpProperties.ftpUrl", ftpServer.getUrl())
+        properties.addProperty("$ftpProperties.ftpPort", ftpServer.ftpPort.toString())
+        properties.addProperty("$ftpProperties.ftpDirPath", ftpServer.fileSystemDirectory.absolutePath)
+        Files.createDirectory(ftpServer.fileSystemDirectory.resolve(ENVIRONMENT).toPath())
     }
 
     private fun fireSetup() {
@@ -115,11 +114,14 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.fireTempDirPath", fireTempFolder.absolutePath)
         properties.addProperty("app.tempDirPath", tempDirPath.absolutePath)
         properties.addProperty("app.requestFilesPath", requestFilesPath.absolutePath)
-        properties.addProperty("app.security.filesProperties.filesDirPath", dropboxPath.absolutePath)
-        properties.addProperty(
-            "app.security.filesProperties.magicDirPath",
-            magicDirPath.absolutePath
-        )
+
+        // Security
+        val securityProps = "app.security"
+        properties.addProperty("$securityProps.environment", ENVIRONMENT)
+        properties.addProperty("$securityProps.filesProperties.filesDirPath", dropboxPath.absolutePath)
+        properties.addProperty("$securityProps.filesProperties.magicDirPath", magicDirPath.absolutePath)
+
+
         properties.addProperty("app.persistence.concurrency", PERSISTENCE_CONCURRENCY)
         properties.addProperty(
             "app.persistence.enableFire",
@@ -164,6 +166,7 @@ class ITestListener : TestExecutionListener {
     }
 
     companion object {
+        private const val ENVIRONMENT = "TEST"
         private val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()
 
         private const val DEFAULT_BUCKET = "bio-fire-bucket"

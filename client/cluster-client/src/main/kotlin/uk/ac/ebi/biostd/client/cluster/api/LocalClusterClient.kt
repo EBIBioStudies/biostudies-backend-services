@@ -15,7 +15,7 @@ class LocalClusterClient : ClusterClient {
     override suspend fun triggerJobAsync(jobSpec: JobSpec): Try<Job> {
         return withContext(Dispatchers.IO) {
             val logFile = createTempFile().toFile()
-            val processId = executeProcess(listOf(jobSpec.command), logFile)
+            val processId = executeProcess(jobSpec.command, logFile)
             Try.just(Job(processId.toString(), LOCAL_QUEUE, logFile.absolutePath))
         }
     }
@@ -28,7 +28,7 @@ class LocalClusterClient : ClusterClient {
     override suspend fun triggerJobSync(jobSpec: JobSpec, checkJobInterval: Long, maxSecondsDuration: Long): Job {
         return withContext(Dispatchers.IO) {
             val logFile = createTempFile().toFile()
-            val processId = executeProcess(listOf(jobSpec.command), logFile)
+            val processId = executeProcess(jobSpec.command, logFile)
             waitProcess(processId)
             return@withContext Job(processId.toString(), LOCAL_QUEUE, logFile.absolutePath)
         }
@@ -38,8 +38,8 @@ class LocalClusterClient : ClusterClient {
         internal const val LOCAL_QUEUE = "local"
     }
 
-    private fun executeProcess(params: List<String>, logFile: File): Long {
-        val processBuilder = ProcessBuilder(params)
+    private fun executeProcess(command: String, logFile: File): Long {
+        val processBuilder = ProcessBuilder(command.split(" "))
         processBuilder.redirectOutput(logFile)
         val process = processBuilder.start()
         val processId = process.pid()
@@ -52,3 +52,5 @@ class LocalClusterClient : ClusterClient {
         process.waitFor()
     }
 }
+//mkdir -m 710 -p /var/folders/ss/nj08mk515j9g013jnsv6dmc00000gp/T/ftpUser-ftp3747409275178958406/TEST/c1
+///var/folders/ss/nj08mk515j9g013jnsv6dmc00000gp/T/ftpUser-ftp13632402090457427078/TEST

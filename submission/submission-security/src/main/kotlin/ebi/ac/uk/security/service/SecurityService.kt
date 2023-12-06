@@ -44,6 +44,7 @@ import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.absolutePathString
 
 private val logger = KotlinLogging.logger {}
 
@@ -182,7 +183,7 @@ open class SecurityService(
     }
 
     private suspend fun createClusterFolder(path: Path, permissions: Int) {
-        val command = String.format(CREATE_FOLDER_COMMAND, permissions, path)
+        val command = "mkdir -m $permissions -p ${path.absolutePathString()}"
         val job = JobSpec(queue = DataMoverQueue, command = command)
 
         logger.info { "Started creating the cluster FTP folder $path" }
@@ -214,6 +215,5 @@ open class SecurityService(
     companion object {
         internal const val UNIX_RWX__X___ = 710
         internal const val UNIX_RWXRWX___ = 770
-        internal const val CREATE_FOLDER_COMMAND = "mkdir -m %d -p %s"
     }
 }

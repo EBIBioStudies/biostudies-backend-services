@@ -21,7 +21,6 @@ import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
 import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
-import ebi.ac.uk.security.service.SecurityService.Companion.CREATE_FOLDER_COMMAND
 import ebi.ac.uk.security.service.SecurityService.Companion.UNIX_RWXRWX___
 import ebi.ac.uk.security.service.SecurityService.Companion.UNIX_RWX__X___
 import ebi.ac.uk.security.test.SecurityTestEntities
@@ -210,12 +209,12 @@ internal class SecurityServiceTest(
             val parentFolderJobSpec = jobSpecSlots.first()
             assertThat(parentFolderJobSpec.queue).isEqualTo(DataMoverQueue)
             assertThat(parentFolderJobSpec.command)
-                .isEqualTo(String.format(CREATE_FOLDER_COMMAND, UNIX_RWX__X___, userFolder.parent))
+                .isEqualTo(String.format("mkdir -m %d -p %s", UNIX_RWX__X___, userFolder.parent))
 
             val userFolderJobSpec = jobSpecSlots.second()
             assertThat(userFolderJobSpec.queue).isEqualTo(DataMoverQueue)
             assertThat(userFolderJobSpec.command)
-                .isEqualTo(String.format(CREATE_FOLDER_COMMAND, UNIX_RWXRWX___, userFolder))
+                .isEqualTo(String.format("mkdir -m %d -p %s", UNIX_RWXRWX___, userFolder))
         }
 
         private fun assertSymbolicLink(link: Path, target: Path) {
