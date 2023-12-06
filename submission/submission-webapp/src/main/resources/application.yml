@@ -131,5 +131,6 @@ app:
   doi:
     endpoint: # DOI registration endpoint
     uiUrl: # The BioStudies UI URL which will be associated to the DOI record
+    email: # E-Mail to get the DOI processing notifications
     user: # User for the DOI service
     password: # Password for the DOI service

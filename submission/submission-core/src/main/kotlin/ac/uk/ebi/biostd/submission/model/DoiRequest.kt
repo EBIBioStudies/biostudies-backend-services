@@ -14,6 +14,7 @@ data class Contributor(
 class DoiRequest(
     private val accNo: String,
     private val title: String,
+    private val email: String,
     private val timestamp: String,
     private val instanceUrl: String,
     private val contributors: List<Contributor>,
@@ -32,7 +33,7 @@ class DoiRequest(
                 "timestamp" { -timestamp }
                 "depositor" {
                     "depositor_name" { -DEPOSITOR }
-                    "email_address" { -EMAIL }
+                    "email_address" { -email }
                 }
                 "registrant" { -DEPOSITOR }
             }
@@ -57,7 +58,7 @@ class DoiRequest(
                                         contributor.orcid?.let { orcid ->
                                             "ORCID" {
                                                 attribute("authenticated", "false")
-                                                -orcid
+                                                -"$ORCID_URL/$orcid"
                                             }
                                         }
                                     }
@@ -81,7 +82,7 @@ class DoiRequest(
         const val BS_DOI_ID = "10.6019"
         const val BS_TITLE = "BioStudies Database"
         const val DEPOSITOR = "EMBL-EBI"
-        const val EMAIL = "biostudies@ebi.ac.uk"
+        const val ORCID_URL = "https://orcid.org"
         const val XML_NAMESPACE = "http://www.crossref.org/schema/4.4.1"
         const val XML_SCHEMA_VERSION = "4.4.1"
         const val XML_SCHEMA_INSTANCE = "http://www.w3.org/2001/XMLSchema-instance"

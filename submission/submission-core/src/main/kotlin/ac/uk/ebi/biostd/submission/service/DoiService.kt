@@ -56,7 +56,7 @@ class DoiService(
         val sub = rqt.submission
         val timestamp = Instant.now().epochSecond.toString()
         val title = rqt.submission.find(TITLE) ?: rqt.submission.section.find(TITLE) ?: throw MissingTitleException()
-        val request = DoiRequest(accNo, title, timestamp, properties.uiUrl, getContributors(sub))
+        val request = DoiRequest(accNo, title, properties.email, timestamp, properties.uiUrl, getContributors(sub))
         val requestFile = Files.createTempFile("${TEMP_FILE_NAME}_$accNo", ".xml").toFile()
         FileUtils.writeContent(requestFile, request.asXmlRequest())
 
