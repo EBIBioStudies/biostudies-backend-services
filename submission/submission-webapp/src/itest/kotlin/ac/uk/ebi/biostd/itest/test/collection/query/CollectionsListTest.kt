@@ -12,6 +12,7 @@ import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -33,7 +34,7 @@ class CollectionsListTest(
     private lateinit var collectionAdminUserWebClient: BioWebClient
 
     @BeforeAll
-    fun init() {
+    fun init() = runBlocking {
         setUpUsers()
         registerCollections()
         setUpPermissions()
@@ -95,7 +96,7 @@ class CollectionsListTest(
         assertThat(superUserWebClient.submitSingle(defaultCollection, TSV)).isSuccessful()
     }
 
-    private fun setUpUsers() {
+    private suspend fun setUpUsers() {
         securityTestService.ensureUserRegistration(SuperUser)
         securityTestService.ensureUserRegistration(RegularUser)
         securityTestService.ensureUserRegistration(DefaultUser)

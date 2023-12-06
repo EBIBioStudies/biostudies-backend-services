@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener
@@ -11,6 +10,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
 import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
@@ -32,6 +32,7 @@ import ebi.ac.uk.io.ext.createOrReplaceFile
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
@@ -57,7 +58,7 @@ class SpecialSubmissionAttributesTest(
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
-    fun init() {
+    fun init() = runBlocking {
         securityTestService.ensureUserRegistration(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
 

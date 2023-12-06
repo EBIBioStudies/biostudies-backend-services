@@ -1,4 +1,4 @@
-package ac.uk.ebi.biostd.common.config.internal
+package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.security.web.exception.SecurityAccessDeniedHandler
 import ac.uk.ebi.biostd.security.web.exception.SecurityAuthEntryPoint

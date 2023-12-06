@@ -22,7 +22,7 @@ class LsfClusterClient(
     private val responseParser: JobResponseParser,
     private val sessionFunction: () -> Session,
 ) : ClusterClient {
-    override suspend fun triggerJob(jobSpec: JobSpec): Try<Job> {
+    override suspend fun triggerJobAsync(jobSpec: JobSpec): Try<Job> {
         val parameters = mutableListOf("bsub -o $logsPath -e $logsPath")
         parameters.addAll(jobSpec.asParameter())
         val command = parameters.joinToString(separator = " ")
@@ -34,28 +34,29 @@ class LsfClusterClient(
         }
     }
 
-    override suspend fun awaitJob(
+    override suspend fun jobStatus(jobId: String): String {
+        logger.info { "Checking Job id ='$jobId' status" }
+        return runInSession {
+            val status = executeCommand("bjobs -o STAT -noheader $jobId").second.trimIndent()
+            logger.info { "Job $jobId. Current status $status" }
+            status
+        }
+    }
+
+    override suspend fun triggerJobSync(
         jobSpec: JobSpec,
         checkJobInterval: Long,
         maxSecondsDuration: Long,
     ): Job {
         suspend fun await(job: Job) = runInSession {
-            logger.info { "Started job ${job.id}" }
             waitUntil(
                 interval = ofSeconds(checkJobInterval),
-                duration = ofSeconds(maxSecondsDuration),
-            ) {
-                val status = executeCommand("bjobs -o STAT -noheader ${job.id}").second.trimIndent()
-                logger.info { "Waiting for job ${job.id}. Current status $status" }
-
-                status == DONE_STATUS
-            }
-
-            logger.info { "Finished job ${job.id}" }
+                duration = ofSeconds(maxSecondsDuration)
+            ) { jobStatus(job.id) == DONE_STATUS }
             job
         }
 
-        return triggerJob(jobSpec).fold({ throw it }, { await(it) })
+        return triggerJobAsync(jobSpec).fold({ throw it }, { await(it) })
     }
 
     private fun asJobReturn(exitCode: Int, response: String, logsPath: String): Try<Job> {

@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
-import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
@@ -14,6 +13,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.section
@@ -35,6 +35,7 @@ import ebi.ac.uk.io.sources.PreferredSource.USER_SPACE
 import ebi.ac.uk.model.extensions.title
 import ebi.ac.uk.util.collections.second
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -68,7 +69,7 @@ class SubmissionFileSourceTest(
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
-    fun init() {
+    fun init() = runBlocking {
         securityTestService.ensureUserRegistration(SuperUser)
         webClient = getWebClient(serverPort, SuperUser)
     }

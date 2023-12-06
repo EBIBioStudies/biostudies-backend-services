@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.submission.config.SubmitterConfig
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.io.ext.createFile
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -34,7 +35,7 @@ class GroupFilesApiTest(
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
-    fun init() {
+    fun init() = runTest {
         securityTestService.ensureUserRegistration(SuperUser)
 
         webClient = getWebClient(serverPort, SuperUser)

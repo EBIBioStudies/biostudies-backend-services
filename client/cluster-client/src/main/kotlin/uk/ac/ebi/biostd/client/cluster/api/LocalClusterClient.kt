@@ -6,18 +6,32 @@ import kotlinx.coroutines.withContext
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.io.path.createTempFile
 
 class LocalClusterClient : ClusterClient {
-    override suspend fun triggerJob(jobSpec: JobSpec): Try<Job> {
+    private val activeProcess = ConcurrentHashMap<Long, Process>()
+
+    override suspend fun triggerJobAsync(jobSpec: JobSpec): Try<Job> {
         return withContext(Dispatchers.IO) {
-            val logFile = File.createTempFile("prefix-", "-suffix");
-            val jobId = executeProcess(listOf(jobSpec.command), logFile)
-            Try.just(Job(jobId.toString(), LOCAL_QUEUE, logFile.absolutePath))
+            val logFile = createTempFile().toFile()
+            val processId = executeProcess(listOf(jobSpec.command), logFile)
+            Try.just(Job(processId.toString(), LOCAL_QUEUE, logFile.absolutePath))
         }
     }
 
-    override suspend fun awaitJob(jobSpec: JobSpec, checkJobInterval: Long, maxSecondsDuration: Long): Job {
-        return triggerJob(jobSpec).fold({ throw it }, { it })
+    override suspend fun jobStatus(jobId: String): String {
+        val process = activeProcess.getValue(jobId.toLong())
+        return if (process.isAlive) "RUNNING" else "DONE"
+    }
+
+    override suspend fun triggerJobSync(jobSpec: JobSpec, checkJobInterval: Long, maxSecondsDuration: Long): Job {
+        return withContext(Dispatchers.IO) {
+            val logFile = createTempFile().toFile()
+            val processId = executeProcess(listOf(jobSpec.command), logFile)
+            waitProcess(processId)
+            return@withContext Job(processId.toString(), LOCAL_QUEUE, logFile.absolutePath)
+        }
     }
 
     companion object {
@@ -28,7 +42,13 @@ class LocalClusterClient : ClusterClient {
         val processBuilder = ProcessBuilder(params)
         processBuilder.redirectOutput(logFile)
         val process = processBuilder.start()
+        val processId = process.pid()
+        activeProcess[processId] = process
+        return processId
+    }
+
+    private fun waitProcess(processId: Long) {
+        val process = activeProcess.getValue(processId)
         process.waitFor()
-        return process.pid()
     }
 }

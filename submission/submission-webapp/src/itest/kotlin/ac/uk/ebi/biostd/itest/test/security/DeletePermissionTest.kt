@@ -5,7 +5,6 @@ import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
-import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -16,11 +15,13 @@ import ac.uk.ebi.biostd.itest.test.security.SubmitPermissionTest.ExistingUser
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.util.date.toStringDate
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -47,7 +48,7 @@ class DeletePermissionTest(
     private lateinit var existingUserWebClient: BioWebClient
 
     @BeforeAll
-    fun init() {
+    fun init() = runBlocking {
         setUpTestUsers()
         setUpTestCollection()
     }
@@ -227,7 +228,7 @@ class DeletePermissionTest(
         assertThat(superUserWebClient.submitSingle(projectFile, filesConfig)).isSuccessful()
     }
 
-    private fun setUpTestUsers() {
+    private suspend fun setUpTestUsers() {
         securityTestService.ensureUserRegistration(SuperUser)
         securityTestService.ensureUserRegistration(RegularUser)
         securityTestService.ensureUserRegistration(ExistingUser)

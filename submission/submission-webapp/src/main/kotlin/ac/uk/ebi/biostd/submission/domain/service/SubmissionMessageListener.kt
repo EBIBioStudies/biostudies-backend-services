@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.service
 
-import ac.uk.ebi.biostd.common.config.internal.LISTENER_FACTORY_NAME
+import ac.uk.ebi.biostd.common.config.LISTENER_FACTORY_NAME
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionStagesHandler
 import ebi.ac.uk.extended.events.RequestCheckedReleased
 import ebi.ac.uk.extended.events.RequestCleaned

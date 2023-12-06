@@ -184,7 +184,7 @@ internal class SecurityServiceTest(
             val magicFolderRoot = temporaryFolder.createDirectory("users")
 
             every { securityProps.filesProperties } returns filesProperties
-            coEvery { clusterClient.awaitJob(capture(jobSpecSlots)) } returns job
+            coEvery { clusterClient.triggerJobSync(capture(jobSpecSlots)) } returns job
             every { userRepository.save(capture(savedUserSlot)) } answers { savedUserSlot.captured }
             every { filesProperties.magicDirPath } returns magicFolderRoot.absolutePath
             every { filesProperties.defaultMode } returns StorageMode.FTP

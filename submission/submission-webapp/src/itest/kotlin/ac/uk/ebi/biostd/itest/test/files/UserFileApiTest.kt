@@ -9,6 +9,7 @@ import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.io.ext.createFile
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Named
@@ -34,7 +35,7 @@ class UserFileApiTest(
     @LocalServerPort val serverPort: Int,
 ) {
     @BeforeAll
-    fun init() {
+    fun init() = runTest {
         securityTestService.ensureUserRegistration(FilesUser)
         securityTestService.ensureUserRegistration(FilesFtpUser)
     }

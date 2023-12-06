@@ -138,8 +138,8 @@ class ITestListener : TestExecutionListener {
     }
 
     private fun submissionTaskSetup() {
-        val configFile = getResource("application.yml")?.absolutePath.orEmpty()
-        val jarLocation = getResource("submission-task-1.0.0.jar")?.absolutePath.orEmpty()
+        val configFile = findResource("application.yml")?.absolutePath.orEmpty()
+        val jarLocation = findResource("submission-task-1.0.0.jar")?.absolutePath.orEmpty()
 
         properties.addProperty("app.submissionTask.enabled", enableTask)
         properties.addProperty("app.submissionTask.configFilePath", configFile)
@@ -155,8 +155,13 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.cluster.logsPath", clusterLogsPath.absolutePath)
     }
 
-    private fun getResource(resource: String): File? =
+    private fun findResource(resource: String): File? =
         this::class.java.getResource("/$resource")?.toURI()?.let { File(it) }
+
+    private fun getResource(resourceName: String): File {
+        val resource = findResource(resourceName)
+        return requireNotNull(resource) { "Could not find resource $resourceName" }
+    }
 
     companion object {
         private val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()

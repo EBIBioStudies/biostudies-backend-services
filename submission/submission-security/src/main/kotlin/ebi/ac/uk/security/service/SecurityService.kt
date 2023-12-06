@@ -186,7 +186,7 @@ open class SecurityService(
         val job = JobSpec(queue = DataMoverQueue, command = command)
 
         logger.info { "Started creating the cluster FTP folder $path" }
-        clusterClient.awaitJob(job)
+        clusterClient.triggerJobSync(job)
         logger.info { "Finished creating the cluster FTP folder $path" }
     }
 

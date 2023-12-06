@@ -2,10 +2,11 @@ package ac.uk.ebi.biostd.itest.test.user
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -32,7 +33,7 @@ class UserGroupsApiTest(
     private lateinit var regularWebClient: BioWebClient
 
     @BeforeAll
-    fun init() {
+    fun init() = runBlocking {
         securityTestService.ensureUserRegistration(SuperUser)
         securityTestService.ensureUserRegistration(RegularUser)
         superWebClient = getWebClient(serverPort, SuperUser)

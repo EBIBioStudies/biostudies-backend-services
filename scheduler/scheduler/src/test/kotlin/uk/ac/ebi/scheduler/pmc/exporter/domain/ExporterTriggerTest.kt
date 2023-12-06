@@ -64,7 +64,7 @@ class ExporterTriggerTest(
         every { appProperties.javaHome } returns "/home/jdk11"
         every { appProperties.appsFolder } returns "/apps-folder"
 
-        coEvery { clusterClient.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterClient.triggerJobAsync(capture(jobSpecs)) } returns Try.just(job)
         coEvery { pcmNotificationsSender.send(capture(jobReport)) } answers { nothing }
         coEvery { schedulerNotificationsSender.send(capture(jobReport)) } answers { nothing }
     }
@@ -73,7 +73,7 @@ class ExporterTriggerTest(
     fun triggerPmcExport() = runTest {
         testInstance.triggerPmcExport()
         coVerify(exactly = 1) {
-            clusterClient.triggerJob(jobSpecs.captured)
+            clusterClient.triggerJobAsync(jobSpecs.captured)
             pcmNotificationsSender.send(jobReport.captured)
         }
         verify { schedulerNotificationsSender wasNot called }
@@ -84,7 +84,7 @@ class ExporterTriggerTest(
     fun triggerPublicExport() = runTest {
         testInstance.triggerPublicExport()
         coVerify(exactly = 1) {
-            clusterClient.triggerJob(jobSpecs.captured)
+            clusterClient.triggerJobAsync(jobSpecs.captured)
             schedulerNotificationsSender.send(jobReport.captured)
         }
         verify { pcmNotificationsSender wasNot called }

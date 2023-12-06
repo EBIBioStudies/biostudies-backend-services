@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.itest.test.stats
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -11,6 +10,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
 import ac.uk.ebi.biostd.persistence.common.service.StatsDataService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
@@ -19,6 +19,7 @@ import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.util.date.toStringDate
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Durations.TEN_SECONDS
@@ -45,7 +46,7 @@ class SubmissionStatsTest(
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
-    fun init() {
+    fun init() = runBlocking {
         securityTestService.ensureUserRegistration(SuperUser)
         securityTestService.ensureUserRegistration(RegularUser)
         webClient = getWebClient(serverPort, SuperUser)

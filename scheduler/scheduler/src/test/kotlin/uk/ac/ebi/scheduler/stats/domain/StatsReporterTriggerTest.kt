@@ -53,14 +53,14 @@ class StatsReporterTriggerTest(
         every { job.logsPath } returns "/the/logs/path"
 
         coEvery { notificationsSender.send(capture(jobReport)) } answers { nothing }
-        coEvery { clusterClient.triggerJob(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterClient.triggerJobAsync(capture(jobSpecs)) } returns Try.just(job)
 
         testInstance.triggerStatsReporter()
 
         verifyJobSpecs(jobSpecs.captured)
         coVerify(exactly = 1) {
             notificationsSender.send(jobReport.captured)
-            clusterClient.triggerJob(jobSpecs.captured)
+            clusterClient.triggerJobAsync(jobSpecs.captured)
         }
     }
 

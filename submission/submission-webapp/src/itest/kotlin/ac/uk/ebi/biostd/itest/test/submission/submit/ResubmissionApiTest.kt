@@ -23,6 +23,7 @@ import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
@@ -53,7 +54,7 @@ class ResubmissionApiTest(
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
-    fun init() {
+    fun init() = runBlocking {
         securityTestService.ensureUserRegistration(SuperUser)
         securityTestService.ensureUserRegistration(RegularUser)
         webClient = getWebClient(serverPort, SuperUser)
