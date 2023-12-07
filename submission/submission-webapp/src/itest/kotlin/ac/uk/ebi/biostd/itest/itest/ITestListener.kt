@@ -132,6 +132,7 @@ class ITestListener : TestExecutionListener {
         doiServer.start()
         properties.addProperty("app.doi.endpoint", "${doiServer.baseUrl()}/deposit")
         properties.addProperty("app.doi.uiUrl", "https://www.ebi.ac.uk/biostudies/")
+        properties.addProperty("app.doi.email", "biostudies@ebi.ac.uk")
         properties.addProperty("app.doi.user", "a-user")
         properties.addProperty("app.doi.password", "a-password")
     }

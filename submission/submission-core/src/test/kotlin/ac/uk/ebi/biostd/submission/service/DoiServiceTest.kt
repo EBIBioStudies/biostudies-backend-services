@@ -381,6 +381,7 @@ class DoiServiceTest(
         private val properties = DoiProperties(
             endpoint = "https://test-endpoint.org",
             uiUrl = "https://www.biostudies.ac.uk",
+            email = "biostudies@ebi.ac.uk",
             user = "a-user",
             password = "a-password",
         )
@@ -413,7 +414,7 @@ class DoiServiceTest(
                                     <given_name>John</given_name>
                                     <surname>Doe</surname>
                                     <affiliation>EMBL</affiliation>
-                                    <ORCID authenticated="false">12-32-45-82</ORCID>
+                                    <ORCID authenticated="false">https://orcid.org/12-32-45-82</ORCID>
                                 </person_name>
                             </contributors>
                             <titles>

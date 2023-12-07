@@ -66,6 +66,7 @@ data class NotificationsProperties(
 data class DoiProperties(
     val endpoint: String,
     val uiUrl: String,
+    val email: String,
     val user: String,
     val password: String,
 )
