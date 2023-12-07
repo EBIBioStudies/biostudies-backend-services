@@ -9,6 +9,7 @@ import ebi.ac.uk.extended.events.RequestFilesCopied
 import ebi.ac.uk.extended.events.RequestFinalized
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
+import ebi.ac.uk.extended.events.RequestPageTabGenerated
 import ebi.ac.uk.extended.events.RequestPersisted
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
@@ -35,7 +36,14 @@ class SubmissionMessageListener(
     }
 
     @RabbitHandler
-    fun cleanRequest(rqt: RequestLoaded) {
+    fun generatePageTabRequest(rqt: RequestLoaded) {
+        val (accNo, version) = rqt
+        logger.info { "$accNo, Received generate pagetab message for submission $accNo, version: $version" }
+        stagesHandler.generatePageTabRequest(rqt)
+    }
+
+    @RabbitHandler
+    fun cleanRequest(rqt: RequestPageTabGenerated) {
         val (accNo, version) = rqt
         logger.info { "$accNo, Received clean message for submission $accNo, version: $version" }
         stagesHandler.cleanRequest(rqt)

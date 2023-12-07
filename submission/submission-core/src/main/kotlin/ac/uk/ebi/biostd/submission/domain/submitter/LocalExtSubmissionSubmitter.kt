@@ -12,11 +12,11 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestPageTabGenerator
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
@@ -25,12 +25,11 @@ import ebi.ac.uk.extended.model.ExtSubmission
 @Suppress("LongParameterList", "TooManyFunctions")
 class LocalExtSubmissionSubmitter(
     private val properties: ApplicationProperties,
-    private val pageTabService: PageTabService,
     private val requestService: SubmissionRequestPersistenceService,
     private val persistenceService: SubmissionPersistenceService,
-
     private val requestIndexer: SubmissionRequestIndexer,
     private val requestLoader: SubmissionRequestLoader,
+    private val requestPageTabGenerator: SubmissionRequestPageTabGenerator,
     private val requestProcessor: SubmissionRequestProcessor,
     private val requestReleaser: SubmissionRequestReleaser,
     private val requestCleaner: SubmissionRequestCleaner,
@@ -38,8 +37,7 @@ class LocalExtSubmissionSubmitter(
     private val requestFinalizer: SubmissionRequestFinalizer,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
-        val withTabFiles = pageTabService.generatePageTab(rqt.submission)
-        val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
+        val submission = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         val request = SubmissionRequest(submission = submission, notifyTo = rqt.notifyTo, draftKey = rqt.draftKey)
         return requestService.createRequest(request)
     }
@@ -49,6 +47,10 @@ class LocalExtSubmissionSubmitter(
 
     override suspend fun loadRequest(accNo: String, version: Int): Unit =
         requestLoader.loadRequest(accNo, version, properties.processId)
+
+    override suspend fun generatePageTabRequest(accNo: String, version: Int) {
+        requestPageTabGenerator.generatePageTab(accNo, version, properties.processId)
+    }
 
     override suspend fun cleanRequest(accNo: String, version: Int): Unit =
         requestCleaner.cleanCurrentVersion(accNo, version, properties.processId)

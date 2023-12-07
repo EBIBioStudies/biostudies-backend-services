@@ -129,6 +129,7 @@ object FileUtils {
 
     fun size(
         file: File,
+        // TODO this variable might no longer be needed
         iterateDirectories: Boolean = true,
     ): Long {
         return if (file.isDirectory && iterateDirectories) calculateDirectorySize(file) else Files.size(file.toPath())

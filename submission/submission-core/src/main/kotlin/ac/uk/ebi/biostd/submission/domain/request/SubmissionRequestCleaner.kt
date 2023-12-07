@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PAGE_TAB_GENERATED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -27,7 +27,7 @@ class SubmissionRequestCleaner(
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
     suspend fun cleanCurrentVersion(accNo: String, version: Int, processId: String) {
-        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, LOADED, processId)
+        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, PAGE_TAB_GENERATED, processId)
         cleanCurrentVersion(request.submission)
         requestService.saveRequest(request.withNewStatus(status = CLEANED, changeId = changeId))
     }

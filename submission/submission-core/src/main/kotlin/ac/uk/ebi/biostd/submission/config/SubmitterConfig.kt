@@ -19,6 +19,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestPageTabGenerator
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
@@ -77,13 +78,15 @@ class SubmitterConfig(
 
     @Bean
     fun requestLoader(
+        fileProcessingService: FileProcessingService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
         requestService: SubmissionRequestPersistenceService,
     ): SubmissionRequestLoader = SubmissionRequestLoader(
         properties.persistence.concurrency,
+        fileProcessingService,
         filesRequestService,
         requestService,
-        File(properties.fireTempDirPath)
+        File(properties.fireTempDirPath),
     )
 
     @Bean
@@ -134,6 +137,17 @@ class SubmitterConfig(
     )
 
     @Bean
+    fun submissionPageTabGenerator(
+        pageTabService: PageTabService,
+        requestService: SubmissionRequestPersistenceService,
+        filesRequestService: SubmissionRequestFilesPersistenceService,
+    ): SubmissionRequestPageTabGenerator = SubmissionRequestPageTabGenerator(
+        pageTabService,
+        requestService,
+        filesRequestService,
+    )
+
+    @Bean
     fun submissionCleaner(
         storageService: FileStorageService,
         serializationService: ExtSerializationService,
@@ -167,11 +181,11 @@ class SubmitterConfig(
     @ConditionalOnMissingBean(ExtSubmissionSubmitter::class)
     fun localExtSubmissionSubmitter(
         appProperties: ApplicationProperties,
-        pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
         requestIndexer: SubmissionRequestIndexer,
         requestLoader: SubmissionRequestLoader,
+        requestPageTabGenerator: SubmissionRequestPageTabGenerator,
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
@@ -179,11 +193,11 @@ class SubmitterConfig(
         submissionFinalizer: SubmissionRequestFinalizer,
     ): ExtSubmissionSubmitter = LocalExtSubmissionSubmitter(
         appProperties,
-        pageTabService,
         requestService,
         persistenceService,
         requestIndexer,
         requestLoader,
+        requestPageTabGenerator,
         requestProcessor,
         submissionReleaser,
         submissionCleaner,

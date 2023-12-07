@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -12,6 +11,7 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.extended.model.copyWithAttributes
 import ebi.ac.uk.io.ext.createTempFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
@@ -22,12 +22,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestLoader(
     private val concurrency: Int,
+    private val fileProcessingService: FileProcessingService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
     private val requestService: SubmissionRequestPersistenceService,
     private val fireTempDirPath: File,
@@ -38,7 +40,8 @@ class SubmissionRequestLoader(
     suspend fun loadRequest(accNo: String, version: Int, processId: String) {
         val (changeId, request) = requestService.getSubmissionRequest(accNo, version, INDEXED, processId)
         loadRequest(request.submission, request.currentIndex)
-        requestService.saveRequest(request.withNewStatus(LOADED, changeId = changeId))
+        val loadedSubmission = assembleSubmission(request.submission)
+        requestService.saveRequest(request.loaded(loadedSubmission, changeId))
     }
 
     private suspend fun loadRequest(sub: ExtSubmission, currentIndex: Int) {
@@ -97,5 +100,17 @@ class SubmissionRequestLoader(
             size = compressed.size(),
             type = ExtFileType.DIR
         )
+    }
+
+    /**
+     * This is needed here because we need the submission to contain the ExtFile with the size and md5 already
+     * calculated, so they can be later used by the pagetab logic
+     */
+    // TODO refactor into common utility
+    private suspend fun assembleSubmission(sub: ExtSubmission): ExtSubmission {
+        return fileProcessingService.processFiles(sub) { file ->
+            val requestFile = filesRequestService.getSubmissionRequestFile(sub.accNo, sub.version, file.filePath)
+            return@processFiles requestFile.file.copyWithAttributes(file.attributes)
+        }
     }
 }

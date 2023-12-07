@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
@@ -17,6 +16,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestPageTabGenerator
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
@@ -37,6 +37,7 @@ import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import java.net.URI
 
 @Suppress("LongParameterList")
@@ -45,31 +46,33 @@ class SubmissionWebConfig {
     @Bean
     fun extendedSubmissionSubmitter(
         appProperties: ApplicationProperties,
-        pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
         requestIndexer: SubmissionRequestIndexer,
         requestLoader: SubmissionRequestLoader,
+        requestPageTabGenerator: SubmissionRequestPageTabGenerator,
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
         submissionFinalizer: SubmissionRequestFinalizer,
+        clusterClient: ClusterClient,
     ): ExtSubmissionSubmitter {
         val local = LocalExtSubmissionSubmitter(
             appProperties,
-            pageTabService,
             requestService,
             persistenceService,
             requestIndexer,
             requestLoader,
+            requestPageTabGenerator,
             requestProcessor,
             submissionReleaser,
             submissionCleaner,
             submissionSaver,
             submissionFinalizer,
         )
-        val remote = RemoteExtSubmissionSubmitter(appProperties.submissionTask)
+        val remote = RemoteExtSubmissionSubmitter(appProperties.submissionTask, clusterClient)
+
         return ExtendedSubmissionSubmitter(local, remote, appProperties.submissionTask)
     }
 

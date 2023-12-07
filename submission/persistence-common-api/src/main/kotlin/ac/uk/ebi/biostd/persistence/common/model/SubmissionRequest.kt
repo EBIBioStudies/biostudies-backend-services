@@ -65,12 +65,42 @@ data class SubmissionRequest constructor(
             statusChangesLog = statusChangesLog.replace(statusChange, { it.changeId == changeId })
         )
     }
+
+    fun loaded(submission: ExtSubmission, changeId: String): SubmissionRequest {
+        val statusChange = statusChangesLog
+            .filter { it.changeId == changeId }
+            .first()
+            .copy(endTime = Instant.now())
+        return copy(
+            status = RequestStatus.LOADED,
+            modificationTime = OffsetDateTime.now(),
+            currentIndex = 0,
+            submission = submission,
+            statusChangesLog = statusChangesLog.replace(statusChange, { it.changeId == changeId })
+        )
+    }
+
+    fun withPageTab(submission: ExtSubmission, totalFiles: Int, changeId: String): SubmissionRequest {
+        val statusChange = statusChangesLog
+            .filter { it.changeId == changeId }
+            .first()
+            .copy(endTime = Instant.now())
+        return copy(
+            status = RequestStatus.PAGE_TAB_GENERATED,
+            modificationTime = OffsetDateTime.now(),
+            currentIndex = 0,
+            totalFiles = totalFiles,
+            submission = submission,
+            statusChangesLog = statusChangesLog.replace(statusChange, { it.changeId == changeId })
+        )
+    }
 }
 
 enum class RequestStatus {
     REQUESTED,
     INDEXED,
     LOADED,
+    PAGE_TAB_GENERATED,
     CLEANED,
     FILES_COPIED,
     CHECK_RELEASED,
@@ -82,6 +112,7 @@ enum class RequestStatus {
             REQUESTED,
             INDEXED,
             LOADED,
+            PAGE_TAB_GENERATED,
             CLEANED,
             FILES_COPIED,
             CHECK_RELEASED,
@@ -91,14 +122,15 @@ enum class RequestStatus {
 }
 
 /**
- * Retrieves the expected action to be perform when submission request is the given status.
+ * Retrieves the expected action to be performed when submission request is the given status.
  */
 val RequestStatus.action: String
     get() {
         return when (this) {
             RequestStatus.REQUESTED -> "Indexing"
             RequestStatus.INDEXED -> "Loading"
-            RequestStatus.LOADED -> "Cleaning"
+            RequestStatus.LOADED -> "Generating Page Tab"
+            RequestStatus.PAGE_TAB_GENERATED -> "Cleaning"
             RequestStatus.CLEANED -> "Copy Files"
             RequestStatus.FILES_COPIED -> "Release Files"
             RequestStatus.CHECK_RELEASED -> "Save Submission"

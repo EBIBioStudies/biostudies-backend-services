@@ -5,11 +5,12 @@ import ebi.ac.uk.extended.model.ExtSubmission
 
 interface ExtSubmissionSubmitter {
     suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int>
-    suspend fun indexRequest(accNo: String, version: Int): Unit
-    suspend fun loadRequest(accNo: String, version: Int): Unit
-    suspend fun cleanRequest(accNo: String, version: Int): Unit
-    suspend fun processRequest(accNo: String, version: Int): Unit
-    suspend fun checkReleased(accNo: String, version: Int): Unit
+    suspend fun indexRequest(accNo: String, version: Int)
+    suspend fun loadRequest(accNo: String, version: Int)
+    suspend fun generatePageTabRequest(accNo: String, version: Int)
+    suspend fun cleanRequest(accNo: String, version: Int)
+    suspend fun processRequest(accNo: String, version: Int)
+    suspend fun checkReleased(accNo: String, version: Int)
     suspend fun saveRequest(accNo: String, version: Int): ExtSubmission
     suspend fun finalizeRequest(accNo: String, version: Int): ExtSubmission
     suspend fun release(accNo: String)

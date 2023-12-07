@@ -14,6 +14,7 @@ import ebi.ac.uk.extended.events.RequestFinalized
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
+import ebi.ac.uk.extended.events.RequestPageTabGenerated
 import ebi.ac.uk.extended.events.RequestPersisted
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SubmissionMessage
@@ -48,6 +49,11 @@ class EventsPublisherService(
     fun requestLoaded(accNo: String, version: Int) =
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestLoaded(accNo, version)
+        )
+
+    fun requestPageTabGenerated(accNo: String, version: Int) =
+        rabbitTemplate.convertAndSend(
+            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestPageTabGenerated(accNo, version)
         )
 
     fun requestCleaned(accNo: String, version: Int) =

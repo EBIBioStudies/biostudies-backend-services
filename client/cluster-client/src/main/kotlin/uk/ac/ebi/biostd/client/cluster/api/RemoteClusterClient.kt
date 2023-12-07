@@ -23,10 +23,11 @@ class RemoteClusterClient(
     private val sessionFunction: () -> Session,
 ) : ClusterClient {
     override suspend fun triggerJobAsync(jobSpec: JobSpec): Try<Job> {
+        // TODO this used to be bsub -o %s/%%J_OUT -e %s%%J_IN | was this change intentional? now it's at process id.out
         val parameters = mutableListOf("bsub -o $logsPath -e $logsPath")
         parameters.addAll(jobSpec.asParameter())
         val command = parameters.joinToString(separator = " ")
-        logger.info { "Executing command '$command'" }
+        logger.info { "Executing command '$command' with logs at $logsPath" }
 
         return runInSession {
             val (exitStatus, response) = executeCommand(command)
@@ -48,6 +49,7 @@ class RemoteClusterClient(
         checkJobInterval: Long,
         maxSecondsDuration: Long,
     ): Job {
+        // TODO catch the EXIT status which means the job failed and throw the corresponding error
         suspend fun await(job: Job) = runInSession {
             waitUntil(
                 interval = ofSeconds(checkJobInterval),

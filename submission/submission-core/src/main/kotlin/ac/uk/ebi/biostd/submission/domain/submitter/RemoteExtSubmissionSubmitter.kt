@@ -6,15 +6,15 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import mu.KotlinLogging
-import java.io.File
-import java.util.UUID
-
-private val logger = KotlinLogging.logger {}
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
+import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
+import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.SIXTEEN_GB
 
 @Suppress("TooManyFunctions")
 class RemoteExtSubmissionSubmitter(
     private val submissionTaskProperties: SubmissionTaskProperties,
+    private val clusterClient: ClusterClient,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
         TODO("Not yet implemented")
@@ -25,7 +25,11 @@ class RemoteExtSubmissionSubmitter(
     }
 
     override suspend fun loadRequest(accNo: String, version: Int) {
-        executeRemotly(accNo, version, Mode.LOAD)
+        executeRemotely(accNo, version, Mode.LOAD)
+    }
+
+    override suspend fun generatePageTabRequest(accNo: String, version: Int) {
+        executeRemotely(accNo, version, Mode.GENERATE_PAGE_TAB)
     }
 
     override suspend fun cleanRequest(accNo: String, version: Int) {
@@ -33,7 +37,7 @@ class RemoteExtSubmissionSubmitter(
     }
 
     override suspend fun processRequest(accNo: String, version: Int) {
-        executeRemotly(accNo, version, Mode.COPY)
+        executeRemotely(accNo, version, Mode.COPY)
     }
 
     override suspend fun checkReleased(accNo: String, version: Int) {
@@ -56,11 +60,10 @@ class RemoteExtSubmissionSubmitter(
         TODO("Not yet implemented")
     }
 
-    private suspend fun executeRemotly(accNo: String, version: Int, mode: Mode) = withContext(Dispatchers.IO) {
-        val pId = UUID.randomUUID()
-        val logs = File(submissionTaskProperties.logsLocation, "application-$pId.log")
-        val params = buildList<String> {
-            add("java")
+    private suspend fun executeRemotely(accNo: String, version: Int, mode: Mode) = withContext(Dispatchers.IO) {
+        // TODO we should pass java home as an application property
+        val command = buildList {
+            add("/nfs/biostudies/.adm/java/zulu11.45.27-ca-jdk11.0.10-linux_x64/bin/java")
             add("-jar")
             add(submissionTaskProperties.jarLocation)
             add("--spring.config.location=${submissionTaskProperties.configFilePath}")
@@ -68,15 +71,9 @@ class RemoteExtSubmissionSubmitter(
             add("--version=$version")
             add("--mode=${mode.name}")
         }
-        logger.info { "$accNo $version process $pId, task ='${params.joinToString(" ")}', logs='${logs.absolutePath}'" }
-        val exitCode = executeRemotly(logs, params)
-        if (exitCode != 0) throw IllegalStateException("Failed to process subsmision '$accNo' in process  $pId")
-    }
+        val jobSpec = JobSpec(cores = 8, ram = SIXTEEN_GB, DataMoverQueue, command.joinToString(separator = " "))
 
-    private fun executeRemotly(logs: File, params: List<String>): Int {
-        val processBuilder = ProcessBuilder(params)
-        processBuilder.redirectOutput(logs)
-        val process = processBuilder.start()
-        return process.waitFor()
+        // TODO we might need to wait for the job indefinitely or make a rough estimate since it's hard to predict how long it'll take
+        clusterClient.triggerJobSync(jobSpec, maxSecondsDuration = 1200)
     }
 }

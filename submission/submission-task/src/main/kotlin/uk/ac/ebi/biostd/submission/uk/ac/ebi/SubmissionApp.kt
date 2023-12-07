@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.events.RequestFilesCopied
 import ebi.ac.uk.extended.events.RequestFinalized
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
+import ebi.ac.uk.extended.events.RequestPageTabGenerated
 import ebi.ac.uk.extended.events.RequestPersisted
 import mu.KotlinLogging
 import org.springframework.boot.CommandLineRunner
@@ -23,6 +24,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Import
 import org.springframework.stereotype.Component
+import kotlin.system.exitProcess
 
 @SpringBootApplication
 @EnableConfigurationProperties(value = [ApplicationProperties::class, TaskProperties::class])
@@ -47,11 +49,13 @@ class Execute(
     override fun run(vararg args: String?) {
         val accNo = properties.accNo
         val version = properties.version
+
         logger.info { "Running ${properties.taskMode} for submission '$accNo', version : '$version'" }
         when (properties.taskMode) {
             Mode.INDEX -> submissionStagesHandler.indexRequest(RequestCreated(accNo, version))
             Mode.LOAD -> submissionStagesHandler.loadRequest(RequestIndexed(accNo, version))
-            Mode.CLEAN -> submissionStagesHandler.cleanRequest(RequestLoaded(accNo, version))
+            Mode.GENERATE_PAGE_TAB -> submissionStagesHandler.generatePageTabRequest(RequestLoaded(accNo, version))
+            Mode.CLEAN -> submissionStagesHandler.cleanRequest(RequestPageTabGenerated(accNo, version))
             Mode.COPY -> submissionStagesHandler.copyRequestFiles(RequestCleaned(accNo, version))
             Mode.CHECK_RELEASED -> submissionStagesHandler.checkReleased(RequestFilesCopied(accNo, version))
             Mode.SAVE -> submissionStagesHandler.saveSubmission(RequestCheckedReleased(accNo, version))
@@ -59,6 +63,7 @@ class Execute(
             Mode.CALC_STATS -> submissionStagesHandler.calculateStats(RequestFinalized(accNo, version))
         }
         logger.info { "Command line ${properties.taskMode} completed for submission '$accNo', version : '$version'" }
-        System.exit(SpringApplication.exit(context))
+
+        exitProcess(SpringApplication.exit(context))
     }
 }

@@ -20,4 +20,6 @@ class ExtendedSubmissionSubmitter(
             else -> localExtSubmissionSubmitter.processRequest(accNo, version)
         }
     }
+
+    // TODO the re-trigger logic should be moved here and manage the stages accordingly
 }

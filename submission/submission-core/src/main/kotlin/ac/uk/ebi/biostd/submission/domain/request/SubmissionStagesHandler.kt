@@ -10,6 +10,7 @@ import ebi.ac.uk.extended.events.RequestFinalized
 import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
+import ebi.ac.uk.extended.events.RequestPageTabGenerated
 import ebi.ac.uk.extended.events.RequestPersisted
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -38,7 +39,15 @@ class SubmissionStagesHandler(
         }
     }
 
-    fun cleanRequest(rqt: RequestLoaded) {
+    fun generatePageTabRequest(rqt: RequestLoaded) {
+        processSafely(rqt) {
+            val (accNo, version) = rqt
+            submissionSubmitter.generatePageTabRequest(accNo, version)
+            eventsPublisherService.requestPageTabGenerated(accNo, version)
+        }
+    }
+
+    fun cleanRequest(rqt: RequestPageTabGenerated) {
         processSafely(rqt) {
             val (accNo, version) = rqt
             submissionSubmitter.cleanRequest(accNo, version)

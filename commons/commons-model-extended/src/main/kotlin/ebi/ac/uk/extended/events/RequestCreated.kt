@@ -17,6 +17,11 @@ data class RequestIndexed(
     @JsonProperty("version") override val version: Int,
 ) : RequestMessage
 
+data class RequestPageTabGenerated(
+    @JsonProperty("accNo") override val accNo: String,
+    @JsonProperty("version") override val version: Int,
+) : RequestMessage
+
 data class RequestLoaded(
     @JsonProperty("accNo") override val accNo: String,
     @JsonProperty("version") override val version: Int,
