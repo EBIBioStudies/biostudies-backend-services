@@ -14,7 +14,7 @@ interface FtpClient {
     /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
-    fun uploadFiles(files: List<Pair<Path, () -> InputStream>>)
+    fun uploadFiles(folder: Path, files: List<Pair<Path, () -> InputStream>>)
 
     /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
@@ -61,12 +61,22 @@ private class SimpleFtpClient(
     private val ftpUrl: String,
     private val ftpPort: Int,
 ) : FtpClient {
-    override fun uploadFiles(files: List<Pair<Path, () -> InputStream>>) {
+    override fun uploadFiles(folder: Path, files: List<Pair<Path, () -> InputStream>>) {
         execute { ftp ->
             for ((path, inputStream) in files) {
+                ftp.createFtpFolder(path.parent)
                 inputStream().use { ftp.storeFile(path.toString(), it) }
             }
         }
+    }
+
+    /**
+     * As FTP does not support nested folder creation in a single path the full path is
+     * transverse and required missing folder are created.
+     */
+    private fun FTPClient.createFtpFolder(path: Path) {
+        val paths = path.runningReduce { acc, value -> acc.resolve(value) }
+        paths.forEach { this.makeDirectory(it.toString()) }
     }
 
     /**
@@ -84,12 +94,10 @@ private class SimpleFtpClient(
     }
 
     /**
-     * Create the given folder. As FTP does not support nested folder creation in a single path the full path is
-     * transverse and required missing folder are created.
+     * Create the given folder.
      */
     override fun createFolder(path: Path) {
-        val paths = path.runningReduce { acc, value -> acc.resolve(value) }
-        execute { ftp -> paths.forEach { ftp.makeDirectory(it.toString()) } }
+        execute { ftp -> ftp.createFtpFolder(path) }
     }
 
     /**
@@ -108,8 +116,19 @@ private class SimpleFtpClient(
     override fun deleteFile(path: Path) {
         execute { ftp ->
             val fileDeleted = ftp.deleteFile(path.toString())
-            if (fileDeleted.not()) ftp.removeDirectory(path.toString())
+            if (fileDeleted.not()) ftp.deleteDirectory(path)
         }
+    }
+
+    /**
+     * As delete multiple files are not supported by apache client its neccessary delete by iterating over each file.
+     */
+    private fun FTPClient.deleteDirectory(dirPath: Path) {
+        changeWorkingDirectory(dirPath.toString())
+        listNames().forEach { deleteFile(it); }
+
+        changeToParentDirectory()
+        removeDirectory(dirPath.fileName.toString())
     }
 
     /**
