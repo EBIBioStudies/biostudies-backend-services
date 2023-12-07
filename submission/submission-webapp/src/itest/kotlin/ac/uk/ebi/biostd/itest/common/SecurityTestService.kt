@@ -9,7 +9,7 @@ class SecurityTestService(
     private val securityService: SecurityService,
     private val userDataRepository: UserDataRepository,
 ) {
-    private fun registerUser(testUser: TestUser): SecurityUser {
+    private suspend fun registerUser(testUser: TestUser): SecurityUser {
         val user = securityService.registerUser(testUser.asRegisterRequest())
         if (testUser.superUser) {
             val dbUser = userDataRepository.getByEmail(user.email)
@@ -20,7 +20,7 @@ class SecurityTestService(
         return user
     }
 
-    fun ensureUserRegistration(testUser: TestUser) {
+    suspend fun ensureUserRegistration(testUser: TestUser) {
         if (userDataRepository.existsByEmail(testUser.email).not()) registerUser(testUser)
     }
 }

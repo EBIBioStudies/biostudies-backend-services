@@ -6,10 +6,14 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceSer
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
 import ebi.ac.uk.ftp.FtpClient
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
+import uk.ac.ebi.biostd.client.cluster.api.LocalClusterClient
+import uk.ac.ebi.biostd.client.cluster.api.RemoteClusterClient
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.integration.web.FireClientFactory
 import uk.ac.ebi.fire.client.integration.web.FireConfig
@@ -71,6 +75,20 @@ internal class GeneralConfig {
             )
         )
     }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "true")
+    fun clusterClient(
+        properties: ApplicationProperties,
+    ): ClusterClient = RemoteClusterClient.create(
+        properties.cluster.key,
+        properties.cluster.server,
+        properties.cluster.logsPath,
+    )
+
+    @Bean
+    @ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "false")
+    fun localClusterClient(): ClusterClient = LocalClusterClient()
 
     @Bean
     fun ftpClient(properties: ApplicationProperties) = ftpClient(properties.security.filesProperties)

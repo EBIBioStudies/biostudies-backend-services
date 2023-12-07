@@ -34,10 +34,19 @@ import ebi.ac.uk.security.persistence.getByActivationKey
 import ebi.ac.uk.security.persistence.getInactiveByActivationKey
 import ebi.ac.uk.security.persistence.getInactiveByEmail
 import ebi.ac.uk.security.util.SecurityUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import mu.KotlinLogging
 import org.springframework.transaction.annotation.Transactional
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
+import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
+import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.absolutePathString
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions", "LongParameterList")
 @Transactional
@@ -48,6 +57,7 @@ open class SecurityService(
     private val profileService: ProfileService,
     private val captchaVerifier: CaptchaVerifier,
     private val eventsPublisherService: EventsPublisherService,
+    private val clusterClient: ClusterClient,
 ) : ISecurityService {
     override fun login(request: LoginRequest): UserInfo {
         val user = userRepository.getActiveByLoginOrEmail(request.login)
@@ -59,22 +69,23 @@ open class SecurityService(
         securityUtil.invalidateToken(authToken)
     }
 
-    override fun registerUser(request: RegisterRequest): SecurityUser {
+    override suspend fun registerUser(request: RegisterRequest): SecurityUser {
         if (props.checkCaptcha) captchaVerifier.verifyCaptcha(request.captcha)
+        val userExists = withContext(Dispatchers.IO) { userRepository.existsByEmail(request.email) }
 
         return when {
-            userRepository.existsByEmail(request.email) -> throw UserAlreadyRegister(request.email)
+            userExists -> throw UserAlreadyRegister(request.email)
             props.requireActivation -> register(request)
             else -> activate(asUser(request))
         }
     }
 
-    override fun refreshUser(email: String): SecurityUser {
+    override suspend fun refreshUser(email: String): SecurityUser {
         val user = userRepository.getActiveByEmail(email)
         return activate(user)
     }
 
-    override fun activate(activationKey: String) {
+    override suspend fun activate(activationKey: String) {
         val user = userRepository.getInactiveByActivationKey(activationKey)
         activate(user)
     }
@@ -95,13 +106,13 @@ open class SecurityService(
         register(user, request.instanceKey, request.path)
     }
 
-    override fun activateAndSetupPassword(request: ChangePasswordRequest): User {
+    override suspend fun activateAndSetupPassword(request: ChangePasswordRequest): User {
         val user = userRepository.getInactiveByActivationKey(request.activationKey)
         activate(user)
         return setPassword(user, request.password)
     }
 
-    override fun changePassword(request: ChangePasswordRequest): User {
+    override suspend fun changePassword(request: ChangePasswordRequest): User {
         val user = userRepository.getByActivationKey(request.activationKey)
         activate(user)
 
@@ -151,7 +162,7 @@ open class SecurityService(
         return saved
     }
 
-    private fun activate(toActivate: DbUser): SecurityUser {
+    private suspend fun activate(toActivate: DbUser): SecurityUser {
         val dbUser = userRepository.save(toActivate.apply { activationKey = null; active = true })
         val securityUser = profileService.asSecurityUser(dbUser)
 
@@ -159,16 +170,25 @@ open class SecurityService(
         return securityUser
     }
 
-    private fun createMagicFolder(user: SecurityUser) {
+    private suspend fun createMagicFolder(user: SecurityUser) {
         when (user.userFolder) {
             is FtpUserFolder -> createFtpMagicFolder(user.userFolder)
             is NfsUserFolder -> createNfsMagicFolder(user.email, user.userFolder)
         }
     }
 
-    private fun createFtpMagicFolder(ftpFolder: FtpUserFolder) {
-        FileUtils.getOrCreateFolder(ftpFolder.path.parent, RWX__X___)
-        FileUtils.getOrCreateFolder(ftpFolder.path, RWXRWX___)
+    private suspend fun createFtpMagicFolder(ftpFolder: FtpUserFolder) {
+        createClusterFolder(ftpFolder.path.parent, UNIX_RWX__X___)
+        createClusterFolder(ftpFolder.path, UNIX_RWXRWX___)
+    }
+
+    private suspend fun createClusterFolder(path: Path, permissions: Int) {
+        val command = "mkdir -m $permissions -p ${path.absolutePathString()}"
+        val job = JobSpec(queue = DataMoverQueue, command = command)
+
+        logger.info { "Started creating the cluster FTP folder $path" }
+        clusterClient.triggerJobSync(job)
+        logger.info { "Finished creating the cluster FTP folder $path" }
     }
 
     private fun createNfsMagicFolder(email: String, nfsFolder: NfsUserFolder) {
@@ -191,4 +211,9 @@ open class SecurityService(
         storageMode = rqt.storageMode?.let { StorageMode.valueOf(it) } ?: props.filesProperties.defaultMode,
         passwordDigest = securityUtil.getPasswordDigest(rqt.password)
     )
+
+    companion object {
+        internal const val UNIX_RWX__X___ = 710
+        internal const val UNIX_RWXRWX___ = 770
+    }
 }

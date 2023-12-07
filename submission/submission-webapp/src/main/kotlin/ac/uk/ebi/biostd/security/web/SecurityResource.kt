@@ -17,8 +17,6 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
-import org.springframework.stereotype.Controller
-import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -26,10 +24,10 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.bind.annotation.RestController
 import javax.validation.Valid
 
-@Controller
-@Validated
+@RestController
 @RequestMapping("/auth", produces = [APPLICATION_JSON])
 @Suppress("TooManyFunctions")
 class SecurityResource(
@@ -39,7 +37,7 @@ class SecurityResource(
 ) {
     @PostMapping(value = ["/signup", "/register"])
     @ResponseStatus(value = HttpStatus.CREATED)
-    fun register(@Valid @RequestBody register: RegisterRequest) {
+    suspend fun register(@Valid @RequestBody register: RegisterRequest) {
         securityService.registerUser(register)
     }
 
@@ -64,7 +62,9 @@ class SecurityResource(
 
     @PostMapping(value = ["/activate/{activationKey}"])
     @ResponseBody
-    fun activateByActivationKey(@PathVariable activationKey: String): Unit = securityService.activate(activationKey)
+    suspend fun activateByActivationKey(@PathVariable activationKey: String) {
+        securityService.activate(activationKey)
+    }
 
     @PostMapping(value = ["/retryact"])
     @ResponseBody
@@ -76,13 +76,15 @@ class SecurityResource(
 
     @PostMapping(value = ["/password/change"])
     @ResponseBody
-    fun changePassword(@RequestBody request: ChangePasswordRequest): User = securityService.changePassword(request)
+    suspend fun changePassword(@RequestBody request: ChangePasswordRequest): User {
+        return securityService.changePassword(request)
+    }
 
     @PostMapping(value = ["/password/setup"])
     @ResponseBody
-    fun setUpPassword(
-        @RequestBody request: ChangePasswordRequest
-    ): User = securityService.activateAndSetupPassword(request)
+    suspend fun setUpPassword(@RequestBody request: ChangePasswordRequest): User {
+        return securityService.activateAndSetupPassword(request)
+    }
 
     @GetMapping(value = ["/check", "/profile"])
     @PreAuthorize("isAuthenticated()")

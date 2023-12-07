@@ -17,6 +17,8 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.ext.createFile
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
@@ -42,7 +44,7 @@ class FileListValidationTest(
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
-    fun init() {
+    fun init() = runBlocking {
         securityTestService.ensureUserRegistration(RegUser)
         webClient = getWebClient(serverPort, RegUser)
     }
@@ -203,7 +205,7 @@ class FileListValidationTest(
     }
 
     @Test
-    fun `11-9 valid file list on behalf another user`() {
+    fun `11-9 valid file list on behalf another user`() = runTest {
         securityTestService.ensureUserRegistration(RegularUser)
 
         val fileListFile = tempFolder.createFile("Plate1.tif")

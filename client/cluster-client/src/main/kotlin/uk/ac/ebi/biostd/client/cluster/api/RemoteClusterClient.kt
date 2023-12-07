@@ -13,23 +13,20 @@ import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import java.time.Duration.ofSeconds
 
-private const val CHECK_COMMAND = "bjobs -o STAT -noheader %s"
 private const val DONE_STATUS = "DONE"
-private const val SUBMIT_COMMAND = "bsub -o %s/%%J_OUT -e %s%%J_IN"
 
 private val logger = KotlinLogging.logger {}
 
-class ClusterOperations(
+class RemoteClusterClient(
     private val logsPath: String,
     private val responseParser: JobResponseParser,
     private val sessionFunction: () -> Session,
-) {
-    suspend fun triggerJobAsync(jobSpec: JobSpec): Try<Job> {
-        logger.info { "Triggering Job $jobSpec" }
-
-        val parameters = mutableListOf(String.format(SUBMIT_COMMAND, logsPath, logsPath))
+) : ClusterClient {
+    override suspend fun triggerJobAsync(jobSpec: JobSpec): Try<Job> {
+        val parameters = mutableListOf("bsub -o $logsPath -e $logsPath")
         parameters.addAll(jobSpec.asParameter())
         val command = parameters.joinToString(separator = " ")
+        logger.info { "Executing command '$command'" }
 
         return runInSession {
             val (exitStatus, response) = executeCommand(command)
@@ -37,19 +34,19 @@ class ClusterOperations(
         }
     }
 
-    suspend fun jobStatus(jobId: String): String {
+    override suspend fun jobStatus(jobId: String): String {
         logger.info { "Checking Job id ='$jobId' status" }
         return runInSession {
-            val status = executeCommand(String.format(CHECK_COMMAND, jobId)).second.trimIndent()
+            val status = executeCommand("bjobs -o STAT -noheader $jobId").second.trimIndent()
             logger.info { "Job $jobId. Current status $status" }
             status
         }
     }
 
-    suspend fun triggerJobSync(
+    override suspend fun triggerJobSync(
         jobSpec: JobSpec,
-        checkJobInterval: Long = 30,
-        maxSecondsDuration: Long = 60,
+        checkJobInterval: Long,
+        maxSecondsDuration: Long,
     ): Job {
         suspend fun await(job: Job) = runInSession {
             waitUntil(
@@ -72,13 +69,13 @@ class ClusterOperations(
     companion object {
         private val responseParser = JobResponseParser()
 
-        fun create(sshKey: String, sshMachine: String, logsPath: String): ClusterOperations {
+        fun create(sshKey: String, sshMachine: String, logsPath: String): RemoteClusterClient {
             val sshClient = JSch()
             sshClient.addIdentity(sshKey)
-            return ClusterOperations(logsPath, responseParser) {
+            return RemoteClusterClient(logsPath, responseParser) {
                 val session = sshClient.getSession(sshMachine)
                 session.setConfig("StrictHostKeyChecking", "no")
-                return@ClusterOperations session
+                return@RemoteClusterClient session
             }
         }
     }

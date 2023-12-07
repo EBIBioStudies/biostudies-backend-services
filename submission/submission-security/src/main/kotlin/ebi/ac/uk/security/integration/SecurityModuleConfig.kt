@@ -1,6 +1,5 @@
 package ebi.ac.uk.security.integration
 
-import ac.uk.ebi.biostd.common.properties.FilesProperties
 import ac.uk.ebi.biostd.common.properties.SecurityProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
@@ -10,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserGroupDataRepository
 import com.fasterxml.jackson.databind.ObjectMapper
 import ebi.ac.uk.commons.http.JacksonFactory
-import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.components.ISecurityFilter
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
@@ -27,6 +25,7 @@ import ebi.ac.uk.security.web.SecurityFilter
 import io.jsonwebtoken.JwtParser
 import io.jsonwebtoken.Jwts
 import org.springframework.web.reactive.function.client.WebClient
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Paths
 
@@ -39,7 +38,8 @@ class SecurityModuleConfig(
     private val queryService: SubmissionMetaQueryService,
     private val userPermissionsService: UserPermissionsService,
     private val eventsPublisherService: EventsPublisherService,
-    private var props: SecurityProperties,
+    private val props: SecurityProperties,
+    private val clusterClient: ClusterClient,
 ) {
     fun securityService(): ISecurityService = securityService
     fun securityQueryService(): ISecurityQueryService = securityQueryService
@@ -48,7 +48,6 @@ class SecurityModuleConfig(
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
     private val groupService by lazy { GroupService(groupRepository, userRepo, props.filesProperties.filesDirPath) }
-    private val ftpClient by lazy { ftpClient(props.filesProperties) }
     private val securityQueryService by lazy { SecurityQueryService(securityUtil, profileService, userRepo, props) }
     private val securityService by lazy {
         SecurityService(
@@ -57,7 +56,8 @@ class SecurityModuleConfig(
             props,
             profileService,
             captchaVerifier,
-            eventsPublisherService
+            eventsPublisherService,
+            clusterClient,
         )
     }
 
@@ -81,15 +81,6 @@ class SecurityModuleConfig(
             props: SecurityProperties,
         ): SecurityUtil =
             SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
-
-        fun ftpClient(fileProperties: FilesProperties): FtpClient {
-            return FtpClient.create(
-                ftpUser = fileProperties.ftpUser,
-                ftpPassword = fileProperties.ftpPassword,
-                ftpUrl = fileProperties.ftpUrl,
-                ftpPort = fileProperties.ftpPort,
-            )
-        }
 
         fun profileService(props: SecurityProperties): ProfileService {
             return ProfileService(

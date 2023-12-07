@@ -11,23 +11,23 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.security.integration.model.api.UserInfo
 
 interface ISecurityService {
-    fun registerUser(request: RegisterRequest): SecurityUser
+    suspend fun registerUser(request: RegisterRequest): SecurityUser
 
     fun login(request: LoginRequest): UserInfo
 
     fun logout(authToken: String)
 
-    fun activate(activationKey: String)
+    suspend fun activate(activationKey: String)
 
     fun activateByEmail(request: ActivateByEmailRequest)
 
-    fun activateAndSetupPassword(request: ChangePasswordRequest): User
+    suspend fun activateAndSetupPassword(request: ChangePasswordRequest): User
 
     fun retryRegistration(request: RetryActivationRequest)
 
-    fun changePassword(request: ChangePasswordRequest): User
+    suspend fun changePassword(request: ChangePasswordRequest): User
 
     fun resetPassword(request: ResetPasswordRequest)
 
-    fun refreshUser(email: String): SecurityUser
+    suspend fun refreshUser(email: String): SecurityUser
 }

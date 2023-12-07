@@ -1,15 +1,16 @@
 package ac.uk.ebi.biostd.itest.test.submission.query
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.WebSubmissionDraft
 import ebi.ac.uk.util.collections.second
 import ebi.ac.uk.util.collections.third
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -31,7 +32,7 @@ class SubmissionDraftListApiTest(
     private lateinit var testDrafts: List<WebSubmissionDraft>
 
     @BeforeAll
-    fun init() {
+    fun init() = runBlocking {
         securityTestService.ensureUserRegistration(DraftUser)
         webClient = getWebClient(serverPort, DraftUser)
         testDrafts = createDrafts()

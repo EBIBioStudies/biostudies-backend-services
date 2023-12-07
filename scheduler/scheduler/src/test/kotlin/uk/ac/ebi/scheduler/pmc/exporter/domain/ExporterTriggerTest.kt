@@ -21,7 +21,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.CoresSpec.FOUR_CORES
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
@@ -38,7 +38,7 @@ import uk.ac.ebi.scheduler.pmc.exporter.api.PublicOnly
 class ExporterTriggerTest(
     @MockK private val job: Job,
     @MockK private val appProperties: AppProperties,
-    @MockK private val clusterOperations: ClusterOperations,
+    @MockK private val clusterClient: ClusterClient,
     @MockK private val pcmNotificationsSender: NotificationsSender,
     @MockK private val schedulerNotificationsSender: NotificationsSender,
 ) {
@@ -47,7 +47,7 @@ class ExporterTriggerTest(
     private val testInstance = ExporterTrigger(
         appProperties,
         testProperties(),
-        clusterOperations,
+        clusterClient,
         pcmNotificationsSender,
         schedulerNotificationsSender,
     )
@@ -64,7 +64,7 @@ class ExporterTriggerTest(
         every { appProperties.javaHome } returns "/home/jdk11"
         every { appProperties.appsFolder } returns "/apps-folder"
 
-        coEvery { clusterOperations.triggerJobAsync(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterClient.triggerJobAsync(capture(jobSpecs)) } returns Try.just(job)
         coEvery { pcmNotificationsSender.send(capture(jobReport)) } answers { nothing }
         coEvery { schedulerNotificationsSender.send(capture(jobReport)) } answers { nothing }
     }
@@ -73,7 +73,7 @@ class ExporterTriggerTest(
     fun triggerPmcExport() = runTest {
         testInstance.triggerPmcExport()
         coVerify(exactly = 1) {
-            clusterOperations.triggerJobAsync(jobSpecs.captured)
+            clusterClient.triggerJobAsync(jobSpecs.captured)
             pcmNotificationsSender.send(jobReport.captured)
         }
         verify { schedulerNotificationsSender wasNot called }
@@ -84,7 +84,7 @@ class ExporterTriggerTest(
     fun triggerPublicExport() = runTest {
         testInstance.triggerPublicExport()
         coVerify(exactly = 1) {
-            clusterOperations.triggerJobAsync(jobSpecs.captured)
+            clusterClient.triggerJobAsync(jobSpecs.captured)
             schedulerNotificationsSender.send(jobReport.captured)
         }
         verify { pcmNotificationsSender wasNot called }

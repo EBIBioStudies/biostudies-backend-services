@@ -30,7 +30,6 @@ class FilePersistenceConfig(
     private val serializationService: SerializationService,
     private val fireClient: FireClient,
 ) {
-
     @Bean
     @Suppress("LongParameterList")
     fun fileStorageService(

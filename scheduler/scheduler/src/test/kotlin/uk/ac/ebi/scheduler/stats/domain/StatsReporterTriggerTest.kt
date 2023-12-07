@@ -16,7 +16,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.CoresSpec.FOUR_CORES
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
@@ -28,10 +28,10 @@ import uk.ac.ebi.scheduler.stats.api.StatsReporterProperties
 @ExtendWith(MockKExtension::class)
 class StatsReporterTriggerTest(
     @MockK private val appProperties: AppProperties,
-    @MockK private val clusterOperations: ClusterOperations,
+    @MockK private val clusterClient: ClusterClient,
     @MockK private val notificationsSender: NotificationsSender,
 ) {
-    private val testInstance = StatsReporterTrigger(appProperties, properties, clusterOperations, notificationsSender)
+    private val testInstance = StatsReporterTrigger(appProperties, properties, clusterClient, notificationsSender)
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -53,14 +53,14 @@ class StatsReporterTriggerTest(
         every { job.logsPath } returns "/the/logs/path"
 
         coEvery { notificationsSender.send(capture(jobReport)) } answers { nothing }
-        coEvery { clusterOperations.triggerJobAsync(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterClient.triggerJobAsync(capture(jobSpecs)) } returns Try.just(job)
 
         testInstance.triggerStatsReporter()
 
         verifyJobSpecs(jobSpecs.captured)
         coVerify(exactly = 1) {
             notificationsSender.send(jobReport.captured)
-            clusterOperations.triggerJobAsync(jobSpecs.captured)
+            clusterClient.triggerJobAsync(jobSpecs.captured)
         }
     }
 

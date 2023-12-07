@@ -10,14 +10,14 @@ import ebi.ac.uk.security.exception.GroupsUserNameMustNotBeNullException
 import ebi.ac.uk.security.integration.components.IGroupService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.web.bind.annotation.RestController
 
-@Controller
+@RestController
 @PreAuthorize("isAuthenticated()")
 class GroupsResource(private val groupService: IGroupService) {
     @GetMapping("/groups")

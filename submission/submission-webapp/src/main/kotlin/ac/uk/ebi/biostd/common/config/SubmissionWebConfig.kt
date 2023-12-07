@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.common.properties.TaskHostProperties
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.CollectionDataService
@@ -38,7 +37,6 @@ import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
 import java.net.URI
 
 @Suppress("LongParameterList")
@@ -57,7 +55,6 @@ class SubmissionWebConfig {
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
         submissionFinalizer: SubmissionRequestFinalizer,
-        hostProperties: TaskHostProperties,
     ): ExtSubmissionSubmitter {
         val local = LocalExtSubmissionSubmitter(
             appProperties,
@@ -72,8 +69,8 @@ class SubmissionWebConfig {
             submissionSaver,
             submissionFinalizer,
         )
-        val remote = RemoteExtSubmissionSubmitter(hostProperties)
-        return ExtendedSubmissionSubmitter(local, remote, hostProperties)
+        val remote = RemoteExtSubmissionSubmitter(appProperties.submissionTask)
+        return ExtendedSubmissionSubmitter(local, remote, appProperties.submissionTask)
     }
 
     @Bean
@@ -139,13 +136,4 @@ class SubmissionWebConfig {
 
     @Bean
     fun onBehalfUtils(securityQueryService: ISecurityQueryService): OnBehalfUtils = OnBehalfUtils(securityQueryService)
-
-    @Bean
-    fun clusterClient(
-        properties: TaskHostProperties,
-    ): ClusterOperations = ClusterOperations.create(
-        properties.cluster.key,
-        properties.cluster.server,
-        properties.cluster.logsPath,
-    )
 }

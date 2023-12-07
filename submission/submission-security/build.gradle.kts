@@ -8,6 +8,7 @@ import Dependencies.Logback
 import Dependencies.RxJava2
 import Dependencies.ServletApi
 import Dependencies.SpringWebFlux
+import Projects.ClusterClient
 import Projects.CommonsBio
 import Projects.CommonsHttp
 import Projects.CommonsTest
@@ -37,6 +38,7 @@ the<DependencyManagementExtension>().apply {
 }
 
 dependencies {
+    api(project(ClusterClient))
     api(project(CommonsUtil))
     api(project(CommonsHttp))
     api(project(CommonsBio))

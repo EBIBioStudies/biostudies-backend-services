@@ -11,7 +11,6 @@ import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
 import ebi.ac.uk.extended.events.SecurityNotificationType.PASSWORD_RESET
-import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.RWXRWX___
 import ebi.ac.uk.io.RWX__X___
 import ebi.ac.uk.security.integration.exception.ActKeyNotFoundException
@@ -20,7 +19,10 @@ import ebi.ac.uk.security.integration.exception.UserAlreadyRegister
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 import ebi.ac.uk.security.integration.exception.UserPendingRegistrationException
 import ebi.ac.uk.security.integration.exception.UserWithActivationKeyNotFoundException
+import ebi.ac.uk.security.integration.model.api.FtpUserFolder
 import ebi.ac.uk.security.integration.model.api.NfsUserFolder
+import ebi.ac.uk.security.service.SecurityService.Companion.UNIX_RWXRWX___
+import ebi.ac.uk.security.service.SecurityService.Companion.UNIX_RWX__X___
 import ebi.ac.uk.security.test.SecurityTestEntities
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.activateByEmailRequest
 import ebi.ac.uk.security.test.SecurityTestEntities.Companion.captcha
@@ -40,10 +42,12 @@ import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -51,6 +55,10 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
+import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
+import uk.ac.ebi.biostd.client.cluster.model.Job
+import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.nio.file.Files
 import java.nio.file.Path
@@ -71,7 +79,7 @@ internal class SecurityServiceTest(
     @MockK private val securityUtil: SecurityUtil,
     @MockK private val captchaVerifier: CaptchaVerifier,
     @MockK private val eventsPublisherService: EventsPublisherService,
-    @MockK private val ftpClient: FtpClient,
+    @MockK private val clusterClient: ClusterClient,
 ) {
     private val testInstance: SecurityService = SecurityService(
         userRepository,
@@ -83,7 +91,8 @@ internal class SecurityServiceTest(
             environment = ENVIRONMENT
         ),
         captchaVerifier,
-        eventsPublisherService
+        eventsPublisherService,
+        clusterClient,
     )
 
     @Nested
@@ -132,7 +141,9 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `register a user when activation is not required`(@MockK filesProperties: FilesProperties) {
+        fun `register a user when activation is not required NFS mode`(
+            @MockK filesProperties: FilesProperties,
+        ) = runTest {
             val savedUserSlot = slot<DbUser>()
             val magicFolderRoot = temporaryFolder.createDirectory("users")
 
@@ -162,6 +173,50 @@ internal class SecurityServiceTest(
             assertSymbolicLink(magicFolderRoot.resolve("b/$email").toPath(), userFolder)
         }
 
+        @Test
+        fun `register a user when activation is not required FTP mode`(
+            @MockK job: Job,
+            @MockK filesProperties: FilesProperties,
+        ) = runTest {
+            val savedUserSlot = slot<DbUser>()
+            val jobSpecSlots = mutableListOf<JobSpec>()
+            val magicFolderRoot = temporaryFolder.createDirectory("users")
+
+            every { securityProps.filesProperties } returns filesProperties
+            coEvery { clusterClient.triggerJobSync(capture(jobSpecSlots)) } returns job
+            every { userRepository.save(capture(savedUserSlot)) } answers { savedUserSlot.captured }
+            every { filesProperties.magicDirPath } returns magicFolderRoot.absolutePath
+            every { filesProperties.defaultMode } returns StorageMode.FTP
+            every { securityProps.requireActivation } returns false
+            every { securityUtil.newKey() } returns SECRET_KEY
+
+            val securityUser = testInstance.registerUser(registrationRequest)
+            val dbUser = savedUserSlot.captured
+            assertThat(dbUser.active).isTrue
+            assertThat(dbUser.fullName).isEqualTo(name)
+            assertThat(dbUser.email).isEqualTo(email)
+            assertThat(dbUser.orcid).isEqualTo(orcid)
+            assertThat(dbUser.passwordDigest).isEqualTo(passwordDigest)
+
+            assertThat(dbUser.superuser).isFalse
+            assertThat(dbUser.activationKey).isNull()
+            assertThat(dbUser.login).isNull()
+
+            assertThat(securityUser.userFolder).isInstanceOf(FtpUserFolder::class.java)
+            assertThat(jobSpecSlots).hasSize(2)
+
+            val userFolder = (securityUser.userFolder as FtpUserFolder).path
+            val parentFolderJobSpec = jobSpecSlots.first()
+            assertThat(parentFolderJobSpec.queue).isEqualTo(DataMoverQueue)
+            assertThat(parentFolderJobSpec.command)
+                .isEqualTo(String.format("mkdir -m %d -p %s", UNIX_RWX__X___, userFolder.parent))
+
+            val userFolderJobSpec = jobSpecSlots.second()
+            assertThat(userFolderJobSpec.queue).isEqualTo(DataMoverQueue)
+            assertThat(userFolderJobSpec.command)
+                .isEqualTo(String.format("mkdir -m %d -p %s", UNIX_RWXRWX___, userFolder))
+        }
+
         private fun assertSymbolicLink(link: Path, target: Path) {
             assertThat(link).exists()
             assertThat(Files.readSymbolicLink(link)).isEqualTo(target)
@@ -173,7 +228,9 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `register a user when activation is required`(@MockK filesProperties: FilesProperties) {
+        fun `register a user when activation is required`(
+            @MockK filesProperties: FilesProperties,
+        ) = runTest {
             val savedUserSlot = slot<DbUser>()
             val activationSlot = slot<SecurityNotification>()
             val activationUrl = "https://dummy-backend.com/active/1234"
@@ -200,7 +257,7 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `register user when user already exist`() {
+        fun `register user when user already exist`() = runTest {
             every { userRepository.existsByEmail(email) } returns true
 
             val error = assertThrows<UserAlreadyRegister> { testInstance.registerUser(registrationRequest) }
@@ -211,14 +268,14 @@ internal class SecurityServiceTest(
     @Nested
     inner class Activation {
         @Test
-        fun `activate when not pending activation`() {
+        fun `activate when not pending activation`() = runTest {
             every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns null
 
             assertThrows<UserWithActivationKeyNotFoundException> { testInstance.activate(ACTIVATION_KEY) }
         }
 
         @Test
-        fun `activate when user is found`() {
+        fun `activate when user is found`() = runTest {
             val user = simpleUser
             every { userRepository.findByActivationKeyAndActive(ACTIVATION_KEY, false) } returns user
             every { userRepository.save(any<DbUser>()) } answers { firstArg() }
@@ -266,7 +323,7 @@ internal class SecurityServiceTest(
         private val password = "new password"
 
         @Test
-        fun `change password when not activate user found`() {
+        fun `change password when not activate user found`() = runTest {
             every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns null
 
             assertThrows<UserWithActivationKeyNotFoundException> {
@@ -280,7 +337,7 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `change password when active user`() {
+        fun `change password when active user`() = runTest {
             val user = simpleUser.apply { active = true }
             val passwordDigest = ByteArray(0)
             every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns user
@@ -295,7 +352,7 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `change password when inactive user`() {
+        fun `change password when inactive user`() = runTest {
             val passwordDigest = ByteArray(0)
             every { userRepository.findByActivationKey(ACTIVATION_KEY) } returns simpleUser
             every { securityUtil.getPasswordDigest(password) } returns passwordDigest
@@ -390,7 +447,7 @@ internal class SecurityServiceTest(
         fun afterEach() = clearAllMocks()
 
         @Test
-        fun `activate with invalid activation key`() {
+        fun `activate with invalid activation key`() = runTest {
             val request = ChangePasswordRequest("key", "password")
 
             every { userRepository.findByActivationKeyAndActive("key", false) } returns null
@@ -399,7 +456,7 @@ internal class SecurityServiceTest(
         }
 
         @Test
-        fun `activate and setup password`() {
+        fun `activate and setup password`() = runTest {
             val userSlots = mutableListOf<DbUser>()
             val user = simpleUser.apply { activationKey = "key" }
             val request = ChangePasswordRequest("key", "password")

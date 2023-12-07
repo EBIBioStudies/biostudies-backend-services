@@ -41,6 +41,7 @@ class ITestListener : TestExecutionListener {
         ftpSetup()
         doiSetup()
         submissionTaskSetup()
+        clusterSetup()
         appPropertiesSetup()
     }
 
@@ -79,14 +80,13 @@ class ITestListener : TestExecutionListener {
     private fun ftpSetup() {
         ftpServer.start()
 
-        properties.addProperty("app.security.filesProperties.ftpUser", FTP_USER)
-        properties.addProperty("app.security.filesProperties.ftpPassword", FTP_PASSWORD)
-        properties.addProperty("app.security.filesProperties.ftpUrl", ftpServer.getUrl())
-        properties.addProperty("app.security.filesProperties.ftpPort", ftpServer.ftpPort.toString())
-        properties.addProperty(
-            "app.security.filesProperties.ftpDirPath",
-            ftpServer.fileSystemDirectory.absolutePath
-        )
+        val ftpProperties = "app.security.filesProperties"
+        properties.addProperty("$ftpProperties.ftpUser", FTP_USER)
+        properties.addProperty("$ftpProperties.ftpPassword", FTP_PASSWORD)
+        properties.addProperty("$ftpProperties.ftpUrl", ftpServer.getUrl())
+        properties.addProperty("$ftpProperties.ftpPort", ftpServer.ftpPort.toString())
+        properties.addProperty("$ftpProperties.ftpDirPath", ftpServer.fileSystemDirectory.absolutePath)
+        Files.createDirectory(ftpServer.fileSystemDirectory.resolve(ENVIRONMENT).toPath())
     }
 
     private fun fireSetup() {
@@ -114,11 +114,13 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.fireTempDirPath", fireTempFolder.absolutePath)
         properties.addProperty("app.tempDirPath", tempDirPath.absolutePath)
         properties.addProperty("app.requestFilesPath", requestFilesPath.absolutePath)
-        properties.addProperty("app.security.filesProperties.filesDirPath", dropboxPath.absolutePath)
-        properties.addProperty(
-            "app.security.filesProperties.magicDirPath",
-            magicDirPath.absolutePath
-        )
+
+        // Security
+        val securityProps = "app.security"
+        properties.addProperty("$securityProps.environment", ENVIRONMENT)
+        properties.addProperty("$securityProps.filesProperties.filesDirPath", dropboxPath.absolutePath)
+        properties.addProperty("$securityProps.filesProperties.magicDirPath", magicDirPath.absolutePath)
+
         properties.addProperty("app.persistence.concurrency", PERSISTENCE_CONCURRENCY)
         properties.addProperty(
             "app.persistence.enableFire",
@@ -138,18 +140,21 @@ class ITestListener : TestExecutionListener {
     }
 
     private fun submissionTaskSetup() {
-        properties.addProperty("app.task.enableTaskMode", enableTask)
-        properties.addProperty("app.task.configFilePath", findResource("application.yml")?.absolutePath.orEmpty())
-        properties.addProperty(
-            "app.task.jarLocation",
-            findResource("submission-task-1.0.0.jar")?.absolutePath.orEmpty()
-        )
-        properties.addProperty("app.task.logsLocation", taskLogsPath.absolutePath)
+        val configFile = findResource("application.yml")?.absolutePath.orEmpty()
+        val jarLocation = findResource("submission-task-1.0.0.jar")?.absolutePath.orEmpty()
 
-        properties.addProperty("app.task.cluster.user", "test-user")
-        properties.addProperty("app.task.cluster.key", getResource("key").absolutePath)
-        properties.addProperty("app.task.cluster.server", "test-server")
-        properties.addProperty("app.task.cluster.logsPath", clusterLogsPath.absolutePath)
+        properties.addProperty("app.submissionTask.enabled", enableTask)
+        properties.addProperty("app.submissionTask.configFilePath", configFile)
+        properties.addProperty("app.submissionTask.jarLocation", jarLocation)
+        properties.addProperty("app.submissionTask.logsLocation", taskLogsPath.absolutePath)
+    }
+
+    private fun clusterSetup() {
+        properties.addProperty("app.cluster.enabled", false)
+        properties.addProperty("app.cluster.user", "test-user")
+        properties.addProperty("app.cluster.key", "test-key")
+        properties.addProperty("app.cluster.server", "test-server")
+        properties.addProperty("app.cluster.logsPath", clusterLogsPath.absolutePath)
     }
 
     private fun findResource(resource: String): File? =
@@ -161,6 +166,7 @@ class ITestListener : TestExecutionListener {
     }
 
     companion object {
+        private const val ENVIRONMENT = "TEST"
         private val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()
 
         private const val DEFAULT_BUCKET = "bio-fire-bucket"

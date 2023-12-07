@@ -7,7 +7,7 @@ import ac.uk.ebi.scheduler.properties.ExporterProperties
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import mu.KotlinLogging
-import uk.ac.ebi.biostd.client.cluster.api.ClusterOperations
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.TWENTYFOUR_GB
@@ -23,7 +23,7 @@ private val logger = KotlinLogging.logger {}
 class ExporterTrigger(
     private val appProperties: AppProperties,
     private val exporterProperties: ExporterProps,
-    private val clusterOperations: ClusterOperations,
+    private val clusterClient: ClusterClient,
     private val pmcNotificationsSender: NotificationsSender,
     private val schedulerNotificationsSender: NotificationsSender,
 ) {
@@ -73,8 +73,7 @@ class ExporterTrigger(
         val (mode, fileName, outputPath, debugPort, _) = config
         val exporterProperties = getConfigProperties(mode, fileName, outputPath)
         val cmd = exporterProperties.asCmd(appProperties.appsFolder, debugPort)
-        val jobTry =
-            clusterOperations.triggerJobAsync(JobSpec(cores = EXPORTER_CORES, ram = TWENTYFOUR_GB, command = cmd))
+        val jobTry = clusterClient.triggerJobAsync(JobSpec(cores = EXPORTER_CORES, ram = TWENTYFOUR_GB, command = cmd))
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
