@@ -13,8 +13,6 @@ import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import java.time.Duration.ofSeconds
 
-private const val DONE_STATUS = "DONE"
-
 private val logger = KotlinLogging.logger {}
 
 class RemoteClusterClient(
@@ -34,6 +32,14 @@ class RemoteClusterClient(
         }
     }
 
+    override suspend fun triggerJobSync(
+        jobSpec: JobSpec,
+        checkJobInterval: Long,
+        maxSecondsDuration: Long,
+    ): Job {
+        return triggerJobAsync(jobSpec).fold({ throw it }, { await(it, checkJobInterval, maxSecondsDuration) })
+    }
+
     override suspend fun jobStatus(jobId: String): String {
         logger.info { "Checking Job id ='$jobId' status" }
         return runInSession {
@@ -43,20 +49,23 @@ class RemoteClusterClient(
         }
     }
 
-    override suspend fun triggerJobSync(
-        jobSpec: JobSpec,
-        checkJobInterval: Long,
-        maxSecondsDuration: Long,
-    ): Job {
-        suspend fun await(job: Job) = runInSession {
+    private suspend fun await(job: Job, checkJobInterval: Long, maxSecondsDuration: Long): Job {
+        return runInSession {
             waitUntil(
                 interval = ofSeconds(checkJobInterval),
                 duration = ofSeconds(maxSecondsDuration)
-            ) { jobStatus(job.id) == DONE_STATUS }
+            ) {
+                val status = jobStatus(job.id)
+                val isDone = status == "DONE"
+                when {
+                    isDone -> logger.info { "Job ${job.id} status is $status. Completing execution" }
+                    else -> logger.info { "Job ${job.id} status is $status. Waiting for complition" }
+                }
+                return@waitUntil isDone
+            }
+
             job
         }
-
-        return triggerJobAsync(jobSpec).fold({ throw it }, { await(it) })
     }
 
     private fun asJobReturn(exitCode: Int, response: String, logsPath: String): Try<Job> {

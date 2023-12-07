@@ -10,15 +10,16 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private val logger = KotlinLogging.logger {}
 
-fun interface InputStreamSource {
-    fun inputStream(): InputStream
-}
-
 interface FtpClient {
     /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
-    fun uploadFile(path: Path, source: InputStreamSource)
+    fun uploadFiles(files: List<Pair<Path, () -> InputStream>>)
+
+    /**
+     * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
+     */
+    fun uploadFile(path: Path, source: () -> InputStream)
 
     /**
      * Download the given file in the output stream. Output stream is NOT closed after completion.
@@ -60,11 +61,19 @@ private class SimpleFtpClient(
     private val ftpUrl: String,
     private val ftpPort: Int,
 ) : FtpClient {
+    override fun uploadFiles(files: List<Pair<Path, () -> InputStream>>) {
+        execute { ftp ->
+            for ((path, inputStream) in files) {
+                inputStream().use { ftp.storeFile(path.toString(), it) }
+            }
+        }
+    }
+
     /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
-    override fun uploadFile(path: Path, source: InputStreamSource) {
-        execute { ftp -> source.inputStream().use { ftp.storeFile(path.toString(), it) } }
+    override fun uploadFile(path: Path, source: () -> InputStream) {
+        execute { ftp -> source().use { ftp.storeFile(path.toString(), it) } }
     }
 
     /**
@@ -117,6 +126,7 @@ private class SimpleFtpClient(
         val result = function(ftp)
         ftp.logout()
         ftp.disconnect()
+        logger.info { "disconnecting to $ftpUrl, $ftpPort" }
         return result
     }
 }
