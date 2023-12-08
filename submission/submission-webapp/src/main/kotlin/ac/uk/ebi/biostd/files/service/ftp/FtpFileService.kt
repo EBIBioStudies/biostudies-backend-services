@@ -20,8 +20,8 @@ class FtpFileService(
     }
 
     override fun uploadFiles(path: String, files: List<MultipartFile>) {
-        ftp.createFolder(basePath.resolve(path))
-        files.forEach { ftp.uploadFile(basePath.resolve(path).resolve(it.originalFilename!!)) { it.inputStream } }
+        val ftpFiles = files.map { basePath.resolve(path).resolve(it.originalFilename!!) to { it.inputStream } }
+        ftp.uploadFiles(basePath.resolve(path), ftpFiles)
     }
 
     override fun getFile(path: String, fileName: String): File {

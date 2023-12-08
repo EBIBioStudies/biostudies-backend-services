@@ -20,11 +20,6 @@ class LocalClusterClient : ClusterClient {
         }
     }
 
-    override suspend fun jobStatus(jobId: String): String {
-        val process = activeProcess.getValue(jobId.toLong())
-        return if (process.isAlive) "RUNNING" else "DONE"
-    }
-
     override suspend fun triggerJobSync(jobSpec: JobSpec, checkJobInterval: Long, maxSecondsDuration: Long): Job {
         return withContext(Dispatchers.IO) {
             val logFile = createTempFile().toFile()
@@ -32,6 +27,11 @@ class LocalClusterClient : ClusterClient {
             waitProcess(processId)
             return@withContext Job(processId.toString(), LOCAL_QUEUE, logFile.absolutePath)
         }
+    }
+
+    override suspend fun jobStatus(jobId: String): String {
+        val process = activeProcess.getValue(jobId.toLong())
+        return if (process.isAlive) "RUNNING" else "DONE"
     }
 
     companion object {

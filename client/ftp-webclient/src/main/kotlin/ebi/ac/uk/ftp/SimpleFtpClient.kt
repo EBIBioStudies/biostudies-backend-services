@@ -10,15 +10,16 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private val logger = KotlinLogging.logger {}
 
-fun interface InputStreamSource {
-    fun inputStream(): InputStream
-}
-
 interface FtpClient {
     /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
-    fun uploadFile(path: Path, source: InputStreamSource)
+    fun uploadFiles(folder: Path, files: List<Pair<Path, () -> InputStream>>)
+
+    /**
+     * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
+     */
+    fun uploadFile(path: Path, source: () -> InputStream)
 
     /**
      * Download the given file in the output stream. Output stream is NOT closed after completion.
@@ -60,11 +61,29 @@ private class SimpleFtpClient(
     private val ftpUrl: String,
     private val ftpPort: Int,
 ) : FtpClient {
+    override fun uploadFiles(folder: Path, files: List<Pair<Path, () -> InputStream>>) {
+        execute { ftp ->
+            for ((path, inputStream) in files) {
+                ftp.createFtpFolder(path.parent)
+                inputStream().use { ftp.storeFile(path.toString(), it) }
+            }
+        }
+    }
+
+    /**
+     * As FTP does not support nested folder creation in a single path the full path is
+     * transverse and required missing folder are created.
+     */
+    private fun FTPClient.createFtpFolder(path: Path) {
+        val paths = path.runningReduce { acc, value -> acc.resolve(value) }
+        paths.forEach { this.makeDirectory(it.toString()) }
+    }
+
     /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
-    override fun uploadFile(path: Path, source: InputStreamSource) {
-        execute { ftp -> source.inputStream().use { ftp.storeFile(path.toString(), it) } }
+    override fun uploadFile(path: Path, source: () -> InputStream) {
+        execute { ftp -> source().use { ftp.storeFile(path.toString(), it) } }
     }
 
     /**
@@ -75,12 +94,10 @@ private class SimpleFtpClient(
     }
 
     /**
-     * Create the given folder. As FTP does not support nested folder creation in a single path the full path is
-     * transverse and required missing folder are created.
+     * Create the given folder.
      */
     override fun createFolder(path: Path) {
-        val paths = path.runningReduce { acc, value -> acc.resolve(value) }
-        execute { ftp -> paths.forEach { ftp.makeDirectory(it.toString()) } }
+        execute { ftp -> ftp.createFtpFolder(path) }
     }
 
     /**
@@ -99,24 +116,36 @@ private class SimpleFtpClient(
     override fun deleteFile(path: Path) {
         execute { ftp ->
             val fileDeleted = ftp.deleteFile(path.toString())
-            if (fileDeleted.not()) ftp.removeDirectory(path.toString())
+            if (fileDeleted.not()) ftp.deleteDirectory(path)
         }
     }
 
     /**
+     * As delete multiple files are not supported by apache client its neccessary delete by iterating over each file.
+     */
+    private fun FTPClient.deleteDirectory(dirPath: Path) {
+        changeWorkingDirectory(dirPath.toString())
+        listNames().forEach { deleteFile(it); }
+
+        changeToParentDirectory()
+        removeDirectory(dirPath.fileName.toString())
+    }
+
+    /**
      * Executes operations creating a new Ftp Client class every time as
-     * @see [documented](https://cwiki.apache.org/confluence/display/COMMONS/Net+FrequentlyAskedQuestions)
+     * @see <a href="https://cwiki.apache.org/confluence/display/COMMONS/Net+FrequentlyAskedQuestions">Documentation</a>
      * class is not thread safe.
      */
     override fun <T> execute(function: (FTPClient) -> T): T {
         val ftp = ftpClient(3000.milliseconds, 3000.milliseconds)
-        logger.info { "connecting to $ftpUrl, $ftpPort" }
+        logger.info { "Connecting to $ftpUrl, $ftpPort" }
         ftp.connect(ftpUrl, ftpPort)
         ftp.login(ftpUser, ftpPassword)
         ftp.enterLocalPassiveMode()
         val result = function(ftp)
         ftp.logout()
         ftp.disconnect()
+        logger.info { "Disconnecting from $ftpUrl, $ftpPort" }
         return result
     }
 }
