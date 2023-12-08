@@ -121,7 +121,7 @@ class SubmissionStatsTest(
         waitUntil(TEN_SECONDS) { statsDataService.findByAccNo("S-STTS1").first().value != 1211L }
         val stats = statsDataService.findByAccNo("S-STTS1")
         assertThat(stats).hasSize(1)
-        assertThat(stats.first().value).isEqualTo(3529L)
+        assertThat(stats.first().value).isEqualTo(3531L)
         assertThat(stats.first().type).isEqualTo(FILES_SIZE)
         assertThat(stats.first().accNo).isEqualTo("S-STTS1")
     }

@@ -23,7 +23,6 @@ data class SubmissionRequest constructor(
     val modificationTime: OffsetDateTime,
     val statusChangesLog: List<RequestStatusChanges>,
 ) {
-
     constructor(submission: ExtSubmission, notifyTo: String, draftKey: String? = null) : this(
         submission,
         draftKey,
@@ -40,30 +39,53 @@ data class SubmissionRequest constructor(
      *  Recieve the specific change Id to update endtime.
      */
     fun withNewStatus(status: RequestStatus, changeId: String): SubmissionRequest {
-        val statusChange = statusChangesLog
-            .filter { it.changeId == changeId }
-            .first()
-            .copy(endTime = Instant.now())
+        val statusChange = newStatusChange(changeId)
         return copy(
             status = status,
             modificationTime = OffsetDateTime.now(),
             currentIndex = 0,
-            statusChangesLog = statusChangesLog.replace(statusChange, { it.changeId == changeId })
+            statusChangesLog = statusChangesLog.replace(statusChange) { it.changeId == changeId }
         )
     }
 
     fun indexed(totalFiles: Int, changeId: String): SubmissionRequest {
-        val statusChange = statusChangesLog
-            .filter { it.changeId == changeId }
-            .first()
-            .copy(endTime = Instant.now())
+        val statusChange = newStatusChange(changeId)
         return copy(
             status = RequestStatus.INDEXED,
             modificationTime = OffsetDateTime.now(),
             currentIndex = 0,
             totalFiles = totalFiles,
-            statusChangesLog = statusChangesLog.replace(statusChange, { it.changeId == changeId })
+            statusChangesLog = statusChangesLog.replace(statusChange) { it.changeId == changeId }
         )
+    }
+
+    fun loaded(submission: ExtSubmission, changeId: String): SubmissionRequest {
+        val statusChange = newStatusChange(changeId)
+        return copy(
+            status = RequestStatus.LOADED,
+            modificationTime = OffsetDateTime.now(),
+            currentIndex = 0,
+            submission = submission,
+            statusChangesLog = statusChangesLog.replace(statusChange) { it.changeId == changeId }
+        )
+    }
+
+    fun withPageTab(submission: ExtSubmission, totalFiles: Int, changeId: String): SubmissionRequest {
+        val statusChange = newStatusChange(changeId)
+        return copy(
+            status = RequestStatus.PAGE_TAB_GENERATED,
+            modificationTime = OffsetDateTime.now(),
+            currentIndex = 0,
+            totalFiles = totalFiles,
+            submission = submission,
+            statusChangesLog = statusChangesLog.replace(statusChange) { it.changeId == changeId }
+        )
+    }
+
+    private fun newStatusChange(changeId: String): RequestStatusChanges {
+        return statusChangesLog
+            .first { it.changeId == changeId }
+            .copy(endTime = Instant.now())
     }
 }
 
@@ -71,6 +93,7 @@ enum class RequestStatus {
     REQUESTED,
     INDEXED,
     LOADED,
+    PAGE_TAB_GENERATED,
     CLEANED,
     FILES_COPIED,
     CHECK_RELEASED,
@@ -82,6 +105,7 @@ enum class RequestStatus {
             REQUESTED,
             INDEXED,
             LOADED,
+            PAGE_TAB_GENERATED,
             CLEANED,
             FILES_COPIED,
             CHECK_RELEASED,
@@ -91,14 +115,15 @@ enum class RequestStatus {
 }
 
 /**
- * Retrieves the expected action to be perform when submission request is the given status.
+ * Retrieves the expected action to be performed when submission request is the given status.
  */
 val RequestStatus.action: String
     get() {
         return when (this) {
             RequestStatus.REQUESTED -> "Indexing"
             RequestStatus.INDEXED -> "Loading"
-            RequestStatus.LOADED -> "Cleaning"
+            RequestStatus.LOADED -> "Generating Page Tab"
+            RequestStatus.PAGE_TAB_GENERATED -> "Cleaning"
             RequestStatus.CLEANED -> "Copy Files"
             RequestStatus.FILES_COPIED -> "Release Files"
             RequestStatus.CHECK_RELEASED -> "Save Submission"

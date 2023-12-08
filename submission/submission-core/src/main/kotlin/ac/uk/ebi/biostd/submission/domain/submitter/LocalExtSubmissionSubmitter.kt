@@ -6,17 +6,18 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PAGE_TAB_GENERATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestPageTabGenerator
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
@@ -25,12 +26,11 @@ import ebi.ac.uk.extended.model.ExtSubmission
 @Suppress("LongParameterList", "TooManyFunctions")
 class LocalExtSubmissionSubmitter(
     private val properties: ApplicationProperties,
-    private val pageTabService: PageTabService,
     private val requestService: SubmissionRequestPersistenceService,
     private val persistenceService: SubmissionPersistenceService,
-
     private val requestIndexer: SubmissionRequestIndexer,
     private val requestLoader: SubmissionRequestLoader,
+    private val requestPageTabGenerator: SubmissionRequestPageTabGenerator,
     private val requestProcessor: SubmissionRequestProcessor,
     private val requestReleaser: SubmissionRequestReleaser,
     private val requestCleaner: SubmissionRequestCleaner,
@@ -38,8 +38,7 @@ class LocalExtSubmissionSubmitter(
     private val requestFinalizer: SubmissionRequestFinalizer,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
-        val withTabFiles = pageTabService.generatePageTab(rqt.submission)
-        val submission = withTabFiles.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
+        val submission = rqt.submission.copy(version = persistenceService.getNextVersion(rqt.submission.accNo))
         val request = SubmissionRequest(submission = submission, notifyTo = rqt.notifyTo, draftKey = rqt.draftKey)
         return requestService.createRequest(request)
     }
@@ -49,6 +48,10 @@ class LocalExtSubmissionSubmitter(
 
     override suspend fun loadRequest(accNo: String, version: Int): Unit =
         requestLoader.loadRequest(accNo, version, properties.processId)
+
+    override suspend fun generatePageTabRequest(accNo: String, version: Int) {
+        requestPageTabGenerator.generatePageTab(accNo, version, properties.processId)
+    }
 
     override suspend fun cleanRequest(accNo: String, version: Int): Unit =
         requestCleaner.cleanCurrentVersion(accNo, version, properties.processId)
@@ -71,7 +74,8 @@ class LocalExtSubmissionSubmitter(
         return when (requestService.getRequestStatus(accNo, version)) {
             REQUESTED -> completeRequest(accNo, version)
             INDEXED -> loadRequestFiles(accNo, version)
-            LOADED -> cleanRequestFiles(accNo, version)
+            LOADED -> generateRequestPageTab(accNo, version)
+            PAGE_TAB_GENERATED -> cleanRequestFiles(accNo, version)
             CLEANED -> processRequestFiles(accNo, version)
             FILES_COPIED -> releaseSubmission(accNo, version)
             CHECK_RELEASED -> saveAndFinalize(accNo, version)
@@ -83,6 +87,7 @@ class LocalExtSubmissionSubmitter(
     private suspend fun completeRequest(accNo: String, version: Int): ExtSubmission {
         indexRequest(accNo, version)
         loadRequest(accNo, version)
+        generatePageTabRequest(accNo, version)
         cleanRequest(accNo, version)
         processRequest(accNo, version)
         checkReleased(accNo, version)
@@ -92,6 +97,16 @@ class LocalExtSubmissionSubmitter(
 
     private suspend fun loadRequestFiles(accNo: String, version: Int): ExtSubmission {
         loadRequest(accNo, version)
+        generatePageTabRequest(accNo, version)
+        cleanRequest(accNo, version)
+        processRequest(accNo, version)
+        checkReleased(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
+    }
+
+    private suspend fun generateRequestPageTab(accNo: String, version: Int): ExtSubmission {
+        generatePageTabRequest(accNo, version)
         cleanRequest(accNo, version)
         processRequest(accNo, version)
         checkReleased(accNo, version)

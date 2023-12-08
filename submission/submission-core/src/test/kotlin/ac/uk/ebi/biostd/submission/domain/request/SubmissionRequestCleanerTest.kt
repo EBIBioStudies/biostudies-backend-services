@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PAGE_TAB_GENERATED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -73,13 +73,13 @@ class SubmissionRequestCleanerTest(
             requestService.getSubmissionRequest(
                 accNo,
                 version,
-                LOADED,
-                instanceId
+                PAGE_TAB_GENERATED,
+                INSTANCE_ID,
             )
         } returns (changeId to loadedRequest)
         coEvery { requestService.saveRequest(cleanedRequest) } returns (accNo to version)
 
-        testInstance.cleanCurrentVersion(accNo, version, instanceId)
+        testInstance.cleanCurrentVersion(accNo, version, INSTANCE_ID)
 
         coVerify(exactly = 1) { requestService.saveRequest(cleanedRequest) }
         coVerify(exactly = 0) {
@@ -114,8 +114,8 @@ class SubmissionRequestCleanerTest(
             requestService.getSubmissionRequest(
                 "S-BSST1",
                 2,
-                LOADED,
-                instanceId
+                PAGE_TAB_GENERATED,
+                INSTANCE_ID,
             )
         } returns (changeId to loadedRequest)
         every { serializationService.filesFlow(current) } returns flowOf(currentFile)
@@ -123,7 +123,7 @@ class SubmissionRequestCleanerTest(
         coEvery { storageService.deleteSubmissionFile(current, currentFile) } answers { nothing }
         every { filesRequestService.getSubmissionRequestFiles("S-BSST1", 2, 0) } returns flowOf(requestFile)
 
-        testInstance.cleanCurrentVersion("S-BSST1", 2, instanceId)
+        testInstance.cleanCurrentVersion("S-BSST1", 2, INSTANCE_ID)
 
         coVerify(exactly = 1) {
             requestService.saveRequest(cleanedRequest)
@@ -142,6 +142,6 @@ class SubmissionRequestCleanerTest(
     }
 
     private companion object {
-        const val instanceId = "biostudies-prod"
+        const val INSTANCE_ID = "biostudies-prod"
     }
 }

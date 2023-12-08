@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PAGE_TAB_GENERATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
@@ -61,7 +62,6 @@ class SubmissionAsyncTest(
 
     @Test
     fun `19-1 simple submit async`() = runTest {
-
         val submission = tsv {
             line("Submission", "SimpleAsync1")
             line("Title", "Async Submission")
@@ -113,6 +113,10 @@ class SubmissionAsyncTest(
         extSubmissionSubmitter.loadRequest("SimpleAsync2", 2)
         val statusAfterLoading = requestRepository.getRequestStatus("SimpleAsync2", 2)
         assertThat(statusAfterLoading).isEqualTo(LOADED)
+
+        extSubmissionSubmitter.generatePageTabRequest("SimpleAsync2", 2)
+        val statusAfterGeneratingPageTab = requestRepository.getRequestStatus("SimpleAsync2", 2)
+        assertThat(statusAfterGeneratingPageTab).isEqualTo(PAGE_TAB_GENERATED)
 
         extSubmissionSubmitter.cleanRequest("SimpleAsync2", 2)
         val statusAfterCleaning = requestRepository.getRequestStatus("SimpleAsync2", 2)

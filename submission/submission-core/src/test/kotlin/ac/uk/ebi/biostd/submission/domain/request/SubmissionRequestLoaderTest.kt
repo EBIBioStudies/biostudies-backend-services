@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
@@ -16,6 +15,7 @@ import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -32,6 +32,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 
@@ -39,14 +40,16 @@ import java.time.ZoneOffset.UTC
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestLoaderTest(
     private val tempFolder: TemporaryFolder,
+    @MockK private val indexedRequest: SubmissionRequest,
+    @MockK private val fileProcessingService: FileProcessingService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val filesService: SubmissionRequestFilesPersistenceService,
 ) {
     private val mockNow = OffsetDateTime.of(2022, 10, 5, 0, 0, 1, 0, UTC)
-    private val testTime = OffsetDateTime.of(2022, 10, 4, 0, 0, 1, 0, UTC)
     private val fireTempDirPath = tempFolder.createDirectory("fire-temp")
     private val testInstance = SubmissionRequestLoader(
         TEST_CONCURRENCY,
+        fileProcessingService,
         filesService,
         requestService,
         fireTempDirPath,
@@ -60,14 +63,15 @@ class SubmissionRequestLoaderTest(
 
     @AfterEach
     fun afterEach() {
+        clearAllMocks()
         unmockkStatic(OffsetDateTime::class)
     }
 
     @Test
-    fun `load request`(@MockK indexedRequest: SubmissionRequest) = runTest {
+    fun `load request`() = runTest {
         val changeId = "changeId"
         val loadedRequestSlot = slot<SubmissionRequest>()
-        val filSlot = slot<ExtFile>()
+        val fileSlot = slot<ExtFile>()
         val file = tempFolder.createFile("dummy.txt")
         val nfsFile = NfsFile("dummy.txt", "Files/dummy.txt", file, file.absolutePath, "NOT_CALCULATED", -1)
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Study", files = listOf(left(nfsFile))))
@@ -75,7 +79,7 @@ class SubmissionRequestLoaderTest(
 
         every { indexedRequest.submission } returns sub
         every { indexedRequest.currentIndex } returns 3
-        every { indexedRequest.withNewStatus(RequestStatus.LOADED, changeId) } returns indexedRequest
+        every { indexedRequest.loaded(sub, changeId) } returns indexedRequest
         coEvery {
             requestService.getSubmissionRequest(
                 sub.accNo,
@@ -86,11 +90,12 @@ class SubmissionRequestLoaderTest(
         } returns (changeId to indexedRequest)
         coEvery { requestService.saveRequest(capture(loadedRequestSlot)) } returns (sub.accNo to sub.version)
         every { filesService.getSubmissionRequestFiles(sub.accNo, sub.version, 3) } returns flowOf(indexedRequestFile)
-        coEvery { requestService.updateRqtIndex(indexedRequestFile, capture(filSlot)) } answers { nothing }
+        coEvery { requestService.updateRqtIndex(indexedRequestFile, capture(fileSlot)) } answers { nothing }
+        coEvery { fileProcessingService.processFiles(sub, any()) } coAnswers { sub }
 
         testInstance.loadRequest(sub.accNo, sub.version, instanceId)
 
-        val requestFile = filSlot.captured
+        val requestFile = fileSlot.captured
         assertThat(requestFile.md5).isEqualTo(file.md5())
         assertThat(requestFile.size).isEqualTo(file.size())
 

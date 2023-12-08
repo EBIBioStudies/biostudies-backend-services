@@ -28,6 +28,10 @@ class RemoteExtSubmissionSubmitter(
         executeRemotly(accNo, version, Mode.LOAD)
     }
 
+    override suspend fun generatePageTabRequest(accNo: String, version: Int) {
+        executeRemotly(accNo, version, Mode.GENERATE_PAGE_TAB)
+    }
+
     override suspend fun cleanRequest(accNo: String, version: Int) {
         TODO("Not yet implemented")
     }

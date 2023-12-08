@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
@@ -17,6 +16,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestPageTabGenerator
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
@@ -45,11 +45,11 @@ class SubmissionWebConfig {
     @Bean
     fun extendedSubmissionSubmitter(
         appProperties: ApplicationProperties,
-        pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
         requestIndexer: SubmissionRequestIndexer,
         requestLoader: SubmissionRequestLoader,
+        requestPageTabGenerator: SubmissionRequestPageTabGenerator,
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
@@ -58,11 +58,11 @@ class SubmissionWebConfig {
     ): ExtSubmissionSubmitter {
         val local = LocalExtSubmissionSubmitter(
             appProperties,
-            pageTabService,
             requestService,
             persistenceService,
             requestIndexer,
             requestLoader,
+            requestPageTabGenerator,
             requestProcessor,
             submissionReleaser,
             submissionCleaner,
@@ -70,6 +70,7 @@ class SubmissionWebConfig {
             submissionFinalizer,
         )
         val remote = RemoteExtSubmissionSubmitter(appProperties.submissionTask)
+
         return ExtendedSubmissionSubmitter(local, remote, appProperties.submissionTask)
     }
 

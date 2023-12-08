@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PAGE_TAB_GENERATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
@@ -12,11 +13,11 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestPageTabGenerator
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
@@ -48,11 +49,11 @@ import java.time.ZoneOffset.UTC
 internal class LocalExtSubmissionSubmitterTest(
     @MockK private val properties: ApplicationProperties,
     @MockK private val sub: ExtSubmission,
-    @MockK private val pageTabService: PageTabService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val persistenceService: SubmissionPersistenceService,
     @MockK private val requestIndexer: SubmissionRequestIndexer,
     @MockK private val requestLoader: SubmissionRequestLoader,
+    @MockK private val requestPageTabGenerator: SubmissionRequestPageTabGenerator,
     @MockK private val requestProcessor: SubmissionRequestProcessor,
     @MockK private val requestReleaser: SubmissionRequestReleaser,
     @MockK private val requestCleaner: SubmissionRequestCleaner,
@@ -62,11 +63,11 @@ internal class LocalExtSubmissionSubmitterTest(
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 1, 2, 3, 4, UTC)
     private val testInstance = LocalExtSubmissionSubmitter(
         properties,
-        pageTabService,
         requestService,
         persistenceService,
         requestIndexer,
         requestLoader,
+        requestPageTabGenerator,
         requestProcessor,
         requestReleaser,
         requestCleaner,
@@ -92,14 +93,12 @@ internal class LocalExtSubmissionSubmitterTest(
             val submissionRequestSlot = slot<SubmissionRequest>()
 
             coEvery { persistenceService.getNextVersion("S-TEST123") } returns 2
-            coEvery { pageTabService.generatePageTab(submission) } returns submission
             coEvery { requestService.createRequest(capture(submissionRequestSlot)) } returns ("S-TEST123" to 2)
 
             testInstance.createRequest(ExtSubmitRequest(submission, "user@test.org", "TMP_123"))
 
             val request = submissionRequestSlot.captured
             coVerify(exactly = 1) {
-                pageTabService.generatePageTab(submission)
                 requestService.createRequest(request)
             }
             assertThat(request.submission).isEqualTo(submission.copy(version = 2))
@@ -119,6 +118,7 @@ internal class LocalExtSubmissionSubmitterTest(
             coEvery { requestService.getRequestStatus("accNo", 1) } returns REQUESTED
             coEvery { requestIndexer.indexRequest("accNo", 1, instanceId) } answers { nothing }
             coEvery { requestLoader.loadRequest("accNo", 1, instanceId) } answers { nothing }
+            coEvery { requestPageTabGenerator.generatePageTab("accNo", 1, instanceId) } answers { nothing }
             coEvery { requestProcessor.processRequest("accNo", 1, instanceId) } answers { nothing }
             coEvery { requestReleaser.checkReleased("accNo", 1, instanceId) } answers { nothing }
             coEvery { requestCleaner.cleanCurrentVersion("accNo", 1, instanceId) } answers { nothing }
@@ -132,6 +132,7 @@ internal class LocalExtSubmissionSubmitterTest(
                 requestService.getRequestStatus("accNo", 1)
                 requestIndexer.indexRequest("accNo", 1, instanceId)
                 requestLoader.loadRequest("accNo", 1, instanceId)
+                requestPageTabGenerator.generatePageTab("accNo", 1, instanceId)
                 requestCleaner.cleanCurrentVersion("accNo", 1, instanceId)
                 requestProcessor.processRequest("accNo", 1, instanceId)
                 requestReleaser.checkReleased("accNo", 1, instanceId)
@@ -143,6 +144,35 @@ internal class LocalExtSubmissionSubmitterTest(
         @Test
         fun `when loaded`() = runTest {
             coEvery { requestService.getRequestStatus("accNo", 1) } returns LOADED
+            coEvery { requestPageTabGenerator.generatePageTab("accNo", 1, instanceId) } answers { nothing }
+            coEvery { requestProcessor.processRequest("accNo", 1, instanceId) } answers { nothing }
+            coEvery { requestReleaser.checkReleased("accNo", 1, instanceId) } answers { nothing }
+            coEvery { requestCleaner.cleanCurrentVersion("accNo", 1, instanceId) } answers { nothing }
+            coEvery { requestSaver.saveRequest("accNo", 1, instanceId) } answers { sub }
+            coEvery { requestFinalizer.finalizeRequest("accNo", 1, instanceId) } returns sub
+
+            val result = testInstance.handleRequest("accNo", 1)
+
+            assertThat(result).isEqualTo(sub)
+            coVerify(exactly = 1) {
+                requestService.getRequestStatus("accNo", 1)
+                requestPageTabGenerator.generatePageTab("accNo", 1, instanceId)
+                requestCleaner.cleanCurrentVersion("accNo", 1, instanceId)
+                requestProcessor.processRequest("accNo", 1, instanceId)
+                requestReleaser.checkReleased("accNo", 1, instanceId)
+                requestSaver.saveRequest("accNo", 1, instanceId)
+                requestFinalizer.finalizeRequest("accNo", 1, instanceId)
+            }
+            coVerify(exactly = 0) {
+                requestIndexer.indexRequest("accNo", 1, instanceId)
+                requestLoader.loadRequest("accNo", 1, instanceId)
+            }
+        }
+
+        @Test
+        fun `when pagetab generated`() = runTest {
+            coEvery { requestService.getRequestStatus("accNo", 1) } returns PAGE_TAB_GENERATED
+            coEvery { requestPageTabGenerator.generatePageTab("accNo", 1, instanceId) } answers { nothing }
             coEvery { requestProcessor.processRequest("accNo", 1, instanceId) } answers { nothing }
             coEvery { requestReleaser.checkReleased("accNo", 1, instanceId) } answers { nothing }
             coEvery { requestCleaner.cleanCurrentVersion("accNo", 1, instanceId) } answers { nothing }
@@ -163,6 +193,7 @@ internal class LocalExtSubmissionSubmitterTest(
             coVerify(exactly = 0) {
                 requestIndexer.indexRequest("accNo", 1, instanceId)
                 requestLoader.loadRequest("accNo", 1, instanceId)
+                requestPageTabGenerator.generatePageTab("accNo", 1, instanceId)
             }
         }
 

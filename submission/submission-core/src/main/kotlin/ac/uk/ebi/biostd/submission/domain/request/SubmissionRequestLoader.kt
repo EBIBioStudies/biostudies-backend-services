@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -22,12 +21,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestLoader(
     private val concurrency: Int,
+    private val fileProcessingService: FileProcessingService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
     private val requestService: SubmissionRequestPersistenceService,
     private val fireTempDirPath: File,
@@ -38,7 +39,8 @@ class SubmissionRequestLoader(
     suspend fun loadRequest(accNo: String, version: Int, processId: String) {
         val (changeId, request) = requestService.getSubmissionRequest(accNo, version, INDEXED, processId)
         loadRequest(request.submission, request.currentIndex)
-        requestService.saveRequest(request.withNewStatus(LOADED, changeId = changeId))
+        val loadedSubmission = assembleLoadedSubmission(request.submission)
+        requestService.saveRequest(request.loaded(loadedSubmission, changeId))
     }
 
     private suspend fun loadRequest(sub: ExtSubmission, currentIndex: Int) {
@@ -53,8 +55,8 @@ class SubmissionRequestLoader(
             when (val file = rqtFile.file) {
                 is FireFile -> requestService.updateRqtIndex(accNo, version, rqtFile.index)
                 is NfsFile -> {
-                    val attrs = loadAttributes(sub, file)
-                    requestService.updateRqtIndex(rqtFile, attrs)
+                    val loadedFile = loadAttributes(sub, file)
+                    requestService.updateRqtIndex(rqtFile, loadedFile)
                 }
             }
             logger.info { "$accNo ${sub.owner} Finished loading file ${rqtFile.index}, path='${rqtFile.path}'" }
@@ -97,5 +99,17 @@ class SubmissionRequestLoader(
             size = compressed.size(),
             type = ExtFileType.DIR
         )
+    }
+
+    private suspend fun assembleLoadedSubmission(sub: ExtSubmission): ExtSubmission {
+        return fileProcessingService.processFiles(sub) { file ->
+            val requestFile = filesRequestService.getSubmissionRequestFile(sub.accNo, sub.version, file.filePath)
+            val loadedFile = when (val extFile = requestFile.file) {
+                is FireFile -> extFile.copy(filePath = file.filePath, attributes = file.attributes)
+                is NfsFile -> extFile.copy(filePath = file.filePath, attributes = file.attributes)
+            }
+
+            return@processFiles loadedFile
+        }
     }
 }
