@@ -58,7 +58,7 @@ class RemoteClusterClient(
                 val status = jobStatus(job.id)
                 val isDone = status == "DONE"
                 when {
-                    isDone -> logger.info { "Job ${job.id} status is $status. Completing execution" }
+                    isDone -> logger.info { "Job ${job.id} status is $status. Execution completed" }
                     else -> logger.info { "Job ${job.id} status is $status. Waiting for completion" }
                 }
                 return@waitUntil isDone

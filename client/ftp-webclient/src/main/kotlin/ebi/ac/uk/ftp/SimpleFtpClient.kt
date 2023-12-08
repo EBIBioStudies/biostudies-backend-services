@@ -133,19 +133,19 @@ private class SimpleFtpClient(
 
     /**
      * Executes operations creating a new Ftp Client class every time as
-     * @see [documented](https://cwiki.apache.org/confluence/display/COMMONS/Net+FrequentlyAskedQuestions)
+     * @see <a href="https://cwiki.apache.org/confluence/display/COMMONS/Net+FrequentlyAskedQuestions">Documentation</a>
      * class is not thread safe.
      */
     override fun <T> execute(function: (FTPClient) -> T): T {
         val ftp = ftpClient(3000.milliseconds, 3000.milliseconds)
-        logger.info { "connecting to $ftpUrl, $ftpPort" }
+        logger.info { "Connecting to $ftpUrl, $ftpPort" }
         ftp.connect(ftpUrl, ftpPort)
         ftp.login(ftpUser, ftpPassword)
         ftp.enterLocalPassiveMode()
         val result = function(ftp)
         ftp.logout()
         ftp.disconnect()
-        logger.info { "disconnecting to $ftpUrl, $ftpPort" }
+        logger.info { "Disconnecting from $ftpUrl, $ftpPort" }
         return result
     }
 }
