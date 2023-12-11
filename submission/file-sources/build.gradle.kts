@@ -1,3 +1,4 @@
+import Dependencies.CommonsNet
 import Projects.CommonsBio
 import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedMapping
@@ -30,6 +31,7 @@ dependencies {
     api(project(FtpWebClient))
     api(project(SubmissionSecurity))
     api(project(SubmissionPersistenceCommonApi))
+    implementation(CommonsNet)
 
     testApi(project(CommonsTest))
     BaseTestCompileDependencies.forEach { testImplementation(it) }

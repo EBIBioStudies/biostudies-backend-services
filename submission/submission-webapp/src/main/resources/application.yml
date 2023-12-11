@@ -61,7 +61,7 @@ logging:
     org.springframework.data.mongodb.core.convert.QueryMapper: ERROR # Disable to avoid mapping log population.
 
 app:
-  processId: BioStudies-Backend
+  processId: ${LSB_JOBID:BioStudies-Backend}
   retrySubmission: false
   enablePropertiesLog: true
   consumers: 10 # number of processing queue consumers.
@@ -76,6 +76,7 @@ app:
   submissionTask:
     enabled: # Whether the submission tasks should be executed in the cluster
     jarLocation: # the submitter task jar location.
+    javaLocation: # The path 
     logsLocation: # the submitter task logs location.
     configFilePath: # the submitter task application.yml file location.
   cluster:
