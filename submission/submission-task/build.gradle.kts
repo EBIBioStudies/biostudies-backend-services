@@ -1,3 +1,4 @@
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.MySql
 import Projects.SubmissionSubmitter
@@ -23,9 +24,11 @@ dependencies {
     api(project(SubmissionSubmitter))
 
     annotationProcessor(SpringBootConfigurationProcessor)
-    implementation(SpringBootStarter)
-    implementation(MySql)
+
+    implementation(KotlinCoroutines)
     implementation(KotlinLogging)
+    implementation(MySql)
+    implementation(SpringBootStarter)
 }
 
 tasks.named<BootJar>("bootJar") {

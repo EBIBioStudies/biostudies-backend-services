@@ -21,7 +21,7 @@ class RemoteClusterClient(
     private val sessionFunction: () -> Session,
 ) : ClusterClient {
     override suspend fun triggerJobAsync(jobSpec: JobSpec): Try<Job> {
-        val parameters = mutableListOf("bsub -o $logsPath -e $logsPath")
+        val parameters = mutableListOf("bsub -o $logsPath/%J_OUT -e $logsPath/%J_IN")
         parameters.addAll(jobSpec.asParameter())
         val command = parameters.joinToString(separator = " ")
         logger.info { "Executing command '$command'" }

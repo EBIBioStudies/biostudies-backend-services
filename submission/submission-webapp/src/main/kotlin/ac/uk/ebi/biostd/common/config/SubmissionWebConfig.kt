@@ -37,6 +37,7 @@ import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import java.net.URI
 
 @Suppress("LongParameterList")
@@ -44,6 +45,7 @@ import java.net.URI
 class SubmissionWebConfig {
     @Bean
     fun extendedSubmissionSubmitter(
+        clusterClient: ClusterClient,
         appProperties: ApplicationProperties,
         pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
@@ -69,7 +71,7 @@ class SubmissionWebConfig {
             submissionSaver,
             submissionFinalizer,
         )
-        val remote = RemoteExtSubmissionSubmitter(appProperties.submissionTask)
+        val remote = RemoteExtSubmissionSubmitter(clusterClient, appProperties.submissionTask)
         return ExtendedSubmissionSubmitter(local, remote, appProperties.submissionTask)
     }
 

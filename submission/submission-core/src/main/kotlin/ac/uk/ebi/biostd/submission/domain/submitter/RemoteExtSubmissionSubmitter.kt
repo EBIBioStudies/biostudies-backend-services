@@ -7,13 +7,16 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
-import java.io.File
-import java.util.UUID
+import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
+import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
+import uk.ac.ebi.biostd.client.cluster.model.JobSpec
+import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.SIXTEEN_GB
 
 private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 class RemoteExtSubmissionSubmitter(
+    private val clusterClient: ClusterClient,
     private val submissionTaskProperties: SubmissionTaskProperties,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
@@ -25,19 +28,19 @@ class RemoteExtSubmissionSubmitter(
     }
 
     override suspend fun loadRequest(accNo: String, version: Int) {
-        executeRemotly(accNo, version, Mode.LOAD)
+        executeRemotely(accNo, version, Mode.LOAD)
     }
 
     override suspend fun cleanRequest(accNo: String, version: Int) {
-        TODO("Not yet implemented")
+        executeRemotely(accNo, version, Mode.CLEAN)
     }
 
     override suspend fun processRequest(accNo: String, version: Int) {
-        executeRemotly(accNo, version, Mode.COPY)
+        executeRemotely(accNo, version, Mode.COPY)
     }
 
     override suspend fun checkReleased(accNo: String, version: Int) {
-        TODO("Not yet implemented")
+        executeRemotely(accNo, version, Mode.CHECK_RELEASED)
     }
 
     override suspend fun saveRequest(accNo: String, version: Int): ExtSubmission {
@@ -56,27 +59,25 @@ class RemoteExtSubmissionSubmitter(
         TODO("Not yet implemented")
     }
 
-    private suspend fun executeRemotly(accNo: String, version: Int, mode: Mode) = withContext(Dispatchers.IO) {
-        val pId = UUID.randomUUID()
-        val logs = File(submissionTaskProperties.logsLocation, "application-$pId.log")
-        val params = buildList<String> {
-            add("java")
-            add("-jar")
-            add(submissionTaskProperties.jarLocation)
-            add("--spring.config.location=${submissionTaskProperties.configFilePath}")
-            add("--accNo=$accNo")
-            add("--version=$version")
-            add("--mode=${mode.name}")
+    private suspend fun executeRemotely(accNo: String, version: Int, mode: Mode) = withContext(Dispatchers.IO) {
+        val command = buildString {
+            appendSpaced(submissionTaskProperties.javaLocation)
+            appendSpaced("-jar")
+            appendSpaced(submissionTaskProperties.jarLocation)
+            appendSpaced("--spring.config.location=${submissionTaskProperties.configFilePath}")
+            appendSpaced("--accNo=$accNo")
+            appendSpaced("--version=$version")
+            appendSpaced("--mode=${mode.name}")
         }
-        logger.info { "$accNo $version process $pId, task ='${params.joinToString(" ")}', logs='${logs.absolutePath}'" }
-        val exitCode = executeRemotly(logs, params)
-        if (exitCode != 0) throw IllegalStateException("Failed to process subsmision '$accNo' in process  $pId")
+        val jobSpec = JobSpec(cores = 8, ram = SIXTEEN_GB, DataMoverQueue, command)
+
+        // TODO this should be moved back to async after #186657310 is completed
+        val job = clusterClient.triggerJobSync(jobSpec, maxSecondsDuration = 600)
+        logger.info { "$accNo Executed submitter task in mode $mode. Job Id: ${job.id}, Logs: ${job.logsPath}" }
     }
 
-    private fun executeRemotly(logs: File, params: List<String>): Int {
-        val processBuilder = ProcessBuilder(params)
-        processBuilder.redirectOutput(logs)
-        val process = processBuilder.start()
-        return process.waitFor()
+    private fun StringBuilder.appendSpaced(value: String) {
+        append(value)
+        append(" ")
     }
 }

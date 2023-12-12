@@ -14,10 +14,24 @@ class ExtendedSubmissionSubmitter(
         }
     }
 
+    override suspend fun cleanRequest(accNo: String, version: Int) {
+        when (submissionTaskProperties.enabled) {
+            true -> remoteExtSubmissionSubmitter.cleanRequest(accNo, version)
+            else -> localExtSubmissionSubmitter.cleanRequest(accNo, version)
+        }
+    }
+
     override suspend fun processRequest(accNo: String, version: Int) {
         when (submissionTaskProperties.enabled) {
             true -> remoteExtSubmissionSubmitter.processRequest(accNo, version)
             else -> localExtSubmissionSubmitter.processRequest(accNo, version)
+        }
+    }
+
+    override suspend fun checkReleased(accNo: String, version: Int) {
+        when (submissionTaskProperties.enabled) {
+            true -> remoteExtSubmissionSubmitter.checkReleased(accNo, version)
+            else -> localExtSubmissionSubmitter.checkReleased(accNo, version)
         }
     }
 }

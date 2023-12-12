@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.common.properties
 data class SubmissionTaskProperties(
     val enabled: Boolean,
     val jarLocation: String,
+    val javaLocation: String,
     val logsLocation: String,
     val configFilePath: String,
 )
