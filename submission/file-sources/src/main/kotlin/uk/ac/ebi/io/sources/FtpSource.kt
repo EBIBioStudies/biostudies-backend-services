@@ -45,14 +45,14 @@ class FtpSource(
         val ftpPath = ftpUrl.resolve(path)
         val exists = ftpClient.listFiles(ftpPath).isNotEmpty()
         return when (exists) {
-            true -> downloadFile(ftpUrl.resolve(path))
+            true -> downloadFile(ftpPath)
             false -> null
         }
     }
 
     private fun downloadFile(path: Path): File {
-        val tempFile = createTempFile().toFile()
-        ftpClient.downloadFile(path, tempFile.outputStream())
+        val tempFile = createTempFile(suffix = path.fileName.toString()).toFile()
+        tempFile.outputStream().use { ftpClient.downloadFile(path, it) }
         return tempFile
     }
 }
