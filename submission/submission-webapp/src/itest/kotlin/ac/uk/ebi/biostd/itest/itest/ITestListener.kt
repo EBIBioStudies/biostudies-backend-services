@@ -140,13 +140,14 @@ class ITestListener : TestExecutionListener {
     }
 
     private fun submissionTaskSetup() {
+        val javaLocation = findResource("java")?.absolutePath.orEmpty()
         val configFile = findResource("application.yml")?.absolutePath.orEmpty()
         val jarLocation = findResource("submission-task-1.0.0.jar")?.absolutePath.orEmpty()
 
         properties.addProperty("app.submissionTask.enabled", enableTask)
-        properties.addProperty("app.submissionTask.configFilePath", configFile)
         properties.addProperty("app.submissionTask.jarLocation", jarLocation)
-        properties.addProperty("app.submissionTask.logsLocation", taskLogsPath.absolutePath)
+        properties.addProperty("app.submissionTask.javaLocation", javaLocation)
+        properties.addProperty("app.submissionTask.configFileLocation", configFile)
     }
 
     private fun clusterSetup() {

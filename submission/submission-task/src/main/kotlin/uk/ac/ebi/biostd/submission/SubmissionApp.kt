@@ -1,7 +1,6 @@
 package uk.ac.ebi.biostd.submission
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.common.properties.Mode
 import ac.uk.ebi.biostd.common.properties.Mode.CALC_STATS
 import ac.uk.ebi.biostd.common.properties.Mode.CHECK_RELEASED
 import ac.uk.ebi.biostd.common.properties.Mode.CLEAN

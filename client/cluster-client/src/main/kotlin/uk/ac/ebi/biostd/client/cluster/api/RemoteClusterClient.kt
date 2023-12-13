@@ -58,7 +58,7 @@ class RemoteClusterClient(
             ) {
                 status = jobStatus(job.id)
                 val executionFinished = status == DONE_STATUS || status == EXIT_STATUS
-                when(status) {
+                when (status) {
                     EXIT_STATUS -> logger.error { "Job ${job.id} status is $EXIT_STATUS. Execution failed" }
                     DONE_STATUS -> logger.info { "Job ${job.id} status is $DONE_STATUS. Execution completed" }
                     else -> logger.info { "Job ${job.id} status is $status. Waiting for completion" }
