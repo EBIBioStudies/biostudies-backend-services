@@ -10,6 +10,10 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private val logger = KotlinLogging.logger {}
 
+/**
+ * Pooled FTP client. Allows to re use FTPClient instances so socket connections and ftp logging does not need to be
+ * perform on each FTP operation.
+ */
 internal class FTPClientPool(
     private val ftpUser: String,
     private val ftpPassword: String,

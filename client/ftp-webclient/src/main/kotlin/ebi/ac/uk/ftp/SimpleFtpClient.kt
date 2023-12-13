@@ -121,5 +121,4 @@ private class SimpleFtpClient(
         changeToParentDirectory()
         removeDirectory(dirPath.fileName.toString())
     }
-
 }

@@ -17,8 +17,9 @@ class FtpClientTest {
     fun `upload a file, list and download it`() {
         val tempFile = createTempFile()
         tempFile.writeText("test-file")
+        tempFile.writeText("test-file")
 
-        val rootPath = Paths.get("");
+        val rootPath = Paths.get("")
         val filePath = rootPath.resolve("test-file.txt")
 
         testInstance.uploadFile(filePath, { tempFile.inputStream() })
