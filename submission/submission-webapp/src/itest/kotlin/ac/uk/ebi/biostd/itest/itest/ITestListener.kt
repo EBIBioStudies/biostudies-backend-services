@@ -19,6 +19,9 @@ import ebi.ac.uk.db.MYSQL_SCHEMA
 import ebi.ac.uk.db.MYSQL_VERSION
 import ebi.ac.uk.db.RABBIT_VERSION
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.ftp.FtpConfig
+import ebi.ac.uk.ftp.FtpServer
+import ebi.ac.uk.ftp.SslConfig
 import org.junit.platform.launcher.TestExecutionListener
 import org.junit.platform.launcher.TestPlan
 import org.testcontainers.containers.MongoDBContainer

@@ -1,0 +1,81 @@
+package ebi.ac.uk.ftp
+
+import mu.KotlinLogging
+import org.apache.commons.net.ftp.FTPClient
+import org.apache.commons.pool2.BasePooledObjectFactory
+import org.apache.commons.pool2.PooledObject
+import org.apache.commons.pool2.impl.DefaultPooledObject
+import org.apache.commons.pool2.impl.GenericObjectPool
+import kotlin.time.Duration.Companion.milliseconds
+
+private val logger = KotlinLogging.logger {}
+
+internal class FTPClientPool(
+    private val ftpUser: String,
+    private val ftpPassword: String,
+    private val ftpUrl: String,
+    private val ftpPort: Int,
+    private val ftpClientPool: GenericObjectPool<FTPClient> = createFtpPool(ftpUser, ftpPassword, ftpUrl, ftpPort),
+) {
+    fun <T> execute(action: (FTPClient) -> T): T {
+        val ftpClient = ftpClientPool.borrowObject()
+        return try {
+            action(ftpClient)
+        } finally {
+            ftpClientPool.returnObject(ftpClient)
+        }
+    }
+
+    private class FTPClientFactory(
+        private val ftpUser: String,
+        private val ftpPassword: String,
+        private val ftpUrl: String,
+        private val ftpPort: Int,
+    ) : BasePooledObjectFactory<FTPClient>() {
+        override fun create(): FTPClient {
+            val ftp = ftpClient(3000.milliseconds, 3000.milliseconds)
+            logger.info { "Connecting to $ftpUrl, $ftpPort" }
+            ftp.connect(ftpUrl, ftpPort)
+            ftp.login(ftpUser, ftpPassword)
+            ftp.enterLocalPassiveMode()
+            return ftp
+        }
+
+        override fun wrap(ftpClient: FTPClient): PooledObject<FTPClient> {
+            return DefaultPooledObject(ftpClient)
+        }
+
+        override fun destroyObject(p: PooledObject<FTPClient>) {
+            val ftpClient = p.`object`
+            if (ftpClient.isConnected) {
+                ftpClient.logout()
+                ftpClient.disconnect()
+            }
+        }
+
+        @Suppress("TooGenericExceptionCaught")
+        override fun validateObject(p: PooledObject<FTPClient>): Boolean {
+            val ftpClient = p.`object`
+            return try {
+                ftpClient.sendNoOp()
+            } catch (e: Exception) {
+                logger.error(e) { "Error checking ftp connection" }
+                false
+            }
+        }
+    }
+
+    private companion object {
+        fun createFtpPool(
+            ftpUser: String,
+            ftpPassword: String,
+            ftpUrl: String,
+            ftpPort: Int,
+        ): GenericObjectPool<FTPClient> {
+            val factory = FTPClientFactory(ftpUser, ftpPassword, ftpUrl, ftpPort)
+            var connections = GenericObjectPool(factory)
+            connections.minIdle = 2
+            return connections
+        }
+    }
+}
