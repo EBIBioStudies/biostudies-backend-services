@@ -64,7 +64,7 @@ class RemoteExtSubmissionSubmitter(
             appendSpaced(submissionTaskProperties.javaLocation)
             appendSpaced("-jar")
             appendSpaced(submissionTaskProperties.jarLocation)
-            appendSpaced("--spring.config.location=${submissionTaskProperties.configFilePath}")
+            appendSpaced("--spring.config.location=${submissionTaskProperties.configFileLocation}")
             appendSpaced("--accNo=$accNo")
             appendSpaced("--version=$version")
             appendSpaced("--mode=${mode.name}")

@@ -76,7 +76,6 @@ app:
     enabled: # Whether the submission tasks should be executed in the cluster
     jarLocation: # the submitter task jar location.
     javaLocation: # The path to the java installation
-    logsLocation: # the submitter task logs location.
     configFilePath: # the submitter task application.yml file location.
   cluster:
     enabled: # Whether the cluster jobs should be triggered remotely

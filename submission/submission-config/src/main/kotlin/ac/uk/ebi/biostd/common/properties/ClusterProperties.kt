@@ -4,8 +4,7 @@ data class SubmissionTaskProperties(
     val enabled: Boolean,
     val jarLocation: String,
     val javaLocation: String,
-    val logsLocation: String,
-    val configFilePath: String,
+    val configFileLocation: String,
 )
 
 data class ClusterProperties(
