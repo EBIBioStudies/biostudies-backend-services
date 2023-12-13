@@ -13,7 +13,7 @@ import java.nio.file.Paths
 class FtpClientExtTest(@MockK val testInstance: FtpClient) {
 
     @Test
-    fun existsWhenExists(@MockK file: FTPFile) {
+    fun `when exists`(@MockK file: FTPFile) {
         val path = Paths.get("/dummy/path")
         every { testInstance.listFiles(path) } returns listOf(file)
 
@@ -21,7 +21,7 @@ class FtpClientExtTest(@MockK val testInstance: FtpClient) {
     }
 
     @Test
-    fun existsWhenDoesNotExists() {
+    fun `when doesn't exist`() {
         val path = Paths.get("/dummy/path")
         every { testInstance.listFiles(path) } returns emptyList()
 

@@ -26,7 +26,7 @@ internal fun createFile(path: String, file: File, attributes: List<Attribute>): 
         file = file,
         fullPath = file.absolutePath,
         md5 = "NOT_CALCULATED",
-        size = file.size(false),
+        size = file.size(calculateDirectories = false),
         attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
     )
 }
