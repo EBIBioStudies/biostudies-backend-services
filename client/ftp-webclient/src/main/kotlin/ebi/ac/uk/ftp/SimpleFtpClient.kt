@@ -62,40 +62,31 @@ private class SimpleFtpClient(
     }
 
     /**
-     * As FTP does not support nested folder creation in a single path the full path is
-     * transverse and required missing folder are created.
-     */
-    private fun FTPClient.createFtpFolder(path: Path) {
-        val paths = path.runningReduce { acc, value -> acc.resolve(value) }
-        paths.forEach { this.makeDirectory(it.toString()) }
-    }
-
-    /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
     override fun uploadFile(path: Path, source: () -> InputStream) {
-        ftpClientPool.execute { ftp: FTPClient -> source().use { ftp.storeFile(path.toString(), it) } }
+        ftpClientPool.execute { ftp -> source().use { ftp.storeFile(path.toString(), it) } }
     }
 
     /**
      * Download the given file in the output stream. Output stream is NOT closed after completion.
      */
     override fun downloadFile(path: Path, source: OutputStream) {
-        ftpClientPool.execute { ftp: FTPClient -> ftp.retrieveFile(path.toString(), source) }
+        ftpClientPool.execute { ftp -> ftp.retrieveFile(path.toString(), source) }
     }
 
     /**
      * Create the given folder.
      */
     override fun createFolder(path: Path) {
-        ftpClientPool.execute { ftp: FTPClient -> ftp.createFtpFolder(path) }
+        ftpClientPool.execute { ftp -> ftp.createFtpFolder(path) }
     }
 
     /**
      * List the files in the given path.
      */
     override fun listFiles(path: Path): List<FTPFile> {
-        return ftpClientPool.execute { ftp: FTPClient ->
+        return ftpClientPool.executeRestoringWorkingDirectory { ftp ->
             ftp.changeWorkingDirectory(path.toString())
             ftp.listFiles().toList()
         }
@@ -105,9 +96,33 @@ private class SimpleFtpClient(
      * Delete the file or folder in the given path.
      */
     override fun deleteFile(path: Path) {
-        ftpClientPool.execute { ftp: FTPClient ->
+        ftpClientPool.executeRestoringWorkingDirectory { ftp ->
             val fileDeleted = ftp.deleteFile(path.toString())
             if (fileDeleted.not()) ftp.deleteDirectory(path)
+        }
+    }
+
+    /**
+     * As FTP does not support nested folder creation in a single path the full path is
+     * transverse and required missing folder are created.
+     */
+    private fun FTPClient.createFtpFolder(path: Path) {
+        val paths = path.runningReduce { acc, value -> acc.resolve(value) }
+        paths.forEach { makeDirectory(it.toString()) }
+    }
+
+    /**
+     * As Ftp clients are re used we need to garantee that if working directory is changed it is restored after
+     * operation completion.
+     */
+    private fun <T> FTPClientPool.executeRestoringWorkingDirectory(action: (FTPClient) -> T): T {
+        return execute {
+            val source = it.printWorkingDirectory()
+            try {
+                action(it)
+            } finally {
+                it.changeWorkingDirectory(source)
+            }
         }
     }
 
@@ -116,7 +131,7 @@ private class SimpleFtpClient(
      */
     private fun FTPClient.deleteDirectory(dirPath: Path) {
         changeWorkingDirectory(dirPath.toString())
-        listNames().forEach { deleteFile(it); }
+        listNames().forEach { deleteFile(it) }
 
         changeToParentDirectory()
         removeDirectory(dirPath.fileName.toString())
