@@ -14,7 +14,7 @@ class FtpClientTest {
     private val testInstance = FtpClient.create(FTP_USER, FTP_PASSWORD, ftpServer.getUrl(), ftpServer.ftpPort)
 
     @Test
-    fun `upload a file, list and download it`() {
+    fun `upload a file, list it and download it`() {
         val tempFile = createTempFile()
         tempFile.writeText("test-file")
         tempFile.writeText("test-file")

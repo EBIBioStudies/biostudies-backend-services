@@ -12,7 +12,7 @@ private val logger = KotlinLogging.logger {}
 
 /**
  * Pooled FTP client. Allows to re use FTPClient instances so socket connections and ftp logging does not need to be
- * perform on each FTP operation.
+ * performed on each FTP operation.
  */
 internal class FTPClientPool(
     private val ftpUser: String,
@@ -70,6 +70,8 @@ internal class FTPClientPool(
     }
 
     private companion object {
+        private const val MIN_CONNECTION = 2
+
         fun createFtpPool(
             ftpUser: String,
             ftpPassword: String,
@@ -78,7 +80,7 @@ internal class FTPClientPool(
         ): GenericObjectPool<FTPClient> {
             val factory = FTPClientFactory(ftpUser, ftpPassword, ftpUrl, ftpPort)
             var connections = GenericObjectPool(factory)
-            connections.minIdle = 2
+            connections.minIdle = MIN_CONNECTION
             return connections
         }
     }

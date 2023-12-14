@@ -112,8 +112,8 @@ private class SimpleFtpClient(
     }
 
     /**
-     * As Ftp clients are re used we need to garantee that if working directory is changed it is restored after
-     * operation completion.
+     * As Ftp clients are re used we need to guarantee that, if the working directory is changed, it is restored after
+     * the operation is completed.
      */
     private fun <T> FTPClientPool.executeRestoringWorkingDirectory(action: (FTPClient) -> T): T {
         return execute {
