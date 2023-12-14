@@ -53,7 +53,6 @@ server:
     max-http-form-post-size: 50MB
     max-swallow-size: 50MB
 
-
 logging:
   file:
     name: logs/application_logs.txt
@@ -61,11 +60,11 @@ logging:
     org.springframework.data.mongodb.core.convert.QueryMapper: ERROR # Disable to avoid mapping log population.
 
 app:
-  processId: BioStudies-Backend
-  retrySubmission: false
-  enablePropertiesLog: true
-  consumers: 10 # number of processing queue consumers.
-  maxConsumers: 15 # Max number of processing queue consumers.
+  processId: # Id to register the submission task
+  retrySubmission: # Boolean flag to enable/disable automatic retrying of staled submissions
+  enablePropertiesLog: # Boolean flag to enable/disable displaying the application properties on start
+  consumers: # Number of processing queue consumers.
+  maxConsumers: # Max number of processing queue consumers.
   submissionPath: # Absolute path to the folder to be used as submission storage
   ftpPath: # Absolute path to the folder to be used ftp hardlinks
   tempDirPath: # Absolute path of the temp folder to store files
@@ -76,7 +75,7 @@ app:
   submissionTask:
     enabled: # Whether the submission tasks should be executed in the cluster
     jarLocation: # the submitter task jar location.
-    logsLocation: # the submitter task logs location.
+    javaLocation: # The path to the java installation
     configFilePath: # the submitter task application.yml file location.
   cluster:
     enabled: # Whether the cluster jobs should be triggered remotely
@@ -88,7 +87,7 @@ app:
     host: # FIRE host
     username: # FIRE user
     password: # FIRE password
-    version: v1.1
+    version: # FIRE version
     s3:
       accessKey: # FIRE s3 access key
       secretKey: # FIRE s3 access key
@@ -96,13 +95,13 @@ app:
       endpoint: # Fire s3 region
       bucket: # Fire s3 region
     retry:
-      maxAttempts: 20
-      initialInterval: 100
-      multiplier: 2.0
-      maxInterval: 120
+      maxAttempts: # Maximum retry attempts
+      initialInterval: # Initial waiting interval time in ms
+      multiplier: # Multiplier for the waiting interval
+      maxInterval: # Maximum interval duration
   security:
     captchaKey: # Captcha validation token
-    checkCaptcha: false
+    checkCaptcha: # Boolean flag to enable/disable captcha key checking
     tokenHash: # Token used for hash authentication
     environment: # Current application execution environment
     requireActivation: # Indicates whether a new user need activation before being used
@@ -114,22 +113,22 @@ app:
       defaultMode: # The default mode to create user folder. Valid values are: NFS, FTP
       filesDirPath: # Absolute path to the folder to be used for the user/groups files
       magicDirPath: #  Absolute path to create user magic folder for dropbox simple access
-      ftpDirPath: #  Absolute path of users ftp. Used to access file
+      ftpDirPath: #  Absolute path of users FTP. Used to access file
       ftpUser: # the ftp user
       ftpPassword: # the ftp password
       ftpUrl: # the ftp url without port
       ftpPort: # the ftp port
   persistence:
-    enableFire: true
+    enableFire: # Boolean flag to indicate whether the files are stored on FIRE if true or NFS if false
     concurrency: # Number of files processed concurrently
   mongo:
-    execute-migrations: true
-    migration-package: ac.uk.ebi.biostd.persistence.doc.migrations
+    execute-migrations: # Boolean flag to enable/disable the execution of mongo migrations
+    migration-package: # Mongo migrations package
   validator:
     euToxRiskValidationApi: # EU-ToxRisk validation API
   notifications:
-    requestQueue: submission-request-submitter-queue # queue used to handle request stages
-    requestRoutingKey: bio.submission.requested # request messages routing key
+    requestQueue: # Queue used to handle request stages
+    requestRoutingKey: # Submission request messages routing key
   doi:
     endpoint: # DOI registration endpoint
     uiUrl: # The BioStudies UI URL which will be associated to the DOI record

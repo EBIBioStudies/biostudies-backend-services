@@ -141,6 +141,15 @@ task updateStatsReporterArtifact {
     finalizedBy "deployArtifact"
 }
 
+task updateSubmissionTaskArtifact {
+    doFirst {
+        project.ext.artifactPath = "submission/submission-task/build/libs"
+        project.ext.artifactName = "submission-task-1.0.0.jar"
+    }
+
+    finalizedBy "deployArtifact"
+}
+
 task deployArtifact {
     doLast {
         ssh.run {
