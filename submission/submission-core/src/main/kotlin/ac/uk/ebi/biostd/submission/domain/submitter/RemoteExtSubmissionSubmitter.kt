@@ -20,11 +20,11 @@ class RemoteExtSubmissionSubmitter(
     private val submissionTaskProperties: SubmissionTaskProperties,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
-        TODO("Not yet implemented")
+        TODO("Remote execution not required")
     }
 
     override suspend fun indexRequest(accNo: String, version: Int) {
-        TODO("Not yet implemented")
+        TODO("Remote execution not required")
     }
 
     override suspend fun loadRequest(accNo: String, version: Int) {
@@ -44,19 +44,19 @@ class RemoteExtSubmissionSubmitter(
     }
 
     override suspend fun saveRequest(accNo: String, version: Int): ExtSubmission {
-        TODO("Not yet implemented")
+        TODO("Remote execution not required")
     }
 
     override suspend fun finalizeRequest(accNo: String, version: Int): ExtSubmission {
-        TODO("Not yet implemented")
+        TODO("Remote execution not required")
     }
 
     override suspend fun release(accNo: String) {
-        TODO("Not yet implemented")
+        TODO("Remote execution not required")
     }
 
     override suspend fun handleRequest(accNo: String, version: Int): ExtSubmission {
-        TODO("Not yet implemented")
+        TODO("Remote execution not required")
     }
 
     private suspend fun executeRemotely(accNo: String, version: Int, mode: Mode) = withContext(Dispatchers.IO) {
