@@ -20,6 +20,7 @@ import Versions.CommonsFileUploadVersion
 import Versions.CommonsIOVersion
 import Versions.CommonsLang3Version
 import Versions.CommonsNetVersion
+import Versions.CommonsPoolVersion
 import Versions.GuavaVersion
 import Versions.H2Version
 import Versions.JSONOrgVersion
@@ -88,6 +89,7 @@ object Versions {
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
     const val CommonsNetVersion = "3.6"
+    const val CommonsPoolVersion = "2.12.0"
     const val CommonsCsvVersion = "1.8"
     const val MySqlVersion = "8.0.25"
     const val XmlBuilderVersion = "1.7.4"
@@ -216,6 +218,7 @@ object Dependencies {
     const val CommonsLang3 = "org.apache.commons:commons-lang3:$CommonsLang3Version"
     const val CommonsIO = "commons-io:commons-io:$CommonsIOVersion"
     const val CommonsNet = "commons-net:commons-net:$CommonsNetVersion"
+    const val CommonsPool = "org.apache.commons:commons-pool2:$CommonsPoolVersion"
     const val CommonsCsv = "org.apache.commons:commons-csv:$CommonsCsvVersion"
     const val PoiOxml = "org.apache.poi:poi-ooxml:$PoiVersion"
 }

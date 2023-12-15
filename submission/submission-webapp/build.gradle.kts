@@ -21,6 +21,7 @@ import Projects.CommonsSerialization
 import Projects.CommonsTest
 import Projects.CommonsUtil
 import Projects.ExcelLibrary
+import Projects.FtpWebClient
 import Projects.SubmissionNotification
 import Projects.SubmissionPersistenceMongo
 import Projects.SubmissionPersistenceSql
@@ -145,6 +146,7 @@ dependencies {
 
     testImplementation(TestContainerRabbitMq)
     testImplementation(TestContainerMysql)
+    testImplementation(testFixtures(project(FtpWebClient)))
     testImplementation(TestContainerS3mock)
     testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)

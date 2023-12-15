@@ -6,7 +6,6 @@ import org.apache.commons.net.ftp.FTPFile
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path
-import kotlin.time.Duration.Companion.milliseconds
 
 private val logger = KotlinLogging.logger {}
 
@@ -42,27 +41,19 @@ interface FtpClient {
      */
     fun deleteFile(path: Path)
 
-    /**
-     * Executes operations creating a new Ftp Client class every time as
-     * @see [documented](https://cwiki.apache.org/confluence/display/COMMONS/Net+FrequentlyAskedQuestions)
-     * class is not thread safe.
-     */
-    fun <T> execute(function: (FTPClient) -> T): T
-
     companion object {
-        fun create(ftpUser: String, ftpPassword: String, ftpUrl: String, ftpPort: Int): FtpClient =
-            SimpleFtpClient(ftpUser, ftpPassword, ftpUrl, ftpPort)
+        fun create(ftpUser: String, ftpPassword: String, ftpUrl: String, ftpPort: Int): FtpClient {
+            val connectionPool = FTPClientPool(ftpUser, ftpPassword, ftpUrl, ftpPort)
+            return SimpleFtpClient(connectionPool)
+        }
     }
 }
 
 private class SimpleFtpClient(
-    private val ftpUser: String,
-    private val ftpPassword: String,
-    private val ftpUrl: String,
-    private val ftpPort: Int,
+    private val ftpClientPool: FTPClientPool,
 ) : FtpClient {
     override fun uploadFiles(folder: Path, files: List<Pair<Path, () -> InputStream>>) {
-        execute { ftp ->
+        ftpClientPool.execute { ftp ->
             for ((path, inputStream) in files) {
                 ftp.createFtpFolder(path.parent)
                 inputStream().use { ftp.storeFile(path.toString(), it) }
@@ -71,40 +62,31 @@ private class SimpleFtpClient(
     }
 
     /**
-     * As FTP does not support nested folder creation in a single path the full path is
-     * transverse and required missing folder are created.
-     */
-    private fun FTPClient.createFtpFolder(path: Path) {
-        val paths = path.runningReduce { acc, value -> acc.resolve(value) }
-        paths.forEach { this.makeDirectory(it.toString()) }
-    }
-
-    /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
     override fun uploadFile(path: Path, source: () -> InputStream) {
-        execute { ftp -> source().use { ftp.storeFile(path.toString(), it) } }
+        ftpClientPool.execute { ftp -> source().use { ftp.storeFile(path.toString(), it) } }
     }
 
     /**
      * Download the given file in the output stream. Output stream is NOT closed after completion.
      */
     override fun downloadFile(path: Path, source: OutputStream) {
-        execute { ftp -> ftp.retrieveFile(path.toString(), source) }
+        ftpClientPool.execute { ftp -> ftp.retrieveFile(path.toString(), source) }
     }
 
     /**
      * Create the given folder.
      */
     override fun createFolder(path: Path) {
-        execute { ftp -> ftp.createFtpFolder(path) }
+        ftpClientPool.execute { ftp -> ftp.createFtpFolder(path) }
     }
 
     /**
      * List the files in the given path.
      */
     override fun listFiles(path: Path): List<FTPFile> {
-        return execute { ftp ->
+        return ftpClientPool.executeRestoringWorkingDirectory { ftp ->
             ftp.changeWorkingDirectory(path.toString())
             ftp.listFiles().toList()
         }
@@ -114,9 +96,33 @@ private class SimpleFtpClient(
      * Delete the file or folder in the given path.
      */
     override fun deleteFile(path: Path) {
-        execute { ftp ->
+        ftpClientPool.executeRestoringWorkingDirectory { ftp ->
             val fileDeleted = ftp.deleteFile(path.toString())
             if (fileDeleted.not()) ftp.deleteDirectory(path)
+        }
+    }
+
+    /**
+     * As FTP does not support nested folder creation in a single path the full path is
+     * transverse and required missing folder are created.
+     */
+    private fun FTPClient.createFtpFolder(path: Path) {
+        val paths = path.runningReduce { acc, value -> acc.resolve(value) }
+        paths.forEach { makeDirectory(it.toString()) }
+    }
+
+    /**
+     * As Ftp clients are re used we need to guarantee that, if the working directory is changed, it is restored after
+     * the operation is completed.
+     */
+    private fun <T> FTPClientPool.executeRestoringWorkingDirectory(action: (FTPClient) -> T): T {
+        return execute {
+            val source = it.printWorkingDirectory()
+            try {
+                action(it)
+            } finally {
+                it.changeWorkingDirectory(source)
+            }
         }
     }
 
@@ -125,27 +131,9 @@ private class SimpleFtpClient(
      */
     private fun FTPClient.deleteDirectory(dirPath: Path) {
         changeWorkingDirectory(dirPath.toString())
-        listNames().forEach { deleteFile(it); }
+        listNames().forEach { deleteFile(it) }
 
         changeToParentDirectory()
         removeDirectory(dirPath.fileName.toString())
-    }
-
-    /**
-     * Executes operations creating a new Ftp Client class every time as
-     * @see <a href="https://cwiki.apache.org/confluence/display/COMMONS/Net+FrequentlyAskedQuestions">Documentation</a>
-     * class is not thread safe.
-     */
-    override fun <T> execute(function: (FTPClient) -> T): T {
-        val ftp = ftpClient(3000.milliseconds, 3000.milliseconds)
-        logger.info { "Connecting to $ftpUrl, $ftpPort" }
-        ftp.connect(ftpUrl, ftpPort)
-        ftp.login(ftpUser, ftpPassword)
-        ftp.enterLocalPassiveMode()
-        val result = function(ftp)
-        ftp.logout()
-        ftp.disconnect()
-        logger.info { "Disconnecting from $ftpUrl, $ftpPort" }
-        return result
     }
 }
