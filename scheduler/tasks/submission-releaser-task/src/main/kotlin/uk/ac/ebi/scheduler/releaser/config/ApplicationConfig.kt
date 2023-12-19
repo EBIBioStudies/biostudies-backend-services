@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.persistence.doc.MongoDbReactiveConfig
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReleaserRepository
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -16,8 +17,8 @@ import uk.ac.ebi.scheduler.releaser.service.SubmissionReleaserService
 @Configuration
 @Import(MongoDbReactiveConfig::class)
 class ApplicationConfig(
-    private val releaserRepository: SubmissionReleaserRepository,
     private val appProperties: ApplicationProperties,
+    private val releaserRepository: SubmissionReleaserRepository,
 ) {
     @Bean
     fun submissionReleaserService(
@@ -52,5 +53,8 @@ class ApplicationConfig(
     fun eventsPublisherService(
         rabbitTemplate: RabbitTemplate,
         eventsProperties: EventsProperties,
-    ): EventsPublisherService = EventsPublisherService(rabbitTemplate, eventsProperties)
+    ): EventsPublisherService {
+        rabbitTemplate.messageConverter = Jackson2JsonMessageConverter()
+        return EventsPublisherService(rabbitTemplate, eventsProperties)
+    }
 }
