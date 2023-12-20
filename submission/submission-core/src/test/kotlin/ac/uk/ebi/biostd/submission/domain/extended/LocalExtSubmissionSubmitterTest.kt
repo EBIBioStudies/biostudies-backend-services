@@ -1,12 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.extended
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
@@ -38,7 +32,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
@@ -80,7 +73,7 @@ internal class LocalExtSubmissionSubmitterTest(
     @BeforeEach
     fun beforeEach() {
         mockkStatic(OffsetDateTime::class)
-        every { properties.processId } returns instanceId
+        every { properties.processId } returns INSTANCE_ID
         every { OffsetDateTime.now() } returns mockNow
     }
 
@@ -113,162 +106,83 @@ internal class LocalExtSubmissionSubmitterTest(
     }
 
     @Nested
-    inner class HandleRequest {
+    inner class RequestStages {
         @Test
-        fun `when requested`() = runTest {
-            coEvery { requestService.getRequestStatus("accNo", 1) } returns REQUESTED
-            coEvery { requestIndexer.indexRequest("accNo", 1, instanceId) } answers { nothing }
-            coEvery { requestLoader.loadRequest("accNo", 1, instanceId) } answers { nothing }
-            coEvery { requestProcessor.processRequest("accNo", 1, instanceId) } answers { nothing }
-            coEvery { requestReleaser.checkReleased("accNo", 1, instanceId) } answers { nothing }
-            coEvery { requestCleaner.cleanCurrentVersion("accNo", 1, instanceId) } answers { nothing }
-            coEvery { requestSaver.saveRequest("accNo", 1, instanceId) } answers { sub }
-            coEvery { requestFinalizer.finalizeRequest("accNo", 1, instanceId) } returns sub
+        fun `index request`() = runTest {
+            coEvery { requestIndexer.indexRequest(ACC_NO, VERSION, INSTANCE_ID) } answers { nothing }
 
-            val result = testInstance.handleRequest("accNo", 1)
+            testInstance.indexRequest(ACC_NO, VERSION)
 
-            assertThat(result).isEqualTo(sub)
-            coVerify(exactly = 1) {
-                requestService.getRequestStatus("accNo", 1)
-                requestIndexer.indexRequest("accNo", 1, instanceId)
-                requestLoader.loadRequest("accNo", 1, instanceId)
-                requestCleaner.cleanCurrentVersion("accNo", 1, instanceId)
-                requestProcessor.processRequest("accNo", 1, instanceId)
-                requestReleaser.checkReleased("accNo", 1, instanceId)
-                requestSaver.saveRequest("accNo", 1, instanceId)
-                requestFinalizer.finalizeRequest("accNo", 1, instanceId)
-            }
+            coVerify(exactly = 1) { requestIndexer.indexRequest(ACC_NO, VERSION, INSTANCE_ID) }
         }
 
         @Test
-        fun `when loaded`() = runTest {
-            coEvery { requestService.getRequestStatus("accNo", 1) } returns LOADED
-            coEvery { requestProcessor.processRequest("accNo", 1, instanceId) } answers { nothing }
-            coEvery { requestReleaser.checkReleased("accNo", 1, instanceId) } answers { nothing }
-            coEvery { requestCleaner.cleanCurrentVersion("accNo", 1, instanceId) } answers { nothing }
-            coEvery { requestSaver.saveRequest("accNo", 1, instanceId) } answers { sub }
-            coEvery { requestFinalizer.finalizeRequest("accNo", 1, instanceId) } returns sub
+        fun `load request`() = runTest {
+            coEvery { requestLoader.loadRequest(ACC_NO, VERSION, INSTANCE_ID) } answers { nothing }
 
-            val result = testInstance.handleRequest("accNo", 1)
+            testInstance.loadRequest(ACC_NO, VERSION)
 
-            assertThat(result).isEqualTo(sub)
-            coVerify(exactly = 1) {
-                requestService.getRequestStatus("accNo", 1)
-                requestCleaner.cleanCurrentVersion("accNo", 1, instanceId)
-                requestProcessor.processRequest("accNo", 1, instanceId)
-                requestReleaser.checkReleased("accNo", 1, instanceId)
-                requestSaver.saveRequest("accNo", 1, instanceId)
-                requestFinalizer.finalizeRequest("accNo", 1, instanceId)
-            }
-            coVerify(exactly = 0) {
-                requestIndexer.indexRequest("accNo", 1, instanceId)
-                requestLoader.loadRequest("accNo", 1, instanceId)
-            }
+            coVerify(exactly = 1) { requestLoader.loadRequest(ACC_NO, VERSION, INSTANCE_ID) }
         }
 
         @Test
-        fun `when cleaned`() = runTest {
-            coEvery { requestService.getRequestStatus("accNo", 1) } returns CLEANED
-            coEvery { requestProcessor.processRequest("accNo", 1, instanceId) } answers { nothing }
-            coEvery { requestReleaser.checkReleased("accNo", 1, instanceId) } answers { nothing }
-            coEvery { requestSaver.saveRequest("accNo", 1, instanceId) } answers { sub }
-            coEvery { requestFinalizer.finalizeRequest("accNo", 1, instanceId) } returns sub
+        fun `clean request`() = runTest {
+            coEvery { requestCleaner.cleanCurrentVersion(ACC_NO, VERSION, INSTANCE_ID) } answers { nothing }
 
-            val result = testInstance.handleRequest("accNo", 1)
+            testInstance.cleanRequest(ACC_NO, VERSION)
 
-            assertThat(result).isEqualTo(sub)
-            coVerify(exactly = 1) {
-                requestService.getRequestStatus("accNo", 1)
-                requestProcessor.processRequest("accNo", 1, instanceId)
-                requestReleaser.checkReleased("accNo", 1, instanceId)
-                requestSaver.saveRequest("accNo", 1, instanceId)
-                requestFinalizer.finalizeRequest("accNo", 1, instanceId)
-            }
-            coVerify(exactly = 0) {
-                requestIndexer.indexRequest("accNo", 1, instanceId)
-                requestLoader.loadRequest("accNo", 1, instanceId)
-                requestCleaner.cleanCurrentVersion("accNo", 1, instanceId)
-            }
+            coVerify(exactly = 1) { requestCleaner.cleanCurrentVersion(ACC_NO, VERSION, INSTANCE_ID) }
         }
 
         @Test
-        fun `when files copied`() = runTest {
-            coEvery { requestService.getRequestStatus("accNo", 1) } returns FILES_COPIED
-            coEvery { requestReleaser.checkReleased("accNo", 1, instanceId) } answers { nothing }
-            coEvery { requestSaver.saveRequest("accNo", 1, instanceId) } answers { sub }
-            coEvery { requestFinalizer.finalizeRequest("accNo", 1, instanceId) } returns sub
+        fun `process request`() = runTest {
+            coEvery { requestProcessor.processRequest(ACC_NO, VERSION, INSTANCE_ID) } answers { nothing }
 
-            val result = testInstance.handleRequest("accNo", 1)
+            testInstance.processRequest(ACC_NO, VERSION)
 
-            assertThat(result).isEqualTo(sub)
-            coVerify(exactly = 1) {
-                requestService.getRequestStatus("accNo", 1)
-                requestReleaser.checkReleased("accNo", 1, instanceId)
-                requestSaver.saveRequest("accNo", 1, instanceId)
-                requestFinalizer.finalizeRequest("accNo", 1, instanceId)
-            }
-            coVerify(exactly = 0) {
-                requestIndexer.indexRequest("accNo", 1, instanceId)
-                requestLoader.loadRequest("accNo", 1, instanceId)
-                requestCleaner.cleanCurrentVersion("accNo", 1, instanceId)
-                requestProcessor.processRequest("accNo", 1, instanceId)
-            }
+            coVerify(exactly = 1) { requestProcessor.processRequest(ACC_NO, VERSION, INSTANCE_ID) }
         }
 
         @Test
-        fun `when checked released`() = runTest {
-            coEvery { requestService.getRequestStatus("accNo", 1) } returns CHECK_RELEASED
-            coEvery { requestSaver.saveRequest("accNo", 1, instanceId) } returns sub
-            coEvery { requestFinalizer.finalizeRequest("accNo", 1, instanceId) } returns sub
+        fun `check released`() = runTest {
+            coEvery { requestReleaser.checkReleased(ACC_NO, VERSION, INSTANCE_ID) } answers { nothing }
 
-            val result = testInstance.handleRequest("accNo", 1)
+            testInstance.checkReleased(ACC_NO, VERSION)
 
-            assertThat(result).isEqualTo(sub)
-            coVerify(exactly = 1) {
-                requestService.getRequestStatus("accNo", 1)
-                requestSaver.saveRequest("accNo", 1, instanceId)
-                requestFinalizer.finalizeRequest("accNo", 1, instanceId)
-            }
-            coVerify(exactly = 0) {
-                requestIndexer.indexRequest("accNo", 1, instanceId)
-                requestLoader.loadRequest("accNo", 1, instanceId)
-                requestCleaner.cleanCurrentVersion("accNo", 1, instanceId)
-                requestProcessor.processRequest("accNo", 1, instanceId)
-                requestReleaser.checkReleased("accNo", 1, instanceId)
-            }
+            coVerify(exactly = 1) { requestReleaser.checkReleased(ACC_NO, VERSION, INSTANCE_ID) }
         }
 
         @Test
-        fun `when persisted`() = runTest {
-            coEvery { requestFinalizer.finalizeRequest("accNo", 1, instanceId) } returns sub
-            coEvery { requestService.getRequestStatus("accNo", 1) } returns PERSISTED
+        fun `save request`() = runTest {
+            coEvery { requestSaver.saveRequest(ACC_NO, VERSION, INSTANCE_ID) } returns sub
 
-            testInstance.handleRequest("accNo", 1)
+            testInstance.saveRequest(ACC_NO, VERSION)
 
-            coVerify(exactly = 1) {
-                requestService.getRequestStatus("accNo", 1)
-                requestFinalizer.finalizeRequest("accNo", 1, instanceId)
-            }
-            coVerify(exactly = 0) {
-                requestIndexer.indexRequest("accNo", 1, instanceId)
-                requestLoader.loadRequest("accNo", 1, instanceId)
-                requestCleaner.cleanCurrentVersion("accNo", 1, instanceId)
-                requestProcessor.processRequest("accNo", 1, instanceId)
-                requestReleaser.checkReleased("accNo", 1, instanceId)
-                requestSaver.saveRequest("accNo", 1, instanceId)
-            }
+            coVerify(exactly = 1) { requestSaver.saveRequest(ACC_NO, VERSION, INSTANCE_ID) }
         }
 
         @Test
-        fun `when processed`() = runTest {
-            coEvery { requestService.getRequestStatus("accNo", 1) } returns PROCESSED
+        fun `finalize request`() = runTest {
+            coEvery { requestFinalizer.finalizeRequest(ACC_NO, VERSION, INSTANCE_ID) } returns sub
 
-            val exception = assertThrows<IllegalStateException> { testInstance.handleRequest("accNo", 1) }
-            assertThat(exception.message).isEqualTo("Request accNo=accNo, version='1' has been already processed")
+            testInstance.finalizeRequest(ACC_NO, VERSION)
+
+            coVerify(exactly = 1) { requestFinalizer.finalizeRequest(ACC_NO, VERSION, INSTANCE_ID) }
+        }
+
+        @Test
+        fun `release request`() = runTest {
+            coEvery { requestReleaser.releaseSubmission(ACC_NO) } answers { nothing }
+
+            testInstance.release(ACC_NO)
+
+            coVerify(exactly = 1) { requestReleaser.releaseSubmission(ACC_NO) }
         }
     }
 
     private companion object {
-        const val instanceId = "biostudies-prod"
+        const val ACC_NO = "S-BSST1"
+        const val INSTANCE_ID = "biostudies-prod"
+        const val VERSION = 1
     }
 }
