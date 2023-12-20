@@ -71,13 +71,8 @@ suspend fun SubmissionMongoRepository.getByAccNo(accNo: String): DocSubmission =
     findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
 
 interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionRequest, String> {
-    suspend fun getByAccNoAndVersionAndStatus(
-        accNo: String,
-        version: Int,
-        status: RequestStatus,
-    ): DocSubmissionRequest
-
     suspend fun existsByAccNoAndStatusIn(accNo: String, status: Set<RequestStatus>): Boolean
+
     suspend fun getByAccNoAndStatusIn(accNo: String, status: Set<RequestStatus>): DocSubmissionRequest
 
     suspend fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
@@ -90,6 +85,7 @@ interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionReq
     ): Flow<DocSubmissionRequest>
 
     suspend fun getById(id: ObjectId): DocSubmissionRequest
+
     suspend fun findByAccNo(accNo: String): Flow<DocSubmissionRequest>
 }
 
