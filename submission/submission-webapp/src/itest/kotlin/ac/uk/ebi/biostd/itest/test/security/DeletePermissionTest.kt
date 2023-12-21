@@ -24,7 +24,7 @@ import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertThrows
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -54,37 +54,80 @@ class DeletePermissionTest(
     }
 
     @Test
-    fun `1-1 submit resubmit and delete submission`() = runTest {
+    fun `1-1 superuser deletes private submission`() = runTest {
         val submission = tsv {
-            line("Submission", "DeleteAcc1")
-            line("Title", "Simple Submission")
+            line("Submission", "S-DLT1")
+            line("Title", "Delete Submission 1")
+            line()
+        }.toString()
+
+        val onBehalfClient = SecurityWebClient
+            .create("http://localhost:$serverPort")
+            .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+
+        assertThat(onBehalfClient.submitSingle(submission, TSV)).isSuccessful()
+
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { superUserWebClient.deleteSubmission("S-DLT1") }
+            .withMessageContaining("The user biostudies-mgmt@ebi.ac.uk is not allowed to delete the submission S-DLT1")
+    }
+
+    @Test
+    fun `1-2 superuser deletes public submission`() = runTest {
+        val submission = tsv {
+            line("Submission", "S-DLT2")
+            line("Title", "Delete Submission 2")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
+            line()
+        }.toString()
+
+        val onBehalfClient = SecurityWebClient
+            .create("http://localhost:$serverPort")
+            .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+
+        assertThat(onBehalfClient.submitSingle(submission, TSV)).isSuccessful()
+
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { superUserWebClient.deleteSubmission("S-DLT2") }
+            .withMessageContaining("The user biostudies-mgmt@ebi.ac.uk is not allowed to delete the submission S-DLT2")
+    }
+
+    @Test
+    fun `1-3 regular user deletes private submission`() {
+        val submission = tsv {
+            line("Submission", "S-DLT3")
+            line("Title", "Delete Submission 3")
             line()
         }.toString()
 
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
-        assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
-        superUserWebClient.deleteSubmission("DeleteAcc1")
-        assertDeletedSubmission("DeleteAcc1", -1)
-        assertDeletedSubmission("DeleteAcc1", -2)
+
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { regularUserWebClient.deleteSubmission("S-DLT3") }
+            .withMessageContaining("The user regular@ebi.ac.uk is not allowed to delete the submission S-DLT3")
     }
 
     @Test
-    fun `1-2 delete with regular user`() {
+    fun `1-4 regular user deletes public submission`() {
         val submission = tsv {
-            line("Submission", "DeleteAcc2")
-            line("Title", "Simple Submission")
+            line("Submission", "S-DLT4")
+            line("Title", "Delete Submission 4")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
         }.toString()
 
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
-        assertThrows(WebClientException::class.java) { regularUserWebClient.deleteSubmission("DeleteAcc2") }
+
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { regularUserWebClient.deleteSubmission("S-DLT4") }
+            .withMessageContaining("The user regular@ebi.ac.uk is not allowed to delete the submission S-DLT4")
     }
 
     @Test
-    fun `1-3 delete private with regular user and tag access permission`() = runTest {
+    fun `1-5 regular user with access tag permission deletes private submission`() = runTest {
         val submission = tsv {
-            line("Submission", "DeleteAcc3")
-            line("Title", "Simple Submission")
+            line("Submission", "S-DLT5")
+            line("Title", "Delete Submission 5")
             line("AttachTo", "ACollection")
             line()
         }.toString()
@@ -92,31 +135,31 @@ class DeletePermissionTest(
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
         superUserWebClient.givePermissionToUser(RegularUser.email, "ACollection", DELETE.name)
 
-        regularUserWebClient.deleteSubmission("DeleteAcc3")
-        assertDeletedSubmission("DeleteAcc3")
+        regularUserWebClient.deleteSubmission("S-DLT5")
+        assertDeletedSubmission("S-DLT5")
     }
 
     @Test
-    fun `1-4 resubmit deleted submission`() = runTest {
+    fun `1-6 regular user with access tag permission deletes public submission`() = runTest {
         val submission = tsv {
-            line("Submission", "DeleteAcc4")
+            line("Submission", "S-DLT6")
             line("Title", "Simple Submission")
+            line("AttachTo", "ACollection")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
         }.toString()
 
-        superUserWebClient.submitSingle(submission, TSV)
-        superUserWebClient.deleteSubmission("DeleteAcc4")
-        superUserWebClient.submitSingle(submission, TSV)
-
-        val resubmitted = submissionRepository.getExtByAccNo("DeleteAcc4")
-        assertThat(resubmitted.version).isEqualTo(2)
+        assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
+        superUserWebClient.givePermissionToUser(RegularUser.email, "ACollection", DELETE.name)
+        regularUserWebClient.deleteSubmission("S-DLT6")
+        assertDeletedSubmission("S-DLT6")
     }
 
     @Test
-    fun `1-5 delete with collection admin user`() = runTest {
+    fun `1-7 regular user with admin persmission deletes private submission`() = runTest {
         val submission = tsv {
-            line("Submission", "DeleteAcc5")
-            line("Title", "Simple Submission")
+            line("Submission", "S-DLT7")
+            line("Title", "Delete Submission 7")
             line("AttachTo", "ACollection")
             line()
         }.toString()
@@ -124,59 +167,34 @@ class DeletePermissionTest(
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
         superUserWebClient.givePermissionToUser(ExistingUser.email, "ACollection", ADMIN.name)
 
-        existingUserWebClient.deleteSubmission("DeleteAcc5")
-        assertDeletedSubmission("DeleteAcc5")
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { existingUserWebClient.deleteSubmission("S-DLT7") }
+            .withMessageContaining("The user register_user@ebi.ac.uk is not allowed to delete the submission S-DLT7")
     }
 
     @Test
-    fun `1-6 delete subsmissions`() = runTest {
-        val submission1 = tsv {
-            line("Submission", "DeleteAcc6-1")
-            line("Title", "Test Section Table")
-        }.toString()
-        val submission2 = tsv {
-            line("Submission", "DeleteAcc6-2")
-            line("Title", "Test Section Table")
-        }.toString()
-        val submission3 = tsv {
-            line("Submission", "DeleteAcc6-3")
-            line("Title", "Test Section Table")
-        }.toString()
-
-        assertThat(superUserWebClient.submitSingle(submission1, TSV)).isSuccessful()
-        assertThat(superUserWebClient.submitSingle(submission2, TSV)).isSuccessful()
-        assertThat(superUserWebClient.submitSingle(submission3, TSV)).isSuccessful()
-
-        superUserWebClient.deleteSubmissions(listOf("DeleteAcc6-1", "DeleteAcc6-3"))
-        Thread.sleep(5000)
-
-        assertDeletedSubmission("DeleteAcc6-1")
-        assertDeletedSubmission("DeleteAcc6-3")
-        assertThat(submissionRepository.getExtByAccNo("DeleteAcc6-2")).isNotNull
-    }
-
-    @Test
-    fun `1-7 delete public with regular user and tag access permission`() {
+    fun `1-8 regular user with admin persmission deletes public submission`() = runTest {
         val submission = tsv {
-            line("Submission", "DeleteAcc7")
-            line("Title", "Simple Submission")
+            line("Submission", "S-DLT8")
+            line("Title", "Delete Submission 8")
             line("AttachTo", "ACollection")
             line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
         }.toString()
 
         assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
-        superUserWebClient.givePermissionToUser(RegularUser.email, "ACollection", DELETE.name)
-        val error = assertThrows(WebClientException::class.java) { regularUserWebClient.deleteSubmission("DeleteAcc7") }
-        val expectedMessage = "The user regular@ebi.ac.uk is not allowed to delete the submission DeleteAcc7"
-        assertThat(error.message).contains(expectedMessage)
+        superUserWebClient.givePermissionToUser(ExistingUser.email, "ACollection", ADMIN.name)
+
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { existingUserWebClient.deleteSubmission("S-DLT8") }
+            .withMessageContaining("The user register_user@ebi.ac.uk is not allowed to delete the submission S-DLT8")
     }
 
     @Test
-    fun `1-8 delete own public submission`() {
+    fun `1-9 delete own public submission`() {
         val submission = tsv {
-            line("Submission", "DeleteAcc8")
-            line("Title", "Simple Submission")
+            line("Submission", "S-DLT9")
+            line("Title", "Delete Submission 9")
             line("ReleaseDate", OffsetDateTime.now().toStringDate())
             line()
         }.toString()
@@ -186,15 +204,17 @@ class DeletePermissionTest(
             .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
         assertThat(onBehalfClient.submitSingle(submission, TSV)).isSuccessful()
-        assertThrows(WebClientException::class.java) { regularUserWebClient.deleteSubmission("DeleteAcc8") }
+
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { regularUserWebClient.deleteSubmission("S-DLT9") }
+            .withMessageContaining("The user regular@ebi.ac.uk is not allowed to delete the submission S-DLT9")
     }
 
     @Test
-    fun `1-9 superuser deletes public submission`() = runTest {
+    fun `1-10 delete own private submission`() = runTest {
         val submission = tsv {
-            line("Submission", "DeleteAcc9")
-            line("Title", "Simple Submission")
-            line("ReleaseDate", OffsetDateTime.now().toStringDate())
+            line("Submission", "S-DLT10")
+            line("Title", "Delete Submission 10")
             line()
         }.toString()
 
@@ -203,10 +223,77 @@ class DeletePermissionTest(
             .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
         assertThat(onBehalfClient.submitSingle(submission, TSV)).isSuccessful()
-        superUserWebClient.deleteSubmission("DeleteAcc9")
+        regularUserWebClient.deleteSubmission("S-DLT10")
+        assertDeletedSubmission("S-DLT10")
+    }
+
+    @Test
+    fun `1-11 delete own public subsmissions`() = runTest {
+        val submission1 = tsv {
+            line("Submission", "S-DLT111")
+            line("Title", "Delete Submission 111")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
+            line()
+        }.toString()
+        val submission2 = tsv {
+            line("Submission", "S-DLT112")
+            line("Title", "Delete Submission 112")
+            line()
+        }.toString()
+        val submission3 = tsv {
+            line("Submission", "S-DLT113")
+            line("Title", "Delete Submission 113")
+            line("ReleaseDate", OffsetDateTime.now().toStringDate())
+            line()
+        }.toString()
+
+        assertThat(superUserWebClient.submitSingle(submission1, TSV)).isSuccessful()
+        assertThat(superUserWebClient.submitSingle(submission2, TSV)).isSuccessful()
+        assertThat(superUserWebClient.submitSingle(submission3, TSV)).isSuccessful()
+
+        val errorMsg = "The user biostudies-mgmt@ebi.ac.uk is not allowed to delete the submissions S-DLT111, S-DLT113"
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { superUserWebClient.deleteSubmissions(listOf("S-DLT111", "S-DLT112", "S-DLT113")) }
+            .withMessageContaining(errorMsg)
+    }
+
+    @Test
+    fun `1-12 delete own private subsmissions`() = runTest {
+        val submission1 = tsv {
+            line("Submission", "S-DLT121")
+            line("Title", "Delete Submission 121")
+            line()
+        }.toString()
+        val submission2 = tsv {
+            line("Submission", "S-DLT122")
+            line("Title", "Delete Submission 122")
+            line()
+        }.toString()
+
+        assertThat(superUserWebClient.submitSingle(submission1, TSV)).isSuccessful()
+        assertThat(superUserWebClient.submitSingle(submission2, TSV)).isSuccessful()
+
+        superUserWebClient.deleteSubmissions(listOf("S-DLT121", "S-DLT122"))
         Thread.sleep(5000)
 
-        assertDeletedSubmission("DeleteAcc9")
+        assertDeletedSubmission("S-DLT121")
+        assertDeletedSubmission("S-DLT122")
+    }
+
+    @Test
+    fun `1-13 resubmit deleted submission`() = runTest {
+        val submission = tsv {
+            line("Submission", "S-DLT13")
+            line("Title", "Delete Submission 13")
+            line()
+        }.toString()
+
+        superUserWebClient.submitSingle(submission, TSV)
+        superUserWebClient.deleteSubmission("S-DLT13")
+        superUserWebClient.submitSingle(submission, TSV)
+
+        val resubmitted = submissionRepository.getExtByAccNo("S-DLT13")
+        assertThat(resubmitted.version).isEqualTo(2)
     }
 
     private suspend fun assertDeletedSubmission(accNo: String, version: Int = -1) {
