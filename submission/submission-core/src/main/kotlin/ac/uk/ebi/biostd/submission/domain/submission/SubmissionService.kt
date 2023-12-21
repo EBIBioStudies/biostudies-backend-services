@@ -8,12 +8,14 @@ import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDelete
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotRelease
 import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
+import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
+import java.time.Duration
 
 private val logger = KotlinLogging.logger {}
 
@@ -29,7 +31,17 @@ class SubmissionService(
 ) {
     suspend fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.draftKey}'" }
-        return submissionSubmitter.submit(rqt)
+        val (accNo, version) = submissionSubmitter.createRequest(rqt)
+        eventsPublisherService.requestCreated(accNo, version)
+
+        waitUntil(
+            duration = Duration.ofMinutes(20),
+            interval = Duration.ofSeconds(30)
+        ) {
+            queryService.existByAccNoAndVersion(accNo, version)
+        }
+
+        return queryService.getExtByAccNo(accNo)
     }
 
     suspend fun submitAsync(rqt: SubmitRequest) {

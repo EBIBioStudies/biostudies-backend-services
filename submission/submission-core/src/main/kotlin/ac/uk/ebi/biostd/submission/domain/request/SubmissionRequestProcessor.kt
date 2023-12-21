@@ -12,12 +12,14 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
+import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestProcessor(
     private val concurrency: Int,
     private val storageService: FileStorageService,
+    private val eventsPublisherService: EventsPublisherService,
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
@@ -28,6 +30,7 @@ class SubmissionRequestProcessor(
         val (changeId, request) = requestService.getSubmissionRequest(accNo, version, CLEANED, processId)
         processRequest(request.submission, request.currentIndex)
         requestService.saveRequest(request.withNewStatus(FILES_COPIED, changeId))
+        eventsPublisherService.requestFilesCopied(accNo, version)
     }
 
     private suspend fun processRequest(sub: ExtSubmission, currentIndex: Int) {

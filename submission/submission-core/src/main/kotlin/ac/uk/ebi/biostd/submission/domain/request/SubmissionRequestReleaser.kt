@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 
@@ -31,6 +32,7 @@ class SubmissionRequestReleaser(
     private val concurrency: Int,
     private val fileStorageService: FileStorageService,
     private val serializationService: ExtSerializationService,
+    private val eventsPublisherService: EventsPublisherService,
     private val queryService: SubmissionPersistenceQueryService,
     private val persistenceService: SubmissionPersistenceService,
     private val requestService: SubmissionRequestPersistenceService,
@@ -43,6 +45,7 @@ class SubmissionRequestReleaser(
         val (changeId, request) = requestService.getSubmissionRequest(accNo, version, FILES_COPIED, processId)
         if (request.submission.released) releaseRequest(accNo, version, request)
         requestService.saveRequest(request.withNewStatus(CHECK_RELEASED, changeId))
+        eventsPublisherService.checkReleased(accNo, version)
     }
 
     private suspend fun releaseRequest(

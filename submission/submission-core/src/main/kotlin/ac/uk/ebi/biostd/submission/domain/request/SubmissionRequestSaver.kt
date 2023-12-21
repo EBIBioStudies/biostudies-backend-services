@@ -24,6 +24,7 @@ class SubmissionRequestSaver(
         val (changeId, request) = requestService.getSubmissionRequest(accNo, version, CHECK_RELEASED, processId)
         val saved = saveRequest(request.submission)
         requestService.saveRequest(request.withNewStatus(PERSISTED, changeId))
+        eventsPublisherService.submissionPersisted(accNo, version)
         eventsPublisherService.submissionSubmitted(accNo, request.notifyTo)
         return saved
     }

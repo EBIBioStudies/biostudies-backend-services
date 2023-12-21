@@ -22,15 +22,17 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import uk.ac.ebi.events.service.EventsPublisherService
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
 
 class SubmissionRequestLoader(
     private val concurrency: Int,
+    private val fireTempDirPath: File,
+    private val eventsPublisherService: EventsPublisherService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
     private val requestService: SubmissionRequestPersistenceService,
-    private val fireTempDirPath: File,
 ) {
     /**
      * Calculate md5 and size for every file in submission request.
@@ -39,6 +41,7 @@ class SubmissionRequestLoader(
         val (changeId, request) = requestService.getSubmissionRequest(accNo, version, INDEXED, processId)
         loadRequest(request.submission, request.currentIndex)
         requestService.saveRequest(request.withNewStatus(LOADED, changeId = changeId))
+        eventsPublisherService.requestLoaded(accNo, version)
     }
 
     private suspend fun loadRequest(sub: ExtSubmission, currentIndex: Int) {

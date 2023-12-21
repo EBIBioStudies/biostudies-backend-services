@@ -17,6 +17,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
+// TODO this class would disappear since it would become just a proxy between the listener and the ExtSubmissionSubmitter
 class SubmissionStagesHandler(
     private val statsService: SubmissionStatsService,
     private val submissionSubmitter: ExtSubmissionSubmitter,
@@ -26,7 +27,6 @@ class SubmissionStagesHandler(
         processSafely(rqt) {
             val (accNo, version) = rqt
             submissionSubmitter.indexRequest(accNo, version)
-            eventsPublisherService.requestIndexed(accNo, version)
         }
     }
 
@@ -34,7 +34,6 @@ class SubmissionStagesHandler(
         processSafely(rqt) {
             val (accNo, version) = rqt
             submissionSubmitter.loadRequest(accNo, version)
-            eventsPublisherService.requestLoaded(accNo, version)
         }
     }
 
@@ -42,14 +41,12 @@ class SubmissionStagesHandler(
         processSafely(rqt) {
             val (accNo, version) = rqt
             submissionSubmitter.cleanRequest(accNo, version)
-            eventsPublisherService.requestCleaned(accNo, version)
         }
     }
 
     fun copyRequestFiles(rqt: RequestCleaned) {
         processSafely(rqt) {
             submissionSubmitter.processRequest(accNo, version)
-            eventsPublisherService.requestFilesCopied(accNo, version)
         }
     }
 
@@ -57,7 +54,6 @@ class SubmissionStagesHandler(
         processSafely(rqt) {
             val (accNo, version) = rqt
             submissionSubmitter.checkReleased(accNo, version)
-            eventsPublisherService.checkReleased(accNo, version)
         }
     }
 
@@ -65,7 +61,6 @@ class SubmissionStagesHandler(
         processSafely(rqt) {
             val (accNo, version) = rqt
             submissionSubmitter.saveRequest(accNo, version)
-            eventsPublisherService.submissionPersisted(accNo, version)
         }
     }
 
