@@ -23,10 +23,15 @@ class UserCanNotSubmitToCollectionException(
     collection: String,
 ) : InvalidPermissionsException("The user $user is not allowed to submit to $collection collection")
 
-class UserCanNotDelete(
-    accNo: String,
+class UserCanNotDeleteSubmission(
     user: String,
+    accNo: String,
 ) : InvalidPermissionsException("The user $user is not allowed to delete the submission $accNo")
+
+class UserCanNotDeleteSubmissions(
+    user: String,
+    accNos: List<String>,
+) : InvalidPermissionsException("The user $user is not allowed to delete the submissions ${accNos.joinToString(", ")}")
 
 class UserCanNotRelease(
     accNo: String,

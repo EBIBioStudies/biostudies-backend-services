@@ -16,8 +16,11 @@ internal class UserSqlPermissionsService(
             permissionRepo.findAllByUserEmailAndAccessType(user, ADMIN) +
             permissionRepo.findAllByUserEmailAndAccessType(DEFAULT_USER, accessType)
 
+    override fun isAdmin(user: String, accessTag: String): Boolean {
+        return permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(user, ADMIN, accessTag)
+    }
+
     override fun hasPermission(user: String, accessTag: String, accessType: AccessType): Boolean =
         permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(user, accessType, accessTag) ||
-            permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(user, ADMIN, accessTag) ||
             permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(DEFAULT_USER, accessType, accessTag)
 }
