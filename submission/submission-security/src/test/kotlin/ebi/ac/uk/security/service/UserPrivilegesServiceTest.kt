@@ -1,6 +1,5 @@
 package ebi.ac.uk.security.service
 
-import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
@@ -63,7 +62,7 @@ class UserPrivilegesServiceTest(
 
     @Test
     fun `regular user without permissions submits to collection`() {
-        every { userPermissionsService.hasPermission("author@mail.com", "A-Collection", ADMIN) } returns false
+        every { userPermissionsService.isAdmin("author@mail.com", "A-Collection") } returns false
         every { userPermissionsService.hasPermission("author@mail.com", "A-Collection", ATTACH) } returns false
 
         assertThat(testInstance.canSubmitToCollection("author@mail.com", "A-Collection")).isFalse
@@ -71,7 +70,7 @@ class UserPrivilegesServiceTest(
 
     @Test
     fun `regular user with permissions submits to collection`() {
-        every { userPermissionsService.hasPermission("author@mail.com", "A-Collection", ADMIN) } returns false
+        every { userPermissionsService.isAdmin("author@mail.com", "A-Collection") } returns false
         every { userPermissionsService.hasPermission("author@mail.com", "A-Collection", ATTACH) } returns true
 
         assertThat(testInstance.canSubmitToCollection("author@mail.com", "A-Collection")).isTrue
@@ -104,7 +103,7 @@ class UserPrivilegesServiceTest(
 
     @Test
     fun `super user deletes a submission`() = runTest {
-        assertThat(testInstance.canDelete("superuser@mail.com", "accNo")).isTrue
+        assertThat(testInstance.canDelete("superuser@mail.com", "accNo")).isFalse
     }
 
     @Test
@@ -135,7 +134,7 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `other author user deletes private submission with tag`() = runTest {
+    fun `user with access permission deletes a private submission`() = runTest {
         coEvery { queryService.getAccessTags("accNo") } returns listOf("A-Collection")
         every { userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Collection", DELETE) } returns true
 
@@ -143,16 +142,16 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `other author user deletes public submission with tag`() = runTest {
+    fun `user with access permission deletes a public submission`() = runTest {
         every { basicSubmission.released } returns true
         coEvery { queryService.getAccessTags("accNo") } returns listOf("A-Collection")
         every { userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Collection", DELETE) } returns true
 
-        assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isFalse
+        assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isTrue
     }
 
     @Test
-    fun `other author user deletes submission without tag`() = runTest {
+    fun `user without access permission deletes a submission`() = runTest {
         assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isFalse
     }
 

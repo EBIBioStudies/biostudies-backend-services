@@ -26,8 +26,13 @@ internal class UserPrivilegesService(
 
     override fun canSubmitExtended(submitter: String): Boolean = isSuperUser(submitter)
 
-    override fun canSubmitToCollection(submitter: String, collection: String): Boolean =
-        isSuperUser(submitter) || hasPermissions(submitter, listOf(collection), ATTACH)
+    override fun canSubmitToCollection(submitter: String, collection: String): Boolean {
+        val accessTags = listOf(collection)
+
+        return isSuperUser(submitter) ||
+            isAdmin(submitter, accessTags) ||
+            hasPermissions(submitter, accessTags, ATTACH)
+    }
 
     override fun allowedCollections(email: String, accessType: AccessType): List<String> = when {
         isSuperUser(email) -> tagsDataRepository.findAll().map { it.name }
@@ -38,15 +43,17 @@ internal class UserPrivilegesService(
                 .distinct()
     }
 
-    override suspend fun canResubmit(submitter: String, accNo: String) =
-        isSuperUser(submitter) ||
-            isAuthor(getOwner(accNo), submitter) ||
-            hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), UPDATE)
+    override suspend fun canResubmit(submitter: String, accNo: String): Boolean {
+        val accessTags = submissionQueryService.getAccessTags(accNo)
 
-    override suspend fun canDelete(submitter: String, accNo: String) = when {
-        isSuperUser(submitter) -> true
-        isPublic(accNo) -> false
-        else -> isAuthor(getOwner(accNo), submitter) ||
+        return isSuperUser(submitter) ||
+            isAdmin(submitter, accessTags) ||
+            isAuthor(getOwner(accNo), submitter) ||
+            hasPermissions(submitter, accessTags, UPDATE)
+    }
+
+    override suspend fun canDelete(submitter: String, accNo: String): Boolean {
+        return (isAuthor(getOwner(accNo), submitter) && isPublic(accNo).not()) ||
             hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), DELETE)
     }
 
@@ -60,6 +67,10 @@ internal class UserPrivilegesService(
     }
 
     private fun isSuperUser(email: String) = getUser(email).superuser
+
+    private fun isAdmin(email: String, accessTags: List<String>): Boolean {
+        return accessTags.isNotEmpty() && accessTags.all { userPermissionsService.isAdmin(email, it) }
+    }
 
     private fun isAuthor(author: String?, email: String) = author == email
 

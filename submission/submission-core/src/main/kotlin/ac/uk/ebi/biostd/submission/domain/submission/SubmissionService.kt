@@ -4,7 +4,8 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
-import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDelete
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmission
+import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmissions
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotRelease
 import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
@@ -12,7 +13,7 @@ import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
-import kotlinx.coroutines.runBlocking
+import ebi.ac.uk.util.collections.ifNotEmpty
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.Duration
@@ -51,15 +52,25 @@ class SubmissionService(
     }
 
     suspend fun deleteSubmission(accNo: String, user: SecurityUser) {
-        require(userPrivilegesService.canDelete(user.email, accNo)) { throw UserCanNotDelete(accNo, user.email) }
-        runBlocking { fileStorageService.deleteSubmissionFiles(queryService.getExtByAccNo(accNo, true)) }
-        submissionPersistenceService.expireSubmission(accNo)
-        eventsPublisherService.submissionsRefresh(accNo, user.email)
+        require(userPrivilegesService.canDelete(user.email, accNo)) {
+            throw UserCanNotDeleteSubmission(user.email, accNo)
+        }
+
+        delete(accNo, user.email)
     }
 
     suspend fun deleteSubmissions(submissions: List<String>, user: SecurityUser) {
-        submissions.forEach { require(userPrivilegesService.canDelete(user.email, it)) }
-        submissions.forEach { deleteSubmission(it, user) }
+        submissions
+            .filter { !userPrivilegesService.canDelete(user.email, it) }
+            .ifNotEmpty { throw UserCanNotDeleteSubmissions(user.email, it) }
+
+        submissions.forEach { delete(it, user.email) }
+    }
+
+    private suspend fun delete(accNo: String, user: String) {
+        fileStorageService.deleteSubmissionFiles(queryService.getExtByAccNo(accNo, includeFileListFiles = true))
+        submissionPersistenceService.expireSubmission(accNo)
+        eventsPublisherService.submissionsRefresh(accNo, user)
     }
 
     suspend fun releaseSubmission(request: ReleaseRequest, user: SecurityUser) {
