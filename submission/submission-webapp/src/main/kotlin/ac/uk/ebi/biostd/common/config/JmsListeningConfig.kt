@@ -2,8 +2,9 @@ package ac.uk.ebi.biostd.common.config
 
 import ac.uk.ebi.biostd.common.events.BIOSTUDIES_EXCHANGE
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.submission.domain.request.SubmissionStagesHandler
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionMessageListener
+import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.Queue
@@ -13,6 +14,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.ac.ebi.events.service.EventsPublisherService
 
 internal const val LISTENER_FACTORY_NAME = "processingListenerFactory"
 
@@ -45,6 +47,8 @@ class JmsConfig(
 
     @Bean
     fun submissionMessageListener(
-        stagesHandler: SubmissionStagesHandler,
-    ): SubmissionMessageListener = SubmissionMessageListener(stagesHandler)
+        statsService: SubmissionStatsService,
+        submissionSubmitter: ExtSubmissionSubmitter,
+        eventsPublisherService: EventsPublisherService,
+    ): SubmissionMessageListener = SubmissionMessageListener(statsService, submissionSubmitter, eventsPublisherService)
 }

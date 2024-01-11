@@ -16,7 +16,8 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.collections.ifNotEmpty
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
-import java.time.Duration
+import java.time.Duration.ofMinutes
+import java.time.Duration.ofSeconds
 
 private val logger = KotlinLogging.logger {}
 
@@ -36,8 +37,8 @@ class SubmissionService(
         eventsPublisherService.requestCreated(accNo, version)
 
         waitUntil(
-            duration = Duration.ofMinutes(20),
-            interval = Duration.ofSeconds(30)
+            duration = ofMinutes(SYNC_SUBMIT_TIMEOUT),
+            interval = ofSeconds(SYNC_SUBMIT_CHECK_INTERVAL),
         ) {
             queryService.existByAccNoAndVersion(accNo, version)
         }
@@ -77,5 +78,10 @@ class SubmissionService(
         require(userPrivilegesService.canRelease(user.email)) { throw UserCanNotRelease(request.accNo, user.email) }
         extSubmissionSubmitter.release(request.accNo)
         eventsPublisherService.submissionsRefresh(request.accNo, user.email)
+    }
+
+    companion object {
+        internal const val SYNC_SUBMIT_CHECK_INTERVAL = 10L
+        internal const val SYNC_SUBMIT_TIMEOUT = 20L
     }
 }

@@ -55,8 +55,7 @@ class EventsPublisherService(
             BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestCleaned(accNo, version)
         )
 
-    // TODO change to requestCheckedRelease
-    fun checkReleased(accNo: String, version: Int) =
+    fun requestCheckedRelease(accNo: String, version: Int) =
         rabbitTemplate.convertAndSend(
             BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestCheckedReleased(accNo, version)
         )

@@ -45,7 +45,7 @@ class SubmissionRequestReleaser(
         val (changeId, request) = requestService.getSubmissionRequest(accNo, version, FILES_COPIED, processId)
         if (request.submission.released) releaseRequest(accNo, version, request)
         requestService.saveRequest(request.withNewStatus(CHECK_RELEASED, changeId))
-        eventsPublisherService.checkReleased(accNo, version)
+        eventsPublisherService.requestCheckedRelease(accNo, version)
     }
 
     private suspend fun releaseRequest(
