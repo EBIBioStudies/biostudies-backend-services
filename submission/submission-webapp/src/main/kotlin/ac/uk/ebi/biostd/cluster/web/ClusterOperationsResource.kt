@@ -37,6 +37,11 @@ class ClusterOperationsResource(
         return JobStatus(clusterClient.jobStatus(jobId))
     }
 
+    @GetMapping("/jobs/{jobId}/logs")
+    suspend fun jobLogs(@PathVariable jobId: String): String {
+        return clusterClient.jobLogs(jobId)
+    }
+
     data class JobSpecDto(val command: String, val queue: String, val ramMegaBytes: Int) {
         fun asJobSpec(): JobSpec = JobSpec(
             command = command, queue = QueueSpec.fromName(queue), ram = MemorySpec.fromMegaBytes(ramMegaBytes)

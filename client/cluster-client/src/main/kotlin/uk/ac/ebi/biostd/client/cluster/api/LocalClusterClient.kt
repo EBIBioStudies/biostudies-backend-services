@@ -11,11 +11,14 @@ import kotlin.io.path.createTempFile
 
 class LocalClusterClient : ClusterClient {
     private val activeProcess = ConcurrentHashMap<Long, Process>()
+    private val jobLogs = ConcurrentHashMap<Long, File>()
 
     override suspend fun triggerJobAsync(jobSpec: JobSpec): Try<Job> {
         return withContext(Dispatchers.IO) {
             val logFile = createTempFile().toFile()
             val processId = executeProcess(jobSpec.command, logFile)
+
+            jobLogs[processId] = logFile
             Try.just(Job(processId.toString(), LOCAL_QUEUE, logFile.absolutePath))
         }
     }
@@ -32,6 +35,10 @@ class LocalClusterClient : ClusterClient {
     override suspend fun jobStatus(jobId: String): String {
         val process = activeProcess.getValue(jobId.toLong())
         return if (process.isAlive) "RUNNING" else "DONE"
+    }
+
+    override suspend fun jobLogs(jobId: String): String {
+        return jobLogs.getValue(jobId.toLong()).readText()
     }
 
     companion object {
