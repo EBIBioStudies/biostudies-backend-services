@@ -17,7 +17,6 @@ import ebi.ac.uk.util.collections.ifNotEmpty
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.Duration.ofMinutes
-import java.time.Duration.ofSeconds
 
 private val logger = KotlinLogging.logger {}
 
@@ -33,15 +32,10 @@ class SubmissionService(
 ) {
     suspend fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.draftKey}'" }
+
         val (accNo, version) = submissionSubmitter.createRequest(rqt)
         eventsPublisherService.requestCreated(accNo, version)
-
-        waitUntil(
-            duration = ofMinutes(SYNC_SUBMIT_TIMEOUT),
-            interval = ofSeconds(SYNC_SUBMIT_CHECK_INTERVAL),
-        ) {
-            queryService.existByAccNoAndVersion(accNo, version)
-        }
+        waitUntil(duration = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { queryService.existByAccNoAndVersion(accNo, version) }
 
         return queryService.getExtByAccNo(accNo)
     }
@@ -81,7 +75,6 @@ class SubmissionService(
     }
 
     companion object {
-        internal const val SYNC_SUBMIT_CHECK_INTERVAL = 10L
-        internal const val SYNC_SUBMIT_TIMEOUT = 20L
+        internal const val SYNC_SUBMIT_TIMEOUT = 5L
     }
 }
