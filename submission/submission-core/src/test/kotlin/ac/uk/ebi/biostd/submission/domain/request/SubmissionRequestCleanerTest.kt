@@ -26,6 +26,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 
@@ -34,6 +35,7 @@ import uk.ac.ebi.extended.serialization.service.filesFlow
 class SubmissionRequestCleanerTest(
     @MockK private val storageService: StorageService,
     @MockK private val serializationService: ExtSerializationService,
+    @MockK private val eventsPublisherService: EventsPublisherService,
     @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val filesRequestService: SubmissionRequestFilesPersistenceService,
@@ -41,6 +43,7 @@ class SubmissionRequestCleanerTest(
     private val testInstance = SubmissionRequestCleaner(
         storageService,
         serializationService,
+        eventsPublisherService,
         queryService,
         requestService,
         filesRequestService,
@@ -69,6 +72,7 @@ class SubmissionRequestCleanerTest(
         every { sub.version } returns version
         coEvery { queryService.findExtByAccNo(accNo, true) } returns null
         every { loadedRequest.withNewStatus(CLEANED, changeId) } returns cleanedRequest
+        every { eventsPublisherService.requestCleaned(accNo, version) } answers { nothing }
         coEvery {
             requestService.getSubmissionRequest(
                 accNo,
@@ -81,7 +85,10 @@ class SubmissionRequestCleanerTest(
 
         testInstance.cleanCurrentVersion(accNo, version, instanceId)
 
-        coVerify(exactly = 1) { requestService.saveRequest(cleanedRequest) }
+        coVerify(exactly = 1) {
+            requestService.saveRequest(cleanedRequest)
+            eventsPublisherService.requestCleaned(accNo, version)
+        }
         coVerify(exactly = 0) {
             storageService.deleteSubmissionFile(any(), any())
         }
@@ -109,6 +116,7 @@ class SubmissionRequestCleanerTest(
         every { loadedRequest.submission } returns new
 
         every { loadedRequest.withNewStatus(CLEANED, changeId) } returns cleanedRequest
+        every { eventsPublisherService.requestCleaned("S-BSST1", 2) } answers { nothing }
         coEvery { queryService.findExtByAccNo("S-BSST1", true) } returns current
         coEvery {
             requestService.getSubmissionRequest(
@@ -128,6 +136,7 @@ class SubmissionRequestCleanerTest(
         coVerify(exactly = 1) {
             requestService.saveRequest(cleanedRequest)
             storageService.deleteSubmissionFile(current, currentFile)
+            eventsPublisherService.requestCleaned("S-BSST1", 2)
         }
     }
 
