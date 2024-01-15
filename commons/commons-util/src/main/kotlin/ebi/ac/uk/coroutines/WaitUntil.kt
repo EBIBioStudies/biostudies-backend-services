@@ -30,3 +30,13 @@ suspend fun waitUntil(
 
     waitUntil(conditionEvaluator, duration.toMillis(), interval.toMillis())
 }
+
+suspend fun <T> waitUntil(
+    duration: Duration,
+    interval: Duration = Duration.ofMillis(300),
+    conditionEvaluator: suspend () -> Boolean,
+    processFunction: suspend () -> T,
+): T {
+    waitUntil(duration, interval, conditionEvaluator)
+    return processFunction()
+}

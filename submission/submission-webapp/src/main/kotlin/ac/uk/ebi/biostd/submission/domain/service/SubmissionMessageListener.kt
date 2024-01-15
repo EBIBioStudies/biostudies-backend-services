@@ -93,7 +93,7 @@ class SubmissionMessageListener(
     fun calculateStats(rqt: RequestFinalized) {
         processSafely(rqt) {
             val (accNo, version) = rqt
-            logger.info { "$accNo, Received calculate status message for submission $accNo, version: $version" }
+            logger.info { "$accNo, Received calculate stats message for submission $accNo, version: $version" }
             statsService.calculateSubFilesSize(rqt.accNo)
         }
     }
