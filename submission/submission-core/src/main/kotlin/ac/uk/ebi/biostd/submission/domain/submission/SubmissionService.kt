@@ -39,7 +39,8 @@ class SubmissionService(
         return waitUntil(
             ofMinutes(SYNC_SUBMIT_TIMEOUT),
             conditionEvaluator = { queryService.existByAccNoAndVersion(accNo, version) },
-            processFunction = { queryService.getExtByAccNo(accNo) })
+            processFunction = { queryService.getExtByAccNo(accNo) }
+        )
     }
 
     suspend fun submitAsync(rqt: SubmitRequest) {
