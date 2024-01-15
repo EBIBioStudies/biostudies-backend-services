@@ -49,6 +49,13 @@ class RemoteClusterClient(
         }
     }
 
+    override suspend fun jobLogs(jobId: String): String {
+        return runInSession {
+            val (_, response) = executeCommand("cat $logsPath/${jobId}_OUT")
+            return@runInSession response
+        }
+    }
+
     private suspend fun await(job: Job, checkJobInterval: Long, maxSecondsDuration: Long): Job {
         return runInSession {
             var status: String = PEND_STATUS

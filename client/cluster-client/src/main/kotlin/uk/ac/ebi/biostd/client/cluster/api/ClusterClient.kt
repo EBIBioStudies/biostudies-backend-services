@@ -10,4 +10,6 @@ interface ClusterClient {
     suspend fun triggerJobSync(jobSpec: JobSpec, checkJobInterval: Long = 30, maxSecondsDuration: Long = 60): Job
 
     suspend fun jobStatus(jobId: String): String
+
+    suspend fun jobLogs(jobId: String): String
 }
