@@ -2,6 +2,7 @@ import Dependencies.CommonsNet
 import Dependencies.CommonsPool
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
+import Projects.CommonsTest
 import Projects.CommonsUtil
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -32,4 +33,5 @@ dependencies {
 
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
+    testImplementation(project(CommonsTest))
 }

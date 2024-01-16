@@ -65,7 +65,10 @@ private class SimpleFtpClient(
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
     override fun uploadFile(path: Path, source: () -> InputStream) {
-        ftpClientPool.execute { ftp -> source().use { ftp.storeFile(path.toString(), it) } }
+        ftpClientPool.execute { ftp ->
+            ftp.createFtpFolder(path.parent)
+            source().use { ftp.storeFile(path.toString(), it) }
+        }
     }
 
     /**
@@ -106,9 +109,9 @@ private class SimpleFtpClient(
      * As FTP does not support nested folder creation in a single path the full path is
      * transverse and required missing folder are created.
      */
-    private fun FTPClient.createFtpFolder(path: Path) {
-        val paths = path.runningReduce { acc, value -> acc.resolve(value) }
-        paths.forEach { makeDirectory(it.toString()) }
+    private fun FTPClient.createFtpFolder(path: Path?) {
+        val paths = path?.runningReduce { acc, value -> acc.resolve(value) }
+        paths?.forEach { makeDirectory(it.toString()) }
     }
 
     /**
