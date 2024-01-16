@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 
@@ -22,6 +23,7 @@ private val logger = KotlinLogging.logger {}
 class SubmissionRequestCleaner(
     private val storageService: FileStorageService,
     private val serializationService: ExtSerializationService,
+    private val eventsPublisherService: EventsPublisherService,
     private val queryService: SubmissionPersistenceQueryService,
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
@@ -30,6 +32,7 @@ class SubmissionRequestCleaner(
         val (changeId, request) = requestService.getSubmissionRequest(accNo, version, LOADED, processId)
         cleanCurrentVersion(request.submission)
         requestService.saveRequest(request.withNewStatus(status = CLEANED, changeId = changeId))
+        eventsPublisherService.requestCleaned(accNo, version)
     }
 
     private suspend fun cleanCurrentVersion(new: ExtSubmission) {

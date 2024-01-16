@@ -5,7 +5,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
@@ -30,6 +30,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Durations.ONE_MINUTE
+import org.awaitility.Durations.TWO_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -38,6 +39,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.Duration.ofMillis
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -106,33 +108,19 @@ class SubmissionAsyncTest(
         val statusAfterCreation = requestRepository.getRequestStatus("SimpleAsync2", 2)
         assertThat(statusAfterCreation).isEqualTo(REQUESTED)
 
+        suspend fun assertStageExecution(status: RequestStatus) {
+            waitUntil(interval = ofMillis(10), duration = TWO_SECONDS) {
+                requestRepository.getRequestStatus("SimpleAsync2", 2) == status
+            }
+        }
+
         extSubmissionSubmitter.indexRequest("SimpleAsync2", 2)
-        val statusAfterIndexing = requestRepository.getRequestStatus("SimpleAsync2", 2)
-        assertThat(statusAfterIndexing).isEqualTo(INDEXED)
-
-        extSubmissionSubmitter.loadRequest("SimpleAsync2", 2)
-        val statusAfterLoading = requestRepository.getRequestStatus("SimpleAsync2", 2)
-        assertThat(statusAfterLoading).isEqualTo(LOADED)
-
-        extSubmissionSubmitter.cleanRequest("SimpleAsync2", 2)
-        val statusAfterCleaning = requestRepository.getRequestStatus("SimpleAsync2", 2)
-        assertThat(statusAfterCleaning).isEqualTo(CLEANED)
-
-        extSubmissionSubmitter.processRequest("SimpleAsync2", 2)
-        val statusAfterProcessing = requestRepository.getRequestStatus("SimpleAsync2", 2)
-        assertThat(statusAfterProcessing).isEqualTo(FILES_COPIED)
-
-        extSubmissionSubmitter.checkReleased("SimpleAsync2", 2)
-        val statusAfterReleasing = requestRepository.getRequestStatus("SimpleAsync2", 2)
-        assertThat(statusAfterReleasing).isEqualTo(CHECK_RELEASED)
-
-        extSubmissionSubmitter.saveRequest("SimpleAsync2", 2)
-        val statusAfterSaved = requestRepository.getRequestStatus("SimpleAsync2", 2)
-        assertThat(statusAfterSaved).isEqualTo(PERSISTED)
-
-        extSubmissionSubmitter.finalizeRequest("SimpleAsync2", 2)
-        val statusAfterFinalized = requestRepository.getRequestStatus("SimpleAsync2", 2)
-        assertThat(statusAfterFinalized).isEqualTo(PROCESSED)
+        assertStageExecution(INDEXED)
+        assertStageExecution(LOADED)
+        assertStageExecution(CLEANED)
+        assertStageExecution(FILES_COPIED)
+        assertStageExecution(PERSISTED)
+        assertStageExecution(PROCESSED)
 
         assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", 1)).isFalse()
         assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", -1)).isTrue()

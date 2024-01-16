@@ -18,14 +18,6 @@ class SubmissionSubmitter(
     private val collectionValidationService: CollectionValidationService,
     private val draftService: SubmissionDraftPersistenceService,
 ) {
-    suspend fun submit(rqt: SubmitRequest): ExtSubmission {
-        val submission = processRequest(rqt)
-        val submitRequest = ExtSubmitRequest(submission, notifyTo = rqt.owner, rqt.draftKey)
-        val (accNo, version) = submissionSubmitter.createRequest(submitRequest)
-        submissionSubmitter.handleRequest(accNo, version)
-        return submission
-    }
-
     suspend fun createRequest(rqt: SubmitRequest): ExtSubmission {
         val submission = processRequest(rqt)
         submissionSubmitter.createRequest(ExtSubmitRequest(submission, rqt.owner, rqt.draftKey))

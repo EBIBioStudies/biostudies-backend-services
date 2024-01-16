@@ -69,11 +69,9 @@ class RemoteExtSubmissionSubmitter(
             appendSpaced("--version=$version")
             appendSpaced("--mode=${mode.name}")
         }
-        val jobSpec = JobSpec(cores = 8, ram = SIXTEEN_GB, DataMoverQueue, command)
 
-        // TODO this should be moved back to async after #186657310 is completed
-        val job = clusterClient.triggerJobSync(jobSpec, maxSecondsDuration = 600)
-        logger.info { "$accNo Executed submitter task in mode $mode. Job Id: ${job.id}, Logs: ${job.logsPath}" }
+        clusterClient.triggerJobAsync(JobSpec(cores = 8, ram = SIXTEEN_GB, DataMoverQueue, command))
+        logger.info { "$accNo Triggered submission task in mode $mode" }
     }
 
     private fun StringBuilder.appendSpaced(value: String) {

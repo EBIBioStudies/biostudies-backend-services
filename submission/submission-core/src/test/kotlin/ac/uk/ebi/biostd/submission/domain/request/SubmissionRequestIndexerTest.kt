@@ -22,6 +22,7 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -29,10 +30,16 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 class SubmissionRequestIndexerTest(
     private val tempFolder: TemporaryFolder,
     @MockK private val pendingRqt: SubmissionRequest,
+    @MockK private val eventsPublisherService: EventsPublisherService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
-    private val testInstance = SubmissionRequestIndexer(ExtSerializationService(), requestService, filesRequestService)
+    private val testInstance = SubmissionRequestIndexer(
+        eventsPublisherService,
+        ExtSerializationService(),
+        requestService,
+        filesRequestService,
+    )
 
     @Test
     fun `index request`() = runTest {
@@ -43,30 +50,32 @@ class SubmissionRequestIndexerTest(
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Study", files = listOf(left(extFile))))
 
         every { pendingRqt.submission } returns sub
+        every { eventsPublisherService.requestIndexed("S-BSST0", 1) } answers { nothing }
         coEvery {
             requestService.getSubmissionRequest(
                 "S-BSST0",
                 1,
                 RequestStatus.REQUESTED,
-                instanceId
+                INSTANCE_ID
             )
         } returns (changeId to pendingRqt)
         coEvery { requestService.saveRequest(pendingRqt.indexed(1, changeId)) } answers { "S-BSST0" to 1 }
         coEvery { filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
 
-        testInstance.indexRequest("S-BSST0", 1, instanceId)
+        testInstance.indexRequest("S-BSST0", 1, INSTANCE_ID)
 
         val requestFile = requestFileSlot.captured
         assertThat(requestFile.index).isEqualTo(1)
 
         coVerify(exactly = 1) {
-            requestService.getSubmissionRequest("S-BSST0", 1, RequestStatus.REQUESTED, instanceId)
+            requestService.getSubmissionRequest("S-BSST0", 1, RequestStatus.REQUESTED, INSTANCE_ID)
             requestService.saveRequest(pendingRqt.indexed(1, changeId))
             filesRequestService.saveSubmissionRequestFile(requestFile)
+            eventsPublisherService.requestIndexed("S-BSST0", 1)
         }
     }
 
     private companion object {
-        const val instanceId = "biostudies-prod"
+        const val INSTANCE_ID = "biostudies-prod"
     }
 }

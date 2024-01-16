@@ -32,12 +32,14 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestReleaserTest(
     @MockK private val storageService: FileStorageService,
+    @MockK private val eventsPublisherService: EventsPublisherService,
     @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val persistenceService: SubmissionPersistenceService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
@@ -47,6 +49,7 @@ class SubmissionRequestReleaserTest(
         TEST_CONCURRENCY,
         storageService,
         ExtSerializationService(),
+        eventsPublisherService,
         queryService,
         persistenceService,
         requestService,
@@ -81,6 +84,7 @@ class SubmissionRequestReleaserTest(
         every { submission.released } returns true
         every { submission.relPath } returns relPath
         every { submission.storageMode } returns mode
+        every { eventsPublisherService.requestCheckedRelease(accNo, version) } answers { nothing }
         every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile, fireRqtFile)
         coEvery { storageService.releaseSubmissionFile(nfsFile, relPath, mode) } returns releasedFile
         coEvery { requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId)) } answers { accNo to version }
@@ -89,17 +93,18 @@ class SubmissionRequestReleaserTest(
                 accNo,
                 version,
                 FILES_COPIED,
-                instanceId
+                INSTANCE_ID
             )
         } returns (changeId to rqt)
         coEvery { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
         coEvery { requestService.updateRqtIndex(accNo, version, 2) } answers { nothing }
 
-        testInstance.checkReleased(accNo, version, instanceId)
+        testInstance.checkReleased(accNo, version, INSTANCE_ID)
 
         coVerify(exactly = 1) {
             requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId))
             storageService.releaseSubmissionFile(nfsFile, relPath, mode)
+            eventsPublisherService.requestCheckedRelease(accNo, version)
         }
     }
 
@@ -117,15 +122,16 @@ class SubmissionRequestReleaserTest(
                 accNo,
                 version,
                 FILES_COPIED,
-                instanceId
+                INSTANCE_ID
             )
         } returns (changeId to rqt)
         every { rqt.submission } returns submission
         every { submission.released } returns false
         every { rqt.withNewStatus(CHECK_RELEASED, changeId) } returns rqt
+        every { eventsPublisherService.requestCheckedRelease(accNo, version) } answers { nothing }
         coEvery { requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId)) } answers { accNo to version }
 
-        testInstance.checkReleased("S-TEST123", 1, instanceId)
+        testInstance.checkReleased("S-TEST123", 1, INSTANCE_ID)
 
         verify {
             storageService wasNot called
@@ -133,6 +139,7 @@ class SubmissionRequestReleaserTest(
         }
         coVerify(exactly = 1) {
             requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId))
+            eventsPublisherService.requestCheckedRelease(accNo, version)
         }
     }
 
@@ -150,6 +157,6 @@ class SubmissionRequestReleaserTest(
     }
 
     private companion object {
-        const val instanceId = "biostudies-prod"
+        const val INSTANCE_ID = "biostudies-prod"
     }
 }

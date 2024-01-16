@@ -59,6 +59,7 @@ internal class SubmissionRequestSaverTest(
         val updatedSubFile = NfsFile("file.txt", "Files/file.txt", updatedFile, "file", "md5", 1, type = FILE)
 
         every { subFile.attributes } returns emptyList()
+        every { eventsPublisherService.submissionPersisted(accNo, version) } answers { nothing }
         every { eventsPublisherService.submissionSubmitted(accNo, notifyTo) } answers { nothing }
         coEvery { persistenceService.expirePreviousVersions(accNo) } answers { nothing }
         coEvery { persistenceService.saveSubmission(submission) } answers { submission }
@@ -72,7 +73,7 @@ internal class SubmissionRequestSaverTest(
                 accNo,
                 version,
                 CHECK_RELEASED,
-                instanceId
+                INSTANCE_ID
             )
         } answers { (changeId to request) }
         coEvery { requestService.saveRequest(request) } answers { ACC_NO to version }
@@ -90,12 +91,13 @@ internal class SubmissionRequestSaverTest(
             submission
         }
 
-        val response = testInstance.saveRequest(accNo, version, instanceId)
+        val response = testInstance.saveRequest(accNo, version, INSTANCE_ID)
 
         assertThat(response).isEqualTo(submission)
         assertThat(newFile).isEqualTo(updatedSubFile)
         coVerify(exactly = 1) {
             eventsPublisherService.submissionSubmitted(accNo, notifyTo)
+            eventsPublisherService.submissionPersisted(accNo, version)
             persistenceService.expirePreviousVersions(accNo)
             persistenceService.saveSubmission(submission)
             requestService.saveRequest(request)
@@ -103,6 +105,6 @@ internal class SubmissionRequestSaverTest(
     }
 
     private companion object {
-        const val instanceId = "biostudies-prod"
+        const val INSTANCE_ID = "biostudies-prod"
     }
 }

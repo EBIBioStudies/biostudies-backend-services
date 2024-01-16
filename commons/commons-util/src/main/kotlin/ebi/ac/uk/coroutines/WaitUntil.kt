@@ -4,11 +4,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.time.Duration
+import java.time.Duration.ofMillis
 
-@Suppress("MagicNumber")
+private const val DEFAULT_DURATION = 300L
+
 suspend fun waitUntil(
     duration: Duration,
-    interval: Duration = Duration.ofMillis(300),
+    interval: Duration = ofMillis(DEFAULT_DURATION),
     conditionEvaluator: suspend () -> Boolean,
 ) {
     /**
@@ -29,4 +31,14 @@ suspend fun waitUntil(
     }
 
     waitUntil(conditionEvaluator, duration.toMillis(), interval.toMillis())
+}
+
+suspend fun <T> waitUntil(
+    duration: Duration,
+    interval: Duration = ofMillis(DEFAULT_DURATION),
+    conditionEvaluator: suspend () -> Boolean,
+    processFunction: suspend () -> T,
+): T {
+    waitUntil(duration, interval, conditionEvaluator)
+    return processFunction()
 }

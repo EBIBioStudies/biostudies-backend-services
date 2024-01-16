@@ -32,6 +32,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 
@@ -39,17 +40,18 @@ import java.time.ZoneOffset.UTC
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestLoaderTest(
     private val tempFolder: TemporaryFolder,
+    @MockK private val eventsPublisherService: EventsPublisherService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val filesService: SubmissionRequestFilesPersistenceService,
 ) {
     private val mockNow = OffsetDateTime.of(2022, 10, 5, 0, 0, 1, 0, UTC)
-    private val testTime = OffsetDateTime.of(2022, 10, 4, 0, 0, 1, 0, UTC)
     private val fireTempDirPath = tempFolder.createDirectory("fire-temp")
     private val testInstance = SubmissionRequestLoader(
         TEST_CONCURRENCY,
+        fireTempDirPath,
+        eventsPublisherService,
         filesService,
         requestService,
-        fireTempDirPath,
     )
 
     @BeforeEach
@@ -76,19 +78,20 @@ class SubmissionRequestLoaderTest(
         every { indexedRequest.submission } returns sub
         every { indexedRequest.currentIndex } returns 3
         every { indexedRequest.withNewStatus(RequestStatus.LOADED, changeId) } returns indexedRequest
+        every { eventsPublisherService.requestLoaded(sub.accNo, sub.version) } answers { nothing }
         coEvery {
             requestService.getSubmissionRequest(
                 sub.accNo,
                 sub.version,
                 INDEXED,
-                instanceId
+                INSTANCE_ID
             )
         } returns (changeId to indexedRequest)
         coEvery { requestService.saveRequest(capture(loadedRequestSlot)) } returns (sub.accNo to sub.version)
         every { filesService.getSubmissionRequestFiles(sub.accNo, sub.version, 3) } returns flowOf(indexedRequestFile)
         coEvery { requestService.updateRqtIndex(indexedRequestFile, capture(filSlot)) } answers { nothing }
 
-        testInstance.loadRequest(sub.accNo, sub.version, instanceId)
+        testInstance.loadRequest(sub.accNo, sub.version, INSTANCE_ID)
 
         val requestFile = filSlot.captured
         assertThat(requestFile.md5).isEqualTo(file.md5())
@@ -96,10 +99,11 @@ class SubmissionRequestLoaderTest(
 
         coVerify(exactly = 1) {
             requestService.saveRequest(indexedRequest)
+            eventsPublisherService.requestLoaded(sub.accNo, sub.version)
         }
     }
 
     private companion object {
-        const val instanceId = "biostudies-prod"
+        const val INSTANCE_ID = "biostudies-prod"
     }
 }

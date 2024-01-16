@@ -9,12 +9,14 @@ import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmissions
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotRelease
 import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
+import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import ebi.ac.uk.util.collections.ifNotEmpty
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
+import java.time.Duration.ofMinutes
 
 private val logger = KotlinLogging.logger {}
 
@@ -30,7 +32,15 @@ class SubmissionService(
 ) {
     suspend fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.draftKey}'" }
-        return submissionSubmitter.submit(rqt)
+
+        val (accNo, version) = submissionSubmitter.createRequest(rqt)
+        eventsPublisherService.requestCreated(accNo, version)
+
+        return waitUntil(
+            ofMinutes(SYNC_SUBMIT_TIMEOUT),
+            conditionEvaluator = { queryService.existByAccNoAndVersion(accNo, version) },
+            processFunction = { queryService.getExtByAccNo(accNo) }
+        )
     }
 
     suspend fun submitAsync(rqt: SubmitRequest) {
@@ -65,5 +75,9 @@ class SubmissionService(
         require(userPrivilegesService.canRelease(user.email)) { throw UserCanNotRelease(request.accNo, user.email) }
         extSubmissionSubmitter.release(request.accNo)
         eventsPublisherService.submissionsRefresh(request.accNo, user.email)
+    }
+
+    companion object {
+        internal const val SYNC_SUBMIT_TIMEOUT = 5L
     }
 }

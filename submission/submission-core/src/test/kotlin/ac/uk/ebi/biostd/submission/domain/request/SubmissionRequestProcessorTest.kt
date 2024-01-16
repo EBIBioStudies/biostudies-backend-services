@@ -24,17 +24,20 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.events.service.EventsPublisherService
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestProcessorTest(
     @MockK private val storageService: FileStorageService,
+    @MockK private val eventsPublisherService: EventsPublisherService,
     @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val filesService: SubmissionRequestFilesPersistenceService,
 ) {
     private val testInstance = SubmissionRequestProcessor(
         TEST_CONCURRENCY,
         storageService,
+        eventsPublisherService,
         requestService,
         filesService,
     )
@@ -57,20 +60,22 @@ class SubmissionRequestProcessorTest(
         every { rqt.currentIndex } returns 1
         every { submission.accNo } returns accNo
         every { submission.version } returns version
+        every { eventsPublisherService.requestFilesCopied(accNo, version) } answers { nothing }
         every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile)
         coEvery { storageService.persistSubmissionFile(submission, nfsFile) } returns releasedFile
         coEvery { requestService.saveRequest(rqt.withNewStatus(FILES_COPIED, changeId)) } answers { accNo to version }
-        coEvery { requestService.getSubmissionRequest(accNo, version, CLEANED, instanceId) } returns (changeId to rqt)
+        coEvery { requestService.getSubmissionRequest(accNo, version, CLEANED, INSTANCE_ID) } returns (changeId to rqt)
         coEvery { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
 
-        testInstance.processRequest(accNo, version, instanceId)
+        testInstance.processRequest(accNo, version, INSTANCE_ID)
 
         coVerify(exactly = 1) {
+            eventsPublisherService.requestFilesCopied(accNo, version)
             requestService.saveRequest(rqt.withNewStatus(FILES_COPIED, changeId))
         }
     }
 
     private companion object {
-        const val instanceId = "biostudies-prod"
+        const val INSTANCE_ID = "biostudies-prod"
     }
 }
