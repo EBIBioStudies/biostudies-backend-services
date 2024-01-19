@@ -74,7 +74,7 @@ class SubmissionRequestLoader(
 
     private suspend fun loadAttributes(sub: ExtSubmission, file: NfsFile): ExtFile = withContext(Dispatchers.IO) {
         when {
-            file.type == ExtFileType.DIR && sub.storageMode == FIRE -> asCompressedFile(sub.accNo, sub.version, file)
+            file.file.isDirectory && sub.storageMode == FIRE -> asCompressedFile(sub.accNo, sub.version, file)
             else -> file.copy(md5 = file.file.md5(), size = file.file.size())
         }
     }

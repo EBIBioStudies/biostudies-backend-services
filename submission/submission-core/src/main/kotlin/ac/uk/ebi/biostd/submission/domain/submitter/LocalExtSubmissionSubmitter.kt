@@ -1,6 +1,13 @@
 package ac.uk.ebi.biostd.submission.domain.submitter
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
@@ -69,6 +76,60 @@ class LocalExtSubmissionSubmitter(
     }
 
     override suspend fun handleRequest(accNo: String, version: Int): ExtSubmission {
-        TODO("Not yet implemented")
+        return when (requestService.getRequestStatus(accNo, version)) {
+            REQUESTED -> completeRequest(accNo, version)
+            INDEXED -> loadRequestFiles(accNo, version)
+            LOADED -> cleanRequestFiles(accNo, version)
+            CLEANED -> processRequestFiles(accNo, version)
+            FILES_COPIED -> releaseSubmission(accNo, version)
+            CHECK_RELEASED -> saveAndFinalize(accNo, version)
+            PERSISTED -> finalizeRequest(accNo, version)
+            else -> throw IllegalStateException("Request accNo=$accNo, version=$version has been already processed")
+        }
+    }
+
+    private suspend fun completeRequest(accNo: String, version: Int): ExtSubmission {
+        indexRequest(accNo, version)
+        loadRequest(accNo, version)
+        cleanRequest(accNo, version)
+        processRequest(accNo, version)
+        checkReleased(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
+    }
+
+    private suspend fun loadRequestFiles(accNo: String, version: Int): ExtSubmission {
+        loadRequest(accNo, version)
+        cleanRequest(accNo, version)
+        processRequest(accNo, version)
+        checkReleased(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
+    }
+
+    private suspend fun cleanRequestFiles(accNo: String, version: Int): ExtSubmission {
+        cleanRequest(accNo, version)
+        processRequest(accNo, version)
+        checkReleased(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
+    }
+
+    private suspend fun processRequestFiles(accNo: String, version: Int): ExtSubmission {
+        processRequest(accNo, version)
+        checkReleased(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
+    }
+
+    private suspend fun releaseSubmission(accNo: String, version: Int): ExtSubmission {
+        checkReleased(accNo, version)
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
+    }
+
+    internal suspend fun saveAndFinalize(accNo: String, version: Int): ExtSubmission {
+        saveRequest(accNo, version)
+        return finalizeRequest(accNo, version)
     }
 }

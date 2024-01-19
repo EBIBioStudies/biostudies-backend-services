@@ -50,6 +50,7 @@ class SubmissionWebConfig {
         pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
+        queryService: SubmissionPersistenceQueryService,
         requestIndexer: SubmissionRequestIndexer,
         requestLoader: SubmissionRequestLoader,
         requestProcessor: SubmissionRequestProcessor,
@@ -72,7 +73,7 @@ class SubmissionWebConfig {
             submissionFinalizer,
         )
         val remote = RemoteExtSubmissionSubmitter(clusterClient, appProperties.submissionTask)
-        return ExtendedSubmissionSubmitter(local, remote, appProperties.submissionTask, requestService)
+        return ExtendedSubmissionSubmitter(local, remote, appProperties.submissionTask, requestService, queryService)
     }
 
     @Bean

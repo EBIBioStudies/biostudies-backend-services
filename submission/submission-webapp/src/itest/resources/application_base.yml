@@ -60,8 +60,6 @@ app:
       ftpPort:
   validator:
     euToxRiskValidationApi: # EU-ToxRisk validation API
-  featureFlags:
-    tsvPagetabExtension: true
   notifications:
     requestQueue: submission-request-submitter-queue # queue used to handle request stages
     requestRoutingKey: bio.submission.requested # request messages routing key

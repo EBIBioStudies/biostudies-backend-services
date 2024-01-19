@@ -13,7 +13,7 @@ import kotlin.io.path.createTempFile
 
 /**
  *  Ftp source. Mix both ftp protocol to validate file presence and direct ftp mount point to access file content.
- *  This seperation is necesary as files are check in backend instance with no access to FTP file system while
+ *  This separation is necessary as files are check in backend instance with no access to FTP file system while
  *  processing is executed in data mover which can access moint point.
  */
 class FtpSource(
@@ -35,10 +35,9 @@ class FtpSource(
     }
 
     private fun findFile(filePath: String): FTPFile? {
-        val ftpPath = ftpUrl.resolve(filePath)
+        val ftpPath = ftpUrl.resolve(filePath).parent
         val files = ftpClient.listFiles(ftpPath)
-        if (files.isEmpty()) return null
-        return files.first()
+        return files.firstOrNull { it.name == filePath }
     }
 
     override suspend fun getFileList(path: String): File? {
