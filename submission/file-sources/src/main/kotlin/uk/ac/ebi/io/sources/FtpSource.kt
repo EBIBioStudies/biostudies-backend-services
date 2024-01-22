@@ -1,6 +1,8 @@
 package uk.ac.ebi.io.sources
 
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtFileType.DIR
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.ftp.FtpClient
 import ebi.ac.uk.io.sources.FilesSource
 import ebi.ac.uk.model.Attribute
@@ -29,6 +31,7 @@ class FtpSource(
                 path = filePath,
                 file = nfsPath.resolve(filePath).toFile(),
                 size = it.size,
+                type = if (it.isDirectory) DIR else FILE,
                 attributes = attributes
             )
         }
