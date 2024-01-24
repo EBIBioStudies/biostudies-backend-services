@@ -17,6 +17,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.amqp.rabbit.listener.ConditionalRejectingErrorHandler
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
@@ -27,6 +28,7 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
 @Configuration
 @Import(NotificationPersistenceConfig::class)
+@EnableConfigurationProperties(ApplicationProperties::class)
 class Listeners {
     @Bean
     fun logListener(): LogSubmissionListener = LogSubmissionListener()

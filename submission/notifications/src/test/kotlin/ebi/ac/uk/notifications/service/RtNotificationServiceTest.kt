@@ -38,7 +38,7 @@ internal class RtNotificationServiceTest(
             @Test
             fun `when no released but release date`() {
                 testNotification(
-                    submission = testSubmission(
+                    submission = testSubmission.copy(
                         releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
                         released = false
                     ),
@@ -62,7 +62,7 @@ internal class RtNotificationServiceTest(
             @Test
             fun `when no released no release date`() {
                 testNotification(
-                    submission = testSubmission(releaseTime = null, released = false),
+                    submission = testSubmission.copy(releaseTime = null, released = false),
                     """
                         Dear owner@mail.org,
                         
@@ -83,7 +83,7 @@ internal class RtNotificationServiceTest(
             @Test
             fun `when released`() {
                 testNotification(
-                    submission = testSubmission(released = true),
+                    submission = testSubmission.copy(released = true),
                     """
                         Dear owner@mail.org,
 
@@ -104,7 +104,7 @@ internal class RtNotificationServiceTest(
             @Test
             fun `when submission title`() {
                 testNotification(
-                    submission = testSubmission(title = "Sub Title", version = 1),
+                    submission = testSubmission.copy(title = "Sub Title"),
                     """
                         Dear owner@mail.org,
 
@@ -125,7 +125,7 @@ internal class RtNotificationServiceTest(
             @Test
             fun `when section title`() {
                 testNotification(
-                    submission = testSubmission(title = "Sect Title", version = 1),
+                    submission = testSubmission.copy(title = "Sect Title"),
                     """
                         Dear owner@mail.org,
 
@@ -149,10 +149,15 @@ internal class RtNotificationServiceTest(
                 every {
                     loader.loadTemplateOrDefault(submission, SUCCESSFUL_SUBMISSION_TEMPLATE)
                 } returns asText("/templates/submission/Default.txt")
+
+                every {
+                    loader.loadTemplateOrDefault(submission, EMAIL_SUBJECT_TEMPLATE)
+                } returns asText("/templates/subject/BioImages.txt")
+
                 every {
                     ticketService.saveRtTicket(
                         "S-TEST1",
-                        "BioStudies Submission - S-TEST1",
+                        "BioImage Archive Submission - S-TEST1",
                         "owner@mail.org",
                         capture(slot)
                     )
@@ -169,7 +174,7 @@ internal class RtNotificationServiceTest(
             @Test
             fun `when released`() {
                 testNotification(
-                    submission = testSubmission(released = true, version = 2),
+                    submission = testSubmission.copy(released = true, version = 2, collections = listOf()),
                     """
                         Dear owner@mail.org,
 
@@ -191,6 +196,11 @@ internal class RtNotificationServiceTest(
                 every {
                     loader.loadTemplateOrDefault(submission, SUCCESSFUL_RESUBMISSION_TEMPLATE)
                 } returns asText("/templates/resubmission/Default.txt")
+
+                every {
+                    loader.loadTemplateOrDefault(submission, EMAIL_SUBJECT_TEMPLATE)
+                } returns asText("/templates/subject/Default.txt")
+
                 every {
                     ticketService.saveRtTicket(
                         "S-TEST1",
@@ -212,7 +222,7 @@ internal class RtNotificationServiceTest(
         @Test
         fun `when no title`() {
             testNotification(
-                submission = testSubmission(released = true),
+                submission = testSubmission.copy(released = true),
                 """
                     Dear owner@mail.org,
 
@@ -233,7 +243,7 @@ internal class RtNotificationServiceTest(
         @Test
         fun `when submission title`() {
             testNotification(
-                submission = testSubmission(title = "Sub Title", version = 1),
+                submission = testSubmission.copy(title = "Sub Title"),
                 """
                 Dear owner@mail.org,
 
@@ -254,7 +264,7 @@ internal class RtNotificationServiceTest(
         @Test
         fun `when section title`() {
             testNotification(
-                submission = testSubmission(title = "Sect Title", version = 1),
+                submission = testSubmission.copy(title = "Sect Title"),
                 """
                     Dear owner@mail.org,
                     
@@ -278,10 +288,15 @@ internal class RtNotificationServiceTest(
             every {
                 loader.loadTemplateOrDefault(submission, SUBMISSION_RELEASE_TEMPLATE)
             } returns asText("/templates/release/Default.txt")
+
+            every {
+                loader.loadTemplateOrDefault(submission, EMAIL_SUBJECT_TEMPLATE)
+            } returns asText("/templates/subject/BioImages.txt")
+
             every {
                 ticketService.saveRtTicket(
                     "S-TEST1",
-                    "BioStudies Submission - S-TEST1",
+                    "BioImage Archive Submission - S-TEST1",
                     "owner@mail.org",
                     capture(slot)
                 )
@@ -296,35 +311,28 @@ internal class RtNotificationServiceTest(
     private fun asText(path: String): String =
         object {}.javaClass.getResource(path)!!.readText()
 
-    private fun testSubmission(
-        title: String? = null,
-        secTitle: String? = null,
-        version: Int = 1,
-        released: Boolean = false,
-        releaseTime: OffsetDateTime? = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC)
-    ): ExtSubmission = ExtSubmission(
-        accNo = "S-TEST1",
-        version = version,
-        schemaVersion = "1.0",
-        owner = "owner@mail.org",
-        submitter = "submitter@mail.org",
-        title = title,
-        doi = "10.983/S-TEST1",
-        method = ExtSubmissionMethod.PAGE_TAB,
-        relPath = "/a/rel/path",
-        rootPath = "/a/root/path",
-        released = released,
-        secretKey = "a-secret-key",
-        releaseTime = releaseTime,
-        modificationTime = OffsetDateTime.of(2019, 9, 20, 10, 30, 34, 15, ZoneOffset.UTC),
-        creationTime = OffsetDateTime.of(2019, 9, 19, 10, 30, 34, 15, ZoneOffset.UTC),
-        attributes = listOf(ExtAttribute("AttachTo", "BioImages")),
-        tags = listOf(ExtTag("component", "web")),
-        collections = listOf(ExtCollection("BioImages")),
-        section = ExtSection(
-            type = "Study",
-            attributes = secTitle?.let { listOf(ExtAttribute(name = "Title", value = it)) } ?: listOf()
-        ),
-        storageMode = StorageMode.NFS
-    )
+    companion object {
+        val testSubmission = ExtSubmission(
+            accNo = "S-TEST1",
+            version = 1,
+            schemaVersion = "1.0",
+            owner = "owner@mail.org",
+            submitter = "submitter@mail.org",
+            title = null,
+            doi = "10.983/S-TEST1",
+            method = ExtSubmissionMethod.PAGE_TAB,
+            relPath = "/a/rel/path",
+            rootPath = "/a/root/path",
+            released = false,
+            secretKey = "a-secret-key",
+            releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
+            modificationTime = OffsetDateTime.of(2019, 9, 20, 10, 30, 34, 15, ZoneOffset.UTC),
+            creationTime = OffsetDateTime.of(2019, 9, 19, 10, 30, 34, 15, ZoneOffset.UTC),
+            attributes = listOf(ExtAttribute("AttachTo", "BioImages")),
+            tags = listOf(ExtTag("component", "web")),
+            collections = listOf(ExtCollection("BioImages")),
+            section = ExtSection(type = "Study"),
+            storageMode = StorageMode.NFS,
+        )
+    }
 }
