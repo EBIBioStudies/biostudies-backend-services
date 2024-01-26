@@ -17,7 +17,7 @@ import java.nio.file.Paths
 class ProfileService(
     private val nfsUserFtpDirPath: Path,
     private val nfsUserFilesDirPath: Path,
-    private val environment: String,
+    private val ftpRootPath: String,
 ) {
     fun getUserProfile(user: DbUser, token: String): UserInfo = UserInfo(asSecurityUser(user), token)
 
@@ -53,8 +53,8 @@ class ProfileService(
         fun ftpFolder(): FtpUserFolder {
             val relativePath = magicPath(secret, id, "a")
             return FtpUserFolder(
-                relativePath = Paths.get("$environment/$relativePath"),
-                path = Paths.get("$nfsUserFtpDirPath/$environment/$relativePath"),
+                relativePath = Paths.get("$ftpRootPath/$relativePath"),
+                path = Paths.get("$nfsUserFtpDirPath/$ftpRootPath/$relativePath"),
             )
         }
 
