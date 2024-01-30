@@ -81,6 +81,7 @@ internal class FTPClientPool(
             val factory = FTPClientFactory(ftpUser, ftpPassword, ftpUrl, ftpPort)
             var connections = GenericObjectPool(factory)
             connections.minIdle = MIN_CONNECTION
+            connections.testOnBorrow = true
             return connections
         }
     }
