@@ -67,9 +67,7 @@ import kotlin.test.assertNotNull
 
 private const val ACTIVATION_KEY: String = "code"
 private const val SECRET_KEY: String = "secretKey"
-private const val ENVIRONMENT: String = "env-test"
-
-private val passwordDigest: ByteArray = ByteArray(0)
+private const val FTP_ROOT_PATH: String = "env-test"
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class SecurityServiceTest(
@@ -88,7 +86,7 @@ internal class SecurityServiceTest(
         ProfileService(
             nfsUserFilesDirPath = temporaryFolder.createDirectory("nfsFile").toPath(),
             nfsUserFtpDirPath = temporaryFolder.createDirectory("ftpFiles").toPath(),
-            environment = ENVIRONMENT
+            ftpRootPath = FTP_ROOT_PATH
         ),
         captchaVerifier,
         eventsPublisherService,

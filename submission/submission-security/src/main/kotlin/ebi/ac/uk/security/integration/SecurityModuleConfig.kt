@@ -86,7 +86,7 @@ class SecurityModuleConfig(
             return ProfileService(
                 nfsUserFtpDirPath = Paths.get(props.filesProperties.ftpDirPath),
                 nfsUserFilesDirPath = Paths.get(props.filesProperties.filesDirPath),
-                environment = props.environment
+                ftpRootPath = props.filesProperties.ftpRootPath,
             )
         }
     }
