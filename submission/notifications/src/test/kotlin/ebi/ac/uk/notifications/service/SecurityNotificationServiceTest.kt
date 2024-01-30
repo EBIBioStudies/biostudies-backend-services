@@ -1,5 +1,6 @@
 package ebi.ac.uk.notifications.service
 
+import ac.uk.ebi.biostd.common.properties.NotificationProperties
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION
 import ebi.ac.uk.extended.events.SecurityNotificationType.ACTIVATION_BY_EMAIL
@@ -22,9 +23,10 @@ private const val TEST_EMAIL = "test@ebi.ac.uk"
 @ExtendWith(MockKExtension::class)
 class SecurityNotificationServiceTest(
     @MockK private val templateLoader: TemplateLoader,
-    @MockK private val simpleEmailService: SimpleEmailService
+    @MockK private val simpleEmailService: SimpleEmailService,
+    @MockK private val properties: NotificationProperties,
 ) {
-    private val testInstance = SecurityNotificationService(templateLoader, simpleEmailService)
+    private val testInstance = SecurityNotificationService(templateLoader, simpleEmailService, properties)
 
     @BeforeEach
     fun beforeEach() = clearAllMocks()
@@ -64,7 +66,8 @@ class SecurityNotificationServiceTest(
     @Test
     fun `password reset notification`() {
         val resetEmail = slot<Email>()
-        val notification = SecurityNotification(TEST_EMAIL, "Test User", "activationCode", "password-reset-link", PASSWORD_RESET)
+        val notification =
+            SecurityNotification(TEST_EMAIL, "Test User", "activationCode", "password-reset-link", PASSWORD_RESET)
 
         every { templateLoader.loadTemplate("security/reset-password.html") } returns "reset password"
         every { simpleEmailService.send(capture(resetEmail)) } answers { nothing }

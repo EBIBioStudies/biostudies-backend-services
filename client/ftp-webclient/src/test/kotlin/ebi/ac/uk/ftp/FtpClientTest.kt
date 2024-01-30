@@ -1,8 +1,8 @@
 package ebi.ac.uk.ftp
 
-import ebi.ac.uk.test.createTempFile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.nio.file.Paths
@@ -14,6 +14,29 @@ class FtpClientTest {
     @BeforeEach
     fun beforeEach() {
         testInstance.deleteFile(Paths.get(""))
+    }
+
+    @Nested
+    inner class FileExists {
+
+        val rootPath = Paths.get("")
+
+        @Test
+        fun whenNotExistInRootPath() {
+            val noExits = rootPath.resolve("test-file-1")
+
+            assertThat(testInstance.exists(noExits)).isFalse()
+        }
+
+        @Test
+        fun whenExistsInRootPaath() {
+            val tempFile = createTempFile("test-file-1")
+            val filePath = rootPath.resolve("file1.txt")
+
+            testInstance.uploadFile(filePath, { tempFile.inputStream() })
+
+            assertThat(testInstance.exists(filePath)).isTrue()
+        }
     }
 
     @Test

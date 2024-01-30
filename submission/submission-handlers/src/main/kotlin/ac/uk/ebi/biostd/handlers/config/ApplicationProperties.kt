@@ -7,9 +7,8 @@ import org.springframework.stereotype.Component
 
 @Component
 @ConfigurationProperties(prefix = "app")
-class ApplicationProperties {
-    lateinit var baseInstanceUrl: String
-
+data class ApplicationProperties(
+    val baseInstanceUrl: String,
     @NestedConfigurationProperty
-    var notifications: NotificationProperties = NotificationProperties()
-}
+    val notifications: NotificationProperties,
+)

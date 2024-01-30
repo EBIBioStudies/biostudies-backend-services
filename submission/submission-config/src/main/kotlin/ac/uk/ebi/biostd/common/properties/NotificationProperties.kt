@@ -3,21 +3,22 @@ package ac.uk.ebi.biostd.common.properties
 import org.springframework.boot.context.properties.NestedConfigurationProperty
 import java.util.Properties
 
-class NotificationProperties {
-    lateinit var smtp: String
-    lateinit var uiUrl: String
-    lateinit var stUrl: String
-    lateinit var slackUrl: String
+data class NotificationProperties(
+    val smtp: String,
+    val uiUrl: String,
+    val stUrl: String,
+    val slackUrl: String,
+    val bccEmail: String?,
 
     @NestedConfigurationProperty
-    var rt: RtConfig = RtConfig()
-
+    val rt: RtConfig,
+) {
     fun asProperties(): Properties = Properties().apply { setProperty("mail.host", smtp) }
 }
 
-class RtConfig {
-    lateinit var host: String
-    lateinit var queue: String
-    lateinit var user: String
-    lateinit var password: String
-}
+data class RtConfig(
+    val host: String,
+    val queue: String,
+    val user: String,
+    val password: String,
+)
