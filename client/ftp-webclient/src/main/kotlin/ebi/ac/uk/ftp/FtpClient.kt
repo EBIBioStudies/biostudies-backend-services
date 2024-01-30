@@ -1,13 +1,10 @@
 package ebi.ac.uk.ftp
 
-import mu.KotlinLogging
 import org.apache.commons.net.ftp.FTPClient
 import org.apache.commons.net.ftp.FTPFile
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path
-
-private val logger = KotlinLogging.logger {}
 
 interface FtpClient {
     /**
@@ -42,8 +39,14 @@ interface FtpClient {
     fun deleteFile(path: Path)
 
     companion object {
-        fun create(ftpUser: String, ftpPassword: String, ftpUrl: String, ftpPort: Int): FtpClient {
-            val connectionPool = FTPClientPool(ftpUser, ftpPassword, ftpUrl, ftpPort)
+        fun create(
+            ftpUser: String,
+            ftpPassword: String,
+            ftpUrl: String,
+            ftpPort: Int,
+            ftpRootPath: String,
+        ): FtpClient {
+            val connectionPool = FTPClientPool(ftpUser, ftpPassword, ftpUrl, ftpPort, ftpRootPath)
             return SimpleFtpClient(connectionPool)
         }
     }
@@ -115,7 +118,7 @@ private class SimpleFtpClient(
     }
 
     /**
-     * As Ftp clients are re used we need to guarantee that, if the working directory is changed, it is restored after
+     * As Ftp clients are re-used we need to guarantee that, if the working directory is changed, it is restored after
      * the operation is completed.
      */
     private fun <T> FTPClientPool.executeRestoringWorkingDirectory(action: (FTPClient) -> T): T {
