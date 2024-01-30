@@ -37,19 +37,14 @@ class FtpSource(
         }
     }
 
+    override suspend fun getFileList(path: String): File? {
+        return findFile(path)?.let { downloadFile(ftpUrl.resolve(path)) }
+    }
+
     private fun findFile(filePath: String): FTPFile? {
         val ftpPath = ftpUrl.resolve(filePath).parent
         val files = ftpClient.listFiles(ftpPath)
         return files.firstOrNull { it.name == filePath }
-    }
-
-    override suspend fun getFileList(path: String): File? {
-        val ftpPath = ftpUrl.resolve(path)
-        val exists = ftpClient.listFiles(ftpPath).isNotEmpty()
-        return when (exists) {
-            true -> downloadFile(ftpPath)
-            false -> null
-        }
     }
 
     private fun downloadFile(path: Path): File {

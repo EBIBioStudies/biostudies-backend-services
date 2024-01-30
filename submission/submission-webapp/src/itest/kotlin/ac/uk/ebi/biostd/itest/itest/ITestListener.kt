@@ -39,7 +39,7 @@ class ITestListener : TestExecutionListener {
     override fun testPlanExecutionStarted(testPlan: TestPlan) {
         mongoSetup()
         mySqlSetup()
-        rabittSetup()
+        rabbitSetup()
         fireSetup()
         ftpSetup()
         doiSetup()
@@ -72,7 +72,7 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("spring.datasource.password", mysqlContainer.password)
     }
 
-    private fun rabittSetup() {
+    private fun rabbitSetup() {
         rabbitMQContainer.start()
         properties.addProperty("spring.rabbitmq.host", rabbitMQContainer.host)
         properties.addProperty("spring.rabbitmq.port", rabbitMQContainer.amqpPort)
@@ -89,7 +89,8 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("$ftpProperties.ftpUrl", ftpServer.getUrl())
         properties.addProperty("$ftpProperties.ftpPort", ftpServer.ftpPort.toString())
         properties.addProperty("$ftpProperties.ftpDirPath", ftpServer.fileSystemDirectory.absolutePath)
-        Files.createDirectory(ftpServer.fileSystemDirectory.resolve(ENVIRONMENT).toPath())
+        properties.addProperty("$ftpProperties.ftpRootPath", FTP_ROOT_PATH)
+        Files.createDirectory(ftpServer.fileSystemDirectory.resolve(FTP_ROOT_PATH).toPath())
     }
 
     private fun fireSetup() {
@@ -164,13 +165,9 @@ class ITestListener : TestExecutionListener {
     private fun findResource(resource: String): File? =
         this::class.java.getResource("/$resource")?.toURI()?.let { File(it) }
 
-    private fun getResource(resourceName: String): File {
-        val resource = findResource(resourceName)
-        return requireNotNull(resource) { "Could not find resource $resourceName" }
-    }
-
     companion object {
         private const val ENVIRONMENT = "TEST"
+        private const val FTP_ROOT_PATH = ".test"
         private val testAppFolder = Files.createTempDirectory("test-app-folder").toFile()
 
         private const val DEFAULT_BUCKET = "bio-fire-bucket"
@@ -197,7 +194,6 @@ class ITestListener : TestExecutionListener {
         internal val requestFilesPath = testAppFolder.createDirectory("requestFilesPath")
         internal val magicDirPath = testAppFolder.createDirectory("magic")
         internal val dropboxPath = testAppFolder.createDirectory("dropbox")
-        internal val taskLogsPath = testAppFolder.createDirectory("task-logs")
         internal val clusterLogsPath = testAppFolder.createDirectory("cluster-logs")
 
         private val fireServer: WireMockServer by lazy { createFireApiMock() }

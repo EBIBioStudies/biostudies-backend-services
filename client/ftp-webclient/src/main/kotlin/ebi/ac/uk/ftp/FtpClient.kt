@@ -1,13 +1,10 @@
 package ebi.ac.uk.ftp
 
-import mu.KotlinLogging
 import org.apache.commons.net.ftp.FTPClient
 import org.apache.commons.net.ftp.FTPFile
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path
-
-private val logger = KotlinLogging.logger {}
 
 interface FtpClient {
     /**
@@ -42,8 +39,14 @@ interface FtpClient {
     fun deleteFile(path: Path)
 
     companion object {
-        fun create(ftpUser: String, ftpPassword: String, ftpUrl: String, ftpPort: Int): FtpClient {
-            val connectionPool = FTPClientPool(ftpUser, ftpPassword, ftpUrl, ftpPort)
+        fun create(
+            ftpUser: String,
+            ftpPassword: String,
+            ftpUrl: String,
+            ftpPort: Int,
+            ftpRootPath: String,
+        ): FtpClient {
+            val connectionPool = FTPClientPool(ftpUser, ftpPassword, ftpUrl, ftpPort, ftpRootPath)
             return SimpleFtpClient(connectionPool)
         }
     }
@@ -65,7 +68,10 @@ private class SimpleFtpClient(
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
     override fun uploadFile(path: Path, source: () -> InputStream) {
-        ftpClientPool.execute { ftp -> source().use { ftp.storeFile(path.toString(), it) } }
+        ftpClientPool.execute { ftp ->
+            ftp.createFtpFolder(path.parent)
+            source().use { ftp.storeFile(path.toString(), it) }
+        }
     }
 
     /**
@@ -106,13 +112,13 @@ private class SimpleFtpClient(
      * As FTP does not support nested folder creation in a single path the full path is
      * transverse and required missing folder are created.
      */
-    private fun FTPClient.createFtpFolder(path: Path) {
-        val paths = path.runningReduce { acc, value -> acc.resolve(value) }
-        paths.forEach { makeDirectory(it.toString()) }
+    private fun FTPClient.createFtpFolder(path: Path?) {
+        val paths = path?.runningReduce { acc, value -> acc.resolve(value) }
+        paths?.forEach { makeDirectory(it.toString()) }
     }
 
     /**
-     * As Ftp clients are re used we need to guarantee that, if the working directory is changed, it is restored after
+     * As Ftp clients are re-used we need to guarantee that, if the working directory is changed, it is restored after
      * the operation is completed.
      */
     private fun <T> FTPClientPool.executeRestoringWorkingDirectory(action: (FTPClient) -> T): T {

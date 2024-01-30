@@ -5,6 +5,16 @@ import org.apache.commons.io.FileUtils
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.charset.Charset
+import kotlin.io.path.writeText
+
+/**
+ * Create a temp file with the given text content.
+ */
+fun createTempFile(content: String): File {
+    val tempFile = kotlin.io.path.createTempFile()
+    tempFile.writeText(content)
+    return tempFile.toFile()
+}
 
 /**
  * Create a file with the given size.
