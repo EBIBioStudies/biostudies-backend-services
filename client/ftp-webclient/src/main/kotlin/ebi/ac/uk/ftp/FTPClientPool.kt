@@ -71,8 +71,8 @@ internal class FTPClientPool(
             val ftpClient = p.`object`
             return try {
                 ftpClient.sendNoOp()
-            } catch (e: Exception) {
-                logger.error(e) { "Error checking ftp connection" }
+            } catch (exception: Exception) {
+                logger.error { "Error checking ftp connection: ${ exception.localizedMessage }" }
                 false
             }
         }
@@ -91,6 +91,7 @@ internal class FTPClientPool(
             val factory = FTPClientFactory(ftpUser, ftpPassword, ftpUrl, ftpPort, ftpRootPath)
             var connections = GenericObjectPool(factory)
             connections.minIdle = MIN_CONNECTION
+            connections.testOnBorrow = true
             return connections
         }
     }
