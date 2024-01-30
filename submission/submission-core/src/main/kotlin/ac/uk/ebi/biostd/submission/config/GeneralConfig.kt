@@ -100,6 +100,7 @@ internal class GeneralConfig {
                 ftpPassword = fileProperties.ftpPassword,
                 ftpUrl = fileProperties.ftpUrl,
                 ftpPort = fileProperties.ftpPort,
+                ftpRootPath = fileProperties.ftpRootPath,
             )
         }
     }

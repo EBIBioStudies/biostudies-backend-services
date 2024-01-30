@@ -53,7 +53,7 @@ class ProfileService(
         fun ftpFolder(): FtpUserFolder {
             val relativePath = magicPath(secret, id, "a")
             return FtpUserFolder(
-                relativePath = Paths.get("$ftpRootPath/$relativePath"),
+                relativePath = Paths.get(relativePath),
                 path = Paths.get("$nfsUserFtpDirPath/$ftpRootPath/$relativePath"),
             )
         }
