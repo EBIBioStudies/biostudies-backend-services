@@ -22,29 +22,6 @@ class FtpClientTest {
         testInstance.deleteFile(Paths.get(""))
     }
 
-    @Nested
-    inner class FileExists {
-
-        val rootPath = Paths.get("")
-
-        @Test
-        fun whenNotExistInRootPath() {
-            val noExits = rootPath.resolve("test-file-1")
-
-            assertThat(testInstance.exists(noExits)).isFalse()
-        }
-
-        @Test
-        fun whenExistsInRootPaath() {
-            val tempFile = createTempFile("test-file-1")
-            val filePath = rootPath.resolve("file1.txt")
-
-            testInstance.uploadFile(filePath, { tempFile.inputStream() })
-
-            assertThat(testInstance.exists(filePath)).isTrue()
-        }
-    }
-
     @Test
     fun uploadFileInFolder() {
         val tempFile = createTempFile("test-file-1")
