@@ -11,7 +11,7 @@ import kotlin.time.Duration.Companion.milliseconds
 private val logger = KotlinLogging.logger {}
 
 /**
- * Pooled FTP client. Allows to re use FTPClient instances so socket connections and ftp logging does not need to be
+ * Pooled FTP client. Allows to re-use FTPClient instances so socket connections and ftp logging does not need to be
  * performed on each FTP operation.
  */
 internal class FTPClientPool(
@@ -19,7 +19,14 @@ internal class FTPClientPool(
     private val ftpPassword: String,
     private val ftpUrl: String,
     private val ftpPort: Int,
-    private val ftpClientPool: GenericObjectPool<FTPClient> = createFtpPool(ftpUser, ftpPassword, ftpUrl, ftpPort),
+    private val ftpRootPath: String,
+    private val ftpClientPool: GenericObjectPool<FTPClient> = createFtpPool(
+        ftpUser,
+        ftpPassword,
+        ftpUrl,
+        ftpPort,
+        ftpRootPath
+    ),
 ) {
     fun <T> execute(action: (FTPClient) -> T): T {
         val ftpClient = ftpClientPool.borrowObject()
@@ -35,12 +42,14 @@ internal class FTPClientPool(
         private val ftpPassword: String,
         private val ftpUrl: String,
         private val ftpPort: Int,
+        private val ftpRootPath: String,
     ) : BasePooledObjectFactory<FTPClient>() {
         override fun create(): FTPClient {
             val ftp = ftpClient(3000.milliseconds, 3000.milliseconds)
             logger.info { "Connecting to $ftpUrl, $ftpPort" }
             ftp.connect(ftpUrl, ftpPort)
             ftp.login(ftpUser, ftpPassword)
+            ftp.changeWorkingDirectory(ftpRootPath)
             ftp.enterLocalPassiveMode()
             return ftp
         }
@@ -62,8 +71,8 @@ internal class FTPClientPool(
             val ftpClient = p.`object`
             return try {
                 ftpClient.sendNoOp()
-            } catch (e: Exception) {
-                logger.error(e) { "Error checking ftp connection" }
+            } catch (exception: Exception) {
+                logger.error { "Error checking ftp connection: ${ exception.localizedMessage }" }
                 false
             }
         }
@@ -77,10 +86,12 @@ internal class FTPClientPool(
             ftpPassword: String,
             ftpUrl: String,
             ftpPort: Int,
+            ftpRootPath: String,
         ): GenericObjectPool<FTPClient> {
-            val factory = FTPClientFactory(ftpUser, ftpPassword, ftpUrl, ftpPort)
+            val factory = FTPClientFactory(ftpUser, ftpPassword, ftpUrl, ftpPort, ftpRootPath)
             var connections = GenericObjectPool(factory)
             connections.minIdle = MIN_CONNECTION
+            connections.testOnBorrow = true
             return connections
         }
     }

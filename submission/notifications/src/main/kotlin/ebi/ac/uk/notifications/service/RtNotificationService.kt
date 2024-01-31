@@ -3,6 +3,8 @@ package ebi.ac.uk.notifications.service
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.computedTitle
+import ebi.ac.uk.notifications.integration.templates.NotificationSubjectModel
+import ebi.ac.uk.notifications.integration.templates.NotificationSubjectTemplate
 import ebi.ac.uk.notifications.integration.templates.SubmissionReleaseModel
 import ebi.ac.uk.notifications.integration.templates.SubmissionReleaseTemplate
 import ebi.ac.uk.notifications.integration.templates.SuccessfulSubmissionModel
@@ -11,6 +13,7 @@ import ebi.ac.uk.notifications.util.TemplateLoader
 import ebi.ac.uk.util.date.toStringDate
 
 internal const val FROM = "biostudies@ebi.ac.uk"
+internal const val EMAIL_SUBJECT_TEMPLATE = "subject/%s.txt"
 internal const val SUBMISSION_RELEASE_TEMPLATE = "release/%s.txt"
 internal const val SUCCESSFUL_SUBMISSION_TEMPLATE = "submission/%s.txt"
 internal const val SUCCESSFUL_RESUBMISSION_TEMPLATE = "resubmission/%s.txt"
@@ -20,7 +23,7 @@ class RtNotificationService(
     private val rtTicketService: RtTicketService,
 ) {
     fun notifySuccessfulSubmission(sub: ExtSubmission, ownerFullName: String, uiUrl: String, stUrl: String) {
-        val subject = "BioStudies Submission - ${sub.accNo}"
+        val subject = notificationSubject(sub)
         val template = if (sub.version == 1) SUCCESSFUL_SUBMISSION_TEMPLATE else SUCCESSFUL_RESUBMISSION_TEMPLATE
         val model = successfulSubmissionModel(sub, uiUrl, stUrl, ownerFullName)
         val content = SuccessfulSubmissionTemplate(templateLoader.loadTemplateOrDefault(sub, template)).render(model)
@@ -28,11 +31,18 @@ class RtNotificationService(
     }
 
     fun notifySubmissionRelease(sub: ExtSubmission, ownerFullName: String, uiUrl: String, stUrl: String) {
-        val subject = "BioStudies Submission - ${sub.accNo}"
+        val subject = notificationSubject(sub)
         val model = submissionReleaseModel(sub, uiUrl, stUrl, ownerFullName)
         val template = templateLoader.loadTemplateOrDefault(sub, SUBMISSION_RELEASE_TEMPLATE)
         val content = SubmissionReleaseTemplate(template).render(model)
         rtTicketService.saveRtTicket(sub.accNo, subject, sub.owner, content)
+    }
+
+    private fun notificationSubject(sub: ExtSubmission): String {
+        val model = NotificationSubjectModel(sub.accNo)
+        val template = templateLoader.loadTemplateOrDefault(sub, EMAIL_SUBJECT_TEMPLATE)
+
+        return NotificationSubjectTemplate(template).render(model)
     }
 
     companion object {
