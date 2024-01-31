@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.common.properties
 
+import org.springframework.boot.context.properties.NestedConfigurationProperty
 import java.util.Properties
 
 data class NotificationProperties(
