@@ -2,7 +2,6 @@ package ebi.ac.uk.ftp
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.nio.file.Paths
