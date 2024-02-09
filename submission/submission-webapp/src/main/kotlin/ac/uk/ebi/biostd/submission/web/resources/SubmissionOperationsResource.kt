@@ -8,7 +8,6 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -22,11 +21,6 @@ class SubmissionOperationsResource(
     private val submissionsWebHandler: SubmissionsWebHandler,
     private val submissionReleaser: SubmissionRequestReleaser,
 ) {
-    @PostMapping("/ftp/generate")
-    suspend fun generateFtpLinks(@RequestParam("accNo", required = true) accNo: String) {
-        submissionReleaser.generateFtpLinks(accNo)
-    }
-
     @DeleteMapping("/{accNo}")
     suspend fun deleteSubmission(
         @BioUser user: SecurityUser,

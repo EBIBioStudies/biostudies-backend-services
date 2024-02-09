@@ -10,19 +10,18 @@ import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import java.io.File
 
+// TODO these classes should be renamed to NfsReleaserService and FireReleaserService to decouple them from the FTP concept
 class NfsFtpService(
     private val folderResolver: SubmissionFolderResolver,
 ) : FtpService {
     override suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String): ExtFile {
         return synchronized(this) {
             val nfsFile = file as NfsFile
-            val ftpFolder = getFtpFolder(subRelPath).toPath()
             val subFolder = folderResolver.getSubFolder(subRelPath)
-            FileUtils.createHardLink(nfsFile.file, subFolder, ftpFolder, Permissions(RW_R__R__, RWXR_XR_X))
-            nfsFile
+            val releasedFile = subFolder.resolve(nfsFile.relPath).toFile()
+
+            FileUtils.moveFile(nfsFile.file, releasedFile, Permissions(RW_R__R__, RWXR_XR_X))
+            nfsFile.copy(fullPath = releasedFile.absolutePath, file = releasedFile)
         }
     }
-
-    private fun getFtpFolder(relPath: String): File =
-        FileUtils.getOrCreateFolder(folderResolver.getSubmissionFtpFolder(relPath), RWXR_XR_X).toFile()
 }

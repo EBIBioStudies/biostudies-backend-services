@@ -60,8 +60,9 @@ class NfsFilesService(
     }
 
     private fun getOrCreateSubmissionFolder(submission: ExtSubmission, permissions: Set<PosixFilePermission>): File {
-        val submissionPath = folderResolver.getSubFolder(submission.relPath)
+        val submissionPath = folderResolver.getPrivateSubFolder(submission.secretKey, submission.relPath)
         FileUtils.createParentFolders(submissionPath, RWXR_XR_X)
+
         return getOrCreateFolder(submissionPath, permissions).toFile()
     }
 
@@ -80,8 +81,11 @@ class NfsFilesService(
         logger.info { "${sub.accNo} ${sub.owner} Finished un-publishing files of submission ${sub.accNo} on NFS" }
     }
 
-    override suspend fun deleteEmptyFolders(current: ExtSubmission) = withContext(Dispatchers.IO) {
-        val subFolder = folderResolver.getSubFolder(current.relPath)
-        FileUtils.deleteEmptyDirectories(subFolder.toFile())
+    override suspend fun deleteEmptyFolders(submission: ExtSubmission) = withContext(Dispatchers.IO) {
+        val subFolder = folderResolver.getSubFolder(submission.relPath).toFile()
+        val privateSubFolder = folderResolver.getPrivateSubFolderRoot(submission.secretKey).toFile()
+
+        FileUtils.deleteEmptyDirectories(privateSubFolder)
+        FileUtils.deleteEmptyDirectories(subFolder.parentFile)
     }
 }

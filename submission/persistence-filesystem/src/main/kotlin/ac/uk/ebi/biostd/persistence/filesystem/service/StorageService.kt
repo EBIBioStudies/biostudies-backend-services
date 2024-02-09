@@ -15,8 +15,6 @@ import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 
-private val logger = KotlinLogging.logger {}
-
 @Suppress("LongParameterList")
 class StorageService(
     private val fireFtpService: FireFtpService,
@@ -58,7 +56,7 @@ class StorageService(
         deleteEmptyFolders(sub)
     }
 
-    private suspend fun deleteEmptyFolders(sub: ExtSubmission) = when (sub.storageMode) {
+    override suspend fun deleteEmptyFolders(sub: ExtSubmission) = when (sub.storageMode) {
         FIRE -> fireFilesService.deleteEmptyFolders(sub)
         NFS -> nfsFilesService.deleteEmptyFolders(sub)
     }

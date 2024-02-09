@@ -16,4 +16,6 @@ interface FileStorageService {
         sub: ExtSubmission,
         process: (Flow<ExtFile>) -> Flow<ExtFile> = { it },
     )
+
+    suspend fun deleteEmptyFolders(sub: ExtSubmission)
 }

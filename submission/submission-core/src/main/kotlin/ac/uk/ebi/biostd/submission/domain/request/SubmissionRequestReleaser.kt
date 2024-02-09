@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import ac.uk.ebi.biostd.submission.exceptions.UnreleasedSubmissionException
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
@@ -87,15 +86,6 @@ class SubmissionRequestReleaser(
     suspend fun releaseSubmission(accNo: String) {
         val submission = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
         releaseSubmission(submission)
-    }
-
-    /**
-     * Generates/refresh FTP links for a given submission.
-     */
-    suspend fun generateFtpLinks(accNo: String) {
-        val submission = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        require(submission.released) { throw UnreleasedSubmissionException() }
-        releaseSubmissionFiles(submission)
     }
 
     private suspend fun releaseFile(sub: ExtSubmission, idx: Int, file: ExtFile): ExtFile {

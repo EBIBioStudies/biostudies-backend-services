@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.extended.model.storageMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
@@ -40,17 +41,18 @@ class SubmissionRequestFinalizer(
         val sub = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
         val previous = queryService.findLatestInactiveByAccNo(sub.accNo, includeFileListFiles = true)
         if (previous != null) deleteRemainingFiles(sub, previous)
+        if (sub.storageMode == NFS) storageService.deleteEmptyFolders(sub)
         return sub
     }
 
-    private suspend fun deleteRemainingFiles(current: ExtSubmission?, previous: ExtSubmission) {
+    private suspend fun deleteRemainingFiles(current: ExtSubmission, previous: ExtSubmission) {
         val subFiles = subFilesSet(current)
         val accNo = previous.accNo
         val owner = previous.owner
 
         fun deleteRemainingFiles(allFiles: Flow<ExtFile>): Flow<ExtFile> {
             return allFiles
-                .filter { subFiles.contains(it.filePath).not() || it.storageMode != current?.storageMode }
+                .filter { subFiles.contains(it.filePath).not() || it.storageMode != current.storageMode }
                 .withIndex()
                 .onEach { (i, file) -> logger.info { "$accNo $owner Deleting file $i, path='${file.filePath}'" } }
                 .map { it.value }
