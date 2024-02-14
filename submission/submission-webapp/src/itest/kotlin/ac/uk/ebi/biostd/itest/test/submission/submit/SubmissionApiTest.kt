@@ -305,7 +305,6 @@ class SubmissionApiTest(
             )
     }
 
-
     @Test
     fun `16-12 submission containing file list with invalid name`() {
         val fileList = tsv {
