@@ -305,40 +305,35 @@ class SubmissionApiTest(
             )
     }
 
-    @Nested
-    @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=base/path"])
-    inner class SubmitWebBasePath(@LocalServerPort val serverPort: Int) {
-        private lateinit var webClient: BioWebClient
 
-        @BeforeAll
-        fun init() {
-            webClient = getWebClient(serverPort, SuperUser)
-        }
+    @Test
+    fun `16-12 submission containing file list with invalid name`() {
+        val fileList = tsv {
+            line("Files", "Type")
+            line("file.txt", "test")
+            line()
+        }.toString()
+        val submission = tsv {
+            line("Submission", "S-BSST1612")
+            line("Title", "Submission With Invalid File List")
+            line("ReleaseDate", "2030-01-25")
+            line()
 
-        @Test
-        fun `16-12 submission when the system has the basePath property configured`() = runTest {
-            val submission = tsv {
-                line("Submission", "S-12366")
-                line("Title", "Sample Submission")
-                line()
+            line("Study")
+            line("File List", "MS%20Raw%20data%20figures.tsv")
+            line()
+        }.toString()
+        val file1 = tempFolder.createFile("file.txt")
+        val file2 = tempFolder.createFile("MS%20Raw%20data%20figures.tsv", fileList)
 
-                line("Study")
-                line()
-
-                line("File", "file12366.txt")
-                line()
-            }.toString()
-            webClient.uploadFiles(listOf(tempFolder.createFile("file12366.txt", "An example content")))
-
-            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-
-            val extSub = submissionRepository.getExtByAccNo("S-12366")
-            assertThat(extSub.relPath).isEqualTo("base/path/S-/366/S-12366")
-        }
+        webClient.uploadFiles(listOf(file1, file2))
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { webClient.submitSingle(submission, TSV) }
+            .withMessageContaining("The given file path contains invalid characters: MS%20Raw%20data%20figures.tsv")
     }
 
     @Test
-    fun `16-12 User with Ftp based folder submission`() = runTest {
+    fun `16-13 User with Ftp based folder submission`() = runTest {
         securityTestService.ensureUserRegistration(FtpSuperUser)
         webClient = getWebClient(serverPort, FtpSuperUser)
 
@@ -372,6 +367,38 @@ class SubmissionApiTest(
         val result = webClient.submitSingle(submission, TSV)
 
         assertThat(result).isSuccessful()
+    }
+
+    @Nested
+    @SpringBootTest(webEnvironment = RANDOM_PORT, properties = ["app.subBasePath=base/path"])
+    inner class SubmitWebBasePath(@LocalServerPort val serverPort: Int) {
+        private lateinit var webClient: BioWebClient
+
+        @BeforeAll
+        fun init() {
+            webClient = getWebClient(serverPort, SuperUser)
+        }
+
+        @Test
+        fun `16-14 submission when the system has the basePath property configured`() = runTest {
+            val submission = tsv {
+                line("Submission", "S-12366")
+                line("Title", "Sample Submission")
+                line()
+
+                line("Study")
+                line()
+
+                line("File", "file12366.txt")
+                line()
+            }.toString()
+            webClient.uploadFiles(listOf(tempFolder.createFile("file12366.txt", "An example content")))
+
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val extSub = submissionRepository.getExtByAccNo("S-12366")
+            assertThat(extSub.relPath).isEqualTo("base/path/S-/366/S-12366")
+        }
     }
 
     private suspend fun getSimpleSubmission(accNo: String) =
