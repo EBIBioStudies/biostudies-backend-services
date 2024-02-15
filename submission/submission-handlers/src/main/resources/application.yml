@@ -37,8 +37,10 @@ app:
     uiUrl: # The BioStudies UI url
     stUrl: # The BioStudies ST url
     slackUrl: # Slack notifications URL
+    # bccEmail: Nullable, optional email to include in every notification.
     rt:
       host: # RT server host
       queue: # Queue used for RT notifications
       user: # RT user
       password: # RT password
+
