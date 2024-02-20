@@ -63,7 +63,7 @@ class PmcTaskExecutor(
         )
     }
 
-    private fun runProcess(mode: PmcMode): Unit {
+    private fun runProcess(mode: PmcMode) {
         when (mode) {
             LOAD -> {
                 val folder = File(requireNotNull(props.loadFolder) { "load folder parameter is required" })
