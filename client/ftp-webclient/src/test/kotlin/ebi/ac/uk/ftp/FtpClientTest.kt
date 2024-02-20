@@ -1,5 +1,6 @@
 package ebi.ac.uk.ftp
 
+import ebi.ac.uk.test.createTempFile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
