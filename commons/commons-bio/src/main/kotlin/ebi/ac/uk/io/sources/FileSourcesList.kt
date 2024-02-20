@@ -45,6 +45,7 @@ value class FileSourcesList(val sources: List<FilesSource>) {
     }
 
     suspend fun getFileList(path: String): File? {
+        require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
         return sources.firstNotNullOfOrNull { it.getFileList(path) }
     }
 }
