@@ -12,6 +12,7 @@ class SimpleEmailService(private val javaMailSender: JavaMailSender) {
         helper.setFrom(email.from)
         helper.setSubject(email.subject)
         helper.setText(email.content, true)
+        email.bcc?.let { helper.setBcc(it) }
         javaMailSender.send(mail)
     }
 }

@@ -5,5 +5,6 @@ class Email(
     val to: String,
     val subject: String,
     val content: String,
-    val html: Boolean = true
+    val html: Boolean = true,
+    val bcc: String? = null,
 )

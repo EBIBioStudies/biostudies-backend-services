@@ -14,8 +14,8 @@ import org.springframework.web.reactive.function.client.WebClient
 
 class NotificationConfig(
     private val resourceLoader: ResourceLoader,
-    private val notificationProperties: NotificationProperties,
-    private val notificationDataService: NotificationsDataService
+    private val properties: NotificationProperties,
+    private val notificationDataService: NotificationsDataService,
 ) {
     fun rtNotificationService(): RtNotificationService = rtNotificationService
 
@@ -27,16 +27,22 @@ class NotificationConfig(
 
     private val templateLoader by lazy { TemplateLoader(resourceLoader) }
 
-    private val securityNotificationService by lazy { SecurityNotificationService(templateLoader, emailService) }
+    private val securityNotificationService by lazy {
+        SecurityNotificationService(
+            templateLoader,
+            emailService,
+            properties
+        )
+    }
 
     private val mailSender by lazy {
         JavaMailSenderImpl().apply {
-            javaMailProperties = notificationProperties.asProperties()
+            javaMailProperties = properties.asProperties()
         }
     }
 
     private val rtTicketService: RtTicketService by lazy {
-        RtTicketService(notificationDataService, RtClient(notificationProperties.rt, webClient))
+        RtTicketService(notificationDataService, properties, RtClient(properties.rt, webClient))
     }
 
     private val rtNotificationService: RtNotificationService by lazy {

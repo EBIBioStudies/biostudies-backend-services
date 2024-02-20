@@ -28,7 +28,15 @@ class RtClientTest(
     private val testBody = LinkedMultiValueMap(
         mapOf(
             "content" to listOf(
-                "Queue: test-queue\nSubject: Test\nStatus: resolved\nRequestor: test@mail.org\nCF-Accession: S-TEST1\nText: A notification"
+                buildString {
+                    appendLine("Queue: test-queue")
+                    appendLine("Subject: Test")
+                    appendLine("Status: resolved")
+                    appendLine("Requestor: test@mail.org")
+                    appendLine("AdminCc: admin@mail.org")
+                    appendLine("CF-Accession: S-TEST1")
+                    append("Text: A notification")
+                }
             )
         )
     )
@@ -53,7 +61,14 @@ class RtClientTest(
         every { requestSpec.bodyValue(testBody) } returns requestSpec
         every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns response
 
-        val ticketId = testInstance.createTicket("S-TEST1", "Test", "test@mail.org", "A notification")
+        val ticketId = testInstance.createTicket(
+            accNo = "S-TEST1",
+            subject = "Test",
+            owner = "test@mail.org",
+            adminCc = "admin@mail.org",
+            content = "A notification"
+        )
+
         assertThat(ticketId).isEqualTo("80338")
     }
 
@@ -87,7 +102,13 @@ class RtClientTest(
         every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "Wrong user/password"
 
         assertThrows<InvalidTicketIdException> {
-            testInstance.createTicket("S-TEST1", "Test", "test@mail.org", "A notification")
+            testInstance.createTicket(
+                accNo = "S-TEST1",
+                subject = "Test",
+                owner = "test@mail.org",
+                adminCc = "admin@mail.org",
+                content = "A notification"
+            )
         }
     }
 
@@ -102,7 +123,13 @@ class RtClientTest(
         every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns response
 
         assertThrows<InvalidTicketIdException> {
-            testInstance.createTicket("S-TEST1", "Test", "test@mail.org", "A notification")
+            testInstance.createTicket(
+                accNo = "S-TEST1",
+                subject = "Test",
+                owner = "test@mail.org",
+                adminCc = "admin@mail.org",
+                content = "A notification"
+            )
         }
     }
 
@@ -116,7 +143,13 @@ class RtClientTest(
         every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns null
 
         assertThrows<InvalidResponseException> {
-            testInstance.createTicket("S-TEST1", "Test", "test@mail.org", "A notification")
+            testInstance.createTicket(
+                accNo = "S-TEST1",
+                subject = "Test",
+                owner = "test@mail.org",
+                adminCc = "admin@mail.org",
+                content = "A notification"
+            )
         }
     }
 }

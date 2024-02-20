@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.common.properties
 
+import org.springframework.boot.context.properties.NestedConfigurationProperty
 import java.util.Properties
 
 data class NotificationProperties(
@@ -7,6 +8,9 @@ data class NotificationProperties(
     val uiUrl: String,
     val stUrl: String,
     val slackUrl: String,
+    val bccEmail: String?,
+
+    @NestedConfigurationProperty
     val rt: RtConfig,
 ) {
     fun asProperties(): Properties = Properties().apply { setProperty("mail.host", smtp) }

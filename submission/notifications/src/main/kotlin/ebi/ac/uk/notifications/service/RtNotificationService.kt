@@ -20,14 +20,13 @@ internal const val SUCCESSFUL_RESUBMISSION_TEMPLATE = "resubmission/%s.txt"
 
 class RtNotificationService(
     private val templateLoader: TemplateLoader,
-    private val rtTicketService: RtTicketService
+    private val rtTicketService: RtTicketService,
 ) {
     fun notifySuccessfulSubmission(sub: ExtSubmission, ownerFullName: String, uiUrl: String, stUrl: String) {
         val subject = notificationSubject(sub)
         val template = if (sub.version == 1) SUCCESSFUL_SUBMISSION_TEMPLATE else SUCCESSFUL_RESUBMISSION_TEMPLATE
         val model = successfulSubmissionModel(sub, uiUrl, stUrl, ownerFullName)
         val content = SuccessfulSubmissionTemplate(templateLoader.loadTemplateOrDefault(sub, template)).render(model)
-
         rtTicketService.saveRtTicket(sub.accNo, subject, sub.owner, content)
     }
 
@@ -36,7 +35,6 @@ class RtNotificationService(
         val model = submissionReleaseModel(sub, uiUrl, stUrl, ownerFullName)
         val template = templateLoader.loadTemplateOrDefault(sub, SUBMISSION_RELEASE_TEMPLATE)
         val content = SubmissionReleaseTemplate(template).render(model)
-
         rtTicketService.saveRtTicket(sub.accNo, subject, sub.owner, content)
     }
 
@@ -52,7 +50,7 @@ class RtNotificationService(
             submission: ExtSubmission,
             uiUrl: String,
             stUrl: String,
-            ownerFullName: String
+            ownerFullName: String,
         ): SubmissionReleaseModel {
             val description = buildString {
                 append(submission.accNo)
@@ -73,7 +71,7 @@ class RtNotificationService(
             submission: ExtSubmission,
             uiUrl: String,
             stUrl: String,
-            ownerFullName: String
+            ownerFullName: String,
         ): SuccessfulSubmissionModel {
             val title = submission.computedTitle?.let { "submission \"$it\"" } ?: "submission"
             return SuccessfulSubmissionModel(

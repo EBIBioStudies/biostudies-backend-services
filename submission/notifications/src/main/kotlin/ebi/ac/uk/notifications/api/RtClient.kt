@@ -18,10 +18,9 @@ class RtClient(
 ) {
     private val ticketIdPattern = "(# Ticket )(\\d+)( created.)".toPattern()
 
-    fun createTicket(accNo: String, subject: String, owner: String, content: String): String {
-        val requestContent = ticketContent(accNo, subject, owner, content)
+    fun createTicket(accNo: String, subject: String, owner: String, adminCc: String?, content: String): String {
+        val requestContent = ticketContent(accNo, subject, owner, adminCc, content)
         val response = performRtRequest("/ticket/new", requestContent)
-
         return getTicketId(response)
     }
 
@@ -51,21 +50,26 @@ class RtClient(
         return ticketIdPattern.match(body.second())?.secondGroup() ?: throw InvalidTicketIdException()
     }
 
-    private fun ticketComment(ticketId: String, comment: String) =
-        StringBuilder("id: $ticketId\n")
-            .append("Action: correspond\n")
-            .append("Status: resolved\n")
-            .append("Text: ${trimContent(comment)}")
-            .toString()
+    private fun ticketComment(ticketId: String, comment: String): String {
+        return buildString {
+            appendLine("id: $ticketId")
+            appendLine("Action: correspond")
+            appendLine("Status: resolved")
+            append("Text: ${trimContent(comment)}")
+        }
+    }
 
-    private fun ticketContent(accNo: String, subject: String, owner: String, content: String) =
-        StringBuilder("Queue: ${rtConfig.queue}\n")
-            .append("Subject: $subject\n")
-            .append("Status: resolved\n")
-            .append("Requestor: $owner\n")
-            .append("CF-Accession: $accNo\n")
-            .append("Text: ${trimContent(content)}")
-            .toString()
+    private fun ticketContent(accNo: String, subject: String, owner: String, ccUser: String?, content: String): String {
+        return buildString {
+            appendLine("Queue: ${rtConfig.queue}")
+            appendLine("Subject: $subject")
+            appendLine("Status: resolved")
+            appendLine("Requestor: $owner")
+            ccUser?.let { appendLine("AdminCc: $it") }
+            appendLine("CF-Accession: $accNo")
+            append("Text: ${trimContent(content)}")
+        }
+    }
 
     private fun trimContent(content: String) = content.replace("\n", "\n ")
 }
