@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.client.api
 
+import ac.uk.ebi.biostd.client.dto.AcceptedSubmissionRequest
 import ac.uk.ebi.biostd.client.extensions.deserializeResponse
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
@@ -16,6 +17,7 @@ import ebi.ac.uk.api.dto.RegisterConfig
 import ebi.ac.uk.api.dto.UserRegistration
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.post
+import ebi.ac.uk.commons.http.ext.postForObject
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Submission
@@ -67,11 +69,11 @@ internal class SubmitClient(
         format: SubmissionFormat,
         storageMode: StorageMode?,
         register: RegisterConfig,
-    ) {
+    ): AcceptedSubmissionRequest {
         val headers = formatHeaders(format)
         val url = buildUrl(register, storageMode).plus("/async")
 
-        client.post(url, RequestParams(headers, submission))
+        return client.postForObject(url, RequestParams(headers, submission))
     }
 
     override fun submitSingleFromDraftAsync(draftKey: String) {

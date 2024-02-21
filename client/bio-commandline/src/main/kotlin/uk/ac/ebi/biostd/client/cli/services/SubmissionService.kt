@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.client.cli.services
 
+import ac.uk.ebi.biostd.client.dto.AcceptedSubmissionRequest
 import ebi.ac.uk.model.Submission
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
 import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
@@ -14,9 +15,9 @@ internal class SubmissionService {
         return client.submitSingle(rqt.submissionFile, rqt.filesConfig).body
     }
 
-    fun submitAsync(request: SubmissionRequest) = performRequest {
+    fun submitAsync(request: SubmissionRequest): AcceptedSubmissionRequest = performRequest {
         val client = bioWebClient(request.securityConfig)
-        client.asyncSubmitSingle(request.submissionFile, request.filesConfig)
+        return client.asyncSubmitSingle(request.submissionFile, request.filesConfig)
     }
 
     fun transfer(request: TransferRequest) = performRequest {

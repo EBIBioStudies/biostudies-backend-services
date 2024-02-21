@@ -57,7 +57,7 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
 
     suspend fun existsByAccNoAndVersion(accNo: String, version: Int): Boolean
 
-    suspend fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
+    suspend fun findByAccNoAndVersion(accNo: String, version: Int): DocSubmission?
 
     fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): Flow<DocSubmission>
 
@@ -67,8 +67,13 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
     suspend fun findSubmissionCollections(accNo: String): SubmissionCollections?
 }
 
-suspend fun SubmissionMongoRepository.getByAccNo(accNo: String): DocSubmission =
-    findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
+suspend fun SubmissionMongoRepository.getByAccNo(accNo: String): DocSubmission {
+    return findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
+}
+
+suspend fun SubmissionMongoRepository.getByAccNoAndVersion(accNo: String, version: Int): DocSubmission {
+    return findByAccNoAndVersion(accNo, version) ?: throw SubmissionNotFoundException(accNo)
+}
 
 interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionRequest, String> {
     suspend fun existsByAccNoAndStatusIn(accNo: String, status: Set<RequestStatus>): Boolean

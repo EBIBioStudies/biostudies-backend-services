@@ -1,13 +1,14 @@
 package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.common.multipartBody
+import ac.uk.ebi.biostd.client.dto.AcceptedSubmissionRequest
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.web.MultipartAsyncSubmitOperations
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.integration.SerializationService
 import ebi.ac.uk.commons.http.ext.RequestParams
-import ebi.ac.uk.commons.http.ext.post
+import ebi.ac.uk.commons.http.ext.postForObject
 import ebi.ac.uk.model.Submission
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpHeaders
@@ -25,32 +26,35 @@ class MultiPartAsyncSubmitClient(
         submission: File,
         filesConfig: SubmissionFilesConfig,
         attrs: Map<String, String>,
-    ) {
+    ): AcceptedSubmissionRequest {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
         val multiPartBody = multipartBody(filesConfig, FileSystemResource(submission))
         attrs.entries.forEach { multiPartBody.add(it.key, it.value) }
-        client.post("$SUBMIT_URL/direct", RequestParams(headers, multiPartBody))
+
+        return client.postForObject("$SUBMIT_URL/direct", RequestParams(headers, multiPartBody))
     }
 
     override fun asyncSubmitSingle(
         submission: String,
         format: SubmissionFormat,
         filesConfig: SubmissionFilesConfig,
-    ) {
+    ): AcceptedSubmissionRequest {
         val headers = createHeaders(format)
         val body = multipartBody(filesConfig, submission)
-        client.post(SUBMIT_URL, RequestParams(headers, body))
+
+        return client.postForObject(SUBMIT_URL, RequestParams(headers, body))
     }
 
     override fun asyncSubmitSingle(
         submission: Submission,
         format: SubmissionFormat,
         filesConfig: SubmissionFilesConfig,
-    ) {
+    ): AcceptedSubmissionRequest {
         val headers = createHeaders(format)
         val serializedSubmission = serializationService.serializeSubmission(submission, format.asSubFormat())
         val body = multipartBody(filesConfig, serializedSubmission)
-        client.post(SUBMIT_URL, RequestParams(headers, body))
+
+        return client.postForObject(SUBMIT_URL, RequestParams(headers, body))
     }
 
     private fun createHeaders(format: SubmissionFormat) = HttpHeaders().apply {

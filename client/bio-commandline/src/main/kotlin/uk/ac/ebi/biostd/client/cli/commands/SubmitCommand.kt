@@ -22,6 +22,7 @@ import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
+@Deprecated("This command will be deprecated in favor of submitAsync")
 internal class SubmitCommand(
     private val subService: SubmissionService,
 ) : CliktCommand(name = "submit") {
@@ -40,6 +41,7 @@ internal class SubmitCommand(
         val filesConfig = SubmissionFilesConfig(splitFiles(attached), mode, splitPreferredSources(preferredSources))
 
         val response = subService.submit(SubmissionRequest(input, securityConfig, filesConfig))
+        echo("WARNING: This command will be DEPRECATED. Please start using submitAsync instead")
         echo("SUCCESS: Submission with AccNo ${response.accNo} was submitted")
     }
 }

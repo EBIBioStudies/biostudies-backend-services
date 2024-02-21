@@ -14,9 +14,16 @@ class ExtSubmissionQueryService(
     private val filesRepository: SubmissionFilesPersistenceService,
     private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
 ) {
-
     suspend fun getExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission =
         submissionPersistenceQueryService.getExtByAccNo(accNo, includeFileListFiles)
+
+    suspend fun getExtSubmissionByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+        includeFileListFiles: Boolean = false,
+    ): ExtSubmission {
+        return submissionPersistenceQueryService.getExtByAccNoAndVersion(accNo, version, includeFileListFiles)
+    }
 
     suspend fun findExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission? =
         submissionPersistenceQueryService.findExtByAccNo(accNo, includeFileListFiles)
