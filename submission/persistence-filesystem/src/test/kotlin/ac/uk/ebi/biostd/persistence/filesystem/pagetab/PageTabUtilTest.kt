@@ -46,7 +46,6 @@ class PageTabUtilTest(
         val pageTabFiles = testInstance.generateSubPageTab(extSubmission, tempFolder.root)
         coVerify(exactly = 1) { toSubmissionMapper.toSimpleSubmission(extSubmission) }
         assertPageTabFile(pageTabFiles.tsv, "tsv-sub")
-        assertPageTabFile(pageTabFiles.xml, "xml-sub")
         assertPageTabFile(pageTabFiles.json, "json-sub")
     }
 

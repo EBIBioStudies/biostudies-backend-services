@@ -2,14 +2,12 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.assertions.AllInOneSubmissionHelper
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.factory.submissionSpecJson
 import ac.uk.ebi.biostd.itest.factory.submissionSpecTsv
-import ac.uk.ebi.biostd.itest.factory.submissionSpecXml
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.enableFire
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
@@ -73,19 +71,5 @@ class AllInOneSubmissionTest(
         allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
         if (enableFire) allInOneSubmissionHelper.assertFirePagetabFiles("S-EPMC125")
         else allInOneSubmissionHelper.assertNfsPagetabFiles("S-EPMC125")
-    }
-
-    @Test
-    fun `2-3 submit all in one XML submission`() = runTest {
-        val (submission, fileList, files, subFileList) = submissionSpecXml(tempFolder, "S-EPMC126")
-        webClient.uploadFile(fileList)
-        subFileList?.let { webClient.uploadFile(it.file, it.folder) }
-        files.forEach { webClient.uploadFile(it.file, it.folder) }
-
-        webClient.submitSingle(submission.readText(), XML)
-
-        allInOneSubmissionHelper.assertSavedSubmission("S-EPMC126")
-        if (enableFire) allInOneSubmissionHelper.assertFirePagetabFiles("S-EPMC126")
-        else allInOneSubmissionHelper.assertNfsPagetabFiles("S-EPMC126")
     }
 }

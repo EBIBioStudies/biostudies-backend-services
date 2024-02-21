@@ -46,13 +46,11 @@ class PageTabService(
 
     private fun fileListFiles(pageTab: PageTabFiles, fileListName: String): List<NfsFile> = listOf(
         createNfsFile("$fileListName.json", "Files/$fileListName.json", pageTab.json),
-        createNfsFile("$fileListName.xml", "Files/$fileListName.xml", pageTab.xml),
         createNfsFile("$fileListName.tsv", "Files/$fileListName.tsv", pageTab.tsv)
     )
 
     private fun subExtFiles(accNo: String, pageTab: PageTabFiles): List<NfsFile> = listOf(
         createNfsFile("$accNo.json", "$accNo.json", pageTab.json),
-        createNfsFile("$accNo.xml", "$accNo.xml", pageTab.xml),
         createNfsFile("$accNo.tsv", "$accNo.tsv", pageTab.tsv)
     )
 
