@@ -12,7 +12,7 @@ class RtTicketService(
     fun saveRtTicket(accNo: String, subject: String, owner: String, content: String) =
         when (val ticketId = notificationsDataService.findTicketId(accNo)) {
             null -> createTicket(accNo, subject, owner, content)
-            else -> rtClient.commentTicket(ticketId, content)
+            else -> rtClient.commentTicket(ticketId, properties.bccEmail, content)
         }
 
     private fun createTicket(accNo: String, subject: String, owner: String, content: String) {

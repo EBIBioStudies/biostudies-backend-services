@@ -24,8 +24,8 @@ class RtClient(
         return getTicketId(response)
     }
 
-    fun commentTicket(ticketId: String, comment: String) {
-        val content = ticketComment(ticketId, comment)
+    fun commentTicket(ticketId: String, ccUser: String?, comment: String) {
+        val content = ticketCommentContent(ticketId, ccUser, comment)
         performRtRequest("/ticket/$ticketId/comment", content)
     }
 
@@ -50,11 +50,12 @@ class RtClient(
         return ticketIdPattern.match(body.second())?.secondGroup() ?: throw InvalidTicketIdException()
     }
 
-    private fun ticketComment(ticketId: String, comment: String): String {
+    private fun ticketCommentContent(ticketId: String, ccUser: String?, comment: String): String {
         return buildString {
             appendLine("id: $ticketId")
             appendLine("Action: correspond")
             appendLine("Status: resolved")
+            ccUser?.let { appendLine("Bcc: $it") }
             append("Text: ${trimContent(comment)}")
         }
     }
