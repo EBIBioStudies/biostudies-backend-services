@@ -8,11 +8,6 @@ import org.springframework.boot.context.properties.ConstructorBinding
 data class ApplicationProperties(
     val processId: String,
     val retrySubmission: Boolean,
-    val tempDirPath: String,
-    val fireTempDirPath: String,
-    val submissionPath: String,
-    val requestFilesPath: String,
-    val ftpPath: String,
     val instanceBaseUrl: String,
     val subBasePath: String?,
     val consumers: Int,
@@ -39,6 +34,7 @@ data class FireProperties(
     val version: String,
     val username: String,
     val password: String,
+    val tempDirPath: String,
     val retry: RetryProperties,
     val s3: S3Properties,
 )
@@ -58,6 +54,10 @@ data class ValidatorProperties(
 data class PersistenceProperties(
     val concurrency: Int,
     val enableFire: Boolean = false,
+    val privateSubmissionsPath: String,
+    val publicSubmissionsPath: String,
+    val requestFilesPath: String,
+    val tempDirPath: String,
 )
 
 data class NotificationsProperties(

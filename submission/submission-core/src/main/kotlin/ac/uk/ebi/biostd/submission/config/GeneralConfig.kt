@@ -37,8 +37,9 @@ internal class GeneralConfig {
     fun fileSourcesService(builder: FilesSourceListBuilder): FileSourcesService = FileSourcesService(builder)
 
     @Bean
-    fun extFilesResolver(properties: ApplicationProperties): FilesResolver =
-        FilesResolver(File(properties.requestFilesPath))
+    fun extFilesResolver(
+        properties: ApplicationProperties,
+    ): FilesResolver = FilesResolver(File(properties.persistence.requestFilesPath))
 
     @Bean
     fun filesSourceConfig(
@@ -46,8 +47,12 @@ internal class GeneralConfig {
         ftpClient: FtpClient,
         applicationProperties: ApplicationProperties,
         filesRepo: SubmissionFilesPersistenceService,
-    ): FilesSourceConfig =
-        FilesSourceConfig(Paths.get(applicationProperties.submissionPath), fireClient, filesRepo, ftpClient)
+    ): FilesSourceConfig = FilesSourceConfig(
+        Paths.get(applicationProperties.persistence.privateSubmissionsPath),
+        fireClient,
+        filesRepo,
+        ftpClient
+    )
 
     @Bean
     fun fireClient(properties: ApplicationProperties): FireClient {

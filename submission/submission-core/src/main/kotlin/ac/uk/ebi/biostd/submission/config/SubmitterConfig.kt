@@ -88,7 +88,7 @@ class SubmitterConfig(
         requestService: SubmissionRequestPersistenceService,
     ): SubmissionRequestLoader = SubmissionRequestLoader(
         properties.persistence.concurrency,
-        File(properties.fireTempDirPath),
+        File(properties.fire.tempDirPath),
         eventsPublisherService,
         filesRequestService,
         requestService,
@@ -258,8 +258,8 @@ class SubmitterConfig(
         @Bean
         @Lazy
         fun folderResolver() = SubmissionFolderResolver(
-            submissionFolder = Paths.get(appProperties.submissionPath),
-            ftpFolder = Paths.get(appProperties.ftpPath)
+            submissionFolder = Paths.get(appProperties.persistence.privateSubmissionsPath),
+            ftpFolder = Paths.get(appProperties.persistence.publicSubmissionsPath)
         )
     }
 
