@@ -16,12 +16,15 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.amqp.rabbit.listener.ConditionalRejectingErrorHandler
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
+import org.springframework.amqp.support.converter.MessageConverter
 import org.springframework.boot.autoconfigure.amqp.SimpleRabbitListenerContainerFactoryConfigurer
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import org.springframework.core.io.ResourceLoader
+import org.springframework.http.codec.ClientCodecConfigurer
+import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.extended.serialization.integration.ExtSerializationConfig
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -78,7 +81,22 @@ class Listeners {
 }
 
 @Configuration
-class Services {
+class WebConfig {
+    @Bean
+    fun jsonMessageConverter(): MessageConverter = Jackson2JsonMessageConverter()
+
+    @Bean
+    fun webClient(): WebClient {
+        val exchangeStrategies =
+            ExchangeStrategies.builder().codecs { configurer ->
+                if (configurer is ClientCodecConfigurer) configurer.defaultCodecs().maxInMemorySize(-1)
+            }.build()
+
+        return WebClient.builder()
+            .exchangeStrategies(exchangeStrategies)
+            .build()
+    }
+
     @Bean
     fun bioStudiesWebConsumer(
         client: WebClient,
@@ -90,7 +108,10 @@ class Services {
         client: WebClient,
         applicationProperties: ApplicationProperties
     ): NotificationsSender = NotificationsSender(client, applicationProperties.notifications.slackUrl)
+}
 
+@Configuration
+class Services {
     @Bean
     fun extSerializationService(): ExtSerializationService = ExtSerializationConfig.extSerializationService()
 

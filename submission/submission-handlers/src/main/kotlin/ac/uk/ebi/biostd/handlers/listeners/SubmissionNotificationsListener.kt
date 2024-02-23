@@ -20,9 +20,6 @@ import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 
-private val logger = KotlinLogging.logger {}
-private const val ERROR_MESSAGE = "Problem processing notification for submission %s"
-
 class SubmissionNotificationsListener(
     private val rabbitTemplate: RabbitTemplate,
     private val webConsumer: BioStudiesWebConsumer,
@@ -34,7 +31,7 @@ class SubmissionNotificationsListener(
     fun receiveSubmissionMessage(message: SubmissionMessage) {
         logger.info { "Submission Notification for ${message.accNo}" }
 
-        notifySafely(message) {
+        notifySafely(message, SUCCESSFUL_SUBMISSION_NOTIFICATION) {
             val owner = webConsumer.getExtUser(message.extUserUrl)
             if (owner.notificationsEnabled) {
                 val sub = webConsumer.getExtSubmission(message.extTabUrl)
@@ -48,7 +45,7 @@ class SubmissionNotificationsListener(
     fun receiveSubmissionReleaseMessage(message: SubmissionMessage) {
         logger.info { "Release notification for ${message.accNo}" }
 
-        notifySafely(message) {
+        notifySafely(message, RELEASE_NOTIFICATION) {
             val owner = webConsumer.getExtUser(message.extUserUrl)
             if (owner.notificationsEnabled) {
                 val sub = webConsumer.getExtSubmission(message.extTabUrl)
@@ -66,8 +63,18 @@ class SubmissionNotificationsListener(
         }
     }
 
-    private fun notifySafely(message: SubmissionMessage, notifyFunction: SubmissionMessage.() -> Unit) = runBlocking {
-        runCatching { notifyFunction(message) }.onFailure { onError(message) }
+    private fun notifySafely(
+        message: SubmissionMessage,
+        notificationType: String,
+        notifyFunction: SubmissionMessage.() -> Unit
+    ) = runBlocking {
+        runCatching {
+            notifyFunction(message)
+        }.onFailure {
+            onError(message)
+            val errorMsg = "Error processing notification of type '$notificationType' for submission '${message.accNo}"
+            logger.error(it) { "$errorMsg': ${it.message ?: it.localizedMessage}" }
+        }
     }
 
     private suspend fun onError(message: SubmissionMessage) {
@@ -80,5 +87,13 @@ class SubmissionNotificationsListener(
             null -> notificationProps.uiUrl
             else -> "${notificationProps.uiUrl}/${col.accNo.lowercase()}"
         }
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
+
+        private const val ERROR_MESSAGE = "Problem processing notification for submission %s"
+        private const val RELEASE_NOTIFICATION = "Release Notification"
+        private const val SUCCESSFUL_SUBMISSION_NOTIFICATION = "Successful Submission Notification"
     }
 }
