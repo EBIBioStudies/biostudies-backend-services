@@ -10,7 +10,6 @@ import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.test.basicExtSubmission
 import ebi.ac.uk.util.collections.second
-import ebi.ac.uk.util.collections.third
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.coEvery
@@ -32,11 +31,9 @@ internal class PageTabServiceTest(
 ) {
     private val baseTempDir = temporaryFolder.createDirectory("files-temp-dir")
     private val subJson = temporaryFolder.createFile("sub.json")
-    private val subXml = temporaryFolder.createFile("sub.xml")
     private val subTsv = temporaryFolder.createFile("sub.tsv")
 
     private val fileListJson = temporaryFolder.createFile("fileList.json")
-    private val fileListXml = temporaryFolder.createFile("fileList.xml")
     private val fileListTsv = temporaryFolder.createFile("fileList.tsv")
 
     private val testInstance = PageTabService(baseTempDir, pageTabUtil)
@@ -51,28 +48,21 @@ internal class PageTabServiceTest(
         val fileListSection = ExtSection(type = "t2", fileList = ExtFileList(filePath = "a-path", fileList))
         val rootSection = ExtSection(type = "t1", sections = listOf(Either.left(fileListSection)))
         val sub = basicExtSubmission.copy(section = rootSection)
+        val fileListPageTab = mapOf("a-path" to PageTabFiles(fileListJson, fileListTsv))
 
-        coEvery { pageTabUtil.generateSubPageTab(sub, tempDir) } returns PageTabFiles(subJson, subXml, subTsv)
-        coEvery { pageTabUtil.generateFileListPageTab(sub, tempDir) } returns mapOf(
-            "a-path" to PageTabFiles(
-                fileListJson,
-                fileListXml,
-                fileListTsv
-            )
-        )
+        coEvery { pageTabUtil.generateSubPageTab(sub, tempDir) } returns PageTabFiles(subJson, subTsv)
+        coEvery { pageTabUtil.generateFileListPageTab(sub, tempDir) } returns fileListPageTab
 
         val result = testInstance.generatePageTab(sub)
 
-        assertThat(result.pageTabFiles).hasSize(3)
+        assertThat(result.pageTabFiles).hasSize(2)
         assertFile(result.pageTabFiles.first(), subJson, "S-TEST123.json")
-        assertFile(result.pageTabFiles.second(), subXml, "S-TEST123.xml")
-        assertFile(result.pageTabFiles.third(), subTsv, "S-TEST123.tsv")
+        assertFile(result.pageTabFiles.second(), subTsv, "S-TEST123.tsv")
         assertThat(result.section.sections.first()).hasLeftValueSatisfying {
             val resultFileList = it.fileList
             assertThat(resultFileList).isNotNull()
             assertFile(it.fileList?.pageTabFiles?.first(), fileListJson, "Files/a-path.json")
-            assertFile(it.fileList?.pageTabFiles?.second(), fileListXml, "Files/a-path.xml")
-            assertFile(it.fileList?.pageTabFiles?.third(), fileListTsv, "Files/a-path.tsv")
+            assertFile(it.fileList?.pageTabFiles?.second(), fileListTsv, "Files/a-path.tsv")
         }
     }
 

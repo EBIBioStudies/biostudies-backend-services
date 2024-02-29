@@ -113,15 +113,15 @@ class SubmissionStatsTest(
 
         val statVersion1 = statsDataService.findByAccNo("S-STTS1")
         assertThat(statVersion1).hasSize(1)
-        assertThat(statVersion1.first().value).isEqualTo(1211L)
+        assertThat(statVersion1.first().value).isEqualTo(576L)
         assertThat(statVersion1.first().type).isEqualTo(FILES_SIZE)
         assertThat(statVersion1.first().accNo).isEqualTo("S-STTS1")
 
         assertThat(webClient.submitSingle(version2, TSV)).isSuccessful()
-        waitUntil(TEN_SECONDS) { statsDataService.findByAccNo("S-STTS1").first().value != 1211L }
+        waitUntil(TEN_SECONDS) { statsDataService.findByAccNo("S-STTS1").first().value != 576L }
         val stats = statsDataService.findByAccNo("S-STTS1")
         assertThat(stats).hasSize(1)
-        assertThat(stats.first().value).isEqualTo(3529L)
+        assertThat(stats.first().value).isEqualTo(1647L)
         assertThat(stats.first().type).isEqualTo(FILES_SIZE)
         assertThat(stats.first().accNo).isEqualTo("S-STTS1")
     }
@@ -186,15 +186,15 @@ class SubmissionStatsTest(
         waitUntil(TEN_SECONDS) { statsDataService.findByAccNo("S-STTS2").isNotEmpty() }
         val statVersion1 = statsDataService.findByAccNo("S-STTS2")
         assertThat(statVersion1).hasSize(1)
-        assertThat(statVersion1.first().value).isEqualTo(1208L)
+        assertThat(statVersion1.first().value).isEqualTo(574L)
         assertThat(statVersion1.first().type).isEqualTo(FILES_SIZE)
         assertThat(statVersion1.first().accNo).isEqualTo("S-STTS2")
 
         assertThat(webClient.submitSingle(version2, TSV, NFS)).isSuccessful()
-        waitUntil(TEN_SECONDS) { statsDataService.findByAccNo("S-STTS2").first().value != 1208L }
+        waitUntil(TEN_SECONDS) { statsDataService.findByAccNo("S-STTS2").first().value != 574L }
         val stats = statsDataService.findByAccNo("S-STTS2")
         assertThat(stats).hasSize(1)
-        assertThat(stats.first().value).isEqualTo(3364L)
+        assertThat(stats.first().value).isEqualTo(1483L)
         assertThat(stats.first().type).isEqualTo(FILES_SIZE)
         assertThat(stats.first().accNo).isEqualTo("S-STTS2")
     }
