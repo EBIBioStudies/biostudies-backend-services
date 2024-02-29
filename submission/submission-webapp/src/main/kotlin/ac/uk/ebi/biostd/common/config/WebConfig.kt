@@ -39,8 +39,9 @@ internal class WebConfig(
     fun principalResolver() = AuthenticationPrincipalArgumentResolver()
 
     @Bean
-    fun tempFileGenerator(properties: ApplicationProperties): TempFileGenerator =
-        TempFileGenerator(properties.tempDirPath)
+    fun tempFileGenerator(
+        properties: ApplicationProperties,
+    ): TempFileGenerator = TempFileGenerator(properties.persistence.tempDirPath)
 
     override fun configureContentNegotiation(configurer: ContentNegotiationConfigurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON)

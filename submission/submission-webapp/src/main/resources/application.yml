@@ -65,11 +65,6 @@ app:
   enablePropertiesLog: # Boolean flag to enable/disable displaying the application properties on start
   consumers: # Number of processing queue consumers.
   maxConsumers: # Max number of processing queue consumers.
-  submissionPath: # Absolute path to the folder to be used as submission storage
-  ftpPath: # Absolute path to the folder to be used ftp hardlinks
-  tempDirPath: # Absolute path of the temp folder to store files
-  requestFilesPath: # Base directory absolute path where request file list are stored.
-  fireTempDirPath: # Absolute path of the temp folder for FIRE storage
   instanceBaseUrl: # Instance base url e.g. http://server.ebi.ac.uk:5541
   #subBasePath: # Allows to allocate submissions under different base path. Commented to avoid empty string binding.
   submissionTask:
@@ -88,6 +83,7 @@ app:
     username: # FIRE user
     password: # FIRE password
     version: # FIRE version
+    tempDirPath: # Absolute path to the temp folder for FIRE storage
     s3:
       accessKey: # FIRE s3 access key
       secretKey: # FIRE s3 access key
@@ -122,6 +118,10 @@ app:
   persistence:
     enableFire: # Boolean flag to indicate whether the files are stored on FIRE if true or NFS if false
     concurrency: # Number of files processed concurrently
+    privateSubmissionsPath: # Absolute path to the folder to be used as storage for private submissions
+    publicSubmissionsPath: # Absolute path to the folder to be used as storage for public submissions
+    requestFilesPath: # Absolute path to the folder where request files are stored
+    tempDirPath: # Absolute path to the folder used to generate temporary files
   mongo:
     execute-migrations: # Boolean flag to enable/disable the execution of mongo migrations
     migration-package: # Mongo migrations package

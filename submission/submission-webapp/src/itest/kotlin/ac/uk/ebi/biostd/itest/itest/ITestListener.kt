@@ -41,11 +41,13 @@ class ITestListener : TestExecutionListener {
         mySqlSetup()
         rabbitSetup()
         fireSetup()
-        ftpSetup()
+        securitySetup()
         doiSetup()
+        persistenceSetup()
         submissionTaskSetup()
         clusterSetup()
-        appPropertiesSetup()
+
+        properties.writeProperties()
     }
 
     override fun testPlanExecutionFinished(testPlan: TestPlan) {
@@ -80,16 +82,21 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("spring.rabbitmq.password", rabbitMQContainer.adminPassword)
     }
 
-    private fun ftpSetup() {
+    private fun securitySetup() {
+        val securityProperties = "app.security"
+        properties.addProperty("$securityProperties.environment", ENVIRONMENT)
+
         ftpServer.start()
 
-        val ftpProperties = "app.security.filesProperties"
-        properties.addProperty("$ftpProperties.ftpUser", FTP_USER)
-        properties.addProperty("$ftpProperties.ftpPassword", FTP_PASSWORD)
-        properties.addProperty("$ftpProperties.ftpUrl", ftpServer.getUrl())
-        properties.addProperty("$ftpProperties.ftpPort", ftpServer.ftpPort.toString())
-        properties.addProperty("$ftpProperties.ftpDirPath", ftpServer.fileSystemDirectory.absolutePath)
-        properties.addProperty("$ftpProperties.ftpRootPath", FTP_ROOT_PATH)
+        val userFilesProperties = "$securityProperties.filesProperties"
+        properties.addProperty("$userFilesProperties.ftpUser", FTP_USER)
+        properties.addProperty("$userFilesProperties.ftpPassword", FTP_PASSWORD)
+        properties.addProperty("$userFilesProperties.ftpUrl", ftpServer.getUrl())
+        properties.addProperty("$userFilesProperties.ftpPort", ftpServer.ftpPort.toString())
+        properties.addProperty("$userFilesProperties.ftpDirPath", ftpServer.fileSystemDirectory.absolutePath)
+        properties.addProperty("$userFilesProperties.ftpRootPath", FTP_ROOT_PATH)
+        properties.addProperty("$userFilesProperties.filesDirPath", dropboxPath.absolutePath)
+        properties.addProperty("$userFilesProperties.magicDirPath", magicDirPath.absolutePath)
         Files.createDirectory(ftpServer.fileSystemDirectory.resolve(FTP_ROOT_PATH).toPath())
     }
 
@@ -110,28 +117,19 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.fire.host", fireServer.baseUrl())
         properties.addProperty("app.fire.username", FIRE_USERNAME)
         properties.addProperty("app.fire.password", FIRE_PASSWORD)
+        properties.addProperty("app.fire.tempDirPath", fireTempFolder.absolutePath)
     }
 
-    private fun appPropertiesSetup() {
-        properties.addProperty("app.submissionPath", nfsSubmissionPath.absolutePath)
-        properties.addProperty("app.ftpPath", nfsFtpPath.absolutePath)
-        properties.addProperty("app.fireTempDirPath", fireTempFolder.absolutePath)
-        properties.addProperty("app.tempDirPath", tempDirPath.absolutePath)
-        properties.addProperty("app.requestFilesPath", requestFilesPath.absolutePath)
-
-        // Security
-        val securityProps = "app.security"
-        properties.addProperty("$securityProps.environment", ENVIRONMENT)
-        properties.addProperty("$securityProps.filesProperties.filesDirPath", dropboxPath.absolutePath)
-        properties.addProperty("$securityProps.filesProperties.magicDirPath", magicDirPath.absolutePath)
-
+    private fun persistenceSetup() {
         properties.addProperty("app.persistence.concurrency", PERSISTENCE_CONCURRENCY)
         properties.addProperty(
             "app.persistence.enableFire",
             "${System.getProperty("enableFire").toBoolean()}"
         )
-
-        properties.writeProperties()
+        properties.addProperty("app.persistence.privateSubmissionsPath", nfsSubmissionPath.absolutePath)
+        properties.addProperty("app.persistence.publicSubmissionsPath", nfsFtpPath.absolutePath)
+        properties.addProperty("app.persistence.tempDirPath", tempDirPath.absolutePath)
+        properties.addProperty("app.persistence.requestFilesPath", requestFilesPath.absolutePath)
     }
 
     private fun doiSetup() {
