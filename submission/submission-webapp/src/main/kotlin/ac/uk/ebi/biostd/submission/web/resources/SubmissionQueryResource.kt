@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.submission.web.model.asFilter
 import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.TEXT_PLAIN
-import ebi.ac.uk.model.constants.TEXT_XML
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.core.io.Resource
@@ -34,9 +33,6 @@ class SubmissionQueryResource(
     @ResponseBody
     suspend fun asJson(@PathVariable accNo: String) = submissionService.getSubmission(accNo, SubFormat.JSON)
 
-    @GetMapping("/{accNo}.xml", produces = [TEXT_XML])
-    suspend fun asXml(@PathVariable accNo: String) = submissionService.getSubmission(accNo, SubFormat.XML)
-
     @GetMapping("/{accNo}.tsv", produces = [TEXT_PLAIN])
     suspend fun asTsv(@PathVariable accNo: String) = submissionService.getSubmission(accNo, SubFormat.TSV)
 
@@ -45,12 +41,6 @@ class SubmissionQueryResource(
         @PathVariable accNo: String,
         @PathVariable fileList: String,
     ): ResponseEntity<Resource> = fileListFile(accNo, fileList, SubFormat.TSV)
-
-    @GetMapping("/{accNo}/{fileList}.xml")
-    suspend fun asXml(
-        @PathVariable accNo: String,
-        @PathVariable fileList: String,
-    ): ResponseEntity<Resource> = fileListFile(accNo, fileList, SubFormat.XML)
 
     @GetMapping("/{accNo}/{fileList}.json")
     suspend fun asJson(

@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
 import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
-import ebi.ac.uk.model.constants.TEXT_XML
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
@@ -29,22 +28,6 @@ class SubmitAsyncResource(
     private val submitWebHandler: SubmitWebHandler,
     private val submitRequestBuilder: SubmitRequestBuilder,
 ) {
-    @PostMapping(
-        headers = ["$SUBMISSION_TYPE=$TEXT_XML"],
-        produces = [APPLICATION_JSON_VALUE]
-    )
-    suspend fun submitXml(
-        @BioUser user: SecurityUser,
-        onBehalfRequest: OnBehalfRequest?,
-        @RequestBody submission: String,
-        @ModelAttribute parameters: SubmissionRequestParameters,
-    ) {
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
-        val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.XML, buildRequest)
-
-        submitWebHandler.submitAsync(request)
-    }
-
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$TEXT_PLAIN"],
         produces = [APPLICATION_JSON_VALUE]

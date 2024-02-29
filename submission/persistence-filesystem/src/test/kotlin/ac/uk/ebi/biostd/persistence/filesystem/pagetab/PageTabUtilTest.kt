@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -39,7 +38,6 @@ class PageTabUtilTest(
         every { extSubmission.released } returns true
         every { extSubmission.accNo } returns "S-BSST1"
         every { serializationService.serializeSubmission(submission, TSV) } returns "tsv-sub"
-        every { serializationService.serializeSubmission(submission, XML) } returns "xml-sub"
         every { serializationService.serializeSubmission(submission, JSON_PRETTY) } returns "json-sub"
         coEvery { toSubmissionMapper.toSimpleSubmission(extSubmission) } returns submission
 
