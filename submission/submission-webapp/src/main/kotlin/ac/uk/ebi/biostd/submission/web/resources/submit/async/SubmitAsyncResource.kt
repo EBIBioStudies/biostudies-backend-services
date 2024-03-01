@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.web.resources.submit.async
 
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.submission.converters.BioUser
-import ac.uk.ebi.biostd.submission.model.AcceptedSubmissionRequest
+import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
@@ -40,7 +40,7 @@ class SubmitAsyncResource(
         onBehalfRequest: OnBehalfRequest?,
         @RequestBody submission: String,
         @ModelAttribute parameters: SubmissionRequestParameters,
-    ): AcceptedSubmissionRequest {
+    ): AcceptedSubmission {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.XML, buildRequest)
 
@@ -57,7 +57,7 @@ class SubmitAsyncResource(
         onBehalfRequest: OnBehalfRequest?,
         @RequestBody submission: String,
         @ModelAttribute parameters: SubmissionRequestParameters,
-    ): AcceptedSubmissionRequest {
+    ): AcceptedSubmission {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.TSV, buildRequest)
 
@@ -74,7 +74,7 @@ class SubmitAsyncResource(
         onBehalfRequest: OnBehalfRequest?,
         @RequestBody submission: String,
         @ModelAttribute parameters: SubmissionRequestParameters,
-    ): AcceptedSubmissionRequest {
+    ): AcceptedSubmission {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON, buildRequest)
 

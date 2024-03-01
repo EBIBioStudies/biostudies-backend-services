@@ -7,7 +7,7 @@ import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmission
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmissions
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotRelease
-import ac.uk.ebi.biostd.submission.model.AcceptedSubmissionRequest
+import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ebi.ac.uk.coroutines.waitUntil
@@ -44,12 +44,12 @@ class SubmissionService(
         )
     }
 
-    suspend fun submitAsync(rqt: SubmitRequest): AcceptedSubmissionRequest {
+    suspend fun submitAsync(rqt: SubmitRequest): AcceptedSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received async submit request with draft key '${rqt.draftKey}'" }
         val (accNo, version) = submissionSubmitter.createRequest(rqt)
         eventsPublisherService.requestCreated(accNo, version)
 
-        return AcceptedSubmissionRequest(accNo, version)
+        return AcceptedSubmission(accNo, version)
     }
 
     suspend fun deleteSubmission(accNo: String, user: SecurityUser) {

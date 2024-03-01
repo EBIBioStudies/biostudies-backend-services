@@ -19,7 +19,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 
 @ExtendWith(MockKExtension::class)
-internal class ExtSubmissionPersistenceQueryServiceTest(
+internal class ExtSubmissionQueryServiceTest(
     @MockK private val filesRepository: SubmissionFilesPersistenceService,
     @MockK private val submissionQueryService: SubmissionPersistenceQueryService,
 ) {
@@ -31,6 +31,15 @@ internal class ExtSubmissionPersistenceQueryServiceTest(
         coEvery { submissionQueryService.getExtByAccNo("S-TEST123") } returns extSubmission
 
         val submission = testInstance.getExtendedSubmission("S-TEST123")
+        assertThat(submission).isEqualTo(extSubmission)
+    }
+
+    @Test
+    fun `get ext submission by version`() = runTest {
+        val extSubmission = basicExtSubmission.copy(version = 2)
+        coEvery { submissionQueryService.getExtByAccNoAndVersion("S-TEST123", 2) } returns extSubmission
+
+        val submission = testInstance.getExtSubmissionByAccNoAndVersion("S-TEST123", 2)
         assertThat(submission).isEqualTo(extSubmission)
     }
 

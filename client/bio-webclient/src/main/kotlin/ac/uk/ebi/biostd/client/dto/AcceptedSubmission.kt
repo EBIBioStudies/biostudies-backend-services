@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.client.dto
 
-data class AcceptedSubmissionRequest(
+data class AcceptedSubmission(
     val accNo: String,
     val version: Int,
 )

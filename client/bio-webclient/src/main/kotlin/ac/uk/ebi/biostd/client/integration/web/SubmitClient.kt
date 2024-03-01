@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.client.integration.web
 
-import ac.uk.ebi.biostd.client.dto.AcceptedSubmissionRequest
+import ac.uk.ebi.biostd.client.dto.AcceptedSubmission
 import ac.uk.ebi.biostd.client.dto.ExtPageQuery
 import ac.uk.ebi.biostd.client.dto.ReleaseRequestDto
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
@@ -149,7 +149,7 @@ interface SubmitOperations {
         format: SubmissionFormat = JSON,
         storageMode: StorageMode? = null,
         register: RegisterConfig = NonRegistration,
-    ): AcceptedSubmissionRequest
+    ): AcceptedSubmission
 }
 
 interface MultipartSubmitOperations {
@@ -177,17 +177,17 @@ interface MultipartAsyncSubmitOperations {
         submission: String,
         format: SubmissionFormat,
         filesConfig: SubmissionFilesConfig,
-    ): AcceptedSubmissionRequest
+    ): AcceptedSubmission
 
     fun asyncSubmitSingle(
         submission: Submission,
         format: SubmissionFormat,
         filesConfig: SubmissionFilesConfig,
-    ): AcceptedSubmissionRequest
+    ): AcceptedSubmission
 
     fun asyncSubmitSingle(
         submission: File,
         filesConfig: SubmissionFilesConfig,
         attrs: Map<String, String> = emptyMap(),
-    ): AcceptedSubmissionRequest
+    ): AcceptedSubmission
 }

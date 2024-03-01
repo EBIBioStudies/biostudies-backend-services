@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.client.api
 
-import ac.uk.ebi.biostd.client.dto.AcceptedSubmissionRequest
+import ac.uk.ebi.biostd.client.dto.AcceptedSubmission
 import ac.uk.ebi.biostd.client.extensions.deserializeResponse
 import ac.uk.ebi.biostd.client.extensions.setSubmissionType
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
@@ -69,7 +69,7 @@ internal class SubmitClient(
         format: SubmissionFormat,
         storageMode: StorageMode?,
         register: RegisterConfig,
-    ): AcceptedSubmissionRequest {
+    ): AcceptedSubmission {
         val headers = formatHeaders(format)
         val url = buildUrl(register, storageMode).plus("/async")
 

@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.db.data
 
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.getByAccNo
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.getByAccNoAndVersion
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.migrations.ensureSubmissionIndexes

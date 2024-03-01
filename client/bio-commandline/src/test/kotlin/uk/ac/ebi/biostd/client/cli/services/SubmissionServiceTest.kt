@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.client.cli.services
 
+import ac.uk.ebi.biostd.client.dto.AcceptedSubmission
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
@@ -56,13 +57,16 @@ internal class SubmissionServiceTest {
 
     @Test
     fun `submit async`() {
+        val accepted = AcceptedSubmission("S-BSST1", 2)
+
         every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
         every {
             bioWebClient.asyncSubmitSingle(subRequest.submissionFile, subRequest.filesConfig)
-        } answers { nothing }
+        } returns accepted
 
-        testInstance.submitAsync(subRequest)
+        val response = testInstance.submitAsync(subRequest)
 
+        assertThat(response).isEqualTo(accepted)
         verify(exactly = 1) {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
             bioWebClient.asyncSubmitSingle(

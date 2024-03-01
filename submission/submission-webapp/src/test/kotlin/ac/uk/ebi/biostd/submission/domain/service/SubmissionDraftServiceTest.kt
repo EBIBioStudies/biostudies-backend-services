@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.request.PageRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionDraftPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotUpdateSubmit
+import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
@@ -173,7 +174,7 @@ class SubmissionDraftServiceTest(
         val requestSlot = slot<SubmitBuilderRequest>()
 
         every { user.email } returns USER_ID
-        coEvery { submitWebHandler.submitAsync(contentRequest) } answers { nothing }
+        coEvery { submitWebHandler.submitAsync(contentRequest) } returns AcceptedSubmission(ACC_NO, VERSION)
         coEvery { draftPersistenceService.findSubmissionDraft(USER_ID, DRAFT_KEY) } returns testDraft
         every {
             submitRequestBuilder.buildContentRequest(DRAFT_CONTENT, SubFormat.JSON_PRETTY, capture(requestSlot))
@@ -195,9 +196,11 @@ class SubmissionDraftServiceTest(
     }
 
     companion object {
+        private const val ACC_NO = "S-BSST1"
         private const val USER_ID = "jhon.doe@ebi.ac.uk"
         private const val DRAFT_KEY = "key"
         private const val DRAFT_CONTENT = "content"
+        private const val VERSION = 1
         private val testDraft = SubmissionDraft(DRAFT_KEY, DRAFT_CONTENT)
     }
 }

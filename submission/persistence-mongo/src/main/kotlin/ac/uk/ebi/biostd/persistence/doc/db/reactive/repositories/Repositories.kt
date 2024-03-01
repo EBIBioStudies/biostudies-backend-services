@@ -68,11 +68,11 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
 }
 
 suspend fun SubmissionMongoRepository.getByAccNo(accNo: String): DocSubmission {
-    return findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
+    return findByAccNo(accNo) ?: throw SubmissionNotFoundException.notFound(accNo)
 }
 
 suspend fun SubmissionMongoRepository.getByAccNoAndVersion(accNo: String, version: Int): DocSubmission {
-    return findByAccNoAndVersion(accNo, version) ?: throw SubmissionNotFoundException(accNo)
+    return findByAccNoAndVersion(accNo, version) ?: throw SubmissionNotFoundException.notFoundByVersion(accNo, version)
 }
 
 interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionRequest, String> {

@@ -1,5 +1,6 @@
 package uk.ac.ebi.biostd.client.cli.commands
 
+import ac.uk.ebi.biostd.client.dto.AcceptedSubmission
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
@@ -46,7 +47,7 @@ internal class SubmitAsyncCommandTest(
         val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), StorageMode.FIRE, emptyList())
         val request = SubmissionRequest(submission, securityConfig, filesConfig)
 
-        every { submissionService.submitAsync(request) } answers { nothing }
+        every { submissionService.submitAsync(request) } returns AcceptedSubmission("S-BSST1", 2)
 
         testInstance.parse(
             listOf(
@@ -72,7 +73,7 @@ internal class SubmitAsyncCommandTest(
         val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), StorageMode.NFS, sources)
         val request = SubmissionRequest(submission, securityConfig, filesConfig)
 
-        every { submissionService.submitAsync(request) } answers { nothing }
+        every { submissionService.submitAsync(request) } returns AcceptedSubmission("S-BSST1", 2)
 
         testInstance.parse(
             listOf(
@@ -97,7 +98,7 @@ internal class SubmitAsyncCommandTest(
         val filesConfig = SubmissionFilesConfig(emptyList(), StorageMode.FIRE, emptyList())
         val request = SubmissionRequest(submission, securityConfig, filesConfig)
 
-        every { submissionService.submitAsync(request) } answers { nothing }
+        every { submissionService.submitAsync(request) } returns AcceptedSubmission("S-BSST1", 2)
 
         testInstance.parse(
             listOf(
