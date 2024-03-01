@@ -11,11 +11,8 @@ import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import kotlinx.coroutines.flow.Flow
-import mu.KotlinLogging
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
-
-private val logger = KotlinLogging.logger {}
 
 @Suppress("LongParameterList")
 class StorageService(
@@ -31,10 +28,15 @@ class StorageService(
             NFS -> nfsFilesService.persistSubmissionFile(sub, file)
         }
 
-    override suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String, mode: StorageMode): ExtFile {
+    override suspend fun releaseSubmissionFile(
+        file: ExtFile,
+        subRelPath: String,
+        subSecretKey: String,
+        mode: StorageMode,
+    ): ExtFile {
         return when (mode) {
-            FIRE -> fireFtpService.releaseSubmissionFile(file, subRelPath)
-            NFS -> nfsFtpService.releaseSubmissionFile(file, subRelPath)
+            FIRE -> fireFtpService.releaseSubmissionFile(file, subRelPath, subSecretKey)
+            NFS -> nfsFtpService.releaseSubmissionFile(file, subRelPath, subSecretKey)
         }
     }
 
@@ -58,7 +60,7 @@ class StorageService(
         deleteEmptyFolders(sub)
     }
 
-    private suspend fun deleteEmptyFolders(sub: ExtSubmission) = when (sub.storageMode) {
+    override suspend fun deleteEmptyFolders(sub: ExtSubmission) = when (sub.storageMode) {
         FIRE -> fireFilesService.deleteEmptyFolders(sub)
         NFS -> nfsFilesService.deleteEmptyFolders(sub)
     }

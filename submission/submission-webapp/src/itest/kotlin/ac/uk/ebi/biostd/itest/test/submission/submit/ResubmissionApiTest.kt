@@ -263,7 +263,7 @@ class ResubmissionApiTest(
     }
 
     @Test
-    suspend fun `5-6 add metadata to a public submission`() {
+    fun `5-6 add metadata to a public submission`() = runTest {
         val version1 = tsv {
             line("Submission", "S-RSTST6")
             line("Title", "Simple submission to be updated")

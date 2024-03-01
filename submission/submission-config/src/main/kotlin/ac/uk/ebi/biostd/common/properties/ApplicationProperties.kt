@@ -54,6 +54,8 @@ data class ValidatorProperties(
 data class PersistenceProperties(
     val concurrency: Int,
     val enableFire: Boolean = false,
+    val includeSecretKey: Boolean = false,
+    val nfsReleaseMode: String,
     val privateSubmissionsPath: String,
     val publicSubmissionsPath: String,
     val requestFilesPath: String,

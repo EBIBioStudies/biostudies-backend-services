@@ -126,6 +126,8 @@ class ITestListener : TestExecutionListener {
             "app.persistence.enableFire",
             "${System.getProperty("enableFire").toBoolean()}"
         )
+        properties.addProperty("app.persistence.includeSecretKey", false)
+        properties.addProperty("app.persistence.nfsReleaseMode", NFS_RELEASE_MODE)
         properties.addProperty("app.persistence.privateSubmissionsPath", nfsSubmissionPath.absolutePath)
         properties.addProperty("app.persistence.publicSubmissionsPath", nfsFtpPath.absolutePath)
         properties.addProperty("app.persistence.tempDirPath", tempDirPath.absolutePath)
@@ -174,6 +176,7 @@ class ITestListener : TestExecutionListener {
         private const val AWS_REGION = "anyRegion"
         private const val FAIL_FACTOR_ENV = "ITEST_FAIL_FACTOR"
         private const val PERSISTENCE_CONCURRENCY = "10"
+        private const val NFS_RELEASE_MODE = "HARD_LINKS"
 
         private const val FTP_USER = "ftpUser"
         private const val FTP_PASSWORD = "ftpPassword"

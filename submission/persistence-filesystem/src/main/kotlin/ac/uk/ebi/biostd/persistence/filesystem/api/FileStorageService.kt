@@ -6,7 +6,12 @@ import ebi.ac.uk.extended.model.StorageMode
 import kotlinx.coroutines.flow.Flow
 
 interface FileStorageService {
-    suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String, mode: StorageMode): ExtFile
+    suspend fun releaseSubmissionFile(
+        file: ExtFile,
+        subRelPath: String,
+        subSecretKey: String,
+        mode: StorageMode,
+    ): ExtFile
 
     suspend fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile
 
@@ -16,4 +21,6 @@ interface FileStorageService {
         sub: ExtSubmission,
         process: (Flow<ExtFile>) -> Flow<ExtFile> = { it },
     )
+
+    suspend fun deleteEmptyFolders(sub: ExtSubmission)
 }

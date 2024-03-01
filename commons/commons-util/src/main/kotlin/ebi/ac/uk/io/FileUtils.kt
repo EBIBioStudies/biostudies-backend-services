@@ -78,12 +78,10 @@ object FileUtils {
     }
 
     fun deleteEmptyDirectories(dir: File) {
-        dir
-            .walkBottomUp()
+        dir.walkBottomUp()
             .asSequence()
-            .takeWhile { it != dir }
-            .forEach { deleteEmptyDirectories(it) }
-        if (dir.isDirectory && dir.isEmpty()) Files.delete(dir.toPath())
+            .filter { it.isDirectory && it.isEmpty() }
+            .forEach { Files.delete(it.toPath()) }
     }
 
     fun moveFile(

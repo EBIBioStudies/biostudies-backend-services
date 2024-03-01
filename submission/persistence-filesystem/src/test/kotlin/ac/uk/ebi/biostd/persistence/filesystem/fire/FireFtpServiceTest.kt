@@ -50,7 +50,7 @@ class FireFtpServiceTest(
         )
         coEvery { fireClient.publish(fireFile.fireId) } answers { apiFile }
 
-        val file = testInstance.releaseSubmissionFile(fireFile, "/rel/path")
+        val file = testInstance.releaseSubmissionFile(fireFile, "/rel/path", "secret-key")
 
         assertThat(file.published).isTrue()
         assertThat(file.firePath).isEqualTo("fire-path")

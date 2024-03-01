@@ -1,6 +1,9 @@
 package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FtpService
+import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode
+import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode.HARD_LINKS
+import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode.MOVE
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
@@ -8,21 +11,36 @@ import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.paths.SubmissionFolderResolver
-import java.io.File
+import java.nio.file.Path
 
 class NfsFtpService(
+    private val releaseMode: NfsReleaseMode,
     private val folderResolver: SubmissionFolderResolver,
 ) : FtpService {
-    override suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String): ExtFile {
+    override suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String, subSecretKey: String): ExtFile {
         return synchronized(this) {
             val nfsFile = file as NfsFile
-            val ftpFolder = getFtpFolder(subRelPath).toPath()
-            val subFolder = folderResolver.getSubFolder(subRelPath)
-            FileUtils.createHardLink(nfsFile.file, subFolder, ftpFolder, Permissions(RW_R__R__, RWXR_XR_X))
-            nfsFile
+            val publicSubFolder = getPublicFolder(subRelPath)
+            val privateSubFolder = folderResolver.getPrivateSubFolder(subSecretKey, subRelPath)
+
+            when (releaseMode) {
+                MOVE -> moveRelease(nfsFile, publicSubFolder)
+                HARD_LINKS -> hardLinkRelease(nfsFile, privateSubFolder, publicSubFolder)
+            }
         }
     }
 
-    private fun getFtpFolder(relPath: String): File =
-        FileUtils.getOrCreateFolder(folderResolver.getSubmissionFtpFolder(relPath), RWXR_XR_X).toFile()
+    private fun moveRelease(nfsFile: NfsFile, publicSubFolder: Path): NfsFile {
+        val releasedFile = publicSubFolder.resolve(nfsFile.relPath).toFile()
+        FileUtils.moveFile(nfsFile.file, releasedFile, Permissions(RW_R__R__, RWXR_XR_X))
+        return nfsFile.copy(fullPath = releasedFile.absolutePath, file = releasedFile)
+    }
+
+    private fun hardLinkRelease(nfsFile: NfsFile, privateSubFolder: Path, publicSubFolder: Path): NfsFile {
+        FileUtils.createHardLink(nfsFile.file, privateSubFolder, publicSubFolder, Permissions(RW_R__R__, RWXR_XR_X))
+        return nfsFile
+    }
+
+    private fun getPublicFolder(relPath: String): Path =
+        FileUtils.getOrCreateFolder(folderResolver.getPublicSubFolder(relPath), RWXR_XR_X)
 }

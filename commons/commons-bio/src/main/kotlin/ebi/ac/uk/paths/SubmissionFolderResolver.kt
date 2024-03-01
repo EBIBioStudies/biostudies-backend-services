@@ -5,16 +5,22 @@ import java.nio.file.Path
 const val FILES_PATH = "Files"
 
 class SubmissionFolderResolver(
-    private val submissionFolder: Path,
-    private val ftpFolder: Path
+    private val includeSecretKey: Boolean,
+    private val privateSubPath: Path,
+    private val publicSubPath: Path,
 ) {
+    fun getPublicSubFolder(submissionRelPath: String): Path {
+        return publicSubPath.resolve(submissionRelPath)
+    }
 
-    fun getSubmissionFtpFolder(submissionRelPath: String): Path = ftpFolder.resolve(submissionRelPath)
+    fun getPrivateSubFolderRoot(secret: String): Path {
+        return if (includeSecretKey) privateSubPath.resolve(secret.take(2)) else privateSubPath
+    }
 
-    fun getSubFolder(submissionRelPath: String): Path = submissionFolder.resolve(submissionRelPath)
-
-    fun getSubFilePath(relPath: String, fileName: String): Path =
-        submissionFolder.resolve(relPath).resolve(FILES_PATH).resolve(escapeFileName(fileName))
-
-    private fun escapeFileName(fileName: String) = fileName.removePrefix("/")
+    fun getPrivateSubFolder(secretKey: String, relPath: String): Path {
+        return when (includeSecretKey) {
+            true -> getPrivateSubFolderRoot(secretKey).resolve("${secretKey.substring(2)}/$relPath")
+            else -> privateSubPath.resolve(relPath)
+        }
+    }
 }

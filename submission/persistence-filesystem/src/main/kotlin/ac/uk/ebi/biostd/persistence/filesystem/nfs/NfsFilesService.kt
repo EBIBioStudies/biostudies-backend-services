@@ -59,8 +59,8 @@ class NfsFilesService(
         return subFolder.resolve(relPath)
     }
 
-    private fun getOrCreateSubmissionFolder(submission: ExtSubmission, permissions: Set<PosixFilePermission>): File {
-        val submissionPath = folderResolver.getSubFolder(submission.relPath)
+    private fun getOrCreateSubmissionFolder(sub: ExtSubmission, permissions: Set<PosixFilePermission>): File {
+        val submissionPath = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath)
         FileUtils.createParentFolders(submissionPath, RWXR_XR_X)
         return getOrCreateFolder(submissionPath, permissions).toFile()
     }
@@ -68,20 +68,23 @@ class NfsFilesService(
     override suspend fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) = withContext(Dispatchers.IO) {
         require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
 
-        val subDirectory = folderResolver.getSubFolder(sub.relPath)
+        val subDirectory = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath)
         val subFile = subDirectory.resolve(file.relPath).toFile()
         FileUtils.deleteFile(subFile)
     }
 
     override suspend fun deleteFtpFile(sub: ExtSubmission, file: ExtFile) = withContext(Dispatchers.IO) {
         logger.info { "${sub.accNo} ${sub.owner} Started un-publishing files of submission ${sub.accNo} on NFS" }
-        val subFolder = folderResolver.getSubmissionFtpFolder(sub.relPath)
+        val subFolder = folderResolver.getPublicSubFolder(sub.relPath)
         FileUtils.deleteFile(subFolder.resolve(file.relPath).toFile())
         logger.info { "${sub.accNo} ${sub.owner} Finished un-publishing files of submission ${sub.accNo} on NFS" }
     }
 
-    override suspend fun deleteEmptyFolders(current: ExtSubmission) = withContext(Dispatchers.IO) {
-        val subFolder = folderResolver.getSubFolder(current.relPath)
-        FileUtils.deleteEmptyDirectories(subFolder.toFile())
+    override suspend fun deleteEmptyFolders(sub: ExtSubmission) = withContext(Dispatchers.IO) {
+        val subFolderRoot = folderResolver.getPrivateSubFolderRoot(sub.secretKey).toFile()
+        val subFolder = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath).toFile()
+
+        FileUtils.deleteEmptyDirectories(subFolderRoot)
+        FileUtils.deleteEmptyDirectories(subFolder.parentFile)
     }
 }
