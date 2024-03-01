@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
-import ac.uk.ebi.biostd.integration.SubFormat.Companion.XML
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.permissions
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
@@ -30,11 +29,6 @@ class PageTabUtil(
                 serializationService.serializeSubmission(element, JSON_PRETTY),
                 permissions
             ),
-            xml = saveTabFile(
-                target.resolve("${sub.accNo}.xml"),
-                serializationService.serializeSubmission(element, XML),
-                permissions
-            ),
             tsv = saveTabFile(
                 target.resolve("${sub.accNo}.tsv"),
                 serializationService.serializeSubmission(element, TSV),
@@ -51,7 +45,6 @@ class PageTabUtil(
         val path = fileList.filePath
         return PageTabFiles(
             json = fileListMapper.serialize(fileList, JSON_PRETTY, filesDir.newFile("$path.json")),
-            xml = fileListMapper.serialize(fileList, XML, filesDir.newFile("$path.xml")),
             tsv = fileListMapper.serialize(fileList, TSV, filesDir.newFile("$path.tsv"))
         )
     }
@@ -67,4 +60,4 @@ class PageTabUtil(
     }
 }
 
-data class PageTabFiles(val json: File, val xml: File, val tsv: File)
+data class PageTabFiles(val json: File, val tsv: File)

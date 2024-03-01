@@ -56,7 +56,7 @@ class FilePersistenceConfig(
     @Bean
     fun pageTabService(
         pageTabUtil: PageTabUtil,
-    ): PageTabService = PageTabService(File(properties.fireTempDirPath), pageTabUtil)
+    ): PageTabService = PageTabService(File(properties.fire.tempDirPath), pageTabUtil)
 
     @Bean
     fun pageTabUtil(
