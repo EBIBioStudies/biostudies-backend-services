@@ -84,6 +84,7 @@ internal class AllInOneSubmissionHelper(
         assertThat(jsonTabFile.filePath).isEqualTo("$accNo.json")
         assertThat(jsonTabFile.relPath).isEqualTo("$accNo.json")
         assertThat(jsonTabFile.fireId).endsWith("_$accNo.json")
+        assertThat(jsonTabFile.published).isTrue()
         assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
         assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
 
@@ -92,6 +93,7 @@ internal class AllInOneSubmissionHelper(
         assertThat(tsvTabFile.filePath).isEqualTo("$accNo.tsv")
         assertThat(tsvTabFile.relPath).isEqualTo("$accNo.tsv")
         assertThat(tsvTabFile.fireId).endsWith("_$accNo.tsv")
+        assertThat(tsvTabFile.published).isTrue()
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
@@ -105,6 +107,7 @@ internal class AllInOneSubmissionHelper(
         assertThat(jsonTabFile.filePath).isEqualTo("file-list.json")
         assertThat(jsonTabFile.relPath).isEqualTo("Files/file-list.json")
         assertThat(jsonTabFile.fireId).endsWith("file-list.json")
+        assertThat(jsonTabFile.published).isTrue()
         assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
         assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
 
@@ -113,6 +116,7 @@ internal class AllInOneSubmissionHelper(
         assertThat(tsvTabFile.filePath).isEqualTo("file-list.tsv")
         assertThat(tsvTabFile.relPath).isEqualTo("Files/file-list.tsv")
         assertThat(tsvTabFile.fireId).endsWith("_file-list.tsv")
+        assertThat(tsvTabFile.published).isTrue()
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
@@ -126,6 +130,7 @@ internal class AllInOneSubmissionHelper(
         assertThat(jsonTabFile.filePath).isEqualTo("sub-folder/file-list2.json")
         assertThat(jsonTabFile.relPath).isEqualTo("Files/sub-folder/file-list2.json")
         assertThat(jsonTabFile.fireId).endsWith("_file-list2.json")
+        assertThat(jsonTabFile.published).isTrue()
         assertThat(jsonTabFile.md5).isEqualTo(jsonFile.md5())
         assertThat(jsonTabFile.size).isEqualTo(jsonFile.size())
 
@@ -134,6 +139,7 @@ internal class AllInOneSubmissionHelper(
         assertThat(tsvTabFile.filePath).isEqualTo("sub-folder/file-list2.tsv")
         assertThat(tsvTabFile.relPath).isEqualTo("Files/sub-folder/file-list2.tsv")
         assertThat(tsvTabFile.fireId).endsWith("_file-list2.tsv")
+        assertThat(tsvTabFile.published).isTrue()
         assertThat(tsvTabFile.md5).isEqualTo(tsvFile.md5())
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }

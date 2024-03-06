@@ -6,7 +6,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
-import ebi.ac.uk.extended.model.ExtFileType
+import ebi.ac.uk.extended.model.ExtFileType.FILE
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -34,7 +34,7 @@ class FileListDocFileRepositoryTest(
 
     @Test
     fun findBySubmissionAccNoAndSubmissionVersionAndFilePath() = runTest {
-        val file = FireDocFile("filename", "filePath", "relPath", "fireId", listOf(), "md5", 1L, ExtFileType.FILE.value)
+        val file = FireDocFile("filename", "filePath", "relPath", "fireId", true, listOf(), "md5", 1L, FILE.value)
         val fileListFile = FileListDocFile(
             id = ObjectId(),
             submissionId = ObjectId(),

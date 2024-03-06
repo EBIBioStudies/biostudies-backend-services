@@ -55,12 +55,11 @@ class ToExtSectionMapperTest(
 
         coEvery {
             toExtFileListMapper.toExtFileList(
-                docFileList,
-                "subAccNo",
-                121,
-                false,
-                "subRelPath",
-                false,
+                fileList = docFileList,
+                subAccNo = "subAccNo",
+                subVersion = 121,
+                subRelPath = "subRelPath",
+                includeFileListFiles = false,
             )
         } returns extFileList
         val extSection =
@@ -79,12 +78,11 @@ class ToExtSectionMapperTest(
 
         coEvery {
             toExtFileListMapper.toExtFileList(
-                docFileList,
-                "subAccNo",
-                121,
-                false,
-                "subRelPath",
-                true,
+                fileList = docFileList,
+                subAccNo = "subAccNo",
+                subVersion = 121,
+                subRelPath = "subRelPath",
+                includeFileListFiles = true,
             )
         } returns extFileList
         val extSection =

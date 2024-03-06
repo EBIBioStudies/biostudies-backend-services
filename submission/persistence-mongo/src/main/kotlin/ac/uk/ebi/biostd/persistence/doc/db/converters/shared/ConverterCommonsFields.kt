@@ -44,6 +44,7 @@ object NfsDocFileFields {
 object FireDocFileFields {
     val FIRE_DOC_FILE_CLASS: String = FireDocFile::class.java.canonicalName
     const val FIRE_FILE_DOC_ID = "fireId"
+    const val FIRE_FILE_DOC_PUBLISHED = "published"
 }
 
 object DocFileListFields {
@@ -59,6 +60,7 @@ object DocFileRefFields {
 
 object FileListDocFileFields {
     const val FILE_LIST_DOC_FILE_ID = "_id"
+    const val FILE_LIST_DOC_FILE_COLLECTION_NAME = "file_list_files"
     const val FILE_LIST_DOC_FILE_SUBMISSION_ID = "submissionId"
     const val FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO = "submissionAccNo"
     const val FILE_LIST_DOC_FILE_SUBMISSION_VERSION = "submissionVersion"
@@ -113,6 +115,7 @@ object DocSubmissionFields {
     val DOC_TAG_CLASS: String = DocTag::class.java.canonicalName
     val DOC_COLLECTION_CLASS: String = DocCollection::class.java.canonicalName
 
+    const val SUBMISSIONS_COLLECTION_NAME = "submissions"
     const val CLASS_FIELD = "_class"
     const val SUB = "submission"
     const val SUB_ID = "id"

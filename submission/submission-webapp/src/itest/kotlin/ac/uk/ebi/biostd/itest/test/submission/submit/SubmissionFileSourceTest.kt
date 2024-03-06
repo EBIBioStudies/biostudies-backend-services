@@ -49,7 +49,6 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
-import uk.ac.ebi.fire.client.integration.web.FireClient
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -63,7 +62,6 @@ class SubmissionFileSourceTest(
     @Autowired private val submissionRepository: SubmissionPersistenceQueryService,
     @Autowired private val securityTestService: SecurityTestService,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
-    @Autowired private val fireClient: FireClient,
     @LocalServerPort val serverPort: Int,
 ) {
     private lateinit var webClient: BioWebClient

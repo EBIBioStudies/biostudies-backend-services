@@ -28,8 +28,8 @@ internal const val PROJECT_ACC_NO = "BioImages"
 internal const val REL_PATH = "S-TEST/123/S-TEST123"
 internal const val DOI = "10.6019/S-TEST123"
 
-val fireDocFile = FireDocFile("filename", "filePath", "relPath", "fireId", listOf(), "md5", 1L, FILE.value)
-val fireDocDirectory = FireDocFile("filename", "filePath", "relPath", "dirFireId", listOf(), "md5", 1L, DIR.value)
+val fireDocFile = FireDocFile("filename", "filePath", "relPath", "fireId", true, listOf(), "md5", 1L, FILE.value)
+val fireDocDirectory = FireDocFile("filename", "filePath", "relPath", "dirFireId", true, listOf(), "md5", 1L, DIR.value)
 val nfsDocFile = NfsDocFile("filename", "filePath", "relPath", "fileAbsPath", listOf(), "md5", 1L, "fileType")
 
 object SubmissionTestHelper {

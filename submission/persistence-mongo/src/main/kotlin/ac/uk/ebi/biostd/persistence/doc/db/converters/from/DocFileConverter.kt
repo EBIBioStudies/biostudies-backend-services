@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_PUBLISHED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
@@ -34,6 +35,7 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
                 filePath = filePath,
                 relPath = relPath,
                 fireId = source.getString(FIRE_FILE_DOC_ID),
+                published = source.getBoolean(FIRE_FILE_DOC_PUBLISHED, false),
                 attributes = attributes,
                 md5 = md5,
                 fileSize = fileSize,
