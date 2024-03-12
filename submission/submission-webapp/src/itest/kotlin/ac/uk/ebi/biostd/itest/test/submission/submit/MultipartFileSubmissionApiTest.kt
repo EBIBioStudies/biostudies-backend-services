@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.itest.test.submission.submit
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.XML
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
@@ -37,7 +36,6 @@ import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.redundent.kotlin.xml.xml
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
@@ -220,56 +218,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `9-4 XML submission`() = runTest {
-        val submission = xml("submission") {
-            attribute("accno", "S-TEST3")
-            "attributes" {
-                "attribute" {
-                    "name" { -"Title" }
-                    "value" { -"Test Submission" }
-                }
-            }
-
-            "section" {
-                attribute("accno", "SECT-001")
-                attribute("type", "Study")
-                "attributes" {
-                    "attribute" {
-                        "name" { -"Title" }
-                        "value" { -"Root Section" }
-                    }
-                    "attribute" {
-                        "name" { -"File List" }
-                        "value" { -"FileList.xml" }
-                    }
-                }
-            }
-        }.toString()
-
-        val fileList = tempFolder.createFile(
-            "FileList.xml",
-            xml("table") {
-                "file" {
-                    "path" { -"File3.txt" }
-                    "attributes" {
-                        "attribute" {
-                            "name" { -"GEN" }
-                            "value" { -"ABC" }
-                        }
-                    }
-                }
-            }.toString()
-        )
-
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File3.txt")), storageMode)
-        val response = webClient.submitSingle(submission, XML, filesConfig)
-        assertThat(response).isSuccessful()
-        assertSubmissionFiles("S-TEST3", "File3.txt")
-        fileList.delete()
-    }
-
-    @Test
-    fun `9-5 direct submission with overriden attributes`() = runTest {
+    fun `9-4 direct submission with overriden attributes`() = runTest {
         val submission = tempFolder.createFile(
             "submission.tsv",
             tsv {
@@ -301,7 +250,7 @@ class MultipartFileSubmissionApiTest(
     }
 
     @Test
-    fun `9-6 invalid format file`() {
+    fun `9-5 invalid format file`() {
         val submission = tempFolder.createFile("submission.txt", "invalid file")
         val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
 

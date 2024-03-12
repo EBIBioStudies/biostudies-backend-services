@@ -56,8 +56,6 @@ paths:
     $ref: 'submissions/search/JsonSubmission.yaml'
   /submissions/{accNo}.tsv:
     $ref: 'submissions/search/TsvSubmission.yaml'
-  /submissions/{accNo}.xml:
-    $ref: 'submissions/search/XmlSubmission.yaml'
 
   /submissions:
     $ref: 'submissions/operations/internal/SubmissionInternalOperations.yaml'

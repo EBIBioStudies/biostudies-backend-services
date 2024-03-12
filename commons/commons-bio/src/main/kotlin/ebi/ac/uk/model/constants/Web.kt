@@ -10,6 +10,5 @@ const val ROOT_PATH = "rootPath"
 const val ACC_NO = "accNo"
 
 const val APPLICATION_JSON = "application/json"
-const val TEXT_XML = "text/xml"
 const val TEXT_PLAIN = "text/plain"
 const val MULTIPART_FORM_DATA = "multipart/form-data"
