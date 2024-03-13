@@ -35,15 +35,6 @@ internal class ExtSubmissionQueryServiceTest(
     }
 
     @Test
-    fun `get ext submission by version`() = runTest {
-        val extSubmission = basicExtSubmission.copy(version = 2)
-        coEvery { submissionQueryService.getExtByAccNoAndVersion("S-TEST123", 2) } returns extSubmission
-
-        val submission = testInstance.getExtSubmissionByAccNoAndVersion("S-TEST123", 2)
-        assertThat(submission).isEqualTo(extSubmission)
-    }
-
-    @Test
     fun `filtering extended submissions`(@MockK extSubmission: ExtSubmission) = runTest {
         val filter = slot<SubmissionFilter>()
         val request = ExtPageRequest(

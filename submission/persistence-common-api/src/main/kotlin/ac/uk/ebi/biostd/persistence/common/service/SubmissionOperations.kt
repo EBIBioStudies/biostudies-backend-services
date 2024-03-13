@@ -72,6 +72,8 @@ interface SubmissionRequestPersistenceService {
     suspend fun updateRqtIndex(accNo: String, version: Int, index: Int)
     suspend fun updateRqtIndex(requestFile: SubmissionRequestFile, file: ExtFile)
 
+    suspend fun getSubmissionRequest(accNo: String, version: Int): SubmissionRequest
+
     suspend fun getSubmissionRequest(
         accNo: String,
         version: Int,

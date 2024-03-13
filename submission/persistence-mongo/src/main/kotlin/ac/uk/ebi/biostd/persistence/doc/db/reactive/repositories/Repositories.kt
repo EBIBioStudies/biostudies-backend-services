@@ -53,11 +53,11 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     suspend fun findByAccNo(accNo: String): DocSubmission?
 
+    suspend fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
+
     suspend fun existsByAccNo(accNo: String): Boolean
 
     suspend fun existsByAccNoAndVersion(accNo: String, version: Int): Boolean
-
-    suspend fun findByAccNoAndVersion(accNo: String, version: Int): DocSubmission?
 
     fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): Flow<DocSubmission>
 
@@ -68,11 +68,7 @@ interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, Obj
 }
 
 suspend fun SubmissionMongoRepository.getByAccNo(accNo: String): DocSubmission {
-    return findByAccNo(accNo) ?: throw SubmissionNotFoundException.notFound(accNo)
-}
-
-suspend fun SubmissionMongoRepository.getByAccNoAndVersion(accNo: String, version: Int): DocSubmission {
-    return findByAccNoAndVersion(accNo, version) ?: throw SubmissionNotFoundException.notFoundByVersion(accNo, version)
+    return findByAccNo(accNo) ?: throw SubmissionNotFoundException(accNo)
 }
 
 interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionRequest, String> {
@@ -111,25 +107,10 @@ interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissi
 }
 
 interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, ObjectId> {
-
-    fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(
-        accNo: String,
-        version: Int,
-        fileListName: String,
-        pageable: Pageable,
-    ): Flow<FileListDocFile>
-
     fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListNameOrderByIndexAsc(
         accNo: String,
         version: Int,
         fileListName: String,
-    ): Flow<FileListDocFile>
-
-    fun findAllBySubmissionAccNoAndSubmissionVersionAndFileListName(
-        accNo: String,
-        version: Int,
-        fileListName: String,
-        pageable: Pageable,
     ): Flow<FileListDocFile>
 
     fun findAllBySubmissionAccNoAndSubmissionVersionAndFileListNameOrderByIndexAsc(
