@@ -14,7 +14,6 @@ import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
-import ebi.ac.uk.model.constants.TEXT_XML
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -51,25 +50,6 @@ class MultipartSubmitResource(
         val subFiles = tempFileGenerator.asFiles(files.orEmpty().toList())
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
         val request = submitRequestBuilder.buildContentRequest(content, SubFormat.JSON, buildRequest)
-
-        return submitWebHandler.submit(request)
-    }
-
-    @PostMapping(
-        headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_XML"],
-        produces = [APPLICATION_JSON_VALUE]
-    )
-    @ResponseBody
-    suspend fun submitMultipartXml(
-        @BioUser user: SecurityUser,
-        onBehalfRequest: OnBehalfRequest?,
-        @RequestParam(SUBMISSION) content: String,
-        @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
-        @ModelAttribute parameters: SubmissionRequestParameters,
-    ): Submission {
-        val subFiles = tempFileGenerator.asFiles(files.orEmpty().toList())
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
-        val request = submitRequestBuilder.buildContentRequest(content, SubFormat.XML, buildRequest)
 
         return submitWebHandler.submit(request)
     }

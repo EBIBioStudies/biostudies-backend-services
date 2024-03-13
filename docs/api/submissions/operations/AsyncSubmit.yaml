@@ -23,7 +23,6 @@ post:
         Page tab format used to perform the submission. Accepted values based on the format are:
         * JSON: application/json
         * TSV: text/plain
-        * XML: text/xml
       required: true
       type: string
 

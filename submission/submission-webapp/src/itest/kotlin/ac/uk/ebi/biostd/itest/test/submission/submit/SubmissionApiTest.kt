@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
-import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
@@ -169,7 +168,7 @@ class SubmissionApiTest(
         }
 
         val exception = assertFailsWith<WebClientException> {
-            webClient.submitSingle(submission, SubmissionFormat.XML)
+            webClient.submitSingle(submission)
         }
         assertThat(exception.message!!.contains("Submission contains invalid files invalid file.txt"))
     }

@@ -64,8 +64,8 @@ internal class ToFileListMapperTest(
             stream.use { it.write("${flow.toList().size}-$format".toByteArray()) }
         }
 
-        val result = testInstance.serialize(extFileList, SubFormat.XML, target)
+        val result = testInstance.serialize(extFileList, SubFormat.TSV, target)
 
-        assertThat(result).hasContent("1-XML")
+        assertThat(result).hasContent("1-TSV")
     }
 }
