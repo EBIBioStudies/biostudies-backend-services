@@ -21,6 +21,7 @@ include:
 stages:
   - build-test
   - nfs-itest
+  - nfs-secret-key-test
   - fire-itest
   - fire-caos-itest
   - auto-deploy-dev-bio-commandline
@@ -81,6 +82,11 @@ nfs-itest:
   needs: [ "build-test" ]
   stage: nfs-itest
   script: gradle :submission:submission-webapp:itest -PenableFire=false --rerun-tasks
+
+nfs-secret-key-test:
+  needs: [ "build-test" ]
+  stage: nfs-itest
+  script: gradle :submission:submission-webapp:itest --tests SubmissionReleaseTest -PincludeSecretKey=true -PnfsReleaseMode=MOVE --rerun-tasks
 
 fire-itest:
   needs: [ "nfs-itest" ]
