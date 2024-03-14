@@ -6,9 +6,11 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmission
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmissions
+import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
+import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -27,6 +29,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 @ExtendWith(MockKExtension::class)
 class SubmissionServiceTest(
     @MockK private val user: SecurityUser,
+    @MockK private val request: SubmitRequest,
     @MockK private val submission: ExtSubmission,
     @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val userPrivilegesService: IUserPrivilegesService,
@@ -55,6 +58,24 @@ class SubmissionServiceTest(
     fun beforeEach() {
         setUpSubmissions()
         every { user.email } returns "user@mail.org"
+    }
+
+    @Test
+    fun `submit async`() = runTest {
+        every { request.accNo } returns "S-TEST123"
+        every { request.owner } returns "owner@mail.org"
+        every { request.draftKey } returns "TMP_123456"
+        coEvery { submissionSubmitter.createRequest(request) } returns basicExtSubmission
+        every { eventsPublisherService.requestCreated("S-TEST123", 1) } answers { nothing }
+
+        val response = testInstance.submitAsync(request)
+
+        assertThat(response.version).isEqualTo(1)
+        assertThat(response.accNo).isEqualTo("S-TEST123")
+        coVerify(exactly = 1) {
+            submissionSubmitter.createRequest(request)
+            eventsPublisherService.requestCreated("S-TEST123", 1)
+        }
     }
 
     @Test

@@ -1,0 +1,41 @@
+type: object
+properties:
+  draftKey:
+    type: string
+    example: "TMP_234566"
+  notifyTo:
+    type: string
+    example: "user@mail.org"
+  status:
+    type: string
+    example: "PERSISTED"
+  totalFiles:
+    type: number
+    example: 13
+  currentIndex:
+    type: number
+    example: 2
+  modificationTime:
+    type: string
+    example: "2024-02-07T16:46:40.663Z"
+  statusChangeLog:
+    type: array
+    items:
+      properties:
+        name:
+          type: string
+          example: "Indexing"
+        changeId:
+          type: string
+          example: "65c3b3efa6de8652ad97b976"
+        processId:
+          type: string
+          example: "biostudies-prod"
+        startTime:
+          type: string
+          example: "2024-02-07T16:46:39.900Z"
+        endTime:
+          type: string
+          example: "2024-02-07T16:46:40.088Z"
+  submission:
+    type: BasicSubmission

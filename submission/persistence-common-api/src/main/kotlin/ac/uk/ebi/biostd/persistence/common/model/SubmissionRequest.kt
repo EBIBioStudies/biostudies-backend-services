@@ -13,7 +13,7 @@ data class RequestStatusChanges(
     val endTime: Instant?,
 )
 
-data class SubmissionRequest constructor(
+data class SubmissionRequest(
     val submission: ExtSubmission,
     val draftKey: String?,
     val notifyTo: String,
@@ -23,7 +23,6 @@ data class SubmissionRequest constructor(
     val modificationTime: OffsetDateTime,
     val statusChangesLog: List<RequestStatusChanges>,
 ) {
-
     constructor(submission: ExtSubmission, notifyTo: String, draftKey: String? = null) : this(
         submission,
         draftKey,

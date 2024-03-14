@@ -19,7 +19,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 
 @ExtendWith(MockKExtension::class)
-internal class ExtSubmissionPersistenceQueryServiceTest(
+internal class ExtSubmissionQueryServiceTest(
     @MockK private val filesRepository: SubmissionFilesPersistenceService,
     @MockK private val submissionQueryService: SubmissionPersistenceQueryService,
 ) {

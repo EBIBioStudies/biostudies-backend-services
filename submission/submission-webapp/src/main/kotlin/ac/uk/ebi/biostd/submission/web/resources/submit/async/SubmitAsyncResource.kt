@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.web.resources.submit.async
 
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.submission.converters.BioUser
+import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
@@ -38,26 +39,27 @@ class SubmitAsyncResource(
         onBehalfRequest: OnBehalfRequest?,
         @RequestBody submission: String,
         @ModelAttribute parameters: SubmissionRequestParameters,
-    ) {
+    ): AcceptedSubmission {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.TSV, buildRequest)
 
-        submitWebHandler.submitAsync(request)
+        return submitWebHandler.submitAsync(request)
     }
 
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$APPLICATION_JSON"],
         produces = [APPLICATION_JSON_VALUE]
     )
+    @ResponseBody
     suspend fun submitJson(
         @BioUser user: SecurityUser,
         onBehalfRequest: OnBehalfRequest?,
         @RequestBody submission: String,
         @ModelAttribute parameters: SubmissionRequestParameters,
-    ) {
+    ): AcceptedSubmission {
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON, buildRequest)
 
-        submitWebHandler.submitAsync(request)
+        return submitWebHandler.submitAsync(request)
     }
 }

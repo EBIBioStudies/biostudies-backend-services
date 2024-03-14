@@ -91,7 +91,7 @@ object Versions {
     const val CommonsNetVersion = "3.6"
     const val CommonsPoolVersion = "2.12.0"
     const val CommonsCsvVersion = "1.8"
-    const val MySqlVersion = "8.0.25"
+    const val MySqlVersion = "8.3.0"
     const val XmlBuilderVersion = "1.7.4"
     const val WoodstoxVersion = "5.1.0"
     const val JacksonVersion = "2.13.0"
@@ -176,7 +176,7 @@ object Dependencies {
     const val ReactorNetty = "io.projectreactor.netty:reactor-netty:$ReactorNettyVersion"
 
     // Persistence
-    const val MySql = "mysql:mysql-connector-java:$MySqlVersion"
+    const val MySql = "com.mysql:mysql-connector-j:$MySqlVersion"
     const val KMongoCoroutine = "org.litote.kmongo:kmongo-coroutine:$KMongoCoroutineVersion"
     const val KMongoAsync = "org.litote.kmongo:kmongo-async:$KMongoCoroutineVersion"
     const val MongockBom = "com.github.cloudyrock.mongock:mongock-bom:$MongockVersion"

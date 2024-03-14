@@ -41,12 +41,12 @@ class SubmissionRequestMongoPersistenceService(
     }
 
     override suspend fun saveRequest(rqt: SubmissionRequest): Pair<String, Int> {
-        requestRepository.updateSubmissionRequest(asRequest(rqt))
+        requestRepository.updateSubmissionRequest(asDocRequest(rqt))
         return rqt.submission.accNo to rqt.submission.version
     }
 
     override suspend fun createRequest(rqt: SubmissionRequest): Pair<String, Int> {
-        val (request, created) = requestRepository.saveRequest(asRequest(rqt))
+        val (request, created) = requestRepository.saveRequest(asDocRequest(rqt))
         if (created.not()) throw ConcurrentSubException(request.accNo, request.version)
         return request.accNo to request.version
     }
@@ -60,6 +60,11 @@ class SubmissionRequestMongoPersistenceService(
         requestRepository.updateSubmissionRequestFile(requestFile.accNo, requestFile.version, requestFile.path, file)
     }
 
+    override suspend fun getSubmissionRequest(accNo: String, version: Int): SubmissionRequest {
+        val docSubmissionRequest = requestRepository.getRequest(accNo, version)
+        return asRequest(docSubmissionRequest)
+    }
+
     override suspend fun getSubmissionRequest(
         accNo: String,
         version: Int,
@@ -67,6 +72,15 @@ class SubmissionRequestMongoPersistenceService(
         processId: String,
     ): SubmissionRqt {
         val (statusId, request) = requestRepository.getRequest(accNo, version, status, processId)
+        val subRequest = asRequest(request)
+        return statusId to subRequest
+    }
+
+    override suspend fun getRequestStatus(accNo: String, version: Int): RequestStatus {
+        return requestRepository.getByAccNoAndVersion(accNo, version).status
+    }
+
+    private fun asRequest(request: DocSubmissionRequest): SubmissionRequest {
         val stored = serializationService.deserialize(request.submission.toString())
         val subRequest = SubmissionRequest(
             submission = stored,
@@ -78,14 +92,11 @@ class SubmissionRequestMongoPersistenceService(
             request.modificationTime.atOffset(UTC),
             request.statusChanges.map { asSubRequestStatusChange(it) }
         )
-        return statusId to subRequest
+
+        return subRequest
     }
 
-    override suspend fun getRequestStatus(accNo: String, version: Int): RequestStatus {
-        return requestRepository.getByAccNoAndVersion(accNo, version).status
-    }
-
-    private fun asRequest(rqt: SubmissionRequest): DocSubmissionRequest {
+    private fun asDocRequest(rqt: SubmissionRequest): DocSubmissionRequest {
         val content = serializationService.serialize(rqt.submission, Properties(includeFileListFiles = true))
         return DocSubmissionRequest(
             id = ObjectId(),

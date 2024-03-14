@@ -39,7 +39,7 @@ internal class SubmitAsyncCommand(
         val securityConfig = SecurityConfig(server, user, password, onBehalf)
         val filesConfig = SubmissionFilesConfig(splitFiles(attached), mode, splitPreferredSources(preferredSources))
 
-        submissionService.submitAsync(SubmissionRequest(input, securityConfig, filesConfig))
-        echo("SUCCESS: Submission is in queue to be submitted")
+        val (accNo, version) = submissionService.submitAsync(SubmissionRequest(input, securityConfig, filesConfig))
+        echo("SUCCESS: Submission $accNo, version: $version is in queue to be processed")
     }
 }
