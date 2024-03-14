@@ -18,6 +18,7 @@ tags:
   - name: Extended Submissions
   - name: Refresh
   - name: Submissions
+  - name: Submission Requests
   - name: Submission Drafts
   - name: Submission Stats
   - name: FTP
@@ -56,8 +57,6 @@ paths:
     $ref: 'submissions/search/JsonSubmission.yaml'
   /submissions/{accNo}.tsv:
     $ref: 'submissions/search/TsvSubmission.yaml'
-  /submissions/{accNo}.xml:
-    $ref: 'submissions/search/XmlSubmission.yaml'
 
   /submissions:
     $ref: 'submissions/operations/internal/SubmissionInternalOperations.yaml'
@@ -85,6 +84,9 @@ paths:
     $ref: 'drafts/operations/GetDraftContent.yaml'
   /submissions/drafts/{key}/submit:
     $ref: 'drafts/operations/SubmitDraft.yaml'
+
+  /submissions/requests/{accNo}/{version}:
+    $ref: 'requests/operations/SubmissionRequests.yaml'
 
   /submissions/ftp/generate:
     $ref: 'ftp/GenerateFtpLinks.yaml'

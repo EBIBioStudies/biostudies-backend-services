@@ -79,6 +79,10 @@ class SubmissionRequestDocDataRepository(
         }
     }
 
+    suspend fun getRequest(accNo: String, version: Int): DocSubmissionRequest {
+        return submissionRequestRepository.getByAccNoAndVersion(accNo, version)
+    }
+
     suspend fun getRequest(
         accNo: String,
         version: Int,

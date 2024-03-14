@@ -42,6 +42,7 @@ class StatsMongoDataService(
 
     override suspend fun save(stat: SubmissionStat): SubmissionStat {
         require(submissionsRepository.existsByAccNo(stat.accNo)) { throw SubmissionNotFoundException(stat.accNo) }
+
         return updateOrRegister(stat)
     }
 

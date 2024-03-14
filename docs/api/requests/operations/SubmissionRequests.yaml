@@ -1,0 +1,34 @@
+get:
+  summary: Get Submission Request By AccNo And Version
+  description: Get the submission request with the given accession number and version
+
+  tags:
+    - Submission Requests
+
+  parameters:
+    - in: header
+      name: X-SESSION-TOKEN
+      description: User authentication token
+      required: true
+      type: string
+
+    - in: path
+      name: accNo
+      description: Submission accession number
+      required: true
+      type: string
+
+    - in: path
+      name: version
+      description: Submission accession version
+      required: true
+      type: number
+
+  responses:
+    200:
+      description: OK
+      content:
+        application/json:
+          $ref: '../model/SubmissionRequest.yaml'
+    401:
+      description: Caused by an invalid X-SESSION-TOKEN

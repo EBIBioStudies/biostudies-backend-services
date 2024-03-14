@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService
+import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
@@ -47,16 +48,16 @@ class SubmitWebHandler(
         return toSubmissionMapper.toSimpleSubmission(extSubmission)
     }
 
-    suspend fun submitAsync(request: ContentSubmitWebRequest) {
+    suspend fun submitAsync(request: ContentSubmitWebRequest): AcceptedSubmission {
         val rqt = buildRequest(request)
-        subService.submitAsync(rqt)
+        return subService.submitAsync(rqt)
     }
 
-    suspend fun submitAsync(request: FileSubmitWebRequest) {
+    suspend fun submitAsync(request: FileSubmitWebRequest): AcceptedSubmission {
         val rqt = buildRequest(request)
         val fileService = fileServiceFactory.forUser(request.config.submitter)
         fileService.uploadFile(DIRECT_UPLOAD_PATH, request.submission)
-        subService.submitAsync(rqt)
+        return subService.submitAsync(rqt)
     }
 
     private suspend fun buildRequest(rqt: SubmitWebRequest): SubmitRequest {

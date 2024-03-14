@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.web.resources.submit.async
 import ac.uk.ebi.biostd.integration.SubFormat
 import ac.uk.ebi.biostd.stats.web.TempFileGenerator
 import ac.uk.ebi.biostd.submission.converters.BioUser
+import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitBuilderRequest
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitRequestBuilder
 import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
@@ -13,7 +14,6 @@ import ebi.ac.uk.model.constants.MULTIPART_FORM_DATA
 import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.model.constants.SUBMISSION_TYPE
 import ebi.ac.uk.model.constants.TEXT_PLAIN
-import ebi.ac.uk.model.constants.TEXT_XML
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import org.springframework.http.HttpHeaders.CONTENT_TYPE
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -44,29 +44,12 @@ class MultipartAsyncSubmitResource(
         @RequestParam(SUBMISSION) content: String,
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @ModelAttribute parameters: SubmissionRequestParameters,
-    ) {
+    ): AcceptedSubmission {
         val subFiles = tempFileGenerator.asFiles(files?.toList().orEmpty())
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
         val contentWebRequest = submitRequestBuilder.buildContentRequest(content, SubFormat.JSON, buildRequest)
-        submitWebHandler.submitAsync(contentWebRequest)
-    }
 
-    @PostMapping(
-        headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_XML"],
-        produces = [APPLICATION_JSON_VALUE]
-    )
-    suspend fun submitMultipartXml(
-        @BioUser user: SecurityUser,
-        onBehalfRequest: OnBehalfRequest?,
-        @RequestParam(SUBMISSION) content: String,
-        @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
-        @ModelAttribute parameters: SubmissionRequestParameters,
-    ) {
-        val subFiles = tempFileGenerator.asFiles(files?.toList().orEmpty())
-        val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
-        val contentWebRequest = submitRequestBuilder.buildContentRequest(content, SubFormat.XML, buildRequest)
-
-        submitWebHandler.submitAsync(contentWebRequest)
+        return submitWebHandler.submitAsync(contentWebRequest)
     }
 
     @PostMapping(
@@ -79,12 +62,12 @@ class MultipartAsyncSubmitResource(
         @RequestParam(SUBMISSION) content: String,
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @ModelAttribute parameters: SubmissionRequestParameters,
-    ) {
+    ): AcceptedSubmission {
         val subFiles = tempFileGenerator.asFiles(files?.toList().orEmpty())
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
         val contentWebRequest = submitRequestBuilder.buildContentRequest(content, SubFormat.TSV, buildRequest)
 
-        submitWebHandler.submitAsync(contentWebRequest)
+        return submitWebHandler.submitAsync(contentWebRequest)
     }
 
     @PostMapping(
@@ -98,10 +81,11 @@ class MultipartAsyncSubmitResource(
         @RequestParam(SUBMISSION) file: MultipartFile,
         @RequestParam(FILES, required = false) files: Array<MultipartFile>?,
         @ModelAttribute parameters: SubmissionRequestParameters,
-    ) {
+    ): AcceptedSubmission {
         val subFiles = tempFileGenerator.asFiles(files?.toList().orEmpty())
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, files = subFiles)
         val fileWebRequest = submitRequestBuilder.buildFileRequest(tempFileGenerator.asFile(file), buildRequest)
-        submitWebHandler.submitAsync(fileWebRequest)
+
+        return submitWebHandler.submitAsync(fileWebRequest)
     }
 }
