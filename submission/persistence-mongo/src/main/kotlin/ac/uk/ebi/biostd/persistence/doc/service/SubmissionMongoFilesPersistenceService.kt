@@ -18,7 +18,7 @@ internal class SubmissionMongoFilesPersistenceService(
     ): Flow<ExtFile> {
         return fileListDocFileRepository
             .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(sub.accNo, 0, fileListName)
-            .map { it.file.toExtFile(sub.released, sub.relPath) }
+            .map { it.file.toExtFile(sub.relPath) }
     }
 
     override suspend fun findReferencedFile(
@@ -29,6 +29,6 @@ internal class SubmissionMongoFilesPersistenceService(
             .findBySubmissionAccNoAndSubmissionVersionAndFilePath(sub.accNo, sub.version, path)
             .firstOrNull()
             ?.file
-            ?.toExtFile(sub.released, sub.relPath)
+            ?.toExtFile(sub.relPath)
     }
 }

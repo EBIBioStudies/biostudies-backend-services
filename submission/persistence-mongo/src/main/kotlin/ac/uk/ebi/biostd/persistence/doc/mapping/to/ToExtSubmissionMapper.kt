@@ -41,7 +41,7 @@ class ToExtSubmissionMapper(
             attributes = sub.attributes.toExtAttributes(),
             collections = sub.collections.map { ExtCollection(it.accNo) },
             tags = sub.tags.map { ExtTag(it.name, it.value) },
-            pageTabFiles = sub.pageTabFiles.map { it.toExtFile(sub.released, sub.relPath) },
+            pageTabFiles = sub.pageTabFiles.map { it.toExtFile(sub.relPath) },
             storageMode = sub.storageMode
         )
 

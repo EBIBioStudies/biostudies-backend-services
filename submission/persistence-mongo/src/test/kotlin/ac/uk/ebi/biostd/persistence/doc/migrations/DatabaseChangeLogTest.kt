@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.COLLECTION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.STORAGE_MODE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUBMISSIONS_COLLECTION_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_COLLECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_MODIFICATION_TIME
@@ -20,33 +21,40 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_COLLECTION_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_PUBLISHED
+import ac.uk.ebi.biostd.persistence.doc.mapping.from.toDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionDraft
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission
 import ebi.ac.uk.base.EMPTY
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import ebi.ac.uk.extended.model.ExtFileType.FILE
+import ebi.ac.uk.extended.model.FireFile
+import ebi.ac.uk.extended.model.StorageMode.FIRE
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.Document
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.ApplicationContext
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.collectionExists
 import org.springframework.data.mongodb.core.dropCollection
@@ -65,7 +73,6 @@ import java.util.AbstractMap.SimpleEntry
 @SpringBootTest(classes = [MongoDbReactiveConfig::class])
 @Testcontainers
 internal class DatabaseChangeLogTest(
-    @Autowired private val springContext: ApplicationContext,
     @Autowired private val mongoTemplate: ReactiveMongoTemplate,
 ) {
     @BeforeEach
@@ -77,8 +84,35 @@ internal class DatabaseChangeLogTest(
         mongoTemplate.dropCollection<FileListDocFile>()
     }
 
+    private suspend fun setUpTestFiles() {
+        val submission = testDocSubmission.copy(released = true, storageMode = FIRE)
+        val fireFile = FireFile(
+            fireId = "fire-oid",
+            firePath = "fire-path",
+            published = false,
+            filePath = "fireReferenced.txt",
+            relPath = "Files/fireReferenced.txt",
+            md5 = "md5",
+            size = 12L,
+            type = FILE,
+            attributes = emptyList()
+        )
+        val fireFileListFile = FileListDocFile(
+            ObjectId(),
+            testDocSubmission.id,
+            fireFile.toDocFile(),
+            fileListName = "test-file-list",
+            index = 2,
+            submissionVersion = testDocSubmission.version,
+            submissionAccNo = testDocSubmission.accNo
+        )
+
+        mongoTemplate.save(submission, SUBMISSIONS_COLLECTION_NAME).awaitSingle()
+        mongoTemplate.save(fireFileListFile, FILE_LIST_DOC_FILE_COLLECTION_NAME).awaitSingle()
+    }
+
     @Test
-    fun `run migration 001`() = runTest {
+    fun `run migrations`() = runTest {
         fun assertSubmissionCoreIndexes(prefix: String = EMPTY, indexes: List<Document>) {
             assertThat(indexes[1]).containsEntry("key", Document("$prefix$SUB_ACC_NO", 1))
             assertThat(indexes[2]).containsEntry("key", Document("$prefix$SUB_ACC_NO", 1).append(SUB_VERSION, 1))
@@ -154,12 +188,22 @@ internal class DatabaseChangeLogTest(
             assertThat(statsIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
         }
 
+        suspend fun assertSubmissionFile() {
+            val files = mongoTemplate.collection<FileListDocFile>().find().asFlow().toList()
+            assertThat(files).hasSize(1)
+
+            val file = files.first()[FILE_LIST_DOC_FILE_FILE] as Map<String, Any>
+            assertThat(file[FIRE_FILE_DOC_PUBLISHED]).isEqualTo(true)
+        }
+
+        setUpTestFiles()
         mongoTemplate.executeMigrations()
 
         assertSubmissionIndexes()
         assertRequestIndexes()
         assertFileListIndexes()
         assertStatsIndexes()
+        assertSubmissionFile()
     }
 
     companion object {

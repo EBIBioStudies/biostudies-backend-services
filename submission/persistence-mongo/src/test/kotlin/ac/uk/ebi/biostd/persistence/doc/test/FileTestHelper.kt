@@ -45,6 +45,7 @@ internal object FileTestHelper {
             filePath = TEST_FILEPATH,
             relPath = TEST_REL_PATH,
             fireId = TEST_FIRE_FILE_ID,
+            published = false,
             attributes = listOf(basicDocAttribute),
             md5 = TEST_MD5,
             fileSize = TEST_FIRE_FILE_SIZE,
@@ -56,6 +57,7 @@ internal object FileTestHelper {
             filePath = TEST_FILEPATH_DIRECTORY,
             relPath = TEST_REL_PATH,
             fireId = TEST_FIRE_DIR_ID,
+            published = false,
             attributes = listOf(basicDocAttribute),
             md5 = TEST_MD5,
             fileSize = TEST_FIRE_FILE_SIZE,
@@ -101,6 +103,7 @@ internal object FileTestHelper {
         assertThat(fireFile.md5).isEqualTo(TEST_MD5)
         assertThat(fireFile.size).isEqualTo(TEST_FIRE_FILE_SIZE)
         assertThat(fireFile.attributes).hasSize(1)
+        assertThat(fireFile.published).isFalse()
         assertBasicExtAttribute(fireFile.attributes.first())
     }
 }

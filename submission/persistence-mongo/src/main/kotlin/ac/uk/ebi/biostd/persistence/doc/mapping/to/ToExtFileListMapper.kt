@@ -25,19 +25,17 @@ class ToExtFileListMapper(
      * Maps a DocFileList to corresponding Ext type. Note that empty list is used if includeFileListFiles is false as
      * files list files are not loaded as part of the submission.
      */
-    @Suppress("LongParameterList")
     suspend fun toExtFileList(
         fileList: DocFileList,
         subAccNo: String,
         subVersion: Int,
-        released: Boolean,
         subRelPath: String,
         includeFileListFiles: Boolean,
     ): ExtFileList {
         fun fileListFiles(): Flow<ExtFile> {
             return fileListDocFileDocDataRepository
                 .findByFileList(subAccNo, subVersion, fileList.fileName)
-                .map { it.file.toExtFile(released, subRelPath) }
+                .map { it.file.toExtFile(subRelPath) }
                 .flowOn(Dispatchers.Default)
         }
 
@@ -45,7 +43,7 @@ class ToExtFileListMapper(
         return ExtFileList(
             filePath = fileList.fileName,
             file = writeFile(subAccNo, subVersion, fileList.fileName, files),
-            pageTabFiles = fileList.pageTabFiles.map { it.toExtFile(released, subRelPath) }
+            pageTabFiles = fileList.pageTabFiles.map { it.toExtFile(subRelPath) }
         )
     }
 

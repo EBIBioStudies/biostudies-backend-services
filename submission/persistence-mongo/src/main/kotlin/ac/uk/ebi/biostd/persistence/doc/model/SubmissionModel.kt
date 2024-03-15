@@ -91,6 +91,7 @@ data class FireDocFile(
     override val filePath: String,
     override val relPath: String,
     val fireId: String,
+    val published: Boolean,
     override val attributes: List<DocAttribute>,
     override val md5: String,
     override val fileSize: Long,

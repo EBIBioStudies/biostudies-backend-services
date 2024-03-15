@@ -20,7 +20,7 @@ class ToExtSectionMapper(private val fileListMapper: ToExtFileListMapper) {
     ): ExtSection = ExtSection(
         accNo = section.accNo,
         type = section.type,
-        fileList = section.fileList?.toExtFileList(subAccNo, subVersion, released, subRelPath, includeFileListFiles),
+        fileList = section.fileList?.toExtFileList(subAccNo, subVersion, subRelPath, includeFileListFiles),
         attributes = section.attributes.toExtAttributes(),
         sections = section.sections.map {
             it.toExtSections(
@@ -31,18 +31,17 @@ class ToExtSectionMapper(private val fileListMapper: ToExtFileListMapper) {
                 includeFileListFiles = includeFileListFiles
             )
         },
-        files = section.files.map { it.toExtFiles(released, subRelPath) },
+        files = section.files.map { it.toExtFiles(subRelPath) },
         links = section.links.map { it.toExtLinks() }
     )
 
     private suspend fun DocFileList.toExtFileList(
         subAccNo: String,
         subVersion: Int,
-        released: Boolean,
         subRelPath: String,
         includeFileListFiles: Boolean,
     ): ExtFileList =
-        fileListMapper.toExtFileList(this, subAccNo, subVersion, released, subRelPath, includeFileListFiles)
+        fileListMapper.toExtFileList(this, subAccNo, subVersion, subRelPath, includeFileListFiles)
 
     private suspend fun Either<DocSection, DocSectionTable>.toExtSections(
         subAccNo: String,

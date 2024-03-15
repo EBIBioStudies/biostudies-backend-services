@@ -71,21 +71,21 @@ class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
         } returns flowOf(fileListDocFile)
         val fileList = docFileList.copy(pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile))
 
-        val extFileList = testInstance.toExtFileList(fileList, "S-TEST123", 1, false, "SubRelPath", true)
+        val extFileList = testInstance.toExtFileList(fileList, "S-TEST123", 1, "SubRelPath", true)
 
         assertThat(extFileList.filePath).isEqualTo(TEST_FILE_LIST)
         assertPageTabs(extFileList.pageTabFiles)
 
         val files = extSerializationService.files(extFileList.file)
         assertThat(files).hasSize(1)
-        assertThat(files.first()).isEqualTo(fireDocFile.toExtFile(false, "SubRelPath"))
+        assertThat(files.first()).isEqualTo(fireDocFile.toExtFile("SubRelPath"))
     }
 
     @Test
     fun `toExtFileList without FileListFiles`() = runTest {
         val fileList = docFileList.copy(pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile))
 
-        val extFileList = testInstance.toExtFileList(fileList, "S-TEST123", 1, false, "SubRelPath", false)
+        val extFileList = testInstance.toExtFileList(fileList, "S-TEST123", 1, "SubRelPath", false)
 
         assertThat(extFileList.filePath).isEqualTo(TEST_FILE_LIST)
         assertThat(extSerializationService.files(extFileList.file)).isEmpty()
@@ -95,8 +95,8 @@ class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
 
     private fun assertPageTabs(pageTabFiles: List<ExtFile>) {
         assertThat(pageTabFiles).hasSize(3)
-        assertThat(pageTabFiles.first()).isEqualTo(fireDocFile.toExtFile(false, "SubRelPath"))
-        assertThat(pageTabFiles.second()).isEqualTo(fireDocDirectory.toExtFile(false, "SubRelPath"))
-        assertThat(pageTabFiles.third()).isEqualTo(nfsDocFile.toExtFile(false, "SubRelPath"))
+        assertThat(pageTabFiles.first()).isEqualTo(fireDocFile.toExtFile("SubRelPath"))
+        assertThat(pageTabFiles.second()).isEqualTo(fireDocDirectory.toExtFile("SubRelPath"))
+        assertThat(pageTabFiles.third()).isEqualTo(nfsDocFile.toExtFile("SubRelPath"))
     }
 }

@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_SIZE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocFileFields.FILE_DOC_TYPE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_PUBLISHED
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_FULL_PATH
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
@@ -65,6 +66,7 @@ internal class FileConverterTest(
             filePath = FILE_DOC_FILEPATH,
             relPath = FILE_DOC_REL_PATH,
             fireId = FIRE_FILE_DOC_ID,
+            published = true,
             attributes = listOf(docAttribute),
             md5 = FILE_DOC_MD5,
             fileSize = 10L,
@@ -77,6 +79,7 @@ internal class FileConverterTest(
         assertThat(result[FILE_DOC_FILEPATH]).isEqualTo("filePath")
         assertThat(result[FILE_DOC_REL_PATH]).isEqualTo("relPath")
         assertThat(result[FIRE_FILE_DOC_ID]).isEqualTo("fireId")
+        assertThat(result[FIRE_FILE_DOC_PUBLISHED]).isEqualTo(true)
         assertThat(result[FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
         assertThat(result[FILE_DOC_SIZE]).isEqualTo(10L)
@@ -91,6 +94,7 @@ internal class FileConverterTest(
             filePath = FILE_DOC_FILEPATH,
             relPath = FILE_DOC_REL_PATH,
             fireId = "dirFireId",
+            published = false,
             attributes = listOf(docAttribute),
             md5 = FILE_DOC_MD5,
             fileSize = 10L,
@@ -103,6 +107,7 @@ internal class FileConverterTest(
         assertThat(result[FILE_DOC_FILEPATH]).isEqualTo("filePath")
         assertThat(result[FILE_DOC_REL_PATH]).isEqualTo("relPath")
         assertThat(result[FIRE_FILE_DOC_ID]).isEqualTo("dirFireId")
+        assertThat(result[FIRE_FILE_DOC_PUBLISHED]).isEqualTo(false)
         assertThat(result[FILE_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
         assertThat(result[FILE_DOC_MD5]).isEqualTo("md5")
         assertThat(result[FILE_DOC_SIZE]).isEqualTo(10L)

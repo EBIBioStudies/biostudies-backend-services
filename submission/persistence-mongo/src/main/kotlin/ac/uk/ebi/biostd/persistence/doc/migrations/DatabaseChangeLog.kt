@@ -23,23 +23,36 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionReques
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_PATH
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_COLLECTION_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_PUBLISHED
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
 import ebi.ac.uk.base.EMPTY
+import ebi.ac.uk.extended.model.StorageMode
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.domain.Sort.Direction.ASC
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
+import org.springframework.data.mongodb.core.aggregation.Aggregation.lookup
+import org.springframework.data.mongodb.core.aggregation.Aggregation.match
+import org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation
+import org.springframework.data.mongodb.core.aggregation.Aggregation.project
 import org.springframework.data.mongodb.core.index.Index
+import org.springframework.data.mongodb.core.query.Criteria.where
+import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.index.TextIndexDefinition.builder as TextIndex
 
 suspend fun ReactiveMongoTemplate.executeMigrations() {
@@ -52,6 +65,8 @@ suspend fun ReactiveMongoTemplate.executeMigrations() {
 
     ensureFileListIndexes()
     ensureStatsIndexes()
+
+    publishedFlag()
 }
 
 suspend fun ReactiveMongoOperations.ensureSubmissionIndexes() = ensureSubmissionIndexes<DocSubmission>()
@@ -185,3 +200,40 @@ suspend fun ReactiveMongoOperations.ensureStatsIndexes() {
         ensureIndex(backgroundIndex().on(SUB_ACC_NO, ASC)).awaitSingleOrNull()
     }
 }
+
+/**
+ * Published flag for all the submission files
+ */
+suspend fun ReactiveMongoOperations.publishedFlag() {
+    suspend fun setReleasedFlag(submission: Submission) {
+        val query = Query(
+            where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO).`is`(submission.accNo)
+                .andOperator(where(FILE_LIST_DOC_FILE_SUBMISSION_VERSION).`is`(submission.version))
+        )
+
+        updateMulti(
+            query,
+            Update().set("$FILE_LIST_DOC_FILE_FILE.$FIRE_FILE_DOC_PUBLISHED", submission.released),
+            FileListDocFile::class.java
+        ).awaitSingleOrNull()
+    }
+
+    val aggregation = newAggregation(
+        DocSubmission::class.java,
+        match(where(SUB_VERSION).gt(0).andOperator(where(STORAGE_MODE).`is`(StorageMode.FIRE.value))),
+        lookup(FILE_LIST_DOC_FILE_COLLECTION_NAME, SUB_ACC_NO, FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, "result"),
+        match(where("result").not().size(0)),
+        project(SUB_ACC_NO, SUB_VERSION, SUB_RELEASED)
+    )
+
+    aggregate(aggregation, Submission::class.java)
+        .asFlow()
+        .map { setReleasedFlag(it) }
+        .collect()
+}
+
+data class Submission(
+    val accNo: String,
+    val version: Int,
+    val released: Boolean,
+)
