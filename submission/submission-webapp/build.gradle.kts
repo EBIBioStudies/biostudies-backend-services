@@ -180,10 +180,21 @@ val itest = tasks.create<Test>("itest") {
 
     val enableFire = project.property("enableFire")!!
     val enableTask = project.property("enableTaskMode")!!
-    println("##### Running integration tests with fireEnable=$enableFire, taskMode=$enableTask #######")
+    val nfsReleaseMode = project.property("nfsReleaseMode")!!
+    val includeSecretKey = project.property("includeSecretKey")!!
+
+    println("#####")
+    println("Running integration tests with")
+    println("fireEnable=$enableFire")
+    println("taskMode=$enableTask")
+    println("nfsReleaseMode=$nfsReleaseMode")
+    println("includeSecretKey=$includeSecretKey")
+    println("#######")
 
     systemProperty("enableFire", enableFire)
     systemProperty("enableTaskMode", enableTask)
+    systemProperty("nfsReleaseMode", nfsReleaseMode)
+    systemProperty("includeSecretKey", includeSecretKey)
 
     useJUnitPlatform()
     testLogging.exceptionFormat = TestExceptionFormat.SHORT

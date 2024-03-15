@@ -70,6 +70,7 @@ class SubmissionRequestReleaserTest(
         val accNo = "ABC-123"
         val version = 1
         val relPath = "sub-relpath"
+        val secretKey = "secret-key"
         val mode = StorageMode.FIRE
         val changeId = "changeId"
 
@@ -83,10 +84,11 @@ class SubmissionRequestReleaserTest(
         every { submission.version } returns version
         every { submission.released } returns true
         every { submission.relPath } returns relPath
+        every { submission.secretKey } returns secretKey
         every { submission.storageMode } returns mode
         every { eventsPublisherService.requestCheckedRelease(accNo, version) } answers { nothing }
         every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile, fireRqtFile)
-        coEvery { storageService.releaseSubmissionFile(nfsFile, relPath, mode) } returns releasedFile
+        coEvery { storageService.releaseSubmissionFile(nfsFile, relPath, secretKey, mode) } returns releasedFile
         coEvery { requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId)) } answers { accNo to version }
         coEvery {
             requestService.getSubmissionRequest(
@@ -103,7 +105,7 @@ class SubmissionRequestReleaserTest(
 
         coVerify(exactly = 1) {
             requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId))
-            storageService.releaseSubmissionFile(nfsFile, relPath, mode)
+            storageService.releaseSubmissionFile(nfsFile, relPath, secretKey, mode)
             eventsPublisherService.requestCheckedRelease(accNo, version)
         }
     }
@@ -153,7 +155,7 @@ class SubmissionRequestReleaserTest(
         val exception = assertThrows<UnreleasedSubmissionException> { testInstance.generateFtpLinks("S-BSST0") }
         assertThat(exception.message).isEqualTo("Can't generate FTP links for a private submission")
 
-        coVerify(exactly = 0) { storageService.releaseSubmissionFile(any(), any(), any()) }
+        coVerify(exactly = 0) { storageService.releaseSubmissionFile(any(), any(), any(), any()) }
     }
 
     private companion object {

@@ -258,8 +258,9 @@ class SubmitterConfig(
         @Bean
         @Lazy
         fun folderResolver() = SubmissionFolderResolver(
-            submissionFolder = Paths.get(appProperties.persistence.privateSubmissionsPath),
-            ftpFolder = Paths.get(appProperties.persistence.publicSubmissionsPath)
+            includeSecretKey = appProperties.persistence.includeSecretKey,
+            privateSubPath = Paths.get(appProperties.persistence.privateSubmissionsPath),
+            publicSubPath = Paths.get(appProperties.persistence.publicSubmissionsPath)
         )
     }
 
