@@ -21,8 +21,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.condition.EnabledIfSystemProperties
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -51,142 +51,137 @@ class SubmissionReleaseTest(
         webClient = getWebClient(serverPort, SuperUser)
     }
 
-    @Test
-    @EnabledIfSystemProperties(
-        value = [
-            EnabledIfSystemProperty(named = "enableFire", matches = "false"),
-            EnabledIfSystemProperty(named = "includeSecretKey", matches = "false"),
-            EnabledIfSystemProperty(named = "nfsReleaseMode", matches = "HARD_LINKS"),
-        ]
+    @Nested
+    @SpringBootTest(
+        webEnvironment = RANDOM_PORT,
+        properties = ["app.persistence.includeSecretKey=false", "app.persistence.nfsReleaseMode=HARD_LINKS"],
     )
-    fun `27-1 public submission without secret key and HARD_LINKS release mode`() = runTest {
-        val submission = tsv {
-            line("Submission", "S-RELEASE001")
-            line("Title", "Submission")
-            line("ReleaseDate", OffsetDateTime.now().toStringDate())
-            line()
+    inner class WithoutSecretKey(
+        @LocalServerPort val serverPort: Int,
+    ) {
+        @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "false")
+        fun `27-1 public submission without secret key and HARD_LINKS release mode`() = runTest {
+            val submission = tsv {
+                line("Submission", "S-RELEASE001")
+                line("Title", "Submission")
+                line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                line()
 
-            line("Study")
-            line()
+                line("Study")
+                line()
 
-            line("File", "file_27-1.txt")
-            line()
-        }.toString()
+                line("File", "file_27-1.txt")
+                line()
+            }.toString()
 
-        webClient.uploadFile(tempFolder.createFile("file_27-1.txt", "27-1 file content"))
-        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            webClient.uploadFile(tempFolder.createFile("file_27-1.txt", "27-1 file content"))
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-        val submitted = submissionRepository.getExtByAccNo("S-RELEASE001")
+            val submitted = submissionRepository.getExtByAccNo("S-RELEASE001")
 
-        val ftpFiles = FileUtils.listAllFiles(File("$ftpPath/${submitted.relPath}/Files"))
-        val expectedFile = File("$ftpPath/${submitted.relPath}/Files/file_27-1.txt")
-        assertThat(ftpFiles).containsExactly(expectedFile)
-        assertThat(expectedFile).hasContent("27-1 file content")
-        assertThat(File("$submissionPath/${submitted.relPath}/Files/file_27-1.txt")).hasContent("27-1 file content")
+            val ftpFiles = FileUtils.listAllFiles(File("$ftpPath/${submitted.relPath}/Files"))
+            val expectedFile = File("$ftpPath/${submitted.relPath}/Files/file_27-1.txt")
+            assertThat(ftpFiles).containsExactly(expectedFile)
+            assertThat(expectedFile).hasContent("27-1 file content")
+            assertThat(File("$submissionPath/${submitted.relPath}/Files/file_27-1.txt")).hasContent("27-1 file content")
+        }
+
+        @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "false")
+        fun `27-2 private submission without secret key and HARD_LINKS release mode`() = runTest {
+            val submission = tsv {
+                line("Submission", "S-RELEASE002")
+                line("Title", "Submission")
+                line("ReleaseDate", "2030-01-25")
+                line()
+
+                line("Study")
+                line()
+
+                line("File", "file_27-2.txt")
+                line()
+            }.toString()
+
+            webClient.uploadFile(tempFolder.createFile("file_27-2.txt", "27-2 file content"))
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+
+            val submitted = submissionRepository.getExtByAccNo("S-RELEASE002")
+
+            assertThat(File("$ftpPath/${submitted.relPath}")).doesNotExist()
+            val submissionFiles = FileUtils.listAllFiles(File("$submissionPath/${submitted.relPath}/Files"))
+            val expectedFile = File("$submissionPath/${submitted.relPath}/Files/file_27-2.txt")
+            assertThat(submissionFiles).containsOnly(expectedFile)
+            assertThat(expectedFile).hasContent("27-2 file content")
+        }
     }
 
-    @Test
-    @EnabledIfSystemProperties(
-        value = [
-            EnabledIfSystemProperty(named = "enableFire", matches = "false"),
-            EnabledIfSystemProperty(named = "includeSecretKey", matches = "false"),
-            EnabledIfSystemProperty(named = "nfsReleaseMode", matches = "HARD_LINKS"),
-        ]
+    @Nested
+    @SpringBootTest(
+        webEnvironment = RANDOM_PORT,
+        properties = ["app.persistence.includeSecretKey=true", "app.persistence.nfsReleaseMode=MOVE"],
     )
-    fun `27-2 private submission without secret key and HARD_LINKS release mode`() = runTest {
-        val submission = tsv {
-            line("Submission", "S-RELEASE002")
-            line("Title", "Submission")
-            line("ReleaseDate", "2030-01-25")
-            line()
+    inner class WithSecretKey(
+        @LocalServerPort val serverPort: Int,
+    ) {
+        @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "false")
+        fun `27-3 public submission with secret key and MOVE release mode`() = runTest {
+            val submission = tsv {
+                line("Submission", "S-RELEASE003")
+                line("Title", "Submission")
+                line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                line()
 
-            line("Study")
-            line()
+                line("Study")
+                line()
 
-            line("File", "file_27-2.txt")
-            line()
-        }.toString()
+                line("File", "file_27-3.txt")
+                line()
+            }.toString()
 
-        webClient.uploadFile(tempFolder.createFile("file_27-2.txt", "27-2 file content"))
-        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+            webClient.uploadFile(tempFolder.createFile("file_27-3.txt", "27-3 file content"))
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-        val submitted = submissionRepository.getExtByAccNo("S-RELEASE002")
+            val submitted = submissionRepository.getExtByAccNo("S-RELEASE003")
 
-        assertThat(File("$ftpPath/${submitted.relPath}")).doesNotExist()
-        val submissionFiles = FileUtils.listAllFiles(File("$submissionPath/${submitted.relPath}/Files"))
-        val expectedFile = File("$submissionPath/${submitted.relPath}/Files/file_27-2.txt")
-        assertThat(submissionFiles).containsOnly(expectedFile)
-        assertThat(expectedFile).hasContent("27-2 file content")
-    }
+            val expectedFile = File("$ftpPath/${submitted.relPath}/Files/file_27-3.txt")
+            assertThat(expectedFile).exists()
+            assertThat(expectedFile).hasContent("27-3 file content")
 
-    @Test
-    @EnabledIfSystemProperties(
-        value = [
-            EnabledIfSystemProperty(named = "enableFire", matches = "false"),
-            EnabledIfSystemProperty(named = "includeSecretKey", matches = "true"),
-            EnabledIfSystemProperty(named = "nfsReleaseMode", matches = "MOVE"),
-        ]
-    )
-    fun `27-3 public submission with secret key and MOVE release mode`() = runTest {
-        val submission = tsv {
-            line("Submission", "S-RELEASE003")
-            line("Title", "Submission")
-            line("ReleaseDate", OffsetDateTime.now().toStringDate())
-            line()
+            val key = submitted.secretKey
+            val subFilesPath = "$submissionPath/${key.take(2)}/${key.substring(2)}/${submitted.relPath}/Files"
+            assertThat(File("$subFilesPath/file_27-3.txt")).doesNotExist()
+        }
 
-            line("Study")
-            line()
+        @Test
+        @EnabledIfSystemProperty(named = "enableFire", matches = "false")
+        fun `27-4 private submission with secret key and MOVE release mode`() = runTest {
+            val submission = tsv {
+                line("Submission", "S-RELEASE004")
+                line("Title", "Submission")
+                line("ReleaseDate", "2030-01-25")
+                line()
 
-            line("File", "file_27-3.txt")
-            line()
-        }.toString()
+                line("Study")
+                line()
 
-        webClient.uploadFile(tempFolder.createFile("file_27-3.txt", "27-3 file content"))
-        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
+                line("File", "file_27-4.txt")
+                line()
+            }.toString()
 
-        val submitted = submissionRepository.getExtByAccNo("S-RELEASE003")
+            webClient.uploadFile(tempFolder.createFile("file_27-4.txt", "27-4 file content"))
+            assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
-        val ftpFiles = FileUtils.listAllFiles(File("$ftpPath/${submitted.relPath}/Files"))
-        val expectedFile = File("$ftpPath/${submitted.relPath}/Files/file_27-3.txt")
-        assertThat(ftpFiles).containsExactly(expectedFile)
-        assertThat(expectedFile).hasContent("27-3 file content")
-        assertThat(File("$submissionPath/${submitted.relPath}/Files/file_27-3.txt")).doesNotExist()
-    }
+            val submitted = submissionRepository.getExtByAccNo("S-RELEASE004")
 
-    @Test
-    @EnabledIfSystemProperties(
-        value = [
-            EnabledIfSystemProperty(named = "enableFire", matches = "false"),
-            EnabledIfSystemProperty(named = "includeSecretKey", matches = "true"),
-            EnabledIfSystemProperty(named = "nfsReleaseMode", matches = "MOVE"),
-        ]
-    )
-    fun `27-4 private submission with secret key and MOVE release mode`() = runTest {
-        val submission = tsv {
-            line("Submission", "S-RELEASE004")
-            line("Title", "Submission")
-            line("ReleaseDate", "2030-01-25")
-            line()
+            assertThat(File("$ftpPath/${submitted.relPath}")).doesNotExist()
 
-            line("Study")
-            line()
-
-            line("File", "file_27-4.txt")
-            line()
-        }.toString()
-
-        webClient.uploadFile(tempFolder.createFile("file_27-4.txt", "27-4 file content"))
-        assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
-
-        val submitted = submissionRepository.getExtByAccNo("S-RELEASE004")
-
-        assertThat(File("$ftpPath/${submitted.relPath}")).doesNotExist()
-
-        val secretKey = submitted.secretKey
-        val subFilesPath = "$submissionPath/${secretKey.take(2)}/${secretKey.substring(2)}/${submitted.relPath}/Files"
-        val submissionFiles = FileUtils.listAllFiles(File(subFilesPath))
-        val expectedFile = File("$subFilesPath/file_27-4.txt")
-        assertThat(submissionFiles).containsOnly(expectedFile)
-        assertThat(expectedFile).hasContent("27-4 file content")
+            val key = submitted.secretKey
+            val subFilesPath = "$submissionPath/${key.take(2)}/${key.substring(2)}/${submitted.relPath}/Files"
+            val expectedFile = File("$subFilesPath/file_27-4.txt")
+            assertThat(expectedFile).exists()
+            assertThat(expectedFile).hasContent("27-4 file content")
+        }
     }
 }
