@@ -8,20 +8,21 @@ import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.paths.SubmissionFolderResolver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 class NfsFtpService(
     private val folderResolver: SubmissionFolderResolver,
 ) : FtpService {
-    override suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String): ExtFile {
-        return synchronized(this) {
+    override suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String): ExtFile =
+        withContext(Dispatchers.IO) {
             val nfsFile = file as NfsFile
             val ftpFolder = getFtpFolder(subRelPath).toPath()
             val subFolder = folderResolver.getSubFolder(subRelPath)
             FileUtils.createHardLink(nfsFile.file, subFolder, ftpFolder, Permissions(RW_R__R__, RWXR_XR_X))
             nfsFile
         }
-    }
 
     private fun getFtpFolder(relPath: String): File =
         FileUtils.getOrCreateFolder(folderResolver.getSubmissionFtpFolder(relPath), RWXR_XR_X).toFile()

@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
+import ebi.ac.uk.coroutines.every
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import kotlinx.coroutines.Dispatchers
@@ -49,11 +50,17 @@ class ToExtFileListMapper(
         )
     }
 
-    private suspend fun writeFile(accNo: String, version: Int, fileListName: String, files: Flow<ExtFile>): File {
-        logger.info { "accNo:'$accNo' version: '$version', serializing file list '$fileListName'" }
-        val file = extFilesResolver.createExtEmptyFile(accNo, version, fileListName)
-        file.outputStream().use { serializationService.serialize(files, it) }
-        logger.info { "accNo:'$accNo' version: '$version', completed file list '$fileListName' serialization" }
+    private suspend fun writeFile(accNo: String, version: Int, fileList: String, files: Flow<ExtFile>): File {
+        suspend fun asLogeableFlow(files: Flow<ExtFile>): Flow<ExtFile> =
+            files.every(
+                items = 500,
+                { logger.info { "accNo:'$accNo' version: '$version', serialized file ${it.index}, file list '$fileList'" } }
+            )
+
+        logger.info { "accNo:'$accNo' version: '$version', serializing file list '$fileList'" }
+        val file = extFilesResolver.createExtEmptyFile(accNo, version, fileList)
+        file.outputStream().use { serializationService.serialize(asLogeableFlow(files), it) }
+        logger.info { "accNo:'$accNo' version: '$version', completed file list '$fileList' serialization" }
         return file
     }
 }

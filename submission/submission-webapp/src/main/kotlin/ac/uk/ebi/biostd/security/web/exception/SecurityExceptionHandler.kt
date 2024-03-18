@@ -18,22 +18,24 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseBody
-import org.springframework.web.bind.annotation.ResponseStatus
 
 @ControllerAdvice
 class SecurityExceptionHandler {
     @ResponseBody
-    @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(value = [SecurityException::class])
     fun handle(exception: SecurityException): ResponseEntity<SecurityError> {
         return when (exception) {
             is LoginException,
-            is UserNotFoundByTokenException -> unauthorized(SecurityError(exception.message))
+            is UserNotFoundByTokenException,
+            -> unauthorized(SecurityError(exception.message))
+
             is ActKeyNotFoundException,
             is UserNotFoundByEmailException,
             is UserPendingRegistrationException,
             is UserWithActivationKeyNotFoundException,
-            is UserAlreadyRegister -> badRequest(SecurityError(exception.message))
+            is UserAlreadyRegister,
+            -> badRequest(SecurityError(exception.message))
+
             is UnauthorizedOperation -> unauthorized(SecurityError(exception.message))
             is InvalidSseConfiguration -> badRequest(SecurityError(exception.message))
             is InvalidCaptchaException -> badRequest(SecurityError(exception.message))
