@@ -33,7 +33,6 @@ import java.nio.file.Files
 import java.time.Duration.ofSeconds
 
 class ITestListener : TestExecutionListener {
-
     private val properties = ConfigurationPropertiesHolder()
 
     override fun testPlanExecutionStarted(testPlan: TestPlan) {
@@ -124,8 +123,13 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.persistence.concurrency", PERSISTENCE_CONCURRENCY)
         properties.addProperty(
             "app.persistence.enableFire",
-            "${System.getProperty("enableFire").toBoolean()}"
+            "${System.getProperty("enableFire").toBoolean()}",
         )
+        properties.addProperty(
+            "app.persistence.includeSecretKey",
+            "${System.getProperty("includeSecretKey").toBoolean()}",
+        )
+        properties.addProperty("app.persistence.nfsReleaseMode", System.getProperty("nfsReleaseMode"))
         properties.addProperty("app.persistence.privateSubmissionsPath", nfsSubmissionPath.absolutePath)
         properties.addProperty("app.persistence.publicSubmissionsPath", nfsFtpPath.absolutePath)
         properties.addProperty("app.persistence.tempDirPath", tempDirPath.absolutePath)

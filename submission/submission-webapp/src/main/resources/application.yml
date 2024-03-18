@@ -118,6 +118,8 @@ app:
   persistence:
     enableFire: # Boolean flag to indicate whether the files are stored on FIRE if true or NFS if false
     concurrency: # Number of files processed concurrently
+    includeSecretKey: # Boolean flag to indicate whether the secret key should be added to the private submission path
+    nfsReleaseMode: # Method used to release files for NFS submissions. Valid values are: MOVE, HARD_LINKS
     privateSubmissionsPath: # Absolute path to the folder to be used as storage for private submissions
     publicSubmissionsPath: # Absolute path to the folder to be used as storage for public submissions
     requestFilesPath: # Absolute path to the folder where request files are stored

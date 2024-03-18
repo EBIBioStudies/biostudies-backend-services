@@ -10,5 +10,5 @@ internal interface FilesService {
 
     suspend fun deleteFtpFile(sub: ExtSubmission, file: ExtFile)
 
-    suspend fun deleteEmptyFolders(current: ExtSubmission)
+    suspend fun deleteEmptyFolders(sub: ExtSubmission)
 }

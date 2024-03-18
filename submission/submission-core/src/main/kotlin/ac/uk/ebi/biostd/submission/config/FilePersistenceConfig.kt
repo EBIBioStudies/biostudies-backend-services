@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.persistence.doc.integration.ToSubmissionConfig
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
@@ -42,7 +43,8 @@ class FilePersistenceConfig(
         StorageService(fireFtpService, fireFilesService, nfsFtpService, nfsFilesService, extSerializationService)
 
     @Bean
-    fun nfsFtpService(): NfsFtpService = NfsFtpService(folderResolver)
+    fun nfsFtpService(): NfsFtpService =
+        NfsFtpService(NfsReleaseMode.valueOf(properties.persistence.nfsReleaseMode), folderResolver)
 
     @Bean
     fun nfsFileService(): NfsFilesService = NfsFilesService(fireClient, folderResolver)
