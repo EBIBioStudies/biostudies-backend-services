@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -27,9 +28,10 @@ class SubmissionRequestIndexer(
      * submission main/core data is not available.
      */
     suspend fun indexRequest(accNo: String, version: Int, processId: String) {
-        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, REQUESTED, processId)
-        val totalFiles = indexRequest(request.submission)
-        requestService.saveRequest(request.indexed(totalFiles, changeId = changeId))
+        requestService.onRequest(accNo, version, REQUESTED, processId) {
+            var indexedRqt = it.indexed(indexRequest(it.submission))
+            RqtUpdate(indexedRqt)
+        }
         eventsPublisherService.requestIndexed(accNo, version)
     }
 

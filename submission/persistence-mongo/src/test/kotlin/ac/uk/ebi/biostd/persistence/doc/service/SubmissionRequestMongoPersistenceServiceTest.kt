@@ -3,11 +3,16 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
+import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
@@ -16,7 +21,6 @@ import ebi.ac.uk.extended.model.createNfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
@@ -50,12 +54,11 @@ import java.time.Instant
 @SpringBootTest(classes = [MongoDbReposConfig::class])
 class SubmissionRequestMongoPersistenceServiceTest(
     private val tempFolder: TemporaryFolder,
-    @MockK private val serializationService: ExtSerializationService,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
     @Autowired private val requestFilesRepository: SubmissionRequestFilesRepository,
 ) {
     private val testInstant = Instant.ofEpochMilli(1664981331)
-    private val testInstance = SubmissionRequestMongoPersistenceService(serializationService, requestRepository)
+    private val testInstance = SubmissionRequestMongoPersistenceService(ExtSerializationService(), requestRepository)
 
     @BeforeEach
     fun beforeEach() {
@@ -67,6 +70,39 @@ class SubmissionRequestMongoPersistenceServiceTest(
     fun afterEach() = runBlocking {
         requestRepository.deleteAll()
         unmockkStatic(Instant::class)
+    }
+
+    @Test
+    fun processRequest() = runTest {
+        val submission = fullExtSubmission
+        val rqt = SubmissionRequest(
+            submission = submission,
+            notifyTo = "notifyTo",
+            draftKey = "draftKey"
+        )
+
+        val (accNo, version) = testInstance.createRequest(rqt)
+        assertThat(submission.accNo).isEqualTo(accNo)
+        assertThat(submission.version).isEqualTo(version)
+
+        var operation = 0
+
+        testInstance.onRequest(
+            accNo, version, REQUESTED, "processId", {
+                operation++
+                RqtUpdate(it.copy(status = PERSISTED))
+            }
+        )
+
+        assertThat(operation).isOne()
+        val request = requestRepository.getByAccNoAndVersion(accNo, version)
+        assertThat(request.status).isEqualTo(PERSISTED)
+        assertThat(request.statusChanges).hasSize(1)
+
+        val statusChange = request.statusChanges.first()
+        assertThat(statusChange.processId).isEqualTo("processId")
+        assertThat(statusChange.startTime).isNotNull()
+        assertThat(statusChange.endTime).isNotNull()
     }
 
     @Test

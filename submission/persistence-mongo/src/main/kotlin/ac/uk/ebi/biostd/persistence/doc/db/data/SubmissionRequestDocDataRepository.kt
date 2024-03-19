@@ -13,6 +13,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQ
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGE_ENDTIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGE_STATUS_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_TOTAL_FILES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_ATTRIBUTES
@@ -158,6 +160,22 @@ class SubmissionRequestDocDataRepository(
             .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
             .set(RQT_STATUS_CHANGES, rqt.statusChanges)
 
+        mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
+    }
+
+    suspend fun updateSubmissionRequest(rqt: DocSubmissionRequest, statusId: String, endTime: Instant) {
+        val query = Query(
+            where(SUB_ACC_NO).`is`(rqt.accNo).and(SUB_VERSION).`is`(rqt.version)
+                .and("$RQT_STATUS_CHANGES.$RQT_STATUS_CHANGE_STATUS_ID").`is`(ObjectId(statusId))
+        )
+        val update = Update()
+            .set(SUB_STATUS, rqt.status)
+            .set(SUB, rqt.submission)
+            .set(RQT_TOTAL_FILES, rqt.totalFiles)
+            .set(RQT_IDX, rqt.currentIndex)
+            .set(RQT_TOTAL_FILES, rqt.totalFiles)
+            .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
+            .set("$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_ENDTIME", endTime)
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 

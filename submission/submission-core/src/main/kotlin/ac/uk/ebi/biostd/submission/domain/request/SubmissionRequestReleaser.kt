@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -42,9 +43,11 @@ class SubmissionRequestReleaser(
      * Check the release status of the submission and release it if released flag is true.
      */
     suspend fun checkReleased(accNo: String, version: Int, processId: String) {
-        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, FILES_COPIED, processId)
-        if (request.submission.released) releaseRequest(accNo, version, request)
-        requestService.saveRequest(request.withNewStatus(CHECK_RELEASED, changeId))
+        requestService.onRequest(accNo, version, FILES_COPIED, processId, {
+            if (it.submission.released) releaseRequest(accNo, version, it)
+            RqtUpdate(it.withNewStatus(CHECK_RELEASED))
+        })
+
         eventsPublisherService.requestCheckedRelease(accNo, version)
     }
 

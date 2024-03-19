@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.service.RqtResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
@@ -67,8 +68,6 @@ class SubmissionRequestLoaderTest(
 
     @Test
     fun `load request`(@MockK indexedRequest: SubmissionRequest) = runTest {
-        val changeId = "changeId"
-        val loadedRequestSlot = slot<SubmissionRequest>()
         val filSlot = slot<ExtFile>()
         val file = tempFolder.createFile("dummy.txt")
         val nfsFile = NfsFile("dummy.txt", "Files/dummy.txt", file, file.absolutePath, "NOT_CALCULATED", -1)
@@ -77,33 +76,27 @@ class SubmissionRequestLoaderTest(
 
         every { indexedRequest.submission } returns sub
         every { indexedRequest.currentIndex } returns 3
-        every { indexedRequest.withNewStatus(RequestStatus.LOADED, changeId) } returns indexedRequest
+        every { indexedRequest.withNewStatus(RequestStatus.LOADED) } returns indexedRequest
         every { eventsPublisherService.requestLoaded(sub.accNo, sub.version) } answers { nothing }
-        coEvery {
-            requestService.getSubmissionRequest(
-                sub.accNo,
-                sub.version,
-                INDEXED,
-                INSTANCE_ID
-            )
-        } returns (changeId to indexedRequest)
-        coEvery { requestService.saveRequest(capture(loadedRequestSlot)) } returns (sub.accNo to sub.version)
         every { filesService.getSubmissionRequestFiles(sub.accNo, sub.version, 3) } returns flowOf(indexedRequestFile)
         coEvery { requestService.updateRqtIndex(indexedRequestFile, capture(filSlot)) } answers { nothing }
+        coEvery {
+            requestService.onRequest(sub.accNo, sub.version, INDEXED, processId, capture(rqtSlot))
+        } coAnswers { rqtSlot.captured.invoke(indexedRequest) }
 
-        testInstance.loadRequest(sub.accNo, sub.version, INSTANCE_ID)
+        testInstance.loadRequest(sub.accNo, sub.version, processId)
 
         val requestFile = filSlot.captured
         assertThat(requestFile.md5).isEqualTo(file.md5())
         assertThat(requestFile.size).isEqualTo(file.size())
 
         coVerify(exactly = 1) {
-            requestService.saveRequest(indexedRequest)
             eventsPublisherService.requestLoaded(sub.accNo, sub.version)
         }
     }
 
     private companion object {
-        const val INSTANCE_ID = "biostudies-prod"
+        const val processId = "biostudies-prod"
+        val rqtSlot = slot<suspend (SubmissionRequest) -> RqtResponse>()
     }
 }

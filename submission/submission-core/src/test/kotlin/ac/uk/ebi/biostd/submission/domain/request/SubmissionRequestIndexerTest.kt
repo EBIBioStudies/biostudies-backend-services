@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import arrow.core.Either.Companion.left
@@ -31,51 +32,46 @@ class SubmissionRequestIndexerTest(
     private val tempFolder: TemporaryFolder,
     @MockK private val pendingRqt: SubmissionRequest,
     @MockK private val eventsPublisherService: EventsPublisherService,
-    @MockK private val requestService: SubmissionRequestPersistenceService,
+    @MockK private val rqtService: SubmissionRequestPersistenceService,
     @MockK private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
     private val testInstance = SubmissionRequestIndexer(
         eventsPublisherService,
         ExtSerializationService(),
-        requestService,
+        rqtService,
         filesRequestService,
     )
 
     @Test
     fun `index request`() = runTest {
-        val changeId = "changeId"
         val requestFileSlot = slot<SubmissionRequestFile>()
         val file = tempFolder.createFile("requested.txt")
         val extFile = NfsFile("dummy.txt", "Files/dummy.txt", file, file.absolutePath, "NOT_CALCULATED", -1)
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Study", files = listOf(left(extFile))))
 
+        every { pendingRqt.indexed(1) } returns pendingRqt
         every { pendingRqt.submission } returns sub
-        every { eventsPublisherService.requestIndexed("S-BSST0", 1) } answers { nothing }
+        every { eventsPublisherService.requestIndexed(accNo, version) } answers { nothing }
         coEvery {
-            requestService.getSubmissionRequest(
-                "S-BSST0",
-                1,
-                RequestStatus.REQUESTED,
-                INSTANCE_ID
-            )
-        } returns (changeId to pendingRqt)
-        coEvery { requestService.saveRequest(pendingRqt.indexed(1, changeId)) } answers { "S-BSST0" to 1 }
+            rqtService.onRequest(accNo, version, RequestStatus.REQUESTED, processId, capture(rqtSlot))
+        } coAnswers { rqtSlot.captured.invoke(pendingRqt); }
+
         coEvery { filesRequestService.saveSubmissionRequestFile(capture(requestFileSlot)) } answers { nothing }
 
-        testInstance.indexRequest("S-BSST0", 1, INSTANCE_ID)
+        testInstance.indexRequest(accNo, version, processId)
 
         val requestFile = requestFileSlot.captured
         assertThat(requestFile.index).isEqualTo(1)
-
         coVerify(exactly = 1) {
-            requestService.getSubmissionRequest("S-BSST0", 1, RequestStatus.REQUESTED, INSTANCE_ID)
-            requestService.saveRequest(pendingRqt.indexed(1, changeId))
             filesRequestService.saveSubmissionRequestFile(requestFile)
-            eventsPublisherService.requestIndexed("S-BSST0", 1)
+            eventsPublisherService.requestIndexed(accNo, version)
         }
     }
 
     private companion object {
-        const val INSTANCE_ID = "biostudies-prod"
+        const val processId = "biostudies-prod"
+        const val accNo = "S-BSST0"
+        const val version = 1
+        private val rqtSlot = slot<suspend (SubmissionRequest) -> RqtUpdate>()
     }
 }

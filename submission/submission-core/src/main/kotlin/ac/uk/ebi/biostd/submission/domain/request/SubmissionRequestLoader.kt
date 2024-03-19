@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
@@ -38,9 +39,10 @@ class SubmissionRequestLoader(
      * Calculate md5 and size for every file in submission request.
      */
     suspend fun loadRequest(accNo: String, version: Int, processId: String) {
-        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, INDEXED, processId)
-        loadRequest(request.submission, request.currentIndex)
-        requestService.saveRequest(request.withNewStatus(LOADED, changeId = changeId))
+        requestService.onRequest(accNo, version, INDEXED, processId, {
+            loadRequest(it.submission, it.currentIndex)
+            RqtUpdate(it.withNewStatus(LOADED))
+        })
         eventsPublisherService.requestLoaded(accNo, version)
     }
 

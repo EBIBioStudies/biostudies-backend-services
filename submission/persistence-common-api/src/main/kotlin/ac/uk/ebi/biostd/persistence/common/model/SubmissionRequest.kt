@@ -1,7 +1,6 @@
 package ac.uk.ebi.biostd.persistence.common.model
 
 import ebi.ac.uk.extended.model.ExtSubmission
-import ebi.ac.uk.util.collections.replace
 import java.time.Instant
 import java.time.OffsetDateTime
 
@@ -21,7 +20,6 @@ data class SubmissionRequest(
     val totalFiles: Int,
     val currentIndex: Int,
     val modificationTime: OffsetDateTime,
-    val statusChangesLog: List<RequestStatusChanges>,
 ) {
     constructor(submission: ExtSubmission, notifyTo: String, draftKey: String? = null) : this(
         submission,
@@ -31,37 +29,25 @@ data class SubmissionRequest(
         totalFiles = 0,
         currentIndex = 0,
         modificationTime = OffsetDateTime.now(),
-        statusChangesLog = emptyList()
     )
 
     /**
      * Update request by setting new status, resetting current Index and updating modification date.
-     *  Recieve the specific change Id to update endtime.
      */
-    fun withNewStatus(status: RequestStatus, changeId: String): SubmissionRequest {
-        val statusChange = statusChangesLog
-            .filter { it.changeId == changeId }
-            .first()
-            .copy(endTime = Instant.now())
+    fun withNewStatus(status: RequestStatus): SubmissionRequest {
         return copy(
             status = status,
             modificationTime = OffsetDateTime.now(),
             currentIndex = 0,
-            statusChangesLog = statusChangesLog.replace(statusChange, { it.changeId == changeId })
         )
     }
 
-    fun indexed(totalFiles: Int, changeId: String): SubmissionRequest {
-        val statusChange = statusChangesLog
-            .filter { it.changeId == changeId }
-            .first()
-            .copy(endTime = Instant.now())
+    fun indexed(totalFiles: Int): SubmissionRequest {
         return copy(
             status = RequestStatus.INDEXED,
             modificationTime = OffsetDateTime.now(),
             currentIndex = 0,
             totalFiles = totalFiles,
-            statusChangesLog = statusChangesLog.replace(statusChange, { it.changeId == changeId })
         )
     }
 }
