@@ -81,13 +81,6 @@ interface SubmissionRequestPersistenceService {
         processId: String,
         handler: suspend (SubmissionRequest) -> OptResponse<T>,
     ): OptResponse<T>
-
-    data class RequestDetails(
-        val accNo: String,
-        val version: Int,
-        val status: RequestStatus,
-        val processId: String,
-    )
 }
 
 sealed interface OptResponse<T> {

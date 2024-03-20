@@ -39,11 +39,6 @@ class SubmissionRequestMongoPersistenceService(
         return request.map { it.accNo to it.version }
     }
 
-    private suspend fun saveRequest(rqt: SubmissionRequest): Pair<String, Int> {
-        requestRepository.updateSubmissionRequest(asDocRequest(rqt))
-        return rqt.submission.accNo to rqt.submission.version
-    }
-
     override suspend fun createRequest(rqt: SubmissionRequest): Pair<String, Int> {
         val (request, created) = requestRepository.saveRequest(asDocRequest(rqt))
         if (created.not()) throw ConcurrentSubException(request.accNo, request.version)
@@ -114,7 +109,6 @@ class SubmissionRequestMongoPersistenceService(
             totalFiles = rqt.totalFiles,
             currentIndex = rqt.currentIndex,
             modificationTime = rqt.modificationTime.toInstant(),
-            statusChanges = emptyList()
         )
     }
 
