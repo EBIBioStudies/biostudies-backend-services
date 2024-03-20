@@ -45,22 +45,23 @@ class ToExtFileListMapper(
         val files = if (includeFileListFiles) fileListFiles() else emptyFlow()
         return ExtFileList(
             filePath = fileList.fileName,
-            file = writeFile(subAccNo, subVersion, fileList.fileName, files),
+            file = writeFileList(subAccNo, subVersion, fileList.fileName, files),
             pageTabFiles = fileList.pageTabFiles.map { it.toExtFile(released, subRelPath) }
         )
     }
 
-    private suspend fun writeFile(accNo: String, version: Int, fileList: String, files: Flow<ExtFile>): File {
-        suspend fun asLogeableFlow(files: Flow<ExtFile>): Flow<ExtFile> =
-            files.every(
+    private suspend fun writeFileList(accNo: String, version: Int, name: String, files: Flow<ExtFile>): File {
+        suspend fun asLogeableFlow(files: Flow<ExtFile>): Flow<ExtFile> {
+            return files.every(
                 items = 500,
-                { logger.info { "accNo:'$accNo' version: '$version', serialized file ${it.index}, file list '$fileList'" } }
+                { logger.info { "accNo:'$accNo' version: '$version', serialized file ${it.index}, file list '$name'" } }
             )
+        }
 
-        logger.info { "accNo:'$accNo' version: '$version', serializing file list '$fileList'" }
-        val file = extFilesResolver.createExtEmptyFile(accNo, version, fileList)
+        logger.info { "accNo:'$accNo' version: '$version', serializing file list '$name'" }
+        val file = extFilesResolver.createExtEmptyFile(accNo, version, name)
         file.outputStream().use { serializationService.serialize(asLogeableFlow(files), it) }
-        logger.info { "accNo:'$accNo' version: '$version', completed file list '$fileList' serialization" }
+        logger.info { "accNo:'$accNo' version: '$version', completed file list '$name' serialization" }
         return file
     }
 }
