@@ -11,14 +11,16 @@ import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RW_R__R__
 import ebi.ac.uk.paths.SubmissionFolderResolver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.nio.file.Path
 
 class NfsFtpService(
     private val releaseMode: NfsReleaseMode,
     private val folderResolver: SubmissionFolderResolver,
 ) : FtpService {
-    override suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String, subSecretKey: String): ExtFile {
-        return synchronized(this) {
+    override suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String, subSecretKey: String): ExtFile =
+        withContext(Dispatchers.IO) {
             val nfsFile = file as NfsFile
             val publicSubFolder = getPublicFolder(subRelPath)
             val privateSubFolder = folderResolver.getPrivateSubFolder(subSecretKey, subRelPath)
@@ -28,7 +30,6 @@ class NfsFtpService(
                 HARD_LINKS -> hardLinkRelease(nfsFile, privateSubFolder, publicSubFolder)
             }
         }
-    }
 
     private fun moveRelease(nfsFile: NfsFile, publicSubFolder: Path): NfsFile {
         val releasedFile = publicSubFolder.resolve(nfsFile.relPath).toFile()
