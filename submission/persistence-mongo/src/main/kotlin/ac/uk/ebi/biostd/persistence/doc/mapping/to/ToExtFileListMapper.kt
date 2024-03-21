@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
 import ac.uk.ebi.biostd.persistence.doc.db.data.FileListDocFileDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
+import ebi.ac.uk.coroutines.every
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import kotlinx.coroutines.Dispatchers
@@ -44,16 +45,23 @@ class ToExtFileListMapper(
         val files = if (includeFileListFiles) fileListFiles() else emptyFlow()
         return ExtFileList(
             filePath = fileList.fileName,
-            file = writeFile(subAccNo, subVersion, fileList.fileName, files),
+            file = writeFileList(subAccNo, subVersion, fileList.fileName, files),
             pageTabFiles = fileList.pageTabFiles.map { it.toExtFile(released, subRelPath) }
         )
     }
 
-    private suspend fun writeFile(accNo: String, version: Int, fileListName: String, files: Flow<ExtFile>): File {
-        logger.info { "accNo:'$accNo' version: '$version', serializing file list '$fileListName'" }
-        val file = extFilesResolver.createExtEmptyFile(accNo, version, fileListName)
-        file.outputStream().use { serializationService.serialize(files, it) }
-        logger.info { "accNo:'$accNo' version: '$version', completed file list '$fileListName' serialization" }
+    private suspend fun writeFileList(accNo: String, version: Int, name: String, files: Flow<ExtFile>): File {
+        suspend fun asLogeableFlow(files: Flow<ExtFile>): Flow<ExtFile> {
+            return files.every(
+                items = 500,
+                { logger.info { "accNo:'$accNo' version: '$version', serialized file ${it.index}, file list '$name'" } }
+            )
+        }
+
+        logger.info { "accNo:'$accNo' version: '$version', serializing file list '$name'" }
+        val file = extFilesResolver.createExtEmptyFile(accNo, version, name)
+        file.outputStream().use { serializationService.serialize(asLogeableFlow(files), it) }
+        logger.info { "accNo:'$accNo' version: '$version', completed file list '$name' serialization" }
         return file
     }
 }
