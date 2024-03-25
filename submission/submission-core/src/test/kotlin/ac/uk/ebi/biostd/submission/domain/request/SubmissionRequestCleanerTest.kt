@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -19,6 +20,8 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -37,15 +40,16 @@ class SubmissionRequestCleanerTest(
     @MockK private val serializationService: ExtSerializationService,
     @MockK private val eventsPublisherService: EventsPublisherService,
     @MockK private val queryService: SubmissionPersistenceQueryService,
-    @MockK private val requestService: SubmissionRequestPersistenceService,
+    @MockK private val rqtService: SubmissionRequestPersistenceService,
     @MockK private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
+
     private val testInstance = SubmissionRequestCleaner(
         storageService,
         serializationService,
         eventsPublisherService,
         queryService,
-        requestService,
+        rqtService,
         filesRequestService,
     )
 
@@ -63,35 +67,23 @@ class SubmissionRequestCleanerTest(
         @MockK loadedRequest: SubmissionRequest,
         @MockK cleanedRequest: SubmissionRequest,
     ) = runTest {
-        val changeId = "changeId"
-        val accNo = "S-BSST1"
-        val version = 1
 
         every { loadedRequest.submission } returns sub
         every { sub.accNo } returns accNo
         every { sub.version } returns version
-        coEvery { queryService.findExtByAccNo(accNo, true) } returns null
-        every { loadedRequest.withNewStatus(CLEANED, changeId) } returns cleanedRequest
+        every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
         every { eventsPublisherService.requestCleaned(accNo, version) } answers { nothing }
+
+        coEvery { queryService.findExtByAccNo(accNo, true) } returns null
         coEvery {
-            requestService.getSubmissionRequest(
-                accNo,
-                version,
-                LOADED,
-                instanceId
-            )
-        } returns (changeId to loadedRequest)
-        coEvery { requestService.saveRequest(cleanedRequest) } returns (accNo to version)
+            rqtService.onRequest(accNo, version, LOADED, processId, capture(rqtSlot))
+        } coAnswers { rqtSlot.captured.invoke(loadedRequest); }
 
-        testInstance.cleanCurrentVersion(accNo, version, instanceId)
+        testInstance.cleanCurrentVersion(accNo, version, processId)
 
-        coVerify(exactly = 1) {
-            requestService.saveRequest(cleanedRequest)
-            eventsPublisherService.requestCleaned(accNo, version)
-        }
-        coVerify(exactly = 0) {
-            storageService.deleteSubmissionFile(any(), any())
-        }
+        coVerify(exactly = 1) { eventsPublisherService.requestCleaned(accNo, version) }
+        verify { loadedRequest.withNewStatus(CLEANED) }
+        coVerify(exactly = 0) { storageService.deleteSubmissionFile(any(), any()) }
     }
 
     @Test
@@ -102,7 +94,6 @@ class SubmissionRequestCleanerTest(
         @MockK cleanedRequest: SubmissionRequest,
         @MockK requestFile: SubmissionRequestFile,
     ) = runTest {
-        val changeId = "changeId"
         val new = mockSubmission()
         every { newFile.md5 } returns "new-md5"
         every { newFile.filePath } returns "a/b/file.txt"
@@ -114,29 +105,23 @@ class SubmissionRequestCleanerTest(
         every { currentFile.filePath } returns "a/b/file.txt"
 
         every { loadedRequest.submission } returns new
+        every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
 
-        every { loadedRequest.withNewStatus(CLEANED, changeId) } returns cleanedRequest
-        every { eventsPublisherService.requestCleaned("S-BSST1", 2) } answers { nothing }
-        coEvery { queryService.findExtByAccNo("S-BSST1", true) } returns current
-        coEvery {
-            requestService.getSubmissionRequest(
-                "S-BSST1",
-                2,
-                LOADED,
-                instanceId
-            )
-        } returns (changeId to loadedRequest)
         every { serializationService.filesFlow(current) } returns flowOf(currentFile)
-        coEvery { requestService.saveRequest(cleanedRequest) } returns ("S-BSST1" to 2)
+        every { filesRequestService.getSubmissionRequestFiles(accNo, 2, 0) } returns flowOf(requestFile)
+        every { eventsPublisherService.requestCleaned(accNo, 2) } answers { nothing }
+        coEvery { queryService.findExtByAccNo(accNo, true) } returns current
         coEvery { storageService.deleteSubmissionFile(current, currentFile) } answers { nothing }
-        every { filesRequestService.getSubmissionRequestFiles("S-BSST1", 2, 0) } returns flowOf(requestFile)
+        coEvery {
+            rqtService.onRequest(accNo, 2, LOADED, processId, capture(rqtSlot))
+        } coAnswers { rqtSlot.captured.invoke(loadedRequest); }
 
-        testInstance.cleanCurrentVersion("S-BSST1", 2, instanceId)
+        testInstance.cleanCurrentVersion(accNo, 2, processId)
 
         coVerify(exactly = 1) {
-            requestService.saveRequest(cleanedRequest)
             storageService.deleteSubmissionFile(current, currentFile)
-            eventsPublisherService.requestCleaned("S-BSST1", 2)
+            eventsPublisherService.requestCleaned(accNo, 2)
+            loadedRequest.withNewStatus(CLEANED)
         }
     }
 
@@ -146,11 +131,13 @@ class SubmissionRequestCleanerTest(
         every { mockSubmission.accNo } returns "S-BSST1"
         every { mockSubmission.storageMode } returns FIRE
         every { mockSubmission.owner } returns "owner@mail.org"
-
         return mockSubmission
     }
 
     private companion object {
-        const val instanceId = "biostudies-prod"
+        private val rqtSlot = slot<suspend (SubmissionRequest) -> RqtUpdate>()
+        const val processId = "biostudies-prod"
+        const val accNo = "S-BSST1"
+        const val version = 1
     }
 }

@@ -64,9 +64,9 @@ interface SubmissionFilesPersistenceService {
 @Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
     suspend fun hasActiveRequest(accNo: String): Boolean
-    suspend fun saveRequest(rqt: SubmissionRequest): Pair<String, Int>
     suspend fun createRequest(rqt: SubmissionRequest): Pair<String, Int>
     suspend fun getRequestStatus(accNo: String, version: Int): RequestStatus
+
     fun getProcessingRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
 
     suspend fun updateRqtIndex(accNo: String, version: Int, index: Int)
@@ -74,13 +74,28 @@ interface SubmissionRequestPersistenceService {
 
     suspend fun getSubmissionRequest(accNo: String, version: Int): SubmissionRequest
 
-    suspend fun getSubmissionRequest(
+    suspend fun <T> onRequest(
         accNo: String,
         version: Int,
         status: RequestStatus,
         processId: String,
-    ): Pair<String, SubmissionRequest>
+        handler: suspend (SubmissionRequest) -> OptResponse<T>,
+    ): OptResponse<T>
 }
+
+sealed interface OptResponse<T> {
+    val rqt: SubmissionRequest
+    val value: T
+
+    operator fun component1(): SubmissionRequest = rqt
+    operator fun component2(): T = value
+}
+
+class RqtUpdate(override val rqt: SubmissionRequest, override val value: Unit = Unit) : OptResponse<Unit>
+class RqtResponse(
+    override val rqt: SubmissionRequest,
+    override val value: ExtSubmission,
+) : OptResponse<ExtSubmission>
 
 interface SubmissionRequestFilesPersistenceService {
     suspend fun saveSubmissionRequestFile(file: SubmissionRequestFile)

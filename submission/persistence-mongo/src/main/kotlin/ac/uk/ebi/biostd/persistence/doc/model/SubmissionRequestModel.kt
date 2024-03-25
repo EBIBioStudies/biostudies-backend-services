@@ -22,7 +22,7 @@ data class DocSubmissionRequest(
     val totalFiles: Int,
     val currentIndex: Int,
     val modificationTime: Instant,
-    val statusChanges: List<DocRequestStatusChanges>,
+    val statusChanges: List<DocRequestStatusChanges> = emptyList(),
 ) {
 
     fun asSetOnInsert(): Update {

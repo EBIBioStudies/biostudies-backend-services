@@ -155,4 +155,6 @@ object DocRequestFields {
     const val RQT_IDX = "currentIndex"
     const val RQT_MODIFICATION_TIME = "modificationTime"
     const val RQT_STATUS_CHANGES = "statusChanges"
+    const val RQT_STATUS_CHANGE_STATUS_ID = "statusId"
+    const val RQT_STATUS_CHANGE_ENDTIME = "endTime"
 }

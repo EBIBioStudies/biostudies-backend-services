@@ -1,9 +1,11 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -23,6 +25,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -67,12 +70,9 @@ class SubmissionRequestReleaserTest(
         @MockK releasedFile: FireFile,
         @MockK fireFile: FireFile,
     ) = runTest {
-        val accNo = "ABC-123"
-        val version = 1
         val relPath = "sub-relpath"
         val secretKey = "secret-key"
         val mode = StorageMode.FIRE
-        val changeId = "changeId"
 
         val nfsRqtFile = SubmissionRequestFile(accNo, version, 1, "test1.txt", nfsFile)
         val fireRqtFile = SubmissionRequestFile(accNo, version, 2, "test2.txt", fireFile)
@@ -89,22 +89,17 @@ class SubmissionRequestReleaserTest(
         every { eventsPublisherService.requestCheckedRelease(accNo, version) } answers { nothing }
         every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile, fireRqtFile)
         coEvery { storageService.releaseSubmissionFile(nfsFile, relPath, secretKey, mode) } returns releasedFile
-        coEvery { requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId)) } answers { accNo to version }
-        coEvery {
-            requestService.getSubmissionRequest(
-                accNo,
-                version,
-                FILES_COPIED,
-                INSTANCE_ID
-            )
-        } returns (changeId to rqt)
+        every { rqt.withNewStatus(RequestStatus.CHECK_RELEASED) } returns rqt
+
         coEvery { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
         coEvery { requestService.updateRqtIndex(accNo, version, 2) } answers { nothing }
+        coEvery {
+            requestService.onRequest(accNo, version, FILES_COPIED, processId, capture(rqtSlot))
+        } coAnswers { rqtSlot.captured.invoke(rqt); }
 
-        testInstance.checkReleased(accNo, version, INSTANCE_ID)
+        testInstance.checkReleased(accNo, version, processId)
 
         coVerify(exactly = 1) {
-            requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId))
             storageService.releaseSubmissionFile(nfsFile, relPath, secretKey, mode)
             eventsPublisherService.requestCheckedRelease(accNo, version)
         }
@@ -115,32 +110,22 @@ class SubmissionRequestReleaserTest(
         @MockK rqt: SubmissionRequest,
         @MockK submission: ExtSubmission,
     ) = runTest {
-        val accNo = "S-TEST123"
-        val version = 1
-        val changeId = "changeId"
-
-        coEvery {
-            requestService.getSubmissionRequest(
-                accNo,
-                version,
-                FILES_COPIED,
-                INSTANCE_ID
-            )
-        } returns (changeId to rqt)
         every { rqt.submission } returns submission
         every { submission.released } returns false
-        every { rqt.withNewStatus(CHECK_RELEASED, changeId) } returns rqt
+        every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
         every { eventsPublisherService.requestCheckedRelease(accNo, version) } answers { nothing }
-        coEvery { requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId)) } answers { accNo to version }
 
-        testInstance.checkReleased("S-TEST123", 1, INSTANCE_ID)
+        coEvery {
+            requestService.onRequest(accNo, version, FILES_COPIED, processId, capture(rqtSlot))
+        } coAnswers { rqtSlot.captured.invoke(rqt); }
+
+        testInstance.checkReleased(accNo, version, processId)
 
         verify {
             storageService wasNot called
             persistenceService wasNot called
         }
         coVerify(exactly = 1) {
-            requestService.saveRequest(rqt.withNewStatus(CHECK_RELEASED, changeId))
             eventsPublisherService.requestCheckedRelease(accNo, version)
         }
     }
@@ -150,15 +135,20 @@ class SubmissionRequestReleaserTest(
         @MockK submission: ExtSubmission,
     ) = runTest {
         every { submission.released } returns false
-        coEvery { queryService.getExtByAccNo("S-BSST0", includeFileListFiles = true) } returns submission
+        coEvery { queryService.getExtByAccNo(accNo, includeFileListFiles = true) } returns submission
 
-        val exception = assertThrows<UnreleasedSubmissionException> { testInstance.generateFtpLinks("S-BSST0") }
+        val exception = assertThrows<UnreleasedSubmissionException> { testInstance.generateFtpLinks(accNo) }
+
         assertThat(exception.message).isEqualTo("Can't generate FTP links for a private submission")
-
-        coVerify(exactly = 0) { storageService.releaseSubmissionFile(any(), any(), any(), any()) }
+        coVerify {
+            storageService wasNot called
+        }
     }
 
     private companion object {
-        const val INSTANCE_ID = "biostudies-prod"
+        val accNo = "S-TEST123"
+        val version = 1
+        const val processId = "biostudies-prod"
+        private val rqtSlot = slot<suspend (SubmissionRequest) -> RqtUpdate>()
     }
 }

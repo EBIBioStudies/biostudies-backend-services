@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
+import ac.uk.ebi.biostd.persistence.common.service.RqtResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -21,12 +22,13 @@ class SubmissionRequestSaver(
     private val eventsPublisherService: EventsPublisherService,
 ) {
     suspend fun saveRequest(accNo: String, version: Int, processId: String): ExtSubmission {
-        val (changeId, request) = requestService.getSubmissionRequest(accNo, version, CHECK_RELEASED, processId)
-        val saved = saveRequest(request.submission)
-        requestService.saveRequest(request.withNewStatus(PERSISTED, changeId))
+        val (rqt, submission) = requestService.onRequest(accNo, version, CHECK_RELEASED, processId, {
+            val sub = saveRequest(it.submission)
+            RqtResponse(it.withNewStatus(PERSISTED), sub)
+        })
+        eventsPublisherService.submissionSubmitted(accNo, rqt.notifyTo)
         eventsPublisherService.submissionPersisted(accNo, version)
-        eventsPublisherService.submissionSubmitted(accNo, request.notifyTo)
-        return saved
+        return submission
     }
 
     private suspend fun saveRequest(sub: ExtSubmission): ExtSubmission {
