@@ -27,6 +27,7 @@ import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.model.WebSubmissionDraft
 import java.io.File
+import java.time.Instant
 
 interface SubmitClient :
     SubmissionOperations,
@@ -115,7 +116,8 @@ interface ExtSubmissionOperations {
     fun submitExtAsync(extSubmission: ExtSubmission)
     fun submitExt(extSubmission: ExtSubmission): ExtSubmission
     fun transferSubmission(accNo: String, target: StorageMode)
-    fun refreshSubmission(accNo: String)
+    fun refreshSubmission(accNo: String): Pair<String, Int>
+    fun releaseSubmission(accNo: String, releaseDate: Instant): Pair<String, Int>
 }
 
 interface PermissionOperations {

@@ -11,8 +11,10 @@ import ebi.ac.uk.extended.model.isCollection
 import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
+import ebi.ac.uk.util.date.asOffsetAtStartOfDay
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
+import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
@@ -28,8 +30,20 @@ class ExtSubmissionService(
     }
 
     suspend fun refreshSubmission(user: String, accNo: String): Pair<String, Int> {
+        logger.info { "$accNo $user Received async refresh request, accNo='{$accNo}'" }
         val submission = queryService.getExtByAccNo(accNo, true)
-        return submissionSubmitter.createRequest(ExtSubmitRequest(submission, user))
+        val refreshed = submissionSubmitter.createRequest(ExtSubmitRequest(submission, user))
+        eventsPublisherService.submissionRequest(refreshed.first, refreshed.second)
+        return refreshed
+    }
+
+    suspend fun releaseSubmission(user: String, accNo: String, releaseDate: Instant): Pair<String, Int> {
+        logger.info { "$accNo $user Received async release request, accNo='{$accNo}', releaseDate = $releaseDate" }
+        val submission = queryService.getExtByAccNo(accNo, true)
+        val toRelease = submission.copy(releaseTime = releaseDate.asOffsetAtStartOfDay())
+        val released = submissionSubmitter.createRequest(ExtSubmitRequest(toRelease, notifyTo = user))
+        eventsPublisherService.submissionRequest(released.first, released.second)
+        return released
     }
 
     suspend fun submitExt(

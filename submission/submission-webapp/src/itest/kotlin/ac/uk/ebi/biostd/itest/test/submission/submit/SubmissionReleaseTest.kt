@@ -11,11 +11,13 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.util.date.atMidnight
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -32,7 +34,9 @@ import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
+import java.time.Duration.ofSeconds
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
@@ -183,5 +187,29 @@ class SubmissionReleaseTest(
             assertThat(expectedFile).exists()
             assertThat(expectedFile).hasContent("27-4 file content")
         }
+    }
+
+    @Test
+    fun `27-5 release already submitted submission using release operation`() = runTest {
+        val accNo = "SR-001"
+        val releaseTime = OffsetDateTime.of(2050, 9, 21, 15, 0, 0, 0, ZoneOffset.UTC)
+        val newRelease = releaseTime.plusDays(2)
+
+        val submission = tsv {
+            line("Submission", accNo)
+            line("Title", "Submission")
+            line("ReleaseDate", releaseTime.toStringDate())
+        }.toString()
+
+        webClient.submitSingle(submission, TSV)
+
+        val submitted = submissionRepository.getExtByAccNo(accNo)
+        assertThat(submitted.releaseTime).isEqualTo(releaseTime.atMidnight())
+
+        val (rqtAccNo, rqtVersion) = webClient.releaseSubmission(accNo, newRelease.toInstant())
+
+        waitUntil(ofSeconds(10)) { submissionRepository.existByAccNoAndVersion(rqtAccNo, rqtVersion) }
+        val newVersion = submissionRepository.getExtByAccNo(accNo)
+        assertThat(newVersion.releaseTime).isEqualTo(newRelease.atMidnight())
     }
 }

@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder
 import org.springframework.web.util.UriUtils.decode
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.nio.charset.StandardCharsets.UTF_8
+import java.time.Instant
 
 const val EXT_SUBMISSIONS_URL = "/submissions/extended"
 
@@ -63,8 +64,12 @@ class ExtSubmissionClient(
         client.post("$EXT_SUBMISSIONS_URL/$accNo/transfer/$target")
     }
 
-    override fun refreshSubmission(accNo: String) {
-        client.post("$EXT_SUBMISSIONS_URL/refresh/$accNo")
+    override fun refreshSubmission(accNo: String): Pair<String, Int> {
+        return client.postForObject("$EXT_SUBMISSIONS_URL/refresh/$accNo")
+    }
+
+    override fun releaseSubmission(accNo: String, releaseDate: Instant): Pair<String, Int> {
+        return client.postForObject("$EXT_SUBMISSIONS_URL/release/$accNo/$releaseDate")
     }
 
     private fun asUrl(extPageQuery: ExtPageQuery): String =
