@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQ
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGE_ENDTIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGE_RESULT
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGE_STATUS_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_TOTAL_FILES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_VERSION
@@ -97,7 +98,8 @@ class SubmissionRequestDocDataRepository(
             statusId = statusId,
             processId = processId,
             startTime = Instant.now(),
-            endTime = null
+            endTime = null,
+            result = null
         )
         val update = Update().addToSet(RQT_STATUS_CHANGES, statusChange)
         val query = Query(where(RQT_ACC_NO).`is`(accNo).and(RQT_VERSION).`is`(version).and(RQT_STATUS).`is`(status))
@@ -163,10 +165,15 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 
-    suspend fun updateSubmissionRequest(rqt: DocSubmissionRequest, statusId: String, endTime: Instant) {
+    suspend fun updateSubmissionRequest(
+        rqt: DocSubmissionRequest,
+        processId: String,
+        processEndTime: Instant,
+        processRusult: ProcessResult,
+    ) {
         val query = Query(
             where(SUB_ACC_NO).`is`(rqt.accNo).and(SUB_VERSION).`is`(rqt.version)
-                .and("$RQT_STATUS_CHANGES.$RQT_STATUS_CHANGE_STATUS_ID").`is`(ObjectId(statusId))
+                .and("$RQT_STATUS_CHANGES.$RQT_STATUS_CHANGE_STATUS_ID").`is`(ObjectId(processId))
         )
         val update = Update()
             .set(SUB_STATUS, rqt.status)
@@ -175,7 +182,8 @@ class SubmissionRequestDocDataRepository(
             .set(RQT_IDX, rqt.currentIndex)
             .set(RQT_TOTAL_FILES, rqt.totalFiles)
             .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
-            .set("$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_ENDTIME", endTime)
+            .set("$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_ENDTIME", processEndTime)
+            .set("$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_RESULT", processRusult.toString())
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 
@@ -196,4 +204,8 @@ class SubmissionRequestDocDataRepository(
             where(ATTRIBUTE_DOC_NAME).`is`("Title").and(ATTRIBUTE_DOC_VALUE).regex("(?i).*$keywords.*")
         )
     )
+}
+
+enum class ProcessResult {
+    SUCCESS, ERROR
 }
