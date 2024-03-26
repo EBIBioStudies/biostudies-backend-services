@@ -34,6 +34,7 @@ private val validPathPattern = buildString {
 }.trimIndent().toRegex()
 
 class FileSourcesList(val checkFilesPath: Boolean, val sources: List<FilesSource>) {
+
     suspend fun findExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
         if (checkFilesPath) require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
         return sources.firstNotNullOfOrNull { it.getExtFile(path, type, attributes) }

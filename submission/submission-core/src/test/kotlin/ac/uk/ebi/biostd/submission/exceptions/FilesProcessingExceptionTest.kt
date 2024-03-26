@@ -26,7 +26,8 @@ internal class FilesProcessingExceptionTest(
 
     @Test
     fun message() {
-        val testInstance = FilesProcessingException(invalidFiles, FileSourcesList(listOf(userSource, groupSource)))
+        val testInstance =
+            FilesProcessingException(invalidFiles, FileSourcesList(true, listOf(userSource, groupSource)))
 
         assertThat(testInstance.message).isEqualTo(
             """

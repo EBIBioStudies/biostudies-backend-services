@@ -27,7 +27,7 @@ class ToExtTableTest {
         @MockK extFile: ExtFile,
     ) = runTest {
         val file = BioFile("file.txt")
-        val sources = FileSourcesList(listOf(fileSource))
+        val sources = FileSourcesList(true, listOf(fileSource))
 
         coEvery { fileSource.getExtFile(file.path, file.type, file.attributes) } returns extFile
         every { fileTable.elements } returns listOf(file)
