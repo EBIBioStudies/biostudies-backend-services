@@ -47,6 +47,7 @@ data class DocRequestStatusChanges(
     val processId: String,
     val startTime: Instant,
     val endTime: Instant?,
+    val result: String?,
 )
 
 @Document(collection = "submission_request_files")
