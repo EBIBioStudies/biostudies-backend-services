@@ -156,3 +156,4 @@
 | SubmissionReleaseTest           | 27-2    | private submission without secret key and HARD_LINKS release mode            |                                                                                                                 |
 | SubmissionReleaseTest           | 27-3    | public submission with secret key and MOVE release mode                      |                                                                                                                 |
 | SubmissionReleaseTest           | 27-4    | private submission with secret key and MOVE release mode                     |                                                                                                                 |
+| SubmissionReleaseTest           | 27-5    | release already submitted submission using release operation                 |                                                                                                                 |

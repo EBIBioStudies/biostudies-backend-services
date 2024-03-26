@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
+import java.time.Instant
 
 @RestController
 @RequestMapping("/submissions/extended")
@@ -54,7 +55,14 @@ class ExtSubmissionResource(
     suspend fun refreshSubmission(
         @BioUser user: SecurityUser,
         @PathVariable accNo: String,
-    ) = extSubmissionService.refreshSubmission(user.email, accNo)
+    ): Pair<String, Int> = extSubmissionService.refreshSubmission(user.email, accNo)
+
+    @PostMapping("/release/{accNo}/{releaseDate}")
+    suspend fun releaseSubmission(
+        @BioUser user: SecurityUser,
+        @PathVariable accNo: String,
+        @PathVariable releaseDate: String,
+    ): Pair<String, Int> = extSubmissionService.releaseSubmission(user.email, accNo, Instant.parse(releaseDate))
 
     @PostMapping("/{accNo}/transfer/{target}")
     suspend fun transferSubmission(
