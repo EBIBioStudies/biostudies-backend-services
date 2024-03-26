@@ -7,12 +7,14 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.OptResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
 import ebi.ac.uk.extended.model.ExtFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import mu.KotlinLogging
 import org.bson.types.ObjectId
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.Properties
@@ -21,6 +23,8 @@ import java.time.ZoneOffset.UTC
 import java.time.temporal.TemporalAmount
 
 typealias SubmissionRqt = Pair<String, SubmissionRequest>
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 class SubmissionRequestMongoPersistenceService(
@@ -70,7 +74,7 @@ class SubmissionRequestMongoPersistenceService(
         processId: String,
         handler: suspend (SubmissionRequest) -> OptResponse<T>,
     ): OptResponse<T> {
-        suspend fun getSubmissionRequest(): SubmissionRqt {
+        suspend fun loadRequest(): SubmissionRqt {
             val (changeId, request) = requestRepository.getRequest(accNo, version, status, processId)
             val stored = serializationService.deserialize(request.submission.toString())
             val subRequest = SubmissionRequest(
@@ -85,14 +89,22 @@ class SubmissionRequestMongoPersistenceService(
             return changeId to subRequest
         }
 
-        val (changeId, request) = getSubmissionRequest()
-        val response = handler(request)
-        saveRequest(response.rqt, changeId)
-        return response
+        val (changeId, request) = loadRequest()
+        return runCatching { handler(request) }
+            .onSuccess { saveRequest(it.rqt, changeId, ProcessResult.SUCCESS) }
+            .onFailure {
+                logger.error(it) { "Error on request accNo='$accNo', version='$version', changeId='$changeId'" }
+                saveRequest(request, changeId, ProcessResult.ERROR)
+            }
+            .getOrThrow()
     }
 
-    private suspend fun saveRequest(rqt: SubmissionRequest, changeId: String): Pair<String, Int> {
-        requestRepository.updateSubmissionRequest(asDocRequest(rqt), changeId, Instant.now())
+    private suspend fun saveRequest(
+        rqt: SubmissionRequest,
+        changeId: String,
+        result: ProcessResult,
+    ): Pair<String, Int> {
+        requestRepository.updateSubmissionRequest(asDocRequest(rqt), changeId, Instant.now(), result)
         return rqt.submission.accNo to rqt.submission.version
     }
 

@@ -32,7 +32,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -72,37 +74,71 @@ class SubmissionRequestMongoPersistenceServiceTest(
         unmockkStatic(Instant::class)
     }
 
-    @Test
-    fun processRequest() = runTest {
-        val submission = fullExtSubmission
-        val rqt = SubmissionRequest(
-            submission = submission,
-            notifyTo = "notifyTo",
-            draftKey = "draftKey"
-        )
+    @Nested
+    inner class ProcessRequest {
+        @Test
+        fun onSuccess() = runTest {
+            val submission = fullExtSubmission
+            val rqt = SubmissionRequest(
+                submission = submission,
+                notifyTo = "notifyTo",
+                draftKey = "draftKey"
+            )
 
-        val (accNo, version) = testInstance.createRequest(rqt)
-        assertThat(submission.accNo).isEqualTo(accNo)
-        assertThat(submission.version).isEqualTo(version)
+            val (accNo, version) = testInstance.createRequest(rqt)
+            assertThat(submission.accNo).isEqualTo(accNo)
+            assertThat(submission.version).isEqualTo(version)
 
-        var operation = 0
+            var operation = 0
 
-        testInstance.onRequest(
-            accNo, version, REQUESTED, "processId", {
-                operation++
-                RqtUpdate(it.copy(status = PERSISTED))
+            testInstance.onRequest(
+                accNo, version, REQUESTED, "processId", {
+                    operation++
+                    RqtUpdate(it.copy(status = PERSISTED))
+                }
+            )
+
+            assertThat(operation).isOne()
+            val request = requestRepository.getByAccNoAndVersion(accNo, version)
+            assertThat(request.status).isEqualTo(PERSISTED)
+            assertThat(request.statusChanges).hasSize(1)
+
+            val statusChange = request.statusChanges.first()
+            assertThat(statusChange.processId).isEqualTo("processId")
+            assertThat(statusChange.startTime).isNotNull()
+            assertThat(statusChange.endTime).isNotNull()
+            assertThat(statusChange.result).isEqualTo("SUCCESS")
+        }
+
+        @Test
+        fun onFailure() = runTest {
+            val submission = fullExtSubmission
+            val rqt = SubmissionRequest(
+                submission = submission,
+                notifyTo = "notifyTo",
+                draftKey = "draftKey"
+            )
+
+            val (accNo, version) = testInstance.createRequest(rqt)
+            assertThat(submission.accNo).isEqualTo(accNo)
+            assertThat(submission.version).isEqualTo(version)
+
+            val exception = IllegalStateException("opps something wrong")
+            val throwException = assertThrows<IllegalStateException> {
+                testInstance.onRequest<RqtUpdate>(accNo, version, REQUESTED, "processId", { throw exception })
             }
-        )
 
-        assertThat(operation).isOne()
-        val request = requestRepository.getByAccNoAndVersion(accNo, version)
-        assertThat(request.status).isEqualTo(PERSISTED)
-        assertThat(request.statusChanges).hasSize(1)
+            assertThat(throwException).isEqualTo(exception)
+            val request = requestRepository.getByAccNoAndVersion(accNo, version)
+            assertThat(request.status).isEqualTo(REQUESTED)
+            assertThat(request.statusChanges).hasSize(1)
 
-        val statusChange = request.statusChanges.first()
-        assertThat(statusChange.processId).isEqualTo("processId")
-        assertThat(statusChange.startTime).isNotNull()
-        assertThat(statusChange.endTime).isNotNull()
+            val statusChange = request.statusChanges.first()
+            assertThat(statusChange.processId).isEqualTo("processId")
+            assertThat(statusChange.startTime).isNotNull()
+            assertThat(statusChange.endTime).isNotNull()
+            assertThat(statusChange.result).isEqualTo("ERROR")
+        }
     }
 
     @Test
