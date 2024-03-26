@@ -35,7 +35,7 @@ private val validPathPattern = buildString {
 
 class FileSourcesList(val checkFilesPath: Boolean, val sources: List<FilesSource>) {
     suspend fun findExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
-        require(checkFilesPath || validPathPattern.matches(path)) { throw InvalidPathException(path) }
+        if (checkFilesPath) require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
         return sources.firstNotNullOfOrNull { it.getExtFile(path, type, attributes) }
     }
 
@@ -44,7 +44,7 @@ class FileSourcesList(val checkFilesPath: Boolean, val sources: List<FilesSource
     }
 
     suspend fun getFileList(path: String): File? {
-        require(checkFilesPath || validPathPattern.matches(path)) { throw InvalidPathException(path) }
+        if (checkFilesPath) require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
         return sources.firstNotNullOfOrNull { it.getFileList(path) }
     }
 }
