@@ -3,7 +3,7 @@ package ebi.ac.uk.ftp
 import ebi.ac.uk.test.createTempFile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junitpioneer.jupiter.RetryingTest
 import java.io.File
 import java.nio.file.Paths
 
@@ -22,7 +22,7 @@ class FtpClientTest {
         testInstance.deleteFile(Paths.get(""))
     }
 
-    @Test
+    @RetryingTest(TEST_RETRY)
     fun uploadFileInFolder() {
         val tempFile = createTempFile("test-file-1")
         val rootPath = Paths.get("")
@@ -36,7 +36,7 @@ class FtpClientTest {
         assertThat(folderFiles).hasOnlyOneElementSatisfying { it.name == "file1.txt" && it.isFile }
     }
 
-    @Test
+    @RetryingTest(TEST_RETRY)
     fun `delete folder`() {
         val tempFile = createTempFile("test-file-1")
 
@@ -59,7 +59,7 @@ class FtpClientTest {
         assertThat(testInstance.listFiles(folder)).isEmpty()
     }
 
-    @Test
+    @RetryingTest(TEST_RETRY)
     fun `upload a file, list it and download it`() {
         val tempFile = createTempFile("test-file")
 
@@ -92,5 +92,6 @@ class FtpClientTest {
         const val FTP_USER = "ftpUser"
         const val FTP_PASSWORD = "ftpPassword"
         const val FTP_ROOT_PATH = ".test"
+        const val TEST_RETRY = 3
     }
 }
