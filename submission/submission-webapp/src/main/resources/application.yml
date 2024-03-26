@@ -62,6 +62,7 @@ logging:
 app:
   processId: # Id to register the submission task
   retrySubmission: # Boolean flag to enable/disable automatic retrying of staled submissions
+  checkFilesPath: true # Boolean flag to enable/disable path allowed character check.
   enablePropertiesLog: # Boolean flag to enable/disable displaying the application properties on start
   consumers: # Number of processing queue consumers.
   maxConsumers: # Max number of processing queue consumers.

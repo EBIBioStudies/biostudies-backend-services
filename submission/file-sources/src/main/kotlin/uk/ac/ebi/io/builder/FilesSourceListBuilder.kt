@@ -1,5 +1,6 @@
 package uk.ac.ebi.io.builder
 
+import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.allInnerSubmissionFiles
@@ -22,13 +23,14 @@ import java.io.File
 import java.nio.file.Path
 
 class FilesSourceListBuilder(
+    private val properties: ApplicationProperties,
     private val submissionPath: Path,
     private val fireClient: FireClient,
     private val ftpClient: FtpClient,
     private val filesRepository: SubmissionFilesPersistenceService,
     private val sources: MutableList<FilesSource> = mutableListOf(),
 ) {
-    fun build(): FileSourcesList = FileSourcesList(sources.toList())
+    fun build(): FileSourcesList = FileSourcesList(properties.checkFilesPath, sources.toList())
 
     fun buildFilesSourceList(builderAction: FilesSourceListBuilder.() -> Unit): FileSourcesList {
         this.sources.clear()
