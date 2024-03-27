@@ -22,13 +22,14 @@ import java.io.File
 import java.nio.file.Path
 
 class FilesSourceListBuilder(
+    private val checkFilesPath: Boolean,
     private val submissionPath: Path,
     private val fireClient: FireClient,
     private val ftpClient: FtpClient,
     private val filesRepository: SubmissionFilesPersistenceService,
     private val sources: MutableList<FilesSource> = mutableListOf(),
 ) {
-    fun build(): FileSourcesList = FileSourcesList(sources.toList())
+    fun build(): FileSourcesList = FileSourcesList(checkFilesPath, sources.toList())
 
     fun buildFilesSourceList(builderAction: FilesSourceListBuilder.() -> Unit): FileSourcesList {
         this.sources.clear()

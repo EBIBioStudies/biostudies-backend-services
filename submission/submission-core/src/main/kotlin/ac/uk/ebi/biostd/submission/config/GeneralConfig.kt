@@ -48,10 +48,11 @@ internal class GeneralConfig {
         applicationProperties: ApplicationProperties,
         filesRepo: SubmissionFilesPersistenceService,
     ): FilesSourceConfig = FilesSourceConfig(
-        Paths.get(applicationProperties.persistence.privateSubmissionsPath),
-        fireClient,
-        filesRepo,
-        ftpClient
+        submissionPath = Paths.get(applicationProperties.persistence.privateSubmissionsPath),
+        fireClient = fireClient,
+        filesRepository = filesRepo,
+        ftpClient = ftpClient,
+        checkFilesPath = applicationProperties.checkFilesPath
     )
 
     @Bean

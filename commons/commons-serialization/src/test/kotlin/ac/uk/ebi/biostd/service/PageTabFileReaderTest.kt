@@ -66,7 +66,7 @@ class PageTabFileReaderTest(
 
     @Test
     fun `get file list file`(@MockK filesSource: FilesSource) = runTest {
-        val filesSourceList = FileSourcesList(listOf(filesSource))
+        val filesSourceList = FileSourcesList(true, listOf(filesSource))
         val fileList = tempFolder.createFile("file-list.tsv")
 
         coEvery { filesSource.getFileList("file-list.tsv") } returns fileList
@@ -76,7 +76,7 @@ class PageTabFileReaderTest(
 
     @Test
     fun `get xlsx file list file`(@MockK filesSource: FilesSource) = runTest {
-        val filesSourceList = FileSourcesList(listOf(filesSource))
+        val filesSourceList = FileSourcesList(true, listOf(filesSource))
         val fileList = tempFolder.createFile("file-list.xlsx")
         val tsvFileList = tempFolder.createFile("converted-file-list.tsv")
 
@@ -88,7 +88,7 @@ class PageTabFileReaderTest(
 
     @Test
     fun `get directory list file`(@MockK filesSource: FilesSource) = runTest {
-        val filesSourceList = FileSourcesList(listOf(filesSource))
+        val filesSourceList = FileSourcesList(true, listOf(filesSource))
         val fileList = tempFolder.createDirectory("file-list")
 
         coEvery { filesSource.getFileList("file-list") } returns fileList
@@ -102,7 +102,7 @@ class PageTabFileReaderTest(
     fun `file list not found`(
         @MockK filesSource: FilesSource,
     ) = runTest {
-        val filesSourceList = FileSourcesList(listOf(filesSource))
+        val filesSourceList = FileSourcesList(true, listOf(filesSource))
         coEvery { filesSource.getFileList("file-list.xml") } returns null
 
         assertFailsWith<FilesProcessingException> { getFileListFile("file-list.xml", filesSourceList) }
