@@ -193,7 +193,7 @@ class SubmissionReleaseTest(
     fun `27-5 release already submitted submission using release operation`() = runTest {
         val accNo = "SR-001"
         val releaseTime = OffsetDateTime.of(2050, 9, 21, 15, 0, 0, 0, ZoneOffset.UTC)
-        val newRelease = releaseTime.plusDays(2)
+        val newRelease = OffsetDateTime.of(2010, 9, 21, 15, 0, 0, 0, ZoneOffset.UTC)
 
         val submission = tsv {
             line("Submission", accNo)
@@ -205,11 +205,13 @@ class SubmissionReleaseTest(
 
         val submitted = submissionRepository.getExtByAccNo(accNo)
         assertThat(submitted.releaseTime).isEqualTo(releaseTime.atMidnight())
+        assertThat(submitted.released).isEqualTo(false)
 
         val (rqtAccNo, rqtVersion) = webClient.releaseSubmission(accNo, newRelease.toInstant())
 
         waitUntil(ofSeconds(10)) { submissionRepository.existByAccNoAndVersion(rqtAccNo, rqtVersion) }
         val newVersion = submissionRepository.getExtByAccNo(accNo)
         assertThat(newVersion.releaseTime).isEqualTo(newRelease.atMidnight())
+        assertThat(newVersion.released).isEqualTo(true)
     }
 }

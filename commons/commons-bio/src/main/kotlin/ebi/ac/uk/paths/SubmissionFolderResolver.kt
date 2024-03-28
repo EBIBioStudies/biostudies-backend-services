@@ -13,7 +13,7 @@ class SubmissionFolderResolver(
         return publicSubPath.resolve(submissionRelPath)
     }
 
-    fun getPrivateSubFolderRoot(secret: String): Path {
+    private fun getPrivateSubFolderRoot(secret: String): Path {
         return if (includeSecretKey) privateSubPath.resolve(secret.take(2)) else privateSubPath
     }
 
