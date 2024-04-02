@@ -69,22 +69,25 @@ class NfsFilesService(
         require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
 
         val subDirectory = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath)
-        val subFile = subDirectory.resolve(file.relPath).toFile()
-        FileUtils.deleteFile(subFile)
+        val toDeleteFile = subDirectory.resolve(file.relPath).toFile()
+
+        logger.info { "${sub.accNo} ${sub.owner} deleting submission File '${toDeleteFile.absolutePath}' on NFS" }
+        FileUtils.deleteFile(toDeleteFile)
+        logger.info { "${sub.accNo} ${sub.owner} Finished deleting '${toDeleteFile.absolutePath}' on NFS" }
     }
 
     override suspend fun deleteFtpFile(sub: ExtSubmission, file: ExtFile) = withContext(Dispatchers.IO) {
-        logger.info { "${sub.accNo} ${sub.owner} Started un-publishing files of submission ${sub.accNo} on NFS" }
         val subFolder = folderResolver.getPublicSubFolder(sub.relPath)
-        FileUtils.deleteFile(subFolder.resolve(file.relPath).toFile())
-        logger.info { "${sub.accNo} ${sub.owner} Finished un-publishing files of submission ${sub.accNo} on NFS" }
+        val toDeleteFile = subFolder.resolve(file.relPath).toFile()
+
+        logger.info { "${sub.accNo} ${sub.owner} deleting File '${toDeleteFile.absolutePath}' on NFS" }
+        FileUtils.deleteFile(toDeleteFile)
+        logger.info { "${sub.accNo} ${sub.owner} Finished deleting '${toDeleteFile.absolutePath}' on NFS" }
     }
 
     override suspend fun deleteEmptyFolders(sub: ExtSubmission) = withContext(Dispatchers.IO) {
-        val subFolderRoot = folderResolver.getPrivateSubFolderRoot(sub.secretKey).toFile()
         val subFolder = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath).toFile()
-
-        FileUtils.deleteEmptyDirectories(subFolderRoot)
-        FileUtils.deleteEmptyDirectories(subFolder.parentFile)
+        logger.info { "${sub.accNo} ${sub.owner} Deleting sub empty folders in ${subFolder.parentFile.absolutePath}" }
+        FileUtils.deleteEmptyDirectories(subFolder)
     }
 }

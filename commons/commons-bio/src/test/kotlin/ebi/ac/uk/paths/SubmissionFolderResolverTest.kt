@@ -24,12 +24,6 @@ internal class SubmissionFolderResolverTest {
         }
 
         @Test
-        fun `get private folder root`() {
-            val privatePath = testInstance.getPrivateSubFolderRoot("secret-key").toString()
-            assertThat(privatePath).isEqualTo("/tmp/nfs/submission/.private/se")
-        }
-
-        @Test
         fun `get public folder`() {
             val privatePath = testInstance.getPublicSubFolder("part1/part2").toString()
             assertThat(privatePath).isEqualTo("/tmp/nfs/submission/part1/part2")
@@ -48,12 +42,6 @@ internal class SubmissionFolderResolverTest {
         fun `get private folder`() {
             val privatePath = testInstance.getPrivateSubFolder("secret-key", "part1/part2").toString()
             assertThat(privatePath).isEqualTo("/tmp/nfs/submission/part1/part2")
-        }
-
-        @Test
-        fun `get private folder root`() {
-            val privatePath = testInstance.getPrivateSubFolderRoot("secret-key").toString()
-            assertThat(privatePath).isEqualTo("/tmp/nfs/submission")
         }
 
         @Test

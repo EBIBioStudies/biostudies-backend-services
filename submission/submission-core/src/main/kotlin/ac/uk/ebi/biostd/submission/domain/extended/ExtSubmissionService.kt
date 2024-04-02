@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.isCollection
@@ -12,9 +13,11 @@ import ebi.ac.uk.security.integration.components.ISecurityQueryService
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.exception.UnauthorizedOperation
 import ebi.ac.uk.util.date.asOffsetAtStartOfDay
+import ebi.ac.uk.util.date.isBeforeOrEqual
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import java.time.Instant
+import java.time.OffsetDateTime
 
 private val logger = KotlinLogging.logger {}
 
@@ -40,10 +43,13 @@ class ExtSubmissionService(
     suspend fun releaseSubmission(user: String, accNo: String, releaseDate: Instant): Pair<String, Int> {
         logger.info { "$accNo $user Received async release request, accNo='{$accNo}', releaseDate = $releaseDate" }
         val submission = queryService.getExtByAccNo(accNo, true)
-        val toRelease = submission.copy(releaseTime = releaseDate.asOffsetAtStartOfDay())
-        val released = submissionSubmitter.createRequest(ExtSubmitRequest(toRelease, notifyTo = user))
-        eventsPublisherService.submissionRequest(released.first, released.second)
-        return released
+        val newReleaseDate = releaseDate.asOffsetAtStartOfDay()
+        val released = newReleaseDate.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
+
+        val toRelease = submission.copy(releaseTime = releaseDate.asOffsetAtStartOfDay(), released = released)
+        val releasedSub = submissionSubmitter.createRequest(ExtSubmitRequest(toRelease, notifyTo = user))
+        eventsPublisherService.submissionRequest(releasedSub.first, releasedSub.second)
+        return releasedSub
     }
 
     suspend fun submitExt(
