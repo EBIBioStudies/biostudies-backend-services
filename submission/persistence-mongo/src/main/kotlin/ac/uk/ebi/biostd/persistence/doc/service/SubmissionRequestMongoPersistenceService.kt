@@ -30,6 +30,7 @@ private val logger = KotlinLogging.logger {}
 class SubmissionRequestMongoPersistenceService(
     private val serializationService: ExtSerializationService,
     private val requestRepository: SubmissionRequestDocDataRepository,
+    private val distributedLockService: DistributedLockService,
 ) : SubmissionRequestPersistenceService {
     override suspend fun hasActiveRequest(accNo: String): Boolean {
         return requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING)
@@ -107,7 +108,7 @@ class SubmissionRequestMongoPersistenceService(
         }
 
         val (changeId, request) = loadRequest()
-        return runCatching { handler(request) }
+        return runCatching { distributedLockService.onLockRequest(accNo, version, processId) { handler(request) } }
             .onSuccess { onSuccess(it, changeId) }
             .onFailure { onError(it, changeId, request) }
             .getOrThrow()

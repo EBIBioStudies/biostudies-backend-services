@@ -57,6 +57,29 @@ class DistributedLockExecutorTest(@Autowired private val mongoTemplate: Reactive
         assertThat(lockTr2).isTrue()
     }
 
+    @Test
+    fun adquireLockAfterRelease() = runTest {
+        val lock = testInstance.acquireLock("lockId_4", "owner")
+        val lockTry = testInstance.acquireLock("lockId_4", "another_owner")
+
+        val released = testInstance.releaseLock("lockId_4", "owner")
+        val lockTry2 = testInstance.acquireLock("lockId_4", "another_owner")
+
+        assertThat(lock).isTrue()
+        assertThat(lockTry).isFalse()
+        assertThat(released).isTrue()
+        assertThat(lockTry2).isTrue()
+    }
+
+    @Test
+    fun anotherOwnerReleaseDoesNotRelease() = runTest {
+        val lock = testInstance.acquireLock("lockId_5", "owner")
+        val released = testInstance.releaseLock("lockId_5", "another_owner")
+
+        assertThat(lock).isTrue()
+        assertThat(released).isFalse()
+    }
+
     companion object {
         const val OWNER = "manuserager@ebi.ac.uk"
 

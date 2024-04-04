@@ -11,10 +11,11 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import java.time.Duration
 
-class DistributedLockExecutor(
+internal class DistributedLockExecutor(
     private val mongoTemplate: ReactiveMongoTemplate,
 ) {
 
+    @Suppress("SwallowedException")
     suspend fun acquireLock(
         lockIdentifier: String,
         lockOwner: String,
@@ -37,8 +38,8 @@ class DistributedLockExecutor(
         }
     }
 
-    suspend fun releaseLock(lockId: String, owner: String): Boolean {
-        val query = Query.query(where(lockId).`is`(lockId).and(owner).`is`(owner))
+    suspend fun releaseLock(lockIdentifier: String, lockOwner: String): Boolean {
+        val query = Query.query(where(lockId).`is`(lockIdentifier).and(owner).`is`(lockOwner))
         val result = mongoTemplate.remove(query, Lock::class.java).awaitSingle()
         return result.deletedCount > 0
     }
@@ -52,8 +53,8 @@ class DistributedLockExecutor(
 
     private companion object {
         val DEFAULT_EXPIRATION = Duration.ofMinutes(5)
-        val owner = "owner"
-        val expires = "expires"
-        val lockId = "_id"
+        const val owner = "owner"
+        const val expires = "expires"
+        const val lockId = "_id"
     }
 }

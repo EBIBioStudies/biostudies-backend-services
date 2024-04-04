@@ -33,9 +33,12 @@ class ExtSubmissionService(
     }
 
     suspend fun refreshSubmission(user: String, accNo: String): Pair<String, Int> {
-        logger.info { "$accNo $user Received async refresh request, accNo='{$accNo}'" }
+        logger.info { "$accNo $user Received async refresh request, accNo='$accNo'" }
         val submission = queryService.getExtByAccNo(accNo, true)
-        val refreshed = submissionSubmitter.createRequest(ExtSubmitRequest(submission, user))
+        val released = submission.releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
+
+        val toRefresh = submission.copy(released = released)
+        val refreshed = submissionSubmitter.createRequest(ExtSubmitRequest(toRefresh, user))
         eventsPublisherService.submissionRequest(refreshed.first, refreshed.second)
         return refreshed
     }

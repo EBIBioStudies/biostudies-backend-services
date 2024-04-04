@@ -19,9 +19,7 @@ import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.WebExtPage
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.withContext
 import uk.ac.ebi.extended.serialization.deserializers.EitherExtTypeDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtAttributeDeserializer
 import uk.ac.ebi.extended.serialization.deserializers.ExtFileDeserializer
@@ -60,9 +58,7 @@ class ExtSerializationService private constructor(val mapper: ObjectMapper) {
     fun serialize(file: ExtFile): String = serializeElement(file)
     fun serialize(table: ExtFileTable): String = serializeElement(table)
     fun serialize(extPage: WebExtPage): String = serializeElement(extPage)
-    suspend fun serialize(files: Flow<ExtFile>, stream: OutputStream): Int =
-        withContext(Dispatchers.IO) { mapper.serializeFlow(files, stream) }
-
+    suspend fun serialize(files: Flow<ExtFile>, stream: OutputStream): Int = mapper.serializeFlow(files, stream)
 
     fun deserialize(value: String): ExtSubmission = mapper.readValue(value)
     fun deserializeFile(value: String): ExtFile = mapper.readValue(value)
@@ -70,9 +66,7 @@ class ExtSerializationService private constructor(val mapper: ObjectMapper) {
     fun deserializeTable(value: String): ExtFileTable = mapper.readValue(value)
     fun deserializeListAsSequence(stream: InputStream): Sequence<ExtFile> = mapper.deserializeAsSequence(stream)
 
-    suspend fun deserializeListAsFlow(stream: InputStream): Flow<ExtFile> =
-        withContext(Dispatchers.IO) { mapper.deserializeAsFlow(stream) }
-
+    suspend fun deserializeListAsFlow(stream: InputStream): Flow<ExtFile> = mapper.deserializeAsFlow(stream)
 
     /**
      * Serialize a generic element. ONLY for testing purpose.
