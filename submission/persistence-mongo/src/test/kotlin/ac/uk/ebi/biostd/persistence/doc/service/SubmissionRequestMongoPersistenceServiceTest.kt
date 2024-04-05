@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
+import ac.uk.ebi.biostd.persistence.doc.integration.LockConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
@@ -53,14 +54,18 @@ import java.time.Instant
 @ExtendWith(MockKExtension::class, SpringExtension::class, TemporaryFolderExtension::class)
 @Testcontainers
 @OptIn(ExperimentalCoroutinesApi::class)
-@SpringBootTest(classes = [MongoDbReposConfig::class])
+@SpringBootTest(classes = [MongoDbReposConfig::class, LockConfig::class])
 class SubmissionRequestMongoPersistenceServiceTest(
     private val tempFolder: TemporaryFolder,
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
     @Autowired private val requestFilesRepository: SubmissionRequestFilesRepository,
+    @Autowired private val lockService: DistributedLockService,
+
 ) {
     private val testInstant = Instant.ofEpochMilli(1664981331)
-    private val testInstance = SubmissionRequestMongoPersistenceService(ExtSerializationService(), requestRepository)
+
+    private val testInstance =
+        SubmissionRequestMongoPersistenceService(ExtSerializationService(), requestRepository, lockService)
 
     @BeforeEach
     fun beforeEach() {

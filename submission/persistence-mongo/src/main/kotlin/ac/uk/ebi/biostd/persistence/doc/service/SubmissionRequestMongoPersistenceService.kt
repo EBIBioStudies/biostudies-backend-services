@@ -30,6 +30,7 @@ private val logger = KotlinLogging.logger {}
 class SubmissionRequestMongoPersistenceService(
     private val serializationService: ExtSerializationService,
     private val requestRepository: SubmissionRequestDocDataRepository,
+    private val distributedLockService: DistributedLockService,
 ) : SubmissionRequestPersistenceService {
     override suspend fun hasActiveRequest(accNo: String): Boolean {
         return requestRepository.existsByAccNoAndStatusIn(accNo, PROCESSING)
@@ -89,13 +90,27 @@ class SubmissionRequestMongoPersistenceService(
             return changeId to subRequest
         }
 
+        suspend fun <T> onSuccess(
+            it: OptResponse<T>,
+            changeId: String,
+        ) {
+            logger.info { "Succefully completed request accNo='$accNo', version='$version', $status" }
+            saveRequest(it.rqt, changeId, ProcessResult.SUCCESS)
+        }
+
+        suspend fun onError(
+            it: Throwable,
+            changeId: String,
+            request: SubmissionRequest,
+        ) {
+            logger.error(it) { "Error on request accNo='$accNo', version='$version', changeId='$changeId'" }
+            saveRequest(request, changeId, ProcessResult.ERROR)
+        }
+
         val (changeId, request) = loadRequest()
-        return runCatching { handler(request) }
-            .onSuccess { saveRequest(it.rqt, changeId, ProcessResult.SUCCESS) }
-            .onFailure {
-                logger.error(it) { "Error on request accNo='$accNo', version='$version', changeId='$changeId'" }
-                saveRequest(request, changeId, ProcessResult.ERROR)
-            }
+        return runCatching { distributedLockService.onLockRequest(accNo, version, processId) { handler(request) } }
+            .onSuccess { onSuccess(it, changeId) }
+            .onFailure { onError(it, changeId, request) }
             .getOrThrow()
     }
 

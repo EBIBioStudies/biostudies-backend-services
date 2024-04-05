@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionStatsDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.service.CollectionMongoDataService
+import ac.uk.ebi.biostd.persistence.doc.service.DistributedLockService
 import ac.uk.ebi.biostd.persistence.doc.service.StatsMongoDataService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionDraftMongoPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.service.SubmissionMongoFilesPersistenceService
@@ -58,7 +59,9 @@ class MongoDbServicesConfig {
     internal fun submissionRequestPersistenceService(
         serializationService: ExtSerializationService,
         requestRepo: SubmissionRequestDocDataRepository,
-    ): SubmissionRequestPersistenceService = SubmissionRequestMongoPersistenceService(serializationService, requestRepo)
+        distributedLockService: DistributedLockService,
+    ): SubmissionRequestPersistenceService =
+        SubmissionRequestMongoPersistenceService(serializationService, requestRepo, distributedLockService)
 
     @Bean
     internal fun submissionRequestFilesPersistenceService(

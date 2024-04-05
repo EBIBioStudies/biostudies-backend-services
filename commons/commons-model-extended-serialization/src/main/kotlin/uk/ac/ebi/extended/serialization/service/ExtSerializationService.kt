@@ -65,6 +65,7 @@ class ExtSerializationService private constructor(val mapper: ObjectMapper) {
     fun deserializePage(value: String): ExtPage = mapper.readValue(value)
     fun deserializeTable(value: String): ExtFileTable = mapper.readValue(value)
     fun deserializeListAsSequence(stream: InputStream): Sequence<ExtFile> = mapper.deserializeAsSequence(stream)
+
     suspend fun deserializeListAsFlow(stream: InputStream): Flow<ExtFile> = mapper.deserializeAsFlow(stream)
 
     /**

@@ -58,7 +58,10 @@ class SubmissionRequestCleaner(
                 else -> newFile.md5 != existing.md5 && new.storageMode == existing.storageMode
             }
 
+        logger.info { "${new.accNo} ${current.owner} Building submission files map" }
         val newFiles = newFilesMap(new)
+        logger.info { "${new.accNo} ${current.owner} Finished building submission files map" }
+
         logger.info { "${current.accNo} ${current.owner} Started cleaning common submission files" }
         serializationService.filesFlow(current)
             .filter { shouldDelete(newFiles, it) }

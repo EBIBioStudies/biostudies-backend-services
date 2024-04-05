@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
+import ac.uk.ebi.biostd.persistence.doc.integration.LockConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
@@ -65,7 +66,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmiss
 
 @ExtendWith(MockKExtension::class, SpringExtension::class)
 @Testcontainers
-@SpringBootTest(classes = [MongoDbReposConfig::class, MongoDbServicesConfig::class, TestConfig::class])
+@SpringBootTest(classes = [MongoDbReposConfig::class, MongoDbServicesConfig::class, TestConfig::class, LockConfig::class])
 internal class SubmissionMongoQueryServiceTest(
     @Autowired private val toExtSubmissionMapper: ToExtSubmissionMapper,
     @Autowired private val submissionRepo: SubmissionDocDataRepository,
