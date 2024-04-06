@@ -1,13 +1,11 @@
 package ac.uk.ebi.biostd.client.api
 
-import ac.uk.ebi.biostd.client.dto.ReleaseRequestDto
 import ac.uk.ebi.biostd.client.integration.web.SubmissionOperations
 import ebi.ac.uk.api.dto.SubmissionDto
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.delete
 import ebi.ac.uk.commons.http.ext.getForObject
 import ebi.ac.uk.commons.http.ext.post
-import ebi.ac.uk.commons.http.ext.put
 import ebi.ac.uk.model.constants.ACC_NO
 import ebi.ac.uk.model.constants.FILE_LIST_NAME
 import ebi.ac.uk.model.constants.ROOT_PATH
@@ -36,10 +34,6 @@ internal class SubmissionClient(
         filter.entries.forEach { builder.queryParam(it.key, it.value) }
 
         return client.getForObject<Array<SubmissionDto>>(builder.toUriString()).toList()
-    }
-
-    override fun releaseSubmission(request: ReleaseRequestDto) {
-        client.put("$SUBMISSIONS_URL/release", RequestParams(body = request))
     }
 
     override fun validateFileList(fileListPath: String, rootPath: String?, accNo: String?) {

@@ -20,7 +20,5 @@ interface ExtSubmissionSubmitter {
 
     suspend fun finalizeRequest(accNo: String, version: Int): ExtSubmission
 
-    suspend fun release(accNo: String)
-
     suspend fun handleRequest(accNo: String, version: Int): ExtSubmission
 }

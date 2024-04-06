@@ -42,7 +42,6 @@ class SubmissionServiceTest(
     private val testInstance = SubmissionService(
         queryService,
         userPrivilegesService,
-        extSubmissionSubmitter,
         submissionSubmitter,
         eventsPublisherService,
         submissionPersistenceService,

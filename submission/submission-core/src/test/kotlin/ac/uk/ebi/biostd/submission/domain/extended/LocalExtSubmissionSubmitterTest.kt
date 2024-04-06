@@ -176,15 +176,6 @@ internal class LocalExtSubmissionSubmitterTest(
 
             coVerify(exactly = 1) { requestFinalizer.finalizeRequest(ACC_NO, VERSION, INSTANCE_ID) }
         }
-
-        @Test
-        fun `release request`() = runTest {
-            coEvery { requestReleaser.releaseSubmission(ACC_NO) } answers { nothing }
-
-            testInstance.release(ACC_NO)
-
-            coVerify(exactly = 1) { requestReleaser.releaseSubmission(ACC_NO) }
-        }
     }
 
     @Nested

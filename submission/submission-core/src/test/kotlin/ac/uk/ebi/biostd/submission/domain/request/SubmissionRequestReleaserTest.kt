@@ -54,7 +54,6 @@ class SubmissionRequestReleaserTest(
         ExtSerializationService(),
         eventsPublisherService,
         queryService,
-        persistenceService,
         requestService,
         filesService
     )

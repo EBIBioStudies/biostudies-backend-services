@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.client.integration.web
 
 import ac.uk.ebi.biostd.client.dto.AcceptedSubmission
 import ac.uk.ebi.biostd.client.dto.ExtPageQuery
-import ac.uk.ebi.biostd.client.dto.ReleaseRequestDto
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.JSON
 import ebi.ac.uk.api.ClientResponse
@@ -70,7 +69,6 @@ interface GroupFilesOperations {
 interface SubmissionOperations {
     fun deleteSubmission(accNo: String)
     fun deleteSubmissions(submissions: List<String>)
-    fun releaseSubmission(request: ReleaseRequestDto)
     fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
     fun validateFileList(fileListPath: String, rootPath: String? = null, accNo: String? = null)
 }
