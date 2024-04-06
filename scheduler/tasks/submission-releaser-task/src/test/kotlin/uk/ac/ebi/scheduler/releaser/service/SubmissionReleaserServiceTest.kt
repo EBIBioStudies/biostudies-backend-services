@@ -1,7 +1,7 @@
 package uk.ac.ebi.scheduler.releaser.service
 
-import ac.uk.ebi.biostd.client.dto.ReleaseRequestDto
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReleaserRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.ReleaseData
@@ -14,11 +14,9 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
-import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -78,20 +76,19 @@ class SubmissionReleaserServiceTest(
     fun `release daily submissions`(
         @MockK to: Date,
     ) = runTest {
-        val requestSlot = slot<ReleaseRequestDto>()
         val released = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
+        val releasing = ReleaseData("S-BSST1", "owner0@mail.org", "S-BSST/000/S-BSST1")
 
         every { mockNow.asOffsetAtEndOfDay().toDate() } returns to
         every { bioWebClient.refreshSubmission("S-BSST0") } answers { "S-BSST0" to 2 }
-        every { releaserRepository.findAllUntil(to) } returns flowOf(released)
+        every { releaserRepository.findAllUntil(to) } returns flowOf(released, releasing)
+
+        coEvery { requestRepository.existsByAccNoAndStatusIn("S-BSST0", RequestStatus.PROCESSING) } returns false
+        coEvery { requestRepository.existsByAccNoAndStatusIn("S-BSST1", RequestStatus.PROCESSING) } returns true
 
         testInstance.releaseDailySubmissions()
 
-        val releaseRequest = requestSlot.captured
         verify(exactly = 1) { bioWebClient.refreshSubmission("S-BSST0") }
-        assertThat(releaseRequest.accNo).isEqualTo("S-BSST0")
-        assertThat(releaseRequest.owner).isEqualTo("owner0@mail.org")
-        assertThat(releaseRequest.relPath).isEqualTo("S-BSST/000/S-BSST0")
     }
 
     @Test
