@@ -1,6 +1,5 @@
 package uk.ac.ebi.scheduler.releaser.service
 
-import ac.uk.ebi.biostd.client.dto.ReleaseRequestDto
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReleaserRepository
@@ -64,8 +63,6 @@ class SubmissionReleaserService(
             .onFailure { logger.info { "Failed to release submission ${releaseData.accNo}" } }
             .onSuccess { logger.info { "Released submission ${releaseData.accNo}" } }
     }
-
-    private fun ReleaseData.asReleaseDto() = ReleaseRequestDto(accNo, owner, relPath)
 
     private suspend fun notifyRelease(date: Instant) {
         val from = date.asOffsetAtStartOfDay()
