@@ -51,10 +51,6 @@ class RemoteExtSubmissionSubmitter(
         TODO("Remote execution not required")
     }
 
-    override suspend fun release(accNo: String) {
-        TODO("Remote execution not required")
-    }
-
     override suspend fun handleRequest(accNo: String, version: Int): ExtSubmission {
         TODO("Remote execution not required")
     }

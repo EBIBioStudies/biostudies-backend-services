@@ -1,14 +1,16 @@
 package uk.ac.ebi.scheduler.releaser.service
 
-import ac.uk.ebi.biostd.client.dto.ReleaseRequestDto
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReleaserRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.ReleaseData
 import ebi.ac.uk.util.date.asOffsetAtEndOfDay
 import ebi.ac.uk.util.date.asOffsetAtStartOfDay
 import ebi.ac.uk.util.date.toDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -22,6 +24,7 @@ class SubmissionReleaserService(
     private val bioWebClient: BioWebClient,
     private val notificationTimes: NotificationTimes,
     private val releaserRepository: SubmissionReleaserRepository,
+    private val requestRepository: SubmissionRequestRepository,
     private val eventsPublisherService: EventsPublisherService,
 ) {
     suspend fun notifySubmissionReleases() {
@@ -38,6 +41,7 @@ class SubmissionReleaserService(
         withContext(Dispatchers.Default) {
             releaserRepository
                 .findAllUntil(to.toDate())
+                .filterNot { requestRepository.existsByAccNoAndStatusIn(it.accNo, RequestStatus.PROCESSING) }
                 .map { async { releaseSafely(it) } }
                 .collect { it.await() }
         }
@@ -54,13 +58,11 @@ class SubmissionReleaserService(
 
     private fun releaseSafely(releaseData: ReleaseData) {
         runCatching {
-            bioWebClient.releaseSubmission(releaseData.asReleaseDto())
+            bioWebClient.refreshSubmission(releaseData.accNo)
         }
             .onFailure { logger.info { "Failed to release submission ${releaseData.accNo}" } }
             .onSuccess { logger.info { "Released submission ${releaseData.accNo}" } }
     }
-
-    private fun ReleaseData.asReleaseDto() = ReleaseRequestDto(accNo, owner, relPath)
 
     private suspend fun notifyRelease(date: Instant) {
         val from = date.asOffsetAtStartOfDay()

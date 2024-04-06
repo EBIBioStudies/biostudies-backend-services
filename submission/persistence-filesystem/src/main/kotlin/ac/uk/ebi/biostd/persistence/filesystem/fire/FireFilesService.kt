@@ -40,7 +40,7 @@ class FireFilesService(
     }
 
     override suspend fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {
-        require(file is FireFile) { "FireFilesService should only handle FireFile" }
+        require(file is FireFile) { "FireFilesService should only handle FireFile, '${file.filePath}' it is not" }
         client.delete(file.fireId)
     }
 

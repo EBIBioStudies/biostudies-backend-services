@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.persistence.doc.MongoDbReactiveConfig
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReleaserRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.context.annotation.Bean
@@ -24,11 +25,13 @@ class ApplicationConfig(
     fun submissionReleaserService(
         bioWebClient: BioWebClient,
         eventsPublisherService: EventsPublisherService,
+        requestRepository: SubmissionRequestRepository,
     ): SubmissionReleaserService =
         SubmissionReleaserService(
             bioWebClient,
             appProperties.notificationTimes,
             releaserRepository,
+            requestRepository,
             eventsPublisherService
         )
 

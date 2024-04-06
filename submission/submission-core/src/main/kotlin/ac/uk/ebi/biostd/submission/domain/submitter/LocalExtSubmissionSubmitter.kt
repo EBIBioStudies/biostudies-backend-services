@@ -71,10 +71,6 @@ class LocalExtSubmissionSubmitter(
         return requestFinalizer.finalizeRequest(accNo, version, properties.processId)
     }
 
-    override suspend fun release(accNo: String) {
-        requestReleaser.releaseSubmission(accNo)
-    }
-
     override suspend fun handleRequest(accNo: String, version: Int): ExtSubmission {
         return when (requestService.getRequestStatus(accNo, version)) {
             REQUESTED -> completeRequest(accNo, version)

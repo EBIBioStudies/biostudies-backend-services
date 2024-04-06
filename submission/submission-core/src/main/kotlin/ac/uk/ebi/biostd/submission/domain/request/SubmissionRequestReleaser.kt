@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
@@ -35,7 +34,6 @@ class SubmissionRequestReleaser(
     private val serializationService: ExtSerializationService,
     private val eventsPublisherService: EventsPublisherService,
     private val queryService: SubmissionPersistenceQueryService,
-    private val persistenceService: SubmissionPersistenceService,
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
@@ -49,6 +47,15 @@ class SubmissionRequestReleaser(
         })
 
         eventsPublisherService.requestCheckedRelease(accNo, version)
+    }
+
+    /**
+     * Generates/refresh FTP links for a given submission.
+     */
+    suspend fun generateFtpLinks(accNo: String) {
+        val submission = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
+        require(submission.released) { throw UnreleasedSubmissionException() }
+        releaseSubmissionFiles(submission)
     }
 
     private suspend fun releaseRequest(
@@ -84,23 +91,6 @@ class SubmissionRequestReleaser(
         }
     }
 
-    /**
-     * Release the given submission by changing record status database and publishing files.
-     */
-    suspend fun releaseSubmission(accNo: String) {
-        val submission = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        releaseSubmission(submission)
-    }
-
-    /**
-     * Generates/refresh FTP links for a given submission.
-     */
-    suspend fun generateFtpLinks(accNo: String) {
-        val submission = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
-        require(submission.released) { throw UnreleasedSubmissionException() }
-        releaseSubmissionFiles(submission)
-    }
-
     private suspend fun releaseFile(sub: ExtSubmission, idx: Int, file: ExtFile): ExtFile {
         logger.info { "${sub.accNo}, ${sub.owner} Started publishing file $idx - ${file.filePath}" }
         val releasedFile = fileStorageService.releaseSubmissionFile(file, sub.relPath, sub.secretKey, sub.storageMode)
@@ -114,10 +104,5 @@ class SubmissionRequestReleaser(
             .filterNot { it is FireFile && it.published }
             .collectIndexed { idx, file -> releaseFile(sub, idx, file) }
         logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
-    }
-
-    private suspend fun releaseSubmission(sub: ExtSubmission) {
-        releaseSubmissionFiles(sub)
-        persistenceService.setAsReleased(sub.accNo)
     }
 }

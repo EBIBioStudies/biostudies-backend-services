@@ -1,8 +1,9 @@
 package uk.ac.ebi.scheduler.releaser.service
 
-import ac.uk.ebi.biostd.client.dto.ReleaseRequestDto
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReleaserRepository
+import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.ReleaseData
 import ebi.ac.uk.util.date.asOffsetAtEndOfDay
 import ebi.ac.uk.util.date.toDate
@@ -13,11 +14,9 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
-import io.mockk.slot
 import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,11 +32,18 @@ class SubmissionReleaserServiceTest(
     @MockK private val bioWebClient: BioWebClient,
     @MockK private val notificationTimes: NotificationTimes,
     @MockK private val releaserRepository: SubmissionReleaserRepository,
+    @MockK private val requestRepository: SubmissionRequestRepository,
     @MockK private val eventsPublisherService: EventsPublisherService,
 ) {
     private val mockNow = OffsetDateTime.of(2020, 9, 21, 10, 11, 0, 0, UTC).toInstant()
     private val testInstance =
-        SubmissionReleaserService(bioWebClient, notificationTimes, releaserRepository, eventsPublisherService)
+        SubmissionReleaserService(
+            bioWebClient,
+            notificationTimes,
+            releaserRepository,
+            requestRepository,
+            eventsPublisherService
+        )
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -68,22 +74,21 @@ class SubmissionReleaserServiceTest(
 
     @Test
     fun `release daily submissions`(
-        @MockK to: Date
+        @MockK to: Date,
     ) = runTest {
-        val requestSlot = slot<ReleaseRequestDto>()
         val released = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
+        val releasing = ReleaseData("S-BSST1", "owner0@mail.org", "S-BSST/000/S-BSST1")
 
         every { mockNow.asOffsetAtEndOfDay().toDate() } returns to
-        every { bioWebClient.releaseSubmission(capture(requestSlot)) } answers { nothing }
-        every { releaserRepository.findAllUntil(to) } returns flowOf(released)
+        every { bioWebClient.refreshSubmission("S-BSST0") } answers { "S-BSST0" to 2 }
+        every { releaserRepository.findAllUntil(to) } returns flowOf(released, releasing)
+
+        coEvery { requestRepository.existsByAccNoAndStatusIn("S-BSST0", RequestStatus.PROCESSING) } returns false
+        coEvery { requestRepository.existsByAccNoAndStatusIn("S-BSST1", RequestStatus.PROCESSING) } returns true
 
         testInstance.releaseDailySubmissions()
 
-        val releaseRequest = requestSlot.captured
-        verify(exactly = 1) { bioWebClient.releaseSubmission(releaseRequest) }
-        assertThat(releaseRequest.accNo).isEqualTo("S-BSST0")
-        assertThat(releaseRequest.owner).isEqualTo("owner0@mail.org")
-        assertThat(releaseRequest.relPath).isEqualTo("S-BSST/000/S-BSST0")
+        verify(exactly = 1) { bioWebClient.refreshSubmission("S-BSST0") }
     }
 
     @Test

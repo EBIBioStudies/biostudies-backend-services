@@ -132,7 +132,6 @@ class SubmitterConfig(
         eventsPublisherService: EventsPublisherService,
         requestService: SubmissionRequestPersistenceService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
-        submissionPersistenceService: SubmissionPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
     ): SubmissionRequestReleaser = SubmissionRequestReleaser(
         properties.persistence.concurrency,
@@ -140,7 +139,6 @@ class SubmitterConfig(
         serializationService,
         eventsPublisherService,
         submissionPersistenceQueryService,
-        submissionPersistenceService,
         requestService,
         filesRequestService,
     )

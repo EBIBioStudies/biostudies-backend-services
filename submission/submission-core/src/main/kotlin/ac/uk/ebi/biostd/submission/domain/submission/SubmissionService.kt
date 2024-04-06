@@ -3,12 +3,9 @@ package ac.uk.ebi.biostd.submission.domain.submission
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
-import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmission
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmissions
-import ac.uk.ebi.biostd.submission.exceptions.UserCanNotRelease
 import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
-import ac.uk.ebi.biostd.submission.model.ReleaseRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -25,7 +22,6 @@ private val logger = KotlinLogging.logger {}
 class SubmissionService(
     private val queryService: SubmissionPersistenceQueryService,
     private val userPrivilegesService: IUserPrivilegesService,
-    private val extSubmissionSubmitter: ExtSubmissionSubmitter,
     private val submissionSubmitter: SubmissionSubmitter,
     private val eventsPublisherService: EventsPublisherService,
     private val submissionPersistenceService: SubmissionPersistenceService,
@@ -72,12 +68,6 @@ class SubmissionService(
         fileStorageService.deleteSubmissionFiles(queryService.getExtByAccNo(accNo, includeFileListFiles = true))
         submissionPersistenceService.expireSubmission(accNo)
         eventsPublisherService.submissionsRefresh(accNo, user)
-    }
-
-    suspend fun releaseSubmission(request: ReleaseRequest, user: SecurityUser) {
-        require(userPrivilegesService.canRelease(user.email)) { throw UserCanNotRelease(request.accNo, user.email) }
-        extSubmissionSubmitter.release(request.accNo)
-        eventsPublisherService.submissionsRefresh(request.accNo, user.email)
     }
 
     companion object {

@@ -118,8 +118,11 @@ internal class FireFilesServiceTest(
             @MockK nfsFile: NfsFile,
             @MockK submission: ExtSubmission,
         ) = runTest {
+            every { nfsFile.filePath } returns "the-file-path/text"
             val exception = assertFails { testInstance.deleteSubmissionFile(submission, nfsFile) }
-            assertThat(exception.message).isEqualTo("FireFilesService should only handle FireFile")
+
+            assertThat(exception.message)
+                .isEqualTo("FireFilesService should only handle FireFile, 'the-file-path/text' it is not")
         }
     }
 
