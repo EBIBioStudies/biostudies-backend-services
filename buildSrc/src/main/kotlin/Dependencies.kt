@@ -60,7 +60,7 @@ object TestVersions {
     const val JunitEngineVersion = "1.5.2"
     const val Junit5PioneerVersion = "2.2.0"
     const val JunitExtensionsVersion = "2.3.0"
-    const val MockKVersion = "1.12.4"
+    const val MockKVersion = "1.13.10"
     const val XmlUnitVersion = "2.6.2"
     const val JaxbApiVersion = "2.3.1"
     const val JsonPathAssertVersion = "2.4.0"
