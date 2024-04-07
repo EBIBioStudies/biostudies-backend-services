@@ -5,13 +5,12 @@ import uk.ac.ebi.biostd.client.cli.dto.PermissionRequest
 internal class SecurityService {
     fun grantPermission(request: PermissionRequest) = performRequest { permission(request) }
 
-    private fun permission(request: PermissionRequest) {
-        val (server, user, password, _) = request.securityConfig
-
-        bioWebClient(server, user, password).givePermissionToUser(
-            request.targetUser,
-            request.accessTagName,
-            request.accessType
+    private fun permission(rqt: PermissionRequest) {
+        val config = rqt.securityConfig
+        bioWebClient(config.server, config.user, config.password).givePermissionToUser(
+            rqt.targetUser,
+            rqt.accessTagName,
+            rqt.accessType
         )
     }
 }

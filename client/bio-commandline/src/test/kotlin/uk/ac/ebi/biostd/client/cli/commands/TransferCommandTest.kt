@@ -17,7 +17,7 @@ import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 @ExtendWith(MockKExtension::class)
 internal class TransferCommandTest(
-    @MockK private val submissionService: SubmissionService
+    @MockK private val submissionService: SubmissionService,
 ) {
     private val testInstance = TransferCommand(submissionService)
 

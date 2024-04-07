@@ -23,7 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class TranspilerCommandLineTest(
     private val temporaryFolder: TemporaryFolder,
-    @MockK private val mockTranspiler: FilesTableTemplateTranspiler
+    @MockK private val mockTranspiler: FilesTableTemplateTranspiler,
 ) {
     @SpyK
     private var testInstance = TranspilerCommandLine(mockTranspiler)

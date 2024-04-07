@@ -1,4 +1,4 @@
-image: gradle:7.5.0-jdk11
+image: gradle:8.7-jdk11
 services:
   - docker:dind
 variables:
@@ -75,7 +75,7 @@ stages:
 
 build-test:
   stage: build-test
-  script: gradle build test -x itest -x jacocoTestCoverageVerification buildArtifacts --info
+  script: gradle build test -x itest -x jacocoTestCoverageVerification buildArtifacts
 
 nfs-itest:
   needs: [ "build-test" ]

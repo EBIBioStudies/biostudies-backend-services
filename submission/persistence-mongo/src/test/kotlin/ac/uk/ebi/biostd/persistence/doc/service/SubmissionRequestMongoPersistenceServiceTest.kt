@@ -35,7 +35,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
+import ebi.ac.uk.asserts.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -61,7 +61,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
     @Autowired private val requestFilesRepository: SubmissionRequestFilesRepository,
     @Autowired private val lockService: DistributedLockService,
 
-) {
+    ) {
     private val testInstant = Instant.ofEpochMilli(1664981331)
 
     private val testInstance =

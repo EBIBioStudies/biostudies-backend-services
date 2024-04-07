@@ -1,5 +1,6 @@
 package uk.ac.ebi.io.sources
 
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FileFields.DB_ID
@@ -11,7 +12,6 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 
 class DbFilesSourceTest {
 

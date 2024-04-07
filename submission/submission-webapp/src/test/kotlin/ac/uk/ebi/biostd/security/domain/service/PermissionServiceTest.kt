@@ -23,7 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class PermissionServiceTest(
     @MockK private val permissionRepo: AccessPermissionRepository,
     @MockK private val userRepository: UserDataRepository,
-    @MockK private val tagRepository: AccessTagDataRepo
+    @MockK private val tagRepository: AccessTagDataRepo,
 ) {
     private val testInstance = PermissionService(permissionRepo, userRepository, tagRepository)
 

@@ -60,7 +60,7 @@ object TestVersions {
     const val JunitEngineVersion = "1.5.2"
     const val Junit5PioneerVersion = "2.2.0"
     const val JunitExtensionsVersion = "2.3.0"
-    const val MockKVersion = "1.12.4"
+    const val MockKVersion = "1.13.10"
     const val XmlUnitVersion = "2.6.2"
     const val JaxbApiVersion = "2.3.1"
     const val JsonPathAssertVersion = "2.4.0"
@@ -77,9 +77,9 @@ object TestVersions {
 object Versions {
     const val SpringVersion = "5.2.20.RELEASE"
     const val SpringAdminVersion = "2.3.1"
-    const val KotlinVersion = "1.6.10"
+    const val KotlinVersion = "1.9.23"
+    const val KotlinCoroutinesVersion = "1.8.0"
     const val JetBrainsAnnotationsVersion = "24.0.1"
-    const val KotlinCoroutinesVersion = "1.6.3"
 
     const val KotlinLoggingVersion = "1.6.20"
     const val KotlinArrowVersion = "0.8.2"

@@ -57,18 +57,10 @@ import TestDependencies.XmlUnitMatchers
 import TestDependencies.slf4jApi
 import TestDependencies.slf4jImp
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
-buildscript {
-    dependencies {
-        "classpath"("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r") {
-            isForce = true
-        }
-    }
-}
-
 plugins {
-    id(Plugins.GitProperties) version PluginVersions.GitPropertiesVersion
     id(Plugins.KotlinSpringPlugin) version PluginVersions.KotlinPluginVersion
     id(Plugins.KotlinJpaPlugin) version PluginVersions.KotlinPluginVersion
     id(Plugins.KotlinAllOpenPlugin) version PluginVersions.KotlinPluginVersion
@@ -84,6 +76,7 @@ allOpen {
 }
 
 dependencies {
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     api(project(ClientFireWebClient))
     api(project(SubmissionPersistenceSql))
     api(project(SubmissionPersistenceMongo))
@@ -156,7 +149,6 @@ dependencies {
 tasks.named<BootJar>("bootJar") {
     archiveBaseName.set("submission-webapp")
     archiveVersion.set("1.0.0")
-    dependsOn("generateGitProperties")
 }
 
 sourceSets {
@@ -170,7 +162,7 @@ sourceSets {
 
 val copySqlSchema = tasks.create<Copy>("copySqlSchema") {
     from("$rootDir/infrastructure/src/main/resources/setup/mysql/Schema.sql")
-    into("$buildDir/resources/itest")
+    into("${project.layout.buildDirectory.get()}/resources/itest")
 }
 
 val itest = tasks.create<Test>("itest") {
@@ -200,8 +192,8 @@ val itest = tasks.create<Test>("itest") {
     testLogging.exceptionFormat = TestExceptionFormat.SHORT
     testLogging.showStandardStreams = true
     extensions.configure(JacocoTaskExtension::class) {
-        setDestinationFile(file("$buildDir/jacoco/jacocoITest.exec"))
-        classDumpDir = file("$buildDir/jacoco/classpathdumps")
+        setDestinationFile(file("${project.layout.buildDirectory.get()}/jacoco/jacocoITest.exec"))
+        classDumpDir = file("${project.layout.buildDirectory.get()}/jacoco/classpathdumps")
     }
 
     retry {
