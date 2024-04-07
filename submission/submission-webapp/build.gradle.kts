@@ -162,7 +162,7 @@ sourceSets {
 
 val copySqlSchema = tasks.create<Copy>("copySqlSchema") {
     from("$rootDir/infrastructure/src/main/resources/setup/mysql/Schema.sql")
-    into("${project.layout.buildDirectory}/resources/itest")
+    into("${project.layout.buildDirectory.get()}/resources/itest")
 }
 
 val itest = tasks.create<Test>("itest") {
@@ -192,8 +192,8 @@ val itest = tasks.create<Test>("itest") {
     testLogging.exceptionFormat = TestExceptionFormat.SHORT
     testLogging.showStandardStreams = true
     extensions.configure(JacocoTaskExtension::class) {
-        setDestinationFile(file("${project.layout.buildDirectory}/jacoco/jacocoITest.exec"))
-        classDumpDir = file("${project.layout.buildDirectory}/jacoco/classpathdumps")
+        setDestinationFile(file("${project.layout.buildDirectory.get()}/jacoco/jacocoITest.exec"))
+        classDumpDir = file("${project.layout.buildDirectory.get()}/jacoco/classpathdumps")
     }
 
     retry {
