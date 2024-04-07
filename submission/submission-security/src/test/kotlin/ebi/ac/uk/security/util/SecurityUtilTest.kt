@@ -32,7 +32,7 @@ private const val PROD_KEY = "prod-key"
 @ExtendWith(MockKExtension::class)
 class SecurityUtilTest(
     @MockK val userRepository: UserDataRepository,
-    @MockK val tokenRepository: TokenDataRepository
+    @MockK val tokenRepository: TokenDataRepository,
 ) {
     private val instanceKeys = InstanceKeys(dev = DEV_KEY, beta = BETA_KEY, prod = PROD_KEY)
 

@@ -26,7 +26,6 @@ import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
 import TestDependencies.Wiremock
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -74,14 +73,4 @@ dependencies {
 tasks.named<BootJar>("bootJar") {
     archiveBaseName.set("pmc-processor-task")
     archiveVersion.set("1.0.0")
-}
-
-tasks.named<KotlinCompile>("compileKotlin") {
-    sourceCompatibility = "11"
-    targetCompatibility = "11"
-
-    kotlinOptions {
-        jvmTarget = "11"
-        freeCompilerArgs = listOf("-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi")
-    }
 }

@@ -21,7 +21,7 @@ import java.io.OutputStream
 
 @ExtendWith(MockKExtension::class)
 internal class JsonPagetabConverterTest(
-    @MockK private val serializationService: SerializationService
+    @MockK private val serializationService: SerializationService,
 ) {
     private val testInstance = JsonPagetabConverter(serializationService)
 
@@ -50,7 +50,7 @@ internal class JsonPagetabConverterTest(
         @MockK message: HttpOutputMessage,
         @MockK submission: Submission,
         @MockK(relaxed = true) body: OutputStream,
-        @MockK(relaxed = true) headers: HttpHeaders
+        @MockK(relaxed = true) headers: HttpHeaders,
     ) {
         val submissionContent = "submission"
         every { serializationService.serializeSubmission(submission, SubFormat.JSON_PRETTY) } returns submissionContent

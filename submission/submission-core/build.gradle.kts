@@ -22,8 +22,7 @@ import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.KotlinXmlBuilder
-import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
-import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
     id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion apply false
@@ -31,13 +30,8 @@ plugins {
     id(Plugins.KotlinSpringPlugin) version PluginVersions.KotlinPluginVersion
 }
 
-the<DependencyManagementExtension>().apply {
-    imports {
-        mavenBom(BOM_COORDINATES)
-    }
-}
-
 dependencies {
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     api(project(CommonsBio))
     api(project(CommonsUtil))
     api(project(CommonsHttp))

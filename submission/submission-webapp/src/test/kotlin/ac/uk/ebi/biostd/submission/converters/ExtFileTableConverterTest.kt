@@ -19,7 +19,7 @@ import java.io.OutputStream
 
 @ExtendWith(MockKExtension::class)
 class ExtFileTableConverterTest(
-    @MockK private val extSerializationService: ExtSerializationService
+    @MockK private val extSerializationService: ExtSerializationService,
 ) {
     private val testInstance = ExtFileTableConverter(extSerializationService)
 
@@ -40,7 +40,7 @@ class ExtFileTableConverterTest(
 
     @Test
     fun read(
-        @MockK input: HttpInputMessage
+        @MockK input: HttpInputMessage,
     ) {
         val exception = assertThrows<NotImplementedError> { testInstance.read(ExtFileTable::class.java, input) }
         assertThat(exception.message).isEqualTo("ExtFileTable as input is not supported")
@@ -51,7 +51,7 @@ class ExtFileTableConverterTest(
         @MockK extFileTable: ExtFileTable,
         @MockK message: HttpOutputMessage,
         @MockK(relaxed = true) body: OutputStream,
-        @MockK(relaxed = true) headers: HttpHeaders
+        @MockK(relaxed = true) headers: HttpHeaders,
     ) {
         every { message.body } returns body
         every { message.headers } returns headers

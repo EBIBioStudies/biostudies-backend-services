@@ -77,9 +77,9 @@ object TestVersions {
 object Versions {
     const val SpringVersion = "5.2.20.RELEASE"
     const val SpringAdminVersion = "2.3.1"
-    const val KotlinVersion = "1.6.10"
+    const val KotlinVersion = "1.9.23"
+    const val KotlinCoroutinesVersion = "1.8.0"
     const val JetBrainsAnnotationsVersion = "24.0.1"
-    const val KotlinCoroutinesVersion = "1.6.3"
 
     const val KotlinLoggingVersion = "1.6.20"
     const val KotlinArrowVersion = "0.8.2"

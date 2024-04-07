@@ -21,8 +21,7 @@ import SpringBootDependencies.SpringBootStarterDataJpa
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.JaxbApi
-import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
-import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
     id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
@@ -37,13 +36,8 @@ allOpen {
     annotation("javax.persistence.MappedSuperclass")
 }
 
-the<DependencyManagementExtension>().apply {
-    imports {
-        mavenBom(BOM_COORDINATES)
-    }
-}
-
 dependencies {
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     api(project(CommonsBio))
     api(project(CommonsModelExtended))
     api(project(CommonsModelExtendedMapping))

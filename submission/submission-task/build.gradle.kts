@@ -4,8 +4,7 @@ import Dependencies.MySql
 import Projects.SubmissionSubmitter
 import SpringBootDependencies.SpringBootConfigurationProcessor
 import SpringBootDependencies.SpringBootStarter
-import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
-import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
@@ -14,15 +13,10 @@ plugins {
     id(Plugins.KotlinSpringPlugin) version PluginVersions.KotlinPluginVersion
 }
 
-the<DependencyManagementExtension>().apply {
-    imports {
-        mavenBom(BOM_COORDINATES)
-    }
-}
-
 dependencies {
-    api(project(SubmissionSubmitter))
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
 
+    api(project(SubmissionSubmitter))
     annotationProcessor(SpringBootConfigurationProcessor)
 
     implementation(KotlinCoroutines)

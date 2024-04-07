@@ -5,7 +5,6 @@ import Dependencies.KotlinStdLib
 import Projects.CommonsBio
 import Projects.CommonsModelExtended
 import SpringBootDependencies.SpringDataCommons
-import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
 plugins {
@@ -13,13 +12,8 @@ plugins {
     id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
 }
 
-the<DependencyManagementExtension>().apply {
-    imports {
-        mavenBom(BOM_COORDINATES)
-    }
-}
-
 dependencies {
+    implementation(platform(BOM_COORDINATES))
     api(project(CommonsModelExtended))
     api(project(CommonsBio))
 
