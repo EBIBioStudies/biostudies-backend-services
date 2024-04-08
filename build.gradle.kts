@@ -1,3 +1,4 @@
+import PluginVersions.DetektVersion
 import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
@@ -7,8 +8,8 @@ plugins {
     id(Plugins.KotlinPlugin) version PluginVersions.KotlinPluginVersion
     id(Plugins.SshPlugin) version PluginVersions.SshVersion
     id(Plugins.JacocoPlugin)
-    id("io.gitlab.arturbosch.detekt") version "1.23.6"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
+    id(Plugins.DetektPlugin) version PluginVersions.DetektVersion
+    id(Plugins.KLintPlugin) version PluginVersions.KtLintVersion
     application
 }
 
@@ -20,8 +21,8 @@ allprojects {
     }
 
     apply(plugin = Plugins.KotlinPlugin)
-    apply(plugin = "io.gitlab.arturbosch.detekt")
-    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    apply(plugin = Plugins.DetektPlugin)
+    apply(plugin = Plugins.KLintPlugin)
     apply(from = "$rootDir/gradle/jacoco.gradle.kts")
 
     tasks {
