@@ -22,9 +22,7 @@ class SubmissionStatsService(
     private val serializationService: ExtSerializationService,
     private val extSubmissionQueryService: SubmissionPersistenceQueryService,
 ) {
-    suspend fun findByAccNo(
-        accNo: String,
-    ): List<SubmissionStat> = submissionStatsService.findByAccNo(accNo)
+    suspend fun findByAccNo(accNo: String): List<SubmissionStat> = submissionStatsService.findByAccNo(accNo)
 
     fun findByType(
         type: String,
@@ -34,19 +32,22 @@ class SubmissionStatsService(
     suspend fun findByAccNoAndType(
         accNo: String,
         type: String,
-    ): SubmissionStat =
-        submissionStatsService.findByAccNoAndType(accNo, SubmissionStatType.fromString(type.uppercase()))
+    ): SubmissionStat = submissionStatsService.findByAccNoAndType(accNo, SubmissionStatType.fromString(type.uppercase()))
+
+    suspend fun register(stat: SubmissionStat): SubmissionStat = submissionStatsService.save(stat)
 
     suspend fun register(
-        stat: SubmissionStat,
-    ): SubmissionStat = submissionStatsService.save(stat)
-
-    suspend fun register(type: String, stats: File): List<SubmissionStat> {
+        type: String,
+        stats: File,
+    ): List<SubmissionStat> {
         val statsList = statsFileHandler.readStats(stats, SubmissionStatType.fromString(type.uppercase()))
         return submissionStatsService.saveAll(statsList)
     }
 
-    suspend fun increment(type: String, statsFile: File): List<SubmissionStat> {
+    suspend fun increment(
+        type: String,
+        statsFile: File,
+    ): List<SubmissionStat> {
         val statsList = statsFileHandler.readStats(statsFile, SubmissionStatType.fromString(type.uppercase()))
         return submissionStatsService.incrementAll(statsList)
     }

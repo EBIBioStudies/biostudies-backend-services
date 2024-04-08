@@ -6,5 +6,5 @@ data class WebExtPage(
     val limit: Int,
     val offset: Long,
     val next: String?,
-    val previous: String?
+    val previous: String?,
 )

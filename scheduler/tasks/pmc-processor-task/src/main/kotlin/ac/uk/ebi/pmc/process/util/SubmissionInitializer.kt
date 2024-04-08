@@ -17,7 +17,6 @@ private val yearExtractionPattern = "\\d{4}".toRegex()
  * Read submission value an set calculated values.
  */
 class SubmissionInitializer(private val serializationService: SerializationService) {
-
     fun getSubmission(body: String): Pair<Submission, String> {
         val submission = serializationService.deserializeSubmission(body, SubFormat.JSON)
         submission.releaseDate = getReleaseDate(submission)

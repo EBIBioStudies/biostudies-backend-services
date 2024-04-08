@@ -15,49 +15,59 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import java.time.OffsetDateTime.now
 
-internal val expectedAllInOneJsonFileList = jsonArray(
-    {
-        "path" to "DataFile5.txt"
-        "size" to 9
-        "attributes" to jsonArray(
-            {
-                "name" to "Type"
-                "value" to "referenced"
-            }
-        )
-        "type" to "file"
-    },
-    {
-        "path" to "Folder1/DataFile6.txt"
-        "size" to 9
-        "attributes" to jsonArray(
-            {
-                "name" to "Type"
-                "value" to "referenced"
-            }
-        )
-        "type" to "file"
-    }
-)
+internal val expectedAllInOneJsonFileList =
+    jsonArray(
+        {
+            "path" to "DataFile5.txt"
+            "size" to 9
+            "attributes" to
+                jsonArray(
+                    {
+                        "name" to "Type"
+                        "value" to "referenced"
+                    },
+                )
+            "type" to "file"
+        },
+        {
+            "path" to "Folder1/DataFile6.txt"
+            "size" to 9
+            "attributes" to
+                jsonArray(
+                    {
+                        "name" to "Type"
+                        "value" to "referenced"
+                    },
+                )
+            "type" to "file"
+        },
+    )
 
-internal val expectedAllInOneJsonInnerFileList = jsonArray(
-    {
-        "path" to "DataFile7.txt"
-        "size" to 9
-        "attributes" to jsonArray(
-            {
-                "name" to "Type"
-                "value" to "referenced"
-            }
-        )
-        "type" to "file"
-    },
-)
+internal val expectedAllInOneJsonInnerFileList =
+    jsonArray(
+        {
+            "path" to "DataFile7.txt"
+            "size" to 9
+            "attributes" to
+                jsonArray(
+                    {
+                        "name" to "Type"
+                        "value" to "referenced"
+                    },
+                )
+            "type" to "file"
+        },
+    )
 
-fun assertAllInOneSubmissionJson(json: String, accNo: String) {
+fun assertAllInOneSubmissionJson(
+    json: String,
+    accNo: String,
+) {
     assertThat(json, isJson(withJsonPath("$.accno", equalTo(accNo))))
     assertJsonAttributes(
-        json, "$", listOf(Attribute("Title", "venous blood, ∆Monocyte"), Attribute("ReleaseDate", now().toStringDate()))
+        json,
+        "$",
+        listOf(Attribute("Title", "venous blood, ∆Monocyte"), Attribute("ReleaseDate", now().toStringDate())),
     )
 
     val section = allInOneRootSection()
@@ -82,16 +92,27 @@ fun assertAllInOneSubmissionJson(json: String, accNo: String) {
     assertJsonSectionsTable(json, "$.section.subsections[1]", allInOneSubSectionsTable())
 }
 
-private fun assertJsonSectionsTable(json: String, path: String, sectionsTable: SectionsTable) =
-    sectionsTable.elements.forEachIndexed { idx, section -> assertJsonSection(json, "$path[$idx]", section) }
+private fun assertJsonSectionsTable(
+    json: String,
+    path: String,
+    sectionsTable: SectionsTable,
+) = sectionsTable.elements.forEachIndexed { idx, section -> assertJsonSection(json, "$path[$idx]", section) }
 
-private fun assertJsonSection(json: String, path: String, section: Section) {
+private fun assertJsonSection(
+    json: String,
+    path: String,
+    section: Section,
+) {
     assertThat(json, isJson(withJsonPath("$path.accno", equalTo(section.accNo))))
     assertThat(json, isJson(withJsonPath("$path.type", equalTo(section.type))))
     assertJsonAttributes(json, path, section.attributes)
 }
 
-private fun assertJsonSubSection(json: String, path: String, section: Section) {
+private fun assertJsonSubSection(
+    json: String,
+    path: String,
+    section: Section,
+) {
     assertThat(json, isJson(withJsonPath("$path.accno", equalTo(section.accNo))))
     assertThat(json, isJson(withJsonPath("$path.type", equalTo(section.type))))
     val attribute = "$path.attributes[0]"
@@ -99,18 +120,32 @@ private fun assertJsonSubSection(json: String, path: String, section: Section) {
     assertThat(json, isJson(withJsonPath("$attribute.value", equalTo("sub-folder/file-list2.json"))))
 }
 
-private fun assertJsonLinksTable(json: String, path: String, linksTable: LinksTable) =
-    linksTable.elements.forEachIndexed { idx, link -> assertJsonLink(json, "$path[$idx]", link) }
+private fun assertJsonLinksTable(
+    json: String,
+    path: String,
+    linksTable: LinksTable,
+) = linksTable.elements.forEachIndexed { idx, link -> assertJsonLink(json, "$path[$idx]", link) }
 
-private fun assertJsonLink(json: String, path: String, link: Link) {
+private fun assertJsonLink(
+    json: String,
+    path: String,
+    link: Link,
+) {
     assertThat(json, isJson(withJsonPath("$path.url", equalTo(link.url))))
     assertJsonAttributes(json, path, link.attributes)
 }
 
-private fun assertJsonFilesTable(json: String, path: String, filesTable: FilesTable) =
-    filesTable.elements.forEachIndexed { idx, file -> assertJsonFile(json, "$path[$idx]", file) }
+private fun assertJsonFilesTable(
+    json: String,
+    path: String,
+    filesTable: FilesTable,
+) = filesTable.elements.forEachIndexed { idx, file -> assertJsonFile(json, "$path[$idx]", file) }
 
-private fun assertJsonFile(json: String, path: String, file: BioFile) {
+private fun assertJsonFile(
+    json: String,
+    path: String,
+    file: BioFile,
+) {
     assertThat(json, isJson(withJsonPath("$path.type", equalTo("file"))))
     assertThat(json, isJson(withJsonPath("$path.path", equalTo(file.path))))
     assertThat(json, isJson(withJsonPath("$path.size", equalTo(file.size.toInt()))))
@@ -118,9 +153,12 @@ private fun assertJsonFile(json: String, path: String, file: BioFile) {
     assertJsonAttributes(json, path, file.attributes)
 }
 
-private fun assertJsonAttributes(json: String, path: String, attributes: List<Attribute> = emptyList()) =
-    attributes.forEachIndexed { idx, attr ->
-        val attributePath = "$path.attributes[$idx]"
-        assertThat(json, isJson(withJsonPath("$attributePath.name", equalTo(attr.name))))
-        assertThat(json, isJson(withJsonPath("$attributePath.value", equalTo(attr.value))))
-    }
+private fun assertJsonAttributes(
+    json: String,
+    path: String,
+    attributes: List<Attribute> = emptyList(),
+) = attributes.forEachIndexed { idx, attr ->
+    val attributePath = "$path.attributes[$idx]"
+    assertThat(json, isJson(withJsonPath("$attributePath.name", equalTo(attr.name))))
+    assertThat(json, isJson(withJsonPath("$attributePath.value", equalTo(attr.value))))
+}

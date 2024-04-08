@@ -8,3 +8,6 @@ reports/
 .DS_Store
 logs/*
 /.run/
+
+# System specific
+submission/submission-webapp/logs/application_logs.txt

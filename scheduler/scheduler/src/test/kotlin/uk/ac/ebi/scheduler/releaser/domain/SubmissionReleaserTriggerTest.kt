@@ -62,28 +62,31 @@ class SubmissionReleaserTriggerTest(
     }
 
     @Test
-    fun triggerSubmissionReleaser() = runTest {
-        trigger.triggerSubmissionReleaser()
+    fun triggerSubmissionReleaser() =
+        runTest {
+            trigger.triggerSubmissionReleaser()
 
-        verifyClusterOperations()
-        verifyJobSpecs(jobSpecs.captured, mode = RELEASE)
-    }
-
-    @Test
-    fun triggerSubmissionReleaseNotifier() = runTest {
-        trigger.triggerSubmissionReleaseNotifier()
-
-        verifyClusterOperations()
-        verifyJobSpecs(jobSpecs.captured, mode = NOTIFY)
-    }
+            verifyClusterOperations()
+            verifyJobSpecs(jobSpecs.captured, mode = RELEASE)
+        }
 
     @Test
-    fun triggerFtpLinksGenerator() = runTest {
-        trigger.triggerFtpLinksGenerator()
+    fun triggerSubmissionReleaseNotifier() =
+        runTest {
+            trigger.triggerSubmissionReleaseNotifier()
 
-        verifyClusterOperations()
-        verifyJobSpecs(jobSpecs.captured, mode = GENERATE_FTP_LINKS)
-    }
+            verifyClusterOperations()
+            verifyJobSpecs(jobSpecs.captured, mode = NOTIFY)
+        }
+
+    @Test
+    fun triggerFtpLinksGenerator() =
+        runTest {
+            trigger.triggerFtpLinksGenerator()
+
+            verifyClusterOperations()
+            verifyJobSpecs(jobSpecs.captured, mode = GENERATE_FTP_LINKS)
+        }
 
     private fun verifyClusterOperations() {
         coVerify(exactly = 1) {
@@ -92,7 +95,10 @@ class SubmissionReleaserTriggerTest(
         }
     }
 
-    private fun verifyJobSpecs(specs: JobSpec, mode: ReleaserMode) {
+    private fun verifyJobSpecs(
+        specs: JobSpec,
+        mode: ReleaserMode,
+    ) {
         assertThat(specs.ram).isEqualTo(EIGHT_GB)
         assertThat(specs.cores).isEqualTo(FOUR_CORES)
         assertThat(specs.command).isEqualTo(
@@ -114,34 +120,38 @@ class SubmissionReleaserTriggerTest(
             --app.notification-times.first-warning-days=60 \
             --app.notification-times.second-warning-days=30 \
             --app.notification-times.third-warning-days=7"
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
     private fun testProperties(): SubmissionReleaserProperties {
-        val bioStudies = BioStudies().apply {
-            url = "http://localhost:8080"
-            user = "admin_user@ebi.ac.uk"
-            password = "123456"
-        }
+        val bioStudies =
+            BioStudies().apply {
+                url = "http://localhost:8080"
+                user = "admin_user@ebi.ac.uk"
+                password = "123456"
+            }
 
-        val persistence = Persistence().apply {
-            database = "dev"
-            uri = "mongodb://root:admin@localhost:27017/dev?authSource=admin\\&replicaSet=biostd01"
-        }
+        val persistence =
+            Persistence().apply {
+                database = "dev"
+                uri = "mongodb://root:admin@localhost:27017/dev?authSource=admin\\&replicaSet=biostd01"
+            }
 
-        val rabbitmq = Rabbitmq().apply {
-            host = "localhost"
-            user = "manager"
-            password = "manager-local"
-            port = 5672
-        }
+        val rabbitmq =
+            Rabbitmq().apply {
+                host = "localhost"
+                user = "manager"
+                password = "manager-local"
+                port = 5672
+            }
 
-        val notificationTimes = NotificationTimes().apply {
-            firstWarningDays = 60
-            secondWarningDays = 30
-            thirdWarningDays = 7
-        }
+        val notificationTimes =
+            NotificationTimes().apply {
+                firstWarningDays = 60
+                secondWarningDays = 30
+                thirdWarningDays = 7
+            }
 
         return SubmissionReleaserProperties().apply {
             this.rabbitmq = rabbitmq

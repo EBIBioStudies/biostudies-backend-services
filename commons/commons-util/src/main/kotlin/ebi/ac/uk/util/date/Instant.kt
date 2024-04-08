@@ -7,5 +7,4 @@ import java.time.temporal.ChronoUnit.DAYS
 
 fun Instant.asOffsetAtStartOfDay(): OffsetDateTime = atOffset(UTC).toLocalDate().atStartOfDay().atOffset(UTC)
 
-fun Instant.asOffsetAtEndOfDay(): OffsetDateTime =
-    plus(1, DAYS).atOffset(UTC).toLocalDate().atStartOfDay().minusSeconds(1).atOffset(UTC)
+fun Instant.asOffsetAtEndOfDay(): OffsetDateTime = plus(1, DAYS).atOffset(UTC).toLocalDate().atStartOfDay().minusSeconds(1).atOffset(UTC)

@@ -40,27 +40,43 @@ class SubmissionDraftService(
         return draftPersistenceService.getActiveSubmissionDrafts(userEmail, filter)
     }
 
-    suspend fun getOrCreateSubmissionDraft(userEmail: String, key: String): SubmissionDraft {
+    suspend fun getOrCreateSubmissionDraft(
+        userEmail: String,
+        key: String,
+    ): SubmissionDraft {
         return draftPersistenceService.findSubmissionDraft(userEmail, key) ?: createDraftFromSubmission(userEmail, key)
     }
 
-    suspend fun getSubmissionDraftContent(userEmail: String, key: String): String {
+    suspend fun getSubmissionDraftContent(
+        userEmail: String,
+        key: String,
+    ): String {
         return getOrCreateSubmissionDraft(userEmail, key).content
     }
 
-    suspend fun deleteSubmissionDraft(userEmail: String, key: String) {
+    suspend fun deleteSubmissionDraft(
+        userEmail: String,
+        key: String,
+    ) {
         draftPersistenceService.deleteSubmissionDraft(userEmail, key)
         logger.info { "$key $userEmail Draft with key '$key' DELETED for user '$userEmail'" }
     }
 
-    suspend fun updateSubmissionDraft(userEmail: String, key: String, content: String): SubmissionDraft {
+    suspend fun updateSubmissionDraft(
+        userEmail: String,
+        key: String,
+        content: String,
+    ): SubmissionDraft {
         val updated = draftPersistenceService.updateSubmissionDraft(userEmail, key, content)
         logger.info { "$key $userEmail Draft with key '$key' UPDATED for user '$userEmail'" }
 
         return updated
     }
 
-    suspend fun createSubmissionDraft(userEmail: String, content: String): SubmissionDraft {
+    suspend fun createSubmissionDraft(
+        userEmail: String,
+        content: String,
+    ): SubmissionDraft {
         val draftKey = "TMP_${Instant.now().toEpochMilli()}"
         val draft = draftPersistenceService.createSubmissionDraft(userEmail, draftKey, content)
         logger.info { "$draftKey $userEmail Draft with key '$draftKey' CREATED for user '$userEmail'" }
@@ -97,7 +113,10 @@ class SubmissionDraftService(
         return submitWebHandler.submit(request)
     }
 
-    private suspend fun createDraftFromSubmission(userEmail: String, accNo: String): SubmissionDraft {
+    private suspend fun createDraftFromSubmission(
+        userEmail: String,
+        accNo: String,
+    ): SubmissionDraft {
         require(userPrivilegesService.canResubmit(userEmail, accNo)) { throw UserCanNotUpdateSubmit(accNo, userEmail) }
         val submission = toSubmissionMapper.toSimpleSubmission(submissionQueryService.getExtByAccNo(accNo))
         val content = serializationService.serializeSubmission(submission, JsonPretty)

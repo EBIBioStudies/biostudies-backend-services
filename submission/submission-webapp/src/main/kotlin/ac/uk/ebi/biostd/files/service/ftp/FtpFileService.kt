@@ -15,16 +15,25 @@ class FtpFileService(
     private val basePath: Path,
     private val ftp: FtpClient,
 ) : FileService {
-    override fun uploadFile(path: String, file: File) {
+    override fun uploadFile(
+        path: String,
+        file: File,
+    ) {
         ftp.uploadFile(basePath.resolve(path).resolve(file.name)) { file.inputStream() }
     }
 
-    override fun uploadFiles(path: String, files: List<MultipartFile>) {
+    override fun uploadFiles(
+        path: String,
+        files: List<MultipartFile>,
+    ) {
         val ftpFiles = files.map { basePath.resolve(path).resolve(it.originalFilename!!) to { it.inputStream } }
         ftp.uploadFiles(basePath.resolve(path), ftpFiles)
     }
 
-    override fun getFile(path: String, fileName: String): File {
+    override fun getFile(
+        path: String,
+        fileName: String,
+    ): File {
         val target = Files.createTempFile(path, fileName)
         val ftpPath = basePath.resolve(path).resolve(fileName)
 
@@ -32,25 +41,32 @@ class FtpFileService(
         return target.toFile()
     }
 
-    override fun createFolder(path: String, folderName: String) {
+    override fun createFolder(
+        path: String,
+        folderName: String,
+    ) {
         ftp.createFolder(basePath.resolve(path))
     }
 
     override fun listFiles(path: String): FilesSpec {
-        val files = ftp
-            .listFiles(basePath.resolve(path))
-            .map {
-                UserFile(
-                    name = it.name,
-                    path = path,
-                    fileSize = it.size,
-                    type = if (it.isFile) UserFileType.FILE else UserFileType.DIR,
-                )
-            }
+        val files =
+            ftp
+                .listFiles(basePath.resolve(path))
+                .map {
+                    UserFile(
+                        name = it.name,
+                        path = path,
+                        fileSize = it.size,
+                        type = if (it.isFile) UserFileType.FILE else UserFileType.DIR,
+                    )
+                }
         return FilesSpec(files)
     }
 
-    override fun deleteFile(path: String, fileName: String) {
+    override fun deleteFile(
+        path: String,
+        fileName: String,
+    ) {
         ftp.deleteFile(basePath.resolve(path).resolve(fileName))
     }
 }

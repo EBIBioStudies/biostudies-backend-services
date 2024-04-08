@@ -30,7 +30,6 @@ internal class SectionConverterTest(
     @MockK val attributeDocument1: Document,
     @MockK val attributeDocument2: Document,
     @MockK val attributeDocument3: Document,
-
     @MockK val fileListConverter: FileListConverter,
     @MockK val docFileList1: DocFileList,
     @MockK val docFileList2: DocFileList,
@@ -38,31 +37,28 @@ internal class SectionConverterTest(
     @MockK val fileListDocument1: Document,
     @MockK val fileListDocument2: Document,
     @MockK val fileListDocument3: Document,
-
     @MockK val linkConverter: LinkConverter,
     @MockK val docLink1: DocLink,
     @MockK val linkDocument1: Document,
-
     @MockK val linkTableConverter: LinkTableConverter,
     @MockK val docLinkTable1: DocLinkTable,
     @MockK val linkTableDocument1: Document,
-
     @MockK val fileConverter: FileConverter,
     @MockK val docFile1: DocFile,
     @MockK val fileDocument1: Document,
-
     @MockK val fileTableConverter: FileTableConverter,
     @MockK val docFileTable1: DocFileTable,
-    @MockK val fileTableDocument1: Document
+    @MockK val fileTableDocument1: Document,
 ) {
-    private val testInstance = SectionConverter(
-        attributeConverter,
-        linkConverter,
-        linkTableConverter,
-        fileConverter,
-        fileTableConverter,
-        fileListConverter
-    )
+    private val testInstance =
+        SectionConverter(
+            attributeConverter,
+            linkConverter,
+            linkTableConverter,
+            fileConverter,
+            fileTableConverter,
+            fileListConverter,
+        )
 
     @Test
     fun convert() {
@@ -111,22 +107,22 @@ internal class SectionConverterTest(
     }
 
     private fun assertTableSection(uniqueSection: Document) {
-        assertThat(uniqueSection[DocSectionFields.SEC_ACC_NO]).isEqualTo(docSectionAccNo3)
-        assertThat(uniqueSection[DocSectionFields.SEC_TYPE]).isEqualTo(docSectionType3)
+        assertThat(uniqueSection[DocSectionFields.SEC_ACC_NO]).isEqualTo(DOC_SECTION_ACC_NO_3)
+        assertThat(uniqueSection[DocSectionFields.SEC_TYPE]).isEqualTo(DOC_SECTION_TYPE_3)
         assertThat(uniqueSection[DocSectionFields.SEC_ATTRIBUTES]).isEqualTo(listOf(attributeDocument3))
     }
 
     private fun assertMainSection(result: Document) {
         assertThat(result[DocSectionFields.SEC_ID]).isEqualTo(sectionId)
-        assertThat(result[DocSectionFields.SEC_ACC_NO]).isEqualTo(docSectionAccNo1)
-        assertThat(result[DocSectionFields.SEC_TYPE]).isEqualTo(docSectionType1)
+        assertThat(result[DocSectionFields.SEC_ACC_NO]).isEqualTo(DOC_SECTION_ACC_NO_1)
+        assertThat(result[DocSectionFields.SEC_TYPE]).isEqualTo(DOC_SECTION_TYPE_1)
         assertThat(result[DocSectionFields.SEC_FILE_LIST]).isEqualTo(fileListDocument1)
         assertThat(result[DocSectionFields.SEC_ATTRIBUTES]).isEqualTo(listOf(attributeDocument1))
     }
 
     private fun assertSubSection(section: Document) {
-        assertThat(section[DocSectionFields.SEC_ACC_NO]).isEqualTo(docSectionAccNo2)
-        assertThat(section[DocSectionFields.SEC_TYPE]).isEqualTo(docSectionType2)
+        assertThat(section[DocSectionFields.SEC_ACC_NO]).isEqualTo(DOC_SECTION_ACC_NO_2)
+        assertThat(section[DocSectionFields.SEC_TYPE]).isEqualTo(DOC_SECTION_TYPE_2)
         assertThat(section[DocSectionFields.SEC_FILE_LIST]).isEqualTo(fileListDocument2)
         assertThat(section[DocSectionFields.SEC_ATTRIBUTES]).isEqualTo(listOf(attributeDocument2))
         assertThat(section[DocSectionFields.SEC_SECTIONS]).isEqualTo(listOf<Document>())
@@ -137,47 +133,48 @@ internal class SectionConverterTest(
     private fun createDocSection(): DocSection {
         return DocSection(
             id = sectionId,
-            accNo = docSectionAccNo1,
-            type = docSectionType1,
+            accNo = DOC_SECTION_ACC_NO_1,
+            type = DOC_SECTION_TYPE_1,
             fileList = docFileList1,
             attributes = listOf(docAttribute1),
-            sections = listOf(
-                Either.left(
-                    DocSection(
-                        ObjectId(),
-                        docSectionAccNo2,
-                        docSectionType2,
-                        docFileList2,
-                        listOf(docAttribute2),
-                        listOf(),
-                        listOf(),
-                        listOf()
-                    )
+            sections =
+                listOf(
+                    Either.left(
+                        DocSection(
+                            ObjectId(),
+                            DOC_SECTION_ACC_NO_2,
+                            DOC_SECTION_TYPE_2,
+                            docFileList2,
+                            listOf(docAttribute2),
+                            listOf(),
+                            listOf(),
+                            listOf(),
+                        ),
+                    ),
+                    Either.right(
+                        DocSectionTable(
+                            listOf(
+                                DocSectionTableRow(
+                                    DOC_SECTION_ACC_NO_3,
+                                    DOC_SECTION_TYPE_3,
+                                    listOf(docAttribute3),
+                                ),
+                            ),
+                        ),
+                    ),
                 ),
-                Either.right(
-                    DocSectionTable(
-                        listOf(
-                            DocSectionTableRow(
-                                docSectionAccNo3,
-                                docSectionType3,
-                                listOf(docAttribute3)
-                            )
-                        )
-                    )
-                )
-            ),
             files = listOf(Either.left(docFile1), Either.right(docFileTable1)),
-            links = listOf(Either.left(docLink1), Either.right(docLinkTable1))
+            links = listOf(Either.left(docLink1), Either.right(docLinkTable1)),
         )
     }
 
     private companion object {
         val sectionId = ObjectId()
-        const val docSectionAccNo1 = "AccNo1"
-        const val docSectionAccNo2 = "AccNo2"
-        const val docSectionAccNo3 = "AccNo3"
-        const val docSectionType1 = "type1"
-        const val docSectionType2 = "type2"
-        const val docSectionType3 = "type3"
+        const val DOC_SECTION_ACC_NO_1 = "AccNo1"
+        const val DOC_SECTION_ACC_NO_2 = "AccNo2"
+        const val DOC_SECTION_ACC_NO_3 = "AccNo3"
+        const val DOC_SECTION_TYPE_1 = "type1"
+        const val DOC_SECTION_TYPE_2 = "type2"
+        const val DOC_SECTION_TYPE_3 = "type3"
     }
 }

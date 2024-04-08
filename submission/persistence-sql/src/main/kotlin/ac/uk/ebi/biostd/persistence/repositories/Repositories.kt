@@ -21,6 +21,7 @@ import javax.persistence.LockModeType
 
 interface AccessTagDataRepo : JpaRepository<DbAccessTag, Long> {
     fun findByName(name: String): DbAccessTag?
+
     fun existsByName(name: String): Boolean
 }
 
@@ -35,13 +36,33 @@ interface SequenceDataRepository : JpaRepository<DbSequence, Long> {
 
 @Suppress("TooManyFunctions")
 interface UserDataRepository : JpaRepository<DbUser, Long> {
-    fun findByLoginOrEmailAndActive(login: String, email: String, active: Boolean): DbUser?
+    fun findByLoginOrEmailAndActive(
+        login: String,
+        email: String,
+        active: Boolean,
+    ): DbUser?
+
     fun getByEmail(userEmail: String): DbUser
+
     fun existsByEmail(email: String): Boolean
-    fun existsByEmailAndActive(email: String, active: Boolean): Boolean
-    fun findByActivationKeyAndActive(key: String, active: Boolean): DbUser?
+
+    fun existsByEmailAndActive(
+        email: String,
+        active: Boolean,
+    ): Boolean
+
+    fun findByActivationKeyAndActive(
+        key: String,
+        active: Boolean,
+    ): DbUser?
+
     fun findByActivationKey(key: String): DbUser?
-    fun findByEmailAndActive(email: String, active: Boolean): DbUser?
+
+    fun findByEmailAndActive(
+        email: String,
+        active: Boolean,
+    ): DbUser?
+
     fun findByEmail(email: String): DbUser?
 
     @EntityGraph(value = USER_DATA_GRAPH, type = LOAD)
@@ -56,15 +77,30 @@ interface UserGroupDataRepository : JpaRepository<DbUserGroup, Long> {
 
 interface AccessPermissionRepository : JpaRepository<DbAccessPermission, Long> {
     fun findAllByUserEmail(email: String): List<DbAccessPermission>
-    fun findAllByUserEmailAndAccessType(email: String, accessType: AccessType): List<DbAccessPermission>
-    fun existsByUserEmailAndAccessTypeAndAccessTagName(user: String, type: AccessType, accessTag: String): Boolean
+
+    fun findAllByUserEmailAndAccessType(
+        email: String,
+        accessType: AccessType,
+    ): List<DbAccessPermission>
+
+    fun existsByUserEmailAndAccessTypeAndAccessTagName(
+        user: String,
+        type: AccessType,
+        accessTag: String,
+    ): Boolean
 }
 
 interface UserDataDataRepository : JpaRepository<DbUserData, UserDataId> {
-    fun findByUserEmailAndKey(userEmail: String, key: String): DbUserData?
+    fun findByUserEmailAndKey(
+        userEmail: String,
+        key: String,
+    ): DbUserData?
 
     @Modifying
-    fun deleteByUserEmailAndKey(email: String, key: String)
+    fun deleteByUserEmailAndKey(
+        email: String,
+        key: String,
+    )
 }
 
 interface SubmissionRtRepository : JpaRepository<DbSubmissionRT, Long> {

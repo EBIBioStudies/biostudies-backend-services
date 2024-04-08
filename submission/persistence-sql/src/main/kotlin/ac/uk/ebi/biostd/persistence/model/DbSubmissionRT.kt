@@ -12,9 +12,8 @@ import javax.persistence.Table
 class DbSubmissionRT(
     @Column
     override val accNo: String,
-
     @Column
-    override val ticketId: String
+    override val ticketId: String,
 ) : SubmissionRT {
     @Id
     @GeneratedValue

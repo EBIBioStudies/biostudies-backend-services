@@ -12,7 +12,9 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-class AccNoPatternUtilTest(@MockK private val service: PersistenceService) {
+class AccNoPatternUtilTest(
+    @MockK private val service: PersistenceService,
+) {
     private val testInstance = AccNoPatternUtil()
 
     @BeforeEach

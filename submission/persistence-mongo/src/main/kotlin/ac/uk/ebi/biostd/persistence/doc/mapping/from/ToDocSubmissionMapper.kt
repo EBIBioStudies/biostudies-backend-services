@@ -18,7 +18,10 @@ class ToDocSubmissionMapper(private val toDocSectionMapper: ToDocSectionMapper) 
         return Pair(docSubmission, fileList)
     }
 
-    private fun ExtSubmission.convert(submissionId: ObjectId, docSection: DocSection): DocSubmission {
+    private fun ExtSubmission.convert(
+        submissionId: ObjectId,
+        docSection: DocSection,
+    ): DocSubmission {
         return DocSubmission(
             id = submissionId,
             accNo = accNo,
@@ -41,7 +44,7 @@ class ToDocSubmissionMapper(private val toDocSectionMapper: ToDocSectionMapper) 
             attributes = attributes.map { it.toDocAttribute() },
             section = docSection,
             pageTabFiles = pageTabFiles.map { it.toDocFile() },
-            storageMode = storageMode
+            storageMode = storageMode,
         )
     }
 

@@ -37,7 +37,10 @@ class ExtSubmissionClient(
         return extSerializationService.deserializePage(response)
     }
 
-    override fun getExtByAccNo(accNo: String, includeFileList: Boolean): ExtSubmission {
+    override fun getExtByAccNo(
+        accNo: String,
+        includeFileList: Boolean,
+    ): ExtSubmission {
         val sub = client.getForObject<String>("$EXT_SUBMISSIONS_URL/$accNo?includeFileList=$includeFileList")
         return extSerializationService.deserialize(sub)
     }
@@ -56,11 +59,14 @@ class ExtSubmissionClient(
     override fun submitExtAsync(extSubmission: ExtSubmission) {
         client.post(
             "$EXT_SUBMISSIONS_URL/async",
-            RequestParams(body = linkedMultiValueMapOf(SUBMISSION to extSerializationService.serialize(extSubmission)))
+            RequestParams(body = linkedMultiValueMapOf(SUBMISSION to extSerializationService.serialize(extSubmission))),
         )
     }
 
-    override fun transferSubmission(accNo: String, target: StorageMode) {
+    override fun transferSubmission(
+        accNo: String,
+        target: StorageMode,
+    ) {
         client.post("$EXT_SUBMISSIONS_URL/$accNo/transfer/$target")
     }
 
@@ -68,7 +74,10 @@ class ExtSubmissionClient(
         return client.postForObject("$EXT_SUBMISSIONS_URL/refresh/$accNo")
     }
 
-    override fun releaseSubmission(accNo: String, releaseDate: Instant): Pair<String, Int> {
+    override fun releaseSubmission(
+        accNo: String,
+        releaseDate: Instant,
+    ): Pair<String, Int> {
         return client.postForObject("$EXT_SUBMISSIONS_URL/release/$accNo/$releaseDate")
     }
 

@@ -30,7 +30,10 @@ import uk.ac.ebi.serialization.extensions.getNode
 import java.nio.file.Paths
 
 class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
-    override fun deserialize(jsonParser: JsonParser, ctxt: DeserializationContext): ExtFile {
+    override fun deserialize(
+        jsonParser: JsonParser,
+        ctxt: DeserializationContext,
+    ): ExtFile {
         val mapper = jsonParser.codec as ObjectMapper
         val node = mapper.readTree<JsonNode>(jsonParser)
 
@@ -41,7 +44,10 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
         }
     }
 
-    private fun fireFile(node: JsonNode, mapper: ObjectMapper): FireFile =
+    private fun fireFile(
+        node: JsonNode,
+        mapper: ObjectMapper,
+    ): FireFile =
         FireFile(
             fireId = node.getNode<TextNode>(FILE_FIRE_ID).textValue(),
             firePath = node.getNode<TextNode>(FILE_FIRE_PATH).textValue(),
@@ -51,10 +57,13 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<NumericNode>(FILE_SIZE).longValue(),
             type = ExtFileType.fromString(node.getNode<TextNode>(FILE_TYPE).textValue()),
-            attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }
+            attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() },
         )
 
-    private fun nfsFile(node: JsonNode, mapper: ObjectMapper): NfsFile {
+    private fun nfsFile(
+        node: JsonNode,
+        mapper: ObjectMapper,
+    ): NfsFile {
         val fullPath = node.getNode<TextNode>(FILE_FULL_PATH).textValue()
         return NfsFile(
             filePath = node.getNode<TextNode>(FILE_FILEPATH).textValue(),
@@ -64,7 +73,7 @@ class ExtFileDeserializer : JsonDeserializer<ExtFile>() {
             md5 = node.getNode<TextNode>(FILE_MD5).textValue(),
             size = node.getNode<NumericNode>(FILE_SIZE).longValue(),
             type = ExtFileType.fromString(node.getNode<TextNode>(FILE_TYPE).textValue()),
-            attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }
+            attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() },
         )
     }
 }

@@ -25,15 +25,16 @@ internal open class SqlPersistenceService(
 
     @Transactional
     override fun getSequenceNextValue(pattern: String): Long {
-        fun getNextSequence(pattern: String): Long = runBlocking {
-            val sequence = sequenceRepository.findByPrefix(pattern) ?: throw SequenceNotFoundException(pattern)
-            var next = sequence.counter.count + 1
-            while (submissionPersistenceQueryService.existByAccNo("${sequence.prefix}$next")) next++
+        fun getNextSequence(pattern: String): Long =
+            runBlocking {
+                val sequence = sequenceRepository.findByPrefix(pattern) ?: throw SequenceNotFoundException(pattern)
+                var next = sequence.counter.count + 1
+                while (submissionPersistenceQueryService.existByAccNo("${sequence.prefix}$next")) next++
 
-            sequence.counter.count = next
-            val saved = sequenceRepository.save(sequence)
-            saved.counter.count
-        }
+                sequence.counter.count = next
+                val saved = sequenceRepository.save(sequence)
+                saved.counter.count
+            }
         return lockExecutor.executeLocking(pattern) { getNextSequence(pattern) }
     }
 

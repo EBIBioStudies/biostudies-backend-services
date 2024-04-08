@@ -16,4 +16,5 @@ sealed class QueueSpec(val name: String) {
 }
 
 object StandardQueue : QueueSpec(STANDARD)
+
 object DataMoverQueue : QueueSpec(DATA_MOVER)

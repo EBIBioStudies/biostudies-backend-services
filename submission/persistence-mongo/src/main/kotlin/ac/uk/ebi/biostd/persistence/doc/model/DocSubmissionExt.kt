@@ -23,7 +23,7 @@ fun DocSubmission.asBasicSubmission(status: ProcessingStatus): BasicSubmission {
         releaseTime = releaseTime?.atOffset(UTC)?.truncatedTo(ChronoUnit.MILLIS),
         status = status,
         method = method.toSubmissionMethod(),
-        owner = owner
+        owner = owner,
     )
 }
 
@@ -34,20 +34,21 @@ private fun DocSubmissionMethod.toSubmissionMethod(): SubmissionMethod =
         DocSubmissionMethod.UNKNOWN -> SubmissionMethod.UNKNOWN
     }
 
-fun ExtSubmission.asBasicSubmission(status: ProcessingStatus): BasicSubmission = BasicSubmission(
-    accNo = this.accNo,
-    version = version,
-    secretKey = secretKey,
-    title = section.title ?: title,
-    relPath = relPath,
-    released = released,
-    creationTime = creationTime,
-    modificationTime = modificationTime,
-    releaseTime = releaseTime,
-    status = status,
-    method = method.toSubmissionMethod(),
-    owner = owner
-)
+fun ExtSubmission.asBasicSubmission(status: ProcessingStatus): BasicSubmission =
+    BasicSubmission(
+        accNo = this.accNo,
+        version = version,
+        secretKey = secretKey,
+        title = section.title ?: title,
+        relPath = relPath,
+        released = released,
+        creationTime = creationTime,
+        modificationTime = modificationTime,
+        releaseTime = releaseTime,
+        status = status,
+        method = method.toSubmissionMethod(),
+        owner = owner,
+    )
 
 val ExtSection.title: String?
     get() = attributes.find { it.name == SectionFields.TITLE.value }?.value

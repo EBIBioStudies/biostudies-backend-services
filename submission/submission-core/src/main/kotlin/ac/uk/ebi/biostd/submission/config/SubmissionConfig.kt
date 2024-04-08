@@ -31,13 +31,14 @@ class SubmissionConfig {
         serializationService: SerializationService,
         toSubmissionMapper: ToSubmissionMapper,
         toFileListMapper: ToFileListMapper,
-    ): SubmissionQueryService = SubmissionQueryService(
-        submissionPersistenceQueryService,
-        filesRepository,
-        serializationService,
-        toSubmissionMapper,
-        toFileListMapper,
-    )
+    ): SubmissionQueryService =
+        SubmissionQueryService(
+            submissionPersistenceQueryService,
+            filesRepository,
+            serializationService,
+            toSubmissionMapper,
+            toFileListMapper,
+        )
 
     @Bean
     fun submissionService(
@@ -47,14 +48,15 @@ class SubmissionConfig {
         submissionSubmitter: SubmissionSubmitter,
         eventsPublisherService: EventsPublisherService,
         fileStorageService: FileStorageService,
-    ): SubmissionService = SubmissionService(
-        submissionPersistenceQueryService,
-        userPrivilegeService,
-        submissionSubmitter,
-        eventsPublisherService,
-        submissionPersistenceService,
-        fileStorageService
-    )
+    ): SubmissionService =
+        SubmissionService(
+            submissionPersistenceQueryService,
+            userPrivilegeService,
+            submissionSubmitter,
+            eventsPublisherService,
+            submissionPersistenceService,
+            fileStorageService,
+        )
 
     @Bean
     fun extSubmissionQueryService(

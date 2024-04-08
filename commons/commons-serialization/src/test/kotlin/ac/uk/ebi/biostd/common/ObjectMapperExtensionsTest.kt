@@ -15,9 +15,8 @@ import uk.ac.ebi.serialization.extensions.tryConvertValue
 @ExtendWith(MockKExtension::class)
 class ObjectMapperExtensionsTest(
     @MockK val jsonNode: JsonNode,
-    @MockK val javaType: JavaType
+    @MockK val javaType: JavaType,
 ) {
-
     @SpyK
     var testInstance: ObjectMapper = ObjectMapper()
 

@@ -15,7 +15,7 @@ const val DEFAULT_SUFFIX = "000null"
 @Table(name = "IdGen")
 class DbSequence(
     @Column
-    val prefix: String
+    val prefix: String,
 ) {
     @Id
     @GeneratedValue

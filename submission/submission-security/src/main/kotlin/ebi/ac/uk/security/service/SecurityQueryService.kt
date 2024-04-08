@@ -16,9 +16,15 @@ class SecurityQueryService(
     private val userRepository: UserDataRepository,
     private val securityProperties: SecurityProperties,
 ) : ISecurityQueryService {
-    override fun existsByEmail(email: String, onlyActive: Boolean): Boolean {
-        return if (onlyActive) userRepository.existsByEmailAndActive(email, true)
-        else userRepository.existsByEmail(email)
+    override fun existsByEmail(
+        email: String,
+        onlyActive: Boolean,
+    ): Boolean {
+        return if (onlyActive) {
+            userRepository.existsByEmailAndActive(email, true)
+        } else {
+            userRepository.existsByEmail(email)
+        }
     }
 
     override fun getUser(email: String): SecurityUser {
@@ -33,20 +39,27 @@ class SecurityQueryService(
             ?: throw UserNotFoundByTokenException()
     }
 
-    override fun getOrCreateInactive(email: String, username: String): SecurityUser {
+    override fun getOrCreateInactive(
+        email: String,
+        username: String,
+    ): SecurityUser {
         val user = userRepository.findByEmail(email) ?: createUserInactive(email, username)
         return profileService.asSecurityUser(user)
     }
 
-    private fun createUserInactive(email: String, username: String): DbUser {
-        val user = DbUser(
-            email = email.lowercase(),
-            fullName = username,
-            secret = securityUtil.newKey(),
-            storageMode = securityProperties.filesProperties.defaultMode,
-            passwordDigest = ByteArray(0),
-            notificationsEnabled = false
-        )
+    private fun createUserInactive(
+        email: String,
+        username: String,
+    ): DbUser {
+        val user =
+            DbUser(
+                email = email.lowercase(),
+                fullName = username,
+                secret = securityUtil.newKey(),
+                storageMode = securityProperties.filesProperties.defaultMode,
+                passwordDigest = ByteArray(0),
+                notificationsEnabled = false,
+            )
         user.active = false
         user.activationKey = securityUtil.newKey()
         return userRepository.save(user)

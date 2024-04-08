@@ -14,7 +14,6 @@ import java.util.zip.GZIPInputStream
 private val logger = KotlinLogging.logger {}
 
 class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
-
     /**
      * List the files in the given folder and load into the system the ones not already loaded. Sequence is used so the
      * full list of file content is not loaded into memory.
@@ -22,26 +21,33 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
      * @param folder folder containing submission gzip files to be loaded into the system.
      * @param file optional file to load.
      */
-    fun loadFile(folder: File, file: File?) {
+    fun loadFile(
+        folder: File,
+        file: File?,
+    ) {
         runBlocking {
             val files = if (file != null) listOf(file) else folder.listFiles(GzFilter).orEmpty().toList()
             logger.info { "loading files ${files.joinToString()}" }
             processFiles(
                 toProcess = files,
                 processed = folder.createSubFolder("processed"),
-                failed = folder.createSubFolder("failed")
+                failed = folder.createSubFolder("failed"),
             )
         }
     }
 
-    private suspend fun processFiles(toProcess: List<File>, processed: File, failed: File) {
+    private suspend fun processFiles(
+        toProcess: List<File>,
+        processed: File,
+        failed: File,
+    ) {
         toProcess.asSequence()
             .onEach { file -> logger.info { "checking file '${file.absolutePath}'" } }
             .map { file -> runCatching { getFileData(file) }.fold({ left(it) }, { right(Pair(file, it)) }) }
             .forEach { either ->
                 either.fold(
                     { pmcLoader.processFile(it, processed) },
-                    { pmcLoader.processCorruptedFile(it, failed) }
+                    { pmcLoader.processCorruptedFile(it, failed) },
                 )
             }
     }
@@ -58,6 +64,9 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
     }
 
     object GzFilter : FilenameFilter {
-        override fun accept(dir: File, name: String): Boolean = name.lowercase().endsWith(".gz")
+        override fun accept(
+            dir: File,
+            name: String,
+        ): Boolean = name.lowercase().endsWith(".gz")
     }
 }

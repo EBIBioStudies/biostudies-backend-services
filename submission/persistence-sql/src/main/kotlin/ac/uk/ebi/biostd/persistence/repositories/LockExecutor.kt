@@ -13,12 +13,19 @@ private const val RELEASE_QUERY = "SELECT RELEASE_LOCK(:LOCK_NAME)"
 private val logger = KotlinLogging.logger {}
 
 interface LockExecutor {
-    fun <T> executeLocking(lockName: String, timeout: Int = 3, executable: () -> T): T
+    fun <T> executeLocking(
+        lockName: String,
+        timeout: Int = 3,
+        executable: () -> T,
+    ): T
 }
 
 class JdbcLockExecutor(private val template: NamedParameterJdbcTemplate) : LockExecutor {
-
-    override fun <T> executeLocking(lockName: String, timeout: Int, executable: () -> T): T {
+    override fun <T> executeLocking(
+        lockName: String,
+        timeout: Int,
+        executable: () -> T,
+    ): T {
         if (acquireLock(lockName, timeout)) {
             try {
                 return executable()
@@ -27,7 +34,7 @@ class JdbcLockExecutor(private val template: NamedParameterJdbcTemplate) : LockE
             }
         }
 
-        throw IllegalStateException("could not acquire lock $lockName")
+        error("could not acquire lock $lockName")
     }
 
     private fun releaseLock(lockName: String) {
@@ -35,7 +42,10 @@ class JdbcLockExecutor(private val template: NamedParameterJdbcTemplate) : LockE
         template.queryForObject<Int>(RELEASE_QUERY, mapOf(NAME_PARAM to lockName), Int::class.java)
     }
 
-    private fun acquireLock(lockName: String, timeout: Int): Boolean {
+    private fun acquireLock(
+        lockName: String,
+        timeout: Int,
+    ): Boolean {
         logger.debug { "acquiring lock $lockName in ${Thread.currentThread()}" }
         val params = mapOf(NAME_PARAM to lockName, TIME_PARAM to timeout)
         val lock = template.queryForObject<Int>(LOCK_QUERY, params, Int::class.java)

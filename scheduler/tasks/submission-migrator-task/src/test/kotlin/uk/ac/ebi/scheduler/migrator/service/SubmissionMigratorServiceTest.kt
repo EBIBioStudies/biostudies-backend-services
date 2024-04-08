@@ -31,13 +31,14 @@ class SubmissionMigratorServiceTest(
     }
 
     @Test
-    fun `migrate submissions`() = runTest {
-        every { bioWebClient.transferSubmission(ACC_NO, FIRE) } answers { nothing }
+    fun `migrate submissions`() =
+        runTest {
+            every { bioWebClient.transferSubmission(ACC_NO, FIRE) } answers { nothing }
 
-        testInstance.migrateSubmissions()
+            testInstance.migrateSubmissions()
 
-        verify(exactly = 1) { bioWebClient.transferSubmission(ACC_NO, FIRE) }
-    }
+            verify(exactly = 1) { bioWebClient.transferSubmission(ACC_NO, FIRE) }
+        }
 
     private fun setUpProperties() {
         every { properties.await } returns AWAIT

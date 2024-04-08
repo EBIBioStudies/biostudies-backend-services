@@ -42,19 +42,20 @@ class StatsReporterServiceTest(
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun reportStats() = runTest {
-        testInstance.reportStats()
+    fun reportStats() =
+        runTest {
+            testInstance.reportStats()
 
-        val imagingReport = publishFolder.resolve("202307_$IMAGING_REPORT_NAME.txt")
-        val expectedImagingReport = "202306\t$PREVIOUS_IMAGING_FILES_SIZE\n202307\t$IMAGING_FILES_SIZE"
-        assertThat(imagingReport.exists()).isTrue()
-        assertThat(imagingReport).hasContent(expectedImagingReport)
+            val imagingReport = publishFolder.resolve("202307_$IMAGING_REPORT_NAME.txt")
+            val expectedImagingReport = "202306\t$PREVIOUS_IMAGING_FILES_SIZE\n202307\t$IMAGING_FILES_SIZE"
+            assertThat(imagingReport.exists()).isTrue()
+            assertThat(imagingReport).hasContent(expectedImagingReport)
 
-        val nonImagingReport = publishFolder.resolve("202307_$NON_IMAGING_REPORT_NAME.txt")
-        val expectedNonImagingReport = "202306\t$PREVIOUS_NON_IMAGING_FILES_SIZE\n202307\t$NON_IMAGING_FILES_SIZE"
-        assertThat(nonImagingReport.exists()).isTrue()
-        assertThat(nonImagingReport).hasContent(expectedNonImagingReport)
-    }
+            val nonImagingReport = publishFolder.resolve("202307_$NON_IMAGING_REPORT_NAME.txt")
+            val expectedNonImagingReport = "202306\t$PREVIOUS_NON_IMAGING_FILES_SIZE\n202307\t$NON_IMAGING_FILES_SIZE"
+            assertThat(nonImagingReport.exists()).isTrue()
+            assertThat(nonImagingReport).hasContent(expectedNonImagingReport)
+        }
 
     private fun setUpDate() {
         mockkStatic(OffsetDateTime::class)

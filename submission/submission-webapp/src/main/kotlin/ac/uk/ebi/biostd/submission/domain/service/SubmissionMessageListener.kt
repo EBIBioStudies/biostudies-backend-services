@@ -98,11 +98,17 @@ class SubmissionMessageListener(
         }
     }
 
-    private fun processSafely(request: RequestMessage, process: suspend RequestMessage.() -> Unit) = runBlocking {
+    private fun processSafely(
+        request: RequestMessage,
+        process: suspend RequestMessage.() -> Unit,
+    ) = runBlocking {
         runCatching { process(request) }.onFailure { onError(it, request) }
     }
 
-    private fun onError(exception: Throwable, rqt: RequestMessage) {
+    private fun onError(
+        exception: Throwable,
+        rqt: RequestMessage,
+    ) {
         logger.error(exception) { "${rqt.accNo}, Problem processing request '${rqt.accNo}': ${exception.message}" }
         eventsPublisherService.submissionFailed(rqt)
     }

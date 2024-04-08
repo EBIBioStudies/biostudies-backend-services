@@ -8,7 +8,7 @@ data class Contributor(
     val name: String,
     val surname: String,
     val affiliation: String,
-    val orcid: String?
+    val orcid: String?,
 )
 
 class DoiRequest(

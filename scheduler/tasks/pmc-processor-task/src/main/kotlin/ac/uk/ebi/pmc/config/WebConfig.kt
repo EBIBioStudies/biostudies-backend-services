@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit
 
 @Configuration
 class WebConfig {
-
     @Bean
     fun pmcApi(properties: PmcImporterProperties): PmcApi {
         return Retrofit.Builder()

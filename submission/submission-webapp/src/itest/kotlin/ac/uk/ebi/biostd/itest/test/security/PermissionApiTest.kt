@@ -40,15 +40,16 @@ class PermissionApiTest(
     private lateinit var regularWebClient: BioWebClient
 
     @BeforeAll
-    fun init(): Unit = runBlocking {
-        securityTestService.ensureUserRegistration(SuperUser)
-        securityTestService.ensureUserRegistration(RegularUser)
+    fun init(): Unit =
+        runBlocking {
+            securityTestService.ensureUserRegistration(SuperUser)
+            securityTestService.ensureUserRegistration(RegularUser)
 
-        superWebClient = getWebClient(serverPort, SuperUser)
-        regularWebClient = getWebClient(serverPort, RegularUser)
+            superWebClient = getWebClient(serverPort, SuperUser)
+            regularWebClient = getWebClient(serverPort, RegularUser)
 
-        accessTagRepository.save(dbAccessTag)
-    }
+            accessTagRepository.save(dbAccessTag)
+        }
 
     @BeforeEach
     fun beforeAll() {
@@ -75,29 +76,30 @@ class PermissionApiTest(
 
     @Test
     fun `21-3 trying to give permission to non-existent user`() {
-        assertThrows<WebClientException>("The user $fakeUser does not exist") {
-            superWebClient.givePermissionToUser(fakeUser, dbAccessTag.name, "READ")
+        assertThrows<WebClientException>("The user $FAKE_USER does not exist") {
+            superWebClient.givePermissionToUser(FAKE_USER, dbAccessTag.name, "READ")
         }
     }
 
     @Test
     fun `21-4 trying to give permission to a user but non-existent accessTag`() {
-        assertThrows<WebClientException>("The accessTag $fakeAccessTag does not exist") {
-            superWebClient.givePermissionToUser(dbUser.email, fakeAccessTag, "READ")
+        assertThrows<WebClientException>("The accessTag $FAKE_ACCESS_TAG does not exist") {
+            superWebClient.givePermissionToUser(dbUser.email, FAKE_ACCESS_TAG, "READ")
         }
     }
 
     private companion object {
-        val dbUser = DbUser(
-            email = "test@email.com",
-            fullName = "fullName",
-            secret = "secret",
-            keyTime = 2,
-            passwordDigest = ByteArray(1),
-            storageMode = StorageMode.NFS
-        )
+        const val FAKE_USER = "fakeUser"
+        const val FAKE_ACCESS_TAG = "fakeAccessTag"
+        val dbUser =
+            DbUser(
+                email = "test@email.com",
+                fullName = "fullName",
+                secret = "secret",
+                keyTime = 2,
+                passwordDigest = ByteArray(1),
+                storageMode = StorageMode.NFS,
+            )
         val dbAccessTag = DbAccessTag(id = 2, name = "accessTagName")
-        const val fakeUser = "fakeUser"
-        const val fakeAccessTag = "fakeAccessTag"
     }
 }

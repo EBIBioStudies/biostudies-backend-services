@@ -49,8 +49,7 @@ class QueuesConfig {
     fun securityNotificationsQueue(): Queue = Queue(SECURITY_NOTIFICATIONS_QUEUE, DURABLES_QUEUES)
 
     @Bean
-    fun logQueueBinding(exchange: TopicExchange): Binding =
-        BindingBuilder.bind(logQueue()).to(exchange).with(SUBMISSIONS_ROUTING_KEY)
+    fun logQueueBinding(exchange: TopicExchange): Binding = BindingBuilder.bind(logQueue()).to(exchange).with(SUBMISSIONS_ROUTING_KEY)
 
     @Bean
     fun stQueueBinding(exchange: TopicExchange): Binding =

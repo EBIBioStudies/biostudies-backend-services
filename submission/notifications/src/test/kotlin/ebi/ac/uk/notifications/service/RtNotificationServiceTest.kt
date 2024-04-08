@@ -38,24 +38,25 @@ internal class RtNotificationServiceTest(
             @Test
             fun `when no released but release date`() {
                 testNotification(
-                    submission = testSubmission.copy(
-                        releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
-                        released = false
-                    ),
+                    submission =
+                        testSubmission.copy(
+                            releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
+                            released = false,
+                        ),
                     """
-                        Dear owner@mail.org,
-                        
-                        Thank you for submitting your data to BioStudies. Your submission has been assigned the BioStudies accession number S-TEST1.
-                        
-                        You will be able to see it at ui-url/studies/S-TEST1 in the next 24 hours. The release date of this study is set to 2019-09-21 and it will be publicly available after that. You will be able to see it only by logging in or by accessing it through this link: ui-url/studies/S-TEST1?key=a-secret-key
-                        
-                        Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
-                        
-                        Best regards,
-                        
-                        BioStudies Team
+                    Dear owner@mail.org,
+                    
+                    Thank you for submitting your data to BioStudies. Your submission has been assigned the BioStudies accession number S-TEST1.
+                    
+                    You will be able to see it at ui-url/studies/S-TEST1 in the next 24 hours. The release date of this study is set to 2019-09-21 and it will be publicly available after that. You will be able to see it only by logging in or by accessing it through this link: ui-url/studies/S-TEST1?key=a-secret-key
+                    
+                    Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
+                    
+                    Best regards,
+                    
+                    BioStudies Team
 
-                    """.trimIndent()
+                    """.trimIndent(),
                 )
             }
 
@@ -64,19 +65,19 @@ internal class RtNotificationServiceTest(
                 testNotification(
                     submission = testSubmission.copy(releaseTime = null, released = false),
                     """
-                        Dear owner@mail.org,
-                        
-                        Thank you for submitting your data to BioStudies. Your submission has been assigned the BioStudies accession number S-TEST1.
-                        
-                        You will be able to see it at ui-url/studies/S-TEST1 in the next 24 hours. The release date of this study is not set so it's not publicly available. You will be able to see it only by logging in or by accessing it through this link: ui-url/studies/S-TEST1?key=a-secret-key
-                        
-                        Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
-                        
-                        Best regards,
-                        
-                        BioStudies Team
+                    Dear owner@mail.org,
+                    
+                    Thank you for submitting your data to BioStudies. Your submission has been assigned the BioStudies accession number S-TEST1.
+                    
+                    You will be able to see it at ui-url/studies/S-TEST1 in the next 24 hours. The release date of this study is not set so it's not publicly available. You will be able to see it only by logging in or by accessing it through this link: ui-url/studies/S-TEST1?key=a-secret-key
+                    
+                    Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
+                    
+                    Best regards,
+                    
+                    BioStudies Team
 
-                    """.trimIndent()
+                    """.trimIndent(),
                 )
             }
 
@@ -85,19 +86,19 @@ internal class RtNotificationServiceTest(
                 testNotification(
                     submission = testSubmission.copy(released = true),
                     """
-                        Dear owner@mail.org,
+                    Dear owner@mail.org,
 
-                        Thank you for submitting your data to BioStudies. Your submission has been assigned the BioStudies accession number S-TEST1.
+                    Thank you for submitting your data to BioStudies. Your submission has been assigned the BioStudies accession number S-TEST1.
 
-                        You will be able to see it at ui-url/studies/S-TEST1 in the next 24 hours. 
+                    You will be able to see it at ui-url/studies/S-TEST1 in the next 24 hours. 
 
-                        Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
+                    Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
 
-                        Best regards,
+                    Best regards,
 
-                        BioStudies Team
+                    BioStudies Team
 
-                    """.trimIndent()
+                    """.trimIndent(),
                 )
             }
 
@@ -106,19 +107,19 @@ internal class RtNotificationServiceTest(
                 testNotification(
                     submission = testSubmission.copy(title = "Sub Title"),
                     """
-                        Dear owner@mail.org,
+                    Dear owner@mail.org,
 
-                        Thank you for submitting your data to BioStudies. Your submission "Sub Title" has been assigned the BioStudies accession number S-TEST1.
+                    Thank you for submitting your data to BioStudies. Your submission "Sub Title" has been assigned the BioStudies accession number S-TEST1.
 
-                        You will be able to see it at ui-url/studies/S-TEST1 in the next 24 hours. The release date of this study is set to 2019-09-21 and it will be publicly available after that. You will be able to see it only by logging in or by accessing it through this link: ui-url/studies/S-TEST1?key=a-secret-key
+                    You will be able to see it at ui-url/studies/S-TEST1 in the next 24 hours. The release date of this study is set to 2019-09-21 and it will be publicly available after that. You will be able to see it only by logging in or by accessing it through this link: ui-url/studies/S-TEST1?key=a-secret-key
 
-                        Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
+                    Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
 
-                        Best regards,
+                    Best regards,
 
-                        BioStudies Team
+                    BioStudies Team
 
-                    """.trimIndent()
+                    """.trimIndent(),
                 )
             }
 
@@ -127,23 +128,26 @@ internal class RtNotificationServiceTest(
                 testNotification(
                     submission = testSubmission.copy(title = "Sect Title"),
                     """
-                        Dear owner@mail.org,
+                    Dear owner@mail.org,
 
-                        Thank you for submitting your data to BioStudies. Your submission "Sect Title" has been assigned the BioStudies accession number S-TEST1.
+                    Thank you for submitting your data to BioStudies. Your submission "Sect Title" has been assigned the BioStudies accession number S-TEST1.
 
-                        You will be able to see it at ui-url/studies/S-TEST1 in the next 24 hours. The release date of this study is set to 2019-09-21 and it will be publicly available after that. You will be able to see it only by logging in or by accessing it through this link: ui-url/studies/S-TEST1?key=a-secret-key
+                    You will be able to see it at ui-url/studies/S-TEST1 in the next 24 hours. The release date of this study is set to 2019-09-21 and it will be publicly available after that. You will be able to see it only by logging in or by accessing it through this link: ui-url/studies/S-TEST1?key=a-secret-key
 
-                        Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
+                    Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
 
-                        Best regards,
+                    Best regards,
 
-                        BioStudies Team
+                    BioStudies Team
 
-                    """.trimIndent()
+                    """.trimIndent(),
                 )
             }
 
-            private fun testNotification(submission: ExtSubmission, content: String) {
+            private fun testNotification(
+                submission: ExtSubmission,
+                content: String,
+            ) {
                 val slot = slot<String>()
 
                 every {
@@ -159,7 +163,7 @@ internal class RtNotificationServiceTest(
                         "S-TEST1",
                         "BioImage Archive Submission - S-TEST1",
                         "owner@mail.org",
-                        capture(slot)
+                        capture(slot),
                     )
                 } returns Unit
 
@@ -176,21 +180,24 @@ internal class RtNotificationServiceTest(
                 testNotification(
                     submission = testSubmission.copy(released = true, version = 2, collections = listOf()),
                     """
-                        Dear owner@mail.org,
+                    Dear owner@mail.org,
 
-                        Your BioStudies submission with accession number S-TEST1 has been updated. You will be able to see the updated version at ui-url/studies/S-TEST1 in the next 24 hours. 
+                    Your BioStudies submission with accession number S-TEST1 has been updated. You will be able to see the updated version at ui-url/studies/S-TEST1 in the next 24 hours. 
 
-                        Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
+                    Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
 
-                        Best regards,
+                    Best regards,
 
-                        BioStudies Team
+                    BioStudies Team
 
-                    """.trimIndent()
+                    """.trimIndent(),
                 )
             }
 
-            private fun testNotification(submission: ExtSubmission, content: String) {
+            private fun testNotification(
+                submission: ExtSubmission,
+                content: String,
+            ) {
                 val slot = slot<String>()
 
                 every {
@@ -206,7 +213,7 @@ internal class RtNotificationServiceTest(
                         "S-TEST1",
                         "BioStudies Submission - S-TEST1",
                         "owner@mail.org",
-                        capture(slot)
+                        capture(slot),
                     )
                 } returns Unit
 
@@ -224,19 +231,19 @@ internal class RtNotificationServiceTest(
             testNotification(
                 submission = testSubmission.copy(released = true),
                 """
-                    Dear owner@mail.org,
+                Dear owner@mail.org,
 
-                    Your submission with accession number S-TEST1 will be made public on 2019-09-21.
+                Your submission with accession number S-TEST1 will be made public on 2019-09-21.
 
-                    If you want to keep your submission private after this date or make it public earlier, please log in to the BioStudies Submission Tool at st-url and change the release date.
+                If you want to keep your submission private after this date or make it public earlier, please log in to the BioStudies Submission Tool at st-url and change the release date.
 
-                    Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
+                Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
 
-                    Best regards,
+                Best regards,
 
-                    BioStudies Team
+                BioStudies Team
 
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
 
@@ -252,12 +259,12 @@ internal class RtNotificationServiceTest(
                 If you want to keep your submission private after this date or make it public earlier, please log in to the BioStudies Submission Tool at st-url and change the release date.
 
                 Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
- 
+                
                 Best regards,
 
                 BioStudies Team
 
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
 
@@ -266,23 +273,26 @@ internal class RtNotificationServiceTest(
             testNotification(
                 submission = testSubmission.copy(title = "Sect Title"),
                 """
-                    Dear owner@mail.org,
-                    
-                    Your submission with accession number S-TEST1 - "Sect Title" will be made public on 2019-09-21.
-                    
-                    If you want to keep your submission private after this date or make it public earlier, please log in to the BioStudies Submission Tool at st-url and change the release date.
-                    
-                    Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
-                    
-                    Best regards,
-                    
-                    BioStudies Team
+                Dear owner@mail.org,
+                
+                Your submission with accession number S-TEST1 - "Sect Title" will be made public on 2019-09-21.
+                
+                If you want to keep your submission private after this date or make it public earlier, please log in to the BioStudies Submission Tool at st-url and change the release date.
+                
+                Should you have any further questions, please reply to this message making sure you keep the subject or contact us at biostudies@ebi.ac.uk
+                
+                Best regards,
+                
+                BioStudies Team
 
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
 
-        private fun testNotification(submission: ExtSubmission, content: String) {
+        private fun testNotification(
+            submission: ExtSubmission,
+            content: String,
+        ) {
             val slot = slot<String>()
 
             every {
@@ -298,7 +308,7 @@ internal class RtNotificationServiceTest(
                     "S-TEST1",
                     "BioImage Archive Submission - S-TEST1",
                     "owner@mail.org",
-                    capture(slot)
+                    capture(slot),
                 )
             } returns Unit
 
@@ -308,31 +318,31 @@ internal class RtNotificationServiceTest(
         }
     }
 
-    private fun asText(path: String): String =
-        object {}.javaClass.getResource(path)!!.readText()
+    private fun asText(path: String): String = object {}.javaClass.getResource(path)!!.readText()
 
     companion object {
-        val testSubmission = ExtSubmission(
-            accNo = "S-TEST1",
-            version = 1,
-            schemaVersion = "1.0",
-            owner = "owner@mail.org",
-            submitter = "submitter@mail.org",
-            title = null,
-            doi = "10.983/S-TEST1",
-            method = ExtSubmissionMethod.PAGE_TAB,
-            relPath = "/a/rel/path",
-            rootPath = "/a/root/path",
-            released = false,
-            secretKey = "a-secret-key",
-            releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
-            modificationTime = OffsetDateTime.of(2019, 9, 20, 10, 30, 34, 15, ZoneOffset.UTC),
-            creationTime = OffsetDateTime.of(2019, 9, 19, 10, 30, 34, 15, ZoneOffset.UTC),
-            attributes = listOf(ExtAttribute("AttachTo", "BioImages")),
-            tags = listOf(ExtTag("component", "web")),
-            collections = listOf(ExtCollection("BioImages")),
-            section = ExtSection(type = "Study"),
-            storageMode = StorageMode.NFS,
-        )
+        val testSubmission =
+            ExtSubmission(
+                accNo = "S-TEST1",
+                version = 1,
+                schemaVersion = "1.0",
+                owner = "owner@mail.org",
+                submitter = "submitter@mail.org",
+                title = null,
+                doi = "10.983/S-TEST1",
+                method = ExtSubmissionMethod.PAGE_TAB,
+                relPath = "/a/rel/path",
+                rootPath = "/a/root/path",
+                released = false,
+                secretKey = "a-secret-key",
+                releaseTime = OffsetDateTime.of(2019, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
+                modificationTime = OffsetDateTime.of(2019, 9, 20, 10, 30, 34, 15, ZoneOffset.UTC),
+                creationTime = OffsetDateTime.of(2019, 9, 19, 10, 30, 34, 15, ZoneOffset.UTC),
+                attributes = listOf(ExtAttribute("AttachTo", "BioImages")),
+                tags = listOf(ExtTag("component", "web")),
+                collections = listOf(ExtCollection("BioImages")),
+                section = ExtSection(type = "Study"),
+                storageMode = StorageMode.NFS,
+            )
     }
 }

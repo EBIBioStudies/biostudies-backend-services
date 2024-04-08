@@ -6,7 +6,10 @@ import ac.uk.ebi.scheduler.common.javaCmd
 private const val APP_NAME = "submission-releaser-task-1.0.0.jar"
 
 class SubmissionReleaserProperties : JavaAppProperties {
-    override fun asCmd(location: String, debugPort: Int?): String =
+    override fun asCmd(
+        location: String,
+        debugPort: Int?,
+    ): String =
         buildList {
             addAll(javaCmd(debugPort))
             add("-jar $location/$APP_NAME")
@@ -78,5 +81,7 @@ class SubmissionReleaserProperties : JavaAppProperties {
 }
 
 enum class ReleaserMode {
-    NOTIFY, RELEASE, GENERATE_FTP_LINKS
+    NOTIFY,
+    RELEASE,
+    GENERATE_FTP_LINKS,
 }

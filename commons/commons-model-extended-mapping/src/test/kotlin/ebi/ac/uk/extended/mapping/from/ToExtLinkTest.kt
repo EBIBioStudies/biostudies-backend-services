@@ -12,7 +12,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-internal class ToExtLinkTest(@MockK val attribute: Attribute, @MockK val extAttribute: ExtAttribute) {
+internal class ToExtLinkTest(
+    @MockK val attribute: Attribute,
+    @MockK val extAttribute: ExtAttribute,
+) {
     private val link = Link("link", listOf(attribute))
 
     @Test

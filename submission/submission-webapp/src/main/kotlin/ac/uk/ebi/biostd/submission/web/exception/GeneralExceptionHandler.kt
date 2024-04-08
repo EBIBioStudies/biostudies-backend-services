@@ -33,10 +33,11 @@ class GeneralExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleInvalidArgument(exception: MethodArgumentNotValidException): ValidationTree {
         logger.error(exception) {}
-        val errors = exception
-            .bindingResult
-            .allErrors
-            .map { ValidationNode(ERROR, it.defaultMessage ?: it.objectName) }
+        val errors =
+            exception
+                .bindingResult
+                .allErrors
+                .map { ValidationNode(ERROR, it.defaultMessage ?: it.objectName) }
 
         return ValidationTree(FAIL, ValidationNode(ERROR, "Form Validation Errors", errors))
     }

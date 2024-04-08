@@ -5,7 +5,7 @@ import org.springframework.http.client.ClientHttpRequestInitializer
 
 class FireAuthRequestInitializer(
     private val username: String,
-    private val password: String
+    private val password: String,
 ) : ClientHttpRequestInitializer {
     override fun initialize(request: ClientHttpRequest) {
         request.headers.setBasicAuth(username, password)

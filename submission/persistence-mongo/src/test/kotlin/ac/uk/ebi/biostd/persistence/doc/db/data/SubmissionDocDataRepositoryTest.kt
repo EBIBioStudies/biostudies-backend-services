@@ -49,202 +49,223 @@ internal class SubmissionDocDataRepositoryTest(
     @Autowired private val fileListDocFileRepo: FileListDocFileDocDataRepository,
     @Autowired private val mongoTemplate: ReactiveMongoTemplate,
 ) {
-
     @BeforeEach
-    fun beforeEach() = runBlocking {
-        testInstance.deleteAll()
-        fileListDocFileRepo.deleteAll()
-        mongoTemplate.ensureSubmissionIndexes()
-    }
+    fun beforeEach() =
+        runBlocking {
+            testInstance.deleteAll()
+            fileListDocFileRepo.deleteAll()
+            mongoTemplate.ensureSubmissionIndexes()
+        }
 
     @Nested
     inner class ReleaseSubmission {
         @Test
-        fun `release submission`() = runTest {
-            testInstance.save(testDocSubmission.copy(accNo = "S-BIAD1", version = 1, released = false))
-            testInstance.setAsReleased("S-BIAD1")
+        fun `release submission`() =
+            runTest {
+                testInstance.save(testDocSubmission.copy(accNo = "S-BIAD1", version = 1, released = false))
+                testInstance.setAsReleased("S-BIAD1")
 
-            assertThat(testInstance.getByAccNo(accNo = "S-BIAD1").released).isTrue
-        }
+                assertThat(testInstance.getByAccNo(accNo = "S-BIAD1").released).isTrue
+            }
     }
 
     @Nested
     inner class ExpireSubmissions {
         @Test
-        fun `expire active processed versions`() = runTest {
-            val referencedFile = tempFolder.createFile("referenced.txt")
-            val file = createNfsFile("referenced.txt", "Files/referenced.txt", referencedFile)
-            val fileListFile = FileListDocFile(
-                id = ObjectId(),
-                submissionId = testDocSubmission.id,
-                file = file.toDocFile(),
-                fileListName = "file-list",
-                index = 1,
-                submissionVersion = 1,
-                submissionAccNo = "S-BSST4"
-            )
+        fun `expire active processed versions`() =
+            runTest {
+                val referencedFile = tempFolder.createFile("referenced.txt")
+                val file = createNfsFile("referenced.txt", "Files/referenced.txt", referencedFile)
+                val fileListFile =
+                    FileListDocFile(
+                        id = ObjectId(),
+                        submissionId = testDocSubmission.id,
+                        file = file.toDocFile(),
+                        fileListName = "file-list",
+                        index = 1,
+                        submissionVersion = 1,
+                        submissionAccNo = "S-BSST4",
+                    )
 
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4"))
-            fileListDocFileRepo.save(fileListFile)
+                testInstance.save(testDocSubmission.copy(accNo = "S-BSST4"))
+                fileListDocFileRepo.save(fileListFile)
 
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = 2))
-            fileListDocFileRepo.save(fileListFile.copy(id = ObjectId(), submissionVersion = 2))
+                testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = 2))
+                fileListDocFileRepo.save(fileListFile.copy(id = ObjectId(), submissionVersion = 2))
 
-            testInstance.expireVersions(listOf("S-BSST4"))
+                testInstance.expireVersions(listOf("S-BSST4"))
 
-            assertThat(testInstance.getByAccNoAndVersion("S-BSST4", version = -1)).isNotNull
-            assertThat(testInstance.getByAccNoAndVersion("S-BSST4", version = -2)).isNotNull
+                assertThat(testInstance.getByAccNoAndVersion("S-BSST4", version = -1)).isNotNull
+                assertThat(testInstance.getByAccNoAndVersion("S-BSST4", version = -2)).isNotNull
 
-            val r1 = fileListDocFileRepo
-                .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName("S-BSST4", 0, "file-list")
-                .toList()
-            assertThat(r1).isEmpty()
+                val r1 =
+                    fileListDocFileRepo
+                        .findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName("S-BSST4", 0, "file-list")
+                        .toList()
+                assertThat(r1).isEmpty()
 
-            val r2 = fileListDocFileRepo
-                .findByFileList("S-BSST4", -1, "file-list")
-                .toList()
-            assertThat(r2).hasSize(1)
+                val r2 =
+                    fileListDocFileRepo
+                        .findByFileList("S-BSST4", -1, "file-list")
+                        .toList()
+                assertThat(r2).hasSize(1)
 
-            val r3 = fileListDocFileRepo
-                .findByFileList("S-BSST4", -2, "file-list")
-                .toList()
-            assertThat(r3).hasSize(1)
-        }
+                val r3 =
+                    fileListDocFileRepo
+                        .findByFileList("S-BSST4", -2, "file-list")
+                        .toList()
+                assertThat(r3).hasSize(1)
+            }
     }
 
     @Nested
     inner class GetSubmissions {
         @Test
-        fun `by email`() = runTest {
-            testInstance.save(testDocSubmission.copy(accNo = "accNo1", owner = "anotherEmail"))
-            val d2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", owner = "ownerEmail"))
+        fun `by email`() =
+            runTest {
+                testInstance.save(testDocSubmission.copy(accNo = "accNo1", owner = "anotherEmail"))
+                val d2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2", owner = "ownerEmail"))
 
-            val result = testInstance.getSubmissions(SubmissionListFilter("ownerEmail")).toList()
+                val result = testInstance.getSubmissions(SubmissionListFilter("ownerEmail")).toList()
 
-            assertThat(result).containsOnly(d2)
-        }
+                assertThat(result).containsOnly(d2)
+            }
 
         @Test
-        fun `by type`() = runTest {
-            testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1"))
-            val d2 = testInstance.save(
-                testDocSubmission.copy(
-                    owner = OWNER,
-                    accNo = "accNo2",
-                    section = testDocSection.copy(type = "work")
+        fun `by type`() =
+            runTest {
+                testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1"))
+                val d2 =
+                    testInstance.save(
+                        testDocSubmission.copy(
+                            owner = OWNER,
+                            accNo = "accNo2",
+                            section = testDocSection.copy(type = "work"),
+                        ),
+                    )
+
+                val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, type = "work")).toList()
+
+                assertThat(result).containsOnly(d2)
+            }
+
+        @Test
+        fun `by AccNo When is not the owner`() =
+            runTest {
+                testInstance.save(testDocSubmission.copy(accNo = "accNo1"))
+                val d2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2"))
+
+                val result =
+                    testInstance
+                        .getSubmissions(SubmissionListFilter(OWNER, findAnyAccNo = true, accNo = "accNo2"))
+                        .toList()
+
+                assertThat(result).containsOnly(d2)
+            }
+
+        @Test
+        fun `by AccNo When is the owner`() =
+            runTest {
+                val d1 = testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1"))
+
+                val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, accNo = "accNo1")).toList()
+
+                assertThat(result).containsOnly(d1)
+            }
+
+        @Test
+        fun `by release time`() =
+            runTest {
+                testInstance.save(
+                    testDocSubmission.copy(
+                        owner = OWNER,
+                        accNo = "accNo1",
+                        releaseTime = ofEpochSecond(5),
+                    ),
                 )
-            )
+                val d2 =
+                    testInstance.save(
+                        testDocSubmission.copy(owner = OWNER, accNo = "accNo2", releaseTime = ofEpochSecond(15)),
+                    )
 
-            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, type = "work")).toList()
+                val result =
+                    testInstance.getSubmissions(
+                        SubmissionListFilter(
+                            OWNER,
+                            rTimeFrom = OffsetDateTime.ofInstant(ofEpochSecond(10), ZoneOffset.UTC),
+                            rTimeTo = OffsetDateTime.ofInstant(ofEpochSecond(20), ZoneOffset.UTC),
+                        ),
+                    ).toList()
 
-            assertThat(result).containsOnly(d2)
-        }
-
-        @Test
-        fun `by AccNo When is not the owner`() = runTest {
-            testInstance.save(testDocSubmission.copy(accNo = "accNo1"))
-            val d2 = testInstance.save(testDocSubmission.copy(accNo = "accNo2"))
-
-            val result = testInstance
-                .getSubmissions(SubmissionListFilter(OWNER, findAnyAccNo = true, accNo = "accNo2"))
-                .toList()
-
-            assertThat(result).containsOnly(d2)
-        }
+                assertThat(result).containsOnly(d2)
+            }
 
         @Test
-        fun `by AccNo When is the owner`() = runTest {
-            val d1 = testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1"))
+        fun `by keywords`() =
+            runTest {
+                val doc1 = testDocSubmission.copy(owner = OWNER, accNo = "accNo1", title = "one two")
+                val doc2 = testDocSubmission.copy(owner = OWNER, accNo = "accNo2", title = "two four")
 
-            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, accNo = "accNo1")).toList()
+                testInstance.saveAll(listOf(doc1, doc2)).collect()
 
-            assertThat(result).containsOnly(d1)
-        }
+                val r1 = testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "one")).toList()
+                assertThat(r1).containsOnly(doc1)
 
-        @Test
-        fun `by release time`() = runTest {
-            testInstance.save(
-                testDocSubmission.copy(
-                    owner = OWNER,
-                    accNo = "accNo1",
-                    releaseTime = ofEpochSecond(5)
-                )
-            )
-            val d2 = testInstance.save(
-                testDocSubmission.copy(owner = OWNER, accNo = "accNo2", releaseTime = ofEpochSecond(15))
-            )
+                val r2 = testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "two")).toList()
+                assertThat(r2).containsOnly(doc1, doc2)
 
-            val result = testInstance.getSubmissions(
-                SubmissionListFilter(
-                    OWNER,
-                    rTimeFrom = OffsetDateTime.ofInstant(ofEpochSecond(10), ZoneOffset.UTC),
-                    rTimeTo = OffsetDateTime.ofInstant(ofEpochSecond(20), ZoneOffset.UTC)
-                )
-            ).toList()
-
-            assertThat(result).containsOnly(d2)
-        }
+                val r3 = testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "four")).toList()
+                assertThat(r3).containsOnly(doc2)
+            }
 
         @Test
-        fun `by keywords`() = runTest {
-            val doc1 = testDocSubmission.copy(owner = OWNER, accNo = "accNo1", title = "one two")
-            val doc2 = testDocSubmission.copy(owner = OWNER, accNo = "accNo2", title = "two four")
+        fun `by released`() =
+            runTest {
+                testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1", released = true))
+                val d2 =
+                    testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo2", released = false))
 
-            testInstance.saveAll(listOf(doc1, doc2)).collect()
+                val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, released = false)).toList()
 
-            val r1 = testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "one")).toList()
-            assertThat(r1).containsOnly(doc1)
-
-            val r2 = testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "two")).toList()
-            assertThat(r2).containsOnly(doc1, doc2)
-
-            val r3 = testInstance.getSubmissions(SubmissionListFilter(OWNER, keywords = "four")).toList()
-            assertThat(r3).containsOnly(doc2)
-        }
+                assertThat(result).containsOnly(d2)
+            }
 
         @Test
-        fun `by released`() = runTest {
-            testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo1", released = true))
-            val d2 =
-                testInstance.save(testDocSubmission.copy(owner = OWNER, accNo = "accNo2", released = false))
+        fun `by current version`() =
+            runTest {
+                testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = -1))
+                testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = 2))
 
-            val result = testInstance.getSubmissions(SubmissionListFilter(OWNER, released = false)).toList()
-
-            assertThat(result).containsOnly(d2)
-        }
+                assertThat(testInstance.getCurrentMaxVersion("S-BSST3")).isEqualTo(2)
+            }
 
         @Test
-        fun `by current version`() = runTest {
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = -1))
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST3", version = 2))
+        fun `by current version with all versions deleted`() =
+            runTest {
+                testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -1))
+                testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -2))
 
-            assertThat(testInstance.getCurrentMaxVersion("S-BSST3")).isEqualTo(2)
-        }
-
-        @Test
-        fun `by current version with all versions deleted`() = runTest {
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -1))
-            testInstance.save(testDocSubmission.copy(accNo = "S-BSST4", version = -2))
-
-            assertThat(testInstance.getCurrentMaxVersion("S-BSST4")).isEqualTo(2)
-        }
+                assertThat(testInstance.getCurrentMaxVersion("S-BSST4")).isEqualTo(2)
+            }
     }
 
     @Test
-    fun getProjects() = runTest {
-        testInstance.save(testDocSubmission)
+    fun getProjects() =
+        runTest {
+            testInstance.save(testDocSubmission)
 
-        val projects = testInstance.getCollections(testDocSubmission.accNo)
+            val projects = testInstance.getCollections(testDocSubmission.accNo)
 
-        assertThat(projects).containsExactly(testDocCollection)
-    }
+            assertThat(projects).containsExactly(testDocCollection)
+        }
 
     companion object {
         const val OWNER = "manuserager@ebi.ac.uk"
 
         @Container
-        val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+        val mongoContainer: MongoDBContainer =
+            MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

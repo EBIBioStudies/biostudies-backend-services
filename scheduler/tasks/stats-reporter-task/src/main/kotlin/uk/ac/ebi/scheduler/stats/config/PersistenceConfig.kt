@@ -33,7 +33,6 @@ class PersistenceConfig(
     }
 
     @Bean
-    fun statsReporterRepository(
-        mongoTemplate: ReactiveMongoTemplate
-    ): StatsReporterDataRepository = StatsReporterDataRepository(mongoTemplate)
+    fun statsReporterRepository(mongoTemplate: ReactiveMongoTemplate): StatsReporterDataRepository =
+        StatsReporterDataRepository(mongoTemplate)
 }

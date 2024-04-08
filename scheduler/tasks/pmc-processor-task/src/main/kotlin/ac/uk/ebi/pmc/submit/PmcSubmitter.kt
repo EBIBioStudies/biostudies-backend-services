@@ -35,26 +35,31 @@ class PmcSubmitter(
     private val errorDocService: ErrorsDocService,
     private val submissionService: SubmissionDocService,
 ) {
+    fun submitAll(sourceFile: String?) =
+        runBlocking {
+            submitSubmissions(sourceFile)
+        }
 
-    fun submitAll(sourceFile: String?) = runBlocking {
-        submitSubmissions(sourceFile)
-    }
+    fun submitSingle(submissionId: String) =
+        runBlocking {
+            val submission = submissionService.findById(submissionId)
+            submitSubmission(submission, 1)
+        }
 
-    fun submitSingle(submissionId: String) = runBlocking {
-        val submission = submissionService.findById(submissionId)
-        submitSubmission(submission, 1)
-    }
+    private suspend fun submitSubmissions(sourceFile: String?) =
+        coroutineScope {
+            val counter = AtomicInteger(0)
+            submissionService.findReadyToSubmit(sourceFile)
+                .map { async(Dispatchers.IO) { submitSubmission(it, counter.incrementAndGet()) } }
+                .buffer(BUFFER_SIZE)
+                .map { it.await() }
+                .collect()
+        }
 
-    private suspend fun submitSubmissions(sourceFile: String?) = coroutineScope {
-        val counter = AtomicInteger(0)
-        submissionService.findReadyToSubmit(sourceFile)
-            .map { async(Dispatchers.IO) { submitSubmission(it, counter.incrementAndGet()) } }
-            .buffer(BUFFER_SIZE)
-            .map { it.await() }
-            .collect()
-    }
-
-    private suspend fun submitSubmission(sub: SubmissionDoc, idx: Int) = coroutineScope {
+    private suspend fun submitSubmission(
+        sub: SubmissionDoc,
+        idx: Int,
+    ) = coroutineScope {
         runCatching { withTimeout(TIMEOUT) { submit(sub) } }
             .fold(
                 {
@@ -64,7 +69,7 @@ class PmcSubmitter(
                 {
                     logger.error(it) { "failed to submit accNo='${sub.accNo}'" }
                     errorDocService.saveError(sub, PmcMode.SUBMIT, it)
-                }
+                },
             )
     }
 

@@ -22,7 +22,7 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
 @EnableReactiveMongoRepositories(
     basePackageClasses = [
         SubmissionDraftRepository::class,
-    ]
+    ],
 )
 class MongoDbReactiveConfig(
     @Value("\${spring.data.mongodb.database}") val mongoDatabase: String,

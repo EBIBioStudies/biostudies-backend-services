@@ -17,8 +17,10 @@ import uk.ac.ebi.serialization.extensions.convertOrDefault
 import uk.ac.ebi.serialization.extensions.findNode
 
 internal class SectionJsonDeserializer : StdDeserializer<Section>(Section::class.java) {
-
-    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Section {
+    override fun deserialize(
+        jp: JsonParser,
+        ctxt: DeserializationContext,
+    ): Section {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)
 
@@ -28,7 +30,7 @@ internal class SectionJsonDeserializer : StdDeserializer<Section>(Section::class
             attributes = mapper.convertOrDefault(node, ATTRIBUTES.value) { emptyList() },
             links = mapper.convertOrDefault(node, LINKS.value) { mutableListOf() },
             files = mapper.convertOrDefault(node, FILES.value) { mutableListOf() },
-            sections = mapper.convertOrDefault(node, SUBSECTIONS.value) { mutableListOf() }
+            sections = mapper.convertOrDefault(node, SUBSECTIONS.value) { mutableListOf() },
         )
     }
 }

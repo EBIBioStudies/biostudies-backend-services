@@ -25,41 +25,65 @@ private const val GROUP_FOLDER_URL = "/folder/groups"
 internal class GroupFilesClient(
     private val client: WebClient,
 ) : GroupFilesOperations {
-    override fun downloadGroupFile(groupName: String, fileName: String, relativePath: String): File {
+    override fun downloadGroupFile(
+        groupName: String,
+        fileName: String,
+        relativePath: String,
+    ): File {
         val tempFile = Files.createTempFile("biostudies-$groupName-$fileName", ".tmp")
         val downloadUrl = "${groupFileUrl(groupName, relativePath)}?fileName=$fileName"
-        val response = client.method(GET)
-            .uri(downloadUrl)
-            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM_VALUE)
-            .retrieve()
-            .bodyToMono<DataBuffer>()
+        val response =
+            client.method(GET)
+                .uri(downloadUrl)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                .retrieve()
+                .bodyToMono<DataBuffer>()
 
         DataBufferUtils.write(response, tempFile).block()
 
         return tempFile.toFile()
     }
 
-    override fun listGroupFiles(groupName: String, relativePath: String): List<UserFile> {
+    override fun listGroupFiles(
+        groupName: String,
+        relativePath: String,
+    ): List<UserFile> {
         return client.getForObject<Array<UserFile>>(groupFileUrl(groupName, relativePath)).toList()
     }
 
-    override fun uploadGroupFiles(groupName: String, files: List<File>, relativePath: String) {
+    override fun uploadGroupFiles(
+        groupName: String,
+        files: List<File>,
+        relativePath: String,
+    ) {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
         val body = LinkedMultiValueMap<String, Any>().apply { files.forEach { add("files", FileSystemResource(it)) } }
         client.post(groupFileUrl(groupName, relativePath), RequestParams(headers, body))
     }
 
-    override fun createGroupFolder(groupName: String, folderName: String, relativePath: String) {
+    override fun createGroupFolder(
+        groupName: String,
+        folderName: String,
+        relativePath: String,
+    ) {
         client.post("${groupFolderUrl(groupName, relativePath)}?folder=$folderName")
     }
 
-    override fun deleteGroupFile(groupName: String, fileName: String, relativePath: String) {
+    override fun deleteGroupFile(
+        groupName: String,
+        fileName: String,
+        relativePath: String,
+    ) {
         client.delete("${groupFileUrl(groupName, relativePath)}?fileName=$fileName")
     }
 
-    private fun groupFileUrl(groupName: String, relativePath: String) =
-        "$GROUP_FILES_URL/$groupName${normalize(relativePath)}"
+    private fun groupFileUrl(
+        groupName: String,
+        relativePath: String,
+    ) = "$GROUP_FILES_URL/$groupName${normalize(relativePath)}"
 
-    private fun groupFolderUrl(groupName: String, relativePath: String) =
-        "$GROUP_FOLDER_URL/$groupName${normalize(relativePath)}"
+    private fun groupFolderUrl(
+        groupName: String,
+        relativePath: String,
+    ) = "$GROUP_FOLDER_URL/$groupName${normalize(relativePath)}"
 }

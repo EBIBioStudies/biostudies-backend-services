@@ -37,13 +37,14 @@ class CollectionValidationServiceTest(
         @MockK validator: CollectionValidator,
     ) = runTest {
         val submission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
-        val basicProject = BasicCollection(
-            accNo = "ArrayExpress",
-            accNoPattern = "!{E-MTAB}",
-            collections = listOf("ArrayExpress"),
-            validator = "ArrayExpressValidator",
-            releaseTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, UTC)
-        )
+        val basicProject =
+            BasicCollection(
+                accNo = "ArrayExpress",
+                accNoPattern = "!{E-MTAB}",
+                collections = listOf("ArrayExpress"),
+                validator = "ArrayExpressValidator",
+                releaseTime = OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, UTC),
+            )
 
         every { validator.validate(submission) } answers { nothing }
         coEvery { queryService.getBasicCollection("ArrayExpress") } returns basicProject
@@ -58,10 +59,11 @@ class CollectionValidationServiceTest(
     fun `execute collection validators over new collection`(
         @MockK validator: CollectionValidator,
     ) = runTest {
-        val submission = basicExtSubmission.copy(
-            section = ExtSection(type = "Project"),
-            collections = listOf(ExtCollection("ArrayExpress"))
-        )
+        val submission =
+            basicExtSubmission.copy(
+                section = ExtSection(type = "Project"),
+                collections = listOf(ExtCollection("ArrayExpress")),
+            )
 
         testInstance.executeCollectionValidators(submission)
 

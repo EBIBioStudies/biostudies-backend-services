@@ -7,24 +7,24 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class JsonDslTest {
-
     @Nested
     @DisplayName("Special encoding")
     inner class SpecialTest {
-
         @Test
         fun `when quotes`() {
-            val obj = jsonObj {
-                "string" to "string \"value \n"
-            }
+            val obj =
+                jsonObj {
+                    "string" to "string \"value \n"
+                }
             assertThat(obj.toString()).isEqualTo("{\"string\": \"string \\\"value \\n\"}")
         }
 
         @Test
         fun `escape all special characters`() {
-            val obj = jsonObj {
-                "string" to "\n , \t , \b , \r , \' , \\ "
-            }
+            val obj =
+                jsonObj {
+                    "string" to "\n , \t , \b , \r , \' , \\ "
+                }
             assertThat(obj.toString()).isEqualTo("{\"string\": \"\\n , \\t , \\b , \\r , \\' , \\\\ \"}")
         }
     }
@@ -32,18 +32,18 @@ class JsonDslTest {
     @Nested
     @DisplayName("Object test")
     inner class ObjectTest {
-
         @Test
         fun `simple object`() {
-            val obj = jsonObj {
-                "string" to "string value"
-                "boolean1" to true
-                "boolean2" to false
-                "number" to 50
-                "null prop" to JsonNull
-                "enum" to TEST
-                "curlyBrackets" to {}
-            }
+            val obj =
+                jsonObj {
+                    "string" to "string value"
+                    "boolean1" to true
+                    "boolean2" to false
+                    "number" to 50
+                    "null prop" to JsonNull
+                    "enum" to TEST
+                    "curlyBrackets" to {}
+                }
             val expected = """
                     {
                         "string": "string value",
@@ -61,29 +61,33 @@ class JsonDslTest {
 
         @Test
         fun `nested object`() {
-            val obj = jsonObj {
-                "object" to jsonObj {
-                    "name" to "jhon"
+            val obj =
+                jsonObj {
+                    "object" to
+                        jsonObj {
+                            "name" to "jhon"
+                        }
                 }
-            }
 
             assertThat(obj.toString()).isEqualTo("{\"object\": {\"name\": \"jhon\"}}")
         }
 
         @Test
         fun `null object`() {
-            val obj = jsonObj {
-                "object" to null
-            }
+            val obj =
+                jsonObj {
+                    "object" to null
+                }
 
             assertThat(obj.toString()).isEqualTo("{\"object\": null}")
         }
 
         @Test
         fun `object with array`() {
-            val obj = jsonObj {
-                "array" to jsonArray(1, 2, 3)
-            }
+            val obj =
+                jsonObj {
+                    "array" to jsonArray(1, 2, 3)
+                }
 
             assertThat(obj.toString()).isEqualTo("{\"array\": [1, 2, 3]}")
         }
@@ -92,7 +96,6 @@ class JsonDslTest {
     @Nested
     @DisplayName("Arrays test")
     inner class ArrayTest {
-
         @Test
         fun `empty array`() {
             val obj = jsonArray()
@@ -131,24 +134,26 @@ class JsonDslTest {
 
         @Test
         fun `arrays of array`() {
-            val obj = jsonArray(
-                jsonArray(1, 2, 3),
-                jsonArray("a", "b")
-            )
+            val obj =
+                jsonArray(
+                    jsonArray(1, 2, 3),
+                    jsonArray("a", "b"),
+                )
 
             assertThat(obj.toString()).isEqualTo("[[1, 2, 3], [\"a\", \"b\"]]")
         }
 
         @Test
         fun `objects arrays`() {
-            val obj = jsonArray(
-                jsonObj {
-                    "age" to 1
-                },
-                jsonObj {
-                    "age" to 2
-                }
-            )
+            val obj =
+                jsonArray(
+                    jsonObj {
+                        "age" to 1
+                    },
+                    jsonObj {
+                        "age" to 2
+                    },
+                )
 
             assertThat(obj.toString()).isEqualTo("[{\"age\": 1}, {\"age\": 2}]")
         }

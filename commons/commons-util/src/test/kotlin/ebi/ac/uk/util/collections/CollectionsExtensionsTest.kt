@@ -7,8 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class CollectionsExtensionsTest {
     @Test
-    fun `if list is empty, do nothing`() =
-        emptyList<String>().ifNotEmpty { throw IllegalStateException("this should not be executed") }
+    fun `if list is empty, do nothing`() = emptyList<String>().ifNotEmpty { throw IllegalStateException("this should not be executed") }
 
     @Test
     fun `if list is not empty, do something`() {

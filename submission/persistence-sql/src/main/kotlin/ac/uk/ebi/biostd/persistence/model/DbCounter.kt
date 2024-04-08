@@ -10,7 +10,7 @@ import javax.persistence.Table
 @Table(name = "Counter")
 class DbCounter(
     @Column
-    val name: String
+    val name: String,
 ) {
     @Id
     @GeneratedValue

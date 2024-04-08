@@ -56,74 +56,78 @@ class SubmissionAsyncTest(
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
-    fun init() = runBlocking {
-        securityTestService.ensureUserRegistration(SuperUser)
-        webClient = getWebClient(serverPort, SuperUser)
-    }
-
-    @Test
-    fun `19-1 simple submit async`() = runTest {
-
-        val submission = tsv {
-            line("Submission", "SimpleAsync1")
-            line("Title", "Async Submission")
-            line()
-
-            line("RootSection")
-            line()
-        }.toString()
-
-        webClient.submitAsync(submission, TSV)
-
-        waitUntil(ONE_MINUTE) {
-            submissionRepository.existByAccNoAndVersion("SimpleAsync1", 1)
+    fun init() =
+        runBlocking {
+            securityTestService.ensureUserRegistration(SuperUser)
+            webClient = getWebClient(serverPort, SuperUser)
         }
 
-        val saved = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("SimpleAsync1"))
-        assertThat(saved).isEqualTo(
-            submission("SimpleAsync1") {
-                title = "Async Submission"
-                section("RootSection") {}
-            }
-        )
-    }
-
     @Test
-    fun `19-2 check submission stages`() = runTest {
-        val submission = tsv {
-            line("Submission", "SimpleAsync2")
-            line("Title", "Submission Stages")
-            line()
+    fun `19-1 simple submit async`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission", "SimpleAsync1")
+                    line("Title", "Async Submission")
+                    line()
 
-            line("RootSection")
-            line()
-        }.toString()
+                    line("RootSection")
+                    line()
+                }.toString()
 
-        webClient.submitSingle(submission, TSV)
+            webClient.submitAsync(submission, TSV)
 
-        val extSubmission = submissionRepository.getExtByAccNo("SimpleAsync2")
-        val extSubmitRequest = ExtSubmitRequest(extSubmission, SuperUser.email)
-
-        extSubmissionSubmitter.createRequest(extSubmitRequest)
-        val statusAfterCreation = requestRepository.getRequestStatus("SimpleAsync2", 2)
-        assertThat(statusAfterCreation).isEqualTo(REQUESTED)
-
-        suspend fun assertStageExecution(status: RequestStatus) {
-            waitUntil(interval = ofMillis(10), duration = TWO_SECONDS) {
-                requestRepository.getRequestStatus("SimpleAsync2", 2) == status
+            waitUntil(ONE_MINUTE) {
+                submissionRepository.existByAccNoAndVersion("SimpleAsync1", 1)
             }
+
+            val saved = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("SimpleAsync1"))
+            assertThat(saved).isEqualTo(
+                submission("SimpleAsync1") {
+                    title = "Async Submission"
+                    section("RootSection") {}
+                },
+            )
         }
 
-        extSubmissionSubmitter.indexRequest("SimpleAsync2", 2)
-        assertStageExecution(INDEXED)
-        assertStageExecution(LOADED)
-        assertStageExecution(CLEANED)
-        assertStageExecution(FILES_COPIED)
-        assertStageExecution(PERSISTED)
-        assertStageExecution(PROCESSED)
+    @Test
+    fun `19-2 check submission stages`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission", "SimpleAsync2")
+                    line("Title", "Submission Stages")
+                    line()
 
-        assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", 1)).isFalse()
-        assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", -1)).isTrue()
-        assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", 2)).isTrue()
-    }
+                    line("RootSection")
+                    line()
+                }.toString()
+
+            webClient.submitSingle(submission, TSV)
+
+            val extSubmission = submissionRepository.getExtByAccNo("SimpleAsync2")
+            val extSubmitRequest = ExtSubmitRequest(extSubmission, SuperUser.email)
+
+            extSubmissionSubmitter.createRequest(extSubmitRequest)
+            val statusAfterCreation = requestRepository.getRequestStatus("SimpleAsync2", 2)
+            assertThat(statusAfterCreation).isEqualTo(REQUESTED)
+
+            suspend fun assertStageExecution(status: RequestStatus) {
+                waitUntil(interval = ofMillis(10), duration = TWO_SECONDS) {
+                    requestRepository.getRequestStatus("SimpleAsync2", 2) == status
+                }
+            }
+
+            extSubmissionSubmitter.indexRequest("SimpleAsync2", 2)
+            assertStageExecution(INDEXED)
+            assertStageExecution(LOADED)
+            assertStageExecution(CLEANED)
+            assertStageExecution(FILES_COPIED)
+            assertStageExecution(PERSISTED)
+            assertStageExecution(PROCESSED)
+
+            assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", 1)).isFalse()
+            assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", -1)).isTrue()
+            assertThat(submissionRepository.existByAccNoAndVersion("SimpleAsync2", 2)).isTrue()
+        }
 }

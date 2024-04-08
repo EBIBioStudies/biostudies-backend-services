@@ -37,10 +37,11 @@ class SubmissionRequestMongoPersistenceService(
     }
 
     override fun getProcessingRequests(since: TemporalAmount?): Flow<Pair<String, Int>> {
-        val request = when (since) {
-            null -> requestRepository.findByStatusIn(PROCESSING)
-            else -> requestRepository.findByStatusInAndModificationTimeLessThan(PROCESSING, Instant.now().minus(since))
-        }
+        val request =
+            when (since) {
+                null -> requestRepository.findByStatusIn(PROCESSING)
+                else -> requestRepository.findByStatusInAndModificationTimeLessThan(PROCESSING, Instant.now().minus(since))
+            }
         return request.map { it.accNo to it.version }
     }
 
@@ -50,20 +51,33 @@ class SubmissionRequestMongoPersistenceService(
         return request.accNo to request.version
     }
 
-    override suspend fun getRequestStatus(accNo: String, version: Int): RequestStatus {
+    override suspend fun getRequestStatus(
+        accNo: String,
+        version: Int,
+    ): RequestStatus {
         return requestRepository.getByAccNoAndVersion(accNo, version).status
     }
 
-    override suspend fun updateRqtIndex(accNo: String, version: Int, index: Int) {
+    override suspend fun updateRqtIndex(
+        accNo: String,
+        version: Int,
+        index: Int,
+    ) {
         requestRepository.updateIndex(accNo, version, index)
     }
 
-    override suspend fun updateRqtIndex(requestFile: SubmissionRequestFile, file: ExtFile) {
+    override suspend fun updateRqtIndex(
+        requestFile: SubmissionRequestFile,
+        file: ExtFile,
+    ) {
         requestRepository.updateIndex(requestFile.accNo, requestFile.version, requestFile.index)
         requestRepository.updateSubmissionRequestFile(requestFile.accNo, requestFile.version, requestFile.path, file)
     }
 
-    override suspend fun getSubmissionRequest(accNo: String, version: Int): SubmissionRequest {
+    override suspend fun getSubmissionRequest(
+        accNo: String,
+        version: Int,
+    ): SubmissionRequest {
         val docSubmissionRequest = requestRepository.getRequest(accNo, version)
         return asRequest(docSubmissionRequest)
     }
@@ -78,15 +92,16 @@ class SubmissionRequestMongoPersistenceService(
         suspend fun loadRequest(): SubmissionRqt {
             val (changeId, request) = requestRepository.getRequest(accNo, version, status, processId)
             val stored = serializationService.deserialize(request.submission.toString())
-            val subRequest = SubmissionRequest(
-                submission = stored,
-                draftKey = request.draftKey,
-                request.notifyTo,
-                request.status,
-                request.totalFiles,
-                request.currentIndex,
-                request.modificationTime.atOffset(UTC),
-            )
+            val subRequest =
+                SubmissionRequest(
+                    submission = stored,
+                    draftKey = request.draftKey,
+                    request.notifyTo,
+                    request.status,
+                    request.totalFiles,
+                    request.currentIndex,
+                    request.modificationTime.atOffset(UTC),
+                )
             return changeId to subRequest
         }
 
@@ -141,15 +156,16 @@ class SubmissionRequestMongoPersistenceService(
 
     private fun asRequest(request: DocSubmissionRequest): SubmissionRequest {
         val stored = serializationService.deserialize(request.submission.toString())
-        val subRequest = SubmissionRequest(
-            submission = stored,
-            draftKey = request.draftKey,
-            request.notifyTo,
-            request.status,
-            request.totalFiles,
-            request.currentIndex,
-            request.modificationTime.atOffset(UTC),
-        )
+        val subRequest =
+            SubmissionRequest(
+                submission = stored,
+                draftKey = request.draftKey,
+                request.notifyTo,
+                request.status,
+                request.totalFiles,
+                request.currentIndex,
+                request.modificationTime.atOffset(UTC),
+            )
         return subRequest
     }
 }

@@ -1,6 +1,5 @@
 package uk.ac.ebi.io.sources
 
-import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.mapping.from.toExtAttributes
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileType.FILE
@@ -23,7 +22,11 @@ internal object DbFilesSource : FilesSource {
     override val description: String
         get() = "Provided Db files"
 
-    override suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+    override suspend fun getExtFile(
+        path: String,
+        type: String,
+        attributes: List<Attribute>,
+    ): ExtFile? {
         val valuesMap = attributes.associateBy({ it.name }, { it.value })
         val dbFile = getDbFile(valuesMap)
         return if (dbFile != null) return asFireFile(path, dbFile, attributes) else null
@@ -41,7 +44,7 @@ internal object DbFilesSource : FilesSource {
 
         fun checkPath(): String? {
             val path = requireNullOrNotEmpty(DB_PATH)
-            if (path?.startsWith("/").orFalse()) throw IllegalArgumentException("Db path '$path' needs to be relative.")
+            require(path == null || path.startsWith("/").not()) { "Db path '$path' needs to be relative." }
             return path
         }
 
@@ -51,19 +54,25 @@ internal object DbFilesSource : FilesSource {
         val path = checkPath()
         val public = requireNullOrNotEmpty(DB_PUBLISHED)?.toBoolean()
 
-        if (size != null && id != null && path != null && md5 != null && public != null)
+        if (size != null && id != null && path != null && md5 != null && public != null) {
             return ByPassFile(id, md5, path, size, public)
+        }
 
-        if (size == null && id == null && path == null && public == null)
+        if (size == null && id == null && path == null && public == null) {
             return null
+        }
 
         throw IllegalArgumentException(
             "All bypass attributes [md5, size, id, path, published] need to be present or none, " +
-                "found [$md5, $size, $id, $path, $public]"
+                "found [$md5, $size, $id, $path, $public]",
         )
     }
 
-    private fun asFireFile(path: String, db: ByPassFile, attributes: List<Attribute>): FireFile =
+    private fun asFireFile(
+        path: String,
+        db: ByPassFile,
+        attributes: List<Attribute>,
+    ): FireFile =
         FireFile(
             fireId = db.id,
             firePath = db.path,
@@ -73,7 +82,7 @@ internal object DbFilesSource : FilesSource {
             md5 = db.md5,
             type = FILE,
             size = db.size,
-            attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
+            attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS),
         )
 
     private data class ByPassFile(

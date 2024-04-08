@@ -8,7 +8,13 @@ import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.constants.FILES_RESERVED_ATTRS
 import java.io.File
 
-internal fun createFile(path: String, file: File, size: Long, type: ExtFileType, attributes: List<Attribute>): NfsFile {
+internal fun createFile(
+    path: String,
+    file: File,
+    size: Long,
+    type: ExtFileType,
+    attributes: List<Attribute>,
+): NfsFile {
     return NfsFile(
         filePath = path,
         relPath = "Files/$path",
@@ -17,11 +23,15 @@ internal fun createFile(path: String, file: File, size: Long, type: ExtFileType,
         md5 = "NOT_CALCULATED",
         size = size,
         type = type,
-        attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
+        attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS),
     )
 }
 
-internal fun createFile(path: String, file: File, attributes: List<Attribute>): NfsFile {
+internal fun createFile(
+    path: String,
+    file: File,
+    attributes: List<Attribute>,
+): NfsFile {
     return NfsFile(
         filePath = path,
         relPath = "Files/$path",
@@ -29,6 +39,6 @@ internal fun createFile(path: String, file: File, attributes: List<Attribute>): 
         fullPath = file.absolutePath,
         md5 = "NOT_CALCULATED",
         size = file.size(calculateDirectories = false),
-        attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS)
+        attributes = attributes.toExtAttributes(FILES_RESERVED_ATTRS),
     )
 }

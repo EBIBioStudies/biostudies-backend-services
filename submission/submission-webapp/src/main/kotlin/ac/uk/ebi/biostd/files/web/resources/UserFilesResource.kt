@@ -47,10 +47,11 @@ class UserFilesResource(
     ): ResponseEntity<FileSystemResource> {
         val filesService = fileServiceFactory.forUser(user)
         val fileSystemResource = FileSystemResource(filesService.getFile(pathDescriptor.path, fileName))
-        val contentDisposition = ContentDisposition
-            .builder("inline")
-            .filename(fileSystemResource.filename)
-            .build()
+        val contentDisposition =
+            ContentDisposition
+                .builder("inline")
+                .filename(fileSystemResource.filename)
+                .build()
         val headers = HttpHeaders().apply { setContentDisposition(contentDisposition) }
         return ResponseEntity
             .ok()

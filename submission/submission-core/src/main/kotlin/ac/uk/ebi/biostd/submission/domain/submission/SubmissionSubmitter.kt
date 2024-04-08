@@ -42,17 +42,29 @@ class SubmissionSubmitter(
         }
     }
 
-    private suspend fun acceptDraft(accNo: String, owner: String, draftKey: String) {
+    private suspend fun acceptDraft(
+        accNo: String,
+        owner: String,
+        draftKey: String,
+    ) {
         draftService.setAcceptedStatus(draftKey)
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACCEPTED" }
     }
 
-    private suspend fun startProcessingDraft(accNo: String, owner: String, draftKey: String) {
+    private suspend fun startProcessingDraft(
+        accNo: String,
+        owner: String,
+        draftKey: String,
+    ) {
         draftService.setProcessingStatus(owner, draftKey)
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to PROCESSING" }
     }
 
-    private suspend fun reactivateDraft(accNo: String, owner: String, draftKey: String) {
+    private suspend fun reactivateDraft(
+        accNo: String,
+        owner: String,
+        draftKey: String,
+    ) {
         draftService.setActiveStatus(draftKey)
         logger.info { "$accNo $owner Status of draft with key '$draftKey' set to ACTIVE" }
     }

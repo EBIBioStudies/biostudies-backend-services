@@ -21,7 +21,10 @@ import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 
 internal class AttributeJsonDeserializer : StdDeserializer<Attribute>(Attribute::class.java) {
-    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Attribute {
+    override fun deserialize(
+        jp: JsonParser,
+        ctxt: DeserializationContext,
+    ): Attribute {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)
         val name = node.getNode<TextNode>(NAME).textValue()

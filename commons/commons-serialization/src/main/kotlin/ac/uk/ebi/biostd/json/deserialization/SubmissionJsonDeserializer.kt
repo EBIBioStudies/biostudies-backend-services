@@ -15,14 +15,17 @@ import uk.ac.ebi.serialization.extensions.convertOrDefault
 import uk.ac.ebi.serialization.extensions.findNode
 
 internal class SubmissionJsonDeserializer : StdDeserializer<Submission>(Submission::class.java) {
-    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Submission {
+    override fun deserialize(
+        jp: JsonParser,
+        ctxt: DeserializationContext,
+    ): Submission {
         val mapper = jp.codec as ObjectMapper
         val node = mapper.readTree<JsonNode>(jp)
 
         return Submission(
             accNo = node.findNode<TextNode>(ACC_NO.value)?.textValue().orEmpty(),
             attributes = mapper.convertOrDefault(node, ATTRIBUTES.value) { emptyList() },
-            section = mapper.convertOrDefault(node, SECTION.value) { Section() }
+            section = mapper.convertOrDefault(node, SECTION.value) { Section() },
         )
     }
 }

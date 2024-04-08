@@ -37,10 +37,11 @@ class SubmissionPerformanceTest(
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
-    fun init() = runBlocking {
-        securityTestService.ensureUserRegistration(SuperUser)
-        webClient = getWebClient(serverPort, SuperUser)
-    }
+    fun init() =
+        runBlocking {
+            securityTestService.ensureUserRegistration(SuperUser)
+            webClient = getWebClient(serverPort, SuperUser)
+        }
 
     @Test
     @EnabledIfEnvironmentVariable(named = FIXED_DELAY_ENV, matches = "\\d+")
@@ -52,24 +53,26 @@ class SubmissionPerformanceTest(
         val subFiles = (1..files).map { tempFolder.createFile("$it.txt") }
         webClient.uploadFiles(subFiles)
 
-        val fileList = tempFolder.createFile(
-            "FileList.tsv",
-            tsv {
-                line("Files")
-                subFiles.forEach { line(it.name) }
-            }.toString()
-        )
+        val fileList =
+            tempFolder.createFile(
+                "FileList.tsv",
+                tsv {
+                    line("Files")
+                    subFiles.forEach { line(it.name) }
+                }.toString(),
+            )
         webClient.uploadFile(fileList)
 
-        val submission = tsv {
-            line("Submission", "SPER-1")
-            line("Title", "Performance Submission")
-            line()
+        val submission =
+            tsv {
+                line("Submission", "SPER-1")
+                line("Title", "Performance Submission")
+                line()
 
-            line("Study")
-            line("File List", "FileList.tsv")
-            line()
-        }.toString()
+                line("Study")
+                line("File List", "FileList.tsv")
+                line()
+            }.toString()
 
         val executionTime = measureTime { webClient.submitSingle(submission, SubmissionFormat.TSV) }
 

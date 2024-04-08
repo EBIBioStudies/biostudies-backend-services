@@ -11,8 +11,11 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTR_VA
 import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.ATTR_VAL_ATTRS
 
 class ExtAttributeSerializer : JsonSerializer<ExtAttribute>() {
-
-    override fun serialize(attr: ExtAttribute, gen: JsonGenerator, serializers: SerializerProvider) {
+    override fun serialize(
+        attr: ExtAttribute,
+        gen: JsonGenerator,
+        serializers: SerializerProvider,
+    ) {
         gen.writeStartObject()
         gen.writeStringField(ATTR_NAME, attr.name)
         gen.writeStringField(ATTR_VALUE, attr.value?.let { if (attr.value!!.isBlank()) null else attr.value })

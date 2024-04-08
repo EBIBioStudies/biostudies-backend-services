@@ -46,7 +46,7 @@ import java.time.Duration.ofSeconds
 @Testcontainers
 internal class PMCDatabaseChangeLogTest(
     @Autowired private val springContext: ApplicationContext,
-    @Autowired private val mongoTemplate: MongoTemplate
+    @Autowired private val mongoTemplate: MongoTemplate,
 ) {
     @BeforeEach
     fun init() {
@@ -101,7 +101,7 @@ internal class PMCDatabaseChangeLogTest(
         assertThat(indexes).contains(Index().on(SUB_ACC_NO, ASC).indexKeys)
         assertThat(indexes).contains(Index().on(SUB_ACC_NO, ASC).on(SUB_SOURCE_TIME, ASC).indexKeys)
         assertThat(indexes).contains(
-            Index().on(SUB_ACC_NO, ASC).on(SUB_SOURCE_TIME, ASC).on(SUB_POS_IN_FILE, ASC).indexKeys
+            Index().on(SUB_ACC_NO, ASC).on(SUB_SOURCE_TIME, ASC).on(SUB_POS_IN_FILE, ASC).indexKeys,
         )
         assertThat(indexes).contains(Index().on(SUB_SOURCE_TIME, ASC).on(SUB_POS_IN_FILE, ASC).indexKeys)
         assertThat(indexes).contains(Index().on(SUB_STATUS, ASC).indexKeys)
@@ -130,26 +130,28 @@ internal class PMCDatabaseChangeLogTest(
     }
 
     private fun runPMCMigrations() {
-        val runner = createMongockConfig(
-            mongoTemplate,
-            springContext,
-            "ac.uk.ebi.pmc.migrations"
-        )
+        val runner =
+            createMongockConfig(
+                mongoTemplate,
+                springContext,
+                "ac.uk.ebi.pmc.migrations",
+            )
         runner.run(DefaultApplicationArguments())
     }
 
     companion object {
-        private const val databaseTestName = "biostudies-test"
+        private const val DATABASE_TEST_NAME = "biostudies-test"
 
         @Container
-        val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+        val mongoContainer: MongoDBContainer =
+            MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource
         fun propertySource(register: DynamicPropertyRegistry) {
-            register.add("app.data.mongodbUri") { mongoContainer.getReplicaSetUrl(databaseTestName) }
-            register.add("app.data.mongodbDatabase") { databaseTestName }
+            register.add("app.data.mongodbUri") { mongoContainer.getReplicaSetUrl(DATABASE_TEST_NAME) }
+            register.add("app.data.mongodbDatabase") { DATABASE_TEST_NAME }
             register.add("app.data.execute-migrations") { "false" }
         }
     }

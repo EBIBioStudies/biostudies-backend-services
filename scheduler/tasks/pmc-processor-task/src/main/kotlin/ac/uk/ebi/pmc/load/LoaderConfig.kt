@@ -11,19 +11,17 @@ import org.springframework.context.annotation.Lazy
 @Configuration
 @Lazy
 class LoaderConfig {
-
     @Bean
     fun pmcSubmissionLoader(
         inputFilesDocService: InputFilesDocService,
         errorsDocService: ErrorsDocService,
         submissionDocService: SubmissionDocService,
-        pmcSubmissionTabProcessor: PmcSubmissionTabProcessor
+        pmcSubmissionTabProcessor: PmcSubmissionTabProcessor,
     ) = PmcSubmissionLoader(pmcSubmissionTabProcessor, errorsDocService, inputFilesDocService, submissionDocService)
 
     @Bean
     fun pmcLoader(pmcSubmissionLoader: PmcSubmissionLoader) = PmcFileLoader(pmcSubmissionLoader)
 
     @Bean
-    fun pmcSubmissionTabProcessor(serializationService: SerializationService) =
-        PmcSubmissionTabProcessor(serializationService)
+    fun pmcSubmissionTabProcessor(serializationService: SerializationService) = PmcSubmissionTabProcessor(serializationService)
 }

@@ -33,49 +33,54 @@ class SubmissionStatsDataRepositoryTest {
     lateinit var testInstance: SubmissionStatsDataRepository
 
     @BeforeEach
-    fun beforeEach() = runTest {
-        testInstance.deleteAll()
-    }
+    fun beforeEach() =
+        runTest {
+            testInstance.deleteAll()
+        }
 
     @Test
-    fun `update non existing stat`() = runTest {
-        val accNo = "S-BSST2"
-        testInstance.updateOrRegisterStat(SingleSubmissionStat(accNo, 4L, VIEWS))
+    fun `update non existing stat`() =
+        runTest {
+            val accNo = "S-BSST2"
+            testInstance.updateOrRegisterStat(SingleSubmissionStat(accNo, 4L, VIEWS))
 
-        val stats = testInstance.getByAccNo(accNo).stats
-        assertThat(stats).hasSize(1)
-        assertThat(stats[VIEWS.value]).isEqualTo(4L)
-    }
-
-    @Test
-    fun `update existing stat`() = runTest {
-        val accNo = "S-BSST1"
-        testInstance.save(DocSubmissionStats(ObjectId(), accNo, mapOf(FILES_SIZE.value to 1L)))
-        testInstance.updateOrRegisterStat(SingleSubmissionStat(accNo, 4L, VIEWS))
-
-        val stats = testInstance.getByAccNo(accNo).stats
-        assertThat(stats).hasSize(2)
-        assertThat(stats[VIEWS.value]).isEqualTo(4L)
-        assertThat(stats[FILES_SIZE.value]).isEqualTo(1L)
-    }
+            val stats = testInstance.getByAccNo(accNo).stats
+            assertThat(stats).hasSize(1)
+            assertThat(stats[VIEWS.value]).isEqualTo(4L)
+        }
 
     @Test
-    fun `increment stat`() = runTest {
-        val accNo = "S-BSST3"
-        val increments = listOf(SingleSubmissionStat(accNo, 4L, VIEWS), SingleSubmissionStat(accNo, 8L, VIEWS))
+    fun `update existing stat`() =
+        runTest {
+            val accNo = "S-BSST1"
+            testInstance.save(DocSubmissionStats(ObjectId(), accNo, mapOf(FILES_SIZE.value to 1L)))
+            testInstance.updateOrRegisterStat(SingleSubmissionStat(accNo, 4L, VIEWS))
 
-        testInstance.save(DocSubmissionStats(ObjectId(), accNo, mapOf(VIEWS.value to 1L)))
-        testInstance.incrementStat(accNo, increments)
+            val stats = testInstance.getByAccNo(accNo).stats
+            assertThat(stats).hasSize(2)
+            assertThat(stats[VIEWS.value]).isEqualTo(4L)
+            assertThat(stats[FILES_SIZE.value]).isEqualTo(1L)
+        }
 
-        val stats = testInstance.getByAccNo(accNo).stats
-        assertThat(stats).hasSize(1)
-        assertThat(stats[VIEWS.value]).isEqualTo(13L)
-    }
+    @Test
+    fun `increment stat`() =
+        runTest {
+            val accNo = "S-BSST3"
+            val increments = listOf(SingleSubmissionStat(accNo, 4L, VIEWS), SingleSubmissionStat(accNo, 8L, VIEWS))
+
+            testInstance.save(DocSubmissionStats(ObjectId(), accNo, mapOf(VIEWS.value to 1L)))
+            testInstance.incrementStat(accNo, increments)
+
+            val stats = testInstance.getByAccNo(accNo).stats
+            assertThat(stats).hasSize(1)
+            assertThat(stats[VIEWS.value]).isEqualTo(13L)
+        }
 
     companion object {
         @Container
-        val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+        val mongoContainer: MongoDBContainer =
+            MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

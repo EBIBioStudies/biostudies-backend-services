@@ -15,30 +15,40 @@ class ErrorsDocService(
     private val errorsRepository: ErrorsRepository,
     private val subRepository: SubmissionRepository,
 ) {
-    suspend fun saveError(submission: SubmissionDoc, mode: PmcMode, throwable: Throwable) {
+    suspend fun saveError(
+        submission: SubmissionDoc,
+        mode: PmcMode,
+        throwable: Throwable,
+    ) {
         logger.error { "Error ${asText(mode)} ${asText(submission)}, ${throwable.message}" }
 
         subRepository.update(submission.withStatus(getError(mode)))
         errorsRepository.save(SubmissionErrorDoc(submission, getStackTrace(throwable), mode))
     }
 
-    private fun asText(submission: SubmissionDoc) =
-        "submission accNo ='${submission.accNo}', file '${submission.sourceFile}'"
+    private fun asText(submission: SubmissionDoc) = "submission accNo ='${submission.accNo}', file '${submission.sourceFile}'"
 
-    private fun getError(pmcMode: PmcMode) = when (pmcMode) {
-        PmcMode.LOAD -> SubmissionStatus.ERROR_LOAD
-        PmcMode.PROCESS -> SubmissionStatus.ERROR_PROCESS
-        PmcMode.SUBMIT, PmcMode.SUBMIT_SINGLE -> SubmissionStatus.ERROR_SUBMIT
-    }
+    private fun getError(pmcMode: PmcMode) =
+        when (pmcMode) {
+            PmcMode.LOAD -> SubmissionStatus.ERROR_LOAD
+            PmcMode.PROCESS -> SubmissionStatus.ERROR_PROCESS
+            PmcMode.SUBMIT, PmcMode.SUBMIT_SINGLE -> SubmissionStatus.ERROR_SUBMIT
+        }
 
-    private fun asText(pmcMode: PmcMode) = when (pmcMode) {
-        PmcMode.LOAD -> "loading"
-        PmcMode.PROCESS -> "processing"
-        PmcMode.SUBMIT -> "submitting"
-        PmcMode.SUBMIT_SINGLE -> "submitting single"
-    }
+    private fun asText(pmcMode: PmcMode) =
+        when (pmcMode) {
+            PmcMode.LOAD -> "loading"
+            PmcMode.PROCESS -> "processing"
+            PmcMode.SUBMIT -> "submitting"
+            PmcMode.SUBMIT_SINGLE -> "submitting single"
+        }
 
-    suspend fun saveError(sourceFile: String, submissionBody: String, process: PmcMode, throwable: Throwable) {
+    suspend fun saveError(
+        sourceFile: String,
+        submissionBody: String,
+        process: PmcMode,
+        throwable: Throwable,
+    ) {
         logger.info { "Reporting error for submission in file $sourceFile" }
         errorsRepository.save(SubmissionErrorDoc(sourceFile, submissionBody, getStackTrace(throwable), process))
     }

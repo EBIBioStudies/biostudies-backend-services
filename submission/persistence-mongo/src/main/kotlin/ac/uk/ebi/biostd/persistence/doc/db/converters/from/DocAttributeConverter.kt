@@ -13,13 +13,14 @@ import org.bson.Document
 import org.springframework.core.convert.converter.Converter
 
 class DocAttributeConverter : Converter<Document, DocAttribute> {
-    override fun convert(source: Document): DocAttribute = DocAttribute(
-        name = source.getString(ATTRIBUTE_DOC_NAME),
-        value = source.getString(ATTRIBUTE_DOC_VALUE),
-        reference = source.getBoolean(ATTRIBUTE_DOC_REFERENCE, false),
-        nameAttrs = source.getDocList(ATTRIBUTE_DOC_NAME_ATTRS).map { toAttributeDetail(it) },
-        valueAttrs = source.getDocList(ATTRIBUTE_DOC_VALUE_ATTRS).map { toAttributeDetail(it) }
-    )
+    override fun convert(source: Document): DocAttribute =
+        DocAttribute(
+            name = source.getString(ATTRIBUTE_DOC_NAME),
+            value = source.getString(ATTRIBUTE_DOC_VALUE),
+            reference = source.getBoolean(ATTRIBUTE_DOC_REFERENCE, false),
+            nameAttrs = source.getDocList(ATTRIBUTE_DOC_NAME_ATTRS).map { toAttributeDetail(it) },
+            valueAttrs = source.getDocList(ATTRIBUTE_DOC_VALUE_ATTRS).map { toAttributeDetail(it) },
+        )
 
     private fun toAttributeDetail(doc: Document): DocAttributeDetail =
         DocAttributeDetail(name = doc.getString(ATTRIBUTE_DETAIL_NAME), value = doc.getString(ATTRIBUTE_DETAIL_VALUE))

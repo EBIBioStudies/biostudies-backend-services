@@ -13,7 +13,10 @@ import ebi.ac.uk.model.AttributeDetail
 import uk.ac.ebi.serialization.extensions.getNode
 
 internal class AttributeDetailJsonDeserializer : StdDeserializer<AttributeDetail>(AttributeDetail::class.java) {
-    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): AttributeDetail {
+    override fun deserialize(
+        jp: JsonParser,
+        ctxt: DeserializationContext,
+    ): AttributeDetail {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)
         val name = node.getNode<TextNode>(NAME).textValue()

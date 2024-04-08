@@ -34,7 +34,10 @@ class StatsMongoDataService(
             .findAllByStatType(submissionStatType, DataPageRequest.of(filter.pageNumber, filter.limit))
             .map { toSubmissionStat(submissionStatType, it) }
 
-    override suspend fun findByAccNoAndType(accNo: String, submissionStatType: SubmissionStatType): SubmissionStat =
+    override suspend fun findByAccNoAndType(
+        accNo: String,
+        submissionStatType: SubmissionStatType,
+    ): SubmissionStat =
         statsDataRepository
             .findByAccNoAndStatType(accNo, submissionStatType)
             ?.let { toSubmissionStat(submissionStatType, it) }
@@ -69,7 +72,10 @@ class StatsMongoDataService(
         return toSubmissionStat(update.type, updated)
     }
 
-    private suspend fun increment(accNo: String, increments: List<SubmissionStat>): SubmissionStat {
+    private suspend fun increment(
+        accNo: String,
+        increments: List<SubmissionStat>,
+    ): SubmissionStat {
         statsDataRepository.incrementStat(accNo, increments)
 
         val type = increments.first().type

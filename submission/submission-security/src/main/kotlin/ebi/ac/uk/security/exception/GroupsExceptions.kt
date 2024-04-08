@@ -1,11 +1,11 @@
 package ebi.ac.uk.security.exception
 
 class GroupsGroupDoesNotExistsException(
-    groupName: String
+    groupName: String,
 ) : RuntimeException("The group $groupName does not exists")
 
 class GroupsUserDoesNotExistsException(
-    userEmail: String
+    userEmail: String,
 ) : RuntimeException("The user $userEmail does not exists")
 
 class GroupsGroupNameMustNotBeNullException : RuntimeException("group name must not be null")

@@ -28,7 +28,10 @@ class StatsClient(
         return client.getForObject<Array<SubmissionStat>>("$STATS_URL/$type").toList()
     }
 
-    override fun getStatsByTypeAndAccNo(type: String, accNo: String): SubmissionStat {
+    override fun getStatsByTypeAndAccNo(
+        type: String,
+        accNo: String,
+    ): SubmissionStat {
         return client.getForObject<SubmissionStat>("$STATS_URL/$type/$accNo")
     }
 
@@ -36,11 +39,15 @@ class StatsClient(
         return client.postForObject(STATS_URL, RequestParams(body = stat))
     }
 
-    override fun registerStats(type: String, statsFile: File): List<SubmissionStat> {
-        val headers = httpHeadersOf(
-            HttpHeaders.CONTENT_TYPE to MediaType.MULTIPART_FORM_DATA,
-            HttpHeaders.ACCEPT to MediaType.APPLICATION_JSON_VALUE
-        )
+    override fun registerStats(
+        type: String,
+        statsFile: File,
+    ): List<SubmissionStat> {
+        val headers =
+            httpHeadersOf(
+                HttpHeaders.CONTENT_TYPE to MediaType.MULTIPART_FORM_DATA,
+                HttpHeaders.ACCEPT to MediaType.APPLICATION_JSON_VALUE,
+            )
         val multiPartBody = linkedMultiValueMapOf("stats" to FileSystemResource(statsFile))
         return client.post()
             .uri("$STATS_URL/$type")
@@ -49,11 +56,15 @@ class StatsClient(
             .retrieveBlocking()!!
     }
 
-    override fun incrementStats(type: String, statsFile: File): List<SubmissionStat> {
-        val headers = httpHeadersOf(
-            HttpHeaders.CONTENT_TYPE to MediaType.MULTIPART_FORM_DATA,
-            HttpHeaders.ACCEPT to MediaType.APPLICATION_JSON_VALUE
-        )
+    override fun incrementStats(
+        type: String,
+        statsFile: File,
+    ): List<SubmissionStat> {
+        val headers =
+            httpHeadersOf(
+                HttpHeaders.CONTENT_TYPE to MediaType.MULTIPART_FORM_DATA,
+                HttpHeaders.ACCEPT to MediaType.APPLICATION_JSON_VALUE,
+            )
         val multiPartBody = linkedMultiValueMapOf("stats" to FileSystemResource(statsFile))
         return client.post()
             .uri("$STATS_URL/$type/increment")

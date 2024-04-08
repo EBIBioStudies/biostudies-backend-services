@@ -30,11 +30,16 @@ class SubmissionRequestFinalizer(
     private val queryService: SubmissionPersistenceQueryService,
     private val requestService: SubmissionRequestPersistenceService,
 ) {
-    suspend fun finalizeRequest(accNo: String, version: Int, processId: String): ExtSubmission {
-        val (_, submission) = requestService.onRequest(accNo, version, PERSISTED, processId, {
-            val sub = finalizeRequest(queryService.getExtByAccNo(accNo, includeFileListFiles = true))
-            RqtResponse(it.withNewStatus(PROCESSED), sub)
-        })
+    suspend fun finalizeRequest(
+        accNo: String,
+        version: Int,
+        processId: String,
+    ): ExtSubmission {
+        val (_, submission) =
+            requestService.onRequest(accNo, version, PERSISTED, processId, {
+                val sub = finalizeRequest(queryService.getExtByAccNo(accNo, includeFileListFiles = true))
+                RqtResponse(it.withNewStatus(PROCESSED), sub)
+            })
         eventsPublisherService.submissionFinalized(accNo, version)
         return submission
     }
@@ -48,7 +53,10 @@ class SubmissionRequestFinalizer(
         return sub
     }
 
-    private suspend fun deleteRemainingFiles(current: ExtSubmission, previous: ExtSubmission) {
+    private suspend fun deleteRemainingFiles(
+        current: ExtSubmission,
+        previous: ExtSubmission,
+    ) {
         val subFiles = subFilesSet(current)
         val accNo = previous.accNo
         val owner = previous.owner

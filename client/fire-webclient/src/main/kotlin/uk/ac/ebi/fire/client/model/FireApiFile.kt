@@ -17,7 +17,7 @@ data class FireApiFile(
 
 enum class FileType(val key: String) {
     FILE("file"),
-    DIR("directory")
+    DIR("directory"),
 }
 
 data class FileSystemEntry(

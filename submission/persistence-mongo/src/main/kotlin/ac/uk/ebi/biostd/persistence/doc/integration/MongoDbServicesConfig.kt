@@ -43,12 +43,13 @@ class MongoDbServicesConfig {
         submissionRequestDocDataRepository: SubmissionRequestDocDataRepository,
         serializationService: ExtSerializationService,
         toExtSubmissionMapper: ToExtSubmissionMapper,
-    ): SubmissionPersistenceQueryService = SubmissionMongoPersistenceQueryService(
-        submissionDocDataRepository,
-        toExtSubmissionMapper,
-        serializationService,
-        submissionRequestDocDataRepository,
-    )
+    ): SubmissionPersistenceQueryService =
+        SubmissionMongoPersistenceQueryService(
+            submissionDocDataRepository,
+            toExtSubmissionMapper,
+            serializationService,
+            submissionRequestDocDataRepository,
+        )
 
     @Bean
     internal fun submissionFilesPersistenceService(
@@ -68,16 +69,16 @@ class MongoDbServicesConfig {
         extSerializationService: ExtSerializationService,
         requestRepository: SubmissionRequestDocDataRepository,
         requestFilesRepository: SubmissionRequestFilesRepository,
-    ): SubmissionRequestFilesPersistenceService = SubmissionRequestFilesMongoPersistenceService(
-        extSerializationService,
-        requestRepository,
-        requestFilesRepository,
-    )
+    ): SubmissionRequestFilesPersistenceService =
+        SubmissionRequestFilesMongoPersistenceService(
+            extSerializationService,
+            requestRepository,
+            requestFilesRepository,
+        )
 
     @Bean
-    internal fun projectDataService(
-        submissionDocDataRepository: SubmissionDocDataRepository,
-    ): CollectionDataService = CollectionMongoDataService(submissionDocDataRepository)
+    internal fun projectDataService(submissionDocDataRepository: SubmissionDocDataRepository): CollectionDataService =
+        CollectionMongoDataService(submissionDocDataRepository)
 
     @Bean
     internal fun submissionDraftMongoService(
@@ -91,6 +92,8 @@ class MongoDbServicesConfig {
     ): StatsDataService = StatsMongoDataService(submissionsRepository, statsDataRepository)
 
     @Bean
-    fun fileProcessingService(serializationService: ExtSerializationService, fileResolver: FilesResolver) =
-        FileProcessingService(serializationService, fileResolver)
+    fun fileProcessingService(
+        serializationService: ExtSerializationService,
+        fileResolver: FilesResolver,
+    ) = FileProcessingService(serializationService, fileResolver)
 }

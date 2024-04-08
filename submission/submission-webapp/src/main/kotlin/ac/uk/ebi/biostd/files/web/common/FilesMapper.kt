@@ -13,11 +13,17 @@ class FilesMapper {
         return fileSpec.files.map { asUserFile(it, USER_FOLDER_NAME) }
     }
 
-    fun asGroupFiles(groupName: String, fileSpec: FilesSpec): List<UserFile> {
+    fun asGroupFiles(
+        groupName: String,
+        fileSpec: FilesSpec,
+    ): List<UserFile> {
         return fileSpec.files.map { asUserFile(it, "$GROUP_FOLDER_NAME/$groupName") }
     }
 
-    private fun asUserFile(file: UserFolderFile, prefix: String): UserFile {
+    private fun asUserFile(
+        file: UserFolderFile,
+        prefix: String,
+    ): UserFile {
         return UserFile(file.name, Path(prefix).resolve(file.path).toString(), file.fileSize, file.type)
     }
 }

@@ -38,23 +38,35 @@ class PageTabService(
                 val files = pageTabFiles.getValue(name)
                 TrackSection(
                     changed = true,
-                    section = sec.copy(fileList = fileList.copy(pageTabFiles = fileListFiles(files, name)))
+                    section = sec.copy(fileList = fileList.copy(pageTabFiles = fileListFiles(files, name))),
                 )
             }
         }
     }
 
-    private fun fileListFiles(pageTab: PageTabFiles, fileListName: String): List<NfsFile> = listOf(
-        createNfsFile("$fileListName.json", "Files/$fileListName.json", pageTab.json),
-        createNfsFile("$fileListName.tsv", "Files/$fileListName.tsv", pageTab.tsv)
-    )
+    private fun fileListFiles(
+        pageTab: PageTabFiles,
+        fileListName: String,
+    ): List<NfsFile> =
+        listOf(
+            createNfsFile("$fileListName.json", "Files/$fileListName.json", pageTab.json),
+            createNfsFile("$fileListName.tsv", "Files/$fileListName.tsv", pageTab.tsv),
+        )
 
-    private fun subExtFiles(accNo: String, pageTab: PageTabFiles): List<NfsFile> = listOf(
-        createNfsFile("$accNo.json", "$accNo.json", pageTab.json),
-        createNfsFile("$accNo.tsv", "$accNo.tsv", pageTab.tsv)
-    )
+    private fun subExtFiles(
+        accNo: String,
+        pageTab: PageTabFiles,
+    ): List<NfsFile> =
+        listOf(
+            createNfsFile("$accNo.json", "$accNo.json", pageTab.json),
+            createNfsFile("$accNo.tsv", "$accNo.tsv", pageTab.tsv),
+        )
 
-    private fun createNfsFile(path: String, relPath: String, file: File): NfsFile =
+    private fun createNfsFile(
+        path: String,
+        relPath: String,
+        file: File,
+    ): NfsFile =
         NfsFile(
             filePath = path,
             relPath = relPath,
@@ -62,17 +74,21 @@ class PageTabService(
             fullPath = file.absolutePath,
             md5 = file.md5(),
             size = file.size(),
-            attributes = emptyList()
+            attributes = emptyList(),
         )
 
-    private fun createTempFolder(accNo: String, version: Int): File {
+    private fun createTempFolder(
+        accNo: String,
+        version: Int,
+    ): File {
         val now = LocalDate.now()
-        val path = baseTempFolder
-            .resolve(now.get(ChronoField.YEAR).toString())
-            .resolve(now.get(ChronoField.MONTH_OF_YEAR).toString())
-            .resolve(now.get(ChronoField.DAY_OF_MONTH).toString())
-            .resolve(accNo)
-            .resolve(version.toString())
+        val path =
+            baseTempFolder
+                .resolve(now.get(ChronoField.YEAR).toString())
+                .resolve(now.get(ChronoField.MONTH_OF_YEAR).toString())
+                .resolve(now.get(ChronoField.DAY_OF_MONTH).toString())
+                .resolve(accNo)
+                .resolve(version.toString())
         path.mkdirs()
         return path
     }

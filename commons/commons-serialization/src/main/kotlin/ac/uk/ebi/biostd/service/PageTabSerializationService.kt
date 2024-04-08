@@ -17,39 +17,53 @@ internal class PageTabSerializationService(
     private val serializer: PagetabSerializer,
     private val fileListSerializer: FileListSerializer,
 ) : SerializationService {
-    override fun serializeSubmission(submission: Submission, format: SubFormat): String {
+    override fun serializeSubmission(
+        submission: Submission,
+        format: SubFormat,
+    ): String {
         return serializer.serializeSubmission(submission, format)
     }
 
-    override fun deserializeSubmission(content: String, format: SubFormat): Submission =
-        serializer.deserializeSubmission(content, format)
+    override fun deserializeSubmission(
+        content: String,
+        format: SubFormat,
+    ): Submission = serializer.deserializeSubmission(content, format)
 
     override suspend fun deserializeSubmission(
         content: String,
         format: SubFormat,
         source: FileSourcesList,
-    ): Submission =
-        fileListSerializer.deserializeSubmission(serializer.deserializeSubmission(content, format), source)
+    ): Submission = fileListSerializer.deserializeSubmission(serializer.deserializeSubmission(content, format), source)
 
     override fun deserializeSubmission(file: File): Submission {
         val pagetabFile = readAsPageTab(file)
         return deserializeSubmission(pagetabFile.readText(), SubFormat.fromFile(pagetabFile))
     }
 
-    override suspend fun deserializeSubmission(file: File, source: FileSourcesList): Submission =
-        fileListSerializer.deserializeSubmission(deserializeSubmission(file), source)
+    override suspend fun deserializeSubmission(
+        file: File,
+        source: FileSourcesList,
+    ): Submission = fileListSerializer.deserializeSubmission(deserializeSubmission(file), source)
 
     override fun deserializeFileListAsFlow(
         inputStream: InputStream,
         format: SubFormat,
     ): Flow<BioFile> = fileListSerializer.deserializeFileListAsFlow(inputStream, format)
 
-    override suspend fun serializeTable(table: FilesTable, format: SubFormat, file: File): File {
+    override suspend fun serializeTable(
+        table: FilesTable,
+        format: SubFormat,
+        file: File,
+    ): File {
         file.outputStream().use { serializer.serializeFileList(table.elements.asFlow(), format, it) }
         return file
     }
 
-    override suspend fun serializeFileList(files: Flow<BioFile>, targetFormat: SubFormat, outputStream: OutputStream) {
+    override suspend fun serializeFileList(
+        files: Flow<BioFile>,
+        targetFormat: SubFormat,
+        outputStream: OutputStream,
+    ) {
         serializer.serializeFileList(files, targetFormat, outputStream)
     }
 }

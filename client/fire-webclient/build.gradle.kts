@@ -20,8 +20,6 @@ plugins {
     id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
 }
 
-
-
 dependencies {
     api(project(CommonsUtil))
     api(project(CommonsHttp))

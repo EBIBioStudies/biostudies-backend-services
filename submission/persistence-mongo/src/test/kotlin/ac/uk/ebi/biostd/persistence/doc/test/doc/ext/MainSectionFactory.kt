@@ -19,51 +19,61 @@ const val SUB_SEC_TABLE_TYPE = "Study3"
 const val ROOT_SEC_EXT_FILE_LIST_PATH = "listFileName1"
 const val SUB_SEC_EXT_FILE_LIST_PATH = "folder/listFileName2"
 
-val subSection = ExtSection(
-    accNo = SUB_SEC_ACC_NO,
-    type = SUB_SEC_TYPE,
-    fileList = ExtFileList(
-        filePath = SUB_SEC_EXT_FILE_LIST_PATH,
-        file = createExtFileList(subSectionFileListFile),
+val subSection =
+    ExtSection(
+        accNo = SUB_SEC_ACC_NO,
+        type = SUB_SEC_TYPE,
+        fileList =
+            ExtFileList(
+                filePath = SUB_SEC_EXT_FILE_LIST_PATH,
+                file = createExtFileList(subSectionFileListFile),
+            ),
     )
-)
 
-val subSectionTable = ExtSection(
-    accNo = SUB_SEC_TABLE_ACC_NO3,
-    type = SUB_SEC_TABLE_TYPE,
-    fileList = null,
-    attributes = listOf(subSectionTableAttribute)
-)
+val subSectionTable =
+    ExtSection(
+        accNo = SUB_SEC_TABLE_ACC_NO3,
+        type = SUB_SEC_TABLE_TYPE,
+        fileList = null,
+        attributes = listOf(subSectionTableAttribute),
+    )
 
 const val ROOT_SECTION_LINK_URL = "url1"
-val rootSectionLink = ExtLink(
-    url = ROOT_SECTION_LINK_URL,
-    attributes = listOf(rootSectionLinkAttribute)
-)
-const val ROOT_SECTION_TABLE_LINK_URL = "url2"
-val rootSectionTableLink = ExtLink(
-    url = ROOT_SECTION_TABLE_LINK_URL,
-    attributes = listOf(rootSectionTableLinkAttribute)
-)
-
-val rootSection = ExtSection(
-    accNo = ROOT_SEC_ACC_NO,
-    type = ROOT_SEC_TYPE,
-    fileList = ExtFileList(
-        filePath = ROOT_SEC_EXT_FILE_LIST_PATH,
-        file = createExtFileList(rootSectionFileListFile)
-    ),
-    attributes = listOf(rootSectionAttribute),
-    sections = listOf(
-        Either.left(subSection),
-        Either.right(ExtSectionTable(sections = listOf(subSectionTable)))
-    ),
-    files = listOf(
-        Either.left(rootSectionFile),
-        Either.right(ExtFileTable(files = listOf(rootSectionTableFile)))
-    ),
-    links = listOf(
-        Either.left(rootSectionLink),
-        Either.right(ExtLinkTable(links = listOf(rootSectionTableLink)))
+val rootSectionLink =
+    ExtLink(
+        url = ROOT_SECTION_LINK_URL,
+        attributes = listOf(rootSectionLinkAttribute),
     )
-)
+const val ROOT_SECTION_TABLE_LINK_URL = "url2"
+val rootSectionTableLink =
+    ExtLink(
+        url = ROOT_SECTION_TABLE_LINK_URL,
+        attributes = listOf(rootSectionTableLinkAttribute),
+    )
+
+val rootSection =
+    ExtSection(
+        accNo = ROOT_SEC_ACC_NO,
+        type = ROOT_SEC_TYPE,
+        fileList =
+            ExtFileList(
+                filePath = ROOT_SEC_EXT_FILE_LIST_PATH,
+                file = createExtFileList(rootSectionFileListFile),
+            ),
+        attributes = listOf(rootSectionAttribute),
+        sections =
+            listOf(
+                Either.left(subSection),
+                Either.right(ExtSectionTable(sections = listOf(subSectionTable))),
+            ),
+        files =
+            listOf(
+                Either.left(rootSectionFile),
+                Either.right(ExtFileTable(files = listOf(rootSectionTableFile))),
+            ),
+        links =
+            listOf(
+                Either.left(rootSectionLink),
+                Either.right(ExtLinkTable(links = listOf(rootSectionTableLink))),
+            ),
+    )

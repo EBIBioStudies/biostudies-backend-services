@@ -19,10 +19,11 @@ class StatsConfig {
         submissionStatsService: StatsDataService,
         extSerializationService: ExtSerializationService,
         pesistenceQueryService: SubmissionPersistenceQueryService,
-    ): SubmissionStatsService = SubmissionStatsService(
-        statsFileHandler,
-        submissionStatsService,
-        extSerializationService,
-        pesistenceQueryService,
-    )
+    ): SubmissionStatsService =
+        SubmissionStatsService(
+            statsFileHandler,
+            submissionStatsService,
+            extSerializationService,
+            pesistenceQueryService,
+        )
 }

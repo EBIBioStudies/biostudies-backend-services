@@ -23,5 +23,5 @@ class CaptchaVerifier(
 }
 
 internal data class CaptchaCheckResponse(
-    val success: Boolean
+    val success: Boolean,
 )

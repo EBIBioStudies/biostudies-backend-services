@@ -38,33 +38,33 @@ class DocSubmissionConverter(
     private val docSectionConverter: DocSectionConverter,
     private val docAttributeConverter: DocAttributeConverter,
 ) : Converter<Document, DocSubmission> {
-    override fun convert(source: Document): DocSubmission = DocSubmission(
-        id = source.getObjectId(SUB_ID),
-        accNo = source.getString(SUB_ACC_NO),
-        version = source.getInteger(SUB_VERSION),
-        schemaVersion = source.getString(SUB_SCHEMA_VERSION),
-        owner = source.getString(SUB_OWNER),
-        submitter = source.getString(SUB_SUBMITTER),
-        title = source.getString(SUB_TITLE),
-        doi = source.getString(SUB_DOI),
-        method = DocSubmissionMethod.fromString(source.getString(SUB_METHOD)),
-        relPath = source.getString(SUB_REL_PATH),
-        rootPath = source.getString(SUB_ROOT_PATH),
-        released = source.getBoolean(SUB_RELEASED),
-        secretKey = source.getString(SUB_SECRET_KEY),
-        releaseTime = source.getDate(SUB_RELEASE_TIME)?.toInstant(),
-        modificationTime = source.getDate(SUB_MODIFICATION_TIME).toInstant(),
-        creationTime = source.getDate(SUB_CREATION_TIME).toInstant(),
-        section = docSectionConverter.convert(source.getDoc(SUB_SECTION)),
-        attributes = source.getDocList(SUB_ATTRIBUTES).map { docAttributeConverter.convert(it) },
-        tags = source.getDocList(SUB_TAGS).map { toDocTag(it) },
-        collections = source.getDocList(SUB_COLLECTIONS).map { toDocCollection(it) },
-        pageTabFiles = source.getDocList(PAGE_TAB_FILES).map { docFileConverter.convert(it) },
-        storageMode = StorageMode.fromString(source.getString(STORAGE_MODE))
-    )
+    override fun convert(source: Document): DocSubmission =
+        DocSubmission(
+            id = source.getObjectId(SUB_ID),
+            accNo = source.getString(SUB_ACC_NO),
+            version = source.getInteger(SUB_VERSION),
+            schemaVersion = source.getString(SUB_SCHEMA_VERSION),
+            owner = source.getString(SUB_OWNER),
+            submitter = source.getString(SUB_SUBMITTER),
+            title = source.getString(SUB_TITLE),
+            doi = source.getString(SUB_DOI),
+            method = DocSubmissionMethod.fromString(source.getString(SUB_METHOD)),
+            relPath = source.getString(SUB_REL_PATH),
+            rootPath = source.getString(SUB_ROOT_PATH),
+            released = source.getBoolean(SUB_RELEASED),
+            secretKey = source.getString(SUB_SECRET_KEY),
+            releaseTime = source.getDate(SUB_RELEASE_TIME)?.toInstant(),
+            modificationTime = source.getDate(SUB_MODIFICATION_TIME).toInstant(),
+            creationTime = source.getDate(SUB_CREATION_TIME).toInstant(),
+            section = docSectionConverter.convert(source.getDoc(SUB_SECTION)),
+            attributes = source.getDocList(SUB_ATTRIBUTES).map { docAttributeConverter.convert(it) },
+            tags = source.getDocList(SUB_TAGS).map { toDocTag(it) },
+            collections = source.getDocList(SUB_COLLECTIONS).map { toDocCollection(it) },
+            pageTabFiles = source.getDocList(PAGE_TAB_FILES).map { docFileConverter.convert(it) },
+            storageMode = StorageMode.fromString(source.getString(STORAGE_MODE)),
+        )
 
-    private fun toDocTag(doc: Document): DocTag =
-        DocTag(name = doc.getString(TAG_DOC_NAME), value = doc.getString(TAG_DOC_VALUE))
+    private fun toDocTag(doc: Document): DocTag = DocTag(name = doc.getString(TAG_DOC_NAME), value = doc.getString(TAG_DOC_VALUE))
 
     private fun toDocCollection(doc: Document): DocCollection = DocCollection(accNo = doc.getString(COLLECTION_ACC_NO))
 }

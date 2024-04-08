@@ -4,7 +4,7 @@ import ebi.ac.uk.notifications.integration.model.NotificationTemplate
 import ebi.ac.uk.notifications.integration.model.NotificationTemplateModel
 
 internal class SubmissionReleaseTemplate(
-    templateContent: String
+    templateContent: String,
 ) : NotificationTemplate<SubmissionReleaseModel>(templateContent)
 
 internal class SubmissionReleaseModel(
@@ -13,14 +13,15 @@ internal class SubmissionReleaseModel(
     private val stUrl: String,
     private val username: String,
     private val subDescription: String,
-    private val releaseDate: String?
+    private val releaseDate: String?,
 ) : NotificationTemplateModel {
-    override fun getParams(): List<Pair<String, String>> = listOf(
-        "USERNAME" to username,
-        "SUB_DESCRIPTION" to subDescription,
-        "MAIL_TO" to mailto,
-        "UI_URL" to uiUrl,
-        "ST_URL" to stUrl,
-        "RELEASE_DATE" to releaseDate.orEmpty()
-    )
+    override fun getParams(): List<Pair<String, String>> =
+        listOf(
+            "USERNAME" to username,
+            "SUB_DESCRIPTION" to subDescription,
+            "MAIL_TO" to mailto,
+            "UI_URL" to uiUrl,
+            "ST_URL" to stUrl,
+            "RELEASE_DATE" to releaseDate.orEmpty(),
+        )
 }

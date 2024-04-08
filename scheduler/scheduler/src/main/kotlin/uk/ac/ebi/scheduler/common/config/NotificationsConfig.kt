@@ -16,15 +16,16 @@ internal class NotificationsConfig {
     @Bean
     fun schedulerNotificationsSender(
         client: WebClient,
-        appProperties: AppProperties
-    ): NotificationsSender = NotificationsSender(
-        client,
-        appProperties.slack.schedulerNotificationsUrl,
-    )
+        appProperties: AppProperties,
+    ): NotificationsSender =
+        NotificationsSender(
+            client,
+            appProperties.slack.schedulerNotificationsUrl,
+        )
 
     @Bean
     fun pmcNotificationsSender(
         client: WebClient,
-        appProperties: AppProperties
+        appProperties: AppProperties,
     ): NotificationsSender = NotificationsSender(client, appProperties.slack.pmcNotificationsUrl)
 }

@@ -37,60 +37,75 @@ internal class PmcLoaderService private constructor(
         notificationsSender: NotificationsSender,
     ) : this(PmcLoader(clusterClient, properties, appProperties), notificationsSender)
 
-    suspend fun loadFile(folder: String?, file: String?, debugPort: Int? = null): Job {
+    suspend fun loadFile(
+        folder: String?,
+        file: String?,
+        debugPort: Int? = null,
+    ): Job {
         val job = pmcLoaderService.loadFile(folder, file, debugPort)
-        val params = buildList {
-            folder?.let { add("folder='$it'") }
-            file?.let { add("file='$it'") }
-            debugPort?.let { add("debugPort='$it'") }
-        }.joinToString()
+        val params =
+            buildList {
+                folder?.let { add("folder='$it'") }
+                file?.let { add("file='$it'") }
+                debugPort?.let { add("debugPort='$it'") }
+            }.joinToString()
 
         pmcNotificationsSender.send(
             Report(
                 SYSTEM_NAME,
                 LOADER_SUBSYSTEM,
-                "Triggered PMC loader params=[$params], cluster job: $job, logs will be available at ${job.logsPath}"
-            )
+                "Triggered PMC loader params=[$params], cluster job: $job, logs will be available at ${job.logsPath}",
+            ),
         )
         return job
     }
 
-    suspend fun triggerProcessor(sourceFile: String?, debugPort: Int? = null): Job {
+    suspend fun triggerProcessor(
+        sourceFile: String?,
+        debugPort: Int? = null,
+    ): Job {
         val job = pmcLoaderService.triggerProcessor(sourceFile, debugPort)
-        val params = buildList {
-            sourceFile?.let { add("sourceFile='$it'") }
-            debugPort?.let { add("debugPort='$it'") }
-        }.joinToString()
+        val params =
+            buildList {
+                sourceFile?.let { add("sourceFile='$it'") }
+                debugPort?.let { add("debugPort='$it'") }
+            }.joinToString()
         pmcNotificationsSender.send(
             Report(
                 SYSTEM_NAME,
                 PROCESSOR_SUBSYSTEM,
-                "Triggered PMC processor params=[$params], cluster job: $job, logs will be available at ${job.logsPath}"
-            )
+                "Triggered PMC processor params=[$params], cluster job: $job, logs will be available at ${job.logsPath}",
+            ),
         )
         return job
     }
 
-    suspend fun triggerSubmitter(sourceFile: String?, debugPort: Int? = null): Job {
+    suspend fun triggerSubmitter(
+        sourceFile: String?,
+        debugPort: Int? = null,
+    ): Job {
         val job = pmcLoaderService.triggerSubmitter(sourceFile, debugPort)
         pmcNotificationsSender.send(
             Report(
                 SYSTEM_NAME,
                 SUBMITTER_SUBSYSTEM,
-                "Triggered PMC submitter, cluster job: $job, logs will be available at ${job.logsPath}"
-            )
+                "Triggered PMC submitter, cluster job: $job, logs will be available at ${job.logsPath}",
+            ),
         )
         return job
     }
 
-    suspend fun triggerSubmitSingle(debugPort: Int? = null, submissionId: String): Job {
+    suspend fun triggerSubmitSingle(
+        debugPort: Int? = null,
+        submissionId: String,
+    ): Job {
         val job = pmcLoaderService.triggerSubmitSingle(submissionId, debugPort)
         pmcNotificationsSender.send(
             Report(
                 SYSTEM_NAME,
                 SUBMITTER_SUBSYSTEM,
-                "Triggered PMC submitter['$submissionId'], cluster job: $job, logs will be available at ${job.logsPath}"
-            )
+                "Triggered PMC submitter['$submissionId'], cluster job: $job, logs will be available at ${job.logsPath}",
+            ),
         )
         return job
     }
@@ -101,58 +116,74 @@ private class PmcLoader(
     private val properties: PmcProcessorProp,
     private val appProperties: AppProperties,
 ) {
-
-    suspend fun loadFile(folder: String?, file: String?, debugPort: Int?): Job {
+    suspend fun loadFile(
+        folder: String?,
+        file: String?,
+        debugPort: Int?,
+    ): Job {
         val loadFolder = folder ?: properties.loadFolder
         logger.info { "submitting job to load folder: '$folder'" }
 
         val properties = getConfigProperties(loadFolder = loadFolder, lodFile = file, importMode = LOAD)
-        val jobTry = clusterClient.triggerJobAsync(
-            JobSpec(
-                FOUR_CORES,
-                EIGHT_GB,
-                command = properties.asCmd(appProperties.appsFolder, debugPort),
+        val jobTry =
+            clusterClient.triggerJobAsync(
+                JobSpec(
+                    FOUR_CORES,
+                    EIGHT_GB,
+                    command = properties.asCmd(appProperties.appsFolder, debugPort),
+                ),
             )
-        )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    suspend fun triggerProcessor(sourceFile: String?, debugPort: Int?): Job {
+    suspend fun triggerProcessor(
+        sourceFile: String?,
+        debugPort: Int?,
+    ): Job {
         logger.info { "submitting job to process submissions, source file ${sourceFile ?: "any"}" }
         val properties = getConfigProperties(importMode = PROCESS, sourceFile = sourceFile)
-        val jobTry = clusterClient.triggerJobAsync(
-            JobSpec(
-                FOUR_CORES,
-                EIGHT_GB,
-                command = properties.asCmd(appProperties.appsFolder, debugPort),
+        val jobTry =
+            clusterClient.triggerJobAsync(
+                JobSpec(
+                    FOUR_CORES,
+                    EIGHT_GB,
+                    command = properties.asCmd(appProperties.appsFolder, debugPort),
+                ),
             )
-        )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    suspend fun triggerSubmitter(sourceFile: String?, debugPort: Int?): Job {
+    suspend fun triggerSubmitter(
+        sourceFile: String?,
+        debugPort: Int?,
+    ): Job {
         logger.info { "submitting job to submit submissions, source file ${sourceFile ?: "any"}" }
         val properties = getConfigProperties(importMode = SUBMIT, sourceFile = sourceFile)
-        val jobTry = clusterClient.triggerJobAsync(
-            JobSpec(
-                EIGHT_CORES,
-                MemorySpec.TWENTYFOUR_GB,
-                command = properties.asCmd(appProperties.appsFolder, debugPort),
+        val jobTry =
+            clusterClient.triggerJobAsync(
+                JobSpec(
+                    EIGHT_CORES,
+                    MemorySpec.TWENTYFOUR_GB,
+                    command = properties.asCmd(appProperties.appsFolder, debugPort),
+                ),
             )
-        )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    suspend fun triggerSubmitSingle(submissionId: String, debugPort: Int?): Job {
+    suspend fun triggerSubmitSingle(
+        submissionId: String,
+        debugPort: Int?,
+    ): Job {
         logger.info { "submitting job to submit submissions" }
         val properties = getConfigProperties(importMode = SUBMIT_SINGLE, submissionId = submissionId)
-        val jobTry = clusterClient.triggerJobAsync(
-            JobSpec(
-                EIGHT_CORES,
-                MemorySpec.TWENTYFOUR_GB,
-                command = properties.asCmd(appProperties.appsFolder, debugPort),
+        val jobTry =
+            clusterClient.triggerJobAsync(
+                JobSpec(
+                    EIGHT_CORES,
+                    MemorySpec.TWENTYFOUR_GB,
+                    command = properties.asCmd(appProperties.appsFolder, debugPort),
+                ),
             )
-        )
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
@@ -162,20 +193,19 @@ private class PmcLoader(
         submissionId: String? = null,
         sourceFile: String? = null,
         importMode: PmcMode,
-    ) =
-        PmcImporterProperties.create(
-            mode = importMode,
-            loadFolder = loadFolder,
-            loadFile = lodFile,
-            sourceFile = sourceFile,
-            temp = properties.temp,
-            mongodbUri = properties.mongoUri,
-            mongodbDatabase = properties.mongoDatabase,
-            notificationsUrl = appProperties.slack.pmcNotificationsUrl,
-            pmcBaseUrl = "http://www.ft-loading.europepmc.org",
-            bioStudiesUser = properties.bioStudiesUser,
-            bioStudiesPassword = properties.bioStudiesPassword,
-            bioStudiesUrl = properties.bioStudiesUrl,
-            submissionId = submissionId
-        )
+    ) = PmcImporterProperties.create(
+        mode = importMode,
+        loadFolder = loadFolder,
+        loadFile = lodFile,
+        sourceFile = sourceFile,
+        temp = properties.temp,
+        mongodbUri = properties.mongoUri,
+        mongodbDatabase = properties.mongoDatabase,
+        notificationsUrl = appProperties.slack.pmcNotificationsUrl,
+        pmcBaseUrl = "http://www.ft-loading.europepmc.org",
+        bioStudiesUser = properties.bioStudiesUser,
+        bioStudiesPassword = properties.bioStudiesPassword,
+        bioStudiesUrl = properties.bioStudiesUrl,
+        submissionId = submissionId,
+    )
 }

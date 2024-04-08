@@ -9,20 +9,30 @@ class RtTicketService(
     private val properties: NotificationProperties,
     private val rtClient: RtClient,
 ) {
-    fun saveRtTicket(accNo: String, subject: String, owner: String, content: String) =
-        when (val ticketId = notificationsDataService.findTicketId(accNo)) {
-            null -> createTicket(accNo, subject, owner, content)
-            else -> rtClient.commentTicket(ticketId, properties.bccEmail, content)
-        }
+    fun saveRtTicket(
+        accNo: String,
+        subject: String,
+        owner: String,
+        content: String,
+    ) = when (val ticketId = notificationsDataService.findTicketId(accNo)) {
+        null -> createTicket(accNo, subject, owner, content)
+        else -> rtClient.commentTicket(ticketId, properties.bccEmail, content)
+    }
 
-    private fun createTicket(accNo: String, subject: String, owner: String, content: String) {
-        val ticketId = rtClient.createTicket(
-            accNo = accNo,
-            subject = subject,
-            owner = owner,
-            adminCc = properties.bccEmail,
-            content = content
-        )
+    private fun createTicket(
+        accNo: String,
+        subject: String,
+        owner: String,
+        content: String,
+    ) {
+        val ticketId =
+            rtClient.createTicket(
+                accNo = accNo,
+                subject = subject,
+                owner = owner,
+                adminCc = properties.bccEmail,
+                content = content,
+            )
         notificationsDataService.saveRtNotification(accNo, ticketId)
     }
 }

@@ -7,7 +7,11 @@ import ebi.ac.uk.util.date.asIsoTime
 import java.time.OffsetDateTime
 
 class OffsetDateTimeSerializer : JsonSerializer<OffsetDateTime>() {
-    override fun serialize(time: OffsetDateTime, gen: JsonGenerator, serializers: SerializerProvider) {
+    override fun serialize(
+        time: OffsetDateTime,
+        gen: JsonGenerator,
+        serializers: SerializerProvider,
+    ) {
         gen.writeString(time.asIsoTime())
     }
 }

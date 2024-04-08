@@ -20,17 +20,19 @@ internal class FilesListSourceTest(temporaryFolder: TemporaryFolder) {
     private val testInstance: FilesListSource = FilesListSource(files)
 
     @Test
-    fun getFile() = runTest {
-        val result = testInstance.getExtFile(file.name, FILE_TYPE.value, attributes)
-        assertThat(result).isInstanceOf(NfsFile::class.java)
-        assertThat(result).isNotNull()
+    fun getFile() =
+        runTest {
+            val result = testInstance.getExtFile(file.name, FILE_TYPE.value, attributes)
+            assertThat(result).isInstanceOf(NfsFile::class.java)
+            assertThat(result).isNotNull()
 
-        val nfsFile = result as NfsFile
-        assertThat(nfsFile.file).isEqualTo(file)
-    }
+            val nfsFile = result as NfsFile
+            assertThat(nfsFile.file).isEqualTo(file)
+        }
 
     @Test
-    fun `get non existing file`() = runTest {
-        assertThat(testInstance.getExtFile("ghost.txt", FILE_TYPE.value, attributes)).isNull()
-    }
+    fun `get non existing file`() =
+        runTest {
+            assertThat(testInstance.getExtFile("ghost.txt", FILE_TYPE.value, attributes)).isNull()
+        }
 }

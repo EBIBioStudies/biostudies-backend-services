@@ -104,7 +104,7 @@ import uk.ac.ebi.extended.serialization.service.createExtFileList
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ToDocSubmissionMapperTest(
-    tempFolder: TemporaryFolder
+    tempFolder: TemporaryFolder,
 ) {
     private val newRootSectionFileListFile =
         rootSectionFileListFile.copy(file = tempFolder.createFile("tempFile1.txt", "content1"))
@@ -120,25 +120,30 @@ class ToDocSubmissionMapperTest(
     private val nfsFileFile = tempFolder.createFile(NFS_FILENAME)
     private val extNfsFile = createNfsFile(NFS_FILEPATH, NFS_REL_PATH, nfsFileFile)
 
-    private val newRootSection = rootSection.copy(
-        fileList = rootSection.fileList!!.copy(
-            file = createExtFileList(newRootSectionFileListFile),
-            pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile)
-        ),
-        sections = listOf(
-            Either.left(newSubSection),
-            Either.right(ExtSectionTable(sections = listOf(subSectionTable)))
-        ),
-        files = listOf(
-            Either.left(newRootSectionFile),
-            Either.right(ExtFileTable(files = listOf(newRootSectionTableFile)))
+    private val newRootSection =
+        rootSection.copy(
+            fileList =
+                rootSection.fileList!!.copy(
+                    file = createExtFileList(newRootSectionFileListFile),
+                    pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile),
+                ),
+            sections =
+                listOf(
+                    Either.left(newSubSection),
+                    Either.right(ExtSectionTable(sections = listOf(subSectionTable))),
+                ),
+            files =
+                listOf(
+                    Either.left(newRootSectionFile),
+                    Either.right(ExtFileTable(files = listOf(newRootSectionTableFile))),
+                ),
         )
-    )
 
-    private val submission = fullExtSubmission.copy(
-        section = newRootSection,
-        pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile)
-    )
+    private val submission =
+        fullExtSubmission.copy(
+            section = newRootSection,
+            pageTabFiles = listOf(fireFile, fireDirectory, extNfsFile),
+        )
     private val testInstance: ToDocSubmissionMapper =
         ToDocSubmissionMapper(ToDocSectionMapper(ToDocFileListMapper(ExtSerializationService())))
 
@@ -178,8 +183,8 @@ class ToDocSubmissionMapperTest(
                 listOf(),
                 fireFile.md5,
                 fireFile.size,
-                fireFile.type.value
-            )
+                fireFile.type.value,
+            ),
         )
         assertThat(pageTabFiles.second()).isEqualTo(
             FireDocFile(
@@ -190,8 +195,8 @@ class ToDocSubmissionMapperTest(
                 listOf(),
                 fireDirectory.md5,
                 fireDirectory.size,
-                fireDirectory.type.value
-            )
+                fireDirectory.type.value,
+            ),
         )
         assertThat(pageTabFiles.third()).isEqualTo(
             NfsDocFile(
@@ -202,12 +207,15 @@ class ToDocSubmissionMapperTest(
                 listOf(),
                 nfsFileFile.md5(),
                 extNfsFile.size,
-                "file"
-            )
+                "file",
+            ),
         )
     }
 
-    private fun assertListFiles(listFiles: List<FileListDocFile>, docSubmission: DocSubmission) {
+    private fun assertListFiles(
+        listFiles: List<FileListDocFile>,
+        docSubmission: DocSubmission,
+    ) {
         assertThat(listFiles).hasSize(2)
 
         val listFile = listFiles.first()
@@ -296,8 +304,7 @@ class ToDocSubmissionMapperTest(
         assertThat(docAttribute.valueAttrs).isEqualTo(SUBMISSION_ATTR_VALUE_ATTRS)
     }
 
-    private fun assertCollection(docCollection: DocCollection) =
-        assertThat(docCollection.accNo).isEqualTo(COLLECTION_ACC_NO)
+    private fun assertCollection(docCollection: DocCollection) = assertThat(docCollection.accNo).isEqualTo(COLLECTION_ACC_NO)
 
     private fun assertTag(docTag: DocTag) {
         assertThat(docTag.name).isEqualTo(EXT_TAG_NAME)

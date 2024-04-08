@@ -33,23 +33,26 @@ class FilesTableTemplateMapperTest(private val temporaryFolder: TemporaryFolder)
             FilesTable(
                 listOf(
                     createFile("$BASE_FOLDER/Plate1/rep1/A01/fig1.tiff", "Plate1", "rep1", "A01", "ynl003c", "pet8"),
-                    createFile("$BASE_FOLDER/Plate2/rep2/A02/fig1.tiff", "Plate2", "rep2", "A02", "ybl104c", "sea4")
-                )
-            )
+                    createFile("$BASE_FOLDER/Plate2/rep2/A02/fig1.tiff", "Plate2", "rep2", "A02", "ybl104c", "sea4"),
+                ),
+            ),
         )
     }
 
-    private fun createFile(path: String, vararg attributes: String) =
-        BioFile(
-            path,
-            attributes = listOf(
+    private fun createFile(
+        path: String,
+        vararg attributes: String,
+    ) = BioFile(
+        path,
+        attributes =
+            listOf(
                 Attribute("Plate", attributes[0]),
                 Attribute("Replicate", attributes[1]),
                 Attribute("Well", attributes[2]),
                 Attribute("Gene Identifier", attributes[3]),
-                Attribute("Gene Symbol", attributes[4])
-            )
-        )
+                Attribute("Gene Symbol", attributes[4]),
+            ),
+    )
 
     private fun setUpTestFiles(idx: Int) {
         temporaryFolder.createDirectory("$BASE_FOLDER/Plate$idx")

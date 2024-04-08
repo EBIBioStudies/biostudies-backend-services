@@ -11,11 +11,13 @@ import uk.ac.ebi.scheduler.pmc.exporter.domain.ExporterTrigger
 internal class ExporterResource(private val exporterTrigger: ExporterTrigger) {
     @PostMapping("/api/exporter/public")
     @ResponseBody
-    suspend fun exportPublicSubmissions(@RequestParam(required = false) debugPort: Int?): Job =
-        exporterTrigger.triggerPublicExport(debugPort)
+    suspend fun exportPublicSubmissions(
+        @RequestParam(required = false) debugPort: Int?,
+    ): Job = exporterTrigger.triggerPublicExport(debugPort)
 
     @PostMapping("/api/exporter/pmc")
     @ResponseBody
-    suspend fun exportPmcSubmissions(@RequestParam(required = false) debugPort: Int?): Job =
-        exporterTrigger.triggerPmcExport(debugPort)
+    suspend fun exportPmcSubmissions(
+        @RequestParam(required = false) debugPort: Int?,
+    ): Job = exporterTrigger.triggerPmcExport(debugPort)
 }

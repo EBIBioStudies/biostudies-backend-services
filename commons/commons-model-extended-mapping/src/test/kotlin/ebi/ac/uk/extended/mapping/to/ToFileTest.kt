@@ -36,7 +36,7 @@ internal class ToFileTest(
             file.absolutePath,
             md5,
             file.size(),
-            listOf(extAttribute)
+            listOf(extAttribute),
         )
 
     @BeforeEach
@@ -52,17 +52,18 @@ internal class ToFileTest(
 
     @Test
     fun `from fire file`() {
-        val file = FireFile(
-            fireId = "fireId",
-            firePath = "firePath",
-            published = false,
-            filePath = "folder/myFile",
-            relPath = "Files/folder/myFile",
-            md5 = md5,
-            size = 12,
-            type = FILE,
-            attributes = listOf(extAttribute)
-        )
+        val file =
+            FireFile(
+                fireId = "fireId",
+                firePath = "firePath",
+                published = false,
+                filePath = "folder/myFile",
+                relPath = "Files/folder/myFile",
+                md5 = md5,
+                size = 12,
+                type = FILE,
+                attributes = listOf(extAttribute),
+            )
         assertFile(file.toFile())
     }
 

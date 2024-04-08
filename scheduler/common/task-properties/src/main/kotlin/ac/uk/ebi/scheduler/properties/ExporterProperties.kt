@@ -7,7 +7,10 @@ private const val APP_NAME = "exporter-task-1.0.0.jar"
 
 @Suppress("LongParameterList")
 class ExporterProperties : JavaAppProperties {
-    override fun asCmd(location: String, debugPort: Int?): String =
+    override fun asCmd(
+        location: String,
+        debugPort: Int?,
+    ): String =
         buildList {
             addAll(javaCmd(debugPort))
             add("-jar $location/$APP_NAME")
@@ -78,5 +81,6 @@ class ExporterProperties : JavaAppProperties {
 }
 
 enum class ExporterMode {
-    PMC, PUBLIC_ONLY
+    PMC,
+    PUBLIC_ONLY,
 }

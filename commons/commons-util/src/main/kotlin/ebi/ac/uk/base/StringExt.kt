@@ -9,11 +9,12 @@ const val EMPTY = ""
 /**
  * Transform the given string into null if it is nullable.
  */
-fun String?.nullIfBlank(): String? = when {
-    this == null -> null
-    isBlank() -> null
-    else -> this
-}
+fun String?.nullIfBlank(): String? =
+    when {
+        this == null -> null
+        isBlank() -> null
+        else -> this
+    }
 
 /**
  * Return true if the given String is NOT empty nor null other.
@@ -63,7 +64,10 @@ fun String.removeFirstOccurrence(regex: Regex) = replaceFirst(regex, "")
  * Escape the given @see toScape string by using provided scape literal @see scapeLiteral or backslash if non is
  * provided.
  */
-fun String.scape(toScape: String, scapeLiteral: String = "\\"): String = replace(toScape, "$scapeLiteral$toScape")
+fun String.scape(
+    toScape: String,
+    scapeLiteral: String = "\\",
+): String = replace(toScape, "$scapeLiteral$toScape")
 
 /**
  * Replaces multiple whitespaces with a single space.

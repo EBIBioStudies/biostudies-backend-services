@@ -7,7 +7,11 @@ import ebi.ac.uk.model.FilesTable
 import java.nio.file.Paths
 
 class FilesTableTemplateMapper {
-    fun map(template: FilesTableTemplate, filesPath: String, basePath: String): FilesTable {
+    fun map(
+        template: FilesTableTemplate,
+        filesPath: String,
+        basePath: String,
+    ): FilesTable {
         val attrKeys = template.header
         val files: MutableList<BioFile> = mutableListOf()
 

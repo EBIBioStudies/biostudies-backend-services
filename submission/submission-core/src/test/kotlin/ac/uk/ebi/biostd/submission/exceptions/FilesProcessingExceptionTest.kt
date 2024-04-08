@@ -37,7 +37,7 @@ internal class FilesProcessingExceptionTest(
             List of available sources:
               - User jhonDoe@ebi.ac.uk files
               - Ebi Research Group files
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 }

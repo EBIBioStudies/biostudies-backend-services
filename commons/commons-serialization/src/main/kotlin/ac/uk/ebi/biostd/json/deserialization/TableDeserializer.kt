@@ -15,9 +15,12 @@ import ebi.ac.uk.model.Table
 
 internal abstract class TableDeserializer<T : Any, S : Table<T>>(
     private val itemType: Class<T>,
-    private val tableCreator: (List<T>) -> S
+    private val tableCreator: (List<T>) -> S,
 ) : StdDeserializer<S>(itemType) {
-    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): S {
+    override fun deserialize(
+        jp: JsonParser,
+        ctxt: DeserializationContext,
+    ): S {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)
 
@@ -27,6 +30,8 @@ internal abstract class TableDeserializer<T : Any, S : Table<T>>(
 }
 
 internal class LinksTableJsonDeserializer : TableDeserializer<Link, LinksTable>(Link::class.java, ::LinksTable)
+
 internal class FilesTableJsonDeserializer : TableDeserializer<BioFile, FilesTable>(BioFile::class.java, ::FilesTable)
+
 internal class SectionsTableJsonDeserializer :
     TableDeserializer<Section, SectionsTable>(Section::class.java, ::SectionsTable)

@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
 internal class FilesResolverTest(private val tempFolder: TemporaryFolder) {
-
     private val testInstance = FilesResolver(tempFolder.createDirectory("test-files"))
 
     @Test

@@ -11,6 +11,6 @@ import org.springframework.context.annotation.Import
 class MongoDbQueryConfig {
     @Bean
     internal fun submissionMongoMetaQueryService(
-        submissionDocDataRepository: SubmissionDocDataRepository
+        submissionDocDataRepository: SubmissionDocDataRepository,
     ): SubmissionMongoMetaQueryService = SubmissionMongoMetaQueryService(submissionDocDataRepository)
 }

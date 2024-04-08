@@ -32,7 +32,6 @@ internal class SubmitClient(
     private val client: WebClient,
     private val serializationService: SerializationService,
 ) : SubmitOperations {
-
     override fun submitSingle(
         submission: Submission,
         format: SubmissionFormat,
@@ -40,11 +39,12 @@ internal class SubmitClient(
         register: RegisterConfig,
     ): SubmissionResponse {
         val serializedSubmission = serializationService.serializeSubmission(submission, format.asSubFormat())
-        val response = client.post()
-            .uri(buildUrl(register, storageMode))
-            .body(BodyInserters.fromValue(serializedSubmission))
-            .headers { it.addAll(formatHeaders(format)) }
-            .retrieve()
+        val response =
+            client.post()
+                .uri(buildUrl(register, storageMode))
+                .body(BodyInserters.fromValue(serializedSubmission))
+                .headers { it.addAll(formatHeaders(format)) }
+                .retrieve()
 
         return serializationService.deserializeResponse(response, JSON).block()!!
     }
@@ -55,11 +55,12 @@ internal class SubmitClient(
         storageMode: StorageMode?,
         register: RegisterConfig,
     ): SubmissionResponse {
-        val response = client.post()
-            .uri(buildUrl(register, storageMode))
-            .body(BodyInserters.fromValue(submission))
-            .headers { it.addAll(formatHeaders(format)) }
-            .retrieve()
+        val response =
+            client.post()
+                .uri(buildUrl(register, storageMode))
+                .body(BodyInserters.fromValue(submission))
+                .headers { it.addAll(formatHeaders(format)) }
+                .retrieve()
 
         return serializationService.deserializeResponse(response, JSON).block()!!
     }
@@ -85,14 +86,18 @@ internal class SubmitClient(
         preferredSources: List<PreferredSource>?,
     ): SubmissionResponse {
         val source = preferredSources?.let { "?preferredSources=${it.joinToString()}" }.orEmpty()
-        val response = client.post()
-            .uri("$SUBMISSIONS_URL/drafts/$draftKey/submit/sync$source")
-            .retrieve()
+        val response =
+            client.post()
+                .uri("$SUBMISSIONS_URL/drafts/$draftKey/submit/sync$source")
+                .retrieve()
 
         return serializationService.deserializeResponse(response, JSON).block()!!
     }
 
-    private fun buildUrl(config: RegisterConfig, storageMode: StorageMode?): String {
+    private fun buildUrl(
+        config: RegisterConfig,
+        storageMode: StorageMode?,
+    ): String {
         val builder = UriComponentsBuilder.fromUriString(SUBMISSIONS_URL).optionalQueryParam(STORAGE_MODE, storageMode)
         return when (config) {
             NonRegistration -> builder.toUriString()

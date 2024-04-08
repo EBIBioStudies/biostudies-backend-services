@@ -16,7 +16,7 @@ internal const val ACC_NO_TEMPLATE_INVALID = "The given AccNoTemplate is invalid
 class CollectionProcessor(
     private val service: PersistenceService,
     private val accNoUtil: AccNoPatternUtil,
-    private val privilegesService: IUserPrivilegesService
+    private val privilegesService: IUserPrivilegesService,
 ) {
     fun process(request: SubmitRequest): String {
         val submitter = request.submitter.email
@@ -38,10 +38,14 @@ class CollectionProcessor(
         return accNo
     }
 
-    private fun validate(accNo: String, accNoPattern: String) {
+    private fun validate(
+        accNo: String,
+        accNoPattern: String,
+    ) {
         if (service.accessTagExists(accNo)) throw CollectionAlreadyExistingException(accNo)
-        if (service.sequenceAccNoPatternExists(accNoPattern))
+        if (service.sequenceAccNoPatternExists(accNoPattern)) {
             throw CollectionAccNoTemplateAlreadyExistsException(accNoPattern)
+        }
     }
 
     private fun validatePattern(template: String?) {
@@ -49,7 +53,10 @@ class CollectionProcessor(
         require(accNoUtil.isPattern(template)) { throw CollectionInvalidAccNoPatternException(ACC_NO_TEMPLATE_INVALID) }
     }
 
-    private fun persist(accNo: String, accNoPattern: String) {
+    private fun persist(
+        accNo: String,
+        accNoPattern: String,
+    ) {
         service.saveAccessTag(accNo)
         service.createAccNoPatternSequence(accNoPattern)
     }

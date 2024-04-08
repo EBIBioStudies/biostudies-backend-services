@@ -11,7 +11,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.F
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_FULL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
+import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.CLASS_FIELD
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
@@ -28,28 +28,32 @@ class DocFileConverter(private val docAttributeConverter: DocAttributeConverter)
         val fileSize = source.getLong(FILE_DOC_SIZE)
         val fileType = source.getString(FILE_DOC_TYPE)
 
-        return when (source.getString(classField)) {
-            FIRE_DOC_FILE_CLASS -> FireDocFile(
-                fileName = fileName,
-                filePath = filePath,
-                relPath = relPath,
-                fireId = source.getString(FIRE_FILE_DOC_ID),
-                attributes = attributes,
-                md5 = md5,
-                fileSize = fileSize,
-                fileType = fileType
-            )
-            NFS_DOC_FILE_CLASS -> NfsDocFile(
-                fileName = fileName,
-                filePath = filePath,
-                relPath = relPath,
-                fullPath = source.getString(NFS_FILE_FULL_PATH),
-                attributes = attributes,
-                md5 = md5,
-                fileSize = fileSize,
-                fileType = fileType
-            )
-            else -> throw InvalidClassNameDocFileException(source.getString(classField))
+        return when (source.getString(CLASS_FIELD)) {
+            FIRE_DOC_FILE_CLASS ->
+                FireDocFile(
+                    fileName = fileName,
+                    filePath = filePath,
+                    relPath = relPath,
+                    fireId = source.getString(FIRE_FILE_DOC_ID),
+                    attributes = attributes,
+                    md5 = md5,
+                    fileSize = fileSize,
+                    fileType = fileType,
+                )
+
+            NFS_DOC_FILE_CLASS ->
+                NfsDocFile(
+                    fileName = fileName,
+                    filePath = filePath,
+                    relPath = relPath,
+                    fullPath = source.getString(NFS_FILE_FULL_PATH),
+                    attributes = attributes,
+                    md5 = md5,
+                    fileSize = fileSize,
+                    fileType = fileType,
+                )
+
+            else -> throw InvalidClassNameDocFileException(source.getString(CLASS_FIELD))
         }
     }
 }

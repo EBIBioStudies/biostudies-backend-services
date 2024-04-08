@@ -24,14 +24,17 @@ import java.util.concurrent.atomic.AtomicInteger
  * @param process process function to apply to each section.
  * @return an instance of @UpdatedSection indicating if section was changed or not.
  */
-fun iterateSections(section: ExtSection, process: (file: ExtSection) -> TrackSection): TrackSection {
+fun iterateSections(
+    section: ExtSection,
+    process: (file: ExtSection) -> TrackSection,
+): TrackSection {
     val sections = section.sections.map { either -> either.mapLeft { iterateSections(it, process) } }
     val (hasChanged, processedSection) = process(section)
     val changed = hasChanged || sections.any { either -> either.fold({ it.changed }, { false }) }
 
     return TrackSection(
         changed,
-        if (changed) processedSection.copy(sections = sections.mapLeft { it.section }) else section
+        if (changed) processedSection.copy(sections = sections.mapLeft { it.section }) else section,
     )
 }
 
@@ -54,14 +57,15 @@ class FileProcessingService(
         submission: ExtSubmission,
         processFile: ProcessFunction,
     ): ExtSubmission {
-        val newSection = processSectionFiles(
-            submission.accNo,
-            submission.version,
-            submission.section
-        ) { processFile(it) }
+        val newSection =
+            processSectionFiles(
+                submission.accNo,
+                submission.version,
+                submission.section,
+            ) { processFile(it) }
         return submission.copy(
             section = newSection,
-            pageTabFiles = submission.pageTabFiles.map { processFile(it) }
+            pageTabFiles = submission.pageTabFiles.map { processFile(it) },
         )
     }
 
@@ -70,11 +74,12 @@ class FileProcessingService(
         subVersion: Int,
         section: ExtSection,
         processFile: ProcessFunction,
-    ): ExtSection = section.copy(
-        files = section.files.map { processFiles(it, processFile) },
-        fileList = section.fileList?.let { processFileList(subAccNo, subVersion, it, processFile) },
-        sections = section.sections.map { processSections(it, subAccNo, subVersion, processFile) }
-    )
+    ): ExtSection =
+        section.copy(
+            files = section.files.map { processFiles(it, processFile) },
+            fileList = section.fileList?.let { processFileList(subAccNo, subVersion, it, processFile) },
+            sections = section.sections.map { processSections(it, subAccNo, subVersion, processFile) },
+        )
 
     private suspend fun processFileList(
         subAccNo: String,
@@ -89,10 +94,14 @@ class FileProcessingService(
         )
     }
 
-    private suspend fun copyFile(inputFile: File, outputFile: File, processFile: ProcessFunction): File {
+    private suspend fun copyFile(
+        inputFile: File,
+        outputFile: File,
+        processFile: ProcessFunction,
+    ): File {
         use(
             inputFile.inputStream(),
-            outputFile.outputStream()
+            outputFile.outputStream(),
         ) { input, output ->
             val files = serializationService.deserializeListAsFlow(input)
             serializationService.serialize(files.map { processFile(it) }, output)
@@ -106,7 +115,7 @@ class FileProcessingService(
         processFile: ProcessFunction,
     ) = either.bimap(
         { extFile -> processFile(extFile) },
-        { extTable -> extTable.copy(files = extTable.files.map { processFile(it) }) }
+        { extTable -> extTable.copy(files = extTable.files.map { processFile(it) }) },
     )
 
     private suspend fun processSections(
@@ -116,7 +125,7 @@ class FileProcessingService(
         processFile: ProcessFunction,
     ) = subSection.bimap(
         { processSectionFiles(subAccNo, subVersion, it, processFile) },
-        { it.copy(sections = it.sections.map { sub -> processSectionFiles(subAccNo, subVersion, sub, processFile) }) }
+        { it.copy(sections = it.sections.map { sub -> processSectionFiles(subAccNo, subVersion, sub, processFile) }) },
     )
 }
 

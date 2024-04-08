@@ -38,14 +38,20 @@ class PmcExporterService(
         logger.info { "Finished exporting PMC links" }
     }
 
-    private fun writeLinks(part: Int, submissions: List<PmcData>) {
+    private fun writeLinks(
+        part: Int,
+        submissions: List<PmcData>,
+    ) {
         logger.info { "Exporting PMC links part $part" }
         val links = submissions.map { it.toLink() }
 
         write(part, links)
     }
 
-    private fun write(part: Int, links: List<Link>) {
+    private fun write(
+        part: Int,
+        links: List<Link>,
+    ) {
         logger.info { "Writing file part $part" }
 
         val xml = xmlWriter.writeValueAsString(Links(links)).byteInputStream()

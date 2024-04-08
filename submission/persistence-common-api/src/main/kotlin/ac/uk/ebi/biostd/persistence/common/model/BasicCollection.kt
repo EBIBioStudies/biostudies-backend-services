@@ -7,5 +7,5 @@ data class BasicCollection(
     val accNoPattern: String,
     val collections: List<String>,
     val validator: String?,
-    val releaseTime: OffsetDateTime?
+    val releaseTime: OffsetDateTime?,
 )

@@ -36,36 +36,38 @@ internal class ToFileListMapperTest(
     private val testInstance = ToFileListMapper(serializationService, extSerializationService, filesResolver)
 
     @Test
-    fun convert() = runTest {
-        every { filesResolver.createEmptyFile("fileList") } returns temporaryFolder.createFile("target-file-list.json")
-        coEvery { serializationService.serializeFileList(any<Flow<BioFile>>(), any(), any()) } coAnswers {
-            val flow = arg<Flow<BioFile>>(0)
-            val format = arg<SubFormat>(1)
-            val stream = arg<OutputStream>(2)
-            stream.use { it.write("${flow.toList().size}-$format".toByteArray()) }
+    fun convert() =
+        runTest {
+            every { filesResolver.createEmptyFile("fileList") } returns temporaryFolder.createFile("target-file-list.json")
+            coEvery { serializationService.serializeFileList(any<Flow<BioFile>>(), any(), any()) } coAnswers {
+                val flow = arg<Flow<BioFile>>(0)
+                val format = arg<SubFormat>(1)
+                val stream = arg<OutputStream>(2)
+                stream.use { it.write("${flow.toList().size}-$format".toByteArray()) }
+            }
+
+            val fileList = testInstance.convert(extFileList)
+
+            assertThat(fileList.name).isEqualTo("fileList")
+            assertThat(fileList.file).hasContent("0-JSON")
         }
-
-        val fileList = testInstance.convert(extFileList)
-
-        assertThat(fileList.name).isEqualTo("fileList")
-        assertThat(fileList.file).hasContent("0-JSON")
-    }
 
     @Test
-    fun serialize() = runTest {
-        val target = temporaryFolder.createFile("target-file-list.json")
-        mockkStatic(TO_FILE_EXTENSIONS)
-        every { extFile.toFile() } returns bioFile
-        coEvery { extSerializationService.deserializeListAsFlow(any()) } returns flowOf(extFile)
-        coEvery { serializationService.serializeFileList(any<Flow<BioFile>>(), any(), any()) } coAnswers {
-            val flow = arg<Flow<BioFile>>(0)
-            val format = arg<SubFormat>(1)
-            val stream = arg<OutputStream>(2)
-            stream.use { it.write("${flow.toList().size}-$format".toByteArray()) }
+    fun serialize() =
+        runTest {
+            val target = temporaryFolder.createFile("target-file-list.json")
+            mockkStatic(TO_FILE_EXTENSIONS)
+            every { extFile.toFile() } returns bioFile
+            coEvery { extSerializationService.deserializeListAsFlow(any()) } returns flowOf(extFile)
+            coEvery { serializationService.serializeFileList(any<Flow<BioFile>>(), any(), any()) } coAnswers {
+                val flow = arg<Flow<BioFile>>(0)
+                val format = arg<SubFormat>(1)
+                val stream = arg<OutputStream>(2)
+                stream.use { it.write("${flow.toList().size}-$format".toByteArray()) }
+            }
+
+            val result = testInstance.serialize(extFileList, SubFormat.TSV, target)
+
+            assertThat(result).hasContent("1-TSV")
         }
-
-        val result = testInstance.serialize(extFileList, SubFormat.TSV, target)
-
-        assertThat(result).hasContent("1-TSV")
-    }
 }

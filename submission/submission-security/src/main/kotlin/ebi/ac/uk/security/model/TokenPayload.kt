@@ -9,7 +9,7 @@ internal data class TokenPayload(
     val id: Long,
     val email: String,
     val fullName: String,
-    val creationTime: Long
+    val creationTime: Long,
 ) {
     constructor(id: Long, email: String, fullName: String) :
         this(id, email, fullName, OffsetDateTime.now().toEpochSecond())

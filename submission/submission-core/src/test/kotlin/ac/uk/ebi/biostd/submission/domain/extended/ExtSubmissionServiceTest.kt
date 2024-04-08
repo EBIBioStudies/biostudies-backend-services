@@ -65,122 +65,132 @@ class ExtSubmissionServiceTest(
     }
 
     @Test
-    fun `submit extended`() = runTest {
-        val submitRequestSlot = slot<ExtSubmitRequest>()
+    fun `submit extended`() =
+        runTest {
+            val submitRequestSlot = slot<ExtSubmitRequest>()
 
-        coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-        coEvery { submissionSubmitter.createRequest(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
+            coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
+            coEvery { submissionSubmitter.createRequest(capture(submitRequestSlot)) } returns (extSubmission.accNo to 1)
 
-        testInstance.submitExt("user@mail.com", extSubmission.copy(storageMode = FIRE))
+            testInstance.submitExt("user@mail.com", extSubmission.copy(storageMode = FIRE))
 
-        val submissionRequest = submitRequestSlot.captured
-        assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
-        assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
-        assertThat(submissionRequest.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
-        coVerify(exactly = 1) {
-            submissionRepository.existByAccNo("ArrayExpress")
-            submissionSubmitter.createRequest(submissionRequest)
-            submissionSubmitter.handleRequest(extSubmission.accNo, 1)
-            securityQueryService.existsByEmail("owner@email.org", false)
-        }
-    }
-
-    @Test
-    fun `submit extended async`() = runTest {
-        val requestSlot = slot<ExtSubmitRequest>()
-
-        coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
-        coEvery { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 1)
-        every { eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version) } answers { nothing }
-
-        testInstance.submitExtAsync("user@mail.com", extSubmission)
-
-        val submissionRequest = requestSlot.captured
-        assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
-        assertThat(submissionRequest.submission.storageMode).isEqualTo(NFS)
-        assertThat(submissionRequest.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
-
-        coVerify(exactly = 0) { submissionSubmitter.handleRequest(any(), any()) }
-        coVerify(exactly = 1) {
-            submissionRepository.existByAccNo("ArrayExpress")
-            securityQueryService.existsByEmail("owner@email.org", false)
-            eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version)
-        }
-    }
-
-    @Test
-    fun `submit extended with regular user`() = runTest {
-        val exception = assertThrows<UnauthorizedOperation> {
-            testInstance.submitExt("regular@mail.com", extSubmission)
+            val submissionRequest = submitRequestSlot.captured
+            assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
+            assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
+            assertThat(submissionRequest.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
+            coVerify(exactly = 1) {
+                submissionRepository.existByAccNo("ArrayExpress")
+                submissionSubmitter.createRequest(submissionRequest)
+                submissionSubmitter.handleRequest(extSubmission.accNo, 1)
+                securityQueryService.existsByEmail("owner@email.org", false)
+            }
         }
 
-        assertThat(exception.message).isEqualTo("The user 'regular@mail.com' is not allowed to perform this action")
-    }
-
     @Test
-    fun `submit extended with non existing owner`() = runTest {
-        every { securityQueryService.existsByEmail("owner@email.org", false) } returns false
+    fun `submit extended async`() =
+        runTest {
+            val requestSlot = slot<ExtSubmitRequest>()
 
-        val exception = assertThrows<UserNotFoundException> {
-            testInstance.submitExt("user@mail.com", extSubmission)
+            coEvery { submissionSubmitter.handleRequest(extSubmission.accNo, 1) } returns extSubmission
+            coEvery { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 1)
+            every { eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version) } answers { nothing }
+
+            testInstance.submitExtAsync("user@mail.com", extSubmission)
+
+            val submissionRequest = requestSlot.captured
+            assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
+            assertThat(submissionRequest.submission.storageMode).isEqualTo(NFS)
+            assertThat(submissionRequest.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
+
+            coVerify(exactly = 0) { submissionSubmitter.handleRequest(any(), any()) }
+            coVerify(exactly = 1) {
+                submissionRepository.existByAccNo("ArrayExpress")
+                securityQueryService.existsByEmail("owner@email.org", false)
+                eventsPublisher.submissionRequest(extSubmission.accNo, extSubmission.version)
+            }
         }
 
-        assertThat(exception.message).isEqualTo("The user with email 'owner@email.org' could not be found")
-    }
-
     @Test
-    fun `submit extended with non existing collection`() = runTest {
-        coEvery { submissionRepository.existByAccNo("ArrayExpress") } returns false
+    fun `submit extended with regular user`() =
+        runTest {
+            val exception =
+                assertThrows<UnauthorizedOperation> {
+                    testInstance.submitExt("regular@mail.com", extSubmission)
+                }
 
-        val exception = assertThrows<CollectionNotFoundException> {
-            testInstance.submitExt("user@mail.com", extSubmission)
+            assertThat(exception.message).isEqualTo("The user 'regular@mail.com' is not allowed to perform this action")
         }
 
-        assertThat(exception.message).isEqualTo("The collection 'ArrayExpress' was not found")
-    }
-
     @Test
-    fun `submit extended collection`() = runTest {
-        val requestSlot = slot<ExtSubmitRequest>()
-        val collection = extSubmission.copy(section = ExtSection(type = PROJECT_TYPE), storageMode = FIRE)
+    fun `submit extended with non existing owner`() =
+        runTest {
+            every { securityQueryService.existsByEmail("owner@email.org", false) } returns false
 
-        coEvery { submissionRepository.existByAccNo("ArrayExpress") } returns false
-        coEvery { submissionSubmitter.handleRequest(collection.accNo, 1) } returns collection
-        coEvery {
-            submissionSubmitter.createRequest(capture(requestSlot))
-        } returns (collection.accNo to collection.version)
+            val exception =
+                assertThrows<UserNotFoundException> {
+                    testInstance.submitExt("user@mail.com", extSubmission)
+                }
 
-        testInstance.submitExt("user@mail.com", collection)
-
-        val request = requestSlot.captured
-        assertThat(request.submission.submitter).isEqualTo("user@mail.com")
-        assertThat(request.submission.storageMode).isEqualTo(FIRE)
-        assertThat(request.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
-
-        coVerify(exactly = 0) { submissionRepository.existByAccNo("ArrayExpress") }
-        verify(exactly = 1) { securityQueryService.existsByEmail("owner@email.org", false) }
-    }
-
-    @Test
-    fun `transfer submission`() = runTest {
-        val requestSlot = slot<ExtSubmitRequest>()
-
-        every { eventsPublisher.submissionRequest(extSubmission.accNo, 2) } answers { nothing }
-        coEvery { submissionRepository.getExtByAccNo(extSubmission.accNo, true) } returns extSubmission
-        coEvery { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 2)
-
-        testInstance.transferSubmission("user@mail.com", extSubmission.accNo, FIRE)
-
-        val submissionRequest = requestSlot.captured
-        assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
-        assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
-        assertThat(submissionRequest.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
-
-        coVerify(exactly = 1) {
-            submissionSubmitter.createRequest(submissionRequest)
-            eventsPublisher.submissionRequest(extSubmission.accNo, 2)
+            assertThat(exception.message).isEqualTo("The user with email 'owner@email.org' could not be found")
         }
-    }
+
+    @Test
+    fun `submit extended with non existing collection`() =
+        runTest {
+            coEvery { submissionRepository.existByAccNo("ArrayExpress") } returns false
+
+            val exception =
+                assertThrows<CollectionNotFoundException> {
+                    testInstance.submitExt("user@mail.com", extSubmission)
+                }
+
+            assertThat(exception.message).isEqualTo("The collection 'ArrayExpress' was not found")
+        }
+
+    @Test
+    fun `submit extended collection`() =
+        runTest {
+            val requestSlot = slot<ExtSubmitRequest>()
+            val collection = extSubmission.copy(section = ExtSection(type = PROJECT_TYPE), storageMode = FIRE)
+
+            coEvery { submissionRepository.existByAccNo("ArrayExpress") } returns false
+            coEvery { submissionSubmitter.handleRequest(collection.accNo, 1) } returns collection
+            coEvery {
+                submissionSubmitter.createRequest(capture(requestSlot))
+            } returns (collection.accNo to collection.version)
+
+            testInstance.submitExt("user@mail.com", collection)
+
+            val request = requestSlot.captured
+            assertThat(request.submission.submitter).isEqualTo("user@mail.com")
+            assertThat(request.submission.storageMode).isEqualTo(FIRE)
+            assertThat(request.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
+
+            coVerify(exactly = 0) { submissionRepository.existByAccNo("ArrayExpress") }
+            verify(exactly = 1) { securityQueryService.existsByEmail("owner@email.org", false) }
+        }
+
+    @Test
+    fun `transfer submission`() =
+        runTest {
+            val requestSlot = slot<ExtSubmitRequest>()
+
+            every { eventsPublisher.submissionRequest(extSubmission.accNo, 2) } answers { nothing }
+            coEvery { submissionRepository.getExtByAccNo(extSubmission.accNo, true) } returns extSubmission
+            coEvery { submissionSubmitter.createRequest(capture(requestSlot)) } returns (extSubmission.accNo to 2)
+
+            testInstance.transferSubmission("user@mail.com", extSubmission.accNo, FIRE)
+
+            val submissionRequest = requestSlot.captured
+            assertThat(submissionRequest.submission.storageMode).isEqualTo(FIRE)
+            assertThat(submissionRequest.submission.submitter).isEqualTo("user@mail.com")
+            assertThat(submissionRequest.submission.modificationTime).isEqualTo(extSubmission.modificationTime)
+
+            coVerify(exactly = 1) {
+                submissionSubmitter.createRequest(submissionRequest)
+                eventsPublisher.submissionRequest(extSubmission.accNo, 2)
+            }
+        }
 
     @Test
     fun `transfer submission with invalid target`(
@@ -189,9 +199,10 @@ class ExtSubmissionServiceTest(
         every { source.storageMode } returns FIRE
         coEvery { submissionRepository.getExtByAccNo("S-BSST1", true) } returns source
 
-        val exception = assertThrows<InvalidTransferTargetException> {
-            testInstance.transferSubmission("user@mail.com", "S-BSST1", FIRE)
-        }
+        val exception =
+            assertThrows<InvalidTransferTargetException> {
+                testInstance.transferSubmission("user@mail.com", "S-BSST1", FIRE)
+            }
         assertThat(exception.message).isEqualTo("The target and current storage mode must be different")
     }
 }

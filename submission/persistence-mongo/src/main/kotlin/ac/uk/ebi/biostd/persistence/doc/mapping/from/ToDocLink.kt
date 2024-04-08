@@ -14,10 +14,10 @@ import ebi.ac.uk.extended.model.ExtLinkTable
 internal fun Either<ExtLink, ExtLinkTable>.toDocLinks() = bimap(ExtLink::toDocLink, ExtLinkTable::toDocLinkTable)
 
 private fun ExtLink.toDocLink(): DocLink = DocLink(url, attributes.map { it.toDocAttribute() })
+
 private fun ExtLinkTable.toDocLinkTable() = DocLinkTable(links.map { it.toDocLink() })
 
 // Attributes Mapping
-internal fun ExtAttribute.toDocAttribute() =
-    DocAttribute(name, value, reference, nameAttrs.toExtAttr(), valueAttrs.toExtAttr())
+internal fun ExtAttribute.toDocAttribute() = DocAttribute(name, value, reference, nameAttrs.toExtAttr(), valueAttrs.toExtAttr())
 
 private fun List<ExtAttributeDetail>.toExtAttr() = map { DocAttributeDetail(it.name, it.value) }

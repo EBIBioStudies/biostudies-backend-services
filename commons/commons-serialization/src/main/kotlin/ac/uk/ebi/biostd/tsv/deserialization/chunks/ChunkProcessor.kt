@@ -30,26 +30,31 @@ internal class ChunkProcessor {
 
         return Submission(
             accNo = tsvChunk.findId().orEmpty(),
-            attributes = toAttributes(tsvChunk.lines)
+            attributes = toAttributes(tsvChunk.lines),
         )
     }
 
-    fun getRootSection(tsvChunk: TsvChunk) = Section(
-        accNo = tsvChunk.findId(),
-        type = tsvChunk.getTypeOrElse(InvalidElementException(REQUIRED_ROOT_SECTION)),
-        attributes = toAttributes(tsvChunk.lines)
-    )
+    fun getRootSection(tsvChunk: TsvChunk) =
+        Section(
+            accNo = tsvChunk.findId(),
+            type = tsvChunk.getTypeOrElse(InvalidElementException(REQUIRED_ROOT_SECTION)),
+            attributes = toAttributes(tsvChunk.lines),
+        )
 
-    inline fun <reified T> processIsolatedChunk(chunk: TsvChunk) = when (chunk) {
-        is LinkChunk -> chunk.asLink() as T
-        is FileChunk -> chunk.asFile() as T
-        is LinksTableChunk -> chunk.asTable() as T
-        is FileTableChunk -> chunk.asTable() as T
-        is SectionChunk -> TODO("Implement section chunk isolated deserialization")
-        is SectionTableChunk -> TODO("Implement section table chunk isolated deserialization")
-    }
+    inline fun <reified T> processIsolatedChunk(chunk: TsvChunk) =
+        when (chunk) {
+            is LinkChunk -> chunk.asLink() as T
+            is FileChunk -> chunk.asFile() as T
+            is LinksTableChunk -> chunk.asTable() as T
+            is FileTableChunk -> chunk.asTable() as T
+            is SectionChunk -> TODO("Implement section chunk isolated deserialization")
+            is SectionTableChunk -> TODO("Implement section table chunk isolated deserialization")
+        }
 
-    fun processChunk(chunk: TsvChunk, sectionContext: TsvSerializationContext) {
+    fun processChunk(
+        chunk: TsvChunk,
+        sectionContext: TsvSerializationContext,
+    ) {
         when (chunk) {
             is LinkChunk -> sectionContext.addLink(chunk)
             is FileChunk -> sectionContext.addFile(chunk)
@@ -60,14 +65,20 @@ internal class ChunkProcessor {
         }
     }
 
-    private fun processSection(chunk: SectionChunk, sectionContext: TsvSerializationContext) {
+    private fun processSection(
+        chunk: SectionChunk,
+        sectionContext: TsvSerializationContext,
+    ) {
         when (chunk) {
             is RootSubSectionChunk -> sectionContext.addSection(chunk)
             is SubSectionChunk -> sectionContext.addSubSection(chunk.parent, chunk)
         }
     }
 
-    private fun processSectionTable(chunk: SectionTableChunk, sectionContext: TsvSerializationContext) {
+    private fun processSectionTable(
+        chunk: SectionTableChunk,
+        sectionContext: TsvSerializationContext,
+    ) {
         when (chunk) {
             is RootSectionTableChunk -> sectionContext.addSectionTable(chunk)
             is SubSectionTableChunk -> sectionContext.addSubSectionTable(chunk.parent, chunk)

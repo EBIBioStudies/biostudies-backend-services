@@ -50,13 +50,15 @@ class PublicOnlyExporterServiceTest(
         testInstance.exportPublicSubmissions()
 
         val output = Paths.get("${tempFolder.root.path}/publicOnlyStudies.json").toFile()
-        val expectedJson = jsonObj {
-            "submissions" to jsonArray(
-                jsonObj {
-                    "accNo" to "S-TEST123"
-                }
-            )
-        }
+        val expectedJson =
+            jsonObj {
+                "submissions" to
+                    jsonArray(
+                        jsonObj {
+                            "accNo" to "S-TEST123"
+                        },
+                    )
+            }
 
         assertThat(output.exists()).isTrue
         assertThat(Paths.get("${tempFolder.root.path}/publicOnlyStudies_temp.json").toFile().exists()).isFalse
@@ -76,19 +78,21 @@ class PublicOnlyExporterServiceTest(
         coEvery {
             serializationService.serializeSubmission(
                 toSubmissionMapper.toSimpleSubmission(basicExtSubmission),
-                JSON_PRETTY
+                JSON_PRETTY,
             )
         } returns serializedSubmission.toString()
     }
 
-    private fun testProperties() = ApplicationProperties().apply {
-        this.fileName = "publicOnlyStudies"
-        this.outputPath = tempFolder.root.path
+    private fun testProperties() =
+        ApplicationProperties().apply {
+            this.fileName = "publicOnlyStudies"
+            this.outputPath = tempFolder.root.path
 
-        this.bioStudies = BioStudies().apply {
-            url = "http://localhost:8080"
-            user = "admin_user@ebi.ac.uk"
-            password = "123456"
+            this.bioStudies =
+                BioStudies().apply {
+                    url = "http://localhost:8080"
+                    user = "admin_user@ebi.ac.uk"
+                    password = "123456"
+                }
         }
-    }
 }

@@ -54,54 +54,58 @@ class ToExtSubmissionMapperTest(
             listOf(),
             fileNfs.md5(),
             fileNfs.size(),
-            "file"
+            "file",
         )
 
     @Test
-    fun `to ext Submission including FileListFiles`() = runTest {
-        coEvery {
-            toExtSectionMapper.toExtSection(
-                docSection,
-                "S-TEST123",
-                1,
-                false,
-                REL_PATH,
-                true
-            )
-        } returns extSection
-        val submission = docSubmission.copy(
-            section = docSection,
-            pageTabFiles = listOf(subNfsDocFile)
-        )
+    fun `to ext Submission including FileListFiles`() =
+        runTest {
+            coEvery {
+                toExtSectionMapper.toExtSection(
+                    docSection,
+                    "S-TEST123",
+                    1,
+                    false,
+                    REL_PATH,
+                    true,
+                )
+            } returns extSection
+            val submission =
+                docSubmission.copy(
+                    section = docSection,
+                    pageTabFiles = listOf(subNfsDocFile),
+                )
 
-        val extSubmission = testInstance.toExtSubmission(submission, includeFileListFiles = true)
+            val extSubmission = testInstance.toExtSubmission(submission, includeFileListFiles = true)
 
-        assertExtSubmission(extSubmission, fileNfs)
-        assertThat(extSubmission.section).isEqualTo(extSection)
-    }
+            assertExtSubmission(extSubmission, fileNfs)
+            assertThat(extSubmission.section).isEqualTo(extSection)
+        }
 
     @Test
-    fun `to ext Submission without FileListFiles`() = runTest {
-        coEvery {
-            toExtSectionMapper.toExtSection(
-                docSection,
-                "S-TEST123",
-                1,
-                false,
-                REL_PATH,
-                false
-            )
-        } returns extSection
-        val submission = docSubmission.copy(
-            section = docSection,
-            pageTabFiles = listOf(subNfsDocFile)
-        )
+    fun `to ext Submission without FileListFiles`() =
+        runTest {
+            coEvery {
+                toExtSectionMapper.toExtSection(
+                    docSection,
+                    "S-TEST123",
+                    1,
+                    false,
+                    REL_PATH,
+                    false,
+                )
+            } returns extSection
+            val submission =
+                docSubmission.copy(
+                    section = docSection,
+                    pageTabFiles = listOf(subNfsDocFile),
+                )
 
-        val extSubmission = testInstance.toExtSubmission(submission, includeFileListFiles = false)
+            val extSubmission = testInstance.toExtSubmission(submission, includeFileListFiles = false)
 
-        assertExtSubmission(extSubmission, fileNfs)
-        assertThat(extSubmission.section).isEqualTo(extSection)
-    }
+            assertExtSubmission(extSubmission, fileNfs)
+            assertThat(extSubmission.section).isEqualTo(extSection)
+        }
 
     private fun assertExtSubmission(
         extSubmission: ExtSubmission,

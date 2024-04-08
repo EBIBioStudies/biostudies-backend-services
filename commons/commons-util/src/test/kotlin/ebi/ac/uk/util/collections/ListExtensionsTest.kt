@@ -4,7 +4,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 internal class ListExtensionsTest {
-
     @Test
     fun destructure() {
         val result = listOf(1, 2, 3, 4, 5).destructure()

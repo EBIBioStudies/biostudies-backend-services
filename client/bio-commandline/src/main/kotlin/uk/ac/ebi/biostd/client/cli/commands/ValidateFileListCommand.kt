@@ -15,7 +15,7 @@ import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 internal class ValidateFileListCommand(
-    private val submissionService: SubmissionService
+    private val submissionService: SubmissionService,
 ) : CliktCommand(name = "validateFileList") {
     private val server by option("-s", "--server", help = SERVER_HELP).required()
     private val user by option("-u", "--user", help = USER_HELP).required()

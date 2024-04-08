@@ -10,12 +10,10 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 @Configuration
 class ToDocSubmissionConfig {
     @Bean
-    internal fun toDocSubmission(toDocSectionMapper: ToDocSectionMapper): ToDocSubmissionMapper =
-        ToDocSubmissionMapper(toDocSectionMapper)
+    internal fun toDocSubmission(toDocSectionMapper: ToDocSectionMapper): ToDocSubmissionMapper = ToDocSubmissionMapper(toDocSectionMapper)
 
     @Bean
-    internal fun toDocSection(toDocFileListMapper: ToDocFileListMapper): ToDocSectionMapper =
-        ToDocSectionMapper(toDocFileListMapper)
+    internal fun toDocSection(toDocFileListMapper: ToDocFileListMapper): ToDocSectionMapper = ToDocSectionMapper(toDocFileListMapper)
 
     @Bean
     internal fun toDocFileList(serializationService: ExtSerializationService): ToDocFileListMapper =

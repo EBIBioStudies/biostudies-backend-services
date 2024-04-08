@@ -22,7 +22,6 @@ plugins {
     id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
 }
 
-
 dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     api(project(CommonsModelExtended))

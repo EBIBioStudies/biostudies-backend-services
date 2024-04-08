@@ -22,14 +22,21 @@ internal class SecurityFilter(
     private val environment: String,
     private val securityQueryService: ISecurityQueryService,
 ) : GenericFilterBean(), ISecurityFilter {
-    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+    override fun doFilter(
+        request: ServletRequest,
+        response: ServletResponse,
+        chain: FilterChain,
+    ) {
         getSecurityKey(request as HttpServletRequest)
             ?.let { securityQueryService.getUserProfile(it) }
             ?.let { (user, token) -> setSecurityUser(user, token) }
         chain.doFilter(request, response)
     }
 
-    private fun setSecurityUser(user: SecurityUser, token: String) {
+    private fun setSecurityUser(
+        user: SecurityUser,
+        token: String,
+    ) {
         SecurityContextHolder.getContext().authentication =
             UsernamePasswordAuthenticationToken(user, token, authorities(user))
     }

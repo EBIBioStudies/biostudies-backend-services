@@ -16,7 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class DocLinkTableConverterTest(
     @MockK val docLinkConverter: DocLinkConverter,
     @MockK val documentLink: Document,
-    @MockK val docLink: DocLink
+    @MockK val docLink: DocLink,
 ) {
     private val testInstance = DocLinkTableConverter(docLinkConverter)
 
@@ -31,7 +31,7 @@ internal class DocLinkTableConverterTest(
 
     private fun createDocLinkTableDocument(): Document {
         val linkTableDoc = Document()
-        linkTableDoc[CommonsConverter.classField] = DocLinkTableFields.DOC_LINK_TABLE_CLASS
+        linkTableDoc[CommonsConverter.CLASS_FIELD] = DocLinkTableFields.DOC_LINK_TABLE_CLASS
         linkTableDoc[DocLinkTableFields.LINK_TABLE_DOC_LINKS] = listOf(documentLink)
         return linkTableDoc
     }

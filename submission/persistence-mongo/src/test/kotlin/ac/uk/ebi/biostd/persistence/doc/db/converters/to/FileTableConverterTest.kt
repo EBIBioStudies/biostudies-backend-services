@@ -15,7 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class FileTableConverterTest(
     @MockK val fileConverter: FileConverter,
     @MockK val document: Document,
-    @MockK val docFile: DocFile
+    @MockK val docFile: DocFile,
 ) {
     private val testInstance = FileTableConverter(fileConverter)
 

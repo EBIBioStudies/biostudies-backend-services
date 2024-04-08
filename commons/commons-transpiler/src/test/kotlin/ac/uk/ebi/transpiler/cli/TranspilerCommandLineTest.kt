@@ -39,13 +39,14 @@ class TranspilerCommandLineTest(
 
     @Test
     fun `transpile template`() {
-        val args = arrayOf(
-            "-b", "base",
-            "-f", "TSV",
-            "-d", "/path",
-            "-c", "colA, colB",
-            "-t", "${temporaryFolder.root.absolutePath}/template.tsv"
-        )
+        val args =
+            arrayOf(
+                "-b", "base",
+                "-f", "TSV",
+                "-d", "/path",
+                "-c", "colA, colB",
+                "-t", "${temporaryFolder.root.absolutePath}/template.tsv",
+            )
         testInstance.main(args)
 
         verify(exactly = 1) { mockTranspiler.transpile("", listOf("colA", "colB"), "/path", "base", SubFormat.TSV) }
@@ -57,13 +58,14 @@ class TranspilerCommandLineTest(
             mockTranspiler.transpile("", listOf("colA", "colB"), "/path", "base", SubFormat.TSV)
         } throws Exception("Some exception")
 
-        val args = arrayOf(
-            "-b", "base",
-            "-f", "TSV",
-            "-d", "/path",
-            "-c", "colA, colB",
-            "-t", "${temporaryFolder.root.absolutePath}/template.tsv"
-        )
+        val args =
+            arrayOf(
+                "-b", "base",
+                "-f", "TSV",
+                "-d", "/path",
+                "-c", "colA, colB",
+                "-t", "${temporaryFolder.root.absolutePath}/template.tsv",
+            )
         val exceptionMessage = assertThrows<PrintMessage> { testInstance.parse(args) }.message
 
         assertThat(exceptionMessage).isEqualTo("Some exception")

@@ -28,23 +28,25 @@ sealed class Table<T : Any>(elements: List<T>) {
         _rows.add(row)
     }
 
-    override fun equals(other: Any?) = when {
-        other !is Table<*> -> false
-        other === this -> true
-        else -> Objects.equals(headers, other.headers)
-            .and(Objects.equals(_rows, other._rows))
-    }
+    override fun equals(other: Any?) =
+        when {
+            other !is Table<*> -> false
+            other === this -> true
+            else ->
+                Objects.equals(headers, other.headers)
+                    .and(Objects.equals(_rows, other._rows))
+        }
 
     override fun hashCode() = Objects.hash(headers, _rows)
 }
 
 class Header(val name: String, val termNames: List<String> = listOf(), val termValues: List<String> = listOf()) {
-
-    override fun equals(other: Any?) = when {
-        other !is Header -> false
-        this === other -> true
-        else -> Objects.equals(name, other.name)
-    }
+    override fun equals(other: Any?) =
+        when {
+            other !is Header -> false
+            this === other -> true
+            else -> Objects.equals(name, other.name)
+        }
 
     override fun hashCode() = Objects.hash(name)
 }
@@ -53,11 +55,12 @@ abstract class Row<T>(val original: T) {
     abstract val id: String
     abstract val attributes: List<Attribute>
 
-    override fun equals(other: Any?) = when {
-        other !is Row<*> -> false
-        this === other -> true
-        else -> original == other.original
-    }
+    override fun equals(other: Any?) =
+        when {
+            other !is Row<*> -> false
+            this === other -> true
+            else -> original == other.original
+        }
 
     override fun hashCode() = Objects.hash(original)
 
@@ -74,27 +77,29 @@ abstract class Row<T>(val original: T) {
                 }
             }
 
-    private fun findAttrByName(name: String): Attribute =
-        attributes.firstOrNull { it.name == name } ?: Attribute.EMPTY_ATTR
+    private fun findAttrByName(name: String): Attribute = attributes.firstOrNull { it.name == name } ?: Attribute.EMPTY_ATTR
 }
 
 class LinksTable(links: List<Link> = emptyList()) : Table<Link>(links) {
-    override fun toTableRow(t: Link) = object : Row<Link>(t) {
-        override val id = t.url
-        override val attributes = t.attributes
-    }
+    override fun toTableRow(t: Link) =
+        object : Row<Link>(t) {
+            override val id = t.url
+            override val attributes = t.attributes
+        }
 }
 
 class FilesTable(files: List<BioFile> = emptyList()) : Table<BioFile>(files) {
-    override fun toTableRow(t: BioFile) = object : Row<BioFile>(t) {
-        override val id = t.path
-        override val attributes = t.attributes
-    }
+    override fun toTableRow(t: BioFile) =
+        object : Row<BioFile>(t) {
+            override val id = t.path
+            override val attributes = t.attributes
+        }
 }
 
 class SectionsTable(sections: List<Section> = emptyList()) : Table<Section>(sections) {
-    override fun toTableRow(t: Section) = object : Row<Section>(t) {
-        override val id = t.accNo ?: ""
-        override val attributes = t.attributes
-    }
+    override fun toTableRow(t: Section) =
+        object : Row<Section>(t) {
+            override val id = t.accNo ?: ""
+            override val attributes = t.attributes
+        }
 }

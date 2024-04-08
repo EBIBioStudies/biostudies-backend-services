@@ -16,7 +16,10 @@ class SubmissionFilterRequest(
     val offset: Long = 0,
 )
 
-fun SubmissionFilterRequest.asFilter(user: String, superuser: Boolean): SubmissionListFilter =
+fun SubmissionFilterRequest.asFilter(
+    user: String,
+    superuser: Boolean,
+): SubmissionListFilter =
     SubmissionListFilter(
         filterUser = user,
         findAnyAccNo = superuser,
@@ -28,5 +31,5 @@ fun SubmissionFilterRequest.asFilter(user: String, superuser: Boolean): Submissi
         keywords = keywords,
         released = released,
         limit = limit,
-        offset = offset
+        offset = offset,
     )

@@ -31,20 +31,21 @@ import uk.ac.ebi.extended.serialization.service.createExtFileList
 class SubmissionServiceMigrationTest(
     tempFolder: TemporaryFolder,
     @MockK private val sourceClient: BioWebClient,
-    @MockK private val targetClient: BioWebClient
+    @MockK private val targetClient: BioWebClient,
 ) {
     private val testInstance = SubmissionService()
     private val referencedFile = tempFolder.createFile("referenced.pdf")
     private val extSubmission = extSubmissionWithFileList()
     private val sourceConfig = SecurityConfig("http://biostudy-prod", "manager", "123456")
     private val targetConfig = SecurityConfig("http://biostudy-bia", "admin_user", "78910")
-    private val migrationRequest = MigrationRequest(
-        accNo = "S-BSST1",
-        sourceSecurityConfig = sourceConfig,
-        targetSecurityConfig = targetConfig,
-        targetOwner = null,
-        async = false,
-    )
+    private val migrationRequest =
+        MigrationRequest(
+            accNo = "S-BSST1",
+            sourceSecurityConfig = sourceConfig,
+            targetSecurityConfig = targetConfig,
+            targetOwner = null,
+            async = false,
+        )
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -77,25 +78,28 @@ class SubmissionServiceMigrationTest(
     }
 
     private fun extSubmissionWithFileList(): ExtSubmission {
-        val extSection = ExtSection(
-            type = "Study",
-            fileList = ExtFileList(
-                "test-file-list",
-                file = createExtFileList(),
-                filesUrl = "/submissions/extended/S-BSST1/referencedFiles/test-file-list",
-                pageTabFiles = listOf(
-                    NfsFile(
-                        "filePath",
-                        "relPath",
-                        referencedFile,
-                        referencedFile.absolutePath,
-                        referencedFile.md5(),
-                        referencedFile.size(),
-                        emptyList()
-                    )
-                )
+        val extSection =
+            ExtSection(
+                type = "Study",
+                fileList =
+                    ExtFileList(
+                        "test-file-list",
+                        file = createExtFileList(),
+                        filesUrl = "/submissions/extended/S-BSST1/referencedFiles/test-file-list",
+                        pageTabFiles =
+                            listOf(
+                                NfsFile(
+                                    "filePath",
+                                    "relPath",
+                                    referencedFile,
+                                    referencedFile.absolutePath,
+                                    referencedFile.md5(),
+                                    referencedFile.size(),
+                                    emptyList(),
+                                ),
+                            ),
+                    ),
             )
-        )
 
         return basicExtSubmission.copy(section = extSection)
     }
@@ -110,16 +114,17 @@ class SubmissionServiceMigrationTest(
         every { sourceClient.getExtByAccNo("S-BSST1", true) } returns extSubmission
         every {
             sourceClient.getReferencedFiles("/submissions/extended/S-BSST1/referencedFiles/test-file-list")
-        } returns ExtFileTable(
-            NfsFile(
-                filePath = "folder/referenced.pdf",
-                relPath = "Files/folder/referenced.pdf",
-                file = referencedFile,
-                referencedFile.absolutePath,
-                referencedFile.md5(),
-                referencedFile.size(),
-                attributes = emptyList()
+        } returns
+            ExtFileTable(
+                NfsFile(
+                    filePath = "folder/referenced.pdf",
+                    relPath = "Files/folder/referenced.pdf",
+                    file = referencedFile,
+                    referencedFile.absolutePath,
+                    referencedFile.md5(),
+                    referencedFile.size(),
+                    attributes = emptyList(),
+                ),
             )
-        )
     }
 }

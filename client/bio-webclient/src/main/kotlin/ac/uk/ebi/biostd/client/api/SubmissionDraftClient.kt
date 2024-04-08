@@ -23,7 +23,10 @@ class SubmissionDraftClient(
         return client.getForObject("$SUBMISSION_DRAFT_URL/$accNo")
     }
 
-    override fun getAllSubmissionDrafts(limit: Int, offset: Int): List<WebSubmissionDraft> {
+    override fun getAllSubmissionDrafts(
+        limit: Int,
+        offset: Int,
+    ): List<WebSubmissionDraft> {
         return client.getForObject<Array<WebSubmissionDraft>>(buildDraftsUrl(limit, offset)).toList()
     }
 
@@ -31,13 +34,18 @@ class SubmissionDraftClient(
         client.delete("$SUBMISSION_DRAFT_URL/$accNo")
     }
 
-    override fun updateSubmissionDraft(accNo: String, content: String) {
+    override fun updateSubmissionDraft(
+        accNo: String,
+        content: String,
+    ) {
         client.put("$SUBMISSION_DRAFT_URL/$accNo", RequestParams(body = content))
     }
 
-    private fun buildDraftsUrl(limit: Int, offset: Int) =
-        UriComponentsBuilder.fromUriString(SUBMISSION_DRAFT_URL).apply {
-            queryParam("limit", limit)
-            queryParam("offset", offset)
-        }.toUriString()
+    private fun buildDraftsUrl(
+        limit: Int,
+        offset: Int,
+    ) = UriComponentsBuilder.fromUriString(SUBMISSION_DRAFT_URL).apply {
+        queryParam("limit", limit)
+        queryParam("offset", offset)
+    }.toUriString()
 }

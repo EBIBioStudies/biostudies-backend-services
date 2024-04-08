@@ -25,29 +25,32 @@ import java.time.ZoneOffset.UTC
 class ToSubmissionMapperTest(
     @MockK val toSectionMapper: ToSectionMapper,
 ) {
-    private val extSubmission = basicExtSubmission.copy(
-        doi = "10.983/S-TEST123",
-        rootPath = "/a/root/path",
-        collections = listOf(ExtCollection("BioImages")),
-        releaseTime = OffsetDateTime.of(2019, 9, 21, 0, 0, 0, 0, UTC),
-        attributes = listOf(
-            ExtAttribute("Type", "Experiment"),
-            ExtAttribute("CollectionValidator", "BioImagesValidator")
+    private val extSubmission =
+        basicExtSubmission.copy(
+            doi = "10.983/S-TEST123",
+            rootPath = "/a/root/path",
+            collections = listOf(ExtCollection("BioImages")),
+            releaseTime = OffsetDateTime.of(2019, 9, 21, 0, 0, 0, 0, UTC),
+            attributes =
+                listOf(
+                    ExtAttribute("Type", "Experiment"),
+                    ExtAttribute("CollectionValidator", "BioImagesValidator"),
+                ),
         )
-    )
     private val testInstance = ToSubmissionMapper(toSectionMapper)
 
     @Test
-    fun toSimpleSubmission() = runTest {
-        val section = Section()
-        coEvery { toSectionMapper.convert(extSubmission.section) } returns section
+    fun toSimpleSubmission() =
+        runTest {
+            val section = Section()
+            coEvery { toSectionMapper.convert(extSubmission.section) } returns section
 
-        val submission = testInstance.toSimpleSubmission(extSubmission)
+            val submission = testInstance.toSimpleSubmission(extSubmission)
 
-        assertThat(submission.accNo).isEqualTo("S-TEST123")
-        assertThat(submission.section).isEqualTo(section)
-        assertSubmissionAttributes(submission)
-    }
+            assertThat(submission.accNo).isEqualTo("S-TEST123")
+            assertThat(submission.section).isEqualTo(section)
+            assertSubmissionAttributes(submission)
+        }
 
     private fun assertSubmissionAttributes(submission: Submission) {
         assertThat(submission.attributes).hasSize(6)

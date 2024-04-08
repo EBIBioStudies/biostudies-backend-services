@@ -11,7 +11,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.F
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FireDocFileFields.FIRE_FILE_DOC_ID
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_DOC_FILE_CLASS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.NfsDocFileFields.NFS_FILE_FULL_PATH
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
+import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.CLASS_FIELD
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.FireDocFile
 import ac.uk.ebi.biostd.persistence.doc.model.NfsDocFile
@@ -32,11 +32,12 @@ class FileConverter(private val attributeConverter: AttributeConverter) : Conver
 
         when (docFile) {
             is FireDocFile -> {
-                file[classField] = FIRE_DOC_FILE_CLASS
+                file[CLASS_FIELD] = FIRE_DOC_FILE_CLASS
                 file[FIRE_FILE_DOC_ID] = docFile.fireId
             }
+
             is NfsDocFile -> {
-                file[classField] = NFS_DOC_FILE_CLASS
+                file[CLASS_FIELD] = NFS_DOC_FILE_CLASS
                 file[NFS_FILE_FULL_PATH] = docFile.fullPath
             }
         }

@@ -18,24 +18,38 @@ class RtClient(
 ) {
     private val ticketIdPattern = "(# Ticket )(\\d+)( created.)".toPattern()
 
-    fun createTicket(accNo: String, subject: String, owner: String, adminCc: String?, content: String): String {
+    fun createTicket(
+        accNo: String,
+        subject: String,
+        owner: String,
+        adminCc: String?,
+        content: String,
+    ): String {
         val requestContent = ticketContent(accNo, subject, owner, adminCc, content)
         val response = performRtRequest("/ticket/new", requestContent)
         return getTicketId(response)
     }
 
-    fun commentTicket(ticketId: String, ccUser: String?, comment: String) {
+    fun commentTicket(
+        ticketId: String,
+        ccUser: String?,
+        comment: String,
+    ) {
         val content = ticketCommentContent(ticketId, ccUser, comment)
         performRtRequest("/ticket/$ticketId/comment", content)
     }
 
-    private fun performRtRequest(path: String, content: String): String {
-        val rtUrl = UriComponentsBuilder
-            .fromUriString("${rtConfig.host}/REST/1.0$path")
-            .queryParam("user", rtConfig.user)
-            .queryParam("pass", rtConfig.password)
-            .build()
-            .toUriString()
+    private fun performRtRequest(
+        path: String,
+        content: String,
+    ): String {
+        val rtUrl =
+            UriComponentsBuilder
+                .fromUriString("${rtConfig.host}/REST/1.0$path")
+                .queryParam("user", rtConfig.user)
+                .queryParam("pass", rtConfig.password)
+                .build()
+                .toUriString()
         val body = LinkedMultiValueMap(mapOf("content" to listOf(content)))
 
         return client.post()
@@ -50,7 +64,11 @@ class RtClient(
         return ticketIdPattern.match(body.second())?.secondGroup() ?: throw InvalidTicketIdException()
     }
 
-    private fun ticketCommentContent(ticketId: String, ccUser: String?, comment: String): String {
+    private fun ticketCommentContent(
+        ticketId: String,
+        ccUser: String?,
+        comment: String,
+    ): String {
         return buildString {
             appendLine("id: $ticketId")
             appendLine("Action: correspond")
@@ -60,7 +78,13 @@ class RtClient(
         }
     }
 
-    private fun ticketContent(accNo: String, subject: String, owner: String, ccUser: String?, content: String): String {
+    private fun ticketContent(
+        accNo: String,
+        subject: String,
+        owner: String,
+        ccUser: String?,
+        content: String,
+    ): String {
         return buildString {
             appendLine("Queue: ${rtConfig.queue}")
             appendLine("Subject: $subject")

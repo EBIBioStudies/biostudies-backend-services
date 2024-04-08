@@ -17,7 +17,6 @@ data class SubmissionDoc(
     var updated: Instant = Instant.now(),
     val _id: ObjectId = ObjectId(),
 ) {
-
     fun withStatus(status: SubmissionStatus): SubmissionDoc {
         this.status = status
         this.updated = Instant.now()
@@ -29,17 +28,18 @@ data class SubmissionDoc(
         return this
     }
 
-    fun asInsertOrExpire(): Bson = Updates.combine(
-        Updates.setOnInsert(SUB_ACC_NO, accNo),
-        Updates.setOnInsert(SUB_ID, _id),
-        Updates.setOnInsert(SUB_BODY, body),
-        Updates.setOnInsert(SUB_SOURCE_FILE, sourceFile),
-        Updates.setOnInsert(SUB_POS_IN_FILE, posInFile),
-        Updates.setOnInsert(SUB_SOURCE_TIME, sourceTime),
-        Updates.setOnInsert(SUB_FILES, files),
-        Updates.setOnInsert(SUB_STATUS, status),
-        Updates.setOnInsert(SUB_UPDATED, updated)
-    )
+    fun asInsertOrExpire(): Bson =
+        Updates.combine(
+            Updates.setOnInsert(SUB_ACC_NO, accNo),
+            Updates.setOnInsert(SUB_ID, _id),
+            Updates.setOnInsert(SUB_BODY, body),
+            Updates.setOnInsert(SUB_SOURCE_FILE, sourceFile),
+            Updates.setOnInsert(SUB_POS_IN_FILE, posInFile),
+            Updates.setOnInsert(SUB_SOURCE_TIME, sourceTime),
+            Updates.setOnInsert(SUB_FILES, files),
+            Updates.setOnInsert(SUB_STATUS, status),
+            Updates.setOnInsert(SUB_UPDATED, updated),
+        )
 
     companion object Fields {
         const val SUB_ID = "_id"
@@ -55,5 +55,13 @@ data class SubmissionDoc(
 }
 
 enum class SubmissionStatus {
-    LOADED, PROCESSING, PROCESSED, SUBMITTING, SUBMITTED, ERROR_LOAD, ERROR_PROCESS, ERROR_SUBMIT, DISCARDED
+    LOADED,
+    PROCESSING,
+    PROCESSED,
+    SUBMITTING,
+    SUBMITTED,
+    ERROR_LOAD,
+    ERROR_PROCESS,
+    ERROR_SUBMIT,
+    DISCARDED,
 }

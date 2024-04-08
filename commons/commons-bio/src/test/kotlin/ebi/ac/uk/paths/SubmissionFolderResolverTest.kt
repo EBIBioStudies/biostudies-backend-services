@@ -11,11 +11,12 @@ import java.nio.file.Paths
 internal class SubmissionFolderResolverTest {
     @Nested
     inner class IncludingSecretKey {
-        private val testInstance = SubmissionFolderResolver(
-            includeSecretKey = true,
-            privateSubPath = Paths.get("/tmp/nfs/submission/.private"),
-            publicSubPath = Paths.get("/tmp/nfs/submission"),
-        )
+        private val testInstance =
+            SubmissionFolderResolver(
+                includeSecretKey = true,
+                privateSubPath = Paths.get("/tmp/nfs/submission/.private"),
+                publicSubPath = Paths.get("/tmp/nfs/submission"),
+            )
 
         @Test
         fun `get private folder`() {
@@ -32,11 +33,12 @@ internal class SubmissionFolderResolverTest {
 
     @Nested
     inner class NotIncludingSecretKey {
-        private val testInstance = SubmissionFolderResolver(
-            includeSecretKey = false,
-            privateSubPath = Paths.get("/tmp/nfs/submission"),
-            publicSubPath = Paths.get("/tmp/nfs/submission/ftp"),
-        )
+        private val testInstance =
+            SubmissionFolderResolver(
+                includeSecretKey = false,
+                privateSubPath = Paths.get("/tmp/nfs/submission"),
+                publicSubPath = Paths.get("/tmp/nfs/submission/ftp"),
+            )
 
         @Test
         fun `get private folder`() {

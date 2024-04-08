@@ -25,12 +25,19 @@ internal class SubmissionFilesSource(
     override val description: String
         get() = "Previous version files"
 
-    override suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+    override suspend fun getExtFile(
+        path: String,
+        type: String,
+        attributes: List<Attribute>,
+    ): ExtFile? {
         val filePath = expectedPath(path, type)
         return findSubmissionFile(filePath)?.copyWithAttributes(attributes.map { it.toExtAttribute() })
     }
 
-    private fun expectedPath(path: String, type: String): String {
+    private fun expectedPath(
+        path: String,
+        type: String,
+    ): String {
         return when (sub.storageMode) {
             StorageMode.FIRE -> if (type == FileFields.DIRECTORY_TYPE.value) path.ensureSuffix(".zip") else path
             else -> path

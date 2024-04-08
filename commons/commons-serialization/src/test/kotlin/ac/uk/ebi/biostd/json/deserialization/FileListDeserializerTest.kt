@@ -22,16 +22,18 @@ class FileListDeserializerTest(
     private val testInstance = JsonSerializer.mapper
 
     @Test
-    fun `deserialize file list as flow`() = runTest {
-        val json = jsonArray(
-            jsonObj { "path" to "File1.txt" },
-            jsonObj { "path" to "inner/folder" },
-        ).toString()
-        tempFolder.createFile("FileList.json", json).inputStream().use {
-            val files = testInstance.deserializeAsFlow<BioFile>(it).toList()
-            assertThat(files).hasSize(2)
-            assertThat(files.first().path).isEqualTo("File1.txt")
-            assertThat(files.second().path).isEqualTo("inner/folder")
+    fun `deserialize file list as flow`() =
+        runTest {
+            val json =
+                jsonArray(
+                    jsonObj { "path" to "File1.txt" },
+                    jsonObj { "path" to "inner/folder" },
+                ).toString()
+            tempFolder.createFile("FileList.json", json).inputStream().use {
+                val files = testInstance.deserializeAsFlow<BioFile>(it).toList()
+                assertThat(files).hasSize(2)
+                assertThat(files.first().path).isEqualTo("File1.txt")
+                assertThat(files.second().path).isEqualTo("inner/folder")
+            }
         }
-    }
 }

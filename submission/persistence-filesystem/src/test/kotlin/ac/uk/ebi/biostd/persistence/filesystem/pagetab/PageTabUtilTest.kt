@@ -34,20 +34,24 @@ class PageTabUtilTest(
     private val testInstance = PageTabUtil(serializationService, toSubmissionMapper, fileListMapper)
 
     @Test
-    fun `generate submission pagetab`() = runTest {
-        every { extSubmission.released } returns true
-        every { extSubmission.accNo } returns "S-BSST1"
-        every { serializationService.serializeSubmission(submission, TSV) } returns "tsv-sub"
-        every { serializationService.serializeSubmission(submission, JSON_PRETTY) } returns "json-sub"
-        coEvery { toSubmissionMapper.toSimpleSubmission(extSubmission) } returns submission
+    fun `generate submission pagetab`() =
+        runTest {
+            every { extSubmission.released } returns true
+            every { extSubmission.accNo } returns "S-BSST1"
+            every { serializationService.serializeSubmission(submission, TSV) } returns "tsv-sub"
+            every { serializationService.serializeSubmission(submission, JSON_PRETTY) } returns "json-sub"
+            coEvery { toSubmissionMapper.toSimpleSubmission(extSubmission) } returns submission
 
-        val pageTabFiles = testInstance.generateSubPageTab(extSubmission, tempFolder.root)
-        coVerify(exactly = 1) { toSubmissionMapper.toSimpleSubmission(extSubmission) }
-        assertPageTabFile(pageTabFiles.tsv, "tsv-sub")
-        assertPageTabFile(pageTabFiles.json, "json-sub")
-    }
+            val pageTabFiles = testInstance.generateSubPageTab(extSubmission, tempFolder.root)
+            coVerify(exactly = 1) { toSubmissionMapper.toSimpleSubmission(extSubmission) }
+            assertPageTabFile(pageTabFiles.tsv, "tsv-sub")
+            assertPageTabFile(pageTabFiles.json, "json-sub")
+        }
 
-    private fun assertPageTabFile(file: File, content: String) {
+    private fun assertPageTabFile(
+        file: File,
+        content: String,
+    ) {
         assertThat(file.exists()).isTrue()
         assertThat(file.readText()).isEqualTo(content)
         assertThat(Files.getPosixFilePermissions(file.toPath())).isEqualTo(RW_R__R__)

@@ -8,7 +8,11 @@ import uk.ac.ebi.fire.client.integration.web.FireClient
 class FireFtpService(
     private val fireClient: FireClient,
 ) : FtpService {
-    override suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String, subSecretKey: String): FireFile {
+    override suspend fun releaseSubmissionFile(
+        file: ExtFile,
+        subRelPath: String,
+        subSecretKey: String,
+    ): FireFile {
         val fireFile = file as FireFile
         val apiFile = fireClient.publish(fireFile.fireId)
         return fireFile.copy(firePath = apiFile.path!!, published = apiFile.published)

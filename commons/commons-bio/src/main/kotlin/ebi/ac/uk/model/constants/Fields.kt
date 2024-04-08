@@ -6,32 +6,35 @@ private const val ACC_NO_FIELD = "accno"
 private const val SECTION_FIELD = "section"
 private const val ATTRIBUTES_FIELD = "attributes"
 
-val SUBMISSION_RESERVED_ATTRIBUTES = setOf(
-    SubFields.RELEASE_DATE.value,
-    SubFields.TITLE.value,
-    SubFields.ATTACH_TO.value,
-    SubFields.ON_BEHALF.value,
-    SubFields.ROOT_PATH.value,
-    SubFields.DOI.value,
-)
+val SUBMISSION_RESERVED_ATTRIBUTES =
+    setOf(
+        SubFields.RELEASE_DATE.value,
+        SubFields.TITLE.value,
+        SubFields.ATTACH_TO.value,
+        SubFields.ON_BEHALF.value,
+        SubFields.ROOT_PATH.value,
+        SubFields.DOI.value,
+    )
 
 val SECTION_RESERVED_ATTRS = setOf(SectionFields.FILE_LIST.value)
-val FILES_RESERVED_ATTRS = setOf(
-    FileFields.MD5.value,
-    FileFields.DB_MD5.value,
-    FileFields.DB_ID.value,
-    FileFields.DB_PATH.value,
-    FileFields.DB_SIZE.value,
-    FileFields.DB_PUBLISHED.value,
-    FileFields.MD5.value,
-)
+val FILES_RESERVED_ATTRS =
+    setOf(
+        FileFields.MD5.value,
+        FileFields.DB_MD5.value,
+        FileFields.DB_ID.value,
+        FileFields.DB_PATH.value,
+        FileFields.DB_SIZE.value,
+        FileFields.DB_PUBLISHED.value,
+        FileFields.MD5.value,
+    )
 
 interface Fields {
     val value: String?
 }
 
 enum class OtherFields(override val value: String) : Fields {
-    TABLE("table");
+    TABLE("table"),
+    ;
 
     override fun toString(): String {
         return value
@@ -57,7 +60,8 @@ enum class SubFields(override val value: String) : Fields {
     ATTACH_TO("AttachTo"),
     ON_BEHALF("onBehalf"),
     ACC_NO_TEMPLATE("AccNoTemplate"),
-    COLLECTION_VALIDATOR("CollectionValidator");
+    COLLECTION_VALIDATOR("CollectionValidator"),
+    ;
 
     override fun toString(): String {
         return value
@@ -73,7 +77,8 @@ enum class SectionFields(override val value: String) : Fields {
     SUBSECTIONS("subsections"),
     TYPE("type"),
     FILES("files"),
-    FILE_LIST("File List");
+    FILE_LIST("File List"),
+    ;
 
     override fun toString(): String {
         return value
@@ -84,7 +89,8 @@ enum class AttributeFields(override val value: String) : Fields {
     ATTRIBUTE("attribute"),
     NAME("name"),
     VALUE("value"),
-    REFERENCE("reference");
+    REFERENCE("reference"),
+    ;
 
     override fun toString(): String {
         return value
@@ -96,7 +102,8 @@ enum class AttributeDetails(override val value: String) : Fields {
     NAME_QUALIFIER("nmqual"),
 
     NAME("name"),
-    VALUE("value");
+    VALUE("value"),
+    ;
 
     override fun toString(): String {
         return value
@@ -106,7 +113,8 @@ enum class AttributeDetails(override val value: String) : Fields {
 enum class LinkFields(override val value: String) : Fields {
     LINK("link"),
     ATTRIBUTES(ATTRIBUTES_FIELD),
-    URL("url");
+    URL("url"),
+    ;
 
     override fun toString(): String {
         return value
@@ -129,7 +137,8 @@ enum class FileFields(override val value: String) : Fields {
     DB_PATH("dbPath"),
     DB_PUBLISHED("dbPublished"),
 
-    ATTRIBUTES(ATTRIBUTES_FIELD);
+    ATTRIBUTES(ATTRIBUTES_FIELD),
+    ;
 
     override fun toString(): String {
         return value
@@ -138,7 +147,8 @@ enum class FileFields(override val value: String) : Fields {
 
 enum class TableFields(override val value: String) : Fields {
     LINKS_TABLE("Links"),
-    FILES_TABLE("Files");
+    FILES_TABLE("Files"),
+    ;
 
     override fun toString(): String {
         return value

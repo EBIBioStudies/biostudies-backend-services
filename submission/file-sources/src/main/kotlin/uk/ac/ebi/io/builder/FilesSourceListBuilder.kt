@@ -44,7 +44,11 @@ class FilesSourceListBuilder(
         sources.add(FilesListSource(files))
     }
 
-    fun addUserSource(securityUser: SecurityUser, description: String, rootPath: String? = null) {
+    fun addUserSource(
+        securityUser: SecurityUser,
+        description: String,
+        rootPath: String? = null,
+    ) {
         val folder = securityUser.userFolder
         if (folder is NfsUserFolder) {
             val path = if (rootPath == null) folder.path else folder.path.resolve(rootPath)
@@ -58,17 +62,21 @@ class FilesSourceListBuilder(
         }
     }
 
-    fun addGroupSource(groupName: String, sourcePath: Path) {
+    fun addGroupSource(
+        groupName: String,
+        sourcePath: Path,
+    ) {
         sources.add(GroupPathSource(groupName, sourcePath))
     }
 
     fun addSubmissionSource(submission: ExtSubmission) {
         val nfsSubPath = submissionPath.resolve("${submission.relPath}/$FILES_PATH")
         val nfsFiles = PathSource("Previous version files", nfsSubPath)
-        val previousVersionFiles = submission
-            .allInnerSubmissionFiles
-            .groupBy { it.filePath }
-            .mapValues { it.value.first() }
+        val previousVersionFiles =
+            submission
+                .allInnerSubmissionFiles
+                .groupBy { it.filePath }
+                .mapValues { it.value.first() }
         sources.add(SubmissionFilesSource(submission, nfsFiles, fireClient, previousVersionFiles, filesRepository))
     }
 }

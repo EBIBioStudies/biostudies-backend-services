@@ -33,8 +33,8 @@ object ExtSerializationFields {
     const val ATTR_VAL_ATTRS = "valueAttrs"
 
     // Ext Submission Fields
-    var VERSION = "version"
-    var SCHEMA_VERSION = "schemaVersion"
+    const val VERSION = "version"
+    const val SCHEMA_VERSION = "schemaVersion"
     const val OWNER = "owner"
     const val SUBMITTER = "submitter"
     const val TITLE = "title"

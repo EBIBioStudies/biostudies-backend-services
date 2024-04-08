@@ -28,18 +28,18 @@ class UserGroupsApiTest(
     @Autowired private val securityTestService: SecurityTestService,
     @LocalServerPort val serverPort: Int,
 ) {
-
     private lateinit var superWebClient: BioWebClient
     private lateinit var regularWebClient: BioWebClient
 
     @BeforeAll
-    fun init() = runBlocking {
-        securityTestService.ensureUserRegistration(SuperUser)
-        securityTestService.ensureUserRegistration(RegularUser)
-        superWebClient = getWebClient(serverPort, SuperUser)
-        regularWebClient = getWebClient(serverPort, RegularUser)
-        superWebClient.addUserInGroup(superWebClient.createGroup(GROUP_NAME, GROUP_DESC).name, SuperUser.email)
-    }
+    fun init() =
+        runBlocking {
+            securityTestService.ensureUserRegistration(SuperUser)
+            securityTestService.ensureUserRegistration(RegularUser)
+            superWebClient = getWebClient(serverPort, SuperUser)
+            regularWebClient = getWebClient(serverPort, RegularUser)
+            superWebClient.addUserInGroup(superWebClient.createGroup(GROUP_NAME, GROUP_DESC).name, SuperUser.email)
+        }
 
     @Test
     fun `24-1 get user groups`() {
@@ -55,27 +55,27 @@ class UserGroupsApiTest(
     @Test
     fun `24-2 trying to add a user to unexisting group`() {
         assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { superWebClient.addUserInGroup(nonExistentGroupName, SuperUser.email) }
-            .withMessageContaining("The group $nonExistentGroupName does not exists")
+            .isThrownBy { superWebClient.addUserInGroup(NON_EXISTING_GROUP, SuperUser.email) }
+            .withMessageContaining("The group $NON_EXISTING_GROUP does not exists")
     }
 
     @Test
     fun `24-3 trying to add a user that does not exist`() {
         assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { superWebClient.addUserInGroup(GROUP_NAME, nonExistentUser) }
-            .withMessageContaining("The user $nonExistentUser does not exists")
+            .isThrownBy { superWebClient.addUserInGroup(GROUP_NAME, NON_EXISTING_USER) }
+            .withMessageContaining("The user $NON_EXISTING_USER does not exists")
     }
 
     @Test
     fun `24-4 trying to add a user by regularUser`() {
         assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { regularWebClient.addUserInGroup(GROUP_NAME, nonExistentUser) }
+            .isThrownBy { regularWebClient.addUserInGroup(GROUP_NAME, NON_EXISTING_USER) }
             .withMessageContaining("Access is denied")
     }
 
     companion object {
-        const val nonExistentGroupName = "fakeGroup"
-        const val nonExistentUser = "fakeEmail"
+        const val NON_EXISTING_GROUP = "fakeGroup"
+        const val NON_EXISTING_USER = "fakeEmail"
     }
 
     object SuperUser : TestUser {

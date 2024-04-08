@@ -37,8 +37,7 @@ internal class SubmissionDraftResource(
     fun getSubmissionDrafts(
         @BioUser user: SecurityUser,
         @ModelAttribute filter: PageRequest,
-    ): Flow<ResponseSubmissionDraft> =
-        submissionDraftService.getActiveSubmissionDrafts(user.email, filter).map { it.asResponseDraft() }
+    ): Flow<ResponseSubmissionDraft> = submissionDraftService.getActiveSubmissionDrafts(user.email, filter).map { it.asResponseDraft() }
 
     @GetMapping("/{key}")
     @ResponseBody
@@ -52,8 +51,7 @@ internal class SubmissionDraftResource(
     suspend fun getSubmissionDraftContent(
         @BioUser user: SecurityUser,
         @PathVariable key: String,
-    ): ResponseSubmissionDraftContent =
-        ResponseSubmissionDraftContent(submissionDraftService.getSubmissionDraftContent(user.email, key))
+    ): ResponseSubmissionDraftContent = ResponseSubmissionDraftContent(submissionDraftService.getSubmissionDraftContent(user.email, key))
 
     @DeleteMapping("/{key}")
     suspend fun deleteSubmissionDraft(
@@ -67,8 +65,7 @@ internal class SubmissionDraftResource(
         @BioUser user: SecurityUser,
         @RequestBody content: String,
         @PathVariable key: String,
-    ): ResponseSubmissionDraft =
-        submissionDraftService.updateSubmissionDraft(user.email, key, content).asResponseDraft()
+    ): ResponseSubmissionDraft = submissionDraftService.updateSubmissionDraft(user.email, key, content).asResponseDraft()
 
     @PostMapping
     @ResponseBody
@@ -98,8 +95,13 @@ internal class SubmissionDraftResource(
     }
 }
 
-internal class ResponseSubmissionDraft(val key: String, @JsonRawValue val content: String)
+internal class ResponseSubmissionDraft(
+    val key: String,
+    @JsonRawValue val content: String,
+)
 
-internal class ResponseSubmissionDraftContent(@JsonRawValue @JsonValue val value: String)
+internal class ResponseSubmissionDraftContent(
+    @JsonRawValue @JsonValue val value: String,
+)
 
 internal fun SubmissionDraft.asResponseDraft() = ResponseSubmissionDraft(key, content)

@@ -15,7 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class LinkTableConverterTest(
     @MockK private val linkConverter: LinkConverter,
     @MockK val document: Document,
-    @MockK val docLink: DocLink
+    @MockK val docLink: DocLink,
 ) {
     private val testInstance = LinkTableConverter(linkConverter)
 

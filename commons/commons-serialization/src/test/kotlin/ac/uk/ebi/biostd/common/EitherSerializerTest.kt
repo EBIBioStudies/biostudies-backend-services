@@ -13,7 +13,6 @@ import uk.ac.ebi.serialization.serializers.EitherSerializer
 
 @TestInstance(Lifecycle.PER_CLASS)
 class EitherSerializerTest {
-
     private val objectMapper = jacksonObjectMapper()
 
     @BeforeAll

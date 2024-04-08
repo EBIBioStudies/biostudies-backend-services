@@ -36,22 +36,24 @@ class TsvDeserializationErrorsTest {
 
     @Test
     fun `invalid single element`() {
-        val tsv = tsv {
-            line("Submission", "S-BIAD2")
-            line("Title", "A Title")
-            line()
-        }.toString()
+        val tsv =
+            tsv {
+                line("Submission", "S-BIAD2")
+                line("Title", "A Title")
+                line()
+            }.toString()
 
         assertThrows<NotImplementedError> { deserializer.deserializeElement<Submission>(tsv) }
     }
 
     @Test
     fun `invalid processing class`() {
-        val tsv = tsv {
-            line("Links", "Attr")
-            line("http://alink.org", "Value")
-            line()
-        }.toString()
+        val tsv =
+            tsv {
+                line("Links", "Attr")
+                line("http://alink.org", "Value")
+                line()
+            }.toString()
 
         assertThrows<ClassCastException> { deserializer.deserializeElement<BioFile>(tsv) }
     }
@@ -63,26 +65,28 @@ class TsvDeserializationErrorsTest {
 
     @Test
     fun `invalid chunk size`() {
-        val tsv = tsv {
-            line("Links", "Attr")
-            line("http://alink.org", "Value")
-            line()
+        val tsv =
+            tsv {
+                line("Links", "Attr")
+                line("http://alink.org", "Value")
+                line()
 
-            line("Links", "Attr")
-            line("http://otherlink.org", "Value")
-            line()
-        }.toString()
+                line("Links", "Attr")
+                line("http://otherlink.org", "Value")
+                line()
+            }.toString()
 
         assertThrows<InvalidChunkSizeException> { deserializer.deserializeElement<Link>(tsv) }
     }
 
     @Test
     fun `empty file path`() {
-        val tsv = tsv {
-            line("File", "")
-            line("Type", "Empty Path")
-            line()
-        }.toString()
+        val tsv =
+            tsv {
+                line("File", "")
+                line("Type", "Empty Path")
+                line()
+            }.toString()
 
         val exception = assertThrows<InvalidElementException> { deserializer.deserializeElement<BioFile>(tsv) }
         assertThat(exception.message).isEqualTo("$REQUIRED_FILE_PATH. Element was not created.")
@@ -90,34 +94,37 @@ class TsvDeserializationErrorsTest {
 
     @Test
     fun `empty attribute name`() {
-        val tsv = tsv {
-            line("File", "file1.txt")
-            line("", "Empty Path")
-            line()
-        }.toString()
+        val tsv =
+            tsv {
+                line("File", "file1.txt")
+                line("", "Empty Path")
+                line()
+            }.toString()
 
         val exception = assertThrows<InvalidElementException> { deserializer.deserializeElement<BioFile>(tsv) }
         assertThat(exception.message).isEqualTo("$REQUIRED_ATTR_NAME. Element was not created.")
     }
 
     @Test
-    fun `invalid name attribute detail`(): Unit =
-        testInvalidElement(submissionWithInvalidNameAttributeDetail(), MISPLACED_ATTR_NAME)
+    fun `invalid name attribute detail`(): Unit = testInvalidElement(submissionWithInvalidNameAttributeDetail(), MISPLACED_ATTR_NAME)
 
     @Test
-    fun `invalid value attribute detail`(): Unit =
-        testInvalidElement(submissionWithInvalidValueAttributeDetail(), MISPLACED_ATTR_VAL)
+    fun `invalid value attribute detail`(): Unit = testInvalidElement(submissionWithInvalidValueAttributeDetail(), MISPLACED_ATTR_VAL)
 
     @Test
-    fun `table with no rows`(): Unit =
-        testInvalidElement(submissionWithTableWithNoRows(), REQUIRED_TABLE_ROWS)
+    fun `table with no rows`(): Unit = testInvalidElement(submissionWithTableWithNoRows(), REQUIRED_TABLE_ROWS)
 
     @Test
-    fun `table with more attributes than expected`(): Unit = testInvalidElement(
-        submissionWithTableWithMoreAttributes(), "A row table can't have more attributes than the table header"
-    )
+    fun `table with more attributes than expected`(): Unit =
+        testInvalidElement(
+            submissionWithTableWithMoreAttributes(),
+            "A row table can't have more attributes than the table header",
+        )
 
-    private fun testInvalidElement(submissionTsv: Tsv, expectedMessage: String) {
+    private fun testInvalidElement(
+        submissionTsv: Tsv,
+        expectedMessage: String,
+    ) {
         val exception = assertThrows<SerializationException> { deserializer.deserialize(submissionTsv.toString()) }
         assertThat(exception.errors.values()).hasSize(1)
 

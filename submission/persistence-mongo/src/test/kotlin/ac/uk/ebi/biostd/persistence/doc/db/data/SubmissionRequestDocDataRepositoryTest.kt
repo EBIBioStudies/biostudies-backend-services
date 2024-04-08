@@ -38,123 +38,131 @@ import java.time.temporal.ChronoUnit
 class SubmissionRequestDocDataRepositoryTest(
     @Autowired val testInstance: SubmissionRequestDocDataRepository,
 ) {
-
     @AfterEach
-    fun afterEach() = runBlocking {
-        testInstance.deleteAll()
-    }
+    fun afterEach() =
+        runBlocking {
+            testInstance.deleteAll()
+        }
 
     @Test
-    fun saveRequestWhenNew() = runTest {
-        val request = DocSubmissionRequest(
-            id = ObjectId(),
-            accNo = "abc-123",
-            version = 1,
-            status = RequestStatus.CLEANED,
-            draftKey = "temp-123",
-            notifyTo = "user@test.org",
-            submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
-            totalFiles = 5,
-            currentIndex = 6,
-            modificationTime = Instant.now(),
-            statusChanges = emptyList()
-        )
+    fun saveRequestWhenNew() =
+        runTest {
+            val request =
+                DocSubmissionRequest(
+                    id = ObjectId(),
+                    accNo = "abc-123",
+                    version = 1,
+                    status = RequestStatus.CLEANED,
+                    draftKey = "temp-123",
+                    notifyTo = "user@test.org",
+                    submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
+                    totalFiles = 5,
+                    currentIndex = 6,
+                    modificationTime = Instant.now(),
+                    statusChanges = emptyList(),
+                )
 
-        val (_, created) = testInstance.saveRequest(request)
+            val (_, created) = testInstance.saveRequest(request)
 
-        assertThat(created).isTrue()
-        val newRequest = testInstance.getById(request.id)
-        assertThat(newRequest.accNo).isEqualTo(request.accNo)
-        assertThat(newRequest.version).isEqualTo(request.version)
-        assertThat(newRequest.status).isEqualTo(request.status)
-        assertThat(newRequest.draftKey).isEqualTo(request.draftKey)
-        assertThat(newRequest.notifyTo).isEqualTo(request.notifyTo)
-        assertThat(newRequest.submission).isEqualTo(request.submission)
-        assertThat(newRequest.totalFiles).isEqualTo(request.totalFiles)
-        assertThat(newRequest.currentIndex).isEqualTo(request.currentIndex)
-        assertThat(newRequest.modificationTime).isCloseTo(request.modificationTime, within(100, ChronoUnit.MILLIS))
-    }
-
-    @Test
-    fun saveRequestWhenExists() = runTest {
-        val (existing, _) = testInstance.saveRequest(
-            DocSubmissionRequest(
-                id = ObjectId(),
-                accNo = "abc-123",
-                version = 1,
-                status = RequestStatus.CLEANED,
-                draftKey = "temp-123",
-                notifyTo = "user@test.org",
-                submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
-                totalFiles = 5,
-                currentIndex = 6,
-                modificationTime = Instant.now(),
-                statusChanges = emptyList()
-            )
-        )
-
-        val newRequest = DocSubmissionRequest(
-            id = ObjectId(),
-            accNo = "abc-123",
-            version = 2,
-            status = REQUESTED,
-            draftKey = "temp-987-b",
-            notifyTo = "user-b@test.org",
-            submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
-            totalFiles = 51,
-            currentIndex = 61,
-            modificationTime = Instant.now().plusSeconds(10),
-            statusChanges = emptyList()
-        )
-        val (_, created) = testInstance.saveRequest(newRequest)
-
-        assertThat(created).isFalse()
-
-        val submissions = testInstance.findByAccNo(newRequest.accNo).toList()
-        assertThat(submissions).hasSize(1)
-
-        val request = submissions.first()
-        assertThat(request.accNo).isEqualTo(existing.accNo)
-        assertThat(request.version).isEqualTo(existing.version)
-        assertThat(request.status).isEqualTo(existing.status)
-        assertThat(request.draftKey).isEqualTo(existing.draftKey)
-        assertThat(request.notifyTo).isEqualTo(existing.notifyTo)
-        assertThat(request.submission).isEqualTo(existing.submission)
-        assertThat(request.totalFiles).isEqualTo(existing.totalFiles)
-        assertThat(request.currentIndex).isEqualTo(existing.currentIndex)
-        assertThat(request.modificationTime).isCloseTo(existing.modificationTime, within(100, ChronoUnit.MILLIS))
-    }
+            assertThat(created).isTrue()
+            val newRequest = testInstance.getById(request.id)
+            assertThat(newRequest.accNo).isEqualTo(request.accNo)
+            assertThat(newRequest.version).isEqualTo(request.version)
+            assertThat(newRequest.status).isEqualTo(request.status)
+            assertThat(newRequest.draftKey).isEqualTo(request.draftKey)
+            assertThat(newRequest.notifyTo).isEqualTo(request.notifyTo)
+            assertThat(newRequest.submission).isEqualTo(request.submission)
+            assertThat(newRequest.totalFiles).isEqualTo(request.totalFiles)
+            assertThat(newRequest.currentIndex).isEqualTo(request.currentIndex)
+            assertThat(newRequest.modificationTime).isCloseTo(request.modificationTime, within(100, ChronoUnit.MILLIS))
+        }
 
     @Test
-    fun loadRequest() = runTest {
-        val procesId = "processId"
-        val rqt = DocSubmissionRequest(
-            id = ObjectId(),
-            accNo = "abc-123",
-            version = 2,
-            status = REQUESTED,
-            draftKey = "temp-987-b",
-            notifyTo = "user-b@test.org",
-            submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
-            totalFiles = 51,
-            currentIndex = 61,
-            modificationTime = Instant.now().plusSeconds(10),
-            statusChanges = emptyList()
-        )
-        testInstance.saveRequest(rqt)
+    fun saveRequestWhenExists() =
+        runTest {
+            val (existing, _) =
+                testInstance.saveRequest(
+                    DocSubmissionRequest(
+                        id = ObjectId(),
+                        accNo = "abc-123",
+                        version = 1,
+                        status = RequestStatus.CLEANED,
+                        draftKey = "temp-123",
+                        notifyTo = "user@test.org",
+                        submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
+                        totalFiles = 5,
+                        currentIndex = 6,
+                        modificationTime = Instant.now(),
+                        statusChanges = emptyList(),
+                    ),
+                )
 
-        val (changeId, request) = testInstance.getRequest(rqt.accNo, rqt.version, REQUESTED, procesId)
+            val newRequest =
+                DocSubmissionRequest(
+                    id = ObjectId(),
+                    accNo = "abc-123",
+                    version = 2,
+                    status = REQUESTED,
+                    draftKey = "temp-987-b",
+                    notifyTo = "user-b@test.org",
+                    submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
+                    totalFiles = 51,
+                    currentIndex = 61,
+                    modificationTime = Instant.now().plusSeconds(10),
+                    statusChanges = emptyList(),
+                )
+            val (_, created) = testInstance.saveRequest(newRequest)
 
-        val statusChange = request.statusChanges.filter { it.statusId.toString() == changeId }.first()
-        assertThat(statusChange.status).isEqualTo(REQUESTED.action)
-        assertThat(statusChange.startTime).isNotNull()
-        assertThat(statusChange.endTime).isNull()
-    }
+            assertThat(created).isFalse()
+
+            val submissions = testInstance.findByAccNo(newRequest.accNo).toList()
+            assertThat(submissions).hasSize(1)
+
+            val request = submissions.first()
+            assertThat(request.accNo).isEqualTo(existing.accNo)
+            assertThat(request.version).isEqualTo(existing.version)
+            assertThat(request.status).isEqualTo(existing.status)
+            assertThat(request.draftKey).isEqualTo(existing.draftKey)
+            assertThat(request.notifyTo).isEqualTo(existing.notifyTo)
+            assertThat(request.submission).isEqualTo(existing.submission)
+            assertThat(request.totalFiles).isEqualTo(existing.totalFiles)
+            assertThat(request.currentIndex).isEqualTo(existing.currentIndex)
+            assertThat(request.modificationTime).isCloseTo(existing.modificationTime, within(100, ChronoUnit.MILLIS))
+        }
+
+    @Test
+    fun loadRequest() =
+        runTest {
+            val procesId = "processId"
+            val rqt =
+                DocSubmissionRequest(
+                    id = ObjectId(),
+                    accNo = "abc-123",
+                    version = 2,
+                    status = REQUESTED,
+                    draftKey = "temp-987-b",
+                    notifyTo = "user-b@test.org",
+                    submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
+                    totalFiles = 51,
+                    currentIndex = 61,
+                    modificationTime = Instant.now().plusSeconds(10),
+                    statusChanges = emptyList(),
+                )
+            testInstance.saveRequest(rqt)
+
+            val (changeId, request) = testInstance.getRequest(rqt.accNo, rqt.version, REQUESTED, procesId)
+
+            val statusChange = request.statusChanges.filter { it.statusId.toString() == changeId }.first()
+            assertThat(statusChange.status).isEqualTo(REQUESTED.action)
+            assertThat(statusChange.startTime).isNotNull()
+            assertThat(statusChange.endTime).isNull()
+        }
 
     private companion object {
         @Container
-        val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(MINIMUM_RUNNING_TIME)))
+        val mongoContainer: MongoDBContainer =
+            MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

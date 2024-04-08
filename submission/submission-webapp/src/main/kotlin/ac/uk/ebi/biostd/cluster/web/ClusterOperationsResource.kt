@@ -25,7 +25,9 @@ class ClusterOperationsResource(
     }
 
     @PostMapping("/submit")
-    suspend fun submitJob(@RequestBody job: JobSpecDto): Job {
+    suspend fun submitJob(
+        @RequestBody job: JobSpecDto,
+    ): Job {
         return when (val response = clusterClient.triggerJobAsync(job.asJobSpec())) {
             is Try.Failure -> throw IllegalStateException(response.exception)
             is Try.Success -> response.value
@@ -33,19 +35,26 @@ class ClusterOperationsResource(
     }
 
     @GetMapping("/jobs/{jobId}/status")
-    suspend fun jobStatus(@PathVariable jobId: String): JobStatus {
+    suspend fun jobStatus(
+        @PathVariable jobId: String,
+    ): JobStatus {
         return JobStatus(clusterClient.jobStatus(jobId))
     }
 
     @GetMapping("/jobs/{jobId}/logs")
-    suspend fun jobLogs(@PathVariable jobId: String): String {
+    suspend fun jobLogs(
+        @PathVariable jobId: String,
+    ): String {
         return clusterClient.jobLogs(jobId)
     }
 
     data class JobSpecDto(val command: String, val queue: String, val ramMegaBytes: Int) {
-        fun asJobSpec(): JobSpec = JobSpec(
-            command = command, queue = QueueSpec.fromName(queue), ram = MemorySpec.fromMegaBytes(ramMegaBytes)
-        )
+        fun asJobSpec(): JobSpec =
+            JobSpec(
+                command = command,
+                queue = QueueSpec.fromName(queue),
+                ram = MemorySpec.fromMegaBytes(ramMegaBytes),
+            )
     }
 
     data class JobStatus(val status: String)

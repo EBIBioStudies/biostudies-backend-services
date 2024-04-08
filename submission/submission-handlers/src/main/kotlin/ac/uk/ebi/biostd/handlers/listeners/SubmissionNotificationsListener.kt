@@ -66,7 +66,7 @@ class SubmissionNotificationsListener(
     private fun notifySafely(
         message: SubmissionMessage,
         notificationType: String,
-        notifyFunction: SubmissionMessage.() -> Unit
+        notifyFunction: SubmissionMessage.() -> Unit,
     ) = runBlocking {
         runCatching {
             notifyFunction(message)

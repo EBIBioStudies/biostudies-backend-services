@@ -25,11 +25,18 @@ import java.nio.charset.StandardCharsets.UTF_8
 const val FILE_LIST_URL = "submissions/extended"
 
 class ExtSectionSerializer : JsonSerializer<ExtSection>() {
-    override fun serialize(section: ExtSection, gen: JsonGenerator, serializers: SerializerProvider) {
+    override fun serialize(
+        section: ExtSection,
+        gen: JsonGenerator,
+        serializers: SerializerProvider,
+    ) {
         serialize(section, gen)
     }
 
-    private fun serialize(section: ExtSection, gen: JsonGenerator) {
+    private fun serialize(
+        section: ExtSection,
+        gen: JsonGenerator,
+    ) {
         gen.writeStartObject()
         gen.writeStringField(ACC_NO, section.accNo)
         gen.writeStringField(TYPE, section.type)
@@ -42,7 +49,10 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
         gen.writeEndObject()
     }
 
-    private fun writeFileList(fileList: ExtFileList, gen: JsonGenerator) {
+    private fun writeFileList(
+        fileList: ExtFileList,
+        gen: JsonGenerator,
+    ) {
         gen.writeObjectFieldStart(FILE_LIST)
         gen.writeStringField(FILE_NAME, fileList.filePath)
         gen.writeStringField(FILES_URL, fileUrl(fileList))
@@ -54,7 +64,11 @@ class ExtSectionSerializer : JsonSerializer<ExtSection>() {
     private fun fileUrl(fileList: ExtFileList): String =
         encodePath("/$FILE_LIST_URL/$parentAccNo/referencedFiles/${fileList.filePath}", UTF_8)
 
-    private fun writeEitherList(fieldName: String, list: List<Either<*, *>>, gen: JsonGenerator) {
+    private fun writeEitherList(
+        fieldName: String,
+        list: List<Either<*, *>>,
+        gen: JsonGenerator,
+    ) {
         gen.writeArrayFieldStart(fieldName)
         list.forEach { gen.writeObject(it) }
         gen.writeEndArray()

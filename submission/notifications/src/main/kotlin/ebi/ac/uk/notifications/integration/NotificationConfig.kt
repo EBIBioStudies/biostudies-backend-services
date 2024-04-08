@@ -31,7 +31,7 @@ class NotificationConfig(
         SecurityNotificationService(
             templateLoader,
             emailService,
-            properties
+            properties,
         )
     }
 

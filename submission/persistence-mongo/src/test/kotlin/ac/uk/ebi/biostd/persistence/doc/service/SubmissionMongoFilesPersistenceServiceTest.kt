@@ -57,72 +57,79 @@ class SubmissionMongoFilesPersistenceServiceTest(
     private val testInstance = SubmissionMongoFilesPersistenceService(fileListDocFileRepository)
 
     @AfterEach
-    fun afterEach(): Unit = runBlocking {
-        fileListDocFileRepository.deleteAll()
-    }
+    fun afterEach(): Unit =
+        runBlocking {
+            fileListDocFileRepository.deleteAll()
+        }
 
     private val nfsReferencedFile = tempFolder.createFile("nfsReferenced.txt")
     private val nfsFile = createNfsFile("nfsReferenced.txt", "Files/nfsReferenced.txt", nfsReferencedFile)
-    private val nfsFileListFile = FileListDocFile(
-        id = ObjectId(),
-        submissionId = testDocSubmission.id,
-        file = nfsFile.toDocFile(),
-        fileListName = "test-file-list",
-        index = 1,
-        submissionVersion = testDocSubmission.version,
-        submissionAccNo = testDocSubmission.accNo
-    )
+    private val nfsFileListFile =
+        FileListDocFile(
+            id = ObjectId(),
+            submissionId = testDocSubmission.id,
+            file = nfsFile.toDocFile(),
+            fileListName = "test-file-list",
+            index = 1,
+            submissionVersion = testDocSubmission.version,
+            submissionAccNo = testDocSubmission.accNo,
+        )
     private val fireReferencedFile = tempFolder.createFile("fireReferenced.txt")
-    private val fireFile = FireFile(
-        fireId = "fire-oid",
-        firePath = "fire-path",
-        published = false,
-        filePath = "fireReferenced.txt",
-        relPath = "Files/fireReferenced.txt",
-        md5 = fireReferencedFile.md5(),
-        size = fireReferencedFile.size(),
-        type = FILE,
-        attributes = emptyList()
-    )
-    private val fireFileListFile = FileListDocFile(
-        ObjectId(),
-        testDocSubmission.id,
-        fireFile.toDocFile(),
-        fileListName = "test-file-list",
-        index = 2,
-        submissionVersion = testDocSubmission.version,
-        submissionAccNo = testDocSubmission.accNo
-    )
+    private val fireFile =
+        FireFile(
+            fireId = "fire-oid",
+            firePath = "fire-path",
+            published = false,
+            filePath = "fireReferenced.txt",
+            relPath = "Files/fireReferenced.txt",
+            md5 = fireReferencedFile.md5(),
+            size = fireReferencedFile.size(),
+            type = FILE,
+            attributes = emptyList(),
+        )
+    private val fireFileListFile =
+        FileListDocFile(
+            ObjectId(),
+            testDocSubmission.id,
+            fireFile.toDocFile(),
+            fileListName = "test-file-list",
+            index = 2,
+            submissionVersion = testDocSubmission.version,
+            submissionAccNo = testDocSubmission.accNo,
+        )
 
     @BeforeEach
-    fun beforeEach(): Unit = runBlocking {
-        setUpMockSubmission()
-        fileListDocFileRepository.save(nfsFileListFile)
-        fileListDocFileRepository.save(fireFileListFile)
-    }
+    fun beforeEach(): Unit =
+        runBlocking {
+            setUpMockSubmission()
+            fileListDocFileRepository.save(nfsFileListFile)
+            fileListDocFileRepository.save(fireFileListFile)
+        }
 
     @Test
-    fun `get referenced files`() = runTest {
-        val files = testInstance.getReferencedFiles(submission, "test-file-list").toList()
-        assertThat(files).hasSize(2)
+    fun `get referenced files`() =
+        runTest {
+            val files = testInstance.getReferencedFiles(submission, "test-file-list").toList()
+            assertThat(files).hasSize(2)
 
-        val nfsFile = files.first() as NfsFile
-        assertThat(nfsFile.file).isEqualTo(nfsReferencedFile)
-        assertThat(nfsFile.fullPath).isEqualTo(nfsReferencedFile.absolutePath)
+            val nfsFile = files.first() as NfsFile
+            assertThat(nfsFile.file).isEqualTo(nfsReferencedFile)
+            assertThat(nfsFile.fullPath).isEqualTo(nfsReferencedFile.absolutePath)
 
-        val fireFile = files.second() as FireFile
-        assertThat(fireFile.fireId).isEqualTo("fire-oid")
-        assertThat(fireFile.filePath).isEqualTo("fireReferenced.txt")
-        assertThat(fireFile.relPath).isEqualTo("Files/fireReferenced.txt")
-        assertThat(fireFile.firePath).isEqualTo("${submission.relPath}/Files/fireReferenced.txt")
-    }
+            val fireFile = files.second() as FireFile
+            assertThat(fireFile.fireId).isEqualTo("fire-oid")
+            assertThat(fireFile.filePath).isEqualTo("fireReferenced.txt")
+            assertThat(fireFile.relPath).isEqualTo("Files/fireReferenced.txt")
+            assertThat(fireFile.firePath).isEqualTo("${submission.relPath}/Files/fireReferenced.txt")
+        }
 
     @Test
-    fun `non existing referenced files`() = runTest {
-        val result = testInstance.getReferencedFiles(submission, "non-existing-fileListName")
+    fun `non existing referenced files`() =
+        runTest {
+            val result = testInstance.getReferencedFiles(submission, "non-existing-fileListName")
 
-        assertThat(result.toList()).hasSize(0)
-    }
+            assertThat(result.toList()).hasSize(0)
+        }
 
     private fun setUpMockSubmission() {
         every { submission.accNo } returns SUB_ACC_NO
@@ -132,8 +139,9 @@ class SubmissionMongoFilesPersistenceServiceTest(
 
     companion object {
         @Container
-        val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+        val mongoContainer: MongoDBContainer =
+            MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

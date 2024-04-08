@@ -47,17 +47,19 @@ class StatsReporterDataRepositoryTest(
     }
 
     @Test
-    fun calculateStats() = runTest {
-        val imagingStats = testInstance.calculateImagingFilesSize()
-        val nonImagingStats = testInstance.calculateNonImagingFilesSize()
+    fun calculateStats() =
+        runTest {
+            val imagingStats = testInstance.calculateImagingFilesSize()
+            val nonImagingStats = testInstance.calculateNonImagingFilesSize()
 
-        assertThat(imagingStats).isEqualTo(10L)
-        assertThat(nonImagingStats).isEqualTo(19L)
-    }
+            assertThat(imagingStats).isEqualTo(10L)
+            assertThat(nonImagingStats).isEqualTo(19L)
+        }
 
     private fun setUpSubmissions() {
         val arrayExpress = listOf(DocCollection(AE_COLLECTION))
         val bioImages = listOf(DocCollection(IMAGING_COLLECTION))
+
         fun save(submission: DocSubmission) = mongoTemplate.save(submission, SUBMISSIONS_COLLECTION_KEY).block()
 
         save(testSub)
@@ -88,30 +90,32 @@ class StatsReporterDataRepositoryTest(
     companion object {
         private const val AE_COLLECTION = "ArrayExpress"
         private const val SUBMISSIONS_COLLECTION_KEY = "submissions"
-        private val testSub = DocSubmission(
-            id = ObjectId(),
-            accNo = "S-BSST1",
-            version = 1,
-            schemaVersion = "1.0",
-            owner = "biostudies-dev@ebi.ac.uk",
-            submitter = "biostudies-dev@ebi.ac.uk",
-            title = "Test Stats Submission",
-            doi = "10.983/S-BSST1",
-            method = PAGE_TAB,
-            rootPath = null,
-            relPath = "S-BSST/001/S-BSST1",
-            released = true,
-            secretKey = "",
-            creationTime = Instant.now(),
-            modificationTime = Instant.now(),
-            releaseTime = Instant.now(),
-            section = DocSection(id = ObjectId(), type = "Study"),
-            storageMode = FIRE
-        )
+        private val testSub =
+            DocSubmission(
+                id = ObjectId(),
+                accNo = "S-BSST1",
+                version = 1,
+                schemaVersion = "1.0",
+                owner = "biostudies-dev@ebi.ac.uk",
+                submitter = "biostudies-dev@ebi.ac.uk",
+                title = "Test Stats Submission",
+                doi = "10.983/S-BSST1",
+                method = PAGE_TAB,
+                rootPath = null,
+                relPath = "S-BSST/001/S-BSST1",
+                released = true,
+                secretKey = "",
+                creationTime = Instant.now(),
+                modificationTime = Instant.now(),
+                releaseTime = Instant.now(),
+                section = DocSection(id = ObjectId(), type = "Study"),
+                storageMode = FIRE,
+            )
 
         @Container
-        val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+        val mongoContainer: MongoDBContainer =
+            MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

@@ -44,59 +44,62 @@ const val FIRE_FILE_MD5 = "fireFileMd5"
 const val FIRE_FILE_SIZE = 1L
 const val FIRE_FILE_PUBLISHED = true
 
-val fireFile = FireFile(
-    fireId = FIRE_FILE_FIRE_ID,
-    firePath = FIRE_DIR_FIRE_PATH,
-    published = FIRE_FILE_PUBLISHED,
-    filePath = FIRE_FILE_FILEPATH,
-    relPath = FIRE_FILE_REL_PATH,
-    md5 = FIRE_FILE_MD5,
-    size = FIRE_FILE_SIZE,
-    type = FILE,
-    attributes = listOf()
-)
+val fireFile =
+    FireFile(
+        fireId = FIRE_FILE_FIRE_ID,
+        firePath = FIRE_DIR_FIRE_PATH,
+        published = FIRE_FILE_PUBLISHED,
+        filePath = FIRE_FILE_FILEPATH,
+        relPath = FIRE_FILE_REL_PATH,
+        md5 = FIRE_FILE_MD5,
+        size = FIRE_FILE_SIZE,
+        type = FILE,
+        attributes = listOf(),
+    )
 
 const val FIRE_DIRECTORY_FILEPATH = "fireDirectoryFilePath/fireDirectoryFileName"
 const val FIRE_DIRECTORY_REL_PATH = "fireDirectoryRelPath"
 const val FIRE_DIRECTORY_FIRE_PATH = "submission/fireDirectoryFilePath/fireDirectoryFileName"
 const val FIRE_DIRECTORY_MD5 = "fireDirectoryMd5"
 const val FIRE_DIRECTORY_SIZE = 2L
-val fireDirectory = FireFile(
-    fireId = FIRE_DIR_FIRE_ID,
-    firePath = FIRE_DIRECTORY_FIRE_PATH,
-    published = false,
-    filePath = FIRE_DIRECTORY_FILEPATH,
-    relPath = FIRE_DIRECTORY_REL_PATH,
-    md5 = FIRE_DIRECTORY_MD5,
-    size = FIRE_DIRECTORY_SIZE,
-    type = DIR,
-    attributes = listOf()
-)
+val fireDirectory =
+    FireFile(
+        fireId = FIRE_DIR_FIRE_ID,
+        firePath = FIRE_DIRECTORY_FIRE_PATH,
+        published = false,
+        filePath = FIRE_DIRECTORY_FILEPATH,
+        relPath = FIRE_DIRECTORY_REL_PATH,
+        md5 = FIRE_DIRECTORY_MD5,
+        size = FIRE_DIRECTORY_SIZE,
+        type = DIR,
+        attributes = listOf(),
+    )
 
 const val NFS_FILENAME = "nfsFileName"
 const val NFS_FILEPATH = "nfsFileFolder/nfsFileName"
 const val NFS_REL_PATH = "Files/nfsFileFolder/nfsFileName"
 
-val fullExtSubmission = ExtSubmission(
-    accNo = SUBMISSION_ACC_NO,
-    version = SUBMISSION_VERSION,
-    schemaVersion = SUBMISSION_SCHEMA_VERSION,
-    owner = SUBMISSION_OWNER,
-    submitter = SUBMISSION_SUBMITTER,
-    title = SUBMISSION_TITLE,
-    doi = SUBMISSION_DOI,
-    method = SUBMISSION_METHOD,
-    relPath = SUBMISSION_REL_PATH,
-    rootPath = SUBMISSION_ROOT_PATH,
-    released = SUBMISSION_RELEASED,
-    secretKey = SUBMISSION_SECRET_KEY,
-    releaseTime = RELEASE_TIME,
-    modificationTime = MODIFICATION_TIME,
-    creationTime = CREATION_TIME,
-    attributes = listOf(submissionAttribute),
-    tags = listOf(extTag),
-    collections = listOf(extCollection),
-    section = rootSection,
-    pageTabFiles = listOf(fireFile, fireDirectory),
-    storageMode = StorageMode.NFS
-)
+val fullExtSubmission =
+    ExtSubmission(
+        accNo = SUBMISSION_ACC_NO,
+        version = SUBMISSION_VERSION,
+        schemaVersion = SUBMISSION_SCHEMA_VERSION,
+        owner = SUBMISSION_OWNER,
+        submitter = SUBMISSION_SUBMITTER,
+        title = SUBMISSION_TITLE,
+        doi = SUBMISSION_DOI,
+        method = SUBMISSION_METHOD,
+        relPath = SUBMISSION_REL_PATH,
+        rootPath = SUBMISSION_ROOT_PATH,
+        released = SUBMISSION_RELEASED,
+        secretKey = SUBMISSION_SECRET_KEY,
+        releaseTime = RELEASE_TIME,
+        modificationTime = MODIFICATION_TIME,
+        creationTime = CREATION_TIME,
+        attributes = listOf(submissionAttribute),
+        tags = listOf(extTag),
+        collections = listOf(extCollection),
+        section = rootSection,
+        pageTabFiles = listOf(fireFile, fireDirectory),
+        storageMode = StorageMode.NFS,
+    )

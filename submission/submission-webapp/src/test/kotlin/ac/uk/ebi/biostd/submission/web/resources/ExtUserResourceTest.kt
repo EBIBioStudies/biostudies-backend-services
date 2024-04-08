@@ -15,19 +15,23 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
 @ExtendWith(MockKExtension::class)
-class ExtUserResourceTest(@MockK private val extUserService: ExtUserService) {
-    private val mvc = MockMvcBuilders
-        .standaloneSetup(ExtUserResource(extUserService))
-        .build()
+class ExtUserResourceTest(
+    @MockK private val extUserService: ExtUserService,
+) {
+    private val mvc =
+        MockMvcBuilders
+            .standaloneSetup(ExtUserResource(extUserService))
+            .build()
 
     @Test
     fun `get ext user`() {
-        val expectedJson = jsonObj {
-            "login" to "test_user"
-            "fullName" to "Test User"
-            "email" to "test@ebi.ac.uk"
-            "notificationsEnabled" to true
-        }.toString()
+        val expectedJson =
+            jsonObj {
+                "login" to "test_user"
+                "fullName" to "Test User"
+                "email" to "test@ebi.ac.uk"
+                "notificationsEnabled" to true
+            }.toString()
 
         every { extUserService.getExtUser("test@ebi.ac.uk") } returns testUser()
 
@@ -41,10 +45,11 @@ class ExtUserResourceTest(@MockK private val extUserService: ExtUserService) {
         verify { extUserService.getExtUser("test@ebi.ac.uk") }
     }
 
-    private fun testUser() = ExtUser(
-        login = "test_user",
-        fullName = "Test User",
-        email = "test@ebi.ac.uk",
-        notificationsEnabled = true
-    )
+    private fun testUser() =
+        ExtUser(
+            login = "test_user",
+            fullName = "Test User",
+            email = "test@ebi.ac.uk",
+            notificationsEnabled = true,
+        )
 }

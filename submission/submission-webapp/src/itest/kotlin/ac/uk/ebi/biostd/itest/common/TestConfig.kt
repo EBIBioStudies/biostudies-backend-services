@@ -21,6 +21,5 @@ class TestConfig {
     fun failCollectionValidator(): FailCollectionValidator = FailCollectionValidator()
 
     @Bean
-    fun testUserDataService(userDataDataRepository: UserDataDataRepository) =
-        TestUserDataService(userDataDataRepository)
+    fun testUserDataService(userDataDataRepository: UserDataDataRepository) = TestUserDataService(userDataDataRepository)
 }

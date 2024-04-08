@@ -32,7 +32,6 @@ const val INPUT_FILES_COL = "pmc_input_files"
 
 @Configuration
 class PersistenceConfig(val properties: PmcImporterProperties) : AbstractMongoClientConfiguration() {
-
     override fun getDatabaseName(): String = properties.mongodbDatabase
 
     @Bean
@@ -44,7 +43,7 @@ class PersistenceConfig(val properties: PmcImporterProperties) : AbstractMongoCl
     @ConditionalOnProperty(prefix = "app.data", name = ["execute-migrations"], havingValue = "true")
     fun mongockApplicationRunner(
         springContext: ApplicationContext,
-        mongoTemplate: MongoTemplate
+        mongoTemplate: MongoTemplate,
     ): ApplicationRunner {
         return createMongockConfig(mongoTemplate, springContext, "ac.uk.ebi.pmc.migrations")
     }
@@ -55,13 +54,12 @@ class PersistenceConfig(val properties: PmcImporterProperties) : AbstractMongoCl
             MongoClientSettings
                 .builder()
                 .applyConnectionString(ConnectionString(properties.mongodbUri))
-                .build()
+                .build(),
         )
     }
 
     @Bean
-    fun errorsRepository(kMongoClient: MongoClient) =
-        ErrorsRepository(kMongoClient.getCollection(properties.mongodbDatabase, ERRORS_COL))
+    fun errorsRepository(kMongoClient: MongoClient) = ErrorsRepository(kMongoClient.getCollection(properties.mongodbDatabase, ERRORS_COL))
 
     @Bean
     fun submissionRepository(kMongoClient: MongoClient) =
@@ -79,7 +77,7 @@ class PersistenceConfig(val properties: PmcImporterProperties) : AbstractMongoCl
         fun createMongockConfig(
             mongoTemplate: MongoTemplate,
             springContext: ApplicationContext,
-            migrationPackage: String
+            migrationPackage: String,
         ): MongockApplicationRunner =
             MongockSpring5.builder()
                 .setDriver(createDriver(mongoTemplate))

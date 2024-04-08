@@ -38,7 +38,10 @@ class DoiService(
     private val webClient: WebClient,
     private val properties: DoiProperties,
 ) {
-    fun calculateDoi(accNo: String, rqt: SubmitRequest): String? {
+    fun calculateDoi(
+        accNo: String,
+        rqt: SubmitRequest,
+    ): String? {
         val doi = rqt.submission.attributes.find { it.name == DOI.name } ?: return null
         val previousDoi = rqt.previousVersion?.doi
 
@@ -52,7 +55,10 @@ class DoiService(
         return registerDoi(accNo, rqt)
     }
 
-    private fun registerDoi(accNo: String, rqt: SubmitRequest): String {
+    private fun registerDoi(
+        accNo: String,
+        rqt: SubmitRequest,
+    ): String {
         val sub = rqt.submission
         val timestamp = Instant.now().epochSecond.toString()
         val title = rqt.submission.find(TITLE) ?: rqt.submission.section.find(TITLE) ?: throw MissingTitleException()
@@ -61,12 +67,13 @@ class DoiService(
         FileUtils.writeContent(requestFile, request.asXmlRequest())
 
         val headers = httpHeadersOf(CONTENT_TYPE to MULTIPART_FORM_DATA)
-        val body = linkedMultiValueMapOf(
-            USER_PARAM to properties.user,
-            PASSWORD_PARAM to properties.password,
-            OPERATION_PARAM to OPERATION_PARAM_VALUE,
-            FILE_PARAM to FileSystemResource(requestFile),
-        )
+        val body =
+            linkedMultiValueMapOf(
+                USER_PARAM to properties.user,
+                PASSWORD_PARAM to properties.password,
+                OPERATION_PARAM to OPERATION_PARAM_VALUE,
+                FILE_PARAM to FileSystemResource(requestFile),
+            )
 
         webClient.post(properties.endpoint, RequestParams(headers, body))
         logger.info { "$accNo ${rqt.owner} Registered DOI: '${request.doi}'" }
@@ -82,7 +89,10 @@ class DoiService(
         return contributors.map { it.asContributor(organizations) }
     }
 
-    private fun validateContributors(contributors: List<Section>, organizations: Map<String, String>) {
+    private fun validateContributors(
+        contributors: List<Section>,
+        organizations: Map<String, String>,
+    ) {
         fun validate(contr: Section) {
             val names = requireNotNull(contr.findAttr(NAME_ATTR)) { throw InvalidAuthorNameException() }
             val org = requireNotNull(contr.findAttr(AFFILIATION_ATTR)) { throw MissingAuthorAffiliationException() }
@@ -102,13 +112,14 @@ class DoiService(
             name = names.substringBeforeLast(" ", ""),
             surname = names.substringAfterLast(" "),
             affiliation = organizations[affiliation]!!,
-            orcid = find(ORCID_ATTR)
+            orcid = find(ORCID_ATTR),
         )
     }
 
     private fun getOrganizations(sub: Submission): Map<String, String> {
-        val organizations = sub.allSections()
-            .filter { validOrgTypes.contains(it.type.lowercase()) }
+        val organizations =
+            sub.allSections()
+                .filter { validOrgTypes.contains(it.type.lowercase()) }
         validateOrganizations(organizations)
 
         return organizations.associateBy({ it.accNo!! }, { it.findAttr(NAME_ATTR)!! })
@@ -126,8 +137,7 @@ class DoiService(
             .forEach(::validate)
     }
 
-    private fun Section.findAttr(attribute: String): String? =
-        attributes.find { it.name.lowercase() == attribute.lowercase() }?.value
+    private fun Section.findAttr(attribute: String): String? = attributes.find { it.name.lowercase() == attribute.lowercase() }?.value
 
     companion object {
         internal const val AFFILIATION_ATTR = "Affiliation"

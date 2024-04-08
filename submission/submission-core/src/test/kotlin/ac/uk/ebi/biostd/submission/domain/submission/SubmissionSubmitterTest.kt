@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.submission.domain.submitter.LocalExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.InvalidSubmissionException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ac.uk.ebi.biostd.submission.validator.collection.CollectionValidationService
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -20,7 +21,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import ebi.ac.uk.asserts.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
@@ -32,12 +32,13 @@ class SubmissionSubmitterTest(
     @MockK private val collectionValidationService: CollectionValidationService,
     @MockK private val draftService: SubmissionDraftPersistenceService,
 ) {
-    private val testInstance = SubmissionSubmitter(
-        submissionSubmitter,
-        submissionProcessor,
-        collectionValidationService,
-        draftService,
-    )
+    private val testInstance =
+        SubmissionSubmitter(
+            submissionSubmitter,
+            submissionProcessor,
+            collectionValidationService,
+            draftService,
+        )
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -49,53 +50,55 @@ class SubmissionSubmitterTest(
     }
 
     @Test
-    fun `create request`() = runTest {
-        val submission = basicExtSubmission
-        val extRequestSlot = slot<ExtSubmitRequest>()
+    fun `create request`() =
+        runTest {
+            val submission = basicExtSubmission
+            val extRequestSlot = slot<ExtSubmitRequest>()
 
-        coEvery { submissionProcessor.processSubmission(request) } returns submission
-        coEvery { collectionValidationService.executeCollectionValidators(submission) } answers { nothing }
-        coEvery {
-            submissionSubmitter.createRequest(capture(extRequestSlot))
-        } returns (submission.accNo to submission.version)
+            coEvery { submissionProcessor.processSubmission(request) } returns submission
+            coEvery { collectionValidationService.executeCollectionValidators(submission) } answers { nothing }
+            coEvery {
+                submissionSubmitter.createRequest(capture(extRequestSlot))
+            } returns (submission.accNo to submission.version)
 
-        testInstance.createRequest(request)
+            testInstance.createRequest(request)
 
-        val extRequest = extRequestSlot.captured
-        assertThat(extRequest.draftKey).isEqualTo("TMP_123")
-        assertThat(extRequest.submission).isEqualTo(submission)
-        coVerify(exactly = 1) {
-            submissionProcessor.processSubmission(request)
-            collectionValidationService.executeCollectionValidators(submission)
-            draftService.setProcessingStatus(submission.owner, "TMP_123")
-            submissionSubmitter.createRequest(extRequest)
-            draftService.setAcceptedStatus("TMP_123")
+            val extRequest = extRequestSlot.captured
+            assertThat(extRequest.draftKey).isEqualTo("TMP_123")
+            assertThat(extRequest.submission).isEqualTo(submission)
+            coVerify(exactly = 1) {
+                submissionProcessor.processSubmission(request)
+                collectionValidationService.executeCollectionValidators(submission)
+                draftService.setProcessingStatus(submission.owner, "TMP_123")
+                submissionSubmitter.createRequest(extRequest)
+                draftService.setAcceptedStatus("TMP_123")
+            }
+            coVerify(exactly = 0) {
+                draftService.setActiveStatus("TMP_123")
+            }
         }
-        coVerify(exactly = 0) {
-            draftService.setActiveStatus("TMP_123")
-        }
-    }
 
     @Test
-    fun `create with failure on validation`() = runTest {
-        val submission = basicExtSubmission
-        val extRequestSlot = slot<ExtSubmitRequest>()
+    fun `create with failure on validation`() =
+        runTest {
+            val submission = basicExtSubmission
+            val extRequestSlot = slot<ExtSubmitRequest>()
 
-        coEvery { submissionProcessor.processSubmission(request) } throws RuntimeException("validation error")
+            coEvery { submissionProcessor.processSubmission(request) } throws RuntimeException("validation error")
 
-        assertThrows<InvalidSubmissionException> { testInstance.createRequest(request) }
+            assertThrows<InvalidSubmissionException> { testInstance.createRequest(request) }
 
-        coVerify(exactly = 1) {
-            submissionProcessor.processSubmission(request)
-            draftService.setProcessingStatus(submission.owner, "TMP_123")
-            draftService.setActiveStatus("TMP_123")
+            coVerify(exactly = 1) {
+                submissionProcessor.processSubmission(request)
+                draftService.setProcessingStatus(submission.owner, "TMP_123")
+                draftService.setActiveStatus("TMP_123")
+            }
+            coVerify(exactly = 0) {
+                collectionValidationService.executeCollectionValidators(submission)
+                submissionSubmitter.createRequest(capture(extRequestSlot))
+                draftService.setAcceptedStatus("TMP_123")
+            }
         }
-        coVerify(exactly = 0) {
-            collectionValidationService.executeCollectionValidators(submission)
-            submissionSubmitter.createRequest(capture(extRequestSlot))
-            draftService.setAcceptedStatus("TMP_123")
-        }
-    }
 
     private fun setUpRequest() {
         every { request.draftKey } returns "TMP_123"

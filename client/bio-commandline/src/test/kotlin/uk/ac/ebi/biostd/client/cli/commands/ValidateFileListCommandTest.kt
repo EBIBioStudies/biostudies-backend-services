@@ -12,7 +12,7 @@ import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 @ExtendWith(MockKExtension::class)
 internal class ValidateFileListCommandTest(
-    @MockK private val submissionService: SubmissionService
+    @MockK private val submissionService: SubmissionService,
 ) {
     private var testInstance = ValidateFileListCommand(submissionService)
 
@@ -22,26 +22,26 @@ internal class ValidateFileListCommandTest(
 
         testInstance.parse(
             listOf(
-                "-s", server,
-                "-u", user,
-                "-p", password,
-                "-f", fileListPath,
-                "-ac", accNo,
-                "-rp", rootPath
-            )
+                "-s", SERVER,
+                "-u", USER,
+                "-p", PASSWORD,
+                "-f", FILE_LIST_PATH,
+                "-ac", ACC_NO,
+                "-rp", ROOT_PATH,
+            ),
         )
 
         verify(exactly = 1) { submissionService.validateFileList((validateRequest)) }
     }
 
-    companion object {
-        private const val server = "server"
-        private const val user = "user"
-        private const val password = "password"
-        private const val fileListPath = "file-list.json"
-        private const val rootPath = "root-path"
-        private const val accNo = "S-BSST123"
-        private val securityConfig = SecurityConfig(server, user, password)
-        private val validateRequest = ValidateFileListRequest(fileListPath, accNo, rootPath, securityConfig)
+    private companion object {
+        const val SERVER = "server"
+        const val USER = "user"
+        const val PASSWORD = "password"
+        const val FILE_LIST_PATH = "file-list.json"
+        const val ROOT_PATH = "root-path"
+        const val ACC_NO = "S-BSST123"
+        val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
+        val validateRequest = ValidateFileListRequest(FILE_LIST_PATH, ACC_NO, ROOT_PATH, securityConfig)
     }
 }

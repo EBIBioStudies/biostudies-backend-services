@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.extended.model.ExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -24,7 +25,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import ebi.ac.uk.asserts.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
@@ -36,13 +36,14 @@ class ExtendedSubmissionSubmitterTest(
     @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val queryService: SubmissionPersistenceQueryService,
 ) {
-    private val testInstance = ExtendedSubmissionSubmitter(
-        localExtSubmissionSubmitter,
-        remoteExtSubmissionSubmitter,
-        submissionTaskProperties,
-        requestService,
-        queryService,
-    )
+    private val testInstance =
+        ExtendedSubmissionSubmitter(
+            localExtSubmissionSubmitter,
+            remoteExtSubmissionSubmitter,
+            submissionTaskProperties,
+            requestService,
+            queryService,
+        )
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -61,13 +62,14 @@ class ExtendedSubmissionSubmitterTest(
         }
 
         @Test
-        fun `handle request`() = runTest {
-            every { submissionTaskProperties.enabled } returns false
-            coEvery { localExtSubmissionSubmitter.handleRequest(ACC_NO, VERSION) } returns submission
+        fun `handle request`() =
+            runTest {
+                every { submissionTaskProperties.enabled } returns false
+                coEvery { localExtSubmissionSubmitter.handleRequest(ACC_NO, VERSION) } returns submission
 
-            testInstance.handleRequest(ACC_NO, VERSION)
-            coVerify(exactly = 1) { localExtSubmissionSubmitter.handleRequest(ACC_NO, VERSION) }
-        }
+                testInstance.handleRequest(ACC_NO, VERSION)
+                coVerify(exactly = 1) { localExtSubmissionSubmitter.handleRequest(ACC_NO, VERSION) }
+            }
     }
 
     @Nested
@@ -80,217 +82,229 @@ class ExtendedSubmissionSubmitterTest(
         }
 
         @Test
-        fun `load request`() = runTest {
-            testInstance.loadRequest(ACC_NO, VERSION)
+        fun `load request`() =
+            runTest {
+                testInstance.loadRequest(ACC_NO, VERSION)
 
-            coVerify(exactly = 1) { remoteExtSubmissionSubmitter.loadRequest(ACC_NO, VERSION) }
-            coVerify(exactly = 0) { localExtSubmissionSubmitter.loadRequest(any(), any()) }
-        }
+                coVerify(exactly = 1) { remoteExtSubmissionSubmitter.loadRequest(ACC_NO, VERSION) }
+                coVerify(exactly = 0) { localExtSubmissionSubmitter.loadRequest(any(), any()) }
+            }
 
         @Test
-        fun `clean request`() = runTest {
-            testInstance.cleanRequest(ACC_NO, VERSION)
+        fun `clean request`() =
+            runTest {
+                testInstance.cleanRequest(ACC_NO, VERSION)
 
-            coVerify(exactly = 1) { remoteExtSubmissionSubmitter.cleanRequest(ACC_NO, VERSION) }
-            coVerify(exactly = 0) { localExtSubmissionSubmitter.cleanRequest(any(), any()) }
-        }
+                coVerify(exactly = 1) { remoteExtSubmissionSubmitter.cleanRequest(ACC_NO, VERSION) }
+                coVerify(exactly = 0) { localExtSubmissionSubmitter.cleanRequest(any(), any()) }
+            }
 
         @Test
-        fun `process request`() = runTest {
-            testInstance.processRequest(ACC_NO, VERSION)
+        fun `process request`() =
+            runTest {
+                testInstance.processRequest(ACC_NO, VERSION)
 
-            coVerify(exactly = 1) { remoteExtSubmissionSubmitter.processRequest(ACC_NO, VERSION) }
-            coVerify(exactly = 0) { localExtSubmissionSubmitter.processRequest(any(), any()) }
-        }
+                coVerify(exactly = 1) { remoteExtSubmissionSubmitter.processRequest(ACC_NO, VERSION) }
+                coVerify(exactly = 0) { localExtSubmissionSubmitter.processRequest(any(), any()) }
+            }
 
         @Test
-        fun `check released request`() = runTest {
-            testInstance.checkReleased(ACC_NO, VERSION)
+        fun `check released request`() =
+            runTest {
+                testInstance.checkReleased(ACC_NO, VERSION)
 
-            coVerify(exactly = 1) { remoteExtSubmissionSubmitter.checkReleased(ACC_NO, VERSION) }
-            coVerify(exactly = 0) { localExtSubmissionSubmitter.checkReleased(any(), any()) }
-        }
+                coVerify(exactly = 1) { remoteExtSubmissionSubmitter.checkReleased(ACC_NO, VERSION) }
+                coVerify(exactly = 0) { localExtSubmissionSubmitter.checkReleased(any(), any()) }
+            }
 
         @Test
-        fun `handle complete request`() = runTest {
-            coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns REQUESTED
+        fun `handle complete request`() =
+            runTest {
+                coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns REQUESTED
 
-            testInstance.handleRequest(ACC_NO, VERSION)
+                testInstance.handleRequest(ACC_NO, VERSION)
 
-            coVerify(exactly = 1) {
-                localExtSubmissionSubmitter.indexRequest(ACC_NO, VERSION)
+                coVerify(exactly = 1) {
+                    localExtSubmissionSubmitter.indexRequest(ACC_NO, VERSION)
+                }
+
+                coVerify(exactly = 0) {
+                    localExtSubmissionSubmitter.loadRequest(any(), any())
+                    localExtSubmissionSubmitter.cleanRequest(any(), any())
+                    localExtSubmissionSubmitter.processRequest(any(), any())
+                    localExtSubmissionSubmitter.checkReleased(any(), any())
+
+                    remoteExtSubmissionSubmitter.indexRequest(any(), any())
+                    remoteExtSubmissionSubmitter.saveRequest(any(), any())
+                    remoteExtSubmissionSubmitter.finalizeRequest(any(), any())
+                }
             }
-
-            coVerify(exactly = 0) {
-                localExtSubmissionSubmitter.loadRequest(any(), any())
-                localExtSubmissionSubmitter.cleanRequest(any(), any())
-                localExtSubmissionSubmitter.processRequest(any(), any())
-                localExtSubmissionSubmitter.checkReleased(any(), any())
-
-                remoteExtSubmissionSubmitter.indexRequest(any(), any())
-                remoteExtSubmissionSubmitter.saveRequest(any(), any())
-                remoteExtSubmissionSubmitter.finalizeRequest(any(), any())
-            }
-        }
 
         @Test
-        fun `handle indexed request`() = runTest {
-            coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns INDEXED
+        fun `handle indexed request`() =
+            runTest {
+                coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns INDEXED
 
-            testInstance.handleRequest(ACC_NO, VERSION)
+                testInstance.handleRequest(ACC_NO, VERSION)
 
-            coVerify(exactly = 1) {
-                remoteExtSubmissionSubmitter.loadRequest(ACC_NO, VERSION)
+                coVerify(exactly = 1) {
+                    remoteExtSubmissionSubmitter.loadRequest(ACC_NO, VERSION)
+                }
+
+                coVerify(exactly = 0) {
+                    localExtSubmissionSubmitter.indexRequest(any(), any())
+                    localExtSubmissionSubmitter.loadRequest(any(), any())
+                    localExtSubmissionSubmitter.cleanRequest(any(), any())
+                    localExtSubmissionSubmitter.processRequest(any(), any())
+                    localExtSubmissionSubmitter.checkReleased(any(), any())
+
+                    remoteExtSubmissionSubmitter.indexRequest(any(), any())
+                    remoteExtSubmissionSubmitter.saveRequest(any(), any())
+                    remoteExtSubmissionSubmitter.finalizeRequest(any(), any())
+                }
             }
-
-            coVerify(exactly = 0) {
-                localExtSubmissionSubmitter.indexRequest(any(), any())
-                localExtSubmissionSubmitter.loadRequest(any(), any())
-                localExtSubmissionSubmitter.cleanRequest(any(), any())
-                localExtSubmissionSubmitter.processRequest(any(), any())
-                localExtSubmissionSubmitter.checkReleased(any(), any())
-
-                remoteExtSubmissionSubmitter.indexRequest(any(), any())
-                remoteExtSubmissionSubmitter.saveRequest(any(), any())
-                remoteExtSubmissionSubmitter.finalizeRequest(any(), any())
-            }
-        }
 
         @Test
-        fun `handle loaded request`() = runTest {
-            coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns LOADED
+        fun `handle loaded request`() =
+            runTest {
+                coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns LOADED
 
-            testInstance.handleRequest(ACC_NO, VERSION)
+                testInstance.handleRequest(ACC_NO, VERSION)
 
-            coVerify(exactly = 1) {
-                remoteExtSubmissionSubmitter.cleanRequest(ACC_NO, VERSION)
+                coVerify(exactly = 1) {
+                    remoteExtSubmissionSubmitter.cleanRequest(ACC_NO, VERSION)
+                }
+
+                coVerify(exactly = 0) {
+                    localExtSubmissionSubmitter.indexRequest(any(), any())
+                    localExtSubmissionSubmitter.loadRequest(any(), any())
+                    localExtSubmissionSubmitter.cleanRequest(any(), any())
+
+                    remoteExtSubmissionSubmitter.indexRequest(any(), any())
+                    remoteExtSubmissionSubmitter.loadRequest(any(), any())
+                    remoteExtSubmissionSubmitter.saveRequest(any(), any())
+                    remoteExtSubmissionSubmitter.finalizeRequest(any(), any())
+                }
             }
-
-            coVerify(exactly = 0) {
-                localExtSubmissionSubmitter.indexRequest(any(), any())
-                localExtSubmissionSubmitter.loadRequest(any(), any())
-                localExtSubmissionSubmitter.cleanRequest(any(), any())
-
-                remoteExtSubmissionSubmitter.indexRequest(any(), any())
-                remoteExtSubmissionSubmitter.loadRequest(any(), any())
-                remoteExtSubmissionSubmitter.saveRequest(any(), any())
-                remoteExtSubmissionSubmitter.finalizeRequest(any(), any())
-            }
-        }
 
         @Test
-        fun `handle cleaned request`() = runTest {
-            coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns CLEANED
+        fun `handle cleaned request`() =
+            runTest {
+                coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns CLEANED
 
-            testInstance.handleRequest(ACC_NO, VERSION)
+                testInstance.handleRequest(ACC_NO, VERSION)
 
-            coVerify(exactly = 1) {
-                remoteExtSubmissionSubmitter.processRequest(ACC_NO, VERSION)
+                coVerify(exactly = 1) {
+                    remoteExtSubmissionSubmitter.processRequest(ACC_NO, VERSION)
+                }
+
+                coVerify(exactly = 0) {
+                    localExtSubmissionSubmitter.indexRequest(any(), any())
+                    localExtSubmissionSubmitter.loadRequest(any(), any())
+                    localExtSubmissionSubmitter.cleanRequest(any(), any())
+                    localExtSubmissionSubmitter.processRequest(any(), any())
+
+                    remoteExtSubmissionSubmitter.indexRequest(any(), any())
+                    remoteExtSubmissionSubmitter.loadRequest(any(), any())
+                    remoteExtSubmissionSubmitter.cleanRequest(any(), any())
+                    remoteExtSubmissionSubmitter.saveRequest(any(), any())
+                    remoteExtSubmissionSubmitter.finalizeRequest(any(), any())
+                }
             }
-
-            coVerify(exactly = 0) {
-                localExtSubmissionSubmitter.indexRequest(any(), any())
-                localExtSubmissionSubmitter.loadRequest(any(), any())
-                localExtSubmissionSubmitter.cleanRequest(any(), any())
-                localExtSubmissionSubmitter.processRequest(any(), any())
-
-                remoteExtSubmissionSubmitter.indexRequest(any(), any())
-                remoteExtSubmissionSubmitter.loadRequest(any(), any())
-                remoteExtSubmissionSubmitter.cleanRequest(any(), any())
-                remoteExtSubmissionSubmitter.saveRequest(any(), any())
-                remoteExtSubmissionSubmitter.finalizeRequest(any(), any())
-            }
-        }
 
         @Test
-        fun `handle files copied request`() = runTest {
-            coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns FILES_COPIED
+        fun `handle files copied request`() =
+            runTest {
+                coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns FILES_COPIED
 
-            testInstance.handleRequest(ACC_NO, VERSION)
+                testInstance.handleRequest(ACC_NO, VERSION)
 
-            coVerify(exactly = 1) {
-                remoteExtSubmissionSubmitter.checkReleased(ACC_NO, VERSION)
+                coVerify(exactly = 1) {
+                    remoteExtSubmissionSubmitter.checkReleased(ACC_NO, VERSION)
+                }
+
+                coVerify(exactly = 0) {
+                    localExtSubmissionSubmitter.indexRequest(any(), any())
+                    localExtSubmissionSubmitter.loadRequest(any(), any())
+                    localExtSubmissionSubmitter.cleanRequest(any(), any())
+                    localExtSubmissionSubmitter.processRequest(any(), any())
+                    localExtSubmissionSubmitter.checkReleased(any(), any())
+
+                    remoteExtSubmissionSubmitter.indexRequest(any(), any())
+                    remoteExtSubmissionSubmitter.loadRequest(any(), any())
+                    remoteExtSubmissionSubmitter.cleanRequest(any(), any())
+                    remoteExtSubmissionSubmitter.processRequest(any(), any())
+                    remoteExtSubmissionSubmitter.saveRequest(any(), any())
+                    remoteExtSubmissionSubmitter.finalizeRequest(any(), any())
+                }
             }
-
-            coVerify(exactly = 0) {
-                localExtSubmissionSubmitter.indexRequest(any(), any())
-                localExtSubmissionSubmitter.loadRequest(any(), any())
-                localExtSubmissionSubmitter.cleanRequest(any(), any())
-                localExtSubmissionSubmitter.processRequest(any(), any())
-                localExtSubmissionSubmitter.checkReleased(any(), any())
-
-                remoteExtSubmissionSubmitter.indexRequest(any(), any())
-                remoteExtSubmissionSubmitter.loadRequest(any(), any())
-                remoteExtSubmissionSubmitter.cleanRequest(any(), any())
-                remoteExtSubmissionSubmitter.processRequest(any(), any())
-                remoteExtSubmissionSubmitter.saveRequest(any(), any())
-                remoteExtSubmissionSubmitter.finalizeRequest(any(), any())
-            }
-        }
 
         @Test
-        fun `handle released request`() = runTest {
-            coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns CHECK_RELEASED
-            coEvery { localExtSubmissionSubmitter.saveAndFinalize(ACC_NO, VERSION) } returns submission
+        fun `handle released request`() =
+            runTest {
+                coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns CHECK_RELEASED
+                coEvery { localExtSubmissionSubmitter.saveAndFinalize(ACC_NO, VERSION) } returns submission
 
-            testInstance.handleRequest(ACC_NO, VERSION)
+                testInstance.handleRequest(ACC_NO, VERSION)
 
-            coVerify(exactly = 1) {
-                localExtSubmissionSubmitter.saveAndFinalize(ACC_NO, VERSION)
+                coVerify(exactly = 1) {
+                    localExtSubmissionSubmitter.saveAndFinalize(ACC_NO, VERSION)
+                }
+
+                coVerify(exactly = 0) {
+                    localExtSubmissionSubmitter.indexRequest(ACC_NO, VERSION)
+                    localExtSubmissionSubmitter.loadRequest(ACC_NO, VERSION)
+                    localExtSubmissionSubmitter.cleanRequest(ACC_NO, VERSION)
+                    localExtSubmissionSubmitter.processRequest(ACC_NO, VERSION)
+                    localExtSubmissionSubmitter.checkReleased(ACC_NO, VERSION)
+
+                    remoteExtSubmissionSubmitter.indexRequest(any(), any())
+                    remoteExtSubmissionSubmitter.loadRequest(any(), any())
+                    remoteExtSubmissionSubmitter.cleanRequest(any(), any())
+                    remoteExtSubmissionSubmitter.processRequest(any(), any())
+                    remoteExtSubmissionSubmitter.checkReleased(any(), any())
+                    remoteExtSubmissionSubmitter.saveRequest(any(), any())
+                    remoteExtSubmissionSubmitter.finalizeRequest(any(), any())
+                }
             }
-
-            coVerify(exactly = 0) {
-                localExtSubmissionSubmitter.indexRequest(ACC_NO, VERSION)
-                localExtSubmissionSubmitter.loadRequest(ACC_NO, VERSION)
-                localExtSubmissionSubmitter.cleanRequest(ACC_NO, VERSION)
-                localExtSubmissionSubmitter.processRequest(ACC_NO, VERSION)
-                localExtSubmissionSubmitter.checkReleased(ACC_NO, VERSION)
-
-                remoteExtSubmissionSubmitter.indexRequest(any(), any())
-                remoteExtSubmissionSubmitter.loadRequest(any(), any())
-                remoteExtSubmissionSubmitter.cleanRequest(any(), any())
-                remoteExtSubmissionSubmitter.processRequest(any(), any())
-                remoteExtSubmissionSubmitter.checkReleased(any(), any())
-                remoteExtSubmissionSubmitter.saveRequest(any(), any())
-                remoteExtSubmissionSubmitter.finalizeRequest(any(), any())
-            }
-        }
 
         @Test
-        fun `handle persisted request`() = runTest {
-            coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns PERSISTED
+        fun `handle persisted request`() =
+            runTest {
+                coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns PERSISTED
 
-            testInstance.handleRequest(ACC_NO, VERSION)
+                testInstance.handleRequest(ACC_NO, VERSION)
 
-            coVerify(exactly = 1) {
-                localExtSubmissionSubmitter.finalizeRequest(ACC_NO, VERSION)
+                coVerify(exactly = 1) {
+                    localExtSubmissionSubmitter.finalizeRequest(ACC_NO, VERSION)
+                }
+
+                coVerify(exactly = 0) {
+                    localExtSubmissionSubmitter.indexRequest(ACC_NO, VERSION)
+                    localExtSubmissionSubmitter.loadRequest(ACC_NO, VERSION)
+                    localExtSubmissionSubmitter.cleanRequest(ACC_NO, VERSION)
+                    localExtSubmissionSubmitter.processRequest(ACC_NO, VERSION)
+                    localExtSubmissionSubmitter.checkReleased(ACC_NO, VERSION)
+                    localExtSubmissionSubmitter.saveRequest(ACC_NO, VERSION)
+
+                    remoteExtSubmissionSubmitter.indexRequest(any(), any())
+                    remoteExtSubmissionSubmitter.loadRequest(any(), any())
+                    remoteExtSubmissionSubmitter.cleanRequest(any(), any())
+                    remoteExtSubmissionSubmitter.processRequest(any(), any())
+                    remoteExtSubmissionSubmitter.checkReleased(any(), any())
+                    remoteExtSubmissionSubmitter.saveRequest(any(), any())
+                    remoteExtSubmissionSubmitter.finalizeRequest(any(), any())
+                }
             }
-
-            coVerify(exactly = 0) {
-                localExtSubmissionSubmitter.indexRequest(ACC_NO, VERSION)
-                localExtSubmissionSubmitter.loadRequest(ACC_NO, VERSION)
-                localExtSubmissionSubmitter.cleanRequest(ACC_NO, VERSION)
-                localExtSubmissionSubmitter.processRequest(ACC_NO, VERSION)
-                localExtSubmissionSubmitter.checkReleased(ACC_NO, VERSION)
-                localExtSubmissionSubmitter.saveRequest(ACC_NO, VERSION)
-
-                remoteExtSubmissionSubmitter.indexRequest(any(), any())
-                remoteExtSubmissionSubmitter.loadRequest(any(), any())
-                remoteExtSubmissionSubmitter.cleanRequest(any(), any())
-                remoteExtSubmissionSubmitter.processRequest(any(), any())
-                remoteExtSubmissionSubmitter.checkReleased(any(), any())
-                remoteExtSubmissionSubmitter.saveRequest(any(), any())
-                remoteExtSubmissionSubmitter.finalizeRequest(any(), any())
-            }
-        }
 
         @Test
-        fun `handle processed request`() = runTest {
-            coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns PROCESSED
+        fun `handle processed request`() =
+            runTest {
+                coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns PROCESSED
 
-            val exception = assertThrows<IllegalStateException> { testInstance.handleRequest(ACC_NO, VERSION) }
-            assertThat(exception.message).isEqualTo("Request accNo=S-BSST1, version=1 has been already processed")
-        }
+                val exception = assertThrows<IllegalStateException> { testInstance.handleRequest(ACC_NO, VERSION) }
+                assertThat(exception.message).isEqualTo("Request accNo=S-BSST1, version=1 has been already processed")
+            }
     }
 
     private fun setUpLocalSubmitter() {

@@ -66,9 +66,9 @@ import java.time.Duration.ofSeconds
 @ContextConfiguration(classes = [PersistenceConfig::class])
 @ExtendWith(TemporaryFolderExtension::class)
 internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolder) {
-
-    private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-        .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+    private val mongoContainer: MongoDBContainer =
+        MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
     private val wireMockNotificationServer = WireMockServer(WireMockConfiguration().dynamicPort())
     private val wireMockFilesServer = WireMockServer(WireMockConfiguration().dynamicPort())
 
@@ -86,13 +86,13 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
         wireMockNotificationServer.stubFor(
             WireMock.post(urlEqualTo("/notifications")).willReturn(
                 aResponse().withStatus(HTTP_OK).withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                    .withBody("response".toJsonQuote())
-            )
+                    .withBody("response".toJsonQuote()),
+            ),
         )
         wireMockNotificationServer.start()
         System.setProperty(
             "app.data.notificationsUrl",
-            "http://localhost:${wireMockNotificationServer.port()}/notifications"
+            "http://localhost:${wireMockNotificationServer.port()}/notifications",
         )
     }
 
@@ -101,22 +101,22 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
             get(urlEqualTo(URL_FILE1_FILES_SERVER)).willReturn(
                 aResponse().withStatus(HTTP_OK)
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                    .withBody(submissionFile1.readBytes())
-            )
+                    .withBody(submissionFile1.readBytes()),
+            ),
         )
 
         wireMockFilesServer.stubFor(
             get(urlEqualTo(URL_FILE2_FILES_SERVER)).willReturn(
                 aResponse().withStatus(HTTP_OK)
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                    .withBody(submissionFile2.readBytes())
-            )
+                    .withBody(submissionFile2.readBytes()),
+            ),
         )
 
         wireMockFilesServer.stubFor(
             get(urlEqualTo(URL_FILE3_FILES_SERVER)).willReturn(
-                aResponse().withStatus(HTTP_BAD_REQUEST)
-            )
+                aResponse().withStatus(HTTP_BAD_REQUEST),
+            ),
         )
         wireMockFilesServer.start()
         System.setProperty("app.data.pmcBaseUrl", "http://localhost:${wireMockFilesServer.port()}")
@@ -199,7 +199,10 @@ internal class PmcSubmissionProcessorTest(private val tempFolder: TemporaryFolde
             assertThat(tempFolder.root.resolve(FILE3_PATH)).doesNotExist()
         }
 
-        private fun assertProcessedSubmission(docSubmission: SubmissionDoc, files: List<FileDoc>) {
+        private fun assertProcessedSubmission(
+            docSubmission: SubmissionDoc,
+            files: List<FileDoc>,
+        ) {
             assertThat(docSubmission.status).isEqualTo(PROCESSED)
             assertThat(docSubmission.files).hasSize(2)
             assertThat(docSubmission.files).containsAll(files.map { it._id })

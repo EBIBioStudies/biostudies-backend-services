@@ -38,7 +38,11 @@ class SubmissionRequestLoader(
     /**
      * Calculate md5 and size for every file in submission request.
      */
-    suspend fun loadRequest(accNo: String, version: Int, processId: String) {
+    suspend fun loadRequest(
+        accNo: String,
+        version: Int,
+        processId: String,
+    ) {
         requestService.onRequest(accNo, version, INDEXED, processId, {
             loadRequest(it.submission, it.currentIndex)
             RqtUpdate(it.withNewStatus(LOADED))
@@ -46,13 +50,21 @@ class SubmissionRequestLoader(
         eventsPublisherService.requestLoaded(accNo, version)
     }
 
-    private suspend fun loadRequest(sub: ExtSubmission, currentIndex: Int) {
+    private suspend fun loadRequest(
+        sub: ExtSubmission,
+        currentIndex: Int,
+    ) {
         logger.info { "${sub.accNo} ${sub.owner} Started loading submission files" }
         loadSubmissionFiles(sub.accNo, sub.version, sub, currentIndex)
         logger.info { "${sub.accNo} ${sub.owner} Finished loading submission files" }
     }
 
-    private suspend fun loadSubmissionFiles(accNo: String, version: Int, sub: ExtSubmission, startingAt: Int) {
+    private suspend fun loadSubmissionFiles(
+        accNo: String,
+        version: Int,
+        sub: ExtSubmission,
+        startingAt: Int,
+    ) {
         suspend fun loadFile(rqtFile: SubmissionRequestFile) {
             logger.info { "$accNo ${sub.owner} Started loading file ${rqtFile.index}, path='${rqtFile.path}'" }
             when (val file = rqtFile.file) {
@@ -74,14 +86,22 @@ class SubmissionRequestLoader(
         }
     }
 
-    private suspend fun loadAttributes(sub: ExtSubmission, file: NfsFile): ExtFile = withContext(Dispatchers.IO) {
-        when {
-            file.type == ExtFileType.DIR && sub.storageMode == FIRE -> asCompressedFile(sub.accNo, sub.version, file)
-            else -> file.copy(md5 = file.file.md5(), size = file.file.size())
+    private suspend fun loadAttributes(
+        sub: ExtSubmission,
+        file: NfsFile,
+    ): ExtFile =
+        withContext(Dispatchers.IO) {
+            when {
+                file.type == ExtFileType.DIR && sub.storageMode == FIRE -> asCompressedFile(sub.accNo, sub.version, file)
+                else -> file.copy(md5 = file.file.md5(), size = file.file.size())
+            }
         }
-    }
 
-    private fun asCompressedFile(accNo: String, version: Int, directory: NfsFile): NfsFile {
+    private fun asCompressedFile(
+        accNo: String,
+        version: Int,
+        directory: NfsFile,
+    ): NfsFile {
         fun compress(file: File): File {
             val tempFolder = fireTempDirPath.resolve("$accNo/$version")
             tempFolder.mkdirs()
@@ -100,7 +120,7 @@ class SubmissionRequestLoader(
             fullPath = compressed.absolutePath,
             md5 = compressed.md5(),
             size = compressed.size(),
-            type = ExtFileType.DIR
+            type = ExtFileType.DIR,
         )
     }
 }

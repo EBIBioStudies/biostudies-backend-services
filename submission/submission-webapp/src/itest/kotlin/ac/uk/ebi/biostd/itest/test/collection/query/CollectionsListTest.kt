@@ -34,11 +34,12 @@ class CollectionsListTest(
     private lateinit var collectionAdminUserWebClient: BioWebClient
 
     @BeforeAll
-    fun init() = runBlocking {
-        setUpUsers()
-        registerCollections()
-        setUpPermissions()
-    }
+    fun init() =
+        runBlocking {
+            setUpUsers()
+            registerCollections()
+            setUpPermissions()
+        }
 
     @Test
     fun `20-1 list collections for super user`() {
@@ -76,21 +77,23 @@ class CollectionsListTest(
     }
 
     private fun registerCollections() {
-        val sampleCollection = tsv {
-            line("Submission", "SampleCollection")
-            line("AccNoTemplate", "!{S-SAMP}")
-            line()
+        val sampleCollection =
+            tsv {
+                line("Submission", "SampleCollection")
+                line("AccNoTemplate", "!{S-SAMP}")
+                line()
 
-            line("Project")
-        }.toString()
+                line("Project")
+            }.toString()
 
-        val defaultCollection = tsv {
-            line("Submission", "DefaultCollection")
-            line("AccNoTemplate", "!{S-DFLT}")
-            line()
+        val defaultCollection =
+            tsv {
+                line("Submission", "DefaultCollection")
+                line("AccNoTemplate", "!{S-DFLT}")
+                line()
 
-            line("Project")
-        }.toString()
+                line("Project")
+            }.toString()
 
         assertThat(superUserWebClient.submitSingle(sampleCollection, TSV)).isSuccessful()
         assertThat(superUserWebClient.submitSingle(defaultCollection, TSV)).isSuccessful()
@@ -115,7 +118,6 @@ class CollectionsListTest(
     }
 
     object CollectionUser : TestUser {
-
         override val username = "Collection Admin"
         override val email = "collection-biostudies-mgmt@ebi.ac.uk"
         override val password = "12345"

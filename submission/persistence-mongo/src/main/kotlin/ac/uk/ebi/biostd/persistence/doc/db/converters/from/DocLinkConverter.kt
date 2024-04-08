@@ -7,8 +7,9 @@ import org.bson.Document
 import org.springframework.core.convert.converter.Converter
 
 class DocLinkConverter(private val docAttributeConverter: DocAttributeConverter) : Converter<Document, DocLink> {
-    override fun convert(source: Document): DocLink = DocLink(
-        url = source.getString(LINK_DOC_URL),
-        attributes = source.getDocList(LINK_DOC_ATTRIBUTES).map { docAttributeConverter.convert(it) }
-    )
+    override fun convert(source: Document): DocLink =
+        DocLink(
+            url = source.getString(LINK_DOC_URL),
+            attributes = source.getDocList(LINK_DOC_ATTRIBUTES).map { docAttributeConverter.convert(it) },
+        )
 }

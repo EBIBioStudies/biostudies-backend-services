@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.exception.InvalidFileListException
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.service.FileSourcesRequest
 import ac.uk.ebi.biostd.submission.service.FileSourcesService
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
@@ -32,7 +33,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import ebi.ac.uk.asserts.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
@@ -62,10 +62,11 @@ class FileListValidatorTest(
         @MockK extSubmission: ExtSubmission,
     ) = runTest {
         val fileSourcesSlot = slot<FileSourcesRequest>()
-        val content = tsv {
-            line("Files", "Type")
-            line("ref.txt", "test")
-        }
+        val content =
+            tsv {
+                line("Files", "Type")
+                line("ref.txt", "test")
+            }
         val valid = tempFolder.createFile("valid.tsv", content.toString())
 
         coEvery { source.getFileList("valid.tsv") } returns valid

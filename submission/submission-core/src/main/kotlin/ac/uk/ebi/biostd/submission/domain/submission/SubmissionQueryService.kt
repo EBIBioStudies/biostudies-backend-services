@@ -18,22 +18,28 @@ class SubmissionQueryService(
     private val toSubmissionMapper: ToSubmissionMapper,
     private val toFileListMapper: ToFileListMapper,
 ) {
-    suspend fun getSubmission(accNo: String, subFormat: SubFormat): String {
+    suspend fun getSubmission(
+        accNo: String,
+        subFormat: SubFormat,
+    ): String {
         val submission = submissionPersistenceQueryService.getExtByAccNo(accNo)
         return serializationService.serializeSubmission(
             toSubmissionMapper.toSimpleSubmission(submission),
-            subFormat
+            subFormat,
         )
     }
 
-    suspend fun getFileList(accNo: String, fileListName: String, format: SubFormat): File {
+    suspend fun getFileList(
+        accNo: String,
+        fileListName: String,
+        format: SubFormat,
+    ): File {
         val submission = submissionPersistenceQueryService.getExtByAccNo(accNo)
         val fileList = filesRepository.getReferencedFiles(submission, fileListName)
         val targetFile = Files.createTempFile(accNo, fileListName)
         return toFileListMapper.serialize(fileList, format, targetFile.toFile())
     }
 
-    suspend fun getSubmissions(
-        filter: SubmissionListFilter,
-    ): List<BasicSubmission> = submissionPersistenceQueryService.getSubmissionsByUser(filter)
+    suspend fun getSubmissions(filter: SubmissionListFilter): List<BasicSubmission> =
+        submissionPersistenceQueryService.getSubmissionsByUser(filter)
 }

@@ -57,9 +57,10 @@ class MultiPartAsyncSubmitClient(
         return client.postForObject(SUBMIT_URL, RequestParams(headers, body))
     }
 
-    private fun createHeaders(format: SubmissionFormat) = HttpHeaders().apply {
-        contentType = MediaType.MULTIPART_FORM_DATA
-        accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
-        setSubmissionType(format.submissionType)
-    }
+    private fun createHeaders(format: SubmissionFormat) =
+        HttpHeaders().apply {
+            contentType = MediaType.MULTIPART_FORM_DATA
+            accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
+            setSubmissionType(format.submissionType)
+        }
 }

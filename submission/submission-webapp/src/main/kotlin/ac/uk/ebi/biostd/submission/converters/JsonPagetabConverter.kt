@@ -15,19 +15,32 @@ import kotlin.reflect.full.isSuperclassOf
 private val mediaTypes = listOf(APPLICATION_JSON, TEXT_PLAIN, TEXT_XML)
 
 class JsonPagetabConverter(
-    private val serializerService: SerializationService
+    private val serializerService: SerializationService,
 ) :
     HttpMessageConverter<Submission> {
-    override fun canRead(clazz: Class<*>, mediaType: MediaType?) = false
+    override fun canRead(
+        clazz: Class<*>,
+        mediaType: MediaType?,
+    ) = false
 
-    override fun canWrite(clazz: Class<*>, mediaType: MediaType?) = Submission::class.isSuperclassOf(clazz.kotlin)
+    override fun canWrite(
+        clazz: Class<*>,
+        mediaType: MediaType?,
+    ) = Submission::class.isSuperclassOf(clazz.kotlin)
 
     override fun getSupportedMediaTypes() = mediaTypes
 
-    override fun write(submission: Submission, contentType: MediaType?, message: HttpOutputMessage) {
+    override fun write(
+        submission: Submission,
+        contentType: MediaType?,
+        message: HttpOutputMessage,
+    ) {
         message.headers.contentType = APPLICATION_JSON
         message.body.write(serializerService.serializeSubmission(submission, SubFormat.JSON_PRETTY).toByteArray())
     }
 
-    override fun read(clazz: Class<out Submission>, message: HttpInputMessage) = throw NotImplementedError()
+    override fun read(
+        clazz: Class<out Submission>,
+        message: HttpInputMessage,
+    ) = throw NotImplementedError()
 }

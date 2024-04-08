@@ -25,7 +25,12 @@ class ToExtFileListMapper(
     private val serializationService: SerializationService,
     private val filesResolver: FilesResolver,
 ) {
-    suspend fun convert(accNo: String, version: Int, fileList: FileList, fileSource: FileSourcesList): ExtFileList {
+    suspend fun convert(
+        accNo: String,
+        version: Int,
+        fileList: FileList,
+        fileSource: FileSourcesList,
+    ): ExtFileList {
         val name = fileList.canonicalName
         val target = filesResolver.createExtEmptyFile(accNo, version, name)
         return ExtFileList(name, toExtFile(accNo, fileList.file, SubFormat.fromFile(fileList.file), target, fileSource))
@@ -38,16 +43,16 @@ class ToExtFileListMapper(
         target: File,
         sources: FileSourcesList,
     ): File {
-
         suspend fun copy(
             input: InputStream,
             format: SubFormat,
             target: OutputStream,
         ) {
             val idx = AtomicInteger(0)
-            val sourceFiles = serializationService.deserializeFileListAsFlow(input, format)
-                .onEach { file -> logger.info { "$accNo, Mapping file ${idx.getAndIncrement()}, path='${file.path}'" } }
-                .map { sources.getExtFile(it.path, it.type, it.attributes) }
+            val sourceFiles =
+                serializationService.deserializeFileListAsFlow(input, format)
+                    .onEach { file -> logger.info { "$accNo, Mapping file ${idx.getAndIncrement()}, path='${file.path}'" } }
+                    .map { sources.getExtFile(it.path, it.type, it.attributes) }
             val files = extSerializationService.serialize(sourceFiles, target)
             if (files < 1) throw InvalidFileListException.emptyFileList(source.name)
         }

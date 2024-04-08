@@ -14,12 +14,16 @@ internal class TsvBuilder(
 
     override fun toString(): String = builder.toString()
 
-    fun with(key: String, value: String?) {
-        val result = when {
-            value == null -> EMPTY
-            value.contains(specialCharRegex) -> "\"$value\""
-            else -> value
-        }
+    fun with(
+        key: String,
+        value: String?,
+    ) {
+        val result =
+            when {
+                value == null -> EMPTY
+                value.contains(specialCharRegex) -> "\"$value\""
+                else -> value
+            }
         builder.append("$key\t${result}\n")
     }
 

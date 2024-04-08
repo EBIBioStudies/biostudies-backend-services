@@ -24,7 +24,6 @@ data class DocSubmissionRequest(
     val modificationTime: Instant,
     val statusChanges: List<DocRequestStatusChanges> = emptyList(),
 ) {
-
     fun asSetOnInsert(): Update {
         return Update()
             .setOnInsert("_id", id)

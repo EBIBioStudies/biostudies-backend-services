@@ -17,26 +17,27 @@ import org.junit.jupiter.api.extension.ExtendWith
 class FileListDocFileConverterTest(
     @MockK val documentFile: Document,
     @MockK val docFile: DocFile,
-    @MockK val fileConverter: FileConverter
+    @MockK val fileConverter: FileConverter,
 ) {
     val testInstance = FileListDocFileConverter(fileConverter)
 
     @Test
     fun `fileListDocFile to document`() {
-        val fileListDocFile = FileListDocFile(
-            id = ObjectId(1, 1),
-            submissionId = ObjectId(1, 3),
-            file = docFile,
-            fileListName = "my-file-list",
-            index = 0,
-            submissionVersion = 5,
-            submissionAccNo = "abc-123"
-        )
+        val fileListDocFile =
+            FileListDocFile(
+                id = ObjectId(1, 1),
+                submissionId = ObjectId(1, 3),
+                file = docFile,
+                fileListName = "my-file-list",
+                index = 0,
+                submissionVersion = 5,
+                submissionAccNo = "abc-123",
+            )
         every { fileConverter.convert(docFile) } returns documentFile
 
         val result = testInstance.convert(fileListDocFile)
 
-        assertThat(result[CommonsConverter.classField]).isEqualTo(fileListDocFileDocFileClass)
+        assertThat(result[CommonsConverter.CLASS_FIELD]).isEqualTo(fileListDocFileDocFileClass)
         assertThat(result[FileListDocFileFields.FILE_LIST_DOC_FILE_ID]).isEqualTo(ObjectId(1, 1))
         assertThat(result[FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID]).isEqualTo(ObjectId(1, 3))
         assertThat(result[FileListDocFileFields.FILE_LIST_DOC_FILE_FILE]).isEqualTo(documentFile)

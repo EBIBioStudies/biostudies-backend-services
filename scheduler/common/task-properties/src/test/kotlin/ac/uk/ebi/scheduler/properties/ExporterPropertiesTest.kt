@@ -18,21 +18,22 @@ class ExporterPropertiesTest {
 
     @Test
     fun `public only mode as java command`() {
-        val properties = ExporterProperties.create(
-            mode = PUBLIC_ONLY,
-            fileName = "publicOnlyStudies",
-            outputPath = "/an/output/path",
-            tmpFilesPath = "/a/tmp/path",
-            ftpHost = "localhost",
-            ftpUser = "admin",
-            ftpPassword = "123456",
-            ftpPort = 21,
-            databaseName = "dev",
-            databaseUri = "mongodb://root:admin@localhost:27017/dev?authSource=admin\\&replicaSet=biostd01",
-            bioStudiesUrl = "http://localhost:8080",
-            bioStudiesUser = "admin_user@ebi.ac.uk",
-            bioStudiesPassword = "123456"
-        )
+        val properties =
+            ExporterProperties.create(
+                mode = PUBLIC_ONLY,
+                fileName = "publicOnlyStudies",
+                outputPath = "/an/output/path",
+                tmpFilesPath = "/a/tmp/path",
+                ftpHost = "localhost",
+                ftpUser = "admin",
+                ftpPassword = "123456",
+                ftpPort = 21,
+                databaseName = "dev",
+                databaseUri = "mongodb://root:admin@localhost:27017/dev?authSource=admin\\&replicaSet=biostd01",
+                bioStudiesUrl = "http://localhost:8080",
+                bioStudiesUser = "admin_user@ebi.ac.uk",
+                bioStudiesPassword = "123456",
+            )
 
         assertThat(properties.asCmd("/apps-folder", 8569)).isEqualTo(
             """
@@ -51,27 +52,28 @@ class ExporterPropertiesTest {
             --app.bioStudies.url=http://localhost:8080 \
             --app.bioStudies.user=admin_user@ebi.ac.uk \
             --app.bioStudies.password=123456"
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
     @Test
     fun `pmc mode as java command`() {
-        val properties = ExporterProperties.create(
-            mode = PMC,
-            fileName = "publicOnlyStudies",
-            outputPath = "/an/output/path",
-            tmpFilesPath = "/a/tmp/path",
-            ftpHost = "localhost",
-            ftpUser = "admin",
-            ftpPassword = "123456",
-            ftpPort = 21,
-            databaseName = "dev",
-            databaseUri = "mongodb://root:admin@localhost:27017/dev?authSource=admin\\&replicaSet=biostd01",
-            bioStudiesUrl = "http://localhost:8080",
-            bioStudiesUser = "admin_user@ebi.ac.uk",
-            bioStudiesPassword = "123456"
-        )
+        val properties =
+            ExporterProperties.create(
+                mode = PMC,
+                fileName = "publicOnlyStudies",
+                outputPath = "/an/output/path",
+                tmpFilesPath = "/a/tmp/path",
+                ftpHost = "localhost",
+                ftpUser = "admin",
+                ftpPassword = "123456",
+                ftpPort = 21,
+                databaseName = "dev",
+                databaseUri = "mongodb://root:admin@localhost:27017/dev?authSource=admin\\&replicaSet=biostd01",
+                bioStudiesUrl = "http://localhost:8080",
+                bioStudiesUser = "admin_user@ebi.ac.uk",
+                bioStudiesPassword = "123456",
+            )
 
         assertThat(properties.asCmd("/apps-folder", 8569)).isEqualTo(
             """
@@ -90,7 +92,7 @@ class ExporterPropertiesTest {
             --app.bioStudies.url=http://localhost:8080 \
             --app.bioStudies.user=admin_user@ebi.ac.uk \
             --app.bioStudies.password=123456"
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 }

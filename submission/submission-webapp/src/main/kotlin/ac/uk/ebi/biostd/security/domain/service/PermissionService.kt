@@ -11,9 +11,13 @@ import ac.uk.ebi.biostd.security.domain.exception.PermissionsUserDoesNotExistsEx
 class PermissionService(
     private val permissionRepository: AccessPermissionRepository,
     private val userRepository: UserDataRepository,
-    private val tagRepository: AccessTagDataRepo
+    private val tagRepository: AccessTagDataRepo,
 ) {
-    fun givePermissionToUser(accessType: AccessType, email: String, tag: String) {
+    fun givePermissionToUser(
+        accessType: AccessType,
+        email: String,
+        tag: String,
+    ) {
         val user = userRepository.findByEmail(email) ?: throw PermissionsUserDoesNotExistsException(email)
         val accessTag = tagRepository.findByName(tag) ?: throw PermissionsAccessTagDoesNotExistsException(tag)
 
@@ -22,10 +26,14 @@ class PermissionService(
         }
     }
 
-    private fun permissionExists(accessType: AccessType, email: String, accessTagName: String): Boolean =
+    private fun permissionExists(
+        accessType: AccessType,
+        email: String,
+        accessTagName: String,
+    ): Boolean =
         permissionRepository.existsByUserEmailAndAccessTypeAndAccessTagName(
             email,
             accessType,
-            accessTagName
+            accessTagName,
         )
 }

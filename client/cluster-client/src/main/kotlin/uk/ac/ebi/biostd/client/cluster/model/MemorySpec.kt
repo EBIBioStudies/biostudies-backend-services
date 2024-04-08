@@ -1,7 +1,6 @@
 package uk.ac.ebi.biostd.client.cluster.model
 
 data class MemorySpec(val value: Int, val measure: CapacityMeasure) {
-
     override fun toString() = (value * measure.multiplier).toString()
 
     companion object {

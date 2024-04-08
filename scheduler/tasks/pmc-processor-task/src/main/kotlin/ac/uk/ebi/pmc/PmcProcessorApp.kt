@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Import
 @Configuration
 @Import(value = [AppConfig::class])
 class MainConfig {
-
     @Bean
     fun commandLineRunner(pmcTaskExecutor: PmcTaskExecutor) = PmcCommandLineRunner(pmcTaskExecutor)
 }

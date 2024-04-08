@@ -8,8 +8,10 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.query.Query
 
-suspend fun <T : Any> ReactiveMongoTemplate.replaceOrCreate(query: Query, replacement: T): T =
-    findAndReplace(query, replacement, FindAndReplaceOptions().upsert().returnNew()).awaitSingle()
+suspend fun <T : Any> ReactiveMongoTemplate.replaceOrCreate(
+    query: Query,
+    replacement: T,
+): T = findAndReplace(query, replacement, FindAndReplaceOptions().upsert().returnNew()).awaitSingle()
 
 inline fun <reified T : Any> ReactiveMongoOperations.collection(): MongoCollection<Document> {
     return getCollection(getCollectionName(T::class.java)).block()!!

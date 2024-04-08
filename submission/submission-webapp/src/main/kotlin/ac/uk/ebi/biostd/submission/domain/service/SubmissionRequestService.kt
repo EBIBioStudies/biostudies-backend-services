@@ -6,7 +6,10 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 class SubmissionRequestService(
     private val requestPersistenceService: SubmissionRequestPersistenceService,
 ) {
-    suspend fun getSubmissionRequest(accNo: String, version: Int): SubmissionRequest {
+    suspend fun getSubmissionRequest(
+        accNo: String,
+        version: Int,
+    ): SubmissionRequest {
         return requestPersistenceService.getSubmissionRequest(accNo, version)
     }
 }

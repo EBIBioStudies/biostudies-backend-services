@@ -17,7 +17,7 @@ class EventsPublisherConfig(
         EventsPublisherService(
             rabbitTemplate,
             eventsProperties,
-            properties
+            properties,
         )
     }
 

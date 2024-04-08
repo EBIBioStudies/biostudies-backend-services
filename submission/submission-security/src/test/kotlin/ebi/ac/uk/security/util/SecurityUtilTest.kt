@@ -43,7 +43,7 @@ class SecurityUtilTest(
             tokenRepository,
             userRepository,
             TOKEN_HASH,
-            instanceKeys
+            instanceKeys,
         )
 
     @Nested
@@ -72,7 +72,7 @@ class SecurityUtilTest(
                     tokenRepository,
                     userRepository,
                     "another_hash",
-                    instanceKeys
+                    instanceKeys,
                 )
 
             assertThat(testInstance.fromToken(securityUtil.createToken(simpleUser))).isNull()
@@ -92,7 +92,7 @@ class SecurityUtilTest(
         @Test
         fun `check password is set as valid when super user security token is used`() {
             val superUserToken = testInstance.createToken(adminUser)
-            every { userRepository.readByEmail(SecurityTestEntities.email) } returns adminUser
+            every { userRepository.readByEmail(SecurityTestEntities.EMAIL) } returns adminUser
 
             assertThat(testInstance.checkPassword(ByteArray(1), superUserToken)).isTrue
         }
@@ -100,7 +100,7 @@ class SecurityUtilTest(
         @Test
         fun `check password is set as invalid when normal user security token is used`() {
             val userToken = testInstance.createToken(simpleUser)
-            every { userRepository.getReferenceById(SecurityTestEntities.userId) } returns simpleUser
+            every { userRepository.getReferenceById(SecurityTestEntities.USER_ID) } returns simpleUser
 
             assertThat(testInstance.checkPassword(ByteArray(1), userToken)).isFalse
         }
@@ -149,7 +149,7 @@ class SecurityUtilTest(
                     test(it, BETA_KEY, BETA_INSTANCE),
                     test(it, PROD_KEY, PROD_INSTANCE),
                     test(it, "http://localhost", "http://localhost"),
-                    test(it, "https://localhost", "https://localhost")
+                    test(it, "https://localhost", "https://localhost"),
                 )
             }
 
@@ -160,12 +160,20 @@ class SecurityUtilTest(
             }
         }
 
-        private fun test(path: String, instanceKey: String, expectedInstance: String): DynamicTest =
+        private fun test(
+            path: String,
+            instanceKey: String,
+            expectedInstance: String,
+        ): DynamicTest =
             dynamicTest("when InstanceKey=$instanceKey, path=$path and activationKey=$userKey") {
                 testUrl(path, instanceKey, expectedInstance)
             }
 
-        private fun testUrl(path: String, instanceKey: String, expectedInstance: String) {
+        private fun testUrl(
+            path: String,
+            instanceKey: String,
+            expectedInstance: String,
+        ) {
             val url = testInstance.getActivationUrl(instanceKey, path, userKey)
             assertThat(url).isEqualTo("$expectedInstance/autenticate/ui-link/abc123")
         }

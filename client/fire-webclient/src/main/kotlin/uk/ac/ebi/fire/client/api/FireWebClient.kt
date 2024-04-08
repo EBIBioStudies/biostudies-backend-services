@@ -23,22 +23,31 @@ internal const val FIRE_SIZE_HEADER = "x-fire-size"
 
 @Suppress("TooManyFunctions")
 internal class FireWebClient(
-    private val client: WebClient
+    private val client: WebClient,
 ) : FireWebClient {
-    override suspend fun save(file: File, md5: String, size: Long): FireApiFile {
-        val headers = HttpHeaders().apply {
-            set(FIRE_MD5_HEADER, md5)
-            set(FIRE_SIZE_HEADER, size.toString())
-        }
+    override suspend fun save(
+        file: File,
+        md5: String,
+        size: Long,
+    ): FireApiFile {
+        val headers =
+            HttpHeaders().apply {
+                set(FIRE_MD5_HEADER, md5)
+                set(FIRE_SIZE_HEADER, size.toString())
+            }
 
-        val body = LinkedMultiValueMap<String, Any>().apply {
-            add(FIRE_FILE_PARAM, FileSystemResource(file))
-        }
+        val body =
+            LinkedMultiValueMap<String, Any>().apply {
+                add(FIRE_FILE_PARAM, FileSystemResource(file))
+            }
 
         return client.postForObjectAsync("/objects", RequestParams(headers, body))
     }
 
-    override suspend fun setPath(fireOid: String, path: String): FireApiFile {
+    override suspend fun setPath(
+        fireOid: String,
+        path: String,
+    ): FireApiFile {
         val headers = HttpHeaders().apply { set(FIRE_PATH_HEADER, path) }
         return client.putForObjectAsync<FireApiFile>("/objects/$fireOid/firePath", RequestParams(headers))
     }

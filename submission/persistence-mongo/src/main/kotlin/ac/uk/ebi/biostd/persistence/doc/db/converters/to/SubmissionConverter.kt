@@ -28,7 +28,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.TAG_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.TAG_DOC_VALUE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
+import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.CLASS_FIELD
 import ac.uk.ebi.biostd.persistence.doc.model.DocCollection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.persistence.doc.model.DocTag
@@ -42,7 +42,7 @@ class SubmissionConverter(
 ) : Converter<DocSubmission, Document> {
     override fun convert(submission: DocSubmission): Document {
         val submissionDoc = Document()
-        submissionDoc[classField] = DOC_SUBMISSION_CLASS
+        submissionDoc[CLASS_FIELD] = DOC_SUBMISSION_CLASS
         submissionDoc[SUB_ID] = submission.id
         submissionDoc[SUB_ACC_NO] = submission.accNo
         submissionDoc[SUB_VERSION] = submission.version
@@ -70,7 +70,7 @@ class SubmissionConverter(
 
     private fun tagToDocument(docTag: DocTag): Document {
         val tagDoc = Document()
-        tagDoc[classField] = DOC_TAG_CLASS
+        tagDoc[CLASS_FIELD] = DOC_TAG_CLASS
         tagDoc[TAG_DOC_NAME] = docTag.name
         tagDoc[TAG_DOC_VALUE] = docTag.value
         return tagDoc
@@ -78,7 +78,7 @@ class SubmissionConverter(
 
     private fun collectionToDocument(docCollection: DocCollection): Document {
         val projectDoc = Document()
-        projectDoc[classField] = DOC_COLLECTION_CLASS
+        projectDoc[CLASS_FIELD] = DOC_COLLECTION_CLASS
         projectDoc[COLLECTION_ACC_NO] = docCollection.accNo
         return projectDoc
     }

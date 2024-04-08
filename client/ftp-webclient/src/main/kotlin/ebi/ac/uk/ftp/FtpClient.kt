@@ -10,17 +10,26 @@ interface FtpClient {
     /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
-    fun uploadFiles(folder: Path, files: List<Pair<Path, () -> InputStream>>)
+    fun uploadFiles(
+        folder: Path,
+        files: List<Pair<Path, () -> InputStream>>,
+    )
 
     /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
-    fun uploadFile(path: Path, source: () -> InputStream)
+    fun uploadFile(
+        path: Path,
+        source: () -> InputStream,
+    )
 
     /**
      * Download the given file in the output stream. Output stream is NOT closed after completion.
      */
-    fun downloadFile(path: Path, source: OutputStream)
+    fun downloadFile(
+        path: Path,
+        source: OutputStream,
+    )
 
     /**
      * Create the given folder. As FTP does not support nested folder creation in a single path the full path is
@@ -55,7 +64,10 @@ interface FtpClient {
 private class SimpleFtpClient(
     private val ftpClientPool: FTPClientPool,
 ) : FtpClient {
-    override fun uploadFiles(folder: Path, files: List<Pair<Path, () -> InputStream>>) {
+    override fun uploadFiles(
+        folder: Path,
+        files: List<Pair<Path, () -> InputStream>>,
+    ) {
         ftpClientPool.execute { ftp ->
             for ((path, inputStream) in files) {
                 ftp.createFtpFolder(path.parent)
@@ -67,7 +79,10 @@ private class SimpleFtpClient(
     /**
      * Upload the given input stream in the provided FTP location. Stream is closed after transfer completion.
      */
-    override fun uploadFile(path: Path, source: () -> InputStream) {
+    override fun uploadFile(
+        path: Path,
+        source: () -> InputStream,
+    ) {
         ftpClientPool.execute { ftp ->
             ftp.createFtpFolder(path.parent)
             source().use { ftp.storeFile(path.toString(), it) }
@@ -77,7 +92,10 @@ private class SimpleFtpClient(
     /**
      * Download the given file in the output stream. Output stream is NOT closed after completion.
      */
-    override fun downloadFile(path: Path, source: OutputStream) {
+    override fun downloadFile(
+        path: Path,
+        source: OutputStream,
+    ) {
         ftpClientPool.execute { ftp -> ftp.retrieveFile(path.toString(), source) }
     }
 

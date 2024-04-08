@@ -10,15 +10,24 @@ suspend inline fun <reified T> WebClient.getForObjectAsync(url: String): T {
     return get().uri(url).retrieveAsync<T>()!!
 }
 
-suspend inline fun <reified T> WebClient.postForObjectAsync(url: String, params: RequestParams? = null): T {
+suspend inline fun <reified T> WebClient.postForObjectAsync(
+    url: String,
+    params: RequestParams? = null,
+): T {
     return post().retrieveAsync<T>(url, params)!!
 }
 
-suspend inline fun <reified T> WebClient.putForObjectAsync(url: String, params: RequestParams? = null): T {
+suspend inline fun <reified T> WebClient.putForObjectAsync(
+    url: String,
+    params: RequestParams? = null,
+): T {
     return put().retrieveAsync<T>(url, params)!!
 }
 
-suspend fun WebClient.postAsync(url: String, params: RequestParams? = null) {
+suspend fun WebClient.postAsync(
+    url: String,
+    params: RequestParams? = null,
+) {
     val uriSpec = post().uri(url)
     params?.headers?.let { headers -> uriSpec.headers { it.addAll(headers) } }
     params?.body?.let { body -> uriSpec.bodyValue(body) }
@@ -36,7 +45,10 @@ suspend inline fun <reified T> RequestHeadersSpec<*>.retrieveAsync(): T {
     return retrieve().awaitBody()
 }
 
-suspend inline fun <reified T> RequestBodyUriSpec.retrieveAsync(url: String, params: RequestParams? = null): T {
+suspend inline fun <reified T> RequestBodyUriSpec.retrieveAsync(
+    url: String,
+    params: RequestParams? = null,
+): T {
     val uriSpec = uri(url)
     params?.headers?.let { headers -> uriSpec.headers { it.addAll(headers) } }
     params?.body?.let { body -> uriSpec.bodyValue(body) }

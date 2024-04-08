@@ -18,11 +18,12 @@ class ExtFileListDeserializerTest {
     @Test
     fun deserialize() {
         val file = createExtFileList()
-        val json = jsonObj {
-            FILE_NAME to "file-list"
-            FILES_URL to "$FILE_LIST_URL/S-BSST1/referencedFiles/file-list"
-            FILE to file.absolutePath
-        }.toString()
+        val json =
+            jsonObj {
+                FILE_NAME to "file-list"
+                FILES_URL to "$FILE_LIST_URL/S-BSST1/referencedFiles/file-list"
+                FILE to file.absolutePath
+            }.toString()
 
         val extFileList = testInstance.readValue<ExtFileList>(json)
         assertThat(extFileList.filePath).isEqualTo("file-list")

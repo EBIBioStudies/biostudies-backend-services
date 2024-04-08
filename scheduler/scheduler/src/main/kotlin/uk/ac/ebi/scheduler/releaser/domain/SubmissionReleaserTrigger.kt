@@ -42,46 +42,55 @@ internal class SubmissionReleaserTrigger(
         return triggerJob(mode = GENERATE_FTP_LINKS, debugPort)
     }
 
-    private suspend fun triggerJob(mode: ReleaserMode, debugPort: Int?): Job {
+    private suspend fun triggerJob(
+        mode: ReleaserMode,
+        debugPort: Int?,
+    ): Job {
         val job = submissionReleaserJob(mode, debugPort)
         schedulerNotificationsSender.send(
             Report(
                 SYSTEM_NAME,
                 RELEASER_SUBSYSTEM,
-                "Triggered $RELEASER_SUBSYSTEM in mode $mode in the cluster job $job. Logs available at ${job.logsPath}"
-            )
+                "Triggered $RELEASER_SUBSYSTEM in mode $mode in the cluster job $job. Logs available at ${job.logsPath}",
+            ),
         )
 
         return job
     }
 
-    private suspend fun submissionReleaserJob(mode: ReleaserMode, debugPort: Int?): Job {
+    private suspend fun submissionReleaserJob(
+        mode: ReleaserMode,
+        debugPort: Int?,
+    ): Job {
         val releaserProperties = getConfigProperties(mode, properties)
-        val jobTry = clusterClient.triggerJobAsync(
-            JobSpec(
-                cores = FOUR_CORES,
-                ram = EIGHT_GB,
-                command = releaserProperties.asCmd(appProperties.appsFolder, debugPort)
+        val jobTry =
+            clusterClient.triggerJobAsync(
+                JobSpec(
+                    cores = FOUR_CORES,
+                    ram = EIGHT_GB,
+                    command = releaserProperties.asCmd(appProperties.appsFolder, debugPort),
+                ),
             )
-        )
 
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    private fun getConfigProperties(mode: ReleaserMode, properties: SchedulerReleaserProps) =
-        SubmissionReleaserProperties.create(
-            mode,
-            properties.persistence.database,
-            properties.persistence.uri,
-            properties.rabbitmq.host,
-            properties.rabbitmq.user,
-            properties.rabbitmq.password,
-            properties.rabbitmq.port,
-            properties.bioStudies.url,
-            properties.bioStudies.user,
-            properties.bioStudies.password,
-            properties.notificationTimes.firstWarningDays,
-            properties.notificationTimes.secondWarningDays,
-            properties.notificationTimes.thirdWarningDays
-        )
+    private fun getConfigProperties(
+        mode: ReleaserMode,
+        properties: SchedulerReleaserProps,
+    ) = SubmissionReleaserProperties.create(
+        mode,
+        properties.persistence.database,
+        properties.persistence.uri,
+        properties.rabbitmq.host,
+        properties.rabbitmq.user,
+        properties.rabbitmq.password,
+        properties.rabbitmq.port,
+        properties.bioStudies.url,
+        properties.bioStudies.user,
+        properties.bioStudies.password,
+        properties.notificationTimes.firstWarningDays,
+        properties.notificationTimes.secondWarningDays,
+        properties.notificationTimes.thirdWarningDays,
+    )
 }

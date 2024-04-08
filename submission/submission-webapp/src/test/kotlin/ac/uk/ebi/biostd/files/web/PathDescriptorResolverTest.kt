@@ -21,7 +21,7 @@ class PathDescriptorResolverTest(
     @MockK val mockMavContainer: ModelAndViewContainer,
     @MockK val mockBinderFactory: WebDataBinderFactory,
     @MockK val mockWebRequest: NativeWebRequest,
-    @MockK val mockHttpServletRequest: HttpServletRequest
+    @MockK val mockHttpServletRequest: HttpServletRequest,
 ) {
     private val testInstance = PathDescriptorResolver()
 
@@ -55,7 +55,10 @@ class PathDescriptorResolverTest(
         assertPathDescriptor("$API_PATH/user/folder%201/folder%202", "folder 1/folder 2")
     }
 
-    private fun assertPathDescriptor(request: String, expectedPath: String) {
+    private fun assertPathDescriptor(
+        request: String,
+        expectedPath: String,
+    ) {
         every { mockHttpServletRequest.requestURL } returns StringBuffer(request)
 
         val descriptor = testInstance.resolveArgument(mockParameter, mockMavContainer, mockWebRequest, mockBinderFactory)

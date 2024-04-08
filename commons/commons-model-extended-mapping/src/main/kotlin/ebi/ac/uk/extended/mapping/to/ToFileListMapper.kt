@@ -23,12 +23,20 @@ class ToFileListMapper(
 ) {
     suspend fun convert(fileList: ExtFileList): FileList = FileList(fileList.filePath, emptyFile(fileList.fileName))
 
-    suspend fun serialize(fileList: ExtFileList, targetFormat: SubFormat, file: File): File {
+    suspend fun serialize(
+        fileList: ExtFileList,
+        targetFormat: SubFormat,
+        file: File,
+    ): File {
         toFile(fileList.file, targetFormat, file)
         return file
     }
 
-    suspend fun serialize(fileListFiles: Flow<ExtFile>, targetFormat: SubFormat, file: File): File {
+    suspend fun serialize(
+        fileListFiles: Flow<ExtFile>,
+        targetFormat: SubFormat,
+        file: File,
+    ): File {
         toFile(fileListFiles, targetFormat, file)
         return file
     }
@@ -39,22 +47,38 @@ class ToFileListMapper(
         return targetFile
     }
 
-    private suspend fun toFile(source: File, targetFormat: SubFormat, target: File): File {
+    private suspend fun toFile(
+        source: File,
+        targetFormat: SubFormat,
+        target: File,
+    ): File {
         use(source.inputStream(), target.outputStream()) { input, output -> copy(input, targetFormat, output) }
         return target
     }
 
-    private suspend fun toFile(source: Flow<ExtFile>, targetFormat: SubFormat, target: File): File {
+    private suspend fun toFile(
+        source: Flow<ExtFile>,
+        targetFormat: SubFormat,
+        target: File,
+    ): File {
         target.outputStream().use { copy(source, targetFormat, it) }
         return target
     }
 
-    private suspend fun copy(source: Flow<ExtFile>, targetFormat: SubFormat, target: OutputStream) {
+    private suspend fun copy(
+        source: Flow<ExtFile>,
+        targetFormat: SubFormat,
+        target: OutputStream,
+    ) {
         val sourceFiles = source.map { it.toFile() }
         serializationService.serializeFileList(sourceFiles, targetFormat, target)
     }
 
-    private suspend fun copy(input: InputStream, targetFormat: SubFormat, target: OutputStream) {
+    private suspend fun copy(
+        input: InputStream,
+        targetFormat: SubFormat,
+        target: OutputStream,
+    ) {
         val sourceFiles = extSerializationService.deserializeListAsFlow(input).map { it.toFile() }
         serializationService.serializeFileList(sourceFiles, targetFormat, target)
     }

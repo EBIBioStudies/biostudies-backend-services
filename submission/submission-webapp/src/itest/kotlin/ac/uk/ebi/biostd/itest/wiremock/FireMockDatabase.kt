@@ -16,7 +16,10 @@ class FireMockDatabase(
 ) {
     private val recordsById: MutableMap<String, DbRecord> = ConcurrentHashMap<String, DbRecord>()
 
-    fun saveFile(fileName: String, data: ByteArray): FireApiFile {
+    fun saveFile(
+        fileName: String,
+        data: ByteArray,
+    ): FireApiFile {
         val objectId = Instant.now().nano
         val fireOid = "${objectId}_${fileName.replace("\\s".toRegex(), "_")}"
         val file = fileSystem.saveFile(data, fireOid)
@@ -31,7 +34,10 @@ class FireMockDatabase(
             ?: throw FireException("File $firePath was not found", NOT_FOUND)
     }
 
-    fun setPath(fireOid: String, firePath: String): FireApiFile {
+    fun setPath(
+        fireOid: String,
+        firePath: String,
+    ): FireApiFile {
         if (recordsById.values.any { it.firePath == firePath }) {
             throw FireException("Path '$firePath' is already allocated", CONFLICT)
         }
@@ -76,8 +82,7 @@ class FireMockDatabase(
         if (record.firePath != null) fileSystem.unpublish(record.firePath)
     }
 
-    fun findByMd5(md5: String): List<FireApiFile> =
-        recordsById.values.map { it.toFile() }.filter { it.objectMd5 == md5 }
+    fun findByMd5(md5: String): List<FireApiFile> = recordsById.values.map { it.toFile() }.filter { it.objectMd5 == md5 }
 
     fun getFile(fireOid: String): File = fileSystem.findFileByFireId(fireOid).toFile()
 }

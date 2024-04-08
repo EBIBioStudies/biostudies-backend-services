@@ -31,32 +31,35 @@ import java.time.Duration
 class FileListDocFileRepositoryTest(
     @Autowired private val repository: FileListDocFileDocDataRepository,
 ) {
-
     @Test
-    fun findBySubmissionAccNoAndSubmissionVersionAndFilePath() = runTest {
-        val file = FireDocFile("filename", "filePath", "relPath", "fireId", listOf(), "md5", 1L, ExtFileType.FILE.value)
-        val fileListFile = FileListDocFile(
-            id = ObjectId(),
-            submissionId = ObjectId(),
-            file = file,
-            fileListName = "file-list",
-            index = 0,
-            submissionVersion = 1,
-            submissionAccNo = "S-TEST123"
-        )
-        repository.save(fileListFile)
+    fun findBySubmissionAccNoAndSubmissionVersionAndFilePath() =
+        runTest {
+            val file = FireDocFile("filename", "filePath", "relPath", "fireId", listOf(), "md5", 1L, ExtFileType.FILE.value)
+            val fileListFile =
+                FileListDocFile(
+                    id = ObjectId(),
+                    submissionId = ObjectId(),
+                    file = file,
+                    fileListName = "file-list",
+                    index = 0,
+                    submissionVersion = 1,
+                    submissionAccNo = "S-TEST123",
+                )
+            repository.save(fileListFile)
 
-        val result = repository
-            .findBySubmissionAccNoAndSubmissionVersionAndFilePath("S-TEST123", 1, "filePath")
-            .toList()
+            val result =
+                repository
+                    .findBySubmissionAccNoAndSubmissionVersionAndFilePath("S-TEST123", 1, "filePath")
+                    .toList()
 
-        assertThat(result).containsExactly(fileListFile)
-    }
+            assertThat(result).containsExactly(fileListFile)
+        }
 
     companion object {
         @Container
-        val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(MINIMUM_RUNNING_TIME)))
+        val mongoContainer: MongoDBContainer =
+            MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

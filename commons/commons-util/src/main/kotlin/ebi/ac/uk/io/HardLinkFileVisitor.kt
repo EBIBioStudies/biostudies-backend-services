@@ -12,14 +12,20 @@ private val logger = KotlinLogging.logger {}
 internal class HardLinkFileVisitor(
     private var sourcePath: Path,
     private val targetPath: Path,
-    private val permissions: Permissions
+    private val permissions: Permissions,
 ) : SimpleFileVisitor<Path>() {
-    override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
+    override fun preVisitDirectory(
+        dir: Path,
+        attrs: BasicFileAttributes,
+    ): FileVisitResult {
         FileUtilsHelper.createDirectories(targetPath.resolve(sourcePath.relativize(dir)), permissions.folder)
         return FileVisitResult.CONTINUE
     }
 
-    override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
+    override fun visitFile(
+        file: Path,
+        attrs: BasicFileAttributes,
+    ): FileVisitResult {
         val target = targetPath.resolve(sourcePath.relativize(file))
 
         logger.info { "Processing FTP link for file $file into target $target" }

@@ -7,10 +7,11 @@ import org.bson.Document
 import org.springframework.core.convert.converter.Converter
 
 class DocFileListConverter(
-    private val docFileConverter: DocFileConverter
+    private val docFileConverter: DocFileConverter,
 ) : Converter<Document, DocFileList> {
-    override fun convert(source: Document): DocFileList = DocFileList(
-        fileName = source.getString(FILE_LIST_DOC_FILE_FILENAME),
-        pageTabFiles = source.getDocList(FILE_LIST_DOC_PAGE_TAB_FILES).map { docFileConverter.convert(it) }
-    )
+    override fun convert(source: Document): DocFileList =
+        DocFileList(
+            fileName = source.getString(FILE_LIST_DOC_FILE_FILENAME),
+            pageTabFiles = source.getDocList(FILE_LIST_DOC_PAGE_TAB_FILES).map { docFileConverter.convert(it) },
+        )
 }

@@ -46,26 +46,29 @@ class ToDocFileListMapper(
 
 private fun ExtFileTable.toDocFileTable() = DocFileTable(files.map { it.toDocFile() })
 
-internal fun ExtFile.toDocFile(): DocFile = when (this) {
-    is FireFile -> FireDocFile(
-        fileName = fileName,
-        filePath = filePath,
-        relPath = relPath,
-        fireId = fireId,
-        attributes = attributes.map { it.toDocAttribute() },
-        md5 = md5,
-        fileSize = size,
-        fileType = type.value
-    )
+internal fun ExtFile.toDocFile(): DocFile =
+    when (this) {
+        is FireFile ->
+            FireDocFile(
+                fileName = fileName,
+                filePath = filePath,
+                relPath = relPath,
+                fireId = fireId,
+                attributes = attributes.map { it.toDocAttribute() },
+                md5 = md5,
+                fileSize = size,
+                fileType = type.value,
+            )
 
-    is NfsFile -> NfsDocFile(
-        fileName = fileName,
-        filePath = filePath,
-        relPath = relPath,
-        fullPath = fullPath,
-        fileType = type.value,
-        attributes = attributes.map { it.toDocAttribute() },
-        md5 = md5,
-        fileSize = size,
-    )
-}
+        is NfsFile ->
+            NfsDocFile(
+                fileName = fileName,
+                filePath = filePath,
+                relPath = relPath,
+                fullPath = fullPath,
+                fileType = type.value,
+                attributes = attributes.map { it.toDocAttribute() },
+                md5 = md5,
+                fileSize = size,
+            )
+    }

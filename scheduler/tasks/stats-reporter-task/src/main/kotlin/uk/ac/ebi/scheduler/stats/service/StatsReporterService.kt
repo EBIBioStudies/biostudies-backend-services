@@ -27,7 +27,10 @@ class StatsReporterService(
         createNonImagingReport(previousMonth, currentMonth)
     }
 
-    private suspend fun createImagingReport(previousMonth: String, currentMonth: String): Path {
+    private suspend fun createImagingReport(
+        previousMonth: String,
+        currentMonth: String,
+    ): Path {
         logger.info { "Started calculating imaging stats" }
         val filesSize = statsRepository.calculateImagingFilesSize()
         val report = createReportFile(previousMonth, currentMonth, filesSize, IMAGING_REPORT_NAME)
@@ -36,7 +39,10 @@ class StatsReporterService(
         return report
     }
 
-    private suspend fun createNonImagingReport(previousMonth: String, currentMonth: String): Path {
+    private suspend fun createNonImagingReport(
+        previousMonth: String,
+        currentMonth: String,
+    ): Path {
         logger.info { "Started calculating non-imaging stats" }
         val filesSize = statsRepository.calculateNonImagingFilesSize()
         val report = createReportFile(previousMonth, currentMonth, filesSize, NON_IMAGING_REPORT_NAME)
@@ -45,7 +51,12 @@ class StatsReporterService(
         return report
     }
 
-    private fun createReportFile(previousMonth: String, currentMonth: String, value: Long, reportName: String): Path {
+    private fun createReportFile(
+        previousMonth: String,
+        currentMonth: String,
+        value: Long,
+        reportName: String,
+    ): Path {
         val outputPath = Paths.get(appProperties.publishPath)
         val previousReportPath = outputPath.resolve("${previousMonth}_$reportName.txt")
         val currentReportPath = outputPath.resolve("${currentMonth}_$reportName.txt")

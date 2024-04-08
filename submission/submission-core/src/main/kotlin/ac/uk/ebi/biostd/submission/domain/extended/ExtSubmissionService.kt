@@ -28,11 +28,17 @@ class ExtSubmissionService(
     private val securityService: ISecurityQueryService,
     private val eventsPublisherService: EventsPublisherService,
 ) {
-    suspend fun reTriggerSubmission(accNo: String, version: Int): ExtSubmission {
+    suspend fun reTriggerSubmission(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         return submissionSubmitter.handleRequest(accNo, version)
     }
 
-    suspend fun refreshSubmission(user: String, accNo: String): Pair<String, Int> {
+    suspend fun refreshSubmission(
+        user: String,
+        accNo: String,
+    ): Pair<String, Int> {
         logger.info { "$accNo $user Received async refresh request, accNo='$accNo'" }
         val submission = queryService.getExtByAccNo(accNo, true)
         val released = submission.releaseTime?.isBeforeOrEqual(OffsetDateTime.now()).orFalse()
@@ -43,7 +49,11 @@ class ExtSubmissionService(
         return refreshed
     }
 
-    suspend fun releaseSubmission(user: String, accNo: String, releaseDate: Instant): Pair<String, Int> {
+    suspend fun releaseSubmission(
+        user: String,
+        accNo: String,
+        releaseDate: Instant,
+    ): Pair<String, Int> {
         logger.info { "$accNo $user Received async release request, accNo='{$accNo}', releaseDate = $releaseDate" }
         val submission = queryService.getExtByAccNo(accNo, true)
         val newReleaseDate = releaseDate.asOffsetAtStartOfDay()
@@ -75,7 +85,11 @@ class ExtSubmissionService(
         eventsPublisherService.submissionRequest(accNo, version)
     }
 
-    suspend fun transferSubmission(user: String, accNo: String, target: StorageMode) {
+    suspend fun transferSubmission(
+        user: String,
+        accNo: String,
+        target: StorageMode,
+    ) {
         logger.info { "$accNo $user Received transfer request with target='$target'" }
         val source = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
         require(source.storageMode != target) { throw InvalidTransferTargetException() }
@@ -85,13 +99,19 @@ class ExtSubmissionService(
         eventsPublisherService.submissionRequest(rqtAccNo, rqtVersion)
     }
 
-    private suspend fun processSubmission(user: String, extSubmission: ExtSubmission): ExtSubmission {
+    private suspend fun processSubmission(
+        user: String,
+        extSubmission: ExtSubmission,
+    ): ExtSubmission {
         validateSubmission(extSubmission, user)
         return extSubmission.copy(submitter = user)
     }
 
     @Suppress("ThrowsCount")
-    private suspend fun validateSubmission(sub: ExtSubmission, user: String) {
+    private suspend fun validateSubmission(
+        sub: ExtSubmission,
+        user: String,
+    ) {
         if (privilegesService.canSubmitExtended(user).not()) throw UnauthorizedOperation(user)
         if (securityService.existsByEmail(sub.owner, false).not()) throw UserNotFoundException(sub.owner)
 

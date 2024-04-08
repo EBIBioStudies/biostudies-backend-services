@@ -13,21 +13,24 @@ class ExtLinksTableDeserializerTest {
 
     @Test
     fun deserialize() {
-        val json = jsonObj {
-            "links" to jsonArray(
-                jsonObj {
-                    "url" to "http://mylink.org"
-                    "attributes" to jsonArray(
+        val json =
+            jsonObj {
+                "links" to
+                    jsonArray(
                         jsonObj {
-                            "name" to "Type"
-                            "value" to "Resource"
-                        }
+                            "url" to "http://mylink.org"
+                            "attributes" to
+                                jsonArray(
+                                    jsonObj {
+                                        "name" to "Type"
+                                        "value" to "Resource"
+                                    },
+                                )
+                            "extType" to "link"
+                        },
                     )
-                    "extType" to "link"
-                }
-            )
-            "extType" to "linksTable"
-        }.toString()
+                "extType" to "linksTable"
+            }.toString()
 
         val extLinksTable = testInstance.readValue<ExtLinkTable>(json)
         assertThat(extLinksTable.links).hasSize(1)

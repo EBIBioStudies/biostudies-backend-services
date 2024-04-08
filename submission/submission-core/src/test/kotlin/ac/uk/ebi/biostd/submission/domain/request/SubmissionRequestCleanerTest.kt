@@ -43,15 +43,15 @@ class SubmissionRequestCleanerTest(
     @MockK private val rqtService: SubmissionRequestPersistenceService,
     @MockK private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
-
-    private val testInstance = SubmissionRequestCleaner(
-        storageService,
-        serializationService,
-        eventsPublisherService,
-        queryService,
-        rqtService,
-        filesRequestService,
-    )
+    private val testInstance =
+        SubmissionRequestCleaner(
+            storageService,
+            serializationService,
+            eventsPublisherService,
+            queryService,
+            rqtService,
+            filesRequestService,
+        )
 
     @BeforeEach
     fun beforeEach() {
@@ -67,21 +67,22 @@ class SubmissionRequestCleanerTest(
         @MockK loadedRequest: SubmissionRequest,
         @MockK cleanedRequest: SubmissionRequest,
     ) = runTest {
-
         every { loadedRequest.submission } returns sub
-        every { sub.accNo } returns accNo
-        every { sub.version } returns version
+        every { sub.accNo } returns ACC_NO
+        every { sub.version } returns VERSION
         every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
-        every { eventsPublisherService.requestCleaned(accNo, version) } answers { nothing }
+        every { eventsPublisherService.requestCleaned(ACC_NO, VERSION) } answers { nothing }
 
-        coEvery { queryService.findExtByAccNo(accNo, true) } returns null
+        coEvery { queryService.findExtByAccNo(ACC_NO, true) } returns null
         coEvery {
-            rqtService.onRequest(accNo, version, LOADED, processId, capture(rqtSlot))
-        } coAnswers { rqtSlot.captured.invoke(loadedRequest); }
+            rqtService.onRequest(ACC_NO, VERSION, LOADED, PROCESS_ID, capture(rqtSlot))
+        } coAnswers {
+            rqtSlot.captured.invoke(loadedRequest)
+        }
 
-        testInstance.cleanCurrentVersion(accNo, version, processId)
+        testInstance.cleanCurrentVersion(ACC_NO, VERSION, PROCESS_ID)
 
-        coVerify(exactly = 1) { eventsPublisherService.requestCleaned(accNo, version) }
+        coVerify(exactly = 1) { eventsPublisherService.requestCleaned(ACC_NO, VERSION) }
         verify { loadedRequest.withNewStatus(CLEANED) }
         coVerify(exactly = 0) { storageService.deleteSubmissionFile(any(), any()) }
     }
@@ -108,19 +109,21 @@ class SubmissionRequestCleanerTest(
         every { loadedRequest.withNewStatus(CLEANED) } returns cleanedRequest
 
         every { serializationService.filesFlow(current) } returns flowOf(currentFile)
-        every { filesRequestService.getSubmissionRequestFiles(accNo, 2, 0) } returns flowOf(requestFile)
-        every { eventsPublisherService.requestCleaned(accNo, 2) } answers { nothing }
-        coEvery { queryService.findExtByAccNo(accNo, true) } returns current
+        every { filesRequestService.getSubmissionRequestFiles(ACC_NO, 2, 0) } returns flowOf(requestFile)
+        every { eventsPublisherService.requestCleaned(ACC_NO, 2) } answers { nothing }
+        coEvery { queryService.findExtByAccNo(ACC_NO, true) } returns current
         coEvery { storageService.deleteSubmissionFile(current, currentFile) } answers { nothing }
         coEvery {
-            rqtService.onRequest(accNo, 2, LOADED, processId, capture(rqtSlot))
-        } coAnswers { rqtSlot.captured.invoke(loadedRequest); }
+            rqtService.onRequest(ACC_NO, 2, LOADED, PROCESS_ID, capture(rqtSlot))
+        } coAnswers {
+            rqtSlot.captured.invoke(loadedRequest)
+        }
 
-        testInstance.cleanCurrentVersion(accNo, 2, processId)
+        testInstance.cleanCurrentVersion(ACC_NO, 2, PROCESS_ID)
 
         coVerify(exactly = 1) {
             storageService.deleteSubmissionFile(current, currentFile)
-            eventsPublisherService.requestCleaned(accNo, 2)
+            eventsPublisherService.requestCleaned(ACC_NO, 2)
             loadedRequest.withNewStatus(CLEANED)
         }
     }
@@ -136,8 +139,8 @@ class SubmissionRequestCleanerTest(
 
     private companion object {
         private val rqtSlot = slot<suspend (SubmissionRequest) -> RqtUpdate>()
-        const val processId = "biostudies-prod"
-        const val accNo = "S-BSST1"
-        const val version = 1
+        const val PROCESS_ID = "biostudies-prod"
+        const val ACC_NO = "S-BSST1"
+        const val VERSION = 1
     }
 }

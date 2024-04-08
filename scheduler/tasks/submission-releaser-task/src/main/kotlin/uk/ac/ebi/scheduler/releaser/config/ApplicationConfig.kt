@@ -32,7 +32,7 @@ class ApplicationConfig(
             appProperties.notificationTimes,
             releaserRepository,
             requestRepository,
-            eventsPublisherService
+            eventsPublisherService,
         )
 
     @Bean
@@ -48,9 +48,8 @@ class ApplicationConfig(
             .getAuthenticatedClient(applicationProperties.bioStudies.user, applicationProperties.bioStudies.password)
 
     @Bean
-    fun eventsProperties(
-        applicationProperties: ApplicationProperties,
-    ): EventsProperties = EventsProperties(instanceBaseUrl = applicationProperties.bioStudies.url)
+    fun eventsProperties(applicationProperties: ApplicationProperties): EventsProperties =
+        EventsProperties(instanceBaseUrl = applicationProperties.bioStudies.url)
 
     @Bean
     fun eventsPublisherService(

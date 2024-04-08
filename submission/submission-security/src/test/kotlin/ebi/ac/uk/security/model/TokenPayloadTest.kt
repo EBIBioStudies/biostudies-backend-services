@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 
 internal class TokenPayloadTest {
-
     @Test
     fun `test constructor`() {
         val userId = 55L

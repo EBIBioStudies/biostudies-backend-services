@@ -22,7 +22,12 @@ class RtNotificationService(
     private val templateLoader: TemplateLoader,
     private val rtTicketService: RtTicketService,
 ) {
-    fun notifySuccessfulSubmission(sub: ExtSubmission, ownerFullName: String, uiUrl: String, stUrl: String) {
+    fun notifySuccessfulSubmission(
+        sub: ExtSubmission,
+        ownerFullName: String,
+        uiUrl: String,
+        stUrl: String,
+    ) {
         val subject = notificationSubject(sub)
         val template = if (sub.version == 1) SUCCESSFUL_SUBMISSION_TEMPLATE else SUCCESSFUL_RESUBMISSION_TEMPLATE
         val model = successfulSubmissionModel(sub, uiUrl, stUrl, ownerFullName)
@@ -30,7 +35,12 @@ class RtNotificationService(
         rtTicketService.saveRtTicket(sub.accNo, subject, sub.owner, content)
     }
 
-    fun notifySubmissionRelease(sub: ExtSubmission, ownerFullName: String, uiUrl: String, stUrl: String) {
+    fun notifySubmissionRelease(
+        sub: ExtSubmission,
+        ownerFullName: String,
+        uiUrl: String,
+        stUrl: String,
+    ) {
         val subject = notificationSubject(sub)
         val model = submissionReleaseModel(sub, uiUrl, stUrl, ownerFullName)
         val template = templateLoader.loadTemplateOrDefault(sub, SUBMISSION_RELEASE_TEMPLATE)
@@ -52,10 +62,11 @@ class RtNotificationService(
             stUrl: String,
             ownerFullName: String,
         ): SubmissionReleaseModel {
-            val description = buildString {
-                append(submission.accNo)
-                submission.computedTitle?.let { append(" - \"$it\"") }
-            }
+            val description =
+                buildString {
+                    append(submission.accNo)
+                    submission.computedTitle?.let { append(" - \"$it\"") }
+                }
 
             return SubmissionReleaseModel(
                 FROM,
@@ -63,7 +74,7 @@ class RtNotificationService(
                 stUrl,
                 ownerFullName,
                 description,
-                submission.releaseTime?.toStringDate()
+                submission.releaseTime?.toStringDate(),
             )
         }
 
@@ -87,7 +98,10 @@ class RtNotificationService(
             )
         }
 
-        private fun releaseMessage(sub: ExtSubmission, uiUrl: String): String {
+        private fun releaseMessage(
+            sub: ExtSubmission,
+            uiUrl: String,
+        ): String {
             val releaseDate = sub.releaseTime?.toStringDate()
             val released = sub.released
 
@@ -98,17 +112,21 @@ class RtNotificationService(
             }
         }
 
-        private fun linkMessage(sub: ExtSubmission, uiUrl: String) =
-            buildString {
-                append("You will be able to see it only by logging in or by accessing it through this link: ")
-                append("$uiUrl/studies/${sub.accNo}?key=${sub.secretKey}")
-            }
+        private fun linkMessage(
+            sub: ExtSubmission,
+            uiUrl: String,
+        ) = buildString {
+            append("You will be able to see it only by logging in or by accessing it through this link: ")
+            append("$uiUrl/studies/${sub.accNo}?key=${sub.secretKey}")
+        }
 
         private fun privateMessage(linkMessage: String) =
             "The release date of this study is not set so it's not publicly available. $linkMessage"
 
-        private fun privateWithReleaseDateMessage(linkMessage: String, releaseDate: String) =
-            "The release date of this study is set to $releaseDate " +
-                "and it will be publicly available after that. $linkMessage"
+        private fun privateWithReleaseDateMessage(
+            linkMessage: String,
+            releaseDate: String,
+        ) = "The release date of this study is set to $releaseDate " +
+            "and it will be publicly available after that. $linkMessage"
     }
 }

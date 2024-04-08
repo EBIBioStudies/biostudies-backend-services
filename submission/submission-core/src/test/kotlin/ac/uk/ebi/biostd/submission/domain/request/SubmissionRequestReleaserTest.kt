@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
 import ac.uk.ebi.biostd.submission.exceptions.UnreleasedSubmissionException
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
@@ -33,7 +34,6 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import ebi.ac.uk.asserts.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -48,15 +48,16 @@ class SubmissionRequestReleaserTest(
     @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val filesService: SubmissionRequestFilesPersistenceService,
 ) {
-    private val testInstance = SubmissionRequestReleaser(
-        TEST_CONCURRENCY,
-        storageService,
-        ExtSerializationService(),
-        eventsPublisherService,
-        queryService,
-        requestService,
-        filesService
-    )
+    private val testInstance =
+        SubmissionRequestReleaser(
+            TEST_CONCURRENCY,
+            storageService,
+            ExtSerializationService(),
+            eventsPublisherService,
+            queryService,
+            requestService,
+            filesService,
+        )
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -73,34 +74,36 @@ class SubmissionRequestReleaserTest(
         val secretKey = "secret-key"
         val mode = StorageMode.FIRE
 
-        val nfsRqtFile = SubmissionRequestFile(accNo, version, 1, "test1.txt", nfsFile)
-        val fireRqtFile = SubmissionRequestFile(accNo, version, 2, "test2.txt", fireFile)
+        val nfsRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 1, "test1.txt", nfsFile)
+        val fireRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 2, "test2.txt", fireFile)
 
         every { fireFile.published } returns true
         every { rqt.submission } returns submission
         every { rqt.currentIndex } returns 1
-        every { submission.accNo } returns accNo
-        every { submission.version } returns version
+        every { submission.accNo } returns ACC_NO
+        every { submission.version } returns VERSION
         every { submission.released } returns true
         every { submission.relPath } returns relPath
         every { submission.secretKey } returns secretKey
         every { submission.storageMode } returns mode
-        every { eventsPublisherService.requestCheckedRelease(accNo, version) } answers { nothing }
-        every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile, fireRqtFile)
+        every { eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION) } answers { nothing }
+        every { filesService.getSubmissionRequestFiles(ACC_NO, VERSION, 1) } returns flowOf(nfsRqtFile, fireRqtFile)
         coEvery { storageService.releaseSubmissionFile(nfsFile, relPath, secretKey, mode) } returns releasedFile
         every { rqt.withNewStatus(RequestStatus.CHECK_RELEASED) } returns rqt
 
         coEvery { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
-        coEvery { requestService.updateRqtIndex(accNo, version, 2) } answers { nothing }
+        coEvery { requestService.updateRqtIndex(ACC_NO, VERSION, 2) } answers { nothing }
         coEvery {
-            requestService.onRequest(accNo, version, FILES_COPIED, processId, capture(rqtSlot))
-        } coAnswers { rqtSlot.captured.invoke(rqt); }
+            requestService.onRequest(ACC_NO, VERSION, FILES_COPIED, PROCESS_ID, capture(rqtSlot))
+        } coAnswers {
+            rqtSlot.captured.invoke(rqt)
+        }
 
-        testInstance.checkReleased(accNo, version, processId)
+        testInstance.checkReleased(ACC_NO, VERSION, PROCESS_ID)
 
         coVerify(exactly = 1) {
             storageService.releaseSubmissionFile(nfsFile, relPath, secretKey, mode)
-            eventsPublisherService.requestCheckedRelease(accNo, version)
+            eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
         }
     }
 
@@ -112,20 +115,22 @@ class SubmissionRequestReleaserTest(
         every { rqt.submission } returns submission
         every { submission.released } returns false
         every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
-        every { eventsPublisherService.requestCheckedRelease(accNo, version) } answers { nothing }
+        every { eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION) } answers { nothing }
 
         coEvery {
-            requestService.onRequest(accNo, version, FILES_COPIED, processId, capture(rqtSlot))
-        } coAnswers { rqtSlot.captured.invoke(rqt); }
+            requestService.onRequest(ACC_NO, VERSION, FILES_COPIED, PROCESS_ID, capture(rqtSlot))
+        } coAnswers {
+            rqtSlot.captured.invoke(rqt)
+        }
 
-        testInstance.checkReleased(accNo, version, processId)
+        testInstance.checkReleased(ACC_NO, VERSION, PROCESS_ID)
 
         verify {
             storageService wasNot called
             persistenceService wasNot called
         }
         coVerify(exactly = 1) {
-            eventsPublisherService.requestCheckedRelease(accNo, version)
+            eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
         }
     }
 
@@ -134,9 +139,9 @@ class SubmissionRequestReleaserTest(
         @MockK submission: ExtSubmission,
     ) = runTest {
         every { submission.released } returns false
-        coEvery { queryService.getExtByAccNo(accNo, includeFileListFiles = true) } returns submission
+        coEvery { queryService.getExtByAccNo(ACC_NO, includeFileListFiles = true) } returns submission
 
-        val exception = assertThrows<UnreleasedSubmissionException> { testInstance.generateFtpLinks(accNo) }
+        val exception = assertThrows<UnreleasedSubmissionException> { testInstance.generateFtpLinks(ACC_NO) }
 
         assertThat(exception.message).isEqualTo("Can't generate FTP links for a private submission")
         coVerify {
@@ -145,9 +150,9 @@ class SubmissionRequestReleaserTest(
     }
 
     private companion object {
-        val accNo = "S-TEST123"
-        val version = 1
-        const val processId = "biostudies-prod"
+        const val ACC_NO = "S-TEST123"
+        const val VERSION = 1
+        const val PROCESS_ID = "biostudies-prod"
         private val rqtSlot = slot<suspend (SubmissionRequest) -> RqtUpdate>()
     }
 }

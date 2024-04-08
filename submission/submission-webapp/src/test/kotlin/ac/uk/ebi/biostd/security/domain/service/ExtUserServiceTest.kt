@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
 class ExtUserServiceTest(
-    @MockK private val userDataRepository: UserDataRepository
+    @MockK private val userDataRepository: UserDataRepository,
 ) {
     private val testInstance = ExtUserService(userDataRepository)
 

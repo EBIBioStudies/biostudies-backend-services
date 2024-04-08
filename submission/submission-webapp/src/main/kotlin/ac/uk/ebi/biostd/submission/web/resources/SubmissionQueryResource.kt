@@ -31,10 +31,14 @@ class SubmissionQueryResource(
 ) {
     @GetMapping("/{accNo}.json", produces = [APPLICATION_JSON])
     @ResponseBody
-    suspend fun asJson(@PathVariable accNo: String) = submissionService.getSubmission(accNo, SubFormat.JSON)
+    suspend fun asJson(
+        @PathVariable accNo: String,
+    ) = submissionService.getSubmission(accNo, SubFormat.JSON)
 
     @GetMapping("/{accNo}.tsv", produces = [TEXT_PLAIN])
-    suspend fun asTsv(@PathVariable accNo: String) = submissionService.getSubmission(accNo, SubFormat.TSV)
+    suspend fun asTsv(
+        @PathVariable accNo: String,
+    ) = submissionService.getSubmission(accNo, SubFormat.TSV)
 
     @GetMapping("/{accNo}/{fileList}.tsv")
     suspend fun asTsv(
@@ -52,8 +56,7 @@ class SubmissionQueryResource(
     suspend fun getSubmissions(
         @BioUser user: SecurityUser,
         @ModelAttribute request: SubmissionFilterRequest,
-    ): List<SubmissionDto> =
-        submissionsWebHandler.getSubmissions(request.asFilter(user.email, user.superuser)).map { it.asDto() }
+    ): List<SubmissionDto> = submissionsWebHandler.getSubmissions(request.asFilter(user.email, user.superuser)).map { it.asDto() }
 
     private suspend fun fileListFile(
         accNo: String,
@@ -77,6 +80,6 @@ class SubmissionQueryResource(
             modificationTime,
             releaseTime,
             method,
-            status.value
+            status.value,
         )
 }

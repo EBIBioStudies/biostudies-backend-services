@@ -18,16 +18,13 @@ class DbAccessPermission(
     @Id
     @GeneratedValue
     val id: Long = 0,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "access_type")
     override val accessType: AccessType,
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     val user: DbUser,
-
     @ManyToOne
     @JoinColumn(name = "access_tag_id")
-    override val accessTag: DbAccessTag
+    override val accessTag: DbAccessTag,
 ) : AccessPermission

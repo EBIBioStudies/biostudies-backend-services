@@ -13,10 +13,11 @@ import org.junit.jupiter.api.Test
 class SectionExtTest {
     @Test
     fun `all section files`() {
-        val section = section("Study") {
-            file("File1.txt")
-            filesTable { file("File2.txt") }
-        }
+        val section =
+            section("Study") {
+                file("File1.txt")
+                filesTable { file("File2.txt") }
+            }
         val files = section.allFiles()
 
         assertThat(files).hasSize(2)
@@ -26,12 +27,13 @@ class SectionExtTest {
 
     @Test
     fun `all sections`() {
-        val section = section("Study") {
-            section("Subsection 1") { accNo = "SUB-SECT-001" }
-            sectionsTable {
-                section("Subsection 2") { accNo = "SUB-SECT-002" }
+        val section =
+            section("Study") {
+                section("Subsection 1") { accNo = "SUB-SECT-001" }
+                sectionsTable {
+                    section("Subsection 2") { accNo = "SUB-SECT-002" }
+                }
             }
-        }
         val allSubsections = section.allSections()
 
         assertThat(allSubsections).hasSize(2)

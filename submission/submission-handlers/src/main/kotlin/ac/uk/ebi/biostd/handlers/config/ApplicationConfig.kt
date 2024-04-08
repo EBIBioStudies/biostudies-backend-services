@@ -37,9 +37,8 @@ class Listeners {
     fun logListener(): LogSubmissionListener = LogSubmissionListener()
 
     @Bean
-    fun customErrorHandler(
-        notificationsSender: NotificationsSender,
-    ): ConditionalRejectingErrorHandler = CustomErrorHandler(notificationsSender)
+    fun customErrorHandler(notificationsSender: NotificationsSender): ConditionalRejectingErrorHandler =
+        CustomErrorHandler(notificationsSender)
 
     @Bean
     fun rabbitTemplate(
@@ -59,25 +58,27 @@ class Listeners {
         webConsumer: BioStudiesWebConsumer,
         notificationsSender: NotificationsSender,
         applicationProperties: ApplicationProperties,
-        rtNotificationService: RtNotificationService
-    ): SubmissionNotificationsListener = SubmissionNotificationsListener(
-        rabbitTemplate,
-        webConsumer,
-        notificationsSender,
-        rtNotificationService,
-        applicationProperties.notifications
-    )
+        rtNotificationService: RtNotificationService,
+    ): SubmissionNotificationsListener =
+        SubmissionNotificationsListener(
+            rabbitTemplate,
+            webConsumer,
+            notificationsSender,
+            rtNotificationService,
+            applicationProperties.notifications,
+        )
 
     @Bean
     fun securityNotificationsListener(
         rabbitTemplate: RabbitTemplate,
         notificationsSender: NotificationsSender,
         securityNotificationService: SecurityNotificationService,
-    ): SecurityNotificationListener = SecurityNotificationListener(
-        rabbitTemplate,
-        notificationsSender,
-        securityNotificationService,
-    )
+    ): SecurityNotificationListener =
+        SecurityNotificationListener(
+            rabbitTemplate,
+            notificationsSender,
+            securityNotificationService,
+        )
 }
 
 @Configuration
@@ -100,13 +101,13 @@ class WebConfig {
     @Bean
     fun bioStudiesWebConsumer(
         client: WebClient,
-        extSerializationService: ExtSerializationService
+        extSerializationService: ExtSerializationService,
     ): BioStudiesWebConsumer = BioStudiesWebConsumer(client, extSerializationService)
 
     @Bean
     fun notificationsSender(
         client: WebClient,
-        applicationProperties: ApplicationProperties
+        applicationProperties: ApplicationProperties,
     ): NotificationsSender = NotificationsSender(client, applicationProperties.notifications.slackUrl)
 }
 
@@ -119,9 +120,8 @@ class Services {
     fun rtNotificationService(notificationConfig: NotificationConfig) = notificationConfig.rtNotificationService()
 
     @Bean
-    fun securityNotificationService(
-        notificationConfig: NotificationConfig
-    ): SecurityNotificationService = notificationConfig.securityNotificationService()
+    fun securityNotificationService(notificationConfig: NotificationConfig): SecurityNotificationService =
+        notificationConfig.securityNotificationService()
 }
 
 @Configuration
@@ -130,12 +130,13 @@ class ModuleConfig {
     fun notificationConfig(
         resourceLoader: ResourceLoader,
         notificationsDataService: NotificationsDataService,
-        applicationProperties: ApplicationProperties
-    ): NotificationConfig = NotificationConfig(
-        resourceLoader,
-        applicationProperties.notifications,
-        notificationsDataService
-    )
+        applicationProperties: ApplicationProperties,
+    ): NotificationConfig =
+        NotificationConfig(
+            resourceLoader,
+            applicationProperties.notifications,
+            notificationsDataService,
+        )
 }
 
 @Configuration

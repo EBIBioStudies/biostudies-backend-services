@@ -11,12 +11,19 @@ internal class RetryWebClient(
     private val fireS3Client: FireS3Client,
     private val template: SuspendRetryTemplate,
 ) : FireClient {
-    override suspend fun save(file: File, md5: String, size: Long): FireApiFile {
+    override suspend fun save(
+        file: File,
+        md5: String,
+        size: Long,
+    ): FireApiFile {
         val opt = "Save file ${file.name}, md5=$md5, size=$size"
         return template.execute(opt) { fireClient.save(file, md5, size) }
     }
 
-    override suspend fun setPath(fireOid: String, path: String): FireApiFile {
+    override suspend fun setPath(
+        fireOid: String,
+        path: String,
+    ): FireApiFile {
         val opt = "Set path fireOid='$fireOid', path=$path"
         return template.execute(opt) { fireClient.setPath(fireOid, path) }
     }

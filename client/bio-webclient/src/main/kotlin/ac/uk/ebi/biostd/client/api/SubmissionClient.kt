@@ -20,7 +20,6 @@ internal const val SUBMISSIONS_URL = "/submissions"
 internal class SubmissionClient(
     private val client: WebClient,
 ) : SubmissionOperations {
-
     override fun deleteSubmission(accNo: String) {
         client.delete("$SUBMISSIONS_URL/$accNo")
     }
@@ -36,13 +35,18 @@ internal class SubmissionClient(
         return client.getForObject<Array<SubmissionDto>>(builder.toUriString()).toList()
     }
 
-    override fun validateFileList(fileListPath: String, rootPath: String?, accNo: String?) {
+    override fun validateFileList(
+        fileListPath: String,
+        rootPath: String?,
+        accNo: String?,
+    ) {
         val headers = HttpHeaders().apply { contentType = APPLICATION_FORM_URLENCODED }
-        val formData = buildList {
-            add(FILE_LIST_NAME to fileListPath)
-            rootPath?.let { add(ROOT_PATH to it) }
-            accNo?.let { add(ACC_NO to it) }
-        }
+        val formData =
+            buildList {
+                add(FILE_LIST_NAME to fileListPath)
+                rootPath?.let { add(ROOT_PATH to it) }
+                accNo?.let { add(ACC_NO to it) }
+            }
         val body = LinkedMultiValueMap(formData.groupBy({ it.first }, { it.second }))
 
         client.post("$SUBMISSIONS_URL/fileLists/validate", RequestParams(headers, body))

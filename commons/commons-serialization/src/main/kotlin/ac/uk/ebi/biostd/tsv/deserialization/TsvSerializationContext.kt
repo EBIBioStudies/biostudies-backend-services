@@ -27,10 +27,15 @@ internal class TsvSerializationContext {
 
     fun getSubmission() = if (errors.isEmpty) submission else throw SerializationException(submission, errors)
 
-    fun addSubmission(chunk: TsvChunk, function: (TsvChunk) -> Submission) =
-        execute(submission, chunk) { submission = function(chunk) }
+    fun addSubmission(
+        chunk: TsvChunk,
+        function: (TsvChunk) -> Submission,
+    ) = execute(submission, chunk) { submission = function(chunk) }
 
-    fun addRootSection(chunk: TsvChunk, function: (TsvChunk) -> Section) {
+    fun addRootSection(
+        chunk: TsvChunk,
+        function: (TsvChunk) -> Section,
+    ) {
         execute(submission, chunk) { rootSection = function(chunk) }
         submission.section = addSection(rootSection)
     }
@@ -39,25 +44,28 @@ internal class TsvSerializationContext {
 
     fun addFile(chunk: FileChunk) = execute(currentSection, chunk) { currentSection.addFile(chunk.asFile()) }
 
-    fun addLinksTable(chunk: LinksTableChunk) =
-        execute(currentSection, chunk) { currentSection.addLinksTable(chunk.asTable()) }
+    fun addLinksTable(chunk: LinksTableChunk) = execute(currentSection, chunk) { currentSection.addLinksTable(chunk.asTable()) }
 
-    fun addFilesTable(chunk: FileTableChunk) =
-        execute(currentSection, chunk) { currentSection.addFilesTable(chunk.asTable()) }
+    fun addFilesTable(chunk: FileTableChunk) = execute(currentSection, chunk) { currentSection.addFilesTable(chunk.asTable()) }
 
-    fun addSectionTable(chunk: SectionTableChunk) =
-        execute(rootSection, chunk) { rootSection.addSectionTable(chunk.asTable()) }
+    fun addSectionTable(chunk: SectionTableChunk) = execute(rootSection, chunk) { rootSection.addSectionTable(chunk.asTable()) }
 
-    fun addSubSectionTable(parent: String, chunk: SectionTableChunk) =
-        execute(rootSection, chunk) { sections.getSection(parent).addSectionTable(chunk.asTable()) }
+    fun addSubSectionTable(
+        parent: String,
+        chunk: SectionTableChunk,
+    ) = execute(rootSection, chunk) { sections.getSection(parent).addSectionTable(chunk.asTable()) }
 
-    fun addSection(chunk: SectionChunk) =
-        execute(rootSection, chunk) { addSection(rootSection, chunk.asSection()) }
+    fun addSection(chunk: SectionChunk) = execute(rootSection, chunk) { addSection(rootSection, chunk.asSection()) }
 
-    fun addSubSection(parent: String, chunk: SectionChunk) =
-        execute(rootSection, chunk) { addSection(sections.getSection(parent), chunk.asSection()) }
+    fun addSubSection(
+        parent: String,
+        chunk: SectionChunk,
+    ) = execute(rootSection, chunk) { addSection(sections.getSection(parent), chunk.asSection()) }
 
-    private fun addSection(parent: Section, section: Section) = parent.addSection(addSection(section))
+    private fun addSection(
+        parent: Section,
+        section: Section,
+    ) = parent.addSection(addSection(section))
 
     private fun addSection(section: Section): Section {
         section.accNo?.let { sections.addSection(it, section) }
@@ -66,7 +74,11 @@ internal class TsvSerializationContext {
     }
 
     @Suppress("TooGenericExceptionCaught")
-    private fun <T> execute(parent: T, chunk: TsvChunk, function: (TsvChunk) -> Unit) {
+    private fun <T> execute(
+        parent: T,
+        chunk: TsvChunk,
+        function: (TsvChunk) -> Unit,
+    ) {
         try {
             function(chunk)
         } catch (exception: Exception) {
@@ -78,7 +90,10 @@ internal class TsvSerializationContext {
 internal class TsvSectionContext {
     private val sections: MutableMap<String, Section> = mutableMapOf()
 
-    fun addSection(accNo: String, section: Section) {
+    fun addSection(
+        accNo: String,
+        section: Section,
+    ) {
         require(sections.containsKey(accNo).not()) { throw DuplicatedSectionAccNoException(accNo) }
         sections[accNo] = section
     }

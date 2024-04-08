@@ -17,23 +17,24 @@ fun <T, A : Collection<T>> A.ifNotEmpty(function: (A) -> Unit) {
  * @param otherList the base list to create new one.
  * @param elements the list of elements to append to the list.
  */
-fun <T> merge(otherList: List<T>, vararg elements: T): List<T> = otherList.toMutableList().apply { addAll(elements) }
+fun <T> merge(
+    otherList: List<T>,
+    vararg elements: T,
+): List<T> = otherList.toMutableList().apply { addAll(elements) }
 
 /**
  * Obtains the second element of the list.
  *
  * @throws NoSuchElementException if list size is less than 2.
  */
-fun <T> List<T>.second(): T =
-    if (this.size > 1) this[1] else throw NoSuchElementException("List does not contain a second element.")
+fun <T> List<T>.second(): T = if (this.size > 1) this[1] else throw NoSuchElementException("List does not contain a second element.")
 
 /**
  * Obtains the third element of the list.
  *
  * @throws NoSuchElementException if list size is less than 3.
  */
-fun <T> List<T>.third(): T =
-    if (this.size > 2) this[2] else throw NoSuchElementException("List does not contain a third element.")
+fun <T> List<T>.third(): T = if (this.size > 2) this[2] else throw NoSuchElementException("List does not contain a third element.")
 
 fun <T> List<T>.findSecond(): T? = if (this.size > 1) this[1] else null
 

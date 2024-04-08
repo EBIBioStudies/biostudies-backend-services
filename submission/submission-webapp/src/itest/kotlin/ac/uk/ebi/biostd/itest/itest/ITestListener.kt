@@ -61,7 +61,7 @@ class ITestListener : TestExecutionListener {
         mongoContainer.start()
         properties.addProperty(
             "spring.data.mongodb.uri",
-            mongoContainer.getReplicaSetUrl("biostudies-test")
+            mongoContainer.getReplicaSetUrl("biostudies-test"),
         )
         properties.addProperty("spring.data.mongodb.database", "biostudies-test")
     }
@@ -110,7 +110,7 @@ class ITestListener : TestExecutionListener {
         fireServer.stubFor(
             post(WireMock.urlMatching("/objects"))
                 .withBasicAuth(FIRE_USERNAME, FIRE_PASSWORD)
-                .willReturn(WireMock.aResponse().withTransformers(TestWireMockTransformer.name))
+                .willReturn(WireMock.aResponse().withTransformers(TestWireMockTransformer.NAME)),
         )
         fireServer.start()
         properties.addProperty("app.fire.host", fireServer.baseUrl())
@@ -164,8 +164,7 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.cluster.logsPath", clusterLogsPath.absolutePath)
     }
 
-    private fun findResource(resource: String): File? =
-        this::class.java.getResource("/$resource")?.toURI()?.let { File(it) }
+    private fun findResource(resource: String): File? = this::class.java.getResource("/$resource")?.toURI()?.let { File(it) }
 
     companion object {
         private const val ENVIRONMENT = "TEST"
@@ -227,16 +226,17 @@ class ITestListener : TestExecutionListener {
                 .withInitScript(MYSQL_SCHEMA)
                 .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
-        private fun createMockS3Container(): S3MockContainer = S3MockContainer("latest")
-            .withInitialBuckets(DEFAULT_BUCKET)
+        private fun createMockS3Container(): S3MockContainer =
+            S3MockContainer("latest")
+                .withInitialBuckets(DEFAULT_BUCKET)
 
         private fun createFtpServer(): FtpServer {
             return FtpServer.createServer(
                 FtpConfig(
                     sslConfig = SslConfig(File(this::class.java.getResource("/mykeystore.jks").toURI()), "123456"),
                     userName = FTP_USER,
-                    password = FTP_PASSWORD
-                )
+                    password = FTP_PASSWORD,
+                ),
             )
         }
 
@@ -250,15 +250,16 @@ class ITestListener : TestExecutionListener {
         private fun createFireApiMock(): WireMockServer {
             val factor = System.getenv(FAIL_FACTOR_ENV)?.toInt()
             val delay = System.getenv(FIXED_DELAY_ENV)?.toLong() ?: 0L
-            val transformer = newTransformer(
-                subFolder = fireSubmissionPath.toPath(),
-                ftpFolder = fireFtpPath.toPath(),
-                dbFolder = firePath.toPath(),
-                failFactor = factor,
-                fixedDelay = delay,
-                httpEndpoint = s3Container.httpEndpoint,
-                defaultBucket = DEFAULT_BUCKET
-            )
+            val transformer =
+                newTransformer(
+                    subFolder = fireSubmissionPath.toPath(),
+                    ftpFolder = fireFtpPath.toPath(),
+                    dbFolder = firePath.toPath(),
+                    failFactor = factor,
+                    fixedDelay = delay,
+                    httpEndpoint = s3Container.httpEndpoint,
+                    defaultBucket = DEFAULT_BUCKET,
+                )
             return WireMockServer(WireMockConfiguration().dynamicPort().extensions(transformer))
         }
 

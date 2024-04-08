@@ -87,7 +87,7 @@ class TimesServiceTest(
 
             val exception = assertThrows<InvalidDateFormatException> { testInstance.getTimes(request) }
             assertThat(exception.message).isEqualTo(
-                "Provided date 2018/10/10 could not be parsed. Expected format is YYYY-MM-DD"
+                "Provided date 2018/10/10 could not be parsed. Expected format is YYYY-MM-DD",
             )
         }
 

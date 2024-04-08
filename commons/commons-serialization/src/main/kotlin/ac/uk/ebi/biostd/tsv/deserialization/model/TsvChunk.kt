@@ -54,27 +54,30 @@ internal class LinksTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 }
 
 internal class FileTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
-    fun asTable() = FilesTable(
-        asTable(this) { name, attributes ->
-            BioFile(validatedFilePath(name), attributes = attributes)
-        }
-    )
+    fun asTable() =
+        FilesTable(
+            asTable(this) { name, attributes ->
+                BioFile(validatedFilePath(name), attributes = attributes)
+            },
+        )
 }
 
 internal sealed class SectionTableChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
-    open fun asTable() = SectionsTable(
-        asTable(this) { accNo, attributes -> Section(this.getType(), accNo, attributes = attributes) }
-    )
+    open fun asTable() =
+        SectionsTable(
+            asTable(this) { accNo, attributes -> Section(this.getType(), accNo, attributes = attributes) },
+        )
 }
 
 internal class RootSectionTableChunk(body: List<TsvChunkLine>) : SectionTableChunk(body)
 
 internal class SubSectionTableChunk(body: List<TsvChunkLine>, val parent: String) : SectionTableChunk(body) {
-    override fun asTable() = SectionsTable(
-        asTable(this) { accNo, attributes ->
-            Section(this.getType(), accNo, attributes = attributes, parentAccNo = parent)
-        }
-    )
+    override fun asTable() =
+        SectionsTable(
+            asTable(this) { accNo, attributes ->
+                Section(this.getType(), accNo, attributes = attributes, parentAccNo = parent)
+            },
+        )
 }
 
 internal sealed class SectionChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
@@ -82,4 +85,5 @@ internal sealed class SectionChunk(body: List<TsvChunkLine>) : TsvChunk(body) {
 }
 
 internal class RootSubSectionChunk(body: List<TsvChunkLine>) : SectionChunk(body)
+
 internal class SubSectionChunk(body: List<TsvChunkLine>, val parent: String) : SectionChunk(body)

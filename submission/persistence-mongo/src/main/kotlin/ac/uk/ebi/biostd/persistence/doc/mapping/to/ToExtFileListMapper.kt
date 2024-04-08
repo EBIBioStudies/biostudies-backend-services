@@ -46,15 +46,20 @@ class ToExtFileListMapper(
         return ExtFileList(
             filePath = fileList.fileName,
             file = writeFileList(subAccNo, subVersion, fileList.fileName, files),
-            pageTabFiles = fileList.pageTabFiles.map { it.toExtFile(released, subRelPath) }
+            pageTabFiles = fileList.pageTabFiles.map { it.toExtFile(released, subRelPath) },
         )
     }
 
-    private suspend fun writeFileList(accNo: String, version: Int, name: String, files: Flow<ExtFile>): File {
+    private suspend fun writeFileList(
+        accNo: String,
+        version: Int,
+        name: String,
+        files: Flow<ExtFile>,
+    ): File {
         suspend fun asLogeableFlow(files: Flow<ExtFile>): Flow<ExtFile> {
             return files.every(
                 items = 500,
-                { logger.info { "accNo:'$accNo' version: '$version', serialized file ${it.index}, file list '$name'" } }
+                { logger.info { "accNo:'$accNo' version: '$version', serialized file ${it.index}, file list '$name'" } },
             )
         }
 

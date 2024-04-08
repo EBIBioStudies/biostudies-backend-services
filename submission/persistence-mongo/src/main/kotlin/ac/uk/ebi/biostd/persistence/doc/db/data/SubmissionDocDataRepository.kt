@@ -55,19 +55,19 @@ class SubmissionDocDataRepository(
     private val submissionRepository: SubmissionMongoRepository,
     private val mongoTemplate: ReactiveMongoTemplate,
 ) : SubmissionMongoRepository by submissionRepository {
-
     suspend fun setAsReleased(accNo: String) {
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).gt(0)))
         mongoTemplate.updateFirst(query, update(SUB_RELEASED, true), DocSubmission::class.java).awaitSingleOrNull()
     }
 
     suspend fun getCurrentMaxVersion(accNo: String): Int? {
-        val aggregation = newAggregation(
-            DocSubmission::class.java,
-            match(where(SUB_ACC_NO).`is`(accNo)),
-            group(SUB_ACC_NO).max(absoluteValueOf(SUB_VERSION)).`as`("maxVersion"),
-            sort(Sort.Direction.DESC, "maxVersion")
-        )
+        val aggregation =
+            newAggregation(
+                DocSubmission::class.java,
+                match(where(SUB_ACC_NO).`is`(accNo)),
+                group(SUB_ACC_NO).max(absoluteValueOf(SUB_VERSION)).`as`("maxVersion"),
+                sort(Sort.Direction.DESC, "maxVersion"),
+            )
 
         val result = mongoTemplate.aggregate(aggregation, Result::class.java).awaitFirstOrNull()
         return result?.maxVersion
@@ -77,19 +77,20 @@ class SubmissionDocDataRepository(
         mongoTemplate.updateMulti(
             Query(where(SUB_ACC_NO).`in`(submissions).andOperator(where(SUB_VERSION).gt(0))),
             ExtendedUpdate().multiply(SUB_VERSION, -1).set(SUB_MODIFICATION_TIME, Instant.now()),
-            DocSubmission::class.java
+            DocSubmission::class.java,
         ).awaitSingleOrNull()
 
-        val fileListQuery = Query(
-            where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO).`in`(submissions)
-                .andOperator(where(FILE_LIST_DOC_FILE_SUBMISSION_VERSION).gt(0))
-        )
+        val fileListQuery =
+            Query(
+                where(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO).`in`(submissions)
+                    .andOperator(where(FILE_LIST_DOC_FILE_SUBMISSION_VERSION).gt(0)),
+            )
         mongoTemplate.updateMulti(
             fileListQuery,
             ExtendedUpdate()
                 .multiply(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, -1)
                 .set(SUB_MODIFICATION_TIME, Instant.now()),
-            FileListDocFile::class.java
+            FileListDocFile::class.java,
         ).awaitSingleOrNull()
     }
 
@@ -99,34 +100,37 @@ class SubmissionDocDataRepository(
 
     fun getSubmissions(filter: SubmissionFilter): Flow<DocSubmission> {
         val aggregations = createSubmissionAggregation(filter)
-        val aggregation = newAggregation(
-            DocSubmission::class.java,
-            *aggregations.toTypedArray()
-        ).withOptions(aggregationOptions())
+        val aggregation =
+            newAggregation(
+                DocSubmission::class.java,
+                *aggregations.toTypedArray(),
+            ).withOptions(aggregationOptions())
 
         return mongoTemplate.aggregate(aggregation, DocSubmission::class.java).asFlow()
     }
 
     suspend fun getSubmissionsPage(filter: SubmissionFilter): Page<DocSubmission> {
-        val aggregation = newAggregation(
-            DocSubmission::class.java,
-            *createCountAggregation(filter).toTypedArray()
-        ).withOptions(aggregationOptions())
+        val aggregation =
+            newAggregation(
+                DocSubmission::class.java,
+                *createCountAggregation(filter).toTypedArray(),
+            ).withOptions(aggregationOptions())
 
         val result = mongoTemplate.aggregate(aggregation, CountResult::class.java)
         return PageImpl(
             getSubmissions(filter).toList(),
             PageRequest.of(filter.pageNumber, filter.limit),
-            result.awaitFirstOrNull()?.submissions ?: 0
+            result.awaitFirstOrNull()?.submissions ?: 0,
         )
     }
 
-    suspend fun getSubmission(acc: String, version: Int): DocSubmission =
-        submissionRepository.getByAccNoAndVersion(acc, version)
+    suspend fun getSubmission(
+        acc: String,
+        version: Int,
+    ): DocSubmission = submissionRepository.getByAccNoAndVersion(acc, version)
 
     companion object {
-        private fun createCountAggregation(filter: SubmissionFilter) =
-            createAggregation(filter).plus(group().count().`as`("submissions"))
+        private fun createCountAggregation(filter: SubmissionFilter) = createAggregation(filter).plus(group().count().`as`("submissions"))
 
         private fun createSubmissionAggregation(filter: SubmissionFilter) =
             createAggregation(filter, filter.offset to filter.limit.toLong())
@@ -136,11 +140,15 @@ class SubmissionDocDataRepository(
         private fun createAggregation(
             filter: SubmissionFilter,
             offsetLimit: Pair<Long, Long>? = null,
-        ): List<AggregationOperation> = buildList {
-            addAll(createQuery(filter))
-            add(sort(Sort.Direction.DESC, SUB_MODIFICATION_TIME))
-            offsetLimit?.let { add(skip(it.first)); add(limit(it.second)) }
-        }
+        ): List<AggregationOperation> =
+            buildList {
+                addAll(createQuery(filter))
+                add(sort(Sort.Direction.DESC, SUB_MODIFICATION_TIME))
+                offsetLimit?.let {
+                    add(skip(it.first))
+                    add(limit(it.second))
+                }
+            }
 
         @Suppress("ComplexMethod")
         private fun createQuery(filter: SubmissionFilter): List<MatchOperation> {
@@ -148,8 +156,8 @@ class SubmissionDocDataRepository(
                 where("$SUB_SECTION.$SUB_ATTRIBUTES").elemMatch(
                     Criteria().andOperator(
                         where(ATTRIBUTE_DOC_NAME).`is`("Title"),
-                        where(ATTRIBUTE_DOC_VALUE).regex(".*$keywords.*", "i")
-                    )
+                        where(ATTRIBUTE_DOC_VALUE).regex(".*$keywords.*", "i"),
+                    ),
                 )
 
             fun subTitleContains(keywords: String): Criteria {
@@ -166,8 +174,11 @@ class SubmissionDocDataRepository(
                     is SubmissionListFilter -> {
                         when {
                             filter.findAnyAccNo -> {
-                                if (filter.accNo != null) add(match(where(SUB_ACC_NO).`is`(filter.accNo)))
-                                else filter.keywords?.let { add(match(keywordsCriteria(it))) }
+                                if (filter.accNo != null) {
+                                    add(match(where(SUB_ACC_NO).`is`(filter.accNo)))
+                                } else {
+                                    filter.keywords?.let { add(match(keywordsCriteria(it))) }
+                                }
                             }
 
                             else -> {

@@ -9,7 +9,10 @@ private val logger = KotlinLogging.logger {}
 class SuspendRetryTemplate(
     private val config: RetryConfig,
 ) {
-    suspend fun <T> execute(opt: String, func: suspend () -> T): T {
+    suspend fun <T> execute(
+        opt: String,
+        func: suspend () -> T,
+    ): T {
         logger.debug(opt) { "Started executing operation: $opt" }
 
         val response = retry(opt, func)
@@ -19,7 +22,10 @@ class SuspendRetryTemplate(
         return response
     }
 
-    private suspend fun <T> retry(opt: String, func: suspend () -> T): T {
+    private suspend fun <T> retry(
+        opt: String,
+        func: suspend () -> T,
+    ): T {
         var attempt = 1
         var currentDelay = config.initialInterval
 

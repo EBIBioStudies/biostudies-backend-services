@@ -58,9 +58,9 @@ import java.time.Duration.ofSeconds
 @ContextConfiguration
 @ExtendWith(TemporaryFolderExtension::class)
 internal class PmcSingleFileLoaderTest(private val tempFolder: TemporaryFolder) {
-
-    private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-        .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+    private val mongoContainer: MongoDBContainer =
+        MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
     private val wireMockServer = WireMockServer(WireMockConfiguration().dynamicPort())
 
     @BeforeAll
@@ -90,8 +90,8 @@ internal class PmcSingleFileLoaderTest(private val tempFolder: TemporaryFolder) 
                 aResponse()
                     .withStatus(HTTP_OK)
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                    .withBody("response".toJsonQuote())
-            )
+                    .withBody("response".toJsonQuote()),
+            ),
         )
         wireMockServer.start()
         System.setProperty("app.data.notificationsUrl", "http://localhost:${wireMockServer.port()}")

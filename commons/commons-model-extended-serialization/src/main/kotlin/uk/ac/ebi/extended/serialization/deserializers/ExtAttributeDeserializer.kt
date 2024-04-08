@@ -19,7 +19,10 @@ import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 
 class ExtAttributeDeserializer : JsonDeserializer<ExtAttribute>() {
-    override fun deserialize(jsonParser: JsonParser, ctxt: DeserializationContext): ExtAttribute {
+    override fun deserialize(
+        jsonParser: JsonParser,
+        ctxt: DeserializationContext,
+    ): ExtAttribute {
         val mapper = jsonParser.codec as ObjectMapper
         val node = mapper.readTree<JsonNode>(jsonParser)
 

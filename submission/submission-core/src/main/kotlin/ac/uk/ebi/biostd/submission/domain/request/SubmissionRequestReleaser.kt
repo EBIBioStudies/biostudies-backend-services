@@ -40,7 +40,11 @@ class SubmissionRequestReleaser(
     /**
      * Check the release status of the submission and release it if released flag is true.
      */
-    suspend fun checkReleased(accNo: String, version: Int, processId: String) {
+    suspend fun checkReleased(
+        accNo: String,
+        version: Int,
+        processId: String,
+    ) {
         requestService.onRequest(accNo, version, FILES_COPIED, processId, {
             if (it.submission.released) releaseRequest(accNo, version, it)
             RqtUpdate(it.withNewStatus(CHECK_RELEASED))
@@ -69,15 +73,23 @@ class SubmissionRequestReleaser(
         logger.info { "$accNo ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
     }
 
-    private suspend fun releaseSubmissionFiles(accNo: String, version: Int, sub: ExtSubmission, startingAt: Int) {
+    private suspend fun releaseSubmissionFiles(
+        accNo: String,
+        version: Int,
+        sub: ExtSubmission,
+        startingAt: Int,
+    ) {
         suspend fun releaseFile(reqFile: SubmissionRequestFile) {
             when (val file = reqFile.file) {
                 is NfsFile ->
                     requestService.updateRqtIndex(reqFile, releaseFile(sub, reqFile.index, file))
 
                 is FireFile -> {
-                    if (file.published) requestService.updateRqtIndex(accNo, version, reqFile.index)
-                    else requestService.updateRqtIndex(reqFile, releaseFile(sub, reqFile.index, file))
+                    if (file.published) {
+                        requestService.updateRqtIndex(accNo, version, reqFile.index)
+                    } else {
+                        requestService.updateRqtIndex(reqFile, releaseFile(sub, reqFile.index, file))
+                    }
                 }
             }
         }
@@ -91,7 +103,11 @@ class SubmissionRequestReleaser(
         }
     }
 
-    private suspend fun releaseFile(sub: ExtSubmission, idx: Int, file: ExtFile): ExtFile {
+    private suspend fun releaseFile(
+        sub: ExtSubmission,
+        idx: Int,
+        file: ExtFile,
+    ): ExtFile {
         logger.info { "${sub.accNo}, ${sub.owner} Started publishing file $idx - ${file.filePath}" }
         val releasedFile = fileStorageService.releaseSubmissionFile(file, sub.relPath, sub.secretKey, sub.storageMode)
         logger.info { "${sub.accNo}, ${sub.owner} Finished publishing file $idx - ${file.filePath}" }

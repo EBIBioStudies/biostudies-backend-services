@@ -10,7 +10,10 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILES
 import uk.ac.ebi.serialization.extensions.convertOrDefault
 
 class ExtFilesTableDeserializer : JsonDeserializer<ExtFileTable>() {
-    override fun deserialize(jsonParser: JsonParser, ctxt: DeserializationContext): ExtFileTable {
+    override fun deserialize(
+        jsonParser: JsonParser,
+        ctxt: DeserializationContext,
+    ): ExtFileTable {
         val mapper = jsonParser.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jsonParser)
         return ExtFileTable(mapper.convertOrDefault(node, FILES) { emptyList() })

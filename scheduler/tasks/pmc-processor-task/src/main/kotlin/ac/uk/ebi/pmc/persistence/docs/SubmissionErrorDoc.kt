@@ -17,10 +17,10 @@ data class SubmissionErrorDoc(
             submission.sourceFile,
             submission.body,
             error,
-            mode
+            mode,
         ) {
-            this.accNo = submission.accNo
-        }
+        this.accNo = submission.accNo
+    }
 
     companion object Fields {
         const val ERROR_SOURCE_FILE = "sourceFile"

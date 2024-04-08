@@ -14,20 +14,20 @@ class DbTag(
     @Id
     @GeneratedValue
     var id: Long = 0,
-
     @Column
     var classifier: String,
-
     @Column
-    var name: String
+    var name: String,
 ) {
-    override fun equals(other: Any?) = when {
-        other !is DbTag -> false
-        other === this -> true
-        else -> Objects.equals(id, other.id)
-            .and(Objects.equals(name, other.name))
-            .and(Objects.equals(classifier, other.classifier))
-    }
+    override fun equals(other: Any?) =
+        when {
+            other !is DbTag -> false
+            other === this -> true
+            else ->
+                Objects.equals(id, other.id)
+                    .and(Objects.equals(name, other.name))
+                    .and(Objects.equals(classifier, other.classifier))
+        }
 
     override fun hashCode() = Objects.hash(id, name, classifier)
 }

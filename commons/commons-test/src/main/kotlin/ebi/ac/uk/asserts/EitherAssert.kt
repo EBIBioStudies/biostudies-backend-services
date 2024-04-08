@@ -10,7 +10,6 @@ fun <A, B> assertThat(option: Either<A, B>): EitherAssert<A, B> {
 
 class EitherAssert<A, B>(actual: Either<A, B>) :
     AbstractAssert<EitherAssert<A, B>, Either<A, B>>(actual, EitherAssert::class.java) {
-
     fun hasLeftValueSatisfying(assertion: (A) -> Unit) {
         assertThat(actual.isLeft())
         actual.fold({ assertion(it) }, {})

@@ -12,10 +12,11 @@ class ExtAttributeDetailConverterTest {
 
     @Test
     fun convert() {
-        val attribute = jsonObj {
-            "name" to "Overridden"
-            "value" to "New Value"
-        }.toString()
+        val attribute =
+            jsonObj {
+                "name" to "Overridden"
+                "value" to "New Value"
+            }.toString()
 
         assertThat(testInstance.convert(attribute)).isEqualTo(ExtAttributeDetail("Overridden", "New Value"))
     }

@@ -21,11 +21,16 @@ class SubmissionRequestSaver(
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
     private val eventsPublisherService: EventsPublisherService,
 ) {
-    suspend fun saveRequest(accNo: String, version: Int, processId: String): ExtSubmission {
-        val (rqt, submission) = requestService.onRequest(accNo, version, CHECK_RELEASED, processId, {
-            val sub = saveRequest(it.submission)
-            RqtResponse(it.withNewStatus(PERSISTED), sub)
-        })
+    suspend fun saveRequest(
+        accNo: String,
+        version: Int,
+        processId: String,
+    ): ExtSubmission {
+        val (rqt, submission) =
+            requestService.onRequest(accNo, version, CHECK_RELEASED, processId, {
+                val sub = saveRequest(it.submission)
+                RqtResponse(it.withNewStatus(PERSISTED), sub)
+            })
         eventsPublisherService.submissionSubmitted(accNo, rqt.notifyTo)
         eventsPublisherService.submissionPersisted(accNo, version)
         return submission

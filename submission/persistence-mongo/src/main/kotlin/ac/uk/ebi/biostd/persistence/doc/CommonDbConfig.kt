@@ -38,14 +38,15 @@ private fun docSubmissionConverter(): DocSubmissionConverter {
     val docFileTableConverter = DocFileTableConverter(docFileConverter)
     val docLinkConverter = DocLinkConverter(docAttributeConverter)
     val docLinksTableConverter = DocLinkTableConverter(docLinkConverter)
-    val docSectionConverter = DocSectionConverter(
-        docAttributeConverter,
-        docLinkConverter,
-        docLinksTableConverter,
-        docFileConverter,
-        docFileTableConverter,
-        docFileListConverter
-    )
+    val docSectionConverter =
+        DocSectionConverter(
+            docAttributeConverter,
+            docLinkConverter,
+            docLinksTableConverter,
+            docFileConverter,
+            docFileTableConverter,
+            docFileListConverter,
+        )
     return DocSubmissionConverter(docFileConverter, docSectionConverter, docAttributeConverter)
 }
 
@@ -56,13 +57,14 @@ private fun submissionConverter(): SubmissionConverter {
     val fileTableConverter = FileTableConverter(fileConverter)
     val linkConverter = LinkConverter(attributeConverter)
     val linksTableConverter = LinkTableConverter(linkConverter)
-    val sectionConverter = SectionConverter(
-        attributeConverter,
-        linkConverter,
-        linksTableConverter,
-        fileConverter,
-        fileTableConverter,
-        fileListConverter
-    )
+    val sectionConverter =
+        SectionConverter(
+            attributeConverter,
+            linkConverter,
+            linksTableConverter,
+            fileConverter,
+            fileTableConverter,
+            fileListConverter,
+        )
     return SubmissionConverter(sectionConverter, attributeConverter, fileConverter)
 }

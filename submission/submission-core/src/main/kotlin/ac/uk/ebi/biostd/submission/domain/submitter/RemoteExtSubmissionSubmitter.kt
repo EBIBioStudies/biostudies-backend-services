@@ -23,48 +23,77 @@ class RemoteExtSubmissionSubmitter(
         TODO("Remote execution not required")
     }
 
-    override suspend fun indexRequest(accNo: String, version: Int) {
+    override suspend fun indexRequest(
+        accNo: String,
+        version: Int,
+    ) {
         TODO("Remote execution not required")
     }
 
-    override suspend fun loadRequest(accNo: String, version: Int) {
+    override suspend fun loadRequest(
+        accNo: String,
+        version: Int,
+    ) {
         executeRemotely(accNo, version, Mode.LOAD)
     }
 
-    override suspend fun cleanRequest(accNo: String, version: Int) {
+    override suspend fun cleanRequest(
+        accNo: String,
+        version: Int,
+    ) {
         executeRemotely(accNo, version, Mode.CLEAN)
     }
 
-    override suspend fun processRequest(accNo: String, version: Int) {
+    override suspend fun processRequest(
+        accNo: String,
+        version: Int,
+    ) {
         executeRemotely(accNo, version, Mode.COPY)
     }
 
-    override suspend fun checkReleased(accNo: String, version: Int) {
+    override suspend fun checkReleased(
+        accNo: String,
+        version: Int,
+    ) {
         executeRemotely(accNo, version, Mode.CHECK_RELEASED)
     }
 
-    override suspend fun saveRequest(accNo: String, version: Int): ExtSubmission {
+    override suspend fun saveRequest(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         TODO("Remote execution not required")
     }
 
-    override suspend fun finalizeRequest(accNo: String, version: Int): ExtSubmission {
+    override suspend fun finalizeRequest(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         TODO("Remote execution not required")
     }
 
-    override suspend fun handleRequest(accNo: String, version: Int): ExtSubmission {
+    override suspend fun handleRequest(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         TODO("Remote execution not required")
     }
 
-    private suspend fun executeRemotely(accNo: String, version: Int, mode: Mode) = withContext(Dispatchers.IO) {
-        val command = buildString {
-            appendSpaced(submissionTaskProperties.javaLocation)
-            appendSpaced("-jar")
-            appendSpaced(submissionTaskProperties.jarLocation)
-            appendSpaced("--spring.config.location=${submissionTaskProperties.configFileLocation}")
-            appendSpaced("--accNo=$accNo")
-            appendSpaced("--version=$version")
-            appendSpaced("--mode=${mode.name}")
-        }
+    private suspend fun executeRemotely(
+        accNo: String,
+        version: Int,
+        mode: Mode,
+    ) = withContext(Dispatchers.IO) {
+        val command =
+            buildString {
+                appendSpaced(submissionTaskProperties.javaLocation)
+                appendSpaced("-jar")
+                appendSpaced(submissionTaskProperties.jarLocation)
+                appendSpaced("--spring.config.location=${submissionTaskProperties.configFileLocation}")
+                appendSpaced("--accNo=$accNo")
+                appendSpaced("--version=$version")
+                appendSpaced("--mode=${mode.name}")
+            }
 
         val job = clusterClient.triggerJobAsync(JobSpec(cores = 8, ram = SIXTEEN_GB, DataMoverQueue, command))
         job.fold(

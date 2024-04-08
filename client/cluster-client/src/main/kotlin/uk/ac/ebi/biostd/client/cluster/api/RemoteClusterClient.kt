@@ -56,12 +56,16 @@ class RemoteClusterClient(
         }
     }
 
-    private suspend fun await(job: Job, checkJobInterval: Long, maxSecondsDuration: Long): Job {
+    private suspend fun await(
+        job: Job,
+        checkJobInterval: Long,
+        maxSecondsDuration: Long,
+    ): Job {
         return runInSession {
             var status: String = PEND_STATUS
             waitUntil(
                 interval = ofSeconds(checkJobInterval),
-                duration = ofSeconds(maxSecondsDuration)
+                duration = ofSeconds(maxSecondsDuration),
             ) {
                 status = jobStatus(job.id)
                 val executionFinished = status == DONE_STATUS || status == EXIT_STATUS
@@ -78,7 +82,11 @@ class RemoteClusterClient(
         }
     }
 
-    private fun asJobReturn(exitCode: Int, response: String, logsPath: String): Try<Job> {
+    private fun asJobReturn(
+        exitCode: Int,
+        response: String,
+        logsPath: String,
+    ): Try<Job> {
         if (exitCode == 0) return Try.just(responseParser.toJob(response, logsPath))
 
         logger.error(response) { "Error submission job, exitCode='$exitCode', response='$response'" }
@@ -105,7 +113,11 @@ class RemoteClusterClient(
 
         private val responseParser = JobResponseParser()
 
-        fun create(sshKey: String, sshMachine: String, logsPath: String): RemoteClusterClient {
+        fun create(
+            sshKey: String,
+            sshMachine: String,
+            logsPath: String,
+        ): RemoteClusterClient {
             val sshClient = JSch()
             sshClient.addIdentity(sshKey)
             return RemoteClusterClient(logsPath, responseParser) {

@@ -11,10 +11,12 @@ import org.litote.kmongo.coroutine.toList
 import java.io.File
 
 class SubFileRepository(private val collection: MongoCollection<FileDoc>) {
-
     suspend fun getFiles(ids: List<ObjectId>): List<FileDoc> = collection.find(Filters.`in`("_id", ids)).toList()
 
-    suspend fun saveFile(file: File, accNo: String): ObjectId {
+    suspend fun saveFile(
+        file: File,
+        accNo: String,
+    ): ObjectId {
         collection.insertOne(FileDoc(file.name, file.absolutePath, accNo)).awaitSingle()
         return collection.getOne(Filters.eq("path", file.absolutePath))._id
     }

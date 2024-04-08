@@ -33,8 +33,8 @@ class StatsReporterTrigger(
             Report(
                 SYSTEM_NAME,
                 REPORTER_SUBSYSTEM,
-                "Triggered $REPORTER_SUBSYSTEM in the cluster job $job. Logs available at ${job.logsPath}"
-            )
+                "Triggered $REPORTER_SUBSYSTEM in the cluster job $job. Logs available at ${job.logsPath}",
+            ),
         )
 
         return job
@@ -42,23 +42,25 @@ class StatsReporterTrigger(
 
     private suspend fun statsReporterJob(debugPort: Int?): Job {
         val properties = getConfigProperties()
-        val jobTry = clusterClient.triggerJobAsync(
-            JobSpec(
-                cores = FOUR_CORES,
-                ram = EIGHT_GB,
-                queue = DataMoverQueue,
-                command = properties.asCmd(appProperties.appsFolder, debugPort)
+        val jobTry =
+            clusterClient.triggerJobAsync(
+                JobSpec(
+                    cores = FOUR_CORES,
+                    ram = EIGHT_GB,
+                    queue = DataMoverQueue,
+                    command = properties.asCmd(appProperties.appsFolder, debugPort),
+                ),
             )
-        )
 
         return jobTry.fold({ throw it }, { it.apply { logger.info { "Submitted job $it" } } })
     }
 
-    private fun getConfigProperties() = create(
-        properties.persistence.database,
-        properties.persistence.uri,
-        properties.publishPath,
-    )
+    private fun getConfigProperties() =
+        create(
+            properties.persistence.database,
+            properties.persistence.uri,
+            properties.publishPath,
+        )
 
     companion object {
         const val REPORTER_SUBSYSTEM = "Submission Stats Reporter"

@@ -20,13 +20,14 @@ internal class FTPClientPool(
     private val ftpUrl: String,
     private val ftpPort: Int,
     private val ftpRootPath: String,
-    private val ftpClientPool: GenericObjectPool<FTPClient> = createFtpPool(
-        ftpUser,
-        ftpPassword,
-        ftpUrl,
-        ftpPort,
-        ftpRootPath
-    ),
+    private val ftpClientPool: GenericObjectPool<FTPClient> =
+        createFtpPool(
+            ftpUser,
+            ftpPassword,
+            ftpUrl,
+            ftpPort,
+            ftpRootPath,
+        ),
 ) {
     fun <T> execute(action: (FTPClient) -> T): T {
         val ftpClient = ftpClientPool.borrowObject()

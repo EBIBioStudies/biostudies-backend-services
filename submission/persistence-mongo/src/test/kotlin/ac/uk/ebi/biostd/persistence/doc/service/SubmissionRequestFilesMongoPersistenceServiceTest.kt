@@ -50,38 +50,41 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
         )
 
     @AfterEach
-    fun afterEach() = runBlocking {
-        tempFolder.clean()
-        requestRepository.deleteAll()
-    }
+    fun afterEach() =
+        runBlocking {
+            tempFolder.clean()
+            requestRepository.deleteAll()
+        }
 
     @Nested
     inner class Registration {
         @Test
-        fun `register request file`() = runTest {
-            val extFile = createNfsFile("requested.txt", "Files/requested.txt", tempFolder.createFile("requested.txt"))
-            val requestFile = SubmissionRequestFile("S-BSST0", 1, 1, "requested.txt", extFile)
+        fun `register request file`() =
+            runTest {
+                val extFile = createNfsFile("requested.txt", "Files/requested.txt", tempFolder.createFile("requested.txt"))
+                val requestFile = SubmissionRequestFile("S-BSST0", 1, 1, "requested.txt", extFile)
 
-            testInstance.saveSubmissionRequestFile(requestFile)
+                testInstance.saveSubmissionRequestFile(requestFile)
 
-            val saved = testInstance.getSubmissionRequestFile("S-BSST0", 1, "requested.txt")
-            assertThat(saved).isEqualTo(requestFile)
-        }
+                val saved = testInstance.getSubmissionRequestFile("S-BSST0", 1, "requested.txt")
+                assertThat(saved).isEqualTo(requestFile)
+            }
 
         @Test
-        fun `update request file`() = runTest {
-            val first = createNfsFile("first.txt", "Files/first.txt", tempFolder.createFile("first.txt"))
-            val second = createNfsFile("second.txt", "Files/second.txt", tempFolder.createFile("second.txt"))
+        fun `update request file`() =
+            runTest {
+                val first = createNfsFile("first.txt", "Files/first.txt", tempFolder.createFile("first.txt"))
+                val second = createNfsFile("second.txt", "Files/second.txt", tempFolder.createFile("second.txt"))
 
-            val requestFile = SubmissionRequestFile("S-BSST0", 2, 1, "updated.txt", first)
-            testInstance.saveSubmissionRequestFile(requestFile)
+                val requestFile = SubmissionRequestFile("S-BSST0", 2, 1, "updated.txt", first)
+                testInstance.saveSubmissionRequestFile(requestFile)
 
-            val updatedFile = SubmissionRequestFile("S-BSST0", 2, 1, "updated.txt", second)
-            testInstance.saveSubmissionRequestFile(updatedFile)
+                val updatedFile = SubmissionRequestFile("S-BSST0", 2, 1, "updated.txt", second)
+                testInstance.saveSubmissionRequestFile(updatedFile)
 
-            val updated = testInstance.getSubmissionRequestFile("S-BSST0", 2, "updated.txt")
-            assertThat(updated).isEqualTo(updatedFile)
-        }
+                val updated = testInstance.getSubmissionRequestFile("S-BSST0", 2, "updated.txt")
+                assertThat(updated).isEqualTo(updatedFile)
+            }
     }
 
     @Nested
@@ -92,17 +95,18 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
         private val extFile4 = createNfsFile("file4.txt", "Files/file4.txt", tempFolder.createFile("file4.txt"))
 
         @BeforeEach
-        fun beforeEach() = runBlocking {
-            val requestFile1 = SubmissionRequestFile("S-BSST1", 1, 1, "file1.txt", extFile1)
-            val requestFile2 = SubmissionRequestFile("S-BSST1", 1, 2, "file2.txt", extFile2)
-            val requestFile3 = SubmissionRequestFile("S-BSST1", 1, 3, "file3.txt", extFile3)
-            val requestFile4 = SubmissionRequestFile("S-BSST1", 1, 4, "file4.txt", extFile4)
+        fun beforeEach() =
+            runBlocking {
+                val requestFile1 = SubmissionRequestFile("S-BSST1", 1, 1, "file1.txt", extFile1)
+                val requestFile2 = SubmissionRequestFile("S-BSST1", 1, 2, "file2.txt", extFile2)
+                val requestFile3 = SubmissionRequestFile("S-BSST1", 1, 3, "file3.txt", extFile3)
+                val requestFile4 = SubmissionRequestFile("S-BSST1", 1, 4, "file4.txt", extFile4)
 
-            testInstance.saveSubmissionRequestFile(requestFile1)
-            testInstance.saveSubmissionRequestFile(requestFile2)
-            testInstance.saveSubmissionRequestFile(requestFile3)
-            testInstance.saveSubmissionRequestFile(requestFile4)
-        }
+                testInstance.saveSubmissionRequestFile(requestFile1)
+                testInstance.saveSubmissionRequestFile(requestFile2)
+                testInstance.saveSubmissionRequestFile(requestFile3)
+                testInstance.saveSubmissionRequestFile(requestFile4)
+            }
 
         @Test
         fun `get all submission request files`() {
@@ -131,8 +135,9 @@ class SubmissionRequestFilesMongoPersistenceServiceTest(
 
     companion object {
         @Container
-        val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+        val mongoContainer: MongoDBContainer =
+            MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

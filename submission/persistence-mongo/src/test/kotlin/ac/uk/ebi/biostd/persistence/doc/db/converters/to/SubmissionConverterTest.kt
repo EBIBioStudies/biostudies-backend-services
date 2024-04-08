@@ -43,11 +43,9 @@ internal class SubmissionConverterTest(
     @MockK val attributeConverter: AttributeConverter,
     @MockK val docAttribute: DocAttribute,
     @MockK val attributeDocument: Document,
-
     @MockK val sectionConverter: SectionConverter,
     @MockK val docSection: DocSection,
     @MockK val sectionDocument: Document,
-
     @MockK val fileConverter: FileConverter,
     @MockK val docFile: DocFile,
     @MockK val fileDocument: Document,
@@ -121,7 +119,7 @@ internal class SubmissionConverterTest(
             tags = submissionTags,
             collections = submissionCollections,
             pageTabFiles = listOf(docFile),
-            storageMode = StorageMode.NFS
+            storageMode = StorageMode.NFS,
         )
     }
 

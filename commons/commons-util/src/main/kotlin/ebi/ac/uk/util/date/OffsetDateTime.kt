@@ -18,6 +18,9 @@ fun fromIsoTime(timeString: String): OffsetDateTime = parse(timeString, ISO_OFFS
 
 fun OffsetDateTime.isBeforeOrEqual(other: OffsetDateTime): Boolean = isBefore(other) || isEqual(other)
 
-fun max(one: OffsetDateTime, another: OffsetDateTime): OffsetDateTime = if (one.isAfter(another)) one else another
+fun max(
+    one: OffsetDateTime,
+    another: OffsetDateTime,
+): OffsetDateTime = if (one.isAfter(another)) one else another
 
 fun OffsetDateTime.atMidnight(): OffsetDateTime = withHour(0).withMinute(0).withSecond(0).withNano(0)

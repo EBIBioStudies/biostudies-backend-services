@@ -32,7 +32,7 @@ class ExternalConfig {
             subDataRepository,
             fileListDocFileRepository,
             toExtSubmissionMapper,
-            toDocSubmissionMapper
+            toDocSubmissionMapper,
         )
     }
 }

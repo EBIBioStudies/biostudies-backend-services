@@ -11,6 +11,5 @@ import org.springframework.context.annotation.Configuration
 class PropConfig {
     @Bean
     @ConfigurationProperties("app.data")
-    fun properties() =
-        PmcImporterProperties()
+    fun properties() = PmcImporterProperties()
 }

@@ -34,160 +34,183 @@ internal class FileSourcesListTest(
     @Nested
     inner class GetFile {
         @Test
-        fun whenOne() = runTest {
-            coEvery { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns file
-            coEvery { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
-            assertThat(testInstance.findExtFile(filePath, FILE_TYPE.value, attributes)).isEqualTo(file)
-        }
+        fun whenOne() =
+            runTest {
+                coEvery { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns file
+                coEvery { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
+                assertThat(testInstance.findExtFile(filePath, FILE_TYPE.value, attributes)).isEqualTo(file)
+            }
 
         @Test
-        fun whenAnother() = runTest {
-            coEvery { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
-            coEvery { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns file
-            assertThat(testInstance.findExtFile(filePath, FILE_TYPE.value, attributes)).isEqualTo(file)
-        }
+        fun whenAnother() =
+            runTest {
+                coEvery { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
+                coEvery { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns file
+                assertThat(testInstance.findExtFile(filePath, FILE_TYPE.value, attributes)).isEqualTo(file)
+            }
 
         @Test
-        fun whenNone() = runTest {
-            coEvery { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
-            coEvery { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
-            assertThat(testInstance.findExtFile(filePath, FILE_TYPE.value, attributes)).isNull()
-        }
+        fun whenNone() =
+            runTest {
+                coEvery { oneFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
+                coEvery { anotherFileSource.getExtFile(filePath, FILE_TYPE.value, attributes) } returns null
+                assertThat(testInstance.findExtFile(filePath, FILE_TYPE.value, attributes)).isNull()
+            }
     }
 
     @Nested
     inner class InvalidFilePaths {
         @Test
-        fun `file with relative path`() = runTest {
-            val error = assertFailsWith<InvalidPathException> {
-                testInstance.findExtFile("./folder/file.txt", FILE_TYPE.value, attributes)
-            }
-            val expectedErrorMessage =
-                """
+        fun `file with relative path`() =
+            runTest {
+                val error =
+                    assertFailsWith<InvalidPathException> {
+                        testInstance.findExtFile("./folder/file.txt", FILE_TYPE.value, attributes)
+                    }
+                val expectedErrorMessage =
+                    """
                     The given file path contains invalid characters: ./folder/file.txt
                     For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
-                """.trimIndent()
-            assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
-        }
+                    """.trimIndent()
+                assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
+            }
 
         @Test
-        fun `file with previous folder relative path`() = runTest {
-            val error = assertFailsWith<InvalidPathException> {
-                testInstance.findExtFile("folder/../file.txt", FILE_TYPE.value, attributes)
-            }
-            val expectedErrorMessage =
-                """
+        fun `file with previous folder relative path`() =
+            runTest {
+                val error =
+                    assertFailsWith<InvalidPathException> {
+                        testInstance.findExtFile("folder/../file.txt", FILE_TYPE.value, attributes)
+                    }
+                val expectedErrorMessage =
+                    """
                     The given file path contains invalid characters: folder/../file.txt
                     For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
-                """.trimIndent()
-            assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
-        }
+                    """.trimIndent()
+                assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
+            }
 
         @Test
-        fun `file with invalid character`() = runTest {
-            val error = assertFailsWith<InvalidPathException> {
-                testInstance.findExtFile("folder/filé.txt", FILE_TYPE.value, attributes)
-            }
-            val expectedErrorMessage =
-                """
+        fun `file with invalid character`() =
+            runTest {
+                val error =
+                    assertFailsWith<InvalidPathException> {
+                        testInstance.findExtFile("folder/filé.txt", FILE_TYPE.value, attributes)
+                    }
+                val expectedErrorMessage =
+                    """
                     The given file path contains invalid characters: folder/filé.txt
                     For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
-                """.trimIndent()
-            assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
-        }
+                    """.trimIndent()
+                assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
+            }
 
         @Test
-        fun `file with invalid non numeric characters`() = runTest {
-            val error = assertFailsWith<InvalidPathException> {
-                testInstance.findExtFile("Tubuline/E_KA_Exp#8_M1_12%_Tubulin_3min.Tif", FILE_TYPE.value, attributes)
-            }
-            val expectedErrorMessage =
-                """
+        fun `file with invalid non numeric characters`() =
+            runTest {
+                val error =
+                    assertFailsWith<InvalidPathException> {
+                        testInstance.findExtFile("Tubuline/E_KA_Exp#8_M1_12%_Tubulin_3min.Tif", FILE_TYPE.value, attributes)
+                    }
+                val expectedErrorMessage =
+                    """
                     The given file path contains invalid characters: Tubuline/E_KA_Exp#8_M1_12%_Tubulin_3min.Tif
                     For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
-                """.trimIndent()
-            assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
-        }
+                    """.trimIndent()
+                assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
+            }
 
         @Test
-        fun `file with trailing slash`() = runTest {
-            val error = assertFailsWith<InvalidPathException> {
-                testInstance.findExtFile("folder/inner/", DIRECTORY_TYPE.value, attributes)
-            }
-            val expectedErrorMessage =
-                """
+        fun `file with trailing slash`() =
+            runTest {
+                val error =
+                    assertFailsWith<InvalidPathException> {
+                        testInstance.findExtFile("folder/inner/", DIRECTORY_TYPE.value, attributes)
+                    }
+                val expectedErrorMessage =
+                    """
                     The given file path contains invalid characters: folder/inner/
                     For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
-                """.trimIndent()
-            assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
-        }
+                    """.trimIndent()
+                assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
+            }
     }
 
     @Nested
     inner class InvalidFileListPaths {
         @Test
-        fun `file with relative path`() = runTest {
-            val error = assertFailsWith<InvalidPathException> {
-                testInstance.getFileList("./folder/file.txt")
-            }
-            val expectedErrorMessage =
-                """
+        fun `file with relative path`() =
+            runTest {
+                val error =
+                    assertFailsWith<InvalidPathException> {
+                        testInstance.getFileList("./folder/file.txt")
+                    }
+                val expectedErrorMessage =
+                    """
                     The given file path contains invalid characters: ./folder/file.txt
                     For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
-                """.trimIndent()
-            assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
-        }
+                    """.trimIndent()
+                assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
+            }
 
         @Test
-        fun `file with previous folder relative path`() = runTest {
-            val error = assertFailsWith<InvalidPathException> {
-                testInstance.getFileList("folder/../file.txt")
-            }
-            val expectedErrorMessage =
-                """
+        fun `file with previous folder relative path`() =
+            runTest {
+                val error =
+                    assertFailsWith<InvalidPathException> {
+                        testInstance.getFileList("folder/../file.txt")
+                    }
+                val expectedErrorMessage =
+                    """
                     The given file path contains invalid characters: folder/../file.txt
                     For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
-                """.trimIndent()
-            assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
-        }
+                    """.trimIndent()
+                assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
+            }
 
         @Test
-        fun `file with invalid character`() = runTest {
-            val error = assertFailsWith<InvalidPathException> {
-                testInstance.getFileList("folder/filé.txt")
-            }
-            val expectedErrorMessage =
-                """
+        fun `file with invalid character`() =
+            runTest {
+                val error =
+                    assertFailsWith<InvalidPathException> {
+                        testInstance.getFileList("folder/filé.txt")
+                    }
+                val expectedErrorMessage =
+                    """
                     The given file path contains invalid characters: folder/filé.txt
                     For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
-                """.trimIndent()
-            assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
-        }
+                    """.trimIndent()
+                assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
+            }
 
         @Test
-        fun `file with invalid non numeric characters`() = runTest {
-            val error = assertFailsWith<InvalidPathException> {
-                testInstance.getFileList("Tubuline/E_KA_Exp#8_M1_12%_Tubulin_3min.Tif")
-            }
-            val expectedErrorMessage =
-                """
+        fun `file with invalid non numeric characters`() =
+            runTest {
+                val error =
+                    assertFailsWith<InvalidPathException> {
+                        testInstance.getFileList("Tubuline/E_KA_Exp#8_M1_12%_Tubulin_3min.Tif")
+                    }
+                val expectedErrorMessage =
+                    """
                     The given file path contains invalid characters: Tubuline/E_KA_Exp#8_M1_12%_Tubulin_3min.Tif
                     For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
-                """.trimIndent()
-            assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
-        }
+                    """.trimIndent()
+                assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
+            }
 
         @Test
-        fun `file with trailing slash`() = runTest {
-            val error = assertFailsWith<InvalidPathException> {
-                testInstance.getFileList("folder/inner/")
-            }
-            val expectedErrorMessage =
-                """
+        fun `file with trailing slash`() =
+            runTest {
+                val error =
+                    assertFailsWith<InvalidPathException> {
+                        testInstance.getFileList("folder/inner/")
+                    }
+                val expectedErrorMessage =
+                    """
                     The given file path contains invalid characters: folder/inner/
                     For more information check https://www.ebi.ac.uk/bioimage-archive/help-file-list
-                """.trimIndent()
-            assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
-        }
+                    """.trimIndent()
+                assertThat(error.message).isEqualToIgnoringWhitespace(expectedErrorMessage)
+            }
     }
 }

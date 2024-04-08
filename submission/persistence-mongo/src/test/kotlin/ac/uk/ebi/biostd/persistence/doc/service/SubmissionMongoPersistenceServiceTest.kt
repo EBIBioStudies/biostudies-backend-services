@@ -37,35 +37,39 @@ class SubmissionMongoPersistenceServiceTest(
     private val testInstance = SubmissionMongoPersistenceService(submissionRepository, subDataRepository)
 
     @AfterEach
-    fun afterEach() = runBlocking {
-        subDataRepository.deleteAll()
-    }
+    fun afterEach() =
+        runBlocking {
+            subDataRepository.deleteAll()
+        }
 
     @Nested
     inner class ExpireSubmissions {
         @Test
-        fun `expire submission`() = runTest {
-            subDataRepository.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1))
-            testInstance.expireSubmission("S-BSST1")
+        fun `expire submission`() =
+            runTest {
+                subDataRepository.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1))
+                testInstance.expireSubmission("S-BSST1")
 
-            assertThat(subDataRepository.findByAccNo("S-BSST1")).isNull()
-        }
+                assertThat(subDataRepository.findByAccNo("S-BSST1")).isNull()
+            }
 
         @Test
-        fun `expire submissions`() = runTest {
-            subDataRepository.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1))
-            subDataRepository.save(testDocSubmission.copy(accNo = "S-BSST101", version = 1))
-            testInstance.expireSubmissions(listOf("S-BSST1", "S-BSST101"))
+        fun `expire submissions`() =
+            runTest {
+                subDataRepository.save(testDocSubmission.copy(accNo = "S-BSST1", version = 1))
+                subDataRepository.save(testDocSubmission.copy(accNo = "S-BSST101", version = 1))
+                testInstance.expireSubmissions(listOf("S-BSST1", "S-BSST101"))
 
-            assertThat(subDataRepository.findByAccNo("S-BSST1")).isNull()
-            assertThat(subDataRepository.findByAccNo("S-BSST101")).isNull()
-        }
+                assertThat(subDataRepository.findByAccNo("S-BSST1")).isNull()
+                assertThat(subDataRepository.findByAccNo("S-BSST101")).isNull()
+            }
     }
 
     companion object {
         @Container
-        val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(MINIMUM_RUNNING_TIME)))
+        val mongoContainer: MongoDBContainer =
+            MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

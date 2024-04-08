@@ -54,53 +54,55 @@ class ToExtSectionMapperTest(
     private val fileSources = FileSourcesList(true, listOf(fileSource))
     private val subSection = Section(type = "subtype", accNo = "accNo1")
     private val subExtSection = ExtSection(type = "subtype", accNo = "accNo1")
-    private val section = Section(
-        type = "type",
-        accNo = "accNo",
-        fileList = fileList,
-        attributes = listOf(attribute),
-        files = mutableListOf(left(file), right(fileTable)),
-        links = mutableListOf(left(link), right(linkTable)),
-        sections = mutableListOf(left(subSection), right(SectionsTable(listOf(subSection))))
-    )
+    private val section =
+        Section(
+            type = "type",
+            accNo = "accNo",
+            fileList = fileList,
+            attributes = listOf(attribute),
+            files = mutableListOf(left(file), right(fileTable)),
+            links = mutableListOf(left(link), right(linkTable)),
+            sections = mutableListOf(left(subSection), right(SectionsTable(listOf(subSection)))),
+        )
     private val toExtFileListMapper: ToExtFileListMapper = mockk()
     private val testInstance = ToExtSectionMapper(toExtFileListMapper)
 
     @Test
-    fun toExtSection() = runTest {
-        coEvery { fileSource.getExtFile(file.path, file.type, file.attributes) } returns extFile
+    fun toExtSection() =
+        runTest {
+            coEvery { fileSource.getExtFile(file.path, file.type, file.attributes) } returns extFile
 
-        mockkStatic(
-            TO_EXT_ATTRIBUTE_EXTENSIONS,
-            TO_EXT_LINK_EXTENSIONS,
-            TO_EXT_TABLE_EXTENSIONS
-        ) {
-            every { attribute.name } returns "attr1"
-            every { fileListAttribute.name } returns SectionFields.FILE_LIST.value
-            every { attribute.toExtAttribute() } returns extAttribute
-            coEvery { toExtFileListMapper.convert(SUB_ACC, SUB_VERSION, fileList, fileSources) } returns extFileList
-            every { link.toExtLink() } returns extLink
-            coEvery { fileTable.toExtTable(fileSources) } returns extFileTable
-            every { linkTable.toExtTable() } returns extLinkTable
+            mockkStatic(
+                TO_EXT_ATTRIBUTE_EXTENSIONS,
+                TO_EXT_LINK_EXTENSIONS,
+                TO_EXT_TABLE_EXTENSIONS,
+            ) {
+                every { attribute.name } returns "attr1"
+                every { fileListAttribute.name } returns SectionFields.FILE_LIST.value
+                every { attribute.toExtAttribute() } returns extAttribute
+                coEvery { toExtFileListMapper.convert(SUB_ACC, SUB_VERSION, fileList, fileSources) } returns extFileList
+                every { link.toExtLink() } returns extLink
+                coEvery { fileTable.toExtTable(fileSources) } returns extFileTable
+                every { linkTable.toExtTable() } returns extLinkTable
 
-            val sectionResult = testInstance.convert(SUB_ACC, SUB_VERSION, section, fileSources)
+                val sectionResult = testInstance.convert(SUB_ACC, SUB_VERSION, section, fileSources)
 
-            assertThat(sectionResult.accNo).isEqualTo(section.accNo)
-            assertThat(sectionResult.type).isEqualTo(section.type)
-            assertThat(sectionResult.fileList).isEqualTo(extFileList)
-            assertThat(sectionResult.attributes.first()).isEqualTo(extAttribute)
-            assertThat(sectionResult.files.first()).isEqualTo(left(extFile))
-            assertThat(sectionResult.files.second()).isEqualTo(right(extFileTable))
-            assertThat(sectionResult.links.first()).isEqualTo(left(extLink))
-            assertThat(sectionResult.links.second()).isEqualTo(right(extLinkTable))
-            assertEither(sectionResult.sections.first()).hasLeftValueSatisfying {
-                assertThat(it).isEqualTo(subExtSection)
-            }
-            assertEither(sectionResult.sections.second()).hasRightValueSatisfying {
-                assertThat(it).isEqualTo(ExtSectionTable(listOf(subExtSection)))
+                assertThat(sectionResult.accNo).isEqualTo(section.accNo)
+                assertThat(sectionResult.type).isEqualTo(section.type)
+                assertThat(sectionResult.fileList).isEqualTo(extFileList)
+                assertThat(sectionResult.attributes.first()).isEqualTo(extAttribute)
+                assertThat(sectionResult.files.first()).isEqualTo(left(extFile))
+                assertThat(sectionResult.files.second()).isEqualTo(right(extFileTable))
+                assertThat(sectionResult.links.first()).isEqualTo(left(extLink))
+                assertThat(sectionResult.links.second()).isEqualTo(right(extLinkTable))
+                assertEither(sectionResult.sections.first()).hasLeftValueSatisfying {
+                    assertThat(it).isEqualTo(subExtSection)
+                }
+                assertEither(sectionResult.sections.second()).hasRightValueSatisfying {
+                    assertThat(it).isEqualTo(ExtSectionTable(listOf(subExtSection)))
+                }
             }
         }
-    }
 
     companion object {
         val SUB_ACC = "sub-acc"

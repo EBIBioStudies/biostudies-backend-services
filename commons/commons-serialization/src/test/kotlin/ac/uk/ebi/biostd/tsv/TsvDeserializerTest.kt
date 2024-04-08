@@ -60,7 +60,7 @@ class TsvDeserializerTest {
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
                 attribute("AttachTo", "EuropePMC")
-            }
+            },
         )
     }
 
@@ -73,7 +73,7 @@ class TsvDeserializerTest {
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
                 attribute("Abstract", null)
-            }
+            },
         )
     }
 
@@ -86,7 +86,7 @@ class TsvDeserializerTest {
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
                 attribute("Abstract", null)
-            }
+            },
         )
     }
 
@@ -99,7 +99,7 @@ class TsvDeserializerTest {
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
                 attribute("Abstract", null)
-            }
+            },
         )
     }
 
@@ -113,7 +113,7 @@ class TsvDeserializerTest {
                 attribute("Abstract", "\"The Submission\": this is description.")
                 attribute("Sub-Title", "\"The Submission (quoted)\": this is description.")
                 attribute("Double Quote Attribute", "\"one value\" OR \"the other\"")
-            }
+            },
         )
     }
 
@@ -126,7 +126,7 @@ class TsvDeserializerTest {
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
                 attribute("AttachTo", "EuropePMC")
-            }
+            },
         )
     }
 
@@ -138,7 +138,7 @@ class TsvDeserializerTest {
             submission("S-EPMC123") {
                 attribute("Title", "This is a really long title \n with a break line")
                 attribute("Another", "another attribute")
-            }
+            },
         )
     }
 
@@ -159,7 +159,7 @@ class TsvDeserializerTest {
                 )
 
                 attribute("affiliation", "EuropePMC", true)
-            }
+            },
         )
     }
 
@@ -175,7 +175,7 @@ class TsvDeserializerTest {
                     attribute("Title", "Test Root Section")
                     attribute("Abstract", "Test abstract")
                 }
-            }
+            },
         )
     }
 
@@ -189,7 +189,7 @@ class TsvDeserializerTest {
                 section("Compound") {
                     attribute("Title", "Generic Root Section")
                 }
-            }
+            },
         )
     }
 
@@ -205,7 +205,7 @@ class TsvDeserializerTest {
                     attribute("Title", "Test Root Section")
                     attribute("Abstract", "Test abstract")
                 }
-            }
+            },
         )
     }
 
@@ -227,7 +227,7 @@ class TsvDeserializerTest {
                         attribute("Grant Id", "No. 2015BAD27B01")
                     }
                 }
-            }
+            },
         )
     }
 
@@ -270,7 +270,7 @@ class TsvDeserializerTest {
                         }
                     }
                 }
-            }
+            },
         )
     }
 
@@ -313,7 +313,7 @@ class TsvDeserializerTest {
                         }
                     }
                 }
-            }
+            },
         )
     }
 
@@ -332,7 +332,7 @@ class TsvDeserializerTest {
                     link("http://arandomsite.org")
                     link("http://completelyunrelatedsite.org")
                 }
-            }
+            },
         )
     }
 
@@ -354,7 +354,7 @@ class TsvDeserializerTest {
                                 name = "Type",
                                 value = "gen",
                                 valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")),
-                                nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768"))
+                                nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768")),
                             )
                         }
 
@@ -363,12 +363,12 @@ class TsvDeserializerTest {
                                 name = "Type",
                                 value = "gen",
                                 valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")),
-                                nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002769"))
+                                nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002769")),
                             )
                         }
                     }
                 }
-            }
+            },
         )
     }
 
@@ -388,7 +388,7 @@ class TsvDeserializerTest {
                     file("12870_2017_1225_MOESM1_ESM.docx")
                     file("inner/folder")
                 }
-            }
+            },
         )
     }
 
@@ -421,25 +421,26 @@ class TsvDeserializerTest {
                         }
                     }
                 }
-            }
+            },
         )
     }
 
     @Test
     fun `duplicated section accNo`() {
-        val submission = tsv {
-            line("Submission", "E-MTAB-8568")
-            line("Title", "Duplicated Section AccNo")
-            line()
+        val submission =
+            tsv {
+                line("Submission", "E-MTAB-8568")
+                line("Title", "Duplicated Section AccNo")
+                line()
 
-            line("Study", "s-E-MTAB-8568")
-            line("Description", "A description")
-            line()
+                line("Study", "s-E-MTAB-8568")
+                line("Description", "A description")
+                line()
 
-            line("Author", "s-E-MTAB-8568")
-            line("Name", "Connor Rogerson")
-            line()
-        }
+                line("Author", "s-E-MTAB-8568")
+                line("Name", "Connor Rogerson")
+                line()
+            }
 
         val exception = assertThrows<SerializationException> { deserializer.deserialize(submission.toString()) }
         val errorCause = exception.errors.entries().first().value.cause
@@ -465,18 +466,19 @@ class TsvDeserializerTest {
                             name = "Empty Attribute",
                             value = null,
                             nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768")),
-                            valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"))
-                        )
+                            valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")),
+                        ),
                     )
                     assertThat(linkAttributes.second()).isEqualTo(Attribute("Null Attribute", null))
                 }
             }
 
-            val submission = submissionWithRootSection().apply {
-                line("Links", "Empty Attribute", "(TermId)", "[Ontology]", "Null Attribute")
-                line("Link1", "", "EFO_0002768", "EFO")
-                line()
-            }
+            val submission =
+                submissionWithRootSection().apply {
+                    line("Links", "Empty Attribute", "(TermId)", "[Ontology]", "Null Attribute")
+                    line("Link1", "", "EFO_0002768", "EFO")
+                    line()
+                }
 
             val result = deserializer.deserialize(submission.toString())
 
@@ -498,18 +500,19 @@ class TsvDeserializerTest {
                             name = "Empty Attribute",
                             value = null,
                             nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768")),
-                            valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"))
-                        )
+                            valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")),
+                        ),
                     )
                     assertThat(attributes.second()).isEqualTo(Attribute("Null Attribute", null))
                 }
             }
 
-            val submission = submissionWithRootSection().apply {
-                line("Files", "Empty Attribute", "(TermId)", "[Ontology]", "Null Attribute")
-                line("testFile.txt", "", "EFO_0002768", "EFO")
-                line()
-            }
+            val submission =
+                submissionWithRootSection().apply {
+                    line("Files", "Empty Attribute", "(TermId)", "[Ontology]", "Null Attribute")
+                    line("testFile.txt", "", "EFO_0002768", "EFO")
+                    line()
+                }
             val result = deserializer.deserialize(submission.toString())
 
             assertSubmissionWithRootSection(result)
@@ -527,30 +530,32 @@ class TsvDeserializerTest {
                         Section(
                             type = "Data",
                             accNo = "DT-1",
-                            attributes = listOf(
-                                Attribute(
-                                    name = "Empty Attr",
-                                    value = null,
-                                    nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768")),
-                                    valueAttrs = mutableListOf(AttributeDetail("NullValue", null))
+                            attributes =
+                                listOf(
+                                    Attribute(
+                                        name = "Empty Attr",
+                                        value = null,
+                                        nameAttrs = mutableListOf(AttributeDetail("TermId", "EFO_0002768")),
+                                        valueAttrs = mutableListOf(AttributeDetail("NullValue", null)),
+                                    ),
+                                    Attribute(
+                                        name = "Null Attr",
+                                        value = null,
+                                        nameAttrs = mutableListOf(AttributeDetail("NullName", null)),
+                                        valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO")),
+                                    ),
                                 ),
-                                Attribute(
-                                    name = "Null Attr",
-                                    value = null,
-                                    nameAttrs = mutableListOf(AttributeDetail("NullName", null)),
-                                    valueAttrs = mutableListOf(AttributeDetail("Ontology", "EFO"))
-                                )
-                            )
-                        )
+                        ),
                     )
                 }
             }
 
-            val submission = submissionWithRootSection().apply {
-                line("Data[]", "Empty Attr", "(TermId)", "[NullValue]", "Null Attr", "(NullName)", "[Ontology]")
-                line("DT-1", "", "EFO_0002768", "", "", "", "EFO")
-                line()
-            }
+            val submission =
+                submissionWithRootSection().apply {
+                    line("Data[]", "Empty Attr", "(TermId)", "[NullValue]", "Null Attr", "(NullName)", "[Ontology]")
+                    line("DT-1", "", "EFO_0002768", "", "", "", "EFO")
+                    line()
+                }
             val result = deserializer.deserialize(submission.toString())
 
             assertSubmissionWithRootSection(result)

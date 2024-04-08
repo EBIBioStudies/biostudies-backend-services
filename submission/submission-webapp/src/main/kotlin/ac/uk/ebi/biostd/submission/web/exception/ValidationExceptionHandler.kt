@@ -26,11 +26,12 @@ class ValidationExceptionHandler {
     @ExceptionHandler(InvalidSubmissionException::class)
     fun handle(exception: InvalidSubmissionException): ValidationTree {
         logger.error(exception) {}
-        val node = ValidationNode(
-            ERROR,
-            exception.message ?: exception.javaClass.name,
-            exception.causes.map { ValidationNode(ERROR, it.message ?: it.javaClass.name) }
-        )
+        val node =
+            ValidationNode(
+                ERROR,
+                exception.message ?: exception.javaClass.name,
+                exception.causes.map { ValidationNode(ERROR, it.message ?: it.javaClass.name) },
+            )
         return ValidationTree(FAIL, node)
     }
 

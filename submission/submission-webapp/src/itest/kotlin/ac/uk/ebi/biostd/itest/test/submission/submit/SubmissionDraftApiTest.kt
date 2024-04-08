@@ -35,14 +35,19 @@ class SubmissionDraftApiTest(
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
-    fun init() = runBlocking {
-        securityTestService.ensureUserRegistration(SuperUser)
-        webClient = getWebClient(serverPort, SuperUser)
-    }
+    fun init() =
+        runBlocking {
+            securityTestService.ensureUserRegistration(SuperUser)
+            webClient = getWebClient(serverPort, SuperUser)
+        }
 
     @Test
     fun `12-1 get draft submission when draft does not exist but submission does`() {
-        val pageTab = jsonObj { "accno" to "ABC-123"; "type" to "Study" }.toString()
+        val pageTab =
+            jsonObj {
+                "accno" to "ABC-123"
+                "type" to "Study"
+            }.toString()
 
         webClient.submitSingle(pageTab, JSON)
 
@@ -53,7 +58,11 @@ class SubmissionDraftApiTest(
 
     @Test
     fun `12-2 create and get submission draft`() {
-        val pageTab = jsonObj { "accno" to "ABC-124"; "type" to "Study" }.toString()
+        val pageTab =
+            jsonObj {
+                "accno" to "ABC-124"
+                "type" to "Study"
+            }.toString()
 
         val draftSubmission = webClient.createSubmissionDraft(pageTab)
 
@@ -65,7 +74,11 @@ class SubmissionDraftApiTest(
     @Test
     fun `12-3 create and update submission draft`() {
         val updatedValue = "{ \"value\": 1 }"
-        val pageTab = jsonObj { "accno" to "ABC-125"; "type" to "Study" }.toString()
+        val pageTab =
+            jsonObj {
+                "accno" to "ABC-125"
+                "type" to "Study"
+            }.toString()
 
         val draftSubmission = webClient.createSubmissionDraft(pageTab)
         webClient.updateSubmissionDraft(draftSubmission.key, "{ \"value\": 1 }")
@@ -77,7 +90,11 @@ class SubmissionDraftApiTest(
 
     @Test
     fun `12-4 delete submission draft after submission`() {
-        val pageTab = jsonObj { "accno" to "ABC-126"; "title" to "From Draft" }.toString()
+        val pageTab =
+            jsonObj {
+                "accno" to "ABC-126"
+                "title" to "From Draft"
+            }.toString()
         val draft = webClient.createSubmissionDraft(pageTab)
 
         webClient.submitSingleFromDraft(draft.key)
@@ -94,7 +111,11 @@ class SubmissionDraftApiTest(
 
     @Test
     fun `12-6 delete a draft directly`() {
-        val pageTab = jsonObj { "accno" to "ABC-128"; "type" to "Study" }.toString()
+        val pageTab =
+            jsonObj {
+                "accno" to "ABC-128"
+                "type" to "Study"
+            }.toString()
         webClient.submitSingle(pageTab, JSON)
 
         webClient.deleteSubmissionDraft("ABC-128")
@@ -109,7 +130,7 @@ class SubmissionDraftApiTest(
                 "accno" to "ABC-129"
                 "type" to "Study"
             }.toString(),
-            JSON
+            JSON,
         )
 
         webClient.updateSubmissionDraft(
@@ -118,7 +139,7 @@ class SubmissionDraftApiTest(
                 "accno" to "ABC-129"
                 "ReleaseDate" to "2021-09-21"
                 "type" to "Study"
-            }.toString()
+            }.toString(),
         )
 
         webClient.submitSingleFromDraft("ABC-129")
@@ -128,17 +149,21 @@ class SubmissionDraftApiTest(
     }
 
     @Test
-    fun `12-8 update a submission already submitted draft`(@Autowired mapper: ObjectMapper) {
+    fun `12-8 update a submission already submitted draft`(
+        @Autowired mapper: ObjectMapper,
+    ) {
         val accNo = "ABC-130"
-        val newSubmission = webClient.submitSingle(
-            jsonObj {
-                "accno" to accNo
-                "section" to jsonObj {
-                    "type" to "Study"
-                }
-                "type" to "submission"
-            }.toString()
-        ).body
+        val newSubmission =
+            webClient.submitSingle(
+                jsonObj {
+                    "accno" to accNo
+                    "section" to
+                        jsonObj {
+                            "type" to "Study"
+                        }
+                    "type" to "submission"
+                }.toString(),
+            ).body
         assertThat(newSubmission.section.type).isEqualTo("Study")
 
         webClient.getSubmissionDraft(accNo)
@@ -146,11 +171,12 @@ class SubmissionDraftApiTest(
             accNo,
             jsonObj {
                 "accno" to accNo
-                "section" to jsonObj {
-                    "type" to "Another"
-                }
+                "section" to
+                    jsonObj {
+                        "type" to "Another"
+                    }
                 "type" to "submission"
-            }.toString()
+            }.toString(),
         )
         val updatedSubmission = webClient.submitSingleFromDraft(accNo).body
         assertThat(updatedSubmission.section.type).isEqualTo("Another")
@@ -160,11 +186,12 @@ class SubmissionDraftApiTest(
             accNo,
             jsonObj {
                 "accno" to accNo
-                "section" to jsonObj {
-                    "type" to "Yet-Another"
-                }
+                "section" to
+                    jsonObj {
+                        "type" to "Yet-Another"
+                    }
                 "type" to "submission"
-            }.toString()
+            }.toString(),
         )
         assertThat(webClient.getSubmissionDraft(accNo).content.getProperty("section.type")).isEqualTo("Yet-Another")
         webClient.deleteSubmissionDraft(accNo)

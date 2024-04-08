@@ -9,13 +9,20 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 class StatsFileHandler {
-    suspend fun readStats(stats: File, type: SubmissionStatType): List<SubmissionStat> = withContext(Dispatchers.IO) {
-        stats.readLines()
-            .map { it.split("\t") }
-            .map { readStat(it, type) }
-    }
+    suspend fun readStats(
+        stats: File,
+        type: SubmissionStatType,
+    ): List<SubmissionStat> =
+        withContext(Dispatchers.IO) {
+            stats.readLines()
+                .map { it.split("\t") }
+                .map { readStat(it, type) }
+        }
 
-    private fun readStat(stat: List<String>, type: SubmissionStatType): SubmissionStat {
+    private fun readStat(
+        stat: List<String>,
+        type: SubmissionStatType,
+    ): SubmissionStat {
         require(stat.size == 2) { throw InvalidStatException("The stats should have accNo and value") }
         return SingleSubmissionStat(accNo = stat.first(), value = stat.second().toLong(), type = type)
     }

@@ -42,47 +42,61 @@ import java.io.InputStream
 import java.io.OutputStream
 
 internal class JsonSerializer {
-    fun <T> serialize(element: T, pretty: Boolean = false): String {
-        return if (pretty) mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
-        else mapper.writeValueAsString(element)
+    fun <T> serialize(
+        element: T,
+        pretty: Boolean = false,
+    ): String {
+        return if (pretty) {
+            mapper.writerWithDefaultPrettyPrinter().writeValueAsString(element)
+        } else {
+            mapper.writeValueAsString(element)
+        }
     }
 
-    fun serializeFileList(fileList: Sequence<BioFile>, outputStream: OutputStream) =
-        mapper.serializeList(fileList, outputStream)
+    fun serializeFileList(
+        fileList: Sequence<BioFile>,
+        outputStream: OutputStream,
+    ) = mapper.serializeList(fileList, outputStream)
 
-    suspend fun serializeFileList(fileList: Flow<BioFile>, outputStream: OutputStream) =
-        mapper.serializeFlow(fileList, outputStream)
+    suspend fun serializeFileList(
+        fileList: Flow<BioFile>,
+        outputStream: OutputStream,
+    ) = mapper.serializeFlow(fileList, outputStream)
 
     fun deserializeFileList(inputStream: InputStream): Flow<BioFile> = mapper.deserializeAsFlow(inputStream)
 
     inline fun <reified T> deserialize(value: String) = mapper.readValue<T>(value)
 
-    fun <T> deserialize(value: String, type: Class<out T>): T = mapper.readValue(value, type)
+    fun <T> deserialize(
+        value: String,
+        type: Class<out T>,
+    ): T = mapper.readValue(value, type)
 
     companion object {
         val mapper = createMapper()
 
         private fun createMapper(): ObjectMapper {
-            val module = SimpleModule().apply {
-                addSerializer(Submission::class.java, SubmissionJsonSerializer())
-                addSerializer(Section::class.java, SectionJsonSerializer())
-                addSerializer(Link::class.java, LinkJsonSerializer())
-                addSerializer(BioFile::class.java, FileJsonSerializer())
-                addSerializer(Attribute::class.java, AttributeJsonSerializer())
-                addSerializer(Either::class.java, EitherSerializer())
-                addSerializer(Table::class.java, TableJsonSerializer())
+            val module =
+                SimpleModule().apply {
+                    addSerializer(Submission::class.java, SubmissionJsonSerializer())
+                    addSerializer(Section::class.java, SectionJsonSerializer())
+                    addSerializer(Link::class.java, LinkJsonSerializer())
+                    addSerializer(BioFile::class.java, FileJsonSerializer())
+                    addSerializer(Attribute::class.java, AttributeJsonSerializer())
+                    addSerializer(Either::class.java, EitherSerializer())
+                    addSerializer(Table::class.java, TableJsonSerializer())
 
-                addDeserializer(Submission::class.java, SubmissionJsonDeserializer())
-                addDeserializer(Section::class.java, SectionJsonDeserializer())
-                addDeserializer(Link::class.java, LinkJsonDeserializer())
-                addDeserializer(BioFile::class.java, FileJsonDeserializer())
-                addDeserializer(Attribute::class.java, AttributeJsonDeserializer())
-                addDeserializer(AttributeDetail::class.java, AttributeDetailJsonDeserializer())
-                addDeserializer(Either::class.java, EitherDeserializer())
-                addDeserializer(LinksTable::class.java, LinksTableJsonDeserializer())
-                addDeserializer(SectionsTable::class.java, SectionsTableJsonDeserializer())
-                addDeserializer(FilesTable::class.java, FilesTableJsonDeserializer())
-            }
+                    addDeserializer(Submission::class.java, SubmissionJsonDeserializer())
+                    addDeserializer(Section::class.java, SectionJsonDeserializer())
+                    addDeserializer(Link::class.java, LinkJsonDeserializer())
+                    addDeserializer(BioFile::class.java, FileJsonDeserializer())
+                    addDeserializer(Attribute::class.java, AttributeJsonDeserializer())
+                    addDeserializer(AttributeDetail::class.java, AttributeDetailJsonDeserializer())
+                    addDeserializer(Either::class.java, EitherDeserializer())
+                    addDeserializer(LinksTable::class.java, LinksTableJsonDeserializer())
+                    addDeserializer(SectionsTable::class.java, SectionsTableJsonDeserializer())
+                    addDeserializer(FilesTable::class.java, FilesTableJsonDeserializer())
+                }
 
             return jacksonObjectMapper().apply {
                 registerModule(module)

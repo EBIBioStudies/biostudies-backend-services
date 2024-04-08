@@ -14,27 +14,35 @@ class ExtSubmissionQueryService(
     private val filesRepository: SubmissionFilesPersistenceService,
     private val submissionPersistenceQueryService: SubmissionPersistenceQueryService,
 ) {
-    suspend fun getExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission =
-        submissionPersistenceQueryService.getExtByAccNo(accNo, includeFileListFiles)
+    suspend fun getExtendedSubmission(
+        accNo: String,
+        includeFileListFiles: Boolean = false,
+    ): ExtSubmission = submissionPersistenceQueryService.getExtByAccNo(accNo, includeFileListFiles)
 
-    suspend fun findExtendedSubmission(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission? =
-        submissionPersistenceQueryService.findExtByAccNo(accNo, includeFileListFiles)
+    suspend fun findExtendedSubmission(
+        accNo: String,
+        includeFileListFiles: Boolean = false,
+    ): ExtSubmission? = submissionPersistenceQueryService.findExtByAccNo(accNo, includeFileListFiles)
 
-    suspend fun getReferencedFiles(accNo: String, fileListName: String): ExtFileTable {
+    suspend fun getReferencedFiles(
+        accNo: String,
+        fileListName: String,
+    ): ExtFileTable {
         val sub = submissionPersistenceQueryService.getExtByAccNo(accNo, false)
         val files = filesRepository.getReferencedFiles(sub, fileListName).toList()
         return ExtFileTable(files.toList())
     }
 
     suspend fun getExtendedSubmissions(request: ExtPageRequest): Page<ExtSubmission> {
-        val filter = SimpleFilter(
-            rTimeFrom = request.fromRTime?.let { OffsetDateTime.parse(request.fromRTime) },
-            rTimeTo = request.toRTime?.let { OffsetDateTime.parse(request.toRTime) },
-            collection = request.collection,
-            released = request.released,
-            limit = request.limit,
-            offset = request.offset
-        )
+        val filter =
+            SimpleFilter(
+                rTimeFrom = request.fromRTime?.let { OffsetDateTime.parse(request.fromRTime) },
+                rTimeTo = request.toRTime?.let { OffsetDateTime.parse(request.toRTime) },
+                collection = request.collection,
+                released = request.released,
+                limit = request.limit,
+                offset = request.offset,
+            )
         val page = submissionPersistenceQueryService.getExtendedSubmissions(filter)
         return PageImpl(page.content, page.pageable, page.totalElements)
     }

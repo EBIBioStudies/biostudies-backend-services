@@ -6,12 +6,13 @@ class UserFile(
     val name: String,
     val path: String,
     val size: Long,
-    val type: UserFileType
+    val type: UserFileType,
 )
 
 enum class UserFileType {
     FILE,
-    DIR;
+    DIR,
+    ;
 
     companion object {
         fun getType(file: File) = if (file.isDirectory) UserFileType.DIR else UserFileType.FILE

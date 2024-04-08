@@ -23,9 +23,7 @@ class JsonArray(private val elements: List<JsonVal>) : JsonVal {
 }
 
 class JsonObject(private val elements: MutableMap<String, JsonVal> = mutableMapOf()) : JsonVal {
-
-    override fun toString() =
-        elements.entries.joinToString(prefix = "{", postfix = "}") { (key, value) -> """"$key": $value""" }
+    override fun toString() = elements.entries.joinToString(prefix = "{", postfix = "}") { (key, value) -> """"$key": $value""" }
 
     @JvmName("addAttribute")
     infix fun String.to(value: String?) {

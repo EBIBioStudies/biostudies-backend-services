@@ -81,17 +81,19 @@ class StatsReporterTriggerTest(
             --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
             --spring.data.mongodb.database=dev \
             --app.publishPath=/stats/publish"
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
     companion object {
-        val properties = StatsReporterProperties(
-            publishPath = "/stats/publish",
-            persistence = Persistence(
-                database = "dev",
-                uri = "mongodb://root:admin@localhost:27017/dev?authSource=admin\\&replicaSet=biostd01",
-            ),
-        )
+        val properties =
+            StatsReporterProperties(
+                publishPath = "/stats/publish",
+                persistence =
+                    Persistence(
+                        database = "dev",
+                        uri = "mongodb://root:admin@localhost:27017/dev?authSource=admin\\&replicaSet=biostd01",
+                    ),
+            )
     }
 }

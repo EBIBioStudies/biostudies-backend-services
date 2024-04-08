@@ -27,19 +27,19 @@ internal class DocFileListConverterTest(
         val result = testInstance.convert(createFileListDoc(documentTabFile))
 
         assertThat(result).isInstanceOf(DocFileList::class.java)
-        assertThat(result.fileName).isEqualTo(fileName)
+        assertThat(result.fileName).isEqualTo(FILE_NAME)
         assertThat(result.pageTabFiles).isEqualTo(listOf(docFile))
     }
 
     private fun createFileListDoc(documentFile: Document): Document {
         val fileList = Document()
-        fileList[CommonsConverter.classField] = DocFileListFields.DOC_FILE_LIST_CLASS
-        fileList[DocFileListFields.FILE_LIST_DOC_FILE_FILENAME] = fileName
+        fileList[CommonsConverter.CLASS_FIELD] = DocFileListFields.DOC_FILE_LIST_CLASS
+        fileList[DocFileListFields.FILE_LIST_DOC_FILE_FILENAME] = FILE_NAME
         fileList[DocFileListFields.FILE_LIST_DOC_PAGE_TAB_FILES] = listOf(documentFile)
         return fileList
     }
 
     companion object {
-        const val fileName = "fileName"
+        const val FILE_NAME = "fileName"
     }
 }

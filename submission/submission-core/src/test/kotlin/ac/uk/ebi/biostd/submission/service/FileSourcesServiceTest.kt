@@ -40,14 +40,15 @@ class FileSourcesServiceTest(
 
     @Test
     fun `default submission sources with FIRE submission`() {
-        val request = FileSourcesRequest(
-            onBehalfUser = onBehalfUser(),
-            submitter = submitter(),
-            files = listOf(tempFile),
-            rootPath = "root-path",
-            submission = extSubmission,
-            preferredSources = emptyList()
-        )
+        val request =
+            FileSourcesRequest(
+                onBehalfUser = onBehalfUser(),
+                submitter = submitter(),
+                files = listOf(tempFile),
+                rootPath = "root-path",
+                submission = extSubmission,
+                preferredSources = emptyList(),
+            )
 
         val fileSources = testInstance.submissionSources(request)
 
@@ -64,14 +65,15 @@ class FileSourcesServiceTest(
 
     @Test
     fun `default submission sources with NFS submission`() {
-        val request = FileSourcesRequest(
-            onBehalfUser = onBehalfUser(),
-            submitter = submitter(),
-            files = listOf(tempFile),
-            rootPath = "root-path",
-            submission = basicExtSubmission,
-            preferredSources = emptyList()
-        )
+        val request =
+            FileSourcesRequest(
+                onBehalfUser = onBehalfUser(),
+                submitter = submitter(),
+                files = listOf(tempFile),
+                rootPath = "root-path",
+                submission = basicExtSubmission,
+                preferredSources = emptyList(),
+            )
 
         val fileSources = testInstance.submissionSources(request)
 
@@ -88,14 +90,15 @@ class FileSourcesServiceTest(
 
     @Test
     fun `default submission sources with no onBehalfUser`() {
-        val request = FileSourcesRequest(
-            onBehalfUser = null,
-            submitter = submitter(),
-            files = listOf(tempFile),
-            rootPath = "root-path",
-            submission = extSubmission,
-            preferredSources = emptyList()
-        )
+        val request =
+            FileSourcesRequest(
+                onBehalfUser = null,
+                submitter = submitter(),
+                files = listOf(tempFile),
+                rootPath = "root-path",
+                submission = extSubmission,
+                preferredSources = emptyList(),
+            )
 
         val fileSources = testInstance.submissionSources(request)
 
@@ -110,14 +113,15 @@ class FileSourcesServiceTest(
 
     @Test
     fun `submission sources with preferred sources`() {
-        val request = FileSourcesRequest(
-            onBehalfUser = null,
-            submitter = submitter(),
-            files = null,
-            rootPath = null,
-            submission = extSubmission,
-            preferredSources = listOf(SUBMISSION)
-        )
+        val request =
+            FileSourcesRequest(
+                onBehalfUser = null,
+                submitter = submitter(),
+                files = null,
+                rootPath = null,
+                submission = extSubmission,
+                preferredSources = listOf(SUBMISSION),
+            )
 
         val fileSources = testInstance.submissionSources(request)
 
@@ -128,16 +132,18 @@ class FileSourcesServiceTest(
     }
 
     private fun submitter(): SecurityUser {
-        val userFolder = NfsUserFolder(
-            relativePath = Paths.get("69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
-            path = Paths.get("$filesFolder/69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3")
-        )
+        val userFolder =
+            NfsUserFolder(
+                relativePath = Paths.get("69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
+                path = Paths.get("$filesFolder/69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
+            )
 
-        val groupFolder = GroupFolder(
-            groupName = "Test Group",
-            description = "Test Group Description",
-            path = Paths.get("$filesFolder/fd/9f87b3-9de8-4036-be7a-3ac8cbc44ddd-b0")
-        )
+        val groupFolder =
+            GroupFolder(
+                groupName = "Test Group",
+                description = "Test Group Description",
+                path = Paths.get("$filesFolder/fd/9f87b3-9de8-4036-be7a-3ac8cbc44ddd-b0"),
+            )
 
         return SecurityUser(
             id = 3,
@@ -150,21 +156,23 @@ class FileSourcesServiceTest(
             userFolder = userFolder,
             groupsFolders = listOf(groupFolder),
             permissions = emptySet(),
-            notificationsEnabled = true
+            notificationsEnabled = true,
         )
     }
 
     private fun onBehalfUser(): SecurityUser {
-        val userFolder = NfsUserFolder(
-            relativePath = Paths.get("43/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
-            path = Paths.get("$filesFolder/43/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3")
-        )
+        val userFolder =
+            NfsUserFolder(
+                relativePath = Paths.get("43/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
+                path = Paths.get("$filesFolder/43/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
+            )
 
-        val groupFolder = GroupFolder(
-            groupName = "Test Group",
-            description = "Test Group Description",
-            path = Paths.get("$filesFolder/fd/9f87b3-9de8-4036-be7a-3ac8cbc44ddd-b0")
-        )
+        val groupFolder =
+            GroupFolder(
+                groupName = "Test Group",
+                description = "Test Group Description",
+                path = Paths.get("$filesFolder/fd/9f87b3-9de8-4036-be7a-3ac8cbc44ddd-b0"),
+            )
 
         return SecurityUser(
             id = 4,
@@ -177,7 +185,7 @@ class FileSourcesServiceTest(
             userFolder = userFolder,
             groupsFolders = listOf(groupFolder),
             permissions = emptySet(),
-            notificationsEnabled = true
+            notificationsEnabled = true,
         )
     }
 }

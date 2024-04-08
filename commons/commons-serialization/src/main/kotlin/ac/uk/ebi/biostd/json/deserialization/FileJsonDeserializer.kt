@@ -17,7 +17,10 @@ import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 
 internal class FileJsonDeserializer : StdDeserializer<BioFile>(BioFile::class.java) {
-    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): BioFile {
+    override fun deserialize(
+        jp: JsonParser,
+        ctxt: DeserializationContext,
+    ): BioFile {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)
         val path = node.getNode<TextNode>(PATH.value).textValue()
@@ -25,7 +28,7 @@ internal class FileJsonDeserializer : StdDeserializer<BioFile>(BioFile::class.ja
         return BioFile(
             path = validatedFilePath(path),
             attributes = mapper.convertOrDefault(node, ATTRIBUTES.value) { emptyList() },
-            type = node.findNode<TextNode>(TYPE.value)?.textValue() ?: FILE_TYPE.value
+            type = node.findNode<TextNode>(TYPE.value)?.textValue() ?: FILE_TYPE.value,
         )
     }
 }

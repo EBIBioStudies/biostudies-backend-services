@@ -101,8 +101,9 @@ open class SecurityService(
     }
 
     override fun retryRegistration(request: RetryActivationRequest) {
-        val user = userRepository.findByEmailAndActive(request.email, false)
-            ?: throw UserPendingRegistrationException(request.email)
+        val user =
+            userRepository.findByEmailAndActive(request.email, false)
+                ?: throw UserPendingRegistrationException(request.email)
         register(user, request.instanceKey, request.path)
     }
 
@@ -124,14 +125,21 @@ open class SecurityService(
         resetNotification(request.email, request.instanceKey, request.path)
     }
 
-    private fun setPassword(user: DbUser, password: String): User {
+    private fun setPassword(
+        user: DbUser,
+        password: String,
+    ): User {
         user.passwordDigest = securityUtil.getPasswordDigest(password)
 
         val updatedPassword = userRepository.save(user)
         return profileService.asSecurityUser(updatedPassword).asUser()
     }
 
-    private fun resetNotification(email: String, instanceKey: String, path: String) {
+    private fun resetNotification(
+        email: String,
+        instanceKey: String,
+        path: String,
+    ) {
         val user = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
         val key = securityUtil.newKey()
         userRepository.save(user.apply { activationKey = key })
@@ -148,12 +156,20 @@ open class SecurityService(
         return register(asUser(request), instanceKey, activationPath)
     }
 
-    private fun register(user: DbUser, instanceKey: String, activationPath: String): SecurityUser {
+    private fun register(
+        user: DbUser,
+        instanceKey: String,
+        activationPath: String,
+    ): SecurityUser {
         val dbUser = registerUser(user, instanceKey, activationPath)
         return profileService.asSecurityUser(dbUser)
     }
 
-    private fun registerUser(user: DbUser, instanceKey: String, activationPath: String): DbUser {
+    private fun registerUser(
+        user: DbUser,
+        instanceKey: String,
+        activationPath: String,
+    ): DbUser {
         val key = securityUtil.newKey()
         val saved = userRepository.save(user.apply { user.activationKey = key })
         val activationUrl = securityUtil.getActivationUrl(instanceKey, activationPath, key)
@@ -163,7 +179,13 @@ open class SecurityService(
     }
 
     private suspend fun activate(toActivate: DbUser): SecurityUser {
-        val dbUser = userRepository.save(toActivate.apply { activationKey = null; active = true })
+        val dbUser =
+            userRepository.save(
+                toActivate.apply {
+                    activationKey = null
+                    active = true
+                },
+            )
         val securityUser = profileService.asSecurityUser(dbUser)
 
         createMagicFolder(securityUser)
@@ -182,7 +204,10 @@ open class SecurityService(
         createClusterFolder(ftpFolder.path, UNIX_RWXRWX___)
     }
 
-    private suspend fun createClusterFolder(path: Path, permissions: Int) {
+    private suspend fun createClusterFolder(
+        path: Path,
+        permissions: Int,
+    ) {
         val command = "mkdir -m $permissions -p ${path.absolutePathString()}"
         val job = JobSpec(queue = DataMoverQueue, command = command)
 
@@ -191,7 +216,10 @@ open class SecurityService(
         logger.info { "Finished creating the cluster FTP folder $path" }
     }
 
-    private fun createNfsMagicFolder(email: String, nfsFolder: NfsUserFolder) {
+    private fun createNfsMagicFolder(
+        email: String,
+        nfsFolder: NfsUserFolder,
+    ) {
         FileUtils.getOrCreateFolder(nfsFolder.path.parent, RWX__X___)
         FileUtils.getOrCreateFolder(nfsFolder.path, RWXRWX___)
         FileUtils.createSymbolicLink(symLinkPath(email), nfsFolder.path, RWXRWX___)
@@ -202,15 +230,16 @@ open class SecurityService(
         return Paths.get("${props.filesProperties.magicDirPath}/$prefixFolder/$userEmail")
     }
 
-    private fun asUser(rqt: RegisterRequest) = DbUser(
-        email = rqt.email.lowercase(),
-        fullName = rqt.name,
-        orcid = rqt.orcid,
-        secret = securityUtil.newKey(),
-        notificationsEnabled = rqt.notificationsEnabled,
-        storageMode = rqt.storageMode?.let { StorageMode.valueOf(it) } ?: props.filesProperties.defaultMode,
-        passwordDigest = securityUtil.getPasswordDigest(rqt.password)
-    )
+    private fun asUser(rqt: RegisterRequest) =
+        DbUser(
+            email = rqt.email.lowercase(),
+            fullName = rqt.name,
+            orcid = rqt.orcid,
+            secret = securityUtil.newKey(),
+            notificationsEnabled = rqt.notificationsEnabled,
+            storageMode = rqt.storageMode?.let { StorageMode.valueOf(it) } ?: props.filesProperties.defaultMode,
+            passwordDigest = securityUtil.getPasswordDigest(rqt.password),
+        )
 
     companion object {
         internal const val UNIX_RWX__X___ = 710

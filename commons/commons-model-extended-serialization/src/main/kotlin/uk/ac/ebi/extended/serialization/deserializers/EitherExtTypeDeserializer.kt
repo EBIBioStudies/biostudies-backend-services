@@ -27,7 +27,10 @@ import uk.ac.ebi.extended.serialization.constants.ExtType.SectionsTable
 import uk.ac.ebi.serialization.extensions.getNode
 
 class EitherExtTypeDeserializer : JsonDeserializer<Either<*, *>>() {
-    override fun deserialize(jsonParser: JsonParser, ctxt: DeserializationContext): Either<*, *> {
+    override fun deserialize(
+        jsonParser: JsonParser,
+        ctxt: DeserializationContext,
+    ): Either<*, *> {
         val mapper = jsonParser.codec as ObjectMapper
         val node = mapper.readTree<JsonNode>(jsonParser)
         val extType = node.getNode<TextNode>(EXT_TYPE).textValue()
@@ -38,7 +41,8 @@ class EitherExtTypeDeserializer : JsonDeserializer<Either<*, *>>() {
         return when (ExtType.valueOf(extType)) {
             is Link -> Either.left(mapper.convertValue<ExtLink>(node))
             is NfsFile,
-            is FireFile -> Either.left(mapper.convertValue<ExtFile>(node))
+            is FireFile,
+            -> Either.left(mapper.convertValue<ExtFile>(node))
             is Section -> Either.left(mapper.convertValue<ExtSection>(node))
             is LinksTable -> right(mapper.convertValue<ExtLinkTable>(node))
             is FilesTable -> right(mapper.convertValue<ExtFileTable>(node))

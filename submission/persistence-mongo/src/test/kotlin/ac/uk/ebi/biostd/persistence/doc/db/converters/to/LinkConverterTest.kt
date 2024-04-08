@@ -15,24 +15,23 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class LinkConverterTest(
     @MockK val attributeConverter: AttributeConverter,
     @MockK val document: Document,
-    @MockK val docAttribute: DocAttribute
+    @MockK val docAttribute: DocAttribute,
 ) {
-
     private val testInstance = LinkConverter(attributeConverter)
 
     @Test
     fun converter() {
         val attributes = listOf(docAttribute)
         every { attributeConverter.convert(docAttribute) } returns document
-        val docLink = DocLink(docLinkUrl, attributes)
+        val docLink = DocLink(DOC_LINK_URL, attributes)
 
         val result = testInstance.convert(docLink)
 
-        assertThat(result[DocLinkFields.LINK_DOC_URL]).isEqualTo(docLinkUrl)
+        assertThat(result[DocLinkFields.LINK_DOC_URL]).isEqualTo(DOC_LINK_URL)
         assertThat(result[DocLinkFields.LINK_DOC_ATTRIBUTES]).isEqualTo(listOf(document))
     }
 
     private companion object {
-        const val docLinkUrl = "url"
+        const val DOC_LINK_URL = "url"
     }
 }

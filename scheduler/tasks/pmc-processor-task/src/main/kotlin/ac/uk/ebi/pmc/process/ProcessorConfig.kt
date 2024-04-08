@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Lazy
 @Configuration
 @Lazy
 class ProcessorConfig {
-
     @Bean
     fun pmcProcessor(
         errorsDocService: ErrorsDocService,

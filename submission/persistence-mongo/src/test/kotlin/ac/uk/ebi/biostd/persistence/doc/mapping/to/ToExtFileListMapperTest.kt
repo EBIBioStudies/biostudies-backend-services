@@ -34,64 +34,69 @@ import uk.ac.ebi.serialization.common.FilesResolver
 class ToExtFileListMapperTest(temporaryFolder: TemporaryFolder) {
     private val fileListDocFileRepository: FileListDocFileDocDataRepository = mockk()
     private val extSerializationService = ExtSerializationService()
-    private val testInstance = ToExtFileListMapper(
-        fileListDocFileRepository,
-        extSerializationService,
-        FilesResolver(temporaryFolder.createDirectory("ext-files"))
-    )
+    private val testInstance =
+        ToExtFileListMapper(
+            fileListDocFileRepository,
+            extSerializationService,
+            FilesResolver(temporaryFolder.createDirectory("ext-files")),
+        )
     private val fileNfs = temporaryFolder.createDirectory("folder").newFile("nfsFileFile.txt")
-    private val nfsDocFile = NfsDocFile(
-        fileNfs.name,
-        "filePath",
-        "relPath",
-        fileNfs.absolutePath,
-        listOf(),
-        fileNfs.md5(),
-        fileNfs.size(),
-        "file"
-    )
-    private val fileListDocFile = FileListDocFile(
-        id = ObjectId(),
-        submissionId = ObjectId(),
-        file = fireDocFile,
-        fileListName = "file-list",
-        index = 0,
-        submissionVersion = 1,
-        submissionAccNo = "S-TEST123"
-    )
+    private val nfsDocFile =
+        NfsDocFile(
+            fileNfs.name,
+            "filePath",
+            "relPath",
+            fileNfs.absolutePath,
+            listOf(),
+            fileNfs.md5(),
+            fileNfs.size(),
+            "file",
+        )
+    private val fileListDocFile =
+        FileListDocFile(
+            id = ObjectId(),
+            submissionId = ObjectId(),
+            file = fireDocFile,
+            fileListName = "file-list",
+            index = 0,
+            submissionVersion = 1,
+            submissionAccNo = "S-TEST123",
+        )
 
     @Test
-    fun `toExtFileList including FileListFiles`() = runTest {
-        every {
-            fileListDocFileRepository.findByFileList(
-                "S-TEST123",
-                1,
-                "file-list"
-            )
-        } returns flowOf(fileListDocFile)
-        val fileList = docFileList.copy(pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile))
+    fun `toExtFileList including FileListFiles`() =
+        runTest {
+            every {
+                fileListDocFileRepository.findByFileList(
+                    "S-TEST123",
+                    1,
+                    "file-list",
+                )
+            } returns flowOf(fileListDocFile)
+            val fileList = docFileList.copy(pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile))
 
-        val extFileList = testInstance.toExtFileList(fileList, "S-TEST123", 1, false, "SubRelPath", true)
+            val extFileList = testInstance.toExtFileList(fileList, "S-TEST123", 1, false, "SubRelPath", true)
 
-        assertThat(extFileList.filePath).isEqualTo(TEST_FILE_LIST)
-        assertPageTabs(extFileList.pageTabFiles)
+            assertThat(extFileList.filePath).isEqualTo(TEST_FILE_LIST)
+            assertPageTabs(extFileList.pageTabFiles)
 
-        val files = extSerializationService.files(extFileList.file)
-        assertThat(files).hasSize(1)
-        assertThat(files.first()).isEqualTo(fireDocFile.toExtFile(false, "SubRelPath"))
-    }
+            val files = extSerializationService.files(extFileList.file)
+            assertThat(files).hasSize(1)
+            assertThat(files.first()).isEqualTo(fireDocFile.toExtFile(false, "SubRelPath"))
+        }
 
     @Test
-    fun `toExtFileList without FileListFiles`() = runTest {
-        val fileList = docFileList.copy(pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile))
+    fun `toExtFileList without FileListFiles`() =
+        runTest {
+            val fileList = docFileList.copy(pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile))
 
-        val extFileList = testInstance.toExtFileList(fileList, "S-TEST123", 1, false, "SubRelPath", false)
+            val extFileList = testInstance.toExtFileList(fileList, "S-TEST123", 1, false, "SubRelPath", false)
 
-        assertThat(extFileList.filePath).isEqualTo(TEST_FILE_LIST)
-        assertThat(extSerializationService.files(extFileList.file)).isEmpty()
-        assertPageTabs(extFileList.pageTabFiles)
-        verify { fileListDocFileRepository wasNot called }
-    }
+            assertThat(extFileList.filePath).isEqualTo(TEST_FILE_LIST)
+            assertThat(extSerializationService.files(extFileList.file)).isEmpty()
+            assertPageTabs(extFileList.pageTabFiles)
+            verify { fileListDocFileRepository wasNot called }
+        }
 
     private fun assertPageTabs(pageTabFiles: List<ExtFile>) {
         assertThat(pageTabFiles).hasSize(3)

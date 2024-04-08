@@ -17,12 +17,14 @@ object PageTabFileReader {
     suspend fun getFileListFile(
         fileListName: String,
         filesSource: FileSourcesList,
-    ): File = when (val file = filesSource.getFileList(fileListName)) {
-        null -> throw FilesProcessingException(fileListName, filesSource)
-        else -> when {
-            file.isFile.not() -> throw InvalidFileListException.directoryCantBeFileList(fileListName)
-            file.extension == "xlsx" -> asTsv(file)
-            else -> file
+    ): File =
+        when (val file = filesSource.getFileList(fileListName)) {
+            null -> throw FilesProcessingException(fileListName, filesSource)
+            else ->
+                when {
+                    file.isFile.not() -> throw InvalidFileListException.directoryCantBeFileList(fileListName)
+                    file.extension == "xlsx" -> asTsv(file)
+                    else -> file
+                }
         }
-    }
 }

@@ -7,9 +7,16 @@ interface FireClient : FireWebClient, FireS3Client
 
 @Suppress("TooManyFunctions")
 interface FireWebClient {
-    suspend fun save(file: File, md5: String, size: Long): FireApiFile
+    suspend fun save(
+        file: File,
+        md5: String,
+        size: Long,
+    ): FireApiFile
 
-    suspend fun setPath(fireOid: String, path: String): FireApiFile
+    suspend fun setPath(
+        fireOid: String,
+        path: String,
+    ): FireApiFile
 
     suspend fun unsetPath(fireOid: String)
 

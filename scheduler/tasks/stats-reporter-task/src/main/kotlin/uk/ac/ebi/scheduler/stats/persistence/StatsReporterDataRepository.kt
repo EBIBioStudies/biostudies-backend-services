@@ -19,30 +19,33 @@ class StatsReporterDataRepository(
     private val mongoTemplate: ReactiveMongoTemplate,
 ) {
     suspend fun calculateNonImagingFilesSize(): Long {
-        val filter = where(SUB_VERSION).gt(0)
-            .orOperator(
-                where(SUB_COLLECTIONS).size(0),
-                where(SUB_COLLECTIONS).elemMatch(where(SUB_ACC_NO).nin(IMAGING_COLLECTION)),
-            )
+        val filter =
+            where(SUB_VERSION).gt(0)
+                .orOperator(
+                    where(SUB_COLLECTIONS).size(0),
+                    where(SUB_COLLECTIONS).elemMatch(where(SUB_ACC_NO).nin(IMAGING_COLLECTION)),
+                )
 
         return calculateFilesSize(filter)
     }
 
     suspend fun calculateImagingFilesSize(): Long {
-        val filter = where(SUB_VERSION).gt(0)
-            .and(SUB_COLLECTIONS).elemMatch(where(SUB_ACC_NO).`in`(IMAGING_COLLECTION))
+        val filter =
+            where(SUB_VERSION).gt(0)
+                .and(SUB_COLLECTIONS).elemMatch(where(SUB_ACC_NO).`in`(IMAGING_COLLECTION))
 
         return calculateFilesSize(filter)
     }
 
     private suspend fun calculateFilesSize(filter: Criteria): Long {
-        val aggregation = newAggregation(
-            DocSubmission::class.java,
-            match(filter),
-            lookup(STATS_COLLECTION_KEY, SUB_ACC_NO, SUB_ACC_NO, STATS_LOOKUP_KEY),
-            unwind(STATS_LOOKUP_KEY),
-            group().sum("\$$STATS_LOOKUP_KEY.$STATS_OBJECT_KEY.${FILES_SIZE.value}").`as`(RESULT_KEY)
-        )
+        val aggregation =
+            newAggregation(
+                DocSubmission::class.java,
+                match(filter),
+                lookup(STATS_COLLECTION_KEY, SUB_ACC_NO, SUB_ACC_NO, STATS_LOOKUP_KEY),
+                unwind(STATS_LOOKUP_KEY),
+                group().sum("\$$STATS_LOOKUP_KEY.$STATS_OBJECT_KEY.${FILES_SIZE.value}").`as`(RESULT_KEY),
+            )
 
         return mongoTemplate
             .aggregate(aggregation, Result::class.java)

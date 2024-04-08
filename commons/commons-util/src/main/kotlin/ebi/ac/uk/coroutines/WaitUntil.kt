@@ -21,14 +21,15 @@ suspend fun waitUntil(
         conditionEvaluator: suspend () -> Boolean,
         available: Long,
         interval: Long,
-    ): Unit = withContext(Dispatchers.Default) {
-        if (available < interval) throw IllegalArgumentException("Await condition expired")
-        val result = runCatching { conditionEvaluator() }.getOrElse { false }
-        if (result.not()) {
-            delay(interval)
-            waitUntil(conditionEvaluator, available - interval, interval)
+    ): Unit =
+        withContext(Dispatchers.Default) {
+            require(available >= interval) { "Await condition expired" }
+            val result = runCatching { conditionEvaluator() }.getOrElse { false }
+            if (result.not()) {
+                delay(interval)
+                waitUntil(conditionEvaluator, available - interval, interval)
+            }
         }
-    }
 
     waitUntil(conditionEvaluator, duration.toMillis(), interval.toMillis())
 }

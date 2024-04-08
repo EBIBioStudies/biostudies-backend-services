@@ -43,28 +43,31 @@ class ExtSubmissionResourceTest(
     @MockK private val extSubmissionQueryService: ExtSubmissionQueryService,
 ) {
     private val bioUserResolver = TestBioUserResolver()
-    private val mvc = MockMvcBuilders
-        .standaloneSetup(
-            ExtSubmissionResource(
-                extPageMapper,
-                extSubmissionService,
-                extSubmissionQueryService,
-                extSerializationService
+    private val mvc =
+        MockMvcBuilders
+            .standaloneSetup(
+                ExtSubmissionResource(
+                    extPageMapper,
+                    extSubmissionService,
+                    extSubmissionQueryService,
+                    extSerializationService,
+                ),
             )
-        )
-        .setMessageConverters(
-            ExtFileTableConverter(extSerializationService),
-            ExtSubmissionConverter(extSerializationService),
-            ExtPageSubmissionConverter(extSerializationService)
-        )
-        .setCustomArgumentResolvers(bioUserResolver, FileListPathDescriptorResolver())
-        .build()
+            .setMessageConverters(
+                ExtFileTableConverter(extSerializationService),
+                ExtSubmissionConverter(extSerializationService),
+                ExtPageSubmissionConverter(extSerializationService),
+            )
+            .setCustomArgumentResolvers(bioUserResolver, FileListPathDescriptorResolver())
+            .build()
 
     @AfterEach
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun getExtended(@MockK extSubmission: ExtSubmission) {
+    fun getExtended(
+        @MockK extSubmission: ExtSubmission,
+    ) {
         val submissionJson = jsonObj { "accNo" to "S-TEST123" }.toString()
         bioUserResolver.securityUser = TestSuperUser.asSecurityUser()
         every { extSerializationService.serialize(extSubmission) } returns submissionJson
@@ -84,7 +87,9 @@ class ExtSubmissionResourceTest(
     }
 
     @Test
-    fun submitExtended(@MockK extSubmission: ExtSubmission) {
+    fun submitExtended(
+        @MockK extSubmission: ExtSubmission,
+    ) {
         val user = TestSuperUser.asSecurityUser()
         val fileLists = slot<List<MultipartFile>>()
         val submissionJson = jsonObj { "accNo" to "S-TEST123" }.toString()
@@ -111,7 +116,9 @@ class ExtSubmissionResourceTest(
     }
 
     @Test
-    fun submitExtendedAsync(@MockK extSubmission: ExtSubmission) {
+    fun submitExtendedAsync(
+        @MockK extSubmission: ExtSubmission,
+    ) {
         val user = TestSuperUser.asSecurityUser()
         val fileLists = slot<List<MultipartFile>>()
         val submissionJson = jsonObj { "accNo" to "S-TEST123" }.toString()
@@ -166,7 +173,7 @@ class ExtSubmissionResourceTest(
         coEvery {
             extSubmissionQueryService.getReferencedFiles(
                 "S-TEST123",
-                "my/folder/file-list"
+                "my/folder/file-list",
             )
         } returns extFileTable
 
@@ -190,12 +197,13 @@ class ExtSubmissionResourceTest(
     ) {
         val extPageRequestSlot = slot<ExtPageRequest>()
         val webExtPage = WebExtPage(listOf(extSubmission), 1, 1, 0, null, null)
-        val response = jsonObj {
-            "content" to jsonArray(jsonObj { "accNo" to "S-TEST123" })
-            "totalElements" to 1
-            "limit" to 1
-            "offset" to 0
-        }.toString()
+        val response =
+            jsonObj {
+                "content" to jsonArray(jsonObj { "accNo" to "S-TEST123" })
+                "totalElements" to 1
+                "limit" to 1
+                "offset" to 0
+            }.toString()
 
         every { extSerializationService.serialize(webExtPage) } returns response
         every { extPageMapper.asExtPage(pageable, capture(extPageRequestSlot)) } returns webExtPage

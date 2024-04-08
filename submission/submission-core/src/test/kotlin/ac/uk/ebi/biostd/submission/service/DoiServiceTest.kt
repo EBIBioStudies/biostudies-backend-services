@@ -72,23 +72,24 @@ class DoiServiceTest(
     ) {
         val headersSlot = slot<Consumer<HttpHeaders>>()
         val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
-        val submission = submission {
-            title = "Test Submission"
-            attribute("DOI", "")
+        val submission =
+            submission {
+                title = "Test Submission"
+                attribute("DOI", "")
 
-            section("Study") {
-                section("Organization") {
-                    accNo = "o1"
-                    attribute("Name", "EMBL")
-                }
+                section("Study") {
+                    section("Organization") {
+                        accNo = "o1"
+                        attribute("Name", "EMBL")
+                    }
 
-                section("Author") {
-                    attribute("Name", "John Doe")
-                    attribute("ORCID", "12-32-45-82")
-                    attribute("Affiliation", "o1", ref = true)
+                    section("Author") {
+                        attribute("Name", "John Doe")
+                        attribute("ORCID", "12-32-45-82")
+                        attribute("Affiliation", "o1", ref = true)
+                    }
                 }
             }
-        }
 
         every { submitRequest.submission } returns submission
         every { webClient.post().uri(properties.endpoint) } returns requestSpec
@@ -116,13 +117,14 @@ class DoiServiceTest(
 
     @Test
     fun `doi not requested`() {
-        val submission = submission {
-            title = "Test Submission"
+        val submission =
+            submission {
+                title = "Test Submission"
 
-            section("Study") {
-                attribute("Type", "Experiment")
+                section("Study") {
+                    attribute("Type", "Experiment")
+                }
             }
-        }
 
         every { submitRequest.submission } returns submission
 
@@ -133,14 +135,15 @@ class DoiServiceTest(
     @Test
     fun `already existing DOI`() {
         val previousVersionDoi = "$BS_DOI_ID/$TEST_ACC_NO"
-        val submission = submission {
-            title = "Test Submission"
-            attribute("DOI", "$BS_DOI_ID/$TEST_ACC_NO")
+        val submission =
+            submission {
+                title = "Test Submission"
+                attribute("DOI", "$BS_DOI_ID/$TEST_ACC_NO")
 
-            section("Study") {
-                attribute("Type", "Experiment")
+                section("Study") {
+                    attribute("Type", "Experiment")
+                }
             }
-        }
 
         every { submitRequest.submission } returns submission
         every { previousVersion.doi } returns previousVersionDoi
@@ -156,14 +159,15 @@ class DoiServiceTest(
     fun `invalid given DOI`() {
         val doi = "10.287.71/$TEST_ACC_NO"
         val previousDoi = "$BS_DOI_ID/$TEST_ACC_NO"
-        val submission = submission {
-            title = "Test Submission"
-            attribute("DOI", doi)
+        val submission =
+            submission {
+                title = "Test Submission"
+                attribute("DOI", doi)
 
-            section("Study") {
-                attribute("Type", "Experiment")
+                section("Study") {
+                    attribute("Type", "Experiment")
+                }
             }
-        }
 
         every { submitRequest.submission } returns submission
         every { previousVersion.doi } returns previousDoi
@@ -178,14 +182,15 @@ class DoiServiceTest(
     @Test
     fun `removed DOI`() {
         val previousDoi = "$BS_DOI_ID/$TEST_ACC_NO"
-        val submission = submission {
-            title = "Test Submission"
-            attribute("DOI", null)
+        val submission =
+            submission {
+                title = "Test Submission"
+                attribute("DOI", null)
 
-            section("Study") {
-                attribute("Type", "Experiment")
+                section("Study") {
+                    attribute("Type", "Experiment")
+                }
             }
-        }
 
         every { submitRequest.submission } returns submission
         every { previousVersion.doi } returns previousDoi
@@ -199,9 +204,10 @@ class DoiServiceTest(
 
     @Test
     fun `missing title`() {
-        val submission = submission {
-            attribute("DOI", "")
-        }
+        val submission =
+            submission {
+                attribute("DOI", "")
+            }
 
         every { submitRequest.submission } returns submission
 
@@ -213,16 +219,17 @@ class DoiServiceTest(
 
     @Test
     fun `missing organization`() {
-        val submission = submission {
-            title = "Test Submission"
-            attribute("DOI", "")
+        val submission =
+            submission {
+                title = "Test Submission"
+                attribute("DOI", "")
 
-            section("Study") {
-                section("Author") {
-                    attribute("Name", "John Doe")
+                section("Study") {
+                    section("Author") {
+                        attribute("Name", "John Doe")
+                    }
                 }
             }
-        }
 
         every { submitRequest.submission } returns submission
 
@@ -234,16 +241,17 @@ class DoiServiceTest(
 
     @Test
     fun `missing organization accNo`() {
-        val submission = submission {
-            title = "Test Submission"
-            attribute("DOI", "")
+        val submission =
+            submission {
+                title = "Test Submission"
+                attribute("DOI", "")
 
-            section("Study") {
-                section("Organization") {
-                    attribute("Name", "EMBL")
+                section("Study") {
+                    section("Organization") {
+                        attribute("Name", "EMBL")
+                    }
                 }
             }
-        }
 
         every { submitRequest.submission } returns submission
 
@@ -255,27 +263,28 @@ class DoiServiceTest(
 
     @Test
     fun `missing organization name`() {
-        val submission = submission {
-            title = "Test Submission"
-            attribute("DOI", "")
+        val submission =
+            submission {
+                title = "Test Submission"
+                attribute("DOI", "")
 
-            section("Study") {
-                section("Organization") {
-                    accNo = "o1"
-                    attribute("Name", "American Society")
-                }
+                section("Study") {
+                    section("Organization") {
+                        accNo = "o1"
+                        attribute("Name", "American Society")
+                    }
 
-                section("Organisation") {
-                    accNo = "o2"
-                    attribute("Name", "EMBL")
-                }
+                    section("Organisation") {
+                        accNo = "o2"
+                        attribute("Name", "EMBL")
+                    }
 
-                section("organization") {
-                    accNo = "o3"
-                    attribute("Research Associate", "Astrazeneca")
+                    section("organization") {
+                        accNo = "o3"
+                        attribute("Research Associate", "Astrazeneca")
+                    }
                 }
             }
-        }
 
         every { submitRequest.submission } returns submission
 
@@ -287,29 +296,31 @@ class DoiServiceTest(
 
     @Test
     fun `missing author name`() {
-        val submission = submission {
-            title = "Test Submission"
-            attribute("DOI", "")
+        val submission =
+            submission {
+                title = "Test Submission"
+                attribute("DOI", "")
 
-            section("Study") {
-                section("organization") {
-                    accNo = "o1"
-                    attribute("Name", "EMBL")
-                }
+                section("Study") {
+                    section("organization") {
+                        accNo = "o1"
+                        attribute("Name", "EMBL")
+                    }
 
-                section("author") {
-                    attribute("P.I.", "John Doe")
-                    attribute("ORCID", "12-32-45-82")
-                    attribute("Affiliation", "o1", ref = true)
+                    section("author") {
+                        attribute("P.I.", "John Doe")
+                        attribute("ORCID", "12-32-45-82")
+                        attribute("Affiliation", "o1", ref = true)
+                    }
                 }
             }
-        }
 
         every { submitRequest.submission } returns submission
 
-        val exception = assertThrows<InvalidAuthorNameException> {
-            testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
-        }
+        val exception =
+            assertThrows<InvalidAuthorNameException> {
+                testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
+            }
 
         verify(exactly = 0) { webClient.post() }
         assertThat(exception.message).isEqualTo("Authors are required to have a name")
@@ -317,28 +328,30 @@ class DoiServiceTest(
 
     @Test
     fun `missing affiliation`() {
-        val submission = submission {
-            title = "Test Submission"
-            attribute("DOI", "")
+        val submission =
+            submission {
+                title = "Test Submission"
+                attribute("DOI", "")
 
-            section("Study") {
-                section("Organization") {
-                    accNo = "o1"
-                    attribute("Name", "EMBL")
-                }
+                section("Study") {
+                    section("Organization") {
+                        accNo = "o1"
+                        attribute("Name", "EMBL")
+                    }
 
-                section("Author") {
-                    attribute("Name", "John Doe")
-                    attribute("ORCID", "12-32-45-82")
+                    section("Author") {
+                        attribute("Name", "John Doe")
+                        attribute("ORCID", "12-32-45-82")
+                    }
                 }
             }
-        }
 
         every { submitRequest.submission } returns submission
 
-        val exception = assertThrows<MissingAuthorAffiliationException> {
-            testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
-        }
+        val exception =
+            assertThrows<MissingAuthorAffiliationException> {
+                testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
+            }
 
         verify(exactly = 0) { webClient.post() }
         assertThat(exception.message).isEqualTo("Authors are required to have an affiliation")
@@ -346,29 +359,31 @@ class DoiServiceTest(
 
     @Test
     fun `invalid affiliation`() {
-        val submission = submission {
-            title = "Test Submission"
-            attribute("DOI", null)
+        val submission =
+            submission {
+                title = "Test Submission"
+                attribute("DOI", null)
 
-            section("Study") {
-                section("Organization") {
-                    accNo = "o1"
-                    attribute("Name", "EMBL")
-                }
+                section("Study") {
+                    section("Organization") {
+                        accNo = "o1"
+                        attribute("Name", "EMBL")
+                    }
 
-                section("Author") {
-                    attribute("Name", "John Doe")
-                    attribute("ORCID", "12-32-45-82")
-                    attribute("affiliation", "o2", ref = true)
+                    section("Author") {
+                        attribute("Name", "John Doe")
+                        attribute("ORCID", "12-32-45-82")
+                        attribute("affiliation", "o2", ref = true)
+                    }
                 }
             }
-        }
 
         every { submitRequest.submission } returns submission
 
-        val exception = assertThrows<InvalidAuthorAffiliationException> {
-            testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
-        }
+        val exception =
+            assertThrows<InvalidAuthorAffiliationException> {
+                testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
+            }
 
         verify(exactly = 0) { webClient.post() }
         assertThat(exception.message)
@@ -378,13 +393,14 @@ class DoiServiceTest(
     companion object {
         private const val TEST_ACC_NO = "S-TEST123"
 
-        private val properties = DoiProperties(
-            endpoint = "https://test-endpoint.org",
-            uiUrl = "https://www.biostudies.ac.uk",
-            email = "biostudies@ebi.ac.uk",
-            user = "a-user",
-            password = "a-password",
-        )
+        private val properties =
+            DoiProperties(
+                endpoint = "https://test-endpoint.org",
+                uiUrl = "https://www.biostudies.ac.uk",
+                email = "biostudies@ebi.ac.uk",
+                user = "a-user",
+                password = "a-password",
+            )
 
         private const val EXPECTED_DOI_REQUEST = """
             <doi_batch

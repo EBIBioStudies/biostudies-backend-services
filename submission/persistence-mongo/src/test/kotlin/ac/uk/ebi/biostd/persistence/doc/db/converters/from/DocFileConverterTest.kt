@@ -28,7 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class DocFileConverterTest(
     @MockK val documentAttr: Document,
     @MockK val docAttribute: DocAttribute,
-    @MockK val docAttributeConverter: DocAttributeConverter
+    @MockK val docAttributeConverter: DocAttributeConverter,
 ) {
     private val testInstance = DocFileConverter(docAttributeConverter)
 
@@ -81,39 +81,42 @@ internal class DocFileConverterTest(
         assertThat(result.fileType).isEqualTo(DIR.value)
     }
 
-    private fun createNfsFileDoc() = Document().apply {
-        this[CommonsConverter.classField] = nfsDocFileClass
-        this[FILE_DOC_FILENAME] = "fileName"
-        this[FILE_DOC_FILEPATH] = "filePath"
-        this[FILE_DOC_REL_PATH] = "relPath"
-        this[NFS_FILE_FULL_PATH] = "fullPath"
-        this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
-        this[FILE_DOC_MD5] = "md5"
-        this[FILE_DOC_SIZE] = 10L
-        this[FILE_DOC_TYPE] = "file"
-    }
+    private fun createNfsFileDoc() =
+        Document().apply {
+            this[CommonsConverter.CLASS_FIELD] = nfsDocFileClass
+            this[FILE_DOC_FILENAME] = "fileName"
+            this[FILE_DOC_FILEPATH] = "filePath"
+            this[FILE_DOC_REL_PATH] = "relPath"
+            this[NFS_FILE_FULL_PATH] = "fullPath"
+            this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
+            this[FILE_DOC_MD5] = "md5"
+            this[FILE_DOC_SIZE] = 10L
+            this[FILE_DOC_TYPE] = "file"
+        }
 
-    private fun createFireFileDoc() = Document().apply {
-        this[CommonsConverter.classField] = fireDocFileClass
-        this[FILE_DOC_FILENAME] = "fileName"
-        this[FILE_DOC_FILEPATH] = "filePath"
-        this[FILE_DOC_REL_PATH] = "relPath"
-        this[FIRE_FILE_DOC_ID] = "fireId"
-        this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
-        this[FILE_DOC_MD5] = "md5"
-        this[FILE_DOC_SIZE] = 10L
-        this[FILE_DOC_TYPE] = "file"
-    }
+    private fun createFireFileDoc() =
+        Document().apply {
+            this[CommonsConverter.CLASS_FIELD] = fireDocFileClass
+            this[FILE_DOC_FILENAME] = "fileName"
+            this[FILE_DOC_FILEPATH] = "filePath"
+            this[FILE_DOC_REL_PATH] = "relPath"
+            this[FIRE_FILE_DOC_ID] = "fireId"
+            this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
+            this[FILE_DOC_MD5] = "md5"
+            this[FILE_DOC_SIZE] = 10L
+            this[FILE_DOC_TYPE] = "file"
+        }
 
-    private fun createFireDirectoryDoc() = Document().apply {
-        this[CommonsConverter.classField] = fireDocFileClass
-        this[FILE_DOC_FILENAME] = "fire-directory"
-        this[FILE_DOC_FILEPATH] = "filePath"
-        this[FILE_DOC_REL_PATH] = "relPath"
-        this[FIRE_FILE_DOC_ID] = "dirFireId"
-        this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
-        this[FILE_DOC_MD5] = "md5"
-        this[FILE_DOC_SIZE] = 10L
-        this[FILE_DOC_TYPE] = "directory"
-    }
+    private fun createFireDirectoryDoc() =
+        Document().apply {
+            this[CommonsConverter.CLASS_FIELD] = fireDocFileClass
+            this[FILE_DOC_FILENAME] = "fire-directory"
+            this[FILE_DOC_FILEPATH] = "filePath"
+            this[FILE_DOC_REL_PATH] = "relPath"
+            this[FIRE_FILE_DOC_ID] = "dirFireId"
+            this[FILE_DOC_ATTRIBUTES] = listOf(documentAttr)
+            this[FILE_DOC_MD5] = "md5"
+            this[FILE_DOC_SIZE] = 10L
+            this[FILE_DOC_TYPE] = "directory"
+        }
 }

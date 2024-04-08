@@ -10,7 +10,10 @@ class FireMockFileSystem(
     private val submissionFolder: Path,
     private val fireS3Service: FireS3Service,
 ) {
-    fun saveFile(data: ByteArray, fireOid: String): File {
+    fun saveFile(
+        data: ByteArray,
+        fireOid: String,
+    ): File {
         val file = dbFolder.resolve(fireOid).toFile()
         file.parentFile.mkdirs()
         file.createNewFile()
@@ -20,7 +23,10 @@ class FireMockFileSystem(
 
     fun findFileByFireId(fireOid: String): Path = dbFolder.resolve(fireOid)
 
-    fun setPath(fireOid: String, path: String) {
+    fun setPath(
+        fireOid: String,
+        path: String,
+    ) {
         val fireFile = dbFolder.resolve(fireOid)
         Files.copy(fireFile, getOrCreateSubFolder(path))
         fireS3Service.upload(fireFile.toFile(), path)

@@ -68,32 +68,38 @@ class SubmitWebHandler(
          * Deserialize the submission without considering files and retrieve accNo and rootPath.
          */
         fun deserializeSubmission(): Pair<String, String?> {
-            val submission = when (rqt) {
-                is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format)
-                is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission)
-            }
+            val submission =
+                when (rqt) {
+                    is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format)
+                    is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission)
+                }
             return submission.accNo to submission.rootPath
         }
 
         /**
          * Deserialize the submission and check file presence in the list of sources.
          */
-        suspend fun deserializeSubmission(source: FileSourcesList): Submission = when (rqt) {
-            is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format, source)
-            is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, source)
-        }
+        suspend fun deserializeSubmission(source: FileSourcesList): Submission =
+            when (rqt) {
+                is ContentSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, rqt.format, source)
+                is FileSubmitWebRequest -> serializationService.deserializeSubmission(rqt.submission, source)
+            }
 
         /**
          * Create the list of submission sources available based on the given submission.
          */
-        fun sourceRequest(rootPath: String?, previous: ExtSubmission?): FileSourcesRequest = FileSourcesRequest(
-            submitter = submitter,
-            files = files,
-            onBehalfUser = onBehalfUser,
-            rootPath = rootPath,
-            submission = previous,
-            preferredSources = preferredSources
-        )
+        fun sourceRequest(
+            rootPath: String?,
+            previous: ExtSubmission?,
+        ): FileSourcesRequest =
+            FileSourcesRequest(
+                submitter = submitter,
+                files = files,
+                onBehalfUser = onBehalfUser,
+                rootPath = rootPath,
+                submission = previous,
+                preferredSources = preferredSources,
+            )
 
         /**
          * Process the given submission:

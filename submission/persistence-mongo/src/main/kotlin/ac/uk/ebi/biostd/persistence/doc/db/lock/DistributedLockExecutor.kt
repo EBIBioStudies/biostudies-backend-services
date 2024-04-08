@@ -14,32 +14,36 @@ import java.time.Duration
 internal class DistributedLockExecutor(
     private val mongoTemplate: ReactiveMongoTemplate,
 ) {
-
     @Suppress("SwallowedException")
     suspend fun acquireLock(
         lockIdentifier: String,
         lockOwner: String,
         expiration: Duration = DEFAULT_EXPIRATION,
     ): Boolean {
-        val query = Query.query(where(lockId).`is`(lockIdentifier).and(expires).lte(System.currentTimeMillis()))
-        val update = Update()
-            .set(expires, System.currentTimeMillis() + expiration.toMillis())
-            .set(owner, lockOwner)
-            .setOnInsert(lockId, lockIdentifier)
+        val query = Query.query(where(LOCK_ID).`is`(lockIdentifier).and(EXPIRES).lte(System.currentTimeMillis()))
+        val update =
+            Update()
+                .set(EXPIRES, System.currentTimeMillis() + expiration.toMillis())
+                .set(OWNER, lockOwner)
+                .setOnInsert(LOCK_ID, lockIdentifier)
         val options = FindAndModifyOptions.options().returnNew(true).upsert(true)
 
         try {
-            val acquiredLock = mongoTemplate
-                .findAndModify(query, update, options, Lock::class.java)
-                .awaitFirstOrNull()
+            val acquiredLock =
+                mongoTemplate
+                    .findAndModify(query, update, options, Lock::class.java)
+                    .awaitFirstOrNull()
             return if (acquiredLock != null) true else false
         } catch (e: DuplicateKeyException) {
             return false
         }
     }
 
-    suspend fun releaseLock(lockIdentifier: String, lockOwner: String): Boolean {
-        val query = Query.query(where(lockId).`is`(lockIdentifier).and(owner).`is`(lockOwner))
+    suspend fun releaseLock(
+        lockIdentifier: String,
+        lockOwner: String,
+    ): Boolean {
+        val query = Query.query(where(LOCK_ID).`is`(lockIdentifier).and(OWNER).`is`(lockOwner))
         val result = mongoTemplate.remove(query, Lock::class.java).awaitSingle()
         return result.deletedCount > 0
     }
@@ -53,8 +57,8 @@ internal class DistributedLockExecutor(
 
     private companion object {
         val DEFAULT_EXPIRATION = Duration.ofMinutes(5)
-        const val owner = "owner"
-        const val expires = "expires"
-        const val lockId = "_id"
+        const val OWNER = "owner"
+        const val EXPIRES = "expires"
+        const val LOCK_ID = "_id"
     }
 }

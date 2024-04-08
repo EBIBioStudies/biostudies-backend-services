@@ -58,9 +58,13 @@ class AccNoServiceTest(
         "S-SCDT-EMBOR-2017-44445V1, null, S-SCDT-EMBOR-2017-44445V/001/S-SCDT-EMBOR-2017-44445V1",
         "S-123, base-path/, base-path/S-/123/S-123",
         "S-123, /base-path, base-path/S-/123/S-123",
-        nullValues = ["null"]
+        nullValues = ["null"],
     )
-    fun getRelPath(value: String, subBasePath: String?, expected: String) {
+    fun getRelPath(
+        value: String,
+        subBasePath: String?,
+        expected: String,
+    ) {
         val testInstance = AccNoService(service, accNoPatternUtil, privilegesService, subBasePath)
         assertThat(testInstance.getRelPath(accNoPatternUtil.toAccNumber(value))).isEqualTo(expected)
     }
@@ -68,64 +72,70 @@ class AccNoServiceTest(
     @Nested
     inner class WhenIsNew {
         @Test
-        fun `when user cannot provide accession`() = runTest {
-            every { request.collection } returns null
-            every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
+        fun `when user cannot provide accession`() =
+            runTest {
+                every { request.collection } returns null
+                every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
 
-            val error = assertThrows<UserCanNotProvideAccessNumber> { testInstance.calculateAccNo(request) }
-            assertThat(error.message)
-                .isEqualTo("The user {submiter@email.com} is not allowed to provide accession number directly")
-        }
+                val error = assertThrows<UserCanNotProvideAccessNumber> { testInstance.calculateAccNo(request) }
+                assertThat(error.message)
+                    .isEqualTo("The user {submiter@email.com} is not allowed to provide accession number directly")
+            }
 
         @Test
-        fun `when user cannot submit to collection`() = runTest {
-            every { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns false
+        fun `when user cannot submit to collection`() =
+            runTest {
+                every { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns false
 
-            val error = assertThrows<UserCanNotSubmitToCollectionException> { testInstance.calculateAccNo(request) }
-            assertThat(error.message)
-                .isEqualTo("The user submiter@email.com is not allowed to submit to CC123 collection")
-        }
+                val error = assertThrows<UserCanNotSubmitToCollectionException> { testInstance.calculateAccNo(request) }
+                assertThat(error.message)
+                    .isEqualTo("The user submiter@email.com is not allowed to submit to CC123 collection")
+            }
 
         @Nested
         inner class WhenAccNo {
             @Test
-            fun `when no project`() = runTest {
-                every { request.collection } returns null
-                every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
+            fun `when no project`() =
+                runTest {
+                    every { request.collection } returns null
+                    every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
 
-                assertThat(testInstance.calculateAccNo(request)).isEqualTo(ACC_NUM)
-            }
+                    assertThat(testInstance.calculateAccNo(request)).isEqualTo(ACC_NUM)
+                }
 
             @Test
-            fun `when project`() = runTest {
-                every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
-                every { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
+            fun `when project`() =
+                runTest {
+                    every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
+                    every { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
 
-                assertThat(testInstance.calculateAccNo(request)).isEqualTo(ACC_NUM)
-            }
+                    assertThat(testInstance.calculateAccNo(request)).isEqualTo(ACC_NUM)
+                }
         }
 
         @Nested
         inner class WhenNoAccNo {
             @Test
-            fun `when parent`() = runTest {
-                every { request.submission.accNo } returns ""
-                every { service.getSequenceNextValue("ABC-") } returns 10
-                every { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
+            fun `when parent`() =
+                runTest {
+                    every { request.submission.accNo } returns ""
+                    every { service.getSequenceNextValue("ABC-") } returns 10
+                    every { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
 
-                assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("ABC-", "10"))
-            }
+                    assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("ABC-", "10"))
+                }
 
             @Test
-            fun `when no parent`() = runTest {
-                every { request.collection } returns null
-                every { request.submission.accNo } returns ""
-                every { service.getSequenceNextValue("S-BSST") } returns 99
-                every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
-                every { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
+            fun `when no parent`() =
+                runTest {
+                    every { request.collection } returns null
+                    every { request.submission.accNo } returns ""
+                    every { service.getSequenceNextValue("S-BSST") } returns 99
+                    every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
+                    every { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
 
-                assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("S-BSST", "99"))
-            }
+                    assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("S-BSST", "99"))
+                }
         }
     }
 
@@ -139,43 +149,47 @@ class AccNoServiceTest(
         }
 
         @Test
-        fun `when user cannot resubmit`() = runTest {
-            coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns false
+        fun `when user cannot resubmit`() =
+            runTest {
+                coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns false
 
-            val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.calculateAccNo(request) }
-            assertThat(error.message).isEqualTo("The user {$SUBMITTER} is not allowed to update the submission $ACC_NO")
-        }
-
-        @Test
-        fun `superuser resubmit`() = runTest {
-            every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
-            coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns true
-            every { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
-
-            assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("AAB", "12"))
-        }
+                val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.calculateAccNo(request) }
+                assertThat(error.message).isEqualTo("The user {$SUBMITTER} is not allowed to update the submission $ACC_NO")
+            }
 
         @Test
-        fun `owner regular user resubmit`() = runTest {
-            every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
-            coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns true
-            every { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns false
+        fun `superuser resubmit`() =
+            runTest {
+                every { privilegesService.canProvideAccNo(SUBMITTER) } returns true
+                coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns true
+                every { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
 
-            assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("AAB", "12"))
-        }
+                assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("AAB", "12"))
+            }
 
         @Test
-        fun `non owner regular user resubmit`() = runTest {
-            every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
-            coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns false
-            every { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
+        fun `owner regular user resubmit`() =
+            runTest {
+                every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
+                coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns true
+                every { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns false
 
-            val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.calculateAccNo(request) }
+                assertThat(testInstance.calculateAccNo(request)).isEqualTo(AccNumber("AAB", "12"))
+            }
 
-            assertThat(error.message).isEqualTo(
-                "The user {submiter@email.com} is not allowed to update the submission AAB12"
-            )
-        }
+        @Test
+        fun `non owner regular user resubmit`() =
+            runTest {
+                every { privilegesService.canProvideAccNo(SUBMITTER) } returns false
+                coEvery { privilegesService.canResubmit(SUBMITTER, ACC_NO) } returns false
+                every { privilegesService.canSubmitToCollection(SUBMITTER, COLLECTION) } returns true
+
+                val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.calculateAccNo(request) }
+
+                assertThat(error.message).isEqualTo(
+                    "The user {submiter@email.com} is not allowed to update the submission AAB12",
+                )
+            }
     }
 
     private fun initRequest() {

@@ -14,11 +14,9 @@ class DbAccessTag(
     @Id
     @GeneratedValue
     var id: Long = 0L,
-
     @Column
     override var name: String,
 ) : AccessTag {
-
     override fun equals(other: Any?): Boolean {
         if (other !is DbAccessTag) return false
         if (this === other) return true

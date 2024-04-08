@@ -55,14 +55,17 @@ class EuToxRiskValidatorTest(
     fun validate() {
         val bodySlot = slot<FileSystemResource>()
         val headersSlot = slot<Consumer<HttpHeaders>>()
-        val submission = basicExtSubmission.copy(
-            section = ExtSection(
-                type = "Study",
-                files = listOf(
-                    left(createNfsFile("folder/test.xlsx", "Files/folder/test.xlsx", excelFile))
-                )
+        val submission =
+            basicExtSubmission.copy(
+                section =
+                    ExtSection(
+                        type = "Study",
+                        files =
+                            listOf(
+                                left(createNfsFile("folder/test.xlsx", "Files/folder/test.xlsx", excelFile)),
+                            ),
+                    ),
             )
-        )
 
         every { client.post().uri(testUrl) } returns requestSpec
         every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
@@ -87,12 +90,14 @@ class EuToxRiskValidatorTest(
 
     @Test
     fun validateWhenNotApplicable() {
-        val submission = basicExtSubmission.copy(
-            section = ExtSection(
-                type = "Study",
-                attributes = listOf(ExtAttribute(name = SKIP_VALIDATION_ATTR, value = "UPF12_MITOTOX_1"))
+        val submission =
+            basicExtSubmission.copy(
+                section =
+                    ExtSection(
+                        type = "Study",
+                        attributes = listOf(ExtAttribute(name = SKIP_VALIDATION_ATTR, value = "UPF12_MITOTOX_1")),
+                    ),
             )
-        )
 
         testInstance.validate(submission)
 
@@ -103,20 +108,23 @@ class EuToxRiskValidatorTest(
     fun `validate with errors`() {
         val bodySlot = slot<FileSystemResource>()
         val headersSlot = slot<Consumer<HttpHeaders>>()
-        val submission = basicExtSubmission.copy(
-            section = ExtSection(
-                type = "Study",
-                files = listOf(
-                    left(
-                        createNfsFile(
-                            "folder/test.xlsx",
-                            "Files/folder/test.xlsx",
-                            excelFile
-                        )
-                    )
-                )
+        val submission =
+            basicExtSubmission.copy(
+                section =
+                    ExtSection(
+                        type = "Study",
+                        files =
+                            listOf(
+                                left(
+                                    createNfsFile(
+                                        "folder/test.xlsx",
+                                        "Files/folder/test.xlsx",
+                                        excelFile,
+                                    ),
+                                ),
+                            ),
+                    ),
             )
-        )
 
         every { client.post().uri(testUrl) } returns requestSpec
         every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
@@ -127,7 +135,7 @@ class EuToxRiskValidatorTest(
 
         val error = assertThrows<CollectionValidationException> { testInstance.validate(submission) }
         assertThat(error.message).isEqualTo(
-            "The submission doesn't comply with the collection requirements. Errors: [an error]"
+            "The submission doesn't comply with the collection requirements. Errors: [an error]",
         )
 
         val body = bodySlot.captured
@@ -144,18 +152,21 @@ class EuToxRiskValidatorTest(
 
     @Test
     fun `submission without excel file`() {
-        val submission = basicExtSubmission.copy(
-            section = ExtSection(
-                type = "Study",
-                files = listOf(
-                    left(createNfsFile("folder/test.txt", "Files/folder/test.txt", textFile))
-                )
+        val submission =
+            basicExtSubmission.copy(
+                section =
+                    ExtSection(
+                        type = "Study",
+                        files =
+                            listOf(
+                                left(createNfsFile("folder/test.txt", "Files/folder/test.txt", textFile)),
+                            ),
+                    ),
             )
-        )
 
         val error = assertThrows<CollectionValidationException> { testInstance.validate(submission) }
         assertThat(error.message).isEqualTo(
-            "The submission doesn't comply with the collection requirements. Errors: [$EXCEL_FILE_REQUIRED]"
+            "The submission doesn't comply with the collection requirements. Errors: [$EXCEL_FILE_REQUIRED]",
         )
     }
 }

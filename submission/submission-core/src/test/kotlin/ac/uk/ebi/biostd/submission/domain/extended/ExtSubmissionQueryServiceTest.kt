@@ -26,24 +26,28 @@ internal class ExtSubmissionQueryServiceTest(
     private val testInstance = ExtSubmissionQueryService(filesRepository, submissionQueryService)
 
     @Test
-    fun `get ext submission`() = runTest {
-        val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
-        coEvery { submissionQueryService.getExtByAccNo("S-TEST123") } returns extSubmission
+    fun `get ext submission`() =
+        runTest {
+            val extSubmission = basicExtSubmission.copy(collections = listOf(ExtCollection("ArrayExpress")))
+            coEvery { submissionQueryService.getExtByAccNo("S-TEST123") } returns extSubmission
 
-        val submission = testInstance.getExtendedSubmission("S-TEST123")
-        assertThat(submission).isEqualTo(extSubmission)
-    }
+            val submission = testInstance.getExtendedSubmission("S-TEST123")
+            assertThat(submission).isEqualTo(extSubmission)
+        }
 
     @Test
-    fun `filtering extended submissions`(@MockK extSubmission: ExtSubmission) = runTest {
+    fun `filtering extended submissions`(
+        @MockK extSubmission: ExtSubmission,
+    ) = runTest {
         val filter = slot<SubmissionFilter>()
-        val request = ExtPageRequest(
-            fromRTime = "2019-09-21T15:00:00Z",
-            toRTime = "2020-09-21T15:00:00Z",
-            released = true,
-            offset = 1,
-            limit = 2,
-        )
+        val request =
+            ExtPageRequest(
+                fromRTime = "2019-09-21T15:00:00Z",
+                toRTime = "2020-09-21T15:00:00Z",
+                released = true,
+                offset = 1,
+                limit = 2,
+            )
 
         val pageable = Pageable.unpaged()
         val page = PageImpl(mutableListOf(extSubmission), pageable, 2L)

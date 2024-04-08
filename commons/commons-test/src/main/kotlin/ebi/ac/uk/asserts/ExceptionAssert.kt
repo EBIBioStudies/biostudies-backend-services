@@ -1,6 +1,7 @@
 package ebi.ac.uk.asserts
 
-inline suspend fun <reified T : Throwable> assertThrows(function: suspend () -> Unit): T {
+@Suppress("TooGenericExceptionCaught", "InstanceOfCheckForException")
+suspend inline fun <reified T : Throwable> assertThrows(function: () -> Unit): T {
     try {
         function()
     } catch (e: Exception) {
@@ -8,4 +9,3 @@ inline suspend fun <reified T : Throwable> assertThrows(function: suspend () -> 
     }
     throw AssertionError("Expected ${T::class.simpleName} to be thrown")
 }
-

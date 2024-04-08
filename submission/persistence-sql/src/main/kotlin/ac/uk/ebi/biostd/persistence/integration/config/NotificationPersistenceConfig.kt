@@ -10,9 +10,7 @@ import org.springframework.context.annotation.Import
 @Configuration
 @Import(JpaRepositoryConfig::class)
 open class NotificationPersistenceConfig {
-
     @Bean
-    internal open fun notificationsDataService(
-        submissionRtRepository: SubmissionRtRepository
-    ): NotificationsDataService = NotificationsSqlDataService(submissionRtRepository)
+    internal open fun notificationsDataService(submissionRtRepository: SubmissionRtRepository): NotificationsDataService =
+        NotificationsSqlDataService(submissionRtRepository)
 }

@@ -11,14 +11,12 @@ import org.springframework.web.method.support.ModelAndViewContainer
 internal class TestBioUserResolver : HandlerMethodArgumentResolver {
     lateinit var securityUser: SecurityUser
 
-    override fun supportsParameter(
-        parameter: MethodParameter
-    ): Boolean = parameter.getParameterAnnotation(BioUser::class.java) != null
+    override fun supportsParameter(parameter: MethodParameter): Boolean = parameter.getParameterAnnotation(BioUser::class.java) != null
 
     override fun resolveArgument(
         parameter: MethodParameter,
         container: ModelAndViewContainer?,
         request: NativeWebRequest,
-        factory: WebDataBinderFactory?
+        factory: WebDataBinderFactory?,
     ): SecurityUser = securityUser
 }

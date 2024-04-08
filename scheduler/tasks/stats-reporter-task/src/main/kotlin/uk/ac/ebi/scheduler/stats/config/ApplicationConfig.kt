@@ -15,9 +15,8 @@ class ApplicationConfig(
     private val appProperties: ApplicationProperties,
 ) {
     @Bean
-    fun statsReporterService(
-        statsRepository: StatsReporterDataRepository,
-    ): StatsReporterService = StatsReporterService(appProperties, statsRepository)
+    fun statsReporterService(statsRepository: StatsReporterDataRepository): StatsReporterService =
+        StatsReporterService(appProperties, statsRepository)
 
     @Bean
     fun statsReporterExecutor(service: StatsReporterService): StatsReporterExecutor = StatsReporterExecutor(service)

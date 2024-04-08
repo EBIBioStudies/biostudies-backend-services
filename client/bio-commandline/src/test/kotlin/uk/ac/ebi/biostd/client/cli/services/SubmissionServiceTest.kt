@@ -71,7 +71,7 @@ internal class SubmissionServiceTest {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
             bioWebClient.asyncSubmitSingle(
                 subRequest.submissionFile,
-                subRequest.filesConfig
+                subRequest.filesConfig,
             )
         }
     }

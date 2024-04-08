@@ -8,7 +8,7 @@ import org.springframework.core.convert.converter.Converter
 class DocFileTableConverter(private val docFileConverter: DocFileConverter) : Converter<Document, DocFileTable> {
     override fun convert(source: Document): DocFileTable {
         return DocFileTable(
-            files = source.getDocList(FILE_TABLE_DOC_FILES).map { docFileConverter.convert(it) }
+            files = source.getDocList(FILE_TABLE_DOC_FILES).map { docFileConverter.convert(it) },
         )
     }
 }

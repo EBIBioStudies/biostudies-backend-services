@@ -21,48 +21,52 @@ class ExtFilesTableSerializerTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun serialize() {
         val file = tempFolder.createFile("test-file.txt")
-        val extFilesTable = ExtFileTable(
-            NfsFile(
-                filePath = "folder/test-file.txt",
-                relPath = "Files/folder/test-file.txt",
-                fullPath = file.absolutePath,
-                file = file,
-                md5 = file.md5(),
-                size = file.size(),
-                attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true))
+        val extFilesTable =
+            ExtFileTable(
+                NfsFile(
+                    filePath = "folder/test-file.txt",
+                    relPath = "Files/folder/test-file.txt",
+                    fullPath = file.absolutePath,
+                    file = file,
+                    md5 = file.md5(),
+                    size = file.size(),
+                    attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true)),
+                ),
             )
-        )
-        val expectedJson = jsonObj {
-            "files" to jsonArray(
-                jsonObj {
-                    "fileName" to "test-file.txt"
-                    "filePath" to "folder/test-file.txt"
-                    "relPath" to "Files/folder/test-file.txt"
-                    "fullPath" to file.absolutePath
-                    "md5" to file.md5()
-                    "attributes" to jsonArray(
+        val expectedJson =
+            jsonObj {
+                "files" to
+                    jsonArray(
                         jsonObj {
-                            "name" to "Type"
-                            "value" to "Data"
-                            "reference" to false
-                            "nameAttrs" to jsonArray()
-                            "valueAttrs" to jsonArray()
+                            "fileName" to "test-file.txt"
+                            "filePath" to "folder/test-file.txt"
+                            "relPath" to "Files/folder/test-file.txt"
+                            "fullPath" to file.absolutePath
+                            "md5" to file.md5()
+                            "attributes" to
+                                jsonArray(
+                                    jsonObj {
+                                        "name" to "Type"
+                                        "value" to "Data"
+                                        "reference" to false
+                                        "nameAttrs" to jsonArray()
+                                        "valueAttrs" to jsonArray()
+                                    },
+                                    jsonObj {
+                                        "name" to "Source"
+                                        "value" to null
+                                        "reference" to true
+                                        "nameAttrs" to jsonArray()
+                                        "valueAttrs" to jsonArray()
+                                    },
+                                )
+                            "extType" to "nfsFile"
+                            "type" to "file"
+                            "size" to file.size()
                         },
-                        jsonObj {
-                            "name" to "Source"
-                            "value" to null
-                            "reference" to true
-                            "nameAttrs" to jsonArray()
-                            "valueAttrs" to jsonArray()
-                        }
                     )
-                    "extType" to "nfsFile"
-                    "type" to "file"
-                    "size" to file.size()
-                }
-            )
-            "extType" to "filesTable"
-        }.toString()
+                "extType" to "filesTable"
+            }.toString()
 
         assertThat(testInstance.writeValueAsString(extFilesTable)).isEqualToIgnoringWhitespace(expectedJson)
     }

@@ -36,13 +36,14 @@ class SubmissionRequestProcessorTest(
     @MockK private val requestService: SubmissionRequestPersistenceService,
     @MockK private val filesService: SubmissionRequestFilesPersistenceService,
 ) {
-    private val testInstance = SubmissionRequestProcessor(
-        TEST_CONCURRENCY,
-        storageService,
-        eventsPublisherService,
-        requestService,
-        filesService,
-    )
+    private val testInstance =
+        SubmissionRequestProcessor(
+            TEST_CONCURRENCY,
+            storageService,
+            eventsPublisherService,
+            requestService,
+            filesService,
+        )
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -54,32 +55,34 @@ class SubmissionRequestProcessorTest(
         @MockK nfsFile: NfsFile,
         @MockK releasedFile: FireFile,
     ) = runTest {
-        val nfsRqtFile = SubmissionRequestFile(accNo, version, 1, "test1.txt", nfsFile)
+        val nfsRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 1, "test1.txt", nfsFile)
         every { rqt.submission } returns submission
         every { rqt.currentIndex } returns 1
-        every { submission.accNo } returns accNo
-        every { submission.version } returns version
-        every { eventsPublisherService.requestFilesCopied(accNo, version) } answers { nothing }
-        every { filesService.getSubmissionRequestFiles(accNo, version, 1) } returns flowOf(nfsRqtFile)
+        every { submission.accNo } returns ACC_NO
+        every { submission.version } returns VERSION
+        every { eventsPublisherService.requestFilesCopied(ACC_NO, VERSION) } answers { nothing }
+        every { filesService.getSubmissionRequestFiles(ACC_NO, VERSION, 1) } returns flowOf(nfsRqtFile)
         every { rqt.withNewStatus(FILES_COPIED) } returns rqt
         coEvery { storageService.persistSubmissionFile(submission, nfsFile) } returns releasedFile
         coEvery {
-            requestService.onRequest(accNo, version, CLEANED, processId, capture(rqtSlot))
-        } coAnswers { rqtSlot.captured.invoke(rqt); }
+            requestService.onRequest(ACC_NO, VERSION, CLEANED, PROCESS_ID, capture(rqtSlot))
+        } coAnswers {
+            rqtSlot.captured.invoke(rqt)
+        }
 
         coEvery { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
 
-        testInstance.processRequest(accNo, version, processId)
+        testInstance.processRequest(ACC_NO, VERSION, PROCESS_ID)
 
         coVerify(exactly = 1) {
-            eventsPublisherService.requestFilesCopied(accNo, version)
+            eventsPublisherService.requestFilesCopied(ACC_NO, VERSION)
         }
     }
 
     private companion object {
-        const val processId = "biostudies-prod"
-        const val accNo = "ABC-123"
-        const val version = 1
+        const val PROCESS_ID = "biostudies-prod"
+        const val ACC_NO = "ABC-123"
+        const val VERSION = 1
         private val rqtSlot = slot<suspend (SubmissionRequest) -> RqtUpdate>()
     }
 }

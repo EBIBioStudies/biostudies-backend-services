@@ -11,6 +11,5 @@ object RegularUser : TestUser {
     override val password = "678910"
     override val superUser = false
 
-    override fun asRegisterRequest() =
-        RegisterRequest(username, email, password, notificationsEnabled = true)
+    override fun asRegisterRequest() = RegisterRequest(username, email, password, notificationsEnabled = true)
 }

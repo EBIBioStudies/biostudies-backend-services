@@ -34,7 +34,10 @@ interface SubmissionDraftRepository : CoroutineCrudRepository<DocSubmissionDraft
 
     suspend fun getById(id: String): DocSubmissionDraft
 
-    suspend fun deleteByUserIdAndKey(userId: String, draftKey: String)
+    suspend fun deleteByUserIdAndKey(
+        userId: String,
+        draftKey: String,
+    )
 }
 
 interface SubmissionStatsRepository : CoroutineCrudRepository<DocSubmissionStats, ObjectId> {
@@ -43,25 +46,43 @@ interface SubmissionStatsRepository : CoroutineCrudRepository<DocSubmissionStats
     suspend fun findByAccNo(accNo: String): DocSubmissionStats?
 
     @Query("{ 'accNo': '?0', 'stats.?1': { \$exists: true } }")
-    suspend fun findByAccNoAndStatType(accNo: String, statType: SubmissionStatType): DocSubmissionStats?
+    suspend fun findByAccNoAndStatType(
+        accNo: String,
+        statType: SubmissionStatType,
+    ): DocSubmissionStats?
 
     @Query("{ 'stats.?0': { \$exists: true } }")
-    fun findAllByStatType(statType: SubmissionStatType, pageable: Pageable): Flow<DocSubmissionStats>
+    fun findAllByStatType(
+        statType: SubmissionStatType,
+        pageable: Pageable,
+    ): Flow<DocSubmissionStats>
 }
 
 interface SubmissionMongoRepository : CoroutineCrudRepository<DocSubmission, ObjectId> {
     @Query("{ 'accNo': '?0', 'version': { \$gte: 0 } }")
     suspend fun findByAccNo(accNo: String): DocSubmission?
 
-    suspend fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmission
+    suspend fun getByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+    ): DocSubmission
 
     suspend fun existsByAccNo(accNo: String): Boolean
 
-    suspend fun existsByAccNoAndVersion(accNo: String, version: Int): Boolean
+    suspend fun existsByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+    ): Boolean
 
-    fun getByAccNoInAndVersionGreaterThan(accNo: List<String>, version: Int): Flow<DocSubmission>
+    fun getByAccNoInAndVersionGreaterThan(
+        accNo: List<String>,
+        version: Int,
+    ): Flow<DocSubmission>
 
-    suspend fun findFirstByAccNoAndVersionLessThanOrderByVersion(accNo: String, version: Int = 0): DocSubmission?
+    suspend fun findFirstByAccNoAndVersionLessThanOrderByVersion(
+        accNo: String,
+        version: Int = 0,
+    ): DocSubmission?
 
     @Query(value = "{ 'accNo' : ?0, 'version' : { \$gt: 0} }", fields = "{ 'collections.accNo':1 }")
     suspend fun findSubmissionCollections(accNo: String): SubmissionCollections?
@@ -72,11 +93,20 @@ suspend fun SubmissionMongoRepository.getByAccNo(accNo: String): DocSubmission {
 }
 
 interface SubmissionRequestRepository : CoroutineCrudRepository<DocSubmissionRequest, String> {
-    suspend fun existsByAccNoAndStatusIn(accNo: String, status: Set<RequestStatus>): Boolean
+    suspend fun existsByAccNoAndStatusIn(
+        accNo: String,
+        status: Set<RequestStatus>,
+    ): Boolean
 
-    suspend fun getByAccNoAndStatusIn(accNo: String, status: Set<RequestStatus>): DocSubmissionRequest
+    suspend fun getByAccNoAndStatusIn(
+        accNo: String,
+        status: Set<RequestStatus>,
+    ): DocSubmissionRequest
 
-    suspend fun getByAccNoAndVersion(accNo: String, version: Int): DocSubmissionRequest
+    suspend fun getByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+    ): DocSubmissionRequest
 
     fun findByStatusIn(status: Set<RequestStatus>): Flow<DocSubmissionRequest>
 
@@ -103,7 +133,11 @@ interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissi
         index: Int,
     ): Flow<DocSubmissionRequestFile>
 
-    suspend fun getByPathAndAccNoAndVersion(path: String, accNo: String, version: Int): DocSubmissionRequestFile
+    suspend fun getByPathAndAccNoAndVersion(
+        path: String,
+        accNo: String,
+        version: Int,
+    ): DocSubmissionRequestFile
 }
 
 interface FileListDocFileRepository : CoroutineCrudRepository<FileListDocFile, ObjectId> {

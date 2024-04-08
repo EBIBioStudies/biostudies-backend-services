@@ -21,29 +21,32 @@ class ExtFilesTableDeserializerTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun deserialize() {
         val file = tempFolder.createFile("test-file.txt")
-        val json = jsonObj {
-            "files" to jsonArray(
-                jsonObj {
-                    "fileName" to "test-file.txt"
-                    "filePath" to "folder/test-file.txt"
-                    "relPath" to "Files/folder/test-file.txt"
-                    "fullPath" to file.absolutePath
-                    "md5" to file.md5()
-                    "size" to file.size()
-                    "file" to file.absolutePath
-                    "attributes" to jsonArray(
+        val json =
+            jsonObj {
+                "files" to
+                    jsonArray(
                         jsonObj {
-                            "name" to "Type"
-                            "value" to "Data"
-                        }
+                            "fileName" to "test-file.txt"
+                            "filePath" to "folder/test-file.txt"
+                            "relPath" to "Files/folder/test-file.txt"
+                            "fullPath" to file.absolutePath
+                            "md5" to file.md5()
+                            "size" to file.size()
+                            "file" to file.absolutePath
+                            "attributes" to
+                                jsonArray(
+                                    jsonObj {
+                                        "name" to "Type"
+                                        "value" to "Data"
+                                    },
+                                )
+                            "extType" to "nfsFile"
+                            "type" to "file"
+                            "size" to file.size()
+                        },
                     )
-                    "extType" to "nfsFile"
-                    "type" to "file"
-                    "size" to file.size()
-                }
-            )
-            "extType" to "filesTable"
-        }.toString()
+                "extType" to "filesTable"
+            }.toString()
 
         val extFilesTable = testInstance.readValue<ExtFileTable>(json)
         assertThat(extFilesTable.files).hasSize(1)
