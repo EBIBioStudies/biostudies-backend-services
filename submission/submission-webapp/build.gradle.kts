@@ -222,10 +222,12 @@ val itest =
                 override fun afterSuite(
                     suite: TestDescriptor,
                     result: TestResult,
-                ) {}
+                ) {
+                }
             },
         )
     }
 
 tasks.getByName<JacocoCoverageVerification>("jacocoTestCoverageVerification") { dependsOn(itest) }
+tasks.getByName<JacocoReport>("jacocoTestReport") { dependsOn(itest) }
 tasks.named<Copy>("processItestResources") { duplicatesStrategy = DuplicatesStrategy.WARN }

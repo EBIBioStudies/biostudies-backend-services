@@ -22,7 +22,6 @@ tasks.named<Test>("test") {
 }
 
 tasks.named<JacocoReport>("jacocoTestReport") {
-    dependsOn(tasks.named("itest"))
     executionData.setFrom(fileTree("${project.layout.buildDirectory.get()}/jacoco") { include("*.exec") })
     reports {
         xml.required = false
