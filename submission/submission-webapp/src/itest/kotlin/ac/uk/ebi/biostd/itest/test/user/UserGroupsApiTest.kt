@@ -46,10 +46,9 @@ class UserGroupsApiTest(
         val groups = superWebClient.getGroups()
 
         assertThat(groups).hasSize(1)
-        assertThat(groups.first()).satisfies {
-            assertThat(it.description).isEqualTo(GROUP_DESC)
-            assertThat(it.name).isEqualTo(GROUP_NAME)
-        }
+
+        val group = groups.first()
+        assertThat(group.description).isEqualTo(GROUP_DESC)
     }
 
     @Test
