@@ -7,8 +7,15 @@ import Projects.CommonsBio
 import Projects.CommonsModelExtended
 import TestDependencies.AssertJ
 import TestDependencies.JunitExtensions
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+plugins {
+    id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion apply false
+    id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
+}
 
 dependencies {
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     api(project(CommonsBio))
     api(project(CommonsModelExtended))
 

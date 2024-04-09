@@ -24,16 +24,17 @@ import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.TestContainer
 import TestDependencies.TestContainerJUnit
 import TestDependencies.TestContainerMongoDb
-import org.springframework.boot.gradle.tasks.bundling.BootJar
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
     id(Plugins.KotlinAllOpenPlugin) version PluginVersions.KotlinPluginVersion
     id(Plugins.KotlinSpringPlugin) version PluginVersions.KotlinPluginVersion
     id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
-    id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion
+    id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion apply false
 }
 
 dependencies {
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     api(project(CommonsBio))
     api(project(CommonsModelExtended))
     api(project(CommonsModelExtendedMapping))
@@ -69,14 +70,6 @@ dependencies {
     testImplementation(TestContainerMongoDb)
     testImplementation(TestContainer)
     testImplementation(TestContainerJUnit)
-}
-
-tasks.named<BootJar>("bootJar") {
-    enabled = false
-}
-
-tasks.named<Jar>("jar") {
-    enabled = true
 }
 
 tasks.named<Test>("test") {

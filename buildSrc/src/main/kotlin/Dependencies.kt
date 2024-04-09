@@ -47,7 +47,6 @@ import Versions.RxJava2Version
 import Versions.S3Version
 import Versions.ServletVersion
 import Versions.SpringAdminVersion
-import Versions.SpringVersion
 import Versions.SpringfoxSwaggerVersion
 import Versions.WoodstoxVersion
 import Versions.XlsxStreamerVersion
@@ -55,9 +54,9 @@ import Versions.XmlBuilderVersion
 import Versions.ZipUtilVersion
 
 object TestVersions {
-    const val AssertJVersion = "3.13.2"
-    const val JunitVersion = "5.5.2"
-    const val JunitEngineVersion = "1.5.2"
+    const val AssertJVersion = "3.25.3"
+    const val JunitVersion = "5.10.2"
+    const val JunitEngineVersion = "1.10.2"
     const val Junit5PioneerVersion = "2.2.0"
     const val JunitExtensionsVersion = "2.3.0"
     const val MockKVersion = "1.13.10"
@@ -69,22 +68,20 @@ object TestVersions {
     const val RabbitmqMockVersion = "1.1.0"
     const val TestContainerVersion = "1.16.2"
     const val TestContainerS3mockVersion = "2.11.0"
-    const val AwaitilityVersion = "4.2.0"
+    const val AwaitilityVersion = "4.2.1"
     const val FtpServerVersion = "1.2.0"
     const val Slf4jVersion = "2.0.7"
 }
 
 object Versions {
-    const val SpringVersion = "5.2.20.RELEASE"
     const val SpringAdminVersion = "2.3.1"
     const val KotlinVersion = "1.9.23"
     const val KotlinCoroutinesVersion = "1.8.0"
     const val JetBrainsAnnotationsVersion = "24.0.1"
 
-    const val KotlinLoggingVersion = "1.6.20"
+    const val KotlinLoggingVersion = "3.0.5"
     const val KotlinArrowVersion = "0.8.2"
     const val KMongoCoroutineVersion = "4.6.1"
-    const val JpaEntityGraphVersion = "2.2.3"
     const val MongockVersion = "4.3.8"
 
     const val CommonsFileUploadVersion = "1.4"
@@ -103,7 +100,6 @@ object Versions {
     const val H2Version = "1.4.197"
     const val ServletVersion = "4.0.1"
     const val S3Version = "1.12.293"
-    const val HibernateEMVersion = "5.3.5.Final"
     const val JschVersion = "0.1.55"
     const val Retrofit2Version = "2.9.0"
     const val OkHttpLoggingVersion = "4.10.0"
@@ -164,7 +160,7 @@ object TestDependencies {
 }
 
 object Dependencies {
-    const val SpringWebFlux = "org.springframework:spring-webflux:$SpringVersion"
+    const val SpringWebFlux = "org.springframework:spring-webflux"
     const val SpringAutoConfigure = "org.springframework.boot:spring-boot-autoconfigure"
 
     // Web related
