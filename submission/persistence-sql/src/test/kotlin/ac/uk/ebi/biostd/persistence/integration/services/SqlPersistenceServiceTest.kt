@@ -25,12 +25,13 @@ internal class SqlPersistenceServiceTest(
     @MockK private val queryService: SubmissionPersistenceQueryService,
 ) {
     private val lockExecutor = MockLockExecutor()
-    private val testInstance = SqlPersistenceService(
-        sequenceRepository,
-        accessTagsDataRepository,
-        lockExecutor,
-        queryService
-    )
+    private val testInstance =
+        SqlPersistenceService(
+            sequenceRepository,
+            accessTagsDataRepository,
+            lockExecutor,
+            queryService,
+        )
 
     @AfterEach
     fun afterEach() = clearAllMocks()

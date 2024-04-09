@@ -82,50 +82,59 @@ class ExtSubmissionSerializerTest {
                 "releaseTime" to "2019-09-21T10:30:34.000000015Z"
                 "modificationTime" to "2020-09-21T10:30:34.000000015Z"
                 "creationTime" to "2018-09-21T10:30:34.000000015Z"
-                "section" to jsonObj {
-                    "type" to "Study"
-                }
-                "attributes" to jsonArray(
+                "section" to
                     jsonObj {
-                        "name" to "AttachTo"
-                        "value" to "BioImages"
-                        "reference" to false
-                        "nameAttrs" to jsonArray()
-                        "valueAttrs" to jsonArray()
+                        "type" to "Study"
                     }
-                )
-                "tags" to jsonArray(
-                    jsonObj {
-                        "name" to "component"
-                        "value" to "web"
-                    }
-                )
-                "collections" to jsonArray(
-                    jsonObj {
-                        "accNo" to "BioImages"
-                    }
-                )
+                "attributes" to
+                    jsonArray(
+                        jsonObj {
+                            "name" to "AttachTo"
+                            "value" to "BioImages"
+                            "reference" to false
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
+                        },
+                    )
+                "tags" to
+                    jsonArray(
+                        jsonObj {
+                            "name" to "component"
+                            "value" to "web"
+                        },
+                    )
+                "collections" to
+                    jsonArray(
+                        jsonObj {
+                            "accNo" to "BioImages"
+                        },
+                    )
                 "stats" to "/stats/submission/S-TEST1"
-                "accessTags" to if (released) jsonArray(
-                    jsonObj { "name" to "BioImages" },
-                    jsonObj { "name" to "owner@mail.org" },
-                    jsonObj { "name" to "Public" }
-                )
-                else jsonArray(
-                    jsonObj { "name" to "BioImages" },
-                    jsonObj { "name" to "owner@mail.org" }
-                )
-                "pageTabFiles" to jsonArray(
-                    jsonObj {
-                        "extType" to "fireFile"
-                    },
-                    jsonObj {
-                        "extType" to "fireFile"
-                    },
-                    jsonObj {
-                        "extType" to "nfsFile"
+                "accessTags" to
+                    if (released) {
+                        jsonArray(
+                            jsonObj { "name" to "BioImages" },
+                            jsonObj { "name" to "owner@mail.org" },
+                            jsonObj { "name" to "Public" },
+                        )
+                    } else {
+                        jsonArray(
+                            jsonObj { "name" to "BioImages" },
+                            jsonObj { "name" to "owner@mail.org" },
+                        )
                     }
-                )
+                "pageTabFiles" to
+                    jsonArray(
+                        jsonObj {
+                            "extType" to "fireFile"
+                        },
+                        jsonObj {
+                            "extType" to "fireFile"
+                        },
+                        jsonObj {
+                            "extType" to "nfsFile"
+                        },
+                    )
                 "storageMode" to "NFS"
             }
         }
@@ -156,18 +165,23 @@ class ExtSubmissionSerializerTest {
                 tags = listOf(ExtTag("component", "web")),
                 collections = listOf(ExtCollection("BioImages")),
                 section = ExtSection(type = "Study"),
-                pageTabFiles = listOf(
-                    FireFile("fireId", "firePath", false, "S-TEST1", "S-TEST1", "md5", 1L, FILE, listOf()),
-                    FireFile("dirFireId", "dirFirePath", true, "S-TEST1", "S-TEST1", "md5", 2L, DIR, listOf()),
-                    NfsFile("S-TEST1", "S-TEST1", File("anyPath"), "/test//S-TEST1", "md5", 55, listOf())
-                )
+                pageTabFiles =
+                    listOf(
+                        FireFile("fireId", "firePath", false, "S-TEST1", "S-TEST1", "md5", 1L, FILE, listOf()),
+                        FireFile("dirFireId", "dirFirePath", true, "S-TEST1", "S-TEST1", "md5", 2L, DIR, listOf()),
+                        NfsFile("S-TEST1", "S-TEST1", File("anyPath"), "/test//S-TEST1", "md5", 55, listOf()),
+                    ),
             )
         }
     }
 }
 
 object DummySectionSerializer : JsonSerializer<ExtSection>() {
-    override fun serialize(section: ExtSection, gen: JsonGenerator, serializers: SerializerProvider?) {
+    override fun serialize(
+        section: ExtSection,
+        gen: JsonGenerator,
+        serializers: SerializerProvider?,
+    ) {
         gen.writeStartObject()
         gen.writeStringField(TYPE, section.type)
         gen.writeEndObject()
@@ -175,7 +189,11 @@ object DummySectionSerializer : JsonSerializer<ExtSection>() {
 }
 
 object DummyExtFileSerializer : JsonSerializer<ExtFile>() {
-    override fun serialize(extFile: ExtFile, gen: JsonGenerator, serializers: SerializerProvider?) {
+    override fun serialize(
+        extFile: ExtFile,
+        gen: JsonGenerator,
+        serializers: SerializerProvider?,
+    ) {
         gen.writeStartObject()
         when (extFile) {
             is FireFile -> gen.writeStringField(EXT_TYPE, ExtType.FireFile.type)

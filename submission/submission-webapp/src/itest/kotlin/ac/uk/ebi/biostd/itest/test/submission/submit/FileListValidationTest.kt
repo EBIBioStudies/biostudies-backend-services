@@ -44,10 +44,11 @@ class FileListValidationTest(
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
-    fun init() = runBlocking {
-        securityTestService.ensureUserRegistration(RegUser)
-        webClient = getWebClient(serverPort, RegUser)
-    }
+    fun init() =
+        runBlocking {
+            securityTestService.ensureUserRegistration(RegUser)
+            webClient = getWebClient(serverPort, RegUser)
+        }
 
     @Test
     fun `11-1 blank file list`() {
@@ -81,9 +82,10 @@ class FileListValidationTest(
 
         webClient.uploadFile(fileList)
 
-        val exception = assertThrows(WebClientException::class.java) {
-            webClient.validateFileList(fileList.name)
-        }
+        val exception =
+            assertThrows(WebClientException::class.java) {
+                webClient.validateFileList(fileList.name)
+            }
 
         assertThat(exception.statusCode).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
         assertThat(exception).hasMessageContaining("Unsupported page tab format image.jpg")
@@ -93,25 +95,27 @@ class FileListValidationTest(
 
     @Test
     fun `11-4 valid file list`() {
-        val previousVersion = tsv {
-            line("Submission", "S-FLV123")
-            line()
+        val previousVersion =
+            tsv {
+                line("Submission", "S-FLV123")
+                line()
 
-            line("Study")
-            line()
+                line("Study")
+                line()
 
-            line("File", "File2.tif")
-            line()
-        }.toString()
+                line("File", "File2.tif")
+                line()
+            }.toString()
 
         val file1 = tempFolder.createFile("File1.tif", "content-1")
         val file2 = tempFolder.createFile("File2.tif", "content-2")
-        val fileListContent = tsv {
-            line("Files")
-            line("File1.tif")
-            line("File2.tif")
-            line()
-        }.toString()
+        val fileListContent =
+            tsv {
+                line("Files")
+                line("File1.tif")
+                line("File2.tif")
+                line()
+            }.toString()
 
         val fileList = tempFolder.createFile("ValidFileList.tsv", fileListContent)
 
@@ -130,11 +134,12 @@ class FileListValidationTest(
     @Test
     fun `11-6 valid file list with root path`() {
         val file = tempFolder.createFile("File1.tif", "content-1")
-        val fileListContent = tsv {
-            line("Files")
-            line("File1.tif")
-            line()
-        }.toString()
+        val fileListContent =
+            tsv {
+                line("Files")
+                line("File1.tif")
+                line()
+            }.toString()
 
         val fileList = tempFolder.createFile("RootPathFileList.tsv", fileListContent)
 
@@ -157,20 +162,23 @@ class FileListValidationTest(
 
         val exception = assertThrows(WebClientException::class.java) { webClient.validateFileList(fileList.name) }
         assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
-        val expectedError = jsonObj {
-            "log" to jsonObj {
-                "level" to "ERROR"
-                "message" to """
-                        The following files could not be found:
-                          - Plate1.tif
-                        List of available sources:
-                          - Provided Db files
-                          - biostudies-mgmt-filelist-v@ebi.ac.uk user files
-                """.trimIndent()
-                "subnodes" to jsonArray()
+        val expectedError =
+            jsonObj {
+                "log" to
+                    jsonObj {
+                        "level" to "ERROR"
+                        "message" to
+                            """
+                            The following files could not be found:
+                              - Plate1.tif
+                            List of available sources:
+                              - Provided Db files
+                              - biostudies-mgmt-filelist-v@ebi.ac.uk user files
+                            """.trimIndent()
+                        "subnodes" to jsonArray()
+                    }
+                "status" to "FAIL"
             }
-            "status" to "FAIL"
-        }
 
         assertEquals(expectedError.toString(), exception.message, JSONCompareMode.LENIENT)
         webClient.deleteFile(fileList.name)
@@ -185,51 +193,57 @@ class FileListValidationTest(
 
         val exception = assertThrows(WebClientException::class.java) { webClient.validateFileList(fileList.name) }
         assertThat(exception.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
-        val expectedError = jsonObj {
-            "log" to jsonObj {
-                "level" to "ERROR"
-                "message" to """
-                        The following files could not be found:
-                          - Plate1.tif
-                        List of available sources:
-                          - Provided Db files
-                          - biostudies-mgmt-filelist-v@ebi.ac.uk user files
-                """.trimIndent()
-                "subnodes" to jsonArray()
+        val expectedError =
+            jsonObj {
+                "log" to
+                    jsonObj {
+                        "level" to "ERROR"
+                        "message" to
+                            """
+                            The following files could not be found:
+                              - Plate1.tif
+                            List of available sources:
+                              - Provided Db files
+                              - biostudies-mgmt-filelist-v@ebi.ac.uk user files
+                            """.trimIndent()
+                        "subnodes" to jsonArray()
+                    }
+                "status" to "FAIL"
             }
-            "status" to "FAIL"
-        }
 
         assertEquals(expectedError.toString(), exception.message, JSONCompareMode.LENIENT)
         webClient.deleteFile(fileList.name)
     }
 
     @Test
-    fun `11-9 valid file list on behalf another user`() = runTest {
-        securityTestService.ensureUserRegistration(RegularUser)
+    fun `11-9 valid file list on behalf another user`() =
+        runTest {
+            securityTestService.ensureUserRegistration(RegularUser)
 
-        val fileListFile = tempFolder.createFile("Plate1.tif")
-        val fileList = tempFolder.createFile("ValidOnBehalfFileList.json", FILE_LIST_CONTENT)
+            val fileListFile = tempFolder.createFile("Plate1.tif")
+            val fileList = tempFolder.createFile("ValidOnBehalfFileList.json", FILE_LIST_CONTENT)
 
-        webClient.uploadFiles(listOf(fileListFile, fileList))
+            webClient.uploadFiles(listOf(fileListFile, fileList))
 
-        val onBehalfClient = SecurityWebClient.create("http://localhost:$serverPort")
-            .getAuthenticatedClient(RegUser.email, RegUser.password, RegularUser.email)
+            val onBehalfClient =
+                SecurityWebClient.create("http://localhost:$serverPort")
+                    .getAuthenticatedClient(RegUser.email, RegUser.password, RegularUser.email)
 
-        onBehalfClient.validateFileList(fileList.name)
+            onBehalfClient.validateFileList(fileList.name)
 
-        webClient.deleteFile(fileListFile.name)
-        webClient.deleteFile(fileList.name)
-    }
+            webClient.deleteFile(fileListFile.name)
+            webClient.deleteFile(fileList.name)
+        }
 
     companion object {
-        private val FILE_LIST_CONTENT = jsonArray(
-            jsonObj {
-                "path" to "Plate1.tif"
-                "size" to 290
-                "type" to "file"
-            }
-        ).toString()
+        private val FILE_LIST_CONTENT =
+            jsonArray(
+                jsonObj {
+                    "path" to "Plate1.tif"
+                    "size" to 290
+                    "type" to "file"
+                },
+            ).toString()
     }
 
     object RegUser : TestUser {

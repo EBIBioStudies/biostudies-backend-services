@@ -5,10 +5,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocFileRef
 import org.bson.Document
 
 class FileRefConverter {
-
     fun convert(docFileRef: DocFileRef): Document {
         val fileList = Document()
-        fileList[CommonsConverter.classField] = DocFileRefFields.DOC_FILE_REF_CLASS
+        fileList[CommonsConverter.CLASS_FIELD] = DocFileRefFields.DOC_FILE_REF_CLASS
         fileList[DocFileRefFields.FILE_REF_DOC_FILE_ID] = docFileRef.fileId.toString()
         return fileList
     }

@@ -46,7 +46,10 @@ class SecurityUtil(
 
     fun newKey() = UUID.randomUUID().toString()
 
-    fun checkPassword(passwordDigest: ByteArray, password: String): Boolean {
+    fun checkPassword(
+        passwordDigest: ByteArray,
+        password: String,
+    ): Boolean {
         val tokenUser = fromToken(password)
         val isValidSuperUser = tokenUser?.superuser ?: false
         val isValidRegularUser = getPasswordDigest(password).contentEquals(passwordDigest)
@@ -55,7 +58,11 @@ class SecurityUtil(
 
     fun getPasswordDigest(password: String) = MessageDigest.getInstance("SHA1").digest(password.toByteArray())!!
 
-    fun getActivationUrl(instanceKey: String, path: String, userKey: String): String {
+    fun getActivationUrl(
+        instanceKey: String,
+        path: String,
+        userKey: String,
+    ): String {
         return when (instanceKey) {
             instanceKeys.dev -> getUrl(DEV_INSTANCE, path, userKey)
             instanceKeys.beta -> getUrl(BETA_INSTANCE, path, userKey)
@@ -69,7 +76,11 @@ class SecurityUtil(
         }
     }
 
-    private fun getUrl(instance: String, path: String, userKey: String): String =
+    private fun getUrl(
+        instance: String,
+        path: String,
+        userKey: String,
+    ): String =
         UriComponentsBuilder.fromHttpUrl(instance)
             .pathSegment(normalizePath(path))
             .pathSegment(normalizePath(userKey))
@@ -91,11 +102,12 @@ class SecurityUtil(
         instanceKey.startsWith("http://localhost") || instanceKey.startsWith("https://localhost")
 
     private fun getFromToken(token: String): DbUser? {
-        val result = runCatching {
-            val payload = jwtParser.setSigningKey(tokenHash).parseClaimsJws(token).body.subject
-            val tokenUser = objectMapper.readValue(payload, TokenPayload::class.java)
-            userRepository.readByEmail(tokenUser.email)
-        }
+        val result =
+            runCatching {
+                val payload = jwtParser.setSigningKey(tokenHash).parseClaimsJws(token).body.subject
+                val tokenUser = objectMapper.readValue(payload, TokenPayload::class.java)
+                userRepository.readByEmail(tokenUser.email)
+            }
         result.onFailure { logger.error("detected invalid signature token: ${it.message}") }
         return result.getOrNull()
     }

@@ -9,7 +9,11 @@ enum class PreferredSource { SUBMISSION, USER_SPACE }
 interface FilesSource {
     val description: String
 
-    suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile?
+    suspend fun getExtFile(
+        path: String,
+        type: String,
+        attributes: List<Attribute>,
+    ): ExtFile?
 
     suspend fun getFileList(path: String): File?
 }

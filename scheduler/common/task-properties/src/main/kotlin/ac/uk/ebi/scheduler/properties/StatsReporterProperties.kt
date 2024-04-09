@@ -4,7 +4,10 @@ import ac.uk.ebi.scheduler.common.JavaAppProperties
 import ac.uk.ebi.scheduler.common.javaCmd
 
 class StatsReporterProperties : JavaAppProperties {
-    override fun asCmd(location: String, debugPort: Int?): String {
+    override fun asCmd(
+        location: String,
+        debugPort: Int?,
+    ): String {
         return buildList {
             addAll(javaCmd(debugPort))
             add("-jar $location/$APP_NAME")

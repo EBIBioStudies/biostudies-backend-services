@@ -36,7 +36,7 @@ class MultipartAsyncSubmitResource(
 ) {
     @PostMapping(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$APPLICATION_JSON_VALUE"],
-        produces = [APPLICATION_JSON_VALUE]
+        produces = [APPLICATION_JSON_VALUE],
     )
     suspend fun submitMultipartJson(
         @BioUser user: SecurityUser,
@@ -54,7 +54,7 @@ class MultipartAsyncSubmitResource(
 
     @PostMapping(
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA", "$SUBMISSION_TYPE=$TEXT_PLAIN"],
-        produces = [APPLICATION_JSON_VALUE]
+        produces = [APPLICATION_JSON_VALUE],
     )
     suspend fun submitMultipartTsv(
         @BioUser user: SecurityUser,
@@ -73,7 +73,7 @@ class MultipartAsyncSubmitResource(
     @PostMapping(
         value = ["/direct"],
         headers = ["$CONTENT_TYPE=$MULTIPART_FORM_DATA"],
-        produces = [APPLICATION_JSON_VALUE]
+        produces = [APPLICATION_JSON_VALUE],
     )
     suspend fun submitFile(
         @BioUser user: SecurityUser,

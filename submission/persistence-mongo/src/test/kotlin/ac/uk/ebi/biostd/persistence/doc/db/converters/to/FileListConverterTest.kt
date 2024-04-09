@@ -15,7 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class FileListConverterTest(
     @MockK val fileConverter: FileConverter,
     @MockK val fileDocument: Document,
-    @MockK val docFile: DocFile
+    @MockK val docFile: DocFile,
 ) {
     private val testInstance = FileListConverter(fileConverter)
 
@@ -23,15 +23,15 @@ internal class FileListConverterTest(
     fun converter() {
         every { fileConverter.convert(docFile) } returns fileDocument
 
-        val docFileList = DocFileList(docFileListFileName, listOf(docFile))
+        val docFileList = DocFileList(DOC_FILE_LIST_FILE_NAME, listOf(docFile))
 
         val result = testInstance.convert(docFileList)
 
-        assertThat(result[DocFileListFields.FILE_LIST_DOC_FILE_FILENAME]).isEqualTo(docFileListFileName)
+        assertThat(result[DocFileListFields.FILE_LIST_DOC_FILE_FILENAME]).isEqualTo(DOC_FILE_LIST_FILE_NAME)
         assertThat(result[DocFileListFields.FILE_LIST_DOC_PAGE_TAB_FILES]).isEqualTo(listOf(fileDocument))
     }
 
     private companion object {
-        const val docFileListFileName = "fileName"
+        const val DOC_FILE_LIST_FILE_NAME = "fileName"
     }
 }

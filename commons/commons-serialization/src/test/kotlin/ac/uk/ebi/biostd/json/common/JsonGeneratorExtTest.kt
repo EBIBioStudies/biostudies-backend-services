@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 import java.io.StringWriter
 
 internal class JsonGeneratorExtTest {
-
     private val objectMapper = ObjectMapper()
     private lateinit var target: StringWriter
     private lateinit var jsonGenerator: JsonGenerator

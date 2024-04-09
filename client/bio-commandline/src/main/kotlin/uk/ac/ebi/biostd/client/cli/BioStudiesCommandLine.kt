@@ -29,7 +29,7 @@ fun main(args: Array<String>) {
             MigrateCommand(service),
             TransferCommand(service),
             GrantPermissionCommand(securityService),
-            ValidateFileListCommand(service)
+            ValidateFileListCommand(service),
         )
         .main(args)
 }

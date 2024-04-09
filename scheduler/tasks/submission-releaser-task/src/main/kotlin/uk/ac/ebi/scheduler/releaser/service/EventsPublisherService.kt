@@ -10,10 +10,12 @@ class EventsPublisherService(
     private val rabbitTemplate: RabbitTemplate,
     private val eventsProperties: EventsProperties,
 ) {
-    fun subToBePublished(accNo: String, owner: String) =
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE,
-            SUBMISSIONS_PUBLISHED_ROUTING_KEY,
-            SubmissionMessage.createNew(accNo, owner, eventsProperties.instanceBaseUrl)
-        )
+    fun subToBePublished(
+        accNo: String,
+        owner: String,
+    ) = rabbitTemplate.convertAndSend(
+        BIOSTUDIES_EXCHANGE,
+        SUBMISSIONS_PUBLISHED_ROUTING_KEY,
+        SubmissionMessage.createNew(accNo, owner, eventsProperties.instanceBaseUrl),
+    )
 }

@@ -14,7 +14,11 @@ internal class PathSource(
     override val description: String,
     private val sourcePath: Path,
 ) : FilesSource {
-    override suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+    override suspend fun getExtFile(
+        path: String,
+        type: String,
+        attributes: List<Attribute>,
+    ): ExtFile? {
         return findFile(path)?.let { createFile(path, it, attributes) }
     }
 
@@ -38,7 +42,11 @@ internal class UserPathSource(
 ) : FilesSource {
     private val pathSource = PathSource(description, sourcePath)
 
-    override suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+    override suspend fun getExtFile(
+        path: String,
+        type: String,
+        attributes: List<Attribute>,
+    ): ExtFile? {
         val filePath = if (type == DIRECTORY_TYPE.value) path.removeSuffix(".zip") else path
         return pathSource.getExtFile(filePath, type, attributes)
     }
@@ -56,7 +64,11 @@ internal class GroupPathSource(
 
     constructor(groupName: String, path: Path) : this(groupName, PathSource("Group '$groupName' files", path))
 
-    override suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+    override suspend fun getExtFile(
+        path: String,
+        type: String,
+        attributes: List<Attribute>,
+    ): ExtFile? {
         return pathSource.getExtFile(path.remove(groupPattern), type, attributes)
     }
 }

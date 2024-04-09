@@ -8,8 +8,10 @@ import java.util.zip.ZipOutputStream
 import kotlin.io.path.isDirectory
 
 object ZipUtil {
-
-    fun pack(sourceDir: File, zipFile: File) {
+    fun pack(
+        sourceDir: File,
+        zipFile: File,
+    ) {
         ZipOutputStream(zipFile.outputStream()).use { zs ->
             val sourcePath = sourceDir.toPath()
             Files.walk(sourcePath)
@@ -22,11 +24,17 @@ object ZipUtil {
         }
     }
 
-    fun unpack(zip: File, outputDir: File) {
+    fun unpack(
+        zip: File,
+        outputDir: File,
+    ) {
         org.zeroturnaround.zip.ZipUtil.unpack(zip, outputDir)
     }
 
-    private fun createZipEntry(filePath: Path, sourcePath: Path): ZipEntry {
+    private fun createZipEntry(
+        filePath: Path,
+        sourcePath: Path,
+    ): ZipEntry {
         val zipEntry = ZipEntry(sourcePath.relativize(filePath).toString())
         zipEntry.time = 0
         return zipEntry

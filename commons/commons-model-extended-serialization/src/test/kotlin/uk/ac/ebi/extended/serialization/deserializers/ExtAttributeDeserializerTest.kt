@@ -22,10 +22,11 @@ class ExtAttributeDeserializerTest {
 
     @Test
     fun `deserialize null value`() {
-        val jsonAttribute = jsonObj {
-            "name" to "attr name"
-            "value" to null
-        }
+        val jsonAttribute =
+            jsonObj {
+                "name" to "attr name"
+                "value" to null
+            }
         val attribute = testInstance.readValue<ExtAttribute>(jsonAttribute.toString())
 
         assertThat(attribute.name).isEqualTo("attr name")
@@ -34,10 +35,11 @@ class ExtAttributeDeserializerTest {
 
     @Test
     fun `deserialize blank value`() {
-        val jsonAttribute = jsonObj {
-            "name" to "attr name"
-            "value" to "  "
-        }
+        val jsonAttribute =
+            jsonObj {
+                "name" to "attr name"
+                "value" to "  "
+            }
         val attribute = testInstance.readValue<ExtAttribute>(jsonAttribute.toString())
 
         assertThat(attribute.name).isEqualTo("attr name")
@@ -46,10 +48,11 @@ class ExtAttributeDeserializerTest {
 
     @Test
     fun `deserialize empty value`() {
-        val jsonAttribute = jsonObj {
-            "name" to "attr name"
-            "value" to ""
-        }
+        val jsonAttribute =
+            jsonObj {
+                "name" to "attr name"
+                "value" to ""
+            }
         val attribute = testInstance.readValue<ExtAttribute>(jsonAttribute.toString())
 
         assertThat(attribute.name).isEqualTo("attr name")
@@ -58,9 +61,10 @@ class ExtAttributeDeserializerTest {
 
     @Test
     fun `deserialize no value`() {
-        val jsonAttribute = jsonObj {
-            "name" to "attr name"
-        }
+        val jsonAttribute =
+            jsonObj {
+                "name" to "attr name"
+            }
         val attribute = testInstance.readValue<ExtAttribute>(jsonAttribute.toString())
 
         assertThat(attribute.name).isEqualTo("attr name")
@@ -69,25 +73,27 @@ class ExtAttributeDeserializerTest {
 
     @Test
     fun `deserialize with wrong type`() {
-        val invalidJson = jsonObj {
-            "name" to jsonArray(1, 2, 3)
-        }.toString()
+        val invalidJson =
+            jsonObj {
+                "name" to jsonArray(1, 2, 3)
+            }.toString()
 
         val node = "{\"name\":[1,2,3]}"
         val exception = assertThrows<IllegalArgumentException> { testInstance.readValue<ExtAttribute>(invalidJson) }
 
         assertThat(exception.message).isEqualTo(
-            "Expecting node: '$node', property: 'name' to be of type 'TextNode' but 'ArrayNode' was found instead"
+            "Expecting node: '$node', property: 'name' to be of type 'TextNode' but 'ArrayNode' was found instead",
         )
     }
 
     @Test
     fun `deserialize attribute with name and value`() {
         val attr = ExtAttribute(name = "attr name", value = "attr value", reference = false)
-        val jsonAttribute = jsonObj {
-            "name" to attr.name
-            "value" to attr.value
-        }
+        val jsonAttribute =
+            jsonObj {
+                "name" to attr.name
+                "value" to attr.value
+            }
         val result = testInstance.readValue<ExtAttribute>(jsonAttribute.toString())
 
         assertThat(result).isEqualTo(attr)
@@ -98,27 +104,31 @@ class ExtAttributeDeserializerTest {
         val valDetails = ExtAttributeDetail("t1", "v1")
         val nameDetails = ExtAttributeDetail("t2", "v2")
 
-        val attr = ExtAttribute(
-            name = "attr name",
-            value = "attr value",
-            reference = true,
-            nameAttrs = listOf(nameDetails),
-            valueAttrs = listOf(valDetails)
-        )
+        val attr =
+            ExtAttribute(
+                name = "attr name",
+                value = "attr value",
+                reference = true,
+                nameAttrs = listOf(nameDetails),
+                valueAttrs = listOf(valDetails),
+            )
 
-        val attributeJson = jsonObj {
-            "name" to attr.name
-            "value" to attr.value
-            "reference" to attr.reference
-            "valueAttrs" to jsonArray({
-                "name" to valDetails.name
-                "value" to valDetails.value
-            })
-            "nameAttrs" to jsonArray({
-                "name" to nameDetails.name
-                "value" to nameDetails.value
-            })
-        }.toString()
+        val attributeJson =
+            jsonObj {
+                "name" to attr.name
+                "value" to attr.value
+                "reference" to attr.reference
+                "valueAttrs" to
+                    jsonArray({
+                        "name" to valDetails.name
+                        "value" to valDetails.value
+                    })
+                "nameAttrs" to
+                    jsonArray({
+                        "name" to nameDetails.name
+                        "value" to nameDetails.value
+                    })
+            }.toString()
 
         assertThat(testInstance.readValue<ExtAttribute>(attributeJson)).isEqualTo(attr)
     }

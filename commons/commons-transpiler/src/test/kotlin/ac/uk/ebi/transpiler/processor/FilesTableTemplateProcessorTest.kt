@@ -34,14 +34,19 @@ class FilesTableTemplateProcessorTest {
 
     @Test
     fun `invalid header`() {
-        val exception = assertThrows<InvalidColumnException> {
-            testInstance.process(testTemplate().toString(), listOf("Replicate"))
-        }
+        val exception =
+            assertThrows<InvalidColumnException> {
+                testInstance.process(testTemplate().toString(), listOf("Replicate"))
+            }
 
         assertThat(exception).hasMessage(String.format(INVALID_COLUMN_ERROR_MSG, "Replicate", "Plate"))
     }
 
-    private fun assertRow(record: FilesTableTemplateRow, path: String, vararg attributes: String) {
+    private fun assertRow(
+        record: FilesTableTemplateRow,
+        path: String,
+        vararg attributes: String,
+    ) {
         assertThat(record.path).isEqualTo(path)
         assertThat(record.attributes).containsExactly(*attributes)
     }

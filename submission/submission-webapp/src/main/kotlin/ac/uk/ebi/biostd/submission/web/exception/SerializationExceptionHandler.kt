@@ -52,8 +52,10 @@ class SerializationExceptionHandler {
     fun getErrors(exception: SerializationException): List<ValidationNode> =
         exception.errors.values().map { createErrorNode(getMessage(it.chunk, it.cause.message)) }
 
-    fun getMessage(chunk: TsvChunk, message: String?) =
-        "Error processing block starting in Lines [${chunk.startIndex}-${chunk.startIndex + chunk.endIndex}], $message"
+    fun getMessage(
+        chunk: TsvChunk,
+        message: String?,
+    ) = "Error processing block starting in Lines [${chunk.startIndex}-${chunk.startIndex + chunk.endIndex}], $message"
 
     fun createErrorNode(message: String) = ValidationNode(ERROR, message)
 }

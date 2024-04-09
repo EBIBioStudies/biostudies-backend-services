@@ -29,65 +29,112 @@ class EventsPublisherService(
     fun securityNotification(notification: SecurityNotification) =
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SECURITY_NOTIFICATIONS_ROUTING_KEY, notification)
 
-    fun requestCreated(accNo: String, version: Int) =
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestCreated(accNo, version)
-        )
+    fun requestCreated(
+        accNo: String,
+        version: Int,
+    ) = rabbitTemplate.convertAndSend(
+        BIOSTUDIES_EXCHANGE,
+        notificationsProperties.requestRoutingKey,
+        RequestCreated(accNo, version),
+    )
 
-    fun requestFilesCopied(accNo: String, version: Int) {
+    fun requestFilesCopied(
+        accNo: String,
+        version: Int,
+    ) {
         rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestFilesCopied(accNo, version)
+            BIOSTUDIES_EXCHANGE,
+            notificationsProperties.requestRoutingKey,
+            RequestFilesCopied(accNo, version),
         )
     }
 
-    fun requestIndexed(accNo: String, version: Int) =
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestIndexed(accNo, version)
-        )
+    fun requestIndexed(
+        accNo: String,
+        version: Int,
+    ) = rabbitTemplate.convertAndSend(
+        BIOSTUDIES_EXCHANGE,
+        notificationsProperties.requestRoutingKey,
+        RequestIndexed(accNo, version),
+    )
 
-    fun requestLoaded(accNo: String, version: Int) =
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestLoaded(accNo, version)
-        )
+    fun requestLoaded(
+        accNo: String,
+        version: Int,
+    ) = rabbitTemplate.convertAndSend(
+        BIOSTUDIES_EXCHANGE,
+        notificationsProperties.requestRoutingKey,
+        RequestLoaded(accNo, version),
+    )
 
-    fun requestCleaned(accNo: String, version: Int) =
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestCleaned(accNo, version)
-        )
+    fun requestCleaned(
+        accNo: String,
+        version: Int,
+    ) = rabbitTemplate.convertAndSend(
+        BIOSTUDIES_EXCHANGE,
+        notificationsProperties.requestRoutingKey,
+        RequestCleaned(accNo, version),
+    )
 
-    fun requestCheckedRelease(accNo: String, version: Int) =
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestCheckedReleased(accNo, version)
-        )
+    fun requestCheckedRelease(
+        accNo: String,
+        version: Int,
+    ) = rabbitTemplate.convertAndSend(
+        BIOSTUDIES_EXCHANGE,
+        notificationsProperties.requestRoutingKey,
+        RequestCheckedReleased(accNo, version),
+    )
 
-    fun submissionPersisted(accNo: String, version: Int) =
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestPersisted(accNo, version)
-        )
+    fun submissionPersisted(
+        accNo: String,
+        version: Int,
+    ) = rabbitTemplate.convertAndSend(
+        BIOSTUDIES_EXCHANGE,
+        notificationsProperties.requestRoutingKey,
+        RequestPersisted(accNo, version),
+    )
 
-    fun submissionRequest(accNo: String, version: Int) =
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestCreated(accNo, version)
-        )
+    fun submissionRequest(
+        accNo: String,
+        version: Int,
+    ) = rabbitTemplate.convertAndSend(
+        BIOSTUDIES_EXCHANGE,
+        notificationsProperties.requestRoutingKey,
+        RequestCreated(accNo, version),
+    )
 
-    fun submissionFinalized(accNo: String, version: Int) =
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, notificationsProperties.requestRoutingKey, RequestFinalized(accNo, version)
-        )
+    fun submissionFinalized(
+        accNo: String,
+        version: Int,
+    ) = rabbitTemplate.convertAndSend(
+        BIOSTUDIES_EXCHANGE,
+        notificationsProperties.requestRoutingKey,
+        RequestFinalized(accNo, version),
+    )
 
-    fun submissionSubmitted(accNo: String, owner: String) =
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_ROUTING_KEY, submissionMessage(accNo, owner)
-        )
+    fun submissionSubmitted(
+        accNo: String,
+        owner: String,
+    ) = rabbitTemplate.convertAndSend(
+        BIOSTUDIES_EXCHANGE,
+        SUBMISSIONS_ROUTING_KEY,
+        submissionMessage(accNo, owner),
+    )
 
     fun submissionFailed(request: RequestMessage) =
         rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY, request)
 
-    fun submissionsRefresh(accNo: String, owner: String) =
-        rabbitTemplate.convertAndSend(
-            BIOSTUDIES_EXCHANGE, SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY, submissionMessage(accNo, owner)
-        )
+    fun submissionsRefresh(
+        accNo: String,
+        owner: String,
+    ) = rabbitTemplate.convertAndSend(
+        BIOSTUDIES_EXCHANGE,
+        SUBMISSIONS_PARTIAL_UPDATE_ROUTING_KEY,
+        submissionMessage(accNo, owner),
+    )
 
-    private fun submissionMessage(accNo: String, owner: String): SubmissionMessage =
-        SubmissionMessage.createNew(accNo, owner, eventsProperties.instanceBaseUrl)
+    private fun submissionMessage(
+        accNo: String,
+        owner: String,
+    ): SubmissionMessage = SubmissionMessage.createNew(accNo, owner, eventsProperties.instanceBaseUrl)
 }

@@ -11,5 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/security/users/extended")
 class ExtUserResource(private val extUserService: ExtUserService) {
     @GetMapping("/{email:.*}")
-    fun getExtUser(@PathVariable email: String): ExtUser = extUserService.getExtUser(email)
+    fun getExtUser(
+        @PathVariable email: String,
+    ): ExtUser = extUserService.getExtUser(email)
 }

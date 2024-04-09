@@ -5,7 +5,8 @@ import ebi.ac.uk.extended.model.ExtFileType
 import uk.ac.ebi.fire.client.model.FileType
 
 val ExtFile.fireType: FileType
-    get() = when (type) {
-        ExtFileType.FILE -> FileType.FILE
-        ExtFileType.DIR -> FileType.DIR
-    }
+    get() =
+        when (type) {
+            ExtFileType.FILE -> FileType.FILE
+            ExtFileType.DIR -> FileType.DIR
+        }

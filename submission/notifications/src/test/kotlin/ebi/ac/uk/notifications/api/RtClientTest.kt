@@ -25,21 +25,23 @@ class RtClientTest(
     @MockK private val requestSpec: RequestBodySpec,
 ) {
     private val testInstance = RtClient(rtConfig, client)
-    private val testBody = LinkedMultiValueMap(
-        mapOf(
-            "content" to listOf(
-                buildString {
-                    appendLine("Queue: test-queue")
-                    appendLine("Subject: Test")
-                    appendLine("Status: resolved")
-                    appendLine("Requestor: test@mail.org")
-                    appendLine("AdminCc: admin@mail.org")
-                    appendLine("CF-Accession: S-TEST1")
-                    append("Text: A notification")
-                }
-            )
+    private val testBody =
+        LinkedMultiValueMap(
+            mapOf(
+                "content" to
+                    listOf(
+                        buildString {
+                            appendLine("Queue: test-queue")
+                            appendLine("Subject: Test")
+                            appendLine("Status: resolved")
+                            appendLine("Requestor: test@mail.org")
+                            appendLine("AdminCc: admin@mail.org")
+                            appendLine("CF-Accession: S-TEST1")
+                            append("Text: A notification")
+                        },
+                    ),
+            ),
         )
-    )
 
     @BeforeEach
     fun beforeEach() {
@@ -61,13 +63,14 @@ class RtClientTest(
         every { requestSpec.bodyValue(testBody) } returns requestSpec
         every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns response
 
-        val ticketId = testInstance.createTicket(
-            accNo = "S-TEST1",
-            subject = "Test",
-            owner = "test@mail.org",
-            adminCc = "admin@mail.org",
-            content = "A notification"
-        )
+        val ticketId =
+            testInstance.createTicket(
+                accNo = "S-TEST1",
+                subject = "Test",
+                owner = "test@mail.org",
+                adminCc = "admin@mail.org",
+                content = "A notification",
+            )
 
         assertThat(ticketId).isEqualTo("80338")
     }
@@ -76,32 +79,35 @@ class RtClientTest(
     fun `create ticket without bcc`() {
         val response = "RT/4.2.16 200 Ok\n\n# Ticket 80338 created.\n\n"
         val url = "http://test-desk/REST/1.0/ticket/new?user=test-user&pass=123456"
-        val testBody = LinkedMultiValueMap(
-            mapOf(
-                "content" to listOf(
-                    buildString {
-                        appendLine("Queue: test-queue")
-                        appendLine("Subject: Test")
-                        appendLine("Status: resolved")
-                        appendLine("Requestor: test@mail.org")
-                        appendLine("CF-Accession: S-TEST1")
-                        append("Text: A notification")
-                    }
-                )
+        val testBody =
+            LinkedMultiValueMap(
+                mapOf(
+                    "content" to
+                        listOf(
+                            buildString {
+                                appendLine("Queue: test-queue")
+                                appendLine("Subject: Test")
+                                appendLine("Status: resolved")
+                                appendLine("Requestor: test@mail.org")
+                                appendLine("CF-Accession: S-TEST1")
+                                append("Text: A notification")
+                            },
+                        ),
+                ),
             )
-        )
 
         every { client.post().uri(url) } returns requestSpec
         every { requestSpec.bodyValue(testBody) } returns requestSpec
         every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns response
 
-        val ticketId = testInstance.createTicket(
-            accNo = "S-TEST1",
-            subject = "Test",
-            owner = "test@mail.org",
-            adminCc = null,
-            content = "A notification"
-        )
+        val ticketId =
+            testInstance.createTicket(
+                accNo = "S-TEST1",
+                subject = "Test",
+                owner = "test@mail.org",
+                adminCc = null,
+                content = "A notification",
+            )
 
         assertThat(ticketId).isEqualTo("80338")
     }
@@ -119,7 +125,7 @@ class RtClientTest(
         testInstance.commentTicket(
             ticketId = "80338",
             ccUser = "admin@mail.org",
-            comment = "A comment"
+            comment = "A comment",
         )
 
         verify(exactly = 1) {
@@ -142,7 +148,7 @@ class RtClientTest(
         testInstance.commentTicket(
             ticketId = "80338",
             ccUser = null,
-            comment = "A comment"
+            comment = "A comment",
         )
 
         verify(exactly = 1) {
@@ -167,7 +173,7 @@ class RtClientTest(
                 subject = "Test",
                 owner = "test@mail.org",
                 adminCc = "admin@mail.org",
-                content = "A notification"
+                content = "A notification",
             )
         }
     }
@@ -188,7 +194,7 @@ class RtClientTest(
                 subject = "Test",
                 owner = "test@mail.org",
                 adminCc = "admin@mail.org",
-                content = "A notification"
+                content = "A notification",
             )
         }
     }
@@ -208,7 +214,7 @@ class RtClientTest(
                 subject = "Test",
                 owner = "test@mail.org",
                 adminCc = "admin@mail.org",
-                content = "A notification"
+                content = "A notification",
             )
         }
     }

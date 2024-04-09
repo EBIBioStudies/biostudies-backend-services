@@ -9,9 +9,10 @@ class JobResponseParser {
         submission: String,
         logsPath: String,
     ): Job {
-        val job = submitResponseRegex.matchEntire(submission)
-            ?.destructured
-            ?.let { (jobId, queue) -> Job(jobId, queue, "$logsPath/${jobId}_OUT") }
+        val job =
+            submitResponseRegex.matchEntire(submission)
+                ?.destructured
+                ?.let { (jobId, queue) -> Job(jobId, queue, "$logsPath/${jobId}_OUT") }
 
         return job ?: throw IllegalAccessError("could not parse response")
     }

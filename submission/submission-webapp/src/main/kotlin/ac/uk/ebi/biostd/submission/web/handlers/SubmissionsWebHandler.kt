@@ -10,12 +10,15 @@ class SubmissionsWebHandler(
     private val submissionService: SubmissionService,
     private val submissionQueryService: SubmissionQueryService,
 ) {
-    suspend fun deleteSubmission(accNo: String, user: SecurityUser): Unit =
-        submissionService.deleteSubmission(accNo, user)
+    suspend fun deleteSubmission(
+        accNo: String,
+        user: SecurityUser,
+    ): Unit = submissionService.deleteSubmission(accNo, user)
 
-    suspend fun deleteSubmissions(submissions: List<String>, user: SecurityUser): Unit =
-        submissionService.deleteSubmissions(submissions, user)
+    suspend fun deleteSubmissions(
+        submissions: List<String>,
+        user: SecurityUser,
+    ): Unit = submissionService.deleteSubmissions(submissions, user)
 
-    suspend fun getSubmissions(filter: SubmissionListFilter): List<BasicSubmission> =
-        submissionQueryService.getSubmissions(filter)
+    suspend fun getSubmissions(filter: SubmissionListFilter): List<BasicSubmission> = submissionQueryService.getSubmissions(filter)
 }

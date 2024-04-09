@@ -22,29 +22,44 @@ class FireFilesService(
      * different path) and if so, even if the file exists in FIRE, it gets duplicated to ensure consistency. TODO:
      * handle scenario when the same file appear two times in the same submission and it was already in fire.
      */
-    override suspend fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): FireFile {
+    override suspend fun persistSubmissionFile(
+        sub: ExtSubmission,
+        file: ExtFile,
+    ): FireFile {
         return when (file) {
             is FireFile -> file
             is NfsFile -> getOrCreate(file, sub.expectedFirePath(file))
         }
     }
 
-    private suspend fun getOrCreate(file: NfsFile, expectedPath: String): FireFile {
+    private suspend fun getOrCreate(
+        file: NfsFile,
+        expectedPath: String,
+    ): FireFile {
         val apiFile = client.findByPath(expectedPath) ?: persistToFire(file, expectedPath)
         return file.asFireFile(apiFile.fireOid, apiFile.path!!, apiFile.published)
     }
 
-    private suspend fun persistToFire(file: NfsFile, expectedPath: String): FireApiFile {
+    private suspend fun persistToFire(
+        file: NfsFile,
+        expectedPath: String,
+    ): FireApiFile {
         val saved = client.save(file.file, file.md5, file.size)
         return client.setPath(saved.fireOid, expectedPath)
     }
 
-    override suspend fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile) {
+    override suspend fun deleteSubmissionFile(
+        sub: ExtSubmission,
+        file: ExtFile,
+    ) {
         require(file is FireFile) { "FireFilesService should only handle FireFile, '${file.filePath}' it is not" }
         client.delete(file.fireId)
     }
 
-    override suspend fun deleteFtpFile(sub: ExtSubmission, file: ExtFile) {
+    override suspend fun deleteFtpFile(
+        sub: ExtSubmission,
+        file: ExtFile,
+    ) {
         // No need to delete FTP links on FIRE as file deleting complete this
     }
 

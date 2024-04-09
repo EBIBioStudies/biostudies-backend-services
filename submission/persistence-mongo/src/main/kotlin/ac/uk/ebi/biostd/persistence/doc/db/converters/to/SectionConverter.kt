@@ -12,7 +12,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_SECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TABLE_SECTIONS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSectionFields.SEC_TYPE
-import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.classField
+import ac.uk.ebi.biostd.persistence.doc.db.converters.to.CommonsConverter.CLASS_FIELD
 import ac.uk.ebi.biostd.persistence.doc.model.DocFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
@@ -29,11 +29,11 @@ class SectionConverter(
     private val linkTableConverter: LinkTableConverter,
     private val fileConverter: FileConverter,
     private val fileTableConverter: FileTableConverter,
-    private val fileListConverter: FileListConverter
+    private val fileListConverter: FileListConverter,
 ) {
     fun convert(section: DocSection): Document {
         val sectionDoc = Document()
-        sectionDoc[classField] = DOC_SEC_CLASS
+        sectionDoc[CLASS_FIELD] = DOC_SEC_CLASS
         sectionDoc[SEC_ID] = section.id
         sectionDoc[SEC_ACC_NO] = section.accNo
         sectionDoc[SEC_TYPE] = section.type
@@ -47,7 +47,7 @@ class SectionConverter(
 
     private fun tableSection(section: DocSectionTableRow): Document {
         val sectionDoc = Document()
-        sectionDoc[classField] = DOC_TABLE_SEC_CLASS
+        sectionDoc[CLASS_FIELD] = DOC_TABLE_SEC_CLASS
         sectionDoc[SEC_ACC_NO] = section.accNo
         sectionDoc[SEC_TYPE] = section.type
         sectionDoc[SEC_ATTRIBUTES] = section.attributes.map { attributeConverter.convert(it) }
@@ -56,7 +56,7 @@ class SectionConverter(
 
     private fun sectionsTable(docSectionTable: DocSectionTable): Document {
         val sectionTableDocument = Document()
-        sectionTableDocument[classField] = DOC_SEC_TABLE_CLASS
+        sectionTableDocument[CLASS_FIELD] = DOC_SEC_TABLE_CLASS
         sectionTableDocument[SEC_TABLE_SECTIONS] = docSectionTable.sections.map { tableSection(it) }
         return sectionTableDocument
     }

@@ -13,7 +13,7 @@ import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 @ExtendWith(MockKExtension::class)
 internal class MigrateCommandTest(
-    @MockK private val submissionService: SubmissionService
+    @MockK private val submissionService: SubmissionService,
 ) {
     private val testInstance = MigrateCommand(submissionService)
 
@@ -31,7 +31,7 @@ internal class MigrateCommandTest(
                 "-t", "http://biostudy-bia.ebi.ac.uk",
                 "-tu", "admin_user@ebi.ac.uk",
                 "-tp", "78910",
-            )
+            ),
         )
 
         val request = requestSlot.captured
@@ -56,7 +56,7 @@ internal class MigrateCommandTest(
                 "-tp", "78910",
                 "-to", "Juan",
                 "--async",
-            )
+            ),
         )
 
         val request = requestSlot.captured

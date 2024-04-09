@@ -16,28 +16,31 @@ import org.skyscreamer.jsonassert.JSONCompareMode
 
 class FileJsonSerializerTest {
     private val testInstance = createSerializer()
-    val file = BioFile(
-        path = "folder1/file.txt",
-        size = 10L,
-        type = FileFields.FILE.value,
-        attributes = listOf(Attribute("name", "value"))
-    )
+    val file =
+        BioFile(
+            path = "folder1/file.txt",
+            size = 10L,
+            type = FileFields.FILE.value,
+            attributes = listOf(Attribute("name", "value")),
+        )
 
     @Test
     fun `serialize File`() {
         val json = testInstance.writeValueAsString(file)
-        val expected = jsonObj {
-            "path" to "folder1/file.txt"
-            "size" to 10L
-            "type" to FileFields.FILE.value
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "name"
-                    "value" to "value"
-                    "reference" to false
-                }
-            )
-        }
+        val expected =
+            jsonObj {
+                "path" to "folder1/file.txt"
+                "size" to 10L
+                "type" to FileFields.FILE.value
+                "attributes" to
+                    jsonArray(
+                        jsonObj {
+                            "name" to "name"
+                            "value" to "value"
+                            "reference" to false
+                        },
+                    )
+            }
 
         JSONAssert.assertEquals("invalid file json", json, expected.toString(), JSONCompareMode.LENIENT)
     }

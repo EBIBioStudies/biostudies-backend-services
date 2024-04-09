@@ -11,7 +11,7 @@ suspend fun <T> retry(
     initialDelay: Long = 100,
     maxDelay: Long = 1000,
     factor: Double = 2.0,
-    block: suspend () -> T
+    block: suspend () -> T,
 ): T {
     var currentDelay = initialDelay
     repeat(times - 1) {

@@ -27,7 +27,11 @@ class SubmissionRequestIndexer(
      * guarantee by @see uk.ac.ebi.extended.serialization.service.ExtSerializationService.fileSequence to reduce time
      * submission main/core data is not available.
      */
-    suspend fun indexRequest(accNo: String, version: Int, processId: String) {
+    suspend fun indexRequest(
+        accNo: String,
+        version: Int,
+        processId: String,
+    ) {
         requestService.onRequest(accNo, version, REQUESTED, processId) {
             var indexedRqt = it.indexed(indexRequest(it.submission))
             RqtUpdate(indexedRqt)

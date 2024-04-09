@@ -6,5 +6,5 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 class SingleSubmissionStat(
     override val accNo: String,
     override val value: Long,
-    override val type: SubmissionStatType
+    override val type: SubmissionStatType,
 ) : SubmissionStat

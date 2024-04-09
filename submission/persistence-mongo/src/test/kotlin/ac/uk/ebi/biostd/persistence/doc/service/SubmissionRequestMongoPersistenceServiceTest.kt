@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission
 import com.mongodb.BasicDBObject
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.jsonObj
@@ -35,7 +36,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import ebi.ac.uk.asserts.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -60,8 +60,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
     @Autowired private val requestRepository: SubmissionRequestDocDataRepository,
     @Autowired private val requestFilesRepository: SubmissionRequestFilesRepository,
     @Autowired private val lockService: DistributedLockService,
-
-    ) {
+) {
     private val testInstant = Instant.ofEpochMilli(1664981331)
 
     private val testInstance =
@@ -74,82 +73,97 @@ class SubmissionRequestMongoPersistenceServiceTest(
     }
 
     @AfterEach
-    fun afterEach() = runBlocking {
-        requestRepository.deleteAll()
-        unmockkStatic(Instant::class)
-    }
+    fun afterEach() =
+        runBlocking {
+            requestRepository.deleteAll()
+            unmockkStatic(Instant::class)
+        }
 
     @Nested
     inner class ProcessRequest {
         @Test
-        fun onSuccess() = runTest {
-            val submission = fullExtSubmission
-            val rqt = SubmissionRequest(
-                submission = submission,
-                notifyTo = "notifyTo",
-                draftKey = "draftKey"
-            )
+        fun onSuccess() =
+            runTest {
+                val submission = fullExtSubmission
+                val rqt =
+                    SubmissionRequest(
+                        submission = submission,
+                        notifyTo = "notifyTo",
+                        draftKey = "draftKey",
+                    )
 
-            val (accNo, version) = testInstance.createRequest(rqt)
-            assertThat(submission.accNo).isEqualTo(accNo)
-            assertThat(submission.version).isEqualTo(version)
+                val (accNo, version) = testInstance.createRequest(rqt)
+                assertThat(submission.accNo).isEqualTo(accNo)
+                assertThat(submission.version).isEqualTo(version)
 
-            var operation = 0
+                var operation = 0
 
-            testInstance.onRequest(
-                accNo, version, REQUESTED, "processId", {
-                    operation++
-                    RqtUpdate(it.copy(status = PERSISTED))
-                }
-            )
+                testInstance.onRequest(
+                    accNo,
+                    version,
+                    REQUESTED,
+                    "processId",
+                    {
+                        operation++
+                        RqtUpdate(it.copy(status = PERSISTED))
+                    },
+                )
 
-            assertThat(operation).isOne()
-            val request = requestRepository.getByAccNoAndVersion(accNo, version)
-            assertThat(request.status).isEqualTo(PERSISTED)
-            assertThat(request.statusChanges).hasSize(1)
+                assertThat(operation).isOne()
+                val request = requestRepository.getByAccNoAndVersion(accNo, version)
+                assertThat(request.status).isEqualTo(PERSISTED)
+                assertThat(request.statusChanges).hasSize(1)
 
-            val statusChange = request.statusChanges.first()
-            assertThat(statusChange.processId).isEqualTo("processId")
-            assertThat(statusChange.startTime).isNotNull()
-            assertThat(statusChange.endTime).isNotNull()
-            assertThat(statusChange.result).isEqualTo("SUCCESS")
-        }
-
-        @Test
-        fun onFailure() = runTest {
-            val submission = fullExtSubmission
-            val rqt = SubmissionRequest(
-                submission = submission,
-                notifyTo = "notifyTo",
-                draftKey = "draftKey"
-            )
-
-            val (accNo, version) = testInstance.createRequest(rqt)
-            assertThat(submission.accNo).isEqualTo(accNo)
-            assertThat(submission.version).isEqualTo(version)
-
-            val exception = IllegalStateException("opps something wrong")
-            val throwException = assertThrows<IllegalStateException> {
-                testInstance.onRequest<RqtUpdate>(accNo, version, REQUESTED, "processId", { throw exception })
+                val statusChange = request.statusChanges.first()
+                assertThat(statusChange.processId).isEqualTo("processId")
+                assertThat(statusChange.startTime).isNotNull()
+                assertThat(statusChange.endTime).isNotNull()
+                assertThat(statusChange.result).isEqualTo("SUCCESS")
             }
 
-            assertThat(throwException).isEqualTo(exception)
-            val request = requestRepository.getByAccNoAndVersion(accNo, version)
-            assertThat(request.status).isEqualTo(REQUESTED)
-            assertThat(request.statusChanges).hasSize(1)
+        @Test
+        fun onFailure() =
+            runTest {
+                val submission = fullExtSubmission
+                val rqt =
+                    SubmissionRequest(
+                        submission = submission,
+                        notifyTo = "notifyTo",
+                        draftKey = "draftKey",
+                    )
 
-            val statusChange = request.statusChanges.first()
-            assertThat(statusChange.processId).isEqualTo("processId")
-            assertThat(statusChange.startTime).isNotNull()
-            assertThat(statusChange.endTime).isNotNull()
-            assertThat(statusChange.result).isEqualTo("ERROR")
-        }
+                val (accNo, version) = testInstance.createRequest(rqt)
+                assertThat(submission.accNo).isEqualTo(accNo)
+                assertThat(submission.version).isEqualTo(version)
+
+                val exception = IllegalStateException("opps something wrong")
+                val throwException =
+                    assertThrows<IllegalStateException> {
+                        testInstance.onRequest<RqtUpdate>(accNo, version, REQUESTED, "processId", { throw exception })
+                    }
+
+                assertThat(throwException).isEqualTo(exception)
+                val request = requestRepository.getByAccNoAndVersion(accNo, version)
+                assertThat(request.status).isEqualTo(REQUESTED)
+                assertThat(request.statusChanges).hasSize(1)
+
+                val statusChange = request.statusChanges.first()
+                assertThat(statusChange.processId).isEqualTo("processId")
+                assertThat(statusChange.startTime).isNotNull()
+                assertThat(statusChange.endTime).isNotNull()
+                assertThat(statusChange.result).isEqualTo("ERROR")
+            }
     }
 
     @Test
-    fun getProcessingRequests() = runTest {
-        fun testRequest(accNo: String, version: Int, modificationTime: Instant, status: RequestStatus) =
-            DocSubmissionRequest(
+    fun getProcessingRequests() =
+        runTest {
+            fun testRequest(
+                accNo: String,
+                version: Int,
+                modificationTime: Instant,
+                status: RequestStatus,
+            ) = DocSubmissionRequest(
                 id = ObjectId(),
                 accNo = accNo,
                 version = version,
@@ -160,53 +174,56 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 totalFiles = 5,
                 currentIndex = 0,
                 modificationTime = modificationTime,
-                statusChanges = emptyList()
+                statusChanges = emptyList(),
             )
 
-        requestRepository.save(testRequest("abc", 1, Instant.now().minusSeconds(10), CLEANED))
-        requestRepository.save(testRequest("zxy", 2, Instant.now().minusSeconds(20), FILES_COPIED))
+            requestRepository.save(testRequest("abc", 1, Instant.now().minusSeconds(10), CLEANED))
+            requestRepository.save(testRequest("zxy", 2, Instant.now().minusSeconds(20), FILES_COPIED))
 
-        assertThat(testInstance.getProcessingRequests().toList()).containsExactly("abc" to 1, "zxy" to 2)
-        assertThat(testInstance.getProcessingRequests(ofSeconds(5)).toList()).containsExactly("abc" to 1, "zxy" to 2)
-        assertThat(testInstance.getProcessingRequests(ofSeconds(15)).toList()).containsExactly("zxy" to 2)
-    }
+            assertThat(testInstance.getProcessingRequests().toList()).containsExactly("abc" to 1, "zxy" to 2)
+            assertThat(testInstance.getProcessingRequests(ofSeconds(5)).toList()).containsExactly("abc" to 1, "zxy" to 2)
+            assertThat(testInstance.getProcessingRequests(ofSeconds(15)).toList()).containsExactly("zxy" to 2)
+        }
 
     @Test
-    fun `update requestFile`() = runTest {
-        val extFile = createNfsFile("requested.txt", "Files/requested.txt", tempFolder.createFile("requested.txt"))
-        val requestFile = SubmissionRequestFile("S-BSST0", 1, index = 2, "requested.txt", extFile)
+    fun `update requestFile`() =
+        runTest {
+            val extFile = createNfsFile("requested.txt", "Files/requested.txt", tempFolder.createFile("requested.txt"))
+            val requestFile = SubmissionRequestFile("S-BSST0", 1, index = 2, "requested.txt", extFile)
 
-        requestRepository.upsertSubmissionRequestFile(requestFile)
-        requestRepository.save(testRequest())
+            requestRepository.upsertSubmissionRequestFile(requestFile)
+            requestRepository.save(testRequest())
 
-        testInstance.updateRqtIndex(requestFile, file = extFile.copy(md5 = "changedMd5"))
+            testInstance.updateRqtIndex(requestFile, file = extFile.copy(md5 = "changedMd5"))
 
-        val request = requestRepository.getByAccNoAndVersion("S-BSST0", 1)
-        assertThat(request.modificationTime).isEqualTo(testInstant)
-        assertThat(request.currentIndex).isEqualTo(2)
+            val request = requestRepository.getByAccNoAndVersion("S-BSST0", 1)
+            assertThat(request.modificationTime).isEqualTo(testInstant)
+            assertThat(request.currentIndex).isEqualTo(2)
 
-        val savedFile = requestFilesRepository.getByPathAndAccNoAndVersion(requestFile.path, "S-BSST0", 1)
-        assertThat(savedFile.file.get("md5")).isEqualTo("changedMd5")
-    }
+            val savedFile = requestFilesRepository.getByPathAndAccNoAndVersion(requestFile.path, "S-BSST0", 1)
+            assertThat(savedFile.file.get("md5")).isEqualTo("changedMd5")
+        }
 
-    private fun testRequest() = DocSubmissionRequest(
-        id = ObjectId(),
-        accNo = "S-BSST0",
-        version = 1,
-        status = CLEANED,
-        draftKey = null,
-        notifyTo = "user@test.org",
-        submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
-        totalFiles = 5,
-        currentIndex = 0,
-        modificationTime = Instant.ofEpochMilli(1664981300),
-        statusChanges = emptyList()
-    )
+    private fun testRequest() =
+        DocSubmissionRequest(
+            id = ObjectId(),
+            accNo = "S-BSST0",
+            version = 1,
+            status = CLEANED,
+            draftKey = null,
+            notifyTo = "user@test.org",
+            submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
+            totalFiles = 5,
+            currentIndex = 0,
+            modificationTime = Instant.ofEpochMilli(1664981300),
+            statusChanges = emptyList(),
+        )
 
     companion object {
         @Container
-        val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+        val mongoContainer: MongoDBContainer =
+            MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

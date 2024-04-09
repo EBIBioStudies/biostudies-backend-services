@@ -13,7 +13,10 @@ internal const val FILES_DIR = "Files"
 class ToExtSubmissionMapper(
     private val toExtSectionMapper: ToExtSectionMapper,
 ) {
-    internal suspend fun toExtSubmission(sub: DocSubmission, includeFileListFiles: Boolean): ExtSubmission =
+    internal suspend fun toExtSubmission(
+        sub: DocSubmission,
+        includeFileListFiles: Boolean,
+    ): ExtSubmission =
         ExtSubmission(
             accNo = sub.accNo,
             owner = sub.owner,
@@ -30,24 +33,26 @@ class ToExtSubmissionMapper(
             releaseTime = sub.releaseTime?.atOffset(UTC),
             modificationTime = sub.modificationTime.atOffset(UTC),
             creationTime = sub.creationTime.atOffset(UTC),
-            section = toExtSectionMapper.toExtSection(
-                sub.section,
-                sub.accNo,
-                sub.version,
-                sub.released,
-                sub.relPath,
-                includeFileListFiles
-            ),
+            section =
+                toExtSectionMapper.toExtSection(
+                    sub.section,
+                    sub.accNo,
+                    sub.version,
+                    sub.released,
+                    sub.relPath,
+                    includeFileListFiles,
+                ),
             attributes = sub.attributes.toExtAttributes(),
             collections = sub.collections.map { ExtCollection(it.accNo) },
             tags = sub.tags.map { ExtTag(it.name, it.value) },
             pageTabFiles = sub.pageTabFiles.map { it.toExtFile(sub.released, sub.relPath) },
-            storageMode = sub.storageMode
+            storageMode = sub.storageMode,
         )
 
-    private fun getMethod(method: DocSubmissionMethod) = when (method) {
-        DocSubmissionMethod.FILE -> ExtSubmissionMethod.FILE
-        DocSubmissionMethod.PAGE_TAB -> ExtSubmissionMethod.PAGE_TAB
-        DocSubmissionMethod.UNKNOWN -> ExtSubmissionMethod.UNKNOWN
-    }
+    private fun getMethod(method: DocSubmissionMethod) =
+        when (method) {
+            DocSubmissionMethod.FILE -> ExtSubmissionMethod.FILE
+            DocSubmissionMethod.PAGE_TAB -> ExtSubmissionMethod.PAGE_TAB
+            DocSubmissionMethod.UNKNOWN -> ExtSubmissionMethod.UNKNOWN
+        }
 }

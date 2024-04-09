@@ -75,7 +75,11 @@ internal class AllInOneSubmissionHelper(
         assertFileListsPagetabFiles(subFolder)
     }
 
-    private fun assertFireTabFiles(submission: ExtSubmission, accNo: String, subFolder: String) {
+    private fun assertFireTabFiles(
+        submission: ExtSubmission,
+        accNo: String,
+        subFolder: String,
+    ) {
         val submissionTabFiles = submission.pageTabFiles
         assertThat(submissionTabFiles).hasSize(2)
 
@@ -96,7 +100,10 @@ internal class AllInOneSubmissionHelper(
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
 
-    private fun assertFireFileListTabFiles(submission: ExtSubmission, subFolder: String) {
+    private fun assertFireFileListTabFiles(
+        submission: ExtSubmission,
+        subFolder: String,
+    ) {
         val fileListTabFiles = submission.section.fileList!!.pageTabFiles
         assertThat(fileListTabFiles).hasSize(2)
 
@@ -117,7 +124,10 @@ internal class AllInOneSubmissionHelper(
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
 
-    private fun assertFireSubFileListTabFiles(submission: ExtSubmission, subFolder: String) {
+    private fun assertFireSubFileListTabFiles(
+        submission: ExtSubmission,
+        subFolder: String,
+    ) {
         val subFileListTabFiles = (submission.section.sections.first() as Either.Left).a.fileList!!.pageTabFiles
         assertThat(subFileListTabFiles).hasSize(2)
 
@@ -150,21 +160,27 @@ internal class AllInOneSubmissionHelper(
         assertThat(jsonInnerFile).isEqualToIgnoringWhitespace(expectedAllInOneJsonInnerFileList.toString())
     }
 
-    private fun submissionNfsTabFiles(accNo: String, submissionFolderPath: String): List<NfsFile> {
+    private fun submissionNfsTabFiles(
+        accNo: String,
+        submissionFolderPath: String,
+    ): List<NfsFile> {
         return listOf(
             createNfsFile("$accNo.json", "$accNo.json", File("$submissionFolderPath/$accNo.json")),
-            createNfsFile("$accNo.tsv", "$accNo.tsv", File("$submissionFolderPath/$accNo.tsv"))
+            createNfsFile("$accNo.tsv", "$accNo.tsv", File("$submissionFolderPath/$accNo.tsv")),
         )
     }
 
-    private fun nfsTabFiles(subFolder: String, list: String): List<NfsFile> {
+    private fun nfsTabFiles(
+        subFolder: String,
+        list: String,
+    ): List<NfsFile> {
         val path = "Files/$list"
         val json = File("$subFolder/$path.json")
         val tsv = File("$subFolder/$path.tsv")
 
         return listOf(
             createNfsFile("$list.json", "$path.json", json),
-            createNfsFile("$list.tsv", "$path.tsv", tsv)
+            createNfsFile("$list.tsv", "$path.tsv", tsv),
         )
     }
 

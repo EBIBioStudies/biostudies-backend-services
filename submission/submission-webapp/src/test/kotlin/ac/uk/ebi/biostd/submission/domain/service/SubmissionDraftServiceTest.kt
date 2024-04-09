@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.submission.web.handlers.SubmitWebHandler
 import ac.uk.ebi.biostd.submission.web.model.ContentSubmitWebRequest
 import ac.uk.ebi.biostd.submission.web.model.OnBehalfRequest
 import ac.uk.ebi.biostd.submission.web.model.SubmissionRequestParameters
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -35,7 +36,6 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import ebi.ac.uk.asserts.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Instant
 
@@ -77,92 +77,98 @@ class SubmissionDraftServiceTest(
     }
 
     @Test
-    fun `get draft when exists`() = runTest {
-        coEvery { draftPersistenceService.findSubmissionDraft(USER_ID, DRAFT_KEY) } returns testDraft
+    fun `get draft when exists`() =
+        runTest {
+            coEvery { draftPersistenceService.findSubmissionDraft(USER_ID, DRAFT_KEY) } returns testDraft
 
-        val result = testInstance.getOrCreateSubmissionDraft(USER_ID, DRAFT_KEY)
+            val result = testInstance.getOrCreateSubmissionDraft(USER_ID, DRAFT_KEY)
 
-        assertThat(result.key).isEqualTo(DRAFT_KEY)
-        assertThat(result.content).isEqualTo(DRAFT_CONTENT)
-        coVerify(exactly = 0) {
-            userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY)
-            submissionQueryService.getExtByAccNo(DRAFT_KEY)
-            serializationService.serializeSubmission(any(), JsonPretty)
-            draftPersistenceService.createSubmissionDraft(USER_ID, DRAFT_KEY, any())
+            assertThat(result.key).isEqualTo(DRAFT_KEY)
+            assertThat(result.content).isEqualTo(DRAFT_CONTENT)
+            coVerify(exactly = 0) {
+                userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY)
+                submissionQueryService.getExtByAccNo(DRAFT_KEY)
+                serializationService.serializeSubmission(any(), JsonPretty)
+                draftPersistenceService.createSubmissionDraft(USER_ID, DRAFT_KEY, any())
+            }
         }
-    }
 
     @Test
-    fun `get draft from submission`() = runTest {
-        val submission = basicExtSubmission
-        coEvery { userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY) } returns true
-        coEvery { submissionQueryService.getExtByAccNo(DRAFT_KEY) } returns submission
-        coEvery { draftPersistenceService.findSubmissionDraft(USER_ID, DRAFT_KEY) } returns null
-        coEvery { draftPersistenceService.createSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDraft
-        coEvery {
-            serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(submission), JsonPretty)
-        } returns DRAFT_CONTENT
+    fun `get draft from submission`() =
+        runTest {
+            val submission = basicExtSubmission
+            coEvery { userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY) } returns true
+            coEvery { submissionQueryService.getExtByAccNo(DRAFT_KEY) } returns submission
+            coEvery { draftPersistenceService.findSubmissionDraft(USER_ID, DRAFT_KEY) } returns null
+            coEvery { draftPersistenceService.createSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDraft
+            coEvery {
+                serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(submission), JsonPretty)
+            } returns DRAFT_CONTENT
 
-        val result = testInstance.getOrCreateSubmissionDraft(USER_ID, DRAFT_KEY)
+            val result = testInstance.getOrCreateSubmissionDraft(USER_ID, DRAFT_KEY)
 
-        assertThat(result.key).isEqualTo(DRAFT_KEY)
-        assertThat(result.content).isEqualTo(DRAFT_CONTENT)
-        coVerify(exactly = 1) {
-            userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY)
-            submissionQueryService.getExtByAccNo(DRAFT_KEY)
-            draftPersistenceService.createSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
+            assertThat(result.key).isEqualTo(DRAFT_KEY)
+            assertThat(result.content).isEqualTo(DRAFT_CONTENT)
+            coVerify(exactly = 1) {
+                userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY)
+                submissionQueryService.getExtByAccNo(DRAFT_KEY)
+                draftPersistenceService.createSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
+            }
         }
-    }
 
     @Test
-    fun `get draft from submission without permissions`() = runTest {
-        coEvery { userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY) } returns false
-        coEvery { draftPersistenceService.findSubmissionDraft(USER_ID, DRAFT_KEY) } returns null
+    fun `get draft from submission without permissions`() =
+        runTest {
+            coEvery { userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY) } returns false
+            coEvery { draftPersistenceService.findSubmissionDraft(USER_ID, DRAFT_KEY) } returns null
 
-        val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.getOrCreateSubmissionDraft(USER_ID, DRAFT_KEY) }
-        assertThat(error.message).isEqualTo("The user {$USER_ID} is not allowed to update the submission $DRAFT_KEY")
+            val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.getOrCreateSubmissionDraft(USER_ID, DRAFT_KEY) }
+            assertThat(error.message).isEqualTo("The user {$USER_ID} is not allowed to update the submission $DRAFT_KEY")
 
-        coVerify(exactly = 1) {
-            userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY)
+            coVerify(exactly = 1) {
+                userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY)
+            }
+            coVerify(exactly = 0) {
+                submissionQueryService.getExtByAccNo(DRAFT_KEY)
+                serializationService.serializeSubmission(any(), JsonPretty)
+                draftPersistenceService.createSubmissionDraft(USER_ID, DRAFT_KEY, any())
+            }
         }
-        coVerify(exactly = 0) {
-            submissionQueryService.getExtByAccNo(DRAFT_KEY)
-            serializationService.serializeSubmission(any(), JsonPretty)
-            draftPersistenceService.createSubmissionDraft(USER_ID, DRAFT_KEY, any())
+
+    @Test
+    fun `delete submission draft`() =
+        runTest {
+            coEvery { draftPersistenceService.deleteSubmissionDraft(USER_ID, DRAFT_KEY) } answers { nothing }
+
+            testInstance.deleteSubmissionDraft(USER_ID, DRAFT_KEY)
+
+            coVerify(exactly = 1) { draftPersistenceService.deleteSubmissionDraft(USER_ID, DRAFT_KEY) }
         }
-    }
 
     @Test
-    fun `delete submission draft`() = runTest {
-        coEvery { draftPersistenceService.deleteSubmissionDraft(USER_ID, DRAFT_KEY) } answers { nothing }
+    fun `update submission draft`() =
+        runTest {
+            coEvery { draftPersistenceService.updateSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDraft
 
-        testInstance.deleteSubmissionDraft(USER_ID, DRAFT_KEY)
+            testInstance.updateSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
 
-        coVerify(exactly = 1) { draftPersistenceService.deleteSubmissionDraft(USER_ID, DRAFT_KEY) }
-    }
-
-    @Test
-    fun `update submission draft`() = runTest {
-        coEvery { draftPersistenceService.updateSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDraft
-
-        testInstance.updateSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
-
-        coVerify(exactly = 1) { draftPersistenceService.updateSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) }
-    }
+            coVerify(exactly = 1) { draftPersistenceService.updateSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) }
+        }
 
     @Test
-    fun `create submission draft`() = runTest {
-        mockkStatic(Instant::class)
-        val draftCreationTime = 2L
+    fun `create submission draft`() =
+        runTest {
+            mockkStatic(Instant::class)
+            val draftCreationTime = 2L
 
-        every { Instant.now().toEpochMilli() } returns draftCreationTime
-        coEvery { draftPersistenceService.createSubmissionDraft(USER_ID, "TMP_2", DRAFT_CONTENT) } returns testDraft
+            every { Instant.now().toEpochMilli() } returns draftCreationTime
+            coEvery { draftPersistenceService.createSubmissionDraft(USER_ID, "TMP_2", DRAFT_CONTENT) } returns testDraft
 
-        testInstance.createSubmissionDraft(USER_ID, DRAFT_CONTENT)
+            testInstance.createSubmissionDraft(USER_ID, DRAFT_CONTENT)
 
-        coVerify(exactly = 1) { draftPersistenceService.createSubmissionDraft(USER_ID, "TMP_2", DRAFT_CONTENT) }
-        unmockkStatic(Instant::class)
-    }
+            coVerify(exactly = 1) { draftPersistenceService.createSubmissionDraft(USER_ID, "TMP_2", DRAFT_CONTENT) }
+            unmockkStatic(Instant::class)
+        }
 
     @Test
     fun `submit draft`(

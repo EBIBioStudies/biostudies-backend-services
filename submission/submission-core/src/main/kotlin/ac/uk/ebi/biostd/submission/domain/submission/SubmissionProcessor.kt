@@ -26,7 +26,7 @@ private const val DEFAULT_SCHEMA_VERSION = "1.0"
 
 private val logger = KotlinLogging.logger {}
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "DestructuringDeclarationWithTooManyEntries")
 class SubmissionProcessor(
     private val doiService: DoiService,
     private val persistenceService: SubmissionPersistenceService,
@@ -70,7 +70,7 @@ class SubmissionProcessor(
             collections = tags.map { ExtCollection(it) },
             section = toExtSectionMapper.convert(submission.accNo, version, submission.section, sources),
             attributes = submission.attributes.toExtAttributes(SUBMISSION_RESERVED_ATTRIBUTES),
-            storageMode = storageMode ?: if (properties.persistence.enableFire) StorageMode.FIRE else StorageMode.NFS
+            storageMode = storageMode ?: if (properties.persistence.enableFire) StorageMode.FIRE else StorageMode.NFS,
         )
     }
 

@@ -24,13 +24,12 @@ import uk.ac.ebi.scheduler.stats.domain.StatsReporterTrigger
 @EnableConfigurationProperties(AppProperties::class, StatsReporterProperties::class)
 internal class SchedulerConfig {
     @Bean
-    fun clusterOperations(
-        appProperties: AppProperties,
-    ): ClusterClient = RemoteClusterClient.create(
-        appProperties.cluster.sshKey,
-        appProperties.cluster.server,
-        appProperties.cluster.logsPath,
-    )
+    fun clusterOperations(appProperties: AppProperties): ClusterClient =
+        RemoteClusterClient.create(
+            appProperties.cluster.sshKey,
+            appProperties.cluster.server,
+            appProperties.cluster.logsPath,
+        )
 
     @Bean
     fun loaderService(
@@ -46,8 +45,7 @@ internal class SchedulerConfig {
         clusterClient: ClusterClient,
         releaserProperties: SubmissionReleaserProperties,
         @Qualifier("schedulerNotificationsSender") schedulerNotificationsSender: NotificationsSender,
-    ): SubmissionReleaserTrigger =
-        SubmissionReleaserTrigger(appProperties, releaserProperties, clusterClient, schedulerNotificationsSender)
+    ): SubmissionReleaserTrigger = SubmissionReleaserTrigger(appProperties, releaserProperties, clusterClient, schedulerNotificationsSender)
 
     @Bean
     fun exporterTrigger(
@@ -56,13 +54,14 @@ internal class SchedulerConfig {
         exporterProperties: ExporterProperties,
         @Qualifier("pmcNotificationsSender") pmcNotificationsSender: NotificationsSender,
         @Qualifier("schedulerNotificationsSender") schedulerNotificationsSender: NotificationsSender,
-    ): ExporterTrigger = ExporterTrigger(
-        appProperties,
-        exporterProperties,
-        clusterClient,
-        pmcNotificationsSender,
-        schedulerNotificationsSender,
-    )
+    ): ExporterTrigger =
+        ExporterTrigger(
+            appProperties,
+            exporterProperties,
+            clusterClient,
+            pmcNotificationsSender,
+            schedulerNotificationsSender,
+        )
 
     @Bean
     fun statsReporterTrigger(
@@ -70,12 +69,13 @@ internal class SchedulerConfig {
         properties: StatsReporterProperties,
         clusterClient: ClusterClient,
         schedulerNotificationsSender: NotificationsSender,
-    ): StatsReporterTrigger = StatsReporterTrigger(
-        appProperties,
-        properties,
-        clusterClient,
-        schedulerNotificationsSender,
-    )
+    ): StatsReporterTrigger =
+        StatsReporterTrigger(
+            appProperties,
+            properties,
+            clusterClient,
+            schedulerNotificationsSender,
+        )
 
     @Bean
     fun scheduler(

@@ -4,3 +4,12 @@ build:
 style:
   ForbiddenComment:
     active: false
+  DestructuringDeclarationWithTooManyEntries:
+    maxDestructuringEntries: 6
+  MaxLineLength:
+    active: false
+
+complexity:
+  LongParameterList:
+    constructorThreshold: 7
+    functionThreshold: 7

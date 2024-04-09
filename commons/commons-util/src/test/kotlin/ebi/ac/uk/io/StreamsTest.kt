@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 
 internal class StreamsTest {
-
     @Test
     fun use() {
         val input = "one".byteInputStream()

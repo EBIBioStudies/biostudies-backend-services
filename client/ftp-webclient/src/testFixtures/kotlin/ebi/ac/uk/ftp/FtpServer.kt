@@ -16,7 +16,6 @@ class FtpServer(
     private val server: DefaultFtpServer,
     val fileSystemDirectory: File,
 ) {
-
     fun start() {
         Thread { server.start() }.start()
         while (server.isStopped) Thread.sleep(50)
@@ -31,10 +30,10 @@ class FtpServer(
     }
 
     val ftpPort: Int
-        get() = server.serverContext.listeners.getValue(listenerName).port
+        get() = server.serverContext.listeners.getValue(LISTENER_NAME).port
 
     companion object {
-        const val listenerName = "default"
+        const val LISTENER_NAME = "default"
 
         fun createServer(config: FtpConfig): FtpServer {
             val listenerFactory = ListenerFactory()
@@ -60,7 +59,7 @@ class FtpServer(
             connectionConfigFactory.maxLogins = 50
             serverFactory.connectionConfig = connectionConfigFactory.createConnectionConfig()
 
-            serverFactory.addListener(listenerName, listenerFactory.createListener())
+            serverFactory.addListener(LISTENER_NAME, listenerFactory.createListener())
             val server = serverFactory.createServer()
             val user = newUser(config.userName, config.password)
             serverFactory.userManager.save(user)
@@ -82,6 +81,7 @@ class FtpServer(
 }
 
 data class SslConfig(val keystoreFile: File, val password: String)
+
 data class FtpConfig(
     val sslConfig: SslConfig,
     val userName: String,

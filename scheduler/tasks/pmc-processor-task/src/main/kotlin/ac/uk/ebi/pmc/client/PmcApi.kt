@@ -6,7 +6,9 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface PmcApi {
-
     @GET("/files/getFileStream/PMC{studyId}")
-    suspend fun downloadFileStream(@Path("studyId") studyId: String, @Query("filename") fileName: String): ResponseBody
+    suspend fun downloadFileStream(
+        @Path("studyId") studyId: String,
+        @Query("filename") fileName: String,
+    ): ResponseBody
 }

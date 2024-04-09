@@ -15,12 +15,13 @@ private const val VALUE_ATTR_VALUE = "Test Value Value"
 
 internal object AttributeTestHelper {
     val basicDocAttribute: DocAttribute = DocAttribute(ATTR_NAME, ATTR_VALUE)
-    val fullDocAttribute: DocAttribute = DocAttribute(
-        name = ATTR_NAME,
-        value = ATTR_VALUE,
-        nameAttrs = listOf(DocAttributeDetail(NAME_ATTR_NAME, NAME_ATTR_VALUE)),
-        valueAttrs = listOf(DocAttributeDetail(VALUE_ATTR_NAME, VALUE_ATTR_VALUE))
-    )
+    val fullDocAttribute: DocAttribute =
+        DocAttribute(
+            name = ATTR_NAME,
+            value = ATTR_VALUE,
+            nameAttrs = listOf(DocAttributeDetail(NAME_ATTR_NAME, NAME_ATTR_VALUE)),
+            valueAttrs = listOf(DocAttributeDetail(VALUE_ATTR_NAME, VALUE_ATTR_VALUE)),
+        )
 
     fun assertBasicExtAttribute(extAttribute: ExtAttribute) {
         assertThat(extAttribute.name).isEqualTo(ATTR_NAME)
@@ -44,7 +45,11 @@ internal object AttributeTestHelper {
         assertExtAttributeDetail(valueAttributes.first(), VALUE_ATTR_NAME, VALUE_ATTR_VALUE)
     }
 
-    private fun assertExtAttributeDetail(extAttribute: ExtAttributeDetail, name: String, value: String) {
+    private fun assertExtAttributeDetail(
+        extAttribute: ExtAttributeDetail,
+        name: String,
+        value: String,
+    ) {
         assertThat(extAttribute.name).isEqualTo(name)
         assertThat(extAttribute.value).isEqualTo(value)
     }

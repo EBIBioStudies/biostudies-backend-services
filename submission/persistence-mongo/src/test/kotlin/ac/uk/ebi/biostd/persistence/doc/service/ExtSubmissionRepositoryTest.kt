@@ -51,60 +51,65 @@ class ExtSubmissionRepositoryTest(
     private val toExtSectionMapper = ToExtSectionMapper(toFileListMapper)
     private val toDocFileListMapper = ToDocFileListMapper(extSerializationService)
     private val toDocSectionMapper = ToDocSectionMapper(toDocFileListMapper)
-    private val testInstance = ExtSubmissionRepository(
-        subDataRepository,
-        fileListDocFileRepository,
-        ToExtSubmissionMapper(toExtSectionMapper),
-        ToDocSubmissionMapper(toDocSectionMapper)
-    )
-
-    @BeforeEach
-    fun beforeEach() = runBlocking {
-        subDataRepository.deleteAll()
-        fileListDocFileRepository.deleteAll()
-    }
-
-    @Test
-    fun `save submission`() = runTest {
-        val section = defaultSection(fileList = defaultFileList(files = listOf(defaultFireFile())))
-        val submission = basicExtSubmission.copy(section = section)
-
-        val result = testInstance.saveSubmission(submission)
-
-        assertThat(result.section).isEqualToIgnoringGivenFields(
-            section.copy(fileList = defaultFileList(filesUrl = null)),
-            "fileList"
+    private val testInstance =
+        ExtSubmissionRepository(
+            subDataRepository,
+            fileListDocFileRepository,
+            ToExtSubmissionMapper(toExtSectionMapper),
+            ToDocSubmissionMapper(toDocSectionMapper),
         )
 
-        val savedSubmission = subDataRepository.getSubmission(submission.accNo, 1)
-        assertThat(subDataRepository.findAll().toList()).hasSize(1)
-
-        val fileListDocFiles = fileListDocFileRepository.findAll().toList()
-        assertThat(fileListDocFiles).hasSize(1)
-        val fileListDocFile = fileListDocFiles.first()
-        assertThat(fileListDocFile.file).isEqualTo(defaultFireFile().toDocFile())
-        assertThat(fileListDocFile.submissionId).isEqualTo(savedSubmission.id)
-        assertThat(fileListDocFile.fileListName).isEqualTo(FILE_PATH)
-        assertThat(fileListDocFile.index).isEqualTo(0)
-        assertThat(fileListDocFile.submissionVersion).isEqualTo(savedSubmission.version)
-        assertThat(fileListDocFile.submissionAccNo).isEqualTo(submission.accNo)
-    }
+    @BeforeEach
+    fun beforeEach() =
+        runBlocking {
+            subDataRepository.deleteAll()
+            fileListDocFileRepository.deleteAll()
+        }
 
     @Test
-    fun `expire previous versions`() = runTest {
-        subDataRepository.save(docSubmission.copy(accNo = "S-TEST123", version = 1))
-        assertThat(subDataRepository.findAll().toList()).hasSize(1)
+    fun `save submission`() =
+        runTest {
+            val section = defaultSection(fileList = defaultFileList(files = listOf(defaultFireFile())))
+            val submission = basicExtSubmission.copy(section = section)
 
-        testInstance.expirePreviousVersions("S-TEST123")
+            val result = testInstance.saveSubmission(submission)
 
-        assertThat(subDataRepository.getSubmission("S-TEST123", -1)).isNotNull()
-        assertThat(subDataRepository.findAll().toList()).hasSize(1)
-    }
+            assertThat(result.section).isEqualToIgnoringGivenFields(
+                section.copy(fileList = defaultFileList(filesUrl = null)),
+                "fileList",
+            )
+
+            val savedSubmission = subDataRepository.getSubmission(submission.accNo, 1)
+            assertThat(subDataRepository.findAll().toList()).hasSize(1)
+
+            val fileListDocFiles = fileListDocFileRepository.findAll().toList()
+            assertThat(fileListDocFiles).hasSize(1)
+            val fileListDocFile = fileListDocFiles.first()
+            assertThat(fileListDocFile.file).isEqualTo(defaultFireFile().toDocFile())
+            assertThat(fileListDocFile.submissionId).isEqualTo(savedSubmission.id)
+            assertThat(fileListDocFile.fileListName).isEqualTo(FILE_PATH)
+            assertThat(fileListDocFile.index).isEqualTo(0)
+            assertThat(fileListDocFile.submissionVersion).isEqualTo(savedSubmission.version)
+            assertThat(fileListDocFile.submissionAccNo).isEqualTo(submission.accNo)
+        }
+
+    @Test
+    fun `expire previous versions`() =
+        runTest {
+            subDataRepository.save(docSubmission.copy(accNo = "S-TEST123", version = 1))
+            assertThat(subDataRepository.findAll().toList()).hasSize(1)
+
+            testInstance.expirePreviousVersions("S-TEST123")
+
+            assertThat(subDataRepository.getSubmission("S-TEST123", -1)).isNotNull()
+            assertThat(subDataRepository.findAll().toList()).hasSize(1)
+        }
 
     companion object {
         @Container
-        val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(MINIMUM_RUNNING_TIME)))
+        val mongoContainer: MongoDBContainer =
+            MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

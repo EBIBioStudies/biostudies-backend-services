@@ -17,20 +17,17 @@ class JmsPublishingConfig(
     private val applicationProperties: ApplicationProperties,
 ) {
     @Bean
-    fun eventsProperties(): EventsProperties =
-        EventsProperties(instanceBaseUrl = applicationProperties.instanceBaseUrl)
+    fun eventsProperties(): EventsProperties = EventsProperties(instanceBaseUrl = applicationProperties.instanceBaseUrl)
 
     @Bean
     fun eventsPublisherConfig(
         eventsProperties: EventsProperties,
         connectionFactory: ConnectionFactory,
-    ): EventsPublisherConfig =
-        EventsPublisherConfig(eventsProperties, connectionFactory, applicationProperties.notifications)
+    ): EventsPublisherConfig = EventsPublisherConfig(eventsProperties, connectionFactory, applicationProperties.notifications)
 
     @Bean
-    fun eventsPublisherService(
-        eventsPublisherConfig: EventsPublisherConfig,
-    ): EventsPublisherService = eventsPublisherConfig.eventsPublisherService()
+    fun eventsPublisherService(eventsPublisherConfig: EventsPublisherConfig): EventsPublisherService =
+        eventsPublisherConfig.eventsPublisherService()
 
     @Bean
     fun myRabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate {

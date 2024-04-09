@@ -10,7 +10,10 @@ import java.io.File
 class ConfigurationPropertiesHolder {
     private val properties = mutableListOf<Pair<String, String>>()
 
-    fun addProperty(name: String, value: Any): Boolean = properties.add(name to value.toString())
+    fun addProperty(
+        name: String,
+        value: Any,
+    ): Boolean = properties.add(name to value.toString())
 
     fun writeProperties() {
         val options = DumperOptions()

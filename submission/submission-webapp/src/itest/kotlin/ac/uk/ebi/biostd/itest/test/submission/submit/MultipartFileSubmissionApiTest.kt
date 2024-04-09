@@ -58,196 +58,220 @@ class MultipartFileSubmissionApiTest(
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
-    fun init() = runBlocking {
-        securityTestService.ensureUserRegistration(SuperUser)
-        webClient = getWebClient(serverPort, SuperUser)
-    }
+    fun init() =
+        runBlocking {
+            securityTestService.ensureUserRegistration(SuperUser)
+            webClient = getWebClient(serverPort, SuperUser)
+        }
 
     @Test
-    fun `9-1 XLS submission`() = runTest {
-        val excelPageTab = excel(File("${tempFolder.absolutePath}/ExcelSubmission.xlsx")) {
-            sheet("page tab") {
-                row {
-                    cell("Submission")
-                    cell("S-EXC123")
-                }
-                row {
-                    cell("Title")
-                    cell("Excel Submission")
+    fun `9-1 XLS submission`() =
+        runTest {
+            val excelPageTab =
+                excel(File("${tempFolder.absolutePath}/ExcelSubmission.xlsx")) {
+                    sheet("page tab") {
+                        row {
+                            cell("Submission")
+                            cell("S-EXC123")
+                        }
+                        row {
+                            cell("Title")
+                            cell("Excel Submission")
+                        }
+
+                        row {
+                            cell("")
+                            cell("")
+                        }
+                        row {
+                            cell("Study")
+                            cell("SECT-001")
+                        }
+                        row {
+                            cell("Title")
+                            cell("Root Section")
+                        }
+                        row {
+                            cell("File List")
+                            cell("FileList.xlsx")
+                        }
+                    }
                 }
 
-                row { cell(""); cell("") }
-                row {
-                    cell("Study")
-                    cell("SECT-001")
+            val fileList =
+                excel(File("${tempFolder.absolutePath}/FileList.xlsx")) {
+                    sheet("page tab") {
+                        row {
+                            cell("Files")
+                            cell("GEN")
+                        }
+                        row {
+                            cell("SomeFile.txt")
+                            cell("ABC")
+                        }
+                    }
                 }
-                row {
-                    cell("Title")
-                    cell("Root Section")
-                }
-                row {
-                    cell("File List")
-                    cell("FileList.xlsx")
-                }
-            }
+
+            val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("SomeFile.txt")), storageMode)
+            val response = webClient.submitSingle(excelPageTab, filesConfig)
+            assertThat(response).isSuccessful()
+            assertSubmissionFiles("S-EXC123", "SomeFile.txt")
+            fileList.delete()
         }
-
-        val fileList = excel(File("${tempFolder.absolutePath}/FileList.xlsx")) {
-            sheet("page tab") {
-                row {
-                    cell("Files")
-                    cell("GEN")
-                }
-                row {
-                    cell("SomeFile.txt")
-                    cell("ABC")
-                }
-            }
-        }
-
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("SomeFile.txt")), storageMode)
-        val response = webClient.submitSingle(excelPageTab, filesConfig)
-        assertThat(response).isSuccessful()
-        assertSubmissionFiles("S-EXC123", "SomeFile.txt")
-        fileList.delete()
-    }
 
     @Test
-    fun `9-1-2 XLS submission with line break`() = runTest {
-        val excelPageTab = excel(File("${tempFolder.absolutePath}/ExcelSubmission-2.xlsx")) {
-            sheet("page tab") {
-                row {
-                    cell("Submission")
-                    cell("S-EXC124")
+    fun `9-1-2 XLS submission with line break`() =
+        runTest {
+            val excelPageTab =
+                excel(File("${tempFolder.absolutePath}/ExcelSubmission-2.xlsx")) {
+                    sheet("page tab") {
+                        row {
+                            cell("Submission")
+                            cell("S-EXC124")
+                        }
+                        row {
+                            cell("Title")
+                            cell("Excel \n Submission")
+                        }
+                        row {
+                            cell("")
+                            cell("")
+                        }
+                        row {
+                            cell("Study")
+                            cell("SECT-1")
+                        }
+                    }
                 }
-                row {
-                    cell("Title")
-                    cell("Excel \n Submission")
-                }
-                row { cell(""); cell("") }
-                row {
-                    cell("Study")
-                    cell("SECT-1")
-                }
-            }
-        }
 
-        val response = webClient.submitSingle(excelPageTab, SubmissionFilesConfig(emptyList(), storageMode))
-        assertThat(response).isSuccessful()
+            val response = webClient.submitSingle(excelPageTab, SubmissionFilesConfig(emptyList(), storageMode))
+            assertThat(response).isSuccessful()
 
-        val sub = submissionRepository.getExtByAccNo(response.body.accNo)
-        assertThat(Paths.get("$submissionPath/${sub.relPath}/${sub.accNo}.tsv")).hasContent(
-            """
+            val sub = submissionRepository.getExtByAccNo(response.body.accNo)
+            assertThat(Paths.get("$submissionPath/${sub.relPath}/${sub.accNo}.tsv")).hasContent(
+                """
                 Submission	S-EXC124
                 Title	"Excel 
                  Submission"
 
                 Study	SECT-1
-            """.trimIndent()
-        )
-    }
+                """.trimIndent(),
+            )
+        }
 
     @Test
-    fun `9-2 TSV submission`() = runTest {
-        val submission = tsv {
-            line("Submission", "S-TEST1")
-            line("Title", "Test Submission")
-            line()
+    fun `9-2 TSV submission`() =
+        runTest {
+            val submission =
+                tsv {
+                    line("Submission", "S-TEST1")
+                    line("Title", "Test Submission")
+                    line()
 
-            line("Study", "SECT-001")
-            line("Title", "Root Section")
-            line("File List", "FileList.tsv")
-            line()
-        }.toString()
+                    line("Study", "SECT-001")
+                    line("Title", "Root Section")
+                    line("File List", "FileList.tsv")
+                    line()
+                }.toString()
 
-        val fileList = tempFolder.createFile(
-            "FileList.tsv",
-            tsv {
-                line("Files", "GEN")
-                line("File1.txt", "ABC")
-            }.toString()
-        )
-
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File1.txt")), storageMode)
-        val response = webClient.submitSingle(submission, TSV, filesConfig)
-        assertThat(response).isSuccessful()
-        assertSubmissionFiles("S-TEST1", "File1.txt")
-        fileList.delete()
-    }
-
-    @Test
-    fun `9-3 JSON submission`() = runTest {
-        val submission = jsonObj {
-            "accno" to "S-TEST2"
-            "attributes" to jsonArray({
-                "name" to "Title"
-                "value" to "Test Submission"
-            })
-            "section" to {
-                "accno" to "SECT-001"
-                "type" to "Study"
-                "attributes" to jsonArray(
-                    {
-                        "name" to "Title"
-                        "value" to "Root Section"
-                    },
-                    {
-                        "name" to "File List"
-                        "value" to "FileList.json"
-                    }
+            val fileList =
+                tempFolder.createFile(
+                    "FileList.tsv",
+                    tsv {
+                        line("Files", "GEN")
+                        line("File1.txt", "ABC")
+                    }.toString(),
                 )
-            }
-        }.toString()
 
-        val fileList = tempFolder.createFile(
-            "FileList.json",
-            jsonArray({
-                "path" to "File2.txt"
-                "attributes" to jsonArray({
-                    "name" to "GEN"
-                    "value" to "ABC"
-                })
-            }).toString()
-        )
-
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File2.txt")), storageMode)
-        val response = webClient.submitSingle(submission, JSON, filesConfig)
-        assertThat(response).isSuccessful()
-        assertSubmissionFiles("S-TEST2", "File2.txt")
-        fileList.delete()
-    }
+            val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File1.txt")), storageMode)
+            val response = webClient.submitSingle(submission, TSV, filesConfig)
+            assertThat(response).isSuccessful()
+            assertSubmissionFiles("S-TEST1", "File1.txt")
+            fileList.delete()
+        }
 
     @Test
-    fun `9-4 direct submission with overriden attributes`() = runTest {
-        val submission = tempFolder.createFile(
-            "submission.tsv",
-            tsv {
-                line("Submission", "S-TEST6")
-                line("Title", "Test Submission")
-                line("Type", "Test")
-                line()
+    fun `9-3 JSON submission`() =
+        runTest {
+            val submission =
+                jsonObj {
+                    "accno" to "S-TEST2"
+                    "attributes" to
+                        jsonArray({
+                            "name" to "Title"
+                            "value" to "Test Submission"
+                        })
+                    "section" to {
+                        "accno" to "SECT-001"
+                        "type" to "Study"
+                        "attributes" to
+                            jsonArray(
+                                {
+                                    "name" to "Title"
+                                    "value" to "Root Section"
+                                },
+                                {
+                                    "name" to "File List"
+                                    "value" to "FileList.json"
+                                },
+                            )
+                    }
+                }.toString()
 
-                line("Study", "SECT-001")
-                line("Title", "Root Section")
-                line()
-            }.toString()
-        )
+            val fileList =
+                tempFolder.createFile(
+                    "FileList.json",
+                    jsonArray({
+                        "path" to "File2.txt"
+                        "attributes" to
+                            jsonArray({
+                                "name" to "GEN"
+                                "value" to "ABC"
+                            })
+                    }).toString(),
+                )
 
-        val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
-        val response = webClient.submitSingle(
-            submission = submission,
-            filesConfig = filesConfig,
-            attrs = hashMapOf(("Type" to "Exp"), ("Exp" to "1"))
-        )
-        assertThat(response).isSuccessful()
-        submission.delete()
+            val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File2.txt")), storageMode)
+            val response = webClient.submitSingle(submission, JSON, filesConfig)
+            assertThat(response).isSuccessful()
+            assertSubmissionFiles("S-TEST2", "File2.txt")
+            fileList.delete()
+        }
 
-        val savedSubmission = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("S-TEST6"))
-        assertThat(savedSubmission.attributes).hasSize(3)
-        assertThat(savedSubmission["Exp"]).isEqualTo("1")
-        assertThat(savedSubmission["Type"]).isEqualTo("Exp")
-        assertThat(savedSubmission["Title"]).isEqualTo("Test Submission")
-    }
+    @Test
+    fun `9-4 direct submission with overriden attributes`() =
+        runTest {
+            val submission =
+                tempFolder.createFile(
+                    "submission.tsv",
+                    tsv {
+                        line("Submission", "S-TEST6")
+                        line("Title", "Test Submission")
+                        line("Type", "Test")
+                        line()
+
+                        line("Study", "SECT-001")
+                        line("Title", "Root Section")
+                        line()
+                    }.toString(),
+                )
+
+            val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
+            val response =
+                webClient.submitSingle(
+                    submission = submission,
+                    filesConfig = filesConfig,
+                    attrs = hashMapOf(("Type" to "Exp"), ("Exp" to "1")),
+                )
+            assertThat(response).isSuccessful()
+            submission.delete()
+
+            val savedSubmission = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("S-TEST6"))
+            assertThat(savedSubmission.attributes).hasSize(3)
+            assertThat(savedSubmission["Exp"]).isEqualTo("1")
+            assertThat(savedSubmission["Type"]).isEqualTo("Exp")
+            assertThat(savedSubmission["Title"]).isEqualTo("Test Submission")
+        }
 
     @Test
     fun `9-5 invalid format file`() {
@@ -259,7 +283,10 @@ class MultipartFileSubmissionApiTest(
             .withMessageContaining("Unsupported page tab format submission.txt")
     }
 
-    private suspend fun assertSubmissionFiles(accNo: String, testFile: String) {
+    private suspend fun assertSubmissionFiles(
+        accNo: String,
+        testFile: String,
+    ) {
         val createdSub = submissionRepository.getExtByAccNo(accNo)
         val subFolder = "$submissionPath/${createdSub.relPath}"
 
@@ -284,7 +311,11 @@ class MultipartFileSubmissionApiTest(
         assertThat(Paths.get("$subFolder/${createdSub.accNo}.tsv")).exists()
     }
 
-    private fun assertFireSubFiles(submission: ExtSubmission, accNo: String, subFolder: String) {
+    private fun assertFireSubFiles(
+        submission: ExtSubmission,
+        accNo: String,
+        subFolder: String,
+    ) {
         val submissionTabFiles = submission.pageTabFiles
         assertThat(submissionTabFiles).hasSize(2)
 
@@ -305,7 +336,10 @@ class MultipartFileSubmissionApiTest(
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
 
-    private fun assertFireFileListFiles(submission: ExtSubmission, subFolder: String) {
+    private fun assertFireFileListFiles(
+        submission: ExtSubmission,
+        subFolder: String,
+    ) {
         val fileListTabFiles = submission.section.fileList!!.pageTabFiles
         assertThat(fileListTabFiles).hasSize(2)
 
@@ -326,7 +360,10 @@ class MultipartFileSubmissionApiTest(
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
 
-    private fun submissionNfsTabFiles(accNo: String, subFolder: String): List<NfsFile> {
+    private fun submissionNfsTabFiles(
+        accNo: String,
+        subFolder: String,
+    ): List<NfsFile> {
         val jsonPath = "$subFolder/$accNo.json"
         val tsvPath = "$subFolder/$accNo.tsv"
 

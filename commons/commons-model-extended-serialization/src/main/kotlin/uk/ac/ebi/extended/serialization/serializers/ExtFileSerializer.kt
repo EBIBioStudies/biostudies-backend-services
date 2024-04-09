@@ -21,7 +21,11 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.FILE_TY
 import uk.ac.ebi.extended.serialization.constants.ExtType
 
 class ExtFileSerializer : JsonSerializer<ExtFile>() {
-    override fun serialize(file: ExtFile, gen: JsonGenerator, serializers: SerializerProvider) {
+    override fun serialize(
+        file: ExtFile,
+        gen: JsonGenerator,
+        serializers: SerializerProvider,
+    ) {
         when (file) {
             is NfsFile -> gen.serializeNfsFile(file)
             is FireFile -> gen.serializeFireFile(file)

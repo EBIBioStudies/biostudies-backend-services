@@ -7,7 +7,10 @@ class FireS3Service(
     private val s3Bucket: String,
     private val amazonS3: AmazonS3,
 ) {
-    fun upload(file: File, path: String) {
+    fun upload(
+        file: File,
+        path: String,
+    ) {
         amazonS3.putObject(s3Bucket, path, file)
     }
 

@@ -14,9 +14,10 @@ internal fun multipartBody(
     submission: Any,
 ): LinkedMultiValueMap<String, Any> {
     val (files, storageMode, sources) = filesConfig
-    val pairs = files.map { FILES to FileSystemResource(it) }
-        .plus(sources.map { PREFERRED_SOURCES to it.name })
-        .plus(STORAGE_MODE to storageMode.value)
-        .plus(SUBMISSION to submission)
+    val pairs =
+        files.map { FILES to FileSystemResource(it) }
+            .plus(sources.map { PREFERRED_SOURCES to it.name })
+            .plus(STORAGE_MODE to storageMode.value)
+            .plus(SUBMISSION to submission)
     return linkedMultiValueMapOf(pairs)
 }

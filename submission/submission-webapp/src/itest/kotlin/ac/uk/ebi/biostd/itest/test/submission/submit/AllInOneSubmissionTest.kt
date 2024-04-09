@@ -39,37 +39,46 @@ class AllInOneSubmissionTest(
     private lateinit var allInOneSubmissionHelper: AllInOneSubmissionHelper
 
     @BeforeAll
-    fun init() = runBlocking {
-        securityTestService.ensureUserRegistration(SuperUser)
-        webClient = getWebClient(serverPort, SuperUser)
-        allInOneSubmissionHelper = AllInOneSubmissionHelper(submissionPath, subRepository, toSubmissionMapper)
-    }
+    fun init() =
+        runBlocking {
+            securityTestService.ensureUserRegistration(SuperUser)
+            webClient = getWebClient(serverPort, SuperUser)
+            allInOneSubmissionHelper = AllInOneSubmissionHelper(submissionPath, subRepository, toSubmissionMapper)
+        }
 
     @Test
-    fun `2-1 submit all in one TSV submission`() = runTest {
-        val (submission, fileList, files, subFileList) = submissionSpecTsv(tempFolder, "S-EPMC124")
-        webClient.uploadFile(fileList)
-        subFileList?.let { webClient.uploadFile(it.file, it.folder) }
-        files.forEach { webClient.uploadFile(it.file, it.folder) }
+    fun `2-1 submit all in one TSV submission`() =
+        runTest {
+            val (submission, fileList, files, subFileList) = submissionSpecTsv(tempFolder, "S-EPMC124")
+            webClient.uploadFile(fileList)
+            subFileList?.let { webClient.uploadFile(it.file, it.folder) }
+            files.forEach { webClient.uploadFile(it.file, it.folder) }
 
-        webClient.submitSingle(submission.readText(), TSV)
+            webClient.submitSingle(submission.readText(), TSV)
 
-        allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
-        if (enableFire) allInOneSubmissionHelper.assertFirePagetabFiles("S-EPMC124")
-        else allInOneSubmissionHelper.assertNfsPagetabFiles("S-EPMC124")
-    }
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC124")
+            if (enableFire) {
+                allInOneSubmissionHelper.assertFirePagetabFiles("S-EPMC124")
+            } else {
+                allInOneSubmissionHelper.assertNfsPagetabFiles("S-EPMC124")
+            }
+        }
 
     @Test
-    fun `2-2 submit all in one JSON submission`() = runTest {
-        val (submission, fileList, files, subFileList) = submissionSpecJson(tempFolder, "S-EPMC125")
-        webClient.uploadFile(fileList)
-        subFileList?.let { webClient.uploadFile(it.file, it.folder) }
-        files.forEach { webClient.uploadFile(it.file, it.folder) }
+    fun `2-2 submit all in one JSON submission`() =
+        runTest {
+            val (submission, fileList, files, subFileList) = submissionSpecJson(tempFolder, "S-EPMC125")
+            webClient.uploadFile(fileList)
+            subFileList?.let { webClient.uploadFile(it.file, it.folder) }
+            files.forEach { webClient.uploadFile(it.file, it.folder) }
 
-        webClient.submitSingle(submission.readText(), JSON)
+            webClient.submitSingle(submission.readText(), JSON)
 
-        allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
-        if (enableFire) allInOneSubmissionHelper.assertFirePagetabFiles("S-EPMC125")
-        else allInOneSubmissionHelper.assertNfsPagetabFiles("S-EPMC125")
-    }
+            allInOneSubmissionHelper.assertSavedSubmission("S-EPMC125")
+            if (enableFire) {
+                allInOneSubmissionHelper.assertFirePagetabFiles("S-EPMC125")
+            } else {
+                allInOneSubmissionHelper.assertNfsPagetabFiles("S-EPMC125")
+            }
+        }
 }

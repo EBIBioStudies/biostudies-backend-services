@@ -29,19 +29,19 @@ class JsonSerializerTest(
     }
 
     @Test
-    fun `serialize - deserialize FileList`() = runTest {
-        val jsonSerializer = JsonSerializer()
-        val fileSystem = temporaryFolder.createFile("serialization.json")
-        val files = (1..20_000).map { BioFile("folder$it/file.txt", size = 0L, attributes = attributes(it)) }
-        val iterator = files.iterator()
+    fun `serialize - deserialize FileList`() =
+        runTest {
+            val jsonSerializer = JsonSerializer()
+            val fileSystem = temporaryFolder.createFile("serialization.json")
+            val files = (1..20_000).map { BioFile("folder$it/file.txt", size = 0L, attributes = attributes(it)) }
+            val iterator = files.iterator()
 
-        fileSystem.outputStream().use { jsonSerializer.serializeFileList(files.asSequence(), it) }
-        val response = fileSystem.inputStream().use { jsonSerializer.deserializeFileList(it).toList() }
+            fileSystem.outputStream().use { jsonSerializer.serializeFileList(files.asSequence(), it) }
+            val response = fileSystem.inputStream().use { jsonSerializer.deserializeFileList(it).toList() }
 
-        assertThat(response).allSatisfy { assertThat(it).isEqualToComparingFieldByField(iterator.next()) }
-        assertThat(response).hasSize(20_000)
-    }
+            assertThat(response).allSatisfy { assertThat(it).isEqualToComparingFieldByField(iterator.next()) }
+            assertThat(response).hasSize(20_000)
+        }
 
-    private fun attributes(numberFile: Int) =
-        (1..3).map { Attribute(name = "name$it-file$numberFile", value = "value$it-file$numberFile") }
+    private fun attributes(numberFile: Int) = (1..3).map { Attribute(name = "name$it-file$numberFile", value = "value$it-file$numberFile") }
 }

@@ -23,11 +23,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-
 internal class FileConverterTest(
     @MockK val document: Document,
     @MockK val docAttribute: DocAttribute,
-    @MockK val attributeConverter: AttributeConverter
+    @MockK val attributeConverter: AttributeConverter,
 ) {
     private val testInstance = FileConverter(attributeConverter)
 
@@ -43,7 +42,7 @@ internal class FileConverterTest(
                 attributes = listOf(docAttribute),
                 md5 = FILE_DOC_MD5,
                 fileSize = 10L,
-                fileType = "file"
+                fileType = "file",
             )
         val result = testInstance.convert(file)
 
@@ -60,16 +59,17 @@ internal class FileConverterTest(
     @Test
     fun `converter from fire doc file`() {
         every { attributeConverter.convert(docAttribute) } returns document
-        val file = FireDocFile(
-            fileName = FILE_DOC_FILENAME,
-            filePath = FILE_DOC_FILEPATH,
-            relPath = FILE_DOC_REL_PATH,
-            fireId = FIRE_FILE_DOC_ID,
-            attributes = listOf(docAttribute),
-            md5 = FILE_DOC_MD5,
-            fileSize = 10L,
-            fileType = FILE.value
-        )
+        val file =
+            FireDocFile(
+                fileName = FILE_DOC_FILENAME,
+                filePath = FILE_DOC_FILEPATH,
+                relPath = FILE_DOC_REL_PATH,
+                fireId = FIRE_FILE_DOC_ID,
+                attributes = listOf(docAttribute),
+                md5 = FILE_DOC_MD5,
+                fileSize = 10L,
+                fileType = FILE.value,
+            )
 
         val result = testInstance.convert(file)
 
@@ -86,16 +86,17 @@ internal class FileConverterTest(
     @Test
     fun `converter from fire doc directory`() {
         every { attributeConverter.convert(docAttribute) } returns document
-        val file = FireDocFile(
-            fileName = "fire-directory",
-            filePath = FILE_DOC_FILEPATH,
-            relPath = FILE_DOC_REL_PATH,
-            fireId = "dirFireId",
-            attributes = listOf(docAttribute),
-            md5 = FILE_DOC_MD5,
-            fileSize = 10L,
-            fileType = DIR.value
-        )
+        val file =
+            FireDocFile(
+                fileName = "fire-directory",
+                filePath = FILE_DOC_FILEPATH,
+                relPath = FILE_DOC_REL_PATH,
+                fireId = "dirFireId",
+                attributes = listOf(docAttribute),
+                md5 = FILE_DOC_MD5,
+                fileSize = 10L,
+                fileType = DIR.value,
+            )
 
         val result = testInstance.convert(file)
 

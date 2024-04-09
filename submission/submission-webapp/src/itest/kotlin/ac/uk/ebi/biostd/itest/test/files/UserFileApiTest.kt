@@ -35,10 +35,11 @@ class UserFileApiTest(
     @LocalServerPort val serverPort: Int,
 ) {
     @BeforeAll
-    fun init() = runTest {
-        securityTestService.ensureUserRegistration(FilesUser)
-        securityTestService.ensureUserRegistration(FilesFtpUser)
-    }
+    fun init() =
+        runTest {
+            securityTestService.ensureUserRegistration(FilesUser)
+            securityTestService.ensureUserRegistration(FilesFtpUser)
+        }
 
     @ParameterizedTest(name = "17-1 upload download delete file and retrieve in {0} root folder")
     @MethodSource("webClients")
@@ -87,7 +88,12 @@ class UserFileApiTest(
         webClient.deleteFile(testPath)
     }
 
-    private fun assertFile(resultFile: UserFile, downloadFile: File, file: File, relativePath: String) {
+    private fun assertFile(
+        resultFile: UserFile,
+        downloadFile: File,
+        file: File,
+        relativePath: String,
+    ) {
         assertThat(resultFile.name).isEqualTo(file.name)
         assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
         assertThat(resultFile.size).isEqualTo(file.length())

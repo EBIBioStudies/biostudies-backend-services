@@ -17,7 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class DocFileListDocFileConverterTest(
     @MockK val documentFile: Document,
     @MockK val docFile: DocFile,
-    @MockK val docFileConverter: DocFileConverter
+    @MockK val docFileConverter: DocFileConverter,
 ) {
     val testInstance = DocFileListDocFileConverter(docFileConverter)
 
@@ -36,15 +36,15 @@ class DocFileListDocFileConverterTest(
         assertThat(result.submissionVersion).isEqualTo(2)
     }
 
-    private fun createFileListDocFile() = Document().apply {
-
-        this[CommonsConverter.classField] = fileListDocFileDocFileClass
-        this[FileListDocFileFields.FILE_LIST_DOC_FILE_ID] = ObjectId(1, 1)
-        this[FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID] = ObjectId(1, 2)
-        this[FileListDocFileFields.FILE_LIST_DOC_FILE_FILE] = documentFile
-        this[FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME] = "fileList.txt"
-        this[FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX] = 1
-        this[FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO] = "TEST_123"
-        this[FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION] = 2
-    }
+    private fun createFileListDocFile() =
+        Document().apply {
+            this[CommonsConverter.CLASS_FIELD] = fileListDocFileDocFileClass
+            this[FileListDocFileFields.FILE_LIST_DOC_FILE_ID] = ObjectId(1, 1)
+            this[FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ID] = ObjectId(1, 2)
+            this[FileListDocFileFields.FILE_LIST_DOC_FILE_FILE] = documentFile
+            this[FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME] = "fileList.txt"
+            this[FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX] = 1
+            this[FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO] = "TEST_123"
+            this[FileListDocFileFields.FILE_LIST_DOC_FILE_SUBMISSION_VERSION] = 2
+        }
 }

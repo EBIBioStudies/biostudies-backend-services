@@ -34,7 +34,11 @@ import java.nio.charset.StandardCharsets.UTF_8
 const val STATS_URL = "stats/submission"
 
 class ExtSubmissionSerializer : JsonSerializer<ExtSubmission>() {
-    override fun serialize(submission: ExtSubmission, gen: JsonGenerator, serializers: SerializerProvider) {
+    override fun serialize(
+        submission: ExtSubmission,
+        gen: JsonGenerator,
+        serializers: SerializerProvider,
+    ) {
         ExtSectionSerializer.parentAccNo = submission.accNo
 
         gen.writeStartObject()

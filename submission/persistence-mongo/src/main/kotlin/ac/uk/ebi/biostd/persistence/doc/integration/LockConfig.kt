@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 @Configuration
 @Import(MongoDbReactiveConfig::class)
 class LockConfig {
-
     @Bean
     internal fun distributedLockExecutor(mongoTemplate: ReactiveMongoTemplate): DistributedLockExecutor {
         return DistributedLockExecutor(mongoTemplate)

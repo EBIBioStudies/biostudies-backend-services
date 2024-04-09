@@ -9,15 +9,21 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExcelDslTest(
-    private val tempFolder: TemporaryFolder
+    private val tempFolder: TemporaryFolder,
 ) {
     @Test
     fun createExcel() {
         val excelFile = tempFolder.createFile("excelFile.xlsx")
         excel(excelFile) {
             sheet("sheet") {
-                row { cell("row 0 cell 0"); cell("row 0 cell 1") }
-                row { cell("row 1 cell 0"); cell("row 1 cell 1") }
+                row {
+                    cell("row 0 cell 0")
+                    cell("row 0 cell 1")
+                }
+                row {
+                    cell("row 1 cell 0")
+                    cell("row 1 cell 1")
+                }
             }
         }
 

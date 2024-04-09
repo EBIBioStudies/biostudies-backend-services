@@ -65,7 +65,9 @@ class PageTabFileReaderTest(
     }
 
     @Test
-    fun `get file list file`(@MockK filesSource: FilesSource) = runTest {
+    fun `get file list file`(
+        @MockK filesSource: FilesSource,
+    ) = runTest {
         val filesSourceList = FileSourcesList(true, listOf(filesSource))
         val fileList = tempFolder.createFile("file-list.tsv")
 
@@ -75,7 +77,9 @@ class PageTabFileReaderTest(
     }
 
     @Test
-    fun `get xlsx file list file`(@MockK filesSource: FilesSource) = runTest {
+    fun `get xlsx file list file`(
+        @MockK filesSource: FilesSource,
+    ) = runTest {
         val filesSourceList = FileSourcesList(true, listOf(filesSource))
         val fileList = tempFolder.createFile("file-list.xlsx")
         val tsvFileList = tempFolder.createFile("converted-file-list.tsv")
@@ -87,7 +91,9 @@ class PageTabFileReaderTest(
     }
 
     @Test
-    fun `get directory list file`(@MockK filesSource: FilesSource) = runTest {
+    fun `get directory list file`(
+        @MockK filesSource: FilesSource,
+    ) = runTest {
         val filesSourceList = FileSourcesList(true, listOf(filesSource))
         val fileList = tempFolder.createDirectory("file-list")
 

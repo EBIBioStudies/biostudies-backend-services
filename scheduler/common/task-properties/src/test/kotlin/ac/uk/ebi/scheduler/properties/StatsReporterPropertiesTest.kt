@@ -16,11 +16,12 @@ class StatsReporterPropertiesTest {
 
     @Test
     fun `stats reporter properties test`() {
-        val properties = StatsReporterProperties.create(
-            databaseName = "dev",
-            databaseUri = "mongodb://root:admin@localhost:27017/dev?authSource=admin\\&replicaSet=biostd01",
-            publishPath = "/stats/publish",
-        )
+        val properties =
+            StatsReporterProperties.create(
+                databaseName = "dev",
+                databaseUri = "mongodb://root:admin@localhost:27017/dev?authSource=admin\\&replicaSet=biostd01",
+                publishPath = "/stats/publish",
+            )
 
         assertThat(properties.asCmd("/apps-folder", 8569)).isEqualTo(
             """
@@ -29,7 +30,7 @@ class StatsReporterPropertiesTest {
             --spring.data.mongodb.uri=mongodb://root:admin@localhost:27017/dev?authSource=admin\&replicaSet=biostd01 \
             --spring.data.mongodb.database=dev \
             --app.publishPath=/stats/publish"
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 }

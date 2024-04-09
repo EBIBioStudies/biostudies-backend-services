@@ -18,54 +18,60 @@ class SecurityNotificationService(
 ) {
     fun sendActivationNotification(notification: SecurityNotification) {
         val templateContent = templateLoader.loadTemplate("security/activation.html")
-        val userActivationModel = UserActivationModel(
-            mailto = FROM,
-            activationLink = notification.activationLink,
-            username = notification.username,
-            activationCode = notification.activationCode
-        )
-        val email = Email(
-            from = EMAIL_FROM,
-            to = notification.email,
-            bcc = properties.bccEmail,
-            subject = "BioStudies Account Activation",
-            content = UserActivationTemplate(templateContent).render(userActivationModel)
-        )
+        val userActivationModel =
+            UserActivationModel(
+                mailto = FROM,
+                activationLink = notification.activationLink,
+                username = notification.username,
+                activationCode = notification.activationCode,
+            )
+        val email =
+            Email(
+                from = EMAIL_FROM,
+                to = notification.email,
+                bcc = properties.bccEmail,
+                subject = "BioStudies Account Activation",
+                content = UserActivationTemplate(templateContent).render(userActivationModel),
+            )
         simpleEmailService.send(email)
     }
 
     fun sendActivationByEmailNotification(notification: SecurityNotification) {
         val templateContent = templateLoader.loadTemplate("security/activation-by-email.html")
-        val userActivationModel = UserActivationModel(
-            mailto = FROM,
-            activationLink = notification.activationLink,
-            username = notification.username,
-            activationCode = notification.activationCode
-        )
-        val email = Email(
-            from = EMAIL_FROM,
-            to = notification.email,
-            bcc = properties.bccEmail,
-            subject = "BioStudies Account Password Setup",
-            content = UserActivationTemplate(templateContent).render(userActivationModel)
-        )
+        val userActivationModel =
+            UserActivationModel(
+                mailto = FROM,
+                activationLink = notification.activationLink,
+                username = notification.username,
+                activationCode = notification.activationCode,
+            )
+        val email =
+            Email(
+                from = EMAIL_FROM,
+                to = notification.email,
+                bcc = properties.bccEmail,
+                subject = "BioStudies Account Password Setup",
+                content = UserActivationTemplate(templateContent).render(userActivationModel),
+            )
         simpleEmailService.send(email)
     }
 
     fun sendPasswordResetNotification(notification: SecurityNotification) {
         val templateContent = templateLoader.loadTemplate("security/reset-password.html")
-        val passwordResetModel = PasswordResetModel(
-            mailto = FROM,
-            activationLink = notification.activationLink,
-            username = notification.username
-        )
-        val email = Email(
-            from = EMAIL_FROM,
-            to = notification.email,
-            bcc = properties.bccEmail,
-            subject = "BioStudies Account Password Reset",
-            content = PasswordResetTemplate(templateContent).render(passwordResetModel)
-        )
+        val passwordResetModel =
+            PasswordResetModel(
+                mailto = FROM,
+                activationLink = notification.activationLink,
+                username = notification.username,
+            )
+        val email =
+            Email(
+                from = EMAIL_FROM,
+                to = notification.email,
+                bcc = properties.bccEmail,
+                subject = "BioStudies Account Password Reset",
+                content = PasswordResetTemplate(templateContent).render(passwordResetModel),
+            )
 
         simpleEmailService.send(email)
     }

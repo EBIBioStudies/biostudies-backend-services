@@ -20,26 +20,24 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 @Suppress("TooManyFunctions", "LongParameterList")
 open class SqlPersistenceConfig {
     @Bean
-    internal open fun lockExecutor(
-        namedParameterJdbcTemplate: NamedParameterJdbcTemplate
-    ): LockExecutor = JdbcLockExecutor(namedParameterJdbcTemplate)
+    internal open fun lockExecutor(namedParameterJdbcTemplate: NamedParameterJdbcTemplate): LockExecutor =
+        JdbcLockExecutor(namedParameterJdbcTemplate)
 
     @Bean
     internal open fun sqlPersistenceService(
         sequenceRepository: SequenceDataRepository,
         accessTagsDataRepository: AccessTagDataRepo,
         lockExecutor: LockExecutor,
-        submissionPersistenceQueryService: SubmissionPersistenceQueryService
+        submissionPersistenceQueryService: SubmissionPersistenceQueryService,
     ): PersistenceService =
         SqlPersistenceService(
             sequenceRepository,
             accessTagsDataRepository,
             lockExecutor,
-            submissionPersistenceQueryService
+            submissionPersistenceQueryService,
         )
 
     @Bean
-    internal open fun userPermissionsService(
-        permissionRepo: AccessPermissionRepository
-    ): UserPermissionsService = UserSqlPermissionsService(permissionRepo)
+    internal open fun userPermissionsService(permissionRepo: AccessPermissionRepository): UserPermissionsService =
+        UserSqlPermissionsService(permissionRepo)
 }

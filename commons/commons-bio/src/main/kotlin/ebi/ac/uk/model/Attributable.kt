@@ -9,7 +9,10 @@ interface Attributable {
 
     fun find(attr: Any): String? = attributes.find { it.name == attr.toString() }?.value
 
-    operator fun set(attr: Any, value: String?) {
+    operator fun set(
+        attr: Any,
+        value: String?,
+    ) {
         when (val attribute = attributes.find { it.name == attr.toString() }) {
             null -> attributes = attributes + Attribute(attr.toString(), value)
             else -> attribute.value = value
@@ -17,9 +20,10 @@ interface Attributable {
     }
 
     fun addAttribute(attr: Attribute) {
-        attributes = when (val index = attributes.indexOf { it.name == attr.name }) {
-            null -> attributes + attr
-            else -> attributes.toMutableList().apply { set(index, attr) }
-        }
+        attributes =
+            when (val index = attributes.indexOf { it.name == attr.name }) {
+                null -> attributes + attr
+                else -> attributes.toMutableList().apply { set(index, attr) }
+            }
     }
 }

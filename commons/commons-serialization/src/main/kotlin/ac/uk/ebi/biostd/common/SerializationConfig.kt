@@ -14,7 +14,7 @@ object SerializationConfig {
 
         return PageTabSerializationService(
             pageTabSerializer,
-            FileListSerializer(pageTabSerializer)
+            FileListSerializer(pageTabSerializer),
         )
     }
 }

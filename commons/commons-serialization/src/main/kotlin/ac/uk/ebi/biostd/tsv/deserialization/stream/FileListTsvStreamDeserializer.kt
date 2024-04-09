@@ -25,13 +25,14 @@ import java.io.InputStream
 import java.io.OutputStream
 
 internal class FileListTsvStreamDeserializer {
-    suspend fun serializeFileList(files: Flow<BioFile>, fileList: OutputStream) {
+    suspend fun serializeFileList(
+        files: Flow<BioFile>,
+        fileList: OutputStream,
+    ) {
         fileList.bufferedWriter().use { it.writeFiles(files) }
     }
 
-    private suspend fun BufferedWriter.writeFiles(
-        files: Flow<BioFile>,
-    ) {
+    private suspend fun BufferedWriter.writeFiles(files: Flow<BioFile>) {
         files
             .collectIndexed { index, file ->
                 if (index == 0) writeHeaders(file)
@@ -39,17 +40,19 @@ internal class FileListTsvStreamDeserializer {
             }
     }
 
-    private suspend fun BufferedWriter.writeHeaders(file: BioFile) = withContext(Dispatchers.IO) {
-        val attrsNames = file.attributes.map { it.name }
-        write("Files".plus(TAB).plus(attrsNames.joinToString(TAB.toString())))
-        newLine()
-    }
+    private suspend fun BufferedWriter.writeHeaders(file: BioFile) =
+        withContext(Dispatchers.IO) {
+            val attrsNames = file.attributes.map { it.name }
+            write("Files".plus(TAB).plus(attrsNames.joinToString(TAB.toString())))
+            newLine()
+        }
 
-    private suspend fun BufferedWriter.writeAttributesValues(file: BioFile) = withContext(Dispatchers.IO) {
-        val attrsValues = file.attributes.map { it.value }
-        write(file.path.plus(TAB).plus(attrsValues.joinToString(TAB.toString())))
-        newLine()
-    }
+    private suspend fun BufferedWriter.writeAttributesValues(file: BioFile) =
+        withContext(Dispatchers.IO) {
+            val attrsValues = file.attributes.map { it.value }
+            write(file.path.plus(TAB).plus(attrsValues.joinToString(TAB.toString())))
+            newLine()
+        }
 
     fun deserializeFileList(fileList: InputStream): Flow<BioFile> {
         val reader = fileList.bufferedReader()
@@ -74,7 +77,11 @@ internal class FileListTsvStreamDeserializer {
         }.flowOn(Dispatchers.IO)
     }
 
-    private fun deserializeRow(index: Int, row: List<String>, headers: List<String>): BioFile {
+    private fun deserializeRow(
+        index: Int,
+        row: List<String>,
+        headers: List<String>,
+    ): BioFile {
         val (fileName, attributes) = row.destructure()
         require(fileName.isNotBlank()) {
             throw InvalidElementException("Error at row ${index + 1}: $REQUIRED_FILE_PATH")
@@ -83,7 +90,11 @@ internal class FileListTsvStreamDeserializer {
         return BioFile(fileName, attributes = buildAttributes(attributes, headers, index))
     }
 
-    private fun buildAttributes(fields: List<String>, headers: List<String>, idx: Int): List<Attribute> {
+    private fun buildAttributes(
+        fields: List<String>,
+        headers: List<String>,
+        idx: Int,
+    ): List<Attribute> {
         require(fields.size == headers.size) {
             throw InvalidElementException("Error at row ${idx + 1}: $INVALID_TABLE_ROW")
         }

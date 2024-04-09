@@ -45,7 +45,7 @@ class SubmissionNotificationsListenerTest(
             webConsumer,
             notificationsSender,
             rtNotificationService,
-            notificationProperties
+            notificationProperties,
         )
 
     @BeforeEach
@@ -134,16 +134,17 @@ class SubmissionNotificationsListenerTest(
     }
 
     @Test
-    fun `notify failed submission`() = runTest {
-        val notificationSlot = slot<SystemNotification>()
-        val message = FailedRequestMessage("S-BSST1", 1)
+    fun `notify failed submission`() =
+        runTest {
+            val notificationSlot = slot<SystemNotification>()
+            val message = FailedRequestMessage("S-BSST1", 1)
 
-        coEvery { notificationsSender.send(capture(notificationSlot)) } answers { nothing }
+            coEvery { notificationsSender.send(capture(notificationSlot)) } answers { nothing }
 
-        testInstance.receiveFailedSubmissionMessage(message)
+            testInstance.receiveFailedSubmissionMessage(message)
 
-        coVerify(exactly = 1) { notificationsSender.send(notificationSlot.captured) }
-    }
+            coVerify(exactly = 1) { notificationsSender.send(notificationSlot.captured) }
+        }
 
     @Test
     fun `notification failed`() {

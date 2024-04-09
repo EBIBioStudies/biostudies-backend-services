@@ -15,7 +15,7 @@ import org.springframework.core.convert.converter.Converter
 class FileListDocFileConverter(private val fileConverter: FileConverter) : Converter<FileListDocFile, Document> {
     override fun convert(fileListDocFile: FileListDocFile): Document {
         val fileListDocFileDoc = Document()
-        fileListDocFileDoc[CommonsConverter.classField] = fileListDocFileDocFileClass
+        fileListDocFileDoc[CommonsConverter.CLASS_FIELD] = fileListDocFileDocFileClass
         fileListDocFileDoc[FILE_LIST_DOC_FILE_ID] = fileListDocFile.id
         fileListDocFileDoc[FILE_LIST_DOC_FILE_INDEX] = fileListDocFile.index
         fileListDocFileDoc[FILE_LIST_DOC_FILE_FILE_LIST_NAME] = fileListDocFile.fileListName

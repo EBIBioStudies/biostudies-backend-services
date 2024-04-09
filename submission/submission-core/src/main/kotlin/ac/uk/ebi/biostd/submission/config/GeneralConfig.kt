@@ -37,9 +37,7 @@ internal class GeneralConfig {
     fun fileSourcesService(builder: FilesSourceListBuilder): FileSourcesService = FileSourcesService(builder)
 
     @Bean
-    fun extFilesResolver(
-        properties: ApplicationProperties,
-    ): FilesResolver = FilesResolver(File(properties.persistence.requestFilesPath))
+    fun extFilesResolver(properties: ApplicationProperties): FilesResolver = FilesResolver(File(properties.persistence.requestFilesPath))
 
     @Bean
     fun filesSourceConfig(
@@ -47,13 +45,14 @@ internal class GeneralConfig {
         ftpClient: FtpClient,
         applicationProperties: ApplicationProperties,
         filesRepo: SubmissionFilesPersistenceService,
-    ): FilesSourceConfig = FilesSourceConfig(
-        submissionPath = Paths.get(applicationProperties.persistence.privateSubmissionsPath),
-        fireClient = fireClient,
-        filesRepository = filesRepo,
-        ftpClient = ftpClient,
-        checkFilesPath = applicationProperties.checkFilesPath
-    )
+    ): FilesSourceConfig =
+        FilesSourceConfig(
+            submissionPath = Paths.get(applicationProperties.persistence.privateSubmissionsPath),
+            fireClient = fireClient,
+            filesRepository = filesRepo,
+            ftpClient = ftpClient,
+            checkFilesPath = applicationProperties.checkFilesPath,
+        )
 
     @Bean
     fun fireClient(properties: ApplicationProperties): FireClient {
@@ -64,33 +63,32 @@ internal class GeneralConfig {
                 fireHost = fireProps.host,
                 fireVersion = fireProps.version,
                 username = fireProps.username,
-                password = properties.fire.password
+                password = properties.fire.password,
             ),
             S3Config(
                 accessKey = fireProps.s3.accessKey,
                 secretKey = fireProps.s3.secretKey,
                 region = fireProps.s3.region,
                 endpoint = fireProps.s3.endpoint,
-                bucket = fireProps.s3.bucket
+                bucket = fireProps.s3.bucket,
             ),
             RetryConfig(
                 maxAttempts = retryProps.maxAttempts,
                 initialInterval = retryProps.initialInterval,
                 multiplier = retryProps.multiplier,
                 maxInterval = retryProps.maxInterval.minutes.inWholeMilliseconds,
-            )
+            ),
         )
     }
 
     @Bean
     @ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "true")
-    fun clusterClient(
-        properties: ApplicationProperties,
-    ): ClusterClient = RemoteClusterClient.create(
-        properties.cluster.key,
-        properties.cluster.server,
-        properties.cluster.logsPath,
-    )
+    fun clusterClient(properties: ApplicationProperties): ClusterClient =
+        RemoteClusterClient.create(
+            properties.cluster.key,
+            properties.cluster.server,
+            properties.cluster.logsPath,
+        )
 
     @Bean
     @ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "false")

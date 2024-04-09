@@ -17,7 +17,11 @@ private const val AUTHORIZATION_ERROR = "Problems authorizing user."
  *
  */
 class SecurityAuthEntryPoint(private val mapper: ObjectMapper) : AuthenticationEntryPoint {
-    override fun commence(request: HttpServletRequest, response: HttpServletResponse, excep: AuthenticationException) {
+    override fun commence(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        excep: AuthenticationException,
+    ) {
         response.write(UNAUTHORIZED) { mapper.writeValue(it, SecurityError(excep.message ?: AUTHORIZATION_ERROR)) }
     }
 }

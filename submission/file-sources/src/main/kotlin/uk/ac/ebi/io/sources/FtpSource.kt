@@ -24,7 +24,11 @@ class FtpSource(
     private val nfsPath: Path,
     private val ftpClient: FtpClient,
 ) : FilesSource {
-    override suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+    override suspend fun getExtFile(
+        path: String,
+        type: String,
+        attributes: List<Attribute>,
+    ): ExtFile? {
         val filePath = if (type == FileFields.DIRECTORY_TYPE.value) path.removeSuffix(".zip") else path
         return findFile(filePath)?.let {
             createFile(
@@ -32,7 +36,7 @@ class FtpSource(
                 file = nfsPath.resolve(filePath).toFile(),
                 size = it.size,
                 type = if (it.isDirectory) DIR else FILE,
-                attributes = attributes
+                attributes = attributes,
             )
         }
     }

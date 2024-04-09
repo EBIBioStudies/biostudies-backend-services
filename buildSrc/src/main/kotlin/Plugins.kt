@@ -1,12 +1,12 @@
 import PluginVersions.DetektVersion
 
 object PluginVersions {
-    const val DetektVersion = "1.23.0"
+    const val DetektVersion = "1.23.6"
     const val KotlinPluginVersion = Versions.KotlinVersion
-    const val KtLintVersion = "10.2.1"
+    const val KtLintVersion = "12.1.0"
     const val ShadowPluginVersion = "8.1.1"
     const val SshVersion = "2.10.1"
-    const val SpringBootPluginVersion = "2.7.1"
+    const val SpringBootPluginVersion = "2.7.18"
     const val SpringDependencyManagementPluginVersion = "1.0.12.RELEASE"
     const val GradleRetryVersion = "1.5.5"
 }
@@ -15,6 +15,8 @@ object Plugins {
     const val DetektFormattingPlugin = "io.gitlab.arturbosch.detekt:detekt-formatting:$DetektVersion"
     const val JacocoPlugin = "jacoco"
     const val KotlinPlugin = "org.jetbrains.kotlin.jvm"
+    const val DetektPlugin = "io.gitlab.arturbosch.detekt"
+    const val KLintPlugin = "org.jlleitschuh.gradle.ktlint"
     const val KotlinAllOpenPlugin = "org.jetbrains.kotlin.plugin.allopen"
     const val KotlinJpaPlugin = "org.jetbrains.kotlin.plugin.jpa"
     const val KotlinSpringPlugin = "org.jetbrains.kotlin.plugin.spring"

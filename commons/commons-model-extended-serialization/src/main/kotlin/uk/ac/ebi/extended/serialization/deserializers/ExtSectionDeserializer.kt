@@ -21,7 +21,10 @@ import uk.ac.ebi.serialization.extensions.findNode
 import uk.ac.ebi.serialization.extensions.getNode
 
 class ExtSectionDeserializer : JsonDeserializer<ExtSection>() {
-    override fun deserialize(jsonParser: JsonParser, ctxt: DeserializationContext): ExtSection {
+    override fun deserialize(
+        jsonParser: JsonParser,
+        ctxt: DeserializationContext,
+    ): ExtSection {
         val mapper = jsonParser.codec as ObjectMapper
         val node = mapper.readTree<JsonNode>(jsonParser)
         return ExtSection(

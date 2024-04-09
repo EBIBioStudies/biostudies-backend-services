@@ -25,33 +25,38 @@ class TableJsonDeserializerTest {
 
     @Test
     fun `deserialize table of links`() {
-        val expectedTable = LinksTable(
-            mutableListOf(
-                Link(url = "link url", attributes = mutableListOf(testAttribute)),
-                Link(url = "another url")
+        val expectedTable =
+            LinksTable(
+                mutableListOf(
+                    Link(url = "link url", attributes = mutableListOf(testAttribute)),
+                    Link(url = "another url"),
+                ),
             )
-        )
 
-        val json = jsonArray(
-            {
-                "url" to "link url"
-                "attributes" to jsonArray({
-                    "name" to ATTR_NAME
-                    "value" to ATTR_VAL
-                    "valqual" to jsonArray({
-                        "name" to VALUE_DETAIL_NAME
-                        "value" to VALUE_DETAIL_VALUE
-                    })
-                    "nmqual" to jsonArray({
-                        "name" to NAME_DETAIL_NAME
-                        "value" to NAME_DETAIL_VALUE
-                    })
-                })
-            },
-            {
-                "url" to "another url"
-            }
-        ).toString()
+        val json =
+            jsonArray(
+                {
+                    "url" to "link url"
+                    "attributes" to
+                        jsonArray({
+                            "name" to ATTR_NAME
+                            "value" to ATTR_VAL
+                            "valqual" to
+                                jsonArray({
+                                    "name" to VALUE_DETAIL_NAME
+                                    "value" to VALUE_DETAIL_VALUE
+                                })
+                            "nmqual" to
+                                jsonArray({
+                                    "name" to NAME_DETAIL_NAME
+                                    "value" to NAME_DETAIL_VALUE
+                                })
+                        })
+                },
+                {
+                    "url" to "another url"
+                },
+            ).toString()
 
         val table = JsonSerializer.mapper.readValue(json, LinksTable::class.java)
         assertThat(table.rows).isEqualTo(expectedTable.rows)
@@ -59,35 +64,40 @@ class TableJsonDeserializerTest {
 
     @Test
     fun `deserialize table of sections`() {
-        val expectedTable = SectionsTable(
-            mutableListOf(
-                Section(accNo = "abc123", type = "Study", attributes = mutableListOf(testAttribute)),
-                Section(accNo = "xyz123", type = "Study")
+        val expectedTable =
+            SectionsTable(
+                mutableListOf(
+                    Section(accNo = "abc123", type = "Study", attributes = mutableListOf(testAttribute)),
+                    Section(accNo = "xyz123", type = "Study"),
+                ),
             )
-        )
 
-        val json = jsonArray(
-            {
-                "accno" to "abc123"
-                "type" to "Study"
-                "attributes" to jsonArray({
-                    "name" to ATTR_NAME
-                    "value" to ATTR_VAL
-                    "valqual" to jsonArray({
-                        "name" to VALUE_DETAIL_NAME
-                        "value" to VALUE_DETAIL_VALUE
-                    })
-                    "nmqual" to jsonArray({
-                        "name" to NAME_DETAIL_NAME
-                        "value" to NAME_DETAIL_VALUE
-                    })
-                })
-            },
-            {
-                "accno" to "xyz123"
-                "type" to "Study"
-            }
-        ).toString()
+        val json =
+            jsonArray(
+                {
+                    "accno" to "abc123"
+                    "type" to "Study"
+                    "attributes" to
+                        jsonArray({
+                            "name" to ATTR_NAME
+                            "value" to ATTR_VAL
+                            "valqual" to
+                                jsonArray({
+                                    "name" to VALUE_DETAIL_NAME
+                                    "value" to VALUE_DETAIL_VALUE
+                                })
+                            "nmqual" to
+                                jsonArray({
+                                    "name" to NAME_DETAIL_NAME
+                                    "value" to NAME_DETAIL_VALUE
+                                })
+                        })
+                },
+                {
+                    "accno" to "xyz123"
+                    "type" to "Study"
+                },
+            ).toString()
 
         val table = JsonSerializer.mapper.readValue(json, SectionsTable::class.java)
         assertThat(table.rows).isEqualTo(expectedTable.rows)
@@ -95,41 +105,48 @@ class TableJsonDeserializerTest {
 
     @Test
     fun `deserialize table of files`() {
-        val expectedTable = FilesTable(
-            mutableListOf(
-                BioFile(path = "file1", attributes = mutableListOf(testAttribute)),
-                BioFile(path = "file2")
+        val expectedTable =
+            FilesTable(
+                mutableListOf(
+                    BioFile(path = "file1", attributes = mutableListOf(testAttribute)),
+                    BioFile(path = "file2"),
+                ),
             )
-        )
 
-        val json = jsonArray(
-            {
-                "path" to "file1"
-                "attributes" to jsonArray({
-                    "name" to ATTR_NAME
-                    "value" to ATTR_VAL
-                    "valqual" to jsonArray({
-                        "name" to VALUE_DETAIL_NAME
-                        "value" to VALUE_DETAIL_VALUE
-                    })
-                    "nmqual" to jsonArray({
-                        "name" to NAME_DETAIL_NAME
-                        "value" to NAME_DETAIL_VALUE
-                    })
-                })
-            },
-            {
-                "path" to "file2"
-            }
-        ).toString()
+        val json =
+            jsonArray(
+                {
+                    "path" to "file1"
+                    "attributes" to
+                        jsonArray({
+                            "name" to ATTR_NAME
+                            "value" to ATTR_VAL
+                            "valqual" to
+                                jsonArray({
+                                    "name" to VALUE_DETAIL_NAME
+                                    "value" to VALUE_DETAIL_VALUE
+                                })
+                            "nmqual" to
+                                jsonArray({
+                                    "name" to NAME_DETAIL_NAME
+                                    "value" to NAME_DETAIL_VALUE
+                                })
+                        })
+                },
+                {
+                    "path" to "file2"
+                },
+            ).toString()
 
         val table = JsonSerializer.mapper.readValue(json, FilesTable::class.java)
         assertThat(table.rows).isEqualTo(expectedTable.rows)
     }
 
-    private fun createTestAttribute() = Attribute(
-        ATTR_NAME, ATTR_VAL,
-        nameAttrs = mutableListOf(AttributeDetail(NAME_DETAIL_NAME, NAME_DETAIL_VALUE)),
-        valueAttrs = mutableListOf(AttributeDetail(VALUE_DETAIL_NAME, VALUE_DETAIL_VALUE))
-    )
+    private fun createTestAttribute() =
+        Attribute(
+            ATTR_NAME,
+            ATTR_VAL,
+            nameAttrs = mutableListOf(AttributeDetail(NAME_DETAIL_NAME, NAME_DETAIL_VALUE)),
+            valueAttrs = mutableListOf(AttributeDetail(VALUE_DETAIL_NAME, VALUE_DETAIL_VALUE)),
+        )
 }

@@ -48,7 +48,9 @@ class EventsPublisherServiceTest(
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun securityNotification(@MockK notification: SecurityNotification) {
+    fun securityNotification(
+        @MockK notification: SecurityNotification,
+    ) {
         every {
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SECURITY_NOTIFICATIONS_ROUTING_KEY, notification)
         } answers { nothing }
@@ -84,7 +86,9 @@ class EventsPublisherServiceTest(
     }
 
     @Test
-    fun submissionFailed(@MockK request: RequestMessage) {
+    fun submissionFailed(
+        @MockK request: RequestMessage,
+    ) {
         every {
             rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, SUBMISSIONS_FAILED_REQUEST_ROUTING_KEY, request)
         } answers { nothing }
@@ -99,46 +103,46 @@ class EventsPublisherServiceTest(
     @Test
     fun `request cleaned`() {
         val requestSlot = slot<RequestCleaned>()
-        every { notificationsProperties.requestRoutingKey } returns rKey
-        every { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, rKey, capture(requestSlot)) } answers { nothing }
+        every { notificationsProperties.requestRoutingKey } returns KEY
+        every { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, KEY, capture(requestSlot)) } answers { nothing }
 
         testInstance.requestCleaned("S-BSST0", 1)
 
         val request = requestSlot.captured
         assertThat(request.version).isEqualTo(1)
         assertThat(request.accNo).isEqualTo("S-BSST0")
-        verify(exactly = 1) { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, rKey, request) }
+        verify(exactly = 1) { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, KEY, request) }
     }
 
     @Test
     fun `request persisted`() {
         val requestSlot = slot<RequestPersisted>()
-        every { notificationsProperties.requestRoutingKey } returns rKey
-        every { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, rKey, capture(requestSlot)) } answers { nothing }
+        every { notificationsProperties.requestRoutingKey } returns KEY
+        every { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, KEY, capture(requestSlot)) } answers { nothing }
 
         testInstance.submissionPersisted("S-BSST0", 1)
 
         val request = requestSlot.captured
         assertThat(request.version).isEqualTo(1)
         assertThat(request.accNo).isEqualTo("S-BSST0")
-        verify(exactly = 1) { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, rKey, request) }
+        verify(exactly = 1) { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, KEY, request) }
     }
 
     @Test
     fun `request finalized`() {
         val requestSlot = slot<RequestFinalized>()
-        every { notificationsProperties.requestRoutingKey } returns rKey
-        every { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, rKey, capture(requestSlot)) } answers { nothing }
+        every { notificationsProperties.requestRoutingKey } returns KEY
+        every { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, KEY, capture(requestSlot)) } answers { nothing }
 
         testInstance.submissionFinalized("S-BSST0", 1)
 
         val request = requestSlot.captured
         assertThat(request.version).isEqualTo(1)
         assertThat(request.accNo).isEqualTo("S-BSST0")
-        verify(exactly = 1) { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, rKey, request) }
+        verify(exactly = 1) { rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, KEY, request) }
     }
 
     private companion object {
-        const val rKey = "key"
+        const val KEY = "key"
     }
 }

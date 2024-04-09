@@ -8,7 +8,11 @@ import ebi.ac.uk.model.Link
 internal const val LINK_KEY = "Link"
 internal const val FILE_KEY = "File"
 
-internal fun TsvBuilder.addSecDescriptor(type: String, accNo: String?, parentAccNo: String?) {
+internal fun TsvBuilder.addSecDescriptor(
+    type: String,
+    accNo: String?,
+    parentAccNo: String?,
+) {
     append(type)
 
     when {

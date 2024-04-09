@@ -76,10 +76,11 @@ class ExtSubmissionResource(
     suspend fun submitExtended(
         @BioUser user: SecurityUser,
         @RequestParam(SUBMISSION) extSubmission: String,
-    ): ExtSubmission = extSubmissionService.submitExt(
-        user.email,
-        extSerializationService.deserialize(extSubmission),
-    )
+    ): ExtSubmission =
+        extSubmissionService.submitExt(
+            user.email,
+            extSerializationService.deserialize(extSubmission),
+        )
 
     @PostMapping("/async")
     @PreAuthorize("isAuthenticated()")
@@ -92,6 +93,7 @@ class ExtSubmissionResource(
     )
 
     @GetMapping
-    suspend fun submissions(@ModelAttribute request: ExtPageRequest): WebExtPage =
-        extPageMapper.asExtPage(extSubmissionQueryService.getExtendedSubmissions(request), request)
+    suspend fun submissions(
+        @ModelAttribute request: ExtPageRequest,
+    ): WebExtPage = extPageMapper.asExtPage(extSubmissionQueryService.getExtendedSubmissions(request), request)
 }

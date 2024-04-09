@@ -42,73 +42,77 @@ class SecurityNotificationListenerTest(
     }
 
     @Test
-    fun `activation notification`() = runTest {
-        every { notification.type } returns ACTIVATION
-        every { notificationService.sendActivationNotification(notification) } answers { nothing }
+    fun `activation notification`() =
+        runTest {
+            every { notification.type } returns ACTIVATION
+            every { notificationService.sendActivationNotification(notification) } answers { nothing }
 
-        testInstance.receiveMessage(notification)
+            testInstance.receiveMessage(notification)
 
-        verify(exactly = 1) { notificationService.sendActivationNotification(notification) }
-        coVerify(exactly = 0) {
-            notificationsSender.send(any())
-            rabbitTemplate.convertAndSend(any())
-            notificationService.sendPasswordResetNotification(any())
-            notificationService.sendActivationByEmailNotification(any())
+            verify(exactly = 1) { notificationService.sendActivationNotification(notification) }
+            coVerify(exactly = 0) {
+                notificationsSender.send(any())
+                rabbitTemplate.convertAndSend(any())
+                notificationService.sendPasswordResetNotification(any())
+                notificationService.sendActivationByEmailNotification(any())
+            }
         }
-    }
 
     @Test
-    fun `activation by email notification`() = runTest {
-        every { notification.type } returns ACTIVATION_BY_EMAIL
-        every { notificationService.sendActivationByEmailNotification(notification) } answers { nothing }
+    fun `activation by email notification`() =
+        runTest {
+            every { notification.type } returns ACTIVATION_BY_EMAIL
+            every { notificationService.sendActivationByEmailNotification(notification) } answers { nothing }
 
-        testInstance.receiveMessage(notification)
+            testInstance.receiveMessage(notification)
 
-        verify(exactly = 1) { notificationService.sendActivationByEmailNotification(notification) }
-        coVerify(exactly = 0) {
-            notificationsSender.send(any())
-            rabbitTemplate.convertAndSend(any())
-            notificationService.sendActivationNotification(any())
-            notificationService.sendPasswordResetNotification(any())
+            verify(exactly = 1) { notificationService.sendActivationByEmailNotification(notification) }
+            coVerify(exactly = 0) {
+                notificationsSender.send(any())
+                rabbitTemplate.convertAndSend(any())
+                notificationService.sendActivationNotification(any())
+                notificationService.sendPasswordResetNotification(any())
+            }
         }
-    }
 
     @Test
-    fun `password reset notification`() = runTest {
-        every { notification.type } returns PASSWORD_RESET
-        every { notificationService.sendPasswordResetNotification(notification) } answers { nothing }
+    fun `password reset notification`() =
+        runTest {
+            every { notification.type } returns PASSWORD_RESET
+            every { notificationService.sendPasswordResetNotification(notification) } answers { nothing }
 
-        testInstance.receiveMessage(notification)
+            testInstance.receiveMessage(notification)
 
-        verify(exactly = 1) { notificationService.sendPasswordResetNotification(notification) }
-        coVerify(exactly = 0) {
-            notificationsSender.send(any())
-            rabbitTemplate.convertAndSend(any())
-            notificationService.sendActivationNotification(any())
-            notificationService.sendActivationByEmailNotification(any())
+            verify(exactly = 1) { notificationService.sendPasswordResetNotification(notification) }
+            coVerify(exactly = 0) {
+                notificationsSender.send(any())
+                rabbitTemplate.convertAndSend(any())
+                notificationService.sendActivationNotification(any())
+                notificationService.sendActivationByEmailNotification(any())
+            }
         }
-    }
 
     @Test
-    fun `failed notification`() = runTest {
-        val alertSlot = slot<Alert>()
-        every { notification.type } returns PASSWORD_RESET
-        coEvery { notificationsSender.send(capture(alertSlot)) } answers { nothing }
-        every { notificationService.sendPasswordResetNotification(notification) } throws Exception()
-        every {
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, notification)
-        } answers { nothing }
+    fun `failed notification`() =
+        runTest {
+            val alertSlot = slot<Alert>()
+            every { notification.type } returns PASSWORD_RESET
+            coEvery { notificationsSender.send(capture(alertSlot)) } answers { nothing }
+            every { notificationService.sendPasswordResetNotification(notification) } throws Exception()
+            every {
+                rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, notification)
+            } answers { nothing }
 
-        testInstance.receiveMessage(notification)
+            testInstance.receiveMessage(notification)
 
-        coVerify(exactly = 1) {
-            notificationsSender.send(alertSlot.captured)
-            notificationService.sendPasswordResetNotification(notification)
-            rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, notification)
+            coVerify(exactly = 1) {
+                notificationsSender.send(alertSlot.captured)
+                notificationService.sendPasswordResetNotification(notification)
+                rabbitTemplate.convertAndSend(BIOSTUDIES_EXCHANGE, NOTIFICATIONS_FAILED_REQUEST_ROUTING_KEY, notification)
+            }
+            verify(exactly = 0) {
+                notificationService.sendActivationNotification(any())
+                notificationService.sendActivationByEmailNotification(any())
+            }
         }
-        verify(exactly = 0) {
-            notificationService.sendActivationNotification(any())
-            notificationService.sendActivationByEmailNotification(any())
-        }
-    }
 }

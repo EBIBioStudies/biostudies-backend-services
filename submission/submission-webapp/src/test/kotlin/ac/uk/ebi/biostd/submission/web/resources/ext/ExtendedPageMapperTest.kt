@@ -66,7 +66,10 @@ class ExtendedPageMapperTest {
         assertThat(page.previous).isEqualTo("$BASE/submissions/extended?offset=0&limit=1&fromRTime=$from&toRTime=$to")
     }
 
-    private fun assertBasicPageAttributes(page: WebExtPage, extSubmission: ExtSubmission) {
+    private fun assertBasicPageAttributes(
+        page: WebExtPage,
+        extSubmission: ExtSubmission,
+    ) {
         assertThat(page.content).isEqualTo(listOf(extSubmission))
         assertThat(page.totalElements).isEqualTo(3)
         assertThat(page.offset).isEqualTo(1)
@@ -85,14 +88,20 @@ class ExtendedPageMapperTest {
         every { currentPageable.pageSize } returns 1
     }
 
-    private fun mockPreviousPage(currentPage: Page<ExtSubmission>, previousPageable: Pageable) {
+    private fun mockPreviousPage(
+        currentPage: Page<ExtSubmission>,
+        previousPageable: Pageable,
+    ) {
         every { previousPageable.offset } returns 0
         every { previousPageable.pageSize } returns 1
         every { currentPage.hasPrevious() } returns true
         every { currentPage.previousPageable() } returns previousPageable
     }
 
-    private fun mockNextPage(currentPage: Page<ExtSubmission>, nextPageable: Pageable) {
+    private fun mockNextPage(
+        currentPage: Page<ExtSubmission>,
+        nextPageable: Pageable,
+    ) {
         every { nextPageable.offset } returns 2
         every { nextPageable.pageSize } returns 1
         every { currentPage.hasNext() } returns true

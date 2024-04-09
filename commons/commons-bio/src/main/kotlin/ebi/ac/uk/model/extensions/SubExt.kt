@@ -10,10 +10,6 @@ import ebi.ac.uk.util.date.fromIsoTime
 import java.time.OffsetDateTime
 
 /**
- * Contains accessor for attributes that has specific meaning in page tab specification.
- */
-
-/**
  * Indicate that submission should be register for specific project.
  */
 var Submission.attachTo: String?
@@ -118,6 +114,9 @@ fun Submission.withAttributes(attrs: List<ExtAttributeDetail>): Submission {
 }
 
 fun Submission.allFiles() = section.allFiles() + section.allSections().flatMap { it.allFiles() }
+
 fun Submission.getSectionByType(name: String): Section = section.allSections().first { it.type == name }
+
 fun Submission.fileListSections() = (section.allSections() + section).filterNot { it.fileListName == null }
+
 fun Submission.allSections(): List<Section> = mutableListOf(section) + section.allSections()

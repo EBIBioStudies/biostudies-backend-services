@@ -23,14 +23,14 @@ class GroupsResource(private val groupService: IGroupService) {
     @GetMapping("/groups")
     @ResponseBody
     fun getGroups(
-        @BioUser user: SecurityUser
+        @BioUser user: SecurityUser,
     ): List<Group> = user.groupsFolders.map { Group(it.groupName, it.description) }
 
     @PostMapping("/groups")
     @ResponseBody
     @PreAuthorize("hasAuthority('ADMIN')")
     fun createGroup(
-        @RequestBody request: GroupRequest
+        @RequestBody request: GroupRequest,
     ): UserGroupDto {
         requireNotNull(request.groupName) { throw GroupsGroupNameMustNotBeNullException() }
         requireNotNull(request.description) { throw GroupsGroupDescriptionMustNotBeNullException() }
@@ -41,7 +41,7 @@ class GroupsResource(private val groupService: IGroupService) {
     @ResponseBody
     @PreAuthorize("hasAuthority('ADMIN')")
     fun addUserInGroup(
-        @RequestBody request: GroupRequest
+        @RequestBody request: GroupRequest,
     ) {
         requireNotNull(request.groupName) { throw GroupsGroupNameMustNotBeNullException() }
         requireNotNull(request.userName) { throw GroupsUserNameMustNotBeNullException() }
@@ -54,5 +54,5 @@ class GroupsResource(private val groupService: IGroupService) {
 data class GroupRequest(
     val groupName: String?,
     val description: String?,
-    val userName: String?
+    val userName: String?,
 )

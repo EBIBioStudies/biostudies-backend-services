@@ -19,7 +19,11 @@ class NfsFtpService(
     private val releaseMode: NfsReleaseMode,
     private val folderResolver: SubmissionFolderResolver,
 ) : FtpService {
-    override suspend fun releaseSubmissionFile(file: ExtFile, subRelPath: String, subSecretKey: String): ExtFile =
+    override suspend fun releaseSubmissionFile(
+        file: ExtFile,
+        subRelPath: String,
+        subSecretKey: String,
+    ): ExtFile =
         withContext(Dispatchers.IO) {
             val nfsFile = file as NfsFile
             val publicSubFolder = getPublicFolder(subRelPath)
@@ -31,17 +35,23 @@ class NfsFtpService(
             }
         }
 
-    private fun moveRelease(nfsFile: NfsFile, publicSubFolder: Path): NfsFile {
+    private fun moveRelease(
+        nfsFile: NfsFile,
+        publicSubFolder: Path,
+    ): NfsFile {
         val releasedFile = publicSubFolder.resolve(nfsFile.relPath).toFile()
         FileUtils.moveFile(nfsFile.file, releasedFile, Permissions(RW_R__R__, RWXR_XR_X))
         return nfsFile.copy(fullPath = releasedFile.absolutePath, file = releasedFile)
     }
 
-    private fun hardLinkRelease(nfsFile: NfsFile, privateSubFolder: Path, publicSubFolder: Path): NfsFile {
+    private fun hardLinkRelease(
+        nfsFile: NfsFile,
+        privateSubFolder: Path,
+        publicSubFolder: Path,
+    ): NfsFile {
         FileUtils.createHardLink(nfsFile.file, privateSubFolder, publicSubFolder, Permissions(RW_R__R__, RWXR_XR_X))
         return nfsFile
     }
 
-    private fun getPublicFolder(relPath: String): Path =
-        FileUtils.getOrCreateFolder(folderResolver.getPublicSubFolder(relPath), RWXR_XR_X)
+    private fun getPublicFolder(relPath: String): Path = FileUtils.getOrCreateFolder(folderResolver.getPublicSubFolder(relPath), RWXR_XR_X)
 }

@@ -37,8 +37,8 @@ internal class TransferCommandTest(
                 "-u", "user",
                 "-p", "password",
                 "-ac", "S-BSST1",
-                "-t", "NFS"
-            )
+                "-t", "NFS",
+            ),
         )
 
         verify(exactly = 1) { submissionService.transfer(request) }
@@ -46,17 +46,18 @@ internal class TransferCommandTest(
 
     @Test
     fun `transfer with invalid target`() {
-        val exception = assertThrows<IllegalStateException> {
-            testInstance.parse(
-                listOf(
-                    "-s", "server",
-                    "-u", "user",
-                    "-p", "password",
-                    "-ac", "S-BSST1",
-                    "-t", "INVALID"
+        val exception =
+            assertThrows<IllegalStateException> {
+                testInstance.parse(
+                    listOf(
+                        "-s", "server",
+                        "-u", "user",
+                        "-p", "password",
+                        "-ac", "S-BSST1",
+                        "-t", "INVALID",
+                    ),
                 )
-            )
-        }
+            }
         assertThat(exception.message).isEqualTo("Unknown storage mode INVALID")
     }
 }

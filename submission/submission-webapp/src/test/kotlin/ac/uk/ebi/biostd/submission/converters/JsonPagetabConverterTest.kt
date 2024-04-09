@@ -64,7 +64,9 @@ internal class JsonPagetabConverterTest(
     }
 
     @Test
-    fun read(@MockK message: HttpInputMessage) {
+    fun read(
+        @MockK message: HttpInputMessage,
+    ) {
         assertThrows<NotImplementedError> { testInstance.read(Submission::class.java, message) }
     }
 }

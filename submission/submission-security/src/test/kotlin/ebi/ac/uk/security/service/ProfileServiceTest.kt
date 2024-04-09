@@ -20,51 +20,56 @@ class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
     private val ftpFilesDir = temporaryFolder.createDirectory("ftpFiles")
     private val testGroup = DbUserGroup("Test Group", "Test Group Description", "fd9f87b3-9de8-4036-be7a-3ac8cbc44ddd")
 
-    private val testUser = DbUser(
-        id = 3,
-        email = "admin_user@ebi.ac.uk",
-        fullName = "admin_user",
-        secret = "69214a2f-f80b-4f33-86b7-26d3bd0453aa",
-        orcid = "0000-0002-1825-0097",
-        groups = mutableSetOf(testGroup),
-        passwordDigest = "".toByteArray(),
-        superuser = true,
-        storageMode = StorageMode.NFS,
-        notificationsEnabled = true
-    )
-
-    private val testInstance = ProfileService(
-        nfsUserFtpDirPath = ftpFilesDir.toPath(),
-        nfsUserFilesDirPath = filesDir.toPath(),
-        environment
-    )
-
-    @Test
-    fun getUserProfile() {
-        val expectedUserFolder = NfsUserFolder(
-            relativePath = Paths.get("69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
-            path = Paths.get("$filesDir/69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3")
-        )
-
-        val expectedGroupFolder = GroupFolder(
-            groupName = "Test Group",
-            description = "Test Group Description",
-            path = Paths.get("$filesDir/fd/9f87b3-9de8-4036-be7a-3ac8cbc44ddd-b0")
-        )
-
-        val expectedUser = SecurityUser(
+    private val testUser =
+        DbUser(
             id = 3,
             email = "admin_user@ebi.ac.uk",
             fullName = "admin_user",
-            login = null,
-            orcid = "0000-0002-1825-0097",
             secret = "69214a2f-f80b-4f33-86b7-26d3bd0453aa",
+            orcid = "0000-0002-1825-0097",
+            groups = mutableSetOf(testGroup),
+            passwordDigest = "".toByteArray(),
             superuser = true,
-            userFolder = expectedUserFolder,
-            groupsFolders = listOf(expectedGroupFolder),
-            permissions = emptySet(),
-            notificationsEnabled = true
+            storageMode = StorageMode.NFS,
+            notificationsEnabled = true,
         )
+
+    private val testInstance =
+        ProfileService(
+            nfsUserFtpDirPath = ftpFilesDir.toPath(),
+            nfsUserFilesDirPath = filesDir.toPath(),
+            environment,
+        )
+
+    @Test
+    fun getUserProfile() {
+        val expectedUserFolder =
+            NfsUserFolder(
+                relativePath = Paths.get("69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
+                path = Paths.get("$filesDir/69/214a2f-f80b-4f33-86b7-26d3bd0453aa-a3"),
+            )
+
+        val expectedGroupFolder =
+            GroupFolder(
+                groupName = "Test Group",
+                description = "Test Group Description",
+                path = Paths.get("$filesDir/fd/9f87b3-9de8-4036-be7a-3ac8cbc44ddd-b0"),
+            )
+
+        val expectedUser =
+            SecurityUser(
+                id = 3,
+                email = "admin_user@ebi.ac.uk",
+                fullName = "admin_user",
+                login = null,
+                orcid = "0000-0002-1825-0097",
+                secret = "69214a2f-f80b-4f33-86b7-26d3bd0453aa",
+                superuser = true,
+                userFolder = expectedUserFolder,
+                groupsFolders = listOf(expectedGroupFolder),
+                permissions = emptySet(),
+                notificationsEnabled = true,
+            )
 
         val (user, token) = testInstance.getUserProfile(testUser, "a token")
 

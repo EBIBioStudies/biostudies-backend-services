@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class ApplicationConfig {
-
     @Bean
     @ConditionalOnProperty(prefix = "app", name = ["retrySubmission"], havingValue = "true")
     fun startApplicationHandler(

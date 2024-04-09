@@ -17,7 +17,10 @@ import uk.ac.ebi.serialization.extensions.getNode
 import java.io.File
 
 class ExtFileListDeserializer : JsonDeserializer<ExtFileList>() {
-    override fun deserialize(jsonParser: JsonParser, ctxt: DeserializationContext): ExtFileList {
+    override fun deserialize(
+        jsonParser: JsonParser,
+        ctxt: DeserializationContext,
+    ): ExtFileList {
         val mapper = jsonParser.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jsonParser)
 

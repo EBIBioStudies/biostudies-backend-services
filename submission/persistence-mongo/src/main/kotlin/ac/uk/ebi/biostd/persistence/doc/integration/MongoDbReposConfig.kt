@@ -37,21 +37,20 @@ class MongoDbReposConfig {
         reactivateMongoTemplate: ReactiveMongoTemplate,
         extSerializationService: ExtSerializationService,
         submissionRequestRepository: SubmissionRequestRepository,
-    ): SubmissionRequestDocDataRepository = SubmissionRequestDocDataRepository(
-        reactivateMongoTemplate,
-        extSerializationService,
-        submissionRequestRepository,
-    )
+    ): SubmissionRequestDocDataRepository =
+        SubmissionRequestDocDataRepository(
+            reactivateMongoTemplate,
+            extSerializationService,
+            submissionRequestRepository,
+        )
 
     @Bean
     internal fun submissionDraftDocDataRepository(
         reactivateMongoTemplate: ReactiveMongoTemplate,
         submissionDraftRepository: SubmissionDraftRepository,
-    ): SubmissionDraftDocDataRepository =
-        SubmissionDraftDocDataRepository(submissionDraftRepository, reactivateMongoTemplate)
+    ): SubmissionDraftDocDataRepository = SubmissionDraftDocDataRepository(submissionDraftRepository, reactivateMongoTemplate)
 
     @Bean
-    internal fun fileListDocFileDocDataRepository(
-        fileListDocFileRepository: FileListDocFileRepository,
-    ): FileListDocFileDocDataRepository = FileListDocFileDocDataRepository(fileListDocFileRepository)
+    internal fun fileListDocFileDocDataRepository(fileListDocFileRepository: FileListDocFileRepository): FileListDocFileDocDataRepository =
+        FileListDocFileDocDataRepository(fileListDocFileRepository)
 }

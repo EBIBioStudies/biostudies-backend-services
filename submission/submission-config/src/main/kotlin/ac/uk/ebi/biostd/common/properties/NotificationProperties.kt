@@ -9,7 +9,6 @@ data class NotificationProperties(
     val stUrl: String,
     val slackUrl: String,
     val bccEmail: String?,
-
     @NestedConfigurationProperty
     val rt: RtConfig,
 ) {

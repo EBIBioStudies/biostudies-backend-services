@@ -41,16 +41,18 @@ sealed class SubmitWebRequest(
 )
 
 val SubmitWebRequest.method: SubmissionMethod
-    get() = when (this) {
-        is ContentSubmitWebRequest -> SubmissionMethod.PAGE_TAB
-        is FileSubmitWebRequest -> SubmissionMethod.FILE
-    }
+    get() =
+        when (this) {
+            is ContentSubmitWebRequest -> SubmissionMethod.PAGE_TAB
+            is FileSubmitWebRequest -> SubmissionMethod.FILE
+        }
 
 val SubmitWebRequest.draftKey: String?
-    get() = when (this) {
-        is ContentSubmitWebRequest -> draftKey
-        is FileSubmitWebRequest -> null
-    }
+    get() =
+        when (this) {
+            is ContentSubmitWebRequest -> draftKey
+            is FileSubmitWebRequest -> null
+        }
 
 class ContentSubmitWebRequest(
     val submission: String,

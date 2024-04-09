@@ -4,7 +4,10 @@ import org.springframework.data.mongodb.core.query.Update
 import org.springframework.util.Assert
 
 class ExtendedUpdate : Update() {
-    fun multiply(key: String, multiplier: Int): ExtendedUpdate {
+    fun multiply(
+        key: String,
+        multiplier: Int,
+    ): ExtendedUpdate {
         Assert.notNull(multiplier, "Multiplier must not be null.")
         addMultiFieldOperation("\$mul", key, multiplier)
         return this

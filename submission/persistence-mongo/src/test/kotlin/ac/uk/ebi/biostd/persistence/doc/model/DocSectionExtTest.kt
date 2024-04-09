@@ -8,25 +8,28 @@ import org.junit.jupiter.api.Test
 class DocSectionExtTest {
     @Test
     fun `section title`() {
-        val section = DocSection(
-            id = secId,
-            type = "Study",
-            attributes = listOf(
-                DocAttribute("Author", "Me"),
-                DocAttribute(SectionFields.TITLE.value, "Test Title")
+        val section =
+            DocSection(
+                id = secId,
+                type = "Study",
+                attributes =
+                    listOf(
+                        DocAttribute("Author", "Me"),
+                        DocAttribute(SectionFields.TITLE.value, "Test Title"),
+                    ),
             )
-        )
 
         assertThat(section.title).isEqualTo("Test Title")
     }
 
     @Test
     fun `section with no title`() {
-        val section = DocSection(
-            id = secId,
-            type = "Study",
-            attributes = listOf(DocAttribute("Author", "Me"))
-        )
+        val section =
+            DocSection(
+                id = secId,
+                type = "Study",
+                attributes = listOf(DocAttribute("Author", "Me")),
+            )
 
         assertThat(section.title).isNull()
     }
@@ -36,5 +39,6 @@ class DocSectionExtTest {
         val section = DocSection(id = secId, type = "Study")
         assertThat(section.title).isNull()
     }
+
     val secId = ObjectId()
 }

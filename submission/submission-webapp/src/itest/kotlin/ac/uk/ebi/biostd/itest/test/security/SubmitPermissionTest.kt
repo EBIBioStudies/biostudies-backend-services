@@ -32,26 +32,28 @@ class SubmitPermissionTest(
     @Autowired private val securityTestService: SecurityTestService,
     @LocalServerPort val serverPort: Int,
 ) {
-    private val collection = tsv {
-        line("Submission", "ACollection")
-        line("AccNoTemplate", "!{S-APR}")
-        line()
+    private val collection =
+        tsv {
+            line("Submission", "ACollection")
+            line("AccNoTemplate", "!{S-APR}")
+            line()
 
-        line("Project")
-    }.toString()
+            line("Project")
+        }.toString()
 
     private lateinit var superUserWebClient: BioWebClient
     private lateinit var regularUserWebClient: BioWebClient
 
     @BeforeAll
-    fun init() = runBlocking {
-        securityTestService.ensureUserRegistration(SuperUser)
-        securityTestService.ensureUserRegistration(ExistingUser)
-        securityTestService.ensureUserRegistration(ImpersonatedUser)
+    fun init() =
+        runBlocking {
+            securityTestService.ensureUserRegistration(SuperUser)
+            securityTestService.ensureUserRegistration(ExistingUser)
+            securityTestService.ensureUserRegistration(ImpersonatedUser)
 
-        superUserWebClient = getWebClient(serverPort, SuperUser)
-        regularUserWebClient = getWebClient(serverPort, ExistingUser)
-    }
+            superUserWebClient = getWebClient(serverPort, SuperUser)
+            regularUserWebClient = getWebClient(serverPort, ExistingUser)
+        }
 
     @Test
     fun `4-1 create collection with superuser`() {
@@ -67,43 +69,47 @@ class SubmitPermissionTest(
 
     @Test
     fun `4-3 submit without attach permission`() {
-        val project = tsv {
-            line("Submission", "TestCollection")
-            line("AccNoTemplate", "!{S-CLL}")
-            line()
+        val project =
+            tsv {
+                line("Submission", "TestCollection")
+                line("AccNoTemplate", "!{S-CLL}")
+                line()
 
-            line("Project")
-        }.toString()
+                line("Project")
+            }.toString()
 
-        val submission = tsv {
-            line("Submission")
-            line("AttachTo", "TestCollection")
-            line("Title", "Test Submission")
-        }.toString()
+        val submission =
+            tsv {
+                line("Submission")
+                line("AttachTo", "TestCollection")
+                line("Title", "Test Submission")
+            }.toString()
 
         assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV) }
             .withMessageContaining(
-                "The user register_user@ebi.ac.uk is not allowed to submit to TestCollection collection"
+                "The user register_user@ebi.ac.uk is not allowed to submit to TestCollection collection",
             )
     }
 
     @Test
     fun `4-4 submit with attach permission access tag`() {
-        val project = tsv {
-            line("Submission", "TestCollection2")
-            line("AccNoTemplate", "!{S-COLL}")
-            line()
+        val project =
+            tsv {
+                line("Submission", "TestCollection2")
+                line("AccNoTemplate", "!{S-COLL}")
+                line()
 
-            line("Project")
-        }.toString()
+                line("Project")
+            }.toString()
 
-        val submission = tsv {
-            line("Submission")
-            line("AttachTo", "TestCollection2")
-            line("Title", "Test Submission")
-        }.toString()
+        val submission =
+            tsv {
+                line("Submission")
+                line("AttachTo", "TestCollection2")
+                line("Title", "Test Submission")
+            }.toString()
 
         assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
         setAttachPermission(ExistingUser, "TestCollection2")
@@ -113,19 +119,21 @@ class SubmitPermissionTest(
 
     @Test
     fun `4-5 registering user and submit to default project`() {
-        val project = tsv {
-            line("Submission", "TestCollection3")
-            line("AccNoTemplate", "!{S-CLC}")
-            line()
+        val project =
+            tsv {
+                line("Submission", "TestCollection3")
+                line("AccNoTemplate", "!{S-CLC}")
+                line()
 
-            line("Project")
-        }.toString()
+                line("Project")
+            }.toString()
 
-        val submission = tsv {
-            line("Submission")
-            line("AttachTo", "TestCollection3")
-            line("Title", "Test Submission")
-        }.toString()
+        val submission =
+            tsv {
+                line("Submission")
+                line("AttachTo", "TestCollection3")
+                line("Title", "Test Submission")
+            }.toString()
 
         create("http://localhost:$serverPort").registerUser(NewUser.asRegisterRequest())
         assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
@@ -136,19 +144,21 @@ class SubmitPermissionTest(
 
     @Test
     fun `4-6 submit with collection admin permission`() {
-        val project = tsv {
-            line("Submission", "TestCollection4")
-            line("AccNoTemplate", "!{S-CLCT}")
-            line()
+        val project =
+            tsv {
+                line("Submission", "TestCollection4")
+                line("AccNoTemplate", "!{S-CLCT}")
+                line()
 
-            line("Project")
-        }.toString()
+                line("Project")
+            }.toString()
 
-        val submission = tsv {
-            line("Submission")
-            line("AttachTo", "TestCollection4")
-            line("Title", "Test Submission")
-        }.toString()
+        val submission =
+            tsv {
+                line("Submission")
+                line("AttachTo", "TestCollection4")
+                line("Title", "Test Submission")
+            }.toString()
 
         assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
         superUserWebClient.givePermissionToUser(ExistingUser.email, "TestCollection4", ADMIN.name)
@@ -158,49 +168,54 @@ class SubmitPermissionTest(
 
     @Test
     fun `4-7 resubmit with collection admin permission`() {
-        val project = tsv {
-            line("Submission", "TestCollection5")
-            line("AccNoTemplate", "!{S-TCLT}")
-            line()
+        val project =
+            tsv {
+                line("Submission", "TestCollection5")
+                line("AccNoTemplate", "!{S-TCLT}")
+                line()
 
-            line("Project")
-        }.toString()
+                line("Project")
+            }.toString()
 
-        val submission = tsv {
-            line("Submission")
-            line("AttachTo", "TestCollection5")
-            line("Title", "Test Submission")
-        }.toString()
+        val submission =
+            tsv {
+                line("Submission")
+                line("AttachTo", "TestCollection5")
+                line("Title", "Test Submission")
+            }.toString()
 
         assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
         superUserWebClient.givePermissionToUser(ExistingUser.email, "TestCollection5", ADMIN.name)
 
         assertThat(regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
 
-        val resubmission = tsv {
-            line("Submission", "S-TCLT1")
-            line("AttachTo", "TestCollection5")
-            line("Title", "Test Resubmission")
-        }.toString()
+        val resubmission =
+            tsv {
+                line("Submission", "S-TCLT1")
+                line("AttachTo", "TestCollection5")
+                line("Title", "Test Resubmission")
+            }.toString()
 
         assertThat(regularUserWebClient.submitSingle(resubmission, SubmissionFormat.TSV)).isSuccessful()
     }
 
     @Test
     fun `4-8 owner resubmits without attach permission`() {
-        val project = tsv {
-            line("Submission", "TestCollection6")
-            line("AccNoTemplate", "!{T-CLLC}")
-            line()
+        val project =
+            tsv {
+                line("Submission", "TestCollection6")
+                line("AccNoTemplate", "!{T-CLLC}")
+                line()
 
-            line("Project")
-        }.toString()
+                line("Project")
+            }.toString()
 
-        val submission = tsv {
-            line("Submission")
-            line("AttachTo", "TestCollection6")
-            line("Title", "Test Submission")
-        }.toString()
+        val submission =
+            tsv {
+                line("Submission")
+                line("AttachTo", "TestCollection6")
+                line("Title", "Test Submission")
+            }.toString()
 
         val impersonatedUserClient = getWebClient(serverPort, ImpersonatedUser)
         val onBehalfClient = getWebClient(serverPort, SuperUser, ImpersonatedUser)
@@ -208,16 +223,19 @@ class SubmitPermissionTest(
         assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
         assertThat(onBehalfClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
 
-        val resubmission = tsv {
-            line("Submission", "T-CLLC1")
-            line("AttachTo", "TestCollection6")
-            line("Title", "Test Resubmission")
-        }.toString()
+        val resubmission =
+            tsv {
+                line("Submission", "T-CLLC1")
+                line("AttachTo", "TestCollection6")
+                line("Title", "Test Resubmission")
+            }.toString()
         assertThat(impersonatedUserClient.submitSingle(resubmission, SubmissionFormat.TSV)).isSuccessful()
     }
 
-    private fun setAttachPermission(testUser: TestUser, collection: String) =
-        superUserWebClient.givePermissionToUser(testUser.email, collection, ATTACH.name)
+    private fun setAttachPermission(
+        testUser: TestUser,
+        collection: String,
+    ) = superUserWebClient.givePermissionToUser(testUser.email, collection, ATTACH.name)
 
     object ExistingUser : TestUser {
         override val username = "Register User"

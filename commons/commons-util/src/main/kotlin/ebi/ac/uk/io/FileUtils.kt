@@ -61,12 +61,18 @@ object FileUtils {
         return folder
     }
 
-    fun createEmptyFolder(folder: Path, permissions: Set<PosixFilePermission>) {
+    fun createEmptyFolder(
+        folder: Path,
+        permissions: Set<PosixFilePermission>,
+    ) {
         deleteFile(folder.toFile())
         createDirectories(folder, permissions)
     }
 
-    fun createParentFolders(folder: Path, permissions: Set<PosixFilePermission>) {
+    fun createParentFolders(
+        folder: Path,
+        permissions: Set<PosixFilePermission>,
+    ) {
         createDirectories(folder.parent, permissions)
     }
 
@@ -105,11 +111,18 @@ object FileUtils {
         val filePath = file.toPath()
         val target = targetPath.resolve(sourcePath.relativize(filePath))
 
-        if (file.isDirectory) createFolderHardLinks(filePath, target, permissions)
-        else createFileHardLink(filePath, target, permissions)
+        if (file.isDirectory) {
+            createFolderHardLinks(filePath, target, permissions)
+        } else {
+            createFileHardLink(filePath, target, permissions)
+        }
     }
 
-    fun createSymbolicLink(path: Path, symLinkPath: Path, permissions: Set<PosixFilePermission>) {
+    fun createSymbolicLink(
+        path: Path,
+        symLinkPath: Path,
+        permissions: Set<PosixFilePermission>,
+    ) {
         createSymLink(path, symLinkPath, permissions)
     }
 
@@ -146,8 +159,11 @@ object FileUtils {
     }
 
     fun listFiles(file: File): List<File> =
-        if (isDirectory(file)) Files.list(file.toPath()).use { stream -> stream.map { it.toFile() }.toList() }
-        else emptyList()
+        if (isDirectory(file)) {
+            Files.list(file.toPath()).use { stream -> stream.map { it.toFile() }.toList() }
+        } else {
+            emptyList()
+        }
 
     private fun calculateMd5(file: File): String = file.inputStream().use { DigestUtils.md5Hex(it).uppercase() }
 
@@ -156,7 +172,10 @@ object FileUtils {
 
 @Suppress("TooManyFunctions")
 internal object FileUtilsHelper {
-    fun createFolderIfNotExist(file: Path, permissions: Set<PosixFilePermission>) {
+    fun createFolderIfNotExist(
+        file: Path,
+        permissions: Set<PosixFilePermission>,
+    ) {
         if (exists(file).not()) createDirectories(file, permissions)
     }
 
@@ -180,7 +199,11 @@ internal object FileUtilsHelper {
         Files.setPosixFilePermissions(target, permissions.file)
     }
 
-    fun createSymLink(link: Path, target: Path, permissions: Set<PosixFilePermission>) {
+    fun createSymLink(
+        link: Path,
+        target: Path,
+        permissions: Set<PosixFilePermission>,
+    ) {
         if (exists(link)) Files.delete(link)
         Files.createSymbolicLink(createParentDirectories(link, permissions), target)
     }
@@ -233,12 +256,18 @@ internal object FileUtilsHelper {
         Files.setPosixFilePermissions(target, permissions.file)
     }
 
-    fun createParentDirectories(path: Path, permissions: Set<PosixFilePermission>): Path {
+    fun createParentDirectories(
+        path: Path,
+        permissions: Set<PosixFilePermission>,
+    ): Path {
         createDirectories(path.parent, permissions)
         return path
     }
 
-    fun createDirectories(directoryPath: Path, permissions: Set<PosixFilePermission>): Path {
+    fun createDirectories(
+        directoryPath: Path,
+        permissions: Set<PosixFilePermission>,
+    ): Path {
         var parent = directoryPath.root
 
         for (path in parent.relativize(directoryPath)) {
@@ -249,7 +278,10 @@ internal object FileUtilsHelper {
         return directoryPath
     }
 
-    private fun createDirectory(path: Path, permissions: Set<PosixFilePermission>) {
+    private fun createDirectory(
+        path: Path,
+        permissions: Set<PosixFilePermission>,
+    ) {
         runSafely {
             Files.createDirectory(path)
             Files.setPosixFilePermissions(path, permissions)

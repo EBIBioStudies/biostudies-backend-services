@@ -19,7 +19,6 @@ class EventsPublisherServiceTest(
     @MockK private val rabbitTemplate: RabbitTemplate,
     @MockK private val eventsProperties: EventsProperties,
 ) {
-
     private val testInstance: EventsPublisherService = EventsPublisherService(rabbitTemplate, eventsProperties)
 
     @Test
@@ -29,7 +28,7 @@ class EventsPublisherServiceTest(
         every { eventsProperties.instanceBaseUrl } returns "http://biostudies:8788"
         every {
             rabbitTemplate.convertAndSend(
-                BIOSTUDIES_EXCHANGE, SUBMISSIONS_PUBLISHED_ROUTING_KEY, capture(notificationSlot)
+                BIOSTUDIES_EXCHANGE, SUBMISSIONS_PUBLISHED_ROUTING_KEY, capture(notificationSlot),
             )
         } answers { nothing }
 

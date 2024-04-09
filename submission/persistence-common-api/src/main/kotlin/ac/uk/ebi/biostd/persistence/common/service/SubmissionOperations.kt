@@ -30,13 +30,25 @@ interface SubmissionPersistenceService {
 interface SubmissionPersistenceQueryService {
     suspend fun existByAccNo(accNo: String): Boolean
 
-    suspend fun existByAccNoAndVersion(accNo: String, version: Int): Boolean
+    suspend fun existByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+    ): Boolean
 
-    suspend fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission?
+    suspend fun findExtByAccNo(
+        accNo: String,
+        includeFileListFiles: Boolean = false,
+    ): ExtSubmission?
 
-    suspend fun findLatestInactiveByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission?
+    suspend fun findLatestInactiveByAccNo(
+        accNo: String,
+        includeFileListFiles: Boolean = false,
+    ): ExtSubmission?
 
-    suspend fun getExtByAccNo(accNo: String, includeFileListFiles: Boolean = false): ExtSubmission
+    suspend fun getExtByAccNo(
+        accNo: String,
+        includeFileListFiles: Boolean = false,
+    ): ExtSubmission
 
     suspend fun getExtByAccNoAndVersion(
         accNo: String,
@@ -56,23 +68,45 @@ interface SubmissionPersistenceQueryService {
 }
 
 interface SubmissionFilesPersistenceService {
-    fun getReferencedFiles(sub: ExtSubmission, fileListName: String): Flow<ExtFile>
+    fun getReferencedFiles(
+        sub: ExtSubmission,
+        fileListName: String,
+    ): Flow<ExtFile>
 
-    suspend fun findReferencedFile(sub: ExtSubmission, path: String): ExtFile?
+    suspend fun findReferencedFile(
+        sub: ExtSubmission,
+        path: String,
+    ): ExtFile?
 }
 
 @Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
     suspend fun hasActiveRequest(accNo: String): Boolean
+
     suspend fun createRequest(rqt: SubmissionRequest): Pair<String, Int>
-    suspend fun getRequestStatus(accNo: String, version: Int): RequestStatus
+
+    suspend fun getRequestStatus(
+        accNo: String,
+        version: Int,
+    ): RequestStatus
 
     fun getProcessingRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
 
-    suspend fun updateRqtIndex(accNo: String, version: Int, index: Int)
-    suspend fun updateRqtIndex(requestFile: SubmissionRequestFile, file: ExtFile)
+    suspend fun updateRqtIndex(
+        accNo: String,
+        version: Int,
+        index: Int,
+    )
 
-    suspend fun getSubmissionRequest(accNo: String, version: Int): SubmissionRequest
+    suspend fun updateRqtIndex(
+        requestFile: SubmissionRequestFile,
+        file: ExtFile,
+    )
+
+    suspend fun getSubmissionRequest(
+        accNo: String,
+        version: Int,
+    ): SubmissionRequest
 
     suspend fun <T> onRequest(
         accNo: String,
@@ -88,10 +122,12 @@ sealed interface OptResponse<T> {
     val value: T
 
     operator fun component1(): SubmissionRequest = rqt
+
     operator fun component2(): T = value
 }
 
 class RqtUpdate(override val rqt: SubmissionRequest, override val value: Unit = Unit) : OptResponse<Unit>
+
 class RqtResponse(
     override val rqt: SubmissionRequest,
     override val value: ExtSubmission,
@@ -100,9 +136,17 @@ class RqtResponse(
 interface SubmissionRequestFilesPersistenceService {
     suspend fun saveSubmissionRequestFile(file: SubmissionRequestFile)
 
-    suspend fun getSubmissionRequestFile(accNo: String, version: Int, filePath: String): SubmissionRequestFile
+    suspend fun getSubmissionRequestFile(
+        accNo: String,
+        version: Int,
+        filePath: String,
+    ): SubmissionRequestFile
 
-    fun getSubmissionRequestFiles(accNo: String, version: Int, startingAt: Int): Flow<SubmissionRequestFile>
+    fun getSubmissionRequestFiles(
+        accNo: String,
+        version: Int,
+        startingAt: Int,
+    ): Flow<SubmissionRequestFile>
 }
 
 interface SubmissionMetaQueryService {

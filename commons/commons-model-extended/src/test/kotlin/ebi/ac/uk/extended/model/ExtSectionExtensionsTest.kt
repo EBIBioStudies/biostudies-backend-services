@@ -15,13 +15,15 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {
     @Test
     fun allSections() {
-        val extSection = ExtSection(
-            type = "section",
-            sections = listOf(
-                left(ExtSection(type = "subSec1", sections = listOf(left(ExtSection(type = "subSubSec1"))))),
-                right(ExtSectionTable(listOf(ExtSection(type = "subSec2"), ExtSection(type = "subSec3"))))
+        val extSection =
+            ExtSection(
+                type = "section",
+                sections =
+                    listOf(
+                        left(ExtSection(type = "subSec1", sections = listOf(left(ExtSection(type = "subSubSec1"))))),
+                        right(ExtSectionTable(listOf(ExtSection(type = "subSec2"), ExtSection(type = "subSec3")))),
+                    ),
             )
-        )
 
         val result = extSection.allSections
 
@@ -45,10 +47,11 @@ class ExtSectionExtensionsTest(private val temporaryFolder: TemporaryFolder) {
         val tmpFile2 = temporaryFolder.createFile("file2.txt")
         val nfsFile2 = NfsFile("filePath", "relPath", tmpFile2, tmpFile2.absolutePath, tmpFile2.md5(), tmpFile2.size())
 
-        val extSection = ExtSection(
-            type = "section",
-            files = listOf(left(nfsFile), left(fireFile), right(ExtFileTable(nfsFile2)))
-        )
+        val extSection =
+            ExtSection(
+                type = "section",
+                files = listOf(left(nfsFile), left(fireFile), right(ExtFileTable(nfsFile2))),
+            )
 
         val result = extSection.allInnerFiles
 

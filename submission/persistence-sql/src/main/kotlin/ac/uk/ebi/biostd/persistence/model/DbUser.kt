@@ -37,10 +37,10 @@ typealias Graph = NamedSubgraph
             name = USER_DATA_GRAPH,
             attributeNodes = [
                 Node("groups"),
-                Node("permissions")
-            ]
-        )
-    ]
+                Node("permissions"),
+            ],
+        ),
+    ],
 )
 @Entity
 @Table(name = "User")
@@ -49,40 +49,30 @@ class DbUser(
     @Id
     @GeneratedValue
     var id: Long = 0L,
-
     @Column
     var email: String,
-
     @Column
     var fullName: String,
-
     @Column
     var keyTime: Long = OffsetDateTime.now().toInstant().toEpochMilli(),
-
     @Column
     var secret: String,
-
     @Lob
     var passwordDigest: ByteArray,
-
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "UserGroup_User",
         joinColumns = [JoinColumn(name = "users_id")],
-        inverseJoinColumns = [JoinColumn(name = "groups_id")]
+        inverseJoinColumns = [JoinColumn(name = "groups_id")],
     )
     val groups: MutableSet<DbUserGroup> = mutableSetOf(),
-
     @Column
     var superuser: Boolean = false,
-
     @Column
     var notificationsEnabled: Boolean = false,
-
     @Enumerated(EnumType.STRING)
     @Column(name = "storageMode")
     var storageMode: StorageMode,
-
     @Column
     var orcid: String? = null,
 ) {
@@ -101,7 +91,6 @@ class DbUser(
 @XmlRootElement(name = "aux")
 @XmlAccessorType(XmlAccessType.NONE)
 class AuxInfo {
-
     @XmlElement(name = "param")
     val parameters: MutableList<Parameter> = mutableListOf()
 

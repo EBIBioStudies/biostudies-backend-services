@@ -34,18 +34,30 @@ class AccNoService(
         return accNo?.let { patternUtil.toAccNumber(it) } ?: calculateAccNo(getPattern(rqt.collection?.accNoPattern))
     }
 
-    private fun checkCanSubmitToCollection(collection: String?, submitter: String) {
-        if (collection != null && privilegesService.canSubmitToCollection(submitter, collection).not())
+    private fun checkCanSubmitToCollection(
+        collection: String?,
+        submitter: String,
+    ) {
+        if (collection != null && privilegesService.canSubmitToCollection(submitter, collection).not()) {
             throw UserCanNotSubmitToCollectionException(submitter, collection)
+        }
     }
 
-    private suspend fun checkCanReSubmit(accNo: String, submitter: String) {
+    private suspend fun checkCanReSubmit(
+        accNo: String,
+        submitter: String,
+    ) {
         if (privilegesService.canResubmit(submitter, accNo).not()) throw UserCanNotUpdateSubmit(accNo, submitter)
     }
 
-    private fun checkCanProvideAcc(accNo: String?, isNew: Boolean, submitter: String) {
-        if (isNew && accNo != null && privilegesService.canProvideAccNo(submitter).not())
+    private fun checkCanProvideAcc(
+        accNo: String?,
+        isNew: Boolean,
+        submitter: String,
+    ) {
+        if (isNew && accNo != null && privilegesService.canProvideAccNo(submitter).not()) {
             throw UserCanNotProvideAccessNumber(submitter)
+        }
     }
 
     private fun calculateAccNo(pattern: String) = AccNumber(pattern, service.getSequenceNextValue(pattern).toString())
@@ -59,8 +71,9 @@ class AccNoService(
         return if (basePath != null) "$basePath/$basicRelPath" else basicRelPath
     }
 
-    private fun getPattern(parentPattern: String?) = when (parentPattern) {
-        null -> patternUtil.getPattern(DEFAULT_PATTERN)
-        else -> patternUtil.getPattern(parentPattern)
-    }
+    private fun getPattern(parentPattern: String?) =
+        when (parentPattern) {
+            null -> patternUtil.getPattern(DEFAULT_PATTERN)
+            else -> patternUtil.getPattern(parentPattern)
+        }
 }

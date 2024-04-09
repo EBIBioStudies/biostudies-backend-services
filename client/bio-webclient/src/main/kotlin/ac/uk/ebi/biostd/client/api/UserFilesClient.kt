@@ -25,14 +25,18 @@ private const val USER_FOLDER_URL = "/folder/user"
 internal class UserFilesClient(
     private val client: WebClient,
 ) : FilesOperations {
-    override fun downloadFile(fileName: String, relativePath: String): File {
+    override fun downloadFile(
+        fileName: String,
+        relativePath: String,
+    ): File {
         val tempFile = Files.createTempFile("biostudies-$fileName", ".tmp")
         val downloadUrl = "$USER_FILES_URL${normalize(relativePath)}?fileName=$fileName"
-        val response = client.method(GET)
-            .uri(downloadUrl)
-            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM_VALUE)
-            .retrieve()
-            .bodyToMono<DataBuffer>()
+        val response =
+            client.method(GET)
+                .uri(downloadUrl)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                .retrieve()
+                .bodyToMono<DataBuffer>()
 
         DataBufferUtils.write(response, tempFile).block()
 
@@ -43,23 +47,35 @@ internal class UserFilesClient(
         return client.getForObject<Array<UserFile>>("$USER_FILES_URL${normalize(relativePath)}").toList()
     }
 
-    override fun uploadFiles(files: List<File>, relativePath: String) {
+    override fun uploadFiles(
+        files: List<File>,
+        relativePath: String,
+    ) {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
         val body = LinkedMultiValueMap<String, Any>().apply { files.forEach { add("files", FileSystemResource(it)) } }
         client.post("$USER_FILES_URL${normalize(relativePath)}", RequestParams(headers, body))
     }
 
-    override fun uploadFile(file: File, relativePath: String) {
+    override fun uploadFile(
+        file: File,
+        relativePath: String,
+    ) {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
         val body = LinkedMultiValueMap<String, Any>().apply { add("files", FileSystemResource(file)) }
         client.post("$USER_FILES_URL${normalize(relativePath)}", RequestParams(headers, body))
     }
 
-    override fun createFolder(folderName: String, relativePath: String) {
+    override fun createFolder(
+        folderName: String,
+        relativePath: String,
+    ) {
         client.post("$USER_FOLDER_URL${normalize(relativePath)}?folder=$folderName")
     }
 
-    override fun deleteFile(fileName: String, relativePath: String) {
+    override fun deleteFile(
+        fileName: String,
+        relativePath: String,
+    ) {
         client.delete("$USER_FILES_URL${normalize(relativePath)}?fileName=$fileName")
     }
 }

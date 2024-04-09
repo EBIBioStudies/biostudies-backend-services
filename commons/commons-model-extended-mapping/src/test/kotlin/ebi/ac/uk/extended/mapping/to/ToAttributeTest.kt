@@ -14,13 +14,14 @@ internal class ToAttributeTest {
     private val expectedValueAttribute =
         ExtAttributeDetail(name = "Value Attribute Name", value = "Value Attribute Value")
 
-    private val extAttribute = ExtAttribute(
-        name = "Attribute Name",
-        value = "Attribute Value",
-        reference = true,
-        nameAttrs = mutableListOf(expectedNameAttribute),
-        valueAttrs = mutableListOf(expectedValueAttribute)
-    )
+    private val extAttribute =
+        ExtAttribute(
+            name = "Attribute Name",
+            value = "Attribute Value",
+            reference = true,
+            nameAttrs = mutableListOf(expectedNameAttribute),
+            valueAttrs = mutableListOf(expectedValueAttribute),
+        )
 
     @Test
     fun toExtAttribute() {

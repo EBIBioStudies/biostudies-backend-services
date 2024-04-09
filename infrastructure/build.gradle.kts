@@ -55,8 +55,9 @@ tasks.register<Exec>("executeScript") {
     val windowsScript = project.ext["windowsScript"].toString()
     val os = System.getProperty("os.name").toLowerCase(ROOT)
 
-    commandLine = when {
-        os.contains("windows") -> mutableListOf("cmd", "/c", windowsScript, args)
-        else -> mutableListOf(linuxScript, args)
-    }
+    commandLine =
+        when {
+            os.contains("windows") -> mutableListOf("cmd", "/c", windowsScript, args)
+            else -> mutableListOf(linuxScript, args)
+        }
 }

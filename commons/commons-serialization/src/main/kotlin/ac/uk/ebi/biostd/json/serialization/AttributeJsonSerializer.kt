@@ -13,10 +13,16 @@ import ebi.ac.uk.model.constants.AttributeDetails
 import ebi.ac.uk.model.constants.AttributeFields
 
 internal class AttributeJsonSerializer : StdSerializer<Attribute>(Attribute::class.java) {
-    override fun isEmpty(provider: SerializerProvider, value: Attribute): Boolean = value.name.isEmpty()
+    override fun isEmpty(
+        provider: SerializerProvider,
+        value: Attribute,
+    ): Boolean = value.name.isEmpty()
 
-    override fun serialize(attr: Attribute, gen: JsonGenerator, provider: SerializerProvider) {
-
+    override fun serialize(
+        attr: Attribute,
+        gen: JsonGenerator,
+        provider: SerializerProvider,
+    ) {
         gen.writeObj {
             writeJsonString(AttributeFields.NAME, attr.name)
             writeJsonString(AttributeFields.VALUE, attr.value.nullIfBlank())

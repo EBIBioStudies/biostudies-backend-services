@@ -13,16 +13,18 @@ class ExtLinkDeserializerTest {
 
     @Test
     fun deserialize() {
-        val json = jsonObj {
-            "url" to "http://mylink.org"
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "Type"
-                    "value" to "Resource"
-                }
-            )
-            "extType" to "link"
-        }.toString()
+        val json =
+            jsonObj {
+                "url" to "http://mylink.org"
+                "attributes" to
+                    jsonArray(
+                        jsonObj {
+                            "name" to "Type"
+                            "value" to "Resource"
+                        },
+                    )
+                "extType" to "link"
+            }.toString()
 
         val extLink = testInstance.readValue<ExtLink>(json)
         assertThat(extLink.url).isEqualTo("http://mylink.org")

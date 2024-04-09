@@ -42,9 +42,13 @@ class SecurityModuleConfig(
     private val clusterClient: ClusterClient,
 ) {
     fun securityService(): ISecurityService = securityService
+
     fun securityQueryService(): ISecurityQueryService = securityQueryService
+
     fun groupService(): IGroupService = groupService
+
     fun securityFilter(): ISecurityFilter = securityFilter
+
     fun userPrivilegesService(): IUserPrivilegesService = userPrivilegesService
 
     private val groupService by lazy { GroupService(groupRepository, userRepo, props.filesProperties.filesDirPath) }
@@ -79,8 +83,7 @@ class SecurityModuleConfig(
             tokenRepo: TokenDataRepository,
             userRepo: UserDataRepository,
             props: SecurityProperties,
-        ): SecurityUtil =
-            SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
+        ): SecurityUtil = SecurityUtil(jwtParser, objectMapper, tokenRepo, userRepo, props.tokenHash, props.instanceKeys)
 
         fun profileService(props: SecurityProperties): ProfileService {
             return ProfileService(

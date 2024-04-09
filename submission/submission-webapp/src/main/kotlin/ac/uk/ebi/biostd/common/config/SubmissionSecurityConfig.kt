@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Configuration
 class SubmissionSecurityConfig(
     private val objectMapper: ObjectMapper,
 ) {
-
     @Bean
     fun extUserService(userDataRepository: UserDataRepository): ExtUserService = ExtUserService(userDataRepository)
 

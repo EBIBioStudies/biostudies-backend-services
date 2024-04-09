@@ -28,31 +28,34 @@ class FireFtpServiceTest(
     fun afterEach() = clearAllMocks()
 
     @Test
-    fun `release submission file`() = runTest {
-        val fireFile = FireFile(
-            fireId = "fireId",
-            firePath = "fire-path",
-            published = false,
-            filePath = "folder/myFile",
-            relPath = "Files/folder/myFile",
-            md5 = "md5",
-            size = 12,
-            type = ExtFileType.FILE,
-            attributes = emptyList()
-        )
-        val apiFile = FireApiFile(
-            objectId = 456,
-            filesystemEntry = FileSystemEntry(path = "fire-path", published = true),
-            fireOid = UUID.randomUUID().toString(),
-            objectMd5 = "the-md5",
-            objectSize = 123L,
-            createTime = "2022-09-21"
-        )
-        coEvery { fireClient.publish(fireFile.fireId) } answers { apiFile }
+    fun `release submission file`() =
+        runTest {
+            val fireFile =
+                FireFile(
+                    fireId = "fireId",
+                    firePath = "fire-path",
+                    published = false,
+                    filePath = "folder/myFile",
+                    relPath = "Files/folder/myFile",
+                    md5 = "md5",
+                    size = 12,
+                    type = ExtFileType.FILE,
+                    attributes = emptyList(),
+                )
+            val apiFile =
+                FireApiFile(
+                    objectId = 456,
+                    filesystemEntry = FileSystemEntry(path = "fire-path", published = true),
+                    fireOid = UUID.randomUUID().toString(),
+                    objectMd5 = "the-md5",
+                    objectSize = 123L,
+                    createTime = "2022-09-21",
+                )
+            coEvery { fireClient.publish(fireFile.fireId) } answers { apiFile }
 
-        val file = testInstance.releaseSubmissionFile(fireFile, "/rel/path", "secret-key")
+            val file = testInstance.releaseSubmissionFile(fireFile, "/rel/path", "secret-key")
 
-        assertThat(file.published).isTrue()
-        assertThat(file.firePath).isEqualTo("fire-path")
-    }
+            assertThat(file.published).isTrue()
+            assertThat(file.firePath).isEqualTo("fire-path")
+        }
 }

@@ -26,8 +26,7 @@ class AccNoPatternUtil {
     /**
      * Extracts the @see [AccNumber] for the given accession string.
      */
-    fun toAccNumber(accNo: String): AccNumber =
-        extractionPattern.match(accNo)?.let { asAccNumber(it) } ?: AccNumber((accNo))
+    fun toAccNumber(accNo: String): AccNumber = extractionPattern.match(accNo)?.let { asAccNumber(it) } ?: AccNumber((accNo))
 
     private fun asAccNumber(it: Matcher) = AccNumber(it.firstGroup(), it.secondGroup())
 

@@ -19,7 +19,10 @@ class EitherDeserializer : StdDeserializer<Either<*, *>>(Either::class.java), Co
     private lateinit var leftType: JavaType
     private lateinit var rightType: JavaType
 
-    override fun createContextual(ctxt: DeserializationContext, property: BeanProperty?): JsonDeserializer<*> {
+    override fun createContextual(
+        ctxt: DeserializationContext,
+        property: BeanProperty?,
+    ): JsonDeserializer<*> {
         val wrapperType = ctxt.contextualType
 
         return EitherDeserializer().apply {
@@ -28,12 +31,15 @@ class EitherDeserializer : StdDeserializer<Either<*, *>>(Either::class.java), Co
         }
     }
 
-    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Either<*, *> {
+    override fun deserialize(
+        jp: JsonParser,
+        ctxt: DeserializationContext,
+    ): Either<*, *> {
         with(jp.codec as ObjectMapper) {
             val node: JsonNode = readTree(jp)
             return tryConvertValue(node, rightType)?.let { Either.Right(it) }
                 ?: tryConvertValue(node, leftType)?.let { Either.Left(it) }
-                ?: throw IllegalStateException("can not deserialize $node into $leftType neither $rightType")
+                ?: error("can not deserialize $node into $leftType neither $rightType")
         }
     }
 }

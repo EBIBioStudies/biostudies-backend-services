@@ -12,7 +12,10 @@ fun <T> List<T>.destructure(): Pair<T, List<T>> = first() to drop(1)
 /**
  * Replace the given element by the element matching predicate.
  */
-fun <T> List<T>.replace(element: T, predicate: (T) -> Boolean): List<T> {
+fun <T> List<T>.replace(
+    element: T,
+    predicate: (T) -> Boolean,
+): List<T> {
     val index = indexOf(predicate)
     if (index != null) {
         val list = toMutableList()
@@ -43,7 +46,7 @@ fun <T : Any> List<T>.split(predicate: (T) -> Boolean): List<List<T>> = split(Li
 private tailrec fun <T : Any> split(
     result: MutableList<List<T>>,
     input: List<T>,
-    predicate: (T) -> Boolean
+    predicate: (T) -> Boolean,
 ): List<List<T>> {
     val index = input.indexOfFirst(predicate)
     val head = input.slice(0 until index)

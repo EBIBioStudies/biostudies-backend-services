@@ -11,9 +11,16 @@ import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.constants.FileFields
 
 internal class FileJsonSerializer : StdSerializer<BioFile>(BioFile::class.java) {
-    override fun isEmpty(provider: SerializerProvider, value: BioFile): Boolean = value.path.isEmpty()
+    override fun isEmpty(
+        provider: SerializerProvider,
+        value: BioFile,
+    ): Boolean = value.path.isEmpty()
 
-    override fun serialize(file: BioFile, gen: JsonGenerator, provider: SerializerProvider) {
+    override fun serialize(
+        file: BioFile,
+        gen: JsonGenerator,
+        provider: SerializerProvider,
+    ) {
         gen.writeObj {
             writeJsonString(FileFields.PATH, file.path)
             writeJsonNumber(FileFields.SIZE.value, file.size)

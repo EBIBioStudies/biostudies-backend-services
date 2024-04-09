@@ -25,27 +25,29 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun `deserialize ext file when nfs file`() {
         val file = tempFolder.createFile("nfs-file.txt")
-        val json = jsonObj {
-            "fileName" to "nfs-file.txt"
-            "filePath" to "folder/nfs-file.txt"
-            "relPath" to "Files/folder/nfs-file.txt"
-            "fullPath" to file.absolutePath
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "Type"
-                    "value" to "Data"
-                },
-                jsonObj {
-                    "name" to "Source"
-                    "value" to null
-                    "reference" to true
-                }
-            )
-            "extType" to "nfsFile"
-            "type" to "file"
-            "size" to file.size()
-            "md5" to file.md5()
-        }.toString()
+        val json =
+            jsonObj {
+                "fileName" to "nfs-file.txt"
+                "filePath" to "folder/nfs-file.txt"
+                "relPath" to "Files/folder/nfs-file.txt"
+                "fullPath" to file.absolutePath
+                "attributes" to
+                    jsonArray(
+                        jsonObj {
+                            "name" to "Type"
+                            "value" to "Data"
+                        },
+                        jsonObj {
+                            "name" to "Source"
+                            "value" to null
+                            "reference" to true
+                        },
+                    )
+                "extType" to "nfsFile"
+                "type" to "file"
+                "size" to file.size()
+                "md5" to file.md5()
+            }.toString()
 
         val extFile = testInstance.readValue<ExtFile>(json) as NfsFile
 
@@ -67,24 +69,26 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun `deserialize ext file when fire file`() {
-        val json = jsonObj {
-            "fileName" to "test-file.txt"
-            "filePath" to "folder/test-file.txt"
-            "relPath" to "Files/folder/test-file.txt"
-            "fireId" to "fireId"
-            "firePath" to "firePath"
-            "published" to false
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "Type"
-                    "value" to "Data"
-                }
-            )
-            "type" to "file"
-            "size" to 10
-            "md5" to "fireFileMd5"
-            "extType" to "fireFile"
-        }.toString()
+        val json =
+            jsonObj {
+                "fileName" to "test-file.txt"
+                "filePath" to "folder/test-file.txt"
+                "relPath" to "Files/folder/test-file.txt"
+                "fireId" to "fireId"
+                "firePath" to "firePath"
+                "published" to false
+                "attributes" to
+                    jsonArray(
+                        jsonObj {
+                            "name" to "Type"
+                            "value" to "Data"
+                        },
+                    )
+                "type" to "file"
+                "size" to 10
+                "md5" to "fireFileMd5"
+                "extType" to "fireFile"
+            }.toString()
 
         val extFile = testInstance.readValue<ExtFile>(json) as FireFile
 
@@ -104,24 +108,26 @@ class ExtFileDeserializerTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun `deserialize ext file when fire directory`() {
-        val json = jsonObj {
-            "fileName" to "test-file.txt"
-            "filePath" to "folder/test-file.txt"
-            "fireId" to "dirFireId"
-            "firePath" to "dirFirePath"
-            "published" to false
-            "relPath" to "Files/folder/test-file.txt"
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "Type"
-                    "value" to "Data"
-                }
-            )
-            "extType" to "fireFile"
-            "type" to "directory"
-            "size" to 20
-            "md5" to "fireDirectoryMd5"
-        }.toString()
+        val json =
+            jsonObj {
+                "fileName" to "test-file.txt"
+                "filePath" to "folder/test-file.txt"
+                "fireId" to "dirFireId"
+                "firePath" to "dirFirePath"
+                "published" to false
+                "relPath" to "Files/folder/test-file.txt"
+                "attributes" to
+                    jsonArray(
+                        jsonObj {
+                            "name" to "Type"
+                            "value" to "Data"
+                        },
+                    )
+                "extType" to "fireFile"
+                "type" to "directory"
+                "size" to 20
+                "md5" to "fireDirectoryMd5"
+            }.toString()
 
         val extFile = testInstance.readValue<ExtFile>(json) as FireFile
 

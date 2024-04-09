@@ -20,7 +20,9 @@ class SubmissionOperationsResource(
     private val submissionReleaser: SubmissionRequestReleaser,
 ) {
     @PostMapping("/ftp/generate")
-    suspend fun generateFtpLinks(@RequestParam("accNo", required = true) accNo: String) {
+    suspend fun generateFtpLinks(
+        @RequestParam("accNo", required = true) accNo: String,
+    ) {
         submissionReleaser.generateFtpLinks(accNo)
     }
 

@@ -50,76 +50,187 @@ data class SubmissionFilesConfig(
 )
 
 interface FilesOperations {
-    fun uploadFiles(files: List<File>, relativePath: String = EMPTY)
-    fun uploadFile(file: File, relativePath: String = EMPTY)
-    fun downloadFile(fileName: String, relativePath: String = EMPTY): File
+    fun uploadFiles(
+        files: List<File>,
+        relativePath: String = EMPTY,
+    )
+
+    fun uploadFile(
+        file: File,
+        relativePath: String = EMPTY,
+    )
+
+    fun downloadFile(
+        fileName: String,
+        relativePath: String = EMPTY,
+    ): File
+
     fun listUserFiles(relativePath: String = EMPTY): List<UserFile>
-    fun deleteFile(fileName: String, relativePath: String = EMPTY)
-    fun createFolder(folderName: String, relativePath: String = EMPTY)
+
+    fun deleteFile(
+        fileName: String,
+        relativePath: String = EMPTY,
+    )
+
+    fun createFolder(
+        folderName: String,
+        relativePath: String = EMPTY,
+    )
 }
 
 interface GroupFilesOperations {
-    fun uploadGroupFiles(groupName: String, files: List<File>, relativePath: String = EMPTY)
-    fun downloadGroupFile(groupName: String, fileName: String, relativePath: String = EMPTY): File
-    fun listGroupFiles(groupName: String, relativePath: String = EMPTY): List<UserFile>
-    fun deleteGroupFile(groupName: String, fileName: String, relativePath: String = EMPTY)
-    fun createGroupFolder(groupName: String, folderName: String, relativePath: String = EMPTY)
+    fun uploadGroupFiles(
+        groupName: String,
+        files: List<File>,
+        relativePath: String = EMPTY,
+    )
+
+    fun downloadGroupFile(
+        groupName: String,
+        fileName: String,
+        relativePath: String = EMPTY,
+    ): File
+
+    fun listGroupFiles(
+        groupName: String,
+        relativePath: String = EMPTY,
+    ): List<UserFile>
+
+    fun deleteGroupFile(
+        groupName: String,
+        fileName: String,
+        relativePath: String = EMPTY,
+    )
+
+    fun createGroupFolder(
+        groupName: String,
+        folderName: String,
+        relativePath: String = EMPTY,
+    )
 }
 
 interface SubmissionOperations {
     fun deleteSubmission(accNo: String)
+
     fun deleteSubmissions(submissions: List<String>)
+
     fun getSubmissions(filter: Map<String, Any> = mapOf()): List<SubmissionDto>
-    fun validateFileList(fileListPath: String, rootPath: String? = null, accNo: String? = null)
+
+    fun validateFileList(
+        fileListPath: String,
+        rootPath: String? = null,
+        accNo: String? = null,
+    )
 }
 
 interface SecurityOperations {
-    fun getAuthenticatedClient(user: String, password: String, onBehalf: String? = null): BioWebClient
+    fun getAuthenticatedClient(
+        user: String,
+        password: String,
+        onBehalf: String? = null,
+    ): BioWebClient
+
     fun login(loginRequest: LoginRequest): UserProfile
+
     fun registerUser(registerRequest: RegisterRequest)
+
     fun checkUser(checkUserRequest: CheckUserRequest)
 }
 
 interface GeneralOperations {
     fun getGroups(): List<Group>
+
     fun getCollections(): List<Collection>
+
     suspend fun generateFtpLinks(accNo: String)
-    fun createGroup(groupName: String, groupDescription: String): UserGroupDto
-    fun addUserInGroup(groupName: String, userName: String)
+
+    fun createGroup(
+        groupName: String,
+        groupDescription: String,
+    ): UserGroupDto
+
+    fun addUserInGroup(
+        groupName: String,
+        userName: String,
+    )
 }
 
 interface StatsOperations {
     fun getStatsByAccNo(accNo: String): List<SubmissionStat>
+
     fun getStatsByType(type: String): List<SubmissionStat>
-    fun getStatsByTypeAndAccNo(type: String, accNo: String): SubmissionStat
+
+    fun getStatsByTypeAndAccNo(
+        type: String,
+        accNo: String,
+    ): SubmissionStat
 
     fun registerStat(stat: SubmissionStat): Unit
-    fun registerStats(type: String, statsFile: File): List<SubmissionStat>
-    fun incrementStats(type: String, statsFile: File): List<SubmissionStat>
+
+    fun registerStats(
+        type: String,
+        statsFile: File,
+    ): List<SubmissionStat>
+
+    fun incrementStats(
+        type: String,
+        statsFile: File,
+    ): List<SubmissionStat>
 }
 
 interface DraftSubmissionOperations {
-    fun getAllSubmissionDrafts(limit: Int = 15, offset: Int = 0): List<WebSubmissionDraft>
+    fun getAllSubmissionDrafts(
+        limit: Int = 15,
+        offset: Int = 0,
+    ): List<WebSubmissionDraft>
+
     fun getSubmissionDraft(accNo: String): WebSubmissionDraft
+
     fun deleteSubmissionDraft(accNo: String)
-    fun updateSubmissionDraft(accNo: String, content: String)
+
+    fun updateSubmissionDraft(
+        accNo: String,
+        content: String,
+    )
+
     fun createSubmissionDraft(content: String): WebSubmissionDraft
 }
 
 interface ExtSubmissionOperations {
     fun getExtSubmissions(extPageQuery: ExtPageQuery): ExtPage
+
     fun getExtSubmissionsPage(pageUrl: String): ExtPage
-    fun getExtByAccNo(accNo: String, includeFileList: Boolean = false): ExtSubmission
+
+    fun getExtByAccNo(
+        accNo: String,
+        includeFileList: Boolean = false,
+    ): ExtSubmission
+
     fun getReferencedFiles(filesUrl: String): ExtFileTable
+
     fun submitExtAsync(extSubmission: ExtSubmission)
+
     fun submitExt(extSubmission: ExtSubmission): ExtSubmission
-    fun transferSubmission(accNo: String, target: StorageMode)
+
+    fun transferSubmission(
+        accNo: String,
+        target: StorageMode,
+    )
+
     fun refreshSubmission(accNo: String): Pair<String, Int>
-    fun releaseSubmission(accNo: String, releaseDate: Instant): Pair<String, Int>
+
+    fun releaseSubmission(
+        accNo: String,
+        releaseDate: Instant,
+    ): Pair<String, Int>
 }
 
 interface PermissionOperations {
-    fun givePermissionToUser(user: String, accessTagName: String, accessType: String)
+    fun givePermissionToUser(
+        user: String,
+        accessTagName: String,
+        accessType: String,
+    )
 }
 
 interface SubmitOperations {

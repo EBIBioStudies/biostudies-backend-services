@@ -34,15 +34,17 @@ internal class MultiPartSubmitClient(
         attrs: Map<String, String>,
     ): SubmissionResponse {
         val headers = HttpHeaders().apply { contentType = MediaType.MULTIPART_FORM_DATA }
-        val multiPartBody = multipartBody(filesConfig, FileSystemResource(submission)).apply {
-            attrs.entries.forEach { add(ATTRIBUTES, ExtAttributeDetail(it.key, it.value)) }
-        }
+        val multiPartBody =
+            multipartBody(filesConfig, FileSystemResource(submission)).apply {
+                attrs.entries.forEach { add(ATTRIBUTES, ExtAttributeDetail(it.key, it.value)) }
+            }
 
-        val response = client.post()
-            .uri("$SUBMIT_URL/direct")
-            .body(BodyInserters.fromMultipartData(multiPartBody))
-            .headers { it.addAll(headers) }
-            .retrieve()
+        val response =
+            client.post()
+                .uri("$SUBMIT_URL/direct")
+                .body(BodyInserters.fromMultipartData(multiPartBody))
+                .headers { it.addAll(headers) }
+                .retrieve()
 
         return serializationService.deserializeResponse(response, JsonPretty).block()!!
     }
@@ -75,18 +77,20 @@ internal class MultiPartSubmitClient(
         body: LinkedMultiValueMap<String, Any>,
         url: String = SUBMIT_URL,
     ): SubmissionResponse {
-        val response = client.post()
-            .uri(url)
-            .body(BodyInserters.fromMultipartData(body))
-            .headers { it.addAll(headers) }
-            .retrieve()
+        val response =
+            client.post()
+                .uri(url)
+                .body(BodyInserters.fromMultipartData(body))
+                .headers { it.addAll(headers) }
+                .retrieve()
 
         return serializationService.deserializeResponse(response, JsonPretty).block()!!
     }
 
-    private fun createHeaders(format: SubmissionFormat) = HttpHeaders().apply {
-        contentType = MediaType.MULTIPART_FORM_DATA
-        accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
-        setSubmissionType(format.submissionType)
-    }
+    private fun createHeaders(format: SubmissionFormat) =
+        HttpHeaders().apply {
+            contentType = MediaType.MULTIPART_FORM_DATA
+            accept = listOf(format.mediaType, MediaType.APPLICATION_JSON)
+            setSubmissionType(format.submissionType)
+        }
 }

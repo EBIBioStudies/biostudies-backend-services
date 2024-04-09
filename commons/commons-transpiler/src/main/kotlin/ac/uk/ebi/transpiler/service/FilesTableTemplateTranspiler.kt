@@ -39,14 +39,15 @@ class FilesTableTemplateTranspiler(
         filesPath: String,
         basePath: String,
         format: SubFormat,
-    ): String = runBlocking {
-        val tableTemplate = templateProcessor.process(template, baseColumns)
+    ): String =
+        runBlocking {
+            val tableTemplate = templateProcessor.process(template, baseColumns)
 
-        templateValidator.validate(tableTemplate, filesPath)
+            templateValidator.validate(tableTemplate, filesPath)
 
-        val filesTable = templateMapper.map(tableTemplate, filesPath, basePath)
-        val file = Files.createTempFile("tempFile.txt", "")
-        serializationService.serializeTable(filesTable, format, file.toFile())
-        file.readText()
-    }
+            val filesTable = templateMapper.map(tableTemplate, filesPath, basePath)
+            val file = Files.createTempFile("tempFile.txt", "")
+            serializationService.serializeTable(filesTable, format, file.toFile())
+            file.readText()
+        }
 }

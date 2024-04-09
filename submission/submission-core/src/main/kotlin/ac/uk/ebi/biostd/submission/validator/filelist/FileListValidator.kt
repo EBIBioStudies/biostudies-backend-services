@@ -31,19 +31,23 @@ class FileListValidator(
     suspend fun validateFileList(request: FileListValidationRequest) {
         val (accNo, rootPath, fileListName, submitter, onBehalfUser) = request
         val submission = accNo?.let { submissionQueryService.findExtByAccNo(accNo, includeFileListFiles = false) }
-        val fileSourcesRequest = FileSourcesRequest(
-            onBehalfUser = onBehalfUser,
-            submitter = submitter,
-            files = null,
-            rootPath = rootPath,
-            submission = submission,
-            preferredSources = emptyList()
-        )
+        val fileSourcesRequest =
+            FileSourcesRequest(
+                onBehalfUser = onBehalfUser,
+                submitter = submitter,
+                files = null,
+                rootPath = rootPath,
+                submission = submission,
+                preferredSources = emptyList(),
+            )
         val fileSources = fileSourcesService.submissionSources(fileSourcesRequest)
         validateFileList(fileListName, fileSources)
     }
 
-    private suspend fun validateFileList(fileListName: String, fileSources: FileSourcesList) {
+    private suspend fun validateFileList(
+        fileListName: String,
+        fileSources: FileSourcesList,
+    ) {
         val fileListFile = getFileListFile(fileListName, fileSources)
         val format = SubFormat.fromFile(fileListFile)
         fileListFile.inputStream().use { validateFiles(fileListName, it, format, fileSources) }

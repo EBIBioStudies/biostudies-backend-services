@@ -63,7 +63,7 @@ import java.nio.file.Paths
     FilesHandlerConfig::class,
     SecurityConfig::class,
     SerializationConfiguration::class,
-    ExternalConfig::class
+    ExternalConfig::class,
 )
 class SubmitterConfig(
     private val properties: ApplicationProperties,
@@ -74,25 +74,27 @@ class SubmitterConfig(
         serializationService: ExtSerializationService,
         requestService: SubmissionRequestPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
-    ): SubmissionRequestIndexer = SubmissionRequestIndexer(
-        eventsPublisherService,
-        serializationService,
-        requestService,
-        filesRequestService,
-    )
+    ): SubmissionRequestIndexer =
+        SubmissionRequestIndexer(
+            eventsPublisherService,
+            serializationService,
+            requestService,
+            filesRequestService,
+        )
 
     @Bean
     fun requestLoader(
         eventsPublisherService: EventsPublisherService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
         requestService: SubmissionRequestPersistenceService,
-    ): SubmissionRequestLoader = SubmissionRequestLoader(
-        properties.persistence.concurrency,
-        File(properties.fire.tempDirPath),
-        eventsPublisherService,
-        filesRequestService,
-        requestService,
-    )
+    ): SubmissionRequestLoader =
+        SubmissionRequestLoader(
+            properties.persistence.concurrency,
+            File(properties.fire.tempDirPath),
+            eventsPublisherService,
+            filesRequestService,
+            requestService,
+        )
 
     @Bean
     fun requestSaver(
@@ -117,13 +119,14 @@ class SubmitterConfig(
         eventsPublisherService: EventsPublisherService,
         requestService: SubmissionRequestPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
-    ): SubmissionRequestProcessor = SubmissionRequestProcessor(
-        properties.persistence.concurrency,
-        storageService,
-        eventsPublisherService,
-        requestService,
-        filesRequestService,
-    )
+    ): SubmissionRequestProcessor =
+        SubmissionRequestProcessor(
+            properties.persistence.concurrency,
+            storageService,
+            eventsPublisherService,
+            requestService,
+            filesRequestService,
+        )
 
     @Bean
     fun submissionReleaser(
@@ -133,15 +136,16 @@ class SubmitterConfig(
         requestService: SubmissionRequestPersistenceService,
         submissionPersistenceQueryService: SubmissionPersistenceQueryService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
-    ): SubmissionRequestReleaser = SubmissionRequestReleaser(
-        properties.persistence.concurrency,
-        fileStorageService,
-        serializationService,
-        eventsPublisherService,
-        submissionPersistenceQueryService,
-        requestService,
-        filesRequestService,
-    )
+    ): SubmissionRequestReleaser =
+        SubmissionRequestReleaser(
+            properties.persistence.concurrency,
+            fileStorageService,
+            serializationService,
+            eventsPublisherService,
+            submissionPersistenceQueryService,
+            requestService,
+            filesRequestService,
+        )
 
     @Bean
     fun submissionCleaner(
@@ -151,14 +155,15 @@ class SubmitterConfig(
         queryService: SubmissionPersistenceQueryService,
         requestService: SubmissionRequestPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
-    ): SubmissionRequestCleaner = SubmissionRequestCleaner(
-        storageService,
-        serializationService,
-        eventsPublisherService,
-        queryService,
-        requestService,
-        filesRequestService,
-    )
+    ): SubmissionRequestCleaner =
+        SubmissionRequestCleaner(
+            storageService,
+            serializationService,
+            eventsPublisherService,
+            queryService,
+            requestService,
+            filesRequestService,
+        )
 
     @Bean
     fun submissionRequestFinalizer(
@@ -167,13 +172,14 @@ class SubmitterConfig(
         eventsPublisherService: EventsPublisherService,
         queryService: SubmissionPersistenceQueryService,
         requestService: SubmissionRequestPersistenceService,
-    ): SubmissionRequestFinalizer = SubmissionRequestFinalizer(
-        storageService,
-        serializationService,
-        eventsPublisherService,
-        queryService,
-        requestService,
-    )
+    ): SubmissionRequestFinalizer =
+        SubmissionRequestFinalizer(
+            storageService,
+            serializationService,
+            eventsPublisherService,
+            queryService,
+            requestService,
+        )
 
     @Bean
     @ConditionalOnMissingBean(ExtSubmissionSubmitter::class)
@@ -189,19 +195,20 @@ class SubmitterConfig(
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
         submissionFinalizer: SubmissionRequestFinalizer,
-    ): ExtSubmissionSubmitter = LocalExtSubmissionSubmitter(
-        appProperties,
-        pageTabService,
-        requestService,
-        persistenceService,
-        requestIndexer,
-        requestLoader,
-        requestProcessor,
-        submissionReleaser,
-        submissionCleaner,
-        submissionSaver,
-        submissionFinalizer,
-    )
+    ): ExtSubmissionSubmitter =
+        LocalExtSubmissionSubmitter(
+            appProperties,
+            pageTabService,
+            requestService,
+            persistenceService,
+            requestIndexer,
+            requestLoader,
+            requestProcessor,
+            submissionReleaser,
+            submissionCleaner,
+            submissionSaver,
+            submissionFinalizer,
+        )
 
     @Bean
     fun submissionSubmitter(
@@ -209,12 +216,13 @@ class SubmitterConfig(
         submissionProcessor: SubmissionProcessor,
         collectionValidationService: CollectionValidationService,
         draftService: SubmissionDraftPersistenceService,
-    ): SubmissionSubmitter = SubmissionSubmitter(
-        extSubmissionSubmitter,
-        submissionProcessor,
-        collectionValidationService,
-        draftService,
-    )
+    ): SubmissionSubmitter =
+        SubmissionSubmitter(
+            extSubmissionSubmitter,
+            submissionProcessor,
+            collectionValidationService,
+            draftService,
+        )
 
     @Bean
     fun submissionProcessor(
@@ -239,27 +247,26 @@ class SubmitterConfig(
     @Configuration
     class ToExtendedConfiguration {
         @Bean
-        fun toExtSection(toExtFileListMapper: ToExtFileListMapper): ToExtSectionMapper =
-            ToExtSectionMapper(toExtFileListMapper)
+        fun toExtSection(toExtFileListMapper: ToExtFileListMapper): ToExtSectionMapper = ToExtSectionMapper(toExtFileListMapper)
 
         @Bean
         fun toExtFileList(
             extSerializationService: ExtSerializationService,
             serializationService: SerializationService,
             filesResolver: FilesResolver,
-        ): ToExtFileListMapper =
-            ToExtFileListMapper(extSerializationService, serializationService, filesResolver)
+        ): ToExtFileListMapper = ToExtFileListMapper(extSerializationService, serializationService, filesResolver)
     }
 
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
         @Bean
         @Lazy
-        fun folderResolver() = SubmissionFolderResolver(
-            includeSecretKey = appProperties.persistence.includeSecretKey,
-            privateSubPath = Paths.get(appProperties.persistence.privateSubmissionsPath),
-            publicSubPath = Paths.get(appProperties.persistence.publicSubmissionsPath)
-        )
+        fun folderResolver() =
+            SubmissionFolderResolver(
+                includeSecretKey = appProperties.persistence.includeSecretKey,
+                privateSubPath = Paths.get(appProperties.persistence.privateSubmissionsPath),
+                publicSubPath = Paths.get(appProperties.persistence.publicSubmissionsPath),
+            )
     }
 
     @Configuration

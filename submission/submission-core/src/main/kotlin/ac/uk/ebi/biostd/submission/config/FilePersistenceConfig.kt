@@ -39,12 +39,10 @@ class FilePersistenceConfig(
         nfsFtpService: NfsFtpService,
         nfsFilesService: NfsFilesService,
         extSerializationService: ExtSerializationService,
-    ): FileStorageService =
-        StorageService(fireFtpService, fireFilesService, nfsFtpService, nfsFilesService, extSerializationService)
+    ): FileStorageService = StorageService(fireFtpService, fireFilesService, nfsFtpService, nfsFilesService, extSerializationService)
 
     @Bean
-    fun nfsFtpService(): NfsFtpService =
-        NfsFtpService(NfsReleaseMode.valueOf(properties.persistence.nfsReleaseMode), folderResolver)
+    fun nfsFtpService(): NfsFtpService = NfsFtpService(NfsReleaseMode.valueOf(properties.persistence.nfsReleaseMode), folderResolver)
 
     @Bean
     fun nfsFileService(): NfsFilesService = NfsFilesService(fireClient, folderResolver)
@@ -56,9 +54,7 @@ class FilePersistenceConfig(
     fun fireFileService(): FireFilesService = FireFilesService(fireClient)
 
     @Bean
-    fun pageTabService(
-        pageTabUtil: PageTabUtil,
-    ): PageTabService = PageTabService(File(properties.fire.tempDirPath), pageTabUtil)
+    fun pageTabService(pageTabUtil: PageTabUtil): PageTabService = PageTabService(File(properties.fire.tempDirPath), pageTabUtil)
 
     @Bean
     fun pageTabUtil(

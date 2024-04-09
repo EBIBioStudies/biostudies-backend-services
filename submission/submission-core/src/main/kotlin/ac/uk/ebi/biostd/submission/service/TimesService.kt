@@ -41,16 +41,18 @@ class TimesService(
         val isReleased = request.previousVersion?.released.orFalse()
         val previousReleaseTime = request.previousVersion?.releaseTime?.toInstant()?.asOffsetAtStartOfDay()
 
-        fun checkFutureReleaseTime() = when {
-            isReleased && privilegesService.canSuppress(user).not() -> throw InvalidReleaseDateException()
-            else -> releaseTime
-        }
+        fun checkFutureReleaseTime() =
+            when {
+                isReleased && privilegesService.canSuppress(user).not() -> throw InvalidReleaseDateException()
+                else -> releaseTime
+            }
 
-        fun checkPastReleaseTime() = when {
-            isReleased -> throw InvalidReleaseDateException()
-            previousReleaseTime == null -> throw PastReleaseDateException()
-            else -> releaseTime
-        }
+        fun checkPastReleaseTime() =
+            when {
+                isReleased -> throw InvalidReleaseDateException()
+                previousReleaseTime == null -> throw PastReleaseDateException()
+                else -> releaseTime
+            }
 
         return when {
             previousReleaseTime?.isEqual(releaseTime).orFalse() -> releaseTime

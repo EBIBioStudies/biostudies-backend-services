@@ -23,42 +23,60 @@ class ExtendedSubmissionSubmitter(
     private val requestService: SubmissionRequestPersistenceService,
     private val queryService: SubmissionPersistenceQueryService,
 ) : ExtSubmissionSubmitter by localExtSubmissionSubmitter {
-    override suspend fun loadRequest(accNo: String, version: Int) {
+    override suspend fun loadRequest(
+        accNo: String,
+        version: Int,
+    ) {
         when (submissionTaskProperties.enabled) {
             true -> remoteExtSubmissionSubmitter.loadRequest(accNo, version)
             else -> localExtSubmissionSubmitter.loadRequest(accNo, version)
         }
     }
 
-    override suspend fun cleanRequest(accNo: String, version: Int) {
+    override suspend fun cleanRequest(
+        accNo: String,
+        version: Int,
+    ) {
         when (submissionTaskProperties.enabled) {
             true -> remoteExtSubmissionSubmitter.cleanRequest(accNo, version)
             else -> localExtSubmissionSubmitter.cleanRequest(accNo, version)
         }
     }
 
-    override suspend fun processRequest(accNo: String, version: Int) {
+    override suspend fun processRequest(
+        accNo: String,
+        version: Int,
+    ) {
         when (submissionTaskProperties.enabled) {
             true -> remoteExtSubmissionSubmitter.processRequest(accNo, version)
             else -> localExtSubmissionSubmitter.processRequest(accNo, version)
         }
     }
 
-    override suspend fun checkReleased(accNo: String, version: Int) {
+    override suspend fun checkReleased(
+        accNo: String,
+        version: Int,
+    ) {
         when (submissionTaskProperties.enabled) {
             true -> remoteExtSubmissionSubmitter.checkReleased(accNo, version)
             else -> localExtSubmissionSubmitter.checkReleased(accNo, version)
         }
     }
 
-    override suspend fun handleRequest(accNo: String, version: Int): ExtSubmission {
+    override suspend fun handleRequest(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         return when (submissionTaskProperties.enabled) {
             true -> handleRemoteRequest(accNo, version)
             else -> localExtSubmissionSubmitter.handleRequest(accNo, version)
         }
     }
 
-    private suspend fun handleRemoteRequest(accNo: String, version: Int): ExtSubmission {
+    private suspend fun handleRemoteRequest(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         return when (requestService.getRequestStatus(accNo, version)) {
             REQUESTED -> triggerAndWait(accNo, version) { indexRequest(accNo, version) }
             INDEXED -> triggerAndWait(accNo, version) { loadRequest(accNo, version) }
@@ -67,20 +85,20 @@ class ExtendedSubmissionSubmitter(
             FILES_COPIED -> triggerAndWait(accNo, version) { checkReleased(accNo, version) }
             CHECK_RELEASED -> localExtSubmissionSubmitter.saveAndFinalize(accNo, version)
             PERSISTED -> finalizeRequest(accNo, version)
-            else -> throw IllegalStateException("Request accNo=$accNo, version=$version has been already processed")
+            else -> error("Request accNo=$accNo, version=$version has been already processed")
         }
     }
 
     private suspend fun triggerAndWait(
         accNo: String,
         version: Int,
-        stageTrigger: suspend () -> Unit
+        stageTrigger: suspend () -> Unit,
     ): ExtSubmission {
         stageTrigger()
         return waitUntil(
             ofMinutes(SYNC_SUBMIT_TIMEOUT),
             conditionEvaluator = { queryService.existByAccNoAndVersion(accNo, version) },
-            processFunction = { queryService.getExtByAccNo(accNo) }
+            processFunction = { queryService.getExtByAccNo(accNo) },
         )
     }
 }

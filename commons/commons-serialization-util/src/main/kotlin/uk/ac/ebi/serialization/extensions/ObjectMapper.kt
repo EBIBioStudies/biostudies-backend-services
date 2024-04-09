@@ -18,7 +18,10 @@ import java.util.concurrent.atomic.AtomicInteger
 
 private val logger = KotlinLogging.logger {}
 
-fun <T : Any> ObjectMapper.serializeList(files: Sequence<T>, outputStream: OutputStream): Int {
+fun <T : Any> ObjectMapper.serializeList(
+    files: Sequence<T>,
+    outputStream: OutputStream,
+): Int {
     val jsonGenerator = factory.createGenerator(outputStream)
     jsonGenerator.use {
         it.writeStartArray()
@@ -47,7 +50,11 @@ suspend fun <T : Any> ObjectMapper.serializeFlow(
         count.get()
     }
 
-inline fun <reified T> ObjectMapper.convertOrDefault(node: JsonNode, property: String, default: () -> T): T =
+inline fun <reified T> ObjectMapper.convertOrDefault(
+    node: JsonNode,
+    property: String,
+    default: () -> T,
+): T =
     when (val propertyNode: JsonNode? = node.findNode(property)) {
         null -> default()
         else -> convertValue(propertyNode)
@@ -55,7 +62,7 @@ inline fun <reified T> ObjectMapper.convertOrDefault(node: JsonNode, property: S
 
 inline fun <reified T : Any> ObjectMapper.deserializeAsFlow(inputStream: InputStream): Flow<T> {
     val jsonParser = factory.createParser(inputStream)
-    if (jsonParser.nextToken() != JsonToken.START_ARRAY) throw IllegalStateException("Expected content to be an array")
+    if (jsonParser.nextToken() != JsonToken.START_ARRAY) error("Expected content to be an array")
     return flow<T> {
         var next = jsonParser.nextToken()
         while (next != null && next != JsonToken.END_ARRAY) {
@@ -67,32 +74,36 @@ inline fun <reified T : Any> ObjectMapper.deserializeAsFlow(inputStream: InputSt
 
 inline fun <reified T : Any> ObjectMapper.deserializeAsSequence(inputStream: InputStream): Sequence<T> {
     val jsonParser = factory.createParser(inputStream)
-    if (jsonParser.nextToken() != JsonToken.START_ARRAY) throw IllegalStateException("Expected content to be an array")
+    if (jsonParser.nextToken() != JsonToken.START_ARRAY) error("Expected content to be an array")
     return asSequence(jsonParser)
 }
 
 inline fun <reified T : Any> ObjectMapper.asSequence(jsonParser: JsonParser): Sequence<T> =
     object : Sequence<T> {
-        override fun iterator(): Iterator<T> = object : Iterator<T> {
-            private var next: JsonToken? = jsonParser.nextToken()
+        override fun iterator(): Iterator<T> =
+            object : Iterator<T> {
+                private var next: JsonToken? = jsonParser.nextToken()
 
-            override fun hasNext(): Boolean {
-                return next != null && next != JsonToken.END_ARRAY
-            }
+                override fun hasNext(): Boolean {
+                    return next != null && next != JsonToken.END_ARRAY
+                }
 
-            override fun next(): T {
-                if (hasNext().not()) throw NoSuchElementException()
-                val value = readValue(jsonParser, T::class.java)
-                next = jsonParser.nextToken()
-                return value
+                override fun next(): T {
+                    if (hasNext().not()) throw NoSuchElementException()
+                    val value = readValue(jsonParser, T::class.java)
+                    next = jsonParser.nextToken()
+                    return value
+                }
             }
-        }
     }
 
 /**
  * Try to convert the given node using the provided type, return an optional with conversion or emtpy if type could not
  * be converter.
  */
-fun ObjectMapper.tryConvertValue(node: JsonNode, type: JavaType): Any? {
+fun ObjectMapper.tryConvertValue(
+    node: JsonNode,
+    type: JavaType,
+): Any? {
     return runCatching<Any> { convertValue(node, type) }.getOrNull()
 }

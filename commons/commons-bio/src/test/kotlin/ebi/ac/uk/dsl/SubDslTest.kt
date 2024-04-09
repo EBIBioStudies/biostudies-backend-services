@@ -15,78 +15,84 @@ import org.junit.jupiter.api.Test
 class SubDslTest {
     @Test
     fun `submission with attributes`() {
-        val submission = submission("ABC-123") {
-            attribute("AttrName", "Attr Value 1")
-            section("Study") {
-                attribute("SectAttr", "Sect Attr 1")
+        val submission =
+            submission("ABC-123") {
+                attribute("AttrName", "Attr Value 1")
+                section("Study") {
+                    attribute("SectAttr", "Sect Attr 1")
+                }
             }
-        }
 
         assertThat(submission.accNo).isEqualTo("ABC-123")
         assertThat(submission.attributes).hasSize(1)
         assertThat(submission.attributes.first()).isEqualTo(Attribute("AttrName", "Attr Value 1"))
         assertThat(submission.section).isEqualTo(
-            Section("Study", attributes = listOf(Attribute("SectAttr", "Sect Attr 1")))
+            Section("Study", attributes = listOf(Attribute("SectAttr", "Sect Attr 1"))),
         )
     }
 
     @Test
     fun `section with detailed attributes`() {
-        val section = section("Study") {
-            accNo = "SECT-001"
-            attribute(
-                name = "SectAttr",
-                value = "Sect Attr 1",
-                nameAttrs = mutableListOf(AttributeDetail("NameAttr", "Name Attr 1")),
-                valueAttrs = mutableListOf(AttributeDetail("ValueAttr", "Value Attr 1"))
-            )
-        }
+        val section =
+            section("Study") {
+                accNo = "SECT-001"
+                attribute(
+                    name = "SectAttr",
+                    value = "Sect Attr 1",
+                    nameAttrs = mutableListOf(AttributeDetail("NameAttr", "Name Attr 1")),
+                    valueAttrs = mutableListOf(AttributeDetail("ValueAttr", "Value Attr 1")),
+                )
+            }
 
         assertThat(section).isEqualTo(
             Section(
                 type = "Study",
                 accNo = "SECT-001",
-                attributes = listOf(
-                    Attribute(
-                        name = "SectAttr",
-                        value = "Sect Attr 1",
-                        nameAttrs = mutableListOf(AttributeDetail("NameAttr", "Name Attr 1")),
-                        valueAttrs = mutableListOf(AttributeDetail("ValueAttr", "Value Attr 1"))
-                    )
-                )
-            )
+                attributes =
+                    listOf(
+                        Attribute(
+                            name = "SectAttr",
+                            value = "Sect Attr 1",
+                            nameAttrs = mutableListOf(AttributeDetail("NameAttr", "Name Attr 1")),
+                            valueAttrs = mutableListOf(AttributeDetail("ValueAttr", "Value Attr 1")),
+                        ),
+                    ),
+            ),
         )
     }
 
     @Test
     fun `section with a sections table`() {
-        val section = section("Study") {
-            accNo = "SECT-001"
-            sectionsTable {
-                section("Data") { accNo = "DT-1" }
+        val section =
+            section("Study") {
+                accNo = "SECT-001"
+                sectionsTable {
+                    section("Data") { accNo = "DT-1" }
+                }
             }
-        }
 
         assertThat(section).isEqualTo(
             Section(
                 "Study",
                 "SECT-001",
-                sections = mutableListOf(Either.Right(SectionsTable(listOf(Section("Data", "DT-1")))))
-            )
+                sections = mutableListOf(Either.Right(SectionsTable(listOf(Section("Data", "DT-1"))))),
+            ),
         )
     }
 
     @Test
     fun `section with inner subsections`() {
-        val section = section("Study") {
-            accNo = "SECT-001"
-            section("Data") { accNo = "DT-1" }
-        }
-        val expectedSection = Section(
-            "Study",
-            "SECT-001",
-            sections = mutableListOf(Either.Left(Section("Data", "DT-1", parentAccNo = "SECT-001")))
-        )
+        val section =
+            section("Study") {
+                accNo = "SECT-001"
+                section("Data") { accNo = "DT-1" }
+            }
+        val expectedSection =
+            Section(
+                "Study",
+                "SECT-001",
+                sections = mutableListOf(Either.Left(Section("Data", "DT-1", parentAccNo = "SECT-001"))),
+            )
 
         assertThat(section).isEqualTo(expectedSection)
     }
@@ -99,16 +105,18 @@ class SubDslTest {
 
     @Test
     fun `section with a files table`() {
-        val section = section("Study") {
-            filesTable {
-                file("File1.txt")
+        val section =
+            section("Study") {
+                filesTable {
+                    file("File1.txt")
+                }
             }
-        }
 
         assertThat(section).isEqualTo(
             Section(
-                "Study", files = mutableListOf(Either.Right(FilesTable(listOf(BioFile("File1.txt")))))
-            )
+                "Study",
+                files = mutableListOf(Either.Right(FilesTable(listOf(BioFile("File1.txt"))))),
+            ),
         )
     }
 
@@ -120,61 +128,68 @@ class SubDslTest {
 
     @Test
     fun `section with a links table`() {
-        val section = section("Study") {
-            linksTable {
-                link("http://importantsite.net")
+        val section =
+            section("Study") {
+                linksTable {
+                    link("http://importantsite.net")
+                }
             }
-        }
 
         assertThat(section).isEqualTo(
             Section(
-                "Study", links = mutableListOf(Either.Right(LinksTable(listOf(Link("http://importantsite.net")))))
-            )
+                "Study",
+                links = mutableListOf(Either.Right(LinksTable(listOf(Link("http://importantsite.net"))))),
+            ),
         )
     }
 
     @Test
     fun `single sections table`() {
-        val sectionsTable = sectionsTable {
-            section("Data") { accNo = "DT-1" }
-        }
+        val sectionsTable =
+            sectionsTable {
+                section("Data") { accNo = "DT-1" }
+            }
 
         assertThat(sectionsTable).isEqualTo(SectionsTable(listOf(Section("Data", "DT-1"))))
     }
 
     @Test
     fun `single file`() {
-        val file = file("File1.txt") {
-            size = 4
-            attribute("Attr1", "ABC")
-        }
+        val file =
+            file("File1.txt") {
+                size = 4
+                attribute("Attr1", "ABC")
+            }
 
         assertThat(file).isEqualTo(BioFile("File1.txt", 4, "file", listOf(Attribute("Attr1", "ABC"))))
     }
 
     @Test
     fun `single files table`() {
-        val filesTable = filesTable {
-            file("File1.txt")
-        }
+        val filesTable =
+            filesTable {
+                file("File1.txt")
+            }
 
         assertThat(filesTable).isEqualTo(FilesTable(listOf(BioFile("File1.txt"))))
     }
 
     @Test
     fun `single link`() {
-        val link = link("http://somelink.org") {
-            attribute("Attr1", "ABC")
-        }
+        val link =
+            link("http://somelink.org") {
+                attribute("Attr1", "ABC")
+            }
 
         assertThat(link).isEqualTo(Link("http://somelink.org", listOf(Attribute("Attr1", "ABC"))))
     }
 
     @Test
     fun `single links table`() {
-        val linksTable = linksTable {
-            link("http://importantsite.net")
-        }
+        val linksTable =
+            linksTable {
+                link("http://importantsite.net")
+            }
 
         assertThat(linksTable).isEqualTo(LinksTable(listOf(Link("http://importantsite.net"))))
     }

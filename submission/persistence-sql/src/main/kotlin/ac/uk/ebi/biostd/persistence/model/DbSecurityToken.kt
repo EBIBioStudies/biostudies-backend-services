@@ -9,10 +9,8 @@ import javax.persistence.Table
 @Entity
 @Table(name = "SecurityToken")
 class DbSecurityToken(
-
     @Id
     var id: String,
-
     @Column(name = "invalidation_date")
-    val invalidationDate: OffsetDateTime
+    val invalidationDate: OffsetDateTime,
 )

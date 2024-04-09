@@ -25,10 +25,11 @@ internal class PathSourceTest(temporaryFolder: TemporaryFolder) {
     }
 
     @Test
-    fun getFile() = runTest {
-        val result = testInstance.getExtFile(file.name, FILE_TYPE.value, attributes)
+    fun getFile() =
+        runTest {
+            val result = testInstance.getExtFile(file.name, FILE_TYPE.value, attributes)
 
-        assertThat(result).isInstanceOf(NfsFile::class.java)
-        assertThat((result as NfsFile).file).isEqualTo(file)
-    }
+            assertThat(result).isInstanceOf(NfsFile::class.java)
+            assertThat((result as NfsFile).file).isEqualTo(file)
+        }
 }

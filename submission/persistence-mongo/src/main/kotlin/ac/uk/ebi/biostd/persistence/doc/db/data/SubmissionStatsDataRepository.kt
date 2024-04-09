@@ -28,12 +28,16 @@ class SubmissionStatsDataRepository(
             .awaitSingleOrNull()
     }
 
-    suspend fun incrementStat(accNo: String, stats: List<SubmissionStat>) {
-        val operations = stats.stream().map { stat ->
-            val update = Document("$SUB_STATS.${stat.type}", stat.value)
-            val filter = Document(DocSubmissionFields.SUB_ACC_NO, accNo)
-            UpdateOneModel<Document>(filter, Document("\$inc", update), UpdateOptions().upsert(true))
-        }.toList()
+    suspend fun incrementStat(
+        accNo: String,
+        stats: List<SubmissionStat>,
+    ) {
+        val operations =
+            stats.stream().map { stat ->
+                val update = Document("$SUB_STATS.${stat.type}", stat.value)
+                val filter = Document(DocSubmissionFields.SUB_ACC_NO, accNo)
+                UpdateOneModel<Document>(filter, Document("\$inc", update), UpdateOptions().upsert(true))
+            }.toList()
 
         val result = Mono.from(mongoTemplate.collection<DocSubmissionStats>().bulkWrite(operations))
         result.awaitSingleOrNull()

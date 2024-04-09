@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.map
 class CollectionMongoDataService(
     private val submissionDocDataRepository: SubmissionDocDataRepository,
 ) : CollectionDataService {
-
     override fun findCollectionsByAccessTags(tags: List<String>): Flow<BasicSubmission> =
         submissionDocDataRepository
             .getByAccNoInAndVersionGreaterThan(tags, 0)

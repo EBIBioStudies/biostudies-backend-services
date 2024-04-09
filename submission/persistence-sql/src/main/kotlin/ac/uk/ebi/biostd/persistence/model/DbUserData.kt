@@ -16,13 +16,10 @@ import javax.persistence.Table
 class DbUserData(
     @Id
     val userId: Long,
-
     @Id
     val key: String,
-
-    var data: String
+    var data: String,
 ) {
-
     @ManyToOne
     @JoinColumn(name = "userId", updatable = false, insertable = false)
     lateinit var user: DbUser

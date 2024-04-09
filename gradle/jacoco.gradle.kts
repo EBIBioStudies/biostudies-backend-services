@@ -32,10 +32,17 @@ tasks.named<JacocoReport>("jacocoTestReport") {
 
 val coverage: String? by project
 
-val verifyCoverage = tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
-    executionData.setFrom(fileTree("${project.layout.buildDirectory.get()}/jacoco") { include("*.exec") })
-    dependsOn(tasks.named("test"))
-    violationRules {
-        rule { limit { counter = "LINE"; value = "COVEREDRATIO"; minimum = coverage?.toBigDecimal() ?: ZERO } }
+val verifyCoverage =
+    tasks.named<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
+        executionData.setFrom(fileTree("${project.layout.buildDirectory.get()}/jacoco") { include("*.exec") })
+        dependsOn(tasks.named("test"))
+        violationRules {
+            rule {
+                limit {
+                    counter = "LINE"
+                    value = "COVEREDRATIO"
+                    minimum = coverage?.toBigDecimal() ?: ZERO
+                }
+            }
+        }
     }
-}

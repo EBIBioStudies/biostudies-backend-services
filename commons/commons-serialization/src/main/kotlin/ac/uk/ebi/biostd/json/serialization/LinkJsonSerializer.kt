@@ -10,10 +10,16 @@ import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.constants.LinkFields
 
 internal class LinkJsonSerializer : StdSerializer<Link>(Link::class.java) {
-    override fun isEmpty(provider: SerializerProvider, value: Link): Boolean = value.url.isEmpty()
+    override fun isEmpty(
+        provider: SerializerProvider,
+        value: Link,
+    ): Boolean = value.url.isEmpty()
 
-    override fun serialize(link: Link, gen: JsonGenerator, provider: SerializerProvider) {
-
+    override fun serialize(
+        link: Link,
+        gen: JsonGenerator,
+        provider: SerializerProvider,
+    ) {
         gen.writeObj {
             writeJsonString(LinkFields.URL, link.url)
             writeJsonArray(LinkFields.ATTRIBUTES, link.attributes)

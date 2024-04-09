@@ -14,7 +14,7 @@ import uk.ac.ebi.biostd.client.cli.dto.TransferRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 internal class TransferCommand(
-    private val subService: SubmissionService
+    private val subService: SubmissionService,
 ) : CliktCommand(name = "transfer") {
     private val server by option("-s", "--server", help = SERVER_HELP).required()
     private val user by option("-u", "--user", help = USER_HELP).required()

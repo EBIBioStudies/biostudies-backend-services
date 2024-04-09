@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
 @EnableJpaRepositories(
-    basePackageClasses = [UserDataRepository::class]
+    basePackageClasses = [UserDataRepository::class],
 )
 @EntityScan(basePackageClasses = [DbUser::class])
 internal class JpaRepositoryConfig

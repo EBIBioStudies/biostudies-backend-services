@@ -12,7 +12,11 @@ import ebi.ac.uk.model.constants.SUBMISSION
 import ebi.ac.uk.model.constants.SubFields
 
 internal class SubmissionJsonSerializer : StdSerializer<Submission>(Submission::class.java) {
-    override fun serialize(subm: Submission, gen: JsonGenerator, provider: SerializerProvider) {
+    override fun serialize(
+        subm: Submission,
+        gen: JsonGenerator,
+        provider: SerializerProvider,
+    ) {
         gen.writeObj {
             writeJsonString(SubFields.ACC_NO, subm.accNo)
             writeJsonArray(SubFields.ATTRIBUTES, subm.attributes)

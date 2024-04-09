@@ -13,7 +13,9 @@ private val logger = KotlinLogging.logger {}
 
 @Component
 @ConditionalOnProperty(prefix = "app", name = ["enablePropertiesLog"], havingValue = "true")
-class PropertyLogger(@Autowired private val applicationProperties: ApplicationProperties) {
+class PropertyLogger(
+    @Autowired private val applicationProperties: ApplicationProperties,
+) {
     @EventListener
     @Suppress("UnusedPrivateMember")
     fun handleContextRefresh(event: ContextRefreshedEvent) {

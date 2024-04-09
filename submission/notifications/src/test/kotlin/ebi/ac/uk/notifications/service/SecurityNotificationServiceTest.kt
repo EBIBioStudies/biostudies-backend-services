@@ -83,7 +83,11 @@ class SecurityNotificationServiceTest(
         assertEmail(email, "BioStudies Account Password Reset", "reset password")
     }
 
-    private fun assertEmail(email: Email, subject: String, content: String) {
+    private fun assertEmail(
+        email: Email,
+        subject: String,
+        content: String,
+    ) {
         assertThat(email.from).isEqualTo(EMAIL_FROM)
         assertThat(email.to).isEqualTo(TEST_EMAIL)
         assertThat(email.subject).isEqualTo(subject)

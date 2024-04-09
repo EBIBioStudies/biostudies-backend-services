@@ -5,10 +5,11 @@ import ebi.ac.uk.extended.model.StorageMode.NFS
 import java.io.File
 
 val ExtFile.storageMode: StorageMode
-    get() = when (this) {
-        is NfsFile -> NFS
-        is FireFile -> FIRE
-    }
+    get() =
+        when (this) {
+            is NfsFile -> NFS
+            is FireFile -> FIRE
+        }
 
 fun ExtFile.copyWithAttributes(attributes: List<ExtAttribute>): ExtFile {
     return when (this) {
@@ -17,25 +18,31 @@ fun ExtFile.copyWithAttributes(attributes: List<ExtAttribute>): ExtFile {
     }
 }
 
-fun ExtFile.asFireFile(fireId: String, firePath: String, published: Boolean): FireFile = FireFile(
-    fireId,
-    firePath,
-    published,
-    filePath,
-    relPath,
-    md5,
-    size,
-    type,
-    attributes
-)
+fun ExtFile.asFireFile(
+    fireId: String,
+    firePath: String,
+    published: Boolean,
+): FireFile =
+    FireFile(
+        fireId,
+        firePath,
+        published,
+        filePath,
+        relPath,
+        md5,
+        size,
+        type,
+        attributes,
+    )
 
-fun ExtFile.asNfsFile(file: File): NfsFile = NfsFile(
-    filePath,
-    relPath,
-    file,
-    file.absolutePath,
-    md5,
-    size,
-    attributes,
-    type
-)
+fun ExtFile.asNfsFile(file: File): NfsFile =
+    NfsFile(
+        filePath,
+        relPath,
+        file,
+        file.absolutePath,
+        md5,
+        size,
+        attributes,
+        type,
+    )

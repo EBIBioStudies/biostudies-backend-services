@@ -37,7 +37,7 @@ internal object FileTestHelper {
             attributes = listOf(basicDocAttribute),
             md5 = TEST_MD5,
             fileSize = SIZE,
-            fileType = FILE.value
+            fileType = FILE.value,
         )
     val fireDocFile =
         FireDocFile(
@@ -48,7 +48,7 @@ internal object FileTestHelper {
             attributes = listOf(basicDocAttribute),
             md5 = TEST_MD5,
             fileSize = TEST_FIRE_FILE_SIZE,
-            fileType = FILE.value
+            fileType = FILE.value,
         )
     val fireDocDirectory =
         FireDocFile(
@@ -59,11 +59,14 @@ internal object FileTestHelper {
             attributes = listOf(basicDocAttribute),
             md5 = TEST_MD5,
             fileSize = TEST_FIRE_FILE_SIZE,
-            fileType = DIR.value
+            fileType = DIR.value,
         )
     val docFileList = DocFileList(TEST_FILE_LIST)
 
-    fun assertExtFile(extFile: ExtFile, file: File) = when (extFile) {
+    fun assertExtFile(
+        extFile: ExtFile,
+        file: File,
+    ) = when (extFile) {
         is FireFile -> assertFireFile(extFile)
         is NfsFile -> assertNfsFile(extFile, file)
     }
@@ -77,7 +80,10 @@ internal object FileTestHelper {
         assertThat(fireFile.fireId).isEqualTo(TEST_FIRE_DIR_ID)
     }
 
-    private fun assertNfsFile(nfsFile: NfsFile, file: File) {
+    private fun assertNfsFile(
+        nfsFile: NfsFile,
+        file: File,
+    ) {
         assertThat(nfsFile.fileName).isEqualTo(TEST_FILENAME)
         assertThat(nfsFile.filePath).isEqualTo(TEST_FILEPATH)
         assertThat(nfsFile.relPath).isEqualTo(TEST_REL_PATH)

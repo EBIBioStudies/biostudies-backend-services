@@ -16,7 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 internal class DocFileTableConverterTest(
     @MockK val docFileConverter: DocFileConverter,
     @MockK val documentFile: Document,
-    @MockK val docFile: DocFile
+    @MockK val docFile: DocFile,
 ) {
     private val testInstance = DocFileTableConverter(docFileConverter)
 
@@ -32,7 +32,7 @@ internal class DocFileTableConverterTest(
 
     private fun createFileTableDoc(): Document {
         val fileTable = Document()
-        fileTable[CommonsConverter.classField] = DocFileTableFields.DOC_FILE_TABLE_CLASS
+        fileTable[CommonsConverter.CLASS_FIELD] = DocFileTableFields.DOC_FILE_TABLE_CLASS
         fileTable[DocFileTableFields.FILE_TABLE_DOC_FILES] = listOf(documentFile)
         return fileTable
     }

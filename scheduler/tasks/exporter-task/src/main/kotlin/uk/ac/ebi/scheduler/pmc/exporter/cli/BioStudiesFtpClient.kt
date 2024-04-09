@@ -10,7 +10,7 @@ private val logger = KotlinLogging.logger {}
 
 class BioStudiesFtpClient(
     private val ftpClient: FTPClient,
-    private val appProperties: ApplicationProperties
+    private val appProperties: ApplicationProperties,
 ) {
     fun login() {
         val ftpConfig = appProperties.ftp
@@ -25,7 +25,10 @@ class BioStudiesFtpClient(
         ftpClient.disconnect()
     }
 
-    fun storeFile(path: String, content: InputStream) {
+    fun storeFile(
+        path: String,
+        content: InputStream,
+    ) {
         try {
             ftpClient.storeFile(path, content)
         } catch (exception: FTPConnectionClosedException) {

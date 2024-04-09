@@ -14,31 +14,35 @@ class ExtSectionsTableDeserializerTest {
 
     @Test
     fun deserialize() {
-        val json = jsonObj {
-            "sections" to jsonArray(
-                jsonObj {
-                    "type" to "Study"
-                    "extType" to "section"
-                    "attributes" to jsonArray(
+        val json =
+            jsonObj {
+                "sections" to
+                    jsonArray(
                         jsonObj {
-                            "name" to "Source"
-                            "reference" to true
-                        }
-                    )
-                },
-                jsonObj {
-                    "type" to "Source"
-                    "extType" to "section"
-                    "attributes" to jsonArray(
+                            "type" to "Study"
+                            "extType" to "section"
+                            "attributes" to
+                                jsonArray(
+                                    jsonObj {
+                                        "name" to "Source"
+                                        "reference" to true
+                                    },
+                                )
+                        },
                         jsonObj {
-                            "name" to "Source"
-                            "value" to null
-                        }
+                            "type" to "Source"
+                            "extType" to "section"
+                            "attributes" to
+                                jsonArray(
+                                    jsonObj {
+                                        "name" to "Source"
+                                        "value" to null
+                                    },
+                                )
+                        },
                     )
-                }
-            )
-            "extType" to "sectionsTable"
-        }.toString()
+                "extType" to "sectionsTable"
+            }.toString()
 
         val extSectionsTable = testInstance.readValue<ExtSectionTable>(json)
         assertThat(extSectionsTable.sections).hasSize(2)

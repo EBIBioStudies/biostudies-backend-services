@@ -24,10 +24,11 @@ class AttributeJsonDeserializerTest {
 
     @Test
     fun `deserialize null value`() {
-        val jsonAttribute = jsonObj {
-            "name" to "attr name"
-            "value" to null
-        }
+        val jsonAttribute =
+            jsonObj {
+                "name" to "attr name"
+                "value" to null
+            }
         val attribute = testInstance.readValue<Attribute>(jsonAttribute.toString())
 
         assertThat(attribute.name).isEqualTo("attr name")
@@ -36,10 +37,11 @@ class AttributeJsonDeserializerTest {
 
     @Test
     fun `deserialize blank value`() {
-        val jsonAttribute = jsonObj {
-            "name" to "attr name"
-            "value" to "  "
-        }
+        val jsonAttribute =
+            jsonObj {
+                "name" to "attr name"
+                "value" to "  "
+            }
         val attribute = testInstance.readValue<Attribute>(jsonAttribute.toString())
 
         assertThat(attribute.name).isEqualTo("attr name")
@@ -48,10 +50,11 @@ class AttributeJsonDeserializerTest {
 
     @Test
     fun `deserialize empty value`() {
-        val jsonAttribute = jsonObj {
-            "name" to "attr name"
-            "value" to ""
-        }
+        val jsonAttribute =
+            jsonObj {
+                "name" to "attr name"
+                "value" to ""
+            }
         val attribute = testInstance.readValue<Attribute>(jsonAttribute.toString())
 
         assertThat(attribute.name).isEqualTo("attr name")
@@ -60,9 +63,10 @@ class AttributeJsonDeserializerTest {
 
     @Test
     fun `deserialize no value`() {
-        val jsonAttribute = jsonObj {
-            "name" to "attr name"
-        }
+        val jsonAttribute =
+            jsonObj {
+                "name" to "attr name"
+            }
         val attribute = testInstance.readValue<Attribute>(jsonAttribute.toString())
 
         assertThat(attribute.name).isEqualTo("attr name")
@@ -71,25 +75,27 @@ class AttributeJsonDeserializerTest {
 
     @Test
     fun `deserialize with wrong type`() {
-        val invalidJson = jsonObj {
-            "name" to jsonArray(1, 2, 3)
-        }.toString()
+        val invalidJson =
+            jsonObj {
+                "name" to jsonArray(1, 2, 3)
+            }.toString()
 
         val node = "{\"name\":[1,2,3]}"
         val exception = assertThrows<IllegalArgumentException> { testInstance.readValue<Attribute>(invalidJson) }
 
         assertThat(exception.message).isEqualTo(
-            "Expecting node: '$node', property: 'name' to be of type 'TextNode' but 'ArrayNode' was found instead"
+            "Expecting node: '$node', property: 'name' to be of type 'TextNode' but 'ArrayNode' was found instead",
         )
     }
 
     @Test
     fun `deserialize attribute with name and value`() {
         val attr = Attribute(name = "attr name", value = "attr value", reference = false)
-        val jsonAttribute = jsonObj {
-            "name" to attr.name
-            "value" to attr.value
-        }
+        val jsonAttribute =
+            jsonObj {
+                "name" to attr.name
+                "value" to attr.value
+            }
         val result = testInstance.readValue<Attribute>(jsonAttribute.toString())
 
         assertThat(result).isEqualTo(attr)
@@ -100,27 +106,31 @@ class AttributeJsonDeserializerTest {
         val valDetails = AttributeDetail("t1", "v1")
         val nameDetails = AttributeDetail("t2", "v2")
 
-        val attr = Attribute(
-            name = "attr name",
-            value = "attr value",
-            reference = true,
-            nameAttrs = mutableListOf(nameDetails),
-            valueAttrs = mutableListOf(valDetails)
-        )
+        val attr =
+            Attribute(
+                name = "attr name",
+                value = "attr value",
+                reference = true,
+                nameAttrs = mutableListOf(nameDetails),
+                valueAttrs = mutableListOf(valDetails),
+            )
 
-        val attributeJson = jsonObj {
-            "name" to attr.name
-            "value" to attr.value
-            "reference" to attr.reference
-            "valqual" to jsonArray({
-                "name" to valDetails.name
-                "value" to valDetails.value
-            })
-            "nmqual" to jsonArray({
-                "name" to nameDetails.name
-                "value" to nameDetails.value
-            })
-        }.toString()
+        val attributeJson =
+            jsonObj {
+                "name" to attr.name
+                "value" to attr.value
+                "reference" to attr.reference
+                "valqual" to
+                    jsonArray({
+                        "name" to valDetails.name
+                        "value" to valDetails.value
+                    })
+                "nmqual" to
+                    jsonArray({
+                        "name" to nameDetails.name
+                        "value" to nameDetails.value
+                    })
+            }.toString()
 
         assertThat(testInstance.readValue<Attribute>(attributeJson)).isEqualTo(attr)
     }
@@ -130,27 +140,31 @@ class AttributeJsonDeserializerTest {
         val valDetails = AttributeDetail("t1", "v1")
         val nameDetails = AttributeDetail("t2", "v2")
 
-        val attr = Attribute(
-            name = "attr name",
-            value = "attr value",
-            reference = true,
-            nameAttrs = mutableListOf(nameDetails),
-            valueAttrs = mutableListOf(valDetails)
-        )
+        val attr =
+            Attribute(
+                name = "attr name",
+                value = "attr value",
+                reference = true,
+                nameAttrs = mutableListOf(nameDetails),
+                valueAttrs = mutableListOf(valDetails),
+            )
 
-        val attributeJson = jsonObj {
-            "name" to attr.name
-            "value" to attr.value
-            "reference" to attr.reference
-            "valqual" to jsonArray({
-                "name" to valDetails.name
-                "value" to ""
-            })
-            "nmqual" to jsonArray({
-                "name" to nameDetails.name
-                "value" to nameDetails.value
-            })
-        }.toString()
+        val attributeJson =
+            jsonObj {
+                "name" to attr.name
+                "value" to attr.value
+                "reference" to attr.reference
+                "valqual" to
+                    jsonArray({
+                        "name" to valDetails.name
+                        "value" to ""
+                    })
+                "nmqual" to
+                    jsonArray({
+                        "name" to nameDetails.name
+                        "value" to nameDetails.value
+                    })
+            }.toString()
 
         assertThrows<IllegalArgumentException> { testInstance.readValue<Attribute>(attributeJson) }
     }
@@ -160,37 +174,42 @@ class AttributeJsonDeserializerTest {
         val valDetails = AttributeDetail("t1", "v1")
         val nameDetails = AttributeDetail("t2", "v2")
 
-        val attr = Attribute(
-            name = "attr name",
-            value = "attr value",
-            reference = true,
-            nameAttrs = mutableListOf(nameDetails),
-            valueAttrs = mutableListOf(valDetails)
-        )
+        val attr =
+            Attribute(
+                name = "attr name",
+                value = "attr value",
+                reference = true,
+                nameAttrs = mutableListOf(nameDetails),
+                valueAttrs = mutableListOf(valDetails),
+            )
 
-        val attributeJson = jsonObj {
-            "name" to attr.name
-            "value" to attr.value
-            "reference" to attr.reference
-            "valqual" to jsonArray({
-                "name" to valDetails.name
-                "value" to valDetails.value
-            })
-            "nmqual" to jsonArray({
-                "name" to nameDetails.name
-                "value" to ""
-            })
-        }.toString()
+        val attributeJson =
+            jsonObj {
+                "name" to attr.name
+                "value" to attr.value
+                "reference" to attr.reference
+                "valqual" to
+                    jsonArray({
+                        "name" to valDetails.name
+                        "value" to valDetails.value
+                    })
+                "nmqual" to
+                    jsonArray({
+                        "name" to nameDetails.name
+                        "value" to ""
+                    })
+            }.toString()
 
         assertThrows<IllegalArgumentException> { testInstance.readValue<Attribute>(attributeJson) }
     }
 
     @Test
     fun `deserialize attribute with empty name`() {
-        val jsonAttribute = jsonObj {
-            "name" to ""
-            "value" to "ABC"
-        }.toString()
+        val jsonAttribute =
+            jsonObj {
+                "name" to ""
+                "value" to "ABC"
+            }.toString()
 
         val exception = assertThrows<InvalidElementException> { testInstance.readValue<Attribute>(jsonAttribute) }
         assertThat(exception.message).isEqualTo("$REQUIRED_ATTR_NAME. Element was not created.")

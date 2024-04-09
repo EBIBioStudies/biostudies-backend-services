@@ -32,7 +32,6 @@ data class FtpUserFolder(
      * The user ftp path. Used to access files through ftp protocol.
      */
     override val relativePath: Path,
-
     /**
      * The File system ftp path. Used to access ftp files as file system file.
      */

@@ -10,7 +10,11 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.URL
 import uk.ac.ebi.extended.serialization.constants.ExtType
 
 class ExtLinkSerializer : JsonSerializer<ExtLink>() {
-    override fun serialize(link: ExtLink, gen: JsonGenerator, serializers: SerializerProvider) {
+    override fun serialize(
+        link: ExtLink,
+        gen: JsonGenerator,
+        serializers: SerializerProvider,
+    ) {
         gen.writeStartObject()
         gen.writeStringField(URL, link.url)
         gen.writeObjectField(ATTRIBUTES, link.attributes)

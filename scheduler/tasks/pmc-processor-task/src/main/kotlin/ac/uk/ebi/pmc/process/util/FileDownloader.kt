@@ -21,9 +21,8 @@ import ebi.ac.uk.model.BioFile as SubmissionFile
  */
 class FileDownloader(
     private val properties: PmcImporterProperties,
-    private val pmcApi: PmcApi
+    private val pmcApi: PmcApi,
 ) {
-
     suspend fun downloadFiles(submission: Submission): Try<List<File>> {
         return Try {
             return@Try coroutineScope {
@@ -34,14 +33,18 @@ class FileDownloader(
         }
     }
 
-    private suspend fun downloadFile(pmcId: String, file: SubmissionFile): File = withContext(Dispatchers.IO) {
-        val targetFolder = Paths.get(properties.temp).resolve(pmcId).toFile()
-        targetFolder.mkdirs()
+    private suspend fun downloadFile(
+        pmcId: String,
+        file: SubmissionFile,
+    ): File =
+        withContext(Dispatchers.IO) {
+            val targetFolder = Paths.get(properties.temp).resolve(pmcId).toFile()
+            targetFolder.mkdirs()
 
-        val targetFile = targetFolder.resolve(file.path)
-        pmcApi.downloadFileStream(pmcId, file.path).byteStream().copyToFile(targetFile)
-        return@withContext targetFile
-    }
+            val targetFile = targetFolder.resolve(file.path)
+            pmcApi.downloadFileStream(pmcId, file.path).byteStream().copyToFile(targetFile)
+            return@withContext targetFile
+        }
 
     private fun InputStream.copyToFile(destinationFile: File) {
         use { input -> destinationFile.outputStream().use { output -> input.copyTo(output) } }

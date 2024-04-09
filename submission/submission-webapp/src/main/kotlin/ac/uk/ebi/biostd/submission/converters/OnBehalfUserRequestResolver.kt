@@ -14,14 +14,13 @@ import java.net.URLDecoder
 import kotlin.text.Charsets.UTF_8
 
 class OnBehalfUserRequestResolver : HandlerMethodArgumentResolver {
-    override fun supportsParameter(parameter: MethodParameter): Boolean =
-        OnBehalfRequest::class.java == parameter.parameterType
+    override fun supportsParameter(parameter: MethodParameter): Boolean = OnBehalfRequest::class.java == parameter.parameterType
 
     override fun resolveArgument(
         parameter: MethodParameter,
         mavContainer: ModelAndViewContainer?,
         request: NativeWebRequest,
-        binderFactory: WebDataBinderFactory?
+        binderFactory: WebDataBinderFactory?,
     ): OnBehalfRequest? {
         val onBehalf = request.getParameter(ON_BEHALF_PARAM)
         val onBehalfName = request.getParameter(USER_NAME_PARAM)?.let { URLDecoder.decode(it, UTF_8.name()) }

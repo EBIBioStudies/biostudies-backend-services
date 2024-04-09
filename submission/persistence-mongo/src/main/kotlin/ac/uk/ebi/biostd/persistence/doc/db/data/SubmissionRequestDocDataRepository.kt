@@ -62,13 +62,13 @@ class SubmissionRequestDocDataRepository(
     private val extSerializationService: ExtSerializationService,
     private val submissionRequestRepository: SubmissionRequestRepository,
 ) : SubmissionRequestRepository by submissionRequestRepository {
-
     suspend fun saveRequest(request: DocSubmissionRequest): Pair<DocSubmissionRequest, Boolean> {
-        val result = mongoTemplate.upsert(
-            Query(where(RQT_ACC_NO).`is`(request.accNo).andOperator(where(RQT_STATUS).ne(PROCESSED))),
-            request.asSetOnInsert(),
-            DocSubmissionRequest::class.java
-        ).awaitSingle()
+        val result =
+            mongoTemplate.upsert(
+                Query(where(RQT_ACC_NO).`is`(request.accNo).andOperator(where(RQT_STATUS).ne(PROCESSED))),
+                request.asSetOnInsert(),
+                DocSubmissionRequest::class.java,
+            ).awaitSingle()
         val created = result.matchedCount < 1
         return submissionRequestRepository.getByAccNoAndStatusIn(request.accNo, PROCESSING) to created
     }
@@ -82,7 +82,10 @@ class SubmissionRequestDocDataRepository(
         }
     }
 
-    suspend fun getRequest(accNo: String, version: Int): DocSubmissionRequest {
+    suspend fun getRequest(
+        accNo: String,
+        version: Int,
+    ): DocSubmissionRequest {
         return submissionRequestRepository.getByAccNoAndVersion(accNo, version)
     }
 
@@ -93,22 +96,24 @@ class SubmissionRequestDocDataRepository(
         processId: String,
     ): Pair<String, DocSubmissionRequest> {
         val statusId = ObjectId()
-        val statusChange = DocRequestStatusChanges(
-            status = status.action,
-            statusId = statusId,
-            processId = processId,
-            startTime = Instant.now(),
-            endTime = null,
-            result = null
-        )
+        val statusChange =
+            DocRequestStatusChanges(
+                status = status.action,
+                statusId = statusId,
+                processId = processId,
+                startTime = Instant.now(),
+                endTime = null,
+                result = null,
+            )
         val update = Update().addToSet(RQT_STATUS_CHANGES, statusChange)
         val query = Query(where(RQT_ACC_NO).`is`(accNo).and(RQT_VERSION).`is`(version).and(RQT_STATUS).`is`(status))
-        val result = mongoTemplate.findAndModify(
-            query,
-            update,
-            FindAndModifyOptions.options().returnNew(true),
-            DocSubmissionRequest::class.java
-        ).awaitSingle()
+        val result =
+            mongoTemplate.findAndModify(
+                query,
+                update,
+                FindAndModifyOptions.options().returnNew(true),
+                DocSubmissionRequest::class.java,
+            ).awaitSingle()
         return statusId.toString() to result
     }
 
@@ -117,9 +122,10 @@ class SubmissionRequestDocDataRepository(
         skip: Long,
         limit: Int,
     ): Pair<Int, List<DocSubmissionRequest>> {
-        val result = mongoTemplate.find(query.skip(skip).limit(limit), DocSubmissionRequest::class.java)
-            .asFlow()
-            .toList()
+        val result =
+            mongoTemplate.find(query.skip(skip).limit(limit), DocSubmissionRequest::class.java)
+                .asFlow()
+                .toList()
         return result.count() to result
     }
 
@@ -128,7 +134,11 @@ class SubmissionRequestDocDataRepository(
         where("$SUB.$SUB_OWNER").`is`(filter.filterUser)
             .andOperator(*criteriaArray(filter))
 
-    suspend fun updateIndex(accNo: String, version: Int, index: Int) {
+    suspend fun updateIndex(
+        accNo: String,
+        version: Int,
+        index: Int,
+    ) {
         val update = Update().set(RQT_IDX, index).set(RQT_MODIFICATION_TIME, Instant.now())
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
 
@@ -138,29 +148,37 @@ class SubmissionRequestDocDataRepository(
     suspend fun upsertSubmissionRequestFile(rqtFile: SubmissionRequestFile) {
         val file = BasicDBObject.parse(extSerializationService.serialize(rqtFile.file))
         val update = update(RQT_FILE_FILE, file).set(RQT_FILE_INDEX, rqtFile.index)
-        val where = where(RQT_FILE_SUB_ACC_NO).`is`(rqtFile.accNo)
-            .andOperator(where(RQT_FILE_SUB_VERSION).`is`(rqtFile.version), where(RQT_FILE_PATH).`is`(rqtFile.path))
+        val where =
+            where(RQT_FILE_SUB_ACC_NO).`is`(rqtFile.accNo)
+                .andOperator(where(RQT_FILE_SUB_VERSION).`is`(rqtFile.version), where(RQT_FILE_PATH).`is`(rqtFile.path))
 
         mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
     }
 
-    suspend fun updateSubmissionRequestFile(accNo: String, version: Int, filePath: String, file: ExtFile) {
+    suspend fun updateSubmissionRequestFile(
+        accNo: String,
+        version: Int,
+        filePath: String,
+        file: ExtFile,
+    ) {
         val update = update(RQT_FILE_FILE, BasicDBObject.parse(extSerializationService.serialize(file)))
-        val where = where(RQT_FILE_SUB_ACC_NO).`is`(accNo)
-            .andOperator(where(RQT_FILE_SUB_VERSION).`is`(version), where(RQT_FILE_PATH).`is`(filePath))
+        val where =
+            where(RQT_FILE_SUB_ACC_NO).`is`(accNo)
+                .andOperator(where(RQT_FILE_SUB_VERSION).`is`(version), where(RQT_FILE_PATH).`is`(filePath))
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
     }
 
     suspend fun updateSubmissionRequest(rqt: DocSubmissionRequest) {
         val query = Query(where(SUB_ACC_NO).`is`(rqt.accNo).andOperator(where(SUB_VERSION).`is`(rqt.version)))
-        val update = Update()
-            .set(SUB_STATUS, rqt.status)
-            .set(SUB, rqt.submission)
-            .set(RQT_TOTAL_FILES, rqt.totalFiles)
-            .set(RQT_IDX, rqt.currentIndex)
-            .set(RQT_TOTAL_FILES, rqt.totalFiles)
-            .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
-            .set(RQT_STATUS_CHANGES, rqt.statusChanges)
+        val update =
+            Update()
+                .set(SUB_STATUS, rqt.status)
+                .set(SUB, rqt.submission)
+                .set(RQT_TOTAL_FILES, rqt.totalFiles)
+                .set(RQT_IDX, rqt.currentIndex)
+                .set(RQT_TOTAL_FILES, rqt.totalFiles)
+                .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
+                .set(RQT_STATUS_CHANGES, rqt.statusChanges)
 
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
@@ -171,19 +189,21 @@ class SubmissionRequestDocDataRepository(
         processEndTime: Instant,
         processRusult: ProcessResult,
     ) {
-        val query = Query(
-            where(SUB_ACC_NO).`is`(rqt.accNo).and(SUB_VERSION).`is`(rqt.version)
-                .and("$RQT_STATUS_CHANGES.$RQT_STATUS_CHANGE_STATUS_ID").`is`(ObjectId(processId))
-        )
-        val update = Update()
-            .set(SUB_STATUS, rqt.status)
-            .set(SUB, rqt.submission)
-            .set(RQT_TOTAL_FILES, rqt.totalFiles)
-            .set(RQT_IDX, rqt.currentIndex)
-            .set(RQT_TOTAL_FILES, rqt.totalFiles)
-            .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
-            .set("$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_ENDTIME", processEndTime)
-            .set("$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_RESULT", processRusult.toString())
+        val query =
+            Query(
+                where(SUB_ACC_NO).`is`(rqt.accNo).and(SUB_VERSION).`is`(rqt.version)
+                    .and("$RQT_STATUS_CHANGES.$RQT_STATUS_CHANGE_STATUS_ID").`is`(ObjectId(processId)),
+            )
+        val update =
+            Update()
+                .set(SUB_STATUS, rqt.status)
+                .set(SUB, rqt.submission)
+                .set(RQT_TOTAL_FILES, rqt.totalFiles)
+                .set(RQT_IDX, rqt.currentIndex)
+                .set(RQT_TOTAL_FILES, rqt.totalFiles)
+                .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
+                .set("$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_ENDTIME", processEndTime)
+                .set("$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_RESULT", processRusult.toString())
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 
@@ -198,14 +218,16 @@ class SubmissionRequestDocDataRepository(
             filter.released?.let { add(where("$SUB.$SUB_RELEASED").`is`(it)) }
         }.build().toTypedArray()
 
-    private fun keywordsCriteria(keywords: String) = Criteria().orOperator(
-        where("$SUB.$SUB_TITLE").regex("(?i).*$keywords.*"),
-        where("$SUB.$SUB_SECTION.$SEC_ATTRIBUTES").elemMatch(
-            where(ATTRIBUTE_DOC_NAME).`is`("Title").and(ATTRIBUTE_DOC_VALUE).regex("(?i).*$keywords.*")
+    private fun keywordsCriteria(keywords: String) =
+        Criteria().orOperator(
+            where("$SUB.$SUB_TITLE").regex("(?i).*$keywords.*"),
+            where("$SUB.$SUB_SECTION.$SEC_ATTRIBUTES").elemMatch(
+                where(ATTRIBUTE_DOC_NAME).`is`("Title").and(ATTRIBUTE_DOC_VALUE).regex("(?i).*$keywords.*"),
+            ),
         )
-    )
 }
 
 enum class ProcessResult {
-    SUCCESS, ERROR
+    SUCCESS,
+    ERROR,
 }

@@ -30,13 +30,14 @@ class ExporterTrigger(
     suspend fun triggerPmcExport(debugPort: Int? = null): Job {
         logger.info { "Triggering PMC export job" }
 
-        val config = ExporterJobConfig(
-            PMC,
-            exporterProperties.pmc.fileName,
-            exporterProperties.pmc.outputPath,
-            debugPort,
-            pmcNotificationsSender,
-        )
+        val config =
+            ExporterJobConfig(
+                PMC,
+                exporterProperties.pmc.fileName,
+                exporterProperties.pmc.outputPath,
+                debugPort,
+                pmcNotificationsSender,
+            )
 
         return triggerExport(config)
     }
@@ -44,13 +45,14 @@ class ExporterTrigger(
     suspend fun triggerPublicExport(debugPort: Int? = null): Job {
         logger.info { "Triggering public only export job" }
 
-        val config = ExporterJobConfig(
-            PUBLIC_ONLY,
-            exporterProperties.publicOnly.fileName,
-            exporterProperties.publicOnly.outputPath,
-            debugPort,
-            schedulerNotificationsSender,
-        )
+        val config =
+            ExporterJobConfig(
+                PUBLIC_ONLY,
+                exporterProperties.publicOnly.fileName,
+                exporterProperties.publicOnly.outputPath,
+                debugPort,
+                schedulerNotificationsSender,
+            )
 
         return triggerExport(config)
     }
@@ -62,8 +64,8 @@ class ExporterTrigger(
             Report(
                 SYSTEM_NAME,
                 EXPORTER_SUBSYSTEM,
-                "Triggered $EXPORTER_SUBSYSTEM in the cluster job $job in mode $mode. Logs available at ${job.logsPath}"
-            )
+                "Triggered $EXPORTER_SUBSYSTEM in the cluster job $job in mode $mode. Logs available at ${job.logsPath}",
+            ),
         )
 
         return job
@@ -77,22 +79,25 @@ class ExporterTrigger(
         return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
     }
 
-    private fun getConfigProperties(mode: ExporterMode, fileName: String, outputPath: String) =
-        ExporterProperties.create(
-            fileName,
-            outputPath,
-            exporterProperties.tmpFilesPath,
-            mode,
-            exporterProperties.ftp.host,
-            exporterProperties.ftp.user,
-            exporterProperties.ftp.password,
-            exporterProperties.ftp.port,
-            exporterProperties.persistence.database,
-            exporterProperties.persistence.uri,
-            exporterProperties.bioStudies.url,
-            exporterProperties.bioStudies.user,
-            exporterProperties.bioStudies.password
-        )
+    private fun getConfigProperties(
+        mode: ExporterMode,
+        fileName: String,
+        outputPath: String,
+    ) = ExporterProperties.create(
+        fileName,
+        outputPath,
+        exporterProperties.tmpFilesPath,
+        mode,
+        exporterProperties.ftp.host,
+        exporterProperties.ftp.user,
+        exporterProperties.ftp.password,
+        exporterProperties.ftp.port,
+        exporterProperties.persistence.database,
+        exporterProperties.persistence.uri,
+        exporterProperties.bioStudies.url,
+        exporterProperties.bioStudies.user,
+        exporterProperties.bioStudies.password,
+    )
 
     private data class ExporterJobConfig(
         val mode: ExporterMode,

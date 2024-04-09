@@ -10,5 +10,4 @@ internal fun DocLink.toExtLink(): ExtLink = ExtLink(url, attributes.toExtAttribu
 
 internal fun DocLinkTable.toExtLinkTable(): ExtLinkTable = ExtLinkTable(links.map { it.toExtLink() })
 
-internal fun Either<DocLink, DocLinkTable>.toExtLinks(): Either<ExtLink, ExtLinkTable> =
-    bimap({ it.toExtLink() }, { it.toExtLinkTable() })
+internal fun Either<DocLink, DocLinkTable>.toExtLinks(): Either<ExtLink, ExtLinkTable> = bimap({ it.toExtLink() }, { it.toExtLinkTable() })

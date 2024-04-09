@@ -23,7 +23,11 @@ class LocalClusterClient : ClusterClient {
         }
     }
 
-    override suspend fun triggerJobSync(jobSpec: JobSpec, checkJobInterval: Long, maxSecondsDuration: Long): Job {
+    override suspend fun triggerJobSync(
+        jobSpec: JobSpec,
+        checkJobInterval: Long,
+        maxSecondsDuration: Long,
+    ): Job {
         return withContext(Dispatchers.IO) {
             val logFile = createTempFile().toFile()
             val processId = executeProcess(jobSpec.command, logFile)
@@ -45,7 +49,10 @@ class LocalClusterClient : ClusterClient {
         internal const val LOCAL_QUEUE = "local"
     }
 
-    private fun executeProcess(command: String, logFile: File): Long {
+    private fun executeProcess(
+        command: String,
+        logFile: File,
+    ): Long {
         val processBuilder = ProcessBuilder(command.split(" "))
         processBuilder.redirectOutput(logFile)
         val process = processBuilder.start()

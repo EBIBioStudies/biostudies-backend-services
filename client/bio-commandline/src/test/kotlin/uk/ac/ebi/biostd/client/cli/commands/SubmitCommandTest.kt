@@ -57,8 +57,8 @@ internal class SubmitCommandTest(
                 "-u", "user",
                 "-p", "password",
                 "-i", "$rootFolder/Submission.tsv",
-                "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv"
-            )
+                "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
+            ),
         )
 
         verify(exactly = 1) { submissionService.submit(request) }
@@ -87,8 +87,8 @@ internal class SubmitCommandTest(
                 "-i", "$rootFolder/Submission.tsv",
                 "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
                 "-ps", "SUBMISSION,USER_SPACE",
-                "-sm", "NFS"
-            )
+                "-sm", "NFS",
+            ),
         )
 
         verify(exactly = 1) { submissionService.submit(request) }
@@ -112,8 +112,8 @@ internal class SubmitCommandTest(
                 "-u", "user",
                 "-p", "password",
                 "-i", "$rootFolder/Submission.tsv",
-                "-sm", "FIRE"
-            )
+                "-sm", "FIRE",
+            ),
         )
 
         verify(exactly = 1) { submissionService.submit(request) }
@@ -133,8 +133,8 @@ internal class SubmitCommandTest(
                     "-p", "password",
                     "-i", "$rootFolder/Submission.tsv",
                     "-a", "$rootFolder/attachedFile1.tsv,$rootFolder/attachedFile2.tsv",
-                    "-ps", "INVALID"
-                )
+                    "-ps", "INVALID",
+                ),
             )
         }
     }

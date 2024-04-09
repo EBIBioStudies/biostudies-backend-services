@@ -10,23 +10,33 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
 class ExtendedPageMapper(private val instanceBase: URI) {
-    fun asExtPage(page: Page<ExtSubmission>, request: ExtPageRequest): WebExtPage =
+    fun asExtPage(
+        page: Page<ExtSubmission>,
+        request: ExtPageRequest,
+    ): WebExtPage =
         WebExtPage(
             content = page.content,
             totalElements = page.totalElements,
             offset = page.pageable.offset,
             limit = page.pageable.pageSize,
             next = getNext(page, request),
-            previous = getPrevious(page, request)
+            previous = getPrevious(page, request),
         )
 
-    private fun getPrevious(page: Page<ExtSubmission>, request: ExtPageRequest): String? =
-        if (page.hasPrevious()) instanceBase.resolve(asUrl(page.previousPageable(), request)).toString() else null
+    private fun getPrevious(
+        page: Page<ExtSubmission>,
+        request: ExtPageRequest,
+    ): String? = if (page.hasPrevious()) instanceBase.resolve(asUrl(page.previousPageable(), request)).toString() else null
 
-    private fun getNext(page: Page<ExtSubmission>, request: ExtPageRequest): String? =
-        if (page.hasNext()) instanceBase.resolve(asUrl(page.nextPageable(), request)).toString() else null
+    private fun getNext(
+        page: Page<ExtSubmission>,
+        request: ExtPageRequest,
+    ): String? = if (page.hasNext()) instanceBase.resolve(asUrl(page.nextPageable(), request)).toString() else null
 
-    private fun asUrl(pageable: Pageable, request: ExtPageRequest): String =
+    private fun asUrl(
+        pageable: Pageable,
+        request: ExtPageRequest,
+    ): String =
         UriComponentsBuilder.fromUriString("$instanceBase/submissions/extended")
             .queryParam("offset", pageable.offset)
             .queryParam("limit", pageable.pageSize)

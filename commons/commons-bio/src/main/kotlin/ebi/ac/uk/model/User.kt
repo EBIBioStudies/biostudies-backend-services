@@ -5,5 +5,5 @@ data class User(
     val email: String,
     val secretKey: String,
     val fullName: String,
-    val notificationsEnabled: Boolean
+    val notificationsEnabled: Boolean,
 )

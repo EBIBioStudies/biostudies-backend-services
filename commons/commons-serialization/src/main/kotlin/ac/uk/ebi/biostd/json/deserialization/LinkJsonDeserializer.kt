@@ -13,13 +13,16 @@ import uk.ac.ebi.serialization.extensions.convertOrDefault
 import uk.ac.ebi.serialization.extensions.getNode
 
 internal class LinkJsonDeserializer : StdDeserializer<Link>(Link::class.java) {
-    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): Link {
+    override fun deserialize(
+        jp: JsonParser,
+        ctxt: DeserializationContext,
+    ): Link {
         val mapper = jp.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jp)
 
         return Link(
             url = node.getNode<TextNode>(LinkFields.URL.value).textValue(),
-            attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }
+            attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() },
         )
     }
 }

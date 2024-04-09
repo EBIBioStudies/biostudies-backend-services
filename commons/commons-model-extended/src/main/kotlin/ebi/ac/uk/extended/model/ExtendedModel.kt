@@ -10,14 +10,16 @@ enum class ExtSubmissionMethod { FILE, PAGE_TAB, UNKNOWN }
 
 enum class ExtFileType(val value: String) {
     FILE("file"),
-    DIR("directory");
+    DIR("directory"),
+    ;
 
     companion object {
-        fun fromString(value: String): ExtFileType = when (value) {
-            FILE.value -> FILE
-            DIR.value -> DIR
-            else -> throw IllegalArgumentException("Unknown ExtFileType '$value'")
-        }
+        fun fromString(value: String): ExtFileType =
+            when (value) {
+                FILE.value -> FILE
+                DIR.value -> DIR
+                else -> throw IllegalArgumentException("Unknown ExtFileType '$value'")
+            }
     }
 }
 
@@ -130,14 +132,16 @@ data class ExtSubmission(
 )
 
 enum class StorageMode(val value: String) {
-    FIRE("FIRE"), NFS("NFS");
+    FIRE("FIRE"),
+    NFS("NFS"),
+    ;
 
     companion object {
         fun fromString(value: String): StorageMode {
             return when (value) {
                 "FIRE" -> FIRE
                 "NFS" -> NFS
-                else -> throw IllegalStateException("Unknown storage mode $value")
+                else -> error("Unknown storage mode $value")
             }
         }
     }

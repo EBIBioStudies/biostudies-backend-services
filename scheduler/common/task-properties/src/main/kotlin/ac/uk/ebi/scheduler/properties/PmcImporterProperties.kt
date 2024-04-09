@@ -6,7 +6,6 @@ import ac.uk.ebi.scheduler.common.javaCmd
 private const val APP_NAME = "pmc-processor-task-1.0.0.jar"
 
 class PmcImporterProperties : JavaAppProperties {
-
     lateinit var mode: PmcMode
     lateinit var temp: String
     lateinit var mongodbUri: String
@@ -23,7 +22,10 @@ class PmcImporterProperties : JavaAppProperties {
     var sourceFile: String? = null
     var bioStudiesUrl: String? = null
 
-    override fun asCmd(location: String, debugPort: Int?): String =
+    override fun asCmd(
+        location: String,
+        debugPort: Int?,
+    ): String =
         buildList {
             addAll(javaCmd(debugPort))
             add("-jar $location/$APP_NAME")
@@ -45,7 +47,6 @@ class PmcImporterProperties : JavaAppProperties {
         }.joinToString(separator = " \\\n", prefix = "\"", postfix = "\"")
 
     companion object {
-
         // Todo: refactor to have biostudies parameters in a wrapper class
         @Suppress("LongParameterList")
         fun create(
@@ -81,13 +82,18 @@ class PmcImporterProperties : JavaAppProperties {
 }
 
 enum class PmcMode {
-    LOAD, PROCESS, SUBMIT, SUBMIT_SINGLE;
+    LOAD,
+    PROCESS,
+    SUBMIT,
+    SUBMIT_SINGLE,
+    ;
 
     val description: String
-        get() = when (this) {
-            LOAD -> "PMC Submissions loading"
-            PROCESS -> "PMC Submissions processing"
-            SUBMIT -> "PMC Submissions submitting"
-            SUBMIT_SINGLE -> "PMC Single submission submitting"
-        }
+        get() =
+            when (this) {
+                LOAD -> "PMC Submissions loading"
+                PROCESS -> "PMC Submissions processing"
+                SUBMIT -> "PMC Submissions submitting"
+                SUBMIT_SINGLE -> "PMC Single submission submitting"
+            }
 }

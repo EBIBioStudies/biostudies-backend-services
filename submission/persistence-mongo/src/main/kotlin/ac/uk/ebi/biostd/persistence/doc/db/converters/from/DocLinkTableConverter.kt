@@ -6,7 +6,8 @@ import org.bson.Document
 import org.springframework.core.convert.converter.Converter
 
 class DocLinkTableConverter(private val docLinkConverter: DocLinkConverter) : Converter<Document, DocLinkTable> {
-    override fun convert(source: Document): DocLinkTable = DocLinkTable(
-        source.getDocList(LINK_TABLE_DOC_LINKS).map { docLinkConverter.convert(it) }
-    )
+    override fun convert(source: Document): DocLinkTable =
+        DocLinkTable(
+            source.getDocList(LINK_TABLE_DOC_LINKS).map { docLinkConverter.convert(it) },
+        )
 }

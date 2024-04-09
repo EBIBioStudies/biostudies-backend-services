@@ -6,9 +6,10 @@ import ebi.ac.uk.notifications.integration.model.NotificationTemplateModel
 internal class NotificationSubjectTemplate(content: String) : NotificationTemplate<NotificationSubjectModel>(content)
 
 internal class NotificationSubjectModel(
-    private val accNo: String
+    private val accNo: String,
 ) : NotificationTemplateModel {
-    override fun getParams(): List<Pair<String, String>> = listOf(
-        "ACC_NO" to accNo,
-    )
+    override fun getParams(): List<Pair<String, String>> =
+        listOf(
+            "ACC_NO" to accNo,
+        )
 }

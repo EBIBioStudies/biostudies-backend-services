@@ -16,6 +16,6 @@ internal class TestUserPathResolver : HandlerMethodArgumentResolver {
         parameter: MethodParameter,
         mavContainer: ModelAndViewContainer,
         webRequest: NativeWebRequest,
-        binderFactory: WebDataBinderFactory
+        binderFactory: WebDataBinderFactory,
     ) = UserPath(TEST_USER_PATH)
 }

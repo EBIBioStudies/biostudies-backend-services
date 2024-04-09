@@ -21,11 +21,13 @@ class S3ClientTest(
     private val tmpFolder: TemporaryFolder,
     @MockK val amazonS3Client: AmazonS3,
 ) {
-
     private val testInstance = S3Client("bucket", amazonS3Client)
 
     @Test
-    fun downloadByPath(@MockK s3Object: S3Object, @MockK httpRequestBase: HttpRequestBase) {
+    fun downloadByPath(
+        @MockK s3Object: S3Object,
+        @MockK httpRequestBase: HttpRequestBase,
+    ) {
         val content = tmpFolder.createFile("s3file", "content")
         val getRequestSlot = slot<GetObjectRequest>()
         every { amazonS3Client.getObject(capture(getRequestSlot)) } returns s3Object

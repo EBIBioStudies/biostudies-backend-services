@@ -23,131 +23,140 @@ class ExtFileSerializerTest(private val tempFolder: TemporaryFolder) {
     @Test
     fun `serialize nfs file`() {
         val file = tempFolder.createFile("nfs-file.txt")
-        val extFile = NfsFile(
-            filePath = "folder/nfs-file.txt",
-            relPath = "Files/folder/nfs-file.txt",
-            file = file,
-            fullPath = file.absolutePath,
-            size = file.size(),
-            md5 = file.md5(),
-            attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true))
-        )
-        val expectedJson = jsonObj {
-            "fileName" to "nfs-file.txt"
-            "filePath" to "folder/nfs-file.txt"
-            "relPath" to "Files/folder/nfs-file.txt"
-            "fullPath" to file.absolutePath
-            "md5" to file.md5()
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "Type"
-                    "value" to "Data"
-                    "reference" to false
-                    "nameAttrs" to jsonArray()
-                    "valueAttrs" to jsonArray()
-                },
-                jsonObj {
-                    "name" to "Source"
-                    "value" to null
-                    "reference" to true
-                    "nameAttrs" to jsonArray()
-                    "valueAttrs" to jsonArray()
-                }
+        val extFile =
+            NfsFile(
+                filePath = "folder/nfs-file.txt",
+                relPath = "Files/folder/nfs-file.txt",
+                file = file,
+                fullPath = file.absolutePath,
+                size = file.size(),
+                md5 = file.md5(),
+                attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true)),
             )
-            "extType" to "nfsFile"
-            "type" to "file"
-            "size" to file.size()
-        }.toString()
+        val expectedJson =
+            jsonObj {
+                "fileName" to "nfs-file.txt"
+                "filePath" to "folder/nfs-file.txt"
+                "relPath" to "Files/folder/nfs-file.txt"
+                "fullPath" to file.absolutePath
+                "md5" to file.md5()
+                "attributes" to
+                    jsonArray(
+                        jsonObj {
+                            "name" to "Type"
+                            "value" to "Data"
+                            "reference" to false
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
+                        },
+                        jsonObj {
+                            "name" to "Source"
+                            "value" to null
+                            "reference" to true
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
+                        },
+                    )
+                "extType" to "nfsFile"
+                "type" to "file"
+                "size" to file.size()
+            }.toString()
 
         assertThat(testInstance.writeValueAsString(extFile)).isEqualToIgnoringWhitespace(expectedJson)
     }
 
     @Test
     fun `serialize fire file`() {
-        val extFile = FireFile(
-            fireId = "fireId",
-            firePath = "firePath",
-            published = false,
-            filePath = "folder/fire-file.txt",
-            relPath = "Files/folder/fire-file.txt",
-            md5 = "fireFileMd5",
-            size = 13,
-            type = FILE,
-            attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true))
-        )
-        val expectedJson = jsonObj {
-            "fileName" to "fire-file.txt"
-            "filePath" to "folder/fire-file.txt"
-            "relPath" to "Files/folder/fire-file.txt"
-            "fireId" to "fireId"
-            "firePath" to "firePath"
-            "published" to false
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "Type"
-                    "value" to "Data"
-                    "reference" to false
-                    "nameAttrs" to jsonArray()
-                    "valueAttrs" to jsonArray()
-                },
-                jsonObj {
-                    "name" to "Source"
-                    "value" to null
-                    "reference" to true
-                    "nameAttrs" to jsonArray()
-                    "valueAttrs" to jsonArray()
-                }
+        val extFile =
+            FireFile(
+                fireId = "fireId",
+                firePath = "firePath",
+                published = false,
+                filePath = "folder/fire-file.txt",
+                relPath = "Files/folder/fire-file.txt",
+                md5 = "fireFileMd5",
+                size = 13,
+                type = FILE,
+                attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true)),
             )
-            "extType" to "fireFile"
-            "type" to "file"
-            "md5" to "fireFileMd5"
-            "size" to 13
-        }.toString()
+        val expectedJson =
+            jsonObj {
+                "fileName" to "fire-file.txt"
+                "filePath" to "folder/fire-file.txt"
+                "relPath" to "Files/folder/fire-file.txt"
+                "fireId" to "fireId"
+                "firePath" to "firePath"
+                "published" to false
+                "attributes" to
+                    jsonArray(
+                        jsonObj {
+                            "name" to "Type"
+                            "value" to "Data"
+                            "reference" to false
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
+                        },
+                        jsonObj {
+                            "name" to "Source"
+                            "value" to null
+                            "reference" to true
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
+                        },
+                    )
+                "extType" to "fireFile"
+                "type" to "file"
+                "md5" to "fireFileMd5"
+                "size" to 13
+            }.toString()
 
         assertThat(testInstance.writeValueAsString(extFile)).isEqualToIgnoringWhitespace(expectedJson)
     }
 
     @Test
     fun `serialize fire directory`() {
-        val extFile = FireFile(
-            fireId = "dirFireId",
-            firePath = "firePath",
-            published = true,
-            filePath = "folder",
-            relPath = "Files/folder",
-            md5 = "fireDirMd5",
-            size = 12,
-            type = DIR,
-            attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true))
-        )
-        val expectedJson = jsonObj {
-            "fileName" to "folder"
-            "filePath" to "folder"
-            "relPath" to "Files/folder"
-            "fireId" to "dirFireId"
-            "firePath" to "firePath"
-            "published" to true
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "Type"
-                    "value" to "Data"
-                    "reference" to false
-                    "nameAttrs" to jsonArray()
-                    "valueAttrs" to jsonArray()
-                },
-                jsonObj {
-                    "name" to "Source"
-                    "value" to null
-                    "reference" to true
-                    "nameAttrs" to jsonArray()
-                    "valueAttrs" to jsonArray()
-                }
+        val extFile =
+            FireFile(
+                fireId = "dirFireId",
+                firePath = "firePath",
+                published = true,
+                filePath = "folder",
+                relPath = "Files/folder",
+                md5 = "fireDirMd5",
+                size = 12,
+                type = DIR,
+                attributes = listOf(ExtAttribute("Type", "Data", false), ExtAttribute("Source", null, true)),
             )
-            "extType" to "fireFile"
-            "type" to "directory"
-            "md5" to "fireDirMd5"
-            "size" to 12
-        }.toString()
+        val expectedJson =
+            jsonObj {
+                "fileName" to "folder"
+                "filePath" to "folder"
+                "relPath" to "Files/folder"
+                "fireId" to "dirFireId"
+                "firePath" to "firePath"
+                "published" to true
+                "attributes" to
+                    jsonArray(
+                        jsonObj {
+                            "name" to "Type"
+                            "value" to "Data"
+                            "reference" to false
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
+                        },
+                        jsonObj {
+                            "name" to "Source"
+                            "value" to null
+                            "reference" to true
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
+                        },
+                    )
+                "extType" to "fireFile"
+                "type" to "directory"
+                "md5" to "fireDirMd5"
+                "size" to 12
+            }.toString()
 
         assertThat(testInstance.writeValueAsString(extFile)).isEqualToIgnoringWhitespace(expectedJson)
     }

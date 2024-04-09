@@ -12,12 +12,14 @@ interface RequestHandler {
     val urlPattern: Regex
 
     fun handle(rqt: Request): ResponseDefinition
+
     fun handleSafely(rqt: Request): ResponseDefinition = runCatching { handle(rqt) }.getOrElse { asResponse(it) }
 
-    private fun asResponse(exception: Throwable): ResponseDefinition = when (exception) {
-        is FireException -> ResponseDefinition(exception.status.value(), exception.message)
-        else -> ResponseDefinition(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.message)
-    }
+    private fun asResponse(exception: Throwable): ResponseDefinition =
+        when (exception) {
+            is FireException -> ResponseDefinition(exception.status.value(), exception.message)
+            else -> ResponseDefinition(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.message)
+        }
 }
 
 class FireException(message: String, val status: HttpStatus) : Exception(message)

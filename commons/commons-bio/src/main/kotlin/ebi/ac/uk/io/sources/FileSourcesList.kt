@@ -24,23 +24,31 @@ import java.io.File
  *     - Close parenthesis ( ) )
  */
 
-private val validPathPattern = buildString {
-    append("^") // Start of the line
-    append("(?!\\./)") // Negative lookahead to exclude "./"
-    append("(?!.*/\$)") // Negative lookahead to exclude "/" at the end
-    append("(?!.*\\.\\./)") // Negative lookahead to exclude occurrences of "../"
-    append("[0-9A-Za-z!\\-_*'(). /]+") // Character set allowing specified characters
-    append("\$") // End of the line
-}.trimIndent().toRegex()
+private val validPathPattern =
+    buildString {
+        append("^") // Start of the line
+        append("(?!\\./)") // Negative lookahead to exclude "./"
+        append("(?!.*/\$)") // Negative lookahead to exclude "/" at the end
+        append("(?!.*\\.\\./)") // Negative lookahead to exclude occurrences of "../"
+        append("[0-9A-Za-z!\\-_*'(). /]+") // Character set allowing specified characters
+        append("\$") // End of the line
+    }.trimIndent().toRegex()
 
 class FileSourcesList(val checkFilesPath: Boolean, val sources: List<FilesSource>) {
-
-    suspend fun findExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile? {
+    suspend fun findExtFile(
+        path: String,
+        type: String,
+        attributes: List<Attribute>,
+    ): ExtFile? {
         if (checkFilesPath) require(validPathPattern.matches(path)) { throw InvalidPathException(path) }
         return sources.firstNotNullOfOrNull { it.getExtFile(path, type, attributes) }
     }
 
-    suspend fun getExtFile(path: String, type: String, attributes: List<Attribute>): ExtFile {
+    suspend fun getExtFile(
+        path: String,
+        type: String,
+        attributes: List<Attribute>,
+    ): ExtFile {
         return findExtFile(path, type, attributes) ?: throw FilesProcessingException(path, this)
     }
 

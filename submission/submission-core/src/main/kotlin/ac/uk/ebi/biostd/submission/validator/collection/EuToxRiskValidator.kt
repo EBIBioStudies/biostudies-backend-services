@@ -26,11 +26,15 @@ class EuToxRiskValidator(
     private val fireClient: FireClient,
 ) : CollectionValidator {
     override fun validate(submission: ExtSubmission) {
-        if (submission.section.attributes.none { it.name == SKIP_VALIDATION_ATTR })
+        if (submission.section.attributes.none { it.name == SKIP_VALIDATION_ATTR }) {
             validateSubmission(validationProperties.euToxRiskValidationApi, submission)
+        }
     }
 
-    private fun validateSubmission(url: String, submission: ExtSubmission) {
+    private fun validateSubmission(
+        url: String,
+        submission: ExtSubmission,
+    ) {
         client.postForObject<EuToxRiskValidatorResponse>(url, RequestParams(jsonHeaders(), body(submission)))
             .errors
             .map { it.message }
@@ -40,10 +44,11 @@ class EuToxRiskValidator(
     private fun jsonHeaders() = HttpHeaders().apply { contentType = APPLICATION_JSON }
 
     fun body(submission: ExtSubmission): FileSystemResource {
-        val subFile = submission
-            .allSectionsFiles
-            .find { it.fileName.endsWith("xlsx") }
-            ?: throw CollectionValidationException(listOf(EXCEL_FILE_REQUIRED))
+        val subFile =
+            submission
+                .allSectionsFiles
+                .find { it.fileName.endsWith("xlsx") }
+                ?: throw CollectionValidationException(listOf(EXCEL_FILE_REQUIRED))
         return FileSystemResource(asFile(subFile))
     }
 
@@ -56,4 +61,5 @@ class EuToxRiskValidator(
 }
 
 class EuToxRiskValidatorResponse(val errors: List<EuToxRiskValidatorMessage>)
+
 class EuToxRiskValidatorMessage(val message: String)

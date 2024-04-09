@@ -22,31 +22,34 @@ class PmcProcessor(
     private val submissionDocService: SubmissionDocService,
     private val fileDownloader: FileDownloader,
 ) {
-
     fun processAll(sourceFile: String?) {
         runBlocking { processSubmissions(sourceFile) }
     }
 
-    private suspend fun processSubmissions(sourceFile: String?) = withContext(Dispatchers.Default) {
-        submissionDocService.findReadyToProcess(sourceFile)
-            .map { async { processSubmission(it) } }
-            .buffer(BUFFER_SIZE)
-            .collect { it.await() }
-    }
+    private suspend fun processSubmissions(sourceFile: String?) =
+        withContext(Dispatchers.Default) {
+            submissionDocService.findReadyToProcess(sourceFile)
+                .map { async { processSubmission(it) } }
+                .buffer(BUFFER_SIZE)
+                .collect { it.await() }
+        }
 
     private suspend fun processSubmission(submissionDoc: SubmissionDoc) {
         runCatching { submissionInitializer.getSubmission(submissionDoc.body) }
             .fold(
                 { downloadFiles(it, submissionDoc) },
-                { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) }
+                { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
             )
     }
 
-    private suspend fun downloadFiles(submissionPair: Pair<Submission, String>, submissionDoc: SubmissionDoc) {
+    private suspend fun downloadFiles(
+        submissionPair: Pair<Submission, String>,
+        submissionDoc: SubmissionDoc,
+    ) {
         val (submission, body) = submissionPair
         fileDownloader.downloadFiles(submission).fold(
             { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
-            { submissionDocService.saveProcessedSubmission(submissionDoc.withBody(body), it) }
+            { submissionDocService.saveProcessedSubmission(submissionDoc.withBody(body), it) },
         )
     }
 }

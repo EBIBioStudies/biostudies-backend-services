@@ -12,23 +12,30 @@ private const val SECTIONS_TABLE = "sectionsTable"
 
 sealed class ExtType(val type: String) {
     object NfsFile : ExtType(NFS_FILE)
+
     object FireFile : ExtType(FIRE_FILE)
+
     object FilesTable : ExtType(FILES_TABLE)
+
     object Link : ExtType(LINK)
+
     object LinksTable : ExtType(LINKS_TABLE)
+
     object Section : ExtType(SECTION)
+
     object SectionsTable : ExtType(SECTIONS_TABLE)
 
     companion object {
-        fun valueOf(type: String): ExtType = when (type) {
-            NFS_FILE -> NfsFile
-            FIRE_FILE -> FireFile
-            FILES_TABLE -> FilesTable
-            LINK -> Link
-            LINKS_TABLE -> LinksTable
-            SECTION -> Section
-            SECTIONS_TABLE -> SectionsTable
-            else -> throw InvalidExtTypeException(type)
-        }
+        fun valueOf(type: String): ExtType =
+            when (type) {
+                NFS_FILE -> NfsFile
+                FIRE_FILE -> FireFile
+                FILES_TABLE -> FilesTable
+                LINK -> Link
+                LINKS_TABLE -> LinksTable
+                SECTION -> Section
+                SECTIONS_TABLE -> SectionsTable
+                else -> throw InvalidExtTypeException(type)
+            }
     }
 }

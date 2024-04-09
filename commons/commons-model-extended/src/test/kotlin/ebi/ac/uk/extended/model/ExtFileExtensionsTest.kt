@@ -12,17 +12,18 @@ import java.io.File
 class ExtFileExtensionsTest {
     @Test
     fun `copy fire file`() {
-        val fireFile = FireFile(
-            "fire-id",
-            "fire-path",
-            true,
-            "file-path",
-            "rel-path",
-            "md5",
-            1L,
-            FILE,
-            listOf(ExtAttribute("Attribute", "Old"))
-        )
+        val fireFile =
+            FireFile(
+                "fire-id",
+                "fire-path",
+                true,
+                "file-path",
+                "rel-path",
+                "md5",
+                1L,
+                FILE,
+                listOf(ExtAttribute("Attribute", "Old")),
+            )
         val newAttributes = listOf(ExtAttribute("Override", "New"))
         val copied = fireFile.copyWithAttributes(newAttributes)
 
@@ -32,18 +33,19 @@ class ExtFileExtensionsTest {
 
     @Test
     fun `copy nfs file`(
-        @MockK file: File
+        @MockK file: File,
     ) {
-        val nfsFile = NfsFile(
-            "file-path",
-            "rel-path",
-            file,
-            "full-path",
-            "md5",
-            1L,
-            listOf(ExtAttribute("Attribute", "Old")),
-            FILE
-        )
+        val nfsFile =
+            NfsFile(
+                "file-path",
+                "rel-path",
+                file,
+                "full-path",
+                "md5",
+                1L,
+                listOf(ExtAttribute("Attribute", "Old")),
+                FILE,
+            )
         val newAttributes = listOf(ExtAttribute("Override", "New"))
         val copied = nfsFile.copyWithAttributes(newAttributes)
 

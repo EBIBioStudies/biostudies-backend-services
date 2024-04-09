@@ -9,7 +9,11 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.LINKS
 import uk.ac.ebi.extended.serialization.constants.ExtType
 
 class ExtLinksTableSerializer : JsonSerializer<ExtLinkTable>() {
-    override fun serialize(linksTable: ExtLinkTable, gen: JsonGenerator, serializers: SerializerProvider) {
+    override fun serialize(
+        linksTable: ExtLinkTable,
+        gen: JsonGenerator,
+        serializers: SerializerProvider,
+    ) {
         gen.writeStartObject()
         gen.writeObjectField(LINKS, linksTable.links)
         gen.writeStringField(EXT_TYPE, ExtType.LinksTable.type)

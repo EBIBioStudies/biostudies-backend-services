@@ -19,7 +19,10 @@ fun createTempFile(content: String): File {
 /**
  * Create a file with the given size.
  */
-fun TemporaryFolder.createFile(fileName: String, sizeInBytes: Long): File {
+fun TemporaryFolder.createFile(
+    fileName: String,
+    sizeInBytes: Long,
+): File {
     val file = createFile(fileName)
 
     val raf = RandomAccessFile(file, "rw")
@@ -32,7 +35,11 @@ fun TemporaryFolder.createFile(fileName: String, sizeInBytes: Long): File {
 /**
  * Creates a file with the given content in the temporary folder.
  */
-fun TemporaryFolder.createFile(fileName: String, content: String, charset: Charset = Charsets.UTF_8): File {
+fun TemporaryFolder.createFile(
+    fileName: String,
+    content: String,
+    charset: Charset = Charsets.UTF_8,
+): File {
     val file = createFile(fileName)
     file.writeText(content, charset)
     return file

@@ -17,7 +17,9 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MockKExtension::class)
-class BioWebClientExtTest(@MockK private val submissionClient: SubmitClient) {
+class BioWebClientExtTest(
+    @MockK private val submissionClient: SubmitClient,
+) {
     private val testInstance = spyk(BioWebClient(submissionClient))
 
     @Test
@@ -47,7 +49,9 @@ class BioWebClientExtTest(@MockK private val submissionClient: SubmitClient) {
     }
 
     @Test
-    fun `ext submissions as sequence with only one page`(@MockK extSubmission: ExtSubmission) {
+    fun `ext submissions as sequence with only one page`(
+        @MockK extSubmission: ExtSubmission,
+    ) {
         val extPage = ExtPage(listOf(extSubmission), 1, null, null)
         val query = ExtPageQuery(limit = 1, offset = 1, fromRTime = null, toRTime = null)
 

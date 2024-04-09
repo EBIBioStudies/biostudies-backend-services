@@ -22,7 +22,9 @@ class RetryHandlerTest(
     private val testInstance = RetryHandler(extSubmissionService, requestService)
 
     @Test
-    fun onStart(@MockK submission: ExtSubmission) {
+    fun onStart(
+        @MockK submission: ExtSubmission,
+    ) {
         every { requestService.getProcessingRequests() } returns flowOf("a" to 1, "b" to 2)
         coEvery { extSubmissionService.reTriggerSubmission("a", 1) } throws IllegalStateException("Error trigger")
         coEvery { extSubmissionService.reTriggerSubmission("b", 2) } answers { submission }
@@ -34,7 +36,9 @@ class RetryHandlerTest(
     }
 
     @Test
-    fun onSchedule(@MockK submission: ExtSubmission) {
+    fun onSchedule(
+        @MockK submission: ExtSubmission,
+    ) {
         every { requestService.getProcessingRequests(Duration.of(3, HOURS)) } returns flowOf("a" to 1, "b" to 2)
         coEvery { extSubmissionService.reTriggerSubmission("a", 1) } throws IllegalStateException("Error trigger")
         coEvery { extSubmissionService.reTriggerSubmission("b", 2) } answers { submission }

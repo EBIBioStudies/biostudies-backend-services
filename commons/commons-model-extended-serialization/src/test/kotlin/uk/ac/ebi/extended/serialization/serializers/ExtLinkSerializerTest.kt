@@ -13,30 +13,33 @@ class ExtLinkSerializerTest {
 
     @Test
     fun serialize() {
-        val extLink = ExtLink(
-            url = "http://mylink.org",
-            attributes = listOf(ExtAttribute("Type", "Resource", false), ExtAttribute("Source", null, true))
-        )
-        val expectedJson = jsonObj {
-            "url" to "http://mylink.org"
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "Type"
-                    "value" to "Resource"
-                    "reference" to false
-                    "nameAttrs" to jsonArray()
-                    "valueAttrs" to jsonArray()
-                },
-                jsonObj {
-                    "name" to "Source"
-                    "value" to null
-                    "reference" to true
-                    "nameAttrs" to jsonArray()
-                    "valueAttrs" to jsonArray()
-                }
+        val extLink =
+            ExtLink(
+                url = "http://mylink.org",
+                attributes = listOf(ExtAttribute("Type", "Resource", false), ExtAttribute("Source", null, true)),
             )
-            "extType" to "link"
-        }.toString()
+        val expectedJson =
+            jsonObj {
+                "url" to "http://mylink.org"
+                "attributes" to
+                    jsonArray(
+                        jsonObj {
+                            "name" to "Type"
+                            "value" to "Resource"
+                            "reference" to false
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
+                        },
+                        jsonObj {
+                            "name" to "Source"
+                            "value" to null
+                            "reference" to true
+                            "nameAttrs" to jsonArray()
+                            "valueAttrs" to jsonArray()
+                        },
+                    )
+                "extType" to "link"
+            }.toString()
 
         assertThat(testInstance.writeValueAsString(extLink)).isEqualToIgnoringWhitespace(expectedJson)
     }

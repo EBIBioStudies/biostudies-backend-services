@@ -60,18 +60,20 @@ enum class RequestStatus {
     FILES_COPIED,
     CHECK_RELEASED,
     PERSISTED,
-    PROCESSED;
+    PROCESSED,
+    ;
 
     companion object {
-        val PROCESSING: Set<RequestStatus> = setOf(
-            REQUESTED,
-            INDEXED,
-            LOADED,
-            CLEANED,
-            FILES_COPIED,
-            CHECK_RELEASED,
-            PERSISTED,
-        )
+        val PROCESSING: Set<RequestStatus> =
+            setOf(
+                REQUESTED,
+                INDEXED,
+                LOADED,
+                CLEANED,
+                FILES_COPIED,
+                CHECK_RELEASED,
+                PERSISTED,
+            )
     }
 }
 
@@ -88,6 +90,6 @@ val RequestStatus.action: String
             RequestStatus.FILES_COPIED -> "Release Files"
             RequestStatus.CHECK_RELEASED -> "Save Submission"
             RequestStatus.PERSISTED -> "Submission Post Processing"
-            else -> throw IllegalStateException("Invalid state $this")
+            else -> error("Invalid state $this")
         }
     }

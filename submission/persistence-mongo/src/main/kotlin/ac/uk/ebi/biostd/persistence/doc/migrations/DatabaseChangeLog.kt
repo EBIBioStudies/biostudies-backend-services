@@ -81,13 +81,13 @@ private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionI
         ensureIndex(backgroundIndex().on("$prefix$SUB_RELEASED", ASC)).awaitSingleOrNull()
         ensureIndex(backgroundIndex().on("$prefix$SUB_MODIFICATION_TIME", ASC)).awaitSingleOrNull()
         ensureIndex(
-            backgroundIndex().on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC).on(SUB_VERSION, ASC)
+            backgroundIndex().on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC).on(SUB_VERSION, ASC),
         ).awaitSingleOrNull()
         ensureIndex(
             Index()
                 .on("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", ASC)
                 .on("$prefix$SUB_VERSION", ASC)
-                .on("$prefix$STORAGE_MODE", ASC)
+                .on("$prefix$STORAGE_MODE", ASC),
         ).awaitSingleOrNull()
         ensureIndex(
             TextIndex()
@@ -95,7 +95,7 @@ private suspend inline fun <reified T> ReactiveMongoOperations.ensureSubmissionI
                 .onField("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_NAME")
                 .onField("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_VALUE")
                 .named("title_text_section.attributes.name_text_section.attributes.value_text")
-                .build()
+                .build(),
         ).awaitSingleOrNull()
     }
 }
@@ -140,7 +140,7 @@ suspend fun ReactiveMongoOperations.ensureFileListIndexes() {
             Index()
                 .on(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, ASC)
                 .on(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, ASC)
-                .on("$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_FILEPATH", ASC)
+                .on("$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_FILEPATH", ASC),
         ).awaitSingleOrNull()
     }
 }
@@ -164,13 +164,13 @@ suspend fun ReactiveMongoOperations.ensureRequestFileIndexes() {
             Index()
                 .on(RQT_FILE_SUB_ACC_NO, ASC)
                 .on(RQT_FILE_SUB_VERSION, ASC)
-                .on(RQT_FILE_PATH, ASC)
+                .on(RQT_FILE_PATH, ASC),
         ).awaitSingleOrNull()
         ensureIndex(
             Index()
                 .on(RQT_FILE_SUB_ACC_NO, ASC)
                 .on(RQT_FILE_SUB_VERSION, ASC)
-                .on(RQT_FILE_INDEX, ASC)
+                .on(RQT_FILE_INDEX, ASC),
         ).awaitSingleOrNull()
     }
 }

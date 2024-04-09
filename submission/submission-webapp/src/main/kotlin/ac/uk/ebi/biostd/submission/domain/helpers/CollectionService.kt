@@ -12,7 +12,10 @@ class CollectionService(
     private val collectionSqlDataService: CollectionDataService,
     private val userPrivilegesService: IUserPrivilegesService,
 ) {
-    suspend fun getAllowedCollections(user: SecurityUser, accessType: AccessType): List<Collection> {
+    suspend fun getAllowedCollections(
+        user: SecurityUser,
+        accessType: AccessType,
+    ): List<Collection> {
         val accessTags = userPrivilegesService.allowedCollections(user.email, accessType)
         return collectionSqlDataService.findCollectionsByAccessTags(accessTags)
             .map { Collection(it.accNo, it.title) }

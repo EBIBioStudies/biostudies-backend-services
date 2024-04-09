@@ -61,7 +61,7 @@ object FireFileFactory {
         md5 = md5,
         size = size,
         type = FILE,
-        attributes = attributes
+        attributes = attributes,
     )
 
     const val FILE_PATH = "folder/file.txt"
@@ -83,7 +83,7 @@ object FileListFactory {
         filePath = filePath,
         file = createExtFileList(files),
         filesUrl = filesUrl,
-        pageTabFiles = pageTabFiles
+        pageTabFiles = pageTabFiles,
     )
 
     const val FILE_PATH = "folder/fileList.txt"

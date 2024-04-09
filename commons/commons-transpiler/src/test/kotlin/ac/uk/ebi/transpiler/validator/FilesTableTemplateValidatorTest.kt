@@ -36,7 +36,7 @@ class FilesTableTemplateValidatorTest(private val temporaryFolder: TemporaryFold
         val exception = assertThrows<InvalidDirectoryException> { testInstance.validate(template, rootPath) }
 
         assertThat(exception.message).isEqualTo(
-            "The following directories don't exist or don't contain files: [$rootPath/Plate3/rep3/A03]"
+            "The following directories don't exist or don't contain files: [$rootPath/Plate3/rep3/A03]",
         )
     }
 
@@ -48,7 +48,7 @@ class FilesTableTemplateValidatorTest(private val temporaryFolder: TemporaryFold
         val exception = assertThrows<InvalidDirectoryException> { testInstance.validate(template, rootPath) }
 
         assertThat(exception.message).isEqualTo(
-            "The following directories don't exist or don't contain files: [$rootPath/Plate3/rep3/A03]"
+            "The following directories don't exist or don't contain files: [$rootPath/Plate3/rep3/A03]",
         )
     }
 
@@ -62,7 +62,7 @@ class FilesTableTemplateValidatorTest(private val temporaryFolder: TemporaryFold
         val exception = assertThrows<InvalidDirectoryException> { testInstance.validate(template, rootPath) }
 
         assertThat(exception.message).isEqualTo(
-            "The following directories don't exist or don't contain files: $failingDirs"
+            "The following directories don't exist or don't contain files: $failingDirs",
         )
     }
 

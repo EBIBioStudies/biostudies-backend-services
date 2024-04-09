@@ -8,7 +8,10 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 
 fun bioWebClientErrorHandler(): ExchangeFilterFunction {
-    fun errorMessage(responseBody: String, status: HttpStatus) = when (status) {
+    fun errorMessage(
+        responseBody: String,
+        status: HttpStatus,
+    ) = when (status) {
         HttpStatus.NOT_FOUND -> "Connection Error: The provided server is invalid"
         HttpStatus.UNAUTHORIZED -> "Authentication Error: Invalid email address or password"
         else -> runCatching { JSONObject(responseBody).toString(2) }.getOrElse { responseBody }

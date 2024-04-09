@@ -7,7 +7,6 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 
 class DateFunctionsTest {
-
     @Test
     fun toIsoDate() {
         val date = secondsToInstant(552355200)

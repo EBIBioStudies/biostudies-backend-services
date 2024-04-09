@@ -32,13 +32,20 @@ class TsvSerializer {
         return builder.toString()
     }
 
-    private fun addSubmission(builder: TsvBuilder, submission: Submission) {
+    private fun addSubmission(
+        builder: TsvBuilder,
+        submission: Submission,
+    ) {
         builder.addSubAcc(submission.accNo)
         submission.attributes.forEach(builder::addAttr)
         addSection(builder, submission.section)
     }
 
-    private fun addSection(builder: TsvBuilder, section: Section, parentAccNo: String? = null) {
+    private fun addSection(
+        builder: TsvBuilder,
+        section: Section,
+        parentAccNo: String? = null,
+    ) {
         builder.addSeparator()
         builder.addSecDescriptor(section.type, section.accNo, parentAccNo)
         sectionAttributes(section).forEach(builder::addAttr)
@@ -52,32 +59,45 @@ class TsvSerializer {
         section.sections.forEach { either ->
             either.fold(
                 { addSection(builder, it, section.accNo) },
-                { addTable(builder, it, getHeader(it, section.accNo)) }
+                { addTable(builder, it, getHeader(it, section.accNo)) },
             )
         }
     }
 
-    private fun sectionAttributes(section: Section): List<Attribute> = when (val fileList = section.fileList) {
-        null -> section.attributes
-        else -> section.attributes.plus(Attribute(FILE_LIST.value, "${fileList.name}.tsv"))
-    }
+    private fun sectionAttributes(section: Section): List<Attribute> =
+        when (val fileList = section.fileList) {
+            null -> section.attributes
+            else -> section.attributes.plus(Attribute(FILE_LIST.value, "${fileList.name}.tsv"))
+        }
 
-    private fun getHeader(table: SectionsTable, parentAccNo: String? = null) =
-        "${table.elements.first().type}[${if (parentAccNo.isNotBlank()) "$parentAccNo" else ""}]"
+    private fun getHeader(
+        table: SectionsTable,
+        parentAccNo: String? = null,
+    ) = "${table.elements.first().type}[${if (parentAccNo.isNotBlank()) "$parentAccNo" else ""}]"
 
-    private fun addFile(builder: TsvBuilder, file: BioFile) {
+    private fun addFile(
+        builder: TsvBuilder,
+        file: BioFile,
+    ) {
         builder.addSeparator()
         builder.addSecFile(file)
         builder.addAttributes(file.attributes)
     }
 
-    private fun addLink(builder: TsvBuilder, link: Link) {
+    private fun addLink(
+        builder: TsvBuilder,
+        link: Link,
+    ) {
         builder.addSeparator()
         builder.addSecLink(link)
         builder.addAttributes(link.attributes)
     }
 
-    private fun <T : Any> addTable(builder: TsvBuilder, table: Table<T>, mainHeader: String) {
+    private fun <T : Any> addTable(
+        builder: TsvBuilder,
+        table: Table<T>,
+        mainHeader: String,
+    ) {
         builder.addSeparator()
 
         val headers = listOf(Header(mainHeader)) + table.headers
@@ -88,7 +108,7 @@ class TsvSerializer {
                     addAll(header.termNames.map { "($it)" })
                     addAll(header.termValues.map { "[$it]" })
                 }
-            }
+            },
         )
         table.rows.forEach { builder.addTableRow(it) }
     }

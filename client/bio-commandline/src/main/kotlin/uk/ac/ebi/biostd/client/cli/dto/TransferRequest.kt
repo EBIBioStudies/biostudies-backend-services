@@ -5,5 +5,5 @@ import ebi.ac.uk.extended.model.StorageMode
 internal data class TransferRequest(
     val accNo: String,
     val target: StorageMode,
-    val securityConfig: SecurityConfig
+    val securityConfig: SecurityConfig,
 )

@@ -23,10 +23,11 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
 
     @Test
     fun `deserialize basic`() {
-        val json = jsonObj {
-            "type" to "Study"
-            "extType" to "section"
-        }.toString()
+        val json =
+            jsonObj {
+                "type" to "Study"
+                "extType" to "section"
+            }.toString()
 
         val extSection = testInstance.readValue<ExtSection>(json)
         assertThat(extSection.accNo).isNull()
@@ -42,96 +43,106 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
         val sectionFile = tempFolder.createFile("section-file.txt")
         val sectionFilesTable = tempFolder.createFile("section-file-table.txt")
         val fileListPageTab = tempFolder.createFile("file-list.xml")
-        val json = jsonObj {
-            "accNo" to "SECT-001"
-            "type" to "Study"
-            "fileList" to jsonObj {
-                "fileName" to "file-list.json"
-                "path" to "file-list.json"
-                "file" to createExtFileList().absolutePath
-                "pageTabFiles" to jsonArray(
+        val json =
+            jsonObj {
+                "accNo" to "SECT-001"
+                "type" to "Study"
+                "fileList" to
                     jsonObj {
-                        "fileName" to "file-list.xml"
-                        "filePath" to "file-list.xml"
-                        "relPath" to "Files/file-list.xml"
-                        "md5" to "abc-md5"
-                        "size" to 55
-                        "fullPath" to fileListPageTab.absolutePath
-                        "type" to "file"
-                        "extType" to "nfsFile"
+                        "fileName" to "file-list.json"
+                        "path" to "file-list.json"
+                        "file" to createExtFileList().absolutePath
+                        "pageTabFiles" to
+                            jsonArray(
+                                jsonObj {
+                                    "fileName" to "file-list.xml"
+                                    "filePath" to "file-list.xml"
+                                    "relPath" to "Files/file-list.xml"
+                                    "md5" to "abc-md5"
+                                    "size" to 55
+                                    "fullPath" to fileListPageTab.absolutePath
+                                    "type" to "file"
+                                    "extType" to "nfsFile"
+                                },
+                            )
+                        "filesUrl" to "submissions/extended/S-BSST1/referencedFiles/file-list"
                     }
-                )
-                "filesUrl" to "submissions/extended/S-BSST1/referencedFiles/file-list"
-            }
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "Title"
-                    "value" to "Test Section"
-                }
-            )
-
-            "sections" to jsonArray(
-                jsonObj {
-                    "type" to "Exp"
-                    "extType" to "section"
-                },
-                jsonObj {
-                    "sections" to jsonArray(
+                "attributes" to
+                    jsonArray(
                         jsonObj {
-                            "type" to "Data"
-                            "extType" to "section"
-                        }
+                            "name" to "Title"
+                            "value" to "Test Section"
+                        },
                     )
-                    "extType" to "sectionsTable"
-                }
-            )
 
-            "files" to jsonArray(
-                jsonObj {
-                    "fileName" to "section-file-inner-folders.txt"
-                    "filePath" to "folder/section-file-inner-folders.txt"
-                    "relPath" to "Files/folder/section-file-inner-folders.txt"
-                    "md5" to "abc-md5"
-                    "size" to 55
-                    "fullPath" to sectionFile.absolutePath
-                    "extType" to "nfsFile"
-                    "type" to "file"
-                },
-                jsonObj {
-                    "files" to jsonArray(
+                "sections" to
+                    jsonArray(
                         jsonObj {
-                            "fileName" to "section-file-table.txt"
-                            "filePath" to "folder/section-file-table.txt"
-                            "relPath" to "Files/folder/section-file-table.txt"
-                            "fullPath" to sectionFilesTable.absolutePath
+                            "type" to "Exp"
+                            "extType" to "section"
+                        },
+                        jsonObj {
+                            "sections" to
+                                jsonArray(
+                                    jsonObj {
+                                        "type" to "Data"
+                                        "extType" to "section"
+                                    },
+                                )
+                            "extType" to "sectionsTable"
+                        },
+                    )
+
+                "files" to
+                    jsonArray(
+                        jsonObj {
+                            "fileName" to "section-file-inner-folders.txt"
+                            "filePath" to "folder/section-file-inner-folders.txt"
+                            "relPath" to "Files/folder/section-file-inner-folders.txt"
                             "md5" to "abc-md5"
                             "size" to 55
+                            "fullPath" to sectionFile.absolutePath
                             "extType" to "nfsFile"
                             "type" to "file"
-                        }
-                    )
-                    "extType" to "filesTable"
-                }
-            )
-
-            "links" to jsonArray(
-                jsonObj {
-                    "url" to "https://simple-link.net"
-                    "extType" to "link"
-                },
-                jsonObj {
-                    "links" to jsonArray(
+                        },
                         jsonObj {
-                            "url" to "https://table-link.net"
-                            "extType" to "link"
-                        }
+                            "files" to
+                                jsonArray(
+                                    jsonObj {
+                                        "fileName" to "section-file-table.txt"
+                                        "filePath" to "folder/section-file-table.txt"
+                                        "relPath" to "Files/folder/section-file-table.txt"
+                                        "fullPath" to sectionFilesTable.absolutePath
+                                        "md5" to "abc-md5"
+                                        "size" to 55
+                                        "extType" to "nfsFile"
+                                        "type" to "file"
+                                    },
+                                )
+                            "extType" to "filesTable"
+                        },
                     )
-                    "extType" to "linksTable"
-                }
-            )
 
-            "extType" to "section"
-        }.toString()
+                "links" to
+                    jsonArray(
+                        jsonObj {
+                            "url" to "https://simple-link.net"
+                            "extType" to "link"
+                        },
+                        jsonObj {
+                            "links" to
+                                jsonArray(
+                                    jsonObj {
+                                        "url" to "https://table-link.net"
+                                        "extType" to "link"
+                                    },
+                                )
+                            "extType" to "linksTable"
+                        },
+                    )
+
+                "extType" to "section"
+            }.toString()
 
         val extSection = testInstance.readValue<ExtSection>(json)
         assertThat(extSection.accNo).isEqualTo("SECT-001")
@@ -152,8 +163,8 @@ class ExtSectionDeserializerTest(private val tempFolder: TemporaryFolder) {
                 fileListPageTab,
                 fileListPageTab.absolutePath,
                 "abc-md5",
-                55
-            )
+                55,
+            ),
         )
 
         val innerSections = extSection.sections

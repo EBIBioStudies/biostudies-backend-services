@@ -13,13 +13,16 @@ import uk.ac.ebi.serialization.extensions.convertOrDefault
 import uk.ac.ebi.serialization.extensions.getNode
 
 class ExtLinkDeserializer : JsonDeserializer<ExtLink>() {
-    override fun deserialize(jsonParser: JsonParser, ctxt: DeserializationContext): ExtLink {
+    override fun deserialize(
+        jsonParser: JsonParser,
+        ctxt: DeserializationContext,
+    ): ExtLink {
         val mapper = jsonParser.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jsonParser)
 
         return ExtLink(
             url = node.getNode<TextNode>(URL).textValue(),
-            attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() }
+            attributes = mapper.convertOrDefault(node, ATTRIBUTES) { emptyList() },
         )
     }
 }

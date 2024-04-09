@@ -17,16 +17,17 @@ class FileSourcesService(
     fun submissionSources(rqt: FileSourcesRequest): FileSourcesList {
         val (owner, submitter, files, rootPath, submission, preferredSources) = rqt
         val preferred = preferredSources.ifEmpty { DEFAULT_SOURCES }
-        val sources = builder.buildFilesSourceList {
-            if (submitter.superuser) addDbFilesSource()
-            if (files != null) addFilesListSource(files)
-            preferred.forEach {
-                when (it) {
-                    USER_SPACE -> addUserSources(rootPath, owner, submitter, this)
-                    SUBMISSION -> if (submission != null) addSubmissionSource(submission)
+        val sources =
+            builder.buildFilesSourceList {
+                if (submitter.superuser) addDbFilesSource()
+                if (files != null) addFilesListSource(files)
+                preferred.forEach {
+                    when (it) {
+                        USER_SPACE -> addUserSources(rootPath, owner, submitter, this)
+                        SUBMISSION -> if (submission != null) addSubmissionSource(submission)
+                    }
                 }
             }
-        }
 
         return sources
     }
@@ -44,9 +45,16 @@ class FileSourcesService(
         }
     }
 
-    private fun addUserSource(user: SecurityUser, rootPath: String?, builder: FilesSourceListBuilder) {
-        if (rootPath == null) builder.addUserSource(user, "${user.email} user files")
-        else builder.addUserSource(user, "${user.email} user files in /$rootPath", rootPath)
+    private fun addUserSource(
+        user: SecurityUser,
+        rootPath: String?,
+        builder: FilesSourceListBuilder,
+    ) {
+        if (rootPath == null) {
+            builder.addUserSource(user, "${user.email} user files")
+        } else {
+            builder.addUserSource(user, "${user.email} user files in /$rootPath", rootPath)
+        }
 
         user.groupsFolders.forEach { builder.addGroupSource(it.groupName, it.path) }
     }

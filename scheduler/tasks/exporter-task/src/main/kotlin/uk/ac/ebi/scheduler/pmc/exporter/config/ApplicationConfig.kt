@@ -52,8 +52,7 @@ class ApplicationConfig(
         serializationService: SerializationService,
         applicationProperties: ApplicationProperties,
         toSubmissionMapper: ToSubmissionMapper,
-    ): PublicOnlyExporterService =
-        PublicOnlyExporterService(bioWebClient, applicationProperties, serializationService, toSubmissionMapper)
+    ): PublicOnlyExporterService = PublicOnlyExporterService(bioWebClient, applicationProperties, serializationService, toSubmissionMapper)
 
     @Bean
     fun toSubmissionMapper(toSectionMapper: ToSectionMapper): ToSubmissionMapper = ToSubmissionMapper(toSectionMapper)
@@ -92,15 +91,17 @@ class ApplicationConfig(
             .getAuthenticatedClient(applicationProperties.bioStudies.user, applicationProperties.bioStudies.password)
 
     @Bean
-    fun ftpClient(): FTPClient = FTPClient().apply {
-        bufferSize = BUFFER_SIZE
-        addProtocolCommandListener(PrintCommandListener(PrintWriter(System.out)))
-    }
+    fun ftpClient(): FTPClient =
+        FTPClient().apply {
+            bufferSize = BUFFER_SIZE
+            addProtocolCommandListener(PrintCommandListener(PrintWriter(System.out)))
+        }
 
     @Bean
-    fun xmlWriter(): XmlMapper = XmlMapper(
-        JacksonXmlModule().apply { setDefaultUseWrapper(false) }
-    ).apply { enable(INDENT_OUTPUT) }
+    fun xmlWriter(): XmlMapper =
+        XmlMapper(
+            JacksonXmlModule().apply { setDefaultUseWrapper(false) },
+        ).apply { enable(INDENT_OUTPUT) }
 
     @Bean
     fun serializationService(): SerializationService = SerializationConfig.serializationService()

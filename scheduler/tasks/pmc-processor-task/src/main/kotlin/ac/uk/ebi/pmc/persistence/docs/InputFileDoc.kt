@@ -10,11 +10,6 @@ data class InputFileDoc(
     val status: InputFileStatus,
     val error: String?,
     val _id: ObjectId? = ObjectId(),
-) {
-
-    companion object Fields {
-        const val name = "name"
-    }
-}
+)
 
 enum class InputFileStatus { PROCESSED, FAILED }

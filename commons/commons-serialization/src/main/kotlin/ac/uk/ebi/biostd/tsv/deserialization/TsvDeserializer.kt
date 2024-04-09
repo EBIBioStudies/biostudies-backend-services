@@ -8,7 +8,7 @@ import ebi.ac.uk.util.collections.ifNotEmpty
 
 internal class TsvDeserializer(
     private val chunkProcessor: ChunkProcessor = ChunkProcessor(),
-    private val chunkGenerator: TsvChunkGenerator = TsvChunkGenerator()
+    private val chunkGenerator: TsvChunkGenerator = TsvChunkGenerator(),
 ) {
     fun deserialize(pageTab: String): Submission {
         val chunks = chunkGenerator.chunks(pageTab)
@@ -27,7 +27,10 @@ internal class TsvDeserializer(
         return deserializeElement(pageTab, T::class.java)
     }
 
-    fun <T> deserializeElement(pageTab: String, type: Class<out T>): T {
+    fun <T> deserializeElement(
+        pageTab: String,
+        type: Class<out T>,
+    ): T {
         val chunks = chunkGenerator.chunks(pageTab)
         require(chunks.size == 1) { throw InvalidChunkSizeException() }
         return type.cast(chunkProcessor.processIsolatedChunk(chunks.poll()))

@@ -17,7 +17,10 @@ class SubmissionFolderResolver(
         return if (includeSecretKey) privateSubPath.resolve(secret.take(2)) else privateSubPath
     }
 
-    fun getPrivateSubFolder(secretKey: String, relPath: String): Path {
+    fun getPrivateSubFolder(
+        secretKey: String,
+        relPath: String,
+    ): Path {
         return when (includeSecretKey) {
             true -> getPrivateSubFolderRoot(secretKey).resolve("${secretKey.substring(2)}/$relPath")
             else -> privateSubPath.resolve(relPath)

@@ -27,7 +27,7 @@ import java.time.ZoneOffset.UTC
 @ExtendWith(MockKExtension::class)
 class ExtSubmissionClientTest(
     @MockK private val client: WebClient,
-    @MockK private val extSerializationService: ExtSerializationService
+    @MockK private val extSerializationService: ExtSerializationService,
 ) {
     private val testInstance = ExtSubmissionClient(client, extSerializationService)
 
@@ -36,7 +36,7 @@ class ExtSubmissionClientTest(
 
     @Test
     fun `get ext submissions`(
-        @MockK extPage: ExtPage
+        @MockK extPage: ExtPage,
     ) {
         val expectedUrl = "$EXT_SUBMISSIONS_URL?offset=1&limit=2"
         val query = ExtPageQuery(limit = 2, offset = 1)
@@ -53,7 +53,7 @@ class ExtSubmissionClientTest(
 
     @Test
     fun `ext submissions filtering`(
-        @MockK extPage: ExtPage
+        @MockK extPage: ExtPage,
     ) {
         val from = OffsetDateTime.of(2019, 9, 21, 15, 0, 0, 0, UTC)
         val to = OffsetDateTime.of(2020, 9, 21, 15, 0, 0, 0, UTC)
@@ -74,7 +74,7 @@ class ExtSubmissionClientTest(
 
     @Test
     fun `get ext submissions page`(
-        @MockK extPage: ExtPage
+        @MockK extPage: ExtPage,
     ) {
         val pageUrl = "$EXT_SUBMISSIONS_URL?offset=1&limit=2"
 
@@ -90,7 +90,7 @@ class ExtSubmissionClientTest(
 
     @Test
     fun `get ext submission by accNo`(
-        @MockK extSubmission: ExtSubmission
+        @MockK extSubmission: ExtSubmission,
     ) {
         val expectedUrl = "$EXT_SUBMISSIONS_URL/S-TEST123?includeFileList=false"
 
@@ -106,7 +106,7 @@ class ExtSubmissionClientTest(
 
     @Test
     fun `get referenced files`(
-        @MockK extFileTable: ExtFileTable
+        @MockK extFileTable: ExtFileTable,
     ) {
         val filesUrl = "$EXT_SUBMISSIONS_URL/S-TEST123/referencedFiles/file-list"
 

@@ -39,34 +39,39 @@ internal class PageTabServiceTest(
     private val testInstance = PageTabService(baseTempDir, pageTabUtil)
 
     @Test
-    fun `generate pagetab`() = runTest {
-        mockkStatic(LocalDate::class)
-        every { LocalDate.now() } returns LocalDate.of(2023, 1, 24)
+    fun `generate pagetab`() =
+        runTest {
+            mockkStatic(LocalDate::class)
+            every { LocalDate.now() } returns LocalDate.of(2023, 1, 24)
 
-        val tempDir = File("${baseTempDir.absolutePath}/2023/1/24/S-TEST123/1")
-        val fileList = temporaryFolder.createFile("file-list")
-        val fileListSection = ExtSection(type = "t2", fileList = ExtFileList(filePath = "a-path", fileList))
-        val rootSection = ExtSection(type = "t1", sections = listOf(Either.left(fileListSection)))
-        val sub = basicExtSubmission.copy(section = rootSection)
-        val fileListPageTab = mapOf("a-path" to PageTabFiles(fileListJson, fileListTsv))
+            val tempDir = File("${baseTempDir.absolutePath}/2023/1/24/S-TEST123/1")
+            val fileList = temporaryFolder.createFile("file-list")
+            val fileListSection = ExtSection(type = "t2", fileList = ExtFileList(filePath = "a-path", fileList))
+            val rootSection = ExtSection(type = "t1", sections = listOf(Either.left(fileListSection)))
+            val sub = basicExtSubmission.copy(section = rootSection)
+            val fileListPageTab = mapOf("a-path" to PageTabFiles(fileListJson, fileListTsv))
 
-        coEvery { pageTabUtil.generateSubPageTab(sub, tempDir) } returns PageTabFiles(subJson, subTsv)
-        coEvery { pageTabUtil.generateFileListPageTab(sub, tempDir) } returns fileListPageTab
+            coEvery { pageTabUtil.generateSubPageTab(sub, tempDir) } returns PageTabFiles(subJson, subTsv)
+            coEvery { pageTabUtil.generateFileListPageTab(sub, tempDir) } returns fileListPageTab
 
-        val result = testInstance.generatePageTab(sub)
+            val result = testInstance.generatePageTab(sub)
 
-        assertThat(result.pageTabFiles).hasSize(2)
-        assertFile(result.pageTabFiles.first(), subJson, "S-TEST123.json")
-        assertFile(result.pageTabFiles.second(), subTsv, "S-TEST123.tsv")
-        assertThat(result.section.sections.first()).hasLeftValueSatisfying {
-            val resultFileList = it.fileList
-            assertThat(resultFileList).isNotNull()
-            assertFile(it.fileList?.pageTabFiles?.first(), fileListJson, "Files/a-path.json")
-            assertFile(it.fileList?.pageTabFiles?.second(), fileListTsv, "Files/a-path.tsv")
+            assertThat(result.pageTabFiles).hasSize(2)
+            assertFile(result.pageTabFiles.first(), subJson, "S-TEST123.json")
+            assertFile(result.pageTabFiles.second(), subTsv, "S-TEST123.tsv")
+            assertThat(result.section.sections.first()).hasLeftValueSatisfying {
+                val resultFileList = it.fileList
+                assertThat(resultFileList).isNotNull()
+                assertFile(it.fileList?.pageTabFiles?.first(), fileListJson, "Files/a-path.json")
+                assertFile(it.fileList?.pageTabFiles?.second(), fileListTsv, "Files/a-path.tsv")
+            }
         }
-    }
 
-    private fun assertFile(file: ExtFile?, expected: File, relPath: String) {
+    private fun assertFile(
+        file: ExtFile?,
+        expected: File,
+        relPath: String,
+    ) {
         assertThat(file).isInstanceOf(NfsFile::class.java)
         val nfsFile = file as NfsFile
         assertThat(nfsFile.file).isEqualTo(expected)

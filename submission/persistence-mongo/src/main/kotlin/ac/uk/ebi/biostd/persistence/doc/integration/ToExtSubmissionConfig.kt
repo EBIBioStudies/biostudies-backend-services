@@ -16,16 +16,12 @@ class ToExtSubmissionConfig {
         fileListDocFileDocDataRepository: FileListDocFileDocDataRepository,
         extSerializationService: ExtSerializationService,
         extFilesResolver: FilesResolver,
-    ): ToExtFileListMapper =
-        ToExtFileListMapper(fileListDocFileDocDataRepository, extSerializationService, extFilesResolver)
+    ): ToExtFileListMapper = ToExtFileListMapper(fileListDocFileDocDataRepository, extSerializationService, extFilesResolver)
 
     @Bean
-    internal fun toExtSectionMapper(
-        toExtFileListMapper: ToExtFileListMapper,
-    ): ToExtSectionMapper = ToExtSectionMapper(toExtFileListMapper)
+    internal fun toExtSectionMapper(toExtFileListMapper: ToExtFileListMapper): ToExtSectionMapper = ToExtSectionMapper(toExtFileListMapper)
 
     @Bean
-    internal fun toExtSubmissionMapper(
-        toExtSectionMapper: ToExtSectionMapper,
-    ): ToExtSubmissionMapper = ToExtSubmissionMapper(toExtSectionMapper)
+    internal fun toExtSubmissionMapper(toExtSectionMapper: ToExtSectionMapper): ToExtSubmissionMapper =
+        ToExtSubmissionMapper(toExtSectionMapper)
 }

@@ -43,35 +43,59 @@ class LocalExtSubmissionSubmitter(
         return requestService.createRequest(request)
     }
 
-    override suspend fun indexRequest(accNo: String, version: Int) {
+    override suspend fun indexRequest(
+        accNo: String,
+        version: Int,
+    ) {
         requestIndexer.indexRequest(accNo, version, properties.processId)
     }
 
-    override suspend fun loadRequest(accNo: String, version: Int) {
+    override suspend fun loadRequest(
+        accNo: String,
+        version: Int,
+    ) {
         requestLoader.loadRequest(accNo, version, properties.processId)
     }
 
-    override suspend fun cleanRequest(accNo: String, version: Int) {
+    override suspend fun cleanRequest(
+        accNo: String,
+        version: Int,
+    ) {
         requestCleaner.cleanCurrentVersion(accNo, version, properties.processId)
     }
 
-    override suspend fun processRequest(accNo: String, version: Int) {
+    override suspend fun processRequest(
+        accNo: String,
+        version: Int,
+    ) {
         requestProcessor.processRequest(accNo, version, properties.processId)
     }
 
-    override suspend fun checkReleased(accNo: String, version: Int) {
+    override suspend fun checkReleased(
+        accNo: String,
+        version: Int,
+    ) {
         requestReleaser.checkReleased(accNo, version, properties.processId)
     }
 
-    override suspend fun saveRequest(accNo: String, version: Int): ExtSubmission {
+    override suspend fun saveRequest(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         return requestSaver.saveRequest(accNo, version, properties.processId)
     }
 
-    override suspend fun finalizeRequest(accNo: String, version: Int): ExtSubmission {
+    override suspend fun finalizeRequest(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         return requestFinalizer.finalizeRequest(accNo, version, properties.processId)
     }
 
-    override suspend fun handleRequest(accNo: String, version: Int): ExtSubmission {
+    override suspend fun handleRequest(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         return when (requestService.getRequestStatus(accNo, version)) {
             REQUESTED -> completeRequest(accNo, version)
             INDEXED -> loadRequestFiles(accNo, version)
@@ -80,11 +104,14 @@ class LocalExtSubmissionSubmitter(
             FILES_COPIED -> releaseSubmission(accNo, version)
             CHECK_RELEASED -> saveAndFinalize(accNo, version)
             PERSISTED -> finalizeRequest(accNo, version)
-            else -> throw IllegalStateException("Request accNo=$accNo, version=$version has been already processed")
+            else -> error("Request accNo=$accNo, version=$version has been already processed")
         }
     }
 
-    private suspend fun completeRequest(accNo: String, version: Int): ExtSubmission {
+    private suspend fun completeRequest(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         indexRequest(accNo, version)
         loadRequest(accNo, version)
         cleanRequest(accNo, version)
@@ -94,7 +121,10 @@ class LocalExtSubmissionSubmitter(
         return finalizeRequest(accNo, version)
     }
 
-    private suspend fun loadRequestFiles(accNo: String, version: Int): ExtSubmission {
+    private suspend fun loadRequestFiles(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         loadRequest(accNo, version)
         cleanRequest(accNo, version)
         processRequest(accNo, version)
@@ -103,7 +133,10 @@ class LocalExtSubmissionSubmitter(
         return finalizeRequest(accNo, version)
     }
 
-    private suspend fun cleanRequestFiles(accNo: String, version: Int): ExtSubmission {
+    private suspend fun cleanRequestFiles(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         cleanRequest(accNo, version)
         processRequest(accNo, version)
         checkReleased(accNo, version)
@@ -111,20 +144,29 @@ class LocalExtSubmissionSubmitter(
         return finalizeRequest(accNo, version)
     }
 
-    private suspend fun processRequestFiles(accNo: String, version: Int): ExtSubmission {
+    private suspend fun processRequestFiles(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         processRequest(accNo, version)
         checkReleased(accNo, version)
         saveRequest(accNo, version)
         return finalizeRequest(accNo, version)
     }
 
-    private suspend fun releaseSubmission(accNo: String, version: Int): ExtSubmission {
+    private suspend fun releaseSubmission(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         checkReleased(accNo, version)
         saveRequest(accNo, version)
         return finalizeRequest(accNo, version)
     }
 
-    internal suspend fun saveAndFinalize(accNo: String, version: Int): ExtSubmission {
+    internal suspend fun saveAndFinalize(
+        accNo: String,
+        version: Int,
+    ): ExtSubmission {
         saveRequest(accNo, version)
         return finalizeRequest(accNo, version)
     }

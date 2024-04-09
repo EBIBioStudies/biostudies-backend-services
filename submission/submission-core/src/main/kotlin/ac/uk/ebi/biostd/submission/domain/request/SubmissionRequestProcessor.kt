@@ -27,7 +27,11 @@ class SubmissionRequestProcessor(
     /**
      * Process the current submission files. Note that [ExtSubmission] returned does not include file list files.
      */
-    suspend fun processRequest(accNo: String, version: Int, processId: String) {
+    suspend fun processRequest(
+        accNo: String,
+        version: Int,
+        processId: String,
+    ) {
         requestService.onRequest(accNo, version, CLEANED, processId, {
             processRequest(it.submission, it.currentIndex)
             RqtUpdate(it.withNewStatus(FILES_COPIED))
@@ -35,13 +39,21 @@ class SubmissionRequestProcessor(
         eventsPublisherService.requestFilesCopied(accNo, version)
     }
 
-    private suspend fun processRequest(sub: ExtSubmission, currentIndex: Int) {
+    private suspend fun processRequest(
+        sub: ExtSubmission,
+        currentIndex: Int,
+    ) {
         logger.info { "${sub.accNo} ${sub.owner} Started persisting submission files on ${sub.storageMode}" }
         persistSubmissionFiles(sub, sub.accNo, sub.version, currentIndex)
         logger.info { "${sub.accNo} ${sub.owner} Finished persisting submission files on ${sub.storageMode}" }
     }
 
-    private suspend fun persistSubmissionFiles(sub: ExtSubmission, accNo: String, version: Int, startingAt: Int) {
+    private suspend fun persistSubmissionFiles(
+        sub: ExtSubmission,
+        accNo: String,
+        version: Int,
+        startingAt: Int,
+    ) {
         suspend fun persistFile(rqtFile: SubmissionRequestFile) {
             logger.info { "$accNo ${sub.owner} Started persisting file ${rqtFile.index}, path='${rqtFile.path}'" }
             when (val persisted = storageService.persistSubmissionFile(sub, rqtFile.file)) {

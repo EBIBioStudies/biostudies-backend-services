@@ -22,28 +22,38 @@ internal class SubmissionJsonSerializerTest {
     private val testInstance = createSerializer()
 
     private val releaseDate = LocalDate.of(2018, 12, 31).toString()
-    private val submission = submission("abc123") {
-        attribute("attr-name", "attr-value")
-        attribute("releaseDate", releaseDate)
-    }
+    private val submission =
+        submission("abc123") {
+            attribute("attr-name", "attr-value")
+            attribute("releaseDate", releaseDate)
+        }
 
     @Test
     fun `serialize local date`() {
         val json = testInstance.writeValueAsString(submission)
-        val expected = jsonObj {
-            "accno" to "abc123"
-            "section" to jsonObj { }
-            "attributes" to jsonArray(
-                jsonObj { "reference" to false; "name" to "attr-name"; "value" to "attr-value" },
-                jsonObj { "reference" to false; "name" to "releaseDate"; "value" to "2018-12-31" }
-            )
-            "type" to "submission"
-        }
+        val expected =
+            jsonObj {
+                "accno" to "abc123"
+                "section" to jsonObj { }
+                "attributes" to
+                    jsonArray(
+                        jsonObj {
+                            "reference" to false
+                            "name" to "attr-name"
+                            "value" to "attr-value"
+                        },
+                        jsonObj {
+                            "reference" to false
+                            "name" to "releaseDate"
+                            "value" to "2018-12-31"
+                        },
+                    )
+                "type" to "submission"
+            }
         assertEquals("invalid submission json", json, expected.toString(), LENIENT)
     }
 
     companion object {
-
         fun createSerializer(): ObjectMapper {
             val module = SimpleModule()
             module.addSerializer(Submission::class.java, SubmissionJsonSerializer())

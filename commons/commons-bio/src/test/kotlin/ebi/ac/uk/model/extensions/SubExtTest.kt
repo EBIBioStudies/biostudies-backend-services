@@ -121,26 +121,28 @@ class SubExtTest {
 
     @Test
     fun `is collection`() {
-        val submission = submission("BioImages") {
-            section("Project") {}
-        }
+        val submission =
+            submission("BioImages") {
+                section("Project") {}
+            }
 
         assertThat(submission.isCollection).isTrue()
     }
 
     @Test
     fun `all submission files`() {
-        val submission = submission("ABC-123") {
-            section("Study") {
-                file("File1.txt")
+        val submission =
+            submission("ABC-123") {
+                section("Study") {
+                    file("File1.txt")
 
-                section("Data") {
-                    filesTable {
-                        file("DataFile1.csv")
+                    section("Data") {
+                        filesTable {
+                            file("DataFile1.csv")
+                        }
                     }
                 }
             }
-        }
         val allFiles = submission.allFiles()
 
         assertThat(allFiles).hasSize(2)
@@ -150,39 +152,45 @@ class SubExtTest {
 
     @Test
     fun `get section by type`() {
-        val submission = submission("ABC-123") {
-            section("Study") {
-                section("Data") { accNo = "DT-1" }
-                section("Experiment") { accNo = "EXP-1" }
+        val submission =
+            submission("ABC-123") {
+                section("Study") {
+                    section("Data") { accNo = "DT-1" }
+                    section("Experiment") { accNo = "EXP-1" }
+                }
             }
-        }
         val experiment = submission.getSectionByType("Experiment")
 
         assertThat(experiment).isNotNull
         assertThat(experiment.accNo).isEqualTo("EXP-1")
     }
 
-    private fun assertExtendedAttribute(submission: Submission, name: SubFields, value: String) {
+    private fun assertExtendedAttribute(
+        submission: Submission,
+        name: SubFields,
+        value: String,
+    ) {
         assertThat(submission.attributes).hasSize(1)
         assertThat(submission.attributes.first()).isEqualTo(Attribute(name.value, value))
     }
 
     @Test
     fun `get file list sections`() {
-        val submission = submission("ABC-123") {
-            section("Study") {
-                fileListName = "FileList1.tsv"
+        val submission =
+            submission("ABC-123") {
+                section("Study") {
+                    fileListName = "FileList1.tsv"
 
-                section("Data") {
-                    accNo = "DT-1"
-                }
+                    section("Data") {
+                        accNo = "DT-1"
+                    }
 
-                section("Experiment") {
-                    accNo = "EXP-1"
-                    fileListName = "FileList2.tsv"
+                    section("Experiment") {
+                        accNo = "EXP-1"
+                        fileListName = "FileList2.tsv"
+                    }
                 }
             }
-        }
 
         val libFileSections = submission.fileListSections()
 
@@ -193,20 +201,21 @@ class SubExtTest {
 
     @Test
     fun `get all sections`() {
-        val submission = submission("ABC-123") {
-            section("Study") {
-                fileListName = "FileList1.tsv"
+        val submission =
+            submission("ABC-123") {
+                section("Study") {
+                    fileListName = "FileList1.tsv"
 
-                section("Data") {
-                    accNo = "DT-1"
-                }
+                    section("Data") {
+                        accNo = "DT-1"
+                    }
 
-                section("Experiment") {
-                    accNo = "EXP-1"
-                    fileListName = "FileList2.tsv"
+                    section("Experiment") {
+                        accNo = "EXP-1"
+                        fileListName = "FileList2.tsv"
+                    }
                 }
             }
-        }
 
         val sections = submission.allSections()
 

@@ -32,12 +32,18 @@ class CommonOperationsClient(
         client.postAsync("$FTP_URL/generate", RequestParams(body = body))
     }
 
-    override fun createGroup(groupName: String, groupDescription: String): UserGroupDto {
+    override fun createGroup(
+        groupName: String,
+        groupDescription: String,
+    ): UserGroupDto {
         val body = linkedMapOf("groupName" to groupName, "description" to groupDescription)
         return client.postForObject(GROUP_URL, RequestParams(body = body))
     }
 
-    override fun addUserInGroup(groupName: String, userName: String) {
+    override fun addUserInGroup(
+        groupName: String,
+        userName: String,
+    ) {
         val body = linkedMapOf("groupName" to groupName, "userName" to userName)
         client.put(GROUP_URL, RequestParams(body = body))
     }

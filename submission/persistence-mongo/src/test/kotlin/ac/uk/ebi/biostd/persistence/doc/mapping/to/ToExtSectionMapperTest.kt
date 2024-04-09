@@ -40,61 +40,69 @@ class ToExtSectionMapperTest(
     private val toExtFileListMapper: ToExtFileListMapper = mockk()
     private val testInstance = ToExtSectionMapper(toExtFileListMapper)
     private val testFireDocFile = FileTestHelper.fireDocFile
-    private val testNfsDocFile = FileTestHelper.nfsDocFile.copy(
-        fullPath = sectionFile.absolutePath,
-        md5 = sectionFile.md5(),
-        fileSize = sectionFile.size()
-    )
-
-    @Test
-    fun `to ext Submission without FileListFiles`() = runTest {
-        val section = docSection.copy(
-            files = listOf(Either.left(testNfsDocFile), Either.left(testFireDocFile)),
-            fileList = docFileList
+    private val testNfsDocFile =
+        FileTestHelper.nfsDocFile.copy(
+            fullPath = sectionFile.absolutePath,
+            md5 = sectionFile.md5(),
+            fileSize = sectionFile.size(),
         )
 
-        coEvery {
-            toExtFileListMapper.toExtFileList(
-                docFileList,
-                "subAccNo",
-                121,
-                false,
-                "subRelPath",
-                false,
-            )
-        } returns extFileList
-        val extSection =
-            testInstance.toExtSection(section, "subAccNo", 121, false, "subRelPath", includeFileListFiles = false)
+    @Test
+    fun `to ext Submission without FileListFiles`() =
+        runTest {
+            val section =
+                docSection.copy(
+                    files = listOf(Either.left(testNfsDocFile), Either.left(testFireDocFile)),
+                    fileList = docFileList,
+                )
 
-        assertExtSection(extSection, sectionFile)
-        assertThat(extSection.fileList).isEqualTo(extFileList)
-    }
+            coEvery {
+                toExtFileListMapper.toExtFileList(
+                    docFileList,
+                    "subAccNo",
+                    121,
+                    false,
+                    "subRelPath",
+                    false,
+                )
+            } returns extFileList
+            val extSection =
+                testInstance.toExtSection(section, "subAccNo", 121, false, "subRelPath", includeFileListFiles = false)
+
+            assertExtSection(extSection, sectionFile)
+            assertThat(extSection.fileList).isEqualTo(extFileList)
+        }
 
     @Test
-    fun `to ext Submission including FileListFiles`() = runTest {
-        val section = docSection.copy(
-            files = listOf(Either.left(testNfsDocFile), Either.left(testFireDocFile)),
-            fileList = docFileList
-        )
+    fun `to ext Submission including FileListFiles`() =
+        runTest {
+            val section =
+                docSection.copy(
+                    files = listOf(Either.left(testNfsDocFile), Either.left(testFireDocFile)),
+                    fileList = docFileList,
+                )
 
-        coEvery {
-            toExtFileListMapper.toExtFileList(
-                docFileList,
-                "subAccNo",
-                121,
-                false,
-                "subRelPath",
-                true,
-            )
-        } returns extFileList
-        val extSection =
-            testInstance.toExtSection(section, "subAccNo", 121, false, "subRelPath", includeFileListFiles = true)
+            coEvery {
+                toExtFileListMapper.toExtFileList(
+                    docFileList,
+                    "subAccNo",
+                    121,
+                    false,
+                    "subRelPath",
+                    true,
+                )
+            } returns extFileList
+            val extSection =
+                testInstance.toExtSection(section, "subAccNo", 121, false, "subRelPath", includeFileListFiles = true)
 
-        assertExtSection(extSection, sectionFile)
-        assertThat(extSection.fileList).isEqualTo(extFileList)
-    }
+            assertExtSection(extSection, sectionFile)
+            assertThat(extSection.fileList).isEqualTo(extFileList)
+        }
 
-    private fun assertExtSection(extSection: ExtSection, file: File) {
+    private fun assertExtSection(
+        extSection: ExtSection,
+        file: File,
+    ) {
         assertThat(extSection.accNo).isEqualTo(SECT_ACC_NO)
         assertThat(extSection.type).isEqualTo(SECT_TYPE)
 
@@ -122,7 +130,10 @@ class ToExtSectionMapperTest(
         assertFullExtAttribute(extSection.attributes.first())
     }
 
-    private fun assertExtSectionFiles(extSection: ExtSection, file: File) {
+    private fun assertExtSectionFiles(
+        extSection: ExtSection,
+        file: File,
+    ) {
         assertThat(extSection.files).hasSize(2)
         extSection.files.first().ifLeft { FileTestHelper.assertExtFile(it, file) }
         extSection.files.second().ifLeft { FileTestHelper.assertExtFile(it, file) }

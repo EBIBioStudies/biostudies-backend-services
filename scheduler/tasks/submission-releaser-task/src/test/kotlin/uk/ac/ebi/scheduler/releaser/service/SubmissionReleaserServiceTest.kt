@@ -42,7 +42,7 @@ class SubmissionReleaserServiceTest(
             notificationTimes,
             releaserRepository,
             requestRepository,
-            eventsPublisherService
+            eventsPublisherService,
         )
 
     @AfterEach
@@ -56,21 +56,22 @@ class SubmissionReleaserServiceTest(
     }
 
     @Test
-    fun `notify submission release`() = runTest {
-        val firstWarningData = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
-        val secondWarningData = ReleaseData("S-BSST1", "owner1@mail.org", "S-BSST/001/S-BSST1")
-        val thirdWarningData = ReleaseData("S-BSST2", "owner2@mail.org", "S-BSST/002/S-BSST2")
+    fun `notify submission release`() =
+        runTest {
+            val firstWarningData = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
+            val secondWarningData = ReleaseData("S-BSST1", "owner1@mail.org", "S-BSST/001/S-BSST1")
+            val thirdWarningData = ReleaseData("S-BSST2", "owner2@mail.org", "S-BSST/002/S-BSST2")
 
-        mockNotificationQuery(month = 11, day = 20, response = firstWarningData)
-        mockNotificationQuery(month = 10, day = 21, response = secondWarningData)
-        mockNotificationQuery(month = 9, day = 28, response = thirdWarningData)
+            mockNotificationQuery(month = 11, day = 20, response = firstWarningData)
+            mockNotificationQuery(month = 10, day = 21, response = secondWarningData)
+            mockNotificationQuery(month = 9, day = 28, response = thirdWarningData)
 
-        testInstance.notifySubmissionReleases()
+            testInstance.notifySubmissionReleases()
 
-        verify(exactly = 1) { eventsPublisherService.subToBePublished("S-BSST0", "owner0@mail.org") }
-        verify(exactly = 1) { eventsPublisherService.subToBePublished("S-BSST1", "owner1@mail.org") }
-        verify(exactly = 1) { eventsPublisherService.subToBePublished("S-BSST2", "owner2@mail.org") }
-    }
+            verify(exactly = 1) { eventsPublisherService.subToBePublished("S-BSST0", "owner0@mail.org") }
+            verify(exactly = 1) { eventsPublisherService.subToBePublished("S-BSST1", "owner1@mail.org") }
+            verify(exactly = 1) { eventsPublisherService.subToBePublished("S-BSST2", "owner2@mail.org") }
+        }
 
     @Test
     fun `release daily submissions`(
@@ -92,17 +93,22 @@ class SubmissionReleaserServiceTest(
     }
 
     @Test
-    fun `generate ftp links`() = runTest {
-        val released = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
+    fun `generate ftp links`() =
+        runTest {
+            val released = ReleaseData("S-BSST0", "owner0@mail.org", "S-BSST/000/S-BSST0")
 
-        every { releaserRepository.findAllReleased() } returns flowOf(released)
-        coEvery { bioWebClient.generateFtpLinks("S-BSST0") } answers { nothing }
+            every { releaserRepository.findAllReleased() } returns flowOf(released)
+            coEvery { bioWebClient.generateFtpLinks("S-BSST0") } answers { nothing }
 
-        testInstance.generateFtpLinks()
-        coVerify(exactly = 1) { bioWebClient.generateFtpLinks("S-BSST0") }
-    }
+            testInstance.generateFtpLinks()
+            coVerify(exactly = 1) { bioWebClient.generateFtpLinks("S-BSST0") }
+        }
 
-    private fun mockNotificationQuery(month: Int, day: Int, response: ReleaseData) {
+    private fun mockNotificationQuery(
+        month: Int,
+        day: Int,
+        response: ReleaseData,
+    ) {
         val from = OffsetDateTime.of(2020, month, day, 0, 0, 0, 0, UTC).toDate()
         val to = OffsetDateTime.of(2020, month, day, 23, 59, 59, 0, UTC).toDate()
 

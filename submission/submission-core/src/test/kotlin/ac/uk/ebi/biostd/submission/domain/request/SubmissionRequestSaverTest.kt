@@ -36,13 +36,14 @@ internal class SubmissionRequestSaverTest(
     @MockK val filesService: SubmissionRequestFilesPersistenceService,
     @MockK val eventsPublisherService: EventsPublisherService,
 ) {
-    private val testInstance = SubmissionRequestSaver(
-        requestService,
-        processingService,
-        persistenceService,
-        filesService,
-        eventsPublisherService
-    )
+    private val testInstance =
+        SubmissionRequestSaver(
+            requestService,
+            processingService,
+            persistenceService,
+            filesService,
+            eventsPublisherService,
+        )
 
     @Test
     fun saveRequest(
@@ -57,17 +58,17 @@ internal class SubmissionRequestSaverTest(
         val updatedSubFile = NfsFile("file.txt", "Files/file.txt", updatedFile, "file", "md5", 1, type = FILE)
 
         every { subFile.attributes } returns emptyList()
-        every { eventsPublisherService.submissionPersisted(accNo, version) } answers { nothing }
-        every { eventsPublisherService.submissionSubmitted(accNo, notifyTo) } answers { nothing }
-        coEvery { persistenceService.expirePreviousVersions(accNo) } answers { nothing }
+        every { eventsPublisherService.submissionPersisted(ACC_NO, VERSION) } answers { nothing }
+        every { eventsPublisherService.submissionSubmitted(ACC_NO, notifyTo) } answers { nothing }
+        coEvery { persistenceService.expirePreviousVersions(ACC_NO) } answers { nothing }
         coEvery { persistenceService.saveSubmission(submission) } answers { submission }
 
-        every { submission.accNo } answers { accNo }
-        every { submission.version } answers { version }
+        every { submission.accNo } answers { ACC_NO }
+        every { submission.version } answers { VERSION }
         every { subFile.filePath } returns filePath
 
         coEvery {
-            requestService.onRequest(accNo, version, CHECK_RELEASED, processId, capture(rqtSlot))
+            requestService.onRequest(ACC_NO, VERSION, CHECK_RELEASED, PROCESS_ID, capture(rqtSlot))
         } coAnswers { rqtSlot.captured.invoke(request) }
 
         every { request.withNewStatus(PERSISTED) } returns request
@@ -75,7 +76,7 @@ internal class SubmissionRequestSaverTest(
         every { request.notifyTo } answers { notifyTo }
         every { requestFile.file } returns updatedSubFile
 
-        coEvery { filesService.getSubmissionRequestFile(accNo, version, filePath) } returns requestFile
+        coEvery { filesService.getSubmissionRequestFile(ACC_NO, VERSION, filePath) } returns requestFile
 
         var newFile: ExtFile? = null
         coEvery { processingService.processFiles(submission, any()) } coAnswers {
@@ -83,22 +84,22 @@ internal class SubmissionRequestSaverTest(
             submission
         }
 
-        val response = testInstance.saveRequest(accNo, version, processId)
+        val response = testInstance.saveRequest(ACC_NO, VERSION, PROCESS_ID)
 
         assertThat(response).isEqualTo(submission)
         assertThat(newFile).isEqualTo(updatedSubFile)
         coVerify(exactly = 1) {
-            eventsPublisherService.submissionSubmitted(accNo, notifyTo)
-            eventsPublisherService.submissionPersisted(accNo, version)
-            persistenceService.expirePreviousVersions(accNo)
+            eventsPublisherService.submissionSubmitted(ACC_NO, notifyTo)
+            eventsPublisherService.submissionPersisted(ACC_NO, VERSION)
+            persistenceService.expirePreviousVersions(ACC_NO)
             persistenceService.saveSubmission(submission)
         }
     }
 
     private companion object {
-        val accNo = "ABC-123"
-        val version = 1
-        const val processId = "biostudies-prod"
+        val ACC_NO = "ABC-123"
+        val VERSION = 1
+        const val PROCESS_ID = "biostudies-prod"
         val rqtSlot = slot<suspend (SubmissionRequest) -> RqtResponse>()
     }
 }

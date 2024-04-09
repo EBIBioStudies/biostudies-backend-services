@@ -160,60 +160,74 @@ sourceSets {
     }
 }
 
-val copySqlSchema = tasks.create<Copy>("copySqlSchema") {
-    from("$rootDir/infrastructure/src/main/resources/setup/mysql/Schema.sql")
-    into("${project.layout.buildDirectory.get()}/resources/itest")
-}
-
-val itest = tasks.create<Test>("itest") {
-    dependsOn(copySqlSchema)
-    testClassesDirs = sourceSets["itest"].output.classesDirs
-    classpath = sourceSets["itest"].runtimeClasspath
-
-    val enableFire = project.property("enableFire")!!
-    val enableTask = project.property("enableTaskMode")!!
-    val nfsReleaseMode = project.property("nfsReleaseMode")!!
-    val includeSecretKey = project.property("includeSecretKey")!!
-
-    println("#####")
-    println("Running integration tests with")
-    println("fireEnable=$enableFire")
-    println("taskMode=$enableTask")
-    println("nfsReleaseMode=$nfsReleaseMode")
-    println("includeSecretKey=$includeSecretKey")
-    println("#######")
-
-    systemProperty("enableFire", enableFire)
-    systemProperty("enableTaskMode", enableTask)
-    systemProperty("nfsReleaseMode", nfsReleaseMode)
-    systemProperty("includeSecretKey", includeSecretKey)
-
-    useJUnitPlatform()
-    testLogging.exceptionFormat = TestExceptionFormat.SHORT
-    testLogging.showStandardStreams = true
-    extensions.configure(JacocoTaskExtension::class) {
-        setDestinationFile(file("${project.layout.buildDirectory.get()}/jacoco/jacocoITest.exec"))
-        classDumpDir = file("${project.layout.buildDirectory.get()}/jacoco/classpathdumps")
+val copySqlSchema =
+    tasks.create<Copy>("copySqlSchema") {
+        from("$rootDir/infrastructure/src/main/resources/setup/mysql/Schema.sql")
+        into("${project.layout.buildDirectory.get()}/resources/itest")
     }
 
-    retry {
-        maxRetries.set(3)
-        maxFailures.set(10)
-        failOnPassedAfterRetry.set(false)
-    }
+val itest =
+    tasks.create<Test>("itest") {
+        dependsOn(copySqlSchema)
+        testClassesDirs = sourceSets["itest"].output.classesDirs
+        classpath = sourceSets["itest"].runtimeClasspath
 
-    addTestListener(object : TestListener {
-        override fun beforeSuite(suite: TestDescriptor) {}
-        override fun beforeTest(testDescriptor: TestDescriptor) {}
-        override fun afterTest(desc: TestDescriptor, result: TestResult) {
-            val time = result.endTime - result.startTime
-            logger.quiet("Executed test ${desc.name} [${desc.className}] with result: ${result.resultType}, in $time ms")
-            logger.quiet(result.exception?.stackTraceToString() ?: "Not Register exception")
+        val enableFire = project.property("enableFire")!!
+        val enableTask = project.property("enableTaskMode")!!
+        val nfsReleaseMode = project.property("nfsReleaseMode")!!
+        val includeSecretKey = project.property("includeSecretKey")!!
+
+        println("#####")
+        println("Running integration tests with")
+        println("fireEnable=$enableFire")
+        println("taskMode=$enableTask")
+        println("nfsReleaseMode=$nfsReleaseMode")
+        println("includeSecretKey=$includeSecretKey")
+        println("#######")
+
+        systemProperty("enableFire", enableFire)
+        systemProperty("enableTaskMode", enableTask)
+        systemProperty("nfsReleaseMode", nfsReleaseMode)
+        systemProperty("includeSecretKey", includeSecretKey)
+
+        useJUnitPlatform()
+        testLogging.exceptionFormat = TestExceptionFormat.SHORT
+        testLogging.showStandardStreams = true
+        extensions.configure(JacocoTaskExtension::class) {
+            setDestinationFile(file("${project.layout.buildDirectory.get()}/jacoco/jacocoITest.exec"))
+            classDumpDir = file("${project.layout.buildDirectory.get()}/jacoco/classpathdumps")
         }
 
-        override fun afterSuite(suite: TestDescriptor, result: TestResult) {}
-    })
-}
+        retry {
+            maxRetries.set(3)
+            maxFailures.set(10)
+            failOnPassedAfterRetry.set(false)
+        }
+
+        addTestListener(
+            object : TestListener {
+                override fun beforeSuite(suite: TestDescriptor) {}
+
+                override fun beforeTest(testDescriptor: TestDescriptor) {}
+
+                override fun afterTest(
+                    desc: TestDescriptor,
+                    result: TestResult,
+                ) {
+                    val time = result.endTime - result.startTime
+                    logger.quiet("Executed test ${desc.name} [${desc.className}] with result: ${result.resultType}, in $time ms")
+                    logger.quiet(result.exception?.stackTraceToString() ?: "Not Register exception")
+                }
+
+                override fun afterSuite(
+                    suite: TestDescriptor,
+                    result: TestResult,
+                ) {
+                }
+            },
+        )
+    }
 
 tasks.getByName<JacocoCoverageVerification>("jacocoTestCoverageVerification") { dependsOn(itest) }
+tasks.getByName<JacocoReport>("jacocoTestReport") { dependsOn(itest) }
 tasks.named<Copy>("processItestResources") { duplicatesStrategy = DuplicatesStrategy.WARN }

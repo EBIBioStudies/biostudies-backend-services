@@ -9,20 +9,20 @@ data class JobSpec(
     val queue: QueueSpec = StandardQueue,
     val command: String,
 ) {
+    fun asParameter(): List<String> =
+        buildList {
+            add("-n")
+            add(cores.toString())
 
-    fun asParameter(): List<String> = buildList {
-        add("-n")
-        add(cores.toString())
+            add("-M")
+            add(ram.toString())
 
-        add("-M")
-        add(ram.toString())
+            add("-R")
+            add("rusage[mem=$ram]")
 
-        add("-R")
-        add("rusage[mem=$ram]")
+            add("-q")
+            add(queue.name)
 
-        add("-q")
-        add(queue.name)
-
-        add(command)
-    }
+            add(command)
+        }
 }

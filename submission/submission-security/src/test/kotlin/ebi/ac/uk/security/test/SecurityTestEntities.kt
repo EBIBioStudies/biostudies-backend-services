@@ -9,73 +9,78 @@ import ebi.ac.uk.api.security.RetryActivationRequest
 
 internal class SecurityTestEntities {
     companion object {
-        const val userId = 55L
-        const val name = "BioStudies Developer"
-        const val email = "biostudies-dev@ebi.ac.uk"
-        const val orcid = "0000-0002-1825-0097"
-        const val password = "abc123"
-        const val instanceKey = "12345"
-        const val path = "/activate_url_path"
-        const val captcha = "captcha-key"
-        const val adminId = 70L
+        const val USER_ID = 55L
+        const val NAME = "BioStudies Developer"
+        const val EMAIL = "biostudies-dev@ebi.ac.uk"
+        const val ORCID = "0000-0002-1825-0097"
+        const val PASSWORD = "abc123"
+        const val INSTANCE_KEY = "12345"
+        const val PATH = "/activate_url_path"
+        const val CAPTCHA = "captcha-key"
+        const val ADMIN_ID = 70L
+        const val SECRET = "secret"
 
         val registrationRequest: RegisterRequest
-            get() = RegisterRequest(name, email, password, orcid = orcid, captcha = captcha)
+            get() = RegisterRequest(NAME, EMAIL, PASSWORD, orcid = ORCID, captcha = CAPTCHA)
 
         val preRegisterRequest: RegisterRequest
-            get() = RegisterRequest(
-                name = name,
-                email = email,
-                password = password,
-                instanceKey = instanceKey,
-                captcha = captcha,
-                path = path
-            )
+            get() =
+                RegisterRequest(
+                    name = NAME,
+                    email = EMAIL,
+                    password = PASSWORD,
+                    instanceKey = INSTANCE_KEY,
+                    captcha = CAPTCHA,
+                    path = PATH,
+                )
 
         val resetPasswordRequest: ResetPasswordRequest
-            get() = ResetPasswordRequest(
-                email = email,
-                instanceKey = instanceKey,
-                path = path,
-                captcha = captcha
-            )
+            get() =
+                ResetPasswordRequest(
+                    email = EMAIL,
+                    instanceKey = INSTANCE_KEY,
+                    path = PATH,
+                    captcha = CAPTCHA,
+                )
 
         val activateByEmailRequest: ActivateByEmailRequest
-            get() = ActivateByEmailRequest(
-                email = email,
-                instanceKey = instanceKey,
-                path = path
-            )
+            get() =
+                ActivateByEmailRequest(
+                    email = EMAIL,
+                    instanceKey = INSTANCE_KEY,
+                    path = PATH,
+                )
 
         val retryActivation: RetryActivationRequest
-            get() = RetryActivationRequest(
-                email = email,
-                instanceKey = instanceKey,
-                path = path
-            )
+            get() =
+                RetryActivationRequest(
+                    email = EMAIL,
+                    instanceKey = INSTANCE_KEY,
+                    path = PATH,
+                )
 
-        const val secret = "secret"
         val passwordDigest = ByteArray(0)
 
         val simpleUser: DbUser
-            get() = DbUser(
-                id = userId,
-                email = email,
-                fullName = name,
-                secret = secret,
-                storageMode = StorageMode.NFS,
-                passwordDigest = passwordDigest
-            )
+            get() =
+                DbUser(
+                    id = USER_ID,
+                    email = EMAIL,
+                    fullName = NAME,
+                    secret = SECRET,
+                    storageMode = StorageMode.NFS,
+                    passwordDigest = passwordDigest,
+                )
 
         val adminUser: DbUser by lazy {
             DbUser(
-                id = adminId,
-                email = email,
-                fullName = name,
-                secret = secret,
+                id = ADMIN_ID,
+                email = EMAIL,
+                fullName = NAME,
+                secret = SECRET,
                 storageMode = StorageMode.NFS,
                 passwordDigest = passwordDigest,
-                superuser = true
+                superuser = true,
             )
         }
     }

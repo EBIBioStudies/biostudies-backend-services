@@ -44,7 +44,8 @@ private fun Row.asString(): String {
 }
 
 private val Cell.valueAsString: String
-    get() = when (cellType) {
-        NUMERIC -> numericCellValue.toInt().toString()
-        else -> stringCellValue
-    }
+    get() =
+        when (cellType) {
+            NUMERIC -> numericCellValue.toInt().toString()
+            else -> stringCellValue
+        }

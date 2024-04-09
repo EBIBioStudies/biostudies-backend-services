@@ -36,6 +36,7 @@ sealed class SubFormat(private val description: String) {
 
     sealed class JsonFormat : SubFormat("JSON") {
         object PlainJson : JsonFormat()
+
         object JsonPretty : JsonFormat()
     }
 }

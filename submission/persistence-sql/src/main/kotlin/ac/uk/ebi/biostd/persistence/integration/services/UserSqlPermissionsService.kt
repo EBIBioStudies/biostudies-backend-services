@@ -9,18 +9,28 @@ import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 const val DEFAULT_USER = "default_user@ebi.ac.uk"
 
 internal class UserSqlPermissionsService(
-    private val permissionRepo: AccessPermissionRepository
+    private val permissionRepo: AccessPermissionRepository,
 ) : UserPermissionsService {
-    override fun allowedTags(user: String, accessType: AccessType): List<DbAccessPermission> =
+    override fun allowedTags(
+        user: String,
+        accessType: AccessType,
+    ): List<DbAccessPermission> =
         permissionRepo.findAllByUserEmailAndAccessType(user, accessType) +
             permissionRepo.findAllByUserEmailAndAccessType(user, ADMIN) +
             permissionRepo.findAllByUserEmailAndAccessType(DEFAULT_USER, accessType)
 
-    override fun isAdmin(user: String, accessTag: String): Boolean {
+    override fun isAdmin(
+        user: String,
+        accessTag: String,
+    ): Boolean {
         return permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(user, ADMIN, accessTag)
     }
 
-    override fun hasPermission(user: String, accessTag: String, accessType: AccessType): Boolean =
+    override fun hasPermission(
+        user: String,
+        accessTag: String,
+        accessType: AccessType,
+    ): Boolean =
         permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(user, accessType, accessTag) ||
             permissionRepo.existsByUserEmailAndAccessTypeAndAccessTagName(DEFAULT_USER, accessType, accessTag)
 }

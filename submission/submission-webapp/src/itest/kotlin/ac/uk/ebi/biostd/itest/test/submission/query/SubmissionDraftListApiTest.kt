@@ -32,11 +32,12 @@ class SubmissionDraftListApiTest(
     private lateinit var testDrafts: List<WebSubmissionDraft>
 
     @BeforeAll
-    fun init() = runBlocking {
-        securityTestService.ensureUserRegistration(DraftUser)
-        webClient = getWebClient(serverPort, DraftUser)
-        testDrafts = createDrafts()
-    }
+    fun init() =
+        runBlocking {
+            securityTestService.ensureUserRegistration(DraftUser)
+            webClient = getWebClient(serverPort, DraftUser)
+            testDrafts = createDrafts()
+        }
 
     @Test
     fun `23-1 get draft by key`() {
@@ -69,10 +70,11 @@ class SubmissionDraftListApiTest(
         val drafts = mutableListOf<WebSubmissionDraft>()
 
         for (idx in 0..2) {
-            val pageTab = jsonObj {
-                "accno" to "ABC-$idx"
-                "type" to "Study"
-            }.toString()
+            val pageTab =
+                jsonObj {
+                    "accno" to "ABC-$idx"
+                    "type" to "Study"
+                }.toString()
 
             drafts.add(webClient.createSubmissionDraft(pageTab))
         }
@@ -80,7 +82,11 @@ class SubmissionDraftListApiTest(
         return drafts.toList()
     }
 
-    private fun assertDraft(key: String, accNo: String, draft: WebSubmissionDraft) {
+    private fun assertDraft(
+        key: String,
+        accNo: String,
+        draft: WebSubmissionDraft,
+    ) {
         assertThat(draft.key).isEqualTo(key)
         assertThat(draft.content.toString().contains(accNo)).isTrue
     }

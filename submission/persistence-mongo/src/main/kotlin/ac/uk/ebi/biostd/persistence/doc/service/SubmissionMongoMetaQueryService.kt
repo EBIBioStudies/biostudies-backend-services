@@ -29,8 +29,7 @@ class SubmissionMongoMetaQueryService(
     override suspend fun findLatestBasicByAccNo(accNo: String): BasicSubmission? =
         submissionRepository.findByAccNo(accNo)?.asBasicSubmission(PROCESSED)
 
-    override suspend fun getAccessTags(accNo: String): List<String> =
-        submissionRepository.getCollections(accNo).map { it.accNo }
+    override suspend fun getAccessTags(accNo: String): List<String> = submissionRepository.getCollections(accNo).map { it.accNo }
 
     override suspend fun existByAccNo(accNo: String): Boolean = submissionRepository.existsByAccNo(accNo)
 

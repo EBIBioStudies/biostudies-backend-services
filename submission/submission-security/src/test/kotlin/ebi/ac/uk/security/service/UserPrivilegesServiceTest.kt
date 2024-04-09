@@ -77,9 +77,10 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `resubmit as super user`() = runTest {
-        assertThat(testInstance.canResubmit("superuser@mail.com", "accNo")).isTrue
-    }
+    fun `resubmit as super user`() =
+        runTest {
+            assertThat(testInstance.canResubmit("superuser@mail.com", "accNo")).isTrue
+        }
 
     @Test
     fun `submit extended as super user`() {
@@ -102,9 +103,10 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `super user deletes a submission`() = runTest {
-        assertThat(testInstance.canDelete("superuser@mail.com", "accNo")).isFalse
-    }
+    fun `super user deletes a submission`() =
+        runTest {
+            assertThat(testInstance.canDelete("superuser@mail.com", "accNo")).isFalse
+        }
 
     @Test
     fun `author user deletes own private submission`(
@@ -129,31 +131,35 @@ class UserPrivilegesServiceTest(
     }
 
     @Test
-    fun `other author user deletes not own submission`() = runTest {
-        assertThat(testInstance.canDelete("author@mail.com", "accNo")).isFalse
-    }
+    fun `other author user deletes not own submission`() =
+        runTest {
+            assertThat(testInstance.canDelete("author@mail.com", "accNo")).isFalse
+        }
 
     @Test
-    fun `user with access permission deletes a private submission`() = runTest {
-        coEvery { queryService.getAccessTags("accNo") } returns listOf("A-Collection")
-        every { userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Collection", DELETE) } returns true
+    fun `user with access permission deletes a private submission`() =
+        runTest {
+            coEvery { queryService.getAccessTags("accNo") } returns listOf("A-Collection")
+            every { userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Collection", DELETE) } returns true
 
-        assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isTrue
-    }
-
-    @Test
-    fun `user with access permission deletes a public submission`() = runTest {
-        every { basicSubmission.released } returns true
-        coEvery { queryService.getAccessTags("accNo") } returns listOf("A-Collection")
-        every { userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Collection", DELETE) } returns true
-
-        assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isTrue
-    }
+            assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isTrue
+        }
 
     @Test
-    fun `user without access permission deletes a submission`() = runTest {
-        assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isFalse
-    }
+    fun `user with access permission deletes a public submission`() =
+        runTest {
+            every { basicSubmission.released } returns true
+            coEvery { queryService.getAccessTags("accNo") } returns listOf("A-Collection")
+            every { userPermissionsService.hasPermission("otherAuthor@mail.com", "A-Collection", DELETE) } returns true
+
+            assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isTrue
+        }
+
+    @Test
+    fun `user without access permission deletes a submission`() =
+        runTest {
+            assertThat(testInstance.canDelete("otherAuthor@mail.com", "accNo")).isFalse
+        }
 
     @Test
     fun `non existing user`() {

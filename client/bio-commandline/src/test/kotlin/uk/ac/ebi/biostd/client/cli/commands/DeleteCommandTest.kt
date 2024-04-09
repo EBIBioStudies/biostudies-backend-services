@@ -12,7 +12,7 @@ import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 @ExtendWith(MockKExtension::class)
 internal class DeleteCommandTest(
-    @MockK private val submissionService: SubmissionService
+    @MockK private val submissionService: SubmissionService,
 ) {
     private val testInstance = DeleteCommand(submissionService)
 
@@ -20,18 +20,19 @@ internal class DeleteCommandTest(
     fun run() {
         every { submissionService.delete(subDelete) } returns Unit
 
-        testInstance.parse(listOf("-s", server, "-u", user, "-p", password, accNo1, accNo2))
+        testInstance.parse(listOf("-s", SERVER, "-u", USER, "-p", PASSWORD, ACC_NO1, ACC_NO2))
 
         verify(exactly = 1) { submissionService.delete(subDelete) }
     }
 
-    companion object {
-        const val server = "server"
-        const val user = "user"
-        const val password = "password"
-        const val accNo1 = "accNo1"
-        const val accNo2 = "accNo2"
-        private val securityConfig = SecurityConfig(server, user, password)
-        val subDelete = DeletionRequest(securityConfig, listOf(accNo1, accNo2))
+    private companion object {
+        const val SERVER = "server"
+        const val USER = "user"
+        const val PASSWORD = "password"
+        const val ACC_NO1 = "accNo1"
+        const val ACC_NO2 = "accNo2"
+
+        val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
+        val subDelete = DeletionRequest(securityConfig, listOf(ACC_NO1, ACC_NO2))
     }
 }

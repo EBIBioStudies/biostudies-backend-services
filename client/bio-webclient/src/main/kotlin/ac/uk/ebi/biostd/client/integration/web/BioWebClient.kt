@@ -17,25 +17,27 @@ class BioWebClient internal constructor(
         fun create(
             baseUrl: String,
             token: String,
-        ): BioWebClient = BioWebClient(
-            SubmitClientImpl(
-                createWebClient(baseUrl, token),
-                SerializationConfig.serializationService(),
-                ExtSerializationConfig.extSerializationService()
+        ): BioWebClient =
+            BioWebClient(
+                SubmitClientImpl(
+                    createWebClient(baseUrl, token),
+                    SerializationConfig.serializationService(),
+                    ExtSerializationConfig.extSerializationService(),
+                ),
             )
-        )
 
         fun create(
             baseUrl: String,
             token: String,
             onBehalf: String,
-        ): BioWebClient = BioWebClient(
-            SubmitClientImpl(
-                createWebClient(baseUrl, token, onBehalf),
-                SerializationConfig.serializationService(),
-                ExtSerializationConfig.extSerializationService()
+        ): BioWebClient =
+            BioWebClient(
+                SubmitClientImpl(
+                    createWebClient(baseUrl, token, onBehalf),
+                    SerializationConfig.serializationService(),
+                    ExtSerializationConfig.extSerializationService(),
+                ),
             )
-        )
 
         private fun createWebClient(
             baseUrl: String,

@@ -33,56 +33,75 @@ import javax.validation.Valid
 class SecurityResource(
     private val securityMapper: SecurityMapper,
     private val securityService: ISecurityService,
-    private val securityQueryService: ISecurityQueryService
+    private val securityQueryService: ISecurityQueryService,
 ) {
     @PostMapping(value = ["/signup", "/register"])
     @ResponseStatus(value = HttpStatus.CREATED)
-    suspend fun register(@Valid @RequestBody register: RegisterRequest) {
+    suspend fun register(
+        @Valid @RequestBody register: RegisterRequest,
+    ) {
         securityService.registerUser(register)
     }
 
     @PostMapping(value = ["/check-registration"])
     @ResponseBody
-    fun checkUser(@Valid @RequestBody register: CheckUserRequest): SecurityUser {
+    fun checkUser(
+        @Valid @RequestBody register: CheckUserRequest,
+    ): SecurityUser {
         return securityQueryService.getOrCreateInactive(register.userEmail, register.userName)
     }
 
     @PostMapping(value = ["/signin", "/login"])
     @ResponseBody
-    fun login(@RequestBody loginRequest: LoginRequest): UserProfile =
-        securityMapper.toUserProfile(securityService.login(loginRequest))
+    fun login(
+        @RequestBody loginRequest: LoginRequest,
+    ): UserProfile = securityMapper.toUserProfile(securityService.login(loginRequest))
 
     @PostMapping(value = ["/signout", "/logout"])
     @ResponseBody
-    fun logout(@RequestBody logoutRequest: LogoutRequest) = securityService.logout(logoutRequest.sessid)
+    fun logout(
+        @RequestBody logoutRequest: LogoutRequest,
+    ) = securityService.logout(logoutRequest.sessid)
 
     @PostMapping(value = ["/activate"])
     @ResponseBody
-    fun activate(@RequestBody request: ActivateByEmailRequest): Unit = securityService.activateByEmail(request)
+    fun activate(
+        @RequestBody request: ActivateByEmailRequest,
+    ): Unit = securityService.activateByEmail(request)
 
     @PostMapping(value = ["/activate/{activationKey}"])
     @ResponseBody
-    suspend fun activateByActivationKey(@PathVariable activationKey: String) {
+    suspend fun activateByActivationKey(
+        @PathVariable activationKey: String,
+    ) {
         securityService.activate(activationKey)
     }
 
     @PostMapping(value = ["/retryact"])
     @ResponseBody
-    fun retryActivation(@RequestBody request: RetryActivationRequest) = securityService.retryRegistration(request)
+    fun retryActivation(
+        @RequestBody request: RetryActivationRequest,
+    ) = securityService.retryRegistration(request)
 
     @PostMapping(value = ["/password/reset"])
     @ResponseBody
-    fun resetPassword(@RequestBody request: ResetPasswordRequest) = securityService.resetPassword(request)
+    fun resetPassword(
+        @RequestBody request: ResetPasswordRequest,
+    ) = securityService.resetPassword(request)
 
     @PostMapping(value = ["/password/change"])
     @ResponseBody
-    suspend fun changePassword(@RequestBody request: ChangePasswordRequest): User {
+    suspend fun changePassword(
+        @RequestBody request: ChangePasswordRequest,
+    ): User {
         return securityService.changePassword(request)
     }
 
     @PostMapping(value = ["/password/setup"])
     @ResponseBody
-    suspend fun setUpPassword(@RequestBody request: ChangePasswordRequest): User {
+    suspend fun setUpPassword(
+        @RequestBody request: ChangePasswordRequest,
+    ): User {
         return securityService.activateAndSetupPassword(request)
     }
 

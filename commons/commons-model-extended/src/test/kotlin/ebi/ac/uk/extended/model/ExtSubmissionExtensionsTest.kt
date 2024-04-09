@@ -13,7 +13,7 @@ import java.time.ZoneOffset
 
 @ExtendWith(TemporaryFolderExtension::class)
 class ExtSubmissionExtensionsTest(
-    private val tempFolder: TemporaryFolder
+    private val tempFolder: TemporaryFolder,
 ) {
     @Test
     fun computedTitle() {
@@ -35,15 +35,17 @@ class ExtSubmissionExtensionsTest(
         val innerExtFile = createNfsFile("my-folder/file.txt", "Files/my-folder/file.txt", innerFile)
         val referencedExtFile = createNfsFile("my-folder/referenced.txt", "Files/my-folder/referenced.txt", refFile)
         val fileList = ExtFileList("a/file-list", createExtFileList(referencedExtFile))
-        val submission = testSubmission("Test Submission").copy(
-            pageTabFiles = listOf(pagetabExtFile),
-            section = ExtSection(
-                type = "Study",
-                files = listOf(left(innerExtFile)),
-                fileList = fileList,
-                sections = listOf(left(ExtSection(type = "Exp")))
+        val submission =
+            testSubmission("Test Submission").copy(
+                pageTabFiles = listOf(pagetabExtFile),
+                section =
+                    ExtSection(
+                        type = "Study",
+                        files = listOf(left(innerExtFile)),
+                        fileList = fileList,
+                        sections = listOf(left(ExtSection(type = "Exp"))),
+                    ),
             )
-        )
 
         val sectionFiles = submission.allSectionsFiles
         assertThat(sectionFiles).hasSize(1)
@@ -59,27 +61,32 @@ class ExtSubmissionExtensionsTest(
         assertThat(allInnerSubmissionFiles.second()).isEqualTo(pagetabExtFile)
     }
 
-    private fun testSubmission(subTitle: String? = null, secTitle: String? = null): ExtSubmission = ExtSubmission(
-        accNo = "S-TEST1",
-        version = 1,
-        schemaVersion = "1.0",
-        owner = "owner@mail.org",
-        storageMode = StorageMode.FIRE,
-        submitter = "submitter@mail.org",
-        title = subTitle,
-        doi = "10.983/S-TEST1",
-        method = ExtSubmissionMethod.PAGE_TAB,
-        relPath = "/a/rel/path",
-        rootPath = null,
-        releaseTime = null,
-        released = true,
-        secretKey = "a-secret-key",
-        modificationTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
-        creationTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
-        attributes = listOf(),
-        section = ExtSection(
-            type = "Study",
-            attributes = secTitle?.let { listOf(ExtAttribute("Title", it)) } ?: listOf()
+    private fun testSubmission(
+        subTitle: String? = null,
+        secTitle: String? = null,
+    ): ExtSubmission =
+        ExtSubmission(
+            accNo = "S-TEST1",
+            version = 1,
+            schemaVersion = "1.0",
+            owner = "owner@mail.org",
+            storageMode = StorageMode.FIRE,
+            submitter = "submitter@mail.org",
+            title = subTitle,
+            doi = "10.983/S-TEST1",
+            method = ExtSubmissionMethod.PAGE_TAB,
+            relPath = "/a/rel/path",
+            rootPath = null,
+            releaseTime = null,
+            released = true,
+            secretKey = "a-secret-key",
+            modificationTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
+            creationTime = OffsetDateTime.of(2020, 9, 21, 10, 30, 34, 15, ZoneOffset.UTC),
+            attributes = listOf(),
+            section =
+                ExtSection(
+                    type = "Study",
+                    attributes = secTitle?.let { listOf(ExtAttribute("Title", it)) } ?: listOf(),
+                ),
         )
-    )
 }

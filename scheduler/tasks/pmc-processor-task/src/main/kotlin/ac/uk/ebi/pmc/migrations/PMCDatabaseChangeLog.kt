@@ -23,7 +23,6 @@ import org.springframework.data.mongodb.core.index.Index
 
 @ChangeLog
 class PMCDatabaseChangeLog {
-
     @ChangeSet(order = "001", id = "Create Schema", author = "System")
     fun createSchema(template: MongockTemplate) {
         template.createCollectionByNameIfNotExists(ERRORS_COL)

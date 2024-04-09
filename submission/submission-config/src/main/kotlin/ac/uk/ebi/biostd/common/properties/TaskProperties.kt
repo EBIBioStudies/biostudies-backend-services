@@ -10,11 +10,17 @@ data class TaskProperties(
     val version: Int,
     private val mode: String,
 ) {
-
     val taskMode: Mode
         get() = Mode.valueOf(mode)
 }
 
 enum class Mode {
-    INDEX, LOAD, COPY, CLEAN, CHECK_RELEASED, SAVE, FINALIZE, CALC_STATS
+    INDEX,
+    LOAD,
+    COPY,
+    CLEAN,
+    CHECK_RELEASED,
+    SAVE,
+    FINALIZE,
+    CALC_STATS,
 }

@@ -41,11 +41,14 @@ data class DocSubmission(
     val tags: List<DocTag> = listOf(),
     val collections: List<DocCollection> = listOf(),
     val pageTabFiles: List<DocFile> = listOf(),
-    val storageMode: StorageMode
+    val storageMode: StorageMode,
 )
 
 enum class DocSubmissionMethod(val value: String) {
-    FILE("FILE"), PAGE_TAB("PAGE_TAB"), UNKNOWN("UNKNOWN");
+    FILE("FILE"),
+    PAGE_TAB("PAGE_TAB"),
+    UNKNOWN("UNKNOWN"),
+    ;
 
     companion object {
         fun fromString(value: String): DocSubmissionMethod {
@@ -53,15 +56,18 @@ enum class DocSubmissionMethod(val value: String) {
                 "FILE" -> FILE
                 "PAGE_TAB" -> PAGE_TAB
                 "UNKNOWN" -> UNKNOWN
-                else -> throw IllegalStateException("Unknown submission method $value")
+                else -> error("Unknown submission method $value")
             }
         }
     }
 }
 
 data class DocTag(val name: String, val value: String)
+
 data class DocCollection(val accNo: String)
+
 data class DocAttributeDetail(val name: String, val value: String?)
+
 data class DocLink(val url: String, val attributes: List<DocAttribute> = listOf())
 
 @Suppress("LongParameterList")
@@ -72,7 +78,7 @@ sealed class DocFile(
     open val attributes: List<DocAttribute>,
     open val md5: String,
     open val fileSize: Long,
-    open val fileType: String
+    open val fileType: String,
 )
 
 data class NfsDocFile(
@@ -94,16 +100,16 @@ data class FireDocFile(
     override val attributes: List<DocAttribute>,
     override val md5: String,
     override val fileSize: Long,
-    override val fileType: String
+    override val fileType: String,
 ) : DocFile(fileName, filePath, relPath, attributes, md5, fileSize, fileType)
 
 data class DocFileList(
     val fileName: String,
-    val pageTabFiles: List<DocFile> = listOf()
+    val pageTabFiles: List<DocFile> = listOf(),
 )
 
 data class DocFileRef(
-    val fileId: ObjectId
+    val fileId: ObjectId,
 )
 
 @Document(collection = "file_list_files")
@@ -115,10 +121,11 @@ data class FileListDocFile(
     val fileListName: String,
     val index: Int,
     val submissionVersion: Int,
-    val submissionAccNo: String
+    val submissionAccNo: String,
 )
 
 data class DocSectionTable(val sections: List<DocSectionTableRow>)
+
 data class DocLinkTable(val links: List<DocLink>)
 
 data class DocFileTable(val files: List<DocFile>)
@@ -128,7 +135,7 @@ data class DocAttribute(
     val value: String?,
     val reference: Boolean = false,
     val nameAttrs: List<DocAttributeDetail> = listOf(),
-    val valueAttrs: List<DocAttributeDetail> = listOf()
+    val valueAttrs: List<DocAttributeDetail> = listOf(),
 )
 
 data class DocSection(
@@ -139,13 +146,13 @@ data class DocSection(
     val attributes: List<DocAttribute> = listOf(),
     val sections: List<Either<DocSection, DocSectionTable>> = listOf(),
     val files: List<Either<DocFile, DocFileTable>> = listOf(),
-    val links: List<Either<DocLink, DocLinkTable>> = listOf()
+    val links: List<Either<DocLink, DocLinkTable>> = listOf(),
 )
 
 data class DocSectionTableRow(
     val accNo: String? = null,
     val type: String,
-    val attributes: List<DocAttribute> = listOf()
+    val attributes: List<DocAttribute> = listOf(),
 )
 
 @Document(collection = "submission_stats")
@@ -153,5 +160,5 @@ data class DocSubmissionStats(
     @Id
     val id: ObjectId,
     val accNo: String,
-    val stats: Map<String, Long>
+    val stats: Map<String, Long>,
 )

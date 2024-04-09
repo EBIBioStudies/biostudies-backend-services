@@ -10,7 +10,10 @@ import uk.ac.ebi.extended.serialization.constants.ExtSerializationFields.SECTION
 import uk.ac.ebi.serialization.extensions.convertOrDefault
 
 class ExtSectionsTableDeserializer : JsonDeserializer<ExtSectionTable>() {
-    override fun deserialize(jsonParser: JsonParser, ctxt: DeserializationContext): ExtSectionTable {
+    override fun deserialize(
+        jsonParser: JsonParser,
+        ctxt: DeserializationContext,
+    ): ExtSectionTable {
         val mapper = jsonParser.codec as ObjectMapper
         val node: JsonNode = mapper.readTree(jsonParser)
         return ExtSectionTable(mapper.convertOrDefault(node, SECTIONS) { emptyList() })

@@ -16,7 +16,11 @@ private const val ACCESS_DENIED_ERROR = "Authenticated user does not have not ac
  * resource which does not have access.
  */
 class SecurityAccessDeniedHandler(private val mapper: ObjectMapper) : AccessDeniedHandler {
-    override fun handle(request: HttpServletRequest, response: HttpServletResponse, exception: AccessDeniedException) {
+    override fun handle(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        exception: AccessDeniedException,
+    ) {
         response.write(FORBIDDEN) { mapper.writeValue(it, SecurityError(exception.message ?: ACCESS_DENIED_ERROR)) }
     }
 }

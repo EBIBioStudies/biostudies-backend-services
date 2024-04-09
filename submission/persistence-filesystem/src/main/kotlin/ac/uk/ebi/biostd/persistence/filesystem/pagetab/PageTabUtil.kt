@@ -19,42 +19,59 @@ class PageTabUtil(
     private val toSubmissionMapper: ToSubmissionMapper,
     private val fileListMapper: ToFileListMapper,
 ) {
-    suspend fun generateSubPageTab(sub: ExtSubmission, target: File): PageTabFiles {
+    suspend fun generateSubPageTab(
+        sub: ExtSubmission,
+        target: File,
+    ): PageTabFiles {
         val element = toSubmissionMapper.toSimpleSubmission(sub)
         val permissions = sub.permissions()
 
         return PageTabFiles(
-            json = saveTabFile(
-                target.resolve("${sub.accNo}.json"),
-                serializationService.serializeSubmission(element, JSON_PRETTY),
-                permissions
-            ),
-            tsv = saveTabFile(
-                target.resolve("${sub.accNo}.tsv"),
-                serializationService.serializeSubmission(element, TSV),
-                permissions
-            ),
+            json =
+                saveTabFile(
+                    target.resolve("${sub.accNo}.json"),
+                    serializationService.serializeSubmission(element, JSON_PRETTY),
+                    permissions,
+                ),
+            tsv =
+                saveTabFile(
+                    target.resolve("${sub.accNo}.tsv"),
+                    serializationService.serializeSubmission(element, TSV),
+                    permissions,
+                ),
         )
     }
 
-    suspend fun generateFileListPageTab(submission: ExtSubmission, filesFolder: File): Map<String, PageTabFiles> =
-        submission.allFileList.associate { it.filePath to saveTabFiles(filesFolder, it) }
+    suspend fun generateFileListPageTab(
+        submission: ExtSubmission,
+        filesFolder: File,
+    ): Map<String, PageTabFiles> = submission.allFileList.associate { it.filePath to saveTabFiles(filesFolder, it) }
 
-    private suspend fun saveTabFiles(filesDir: File, fileList: ExtFileList): PageTabFiles {
+    private suspend fun saveTabFiles(
+        filesDir: File,
+        fileList: ExtFileList,
+    ): PageTabFiles {
         createFolderStructure(filesDir, fileList.filePath)
         val path = fileList.filePath
         return PageTabFiles(
             json = fileListMapper.serialize(fileList, JSON_PRETTY, filesDir.newFile("$path.json")),
-            tsv = fileListMapper.serialize(fileList, TSV, filesDir.newFile("$path.tsv"))
+            tsv = fileListMapper.serialize(fileList, TSV, filesDir.newFile("$path.tsv")),
         )
     }
 
-    private fun createFolderStructure(folder: File, fileListPath: String) {
+    private fun createFolderStructure(
+        folder: File,
+        fileListPath: String,
+    ) {
         val file = folder.resolve(fileListPath).parentFile
         file.mkdirs()
     }
 
-    private fun saveTabFile(file: File, content: String, permissions: Permissions): File {
+    private fun saveTabFile(
+        file: File,
+        content: String,
+        permissions: Permissions,
+    ): File {
         FileUtils.writeContent(file, content, permissions)
         return file
     }

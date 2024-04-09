@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmission
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmissions
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
@@ -22,7 +23,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import ebi.ac.uk.asserts.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.events.service.EventsPublisherService
 
@@ -39,14 +39,15 @@ class SubmissionServiceTest(
     @MockK private val submissionPersistenceService: SubmissionPersistenceService,
     @MockK private val fileStorageService: FileStorageService,
 ) {
-    private val testInstance = SubmissionService(
-        queryService,
-        userPrivilegesService,
-        submissionSubmitter,
-        eventsPublisherService,
-        submissionPersistenceService,
-        fileStorageService,
-    )
+    private val testInstance =
+        SubmissionService(
+            queryService,
+            userPrivilegesService,
+            submissionSubmitter,
+            eventsPublisherService,
+            submissionPersistenceService,
+            fileStorageService,
+        )
 
     @AfterEach
     fun afterEach() {
@@ -60,88 +61,94 @@ class SubmissionServiceTest(
     }
 
     @Test
-    fun `submit async`() = runTest {
-        every { request.accNo } returns "S-TEST123"
-        every { request.owner } returns "owner@mail.org"
-        every { request.draftKey } returns "TMP_123456"
-        coEvery { submissionSubmitter.createRequest(request) } returns basicExtSubmission
-        every { eventsPublisherService.requestCreated("S-TEST123", 1) } answers { nothing }
+    fun `submit async`() =
+        runTest {
+            every { request.accNo } returns "S-TEST123"
+            every { request.owner } returns "owner@mail.org"
+            every { request.draftKey } returns "TMP_123456"
+            coEvery { submissionSubmitter.createRequest(request) } returns basicExtSubmission
+            every { eventsPublisherService.requestCreated("S-TEST123", 1) } answers { nothing }
 
-        val response = testInstance.submitAsync(request)
+            val response = testInstance.submitAsync(request)
 
-        assertThat(response.version).isEqualTo(1)
-        assertThat(response.accNo).isEqualTo("S-TEST123")
-        coVerify(exactly = 1) {
-            submissionSubmitter.createRequest(request)
-            eventsPublisherService.requestCreated("S-TEST123", 1)
+            assertThat(response.version).isEqualTo(1)
+            assertThat(response.accNo).isEqualTo("S-TEST123")
+            coVerify(exactly = 1) {
+                submissionSubmitter.createRequest(request)
+                eventsPublisherService.requestCreated("S-TEST123", 1)
+            }
         }
-    }
 
     @Test
-    fun `delete submission`() = runTest {
-        coEvery { userPrivilegesService.canDelete("user@mail.org", "S-BSST1") } returns true
+    fun `delete submission`() =
+        runTest {
+            coEvery { userPrivilegesService.canDelete("user@mail.org", "S-BSST1") } returns true
 
-        testInstance.deleteSubmission("S-BSST1", user)
+            testInstance.deleteSubmission("S-BSST1", user)
 
-        coVerify(exactly = 1) {
-            fileStorageService.deleteSubmissionFiles(submission)
-            submissionPersistenceService.expireSubmission("S-BSST1")
-            eventsPublisherService.submissionsRefresh("S-BSST1", "user@mail.org")
+            coVerify(exactly = 1) {
+                fileStorageService.deleteSubmissionFiles(submission)
+                submissionPersistenceService.expireSubmission("S-BSST1")
+                eventsPublisherService.submissionsRefresh("S-BSST1", "user@mail.org")
+            }
         }
-    }
 
     @Test
-    fun `delete submission without permission`() = runTest {
-        coEvery { userPrivilegesService.canDelete("user@mail.org", "S-BSST1") } returns false
+    fun `delete submission without permission`() =
+        runTest {
+            coEvery { userPrivilegesService.canDelete("user@mail.org", "S-BSST1") } returns false
 
-        val exception = assertThrows<UserCanNotDeleteSubmission> { testInstance.deleteSubmission("S-BSST1", user) }
+            val exception = assertThrows<UserCanNotDeleteSubmission> { testInstance.deleteSubmission("S-BSST1", user) }
 
-        assertThat(exception.message)
-            .isEqualTo("The user user@mail.org is not allowed to delete the submission S-BSST1")
-        coVerify(exactly = 0) {
-            fileStorageService.deleteSubmissionFiles(any())
-            submissionPersistenceService.expireSubmission(any())
-            eventsPublisherService.submissionsRefresh(any(), any())
+            assertThat(exception.message)
+                .isEqualTo("The user user@mail.org is not allowed to delete the submission S-BSST1")
+            coVerify(exactly = 0) {
+                fileStorageService.deleteSubmissionFiles(any())
+                submissionPersistenceService.expireSubmission(any())
+                eventsPublisherService.submissionsRefresh(any(), any())
+            }
         }
-    }
 
     @Test
-    fun `delete submissions`() = runTest {
-        coEvery { queryService.getExtByAccNo("S-BSST2", includeFileListFiles = true) } returns submission
+    fun `delete submissions`() =
+        runTest {
+            coEvery { queryService.getExtByAccNo("S-BSST2", includeFileListFiles = true) } returns submission
 
-        testInstance.deleteSubmissions(listOf("S-BSST1", "S-BSST2"), user)
+            testInstance.deleteSubmissions(listOf("S-BSST1", "S-BSST2"), user)
 
-        coVerify(exactly = 2) {
-            fileStorageService.deleteSubmissionFiles(submission)
+            coVerify(exactly = 2) {
+                fileStorageService.deleteSubmissionFiles(submission)
+            }
+            coVerify(exactly = 1) {
+                submissionPersistenceService.expireSubmission("S-BSST1")
+                eventsPublisherService.submissionsRefresh("S-BSST1", "user@mail.org")
+            }
+            coVerify(exactly = 1) {
+                submissionPersistenceService.expireSubmission("S-BSST2")
+                eventsPublisherService.submissionsRefresh("S-BSST2", "user@mail.org")
+            }
         }
-        coVerify(exactly = 1) {
-            submissionPersistenceService.expireSubmission("S-BSST1")
-            eventsPublisherService.submissionsRefresh("S-BSST1", "user@mail.org")
-        }
-        coVerify(exactly = 1) {
-            submissionPersistenceService.expireSubmission("S-BSST2")
-            eventsPublisherService.submissionsRefresh("S-BSST2", "user@mail.org")
-        }
-    }
 
     @Test
-    fun `delete submissions without permissions`() = runTest {
-        coEvery { userPrivilegesService.canDelete("user@mail.org", "S-BSST1") } returns false
-        coEvery { userPrivilegesService.canDelete("user@mail.org", "S-BSST2") } returns true
-        coEvery { userPrivilegesService.canDelete("user@mail.org", "S-BSST3") } returns false
+    fun `delete submissions without permissions`() =
+        runTest {
+            coEvery { userPrivilegesService.canDelete("user@mail.org", "S-BSST1") } returns false
+            coEvery { userPrivilegesService.canDelete("user@mail.org", "S-BSST2") } returns true
+            coEvery { userPrivilegesService.canDelete("user@mail.org", "S-BSST3") } returns false
 
-        val exception = assertThrows<UserCanNotDeleteSubmissions> {
-            testInstance.deleteSubmissions(listOf("S-BSST1", "S-BSST2", "S-BSST3"), user)
-        }
+            val exception =
+                assertThrows<UserCanNotDeleteSubmissions> {
+                    testInstance.deleteSubmissions(listOf("S-BSST1", "S-BSST2", "S-BSST3"), user)
+                }
 
-        assertThat(exception.message)
-            .isEqualTo("The user user@mail.org is not allowed to delete the submissions S-BSST1, S-BSST3")
-        coVerify(exactly = 0) {
-            fileStorageService.deleteSubmissionFiles(any())
-            submissionPersistenceService.expireSubmission(any())
-            eventsPublisherService.submissionsRefresh(any(), any())
+            assertThat(exception.message)
+                .isEqualTo("The user user@mail.org is not allowed to delete the submissions S-BSST1, S-BSST3")
+            coVerify(exactly = 0) {
+                fileStorageService.deleteSubmissionFiles(any())
+                submissionPersistenceService.expireSubmission(any())
+                eventsPublisherService.submissionsRefresh(any(), any())
+            }
         }
-    }
 
     private fun setUpSubmissions() {
         coEvery { fileStorageService.deleteSubmissionFiles(submission) } answers { nothing }

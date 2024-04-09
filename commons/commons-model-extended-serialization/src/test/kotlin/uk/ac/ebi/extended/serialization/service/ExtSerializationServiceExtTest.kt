@@ -30,21 +30,22 @@ internal class ExtSerializationServiceExtTest(
     private val testInstance: ExtSerializationService = ExtSerializationService()
 
     @Test
-    fun fileFlow() = runTest {
-        val fileList1 = tmpFolder.createFile("f1.json")
-        val files = (4..1000).map { createFireFile(it) }
+    fun fileFlow() =
+        runTest {
+            val fileList1 = tmpFolder.createFile("f1.json")
+            val files = (4..1000).map { createFireFile(it) }
 
-        val pageTabFile = createFireFile(1)
-        val sectionFile = createFireFile(2)
-        val sectionTableFile = createFireFile(3)
+            val pageTabFile = createFireFile(1)
+            val sectionFile = createFireFile(2)
+            val sectionTableFile = createFireFile(3)
 
-        val submission = createTestSubmission(fileList1, pageTabFile, sectionFile, sectionTableFile)
-        val filesCount = testInstance.serialize(files.asSequence(), fileList1.outputStream())
+            val submission = createTestSubmission(fileList1, pageTabFile, sectionFile, sectionTableFile)
+            val filesCount = testInstance.serialize(files.asSequence(), fileList1.outputStream())
 
-        val result = testInstance.filesFlow(submission).toList()
-        assertThat(filesCount).isEqualTo(files.size)
-        assertThat(result).containsExactlyInAnyOrder(pageTabFile, sectionFile, sectionTableFile, *files.toTypedArray())
-    }
+            val result = testInstance.filesFlow(submission).toList()
+            assertThat(filesCount).isEqualTo(files.size)
+            assertThat(result).containsExactlyInAnyOrder(pageTabFile, sectionFile, sectionTableFile, *files.toTypedArray())
+        }
 
     private fun createFireFile(idx: Int): FireFile {
         return FireFile(
@@ -56,7 +57,7 @@ internal class ExtSerializationServiceExtTest(
             "md5-$idx",
             12,
             FILE,
-            emptyList()
+            emptyList(),
         )
     }
 
@@ -86,12 +87,13 @@ internal class ExtSerializationServiceExtTest(
             attributes = listOf(ExtAttribute("AttachTo", "BioImages")),
             tags = listOf(ExtTag("component", "web")),
             collections = listOf(ExtCollection("BioImages")),
-            section = ExtSection(
-                type = "Study",
-                fileList = ExtFileList("path", file = fileList),
-                files = listOf(left(sectionFile), right(ExtFileTable(sectionTableFile)))
-            ),
-            pageTabFiles = listOf(pageTabFile)
+            section =
+                ExtSection(
+                    type = "Study",
+                    fileList = ExtFileList("path", file = fileList),
+                    files = listOf(left(sectionFile), right(ExtFileTable(sectionTableFile))),
+                ),
+            pageTabFiles = listOf(pageTabFile),
         )
     }
 }

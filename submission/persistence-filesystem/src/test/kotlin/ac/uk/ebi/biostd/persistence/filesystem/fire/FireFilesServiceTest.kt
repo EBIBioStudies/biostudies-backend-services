@@ -48,50 +48,53 @@ internal class FireFilesServiceTest(
     @Nested
     inner class WhenFireFile {
         @Test
-        fun `when fire file`() = runTest {
-            val file = fireFile(firePath = "001/Files/folder/file.txt")
+        fun `when fire file`() =
+            runTest {
+                val file = fireFile(firePath = "001/Files/folder/file.txt")
 
-            val result = testInstance.persistSubmissionFile(submission, file)
+                val result = testInstance.persistSubmissionFile(submission, file)
 
-            assertThat(result).isEqualTo(file)
-            verify { fireClient wasNot Called }
-        }
+                assertThat(result).isEqualTo(file)
+                verify { fireClient wasNot Called }
+            }
     }
 
     @Nested
     inner class WhenNfsFile {
         @Test
-        fun `when file is found in fire`() = runTest {
-            val fireApiFile = fireApiFile(firePath = "001/Files/folder/file.txt")
-            val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
+        fun `when file is found in fire`() =
+            runTest {
+                val fireApiFile = fireApiFile(firePath = "001/Files/folder/file.txt")
+                val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
 
-            coEvery { fireClient.findByPath("001/Files/folder/file.txt") } returns fireApiFile
+                coEvery { fireClient.findByPath("001/Files/folder/file.txt") } returns fireApiFile
 
-            val result = testInstance.persistSubmissionFile(submission, file)
+                val result = testInstance.persistSubmissionFile(submission, file)
 
-            assertThat(result.md5).isEqualTo(file.md5)
-            assertThat(result.size).isEqualTo(file.size)
-            assertThat(result.fileName).isEqualTo(file.fileName)
-            assertThat(result.fireId).isEqualTo(fireApiFile.fireOid)
-            assertThat(result.firePath).isEqualTo("001/Files/folder/file.txt")
-        }
+                assertThat(result.md5).isEqualTo(file.md5)
+                assertThat(result.size).isEqualTo(file.size)
+                assertThat(result.fileName).isEqualTo(file.fileName)
+                assertThat(result.fireId).isEqualTo(fireApiFile.fireOid)
+                assertThat(result.firePath).isEqualTo("001/Files/folder/file.txt")
+            }
 
         @Test
-        fun `when file is not found in fire`() = runTest {
-            val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
-            coEvery { fireClient.findByPath("001/Files/folder/file.txt") } returns null
+        fun `when file is not found in fire`() =
+            runTest {
+                val file = createNfsFile("file.txt", "Files/folder/file.txt", tempFolder.createFile("file.txt", "content"))
+                coEvery { fireClient.findByPath("001/Files/folder/file.txt") } returns null
 
-            val newFile = fireApiFile(firePath = null)
-            val fileWithPath = fireApiFile(firePath = "001/Files/folder/file.txt")
-            coEvery { fireClient.save(file.file, file.md5, file.size) } returns newFile
-            coEvery { fireClient.setPath(newFile.fireOid, "001/Files/folder/file.txt") } returns fileWithPath
+                val newFile = fireApiFile(firePath = null)
+                val fileWithPath = fireApiFile(firePath = "001/Files/folder/file.txt")
+                coEvery { fireClient.save(file.file, file.md5, file.size) } returns newFile
+                coEvery { fireClient.setPath(newFile.fireOid, "001/Files/folder/file.txt") } returns fileWithPath
 
-            val result = testInstance.persistSubmissionFile(submission, file)
+                val result = testInstance.persistSubmissionFile(submission, file)
 
-            assertThat(result.fileName).isEqualTo(file.fileName)
-            assertThat(result.fireId).isEqualTo(fileWithPath.fireOid)
-            assertThat(result.firePath).isEqualTo("001/Files/folder/file.txt")
-        }
+                assertThat(result.fileName).isEqualTo(file.fileName)
+                assertThat(result.fireId).isEqualTo(fileWithPath.fireOid)
+                assertThat(result.firePath).isEqualTo("001/Files/folder/file.txt")
+            }
     }
 
     @Nested
@@ -126,7 +129,10 @@ internal class FireFilesServiceTest(
         }
     }
 
-    private fun fireFile(firePath: String, md5: String = "the md5") = FireFile(
+    private fun fireFile(
+        firePath: String,
+        md5: String = "the md5",
+    ) = FireFile(
         fireId = UUID.randomUUID().toString(),
         firePath = firePath,
         published = false,
@@ -138,12 +144,13 @@ internal class FireFilesServiceTest(
         attributes = emptyList(),
     )
 
-    private fun fireApiFile(firePath: String?) = FireApiFile(
-        objectId = 456,
-        filesystemEntry = FileSystemEntry(path = firePath, published = false),
-        fireOid = UUID.randomUUID().toString(),
-        objectMd5 = "the-md5",
-        objectSize = 123L,
-        createTime = "2022-09-21"
-    )
+    private fun fireApiFile(firePath: String?) =
+        FireApiFile(
+            objectId = 456,
+            filesystemEntry = FileSystemEntry(path = firePath, published = false),
+            fireOid = UUID.randomUUID().toString(),
+            objectMd5 = "the-md5",
+            objectSize = 123L,
+            createTime = "2022-09-21",
+        )
 }

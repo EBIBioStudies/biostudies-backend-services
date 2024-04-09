@@ -9,14 +9,14 @@ data class SecurityProperties(
     val tokenHash: String,
     val environment: String,
     val requireActivation: Boolean = false,
-
     @NestedConfigurationProperty
     val instanceKeys: InstanceKeys = InstanceKeys(),
     val filesProperties: FilesProperties,
 )
 
 enum class StorageMode {
-    FTP, NFS
+    FTP,
+    NFS,
 }
 
 @ConstructorBinding

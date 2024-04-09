@@ -19,7 +19,9 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import java.io.OutputStream
 
 @ExtendWith(MockKExtension::class)
-class ExtSubmissionConverterTest(@MockK private val extSerializationService: ExtSerializationService) {
+class ExtSubmissionConverterTest(
+    @MockK private val extSerializationService: ExtSerializationService,
+) {
     private val testInstance = ExtSubmissionConverter(extSerializationService)
 
     @AfterEach
@@ -57,7 +59,7 @@ class ExtSubmissionConverterTest(@MockK private val extSerializationService: Ext
         @MockK message: HttpOutputMessage,
         @MockK extSubmission: ExtSubmission,
         @MockK(relaxed = true) body: OutputStream,
-        @MockK(relaxed = true) headers: HttpHeaders
+        @MockK(relaxed = true) headers: HttpHeaders,
     ) {
         every { message.body } returns body
         every { message.headers } returns headers
@@ -73,7 +75,7 @@ class ExtSubmissionConverterTest(@MockK private val extSerializationService: Ext
     @Test
     fun read(
         @MockK message: HttpInputMessage,
-        @MockK extSubmission: ExtSubmission
+        @MockK extSubmission: ExtSubmission,
     ) {
         every { message.body } returns "submission".byteInputStream()
         every { extSerializationService.deserialize("submission") } returns extSubmission

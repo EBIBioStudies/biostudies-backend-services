@@ -38,12 +38,13 @@ class SubmissionStatsServiceTest(
     @MockK private val submissionStatsService: StatsDataService,
     @MockK private val serializationService: ExtSerializationService,
 ) {
-    private val testInstance = SubmissionStatsService(
-        statsFileHandler,
-        submissionStatsService,
-        serializationService,
-        queryService,
-    )
+    private val testInstance =
+        SubmissionStatsService(
+            statsFileHandler,
+            submissionStatsService,
+            serializationService,
+            queryService,
+        )
 
     @AfterEach
     fun afterEach() = clearAllMocks()

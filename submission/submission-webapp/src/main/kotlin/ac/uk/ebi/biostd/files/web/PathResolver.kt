@@ -21,20 +21,19 @@ class PathDescriptorResolver : HandlerMethodArgumentResolver {
         parameter: MethodParameter,
         mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
-        binderFactory: WebDataBinderFactory?
+        binderFactory: WebDataBinderFactory?,
     ): Any {
-        val path = getPath(getServletRequest(webRequest))
-            .remove(userPath)
-            .removePrefix("/")
+        val path =
+            getPath(getServletRequest(webRequest))
+                .remove(userPath)
+                .removePrefix("/")
 
         return PathDescriptor(path)
     }
 
-    private fun getServletRequest(webRequest: NativeWebRequest) =
-        webRequest.getNativeRequest(HttpServletRequest::class.java)!!
+    private fun getServletRequest(webRequest: NativeWebRequest) = webRequest.getNativeRequest(HttpServletRequest::class.java)!!
 
-    private fun getPath(webRequest: HttpServletRequest) =
-        URLDecoder.decode(webRequest.requestURL.toString(), UTF_8.name())
+    private fun getPath(webRequest: HttpServletRequest) = URLDecoder.decode(webRequest.requestURL.toString(), UTF_8.name())
 }
 
 class PathDescriptor(val path: String)

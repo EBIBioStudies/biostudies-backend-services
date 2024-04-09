@@ -20,16 +20,18 @@ class LinkJsonSerializerTest {
     @Test
     fun `serialize Link`() {
         val json = testInstance.writeValueAsString(link)
-        val expected = jsonObj {
-            "url" to "url"
-            "attributes" to jsonArray(
-                jsonObj {
-                    "name" to "attr name"
-                    "value" to "attr value"
-                    "reference" to false
-                }
-            )
-        }
+        val expected =
+            jsonObj {
+                "url" to "url"
+                "attributes" to
+                    jsonArray(
+                        jsonObj {
+                            "name" to "attr name"
+                            "value" to "attr value"
+                            "reference" to false
+                        },
+                    )
+            }
 
         JSONAssert.assertEquals("invalid link json", json, expected.toString(), JSONCompareMode.LENIENT)
     }

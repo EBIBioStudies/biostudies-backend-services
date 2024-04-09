@@ -35,28 +35,29 @@ val nfsDocFile = NfsDocFile("filename", "filePath", "relPath", "fileAbsPath", li
 object SubmissionTestHelper {
     internal val time = Instant.now()
 
-    val docSubmission = DocSubmission(
-        id = ObjectId(),
-        accNo = SUB_ACC_NO,
-        version = SUB_VERSION,
-        schemaVersion = SUB_SCHEMA_VERSION,
-        storageMode = StorageMode.NFS,
-        owner = OWNER,
-        submitter = SUBMITTER,
-        title = SUB_TITLE,
-        doi = DOI,
-        method = PAGE_TAB,
-        relPath = REL_PATH,
-        rootPath = ROOT_PATH,
-        released = false,
-        secretKey = SECRET_KEY,
-        releaseTime = time,
-        modificationTime = time,
-        creationTime = time,
-        attributes = listOf(fullDocAttribute),
-        tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
-        collections = listOf(DocCollection(PROJECT_ACC_NO)),
-        section = docSection,
-        pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile),
-    )
+    val docSubmission =
+        DocSubmission(
+            id = ObjectId(),
+            accNo = SUB_ACC_NO,
+            version = SUB_VERSION,
+            schemaVersion = SUB_SCHEMA_VERSION,
+            storageMode = StorageMode.NFS,
+            owner = OWNER,
+            submitter = SUBMITTER,
+            title = SUB_TITLE,
+            doi = DOI,
+            method = PAGE_TAB,
+            relPath = REL_PATH,
+            rootPath = ROOT_PATH,
+            released = false,
+            secretKey = SECRET_KEY,
+            releaseTime = time,
+            modificationTime = time,
+            creationTime = time,
+            attributes = listOf(fullDocAttribute),
+            tags = listOf(DocTag(TAG_NAME, TAG_VALUE)),
+            collections = listOf(DocCollection(PROJECT_ACC_NO)),
+            section = docSection,
+            pageTabFiles = listOf(fireDocFile, fireDocDirectory, nfsDocFile),
+        )
 }

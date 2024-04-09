@@ -78,94 +78,99 @@ internal class DatabaseChangeLogTest(
     }
 
     @Test
-    fun `run migration 001`() = runTest {
-        fun assertSubmissionCoreIndexes(prefix: String = EMPTY, indexes: List<Document>) {
-            assertThat(indexes[1]).containsEntry("key", Document("$prefix$SUB_ACC_NO", 1))
-            assertThat(indexes[2]).containsEntry("key", Document("$prefix$SUB_ACC_NO", 1).append(SUB_VERSION, 1))
-            assertThat(indexes[3]).containsEntry("key", Document("$prefix$SUB_OWNER", 1))
-            assertThat(indexes[4]).containsEntry("key", Document("$prefix$SUB_SUBMITTER", 1))
-            assertThat(indexes[5]).containsEntry("key", Document("$prefix$SUB_SECTION.$SEC_TYPE", 1))
-            assertThat(indexes[6]).containsEntry("key", Document("$prefix$SUB_RELEASE_TIME", 1))
-            assertThat(indexes[7]).containsEntry("key", Document("$prefix$SUB_RELEASED", 1))
-            assertThat(indexes[8]).containsEntry("key", Document("$prefix$SUB_MODIFICATION_TIME", 1))
-            assertThat(indexes[9]).containsEntry(
-                "key",
-                Document("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", 1).append(SUB_VERSION, 1)
-            )
-            assertThat(indexes[10]).containsEntry(
-                "key",
-                Document("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", 1)
-                    .append("$prefix$SUB_VERSION", 1)
-                    .append("$prefix$STORAGE_MODE", 1)
-            )
-            assertThat(indexes[11]).contains(
-                SimpleEntry(
-                    "weights",
-                    Document("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_NAME", 1)
-                        .append("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_VALUE", 1)
-                        .append("$prefix$SUB_TITLE", 1)
+    fun `run migration 001`() =
+        runTest {
+            fun assertSubmissionCoreIndexes(
+                prefix: String = EMPTY,
+                indexes: List<Document>,
+            ) {
+                assertThat(indexes[1]).containsEntry("key", Document("$prefix$SUB_ACC_NO", 1))
+                assertThat(indexes[2]).containsEntry("key", Document("$prefix$SUB_ACC_NO", 1).append(SUB_VERSION, 1))
+                assertThat(indexes[3]).containsEntry("key", Document("$prefix$SUB_OWNER", 1))
+                assertThat(indexes[4]).containsEntry("key", Document("$prefix$SUB_SUBMITTER", 1))
+                assertThat(indexes[5]).containsEntry("key", Document("$prefix$SUB_SECTION.$SEC_TYPE", 1))
+                assertThat(indexes[6]).containsEntry("key", Document("$prefix$SUB_RELEASE_TIME", 1))
+                assertThat(indexes[7]).containsEntry("key", Document("$prefix$SUB_RELEASED", 1))
+                assertThat(indexes[8]).containsEntry("key", Document("$prefix$SUB_MODIFICATION_TIME", 1))
+                assertThat(indexes[9]).containsEntry(
+                    "key",
+                    Document("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", 1).append(SUB_VERSION, 1),
                 )
-            )
+                assertThat(indexes[10]).containsEntry(
+                    "key",
+                    Document("$prefix$SUB_COLLECTIONS.$COLLECTION_ACC_NO", 1)
+                        .append("$prefix$SUB_VERSION", 1)
+                        .append("$prefix$STORAGE_MODE", 1),
+                )
+                assertThat(indexes[11]).contains(
+                    SimpleEntry(
+                        "weights",
+                        Document("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_NAME", 1)
+                            .append("$prefix$SUB_SECTION.$SEC_ATTRIBUTES.$ATTRIBUTE_DOC_VALUE", 1)
+                            .append("$prefix$SUB_TITLE", 1),
+                    ),
+                )
+            }
+
+            suspend fun assertSubmissionIndexes() {
+                val submissionIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().asFlow().toList()
+
+                assertThat(mongoTemplate.collectionExists<DocSubmission>().awaitSingle()).isTrue()
+                assertThat(submissionIndexes).hasSize(12)
+
+                assertThat(submissionIndexes[0]).containsEntry("key", Document("_id", 1))
+                assertSubmissionCoreIndexes(indexes = submissionIndexes)
+            }
+
+            suspend fun assertRequestIndexes() {
+                val requestIndexes = mongoTemplate.collection<DocSubmissionRequest>().listIndexes().asFlow().toList()
+                assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>().awaitSingle()).isTrue()
+                assertThat(requestIndexes).hasSize(14)
+
+                assertThat(requestIndexes[0]).containsEntry("key", Document("_id", 1))
+                assertSubmissionCoreIndexes("$SUB.", indexes = requestIndexes)
+                assertThat(requestIndexes[12]).containsEntry("key", Document(SUB_ACC_NO, 1))
+                assertThat(requestIndexes[13]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
+            }
+
+            suspend fun assertFileListIndexes() {
+                val listIndexes = mongoTemplate.collection<FileListDocFile>().listIndexes().asFlow().toList()
+                assertThat(mongoTemplate.collectionExists<FileListDocFile>().awaitSingle()).isTrue()
+                assertThat(listIndexes).hasSize(8)
+                assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
+                assertThat(listIndexes[1]).containsEntry("key", Document(FILE_LIST_DOC_FILE_SUBMISSION_ID, 1))
+                assertThat(listIndexes[3]).containsEntry("key", Document(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, 1))
+                assertThat(listIndexes[4]).containsEntry("key", Document(FILE_LIST_DOC_FILE_FILE_LIST_NAME, 1))
+                assertThat(listIndexes[5]).containsEntry("key", Document(FILE_LIST_DOC_FILE_INDEX, 1))
+                assertThat(listIndexes[6]).containsEntry("key", Document(FILE_DOC_FILEPATH, 1))
+                assertThat(listIndexes[7]).containsEntry(
+                    "key",
+                    Document(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, 1)
+                        .append(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, 1)
+                        .append("$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_FILEPATH", 1),
+                )
+            }
+
+            suspend fun assertStatsIndexes() {
+                val statsIndexes = mongoTemplate.collection<DocSubmissionStats>().listIndexes().asFlow().toList()
+                assertThat(statsIndexes).hasSize(2)
+                assertThat(statsIndexes[0]).containsEntry("key", Document("_id", 1))
+                assertThat(statsIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
+            }
+
+            mongoTemplate.executeMigrations()
+
+            assertSubmissionIndexes()
+            assertRequestIndexes()
+            assertFileListIndexes()
+            assertStatsIndexes()
         }
-
-        suspend fun assertSubmissionIndexes() {
-            val submissionIndexes = mongoTemplate.collection<DocSubmission>().listIndexes().asFlow().toList()
-
-            assertThat(mongoTemplate.collectionExists<DocSubmission>().awaitSingle()).isTrue()
-            assertThat(submissionIndexes).hasSize(12)
-
-            assertThat(submissionIndexes[0]).containsEntry("key", Document("_id", 1))
-            assertSubmissionCoreIndexes(indexes = submissionIndexes)
-        }
-
-        suspend fun assertRequestIndexes() {
-            val requestIndexes = mongoTemplate.collection<DocSubmissionRequest>().listIndexes().asFlow().toList()
-            assertThat(mongoTemplate.collectionExists<DocSubmissionRequest>().awaitSingle()).isTrue()
-            assertThat(requestIndexes).hasSize(14)
-
-            assertThat(requestIndexes[0]).containsEntry("key", Document("_id", 1))
-            assertSubmissionCoreIndexes("$SUB.", indexes = requestIndexes)
-            assertThat(requestIndexes[12]).containsEntry("key", Document(SUB_ACC_NO, 1))
-            assertThat(requestIndexes[13]).containsEntry("key", Document(SUB_ACC_NO, 1).append(SUB_VERSION, 1))
-        }
-
-        suspend fun assertFileListIndexes() {
-            val listIndexes = mongoTemplate.collection<FileListDocFile>().listIndexes().asFlow().toList()
-            assertThat(mongoTemplate.collectionExists<FileListDocFile>().awaitSingle()).isTrue()
-            assertThat(listIndexes).hasSize(8)
-            assertThat(listIndexes[0]).containsEntry("key", Document("_id", 1))
-            assertThat(listIndexes[1]).containsEntry("key", Document(FILE_LIST_DOC_FILE_SUBMISSION_ID, 1))
-            assertThat(listIndexes[3]).containsEntry("key", Document(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, 1))
-            assertThat(listIndexes[4]).containsEntry("key", Document(FILE_LIST_DOC_FILE_FILE_LIST_NAME, 1))
-            assertThat(listIndexes[5]).containsEntry("key", Document(FILE_LIST_DOC_FILE_INDEX, 1))
-            assertThat(listIndexes[6]).containsEntry("key", Document(FILE_DOC_FILEPATH, 1))
-            assertThat(listIndexes[7]).containsEntry(
-                "key",
-                Document(FILE_LIST_DOC_FILE_SUBMISSION_ACC_NO, 1)
-                    .append(FILE_LIST_DOC_FILE_SUBMISSION_VERSION, 1)
-                    .append("$FILE_LIST_DOC_FILE_FILE.$FILE_DOC_FILEPATH", 1)
-            )
-        }
-
-        suspend fun assertStatsIndexes() {
-            val statsIndexes = mongoTemplate.collection<DocSubmissionStats>().listIndexes().asFlow().toList()
-            assertThat(statsIndexes).hasSize(2)
-            assertThat(statsIndexes[0]).containsEntry("key", Document("_id", 1))
-            assertThat(statsIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
-        }
-
-        mongoTemplate.executeMigrations()
-
-        assertSubmissionIndexes()
-        assertRequestIndexes()
-        assertFileListIndexes()
-        assertStatsIndexes()
-    }
 
     companion object {
         @Container
-        val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+        val mongoContainer: MongoDBContainer =
+            MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

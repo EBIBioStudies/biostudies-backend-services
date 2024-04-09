@@ -60,19 +60,20 @@ class SubmissionWebConfig {
         submissionSaver: SubmissionRequestSaver,
         submissionFinalizer: SubmissionRequestFinalizer,
     ): ExtSubmissionSubmitter {
-        val local = LocalExtSubmissionSubmitter(
-            appProperties,
-            pageTabService,
-            requestService,
-            persistenceService,
-            requestIndexer,
-            requestLoader,
-            requestProcessor,
-            submissionReleaser,
-            submissionCleaner,
-            submissionSaver,
-            submissionFinalizer,
-        )
+        val local =
+            LocalExtSubmissionSubmitter(
+                appProperties,
+                pageTabService,
+                requestService,
+                persistenceService,
+                requestIndexer,
+                requestLoader,
+                requestProcessor,
+                submissionReleaser,
+                submissionCleaner,
+                submissionSaver,
+                submissionFinalizer,
+            )
         val remote = RemoteExtSubmissionSubmitter(clusterClient, appProperties.submissionTask)
         return ExtendedSubmissionSubmitter(local, remote, appProperties.submissionTask, requestService, queryService)
     }
@@ -100,7 +101,7 @@ class SubmissionWebConfig {
             serializationService,
             toSubmissionMapper,
             queryService,
-            fileServiceFactory
+            fileServiceFactory,
         )
 
     @Bean
@@ -124,9 +125,8 @@ class SubmissionWebConfig {
         )
 
     @Bean
-    fun submissionRequestService(
-        requestPersistenceService: SubmissionRequestPersistenceService,
-    ): SubmissionRequestService = SubmissionRequestService(requestPersistenceService)
+    fun submissionRequestService(requestPersistenceService: SubmissionRequestPersistenceService): SubmissionRequestService =
+        SubmissionRequestService(requestPersistenceService)
 
     @Bean
     fun submissionHandler(
@@ -135,13 +135,10 @@ class SubmissionWebConfig {
     ): SubmissionsWebHandler = SubmissionsWebHandler(submissionService, submissionQueryService)
 
     @Bean
-    fun extPageMapper(properties: ApplicationProperties): ExtendedPageMapper =
-        ExtendedPageMapper(URI.create(properties.instanceBaseUrl))
+    fun extPageMapper(properties: ApplicationProperties): ExtendedPageMapper = ExtendedPageMapper(URI.create(properties.instanceBaseUrl))
 
     @Bean
-    fun submitRequestBuilder(
-        onBehalfUtils: OnBehalfUtils,
-    ): SubmitRequestBuilder = SubmitRequestBuilder(onBehalfUtils)
+    fun submitRequestBuilder(onBehalfUtils: OnBehalfUtils): SubmitRequestBuilder = SubmitRequestBuilder(onBehalfUtils)
 
     @Bean
     fun onBehalfUtils(securityQueryService: ISecurityQueryService): OnBehalfUtils = OnBehalfUtils(securityQueryService)

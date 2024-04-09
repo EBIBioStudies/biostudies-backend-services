@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.Flow
 class FileListDocFileDocDataRepository(
     private val fileListDocFileRepository: FileListDocFileRepository,
 ) : FileListDocFileRepository by fileListDocFileRepository {
-
     fun findAllBySubmissionAccNoAndSubmissionVersionGreaterThanAndFileListName(
         accNo: String,
         version: Int,

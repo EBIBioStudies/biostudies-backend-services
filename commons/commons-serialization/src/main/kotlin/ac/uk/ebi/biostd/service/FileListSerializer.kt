@@ -17,11 +17,17 @@ import java.io.InputStream
 internal class FileListSerializer(
     private val serializer: PagetabSerializer,
 ) {
-    internal fun deserializeFileListAsFlow(inputStream: InputStream, format: SubFormat): Flow<BioFile> {
+    internal fun deserializeFileListAsFlow(
+        inputStream: InputStream,
+        format: SubFormat,
+    ): Flow<BioFile> {
         return serializer.deserializeFileListAsFlow(inputStream, format)
     }
 
-    internal suspend fun deserializeSubmission(submission: Submission, source: FileSourcesList): Submission {
+    internal suspend fun deserializeSubmission(
+        submission: Submission,
+        source: FileSourcesList,
+    ): Submission {
         submission.allSections()
             .filter { section -> section.fileListName != null }
             .map { section -> section to section.fileListName!! }
@@ -29,13 +35,20 @@ internal class FileListSerializer(
         return submission
     }
 
-    private suspend fun getFileList(name: String, fileSource: FileSourcesList): FileList {
+    private suspend fun getFileList(
+        name: String,
+        fileSource: FileSourcesList,
+    ): FileList {
         val file = getFileListFile(name, fileSource)
         file.inputStream().use { checkFileList(name, SubFormat.fromFile(file), it) }
         return FileList(name, file)
     }
 
-    private suspend fun checkFileList(name: String, format: SubFormat, stream: InputStream) {
+    private suspend fun checkFileList(
+        name: String,
+        format: SubFormat,
+        stream: InputStream,
+    ) {
         runCatching {
             serializer.deserializeFileListAsFlow(stream, format).collect()
         }.getOrElse {
@@ -43,10 +56,11 @@ internal class FileListSerializer(
         }
     }
 
-    private fun errorMsg(exception: Throwable) = when (exception) {
-        is ClassCastException, is InvalidChunkSizeException,
-        -> "The provided page tab doesn't match the file list format"
+    private fun errorMsg(exception: Throwable) =
+        when (exception) {
+            is ClassCastException, is InvalidChunkSizeException,
+            -> "The provided page tab doesn't match the file list format"
 
-        else -> exception.message.orEmpty()
-    }
+            else -> exception.message.orEmpty()
+        }
 }

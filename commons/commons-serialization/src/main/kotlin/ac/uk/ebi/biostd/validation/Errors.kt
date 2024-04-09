@@ -18,5 +18,5 @@ class DuplicatedSectionAccNoException(accNo: String) : RuntimeException("A secti
 
 class SerializationException(
     val submission: Submission,
-    val errors: Multimap<Any, SerializationError>
+    val errors: Multimap<Any, SerializationError>,
 ) : RuntimeException()

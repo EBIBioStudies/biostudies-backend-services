@@ -3,11 +3,12 @@ package ebi.ac.uk.dsl.tsv
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-val tsvTest = tsv {
-    line("That's")
-    line("tsv", "test")
-    line()
-}
+val tsvTest =
+    tsv {
+        line("That's")
+        line("tsv", "test")
+        line()
+    }
 
 internal class TsvDslTest {
     @Test

@@ -36,7 +36,7 @@ class SubmissionService(
         return waitUntil(
             ofMinutes(SYNC_SUBMIT_TIMEOUT),
             conditionEvaluator = { queryService.existByAccNoAndVersion(accNo, version) },
-            processFunction = { queryService.getExtByAccNo(accNo) }
+            processFunction = { queryService.getExtByAccNo(accNo) },
         )
     }
 
@@ -48,7 +48,10 @@ class SubmissionService(
         return AcceptedSubmission(accNo, version)
     }
 
-    suspend fun deleteSubmission(accNo: String, user: SecurityUser) {
+    suspend fun deleteSubmission(
+        accNo: String,
+        user: SecurityUser,
+    ) {
         require(userPrivilegesService.canDelete(user.email, accNo)) {
             throw UserCanNotDeleteSubmission(user.email, accNo)
         }
@@ -56,7 +59,10 @@ class SubmissionService(
         delete(accNo, user.email)
     }
 
-    suspend fun deleteSubmissions(submissions: List<String>, user: SecurityUser) {
+    suspend fun deleteSubmissions(
+        submissions: List<String>,
+        user: SecurityUser,
+    ) {
         submissions
             .filter { !userPrivilegesService.canDelete(user.email, it) }
             .ifNotEmpty { throw UserCanNotDeleteSubmissions(user.email, it) }
@@ -64,7 +70,10 @@ class SubmissionService(
         submissions.forEach { delete(it, user.email) }
     }
 
-    private suspend fun delete(accNo: String, user: String) {
+    private suspend fun delete(
+        accNo: String,
+        user: String,
+    ) {
         fileStorageService.deleteSubmissionFiles(queryService.getExtByAccNo(accNo, includeFileListFiles = true))
         submissionPersistenceService.expireSubmission(accNo)
         eventsPublisherService.submissionsRefresh(accNo, user)

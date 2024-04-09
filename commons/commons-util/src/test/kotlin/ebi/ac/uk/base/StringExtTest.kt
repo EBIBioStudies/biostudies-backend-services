@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
 
 class StringExtTest {
-
     @Test
     fun isNotEmptyOrNull() {
         assertThat("".isNotBlank()).isFalse

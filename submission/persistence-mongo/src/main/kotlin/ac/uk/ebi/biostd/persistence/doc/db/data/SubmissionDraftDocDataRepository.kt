@@ -22,35 +22,55 @@ class SubmissionDraftDocDataRepository(
     private val submissionDraftRepository: SubmissionDraftRepository,
     private val mongoTemplate: ReactiveMongoTemplate,
 ) : SubmissionDraftRepository by submissionDraftRepository {
-    suspend fun saveDraft(userId: String, key: String, content: String): DocSubmissionDraft {
+    suspend fun saveDraft(
+        userId: String,
+        key: String,
+        content: String,
+    ): DocSubmissionDraft {
         val draft = DocSubmissionDraft(userId, key, content, ACTIVE)
         return mongoTemplate.replaceOrCreate(
             Query(where(USER_ID).`is`(userId).andOperator(where(KEY).`is`(key), where(STATUS).`is`(ACTIVE))),
-            draft
+            draft,
         )
     }
 
-    suspend fun setStatus(userEmail: String, key: String, newStatus: DraftStatus) {
-        val query = Query(
-            where(USER_ID).`is`(userEmail).andOperator(where(KEY).`is`(key), where(STATUS).ne(ACCEPTED))
-        )
+    suspend fun setStatus(
+        userEmail: String,
+        key: String,
+        newStatus: DraftStatus,
+    ) {
+        val query =
+            Query(
+                where(USER_ID).`is`(userEmail).andOperator(where(KEY).`is`(key), where(STATUS).ne(ACCEPTED)),
+            )
         mongoTemplate.updateFirst(query, update(STATUS, newStatus), DocSubmissionDraft::class.java).awaitSingle()
     }
 
-    suspend fun setStatus(key: String, status: DraftStatus) {
+    suspend fun setStatus(
+        key: String,
+        status: DraftStatus,
+    ) {
         val query = Query(where(KEY).`is`(key).andOperator(where(STATUS).ne(ACCEPTED)))
         mongoTemplate.updateMulti(query, update(STATUS, status), DocSubmissionDraft::class.java).awaitSingle()
     }
 
-    suspend fun updateDraftContent(userId: String, key: String, content: String) {
+    suspend fun updateDraftContent(
+        userId: String,
+        key: String,
+        content: String,
+    ) {
         mongoTemplate.updateFirst(
             Query(where(USER_ID).`is`(userId).andOperator(where(KEY).`is`(key), where(STATUS).`is`(ACTIVE))),
             update(CONTENT, content),
-            DocSubmissionDraft::class.java
+            DocSubmissionDraft::class.java,
         ).awaitSingle()
     }
 
-    suspend fun createDraft(userId: String, key: String, content: String): DocSubmissionDraft {
+    suspend fun createDraft(
+        userId: String,
+        key: String,
+        content: String,
+    ): DocSubmissionDraft {
         val draft = DocSubmissionDraft(userId, key, content, ACTIVE)
         return submissionDraftRepository.save(draft)
     }

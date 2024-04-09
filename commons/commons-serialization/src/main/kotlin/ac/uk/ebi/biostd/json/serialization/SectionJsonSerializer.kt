@@ -11,7 +11,11 @@ import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.constants.SectionFields
 
 internal class SectionJsonSerializer : StdSerializer<Section>(Section::class.java) {
-    override fun serialize(section: Section, gen: JsonGenerator, provider: SerializerProvider) {
+    override fun serialize(
+        section: Section,
+        gen: JsonGenerator,
+        provider: SerializerProvider,
+    ) {
         gen.writeObj {
             writeJsonString(SectionFields.ACC_NO, section.accNo)
             writeJsonString(SectionFields.TYPE, section.type)
@@ -22,8 +26,9 @@ internal class SectionJsonSerializer : StdSerializer<Section>(Section::class.jav
         }
     }
 
-    private fun sectionAttributes(section: Section): List<Attribute> = when (val fileList = section.fileList) {
-        null -> section.attributes
-        else -> section.attributes.plus(Attribute(SectionFields.FILE_LIST.value, "${fileList.name}.json"))
-    }
+    private fun sectionAttributes(section: Section): List<Attribute> =
+        when (val fileList = section.fileList) {
+            null -> section.attributes
+            else -> section.attributes.plus(Attribute(SectionFields.FILE_LIST.value, "${fileList.name}.json"))
+        }
 }

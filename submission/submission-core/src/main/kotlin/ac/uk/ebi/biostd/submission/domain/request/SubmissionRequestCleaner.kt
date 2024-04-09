@@ -29,7 +29,11 @@ class SubmissionRequestCleaner(
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
-    suspend fun cleanCurrentVersion(accNo: String, version: Int, processId: String) {
+    suspend fun cleanCurrentVersion(
+        accNo: String,
+        version: Int,
+        processId: String,
+    ) {
         requestService.onRequest(accNo, version, LOADED, processId, {
             cleanCurrentVersion(it.submission)
             RqtUpdate(it.withNewStatus(CLEANED))
@@ -46,13 +50,22 @@ class SubmissionRequestCleaner(
         }
     }
 
-    private suspend fun deleteCommonFiles(new: ExtSubmission, current: ExtSubmission) {
-        suspend fun deleteFile(index: Int, file: ExtFile) {
+    private suspend fun deleteCommonFiles(
+        new: ExtSubmission,
+        current: ExtSubmission,
+    ) {
+        suspend fun deleteFile(
+            index: Int,
+            file: ExtFile,
+        ) {
             logger.info { "${current.accNo} ${current.owner} Deleting file $index, path='${file.filePath}'" }
             storageService.deleteSubmissionFile(current, file)
         }
 
-        fun shouldDelete(newFiles: Map<String, FileEntry>, existing: ExtFile): Boolean =
+        fun shouldDelete(
+            newFiles: Map<String, FileEntry>,
+            existing: ExtFile,
+        ): Boolean =
             when (val newFile = newFiles[existing.filePath]) {
                 null -> false
                 else -> newFile.md5 != existing.md5 && new.storageMode == existing.storageMode

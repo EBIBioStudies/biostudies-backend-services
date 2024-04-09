@@ -32,14 +32,16 @@ import org.springframework.context.annotation.Import
         WebConfig::class,
         LoaderConfig::class,
         ProcessorConfig::class,
-        SubmitterConfig::class
-    ]
+        SubmitterConfig::class,
+    ],
 )
 @EnableConfigurationProperties
 class AppConfig {
     @Bean
-    fun pmcTaskExecutor(properties: PmcImporterProperties, notificationSender: NotificationsSender) =
-        PmcTaskExecutor(properties, notificationSender)
+    fun pmcTaskExecutor(
+        properties: PmcImporterProperties,
+        notificationSender: NotificationsSender,
+    ) = PmcTaskExecutor(properties, notificationSender)
 
     @Bean
     fun serializationService() = SerializationConfig.serializationService()
@@ -48,18 +50,23 @@ class AppConfig {
     fun inputFilesDocService(inputFileRepository: InputFileRepository) = InputFilesDocService(inputFileRepository)
 
     @Bean
-    fun errorsDocService(errorsRepository: ErrorsRepository, submissionRepository: SubmissionRepository) =
-        ErrorsDocService(errorsRepository, submissionRepository)
+    fun errorsDocService(
+        errorsRepository: ErrorsRepository,
+        submissionRepository: SubmissionRepository,
+    ) = ErrorsDocService(errorsRepository, submissionRepository)
 
     @Bean
     fun submissionDocService(
         submissionRepository: SubmissionRepository,
         submissionFileRepository: SubFileRepository,
-        serializationService: SerializationService
+        serializationService: SerializationService,
     ) = SubmissionDocService(submissionRepository, submissionFileRepository, serializationService)
 
     @Bean
-    fun fileDownloader(pmcApi: PmcApi, properties: PmcImporterProperties) = FileDownloader(properties, pmcApi)
+    fun fileDownloader(
+        pmcApi: PmcApi,
+        properties: PmcImporterProperties,
+    ) = FileDownloader(properties, pmcApi)
 
     @Bean
     fun submissionInitializer(serializationService: SerializationService) = SubmissionInitializer(serializationService)

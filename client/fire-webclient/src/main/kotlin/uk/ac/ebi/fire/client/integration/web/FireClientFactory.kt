@@ -28,7 +28,7 @@ class FireClientFactory private constructor() {
             RetryWebClient(
                 createHttpClient(fireConfig),
                 createS3Client(s3Config),
-                SuspendRetryTemplate(retryConfig)
+                SuspendRetryTemplate(retryConfig),
             )
 
         private fun amazonS3Client(s3Config: S3Config): AmazonS3 {
@@ -41,8 +41,7 @@ class FireClientFactory private constructor() {
                 .build()
         }
 
-        private fun createS3Client(s3Config: S3Config): FireS3Client =
-            S3Client(s3Config.bucket, amazonS3Client(s3Config))
+        private fun createS3Client(s3Config: S3Config): FireS3Client = S3Client(s3Config.bucket, amazonS3Client(s3Config))
 
         private fun createHttpClient(config: FireConfig): FireWebClient {
             val webClient = createWebClient(config.fireHost, config.fireVersion, config.username, config.password)

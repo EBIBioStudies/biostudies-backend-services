@@ -50,11 +50,12 @@ class PublicOnlyExporterService(
             .forEach(::writeSubmission)
     }
 
-    private fun writeSubmission(extSubmission: ExtSubmission) = runBlocking {
-        logger.info { "Exporting public submission '${extSubmission.accNo}'" }
-        val simpleSubmission = toSubmissionMapper.toSimpleSubmission(extSubmission)
-        jsonWriter.writeRawValue(serializationService.serializeSubmission(simpleSubmission, JSON_PRETTY))
-    }
+    private fun writeSubmission(extSubmission: ExtSubmission) =
+        runBlocking {
+            logger.info { "Exporting public submission '${extSubmission.accNo}'" }
+            val simpleSubmission = toSubmissionMapper.toSimpleSubmission(extSubmission)
+            jsonWriter.writeRawValue(serializationService.serializeSubmission(simpleSubmission, JSON_PRETTY))
+        }
 
     private fun closeExportFile() {
         val fileName = appProperties.fileName

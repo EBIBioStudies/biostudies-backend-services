@@ -10,7 +10,7 @@ internal class SecurityService {
         bioWebClient(config.server, config.user, config.password).givePermissionToUser(
             rqt.targetUser,
             rqt.accessTagName,
-            rqt.accessType
+            rqt.accessType,
         )
     }
 }

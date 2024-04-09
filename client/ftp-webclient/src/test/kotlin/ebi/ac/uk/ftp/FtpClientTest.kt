@@ -9,13 +9,14 @@ import java.nio.file.Paths
 
 class FtpClientTest {
     private val ftpServer = createFtpServer().apply { start() }
-    private val testInstance = FtpClient.create(
-        FTP_USER,
-        FTP_PASSWORD,
-        ftpServer.getUrl(),
-        ftpServer.ftpPort,
-        FTP_ROOT_PATH,
-    )
+    private val testInstance =
+        FtpClient.create(
+            FTP_USER,
+            FTP_PASSWORD,
+            ftpServer.getUrl(),
+            ftpServer.ftpPort,
+            FTP_ROOT_PATH,
+        )
 
     @BeforeEach
     fun beforeEach() {
@@ -84,8 +85,8 @@ class FtpClientTest {
                 FtpConfig(
                     sslConfig = SslConfig(File(this::class.java.getResource("/mykeystore.jks")!!.toURI()), "123456"),
                     userName = FTP_USER,
-                    password = FTP_PASSWORD
-                )
+                    password = FTP_PASSWORD,
+                ),
             )
         }
 

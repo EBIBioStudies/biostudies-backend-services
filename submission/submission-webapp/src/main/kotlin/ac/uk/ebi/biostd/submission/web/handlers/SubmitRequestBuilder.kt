@@ -25,7 +25,7 @@ class SubmitRequestBuilder(
             format = format,
             draftKey = request.draftKey,
             submissionConfig = submitConfig.first,
-            filesConfig = submitConfig.second
+            filesConfig = submitConfig.second,
         )
     }
 
@@ -39,16 +39,18 @@ class SubmitRequestBuilder(
 
     private fun submitConfig(request: SubmitBuilderRequest): Pair<SubmissionConfig, SubmissionFilesConfig> {
         val (preferredSource, attributes, storageMode) = request.submissionRequestParameters
-        val submissionConfig = SubmissionConfig(
-            submitter = request.user,
-            onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
-            attrs = attributes,
-            storageMode = storageMode
-        )
-        val filesConfig = SubmissionFilesConfig(
-            files = request.files,
-            preferredSources = preferredSource
-        )
+        val submissionConfig =
+            SubmissionConfig(
+                submitter = request.user,
+                onBehalfUser = request.onBehalfRequest?.let { onBehalfUtils.getOnBehalfUser(it) },
+                attrs = attributes,
+                storageMode = storageMode,
+            )
+        val filesConfig =
+            SubmissionFilesConfig(
+                files = request.files,
+                preferredSources = preferredSource,
+            )
         return submissionConfig to filesConfig
     }
 }

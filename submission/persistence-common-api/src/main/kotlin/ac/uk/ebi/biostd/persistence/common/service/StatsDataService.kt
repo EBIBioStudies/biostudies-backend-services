@@ -8,9 +8,15 @@ import kotlinx.coroutines.flow.Flow
 interface StatsDataService {
     suspend fun findByAccNo(accNo: String): List<SubmissionStat>
 
-    fun findByType(submissionStatType: SubmissionStatType, filter: PageRequest): Flow<SubmissionStat>
+    fun findByType(
+        submissionStatType: SubmissionStatType,
+        filter: PageRequest,
+    ): Flow<SubmissionStat>
 
-    suspend fun findByAccNoAndType(accNo: String, submissionStatType: SubmissionStatType): SubmissionStat
+    suspend fun findByAccNoAndType(
+        accNo: String,
+        submissionStatType: SubmissionStatType,
+    ): SubmissionStat
 
     suspend fun save(stat: SubmissionStat): SubmissionStat
 

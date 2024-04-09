@@ -33,7 +33,10 @@ class PmcSubmissionLoader(
      *
      * @param file submissions load file data including content and name.
      */
-    suspend fun processFile(file: FileSpec, processedFolder: File) = withContext(Dispatchers.Default) {
+    suspend fun processFile(
+        file: FileSpec,
+        processedFolder: File,
+    ) = withContext(Dispatchers.Default) {
         logger.info { "processing file ${file.name}" }
         val toLoad = loadSubmissions(file)
         toLoad.buffer(BUFFER_SIZE).collect {
@@ -46,33 +49,44 @@ class PmcSubmissionLoader(
         moveFile(file.originalFile, processedFolder.resolve(file.originalFile.name))
     }
 
-    suspend fun processCorruptedFile(pair: Pair<File, Throwable>, failedFolder: File) {
+    suspend fun processCorruptedFile(
+        pair: Pair<File, Throwable>,
+        failedFolder: File,
+    ) {
         logger.info { "processing file ${pair.first.name}" }
         inputFilesDocService.reportFailed(pair.first, pair.second.stackTraceToString())
         moveFile(pair.first, failedFolder.resolve(pair.first.name))
     }
 
-    private fun moveFile(file: File, processed: File) {
+    private fun moveFile(
+        file: File,
+        processed: File,
+    ) {
         file.copyTo(processed, overwrite = true)
         file.delete()
     }
 
-    private fun loadSubmissions(file: FileSpec): Flow<LoadedSubmissionInfo> = flow {
-        sanitize(file.content)
-            .splitIgnoringEmpty(SUB_SEPARATOR)
-            .forEachIndexed { index, submissionBody -> emit(LoadedSubmissionInfo(file, submissionBody, index)) }
-    }
+    private fun loadSubmissions(file: FileSpec): Flow<LoadedSubmissionInfo> =
+        flow {
+            sanitize(file.content)
+                .splitIgnoringEmpty(SUB_SEPARATOR)
+                .forEachIndexed { index, submissionBody -> emit(LoadedSubmissionInfo(file, submissionBody, index)) }
+        }
 
-    private suspend fun loadSubmission(result: Result<Submission>, body: String, file: FileSpec, positionInFile: Int) =
-        result.fold(
-            { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) },
-            { errorDocService.saveError(file.name, body, PmcMode.LOAD, it) },
-        )
+    private suspend fun loadSubmission(
+        result: Result<Submission>,
+        body: String,
+        file: FileSpec,
+        positionInFile: Int,
+    ) = result.fold(
+        { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) },
+        { errorDocService.saveError(file.name, body, PmcMode.LOAD, it) },
+    )
 
     private fun deserialize(originalPagetab: String): Pair<String, Result<Submission>> =
         Pair(
             originalPagetab,
-            runCatching { pmcSubmissionTabProcessor.transformSubmission(originalPagetab) }
+            runCatching { pmcSubmissionTabProcessor.transformSubmission(originalPagetab) },
         )
 
     private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")

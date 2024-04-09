@@ -47,13 +47,14 @@ class SubmissionRequestLoaderTest(
 ) {
     private val mockNow = OffsetDateTime.of(2022, 10, 5, 0, 0, 1, 0, UTC)
     private val fireTempDirPath = tempFolder.createDirectory("fire-temp")
-    private val testInstance = SubmissionRequestLoader(
-        TEST_CONCURRENCY,
-        fireTempDirPath,
-        eventsPublisherService,
-        filesService,
-        requestService,
-    )
+    private val testInstance =
+        SubmissionRequestLoader(
+            TEST_CONCURRENCY,
+            fireTempDirPath,
+            eventsPublisherService,
+            filesService,
+            requestService,
+        )
 
     @BeforeEach
     fun beforeEach() {
@@ -67,7 +68,9 @@ class SubmissionRequestLoaderTest(
     }
 
     @Test
-    fun `load request`(@MockK indexedRequest: SubmissionRequest) = runTest {
+    fun `load request`(
+        @MockK indexedRequest: SubmissionRequest,
+    ) = runTest {
         val filSlot = slot<ExtFile>()
         val file = tempFolder.createFile("dummy.txt")
         val nfsFile = NfsFile("dummy.txt", "Files/dummy.txt", file, file.absolutePath, "NOT_CALCULATED", -1)
@@ -81,10 +84,10 @@ class SubmissionRequestLoaderTest(
         every { filesService.getSubmissionRequestFiles(sub.accNo, sub.version, 3) } returns flowOf(indexedRequestFile)
         coEvery { requestService.updateRqtIndex(indexedRequestFile, capture(filSlot)) } answers { nothing }
         coEvery {
-            requestService.onRequest(sub.accNo, sub.version, INDEXED, processId, capture(rqtSlot))
+            requestService.onRequest(sub.accNo, sub.version, INDEXED, PROCESS_ID, capture(rqtSlot))
         } coAnswers { rqtSlot.captured.invoke(indexedRequest) }
 
-        testInstance.loadRequest(sub.accNo, sub.version, processId)
+        testInstance.loadRequest(sub.accNo, sub.version, PROCESS_ID)
 
         val requestFile = filSlot.captured
         assertThat(requestFile.md5).isEqualTo(file.md5())
@@ -96,7 +99,7 @@ class SubmissionRequestLoaderTest(
     }
 
     private companion object {
-        const val processId = "biostudies-prod"
+        const val PROCESS_ID = "biostudies-prod"
         val rqtSlot = slot<suspend (SubmissionRequest) -> RqtResponse>()
     }
 }

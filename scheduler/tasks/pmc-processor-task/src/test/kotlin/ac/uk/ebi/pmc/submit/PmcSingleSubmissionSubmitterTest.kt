@@ -59,9 +59,9 @@ import java.time.Duration.ofSeconds
 @ContextConfiguration
 @ExtendWith(TemporaryFolderExtension::class)
 internal class PmcSingleSubmissionSubmitterTest(private val tempFolder: TemporaryFolder) {
-
-    private val mongoContainer: MongoDBContainer = MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-        .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
+    private val mongoContainer: MongoDBContainer =
+        MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
+            .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
     private val wireMockNotificationServer = WireMockServer(WireMockConfiguration().dynamicPort())
     private val wireMockWebServer = WireMockServer(WireMockConfiguration().dynamicPort())
 
@@ -80,8 +80,8 @@ internal class PmcSingleSubmissionSubmitterTest(private val tempFolder: Temporar
                         jsonObj {
                             "login" to "admin_user@ebi.ac.uk"
                             "password" to "123456"
-                        }.toString()
-                    )
+                        }.toString(),
+                    ),
                 )
                 .willReturn(
                     aResponse().withStatus(HTTP_OK).withHeader(CONTENT_TYPE, APPLICATION_JSON)
@@ -96,9 +96,9 @@ internal class PmcSingleSubmissionSubmitterTest(private val tempFolder: Temporar
                                 "orcid" to "orcid"
                                 "allow" to jsonArray("allow")
                                 "deny" to jsonArray("deny")
-                            }.toString()
-                        )
-                )
+                            }.toString(),
+                        ),
+                ),
         )
         wireMockWebServer.stubFor(
             post(urlEqualTo("/submissions"))
@@ -110,20 +110,20 @@ internal class PmcSingleSubmissionSubmitterTest(private val tempFolder: Temporar
                         .withName("submission")
                         .withHeader(CONTENT_TYPE, equalTo("$TEXT_PLAIN;charset=UTF-8"))
                         .withHeader(CONTENT_LENGTH, equalTo("225"))
-                        .withBody(equalToJson(processedSubmission.body))
+                        .withBody(equalToJson(processedSubmission.body)),
                 )
                 .withMultipartRequestBody(
                     aMultipart()
                         .withName("files")
                         .withHeader(CONTENT_TYPE, equalTo(TEXT_PLAIN))
-                        .withHeader(CONTENT_LENGTH, equalTo("19"))
+                        .withHeader(CONTENT_LENGTH, equalTo("19")),
                 )
                 .willReturn(
                     aResponse()
                         .withStatus(HTTP_OK)
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                        .withBody(prcoessedSubmissionBody.toString())
-                )
+                        .withBody(prcoessedSubmissionBody.toString()),
+                ),
         )
         wireMockWebServer.start()
         System.setProperty("app.data.bioStudiesUrl", "http://localhost:${wireMockWebServer.port()}")
@@ -135,8 +135,8 @@ internal class PmcSingleSubmissionSubmitterTest(private val tempFolder: Temporar
                 aResponse()
                     .withStatus(HTTP_OK)
                     .withHeader(CONTENT_TYPE, APPLICATION_JSON)
-                    .withBody("response".toJsonQuote())
-            )
+                    .withBody("response".toJsonQuote()),
+            ),
         )
         wireMockNotificationServer.start()
         System.setProperty("app.data.notificationsUrl", "http://localhost:${wireMockNotificationServer.port()}")

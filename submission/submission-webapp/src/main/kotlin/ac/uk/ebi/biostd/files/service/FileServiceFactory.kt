@@ -10,7 +10,10 @@ import ebi.ac.uk.security.integration.model.api.SecurityUser
 import java.io.File
 
 class FileServiceFactory(private val ftpClient: FtpClient) {
-    fun forUserGroup(user: SecurityUser, groupName: String): FileService {
+    fun forUserGroup(
+        user: SecurityUser,
+        groupName: String,
+    ): FileService {
         return PathFilesService(getGroupPath(user, groupName))
     }
 
@@ -21,10 +24,14 @@ class FileServiceFactory(private val ftpClient: FtpClient) {
         }
     }
 
-    private fun getGroupPath(user: SecurityUser, groupName: String): File {
-        val group = user.groupsFolders
-            .find { it.groupName == groupName }
-            ?: throw UserGroupNotFound(user, groupName)
+    private fun getGroupPath(
+        user: SecurityUser,
+        groupName: String,
+    ): File {
+        val group =
+            user.groupsFolders
+                .find { it.groupName == groupName }
+                ?: throw UserGroupNotFound(user, groupName)
         return group.path.toFile()
     }
 }

@@ -18,7 +18,7 @@ import java.io.InputStream
 @ExtendWith(MockKExtension::class)
 class BioStudiesFtpClientTest(
     @MockK private val ftpClient: FTPClient,
-    @MockK private val appProperties: ApplicationProperties
+    @MockK private val appProperties: ApplicationProperties,
 ) {
     private val testInstance = BioStudiesFtpClient(ftpClient, appProperties)
 
@@ -53,7 +53,7 @@ class BioStudiesFtpClientTest(
 
     @Test
     fun `store file`(
-        @MockK content: InputStream
+        @MockK content: InputStream,
     ) {
         every { ftpClient.storeFile("a/test/path", content) } returns true
 
@@ -64,7 +64,7 @@ class BioStudiesFtpClientTest(
 
     @Test
     fun `attempt reconnection after failure`(
-        @MockK content: InputStream
+        @MockK content: InputStream,
     ) {
         every {
             ftpClient.storeFile("a/test/path", content)
@@ -82,12 +82,13 @@ class BioStudiesFtpClientTest(
     }
 
     private fun setUpFtpClient() {
-        val ftpProperties = Ftp().apply {
-            host = "localhost"
-            user = "test"
-            password = "admin"
-            port = 21
-        }
+        val ftpProperties =
+            Ftp().apply {
+                host = "localhost"
+                user = "test"
+                password = "admin"
+                port = 21
+            }
 
         every { ftpClient.logout() } returns true
         every { appProperties.ftp } returns ftpProperties

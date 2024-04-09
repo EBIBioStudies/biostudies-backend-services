@@ -60,120 +60,134 @@ class FileListSubmissionTest(
     private lateinit var webClient: BioWebClient
 
     @BeforeAll
-    fun init() = runBlocking {
-        securityTestService.ensureUserRegistration(SuperUser)
-        webClient = getWebClient(serverPort, SuperUser)
-    }
-
-    @Test
-    fun `3-1 JSON submission with TSV file list`() = runTest {
-        val submission = jsonObj {
-            "accno" to "S-TEST4"
-            "attributes" to jsonArray({
-                "name" to "Title"
-                "value" to "Test Submission"
-            })
-            "section" to {
-                "accno" to "SECT-001"
-                "type" to "Study"
-                "attributes" to jsonArray(
-                    {
-                        "name" to "Title"
-                        "value" to "Root Section"
-                    },
-                    {
-                        "name" to "File List"
-                        "value" to "FileList.tsv"
-                    }
-                )
-            }
-        }.toString()
-
-        val fileList = tempFolder.createFile(
-            "FileList.tsv",
-            tsv {
-                line("Files", "GEN")
-                line("File4.txt", "ABC")
-            }.toString()
-        )
-
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File4.txt")), storageMode)
-        val response = webClient.submitSingle(submission, JSON, filesConfig)
-
-        assertThat(response).isSuccessful()
-        assertSubmissionFiles("S-TEST4", "File4.txt", "FileList")
-        fileList.delete()
-    }
-
-    @Test
-    fun `3-2 JSON submission with XSL file list`() = runTest {
-        val submission = jsonObj {
-            "accno" to "S-TEST5"
-            "attributes" to jsonArray({
-                "name" to "Title"
-                "value" to "Test Submission"
-            })
-            "section" to {
-                "accno" to "SECT-001"
-                "type" to "Study"
-                "attributes" to jsonArray(
-                    {
-                        "name" to "Title"
-                        "value" to "Root Section"
-                    },
-                    {
-                        "name" to "File List"
-                        "value" to "FileList.xlsx"
-                    }
-                )
-            }
-        }.toString()
-
-        val fileList = excel(File("${tempFolder.absolutePath}/FileList.xlsx")) {
-            sheet("page tab") {
-                row {
-                    cell("Files")
-                    cell("GEN")
-                }
-                row {
-                    cell("File5.txt")
-                    cell("ABC")
-                }
-            }
+    fun init() =
+        runBlocking {
+            securityTestService.ensureUserRegistration(SuperUser)
+            webClient = getWebClient(serverPort, SuperUser)
         }
 
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File5.txt")), storageMode)
-        val response = webClient.submitSingle(submission, JSON, filesConfig)
+    @Test
+    fun `3-1 JSON submission with TSV file list`() =
+        runTest {
+            val submission =
+                jsonObj {
+                    "accno" to "S-TEST4"
+                    "attributes" to
+                        jsonArray({
+                            "name" to "Title"
+                            "value" to "Test Submission"
+                        })
+                    "section" to {
+                        "accno" to "SECT-001"
+                        "type" to "Study"
+                        "attributes" to
+                            jsonArray(
+                                {
+                                    "name" to "Title"
+                                    "value" to "Root Section"
+                                },
+                                {
+                                    "name" to "File List"
+                                    "value" to "FileList.tsv"
+                                },
+                            )
+                    }
+                }.toString()
 
-        assertThat(response).isSuccessful()
-        assertSubmissionFiles("S-TEST5", "File5.txt", "FileList")
-        fileList.delete()
-    }
+            val fileList =
+                tempFolder.createFile(
+                    "FileList.tsv",
+                    tsv {
+                        line("Files", "GEN")
+                        line("File4.txt", "ABC")
+                    }.toString(),
+                )
+
+            val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File4.txt")), storageMode)
+            val response = webClient.submitSingle(submission, JSON, filesConfig)
+
+            assertThat(response).isSuccessful()
+            assertSubmissionFiles("S-TEST4", "File4.txt", "FileList")
+            fileList.delete()
+        }
+
+    @Test
+    fun `3-2 JSON submission with XSL file list`() =
+        runTest {
+            val submission =
+                jsonObj {
+                    "accno" to "S-TEST5"
+                    "attributes" to
+                        jsonArray({
+                            "name" to "Title"
+                            "value" to "Test Submission"
+                        })
+                    "section" to {
+                        "accno" to "SECT-001"
+                        "type" to "Study"
+                        "attributes" to
+                            jsonArray(
+                                {
+                                    "name" to "Title"
+                                    "value" to "Root Section"
+                                },
+                                {
+                                    "name" to "File List"
+                                    "value" to "FileList.xlsx"
+                                },
+                            )
+                    }
+                }.toString()
+
+            val fileList =
+                excel(File("${tempFolder.absolutePath}/FileList.xlsx")) {
+                    sheet("page tab") {
+                        row {
+                            cell("Files")
+                            cell("GEN")
+                        }
+                        row {
+                            cell("File5.txt")
+                            cell("ABC")
+                        }
+                    }
+                }
+
+            val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("File5.txt")), storageMode)
+            val response = webClient.submitSingle(submission, JSON, filesConfig)
+
+            assertThat(response).isSuccessful()
+            assertSubmissionFiles("S-TEST5", "File5.txt", "FileList")
+            fileList.delete()
+        }
 
     @Test
     fun `3-3 JSON submission with invalid file list format`() {
         val fileList = tempFolder.createFile("FileList.txt", "Invalid file list")
-        val submission = jsonObj {
-            "accno" to "S-TEST5"
-            "attributes" to jsonArray({
-                "name" to "Title"
-                "value" to "Test Submission"
-            })
-            "section" to {
-                "accno" to "SECT-001"
-                "type" to "Study"
-                "attributes" to jsonArray(
-                    {
+        val submission =
+            jsonObj {
+                "accno" to "S-TEST5"
+                "attributes" to
+                    jsonArray({
                         "name" to "Title"
-                        "value" to "Root Section"
-                    },
-                    {
-                        "name" to "File List"
-                        "value" to "FileList.txt"
-                    }
-                )
-            }
-        }.toString()
+                        "value" to "Test Submission"
+                    })
+                "section" to {
+                    "accno" to "SECT-001"
+                    "type" to "Study"
+                    "attributes" to
+                        jsonArray(
+                            {
+                                "name" to "Title"
+                                "value" to "Root Section"
+                            },
+                            {
+                                "name" to "File List"
+                                "value" to "FileList.txt"
+                            },
+                        )
+                }
+            }.toString()
 
         val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
         assertThatExceptionOfType(WebClientException::class.java)
@@ -184,23 +198,25 @@ class FileListSubmissionTest(
     @Test
     fun `3-4 list referenced files`() {
         val referencedFile = tempFolder.createFile("referenced.txt")
-        val submission = tsv {
-            line("Submission", "S-TEST6")
-            line("Title", "Submission With Inner File List")
-            line()
-
-            line("Study")
-            line("File List", "folder/inner-file-list.tsv")
-            line()
-        }.toString()
-
-        val fileList = tempFolder.createFile(
-            "inner-file-list.tsv",
+        val submission =
             tsv {
-                line("Files", "GEN")
-                line("referenced.txt", "ABC")
+                line("Submission", "S-TEST6")
+                line("Title", "Submission With Inner File List")
+                line()
+
+                line("Study")
+                line("File List", "folder/inner-file-list.tsv")
+                line()
             }.toString()
-        )
+
+        val fileList =
+            tempFolder.createFile(
+                "inner-file-list.tsv",
+                tsv {
+                    line("Files", "GEN")
+                    line("referenced.txt", "ABC")
+                }.toString(),
+            )
 
         webClient.uploadFile(fileList, "folder")
         val filesConfig = SubmissionFilesConfig(listOf(referencedFile), storageMode)
@@ -219,89 +235,99 @@ class FileListSubmissionTest(
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "false")
-    fun `3-5-1 reuse previous version file list NFS`() = runTest {
-        val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
-        fun submission(fileList: String) = tsv {
-            line("Submission", "S-TEST7")
-            line("Title", "Reuse Previous Version File List")
-            line()
+    fun `3-5-1 reuse previous version file list NFS`() =
+        runTest {
+            val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
 
-            line("Study")
-            line("File List", fileList)
-            line()
-        }.toString()
+            fun submission(fileList: String) =
+                tsv {
+                    line("Submission", "S-TEST7")
+                    line("Title", "Reuse Previous Version File List")
+                    line()
 
-        val fileList = tempFolder.createFile(
-            "reusable-file-list.tsv",
-            tsv {
-                line("Files", "GEN")
-                line("File7.txt", "ABC")
-            }.toString()
-        )
+                    line("Study")
+                    line("File List", fileList)
+                    line()
+                }.toString()
 
-        val firstVersion = submission(fileList = "reusable-file-list.tsv")
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
-        assertThat(webClient.submitSingle(firstVersion, TSV, filesConfig)).isSuccessful()
-        assertSubmissionFiles("S-TEST7", "File7.txt", "reusable-file-list")
-        fileList.delete()
+            val fileList =
+                tempFolder.createFile(
+                    "reusable-file-list.tsv",
+                    tsv {
+                        line("Files", "GEN")
+                        line("File7.txt", "ABC")
+                    }.toString(),
+                )
 
-        val secondVersion = submission(fileList = "reusable-file-list.json")
-        assertThat(webClient.submitSingle(secondVersion, TSV)).isSuccessful()
-        assertSubmissionFiles("S-TEST7", "File7.txt", "reusable-file-list")
-    }
+            val firstVersion = submission(fileList = "reusable-file-list.tsv")
+            val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
+            assertThat(webClient.submitSingle(firstVersion, TSV, filesConfig)).isSuccessful()
+            assertSubmissionFiles("S-TEST7", "File7.txt", "reusable-file-list")
+            fileList.delete()
+
+            val secondVersion = submission(fileList = "reusable-file-list.json")
+            assertThat(webClient.submitSingle(secondVersion, TSV)).isSuccessful()
+            assertSubmissionFiles("S-TEST7", "File7.txt", "reusable-file-list")
+        }
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "true")
-    fun `3-5-2 reuse previous version file list FIRE`() = runTest {
-        val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
-        fun submission(fileList: String) = tsv {
-            line("Submission", "S-TEST72")
-            line("Title", "Reuse Previous Version File List")
-            line()
+    fun `3-5-2 reuse previous version file list FIRE`() =
+        runTest {
+            val referencedFile = tempFolder.createFile("File7.txt", "file 7 content")
 
-            line("Study")
-            line("File List", fileList)
-            line()
-        }.toString()
+            fun submission(fileList: String) =
+                tsv {
+                    line("Submission", "S-TEST72")
+                    line("Title", "Reuse Previous Version File List")
+                    line()
 
-        val fileList = tempFolder.createFile(
-            "reusable-file-list.tsv",
-            tsv {
-                line("Files", "GEN")
-                line("File7.txt", "ABC")
-            }.toString()
-        )
+                    line("Study")
+                    line("File List", fileList)
+                    line()
+                }.toString()
 
-        val firstVersion = submission(fileList = "reusable-file-list.tsv")
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
-        assertThat(webClient.submitSingle(firstVersion, TSV, filesConfig)).isSuccessful()
-        assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
+            val fileList =
+                tempFolder.createFile(
+                    "reusable-file-list.tsv",
+                    tsv {
+                        line("Files", "GEN")
+                        line("File7.txt", "ABC")
+                    }.toString(),
+                )
 
-        fileList.delete()
+            val firstVersion = submission(fileList = "reusable-file-list.tsv")
+            val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
+            assertThat(webClient.submitSingle(firstVersion, TSV, filesConfig)).isSuccessful()
+            assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
 
-        val secondVersion = submission(fileList = "reusable-file-list.json")
-        assertThat(webClient.submitSingle(secondVersion, TSV)).isSuccessful()
-        assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
-    }
+            fileList.delete()
+
+            val secondVersion = submission(fileList = "reusable-file-list.json")
+            assertThat(webClient.submitSingle(secondVersion, TSV)).isSuccessful()
+            assertSubmissionFiles("S-TEST72", "File7.txt", "reusable-file-list")
+        }
 
     @Test
     fun `3-6 empty file list`() {
-        val sub = tsv {
-            line("Submission", "S-TEST8")
-            line("Title", "Empty File List")
-            line()
-
-            line("Study")
-            line("File List", "empty-file-list.tsv")
-            line()
-        }.toString()
-
-        val fileList = tempFolder.createFile(
-            "empty-file-list.tsv",
+        val sub =
             tsv {
-                line("Files", "GEN")
+                line("Submission", "S-TEST8")
+                line("Title", "Empty File List")
+                line()
+
+                line("Study")
+                line("File List", "empty-file-list.tsv")
+                line()
             }.toString()
-        )
+
+        val fileList =
+            tempFolder.createFile(
+                "empty-file-list.tsv",
+                tsv {
+                    line("Files", "GEN")
+                }.toString(),
+            )
 
         val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
         val exception = assertThrows(WebClientException::class.java) { webClient.submitSingle(sub, TSV, filesConfig) }
@@ -313,23 +339,25 @@ class FileListSubmissionTest(
     @Test
     fun `3-7 empty attribute name`() {
         val referencedFile = tempFolder.createFile("File9.txt", "file 9 content")
-        val sub = tsv {
-            line("Submission", "S-TEST9")
-            line("Title", "Empty Attribute Name")
-            line()
-
-            line("Study")
-            line("File List", "no-attr-name-file-list.tsv")
-            line()
-        }.toString()
-
-        val fileList = tempFolder.createFile(
-            "no-attr-name-file-list.tsv",
+        val sub =
             tsv {
-                line("Files", "GEN", "")
-                line("File9.txt", "ABC", "DEF")
+                line("Submission", "S-TEST9")
+                line("Title", "Empty Attribute Name")
+                line()
+
+                line("Study")
+                line("File List", "no-attr-name-file-list.tsv")
+                line()
             }.toString()
-        )
+
+        val fileList =
+            tempFolder.createFile(
+                "no-attr-name-file-list.tsv",
+                tsv {
+                    line("Files", "GEN", "")
+                    line("File9.txt", "ABC", "DEF")
+                }.toString(),
+            )
 
         val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
         val exception = assertThrows(WebClientException::class.java) { webClient.submitSingle(sub, TSV, filesConfig) }
@@ -338,7 +366,11 @@ class FileListSubmissionTest(
         fileList.delete()
     }
 
-    private suspend fun assertSubmissionFiles(accNo: String, testFile: String, fileListName: String) {
+    private suspend fun assertSubmissionFiles(
+        accNo: String,
+        testFile: String,
+        fileListName: String,
+    ) {
         val createdSub = subRepository.getExtByAccNo(accNo)
         val subFolder = "$submissionPath/${createdSub.relPath}"
 
@@ -363,7 +395,11 @@ class FileListSubmissionTest(
         assertThat(Paths.get("$subFolder/${createdSub.accNo}.tsv")).exists()
     }
 
-    private fun assertFireSubFiles(submission: ExtSubmission, accNo: String, subFolder: String) {
+    private fun assertFireSubFiles(
+        submission: ExtSubmission,
+        accNo: String,
+        subFolder: String,
+    ) {
         val submissionTabFiles = submission.pageTabFiles
         assertThat(submissionTabFiles).hasSize(2)
 
@@ -384,7 +420,11 @@ class FileListSubmissionTest(
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
 
-    private fun assertFireFileListFiles(sub: ExtSubmission, fileListName: String, subFolder: String) {
+    private fun assertFireFileListFiles(
+        sub: ExtSubmission,
+        fileListName: String,
+        subFolder: String,
+    ) {
         val fileListTabFiles = sub.section.fileList!!.pageTabFiles
         assertThat(fileListTabFiles).hasSize(2)
 
@@ -405,7 +445,10 @@ class FileListSubmissionTest(
         assertThat(tsvTabFile.size).isEqualTo(tsvFile.size())
     }
 
-    private fun submissionNfsTabFiles(accNo: String, subFolder: String): List<NfsFile> {
+    private fun submissionNfsTabFiles(
+        accNo: String,
+        subFolder: String,
+    ): List<NfsFile> {
         val jsonPath = "$subFolder/$accNo.json"
         val tsvPath = "$subFolder/$accNo.tsv"
         return listOf(
@@ -414,7 +457,10 @@ class FileListSubmissionTest(
         )
     }
 
-    private fun fileListNfsTabFiles(fileListName: String, subFolder: String): List<NfsFile> {
+    private fun fileListNfsTabFiles(
+        fileListName: String,
+        subFolder: String,
+    ): List<NfsFile> {
         val jsonName = "$fileListName.json"
         val tsvName = "$fileListName.tsv"
         val jsonFile = File(subFolder).resolve("Files/$jsonName")

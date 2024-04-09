@@ -12,6 +12,5 @@ interface TestUser {
     val storageMode: StorageMode
         get() = StorageMode.NFS
 
-    fun asRegisterRequest(): RegisterRequest =
-        RegisterRequest(username, email, password, storageMode = storageMode.name)
+    fun asRegisterRequest(): RegisterRequest = RegisterRequest(username, email, password, storageMode = storageMode.name)
 }

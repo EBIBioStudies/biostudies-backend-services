@@ -13,9 +13,15 @@ interface FileStorageService {
         mode: StorageMode,
     ): ExtFile
 
-    suspend fun persistSubmissionFile(sub: ExtSubmission, file: ExtFile): ExtFile
+    suspend fun persistSubmissionFile(
+        sub: ExtSubmission,
+        file: ExtFile,
+    ): ExtFile
 
-    suspend fun deleteSubmissionFile(sub: ExtSubmission, file: ExtFile)
+    suspend fun deleteSubmissionFile(
+        sub: ExtSubmission,
+        file: ExtFile,
+    )
 
     suspend fun deleteSubmissionFiles(
         sub: ExtSubmission,

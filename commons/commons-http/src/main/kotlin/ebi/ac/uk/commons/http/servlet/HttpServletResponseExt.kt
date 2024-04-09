@@ -7,7 +7,10 @@ import javax.servlet.http.HttpServletResponse
 /**
  * Set response status execute OutputStream consumer before closed it.
  */
-fun HttpServletResponse.write(httpStatus: HttpStatus, writer: (OutputStream) -> Any) {
+fun HttpServletResponse.write(
+    httpStatus: HttpStatus,
+    writer: (OutputStream) -> Any,
+) {
     status = httpStatus.value()
     outputStream.also { writer(it) }.flush()
 }

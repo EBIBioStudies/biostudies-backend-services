@@ -44,13 +44,14 @@ class ExporterTriggerTest(
 ) {
     private val jobSpecs = slot<JobSpec>()
     private val jobReport = slot<Report>()
-    private val testInstance = ExporterTrigger(
-        appProperties,
-        testProperties(),
-        clusterClient,
-        pcmNotificationsSender,
-        schedulerNotificationsSender,
-    )
+    private val testInstance =
+        ExporterTrigger(
+            appProperties,
+            testProperties(),
+            clusterClient,
+            pcmNotificationsSender,
+            schedulerNotificationsSender,
+        )
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -70,28 +71,35 @@ class ExporterTriggerTest(
     }
 
     @Test
-    fun triggerPmcExport() = runTest {
-        testInstance.triggerPmcExport()
-        coVerify(exactly = 1) {
-            clusterClient.triggerJobAsync(jobSpecs.captured)
-            pcmNotificationsSender.send(jobReport.captured)
+    fun triggerPmcExport() =
+        runTest {
+            testInstance.triggerPmcExport()
+            coVerify(exactly = 1) {
+                clusterClient.triggerJobAsync(jobSpecs.captured)
+                pcmNotificationsSender.send(jobReport.captured)
+            }
+            verify { schedulerNotificationsSender wasNot called }
+            verifyJobSpecs(jobSpecs.captured, PMC, "pmcFile", "/an/output/path/1")
         }
-        verify { schedulerNotificationsSender wasNot called }
-        verifyJobSpecs(jobSpecs.captured, PMC, "pmcFile", "/an/output/path/1")
-    }
 
     @Test
-    fun triggerPublicExport() = runTest {
-        testInstance.triggerPublicExport()
-        coVerify(exactly = 1) {
-            clusterClient.triggerJobAsync(jobSpecs.captured)
-            schedulerNotificationsSender.send(jobReport.captured)
+    fun triggerPublicExport() =
+        runTest {
+            testInstance.triggerPublicExport()
+            coVerify(exactly = 1) {
+                clusterClient.triggerJobAsync(jobSpecs.captured)
+                schedulerNotificationsSender.send(jobReport.captured)
+            }
+            verify { pcmNotificationsSender wasNot called }
+            verifyJobSpecs(jobSpecs.captured, PUBLIC_ONLY, "publicOnlyStudies", "/an/output/path/2")
         }
-        verify { pcmNotificationsSender wasNot called }
-        verifyJobSpecs(jobSpecs.captured, PUBLIC_ONLY, "publicOnlyStudies", "/an/output/path/2")
-    }
 
-    private fun verifyJobSpecs(specs: JobSpec, mode: ExporterMode, fileName: String, outputPath: String) {
+    private fun verifyJobSpecs(
+        specs: JobSpec,
+        mode: ExporterMode,
+        fileName: String,
+        outputPath: String,
+    ) {
         assertThat(specs.ram).isEqualTo(TWENTYFOUR_GB)
         assertThat(specs.cores).isEqualTo(FOUR_CORES)
         assertThat(specs.command).isEqualTo(
@@ -113,38 +121,44 @@ class ExporterTriggerTest(
             --app.bioStudies.url=http://localhost:8080 \
             --app.bioStudies.user=admin_user@ebi.ac.uk \
             --app.bioStudies.password=123456"
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
-    private fun testProperties() = ExporterProperties().apply {
-        this.tmpFilesPath = "/a/tmp/path"
-        this.pmc = Pmc().apply {
-            fileName = "pmcFile"
-            outputPath = "/an/output/path/1"
-        }
+    private fun testProperties() =
+        ExporterProperties().apply {
+            this.tmpFilesPath = "/a/tmp/path"
+            this.pmc =
+                Pmc().apply {
+                    fileName = "pmcFile"
+                    outputPath = "/an/output/path/1"
+                }
 
-        this.publicOnly = PublicOnly().apply {
-            fileName = "publicOnlyStudies"
-            outputPath = "/an/output/path/2"
-        }
+            this.publicOnly =
+                PublicOnly().apply {
+                    fileName = "publicOnlyStudies"
+                    outputPath = "/an/output/path/2"
+                }
 
-        this.ftp = Ftp().apply {
-            host = "localhost"
-            user = "admin"
-            password = "123456"
-            port = 21
-        }
+            this.ftp =
+                Ftp().apply {
+                    host = "localhost"
+                    user = "admin"
+                    password = "123456"
+                    port = 21
+                }
 
-        this.persistence = Persistence().apply {
-            database = "dev"
-            uri = "mongodb://root:admin@localhost:27017/dev?authSource=admin\\&replicaSet=biostd01"
-        }
+            this.persistence =
+                Persistence().apply {
+                    database = "dev"
+                    uri = "mongodb://root:admin@localhost:27017/dev?authSource=admin\\&replicaSet=biostd01"
+                }
 
-        this.bioStudies = BioStudies().apply {
-            url = "http://localhost:8080"
-            user = "admin_user@ebi.ac.uk"
-            password = "123456"
+            this.bioStudies =
+                BioStudies().apply {
+                    url = "http://localhost:8080"
+                    user = "admin_user@ebi.ac.uk"
+                    password = "123456"
+                }
         }
-    }
 }

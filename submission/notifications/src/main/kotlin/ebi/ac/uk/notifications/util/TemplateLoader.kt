@@ -14,17 +14,24 @@ class TemplateLoader(private val resourceLoader: ResourceLoader) {
         return IOUtils.toString(template.inputStream, Charset.defaultCharset())
     }
 
-    fun loadTemplateOrDefault(sub: ExtSubmission, templateName: String): String {
+    fun loadTemplateOrDefault(
+        sub: ExtSubmission,
+        templateName: String,
+    ): String {
         val template = getTemplate(sub, templateName)
         return IOUtils.toString(template.inputStream, Charset.defaultCharset())
     }
 
-    private fun getTemplate(sub: ExtSubmission, templateName: String) =
-        sub.collections
-            .map { getResource(templateName, it.accNo) }
-            .filter { it.exists() }
-            .firstOrElse { getResource(templateName, DEFAULT_TEMPLATE) }
+    private fun getTemplate(
+        sub: ExtSubmission,
+        templateName: String,
+    ) = sub.collections
+        .map { getResource(templateName, it.accNo) }
+        .filter { it.exists() }
+        .firstOrElse { getResource(templateName, DEFAULT_TEMPLATE) }
 
-    private fun getResource(templateName: String, collection: String) =
-        resourceLoader.getResource("classpath:templates/${String.format(templateName, collection)}")
+    private fun getResource(
+        templateName: String,
+        collection: String,
+    ) = resourceLoader.getResource("classpath:templates/${String.format(templateName, collection)}")
 }

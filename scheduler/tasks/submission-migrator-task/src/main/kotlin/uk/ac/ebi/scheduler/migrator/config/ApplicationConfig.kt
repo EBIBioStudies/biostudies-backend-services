@@ -19,14 +19,12 @@ class ApplicationConfig(
     private val properties: ApplicationProperties,
 ) {
     @Bean
-    fun submissionMigratorService(
-        bioWebClient: BioWebClient,
-    ): SubmissionMigratorService = SubmissionMigratorService(properties, bioWebClient, migratorRepository)
+    fun submissionMigratorService(bioWebClient: BioWebClient): SubmissionMigratorService =
+        SubmissionMigratorService(properties, bioWebClient, migratorRepository)
 
     @Bean
-    fun submissionMigratorExecutor(
-        submissionMigratorService: SubmissionMigratorService
-    ): SubmissionMigratorExecutor = SubmissionMigratorExecutor(submissionMigratorService)
+    fun submissionMigratorExecutor(submissionMigratorService: SubmissionMigratorService): SubmissionMigratorExecutor =
+        SubmissionMigratorExecutor(submissionMigratorService)
 
     @Bean
     fun bioWebClient(): BioWebClient =

@@ -6,13 +6,14 @@ fun String.toJsonQuote(): String {
     return "\"$product\""
 }
 
-fun scape(char: Char) = when (char) {
-    '\t' -> "\\t"
-    '\b' -> "\\b"
-    '\n' -> "\\n"
-    '\r' -> "\\r"
-    '\'' -> "\\'"
-    '"' -> "\\\""
-    '\\' -> "\\\\"
-    else -> char.toString()
-}
+fun scape(char: Char) =
+    when (char) {
+        '\t' -> "\\t"
+        '\b' -> "\\b"
+        '\n' -> "\\n"
+        '\r' -> "\\r"
+        '\'' -> "\\'"
+        '"' -> "\\\""
+        '\\' -> "\\\\"
+        else -> char.toString()
+    }

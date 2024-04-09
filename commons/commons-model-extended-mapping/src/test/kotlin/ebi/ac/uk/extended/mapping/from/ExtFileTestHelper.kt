@@ -7,15 +7,19 @@ import ebi.ac.uk.model.AttributeDetail
 import org.assertj.core.api.Assertions.assertThat
 
 val attribute
-    get() = Attribute(
-        name = "SectAttr",
-        value = "Sect Attr 1",
-        reference = false,
-        nameAttrs = mutableListOf(AttributeDetail("NameAttr", "Name Attr 1")),
-        valueAttrs = mutableListOf(AttributeDetail("ValueAttr", "Value Attr 1"))
-    )
+    get() =
+        Attribute(
+            name = "SectAttr",
+            value = "Sect Attr 1",
+            reference = false,
+            nameAttrs = mutableListOf(AttributeDetail("NameAttr", "Name Attr 1")),
+            valueAttrs = mutableListOf(AttributeDetail("ValueAttr", "Value Attr 1")),
+        )
 
-fun assertAttribute(extAttribute: ExtAttribute, attribute: Attribute) {
+fun assertAttribute(
+    extAttribute: ExtAttribute,
+    attribute: Attribute,
+) {
     assertThat(extAttribute.name).isEqualTo(attribute.name)
     assertThat(extAttribute.value).isEqualTo(attribute.value)
     assertThat(extAttribute.reference).isEqualTo(attribute.reference)

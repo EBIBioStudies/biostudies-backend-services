@@ -13,17 +13,23 @@ import ebi.ac.uk.util.collections.component2
 import ebi.ac.uk.util.collections.reduceLeft
 import org.bson.types.ObjectId
 
-typealias EitherList <A, B> = List<Either<A, B>>
+typealias EitherList<A, B> = List<Either<A, B>>
 
 class ToDocSectionMapper(private val toDocFileListMapper: ToDocFileListMapper) {
-    internal fun convert(section: ExtSection, accNo: String, version: Int, subId: ObjectId): DocSectionData {
+    internal fun convert(
+        section: ExtSection,
+        accNo: String,
+        version: Int,
+        subId: ObjectId,
+    ): DocSectionData {
         val sections = section.sections.map { it.toDocSections(accNo, version, subId) }
-        val (sectionFileList, sectionFiles) = section.fileList?.let {
-            toDocFileListMapper.convert(it, subId, accNo, version)
-        }
+        val (sectionFileList, sectionFiles) =
+            section.fileList?.let {
+                toDocFileListMapper.convert(it, subId, accNo, version)
+            }
         return DocSectionData(
             section = section.convert(sectionFileList, sections.subSections()),
-            fileListFiles = sectionFiles.orEmpty() + sections.subSectionsFiles()
+            fileListFiles = sectionFiles.orEmpty() + sections.subSectionsFiles(),
         )
     }
 
@@ -44,10 +50,11 @@ class ToDocSectionMapper(private val toDocFileListMapper: ToDocFileListMapper) {
         attributes = attributes.map { it.toDocAttribute() },
         files = files.map { it.toDocFiles() },
         links = links.map { it.toDocLinks() },
-        sections = sections
+        sections = sections,
     )
 
     private fun ExtSection.toDocTableSection() = DocSectionTableRow(accNo, type, attributes.map { it.toDocAttribute() })
+
     private fun ExtSectionTable.toDocSectionTable() = DocSectionTable(sections.map { it.toDocTableSection() })
 
     private fun Either<ExtSection, ExtSectionTable>.toDocSections(

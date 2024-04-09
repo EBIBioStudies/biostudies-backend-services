@@ -11,5 +11,5 @@ var Section.fileListName: String?
     }
 
 fun Section.allFiles(): List<BioFile> = files.flatMap { either -> either.fold({ listOf(it) }, { it.elements }) }
-fun Section.allSections(): List<Section> =
-    sections.flatMap { either -> either.fold({ listOf(it) + it.allSections() }, { it.elements }) }
+
+fun Section.allSections(): List<Section> = sections.flatMap { either -> either.fold({ listOf(it) + it.allSections() }, { it.elements }) }

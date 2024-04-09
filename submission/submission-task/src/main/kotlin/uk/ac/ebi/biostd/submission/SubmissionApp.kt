@@ -58,7 +58,10 @@ class Execute(
         exitProcess(SpringApplication.exit(context))
     }
 
-    private suspend fun runProcess(accNo: String, version: Int) {
+    private suspend fun runProcess(
+        accNo: String,
+        version: Int,
+    ) {
         when (properties.taskMode) {
             INDEX -> submissionSubmitter.indexRequest(accNo, version)
             LOAD -> submissionSubmitter.loadRequest(accNo, version)

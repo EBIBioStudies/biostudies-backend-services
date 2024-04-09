@@ -43,5 +43,6 @@ class SecurityExceptionHandler {
     }
 
     fun <T> unauthorized(body: T): ResponseEntity<T> = ResponseEntity.status(UNAUTHORIZED).body(body)
+
     fun <T> badRequest(body: T): ResponseEntity<T> = ResponseEntity.status(BAD_REQUEST).body(body)
 }

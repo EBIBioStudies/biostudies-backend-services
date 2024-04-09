@@ -31,7 +31,7 @@ class SubmitResource(
 ) {
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$TEXT_PLAIN"],
-        produces = [APPLICATION_JSON_VALUE]
+        produces = [APPLICATION_JSON_VALUE],
     )
     @ResponseBody
     suspend fun submitTsv(
@@ -48,7 +48,7 @@ class SubmitResource(
 
     @PostMapping(
         headers = ["$SUBMISSION_TYPE=$APPLICATION_JSON"],
-        produces = [APPLICATION_JSON_VALUE]
+        produces = [APPLICATION_JSON_VALUE],
     )
     @ResponseBody
     suspend fun submitJson(

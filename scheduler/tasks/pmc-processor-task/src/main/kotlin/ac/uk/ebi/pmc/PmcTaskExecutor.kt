@@ -41,27 +41,29 @@ class PmcTaskExecutor(
         runCatching { runProcess(props.mode) }.fold({ onSuccess() }, { onError(it) })
     }
 
-    private fun onError(it: Throwable) = runBlocking {
-        logger.error(it) { "Error executing pmc task, mode = ${props.mode} " }
-        notificationSender.send(
-            Alert(
-                SYSTEM,
-                props.mode.description,
-                "Error executing process",
-                it.message
+    private fun onError(it: Throwable) =
+        runBlocking {
+            logger.error(it) { "Error executing pmc task, mode = ${props.mode} " }
+            notificationSender.send(
+                Alert(
+                    SYSTEM,
+                    props.mode.description,
+                    "Error executing process",
+                    it.message,
+                ),
             )
-        )
-    }
+        }
 
-    private fun onSuccess() = runBlocking {
-        notificationSender.send(
-            Report(
-                SYSTEM,
-                props.mode.description,
-                "Process was completed successfully"
+    private fun onSuccess() =
+        runBlocking {
+            notificationSender.send(
+                Report(
+                    SYSTEM,
+                    props.mode.description,
+                    "Process was completed successfully",
+                ),
             )
-        )
-    }
+        }
 
     private fun runProcess(mode: PmcMode) {
         when (mode) {

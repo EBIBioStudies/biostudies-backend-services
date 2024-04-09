@@ -30,21 +30,33 @@ internal class SubmissionMongoPersistenceQueryService(
         return submissionRepo.existsByAccNo(accNo)
     }
 
-    override suspend fun existByAccNoAndVersion(accNo: String, version: Int): Boolean {
+    override suspend fun existByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+    ): Boolean {
         return submissionRepo.existsByAccNoAndVersion(accNo, version)
     }
 
-    override suspend fun findExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
+    override suspend fun findExtByAccNo(
+        accNo: String,
+        includeFileListFiles: Boolean,
+    ): ExtSubmission? {
         val findByAccNo = submissionRepo.findByAccNo(accNo)
         return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
     }
 
-    override suspend fun findLatestInactiveByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission? {
+    override suspend fun findLatestInactiveByAccNo(
+        accNo: String,
+        includeFileListFiles: Boolean,
+    ): ExtSubmission? {
         val findByAccNo = submissionRepo.findFirstByAccNoAndVersionLessThanOrderByVersion(accNo)
         return findByAccNo?.let { toExtSubmissionMapper.toExtSubmission(it, includeFileListFiles) }
     }
 
-    override suspend fun getExtByAccNo(accNo: String, includeFileListFiles: Boolean): ExtSubmission {
+    override suspend fun getExtByAccNo(
+        accNo: String,
+        includeFileListFiles: Boolean,
+    ): ExtSubmission {
         val submission = submissionRepo.getByAccNo(accNo)
         return toExtSubmissionMapper.toExtSubmission(submission, includeFileListFiles)
     }
@@ -66,11 +78,12 @@ internal class SubmissionMongoPersistenceQueryService(
 
     override suspend fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission> {
         val (requestsCount, requests) = requestRepository.findActiveRequests(filter)
-        val submissionFilter = filter.copy(
-            limit = filter.limit - requests.size,
-            offset = max(0, filter.offset - requestsCount),
-            notIncludeAccNo = requests.map { it.accNo }.toSet()
-        )
+        val submissionFilter =
+            filter.copy(
+                limit = filter.limit - requests.size,
+                offset = max(0, filter.offset - requestsCount),
+                notIncludeAccNo = requests.map { it.accNo }.toSet(),
+            )
 
         return requests
             .map { serializationService.deserialize(it.submission.toString()) }

@@ -8,7 +8,6 @@ import kotlinx.coroutines.reactive.awaitSingle
 import org.litote.kmongo.coroutine.toList
 
 class ErrorsRepository(private val collection: MongoCollection<SubmissionErrorDoc>) {
-
     suspend fun save(errorDoc: SubmissionErrorDoc): InsertOneResult = collection.insertOne(errorDoc).awaitSingle()
 
     suspend fun findAll(): List<SubmissionErrorDoc> = collection.find().toList()

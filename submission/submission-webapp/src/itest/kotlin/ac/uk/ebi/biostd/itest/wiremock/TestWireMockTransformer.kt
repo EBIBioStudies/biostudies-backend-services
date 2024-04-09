@@ -31,7 +31,7 @@ class TestWireMockTransformer(
     private val fixedDelay: Long,
     private val handlers: List<RequestHandler>,
 ) : ResponseDefinitionTransformer() {
-    override fun getName(): String = Companion.name
+    override fun getName(): String = Companion.NAME
 
     override fun transform(
         rqt: Request,
@@ -53,7 +53,7 @@ class TestWireMockTransformer(
     }
 
     companion object {
-        const val name = "testWireMockTransformer"
+        const val NAME = "testWireMockTransformer"
 
         fun newTransformer(
             subFolder: Path,
@@ -80,8 +80,8 @@ class TestWireMockTransformer(
                     UnSetPathHandler(fireDatabase),
                     PublishHandler(fireDatabase),
                     UnPublishHandler(fireDatabase),
-                    DownloadHandler(fireDatabase)
-                )
+                    DownloadHandler(fireDatabase),
+                ),
             )
         }
 

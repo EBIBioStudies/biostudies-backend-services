@@ -6,7 +6,10 @@ import ebi.ac.uk.util.collections.ifNotEmpty
 import java.io.File
 
 class FilesTableTemplateValidator {
-    fun validate(template: FilesTableTemplate, filesPath: String) {
+    fun validate(
+        template: FilesTableTemplate,
+        filesPath: String,
+    ) {
         template.rows
             .map { File("$filesPath/${it.path}") }
             .filter { it.exists().not().or(it.listFiles().isNullOrEmpty()) }

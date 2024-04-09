@@ -36,76 +36,82 @@ class NfsFilesServiceTest(
     inner class NotIncludingSecretKey {
         private val publicFolder = tempFolder.createDirectory("ftp")
         private val privateFolder = tempFolder.createDirectory("submission")
-        private val folderResolver = SubmissionFolderResolver(
-            includeSecretKey = false,
-            privateSubPath = privateFolder.toPath(),
-            publicSubPath = publicFolder.toPath(),
-        )
+        private val folderResolver =
+            SubmissionFolderResolver(
+                includeSecretKey = false,
+                privateSubPath = privateFolder.toPath(),
+                publicSubPath = publicFolder.toPath(),
+            )
         private val testInstance = NfsFilesService(fireClient, folderResolver)
 
         @Test
-        fun `persist NFS file`() = runTest {
-            val sub = basicExtSubmission
-            val file = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
+        fun `persist NFS file`() =
+            runTest {
+                val sub = basicExtSubmission
+                val file = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
 
-            val persisted = testInstance.persistSubmissionFile(sub, file) as NfsFile
+                val persisted = testInstance.persistSubmissionFile(sub, file) as NfsFile
 
-            val path = "${privateFolder.absolutePath}/${sub.relPath}/${file.relPath}"
-            assertThat(persisted.fullPath).isEqualTo(path)
-            assertThat(Files.exists(Paths.get(path))).isTrue()
-        }
-
-        @Test
-        fun `persist FIRE file`() = runTest {
-            val sub = basicExtSubmission
-            val downloaded = tempFolder.createFile("file.txt")
-            val fireFile = FireFile(
-                "fire-id",
-                "/a/file.txt",
-                true,
-                "file.txt",
-                "file.txt",
-                "md5",
-                1L,
-                FILE,
-                emptyList(),
-            )
-
-            every { fireClient.downloadByPath("/a/file.txt") } returns downloaded
-
-            val persisted = testInstance.persistSubmissionFile(sub, fireFile) as NfsFile
-
-            val path = "${privateFolder.absolutePath}/${sub.relPath}/${fireFile.relPath}"
-            verify(exactly = 1) { fireClient.downloadByPath("/a/file.txt") }
-            assertThat(persisted.fullPath).isEqualTo(path)
-            assertThat(Files.exists(Paths.get(path))).isTrue()
-        }
+                val path = "${privateFolder.absolutePath}/${sub.relPath}/${file.relPath}"
+                assertThat(persisted.fullPath).isEqualTo(path)
+                assertThat(Files.exists(Paths.get(path))).isTrue()
+            }
 
         @Test
-        fun `delete ftp links`() = runTest {
-            val ftpFolder = publicFolder.createDirectory("S-BSST2")
-            val filesFtpFolder = ftpFolder.createDirectory("Files")
-            val ftpFile = filesFtpFolder.createFile("file1.txt")
-            val nfsFile = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
-            val sub = basicExtSubmission.copy(relPath = "S-BSST2")
+        fun `persist FIRE file`() =
+            runTest {
+                val sub = basicExtSubmission
+                val downloaded = tempFolder.createFile("file.txt")
+                val fireFile =
+                    FireFile(
+                        "fire-id",
+                        "/a/file.txt",
+                        true,
+                        "file.txt",
+                        "file.txt",
+                        "md5",
+                        1L,
+                        FILE,
+                        emptyList(),
+                    )
 
-            testInstance.deleteFtpFile(sub, nfsFile)
+                every { fireClient.downloadByPath("/a/file.txt") } returns downloaded
 
-            assertThat(Files.exists(ftpFile.toPath())).isFalse()
-        }
+                val persisted = testInstance.persistSubmissionFile(sub, fireFile) as NfsFile
+
+                val path = "${privateFolder.absolutePath}/${sub.relPath}/${fireFile.relPath}"
+                verify(exactly = 1) { fireClient.downloadByPath("/a/file.txt") }
+                assertThat(persisted.fullPath).isEqualTo(path)
+                assertThat(Files.exists(Paths.get(path))).isTrue()
+            }
 
         @Test
-        fun `delete submission file`() = runTest {
-            val subFolder = privateFolder.createDirectory("S-BSST3")
-            val filesFolder = subFolder.createDirectory("Files")
-            val file = filesFolder.createFile("file1.txt")
-            val nfsFile = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
+        fun `delete ftp links`() =
+            runTest {
+                val ftpFolder = publicFolder.createDirectory("S-BSST2")
+                val filesFtpFolder = ftpFolder.createDirectory("Files")
+                val ftpFile = filesFtpFolder.createFile("file1.txt")
+                val nfsFile = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
+                val sub = basicExtSubmission.copy(relPath = "S-BSST2")
 
-            val sub = basicExtSubmission.copy(relPath = "S-BSST3")
-            testInstance.deleteSubmissionFile(sub, nfsFile)
+                testInstance.deleteFtpFile(sub, nfsFile)
 
-            assertThat(Files.exists(file.toPath())).isFalse()
-        }
+                assertThat(Files.exists(ftpFile.toPath())).isFalse()
+            }
+
+        @Test
+        fun `delete submission file`() =
+            runTest {
+                val subFolder = privateFolder.createDirectory("S-BSST3")
+                val filesFolder = subFolder.createDirectory("Files")
+                val file = filesFolder.createFile("file1.txt")
+                val nfsFile = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
+
+                val sub = basicExtSubmission.copy(relPath = "S-BSST3")
+                testInstance.deleteSubmissionFile(sub, nfsFile)
+
+                assertThat(Files.exists(file.toPath())).isFalse()
+            }
 
         @Test
         fun `delete fire file`(
@@ -121,78 +127,84 @@ class NfsFilesServiceTest(
     inner class IncludingSecretKey {
         private val publicFolder = tempFolder.createDirectory("submissions")
         private val privateFolder = publicFolder.createDirectory(".private")
-        private val folderResolver = SubmissionFolderResolver(
-            includeSecretKey = true,
-            privateSubPath = privateFolder.toPath(),
-            publicSubPath = publicFolder.toPath(),
-        )
+        private val folderResolver =
+            SubmissionFolderResolver(
+                includeSecretKey = true,
+                privateSubPath = privateFolder.toPath(),
+                publicSubPath = publicFolder.toPath(),
+            )
         private val testInstance = NfsFilesService(fireClient, folderResolver)
 
         @Test
-        fun `persist NFS file`() = runTest {
-            val sub = basicExtSubmission
-            val file = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
+        fun `persist NFS file`() =
+            runTest {
+                val sub = basicExtSubmission
+                val file = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
 
-            val persisted = testInstance.persistSubmissionFile(sub, file) as NfsFile
+                val persisted = testInstance.persistSubmissionFile(sub, file) as NfsFile
 
-            val path = "${privateFolder.absolutePath}/a-/secret-key/${sub.relPath}/${file.relPath}"
-            assertThat(persisted.fullPath).isEqualTo(path)
-            assertThat(Files.exists(Paths.get(path))).isTrue()
-        }
-
-        @Test
-        fun `persist FIRE file`() = runTest {
-            val sub = basicExtSubmission
-            val downloaded = tempFolder.createFile("file.txt")
-            val fireFile = FireFile(
-                "fire-id",
-                "/a/file.txt",
-                true,
-                "file.txt",
-                "file.txt",
-                "md5",
-                1L,
-                FILE,
-                emptyList(),
-            )
-
-            every { fireClient.downloadByPath("/a/file.txt") } returns downloaded
-
-            val persisted = testInstance.persistSubmissionFile(sub, fireFile) as NfsFile
-
-            val path = "${privateFolder.absolutePath}/a-/secret-key/${sub.relPath}/${fireFile.relPath}"
-            verify(exactly = 1) { fireClient.downloadByPath("/a/file.txt") }
-            assertThat(persisted.fullPath).isEqualTo(path)
-            assertThat(Files.exists(Paths.get(path))).isTrue()
-        }
+                val path = "${privateFolder.absolutePath}/a-/secret-key/${sub.relPath}/${file.relPath}"
+                assertThat(persisted.fullPath).isEqualTo(path)
+                assertThat(Files.exists(Paths.get(path))).isTrue()
+            }
 
         @Test
-        fun `delete ftp links`() = runTest {
-            val ftpFolder = publicFolder.createDirectory("S-BSST2")
-            val filesFtpFolder = ftpFolder.createDirectory("Files")
-            val ftpFile = filesFtpFolder.createFile("file1.txt")
-            val nfsFile = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
-            val sub = basicExtSubmission.copy(relPath = "S-BSST2")
+        fun `persist FIRE file`() =
+            runTest {
+                val sub = basicExtSubmission
+                val downloaded = tempFolder.createFile("file.txt")
+                val fireFile =
+                    FireFile(
+                        "fire-id",
+                        "/a/file.txt",
+                        true,
+                        "file.txt",
+                        "file.txt",
+                        "md5",
+                        1L,
+                        FILE,
+                        emptyList(),
+                    )
 
-            testInstance.deleteFtpFile(sub, nfsFile)
+                every { fireClient.downloadByPath("/a/file.txt") } returns downloaded
 
-            assertThat(Files.exists(ftpFile.toPath())).isFalse()
-        }
+                val persisted = testInstance.persistSubmissionFile(sub, fireFile) as NfsFile
+
+                val path = "${privateFolder.absolutePath}/a-/secret-key/${sub.relPath}/${fireFile.relPath}"
+                verify(exactly = 1) { fireClient.downloadByPath("/a/file.txt") }
+                assertThat(persisted.fullPath).isEqualTo(path)
+                assertThat(Files.exists(Paths.get(path))).isTrue()
+            }
 
         @Test
-        fun `delete submission file`() = runTest {
-            val secretFolder = privateFolder.createDirectory("a-")
-            val rootFolder = secretFolder.createDirectory("secret-key")
-            val subFolder = rootFolder.createDirectory("S-BSST3")
-            val filesFolder = subFolder.createDirectory("Files")
-            val file = filesFolder.createFile("file1.txt")
-            val nfsFile = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
+        fun `delete ftp links`() =
+            runTest {
+                val ftpFolder = publicFolder.createDirectory("S-BSST2")
+                val filesFtpFolder = ftpFolder.createDirectory("Files")
+                val ftpFile = filesFtpFolder.createFile("file1.txt")
+                val nfsFile = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
+                val sub = basicExtSubmission.copy(relPath = "S-BSST2")
 
-            val sub = basicExtSubmission.copy(relPath = "S-BSST3")
-            testInstance.deleteSubmissionFile(sub, nfsFile)
+                testInstance.deleteFtpFile(sub, nfsFile)
 
-            assertThat(Files.exists(file.toPath())).isFalse()
-        }
+                assertThat(Files.exists(ftpFile.toPath())).isFalse()
+            }
+
+        @Test
+        fun `delete submission file`() =
+            runTest {
+                val secretFolder = privateFolder.createDirectory("a-")
+                val rootFolder = secretFolder.createDirectory("secret-key")
+                val subFolder = rootFolder.createDirectory("S-BSST3")
+                val filesFolder = subFolder.createDirectory("Files")
+                val file = filesFolder.createFile("file1.txt")
+                val nfsFile = createNfsFile("file1.txt", "Files/file1.txt", tempFolder.createFile("file1.txt"))
+
+                val sub = basicExtSubmission.copy(relPath = "S-BSST3")
+                testInstance.deleteSubmissionFile(sub, nfsFile)
+
+                assertThat(Files.exists(file.toPath())).isFalse()
+            }
 
         @Test
         fun `delete fire file`(

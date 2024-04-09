@@ -12,5 +12,5 @@ data class MigrationData(val accNo: String)
 data class ReleaseData(
     val accNo: String,
     val owner: String,
-    val relPath: String
+    val relPath: String,
 )

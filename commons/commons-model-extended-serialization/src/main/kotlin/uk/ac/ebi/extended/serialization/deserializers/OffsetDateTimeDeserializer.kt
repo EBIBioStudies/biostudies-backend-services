@@ -9,7 +9,10 @@ import ebi.ac.uk.util.date.fromIsoTime
 import java.time.OffsetDateTime
 
 class OffsetDateTimeDeserializer : JsonDeserializer<OffsetDateTime>() {
-    override fun deserialize(jsonParser: JsonParser, ctxt: DeserializationContext): OffsetDateTime {
+    override fun deserialize(
+        jsonParser: JsonParser,
+        ctxt: DeserializationContext,
+    ): OffsetDateTime {
         val mapper = jsonParser.codec as ObjectMapper
         val node = mapper.readTree<JsonNode>(jsonParser)
 
