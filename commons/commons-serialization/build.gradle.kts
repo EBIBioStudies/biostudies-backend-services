@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.CommonsCsv
 import Dependencies.Guava
 import Dependencies.JacksonKotlin
@@ -22,12 +21,16 @@ import TestDependencies.KotlinXmlBuilder
 import TestDependencies.Woodstox
 import TestDependencies.XmlUnitAssertJ
 import TestDependencies.XmlUnitCore
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
     `java-test-fixtures`
+    id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion apply false
+    id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
 }
 
 dependencies {
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     api(project(CommonsBio))
     api(project(CommonsSerializationUtil))
     api(project(CommonsTest))
@@ -40,7 +43,6 @@ dependencies {
     implementation(KotlinLogging)
     implementation(KotlinStdLib)
     implementation(KotlinCoroutines)
-    implementation(Arrow)
     implementation(Guava)
     implementation(JacksonKotlin)
     implementation(JacksonXml)

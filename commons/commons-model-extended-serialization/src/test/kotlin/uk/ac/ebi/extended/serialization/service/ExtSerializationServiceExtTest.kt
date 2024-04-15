@@ -1,7 +1,7 @@
 package uk.ac.ebi.extended.serialization.service
 
-import arrow.core.Either.Companion.left
-import arrow.core.Either.Companion.right
+import ebi.ac.uk.base.Either.Companion.left
+import ebi.ac.uk.base.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtCollection
 import ebi.ac.uk.extended.model.ExtFileList
@@ -44,7 +44,12 @@ internal class ExtSerializationServiceExtTest(
 
             val result = testInstance.filesFlow(submission).toList()
             assertThat(filesCount).isEqualTo(files.size)
-            assertThat(result).containsExactlyInAnyOrder(pageTabFile, sectionFile, sectionTableFile, *files.toTypedArray())
+            assertThat(result).containsExactlyInAnyOrder(
+                pageTabFile,
+                sectionFile,
+                sectionTableFile,
+                *files.toTypedArray(),
+            )
         }
 
     private fun createFireFile(idx: Int): FireFile {

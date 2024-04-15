@@ -1,7 +1,7 @@
 package ebi.ac.uk.extended.mapping.to
 
-import arrow.core.Either.Companion.left
-import arrow.core.Either.Companion.right
+import ebi.ac.uk.base.Either.Companion.left
+import ebi.ac.uk.base.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
@@ -86,7 +86,11 @@ class ToSectionMapperTest(
                 assertThat(sectionResult.files.second()).isEqualTo(right(fileTable))
                 assertThat(sectionResult.links.first()).isEqualTo(left(link))
                 assertThat(sectionResult.links.second()).isEqualTo(right(linkTable))
-                assertEither(sectionResult.sections.first()).hasLeftValueSatisfying { assertThat(it).isEqualTo(subSection) }
+                assertEither(sectionResult.sections.first()).hasLeftValueSatisfying {
+                    assertThat(it).isEqualTo(
+                        subSection,
+                    )
+                }
                 assertEither(sectionResult.sections.second()).hasRightValueSatisfying {
                     assertThat(it.elements.first()).isEqualTo(subSection)
                 }

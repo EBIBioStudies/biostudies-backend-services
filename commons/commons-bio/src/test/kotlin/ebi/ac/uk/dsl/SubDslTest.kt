@@ -1,6 +1,6 @@
 package ebi.ac.uk.dsl
 
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.BioFile

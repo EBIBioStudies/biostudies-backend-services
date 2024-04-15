@@ -52,7 +52,7 @@ class StatsReporterTrigger(
                 ),
             )
 
-        return jobTry.fold({ throw it }, { it.apply { logger.info { "Submitted job $it" } } })
+        return jobTry.fold({ it.apply { logger.info { "Submitted job $it" } } }, { throw it })
     }
 
     private fun getConfigProperties() =

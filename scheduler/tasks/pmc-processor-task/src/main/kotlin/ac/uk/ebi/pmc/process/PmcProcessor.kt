@@ -48,8 +48,8 @@ class PmcProcessor(
     ) {
         val (submission, body) = submissionPair
         fileDownloader.downloadFiles(submission).fold(
-            { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
             { submissionDocService.saveProcessedSubmission(submissionDoc.withBody(body), it) },
+            { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
         )
     }
 }

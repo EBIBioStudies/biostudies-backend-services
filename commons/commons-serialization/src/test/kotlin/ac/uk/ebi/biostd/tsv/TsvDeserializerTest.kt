@@ -21,7 +21,7 @@ import ac.uk.ebi.biostd.test.submissionWithSubsection
 import ac.uk.ebi.biostd.tsv.deserialization.TsvDeserializer
 import ac.uk.ebi.biostd.validation.DuplicatedSectionAccNoException
 import ac.uk.ebi.biostd.validation.SerializationException
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.dsl.attribute
 import ebi.ac.uk.dsl.file
 import ebi.ac.uk.dsl.filesTable

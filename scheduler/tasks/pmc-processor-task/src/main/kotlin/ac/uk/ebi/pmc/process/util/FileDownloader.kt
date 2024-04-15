@@ -3,7 +3,6 @@ package ac.uk.ebi.pmc.process.util
 import ac.uk.ebi.pmc.client.PmcApi
 import ac.uk.ebi.pmc.utils.retry
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
-import arrow.core.Try
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.allFiles
 import kotlinx.coroutines.Dispatchers
@@ -23,9 +22,9 @@ class FileDownloader(
     private val properties: PmcImporterProperties,
     private val pmcApi: PmcApi,
 ) {
-    suspend fun downloadFiles(submission: Submission): Try<List<File>> {
-        return Try {
-            return@Try coroutineScope {
+    suspend fun downloadFiles(submission: Submission): Result<List<File>> {
+        return runCatching {
+            coroutineScope {
                 submission.allFiles()
                     .map { async { retry(times = 3) { downloadFile(getPmcId(submission.accNo), it) } } }
                     .awaitAll()

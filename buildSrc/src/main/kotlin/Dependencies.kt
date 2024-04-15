@@ -25,13 +25,11 @@ import Versions.CommonsPoolVersion
 import Versions.GuavaVersion
 import Versions.H2Version
 import Versions.JSONOrgVersion
-import Versions.JacksonVersion
 import Versions.JavaValidationApiVersion
 import Versions.JetBrainsAnnotationsVersion
 import Versions.JschVersion
 import Versions.JwtVersion
 import Versions.KMongoCoroutineVersion
-import Versions.KotlinArrowVersion
 import Versions.KotlinCoroutinesVersion
 import Versions.KotlinLoggingVersion
 import Versions.KotlinVersion
@@ -45,7 +43,6 @@ import Versions.ReactorNettyVersion
 import Versions.Retrofit2Version
 import Versions.RxJava2Version
 import Versions.S3Version
-import Versions.ServletVersion
 import Versions.SpringAdminVersion
 import Versions.SpringfoxSwaggerVersion
 import Versions.WoodstoxVersion
@@ -80,7 +77,6 @@ object Versions {
     const val JetBrainsAnnotationsVersion = "24.0.1"
 
     const val KotlinLoggingVersion = "3.0.5"
-    const val KotlinArrowVersion = "0.8.2"
     const val KMongoCoroutineVersion = "4.6.1"
     const val MongockVersion = "4.3.8"
 
@@ -93,12 +89,10 @@ object Versions {
     const val MySqlVersion = "8.3.0"
     const val XmlBuilderVersion = "1.7.4"
     const val WoodstoxVersion = "5.1.0"
-    const val JacksonVersion = "2.13.0"
     const val LogbackVersion = "1.2.3"
     const val GuavaVersion = "28.2-jre"
     const val JwtVersion = "0.9.1"
     const val H2Version = "1.4.197"
-    const val ServletVersion = "4.0.1"
     const val S3Version = "1.12.293"
     const val JschVersion = "0.1.55"
     const val Retrofit2Version = "2.9.0"
@@ -165,11 +159,11 @@ object Dependencies {
 
     // Web related
     const val JSONOrg = "org.json:json:$JSONOrgVersion"
-    const val JacksonAnnotations = "com.fasterxml.jackson.core:jackson-annotations:$JacksonVersion"
-    const val JacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:$JacksonVersion"
-    const val JacksonDataBind = "com.fasterxml.jackson.core:jackson-databind:$JacksonVersion"
-    const val JacksonCore = "com.fasterxml.jackson.core:jackson-core:$JacksonVersion"
-    const val JacksonXml = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$JacksonVersion"
+    const val JacksonAnnotations = "com.fasterxml.jackson.core:jackson-annotations"
+    const val JacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin"
+    const val JacksonDataBind = "com.fasterxml.jackson.core:jackson-databind:"
+    const val JacksonCore = "com.fasterxml.jackson.core:jackson-core"
+    const val JacksonXml = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml"
     const val Retrofit2 = "com.squareup.retrofit2:retrofit:$Retrofit2Version"
     const val OkHttpLogging = "com.squareup.okhttp3:logging-interceptor:$OkHttpLoggingVersion"
     const val ReactorNetty = "io.projectreactor.netty:reactor-netty:$ReactorNettyVersion"
@@ -184,7 +178,7 @@ object Dependencies {
 
     // Misc
     const val AwsS3 = "com.amazonaws:aws-java-sdk-s3:$S3Version"
-    const val ServletApi = "javax.servlet:javax.servlet-api:$ServletVersion"
+    const val ServletApi = "javax.servlet:javax.servlet-api"
     const val Logback = "ch.qos.logback:logback-classic:$LogbackVersion"
     const val Jwt = "io.jsonwebtoken:jjwt:$JwtVersion"
     const val Guava = "com.google.guava:guava:$GuavaVersion"
@@ -206,11 +200,6 @@ object Dependencies {
     const val KotlinCoroutinesReactive = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive:$KotlinCoroutinesVersion"
     const val KotlinCoroutinesReactor = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$KotlinCoroutinesVersion"
     const val KotlinLogging = "io.github.microutils:kotlin-logging:$KotlinLoggingVersion"
-
-    // Arrow
-    const val Arrow = "io.arrow-kt:arrow-core:$KotlinArrowVersion"
-    const val ArrowTypeClasses = "io.arrow-kt:arrow-typeclasses:$KotlinArrowVersion"
-    const val ArrowData = "io.arrow-kt:arrow-data:$KotlinArrowVersion"
 
     // Apache
     const val CommonsFileUpload = "commons-fileupload:commons-fileupload:$CommonsFileUploadVersion"

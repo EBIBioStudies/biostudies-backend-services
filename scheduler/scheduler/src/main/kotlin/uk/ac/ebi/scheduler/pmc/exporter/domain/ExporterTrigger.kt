@@ -76,7 +76,7 @@ class ExporterTrigger(
         val exporterProperties = getConfigProperties(mode, fileName, outputPath)
         val cmd = exporterProperties.asCmd(appProperties.appsFolder, debugPort)
         val jobTry = clusterClient.triggerJobAsync(JobSpec(cores = EXPORTER_CORES, ram = TWENTYFOUR_GB, command = cmd))
-        return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
+        return jobTry.fold({ it.apply { logger.info { "submitted job $it" } } }, { throw it })
     }
 
     private fun getConfigProperties(

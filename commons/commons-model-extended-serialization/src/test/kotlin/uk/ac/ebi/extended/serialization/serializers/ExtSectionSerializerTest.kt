@@ -1,6 +1,6 @@
 package uk.ac.ebi.extended.serialization.serializers
 
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.dsl.json.JsonNull
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonNull
@@ -112,7 +112,11 @@ class ExtSectionSerializerTest(private val tempFolder: TemporaryFolder) {
                                 ),
                             ),
                     ),
-                attributes = listOf(ExtAttribute("Title", "Test Section"), ExtAttribute("Description", value = null, true)),
+                attributes =
+                    listOf(
+                        ExtAttribute("Title", "Test Section"),
+                        ExtAttribute("Description", value = null, true),
+                    ),
                 sections =
                     listOf(
                         Either.left(ExtSection(type = "Exp")),

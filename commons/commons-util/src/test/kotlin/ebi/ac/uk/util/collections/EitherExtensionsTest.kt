@@ -1,6 +1,6 @@
 package ebi.ac.uk.util.collections
 
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

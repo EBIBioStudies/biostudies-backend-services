@@ -15,13 +15,13 @@ import ac.uk.ebi.biostd.json.serialization.LinkJsonSerializer
 import ac.uk.ebi.biostd.json.serialization.SectionJsonSerializer
 import ac.uk.ebi.biostd.json.serialization.SubmissionJsonSerializer
 import ac.uk.ebi.biostd.json.serialization.TableJsonSerializer
-import arrow.core.Either
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.model.Attribute
 import ebi.ac.uk.model.AttributeDetail
 import ebi.ac.uk.model.BioFile

@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.validator.collection
 
 import ac.uk.ebi.biostd.common.properties.ValidatorProperties
 import ac.uk.ebi.biostd.persistence.common.exception.CollectionValidationException
-import arrow.core.Either.Companion.left
+import ebi.ac.uk.base.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.createNfsFile

@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -19,7 +18,6 @@ dependencies {
     api(project(CommonsBio))
     api(project(CommonsModelExtended))
 
-    implementation(Arrow)
     implementation(AssertJ)
     implementation(CommonsIO)
     implementation(JunitExtensions)

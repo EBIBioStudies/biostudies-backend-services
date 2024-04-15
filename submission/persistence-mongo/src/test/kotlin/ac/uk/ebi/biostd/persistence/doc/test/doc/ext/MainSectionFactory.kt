@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.test.doc.ext
 
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink

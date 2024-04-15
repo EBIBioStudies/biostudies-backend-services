@@ -20,7 +20,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTableRow
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import org.bson.Document
 
 class SectionConverter(

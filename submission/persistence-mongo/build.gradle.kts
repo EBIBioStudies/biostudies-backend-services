@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
 import Dependencies.Guava
@@ -46,7 +45,6 @@ dependencies {
     api(project(SubmissionPersistenceFilesystem))
     api(project(SubmissionPersistenceCommonApi))
 
-    implementation(Arrow)
     implementation(KotlinLogging)
     implementation(CommonsIO)
     implementation(CommonsLang3)

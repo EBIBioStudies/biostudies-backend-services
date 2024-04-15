@@ -97,8 +97,8 @@ class RemoteExtSubmissionSubmitter(
 
         val job = clusterClient.triggerJobAsync(JobSpec(cores = 8, ram = SIXTEEN_GB, DataMoverQueue, command))
         job.fold(
-            { throw it },
             { logger.info { "$accNo Triggered submission task $mode. Job Id: ${it.id}, Logs: ${it.logsPath}" } },
+            { throw it },
         )
     }
 

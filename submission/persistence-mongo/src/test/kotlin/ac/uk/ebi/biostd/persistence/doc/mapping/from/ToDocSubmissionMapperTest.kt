@@ -84,8 +84,8 @@ import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionTableFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionFileListFile
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.subSectionTable
-import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSectionTable
 import ebi.ac.uk.extended.model.StorageMode

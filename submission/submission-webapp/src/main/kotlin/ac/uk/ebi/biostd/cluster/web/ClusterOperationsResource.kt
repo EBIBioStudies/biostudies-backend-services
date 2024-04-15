@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.cluster.web
 
-import arrow.core.Try
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -28,10 +27,11 @@ class ClusterOperationsResource(
     suspend fun submitJob(
         @RequestBody job: JobSpecDto,
     ): Job {
-        return when (val response = clusterClient.triggerJobAsync(job.asJobSpec())) {
-            is Try.Failure -> throw IllegalStateException(response.exception)
-            is Try.Success -> response.value
-        }
+        val response = clusterClient.triggerJobAsync(job.asJobSpec())
+        return response.fold(
+            { it },
+            { throw IllegalStateException(it) },
+        )
     }
 
     @GetMapping("/jobs/{jobId}/status")

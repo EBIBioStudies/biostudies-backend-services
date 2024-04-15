@@ -1,6 +1,6 @@
 package ebi.ac.uk.util.collections
 
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 
 /**
  * Adds a { @Link Either#left } to a mutable list of Either containing the given element.

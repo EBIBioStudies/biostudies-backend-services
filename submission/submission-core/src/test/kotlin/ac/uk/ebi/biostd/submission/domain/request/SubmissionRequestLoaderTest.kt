@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.RqtResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
-import arrow.core.Either.Companion.left
+import ebi.ac.uk.base.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.NfsFile

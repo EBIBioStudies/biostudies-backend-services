@@ -1,25 +1,25 @@
 package uk.ac.ebi.biostd.client.cluster.api
 
-import arrow.core.Try
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.Result.Companion.success
 import kotlin.io.path.createTempFile
 
 class LocalClusterClient : ClusterClient {
     private val activeProcess = ConcurrentHashMap<Long, Process>()
     private val jobLogs = ConcurrentHashMap<Long, File>()
 
-    override suspend fun triggerJobAsync(jobSpec: JobSpec): Try<Job> {
+    override suspend fun triggerJobAsync(jobSpec: JobSpec): Result<Job> {
         return withContext(Dispatchers.IO) {
             val logFile = createTempFile().toFile()
             val processId = executeProcess(jobSpec.command, logFile)
 
             jobLogs[processId] = logFile
-            Try.just(Job(processId.toString(), LOCAL_QUEUE, logFile.absolutePath))
+            success(Job(processId.toString(), LOCAL_QUEUE, logFile.absolutePath))
         }
     }
 

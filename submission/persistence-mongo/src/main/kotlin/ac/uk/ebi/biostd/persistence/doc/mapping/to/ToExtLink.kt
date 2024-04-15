@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtLink
 import ebi.ac.uk.extended.model.ExtLinkTable
 

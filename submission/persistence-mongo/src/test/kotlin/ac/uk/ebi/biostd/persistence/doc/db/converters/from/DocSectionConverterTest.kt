@@ -24,7 +24,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.docLinkTableClass
 import ac.uk.ebi.biostd.persistence.doc.model.docSectionClass
 import ac.uk.ebi.biostd.persistence.doc.model.docSectionTableClass
 import ac.uk.ebi.biostd.persistence.doc.model.nfsDocFileClass
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension

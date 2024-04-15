@@ -1,10 +1,9 @@
 package ac.uk.ebi.biostd.common
 
-import arrow.core.Either
-import arrow.core.getOrHandle
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import org.assertj.core.api.Assertions.assertThat
@@ -29,7 +28,10 @@ class EitherDeserializerTest {
         val result = objectMapper.readValue<Either<Dummy, Foo>>(jsonObj { "name" to name }.toString())
 
         assertThat(result.isLeft()).isTrue
-        assertThat(result.getOrHandle { it }).isEqualTo(Dummy(name))
+        result.fold(
+            { assertThat(it).isEqualTo(Dummy(name)) },
+            { error("Expecting either to be left") },
+        )
     }
 
     @Test
@@ -38,7 +40,10 @@ class EitherDeserializerTest {
         val result = objectMapper.readValue<Either<Dummy, Foo>>(jsonObj { "value" to value }.toString())
 
         assertThat(result.isRight()).isTrue
-        assertThat(result.getOrHandle { it }).isEqualTo(Foo(value))
+        result.fold(
+            { error("Expecting either to be right") },
+            { assertThat(it).isEqualTo(Foo(value)) },
+        )
     }
 
     @Test
@@ -47,9 +52,12 @@ class EitherDeserializerTest {
 
         val result = objectMapper.readValue<MutableList<Either<Dummy, Foo>>>(jsonArray({ "name" to name }).toString())
 
-        assertThat(result).isNotEmpty
-        assertThat(result.first().isLeft())
-        assertThat(result.first().getOrHandle { it }).isEqualTo(Dummy(name))
+        assertThat(result).hasSize(1)
+        assertThat(result.first().isLeft()).isTrue()
+        result.first().fold(
+            { assertThat(it).isEqualTo(Dummy(name)) },
+            { error("Expecting either to be left") },
+        )
     }
 
     data class Dummy(var name: String?)

@@ -1,7 +1,7 @@
 package ac.uk.ebi.pmc.load
 
-import arrow.core.Either.Companion.left
-import arrow.core.Either.Companion.right
+import ebi.ac.uk.base.Either.Companion.left
+import ebi.ac.uk.base.Either.Companion.right
 import ebi.ac.uk.functions.milisToInstant
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging

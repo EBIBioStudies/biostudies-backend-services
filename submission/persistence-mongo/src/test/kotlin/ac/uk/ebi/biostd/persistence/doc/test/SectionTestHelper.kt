@@ -8,8 +8,8 @@ import ac.uk.ebi.biostd.persistence.doc.test.AttributeTestHelper.fullDocAttribut
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.docFileList
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.LinkTestHelper.docLink
-import arrow.core.Either.Companion.left
-import arrow.core.Either.Companion.right
+import ebi.ac.uk.base.Either.Companion.left
+import ebi.ac.uk.base.Either.Companion.right
 import org.bson.types.ObjectId
 
 internal const val SECT_ACC_NO = "SECT-001"
