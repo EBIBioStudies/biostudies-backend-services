@@ -29,6 +29,9 @@ stages:
   - auto-deploy-beta-bio-commandline
   - auto-deploy-prod-bio-commandline
   - auto-deploy-prod-submission-task
+  - deploy-dev-submission-task
+  - deploy-beta-submission-task
+  - deploy-prod-submission-task
   - auto-deploy-dev-submitter
   - auto-deploy-beta-submitter
   - auto-deploy-prod-submitter
