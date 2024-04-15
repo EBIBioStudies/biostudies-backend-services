@@ -8,6 +8,7 @@ variables:
 
 include:
   - local: '/ci/submitter.yml'
+  - local: '/ci/submission-task.yml'
   - local: '/ci/pmc-processor.yml'
   - local: '/ci/exporter.yml'
   - local: '/ci/submission-releaser.yml'
@@ -17,6 +18,7 @@ include:
   - local: '/ci/bio-commandline.yml'
   - local: '/ci/submission-handlers.yml'
   - local: '/ci/docker.yml'
+
 
 stages:
   - build-test

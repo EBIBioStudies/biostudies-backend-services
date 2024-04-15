@@ -4,6 +4,7 @@ import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Projects.CommonsBio
 import Projects.CommonsModelExtended
+import SpringBootDependencies.SpringBootStarterMongo
 import SpringBootDependencies.SpringDataCommons
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
@@ -21,6 +22,7 @@ dependencies {
     implementation(KotlinReflect)
     implementation(KotlinCoroutines)
     implementation(SpringDataCommons)
+    implementation(SpringBootStarterMongo)
     implementation(KotlinCoroutines)
     implementation(KotlinCoroutinesReactor)
 }

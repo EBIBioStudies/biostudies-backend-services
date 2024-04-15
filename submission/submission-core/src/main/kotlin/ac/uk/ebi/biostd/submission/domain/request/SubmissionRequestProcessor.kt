@@ -7,10 +7,9 @@ import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
+import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.ExtSubmission
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
@@ -66,9 +65,8 @@ class SubmissionRequestProcessor(
         supervisorScope {
             filesRequestService
                 .getSubmissionRequestFiles(accNo, sub.version, startingAt)
-                .map { async { persistFile(it) } }
-                .buffer(concurrency)
-                .collect { it.await() }
+                .concurrently(concurrency) { persistFile(it) }
+                .collect()
         }
     }
 }

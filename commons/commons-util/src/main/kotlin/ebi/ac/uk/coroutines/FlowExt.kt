@@ -1,6 +1,8 @@
 package ebi.ac.uk.coroutines
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.withIndex
 
@@ -16,4 +18,11 @@ fun <T> Flow<T>.every(
             if (it.index % items == 0) action(it)
             emit(it.value)
         }
+}
+
+fun <T, R> Flow<T>.concurrently(
+    concurency: Int,
+    funtion: suspend (value: T) -> R,
+): Flow<R> {
+    return flatMapMerge(concurency) { flow { emit(funtion(it)) } }
 }
