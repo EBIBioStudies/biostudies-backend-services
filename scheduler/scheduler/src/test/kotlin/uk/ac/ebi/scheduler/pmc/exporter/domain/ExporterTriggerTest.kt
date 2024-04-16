@@ -3,7 +3,6 @@ package uk.ac.ebi.scheduler.pmc.exporter.domain
 import ac.uk.ebi.scheduler.properties.ExporterMode
 import ac.uk.ebi.scheduler.properties.ExporterMode.PMC
 import ac.uk.ebi.scheduler.properties.ExporterMode.PUBLIC_ONLY
-import arrow.core.Try
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import io.mockk.called
@@ -33,6 +32,7 @@ import uk.ac.ebi.scheduler.pmc.exporter.api.Ftp
 import uk.ac.ebi.scheduler.pmc.exporter.api.Persistence
 import uk.ac.ebi.scheduler.pmc.exporter.api.Pmc
 import uk.ac.ebi.scheduler.pmc.exporter.api.PublicOnly
+import kotlin.Result.Companion.success
 
 @ExtendWith(MockKExtension::class)
 class ExporterTriggerTest(
@@ -65,7 +65,7 @@ class ExporterTriggerTest(
         every { appProperties.javaHome } returns "/home/jdk11"
         every { appProperties.appsFolder } returns "/apps-folder"
 
-        coEvery { clusterClient.triggerJobAsync(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterClient.triggerJobAsync(capture(jobSpecs)) } returns success(job)
         coEvery { pcmNotificationsSender.send(capture(jobReport)) } answers { nothing }
         coEvery { schedulerNotificationsSender.send(capture(jobReport)) } answers { nothing }
     }

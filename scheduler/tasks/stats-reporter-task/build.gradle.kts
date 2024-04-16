@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.KotlinCoroutinesReactor
 import Dependencies.KotlinLogging
 import Dependencies.KotlinStdLib
@@ -29,7 +28,6 @@ dependencies {
     api(project(SubmissionPersistenceCommonApi))
     api(project(SubmissionPersistenceMongo))
 
-    implementation(Arrow)
     implementation(KotlinCoroutinesReactor)
     implementation(KotlinLogging)
     implementation(KotlinStdLib)

@@ -12,8 +12,8 @@ import ac.uk.ebi.biostd.persistence.model.DbTag
 import ac.uk.ebi.biostd.persistence.repositories.TagDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ac.uk.ebi.biostd.submission.model.DoiRequest.Companion.BS_DOI_ID
-import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.dsl.section
 import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
@@ -337,7 +337,15 @@ class SpecialSubmissionAttributesTest(
                     line(fileName, "")
                     line()
 
-                    line("Data[SECT-001]", "Empty Attr", "(TermId)", "[NullValue]", "Null Attr", "(NullName)", "[Ontology]")
+                    line(
+                        "Data[SECT-001]",
+                        "Empty Attr",
+                        "(TermId)",
+                        "[NullValue]",
+                        "Null Attr",
+                        "(NullName)",
+                        "[Ontology]",
+                    )
                     line("DT-1", "", "EFO_0002768", "", "", "", "EFO")
                     line()
                 }.toString()

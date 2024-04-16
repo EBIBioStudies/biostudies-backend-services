@@ -11,7 +11,7 @@ import ac.uk.ebi.biostd.persistence.doc.test.SUB_SECT_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.test.SUB_SECT_TYPE
 import ac.uk.ebi.biostd.persistence.doc.test.SectionTestHelper.docSection
 import ac.uk.ebi.biostd.persistence.doc.test.TEST_FILENAME
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.io.ext.md5

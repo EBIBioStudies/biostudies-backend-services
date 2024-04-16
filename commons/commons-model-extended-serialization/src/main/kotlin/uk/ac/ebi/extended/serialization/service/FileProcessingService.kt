@@ -1,6 +1,6 @@
 package uk.ac.ebi.extended.serialization.service
 
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtFileTable

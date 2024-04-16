@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.Jsch
 import Dependencies.KotlinCoroutines
@@ -12,7 +11,6 @@ import TestDependencies.BaseTestRuntimeDependencies
 dependencies {
     api(project(CommonsUtil))
 
-    implementation(Arrow)
     implementation(KotlinCoroutines)
     implementation(KotlinLogging)
     implementation(CommonsIO)

@@ -1,6 +1,6 @@
 package ebi.ac.uk.model
 
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.util.collections.addLeft
 import ebi.ac.uk.util.collections.addRight
 import java.util.Objects

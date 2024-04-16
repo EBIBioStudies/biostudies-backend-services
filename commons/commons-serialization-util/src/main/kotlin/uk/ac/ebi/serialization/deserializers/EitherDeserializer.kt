@@ -1,6 +1,5 @@
 package uk.ac.ebi.serialization.deserializers
 
-import arrow.core.Either
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.BeanProperty
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -10,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
+import ebi.ac.uk.base.Either
 import uk.ac.ebi.serialization.extensions.tryConvertValue
 
 /**

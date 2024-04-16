@@ -72,7 +72,7 @@ internal class SubmissionReleaserTrigger(
                 ),
             )
 
-        return jobTry.fold({ throw it }, { it.apply { logger.info { "submitted job $it" } } })
+        return jobTry.fold({ it.apply { logger.info { "submitted job $it" } } }, { throw it })
     }
 
     private fun getConfigProperties(

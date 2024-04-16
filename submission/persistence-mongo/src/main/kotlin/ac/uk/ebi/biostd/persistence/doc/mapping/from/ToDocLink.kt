@@ -4,7 +4,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocAttribute
 import ac.uk.ebi.biostd.persistence.doc.model.DocAttributeDetail
 import ac.uk.ebi.biostd.persistence.doc.model.DocLink
 import ac.uk.ebi.biostd.persistence.doc.model.DocLinkTable
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtAttributeDetail
 import ebi.ac.uk.extended.model.ExtLink

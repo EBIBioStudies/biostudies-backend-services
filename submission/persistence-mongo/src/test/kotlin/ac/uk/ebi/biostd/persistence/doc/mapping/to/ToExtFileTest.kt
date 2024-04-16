@@ -7,8 +7,8 @@ import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocDirectory
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.fireDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.FileTestHelper.nfsDocFile
 import ac.uk.ebi.biostd.persistence.doc.test.TEST_FILENAME
-import arrow.core.Either.Companion.left
-import arrow.core.Either.Companion.right
+import ebi.ac.uk.base.Either.Companion.left
+import ebi.ac.uk.base.Either.Companion.right
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size

@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.Guava
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
@@ -21,7 +20,6 @@ dependencies {
     api(project(CommonsModelExtendedTest))
     api(project(CommonsSerialization))
 
-    implementation(Arrow)
     implementation(KotlinLogging)
     implementation(Guava)
     implementation(KotlinReflect)

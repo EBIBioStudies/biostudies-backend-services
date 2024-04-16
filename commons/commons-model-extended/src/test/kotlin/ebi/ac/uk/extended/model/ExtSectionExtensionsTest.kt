@@ -1,7 +1,7 @@
 package ebi.ac.uk.extended.model
 
-import arrow.core.Either.Companion.left
-import arrow.core.Either.Companion.right
+import ebi.ac.uk.base.Either.Companion.left
+import ebi.ac.uk.base.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtFileType.FILE
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size

@@ -1,6 +1,3 @@
-import Dependencies.Arrow
-import Dependencies.ArrowData
-import Dependencies.ArrowTypeClasses
 import Dependencies.CommonsIO
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
@@ -40,9 +37,6 @@ dependencies {
     api(project(SubmissionSecurity))
     api(project(SubmissionPersistenceMongo))
 
-    implementation(Arrow)
-    implementation(ArrowTypeClasses)
-    implementation(ArrowData)
     implementation(CommonsIO)
     implementation(RxJava2)
 

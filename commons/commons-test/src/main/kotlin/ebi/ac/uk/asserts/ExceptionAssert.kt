@@ -1,7 +1,7 @@
 package ebi.ac.uk.asserts
 
 @Suppress("TooGenericExceptionCaught", "InstanceOfCheckForException")
-suspend inline fun <reified T : Throwable> assertThrows(function: () -> Unit): T {
+inline fun <reified T : Throwable> assertThrows(function: () -> Unit): T {
     try {
         function()
     } catch (e: Exception) {

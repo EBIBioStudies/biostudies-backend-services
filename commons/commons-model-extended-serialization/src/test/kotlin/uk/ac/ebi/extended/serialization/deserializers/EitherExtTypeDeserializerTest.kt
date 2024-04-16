@@ -1,7 +1,7 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
-import arrow.core.Either
 import com.fasterxml.jackson.module.kotlin.readValue
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFile

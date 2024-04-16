@@ -1,6 +1,6 @@
 package ebi.ac.uk.asserts
 
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
 

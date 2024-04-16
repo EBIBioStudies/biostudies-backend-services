@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
@@ -37,7 +36,6 @@ dependencies {
     implementation(SpringBootStarterDataJpa)
     implementation(SpringWebFlux)
 
-    implementation(Arrow)
     implementation(CommonsIO)
     implementation(KotlinStdLib)
     implementation(KotlinReflect)

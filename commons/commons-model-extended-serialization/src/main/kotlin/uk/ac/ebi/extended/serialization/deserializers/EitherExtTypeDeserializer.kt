@@ -1,7 +1,5 @@
 package uk.ac.ebi.extended.serialization.deserializers
 
-import arrow.core.Either
-import arrow.core.Either.Companion.right
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
@@ -9,6 +7,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.module.kotlin.convertValue
+import ebi.ac.uk.base.Either
+import ebi.ac.uk.base.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtLink
@@ -43,6 +43,7 @@ class EitherExtTypeDeserializer : JsonDeserializer<Either<*, *>>() {
             is NfsFile,
             is FireFile,
             -> Either.left(mapper.convertValue<ExtFile>(node))
+
             is Section -> Either.left(mapper.convertValue<ExtSection>(node))
             is LinksTable -> right(mapper.convertValue<ExtLinkTable>(node))
             is FilesTable -> right(mapper.convertValue<ExtFileTable>(node))

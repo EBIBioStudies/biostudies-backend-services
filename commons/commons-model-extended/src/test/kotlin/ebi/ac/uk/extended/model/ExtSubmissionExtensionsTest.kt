@@ -1,6 +1,6 @@
 package ebi.ac.uk.extended.model
 
-import arrow.core.Either.Companion.left
+import ebi.ac.uk.base.Either.Companion.left
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension

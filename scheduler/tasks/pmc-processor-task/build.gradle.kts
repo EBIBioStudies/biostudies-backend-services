@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
 import Dependencies.KMongoAsync
@@ -41,7 +40,6 @@ dependencies {
     implementation(project(SchedulerTaskProperties))
     implementation(project(CommonsHttp))
 
-    implementation(Arrow)
     implementation(CommonsIO)
     implementation(CommonsLang3)
     implementation(KMongoCoroutine)

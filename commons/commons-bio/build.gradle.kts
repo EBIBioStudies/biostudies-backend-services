@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.JacksonDataBind
 import Dependencies.JavaValidationApi
 import Dependencies.KotlinCoroutines
@@ -10,12 +9,18 @@ import Projects.CommonsUtil
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
 import TestDependencies.KotlinCoroutinesTest
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+plugins {
+    id(Plugins.SpringBootPlugin) version PluginVersions.SpringBootPluginVersion apply false
+    id(Plugins.SpringDependencyManagementPlugin) version PluginVersions.SpringDependencyManagementPluginVersion
+}
 
 dependencies {
+    implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     api(project(CommonsUtil))
     api(project(CommonsModelExtended))
 
-    implementation(Arrow)
     implementation(JacksonDataBind)
     implementation(JavaValidationApi)
     implementation(KotlinReflect)

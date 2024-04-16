@@ -1,6 +1,5 @@
 package uk.ac.ebi.scheduler.stats.domain
 
-import arrow.core.Try
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import io.mockk.clearAllMocks
@@ -53,7 +52,7 @@ class StatsReporterTriggerTest(
         every { job.logsPath } returns "/the/logs/path"
 
         coEvery { notificationsSender.send(capture(jobReport)) } answers { nothing }
-        coEvery { clusterClient.triggerJobAsync(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterClient.triggerJobAsync(capture(jobSpecs)) } returns Result.success(job)
 
         testInstance.triggerStatsReporter()
 

@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 import ac.uk.ebi.biostd.persistence.doc.model.DocFileList
 import ac.uk.ebi.biostd.persistence.doc.model.DocSection
 import ac.uk.ebi.biostd.persistence.doc.model.DocSectionTable
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.ExtSectionTable
@@ -21,7 +21,14 @@ class ToExtSectionMapper(private val fileListMapper: ToExtFileListMapper) {
         ExtSection(
             accNo = section.accNo,
             type = section.type,
-            fileList = section.fileList?.toExtFileList(subAccNo, subVersion, released, subRelPath, includeFileListFiles),
+            fileList =
+                section.fileList?.toExtFileList(
+                    subAccNo,
+                    subVersion,
+                    released,
+                    subRelPath,
+                    includeFileListFiles,
+                ),
             attributes = section.attributes.toExtAttributes(),
             sections =
                 section.sections.map {

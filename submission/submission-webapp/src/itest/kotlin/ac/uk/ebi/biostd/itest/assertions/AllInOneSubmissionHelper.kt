@@ -8,7 +8,7 @@ import ac.uk.ebi.biostd.itest.factory.expectedAllInOneJsonInnerFileList
 import ac.uk.ebi.biostd.itest.factory.expectedAllInOneTsvFileList
 import ac.uk.ebi.biostd.itest.factory.expectedAllInOneTsvInnerFileList
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionMethod

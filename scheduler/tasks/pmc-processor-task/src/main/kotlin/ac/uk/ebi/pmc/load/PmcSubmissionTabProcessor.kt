@@ -2,7 +2,7 @@ package ac.uk.ebi.pmc.load
 
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.model.Link
 import ebi.ac.uk.model.LinksTable
 import ebi.ac.uk.model.Submission

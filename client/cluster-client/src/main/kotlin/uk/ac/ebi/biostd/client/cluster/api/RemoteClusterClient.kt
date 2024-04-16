@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.client.cluster.api
 
-import arrow.core.Try
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
 import ebi.ac.uk.coroutines.waitUntil
@@ -13,6 +12,8 @@ import uk.ac.ebi.biostd.client.cluster.exception.FailedJobException
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import java.time.Duration.ofSeconds
+import kotlin.Result.Companion.failure
+import kotlin.Result.Companion.success
 
 private val logger = KotlinLogging.logger {}
 
@@ -21,7 +22,7 @@ class RemoteClusterClient(
     private val responseParser: JobResponseParser,
     private val sessionFunction: () -> Session,
 ) : ClusterClient {
-    override suspend fun triggerJobAsync(jobSpec: JobSpec): Try<Job> {
+    override suspend fun triggerJobAsync(jobSpec: JobSpec): Result<Job> {
         val parameters = mutableListOf("bsub -o $logsPath/%J_OUT -e $logsPath/%J_IN")
         parameters.addAll(jobSpec.asParameter())
         val command = parameters.joinToString(separator = " ")
@@ -38,7 +39,7 @@ class RemoteClusterClient(
         checkJobInterval: Long,
         maxSecondsDuration: Long,
     ): Job {
-        return triggerJobAsync(jobSpec).fold({ throw it }, { await(it, checkJobInterval, maxSecondsDuration) })
+        return triggerJobAsync(jobSpec).fold({ await(it, checkJobInterval, maxSecondsDuration) }, { throw it })
     }
 
     override suspend fun jobStatus(jobId: String): String {
@@ -86,11 +87,11 @@ class RemoteClusterClient(
         exitCode: Int,
         response: String,
         logsPath: String,
-    ): Try<Job> {
-        if (exitCode == 0) return Try.just(responseParser.toJob(response, logsPath))
+    ): Result<Job> {
+        if (exitCode == 0) return success(responseParser.toJob(response, logsPath))
 
         logger.error(response) { "Error submission job, exitCode='$exitCode', response='$response'" }
-        return Try.raise(JobSubmitFailException(response))
+        return failure(JobSubmitFailException(response))
     }
 
     private suspend fun <T> runInSession(exec: suspend CommandRunner.() -> T): T {

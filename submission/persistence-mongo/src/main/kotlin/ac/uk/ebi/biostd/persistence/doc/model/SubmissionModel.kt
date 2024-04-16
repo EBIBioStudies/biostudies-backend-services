@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
-import arrow.core.Either
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.StorageMode
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id

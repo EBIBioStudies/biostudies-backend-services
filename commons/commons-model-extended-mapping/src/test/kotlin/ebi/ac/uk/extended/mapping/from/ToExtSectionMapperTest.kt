@@ -1,7 +1,7 @@
 package ebi.ac.uk.extended.mapping.from
 
-import arrow.core.Either.Companion.left
-import arrow.core.Either.Companion.right
+import ebi.ac.uk.base.Either.Companion.left
+import ebi.ac.uk.base.Either.Companion.right
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList

@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
 import Dependencies.KotlinReflect
@@ -33,7 +32,6 @@ dependencies {
     api(project(FireWebClient))
     api(project(SubmissionPersistenceCommonApi))
 
-    implementation(Arrow)
     implementation(KotlinStdLib)
     implementation(KotlinReflect)
     implementation(KotlinLogging)

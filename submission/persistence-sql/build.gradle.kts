@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
 import Dependencies.JacksonKotlin
@@ -49,7 +48,6 @@ dependencies {
     api(project(SubmissionPersistenceFilesystem))
     api(project(SubmissionPersistenceCommonApi))
 
-    implementation(Arrow)
     implementation(JaxbApi)
 
     implementation(CommonsIO)

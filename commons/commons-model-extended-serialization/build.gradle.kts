@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.JacksonKotlin
 import Dependencies.JacksonXml
 import Dependencies.KotlinCoroutines
@@ -9,6 +8,7 @@ import Projects.CommonsModelExtended
 import Projects.CommonsModelExtendedTest
 import Projects.CommonsSerializationUtil
 import Projects.CommonsTest
+import Projects.CommonsUtil
 import Projects.JsonLibrary
 import TestDependencies.BaseTestCompileDependencies
 import TestDependencies.BaseTestRuntimeDependencies
@@ -22,12 +22,12 @@ plugins {
 
 dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
+    api(project(CommonsUtil))
     api(project(CommonsModelExtended))
     api(project(CommonsModelExtendedTest))
     api(project(CommonsSerializationUtil))
     api(project(JsonLibrary))
 
-    implementation(Arrow)
     implementation(JacksonKotlin)
     implementation(JacksonXml)
     implementation(KotlinReflect)
@@ -39,6 +39,5 @@ dependencies {
     BaseTestCompileDependencies.forEach { testImplementation(it) }
     BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 
-    testFixturesApi(Arrow)
     testFixturesImplementation(KotlinCoroutines)
 }

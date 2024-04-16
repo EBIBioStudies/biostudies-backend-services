@@ -4,7 +4,6 @@ import ac.uk.ebi.scheduler.properties.ReleaserMode
 import ac.uk.ebi.scheduler.properties.ReleaserMode.GENERATE_FTP_LINKS
 import ac.uk.ebi.scheduler.properties.ReleaserMode.NOTIFY
 import ac.uk.ebi.scheduler.properties.ReleaserMode.RELEASE
-import arrow.core.Try
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import ebi.ac.uk.commons.http.slack.Report
 import io.mockk.clearAllMocks
@@ -31,6 +30,7 @@ import uk.ac.ebi.scheduler.releaser.api.NotificationTimes
 import uk.ac.ebi.scheduler.releaser.api.Persistence
 import uk.ac.ebi.scheduler.releaser.api.Rabbitmq
 import uk.ac.ebi.scheduler.releaser.api.SubmissionReleaserProperties
+import kotlin.Result.Companion.success
 
 @ExtendWith(MockKExtension::class)
 class SubmissionReleaserTriggerTest(
@@ -56,7 +56,7 @@ class SubmissionReleaserTriggerTest(
         every { appProperties.appsFolder } returns "apps-folder"
         every { appProperties.javaHome } returns "/home/jdk11"
 
-        coEvery { clusterClient.triggerJobAsync(capture(jobSpecs)) } returns Try.just(job)
+        coEvery { clusterClient.triggerJobAsync(capture(jobSpecs)) } returns success(job)
 
         coEvery { notificationsSender.send(capture(jobReport)) } answers { nothing }
     }

@@ -3,8 +3,8 @@ package ac.uk.ebi.biostd.persistence.doc.mapping.to
 import ac.uk.ebi.biostd.persistence.doc.test.LinkTestHelper.assertExtLink
 import ac.uk.ebi.biostd.persistence.doc.test.LinkTestHelper.docLink
 import ac.uk.ebi.biostd.persistence.doc.test.LinkTestHelper.docLinkTable
-import arrow.core.Either.Companion.left
-import arrow.core.Either.Companion.right
+import ebi.ac.uk.base.Either.Companion.left
+import ebi.ac.uk.base.Either.Companion.right
 import ebi.ac.uk.util.collections.ifLeft
 import ebi.ac.uk.util.collections.ifRight
 import ebi.ac.uk.util.collections.second

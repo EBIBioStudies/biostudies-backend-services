@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
 import Dependencies.Guava
@@ -29,7 +28,6 @@ dependencies {
 
     compileOnly(Guava)
 
-    implementation(Arrow)
     implementation(CommonsIO)
     implementation(CommonsLang3)
     implementation(KotlinCoroutines)

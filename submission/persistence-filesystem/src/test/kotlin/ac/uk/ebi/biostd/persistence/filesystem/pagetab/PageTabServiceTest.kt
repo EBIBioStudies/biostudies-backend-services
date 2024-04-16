@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 
-import arrow.core.Either
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtFileList
 import ebi.ac.uk.extended.model.ExtSection

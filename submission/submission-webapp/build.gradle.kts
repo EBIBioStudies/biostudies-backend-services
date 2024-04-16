@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.CommonsFileUpload
 import Dependencies.CommonsIO
 import Dependencies.CommonsNet
@@ -102,7 +101,6 @@ dependencies {
     implementation(SpringBootStarterValidation)
     implementation(SpringBootStartedAdminClient)
 
-    implementation(Arrow)
     implementation(CommonsFileUpload)
     implementation(CommonsNet)
     implementation(CommonsIO)

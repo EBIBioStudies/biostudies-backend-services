@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinCoroutinesReactor
 import Dependencies.KotlinLogging
@@ -33,7 +32,6 @@ dependencies {
     api(project(CommonsHttp))
     api(project(SchedulerTaskProperties))
 
-    implementation(Arrow)
     implementation(KotlinCoroutines)
     implementation(KotlinCoroutinesReactor)
     implementation(KotlinLogging)

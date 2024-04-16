@@ -1,4 +1,3 @@
-import Dependencies.Arrow
 import Dependencies.Jwt
 import Dependencies.KotlinCoroutines
 import Dependencies.KotlinLogging
@@ -41,7 +40,6 @@ dependencies {
     api(project(FtpWebClient))
     api(project(SubmissionPersistenceSql))
 
-    implementation(Arrow)
     implementation(Jwt)
     implementation(KotlinLogging)
     implementation(JaxbApi)
