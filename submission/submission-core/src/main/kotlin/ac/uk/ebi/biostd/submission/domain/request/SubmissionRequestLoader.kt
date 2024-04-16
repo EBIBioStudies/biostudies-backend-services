@@ -7,8 +7,9 @@ import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
+import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtFileType
+import ebi.ac.uk.extended.model.ExtFileType.DIR
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
@@ -17,9 +18,7 @@ import ebi.ac.uk.io.ext.createTempFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
@@ -54,9 +53,9 @@ class SubmissionRequestLoader(
         sub: ExtSubmission,
         currentIndex: Int,
     ) {
-        logger.info { "${sub.accNo} ${sub.owner} Started loading submission files" }
+        logger.info { "${sub.accNo} ${sub.owner} Started loading submission files, concurrency: '$concurrency'" }
         loadSubmissionFiles(sub.accNo, sub.version, sub, currentIndex)
-        logger.info { "${sub.accNo} ${sub.owner} Finished loading submission files" }
+        logger.info { "${sub.accNo} ${sub.owner} Finished loading submission files, concurrency: '$concurrency'" }
     }
 
     private suspend fun loadSubmissionFiles(
@@ -80,9 +79,8 @@ class SubmissionRequestLoader(
         supervisorScope {
             filesRequestService
                 .getSubmissionRequestFiles(accNo, sub.version, startingAt)
-                .map { async { loadFile(it) } }
-                .buffer(concurrency)
-                .collect { it.await() }
+                .concurrently(concurrency) { loadFile(it) }
+                .collect()
         }
     }
 
@@ -92,7 +90,7 @@ class SubmissionRequestLoader(
     ): ExtFile =
         withContext(Dispatchers.IO) {
             when {
-                file.type == ExtFileType.DIR && sub.storageMode == FIRE -> asCompressedFile(sub.accNo, sub.version, file)
+                file.type == DIR && sub.storageMode == FIRE -> asCompressedFile(sub.accNo, sub.version, file)
                 else -> file.copy(md5 = file.file.md5(), size = file.file.size())
             }
         }
@@ -120,7 +118,7 @@ class SubmissionRequestLoader(
             fullPath = compressed.absolutePath,
             md5 = compressed.md5(),
             size = compressed.size(),
-            type = ExtFileType.DIR,
+            type = DIR,
         )
     }
 }

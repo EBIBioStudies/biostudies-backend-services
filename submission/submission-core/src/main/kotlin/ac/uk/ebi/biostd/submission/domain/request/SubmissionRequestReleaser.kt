@@ -10,15 +10,14 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersist
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.exceptions.UnreleasedSubmissionException
+import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.filterNot
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.supervisorScope
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
@@ -97,9 +96,8 @@ class SubmissionRequestReleaser(
         supervisorScope {
             filesRequestService
                 .getSubmissionRequestFiles(sub.accNo, sub.version, startingAt)
-                .map { async { releaseFile(it) } }
-                .buffer(concurrency)
-                .collect { it.await() }
+                .concurrently(concurrency) { releaseFile(it) }
+                .collect()
         }
     }
 
