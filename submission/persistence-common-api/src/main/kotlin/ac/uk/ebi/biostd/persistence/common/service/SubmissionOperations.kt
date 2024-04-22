@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.common.service
 
 import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
@@ -92,16 +93,11 @@ interface SubmissionRequestPersistenceService {
 
     fun getProcessingRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
 
-    suspend fun updateRqtIndex(
-        accNo: String,
-        version: Int,
-        index: Int,
-    )
-
-    suspend fun updateRqtIndex(
-        requestFile: SubmissionRequestFile,
-        file: ExtFile,
-    )
+    /**
+     * Update the given request file. By default only file index is updated in submission request. For other options
+     * @see UpdateOptions
+     */
+    suspend fun updateRqtFile(rqt: SubmissionRequestFile)
 
     suspend fun getSubmissionRequest(
         accNo: String,
@@ -146,6 +142,12 @@ interface SubmissionRequestFilesPersistenceService {
         accNo: String,
         version: Int,
         startingAt: Int,
+    ): Flow<SubmissionRequestFile>
+
+    fun getSubmissionRequestFiles(
+        accNo: String,
+        version: Int,
+        status: RequestFileStatus,
     ): Flow<SubmissionRequestFile>
 }
 

@@ -20,6 +20,11 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_SUBMITTER
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_TITLE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_INDEX
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_STATUS
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE_LIST_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_INDEX
@@ -156,6 +161,36 @@ internal class DatabaseChangeLogTest(
                 assertThat(statsIndexes).hasSize(2)
                 assertThat(statsIndexes[0]).containsEntry("key", Document("_id", 1))
                 assertThat(statsIndexes[1]).containsEntry("key", Document(SUB_ACC_NO, 1))
+            }
+
+            suspend fun assertRequestFileIndexes() {
+                val filesIndexes = mongoTemplate.collection<DocSubmissionRequestFile>().listIndexes().asFlow().toList()
+                assertThat(filesIndexes).hasSize(8)
+
+                assertThat(filesIndexes[0]).containsEntry("key", Document("_id", 1))
+                assertThat(filesIndexes[1]).containsEntry("key", Document(RQT_FILE_SUB_ACC_NO, 1))
+                assertThat(filesIndexes[2]).containsEntry("key", Document(RQT_FILE_SUB_VERSION, 1))
+                assertThat(filesIndexes[3]).containsEntry("key", Document(RQT_FILE_PATH, 1))
+                assertThat(filesIndexes[4]).containsEntry("key", Document(RQT_FILE_INDEX, 1))
+
+                assertThat(filesIndexes[5]).containsEntry(
+                    "key",
+                    Document(RQT_FILE_SUB_ACC_NO, 1)
+                        .append(RQT_FILE_SUB_VERSION, 1)
+                        .append(RQT_FILE_PATH, 1),
+                )
+                assertThat(filesIndexes[6]).containsEntry(
+                    "key",
+                    Document(RQT_FILE_SUB_ACC_NO, 1)
+                        .append(RQT_FILE_SUB_VERSION, 1)
+                        .append(RQT_FILE_INDEX, 1),
+                )
+                assertThat(filesIndexes[7]).containsEntry(
+                    "key",
+                    Document(RQT_FILE_SUB_ACC_NO, 1)
+                        .append(RQT_FILE_SUB_VERSION, 1)
+                        .append(RQT_FILE_STATUS, 1),
+                )
             }
 
             mongoTemplate.executeMigrations()

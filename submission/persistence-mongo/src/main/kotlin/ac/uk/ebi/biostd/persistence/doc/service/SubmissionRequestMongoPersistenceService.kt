@@ -11,7 +11,6 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
-import ebi.ac.uk.extended.model.ExtFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
@@ -40,7 +39,11 @@ class SubmissionRequestMongoPersistenceService(
         val request =
             when (since) {
                 null -> requestRepository.findByStatusIn(PROCESSING)
-                else -> requestRepository.findByStatusInAndModificationTimeLessThan(PROCESSING, Instant.now().minus(since))
+                else ->
+                    requestRepository.findByStatusInAndModificationTimeLessThan(
+                        PROCESSING,
+                        Instant.now().minus(since),
+                    )
             }
         return request.map { it.accNo to it.version }
     }
@@ -58,20 +61,9 @@ class SubmissionRequestMongoPersistenceService(
         return requestRepository.getByAccNoAndVersion(accNo, version).status
     }
 
-    override suspend fun updateRqtIndex(
-        accNo: String,
-        version: Int,
-        index: Int,
-    ) {
-        requestRepository.updateIndex(accNo, version, index)
-    }
-
-    override suspend fun updateRqtIndex(
-        requestFile: SubmissionRequestFile,
-        file: ExtFile,
-    ) {
-        requestRepository.updateIndex(requestFile.accNo, requestFile.version, requestFile.index)
-        requestRepository.updateSubmissionRequestFile(requestFile.accNo, requestFile.version, requestFile.path, file)
+    override suspend fun updateRqtFile(rqt: SubmissionRequestFile) {
+        requestRepository.updateIndex(rqt.accNo, rqt.version)
+        requestRepository.updateSubRqtFile(rqt)
     }
 
     override suspend fun getSubmissionRequest(

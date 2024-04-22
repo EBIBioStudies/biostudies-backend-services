@@ -32,6 +32,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_INDEX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
@@ -40,7 +41,6 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
-import ebi.ac.uk.extended.model.ExtFile
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
@@ -137,17 +137,15 @@ class SubmissionRequestDocDataRepository(
     suspend fun updateIndex(
         accNo: String,
         version: Int,
-        index: Int,
     ) {
-        val update = Update().set(RQT_IDX, index).set(RQT_MODIFICATION_TIME, Instant.now())
+        val update = Update().inc(RQT_IDX, 1).currentDate(RQT_MODIFICATION_TIME)
         val query = Query(where(SUB_ACC_NO).`is`(accNo).andOperator(where(SUB_VERSION).`is`(version)))
-
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 
     suspend fun upsertSubmissionRequestFile(rqtFile: SubmissionRequestFile) {
         val file = BasicDBObject.parse(extSerializationService.serialize(rqtFile.file))
-        val update = update(RQT_FILE_FILE, file).set(RQT_FILE_INDEX, rqtFile.index)
+        val update = update(RQT_FILE_FILE, file).set(RQT_FILE_INDEX, rqtFile.index).set(RQT_FILE_STATUS, rqtFile.status)
         val where =
             where(RQT_FILE_SUB_ACC_NO).`is`(rqtFile.accNo)
                 .andOperator(where(RQT_FILE_SUB_VERSION).`is`(rqtFile.version), where(RQT_FILE_PATH).`is`(rqtFile.path))
@@ -155,16 +153,15 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
     }
 
-    suspend fun updateSubmissionRequestFile(
-        accNo: String,
-        version: Int,
-        filePath: String,
-        file: ExtFile,
-    ) {
-        val update = update(RQT_FILE_FILE, BasicDBObject.parse(extSerializationService.serialize(file)))
+    suspend fun updateSubRqtFile(file: SubmissionRequestFile) {
+        val serializedFile = extSerializationService.serialize(file.file)
+        val update = update(RQT_FILE_FILE, BasicDBObject.parse(serializedFile)).set(RQT_FILE_STATUS, file.status)
         val where =
-            where(RQT_FILE_SUB_ACC_NO).`is`(accNo)
-                .andOperator(where(RQT_FILE_SUB_VERSION).`is`(version), where(RQT_FILE_PATH).`is`(filePath))
+            where(RQT_FILE_SUB_ACC_NO).`is`(file.accNo)
+                .andOperator(
+                    where(RQT_FILE_SUB_VERSION).`is`(file.version),
+                    where(RQT_FILE_PATH).`is`(file.path),
+                )
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
     }
 

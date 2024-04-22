@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields
 import com.mongodb.DBObject
@@ -58,4 +59,5 @@ data class DocSubmissionRequestFile(
     val version: Int,
     val path: String,
     val file: DBObject,
+    val status: RequestFileStatus,
 )

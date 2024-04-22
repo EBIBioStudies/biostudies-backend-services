@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.COPIED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
@@ -45,7 +47,7 @@ class SubmissionRequestReleaser(
         processId: String,
     ) {
         requestService.onRequest(accNo, version, FILES_COPIED, processId, {
-            if (it.submission.released) releaseRequest(accNo, version, it)
+            if (it.submission.released) releaseRequest(accNo, it)
             RqtUpdate(it.withNewStatus(CHECK_RELEASED))
         })
 
@@ -58,36 +60,33 @@ class SubmissionRequestReleaser(
     suspend fun generateFtpLinks(accNo: String) {
         val submission = queryService.getExtByAccNo(accNo, includeFileListFiles = true)
         require(submission.released) { throw UnreleasedSubmissionException() }
-        releaseSubmissionFiles(submission)
+        generateFtpLinks(submission)
     }
 
     private suspend fun releaseRequest(
         accNo: String,
-        version: Int,
         request: SubmissionRequest,
     ) {
         val sub = request.submission
         logger.info { "$accNo ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
-        releaseSubmissionFiles(accNo, version, sub, request.currentIndex)
+        releaseSubmissionFiles(sub)
         logger.info { "$accNo ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
     }
 
-    private suspend fun releaseSubmissionFiles(
-        accNo: String,
-        version: Int,
-        sub: ExtSubmission,
-        startingAt: Int,
-    ) {
+    private suspend fun releaseSubmissionFiles(sub: ExtSubmission) {
         suspend fun releaseFile(reqFile: SubmissionRequestFile) {
             when (val file = reqFile.file) {
-                is NfsFile ->
-                    requestService.updateRqtIndex(reqFile, releaseFile(sub, reqFile.index, file))
+                is NfsFile -> {
+                    val released = reqFile.copy(file = release(sub, reqFile.index, file), status = RELEASED)
+                    requestService.updateRqtFile(released)
+                }
 
                 is FireFile -> {
                     if (file.published) {
-                        requestService.updateRqtIndex(accNo, version, reqFile.index)
+                        requestService.updateRqtFile(reqFile.copy(status = RELEASED))
                     } else {
-                        requestService.updateRqtIndex(reqFile, releaseFile(sub, reqFile.index, file))
+                        val released = reqFile.copy(file = release(sub, reqFile.index, file), status = RELEASED)
+                        requestService.updateRqtFile(released)
                     }
                 }
             }
@@ -95,13 +94,13 @@ class SubmissionRequestReleaser(
 
         supervisorScope {
             filesRequestService
-                .getSubmissionRequestFiles(sub.accNo, sub.version, startingAt)
+                .getSubmissionRequestFiles(sub.accNo, sub.version, COPIED)
                 .concurrently(concurrency) { releaseFile(it) }
                 .collect()
         }
     }
 
-    private suspend fun releaseFile(
+    private suspend fun release(
         sub: ExtSubmission,
         idx: Int,
         file: ExtFile,
@@ -112,11 +111,11 @@ class SubmissionRequestReleaser(
         return releasedFile
     }
 
-    private suspend fun releaseSubmissionFiles(sub: ExtSubmission) {
+    private suspend fun generateFtpLinks(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
         serializationService.filesFlow(sub)
             .filterNot { it is FireFile && it.published }
-            .collectIndexed { idx, file -> releaseFile(sub, idx, file) }
+            .collectIndexed { idx, file -> release(sub, idx, file) }
         logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
     }
 }

@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
@@ -43,34 +44,33 @@ class SubmissionRequestLoader(
         processId: String,
     ) {
         requestService.onRequest(accNo, version, INDEXED, processId, {
-            loadRequest(it.submission, it.currentIndex)
+            loadRequest(it.submission)
             RqtUpdate(it.withNewStatus(LOADED))
         })
         eventsPublisherService.requestLoaded(accNo, version)
     }
 
-    private suspend fun loadRequest(
-        sub: ExtSubmission,
-        currentIndex: Int,
-    ) {
+    private suspend fun loadRequest(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Started loading submission files, concurrency: '$concurrency'" }
-        loadSubmissionFiles(sub.accNo, sub.version, sub, currentIndex)
+        loadSubmissionFiles(sub.accNo, sub)
         logger.info { "${sub.accNo} ${sub.owner} Finished loading submission files, concurrency: '$concurrency'" }
     }
 
     private suspend fun loadSubmissionFiles(
         accNo: String,
-        version: Int,
         sub: ExtSubmission,
-        startingAt: Int,
     ) {
         suspend fun loadFile(rqtFile: SubmissionRequestFile) {
             logger.info { "$accNo ${sub.owner} Started loading file ${rqtFile.index}, path='${rqtFile.path}'" }
             when (val file = rqtFile.file) {
-                is FireFile -> requestService.updateRqtIndex(accNo, version, rqtFile.index)
+                is FireFile -> {
+                    val loaded = rqtFile.copy(status = RequestFileStatus.LOADED)
+                    requestService.updateRqtFile(loaded)
+                }
+
                 is NfsFile -> {
-                    val attrs = loadAttributes(sub, file)
-                    requestService.updateRqtIndex(rqtFile, attrs)
+                    val loaded = rqtFile.copy(file = loadAttributes(sub, file), status = RequestFileStatus.LOADED)
+                    requestService.updateRqtFile(loaded)
                 }
             }
             logger.info { "$accNo ${sub.owner} Finished loading file ${rqtFile.index}, path='${rqtFile.path}'" }
@@ -78,7 +78,7 @@ class SubmissionRequestLoader(
 
         supervisorScope {
             filesRequestService
-                .getSubmissionRequestFiles(accNo, sub.version, startingAt)
+                .getSubmissionRequestFiles(accNo, sub.version, RequestFileStatus.INDEXED)
                 .concurrently(concurrency) { loadFile(it) }
                 .collect()
         }

@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.COPIED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
@@ -32,39 +34,34 @@ class SubmissionRequestProcessor(
         processId: String,
     ) {
         requestService.onRequest(accNo, version, CLEANED, processId, {
-            processRequest(it.submission, it.currentIndex)
+            processRequest(it.submission)
             RqtUpdate(it.withNewStatus(FILES_COPIED))
         })
         eventsPublisherService.requestFilesCopied(accNo, version)
     }
 
-    private suspend fun processRequest(
-        sub: ExtSubmission,
-        currentIndex: Int,
-    ) {
+    private suspend fun processRequest(sub: ExtSubmission) {
         logger.info { "${sub.accNo} ${sub.owner} Started persisting submission files on ${sub.storageMode}" }
-        persistSubmissionFiles(sub, sub.accNo, sub.version, currentIndex)
+        persistSubmissionFiles(sub, sub.accNo)
         logger.info { "${sub.accNo} ${sub.owner} Finished persisting submission files on ${sub.storageMode}" }
     }
 
     private suspend fun persistSubmissionFiles(
         sub: ExtSubmission,
         accNo: String,
-        version: Int,
-        startingAt: Int,
     ) {
         suspend fun persistFile(rqtFile: SubmissionRequestFile) {
             logger.info { "$accNo ${sub.owner} Started persisting file ${rqtFile.index}, path='${rqtFile.path}'" }
             when (val persisted = storageService.persistSubmissionFile(sub, rqtFile.file)) {
-                rqtFile.file -> requestService.updateRqtIndex(accNo, version, rqtFile.index)
-                else -> requestService.updateRqtIndex(rqtFile, persisted)
+                rqtFile.file -> requestService.updateRqtFile(rqtFile.copy(status = COPIED))
+                else -> requestService.updateRqtFile(rqtFile.copy(file = persisted, status = COPIED))
             }
             logger.info { "$accNo ${sub.owner} Finished persisting file ${rqtFile.index}, path='${rqtFile.path}'" }
         }
 
         supervisorScope {
             filesRequestService
-                .getSubmissionRequestFiles(accNo, sub.version, startingAt)
+                .getSubmissionRequestFiles(accNo, sub.version, LOADED)
                 .concurrently(concurrency) { persistFile(it) }
                 .collect()
         }
