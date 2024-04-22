@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
+import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions.UPDATE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.LockConfig
@@ -172,7 +173,10 @@ class SubmissionRequestMongoPersistenceServiceTest(
             requestRepository.save(testRequest("zxy", 2, Instant.now().minusSeconds(20), FILES_COPIED))
 
             assertThat(testInstance.getProcessingRequests().toList()).containsExactly("abc" to 1, "zxy" to 2)
-            assertThat(testInstance.getProcessingRequests(ofSeconds(5)).toList()).containsExactly("abc" to 1, "zxy" to 2)
+            assertThat(testInstance.getProcessingRequests(ofSeconds(5)).toList()).containsExactly(
+                "abc" to 1,
+                "zxy" to 2,
+            )
             assertThat(testInstance.getProcessingRequests(ofSeconds(15)).toList()).containsExactly("zxy" to 2)
         }
 

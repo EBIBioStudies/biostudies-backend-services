@@ -35,7 +35,7 @@ class SubmissionRequestReleaser(
     private val serializationService: ExtSerializationService,
     private val eventsPublisherService: EventsPublisherService,
     private val queryService: SubmissionPersistenceQueryService,
-    private val requestService: SubmissionRequestPersistenceService,
+    private val rqtService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
     /**
@@ -46,7 +46,7 @@ class SubmissionRequestReleaser(
         version: Int,
         processId: String,
     ) {
-        requestService.onRequest(accNo, version, FILES_COPIED, processId, {
+        rqtService.onRequest(accNo, version, FILES_COPIED, processId, {
             if (it.submission.released) releaseRequest(accNo, it)
             RqtUpdate(it.withNewStatus(CHECK_RELEASED))
         })
@@ -78,15 +78,15 @@ class SubmissionRequestReleaser(
             when (val file = reqFile.file) {
                 is NfsFile -> {
                     val released = reqFile.copy(file = release(sub, reqFile.index, file), status = RELEASED)
-                    requestService.updateRqtFile(released)
+                    rqtService.updateRqtFile(released)
                 }
 
                 is FireFile -> {
                     if (file.published) {
-                        requestService.updateRqtFile(reqFile.copy(status = RELEASED))
+                        rqtService.updateRqtFile(reqFile.copy(status = RELEASED))
                     } else {
                         val released = reqFile.copy(file = release(sub, reqFile.index, file), status = RELEASED)
-                        requestService.updateRqtFile(released)
+                        rqtService.updateRqtFile(released)
                     }
                 }
             }

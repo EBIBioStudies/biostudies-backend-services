@@ -56,7 +56,7 @@ internal class DistributedLockExecutor(
     )
 
     private companion object {
-        val DEFAULT_EXPIRATION = Duration.ofMinutes(5)
+        val DEFAULT_EXPIRATION = Duration.ofHours(3)
         const val OWNER = "owner"
         const val EXPIRES = "expires"
         const val LOCK_ID = "_id"

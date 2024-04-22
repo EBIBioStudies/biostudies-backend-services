@@ -25,7 +25,6 @@ import Versions.CommonsPoolVersion
 import Versions.GuavaVersion
 import Versions.H2Version
 import Versions.JSONOrgVersion
-import Versions.JavaValidationApiVersion
 import Versions.JetBrainsAnnotationsVersion
 import Versions.JschVersion
 import Versions.JwtVersion
@@ -34,7 +33,6 @@ import Versions.KotlinCoroutinesVersion
 import Versions.KotlinLoggingVersion
 import Versions.KotlinVersion
 import Versions.Log4JVersion
-import Versions.LogbackVersion
 import Versions.MongockVersion
 import Versions.MySqlVersion
 import Versions.OkHttpLoggingVersion
@@ -89,7 +87,6 @@ object Versions {
     const val MySqlVersion = "8.3.0"
     const val XmlBuilderVersion = "1.7.4"
     const val WoodstoxVersion = "5.1.0"
-    const val LogbackVersion = "1.2.3"
     const val GuavaVersion = "28.2-jre"
     const val JwtVersion = "0.9.1"
     const val H2Version = "1.4.197"
@@ -104,7 +101,6 @@ object Versions {
     const val XlsxStreamerVersion = "2.1.0"
     const val SpringfoxSwaggerVersion = "2.9.2"
     const val Log4JVersion = "1.7.29"
-    const val JavaValidationApiVersion = "2.0.1.Final"
     const val ZipUtilVersion = "1.15"
     const val ReactorNettyVersion = "1.1.8"
 }
@@ -179,7 +175,7 @@ object Dependencies {
     // Misc
     const val AwsS3 = "com.amazonaws:aws-java-sdk-s3:$S3Version"
     const val ServletApi = "javax.servlet:javax.servlet-api"
-    const val Logback = "ch.qos.logback:logback-classic:$LogbackVersion"
+    const val Logback = "ch.qos.logback:logback-classic"
     const val Jwt = "io.jsonwebtoken:jjwt:$JwtVersion"
     const val Guava = "com.google.guava:guava:$GuavaVersion"
     const val Jsch = "com.jcraft:jsch:$JschVersion"
@@ -189,7 +185,7 @@ object Dependencies {
     const val SpringfoxSwagger = "io.springfox:springfox-swagger2:$SpringfoxSwaggerVersion"
     const val SpringfoxSwaggerUI = "io.springfox:springfox-swagger-ui:$SpringfoxSwaggerVersion"
     const val Log4J = "org.slf4j:slf4j-simple:$Log4JVersion"
-    const val JavaValidationApi = "javax.validation:validation-api:$JavaValidationApiVersion"
+    const val JavaValidationApi = "javax.validation:validation-api"
     const val ZipUtil = "org.zeroturnaround:zt-zip:$ZipUtilVersion"
 
     // Kotlin specific

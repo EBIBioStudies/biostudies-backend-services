@@ -69,7 +69,7 @@ class SubmissionRequestLoader(
                 }
 
                 is NfsFile -> {
-                    val loaded = rqtFile.copy(file = loadAttributes(sub, file), status = RequestFileStatus.LOADED)
+                    val loaded = rqtFile.copy(file = loadFile(sub, file), status = RequestFileStatus.LOADED)
                     requestService.updateRqtFile(loaded)
                 }
             }
@@ -84,7 +84,7 @@ class SubmissionRequestLoader(
         }
     }
 
-    private suspend fun loadAttributes(
+    private suspend fun loadFile(
         sub: ExtSubmission,
         file: NfsFile,
     ): ExtFile =
