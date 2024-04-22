@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions.UPDATE_FILE
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.exceptions.UnreleasedSubmissionException
 import ebi.ac.uk.coroutines.concurrently
@@ -33,7 +34,7 @@ class SubmissionRequestReleaser(
     private val serializationService: ExtSerializationService,
     private val eventsPublisherService: EventsPublisherService,
     private val queryService: SubmissionPersistenceQueryService,
-    private val requestService: SubmissionRequestPersistenceService,
+    private val rqtService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
     /**
@@ -44,8 +45,8 @@ class SubmissionRequestReleaser(
         version: Int,
         processId: String,
     ) {
-        requestService.onRequest(accNo, version, FILES_COPIED, processId, {
-            if (it.submission.released) releaseRequest(accNo, version, it)
+        rqtService.onRequest(accNo, version, FILES_COPIED, processId, {
+            if (it.submission.released) releaseRequest(accNo, it)
             RqtUpdate(it.withNewStatus(CHECK_RELEASED))
         })
 
@@ -63,31 +64,28 @@ class SubmissionRequestReleaser(
 
     private suspend fun releaseRequest(
         accNo: String,
-        version: Int,
         request: SubmissionRequest,
     ) {
         val sub = request.submission
         logger.info { "$accNo ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
-        releaseSubmissionFiles(accNo, version, sub, request.currentIndex)
+        releaseSubmissionFiles(sub, request.currentIndex)
         logger.info { "$accNo ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
     }
 
     private suspend fun releaseSubmissionFiles(
-        accNo: String,
-        version: Int,
         sub: ExtSubmission,
         startingAt: Int,
     ) {
         suspend fun releaseFile(reqFile: SubmissionRequestFile) {
             when (val file = reqFile.file) {
                 is NfsFile ->
-                    requestService.updateRqtIndex(reqFile, releaseFile(sub, reqFile.index, file))
+                    rqtService.updateRqtFile(reqFile.copy(file = release(sub, reqFile.index, file)), UPDATE_FILE)
 
                 is FireFile -> {
                     if (file.published) {
-                        requestService.updateRqtIndex(accNo, version, reqFile.index)
+                        rqtService.updateRqtFile(reqFile)
                     } else {
-                        requestService.updateRqtIndex(reqFile, releaseFile(sub, reqFile.index, file))
+                        rqtService.updateRqtFile(reqFile.copy(file = release(sub, reqFile.index, file)), UPDATE_FILE)
                     }
                 }
             }
@@ -101,7 +99,7 @@ class SubmissionRequestReleaser(
         }
     }
 
-    private suspend fun releaseFile(
+    private suspend fun release(
         sub: ExtSubmission,
         idx: Int,
         file: ExtFile,
@@ -116,7 +114,7 @@ class SubmissionRequestReleaser(
         logger.info { "${sub.accNo} ${sub.owner} Started releasing submission files over ${sub.storageMode}" }
         serializationService.filesFlow(sub)
             .filterNot { it is FireFile && it.published }
-            .collectIndexed { idx, file -> releaseFile(sub, idx, file) }
+            .collectIndexed { idx, file -> release(sub, idx, file) }
         logger.info { "${sub.accNo} ${sub.owner} Finished releasing submission files over ${sub.storageMode}" }
     }
 }

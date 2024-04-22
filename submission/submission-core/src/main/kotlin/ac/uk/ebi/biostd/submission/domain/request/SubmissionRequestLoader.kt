@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions.UPDATE_FILE
 import ac.uk.ebi.biostd.persistence.filesystem.fire.ZipUtil
 import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.ExtFile
@@ -54,24 +55,20 @@ class SubmissionRequestLoader(
         currentIndex: Int,
     ) {
         logger.info { "${sub.accNo} ${sub.owner} Started loading submission files, concurrency: '$concurrency'" }
-        loadSubmissionFiles(sub.accNo, sub.version, sub, currentIndex)
+        loadSubmissionFiles(sub.accNo, sub, currentIndex)
         logger.info { "${sub.accNo} ${sub.owner} Finished loading submission files, concurrency: '$concurrency'" }
     }
 
     private suspend fun loadSubmissionFiles(
         accNo: String,
-        version: Int,
         sub: ExtSubmission,
         startingAt: Int,
     ) {
         suspend fun loadFile(rqtFile: SubmissionRequestFile) {
             logger.info { "$accNo ${sub.owner} Started loading file ${rqtFile.index}, path='${rqtFile.path}'" }
             when (val file = rqtFile.file) {
-                is FireFile -> requestService.updateRqtIndex(accNo, version, rqtFile.index)
-                is NfsFile -> {
-                    val attrs = loadAttributes(sub, file)
-                    requestService.updateRqtIndex(rqtFile, attrs)
-                }
+                is FireFile -> requestService.updateRqtFile(rqtFile)
+                is NfsFile -> requestService.updateRqtFile(rqtFile.copy(file = loadFile(sub, file)), UPDATE_FILE)
             }
             logger.info { "$accNo ${sub.owner} Finished loading file ${rqtFile.index}, path='${rqtFile.path}'" }
         }
@@ -84,7 +81,7 @@ class SubmissionRequestLoader(
         }
     }
 
-    private suspend fun loadAttributes(
+    private suspend fun loadFile(
         sub: ExtSubmission,
         file: NfsFile,
     ): ExtFile =

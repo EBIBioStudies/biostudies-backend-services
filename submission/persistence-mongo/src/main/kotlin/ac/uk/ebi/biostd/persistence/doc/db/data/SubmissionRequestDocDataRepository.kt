@@ -155,7 +155,7 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
     }
 
-    suspend fun updateSubmissionRequestFile(
+    suspend fun updateSubRqtFile(
         accNo: String,
         version: Int,
         filePath: String,

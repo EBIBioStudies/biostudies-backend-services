@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
+import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions.UPDATE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.LockConfig
@@ -181,7 +182,10 @@ class SubmissionRequestMongoPersistenceServiceTest(
             requestRepository.save(testRequest("zxy", 2, Instant.now().minusSeconds(20), FILES_COPIED))
 
             assertThat(testInstance.getProcessingRequests().toList()).containsExactly("abc" to 1, "zxy" to 2)
-            assertThat(testInstance.getProcessingRequests(ofSeconds(5)).toList()).containsExactly("abc" to 1, "zxy" to 2)
+            assertThat(testInstance.getProcessingRequests(ofSeconds(5)).toList()).containsExactly(
+                "abc" to 1,
+                "zxy" to 2,
+            )
             assertThat(testInstance.getProcessingRequests(ofSeconds(15)).toList()).containsExactly("zxy" to 2)
         }
 
@@ -194,7 +198,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
             requestRepository.upsertSubmissionRequestFile(requestFile)
             requestRepository.save(testRequest())
 
-            testInstance.updateRqtIndex(requestFile, file = extFile.copy(md5 = "changedMd5"))
+            testInstance.updateRqtFile(requestFile.copy(file = extFile.copy(md5 = "changedMd5")), UPDATE_FILE)
 
             val request = requestRepository.getByAccNoAndVersion("S-BSST0", 1)
             assertThat(request.modificationTime).isEqualTo(testInstant)

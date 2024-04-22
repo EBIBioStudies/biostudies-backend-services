@@ -7,11 +7,12 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.OptResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions
+import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions.UPDATE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
-import ebi.ac.uk.extended.model.ExtFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import mu.KotlinLogging
@@ -40,7 +41,11 @@ class SubmissionRequestMongoPersistenceService(
         val request =
             when (since) {
                 null -> requestRepository.findByStatusIn(PROCESSING)
-                else -> requestRepository.findByStatusInAndModificationTimeLessThan(PROCESSING, Instant.now().minus(since))
+                else ->
+                    requestRepository.findByStatusInAndModificationTimeLessThan(
+                        PROCESSING,
+                        Instant.now().minus(since),
+                    )
             }
         return request.map { it.accNo to it.version }
     }
@@ -58,20 +63,17 @@ class SubmissionRequestMongoPersistenceService(
         return requestRepository.getByAccNoAndVersion(accNo, version).status
     }
 
-    override suspend fun updateRqtIndex(
-        accNo: String,
-        version: Int,
-        index: Int,
+    override suspend fun updateRqtFile(
+        rqt: SubmissionRequestFile,
+        options: UpdateOptions?,
     ) {
-        requestRepository.updateIndex(accNo, version, index)
-    }
-
-    override suspend fun updateRqtIndex(
-        requestFile: SubmissionRequestFile,
-        file: ExtFile,
-    ) {
-        requestRepository.updateIndex(requestFile.accNo, requestFile.version, requestFile.index)
-        requestRepository.updateSubmissionRequestFile(requestFile.accNo, requestFile.version, requestFile.path, file)
+        val accNo = rqt.accNo
+        val version = rqt.version
+        requestRepository.updateIndex(accNo, version, rqt.index)
+        when (options) {
+            UPDATE_FILE -> requestRepository.updateSubRqtFile(accNo, version, rqt.path, rqt.file)
+            null -> {}
+        }
     }
 
     override suspend fun getSubmissionRequest(

@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions.UPDATE_FILE
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -43,21 +44,20 @@ class SubmissionRequestProcessor(
         currentIndex: Int,
     ) {
         logger.info { "${sub.accNo} ${sub.owner} Started persisting submission files on ${sub.storageMode}" }
-        persistSubmissionFiles(sub, sub.accNo, sub.version, currentIndex)
+        persistSubmissionFiles(sub, sub.accNo, currentIndex)
         logger.info { "${sub.accNo} ${sub.owner} Finished persisting submission files on ${sub.storageMode}" }
     }
 
     private suspend fun persistSubmissionFiles(
         sub: ExtSubmission,
         accNo: String,
-        version: Int,
         startingAt: Int,
     ) {
         suspend fun persistFile(rqtFile: SubmissionRequestFile) {
             logger.info { "$accNo ${sub.owner} Started persisting file ${rqtFile.index}, path='${rqtFile.path}'" }
             when (val persisted = storageService.persistSubmissionFile(sub, rqtFile.file)) {
-                rqtFile.file -> requestService.updateRqtIndex(accNo, version, rqtFile.index)
-                else -> requestService.updateRqtIndex(rqtFile, persisted)
+                rqtFile.file -> requestService.updateRqtFile(rqtFile)
+                else -> requestService.updateRqtFile(rqtFile.copy(file = persisted), UPDATE_FILE)
             }
             logger.info { "$accNo ${sub.owner} Finished persisting file ${rqtFile.index}, path='${rqtFile.path}'" }
         }

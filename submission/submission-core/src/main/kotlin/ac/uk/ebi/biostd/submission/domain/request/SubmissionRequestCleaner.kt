@@ -62,34 +62,43 @@ class SubmissionRequestCleaner(
             storageService.deleteSubmissionFile(current, file)
         }
 
-        fun shouldDelete(
-            newFiles: Map<String, FileEntry>,
-            existing: ExtFile,
-        ): Boolean =
-            when (val newFile = newFiles[existing.filePath]) {
-                null -> false
-                else -> newFile.md5 != existing.md5 && new.storageMode == existing.storageMode
-            }
-
         logger.info { "${new.accNo} ${current.owner} Building submission files map" }
-        val newFiles = newFilesMap(new)
+        val newFiles = summarizeFileRecords(new)
         logger.info { "${new.accNo} ${current.owner} Finished building submission files map" }
 
         logger.info { "${current.accNo} ${current.owner} Started cleaning common submission files" }
         serializationService.filesFlow(current)
-            .filter { shouldDelete(newFiles, it) }
+            .filter { newFiles.shouldDelete(it) }
             .collectIndexed { index, file -> deleteFile(index, file) }
         logger.info { "${current.accNo} ${current.owner} Finished cleaning common submission files" }
     }
 
-    private suspend fun newFilesMap(new: ExtSubmission): Map<String, FileEntry> {
+    private suspend fun summarizeFileRecords(new: ExtSubmission): NewFilesRecords {
         val response = mutableMapOf<String, FileEntry>()
         filesRequestService
             .getSubmissionRequestFiles(new.accNo, new.version, 0)
             .map { it.file }
             .collect { response[it.filePath] = FileEntry(it.md5, new.storageMode) }
-        return response
+        return NewFilesRecords(new.storageMode, response)
     }
-
-    private data class FileEntry(val md5: String, val storageMode: StorageMode)
 }
+
+/**
+ * Contains new submission file entries and storage type.
+ */
+private class NewFilesRecords(
+    val storageMode: StorageMode,
+    val files: Map<String, FileEntry>,
+) {
+    /**
+     * Validates if there is a entry in the current submission files with the given file Path (storage mode) but
+     * diferent Md5.
+     */
+    fun shouldDelete(existing: ExtFile): Boolean =
+        when (val newFile = files[existing.filePath]) {
+            null -> false
+            else -> newFile.md5 != existing.md5 && storageMode == existing.storageMode
+        }
+}
+
+private data class FileEntry(val md5: String, val storageMode: StorageMode)

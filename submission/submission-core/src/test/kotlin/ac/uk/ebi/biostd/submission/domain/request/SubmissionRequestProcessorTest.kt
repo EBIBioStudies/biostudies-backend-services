@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -53,7 +54,7 @@ class SubmissionRequestProcessorTest(
         @MockK submission: ExtSubmission,
         @MockK rqt: SubmissionRequest,
         @MockK nfsFile: NfsFile,
-        @MockK releasedFile: FireFile,
+        @MockK savedFile: FireFile,
     ) = runTest {
         val nfsRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 1, "test1.txt", nfsFile)
         every { rqt.submission } returns submission
@@ -63,14 +64,16 @@ class SubmissionRequestProcessorTest(
         every { eventsPublisherService.requestFilesCopied(ACC_NO, VERSION) } answers { nothing }
         every { filesService.getSubmissionRequestFiles(ACC_NO, VERSION, 1) } returns flowOf(nfsRqtFile)
         every { rqt.withNewStatus(FILES_COPIED) } returns rqt
-        coEvery { storageService.persistSubmissionFile(submission, nfsFile) } returns releasedFile
+        coEvery { storageService.persistSubmissionFile(submission, nfsFile) } returns savedFile
         coEvery {
             requestService.onRequest(ACC_NO, VERSION, CLEANED, PROCESS_ID, capture(rqtSlot))
         } coAnswers {
             rqtSlot.captured.invoke(rqt)
         }
 
-        coEvery { requestService.updateRqtIndex(nfsRqtFile, releasedFile) } answers { nothing }
+        coEvery {
+            requestService.updateRqtFile(nfsRqtFile.copy(file = savedFile), UpdateOptions.UPDATE_FILE)
+        } answers { nothing }
 
         testInstance.processRequest(ACC_NO, VERSION, PROCESS_ID)
 

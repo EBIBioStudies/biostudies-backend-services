@@ -7,9 +7,9 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions.UPDATE_FILE
 import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
 import ebi.ac.uk.base.Either.Companion.left
-import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.ext.md5
@@ -71,7 +71,7 @@ class SubmissionRequestLoaderTest(
     fun `load request`(
         @MockK indexedRequest: SubmissionRequest,
     ) = runTest {
-        val filSlot = slot<ExtFile>()
+        val filSlot = slot<SubmissionRequestFile>()
         val file = tempFolder.createFile("dummy.txt")
         val nfsFile = NfsFile("dummy.txt", "Files/dummy.txt", file, file.absolutePath, "NOT_CALCULATED", -1)
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Study", files = listOf(left(nfsFile))))
@@ -82,7 +82,7 @@ class SubmissionRequestLoaderTest(
         every { indexedRequest.withNewStatus(RequestStatus.LOADED) } returns indexedRequest
         every { eventsPublisherService.requestLoaded(sub.accNo, sub.version) } answers { nothing }
         every { filesService.getSubmissionRequestFiles(sub.accNo, sub.version, 3) } returns flowOf(indexedRequestFile)
-        coEvery { requestService.updateRqtIndex(indexedRequestFile, capture(filSlot)) } answers { nothing }
+        coEvery { requestService.updateRqtFile(capture(filSlot), UPDATE_FILE) } answers { nothing }
         coEvery {
             requestService.onRequest(sub.accNo, sub.version, INDEXED, PROCESS_ID, capture(rqtSlot))
         } coAnswers { rqtSlot.captured.invoke(indexedRequest) }
@@ -90,8 +90,8 @@ class SubmissionRequestLoaderTest(
         testInstance.loadRequest(sub.accNo, sub.version, PROCESS_ID)
 
         val requestFile = filSlot.captured
-        assertThat(requestFile.md5).isEqualTo(file.md5())
-        assertThat(requestFile.size).isEqualTo(file.size())
+        assertThat(requestFile.file.md5).isEqualTo(file.md5())
+        assertThat(requestFile.file.size).isEqualTo(file.size())
 
         coVerify(exactly = 1) {
             eventsPublisherService.requestLoaded(sub.accNo, sub.version)

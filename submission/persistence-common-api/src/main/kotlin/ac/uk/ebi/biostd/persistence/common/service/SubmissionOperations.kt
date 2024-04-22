@@ -79,6 +79,10 @@ interface SubmissionFilesPersistenceService {
     ): ExtFile?
 }
 
+enum class UpdateOptions {
+    UPDATE_FILE,
+}
+
 @Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
     suspend fun hasActiveRequest(accNo: String): Boolean
@@ -92,15 +96,13 @@ interface SubmissionRequestPersistenceService {
 
     fun getProcessingRequests(since: TemporalAmount? = null): Flow<Pair<String, Int>>
 
-    suspend fun updateRqtIndex(
-        accNo: String,
-        version: Int,
-        index: Int,
-    )
-
-    suspend fun updateRqtIndex(
-        requestFile: SubmissionRequestFile,
-        file: ExtFile,
+    /**
+     * Update the given request file. By default only file index is updated in submission request. For other options
+     * @see UpdateOptions
+     */
+    suspend fun updateRqtFile(
+        rqt: SubmissionRequestFile,
+        options: UpdateOptions? = null,
     )
 
     suspend fun getSubmissionRequest(
