@@ -1,6 +1,4 @@
 import Dependencies.KotlinStdLib
-import SpringBootDependencies.SpringBootStartedAdmin
-import SpringBootDependencies.SpringBootStartedJetty
 import SpringBootDependencies.SpringBootStarterWeb
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
@@ -12,8 +10,6 @@ plugins {
 
 dependencies {
     implementation(SpringBootStarterWeb)
-    implementation(SpringBootStartedJetty)
-    implementation(SpringBootStartedAdmin)
     implementation(KotlinStdLib)
 }
 

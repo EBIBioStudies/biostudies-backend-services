@@ -1,6 +1,0 @@
-deploy-bio-admin:
-  stage: deploy-bio-admin
-  when: manual
-  dependencies:
-    - build-test
-  script: gradle :bio-admin:bootJar deployBioAdmin -Penv=prod -PdeployPath=$APPS_PATH/bio-admin
