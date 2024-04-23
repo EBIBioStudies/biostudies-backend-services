@@ -27,7 +27,6 @@ import Projects.SubmissionPersistenceSql
 import Projects.SubmissionSecurity
 import Projects.SubmissionSubmitter
 import SpringBootDependencies.SpringBootConfigurationProcessor
-import SpringBootDependencies.SpringBootStartedAdminClient
 import SpringBootDependencies.SpringBootStarterActuator
 import SpringBootDependencies.SpringBootStarterAmqp
 import SpringBootDependencies.SpringBootStarterConfigProcessor
@@ -99,7 +98,6 @@ dependencies {
     implementation(SpringBootStarterSecurity)
     implementation(SpringBootStarterActuator)
     implementation(SpringBootStarterValidation)
-    implementation(SpringBootStartedAdminClient)
 
     implementation(CommonsFileUpload)
     implementation(CommonsNet)
