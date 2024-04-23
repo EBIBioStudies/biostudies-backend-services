@@ -80,10 +80,6 @@ interface SubmissionFilesPersistenceService {
     ): ExtFile?
 }
 
-enum class UpdateOptions {
-    UPDATE_FILE,
-}
-
 @Suppress("TooManyFunctions")
 interface SubmissionRequestPersistenceService {
     suspend fun hasActiveRequest(accNo: String): Boolean

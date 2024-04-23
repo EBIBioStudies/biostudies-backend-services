@@ -134,7 +134,7 @@ class SubmissionRequestDocDataRepository(
         where("$SUB.$SUB_OWNER").`is`(filter.filterUser)
             .andOperator(*criteriaArray(filter))
 
-    suspend fun updateIndex(
+    suspend fun increaseIndex(
         accNo: String,
         version: Int,
     ) {

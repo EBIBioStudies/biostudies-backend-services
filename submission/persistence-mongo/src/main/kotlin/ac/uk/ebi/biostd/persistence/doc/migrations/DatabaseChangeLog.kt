@@ -153,6 +153,7 @@ suspend fun ReactiveMongoOperations.ensureFileListIndexes() {
  * 4. Path
  * 5. Index
  * 6. Submission AccNo, Submission Version, File.Path
+ * 7. Submission AccNo, Submission Version, File Status
  */
 suspend fun ReactiveMongoOperations.ensureRequestFileIndexes() {
     ensureExists(DocSubmissionRequestFile::class.java)
