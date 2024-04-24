@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
@@ -51,7 +52,7 @@ class SubmissionRequestIndexer(
         extSerializationService
             .filesFlow(sub)
             .withIndex()
-            .map { (idx, file) -> SubmissionRequestFile(sub.accNo, sub.version, idx + 1, file.filePath, file) }
+            .map { (idx, file) -> SubmissionRequestFile(sub, idx + 1, file, INDEXED) }
             .collect {
                 logger.info { "${sub.accNo} ${sub.owner} Indexing submission file ${it.index}, path='${it.path}'" }
                 filesRequestService.saveSubmissionRequestFile(it)

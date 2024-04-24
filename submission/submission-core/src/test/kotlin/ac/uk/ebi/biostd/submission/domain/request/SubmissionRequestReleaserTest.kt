@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.COPIED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
@@ -10,7 +12,6 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions.UPDATE_FILE
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
 import ac.uk.ebi.biostd.submission.exceptions.UnreleasedSubmissionException
@@ -75,8 +76,8 @@ class SubmissionRequestReleaserTest(
         val secretKey = "secret-key"
         val mode = StorageMode.FIRE
 
-        val nfsRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 1, "test1.txt", nfsFile)
-        val fireRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 2, "test2.txt", fireFile)
+        val nfsRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 1, "test1.txt", nfsFile, COPIED)
+        val fireRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 2, "test2.txt", fireFile, COPIED)
 
         every { fireFile.published } returns true
         every { rqt.submission } returns submission
@@ -88,12 +89,23 @@ class SubmissionRequestReleaserTest(
         every { submission.secretKey } returns secretKey
         every { submission.storageMode } returns mode
         every { eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION) } answers { nothing }
-        every { filesService.getSubmissionRequestFiles(ACC_NO, VERSION, 1) } returns flowOf(nfsRqtFile, fireRqtFile)
+        every { filesService.getSubmissionRequestFiles(ACC_NO, VERSION, COPIED) } returns
+            flowOf(
+                nfsRqtFile,
+                fireRqtFile,
+            )
         coEvery { storageService.releaseSubmissionFile(nfsFile, relPath, secretKey, mode) } returns releasedFile
         every { rqt.withNewStatus(RequestStatus.CHECK_RELEASED) } returns rqt
 
-        coEvery { requestService.updateRqtFile(nfsRqtFile.copy(file = releasedFile), UPDATE_FILE) } answers { nothing }
-        coEvery { requestService.updateRqtFile(fireRqtFile) } answers { nothing }
+        coEvery {
+            requestService.updateRqtFile(
+                nfsRqtFile.copy(
+                    file = releasedFile,
+                    status = RELEASED,
+                ),
+            )
+        } answers { nothing }
+        coEvery { requestService.updateRqtFile(fireRqtFile.copy(status = RELEASED)) } answers { nothing }
 
         coEvery {
             requestService.onRequest(ACC_NO, VERSION, FILES_COPIED, PROCESS_ID, capture(rqtSlot))

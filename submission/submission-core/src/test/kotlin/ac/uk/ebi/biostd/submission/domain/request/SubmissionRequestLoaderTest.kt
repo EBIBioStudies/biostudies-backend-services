@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
@@ -7,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions.UPDATE_FILE
 import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
 import ebi.ac.uk.base.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtSection
@@ -75,14 +76,21 @@ class SubmissionRequestLoaderTest(
         val file = tempFolder.createFile("dummy.txt")
         val nfsFile = NfsFile("dummy.txt", "Files/dummy.txt", file, file.absolutePath, "NOT_CALCULATED", -1)
         val sub = basicExtSubmission.copy(section = ExtSection(type = "Study", files = listOf(left(nfsFile))))
-        val indexedRequestFile = SubmissionRequestFile(sub.accNo, sub.version, 1, "dummy.txt", nfsFile)
+        val indexedFile =
+            SubmissionRequestFile(sub.accNo, sub.version, 1, "dummy.txt", nfsFile, RequestFileStatus.INDEXED)
 
         every { indexedRequest.submission } returns sub
         every { indexedRequest.currentIndex } returns 3
         every { indexedRequest.withNewStatus(RequestStatus.LOADED) } returns indexedRequest
         every { eventsPublisherService.requestLoaded(sub.accNo, sub.version) } answers { nothing }
-        every { filesService.getSubmissionRequestFiles(sub.accNo, sub.version, 3) } returns flowOf(indexedRequestFile)
-        coEvery { requestService.updateRqtFile(capture(filSlot), UPDATE_FILE) } answers { nothing }
+        every {
+            filesService.getSubmissionRequestFiles(
+                sub.accNo,
+                sub.version,
+                RequestFileStatus.INDEXED,
+            )
+        } returns flowOf(indexedFile)
+        coEvery { requestService.updateRqtFile(capture(filSlot)) } answers { nothing }
         coEvery {
             requestService.onRequest(sub.accNo, sub.version, INDEXED, PROCESS_ID, capture(rqtSlot))
         } coAnswers { rqtSlot.captured.invoke(indexedRequest) }
@@ -90,6 +98,7 @@ class SubmissionRequestLoaderTest(
         testInstance.loadRequest(sub.accNo, sub.version, PROCESS_ID)
 
         val requestFile = filSlot.captured
+        assertThat(requestFile.status).isEqualTo(LOADED)
         assertThat(requestFile.file.md5).isEqualTo(file.md5())
         assertThat(requestFile.file.size).isEqualTo(file.size())
 

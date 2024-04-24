@@ -70,6 +70,7 @@ object FileListDocFileFields {
 object DocSubmissionRequestFileFields {
     const val RQT_FILE_INDEX = "index"
     const val RQT_FILE_FILE = "file"
+    const val RQT_FILE_STATUS = "status"
     const val RQT_FILE_PATH = "path"
     const val RQT_FILE_SUB_ACC_NO = "accNo"
     const val RQT_FILE_SUB_VERSION = "version"

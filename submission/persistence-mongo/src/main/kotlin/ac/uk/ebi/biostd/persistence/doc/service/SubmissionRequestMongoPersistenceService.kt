@@ -7,8 +7,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.OptResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions
-import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions.UPDATE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
@@ -63,17 +61,9 @@ class SubmissionRequestMongoPersistenceService(
         return requestRepository.getByAccNoAndVersion(accNo, version).status
     }
 
-    override suspend fun updateRqtFile(
-        rqt: SubmissionRequestFile,
-        options: UpdateOptions?,
-    ) {
-        val accNo = rqt.accNo
-        val version = rqt.version
-        requestRepository.updateIndex(accNo, version, rqt.index)
-        when (options) {
-            UPDATE_FILE -> requestRepository.updateSubRqtFile(accNo, version, rqt.path, rqt.file)
-            null -> {}
-        }
+    override suspend fun updateRqtFile(rqt: SubmissionRequestFile) {
+        requestRepository.updateSubRqtFile(rqt)
+        requestRepository.increaseIndex(rqt.accNo, rqt.version)
     }
 
     override suspend fun getSubmissionRequest(

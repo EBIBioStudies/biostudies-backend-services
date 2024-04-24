@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
@@ -8,7 +10,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
-import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions.UPDATE_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestFilesRepository
 import ac.uk.ebi.biostd.persistence.doc.integration.LockConfig
@@ -23,9 +24,7 @@ import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.createNfsFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
-import io.mockk.every
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
@@ -34,7 +33,6 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -62,16 +60,8 @@ class SubmissionRequestMongoPersistenceServiceTest(
     @Autowired private val requestFilesRepository: SubmissionRequestFilesRepository,
     @Autowired private val lockService: DistributedLockService,
 ) {
-    private val testInstant = Instant.ofEpochMilli(1664981331)
-
     private val testInstance =
         SubmissionRequestMongoPersistenceService(ExtSerializationService(), requestRepository, lockService)
-
-    @BeforeEach
-    fun beforeEach() {
-        mockkStatic(Instant::class)
-        every { Instant.now() } returns testInstant
-    }
 
     @AfterEach
     fun afterEach() =
@@ -193,19 +183,20 @@ class SubmissionRequestMongoPersistenceServiceTest(
     fun `update requestFile`() =
         runTest {
             val extFile = createNfsFile("requested.txt", "Files/requested.txt", tempFolder.createFile("requested.txt"))
-            val requestFile = SubmissionRequestFile("S-BSST0", 1, index = 2, "requested.txt", extFile)
+            val requestFile = SubmissionRequestFile("S-BSST0", 1, index = 2, "requested.txt", extFile, INDEXED)
 
             requestRepository.upsertSubmissionRequestFile(requestFile)
             requestRepository.save(testRequest())
 
-            testInstance.updateRqtFile(requestFile.copy(file = extFile.copy(md5 = "changedMd5")), UPDATE_FILE)
+            testInstance.updateRqtFile(requestFile.copy(file = extFile.copy(md5 = "changedMd5"), status = LOADED))
 
             val request = requestRepository.getByAccNoAndVersion("S-BSST0", 1)
-            assertThat(request.modificationTime).isEqualTo(testInstant)
-            assertThat(request.currentIndex).isEqualTo(2)
+            assertThat(request.modificationTime).isNotNull()
+            assertThat(request.currentIndex).isEqualTo(1)
 
             val savedFile = requestFilesRepository.getByPathAndAccNoAndVersion(requestFile.path, "S-BSST0", 1)
             assertThat(savedFile.file.get("md5")).isEqualTo("changedMd5")
+            assertThat(savedFile.status).isEqualTo(LOADED)
         }
 
     private fun testRequest() =

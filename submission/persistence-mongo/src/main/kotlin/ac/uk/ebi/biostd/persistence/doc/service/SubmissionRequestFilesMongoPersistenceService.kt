@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -38,8 +39,18 @@ class SubmissionRequestFilesMongoPersistenceService(
             .map { it.toSubmissionRequestFile() }
     }
 
+    override fun getSubmissionRequestFiles(
+        accNo: String,
+        version: Int,
+        status: RequestFileStatus,
+    ): Flow<SubmissionRequestFile> {
+        return requestFilesRepository
+            .findRequestFiles(accNo, version, status)
+            .map { it.toSubmissionRequestFile() }
+    }
+
     private fun DocSubmissionRequestFile.toSubmissionRequestFile(): SubmissionRequestFile {
         val file = extSerializationService.deserializeFile(file.toString())
-        return SubmissionRequestFile(accNo, version, index, path, file)
+        return SubmissionRequestFile(accNo, version, index, path, file, status)
     }
 }
