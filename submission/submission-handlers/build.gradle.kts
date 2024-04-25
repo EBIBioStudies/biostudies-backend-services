@@ -13,6 +13,7 @@ import Projects.SubmissionConfig
 import Projects.SubmissionNotification
 import Projects.SubmissionPersistenceCommonApi
 import Projects.SubmissionPersistenceSql
+import SpringBootDependencies.SpringBootStarterActuator
 import SpringBootDependencies.SpringBootStarterAmqp
 import SpringBootDependencies.SpringBootStarterDataJpa
 import SpringBootDependencies.SpringBootStarterWeb
@@ -42,6 +43,7 @@ dependencies {
     implementation(JacksonKotlin)
     implementation(KotlinLogging)
     implementation(MySql)
+    implementation(SpringBootStarterActuator)
     implementation(SpringBootStarterAmqp)
     implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterDataJpa)

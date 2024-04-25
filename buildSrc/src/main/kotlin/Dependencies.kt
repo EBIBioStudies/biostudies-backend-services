@@ -41,7 +41,6 @@ import Versions.ReactorNettyVersion
 import Versions.Retrofit2Version
 import Versions.RxJava2Version
 import Versions.S3Version
-import Versions.SpringAdminVersion
 import Versions.SpringfoxSwaggerVersion
 import Versions.WoodstoxVersion
 import Versions.XlsxStreamerVersion
@@ -69,7 +68,6 @@ object TestVersions {
 }
 
 object Versions {
-    const val SpringAdminVersion = "2.3.1"
     const val KotlinVersion = "1.9.23"
     const val KotlinCoroutinesVersion = "1.8.0"
     const val JetBrainsAnnotationsVersion = "24.0.1"
@@ -222,10 +220,7 @@ object SpringBootDependencies {
     const val SpringBootStarterConfigProcessor = "org.springframework.boot:spring-boot-configuration-processor"
     const val SpringBootStarterSecurity = "org.springframework.boot:spring-boot-starter-security"
     const val SpringBootStarterMail = "org.springframework.boot:spring-boot-starter-mail"
-    const val SpringBootStartedJetty = "org.springframework.boot:spring-boot-starter-jetty"
     const val SpringDataCommons = "org.springframework.data:spring-data-commons"
-    const val SpringBootStartedAdminClient = "de.codecentric:spring-boot-admin-starter-client:$SpringAdminVersion"
-    const val SpringBootStartedAdmin = "de.codecentric:spring-boot-admin-starter-server:$SpringAdminVersion"
 }
 
 object Projects {

@@ -14,14 +14,15 @@ import java.io.File
  * - Avoid trailing slashes
  * - Allow any alphanumeric character (a-z | A-Z | 0-9)
  * - Allow any of the following special characters:
- *     - Exclamation point (!)
- *     - Hyphen (-)
- *     - Underscore (_)
- *     - Period (.)
- *     - Asterisk (*)
- *     - Single quote (')
- *     - Open parenthesis ( ( )
- *     - Close parenthesis ( ) )
+ *     - Exclamation point [!]
+ *     - Hyphen [-]
+ *     - Underscore [_]
+ *     - Period [.]
+ *     - Asterisk [*]
+ *     - Single quote [']
+ *     - Open parenthesis [ ( ]
+ *     - Close parenthesis [ ) ]
+ *     - Space [ ]
  */
 
 private val validPathPattern =

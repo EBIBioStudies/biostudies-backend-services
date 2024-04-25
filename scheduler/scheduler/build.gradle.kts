@@ -4,8 +4,8 @@ import Dependencies.KotlinLogging
 import Projects.ClusterClient
 import Projects.CommonsHttp
 import Projects.SchedulerTaskProperties
-import SpringBootDependencies.SpringBootStartedAdminClient
 import SpringBootDependencies.SpringBootStarter
+import SpringBootDependencies.SpringBootStarterActuator
 import SpringBootDependencies.SpringBootStarterConfigProcessor
 import SpringBootDependencies.SpringBootStarterWebFlux
 import TestDependencies.BaseTestCompileDependencies
@@ -37,7 +37,7 @@ dependencies {
     implementation(KotlinLogging)
     implementation(SpringBootStarter)
     implementation(SpringBootStarterConfigProcessor)
-    implementation(SpringBootStartedAdminClient)
+    implementation(SpringBootStarterActuator)
     implementation(SpringBootStarterWebFlux)
 
     testImplementation(KotlinCoroutinesTest)
