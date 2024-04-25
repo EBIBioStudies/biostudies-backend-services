@@ -21,6 +21,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_INDEX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_PATH
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.FileListDocFileFields.FILE_LIST_DOC_FILE_FILE
@@ -152,6 +153,7 @@ suspend fun ReactiveMongoOperations.ensureFileListIndexes() {
  * 4. Path
  * 5. Index
  * 6. Submission AccNo, Submission Version, File.Path
+ * 7. Submission AccNo, Submission Version, File Status
  */
 suspend fun ReactiveMongoOperations.ensureRequestFileIndexes() {
     ensureExists(DocSubmissionRequestFile::class.java)
@@ -172,6 +174,12 @@ suspend fun ReactiveMongoOperations.ensureRequestFileIndexes() {
                 .on(RQT_FILE_SUB_VERSION, ASC)
                 .on(RQT_FILE_INDEX, ASC),
         ).awaitSingleOrNull()
+        ensureIndex(
+            Index()
+                .on(RQT_FILE_SUB_ACC_NO, ASC)
+                .on(RQT_FILE_SUB_VERSION, ASC)
+                .on(RQT_FILE_STATUS, ASC),
+        )
     }
 }
 

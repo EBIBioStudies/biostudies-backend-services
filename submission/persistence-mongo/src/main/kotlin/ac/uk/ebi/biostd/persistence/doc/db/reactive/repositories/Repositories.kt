@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories
 
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionCollections
@@ -131,6 +132,14 @@ interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissi
         accNo: String,
         version: Int,
         index: Int,
+    ): Flow<DocSubmissionRequestFile>
+
+    @Query("{ 'accNo': ?0, 'version': ?1, 'status': ?2 }")
+    @Meta(flags = [CursorOption.NO_TIMEOUT])
+    fun findRequestFiles(
+        accNo: String,
+        version: Int,
+        status: RequestFileStatus,
     ): Flow<DocSubmissionRequestFile>
 
     suspend fun getByPathAndAccNoAndVersion(

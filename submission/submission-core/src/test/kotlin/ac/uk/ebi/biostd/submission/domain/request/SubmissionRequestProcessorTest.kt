@@ -1,5 +1,7 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.COPIED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
@@ -7,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.UpdateOptions
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -56,13 +57,13 @@ class SubmissionRequestProcessorTest(
         @MockK nfsFile: NfsFile,
         @MockK savedFile: FireFile,
     ) = runTest {
-        val nfsRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 1, "test1.txt", nfsFile)
+        val nfsRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 1, "test1.txt", nfsFile, LOADED)
         every { rqt.submission } returns submission
         every { rqt.currentIndex } returns 1
         every { submission.accNo } returns ACC_NO
         every { submission.version } returns VERSION
         every { eventsPublisherService.requestFilesCopied(ACC_NO, VERSION) } answers { nothing }
-        every { filesService.getSubmissionRequestFiles(ACC_NO, VERSION, 1) } returns flowOf(nfsRqtFile)
+        every { filesService.getSubmissionRequestFiles(ACC_NO, VERSION, LOADED) } returns flowOf(nfsRqtFile)
         every { rqt.withNewStatus(FILES_COPIED) } returns rqt
         coEvery { storageService.persistSubmissionFile(submission, nfsFile) } returns savedFile
         coEvery {
@@ -72,7 +73,7 @@ class SubmissionRequestProcessorTest(
         }
 
         coEvery {
-            requestService.updateRqtFile(nfsRqtFile.copy(file = savedFile), UpdateOptions.UPDATE_FILE)
+            requestService.updateRqtFile(nfsRqtFile.copy(file = savedFile, status = COPIED))
         } answers { nothing }
 
         testInstance.processRequest(ACC_NO, VERSION, PROCESS_ID)
@@ -86,6 +87,6 @@ class SubmissionRequestProcessorTest(
         const val PROCESS_ID = "biostudies-prod"
         const val ACC_NO = "ABC-123"
         const val VERSION = 1
-        private val rqtSlot = slot<suspend (SubmissionRequest) -> RqtUpdate>()
+        val rqtSlot = slot<suspend (SubmissionRequest) -> RqtUpdate>()
     }
 }
