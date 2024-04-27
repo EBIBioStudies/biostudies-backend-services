@@ -41,7 +41,7 @@ class SubmissionRequestCleanIndexerTest(
     private val requestFileSlot = slot<SubmissionRequestFile>()
 
     private val testInstance =
-        SubmissionRequestCleanIndexer(serializationService, queryService, requestService, fileRqtService)
+        SubmissionRequestCleanIndexer(serializationService, queryService, fileRqtService)
 
     @Test
     fun `when no current submission`() =

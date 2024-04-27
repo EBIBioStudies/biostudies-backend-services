@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.TO_CLEAN
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.request.MatchType.DELETE_AFTER_SUBISSION
 import ac.uk.ebi.biostd.submission.domain.request.MatchType.DELETE_NOW
 import ebi.ac.uk.extended.model.ExtFile
@@ -26,7 +25,6 @@ private val logger = KotlinLogging.logger {}
 class SubmissionRequestCleanIndexer(
     private val serializationService: ExtSerializationService,
     private val queryService: SubmissionPersistenceQueryService,
-    private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
     suspend fun indexRequest(new: ExtSubmission): Int {
