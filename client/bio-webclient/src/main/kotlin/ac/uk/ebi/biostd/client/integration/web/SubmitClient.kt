@@ -153,6 +153,8 @@ interface GeneralOperations {
         groupName: String,
         userName: String,
     )
+
+    fun getProfile(): UserProfile
 }
 
 interface StatsOperations {

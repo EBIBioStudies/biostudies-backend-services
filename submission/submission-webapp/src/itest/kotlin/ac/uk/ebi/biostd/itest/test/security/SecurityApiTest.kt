@@ -2,11 +2,15 @@ package ac.uk.ebi.biostd.itest.test.security
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.entities.FtpSuperUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
+import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -23,6 +27,7 @@ import kotlin.test.assertNotNull
 class SecurityApiTest(
     @LocalServerPort val serverPort: Int,
     @Autowired private val userDataRepository: UserDataRepository,
+    @Autowired val securityTestService: SecurityTestService,
 ) {
     private lateinit var webClient: SecurityWebClient
 
@@ -73,6 +78,28 @@ class SecurityApiTest(
         assertNotNull(user)
         assertThat(user.email).isEqualTo("case-insensitive-inactive@mail.org")
     }
+
+    @Test
+    fun `22-6 check ftp home type user`() =
+        runTest {
+            securityTestService.ensureUserRegistration(FtpSuperUser)
+            val client = getWebClient(serverPort, FtpSuperUser)
+
+            val result = client.getProfile()
+
+            assertThat(result.uploadType).isEqualTo("ftp")
+        }
+
+    @Test
+    fun `22-7 check Nfs home type user`() =
+        runTest {
+            securityTestService.ensureUserRegistration(NewUser)
+            val client = getWebClient(serverPort, NewUser)
+
+            val result = client.getProfile()
+
+            assertThat(result.uploadType).isEqualTo("nfs")
+        }
 
     object NewUser : TestUser {
         override val username = "New User"

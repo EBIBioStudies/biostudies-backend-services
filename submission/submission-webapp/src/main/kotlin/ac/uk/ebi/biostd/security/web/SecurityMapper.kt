@@ -20,6 +20,7 @@ class SecurityMapper {
                 orcid = user.orcid.orEmpty(),
                 allow = getAllow(user),
                 secret = user.userFolder.relativePath.toString(),
+                uploadType = user.userFolder.type,
             )
         }
 

@@ -11,4 +11,5 @@ class UserProfile(
     val orcid: String,
     val allow: List<String>,
     val deny: List<String>,
+    val uploadType: String,
 )
