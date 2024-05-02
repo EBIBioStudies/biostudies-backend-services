@@ -2,12 +2,10 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
-import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.TO_CLEAN
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
-import ac.uk.ebi.biostd.submission.domain.request.MatchType.DELETE_AFTER_SUBISSION
-import ac.uk.ebi.biostd.submission.domain.request.MatchType.DELETE_NOW
+import ac.uk.ebi.biostd.submission.domain.request.MatchType.CONFLICTING
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
@@ -30,10 +28,10 @@ class SubmissionRequestCleanIndexer(
     suspend fun indexRequest(new: ExtSubmission): Int {
         val current = queryService.findExtByAccNo(new.accNo, includeFileListFiles = true)
         if (current != null) {
-            logger.info { "${new.accNo} ${new.owner} Started indexing to clean submission files" }
+            logger.info { "${new.accNo} ${new.owner} Started indexing submission files to be cleaned" }
             val newFiles = summarizeFileRecords(new)
             val totalFiles = indexToCleanFiles(newFiles, current)
-            logger.info { "${new.accNo} ${new.owner} Finished indexing to clean submission files" }
+            logger.info { "${new.accNo} ${new.owner} Finished indexing submission files to be cleaned" }
             return totalFiles
         }
 
@@ -49,9 +47,16 @@ class SubmissionRequestCleanIndexer(
             .withIndex()
             .mapNotNull { (idx, file) ->
                 when (newFiles.findMatch(file)) {
-                    DELETE_NOW -> SubmissionRequestFile(currentVersion, idx + 1, file, RequestFileStatus.TO_CLEAN_NOW)
-                    DELETE_AFTER_SUBISSION -> SubmissionRequestFile(currentVersion, idx + 1, file, TO_CLEAN)
-                    MatchType.RE_USED_FILE -> null
+                    CONFLICTING -> SubmissionRequestFile(currentVersion, idx + 1, file, RequestFileStatus.CONFLICTING)
+                    MatchType.DEPRECATED ->
+                        SubmissionRequestFile(
+                            currentVersion,
+                            idx + 1,
+                            file,
+                            RequestFileStatus.DEPRECATED,
+                        )
+
+                    MatchType.REUSED -> null
                 }
             }
             .collect {
@@ -86,17 +91,17 @@ private class FilesRecords(
     fun findMatch(existing: ExtFile): MatchType {
         val newFile = files[existing.filePath]
         return when {
-            newFile == null -> DELETE_AFTER_SUBISSION
-            newFile.md5 != existing.md5 && storageMode == existing.storageMode -> DELETE_NOW
-            else -> MatchType.RE_USED_FILE
+            newFile == null -> MatchType.DEPRECATED
+            newFile.md5 != existing.md5 && storageMode == existing.storageMode -> CONFLICTING
+            else -> MatchType.REUSED
         }
     }
 }
 
 private enum class MatchType {
-    DELETE_NOW,
-    DELETE_AFTER_SUBISSION,
-    RE_USED_FILE,
+    CONFLICTING,
+    DEPRECATED,
+    REUSED,
 }
 
 private data class FileRecord(val md5: String, val storageMode: StorageMode)

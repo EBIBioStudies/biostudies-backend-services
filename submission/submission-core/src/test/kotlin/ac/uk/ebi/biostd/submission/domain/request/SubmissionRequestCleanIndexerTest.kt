@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
-import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.TO_CLEAN
-import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.TO_CLEAN_NOW
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -11,6 +11,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode.NFS
+import io.mockk.Called
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -19,6 +20,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.slot
+import io.mockk.verify
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -53,6 +55,7 @@ class SubmissionRequestCleanIndexerTest(
             val files = testInstance.indexRequest(newSub)
 
             assertThat(files).isZero()
+            verify { serializationService wasNot Called }
         }
 
     @Nested
@@ -73,7 +76,7 @@ class SubmissionRequestCleanIndexerTest(
         }
 
         @Test
-        fun `when a files has the same md5 but diferent path so file need to be cleaned`(
+        fun `when a file has the same md5 but diferent path so file need to be cleaned`(
             @MockK newFile: ExtFile,
             @MockK newRqtFile: SubmissionRequestFile,
             @MockK file: NfsFile,
@@ -101,7 +104,7 @@ class SubmissionRequestCleanIndexerTest(
 
             coVerify { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlot)) }
             val requestFile = requestFileSlot.captured
-            assertThat(requestFile.status).isEqualTo(TO_CLEAN)
+            assertThat(requestFile.status).isEqualTo(DEPRECATED)
             assertThat(requestFile.file).isEqualTo(file)
         }
 
@@ -135,7 +138,7 @@ class SubmissionRequestCleanIndexerTest(
         }
 
         @Test
-        fun `when a file of the current submission need to be replaced`(
+        fun `when a file of the current submission needs to be replaced`(
             @MockK newFile: ExtFile,
             @MockK newRqtFile: SubmissionRequestFile,
             @MockK replacedFile: NfsFile,
@@ -163,7 +166,7 @@ class SubmissionRequestCleanIndexerTest(
 
             coVerify { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlot)) }
             val requestFile = requestFileSlot.captured
-            assertThat(requestFile.status).isEqualTo(TO_CLEAN_NOW)
+            assertThat(requestFile.status).isEqualTo(CONFLICTING)
             assertThat(requestFile.file).isEqualTo(replacedFile)
         }
     }

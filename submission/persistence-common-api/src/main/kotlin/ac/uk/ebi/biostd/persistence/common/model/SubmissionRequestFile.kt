@@ -24,6 +24,6 @@ enum class RequestFileStatus {
     LOADED,
     COPIED,
     RELEASED,
-    TO_CLEAN_NOW,
-    TO_CLEAN,
+    CONFLICTING,
+    DEPRECATED,
 }
