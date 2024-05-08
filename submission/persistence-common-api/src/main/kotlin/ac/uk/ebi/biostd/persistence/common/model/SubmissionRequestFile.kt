@@ -26,4 +26,5 @@ enum class RequestFileStatus {
     RELEASED,
     CONFLICTING,
     DEPRECATED,
+    SUPPRESSED,
 }

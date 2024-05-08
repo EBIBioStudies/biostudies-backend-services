@@ -17,4 +17,14 @@ class FireFtpService(
         val apiFile = fireClient.publish(fireFile.fireId)
         return fireFile.copy(firePath = apiFile.path!!, published = apiFile.published)
     }
+
+    override suspend fun suppressSubmissionFile(
+        file: ExtFile,
+        subRelPath: String,
+        subSecretKey: String,
+    ): FireFile {
+        val fireFile = file as FireFile
+        val apiFile = fireClient.unpublish(fireFile.fireId)
+        return fireFile.copy(firePath = apiFile.path!!, published = apiFile.published)
+    }
 }

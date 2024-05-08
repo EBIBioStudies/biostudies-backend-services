@@ -21,7 +21,6 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -31,7 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
 import java.nio.file.Files
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 internal class NfsFtpServiceTest(
     private val temporaryFolder: TemporaryFolder,
@@ -75,6 +73,30 @@ internal class NfsFtpServiceTest(
                 testInstance.releaseSubmissionFile(nfsFile, REL_PATH, SECRET_KEY)
 
                 assertFolder(folderResolver.getPublicSubFolder(REL_PATH).toFile())
+            }
+
+        @Test
+        fun `suppress submission file`() =
+            runTest {
+                every { extSubmission.relPath } returns REL_PATH
+
+                val publicFolder = folderResolver.getPublicSubFolder(REL_PATH).toFile()
+                val publicFilesFolder = publicFolder.createDirectory(FILES_PATH)
+                val publicFile = publicFilesFolder.createFile("test.txt")
+
+                val nfsFile =
+                    NfsFile(
+                        filePath = "test.txt",
+                        relPath = "Files/test.txt",
+                        file = publicFile,
+                        fullPath = publicFile.absolutePath,
+                        md5 = publicFile.md5(),
+                        size = publicFile.size(),
+                    )
+
+                testInstance.suppressSubmissionFile(nfsFile, REL_PATH, SECRET_KEY)
+
+                assertThat(publicFile).doesNotExist()
             }
 
         private fun assertFolder(ftpFolder: File) {
@@ -154,6 +176,31 @@ internal class NfsFtpServiceTest(
                 assertThat(releasedPath).exists()
                 assertThat(released.fullPath).isEqualTo(releasedPath.toString())
                 assertThat(released.file).isEqualTo(releasedPath.toFile())
+                assertThat(filesPath.resolve("move-test.txt")).doesNotExist()
+            }
+
+        @Test
+        fun `suppress submission file`() =
+            runTest {
+                val subFolder = folderResolver.getPublicSubFolder(REL_PATH).toFile()
+                val filesPath = subFolder.createDirectory(FILES_PATH)
+                val file = filesPath.createFile("move-test.txt", "move content")
+                val nfsFile =
+                    NfsFile(
+                        filePath = "move-test.txt",
+                        relPath = "Files/move-test.txt",
+                        file = file,
+                        fullPath = file.absolutePath,
+                        md5 = file.md5(),
+                        size = file.size(),
+                    )
+
+                val privateFolder = folderResolver.getPrivateSubFolder(SECRET_KEY, REL_PATH).resolve(FILES_PATH)
+                val suppressedPath = privateFolder.resolve("move-test.txt")
+                val suppressed = testInstance.suppressSubmissionFile(nfsFile, REL_PATH, SECRET_KEY) as NfsFile
+                assertThat(suppressedPath).exists()
+                assertThat(suppressed.fullPath).isEqualTo(suppressedPath.toString())
+                assertThat(suppressed.file).isEqualTo(suppressedPath.toFile())
                 assertThat(filesPath.resolve("move-test.txt")).doesNotExist()
             }
     }

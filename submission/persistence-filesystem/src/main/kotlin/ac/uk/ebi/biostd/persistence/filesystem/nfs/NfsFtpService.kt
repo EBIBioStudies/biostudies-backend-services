@@ -9,7 +9,9 @@ import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
+import ebi.ac.uk.io.RWXR_X___
 import ebi.ac.uk.io.RW_R__R__
+import ebi.ac.uk.io.RW_R_____
 import ebi.ac.uk.paths.SubmissionFolderResolver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -53,5 +55,42 @@ class NfsFtpService(
         return nfsFile
     }
 
-    private fun getPublicFolder(relPath: String): Path = FileUtils.getOrCreateFolder(folderResolver.getPublicSubFolder(relPath), RWXR_XR_X)
+    override suspend fun suppressSubmissionFile(
+        file: ExtFile,
+        subRelPath: String,
+        subSecretKey: String,
+    ): ExtFile =
+        withContext(Dispatchers.IO) {
+            val nfsFile = file as NfsFile
+            val publicSubFolder = getPublicFolder(subRelPath)
+            val privateSubFolder = folderResolver.getPrivateSubFolder(subSecretKey, subRelPath)
+
+            when (releaseMode) {
+                MOVE -> moveSuppress(nfsFile, privateSubFolder)
+                HARD_LINKS -> hardLinkSuppress(nfsFile, publicSubFolder)
+            }
+        }
+
+    private fun moveSuppress(
+        nfsFile: NfsFile,
+        privateSubFolder: Path,
+    ): NfsFile {
+        val suppressedFile = privateSubFolder.resolve(nfsFile.relPath).toFile()
+        FileUtils.moveFile(nfsFile.file, suppressedFile, Permissions(RW_R_____, RWXR_X___))
+        return nfsFile.copy(fullPath = suppressedFile.absolutePath, file = suppressedFile)
+    }
+
+    private fun hardLinkSuppress(
+        nfsFile: NfsFile,
+        publicSubFolder: Path,
+    ): NfsFile {
+        val releasedFile = publicSubFolder.resolve(nfsFile.relPath).toFile()
+        FileUtils.deleteFile(releasedFile)
+
+        return nfsFile
+    }
+
+    private fun getPublicFolder(relPath: String): Path {
+        return FileUtils.getOrCreateFolder(folderResolver.getPublicSubFolder(relPath), RWXR_XR_X)
+    }
 }

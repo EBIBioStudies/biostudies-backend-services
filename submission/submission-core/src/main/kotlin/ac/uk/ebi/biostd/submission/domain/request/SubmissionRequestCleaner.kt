@@ -34,10 +34,10 @@ class SubmissionRequestCleaner(
         version: Int,
         processId: String,
     ) {
-        requestService.onRequest(accNo, version, LOADED, processId, {
+        requestService.onRequest(accNo, version, LOADED, processId) {
             cleanCurrentVersion(it.submission)
             RqtUpdate(it.withNewStatus(CLEANED))
-        })
+        }
         eventsPublisherService.requestCleaned(accNo, version)
     }
 

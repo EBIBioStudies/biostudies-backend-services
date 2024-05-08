@@ -8,4 +8,10 @@ internal interface FtpService {
         subRelPath: String,
         subSecretKey: String,
     ): ExtFile
+
+    suspend fun suppressSubmissionFile(
+        file: ExtFile,
+        subRelPath: String,
+        subSecretKey: String,
+    ): ExtFile
 }

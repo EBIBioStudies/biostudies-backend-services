@@ -31,7 +31,7 @@ class TestWireMockTransformer(
     private val fixedDelay: Long,
     private val handlers: List<RequestHandler>,
 ) : ResponseDefinitionTransformer() {
-    override fun getName(): String = Companion.NAME
+    override fun getName(): String = NAME
 
     override fun transform(
         rqt: Request,
@@ -74,12 +74,12 @@ class TestWireMockTransformer(
                 listOf(
                     Md5QueryHandler(fireDatabase),
                     FileSaveHandler(fireDatabase),
-                    DeleteHandler(fireDatabase),
                     FindPathHandler(fireDatabase),
                     SetPathHandler(fireDatabase),
-                    UnSetPathHandler(fireDatabase),
                     PublishHandler(fireDatabase),
+                    UnSetPathHandler(fireDatabase),
                     UnPublishHandler(fireDatabase),
+                    DeleteHandler(fireDatabase),
                     DownloadHandler(fireDatabase),
                 ),
             )

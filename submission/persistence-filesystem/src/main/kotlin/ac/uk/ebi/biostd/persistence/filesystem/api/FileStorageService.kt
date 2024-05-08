@@ -13,6 +13,13 @@ interface FileStorageService {
         mode: StorageMode,
     ): ExtFile
 
+    suspend fun suppressSubmissionFile(
+        file: ExtFile,
+        subRelPath: String,
+        subSecretKey: String,
+        mode: StorageMode,
+    ): ExtFile
+
     suspend fun persistSubmissionFile(
         sub: ExtSubmission,
         file: ExtFile,

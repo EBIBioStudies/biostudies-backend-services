@@ -107,10 +107,20 @@ class NfsFilesService(
         logger.info { "${sub.accNo} ${sub.owner} Finished deleting '${toDeleteFile.absolutePath}' on NFS" }
     }
 
-    override suspend fun deleteEmptyFolders(sub: ExtSubmission) =
-        withContext(Dispatchers.IO) {
-            val subFolder = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath).toFile()
-            logger.info { "${sub.accNo} ${sub.owner} Deleting sub empty folders in ${subFolder.parentFile.absolutePath}" }
-            FileUtils.deleteEmptyDirectories(subFolder)
+    override suspend fun deleteEmptyFolders(sub: ExtSubmission) {
+        fun delete(folder: File) {
+            val target = folder.parentFile.absolutePath
+            logger.info { "${sub.accNo} ${sub.owner} Started deleting empty folders in $target" }
+            FileUtils.deleteEmptyDirectories(folder)
+            logger.info { "${sub.accNo} ${sub.owner} Finished deleting empty folders in $target" }
         }
+
+        withContext(Dispatchers.IO) {
+            val privateFolder = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath).toFile()
+            delete(privateFolder)
+
+            val publicFolder = folderResolver.getPublicSubFolder(sub.relPath).toFile()
+            delete(publicFolder)
+        }
+    }
 }

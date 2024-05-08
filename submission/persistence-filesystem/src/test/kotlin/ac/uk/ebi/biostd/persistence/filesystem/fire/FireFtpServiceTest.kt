@@ -6,7 +6,6 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -17,7 +16,6 @@ import uk.ac.ebi.fire.client.model.FileSystemEntry
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.util.UUID
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class)
 class FireFtpServiceTest(
     @MockK private val fireClient: FireClient,
@@ -56,6 +54,38 @@ class FireFtpServiceTest(
             val file = testInstance.releaseSubmissionFile(fireFile, "/rel/path", "secret-key")
 
             assertThat(file.published).isTrue()
+            assertThat(file.firePath).isEqualTo("fire-path")
+        }
+
+    @Test
+    fun `suppress submission file`() =
+        runTest {
+            val fireFile =
+                FireFile(
+                    fireId = "fireId",
+                    firePath = "fire-path",
+                    published = true,
+                    filePath = "folder/myFile",
+                    relPath = "Files/folder/myFile",
+                    md5 = "md5",
+                    size = 12,
+                    type = ExtFileType.FILE,
+                    attributes = emptyList(),
+                )
+            val apiFile =
+                FireApiFile(
+                    objectId = 456,
+                    filesystemEntry = FileSystemEntry(path = "fire-path", published = false),
+                    fireOid = UUID.randomUUID().toString(),
+                    objectMd5 = "the-md5",
+                    objectSize = 123L,
+                    createTime = "2022-09-21",
+                )
+            coEvery { fireClient.unpublish(fireFile.fireId) } answers { apiFile }
+
+            val file = testInstance.suppressSubmissionFile(fireFile, "/rel/path", "secret-key")
+
+            assertThat(file.published).isFalse()
             assertThat(file.firePath).isEqualTo("fire-path")
         }
 }
