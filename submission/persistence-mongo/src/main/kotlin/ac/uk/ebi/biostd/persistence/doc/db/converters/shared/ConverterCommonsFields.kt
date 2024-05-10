@@ -153,6 +153,8 @@ object DocRequestFields {
     const val RQT_STATUS = "status"
     const val RQT_SUBMISSION = "submission"
     const val RQT_TOTAL_FILES = "totalFiles"
+    const val RQT_DEPRECATED_FILES = "deprecatedFiles"
+    const val RQT_CONFLICTED_FILES = "conflictedFiles"
     const val RQT_IDX = "currentIndex"
     const val RQT_MODIFICATION_TIME = "modificationTime"
     const val RQT_STATUS_CHANGES = "statusChanges"

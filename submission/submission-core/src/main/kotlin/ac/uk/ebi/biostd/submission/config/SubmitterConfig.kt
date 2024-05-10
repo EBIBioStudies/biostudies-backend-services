@@ -15,8 +15,9 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.FilesHandlerConfig
 import ac.uk.ebi.biostd.submission.config.SubmitterConfig.ServiceConfig
+import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleanIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
-import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
@@ -80,6 +81,22 @@ class SubmitterConfig(
             serializationService,
             requestService,
             filesRequestService,
+        )
+
+    @Bean
+    fun requestToCleanIndexer(
+        serializationService: ExtSerializationService,
+        queryService: SubmissionPersistenceQueryService,
+        filesRequestService: SubmissionRequestFilesPersistenceService,
+        requestService: SubmissionRequestPersistenceService,
+        eventsPublisherService: EventsPublisherService,
+    ): SubmissionRequestCleanIndexer =
+        SubmissionRequestCleanIndexer(
+            serializationService,
+            queryService,
+            filesRequestService,
+            requestService,
+            eventsPublisherService,
         )
 
     @Bean
@@ -150,35 +167,16 @@ class SubmitterConfig(
     @Bean
     fun submissionCleaner(
         storageService: FileStorageService,
-        serializationService: ExtSerializationService,
         eventsPublisherService: EventsPublisherService,
-        queryService: SubmissionPersistenceQueryService,
         requestService: SubmissionRequestPersistenceService,
         filesRequestService: SubmissionRequestFilesPersistenceService,
     ): SubmissionRequestCleaner =
         SubmissionRequestCleaner(
+            properties.persistence.concurrency,
             storageService,
-            serializationService,
             eventsPublisherService,
-            queryService,
             requestService,
             filesRequestService,
-        )
-
-    @Bean
-    fun submissionRequestFinalizer(
-        storageService: FileStorageService,
-        serializationService: ExtSerializationService,
-        eventsPublisherService: EventsPublisherService,
-        queryService: SubmissionPersistenceQueryService,
-        requestService: SubmissionRequestPersistenceService,
-    ): SubmissionRequestFinalizer =
-        SubmissionRequestFinalizer(
-            storageService,
-            serializationService,
-            eventsPublisherService,
-            queryService,
-            requestService,
         )
 
     @Bean
@@ -188,13 +186,14 @@ class SubmitterConfig(
         pageTabService: PageTabService,
         requestService: SubmissionRequestPersistenceService,
         persistenceService: SubmissionPersistenceService,
+        submissionQueryService: ExtSubmissionQueryService,
         requestIndexer: SubmissionRequestIndexer,
+        requestToCleanIndexed: SubmissionRequestCleanIndexer,
         requestLoader: SubmissionRequestLoader,
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
-        submissionFinalizer: SubmissionRequestFinalizer,
     ): ExtSubmissionSubmitter =
         LocalExtSubmissionSubmitter(
             appProperties,
@@ -202,12 +201,13 @@ class SubmitterConfig(
             requestService,
             persistenceService,
             requestIndexer,
+            requestToCleanIndexed,
             requestLoader,
             requestProcessor,
             submissionReleaser,
             submissionCleaner,
             submissionSaver,
-            submissionFinalizer,
+            submissionQueryService,
         )
 
     @Bean

@@ -18,6 +18,8 @@ data class SubmissionRequest(
     val notifyTo: String,
     val status: RequestStatus,
     val totalFiles: Int,
+    val conflictedFiles: Int,
+    val deprecatedFiles: Int,
     val currentIndex: Int,
     val modificationTime: OffsetDateTime,
 ) {
@@ -27,6 +29,8 @@ data class SubmissionRequest(
         notifyTo,
         status = RequestStatus.REQUESTED,
         totalFiles = 0,
+        conflictedFiles = 0,
+        deprecatedFiles = 0,
         currentIndex = 0,
         modificationTime = OffsetDateTime.now(),
     )
@@ -50,12 +54,26 @@ data class SubmissionRequest(
             totalFiles = totalFiles,
         )
     }
+
+    fun cleanIndexed(
+        conflictedFiles: Int,
+        deprecatedFiles: Int,
+    ): SubmissionRequest {
+        return copy(
+            status = RequestStatus.INDEXED,
+            modificationTime = OffsetDateTime.now(),
+            currentIndex = 0,
+            conflictedFiles = conflictedFiles,
+            deprecatedFiles = deprecatedFiles,
+        )
+    }
 }
 
 enum class RequestStatus {
     REQUESTED,
     INDEXED,
     LOADED,
+    INDEXED_CLEANED,
     CLEANED,
     FILES_COPIED,
     CHECK_RELEASED,

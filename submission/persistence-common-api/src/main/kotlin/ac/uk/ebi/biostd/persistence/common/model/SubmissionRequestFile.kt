@@ -23,6 +23,7 @@ enum class RequestFileStatus {
     INDEXED,
     LOADED,
     COPIED,
+    CLEANED,
     RELEASED,
     CONFLICTING,
     DEPRECATED,

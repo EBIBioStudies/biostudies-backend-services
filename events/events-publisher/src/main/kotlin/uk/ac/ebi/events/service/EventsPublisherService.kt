@@ -15,6 +15,7 @@ import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
 import ebi.ac.uk.extended.events.RequestPersisted
+import ebi.ac.uk.extended.events.RequestToCleanIndexed
 import ebi.ac.uk.extended.events.SecurityNotification
 import ebi.ac.uk.extended.events.SubmissionMessage
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -65,6 +66,15 @@ class EventsPublisherService(
         BIOSTUDIES_EXCHANGE,
         notificationsProperties.requestRoutingKey,
         RequestLoaded(accNo, version),
+    )
+
+    fun requestIndexedToClean(
+        accNo: String,
+        version: Int,
+    ) = rabbitTemplate.convertAndSend(
+        BIOSTUDIES_EXCHANGE,
+        notificationsProperties.requestRoutingKey,
+        RequestToCleanIndexed(accNo, version),
     )
 
     fun requestCleaned(

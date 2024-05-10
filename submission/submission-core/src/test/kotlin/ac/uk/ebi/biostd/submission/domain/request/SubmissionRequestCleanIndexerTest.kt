@@ -28,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 
@@ -37,13 +38,20 @@ class SubmissionRequestCleanIndexerTest(
     @MockK val queryService: SubmissionPersistenceQueryService,
     @MockK val requestService: SubmissionRequestPersistenceService,
     @MockK val fileRqtService: SubmissionRequestFilesPersistenceService,
+    @MockK val eventsPublisherService: EventsPublisherService,
     @MockK val newSub: ExtSubmission,
     @MockK val currentSub: ExtSubmission,
 ) {
     private val requestFileSlot = slot<SubmissionRequestFile>()
 
     private val testInstance =
-        SubmissionRequestCleanIndexer(serializationService, queryService, fileRqtService)
+        SubmissionRequestCleanIndexer(
+            serializationService,
+            queryService,
+            fileRqtService,
+            requestService,
+            eventsPublisherService,
+        )
 
     @Test
     fun `when no current submission`() =
@@ -52,9 +60,10 @@ class SubmissionRequestCleanIndexerTest(
             every { newSub.version } returns CURRENT_VERSION
             coEvery { queryService.findExtByAccNo(ACC_NO, includeFileListFiles = true) } returns null
 
-            val files = testInstance.indexRequest(newSub)
+            val (conflicted, deprecated) = testInstance.indexRequest(newSub)
 
-            assertThat(files).isZero()
+            assertThat(conflicted).isZero()
+            assertThat(deprecated).isZero()
             verify { serializationService wasNot Called }
         }
 
@@ -100,8 +109,10 @@ class SubmissionRequestCleanIndexerTest(
             coEvery { serializationService.filesFlow(currentSub) } returns flowOf(file)
             coEvery { fileRqtService.saveSubmissionRequestFile(any()) } coAnswers { nothing }
 
-            testInstance.indexRequest(newSub)
+            val (conflicted, deprecated) = testInstance.indexRequest(newSub)
 
+            assertThat(conflicted).isZero()
+            assertThat(deprecated).isOne()
             coVerify { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlot)) }
             val requestFile = requestFileSlot.captured
             assertThat(requestFile.status).isEqualTo(DEPRECATED)
@@ -132,8 +143,10 @@ class SubmissionRequestCleanIndexerTest(
             mockkStatic(ExtSerializationService::filesFlow)
             coEvery { serializationService.filesFlow(currentSub) } returns flowOf(file)
 
-            testInstance.indexRequest(newSub)
+            val (conflicted, deprecated) = testInstance.indexRequest(newSub)
 
+            assertThat(conflicted).isZero()
+            assertThat(deprecated).isZero()
             coVerify(exactly = 0) { fileRqtService.saveSubmissionRequestFile(any()) }
         }
 
@@ -162,8 +175,10 @@ class SubmissionRequestCleanIndexerTest(
             coEvery { serializationService.filesFlow(currentSub) } returns flowOf(replacedFile)
             coEvery { fileRqtService.saveSubmissionRequestFile(any()) } coAnswers { nothing }
 
-            testInstance.indexRequest(newSub)
+            val (conflicted, deprecated) = testInstance.indexRequest(newSub)
 
+            assertThat(conflicted).isOne()
+            assertThat(deprecated).isZero()
             coVerify { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlot)) }
             val requestFile = requestFileSlot.captured
             assertThat(requestFile.status).isEqualTo(CONFLICTING)

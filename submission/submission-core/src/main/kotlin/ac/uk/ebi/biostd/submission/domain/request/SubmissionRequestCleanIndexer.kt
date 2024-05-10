@@ -1,22 +1,25 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
-import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
+import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
-import ac.uk.ebi.biostd.submission.domain.request.MatchType.CONFLICTING
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.storageMode
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.withIndex
 import mu.KotlinLogging
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 import java.util.concurrent.atomic.AtomicInteger
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile as SubRqtFile
 
 private val logger = KotlinLogging.logger {}
 
@@ -24,47 +27,57 @@ class SubmissionRequestCleanIndexer(
     private val serializationService: ExtSerializationService,
     private val queryService: SubmissionPersistenceQueryService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
+    private val requestService: SubmissionRequestPersistenceService,
+    private val eventsPublisherService: EventsPublisherService,
 ) {
-    suspend fun indexRequest(new: ExtSubmission): Int {
+    /**
+     * Index submission request to clean files by creating records for each one.
+     */
+    suspend fun indexRequest(
+        accNo: String,
+        version: Int,
+        processId: String,
+    ) {
+        requestService.onRequest(accNo, version, RequestStatus.LOADED, processId) {
+            val (conflicted, deprecated) = indexRequest(it.submission)
+            RqtUpdate(it.cleanIndexed(conflictedFiles = conflicted, deprecatedFiles = deprecated))
+        }
+        eventsPublisherService.requestIndexedToClean(accNo, version)
+    }
+
+    suspend fun indexRequest(new: ExtSubmission): Pair<Int, Int> {
         val current = queryService.findExtByAccNo(new.accNo, includeFileListFiles = true)
         if (current != null) {
             logger.info { "${new.accNo} ${new.owner} Started indexing submission files to be cleaned" }
             val newFiles = summarizeFileRecords(new)
-            val totalFiles = indexToCleanFiles(newFiles, current)
+            val response = indexToCleanFiles(newFiles, current)
             logger.info { "${new.accNo} ${new.owner} Finished indexing submission files to be cleaned" }
-            return totalFiles
+            return response
         }
 
-        return 0
+        return 0 to 0
     }
 
     private suspend fun indexToCleanFiles(
         newFiles: FilesRecords,
-        currentVersion: ExtSubmission,
-    ): Int {
-        val elements = AtomicInteger(0)
-        serializationService.filesFlow(currentVersion)
-            .withIndex()
-            .mapNotNull { (idx, file) ->
-                when (newFiles.findMatch(file)) {
-                    CONFLICTING -> SubmissionRequestFile(currentVersion, idx + 1, file, RequestFileStatus.CONFLICTING)
-                    MatchType.DEPRECATED ->
-                        SubmissionRequestFile(
-                            currentVersion,
-                            idx + 1,
-                            file,
-                            RequestFileStatus.DEPRECATED,
-                        )
+        current: ExtSubmission,
+    ): Pair<Int, Int> {
+        val conflictIdx = AtomicInteger(0)
+        val deprecatedIdx = AtomicInteger(0)
 
+        serializationService.filesFlow(current)
+            .mapNotNull { file ->
+                when (newFiles.findMatch(file)) {
+                    MatchType.CONFLICTING -> SubRqtFile(current, conflictIdx.incrementAndGet(), file, CONFLICTING)
+                    MatchType.DEPRECATED -> SubRqtFile(current, deprecatedIdx.incrementAndGet(), file, DEPRECATED)
                     MatchType.REUSED -> null
                 }
             }
             .collect {
-                logger.info { "${currentVersion.accNo} ${currentVersion.owner} Indexing to clean file ${it.index}, path='${it.path}'" }
+                logger.info { "${current.accNo} ${current.owner} Indexing to clean file ${it.index}, path='${it.path}'" }
                 filesRequestService.saveSubmissionRequestFile(it)
-                elements.incrementAndGet()
             }
-        return elements.get()
+        return conflictIdx.get() to deprecatedIdx.get()
     }
 
     private suspend fun summarizeFileRecords(new: ExtSubmission): FilesRecords {
@@ -92,7 +105,7 @@ private class FilesRecords(
         val newFile = files[existing.filePath]
         return when {
             newFile == null -> MatchType.DEPRECATED
-            newFile.md5 != existing.md5 && storageMode == existing.storageMode -> CONFLICTING
+            newFile.md5 != existing.md5 && storageMode == existing.storageMode -> MatchType.CONFLICTING
             else -> MatchType.REUSED
         }
     }

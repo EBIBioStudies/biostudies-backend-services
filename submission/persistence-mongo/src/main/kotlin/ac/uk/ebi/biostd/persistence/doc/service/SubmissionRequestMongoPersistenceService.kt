@@ -88,11 +88,13 @@ class SubmissionRequestMongoPersistenceService(
                 SubmissionRequest(
                     submission = stored,
                     draftKey = request.draftKey,
-                    request.notifyTo,
-                    request.status,
-                    request.totalFiles,
-                    request.currentIndex,
-                    request.modificationTime.atOffset(UTC),
+                    notifyTo = request.notifyTo,
+                    status = request.status,
+                    conflictedFiles = request.conflictedFiles,
+                    deprecatedFiles = request.deprecatedFiles,
+                    totalFiles = request.totalFiles,
+                    currentIndex = request.currentIndex,
+                    modificationTime = request.modificationTime.atOffset(UTC),
                 )
             return changeId to subRequest
         }
@@ -141,6 +143,8 @@ class SubmissionRequestMongoPersistenceService(
             status = rqt.status,
             submission = BasicDBObject.parse(content),
             totalFiles = rqt.totalFiles,
+            conflictedFiles = rqt.conflictedFiles,
+            deprecatedFiles = rqt.deprecatedFiles,
             currentIndex = rqt.currentIndex,
             modificationTime = rqt.modificationTime.toInstant(),
         )
@@ -152,11 +156,13 @@ class SubmissionRequestMongoPersistenceService(
             SubmissionRequest(
                 submission = stored,
                 draftKey = request.draftKey,
-                request.notifyTo,
-                request.status,
-                request.totalFiles,
-                request.currentIndex,
-                request.modificationTime.atOffset(UTC),
+                notifyTo = request.notifyTo,
+                status = request.status,
+                totalFiles = request.totalFiles,
+                deprecatedFiles = request.deprecatedFiles,
+                conflictedFiles = request.conflictedFiles,
+                currentIndex = request.currentIndex,
+                modificationTime = request.modificationTime.atOffset(UTC),
             )
         return subRequest
     }

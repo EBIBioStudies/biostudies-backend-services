@@ -45,4 +45,9 @@ interface ExtSubmissionSubmitter {
         accNo: String,
         version: Int,
     ): ExtSubmission
+
+    suspend fun indexToCleanRequest(
+        accNo: String,
+        version: Int,
+    )
 }
