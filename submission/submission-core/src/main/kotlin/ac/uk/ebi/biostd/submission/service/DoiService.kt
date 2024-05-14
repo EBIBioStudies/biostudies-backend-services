@@ -92,7 +92,7 @@ class DoiService(
         val contributors =
             submission
                 .allSections()
-                .filter { it.type.lowercase() == AUTHOR_TYPE.lowercase() }
+                .filter { it.type.equals(AUTHOR_TYPE, ignoreCase = true) }
                 .filter { isNameValid(it) }
 
         return contributors.map { it.asContributor(organizations) }
