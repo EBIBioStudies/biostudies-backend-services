@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.common.properties.DoiProperties
 import ac.uk.ebi.biostd.submission.exceptions.InvalidAuthorAffiliationException
-import ac.uk.ebi.biostd.submission.exceptions.InvalidAuthorNameException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDoiException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidOrgException
 import ac.uk.ebi.biostd.submission.exceptions.InvalidOrgNameException
@@ -104,6 +103,104 @@ class DoiServiceTest(
 
         assertThat(doi).isEqualTo("$BS_DOI_ID/$TEST_ACC_NO")
         assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(EXPECTED_DOI_REQUEST)
+        assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
+        assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
+        assertThat(body[OPERATION_PARAM]!!.first()).isEqualTo(OPERATION_PARAM_VALUE)
+        headers.andThen { assertThat(it[CONTENT_TYPE]!!.first()).isEqualTo(MULTIPART_FORM_DATA) }
+        verify(exactly = 1) {
+            webClient.post().uri(properties.endpoint)
+            requestSpec.bodyValue(body)
+            requestSpec.retrieve().bodyToMono(String::class.java).block()
+        }
+    }
+
+    @Test
+    fun `doi registration with incomplete author name`(
+        @MockK requestSpec: RequestBodySpec,
+    ) {
+        val headersSlot = slot<Consumer<HttpHeaders>>()
+        val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
+        val submission =
+            submission {
+                title = "Test Submission"
+                attribute("DOI", "")
+
+                section("Study") {
+                    section("Organization") {
+                        accNo = "o1"
+                        attribute("Name", "EMBL")
+                    }
+
+                    section("Author") {
+                        attribute("Name", "Doe")
+                        attribute("ORCID", "12-32-45-82")
+                        attribute("Affiliation", "o1", ref = true)
+                    }
+                }
+            }
+
+        every { submitRequest.submission } returns submission
+        every { webClient.post().uri(properties.endpoint) } returns requestSpec
+        every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
+        every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
+        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "OK"
+
+        val doi = testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
+        val body = bodySlot.captured
+        val headers = headersSlot.captured
+        val requestFile = body[FILE_PARAM]!!.first() as FileSystemResource
+
+        assertThat(doi).isEqualTo("$BS_DOI_ID/$TEST_ACC_NO")
+        assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(EXPECTED_DOI_REQUEST_WITHOUT_CONTRIBUTORS)
+        assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
+        assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
+        assertThat(body[OPERATION_PARAM]!!.first()).isEqualTo(OPERATION_PARAM_VALUE)
+        headers.andThen { assertThat(it[CONTENT_TYPE]!!.first()).isEqualTo(MULTIPART_FORM_DATA) }
+        verify(exactly = 1) {
+            webClient.post().uri(properties.endpoint)
+            requestSpec.bodyValue(body)
+            requestSpec.retrieve().bodyToMono(String::class.java).block()
+        }
+    }
+
+    @Test
+    fun `doi registration missing author name`(
+        @MockK requestSpec: RequestBodySpec,
+    ) {
+        val headersSlot = slot<Consumer<HttpHeaders>>()
+        val bodySlot = slot<LinkedMultiValueMap<String, Any>>()
+        val submission =
+            submission {
+                title = "Test Submission"
+                attribute("DOI", "")
+
+                section("Study") {
+                    section("organization") {
+                        accNo = "o1"
+                        attribute("Name", "EMBL")
+                    }
+
+                    section("author") {
+                        attribute("P.I.", "John Doe")
+                        attribute("ORCID", "12-32-45-82")
+                        attribute("Affiliation", "o1", ref = true)
+                    }
+                }
+            }
+
+        every { submitRequest.submission } returns submission
+        every { webClient.post().uri(properties.endpoint) } returns requestSpec
+        every { requestSpec.bodyValue(capture(bodySlot)) } returns requestSpec
+        every { requestSpec.headers(capture(headersSlot)) } returns requestSpec
+        every { requestSpec.retrieve().bodyToMono(String::class.java).block() } returns "OK"
+
+        val doi = testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
+        val body = bodySlot.captured
+        val headers = headersSlot.captured
+        val requestFile = body[FILE_PARAM]!!.first() as FileSystemResource
+
+        assertThat(doi).isEqualTo("$BS_DOI_ID/$TEST_ACC_NO")
+        assertThat(requestFile.file.readText()).isEqualToIgnoringWhitespace(EXPECTED_DOI_REQUEST_WITHOUT_CONTRIBUTORS)
         assertThat(body[USER_PARAM]!!.first()).isEqualTo(properties.user)
         assertThat(body[PASSWORD_PARAM]!!.first()).isEqualTo(properties.password)
         assertThat(body[OPERATION_PARAM]!!.first()).isEqualTo(OPERATION_PARAM_VALUE)
@@ -295,38 +392,6 @@ class DoiServiceTest(
     }
 
     @Test
-    fun `missing author name`() {
-        val submission =
-            submission {
-                title = "Test Submission"
-                attribute("DOI", "")
-
-                section("Study") {
-                    section("organization") {
-                        accNo = "o1"
-                        attribute("Name", "EMBL")
-                    }
-
-                    section("author") {
-                        attribute("P.I.", "John Doe")
-                        attribute("ORCID", "12-32-45-82")
-                        attribute("Affiliation", "o1", ref = true)
-                    }
-                }
-            }
-
-        every { submitRequest.submission } returns submission
-
-        val exception =
-            assertThrows<InvalidAuthorNameException> {
-                testInstance.calculateDoi(TEST_ACC_NO, submitRequest)
-            }
-
-        verify(exactly = 0) { webClient.post() }
-        assertThat(exception.message).isEqualTo("Authors are required to have a name")
-    }
-
-    @Test
     fun `missing affiliation`() {
         val submission =
             submission {
@@ -433,6 +498,42 @@ class DoiServiceTest(
                                     <ORCID authenticated="false">https://orcid.org/12-32-45-82</ORCID>
                                 </person_name>
                             </contributors>
+                            <titles>
+                                <title>Test Submission</title>
+                            </titles>
+                            <doi_data>
+                                <doi>10.6019/S-TEST123</doi>
+                                <resource>https://www.biostudies.ac.uk/studies/S-TEST123</resource>
+                            </doi_data>
+                        </dataset>
+                    </database>
+                </body>
+            </doi_batch>
+        """
+
+        private const val EXPECTED_DOI_REQUEST_WITHOUT_CONTRIBUTORS = """
+            <doi_batch
+                xmlns="http://www.crossref.org/schema/4.4.1"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                version="4.4.1" xsi:schemaLocation="http://www.crossref.org/schema/4.4.1
+                http://www.crossref.org/schema/deposit/crossref4.4.1.xsd">
+                <head>
+                    <doi_batch_id>1600683060</doi_batch_id>
+                    <timestamp>1600683060</timestamp>
+                    <depositor>
+                        <depositor_name>EMBL-EBI</depositor_name>
+                        <email_address>biostudies@ebi.ac.uk</email_address>
+                    </depositor>
+                    <registrant>EMBL-EBI</registrant>
+                </head>
+                <body>
+                    <database>
+                        <database_metadata language="en">
+                            <titles>
+                                <title>BioStudies Database</title>
+                            </titles>
+                        </database_metadata>
+                        <dataset>
                             <titles>
                                 <title>Test Submission</title>
                             </titles>
