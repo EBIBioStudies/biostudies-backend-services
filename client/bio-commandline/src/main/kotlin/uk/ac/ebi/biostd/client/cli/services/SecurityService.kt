@@ -3,14 +3,23 @@ package uk.ac.ebi.biostd.client.cli.services
 import uk.ac.ebi.biostd.client.cli.dto.PermissionRequest
 
 internal class SecurityService {
-    fun grantPermission(request: PermissionRequest) = performRequest { permission(request) }
+    fun grantCollectionPermission(request: PermissionRequest) =
+        performRequest {
+            val config = request.securityConfig
+            bioWebClient(config.server, config.user, config.password).grantCollectionPermission(
+                request.targetUser,
+                request.accNo,
+                request.accessType,
+            )
+        }
 
-    private fun permission(rqt: PermissionRequest) {
-        val config = rqt.securityConfig
-        bioWebClient(config.server, config.user, config.password).givePermissionToUser(
-            rqt.targetUser,
-            rqt.accessTagName,
-            rqt.accessType,
-        )
-    }
+    fun grantSubmissionPermission(request: PermissionRequest) =
+        performRequest {
+            val config = request.securityConfig
+            bioWebClient(config.server, config.user, config.password).grantSubmissionPermission(
+                request.targetUser,
+                request.accNo,
+                request.accessType,
+            )
+        }
 }

@@ -17,7 +17,7 @@ interface IUserPrivilegesService {
         accNo: String,
     ): Boolean
 
-    fun canSubmitToCollection(
+    suspend fun canSubmitToCollection(
         submitter: String,
         collection: String,
     ): Boolean

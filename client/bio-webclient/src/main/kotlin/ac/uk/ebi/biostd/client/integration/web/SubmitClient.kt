@@ -226,9 +226,15 @@ interface ExtSubmissionOperations {
 }
 
 interface PermissionOperations {
-    fun givePermissionToUser(
+    fun grantCollectionPermission(
         user: String,
-        accessTagName: String,
+        accNo: String,
+        accessType: String,
+    )
+
+    fun grantSubmissionPermission(
+        user: String,
+        accNo: String,
         accessType: String,
     )
 }

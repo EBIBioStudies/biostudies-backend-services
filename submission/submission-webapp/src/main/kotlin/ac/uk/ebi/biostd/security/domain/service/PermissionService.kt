@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.security.domain.service
 
 import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.model.DbAccessPermission
+import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -13,7 +14,7 @@ class PermissionService(
     private val userRepository: UserDataRepository,
     private val tagRepository: AccessTagDataRepo,
 ) {
-    fun givePermissionToUser(
+    fun grantPermission(
         accessType: AccessType,
         email: String,
         tag: String,
@@ -24,6 +25,15 @@ class PermissionService(
         if (permissionExists(accessType, email, tag).not()) {
             permissionRepository.save(DbAccessPermission(accessType = accessType, user = user, accessTag = accessTag))
         }
+    }
+
+    fun createAndGrantPermission(
+        accessType: AccessType,
+        email: String,
+        tag: String,
+    ) {
+        if (tagRepository.existsByName(tag).not()) tagRepository.save(DbAccessTag(name = tag))
+        grantPermission(accessType, email, tag)
     }
 
     private fun permissionExists(

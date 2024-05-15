@@ -156,7 +156,7 @@ interface SubmissionMetaQueryService {
 
     suspend fun findLatestBasicByAccNo(accNo: String): BasicSubmission?
 
-    suspend fun getAccessTags(accNo: String): List<String>
+    suspend fun getCollections(accNo: String): List<String>
 
     suspend fun existByAccNo(accNo: String): Boolean
 }

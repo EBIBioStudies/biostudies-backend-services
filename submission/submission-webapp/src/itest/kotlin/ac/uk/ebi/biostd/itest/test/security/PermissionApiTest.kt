@@ -58,7 +58,7 @@ class PermissionApiTest(
 
     @Test
     fun `21-1 give permission to a user by superUser`() {
-        superWebClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
+        superWebClient.grantCollectionPermission(dbUser.email, dbAccessTag.name, "READ")
 
         val permissions = accessPermissionRepository.findAllByUserEmail(dbUser.email)
 
@@ -70,21 +70,21 @@ class PermissionApiTest(
     @Test
     fun `21-2 trying to give permission to a user by regularUser`() {
         assertThrows<WebClientException> {
-            regularWebClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
+            regularWebClient.grantCollectionPermission(dbUser.email, dbAccessTag.name, "READ")
         }
     }
 
     @Test
     fun `21-3 trying to give permission to non-existent user`() {
         assertThrows<WebClientException>("The user $FAKE_USER does not exist") {
-            superWebClient.givePermissionToUser(FAKE_USER, dbAccessTag.name, "READ")
+            superWebClient.grantCollectionPermission(FAKE_USER, dbAccessTag.name, "READ")
         }
     }
 
     @Test
     fun `21-4 trying to give permission to a user but non-existent accessTag`() {
         assertThrows<WebClientException>("The accessTag $FAKE_ACCESS_TAG does not exist") {
-            superWebClient.givePermissionToUser(dbUser.email, FAKE_ACCESS_TAG, "READ")
+            superWebClient.grantCollectionPermission(dbUser.email, FAKE_ACCESS_TAG, "READ")
         }
     }
 

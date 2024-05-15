@@ -3,7 +3,8 @@ package uk.ac.ebi.biostd.client.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import uk.ac.ebi.biostd.client.cli.commands.DeleteCommand
-import uk.ac.ebi.biostd.client.cli.commands.GrantPermissionCommand
+import uk.ac.ebi.biostd.client.cli.commands.GrantCollectionPermissionCommand
+import uk.ac.ebi.biostd.client.cli.commands.GrantSubmissionPermissionCommand
 import uk.ac.ebi.biostd.client.cli.commands.MigrateCommand
 import uk.ac.ebi.biostd.client.cli.commands.SubmitAsyncCommand
 import uk.ac.ebi.biostd.client.cli.commands.SubmitCommand
@@ -28,7 +29,8 @@ fun main(args: Array<String>) {
             DeleteCommand(service),
             MigrateCommand(service),
             TransferCommand(service),
-            GrantPermissionCommand(securityService),
+            GrantCollectionPermissionCommand(securityService),
+            GrantSubmissionPermissionCommand(securityService),
             ValidateFileListCommand(service),
         )
         .main(args)

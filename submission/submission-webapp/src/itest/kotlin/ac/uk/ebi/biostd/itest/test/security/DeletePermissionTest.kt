@@ -144,7 +144,7 @@ class DeletePermissionTest(
                 }.toString()
 
             assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
-            superUserWebClient.givePermissionToUser(RegularUser.email, "ACollection", DELETE.name)
+            superUserWebClient.grantCollectionPermission(RegularUser.email, "ACollection", DELETE.name)
 
             regularUserWebClient.deleteSubmission("S-DLT5")
             assertDeletedSubmission("S-DLT5")
@@ -163,7 +163,7 @@ class DeletePermissionTest(
                 }.toString()
 
             assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
-            superUserWebClient.givePermissionToUser(RegularUser.email, "ACollection", DELETE.name)
+            superUserWebClient.grantCollectionPermission(RegularUser.email, "ACollection", DELETE.name)
             regularUserWebClient.deleteSubmission("S-DLT6")
             assertDeletedSubmission("S-DLT6")
         }
@@ -180,7 +180,7 @@ class DeletePermissionTest(
                 }.toString()
 
             assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
-            superUserWebClient.givePermissionToUser(ExistingUser.email, "ACollection", ADMIN.name)
+            superUserWebClient.grantCollectionPermission(ExistingUser.email, "ACollection", ADMIN.name)
 
             assertThatExceptionOfType(WebClientException::class.java)
                 .isThrownBy { existingUserWebClient.deleteSubmission("S-DLT7") }
@@ -200,7 +200,7 @@ class DeletePermissionTest(
                 }.toString()
 
             assertThat(superUserWebClient.submitSingle(submission, TSV)).isSuccessful()
-            superUserWebClient.givePermissionToUser(ExistingUser.email, "ACollection", ADMIN.name)
+            superUserWebClient.grantCollectionPermission(ExistingUser.email, "ACollection", ADMIN.name)
 
             assertThatExceptionOfType(WebClientException::class.java)
                 .isThrownBy { existingUserWebClient.deleteSubmission("S-DLT8") }

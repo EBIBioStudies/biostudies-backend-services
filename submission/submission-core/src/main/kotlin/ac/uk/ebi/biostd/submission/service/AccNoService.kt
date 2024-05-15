@@ -34,7 +34,7 @@ class AccNoService(
         return accNo?.let { patternUtil.toAccNumber(it) } ?: calculateAccNo(getPattern(rqt.collection?.accNoPattern))
     }
 
-    private fun checkCanSubmitToCollection(
+    private suspend fun checkCanSubmitToCollection(
         collection: String?,
         submitter: String,
     ) {
