@@ -34,14 +34,7 @@ class SubmissionRequestCleaner(
     ) {
         requestService.onRequest(accNo, version, INDEXED_CLEANED, processId, {
             val previousVersion = it.previousVersion
-            if (previousVersion != null) {
-                cleanFiles(
-                    accNo = accNo,
-                    version = version,
-                    previousVersion = previousVersion,
-                    status = CONFLICTING,
-                )
-            }
+            if (previousVersion != null) cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING)
             RqtUpdate(it.withNewStatus(CLEANED))
         })
         eventsPublisherService.requestCleaned(accNo, version)
@@ -54,14 +47,7 @@ class SubmissionRequestCleaner(
     ) {
         requestService.onRequest(accNo, version, PERSISTED, processId, {
             val previousVersion = it.previousVersion
-            if (previousVersion != null) {
-                cleanFiles(
-                    accNo = accNo,
-                    version = version,
-                    previousVersion = -previousVersion,
-                    status = DEPRECATED,
-                )
-            }
+            if (previousVersion != null) cleanFiles(accNo, version, previousVersion = -previousVersion, DEPRECATED)
             RqtUpdate(it.withNewStatus(PROCESSED))
         })
         eventsPublisherService.submissionFinalized(accNo, version)
@@ -73,7 +59,7 @@ class SubmissionRequestCleaner(
         previousVersion: Int,
         status: RequestFileStatus,
     ) {
-        val sub = queryService.getBasicByAccNoAndVersion(accNo, previousVersion)
+        val sub = queryService.getCoreInfoByAccNoAndVersion(accNo, previousVersion)
 
         suspend fun deleteFile(
             index: Int,

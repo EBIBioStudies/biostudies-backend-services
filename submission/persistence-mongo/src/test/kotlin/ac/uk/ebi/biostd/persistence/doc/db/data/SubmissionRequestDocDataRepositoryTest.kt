@@ -28,7 +28,7 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
-import java.time.Duration
+import java.time.Duration.ofSeconds
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -177,13 +177,7 @@ class SubmissionRequestDocDataRepositoryTest(
         @Container
         val mongoContainer: MongoDBContainer =
             MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-                .withStartupCheckStrategy(
-                    MinimumDurationRunningStartupCheckStrategy(
-                        Duration.ofSeconds(
-                            MINIMUM_RUNNING_TIME,
-                        ),
-                    ),
-                )
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

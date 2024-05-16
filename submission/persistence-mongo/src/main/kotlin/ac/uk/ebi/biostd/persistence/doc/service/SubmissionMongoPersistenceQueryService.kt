@@ -9,8 +9,8 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataReposito
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
-import ebi.ac.uk.extended.model.ExtBasicSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import kotlinx.coroutines.flow.map
@@ -77,12 +77,12 @@ internal class SubmissionMongoPersistenceQueryService(
         return PageImpl(items.toList(), PageRequest.of(filter.pageNumber, filter.limit), page.totalElements)
     }
 
-    override suspend fun getBasicByAccNoAndVersion(
+    override suspend fun getCoreInfoByAccNoAndVersion(
         accNo: String,
         version: Int,
-    ): ExtBasicSubmission {
+    ): ExtSubmissionInfo {
         val sub = submissionRepo.getByAccNoAndVersion(accNo, version)
-        return object : ExtBasicSubmission {
+        return object : ExtSubmissionInfo {
             override val accNo get() = sub.accNo
             override val version get() = sub.version
             override val owner get() = sub.owner

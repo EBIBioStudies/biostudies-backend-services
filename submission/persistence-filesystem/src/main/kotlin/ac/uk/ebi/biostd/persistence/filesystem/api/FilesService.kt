@@ -1,8 +1,8 @@
 package ac.uk.ebi.biostd.persistence.filesystem.api
 
-import ebi.ac.uk.extended.model.ExtBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionInfo
 
 internal interface FilesService {
     suspend fun persistSubmissionFile(
@@ -11,12 +11,12 @@ internal interface FilesService {
     ): ExtFile
 
     suspend fun deleteSubmissionFile(
-        sub: ExtBasicSubmission,
+        sub: ExtSubmissionInfo,
         file: ExtFile,
     )
 
     suspend fun deleteFtpFile(
-        sub: ExtBasicSubmission,
+        sub: ExtSubmissionInfo,
         file: ExtFile,
     )
 

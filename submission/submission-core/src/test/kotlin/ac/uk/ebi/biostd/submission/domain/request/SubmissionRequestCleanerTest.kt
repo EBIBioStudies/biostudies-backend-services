@@ -11,9 +11,9 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQuerySer
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
-import ebi.ac.uk.extended.model.ExtBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -65,7 +65,7 @@ class SubmissionRequestCleanerTest(
     @Test
     fun cleanCurrentVersion(
         @MockK sub: ExtSubmission,
-        @MockK previousSub: ExtBasicSubmission,
+        @MockK previousSub: ExtSubmissionInfo,
         @MockK request: SubmissionRequest,
         @MockK cleanedRequest: SubmissionRequest,
         @MockK file: ExtFile,
@@ -82,7 +82,7 @@ class SubmissionRequestCleanerTest(
         every { filesService.getSubmissionRequestFiles(ACC_NO, VERSION, CONFLICTING) } returns flowOf(requestFile)
 
         coEvery { storageService.deleteSubmissionFile(previousSub, file) } answers { nothing }
-        coEvery { queryService.getBasicByAccNoAndVersion(ACC_NO, PREVIOUS_VERSION) } returns previousSub
+        coEvery { queryService.getCoreInfoByAccNoAndVersion(ACC_NO, PREVIOUS_VERSION) } returns previousSub
         coEvery { rqtService.updateRqtFile(requestFile.copy(status = RequestFileStatus.CLEANED)) } answers { nothing }
 
         coEvery {

@@ -107,7 +107,7 @@ data class ExtSection(
 
 data class ExtAccessTag(val name: String)
 
-interface ExtBasicSubmission {
+interface ExtSubmissionInfo {
     val accNo: String
     val version: Int
     val owner: String
@@ -138,7 +138,7 @@ data class ExtSubmission(
     val collections: List<ExtCollection> = listOf(),
     val pageTabFiles: List<ExtFile> = listOf(),
     override val storageMode: StorageMode,
-) : ExtBasicSubmission
+) : ExtSubmissionInfo
 
 enum class StorageMode(val value: String) {
     FIRE("FIRE"),

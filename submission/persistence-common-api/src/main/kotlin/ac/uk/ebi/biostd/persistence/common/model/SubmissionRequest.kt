@@ -48,6 +48,9 @@ data class SubmissionRequest(
         )
     }
 
+    /**
+     * Create a Submission Request after indexing stage setting total files field.
+     */
     fun indexed(totalFiles: Int): SubmissionRequest {
         return copy(
             status = RequestStatus.INDEXED,
@@ -57,6 +60,10 @@ data class SubmissionRequest(
         )
     }
 
+    /**
+     * Create a Submission Request after clean indexing stage setting conflicted, deprecated files and previous version
+     * fields.
+     */
     fun cleanIndexed(
         conflictedFiles: Int,
         deprecatedFiles: Int,
@@ -91,6 +98,7 @@ enum class RequestStatus {
                 REQUESTED,
                 INDEXED,
                 LOADED,
+                INDEXED_CLEANED,
                 CLEANED,
                 FILES_COPIED,
                 CHECK_RELEASED,
