@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.persistence.filesystem.api
 
+import ebi.ac.uk.extended.model.ExtBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
@@ -19,7 +20,7 @@ interface FileStorageService {
     ): ExtFile
 
     suspend fun deleteSubmissionFile(
-        sub: ExtSubmission,
+        sub: ExtBasicSubmission,
         file: ExtFile,
     )
 

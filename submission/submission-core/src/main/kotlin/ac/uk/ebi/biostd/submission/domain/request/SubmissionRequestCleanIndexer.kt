@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
-import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
@@ -39,51 +39,52 @@ class SubmissionRequestCleanIndexer(
         processId: String,
     ) {
         requestService.onRequest(accNo, version, RequestStatus.LOADED, processId) {
-            val (conflicted, deprecated) = indexRequest(it.submission)
-            RqtUpdate(it.cleanIndexed(conflictedFiles = conflicted, deprecatedFiles = deprecated))
+            val (activeVersion, conflicted, deprecated) = indexRequest(it.submission)
+            RqtUpdate(it.cleanIndexed(conflicted, deprecated, activeVersion))
         }
         eventsPublisherService.requestIndexedToClean(accNo, version)
     }
 
-    suspend fun indexRequest(new: ExtSubmission): Pair<Int, Int> {
+    suspend fun indexRequest(new: ExtSubmission): Triple<Int?, Int, Int> {
         val current = queryService.findExtByAccNo(new.accNo, includeFileListFiles = true)
         if (current != null) {
             logger.info { "${new.accNo} ${new.owner} Started indexing submission files to be cleaned" }
             val newFiles = summarizeFileRecords(new)
-            val response = indexToCleanFiles(newFiles, current)
+            val response = indexToCleanFiles(new = new, newFiles = newFiles, current = current)
             logger.info { "${new.accNo} ${new.owner} Finished indexing submission files to be cleaned" }
             return response
         }
 
-        return 0 to 0
+        return Triple(null, 0, 0)
     }
 
     private suspend fun indexToCleanFiles(
+        new: ExtSubmission,
         newFiles: FilesRecords,
         current: ExtSubmission,
-    ): Pair<Int, Int> {
+    ): Triple<Int, Int, Int> {
         val conflictIdx = AtomicInteger(0)
         val deprecatedIdx = AtomicInteger(0)
 
         serializationService.filesFlow(current)
             .mapNotNull { file ->
                 when (newFiles.findMatch(file)) {
-                    MatchType.CONFLICTING -> SubRqtFile(current, conflictIdx.incrementAndGet(), file, CONFLICTING)
-                    MatchType.DEPRECATED -> SubRqtFile(current, deprecatedIdx.incrementAndGet(), file, DEPRECATED)
+                    MatchType.CONFLICTING -> SubRqtFile(new, conflictIdx.incrementAndGet(), file, CONFLICTING, true)
+                    MatchType.DEPRECATED -> SubRqtFile(new, deprecatedIdx.incrementAndGet(), file, DEPRECATED, true)
                     MatchType.REUSED -> null
                 }
             }
             .collect {
-                logger.info { "${current.accNo} ${current.owner} Indexing to clean file ${it.index}, path='${it.path}'" }
+                logger.info { "${new.accNo} ${new.owner} Indexing to clean file ${it.index}, path='${it.path}'" }
                 filesRequestService.saveSubmissionRequestFile(it)
             }
-        return conflictIdx.get() to deprecatedIdx.get()
+        return Triple(current.version, conflictIdx.get(), deprecatedIdx.get())
     }
 
     private suspend fun summarizeFileRecords(new: ExtSubmission): FilesRecords {
         val response = mutableMapOf<String, FileRecord>()
         filesRequestService
-            .getSubmissionRequestFiles(new.accNo, new.version, INDEXED)
+            .getSubmissionRequestFiles(new.accNo, new.version, LOADED)
             .map { it.file }
             .collect { response[it.filePath] = FileRecord(it.md5, new.storageMode) }
         return FilesRecords(new.storageMode, response)
@@ -104,8 +105,8 @@ private class FilesRecords(
     fun findMatch(existing: ExtFile): MatchType {
         val newFile = files[existing.filePath]
         return when {
-            newFile == null -> MatchType.DEPRECATED
-            newFile.md5 != existing.md5 && storageMode == existing.storageMode -> MatchType.CONFLICTING
+            newFile == null || newFile.storageMode != existing.storageMode -> MatchType.DEPRECATED
+            newFile.md5 != existing.md5 -> MatchType.CONFLICTING
             else -> MatchType.REUSED
         }
     }

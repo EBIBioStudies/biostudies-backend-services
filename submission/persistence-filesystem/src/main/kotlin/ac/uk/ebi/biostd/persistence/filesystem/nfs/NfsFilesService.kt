@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.permissions
+import ebi.ac.uk.extended.model.ExtBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
@@ -82,7 +83,7 @@ class NfsFilesService(
     }
 
     override suspend fun deleteSubmissionFile(
-        sub: ExtSubmission,
+        sub: ExtBasicSubmission,
         file: ExtFile,
     ) = withContext(Dispatchers.IO) {
         require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
@@ -96,7 +97,7 @@ class NfsFilesService(
     }
 
     override suspend fun deleteFtpFile(
-        sub: ExtSubmission,
+        sub: ExtBasicSubmission,
         file: ExtFile,
     ) = withContext(Dispatchers.IO) {
         val subFolder = folderResolver.getPublicSubFolder(sub.relPath)

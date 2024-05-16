@@ -9,8 +9,11 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_NAME
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocAttributeFields.ATTRIBUTE_DOC_VALUE
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_ACC_NO
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_CONFLICTED_FILES
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_DEPRECATED_FILES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_IDX
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_MODIFICATION_TIME
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_PREV_SUB_VERSION
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGES
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields.RQT_STATUS_CHANGE_ENDTIME
@@ -35,6 +38,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionReques
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_STATUS
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_FILE_SUB_VERSION
+import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionRequestFileFields.RQT_PREVIOUS_SUB_FILE
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocRequestStatusChanges
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
@@ -143,12 +147,19 @@ class SubmissionRequestDocDataRepository(
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()
     }
 
-    suspend fun upsertSubmissionRequestFile(rqtFile: SubmissionRequestFile) {
-        val file = BasicDBObject.parse(extSerializationService.serialize(rqtFile.file))
-        val update = update(RQT_FILE_FILE, file).set(RQT_FILE_INDEX, rqtFile.index).set(RQT_FILE_STATUS, rqtFile.status)
+    suspend fun upsertSubRqtFile(file: SubmissionRequestFile) {
+        val serializedFile = BasicDBObject.parse(extSerializationService.serialize(file.file))
+        val update =
+            update(RQT_FILE_FILE, serializedFile)
+                .set(RQT_FILE_INDEX, file.index)
+                .set(RQT_FILE_STATUS, file.status)
         val where =
-            where(RQT_FILE_SUB_ACC_NO).`is`(rqtFile.accNo)
-                .andOperator(where(RQT_FILE_SUB_VERSION).`is`(rqtFile.version), where(RQT_FILE_PATH).`is`(rqtFile.path))
+            where(RQT_FILE_SUB_ACC_NO).`is`(file.accNo)
+                .andOperator(
+                    where(RQT_FILE_SUB_VERSION).`is`(file.version),
+                    where(RQT_FILE_PATH).`is`(file.path),
+                    where(RQT_PREVIOUS_SUB_FILE).`is`(file.previousSubFile),
+                )
 
         mongoTemplate.upsert(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
     }
@@ -161,6 +172,7 @@ class SubmissionRequestDocDataRepository(
                 .andOperator(
                     where(RQT_FILE_SUB_VERSION).`is`(file.version),
                     where(RQT_FILE_PATH).`is`(file.path),
+                    where(RQT_PREVIOUS_SUB_FILE).`is`(file.previousSubFile),
                 )
         mongoTemplate.updateFirst(Query(where), update, DocSubmissionRequestFile::class.java).awaitSingleOrNull()
     }
@@ -198,7 +210,10 @@ class SubmissionRequestDocDataRepository(
                 .set(RQT_TOTAL_FILES, rqt.totalFiles)
                 .set(RQT_IDX, rqt.currentIndex)
                 .set(RQT_TOTAL_FILES, rqt.totalFiles)
+                .set(RQT_DEPRECATED_FILES, rqt.deprecatedFiles)
+                .set(RQT_CONFLICTED_FILES, rqt.conflictedFiles)
                 .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
+                .set(RQT_PREV_SUB_VERSION, rqt.previousVersion)
                 .set("$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_ENDTIME", processEndTime)
                 .set("$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_RESULT", processRusult.toString())
         mongoTemplate.updateFirst(query, update, DocSubmissionRequest::class.java).awaitSingleOrNull()

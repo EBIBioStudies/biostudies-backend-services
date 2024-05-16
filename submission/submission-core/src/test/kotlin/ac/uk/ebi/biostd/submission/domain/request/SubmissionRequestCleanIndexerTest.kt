@@ -2,7 +2,7 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
-import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -60,8 +60,9 @@ class SubmissionRequestCleanIndexerTest(
             every { newSub.version } returns CURRENT_VERSION
             coEvery { queryService.findExtByAccNo(ACC_NO, includeFileListFiles = true) } returns null
 
-            val (conflicted, deprecated) = testInstance.indexRequest(newSub)
+            val (previousVersion, conflicted, deprecated) = testInstance.indexRequest(newSub)
 
+            assertThat(previousVersion).isNull()
             assertThat(conflicted).isZero()
             assertThat(deprecated).isZero()
             verify { serializationService wasNot Called }
@@ -94,7 +95,7 @@ class SubmissionRequestCleanIndexerTest(
                 fileRqtService.getSubmissionRequestFiles(
                     ACC_NO,
                     NEW_VERSION,
-                    INDEXED,
+                    LOADED,
                 )
             } returns flowOf(newRqtFile)
 
@@ -109,8 +110,9 @@ class SubmissionRequestCleanIndexerTest(
             coEvery { serializationService.filesFlow(currentSub) } returns flowOf(file)
             coEvery { fileRqtService.saveSubmissionRequestFile(any()) } coAnswers { nothing }
 
-            val (conflicted, deprecated) = testInstance.indexRequest(newSub)
+            val (previousVersion, conflicted, deprecated) = testInstance.indexRequest(newSub)
 
+            assertThat(previousVersion).isEqualTo(CURRENT_VERSION)
             assertThat(conflicted).isZero()
             assertThat(deprecated).isOne()
             coVerify { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlot)) }
@@ -129,7 +131,7 @@ class SubmissionRequestCleanIndexerTest(
                 fileRqtService.getSubmissionRequestFiles(
                     ACC_NO,
                     NEW_VERSION,
-                    INDEXED,
+                    LOADED,
                 )
             } returns flowOf(newRqtFile)
 
@@ -143,8 +145,9 @@ class SubmissionRequestCleanIndexerTest(
             mockkStatic(ExtSerializationService::filesFlow)
             coEvery { serializationService.filesFlow(currentSub) } returns flowOf(file)
 
-            val (conflicted, deprecated) = testInstance.indexRequest(newSub)
+            val (previousVersion, conflicted, deprecated) = testInstance.indexRequest(newSub)
 
+            assertThat(previousVersion).isEqualTo(CURRENT_VERSION)
             assertThat(conflicted).isZero()
             assertThat(deprecated).isZero()
             coVerify(exactly = 0) { fileRqtService.saveSubmissionRequestFile(any()) }
@@ -160,7 +163,7 @@ class SubmissionRequestCleanIndexerTest(
                 fileRqtService.getSubmissionRequestFiles(
                     ACC_NO,
                     NEW_VERSION,
-                    INDEXED,
+                    LOADED,
                 )
             } returns flowOf(newRqtFile)
 
@@ -175,11 +178,13 @@ class SubmissionRequestCleanIndexerTest(
             coEvery { serializationService.filesFlow(currentSub) } returns flowOf(replacedFile)
             coEvery { fileRqtService.saveSubmissionRequestFile(any()) } coAnswers { nothing }
 
-            val (conflicted, deprecated) = testInstance.indexRequest(newSub)
+            val (previousVersion, conflicted, deprecated) = testInstance.indexRequest(newSub)
 
+            assertThat(previousVersion).isEqualTo(CURRENT_VERSION)
             assertThat(conflicted).isOne()
             assertThat(deprecated).isZero()
             coVerify { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlot)) }
+
             val requestFile = requestFileSlot.captured
             assertThat(requestFile.status).isEqualTo(CONFLICTING)
             assertThat(requestFile.file).isEqualTo(replacedFile)

@@ -94,6 +94,7 @@ class SubmissionRequestMongoPersistenceService(
                     deprecatedFiles = request.deprecatedFiles,
                     totalFiles = request.totalFiles,
                     currentIndex = request.currentIndex,
+                    previousVersion = request.previousVersion,
                     modificationTime = request.modificationTime.atOffset(UTC),
                 )
             return changeId to subRequest
@@ -112,7 +113,9 @@ class SubmissionRequestMongoPersistenceService(
             changeId: String,
             request: SubmissionRequest,
         ) {
-            logger.error(it) { "Error on request accNo='$accNo', version='$version', changeId='$changeId'" }
+            logger.error(it) {
+                "Error on request accNo='$accNo', version='$version', changeId='$changeId', status='$status'"
+            }
             saveRequest(request, changeId, ProcessResult.ERROR)
         }
 
@@ -146,6 +149,7 @@ class SubmissionRequestMongoPersistenceService(
             conflictedFiles = rqt.conflictedFiles,
             deprecatedFiles = rqt.deprecatedFiles,
             currentIndex = rqt.currentIndex,
+            previousVersion = rqt.previousVersion,
             modificationTime = rqt.modificationTime.toInstant(),
         )
     }
@@ -162,6 +166,7 @@ class SubmissionRequestMongoPersistenceService(
                 deprecatedFiles = request.deprecatedFiles,
                 conflictedFiles = request.conflictedFiles,
                 currentIndex = request.currentIndex,
+                previousVersion = request.previousVersion,
                 modificationTime = request.modificationTime.atOffset(UTC),
             )
         return subRequest

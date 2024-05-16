@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
+import ebi.ac.uk.extended.model.ExtBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import kotlinx.coroutines.flow.Flow
@@ -58,6 +59,11 @@ interface SubmissionPersistenceQueryService {
     ): ExtSubmission
 
     suspend fun getExtendedSubmissions(filter: SubmissionFilter): Page<ExtSubmission>
+
+    suspend fun getBasicByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+    ): ExtBasicSubmission
 
     /**
      * Return the list of submissions that belongs to a user. Both processed and processing or requesting ones are

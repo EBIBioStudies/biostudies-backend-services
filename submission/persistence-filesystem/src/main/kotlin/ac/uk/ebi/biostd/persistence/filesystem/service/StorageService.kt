@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.fire.FireFtpService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFilesService
 import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
+import ebi.ac.uk.extended.model.ExtBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
@@ -44,7 +45,7 @@ class StorageService(
     }
 
     override suspend fun deleteSubmissionFile(
-        sub: ExtSubmission,
+        sub: ExtBasicSubmission,
         file: ExtFile,
     ) = when (sub.storageMode) {
         FIRE -> {

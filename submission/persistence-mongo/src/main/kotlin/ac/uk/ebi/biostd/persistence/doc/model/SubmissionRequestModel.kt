@@ -24,6 +24,7 @@ data class DocSubmissionRequest(
     val conflictedFiles: Int,
     val deprecatedFiles: Int,
     val currentIndex: Int,
+    val previousVersion: Int?,
     val modificationTime: Instant,
     val statusChanges: List<DocRequestStatusChanges> = emptyList(),
 ) {
@@ -39,6 +40,7 @@ data class DocSubmissionRequest(
             .setOnInsert(DocRequestFields.RQT_TOTAL_FILES, totalFiles)
             .setOnInsert(DocRequestFields.RQT_DEPRECATED_FILES, deprecatedFiles)
             .setOnInsert(DocRequestFields.RQT_CONFLICTED_FILES, conflictedFiles)
+            .setOnInsert(DocRequestFields.RQT_PREV_SUB_VERSION, previousVersion)
             .setOnInsert(DocRequestFields.RQT_IDX, currentIndex)
             .setOnInsert(DocRequestFields.RQT_MODIFICATION_TIME, modificationTime)
             .setOnInsert(DocRequestFields.RQT_STATUS_CHANGES, statusChanges)
@@ -64,4 +66,5 @@ data class DocSubmissionRequestFile(
     val path: String,
     val file: DBObject,
     val status: RequestFileStatus,
+    val previousSubFile: Boolean,
 )

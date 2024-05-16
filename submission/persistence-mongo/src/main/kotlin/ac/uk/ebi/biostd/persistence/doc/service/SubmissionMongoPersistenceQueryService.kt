@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataReposito
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.getByAccNo
 import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
+import ebi.ac.uk.extended.model.ExtBasicSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
@@ -74,6 +75,21 @@ internal class SubmissionMongoPersistenceQueryService(
         val page = submissionRepo.getSubmissionsPage(filter)
         val items = page.content.map { toExtSubmissionMapper.toExtSubmission(it, false) }
         return PageImpl(items.toList(), PageRequest.of(filter.pageNumber, filter.limit), page.totalElements)
+    }
+
+    override suspend fun getBasicByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+    ): ExtBasicSubmission {
+        val sub = submissionRepo.getByAccNoAndVersion(accNo, version)
+        return object : ExtBasicSubmission {
+            override val accNo get() = sub.accNo
+            override val version get() = sub.version
+            override val owner get() = sub.owner
+            override val secretKey get() = sub.secretKey
+            override val relPath get() = sub.relPath
+            override val storageMode get() = sub.storageMode
+        }
     }
 
     override suspend fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission> {

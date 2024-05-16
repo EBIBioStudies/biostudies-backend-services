@@ -168,6 +168,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 currentIndex = 0,
                 modificationTime = modificationTime,
                 statusChanges = emptyList(),
+                previousVersion = 1,
             )
 
             requestRepository.save(testRequest("abc", 1, Instant.now().minusSeconds(10), CLEANED))
@@ -187,7 +188,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
             val extFile = createNfsFile("requested.txt", "Files/requested.txt", tempFolder.createFile("requested.txt"))
             val requestFile = SubmissionRequestFile("S-BSST0", 1, index = 2, "requested.txt", extFile, INDEXED)
 
-            requestRepository.upsertSubmissionRequestFile(requestFile)
+            requestRepository.upsertSubRqtFile(requestFile)
             requestRepository.save(testRequest())
 
             testInstance.updateRqtFile(requestFile.copy(file = extFile.copy(md5 = "changedMd5"), status = LOADED))
@@ -196,7 +197,8 @@ class SubmissionRequestMongoPersistenceServiceTest(
             assertThat(request.modificationTime).isNotNull()
             assertThat(request.currentIndex).isEqualTo(1)
 
-            val savedFile = requestFilesRepository.getByPathAndAccNoAndVersion(requestFile.path, "S-BSST0", 1)
+            val savedFile =
+                requestFilesRepository.getByPathAndAccNoAndVersion(requestFile.path, "S-BSST0", 1)
             assertThat(savedFile.file.get("md5")).isEqualTo("changedMd5")
             assertThat(savedFile.status).isEqualTo(LOADED)
         }
@@ -216,6 +218,7 @@ class SubmissionRequestMongoPersistenceServiceTest(
             currentIndex = 0,
             modificationTime = Instant.ofEpochMilli(1664981300),
             statusChanges = emptyList(),
+            previousVersion = 1,
         )
 
     companion object {

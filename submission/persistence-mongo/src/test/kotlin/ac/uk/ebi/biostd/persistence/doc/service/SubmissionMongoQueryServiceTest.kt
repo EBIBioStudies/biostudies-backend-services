@@ -410,6 +410,7 @@ internal class SubmissionMongoQueryServiceTest(
             currentIndex = 0,
             modificationTime = Instant.now(),
             statusChanges = emptyList(),
+            previousVersion = 1,
         )
     }
 

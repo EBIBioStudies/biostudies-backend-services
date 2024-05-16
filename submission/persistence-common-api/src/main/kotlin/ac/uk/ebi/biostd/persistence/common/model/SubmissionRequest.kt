@@ -22,6 +22,7 @@ data class SubmissionRequest(
     val deprecatedFiles: Int,
     val currentIndex: Int,
     val modificationTime: OffsetDateTime,
+    val previousVersion: Int?,
 ) {
     constructor(submission: ExtSubmission, notifyTo: String, draftKey: String? = null) : this(
         submission,
@@ -32,6 +33,7 @@ data class SubmissionRequest(
         conflictedFiles = 0,
         deprecatedFiles = 0,
         currentIndex = 0,
+        previousVersion = null,
         modificationTime = OffsetDateTime.now(),
     )
 
@@ -58,13 +60,15 @@ data class SubmissionRequest(
     fun cleanIndexed(
         conflictedFiles: Int,
         deprecatedFiles: Int,
+        previousVersion: Int?,
     ): SubmissionRequest {
         return copy(
-            status = RequestStatus.INDEXED,
+            status = RequestStatus.INDEXED_CLEANED,
             modificationTime = OffsetDateTime.now(),
             currentIndex = 0,
             conflictedFiles = conflictedFiles,
             deprecatedFiles = deprecatedFiles,
+            previousVersion = previousVersion,
         )
     }
 }
@@ -103,7 +107,8 @@ val RequestStatus.action: String
         return when (this) {
             RequestStatus.REQUESTED -> "Indexing"
             RequestStatus.INDEXED -> "Loading"
-            RequestStatus.LOADED -> "Cleaning"
+            RequestStatus.LOADED -> "Indexing To Clean Files"
+            RequestStatus.INDEXED_CLEANED -> "Cleaning"
             RequestStatus.CLEANED -> "Copy Files"
             RequestStatus.FILES_COPIED -> "Release Files"
             RequestStatus.CHECK_RELEASED -> "Save Submission"

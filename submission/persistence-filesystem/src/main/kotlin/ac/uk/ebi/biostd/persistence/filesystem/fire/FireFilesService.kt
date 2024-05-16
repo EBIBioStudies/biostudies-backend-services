@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.persistence.filesystem.fire
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
+import ebi.ac.uk.extended.model.ExtBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
@@ -49,7 +50,7 @@ class FireFilesService(
     }
 
     override suspend fun deleteSubmissionFile(
-        sub: ExtSubmission,
+        sub: ExtBasicSubmission,
         file: ExtFile,
     ) {
         require(file is FireFile) { "FireFilesService should only handle FireFile, '${file.filePath}' it is not" }
@@ -57,7 +58,7 @@ class FireFilesService(
     }
 
     override suspend fun deleteFtpFile(
-        sub: ExtSubmission,
+        sub: ExtBasicSubmission,
         file: ExtFile,
     ) {
         // No need to delete FTP links on FIRE as file deleting complete this

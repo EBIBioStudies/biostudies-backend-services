@@ -72,6 +72,7 @@ object DocSubmissionRequestFileFields {
     const val RQT_FILE_FILE = "file"
     const val RQT_FILE_STATUS = "status"
     const val RQT_FILE_PATH = "path"
+    const val RQT_PREVIOUS_SUB_FILE = "previousSubFile"
     const val RQT_FILE_SUB_ACC_NO = "accNo"
     const val RQT_FILE_SUB_VERSION = "version"
 }
@@ -157,6 +158,7 @@ object DocRequestFields {
     const val RQT_CONFLICTED_FILES = "conflictedFiles"
     const val RQT_IDX = "currentIndex"
     const val RQT_MODIFICATION_TIME = "modificationTime"
+    const val RQT_PREV_SUB_VERSION = "previousVersion"
     const val RQT_STATUS_CHANGES = "statusChanges"
     const val RQT_STATUS_CHANGE_STATUS_ID = "statusId"
     const val RQT_STATUS_CHANGE_ENDTIME = "endTime"

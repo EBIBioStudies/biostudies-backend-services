@@ -51,7 +51,7 @@ class SubmissionRequestDocDataRepositoryTest(
                 DocSubmissionRequest(
                     id = ObjectId(),
                     accNo = "abc-123",
-                    version = 1,
+                    version = 2,
                     status = RequestStatus.CLEANED,
                     draftKey = "temp-123",
                     notifyTo = "user@test.org",
@@ -61,6 +61,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     conflictedFiles = 12,
                     currentIndex = 6,
                     modificationTime = Instant.now(),
+                    previousVersion = 1,
                     statusChanges = emptyList(),
                 )
 
@@ -79,6 +80,7 @@ class SubmissionRequestDocDataRepositoryTest(
             assertThat(newRequest.conflictedFiles).isEqualTo(request.conflictedFiles)
             assertThat(newRequest.currentIndex).isEqualTo(request.currentIndex)
             assertThat(newRequest.modificationTime).isCloseTo(request.modificationTime, within(100, ChronoUnit.MILLIS))
+            assertThat(newRequest.previousVersion).isEqualTo(request.previousVersion)
         }
 
     @Test
@@ -89,7 +91,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     DocSubmissionRequest(
                         id = ObjectId(),
                         accNo = "abc-123",
-                        version = 1,
+                        version = 2,
                         status = RequestStatus.CLEANED,
                         draftKey = "temp-123",
                         notifyTo = "user@test.org",
@@ -100,6 +102,7 @@ class SubmissionRequestDocDataRepositoryTest(
                         currentIndex = 6,
                         modificationTime = Instant.now(),
                         statusChanges = emptyList(),
+                        previousVersion = 1,
                     ),
                 )
 
@@ -118,6 +121,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     currentIndex = 61,
                     modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),
+                    previousVersion = 1,
                 )
             val (_, created) = testInstance.saveRequest(newRequest)
 
@@ -157,6 +161,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     currentIndex = 61,
                     modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),
+                    previousVersion = 1,
                 )
             testInstance.saveRequest(rqt)
 

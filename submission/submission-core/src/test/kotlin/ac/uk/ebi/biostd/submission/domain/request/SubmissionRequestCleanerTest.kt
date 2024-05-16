@@ -7,9 +7,11 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED_CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.service.StorageService
+import ebi.ac.uk.extended.model.ExtBasicSubmission
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode.FIRE
@@ -35,6 +37,7 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class)
 class SubmissionRequestCleanerTest(
+    @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val storageService: StorageService,
     @MockK private val serializationService: ExtSerializationService,
     @MockK private val eventsPublisherService: EventsPublisherService,
@@ -44,6 +47,7 @@ class SubmissionRequestCleanerTest(
     private val testInstance =
         SubmissionRequestCleaner(
             concurrency = 1,
+            queryService,
             storageService,
             eventsPublisherService,
             rqtService,
@@ -61,11 +65,13 @@ class SubmissionRequestCleanerTest(
     @Test
     fun cleanCurrentVersion(
         @MockK sub: ExtSubmission,
+        @MockK previousSub: ExtBasicSubmission,
         @MockK request: SubmissionRequest,
         @MockK cleanedRequest: SubmissionRequest,
         @MockK file: ExtFile,
     ) = runTest {
         every { request.submission } returns sub
+        every { request.previousVersion } returns PREVIOUS_VERSION
         every { sub.accNo } returns ACC_NO
         every { sub.version } returns VERSION
 
@@ -75,7 +81,8 @@ class SubmissionRequestCleanerTest(
         val requestFile = SubmissionRequestFile(ACC_NO, VERSION, 1, "path", file, CONFLICTING)
         every { filesService.getSubmissionRequestFiles(ACC_NO, VERSION, CONFLICTING) } returns flowOf(requestFile)
 
-        coEvery { storageService.deleteSubmissionFile(sub, file) } answers { nothing }
+        coEvery { storageService.deleteSubmissionFile(previousSub, file) } answers { nothing }
+        coEvery { queryService.getBasicByAccNoAndVersion(ACC_NO, PREVIOUS_VERSION) } returns previousSub
         coEvery { rqtService.updateRqtFile(requestFile.copy(status = RequestFileStatus.CLEANED)) } answers { nothing }
 
         coEvery {
@@ -87,7 +94,7 @@ class SubmissionRequestCleanerTest(
         testInstance.cleanCurrentVersion(ACC_NO, VERSION, PROCESS_ID)
 
         coVerify(exactly = 1) {
-            storageService.deleteSubmissionFile(sub, file)
+            storageService.deleteSubmissionFile(previousSub, file)
             eventsPublisherService.requestCleaned(ACC_NO, VERSION)
             request.withNewStatus(CLEANED)
             rqtService.updateRqtFile(requestFile.copy(status = RequestFileStatus.CLEANED))
@@ -107,6 +114,7 @@ class SubmissionRequestCleanerTest(
         private val rqtSlot = slot<suspend (SubmissionRequest) -> RqtUpdate>()
         const val PROCESS_ID = "biostudies-prod"
         const val ACC_NO = "S-BSST1"
-        const val VERSION = 1
+        const val VERSION = 2
+        const val PREVIOUS_VERSION = 1
     }
 }

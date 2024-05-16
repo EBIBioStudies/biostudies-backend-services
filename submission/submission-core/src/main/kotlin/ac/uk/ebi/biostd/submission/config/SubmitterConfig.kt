@@ -166,6 +166,7 @@ class SubmitterConfig(
 
     @Bean
     fun submissionCleaner(
+        queryService: SubmissionPersistenceQueryService,
         storageService: FileStorageService,
         eventsPublisherService: EventsPublisherService,
         requestService: SubmissionRequestPersistenceService,
@@ -173,6 +174,7 @@ class SubmitterConfig(
     ): SubmissionRequestCleaner =
         SubmissionRequestCleaner(
             properties.persistence.concurrency,
+            queryService,
             storageService,
             eventsPublisherService,
             requestService,
