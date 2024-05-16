@@ -86,6 +86,7 @@ internal class SubmissionMongoPersistenceQueryService(
             override val accNo get() = sub.accNo
             override val version get() = sub.version
             override val owner get() = sub.owner
+            override val released get() = sub.released
             override val secretKey get() = sub.secretKey
             override val relPath get() = sub.relPath
             override val storageMode get() = sub.storageMode
