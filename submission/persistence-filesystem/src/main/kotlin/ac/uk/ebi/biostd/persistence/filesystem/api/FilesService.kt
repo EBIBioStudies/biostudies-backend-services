@@ -21,5 +21,3 @@ internal interface FilesService {
 
     suspend fun deleteEmptyFolders(sub: ExtSubmissionInfo)
 }
-
-data class SubStorageInfo(val accNo: String, val owner: String, val secretKey: String, val relPath: String)

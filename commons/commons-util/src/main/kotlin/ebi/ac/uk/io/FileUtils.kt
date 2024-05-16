@@ -21,6 +21,7 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
+import kotlin.io.path.exists
 import kotlin.streams.toList
 
 val RW_______: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-------")
@@ -195,8 +196,10 @@ internal object FileUtilsHelper {
     ) {
         deleteIfExists(target)
         FileUtils.createParentFolders(target, permissions.folder)
-        Files.createLink(target, filePath)
-        Files.setPosixFilePermissions(target, permissions.file)
+        if (target.exists().not()) {
+            Files.createLink(target, filePath)
+            Files.setPosixFilePermissions(target, permissions.file)
+        }
     }
 
     fun createSymLink(

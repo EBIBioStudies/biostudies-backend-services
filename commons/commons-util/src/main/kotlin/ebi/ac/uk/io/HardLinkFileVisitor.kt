@@ -6,6 +6,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
+import kotlin.io.path.exists
 
 private val logger = KotlinLogging.logger {}
 
@@ -27,14 +28,12 @@ internal class HardLinkFileVisitor(
         attrs: BasicFileAttributes,
     ): FileVisitResult {
         val target = targetPath.resolve(sourcePath.relativize(file))
+        if (target.exists()) return FileVisitResult.CONTINUE
 
         logger.info { "Processing FTP link for file $file into target $target" }
-
         Files.createLink(target, file)
         Files.setPosixFilePermissions(target, permissions.file)
-
         logger.info { "Finished processing FTP link for file $file into target $target" }
-
         return FileVisitResult.CONTINUE
     }
 }
