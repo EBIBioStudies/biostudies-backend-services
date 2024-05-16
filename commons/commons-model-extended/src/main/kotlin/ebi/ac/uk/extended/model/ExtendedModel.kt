@@ -107,19 +107,29 @@ data class ExtSection(
 
 data class ExtAccessTag(val name: String)
 
+interface ExtSubmissionInfo {
+    val accNo: String
+    val version: Int
+    val owner: String
+    val released: Boolean
+    val secretKey: String
+    val relPath: String
+    val storageMode: StorageMode
+}
+
 data class ExtSubmission(
-    val accNo: String,
-    var version: Int,
-    val owner: String,
+    override val accNo: String,
+    override var version: Int,
+    override val owner: String,
     var schemaVersion: String,
     val submitter: String,
     val title: String?,
     val doi: String?,
     val method: ExtSubmissionMethod,
-    val relPath: String,
+    override val relPath: String,
     val rootPath: String?,
-    val released: Boolean,
-    val secretKey: String,
+    override val released: Boolean,
+    override val secretKey: String,
     val releaseTime: OffsetDateTime?,
     val modificationTime: OffsetDateTime,
     val creationTime: OffsetDateTime,
@@ -128,8 +138,8 @@ data class ExtSubmission(
     val tags: List<ExtTag> = listOf(),
     val collections: List<ExtCollection> = listOf(),
     val pageTabFiles: List<ExtFile> = listOf(),
-    val storageMode: StorageMode,
-)
+    override val storageMode: StorageMode,
+) : ExtSubmissionInfo
 
 enum class StorageMode(val value: String) {
     FIRE("FIRE"),

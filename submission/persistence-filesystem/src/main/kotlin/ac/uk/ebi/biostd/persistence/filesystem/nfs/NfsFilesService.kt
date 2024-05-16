@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.persistence.filesystem.nfs
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
-import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.permissions
+import ac.uk.ebi.biostd.persistence.filesystem.extensions.permissions
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.asNfsFile
@@ -28,7 +28,7 @@ class NfsFilesService(
     private val folderResolver: SubmissionFolderResolver,
 ) : FilesService {
     override suspend fun persistSubmissionFile(
-        sub: ExtSubmission,
+        sub: ExtSubmissionInfo,
         file: ExtFile,
     ): ExtFile =
         withContext(Dispatchers.IO) {
@@ -39,7 +39,7 @@ class NfsFilesService(
         }
 
     private fun persistNfsFile(
-        sub: ExtSubmission,
+        sub: ExtSubmissionInfo,
         file: NfsFile,
     ): ExtFile {
         val permissions = sub.permissions()
@@ -50,7 +50,7 @@ class NfsFilesService(
     }
 
     private fun persistFireFile(
-        sub: ExtSubmission,
+        sub: ExtSubmissionInfo,
         file: FireFile,
     ): ExtFile {
         val permissions = sub.permissions()
@@ -64,7 +64,7 @@ class NfsFilesService(
     }
 
     private fun getSubFile(
-        sub: ExtSubmission,
+        sub: ExtSubmissionInfo,
         permissions: Permissions,
         relPath: String,
     ): File {
@@ -73,7 +73,7 @@ class NfsFilesService(
     }
 
     private fun getOrCreateSubmissionFolder(
-        sub: ExtSubmission,
+        sub: ExtSubmissionInfo,
         permissions: Set<PosixFilePermission>,
     ): File {
         val submissionPath = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath)
@@ -82,7 +82,7 @@ class NfsFilesService(
     }
 
     override suspend fun deleteSubmissionFile(
-        sub: ExtSubmission,
+        sub: ExtSubmissionInfo,
         file: ExtFile,
     ) = withContext(Dispatchers.IO) {
         require(file is NfsFile) { "NfsFilesService should only handle NfsFile" }
@@ -96,7 +96,7 @@ class NfsFilesService(
     }
 
     override suspend fun deleteFtpFile(
-        sub: ExtSubmission,
+        sub: ExtSubmissionInfo,
         file: ExtFile,
     ) = withContext(Dispatchers.IO) {
         val subFolder = folderResolver.getPublicSubFolder(sub.relPath)
@@ -107,7 +107,7 @@ class NfsFilesService(
         logger.info { "${sub.accNo} ${sub.owner} Finished deleting '${toDeleteFile.absolutePath}' on NFS" }
     }
 
-    override suspend fun deleteEmptyFolders(sub: ExtSubmission) =
+    override suspend fun deleteEmptyFolders(sub: ExtSubmissionInfo) =
         withContext(Dispatchers.IO) {
             val subFolder = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath).toFile()
             logger.info { "${sub.accNo} ${sub.owner} Deleting sub empty folders in ${subFolder.parentFile.absolutePath}" }

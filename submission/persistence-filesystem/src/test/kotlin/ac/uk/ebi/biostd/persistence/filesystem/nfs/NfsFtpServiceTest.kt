@@ -61,6 +61,7 @@ internal class NfsFtpServiceTest(
         fun `release submission file`() =
             runTest {
                 every { extSubmission.relPath } returns REL_PATH
+                every { extSubmission.secretKey } returns SECRET_KEY
 
                 val nfsFile =
                     NfsFile(
@@ -72,7 +73,7 @@ internal class NfsFtpServiceTest(
                         size = expectedFile1.size(),
                     )
 
-                testInstance.releaseSubmissionFile(nfsFile, REL_PATH, SECRET_KEY)
+                testInstance.releaseSubmissionFile(extSubmission, nfsFile)
 
                 assertFolder(folderResolver.getPublicSubFolder(REL_PATH).toFile())
             }
@@ -134,28 +135,32 @@ internal class NfsFtpServiceTest(
         private val testInstance = NfsFtpService(MOVE, folderResolver)
 
         @Test
-        fun `release submission file`() =
-            runTest {
-                val subFolder = folderResolver.getPrivateSubFolder(SECRET_KEY, REL_PATH).toFile()
-                val filesPath = subFolder.createDirectory(FILES_PATH)
-                val file = filesPath.createFile("move-test.txt", "move content")
-                val nfsFile =
-                    NfsFile(
-                        filePath = "move-test.txt",
-                        relPath = "Files/move-test.txt",
-                        file = file,
-                        fullPath = file.absolutePath,
-                        md5 = file.md5(),
-                        size = file.size(),
-                    )
+        fun `release submission file`(
+            @MockK extSubmission: ExtSubmission,
+        ) = runTest {
+            val subFolder = folderResolver.getPrivateSubFolder(SECRET_KEY, REL_PATH).toFile()
+            val filesPath = subFolder.createDirectory(FILES_PATH)
+            val file = filesPath.createFile("move-test.txt", "move content")
+            val nfsFile =
+                NfsFile(
+                    filePath = "move-test.txt",
+                    relPath = "Files/move-test.txt",
+                    file = file,
+                    fullPath = file.absolutePath,
+                    md5 = file.md5(),
+                    size = file.size(),
+                )
 
-                val releasedPath = publicFolder.resolve(REL_PATH).resolve(FILES_PATH).resolve("move-test.txt")
-                val released = testInstance.releaseSubmissionFile(nfsFile, REL_PATH, SECRET_KEY) as NfsFile
-                assertThat(releasedPath).exists()
-                assertThat(released.fullPath).isEqualTo(releasedPath.toString())
-                assertThat(released.file).isEqualTo(releasedPath.toFile())
-                assertThat(filesPath.resolve("move-test.txt")).doesNotExist()
-            }
+            val releasedPath = publicFolder.resolve(REL_PATH).resolve(FILES_PATH).resolve("move-test.txt")
+            every { extSubmission.secretKey } returns SECRET_KEY
+            every { extSubmission.relPath } returns REL_PATH
+
+            val released = testInstance.releaseSubmissionFile(extSubmission, nfsFile) as NfsFile
+            assertThat(releasedPath).exists()
+            assertThat(released.fullPath).isEqualTo(releasedPath.toString())
+            assertThat(released.file).isEqualTo(releasedPath.toFile())
+            assertThat(filesPath.resolve("move-test.txt")).doesNotExist()
+        }
     }
 
     companion object {
