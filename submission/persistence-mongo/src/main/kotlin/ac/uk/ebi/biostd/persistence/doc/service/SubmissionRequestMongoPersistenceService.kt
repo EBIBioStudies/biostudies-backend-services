@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.OptResponse
@@ -124,6 +125,13 @@ class SubmissionRequestMongoPersistenceService(
             .onSuccess { onSuccess(it, changeId) }
             .onFailure { onError(it, changeId, request) }
             .getOrThrow()
+    }
+
+    override suspend fun isRequestCompleted(
+        accNo: String,
+        version: Int,
+    ): Boolean {
+        return requestRepository.existsByAccNoAndStatusIn(accNo, setOf(PROCESSED))
     }
 
     private suspend fun saveRequest(

@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.persistence.filesystem.fire
 
 import ac.uk.ebi.biostd.persistence.filesystem.api.FilesService
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
@@ -24,7 +23,7 @@ class FireFilesService(
      * handle scenario when the same file appear two times in the same submission and it was already in fire.
      */
     override suspend fun persistSubmissionFile(
-        sub: ExtSubmission,
+        sub: ExtSubmissionInfo,
         file: ExtFile,
     ): FireFile {
         return when (file) {
@@ -64,7 +63,7 @@ class FireFilesService(
         // No need to delete FTP links on FIRE as file deleting complete this
     }
 
-    override suspend fun deleteEmptyFolders(sub: ExtSubmission) {
+    override suspend fun deleteEmptyFolders(sub: ExtSubmissionInfo) {
         // No need to delete FIRE empty bucket as they only exists as files are in them
     }
 }

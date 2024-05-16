@@ -3,19 +3,16 @@ package ac.uk.ebi.biostd.persistence.filesystem.api
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
-import ebi.ac.uk.extended.model.StorageMode
 import kotlinx.coroutines.flow.Flow
 
 interface FileStorageService {
     suspend fun releaseSubmissionFile(
+        sub: ExtSubmissionInfo,
         file: ExtFile,
-        subRelPath: String,
-        subSecretKey: String,
-        mode: StorageMode,
     ): ExtFile
 
     suspend fun persistSubmissionFile(
-        sub: ExtSubmission,
+        sub: ExtSubmissionInfo,
         file: ExtFile,
     ): ExtFile
 

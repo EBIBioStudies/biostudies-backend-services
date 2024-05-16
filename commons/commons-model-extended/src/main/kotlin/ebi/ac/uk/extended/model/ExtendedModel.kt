@@ -111,6 +111,7 @@ interface ExtSubmissionInfo {
     val accNo: String
     val version: Int
     val owner: String
+    val released: Boolean
     val secretKey: String
     val relPath: String
     val storageMode: StorageMode
@@ -127,7 +128,7 @@ data class ExtSubmission(
     val method: ExtSubmissionMethod,
     override val relPath: String,
     val rootPath: String?,
-    val released: Boolean,
+    override val released: Boolean,
     override val secretKey: String,
     val releaseTime: OffsetDateTime?,
     val modificationTime: OffsetDateTime,

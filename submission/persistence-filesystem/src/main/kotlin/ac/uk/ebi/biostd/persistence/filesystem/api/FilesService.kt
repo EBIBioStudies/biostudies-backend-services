@@ -1,12 +1,11 @@
 package ac.uk.ebi.biostd.persistence.filesystem.api
 
 import ebi.ac.uk.extended.model.ExtFile
-import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 
 internal interface FilesService {
     suspend fun persistSubmissionFile(
-        sub: ExtSubmission,
+        sub: ExtSubmissionInfo,
         file: ExtFile,
     ): ExtFile
 
@@ -20,7 +19,7 @@ internal interface FilesService {
         file: ExtFile,
     )
 
-    suspend fun deleteEmptyFolders(sub: ExtSubmission)
+    suspend fun deleteEmptyFolders(sub: ExtSubmissionInfo)
 }
 
 data class SubStorageInfo(val accNo: String, val owner: String, val secretKey: String, val relPath: String)

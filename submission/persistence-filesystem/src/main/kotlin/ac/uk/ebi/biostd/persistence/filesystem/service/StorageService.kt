@@ -8,7 +8,6 @@ import ac.uk.ebi.biostd.persistence.filesystem.nfs.NfsFtpService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
-import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import kotlinx.coroutines.flow.Flow
@@ -24,7 +23,7 @@ class StorageService(
     private val serializationService: ExtSerializationService,
 ) : FileStorageService {
     override suspend fun persistSubmissionFile(
-        sub: ExtSubmission,
+        sub: ExtSubmissionInfo,
         file: ExtFile,
     ): ExtFile =
         when (sub.storageMode) {
@@ -33,14 +32,12 @@ class StorageService(
         }
 
     override suspend fun releaseSubmissionFile(
+        sub: ExtSubmissionInfo,
         file: ExtFile,
-        subRelPath: String,
-        subSecretKey: String,
-        mode: StorageMode,
     ): ExtFile {
-        return when (mode) {
-            FIRE -> fireFtpService.releaseSubmissionFile(file, subRelPath, subSecretKey)
-            NFS -> nfsFtpService.releaseSubmissionFile(file, subRelPath, subSecretKey)
+        return when (sub.storageMode) {
+            FIRE -> fireFtpService.releaseSubmissionFile(sub, file)
+            NFS -> nfsFtpService.releaseSubmissionFile(sub, file)
         }
     }
 
