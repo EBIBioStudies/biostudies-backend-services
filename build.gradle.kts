@@ -65,16 +65,3 @@ allprojects {
         }
     }
 }
-
-tasks.register("buildArtifacts") {
-    dependsOn(
-        "client:bio-commandline:shadowJar",
-        "submission:submission-webapp:bootJar",
-        "scheduler:scheduler:bootJar",
-        "scheduler:tasks:exporter-task:bootJar",
-        "scheduler:tasks:pmc-processor-task:bootJar",
-        "scheduler:tasks:submission-releaser-task:bootJar",
-        "submission:submission-handlers:bootJar",
-        "submission:submission-webapp:bootJar",
-    )
-}
