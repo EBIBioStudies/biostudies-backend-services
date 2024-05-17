@@ -11,6 +11,7 @@ import ac.uk.ebi.biostd.persistence.doc.mapping.to.ToExtSubmissionMapper
 import ac.uk.ebi.biostd.persistence.doc.model.asBasicSubmission
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
+import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import kotlinx.coroutines.flow.map
@@ -82,16 +83,18 @@ internal class SubmissionMongoPersistenceQueryService(
         version: Int,
     ): ExtSubmissionInfo {
         val sub = submissionRepo.getByAccNoAndVersion(accNo, version)
-        return object : ExtSubmissionInfo {
-            override val accNo get() = sub.accNo
-            override val version get() = sub.version
-            override val owner get() = sub.owner
-            override val released get() = sub.released
-            override val secretKey get() = sub.secretKey
-            override val relPath get() = sub.relPath
-            override val storageMode get() = sub.storageMode
-        }
+        return Info(sub.accNo, sub.version, sub.owner, sub.released, sub.secretKey, sub.relPath, sub.storageMode)
     }
+
+    private data class Info(
+        override val accNo: String,
+        override val version: Int,
+        override val owner: String,
+        override val released: Boolean,
+        override val secretKey: String,
+        override val relPath: String,
+        override val storageMode: StorageMode,
+    ) : ExtSubmissionInfo
 
     override suspend fun getSubmissionsByUser(filter: SubmissionListFilter): List<BasicSubmission> {
         val (requestsCount, requests) = requestRepository.findActiveRequests(filter)
