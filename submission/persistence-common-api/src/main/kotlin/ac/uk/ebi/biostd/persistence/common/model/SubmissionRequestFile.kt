@@ -3,6 +3,8 @@ package ac.uk.ebi.biostd.persistence.common.model
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 
+typealias SubmissionRqt = SubmissionRequestFile
+
 data class SubmissionRequestFile(
     val accNo: String,
     val version: Int,
