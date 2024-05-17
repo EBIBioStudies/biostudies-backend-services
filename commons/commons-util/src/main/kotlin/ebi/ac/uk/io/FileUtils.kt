@@ -9,6 +9,7 @@ import ebi.ac.uk.io.FileUtilsHelper.createSymLink
 import ebi.ac.uk.io.ext.isEmpty
 import ebi.ac.uk.io.ext.notExist
 import ebi.ac.uk.io.ext.size
+import mu.KotlinLogging
 import org.apache.commons.codec.digest.DigestUtils
 import org.springframework.core.io.InputStreamSource
 import java.io.File
@@ -21,7 +22,7 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
-import kotlin.streams.toList
+import kotlin.streams.toList as kotlinToList
 
 val RW_______: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-------")
 val RWX______: Set<PosixFilePermission> = PosixFilePermissions.fromString("rwx------")
@@ -155,12 +156,12 @@ object FileUtils {
             .skip(1)
             .sorted()
             .map { it.toFile() }
-            .toList()
+            .kotlinToList()
     }
 
     fun listFiles(file: File): List<File> =
         if (isDirectory(file)) {
-            Files.list(file.toPath()).use { stream -> stream.map { it.toFile() }.toList() }
+            Files.list(file.toPath()).use { stream -> stream.map { it.toFile() }.kotlinToList() }
         } else {
             emptyList()
         }
@@ -169,6 +170,8 @@ object FileUtils {
 
     private fun calculateDirectorySize(dir: File) = dir.walkTopDown().filter { it.isFile }.map { it.size() }.sum()
 }
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 internal object FileUtilsHelper {
@@ -184,7 +187,6 @@ internal object FileUtilsHelper {
         targetPath: Path,
         permissions: Permissions,
     ) {
-        deleteFolder(targetPath)
         Files.walkFileTree(sourcePath, HardLinkFileVisitor(sourcePath, targetPath, permissions))
     }
 
@@ -193,10 +195,14 @@ internal object FileUtilsHelper {
         target: Path,
         permissions: Permissions,
     ) {
-        deleteIfExists(target)
-        FileUtils.createParentFolders(target, permissions.folder)
-        Files.createLink(target, filePath)
-        Files.setPosixFilePermissions(target, permissions.file)
+        runSafely {
+            logger.info { "Processing Hardlink for file $filePath into target $target" }
+            deleteIfExists(target)
+            FileUtils.createParentFolders(target, permissions.folder)
+            Files.createLink(target, filePath)
+            Files.setPosixFilePermissions(target, permissions.file)
+            logger.info { "Finished Hardlink for file $filePath into target $target" }
+        }
     }
 
     fun createSymLink(
