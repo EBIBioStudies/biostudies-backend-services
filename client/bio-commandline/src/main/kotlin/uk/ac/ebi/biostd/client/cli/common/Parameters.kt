@@ -17,7 +17,7 @@ internal object SubmissionParameters {
         Comma separated list of file sources. Valid values are FIRE, SUBMISSION and USER_SPACE.
         The order of the list indicates the priority in which the sources will be used
         """
-    const val STORAGE_MODE = "Submission storage mode, determinate where submission need to be saved FIRE/NFS"
+    const val STORAGE_MODE = "Submission storage mode. Determines where submission need to be saved FIRE/NFS"
     const val FILE_LIST_PATH = "Path to the file list to be validated. The path is relative to the user folder"
 }
 
@@ -30,7 +30,7 @@ internal object MigrationParameters {
     const val TARGET_USER = "BioStudies user in the target environment"
     const val TARGET_PASSWORD = "Password for the BioStudies user in the target environment"
     const val TARGET_OWNER = "New owner for the submission in the target environment"
-    const val ASYNC = "Indicates whether or not the migration should be processed in async mode"
+    const val ASYNC = "Indicates whether the migration should be processed in async mode"
 }
 
 internal object GrantPermissionParameters {
@@ -46,5 +46,5 @@ internal object FileListValidationParameters {
 
 internal object TransferenceParameters {
     const val ACC_NO = "Accession number of the submission to be transferred"
-    const val TARGET = "Determinate where submission need to be transferred to. Valid values are: FIRE/NFS"
+    const val TARGET = "Determines where submission need to be transferred to. Valid values are: FIRE/NFS"
 }

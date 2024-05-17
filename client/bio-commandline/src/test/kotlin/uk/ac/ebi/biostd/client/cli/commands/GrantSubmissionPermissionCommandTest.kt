@@ -38,7 +38,7 @@ internal class GrantSubmissionPermissionCommandTest(
                 "-p", "password",
                 "-at", "UPDATE",
                 "-tu", "user@mail.org",
-                "-acc", "S-BSST123",
+                "-ac", "S-BSST123",
             ),
         )
 

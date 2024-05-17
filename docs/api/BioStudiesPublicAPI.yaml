@@ -11,7 +11,7 @@ servers:
 
 tags:
   - name: Security
-  - name: Projects
+  - name: Collections
   - name: User Files
   - name: Search Submissions
   - name: Submissions
@@ -25,8 +25,8 @@ paths:
   /auth/profile:
     $ref: 'security/UserInfo.yaml'
 
-  /projects:
-    $ref: 'projects/UserProjects.yaml'
+  /collections:
+    $ref: 'collections/UserCollections.yaml'
 
   /files/user/{path}:
     $ref: 'files/UserFiles.yaml'

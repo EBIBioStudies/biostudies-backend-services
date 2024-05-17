@@ -21,7 +21,7 @@ internal class GrantSubmissionPermissionCommand(
     private val password by option("-p", "--password", help = PASSWORD_HELP).required()
     private val accessType by option("-at", "--accessType", help = ACCESS_TYPE).required()
     private val targetUser by option("-tu", "--targetUser", help = TARGET_USER).required()
-    private val accNo by option("-acc", "--accNo", help = ACC_NO).required()
+    private val accNo by option("-ac", "--accNo", help = ACC_NO).required()
 
     override fun run() {
         val securityConfig = SecurityConfig(server, user, password)

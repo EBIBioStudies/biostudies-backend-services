@@ -38,7 +38,7 @@ internal class GrantCollectionPermissionCommandTest(
                 "-p", "password",
                 "-at", "ATTACH",
                 "-tu", "user@mail.org",
-                "-acc", "BioImages",
+                "-ac", "BioImages",
             ),
         )
 
