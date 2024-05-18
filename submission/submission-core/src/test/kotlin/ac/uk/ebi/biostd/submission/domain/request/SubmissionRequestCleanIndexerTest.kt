@@ -6,10 +6,10 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import io.mockk.Called
 import io.mockk.clearAllMocks
@@ -36,7 +36,6 @@ import uk.ac.ebi.extended.serialization.service.filesFlow
 class SubmissionRequestCleanIndexerTest(
     @MockK val serializationService: ExtSerializationService,
     @MockK val queryService: SubmissionPersistenceQueryService,
-    @MockK val requestService: SubmissionRequestPersistenceService,
     @MockK val fileRqtService: SubmissionRequestFilesPersistenceService,
     @MockK val eventsPublisherService: EventsPublisherService,
     @MockK val newSub: ExtSubmission,
@@ -109,6 +108,44 @@ class SubmissionRequestCleanIndexerTest(
             mockkStatic(ExtSerializationService::filesFlow)
             coEvery { serializationService.filesFlow(currentSub) } returns flowOf(file)
             coEvery { fileRqtService.saveSubmissionRequestFile(any()) } coAnswers { nothing }
+
+            val (previousVersion, conflicted, deprecated) = testInstance.indexRequest(newSub)
+
+            assertThat(previousVersion).isEqualTo(CURRENT_VERSION)
+            assertThat(conflicted).isZero()
+            assertThat(deprecated).isOne()
+            coVerify { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlot)) }
+            val requestFile = requestFileSlot.captured
+            assertThat(requestFile.status).isEqualTo(DEPRECATED)
+            assertThat(requestFile.file).isEqualTo(file)
+        }
+
+        @Test
+        fun `when a file has the same md5 and path but different storage mode so file need to be cleaned`(
+            @MockK newFile: ExtFile,
+            @MockK newRqtFile: SubmissionRequestFile,
+            @MockK file: NfsFile,
+        ) = runTest {
+            coEvery {
+                fileRqtService.getSubmissionRequestFiles(
+                    ACC_NO,
+                    NEW_VERSION,
+                    LOADED,
+                )
+            } returns flowOf(newRqtFile)
+
+            every { newRqtFile.file } returns newFile
+            every { newFile.filePath } returns ONE_PATH
+            every { newFile.md5 } returns ONE_MD5
+
+            every { file.md5 } returns ONE_MD5
+            every { file.filePath } returns ONE_PATH
+
+            mockkStatic(ExtSerializationService::filesFlow)
+            coEvery { serializationService.filesFlow(currentSub) } returns flowOf(file)
+            coEvery { fileRqtService.saveSubmissionRequestFile(any()) } coAnswers { nothing }
+
+            every { newSub.storageMode } returns FIRE
 
             val (previousVersion, conflicted, deprecated) = testInstance.indexRequest(newSub)
 

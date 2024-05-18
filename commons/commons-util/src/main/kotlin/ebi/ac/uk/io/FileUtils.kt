@@ -22,6 +22,7 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.nio.file.attribute.PosixFilePermission
 import java.nio.file.attribute.PosixFilePermissions
+import kotlin.io.path.inputStream
 import kotlin.streams.toList as kotlinToList
 
 val RW_______: Set<PosixFilePermission> = PosixFilePermissions.fromString("rw-------")
@@ -238,8 +239,7 @@ internal object FileUtilsHelper {
         target: Path,
         permissions: Permissions,
     ) {
-        Files.copy(source, createParentDirectories(target, permissions.folder), REPLACE_EXISTING)
-        Files.setPosixFilePermissions(target, permissions.file)
+        source.inputStream().use { copyFile(it, target, permissions) }
     }
 
     fun copyFile(

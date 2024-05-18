@@ -3,11 +3,8 @@ package ac.uk.ebi.biostd.submission.domain.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
-import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
-import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
@@ -30,21 +27,6 @@ class SubmissionRequestCleanIndexer(
     private val requestService: SubmissionRequestPersistenceService,
     private val eventsPublisherService: EventsPublisherService,
 ) {
-    /**
-     * Index submission request to clean files by creating records for each one.
-     */
-    suspend fun indexRequest(
-        accNo: String,
-        version: Int,
-        processId: String,
-    ) {
-        requestService.onRequest(accNo, version, RequestStatus.LOADED, processId) {
-            val (activeVersion, conflicted, deprecated) = indexRequest(it.submission)
-            RqtUpdate(it.cleanIndexed(conflicted, deprecated, activeVersion))
-        }
-        eventsPublisherService.requestIndexedToClean(accNo, version)
-    }
-
     suspend fun indexRequest(new: ExtSubmission): Triple<Int?, Int, Int> {
         val current = queryService.findExtByAccNo(new.accNo, includeFileListFiles = true)
         if (current != null) {
@@ -69,8 +51,8 @@ class SubmissionRequestCleanIndexer(
         serializationService.filesFlow(current)
             .mapNotNull { file ->
                 when (newFiles.findMatch(file)) {
-                    MatchType.CONFLICTING -> SubRqtFile(new, conflictIdx.incrementAndGet(), file, CONFLICTING, true)
-                    MatchType.DEPRECATED -> SubRqtFile(new, deprecatedIdx.incrementAndGet(), file, DEPRECATED, true)
+                    MatchType.CONFLICTING -> SubRqtFile(new, conflictIdx.incrementAndGet(), file, CONFLICTING)
+                    MatchType.DEPRECATED -> SubRqtFile(new, deprecatedIdx.incrementAndGet(), file, DEPRECATED)
                     MatchType.REUSED -> null
                 }
             }
