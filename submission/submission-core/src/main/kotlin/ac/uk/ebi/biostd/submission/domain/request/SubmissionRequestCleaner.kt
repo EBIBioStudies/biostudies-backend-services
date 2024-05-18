@@ -27,6 +27,10 @@ class SubmissionRequestCleaner(
     private val requestService: SubmissionRequestPersistenceService,
     private val filesRequestService: SubmissionRequestFilesPersistenceService,
 ) {
+    /**
+     *  Executes the clean submission stage where conflicted files (files updated in new submission version) are
+     *  deleting to be able to persist new one.
+     */
     suspend fun cleanCurrentVersion(
         accNo: String,
         version: Int,
@@ -40,6 +44,11 @@ class SubmissionRequestCleaner(
         eventsPublisherService.requestCleaned(accNo, version)
     }
 
+    /**
+     * Executes the finalize or submission processing stage when files deprecated (file not used any more) from previous
+     * version are deleted. Note that submission is query wth negative version as new version has been already
+     * persisted at this point.
+     */
     suspend fun finalizeRequest(
         accNo: String,
         version: Int,

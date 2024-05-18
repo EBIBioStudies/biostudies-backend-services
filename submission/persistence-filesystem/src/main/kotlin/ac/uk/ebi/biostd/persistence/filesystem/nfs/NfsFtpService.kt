@@ -49,12 +49,7 @@ class NfsFtpService(
         privateSubFolder: Path,
         publicSubFolder: Path,
     ): NfsFile {
-        FileUtils.createHardLink(
-            file = nfsFile.file,
-            sourcePath = privateSubFolder,
-            targetPath = publicSubFolder,
-            permissions = Permissions(RW_R__R__, RWXR_XR_X),
-        )
+        FileUtils.createHardLink(nfsFile.file, privateSubFolder, publicSubFolder, Permissions(RW_R__R__, RWXR_XR_X))
         return nfsFile
     }
 
