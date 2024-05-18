@@ -126,7 +126,7 @@ class SubmissionRequestMongoPersistenceService(
         accNo: String,
         version: Int,
     ): Boolean {
-        return requestRepository.existsByAccNoAndVersionAndStatusIn(accNo, version, setOf(PROCESSED))
+        return requestRepository.existsByAccNoAndVersionAndStatus(accNo, version, PROCESSED)
     }
 
     private suspend fun saveRequest(
