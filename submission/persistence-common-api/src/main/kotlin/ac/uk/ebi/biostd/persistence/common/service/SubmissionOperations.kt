@@ -111,6 +111,11 @@ interface SubmissionRequestPersistenceService {
         processId: String,
         handler: suspend (SubmissionRequest) -> OptResponse<T>,
     ): OptResponse<T>
+
+    suspend fun isRequestCompleted(
+        accNo: String,
+        version: Int,
+    ): Boolean
 }
 
 sealed interface OptResponse<T> {

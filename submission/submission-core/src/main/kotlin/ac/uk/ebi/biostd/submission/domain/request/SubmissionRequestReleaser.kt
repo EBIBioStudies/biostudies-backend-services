@@ -106,7 +106,7 @@ class SubmissionRequestReleaser(
         file: ExtFile,
     ): ExtFile {
         logger.info { "${sub.accNo}, ${sub.owner} Started publishing file $idx - ${file.filePath}" }
-        val releasedFile = fileStorageService.releaseSubmissionFile(file, sub.relPath, sub.secretKey, sub.storageMode)
+        val releasedFile = fileStorageService.releaseSubmissionFile(sub, file)
         logger.info { "${sub.accNo}, ${sub.owner} Finished publishing file $idx - ${file.filePath}" }
         return releasedFile
     }

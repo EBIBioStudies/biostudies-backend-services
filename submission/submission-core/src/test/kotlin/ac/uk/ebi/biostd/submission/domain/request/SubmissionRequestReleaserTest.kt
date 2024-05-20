@@ -94,7 +94,7 @@ class SubmissionRequestReleaserTest(
                 nfsRqtFile,
                 fireRqtFile,
             )
-        coEvery { storageService.releaseSubmissionFile(nfsFile, relPath, secretKey, mode) } returns releasedFile
+        coEvery { storageService.releaseSubmissionFile(submission, nfsFile) } returns releasedFile
         every { rqt.withNewStatus(RequestStatus.CHECK_RELEASED) } returns rqt
 
         coEvery {
@@ -116,7 +116,7 @@ class SubmissionRequestReleaserTest(
         testInstance.checkReleased(ACC_NO, VERSION, PROCESS_ID)
 
         coVerify(exactly = 1) {
-            storageService.releaseSubmissionFile(nfsFile, relPath, secretKey, mode)
+            storageService.releaseSubmissionFile(submission, nfsFile)
             eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
         }
     }
