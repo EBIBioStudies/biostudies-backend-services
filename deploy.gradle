@@ -32,6 +32,8 @@ ssh.settings {
 }
 
 task deploySubmitter {
+    dependsOn(":submission:submission-webapp:bootJar")
+
     doFirst {
         project.ext.artifactPath = "submission/submission-webapp/build/libs"
         project.ext.artifactName = "submission-webapp-1.0.0.jar"
@@ -43,6 +45,8 @@ task deploySubmitter {
 }
 
 task deployMigratorSubmitter {
+    dependsOn(":submission:submission-webapp:bootJar")
+
     doFirst {
         project.ext.artifactPath = "submission/submission-webapp/build/libs"
         project.ext.artifactName = "submission-webapp-1.0.0.jar"
@@ -54,6 +58,8 @@ task deployMigratorSubmitter {
 }
 
 task deployHandlers {
+    dependsOn(":submission:submission-handlers:bootJar")
+
     doFirst {
         project.ext.artifactPath = "submission/submission-handlers/build/libs"
         project.ext.artifactName = "submission-handlers-1.0.0.jar"
@@ -66,6 +72,8 @@ task deployHandlers {
 
 
 task deployScheduler {
+    dependsOn(":scheduler:scheduler:bootJar")
+
     doFirst {
         project.ext.artifactPath = "scheduler/scheduler/build/libs"
         project.ext.artifactName = "scheduler-1.0.0.jar"
@@ -77,6 +85,8 @@ task deployScheduler {
 }
 
 task deployBioCommandLine {
+    dependsOn(":client:bio-commandline:shadowJar")
+
     doFirst {
         project.ext.artifactPath = "client/bio-commandline/build/libs"
         project.ext.artifactName = "BioStudiesCLI-2.0.jar"
@@ -86,6 +96,8 @@ task deployBioCommandLine {
 }
 
 task updatePmcArtifact {
+    dependsOn(":scheduler:tasks:pmc-processor-task:bootJar")
+
     doFirst {
         project.ext.artifactPath = "scheduler/tasks/pmc-processor-task/build/libs"
         project.ext.artifactName = "pmc-processor-task-1.0.0.jar"
@@ -95,6 +107,8 @@ task updatePmcArtifact {
 }
 
 task updateExporterArtifact {
+    dependsOn(":scheduler:tasks:exporter-task:bootJar")
+
     doFirst {
         project.ext.artifactPath = "scheduler/tasks/exporter-task/build/libs"
         project.ext.artifactName = "exporter-task-1.0.0.jar"
@@ -104,6 +118,8 @@ task updateExporterArtifact {
 }
 
 task updateReleaserArtifact {
+    dependsOn(":scheduler:tasks:submission-releaser-task:bootJar")
+
     doFirst {
         project.ext.artifactPath = "scheduler/tasks/submission-releaser-task/build/libs"
         project.ext.artifactName = "submission-releaser-task-1.0.0.jar"
@@ -113,6 +129,8 @@ task updateReleaserArtifact {
 }
 
 task updateMigratorArtifact {
+    dependsOn(":scheduler:tasks:submission-migrator-task:bootJar")
+
     doFirst {
         project.ext.artifactPath = "scheduler/tasks/submission-migrator-task/build/libs"
         project.ext.artifactName = "submission-migrator-task-1.0.0.jar"
@@ -122,6 +140,8 @@ task updateMigratorArtifact {
 }
 
 task updateStatsReporterArtifact {
+    dependsOn(":scheduler:tasks:stats-reporter-task:bootJar")
+
     doFirst {
         project.ext.artifactPath = "scheduler/tasks/stats-reporter-task/build/libs"
         project.ext.artifactName = "stats-reporter-task-1.0.0.jar"
@@ -131,6 +151,8 @@ task updateStatsReporterArtifact {
 }
 
 task updateSubmissionTaskArtifact {
+    dependsOn(":submission:submission-task:bootJar")
+
     doFirst {
         project.ext.artifactPath = "submission/submission-task/build/libs"
         project.ext.artifactName = "submission-task-1.0.0.jar"
