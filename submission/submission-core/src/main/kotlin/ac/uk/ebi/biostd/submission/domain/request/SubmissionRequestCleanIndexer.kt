@@ -69,8 +69,8 @@ class SubmissionRequestCleanIndexer(
         serializationService.filesFlow(current)
             .mapNotNull { file ->
                 when (newFiles.findMatch(file)) {
-                    MatchType.CONFLICTING -> SubRqtFile(new, conflictIdx.incrementAndGet(), file, CONFLICTING)
-                    MatchType.DEPRECATED -> SubRqtFile(new, deprecatedIdx.incrementAndGet(), file, DEPRECATED)
+                    MatchType.CONFLICTING -> SubRqtFile(new, conflictIdx.incrementAndGet(), file, CONFLICTING, true)
+                    MatchType.DEPRECATED -> SubRqtFile(new, deprecatedIdx.incrementAndGet(), file, DEPRECATED, true)
                     MatchType.REUSED -> null
                 }
             }

@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.nfsSubmissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType.FILES_SIZE
@@ -17,6 +18,7 @@ import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.io.ext.size
 import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.runBlocking
@@ -201,9 +203,24 @@ class SubmissionStatsTest(
 
             assertThat(webClient.submitSingle(version2, TSV, NFS)).isSuccessful()
             waitUntil(TEN_SECONDS) { statsDataService.findByAccNo("S-STTS2").first().value != 574L }
+
+            val sub = submissionRepository.getCoreInfoByAccNoAndVersion("S-STTS2", 2)
+            val subPath = nfsSubmissionPath.resolve(sub.relPath)
+
+            val subJson = subPath.resolve("S-STTS2.json").size()
+            val subTsv = subPath.resolve("S-STTS2.tsv").size()
+            val fileListJson = subPath.resolve("Files/file-list.json").size()
+            val fileListTsv = subPath.resolve("Files/file-list.tsv").size()
+            val file1Size = subPath.resolve("Files/statsFile2.txt").size()
+            val file2Size = subPath.resolve("Files/stats file 1.doc").size()
+            val fileListFile = subPath.resolve("Files/a/statsFile3.pdf").size()
+            val folderSize = subPath.resolve("Files/a").size()
+            val expectedSize =
+                subJson + subTsv + fileListJson + fileListTsv + file1Size + file2Size + fileListFile + folderSize
+
             val stats = statsDataService.findByAccNo("S-STTS2")
             assertThat(stats).hasSize(1)
-            assertThat(stats.first().value).isEqualTo(1483L)
+            assertThat(stats.first().value).isEqualTo(expectedSize)
             assertThat(stats.first().type).isEqualTo(FILES_SIZE)
             assertThat(stats.first().accNo).isEqualTo("S-STTS2")
         }

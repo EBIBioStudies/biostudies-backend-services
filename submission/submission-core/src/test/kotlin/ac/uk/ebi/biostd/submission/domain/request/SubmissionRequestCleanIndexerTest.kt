@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
@@ -39,6 +40,7 @@ class SubmissionRequestCleanIndexerTest(
     @MockK val fileRqtService: SubmissionRequestFilesPersistenceService,
     @MockK val eventsPublisherService: EventsPublisherService,
     @MockK val newSub: ExtSubmission,
+    @MockK val requestService: SubmissionRequestPersistenceService,
     @MockK val currentSub: ExtSubmission,
 ) {
     private val requestFileSlot = slot<SubmissionRequestFile>()
