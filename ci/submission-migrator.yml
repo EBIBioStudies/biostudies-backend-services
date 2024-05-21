@@ -1,7 +1,7 @@
 .deploy-prod-submission-migrator-task:
   dependencies:
     - build-test
-  script: gradle :scheduler:tasks:submission-migrator-task:bootJar updateMigratorArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
+  script: gradle updateMigratorArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
 
 auto-deploy-prod-submission-migrator-task:
   extends: .deploy-prod-submission-migrator-task
@@ -15,14 +15,14 @@ deploy-dev-submission-migrator-task:
   when: manual
   dependencies:
     - build-test
-  script: gradle :scheduler:tasks:submission-submission-migrator-task:bootJar updateMigratorArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
+  script: gradle updateMigratorArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
 
 deploy-beta-submission-migrator-task:
   stage: deploy-beta-submission-migrator-task
   when: manual
   dependencies:
     - build-test
-  script: gradle :scheduler:tasks:submission-submission-migrator-task:bootJar updateMigratorArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
+  script: gradle updateMigratorArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
 
 deploy-prod-submission-migrator-task:
   extends: .deploy-prod-submission-migrator-task

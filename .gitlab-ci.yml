@@ -79,7 +79,7 @@ stages:
 
 build-test:
   stage: build-test
-  script: gradle build test -x itest -x jacocoTestCoverageVerification buildArtifacts
+  script: gradle build test -x itest -x jacocoTestCoverageVerification
 
 nfs-itest:
   needs: [ "build-test" ]

@@ -1,5 +1,3 @@
-import PluginVersions.DetektVersion
-
 object PluginVersions {
     const val DetektVersion = "1.23.6"
     const val KotlinPluginVersion = Versions.KotlinVersion
@@ -12,7 +10,6 @@ object PluginVersions {
 }
 
 object Plugins {
-    const val DetektFormattingPlugin = "io.gitlab.arturbosch.detekt:detekt-formatting:$DetektVersion"
     const val JacocoPlugin = "jacoco"
     const val KotlinPlugin = "org.jetbrains.kotlin.jvm"
     const val DetektPlugin = "io.gitlab.arturbosch.detekt"

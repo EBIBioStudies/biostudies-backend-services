@@ -1,17 +1,17 @@
 .deploy-dev-bio-commandline:
   dependencies:
     - build-test
-  script: gradle :client:bio-commandline:shadowJar deployBioCommandLine -Penv=dev -PdeployPath=$APPS_PATH/cli/dev --info
+  script: gradle deployBioCommandLine -Penv=dev -PdeployPath=$APPS_PATH/cli/dev --info
 
 .deploy-beta-bio-commandline:
   dependencies:
     - build-test
-  script: gradle :client:bio-commandline:shadowJar deployBioCommandLine -Penv=beta -PdeployPath=$APPS_PATH/cli/beta
+  script: gradle deployBioCommandLine -Penv=beta -PdeployPath=$APPS_PATH/cli/beta
 
 .deploy-prod-bio-commandline:
   dependencies:
     - build-test
-  script: gradle :client:bio-commandline:shadowJar deployBioCommandLine -Penv=prod -PdeployPath=$APPS_PATH/cli/prod
+  script: gradle deployBioCommandLine -Penv=prod -PdeployPath=$APPS_PATH/cli/prod
 
 auto-deploy-dev-bio-commandline:
   extends: .deploy-dev-bio-commandline

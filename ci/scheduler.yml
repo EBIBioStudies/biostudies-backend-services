@@ -1,7 +1,7 @@
 .deploy-prod-scheduler:
   dependencies:
     - build-test
-  script: gradle :scheduler:scheduler:bootJar deployScheduler -Penv=prod -PdeployPath=$APPS_PATH/scheduler/prod
+  script: gradle deployScheduler -Penv=prod -PdeployPath=$APPS_PATH/scheduler/prod
 
 auto-deploy-prod-scheduler:
   extends: .deploy-prod-scheduler
@@ -15,14 +15,14 @@ deploy-dev-scheduler:
   when: manual
   dependencies:
     - build-test
-  script: gradle :scheduler:scheduler:bootJar deployScheduler -Penv=dev -PdeployPath=$APPS_PATH/scheduler/dev
+  script: gradle deployScheduler -Penv=dev -PdeployPath=$APPS_PATH/scheduler/dev
 
 deploy-beta-scheduler:
   stage: deploy-beta-scheduler
   when: manual
   dependencies:
     - build-test
-  script: gradle :scheduler:scheduler:bootJar deployScheduler -Penv=beta -PdeployPath=$APPS_PATH/scheduler/beta
+  script: gradle deployScheduler -Penv=beta -PdeployPath=$APPS_PATH/scheduler/beta
 
 deploy-prod-scheduler:
   extends: .deploy-prod-scheduler
