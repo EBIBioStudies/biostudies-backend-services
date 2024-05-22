@@ -7,8 +7,10 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
+import ebi.ac.uk.api.UserFileType.DIR
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.util.collections.second
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -43,7 +45,7 @@ class UserFileApiTest(
 
     @ParameterizedTest(name = "17-1 upload download delete file and retrieve in {0} root folder")
     @MethodSource("webClients")
-    fun rootFolder(webClient: BioWebClient) {
+    fun `17-1 root folder`(webClient: BioWebClient) {
         val testPath = ""
         val file = tempFolder.createFile("FileList1.txt", "An example content")
         webClient.uploadFiles(listOf(file), relativePath = testPath)
@@ -58,7 +60,7 @@ class UserFileApiTest(
 
     @ParameterizedTest(name = "17-2 upload download delete file and retrieve in {0} folder")
     @MethodSource("webClients")
-    fun userFolder(webClient: BioWebClient) {
+    fun `17-2 user folder`(webClient: BioWebClient) {
         val testPath = "test-folder-17-2"
         val file = tempFolder.createFile("FileList1.txt", "An example content")
         webClient.uploadFiles(listOf(file), relativePath = testPath)
@@ -74,18 +76,30 @@ class UserFileApiTest(
 
     @ParameterizedTest(name = "17-3 upload download delete file and retrieve in {0} folder with space")
     @MethodSource("webClients")
-    fun folderWithSpace(webClient: BioWebClient) {
-        val testPath = "test-folder-17-3"
+    fun `17-3 folder with space`(webClient: BioWebClient) {
+        val folder = "test-folder 17-3"
+        val innerFolder = "$folder/test-inner-folder"
         val file = tempFolder.createFile("FileList1.txt", "An example content")
-        webClient.uploadFiles(listOf(file), relativePath = testPath)
+        val innerFile1 = tempFolder.createFile("InnerFile1.txt", "An inner file")
+        val innerFile2 = tempFolder.createFile("InnerFile2.txt", "Another inner file")
 
-        val files = webClient.listUserFiles(relativePath = testPath)
-        assertThat(files).hasSize(1)
-        assertFile(files.first(), webClient.downloadFile(file.name, testPath), file, testPath)
+        webClient.uploadFile(file, folder)
+        webClient.uploadFile(innerFile1, innerFolder)
+        webClient.uploadFile(innerFile2, innerFolder)
 
-        webClient.deleteFile("FileList1.txt", testPath)
-        assertThat(webClient.listUserFiles(relativePath = testPath)).isEmpty()
-        webClient.deleteFile(testPath)
+        val files = webClient.listUserFiles(folder)
+        assertThat(files).hasSize(2)
+        assertThat(files.first().name).isEqualTo("test-inner-folder")
+        assertThat(files.first().type).isEqualTo(DIR)
+        assertFile(files.second(), webClient.downloadFile(file.name, folder), file, folder)
+
+        webClient.deleteFile(innerFile2.name, innerFolder)
+        val innerFiles = webClient.listUserFiles(innerFolder)
+        assertThat(innerFiles).hasSize(1)
+        assertThat(innerFiles.first().name).isEqualTo(innerFile1.name)
+
+        webClient.deleteFile(folder)
+        assertThat(webClient.listUserFiles()).isEmpty()
     }
 
     private fun assertFile(

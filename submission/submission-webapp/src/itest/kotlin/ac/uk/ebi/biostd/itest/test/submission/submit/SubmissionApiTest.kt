@@ -359,21 +359,22 @@ class SubmissionApiTest(
             webClient = getWebClient(serverPort, FtpSuperUser)
 
             val file = tempFolder.createFile("fileListFtpFile.txt")
-            webClient.uploadFile(file)
+            webClient.createFolder("a-folder")
+            webClient.uploadFile(file, "a-folder")
 
             val fileList =
                 tempFolder.createFile(
                     "FileList-Ftp.tsv",
                     tsv {
                         line("Files")
-                        line(file.name)
+                        line("a-folder/fileListFtpFile.txt")
                     }.toString(),
                 )
 
             webClient.uploadFile(fileList)
 
             val simpleFile = tempFolder.createFile("simpleFtpFile.txt", "An example content")
-            webClient.uploadFiles(listOf(simpleFile))
+            webClient.uploadFile(simpleFile)
 
             val submission =
                 tsv {
