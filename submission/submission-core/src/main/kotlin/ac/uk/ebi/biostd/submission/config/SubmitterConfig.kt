@@ -23,6 +23,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
+import ac.uk.ebi.biostd.submission.domain.submission.SubFolderResolver
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionSubmitter
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
@@ -47,7 +48,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
-import org.springframework.context.annotation.Lazy
 import org.springframework.web.reactive.function.client.WebClient
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
@@ -55,7 +55,6 @@ import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
-import java.nio.file.Paths
 
 @Suppress("LongParameterList")
 @Configuration
@@ -262,13 +261,7 @@ class SubmitterConfig(
     @Configuration
     class FilesHandlerConfig(private val appProperties: ApplicationProperties) {
         @Bean
-        @Lazy
-        fun folderResolver() =
-            SubmissionFolderResolver(
-                includeSecretKey = appProperties.persistence.includeSecretKey,
-                privateSubPath = Paths.get(appProperties.persistence.privateSubmissionsPath),
-                publicSubPath = Paths.get(appProperties.persistence.publicSubmissionsPath),
-            )
+        fun folderResolver(): SubmissionFolderResolver = SubFolderResolver(appProperties)
     }
 
     @Configuration

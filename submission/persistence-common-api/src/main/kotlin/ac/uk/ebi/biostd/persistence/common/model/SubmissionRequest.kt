@@ -1,16 +1,7 @@
 package ac.uk.ebi.biostd.persistence.common.model
 
 import ebi.ac.uk.extended.model.ExtSubmission
-import java.time.Instant
 import java.time.OffsetDateTime
-
-data class RequestStatusChanges(
-    val status: String,
-    val changeId: String,
-    val processId: String,
-    val startTime: Instant,
-    val endTime: Instant?,
-)
 
 data class SubmissionRequest(
     val submission: ExtSubmission,

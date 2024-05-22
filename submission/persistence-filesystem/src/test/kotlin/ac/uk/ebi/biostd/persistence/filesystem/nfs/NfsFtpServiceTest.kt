@@ -34,25 +34,36 @@ import java.nio.file.Files
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 internal class NfsFtpServiceTest(
-    private val temporaryFolder: TemporaryFolder,
+    private val tempFolder: TemporaryFolder,
     @MockK private val extSubmission: ExtSubmission,
+    @MockK private val folderResolver: SubmissionFolderResolver,
 ) {
+    private val publicFolder = tempFolder.createDirectory("public")
+    private val privateFolder = tempFolder.createDirectory("private")
+
+    @BeforeEach
+    fun beforeEach() {
+        tempFolder.clean()
+
+        every { folderResolver.getPublicSubFolder(REL_PATH) } answers {
+            val relPath = firstArg<String>()
+            publicFolder.resolve(relPath).toPath()
+        }
+        every { folderResolver.getPrivateSubFolder(any(), any()) } answers {
+            val relPath = secondArg<String>()
+            privateFolder.resolve(relPath).toPath()
+        }
+    }
+
     @Nested
     inner class HardLinksMode {
         private lateinit var expectedDirectory: File
         private lateinit var expectedFile1: File
 
-        private val folderResolver =
-            SubmissionFolderResolver(
-                includeSecretKey = false,
-                privateSubPath = temporaryFolder.root.toPath().resolve("submission"),
-                publicSubPath = temporaryFolder.root.toPath().resolve("ftp"),
-            )
         private val testInstance = NfsFtpService(HARD_LINKS, folderResolver)
 
         @BeforeEach
         fun beforeEach() {
-            temporaryFolder.clean()
             setUpTestFiles()
             setUpExtSubmission()
         }
@@ -126,12 +137,6 @@ internal class NfsFtpServiceTest(
     inner class MoveMode {
         private val privateFolder = temporaryFolder.createDirectory("submission-private").toPath()
         private val publicFolder = temporaryFolder.createDirectory("submission-public").toPath()
-        private val folderResolver =
-            SubmissionFolderResolver(
-                includeSecretKey = true,
-                privateSubPath = privateFolder,
-                publicSubPath = publicFolder,
-            )
         private val testInstance = NfsFtpService(MOVE, folderResolver)
 
         @Test
