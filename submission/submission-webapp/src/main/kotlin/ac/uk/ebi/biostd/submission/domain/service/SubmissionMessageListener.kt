@@ -12,6 +12,7 @@ import ebi.ac.uk.extended.events.RequestIndexed
 import ebi.ac.uk.extended.events.RequestLoaded
 import ebi.ac.uk.extended.events.RequestMessage
 import ebi.ac.uk.extended.events.RequestPersisted
+import ebi.ac.uk.extended.events.RequestToCleanIndexed
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.amqp.rabbit.annotation.RabbitHandler
@@ -20,6 +21,7 @@ import uk.ac.ebi.events.service.EventsPublisherService
 
 private val logger = KotlinLogging.logger {}
 
+@Suppress("TooManyFunctions")
 @RabbitListener(queues = ["\${app.notifications.requestQueue}"], containerFactory = LISTENER_FACTORY_NAME)
 class SubmissionMessageListener(
     private val statsService: SubmissionStatsService,
@@ -45,7 +47,16 @@ class SubmissionMessageListener(
     }
 
     @RabbitHandler
-    fun cleanRequest(rqt: RequestLoaded) {
+    fun indexToClean(rqt: RequestLoaded) {
+        processSafely(rqt) {
+            val (accNo, version) = rqt
+            logger.info { "$accNo, Received index to clean message for submission $accNo, version: $version" }
+            submissionSubmitter.indexToCleanRequest(accNo, version)
+        }
+    }
+
+    @RabbitHandler
+    fun cleanRequest(rqt: RequestToCleanIndexed) {
         processSafely(rqt) {
             val (accNo, version) = rqt
             logger.info { "$accNo, Received clean message for submission $accNo, version: $version" }

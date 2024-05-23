@@ -94,7 +94,6 @@ class SubmissionDraftService(
         val buildRequest = SubmitBuilderRequest(user, onBehalfRequest, parameters, key)
         val request = submitRequestBuilder.buildContentRequest(submission, SubFormat.JSON_PRETTY, buildRequest)
         submitWebHandler.submitAsync(request)
-
         logger.info { "$key ${user.email} Draft with key '$key' SUBMITTED" }
     }
 

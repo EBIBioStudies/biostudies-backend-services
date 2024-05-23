@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.domain.Page
 import java.time.temporal.TemporalAmount
@@ -58,6 +59,11 @@ interface SubmissionPersistenceQueryService {
     ): ExtSubmission
 
     suspend fun getExtendedSubmissions(filter: SubmissionFilter): Page<ExtSubmission>
+
+    suspend fun getCoreInfoByAccNoAndVersion(
+        accNo: String,
+        version: Int,
+    ): ExtSubmissionInfo
 
     /**
      * Return the list of submissions that belongs to a user. Both processed and processing or requesting ones are

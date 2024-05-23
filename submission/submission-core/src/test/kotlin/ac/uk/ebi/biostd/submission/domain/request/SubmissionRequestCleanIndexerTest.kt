@@ -6,6 +6,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.NfsFile
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 
@@ -36,7 +38,9 @@ class SubmissionRequestCleanIndexerTest(
     @MockK val serializationService: ExtSerializationService,
     @MockK val queryService: SubmissionPersistenceQueryService,
     @MockK val fileRqtService: SubmissionRequestFilesPersistenceService,
+    @MockK val eventsPublisherService: EventsPublisherService,
     @MockK val newSub: ExtSubmission,
+    @MockK val requestService: SubmissionRequestPersistenceService,
     @MockK val currentSub: ExtSubmission,
 ) {
     private val requestFileSlot = slot<SubmissionRequestFile>()
@@ -46,6 +50,8 @@ class SubmissionRequestCleanIndexerTest(
             serializationService,
             queryService,
             fileRqtService,
+            requestService,
+            eventsPublisherService,
         )
 
     @Test

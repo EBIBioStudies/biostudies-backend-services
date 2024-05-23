@@ -28,7 +28,7 @@ import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupC
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
-import java.time.Duration
+import java.time.Duration.ofSeconds
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -51,14 +51,17 @@ class SubmissionRequestDocDataRepositoryTest(
                 DocSubmissionRequest(
                     id = ObjectId(),
                     accNo = "abc-123",
-                    version = 1,
+                    version = 2,
                     status = RequestStatus.CLEANED,
                     draftKey = "temp-123",
                     notifyTo = "user@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                     totalFiles = 5,
+                    deprecatedFiles = 10,
+                    conflictingFiles = 12,
                     currentIndex = 6,
                     modificationTime = Instant.now(),
+                    previousVersion = 1,
                     statusChanges = emptyList(),
                 )
 
@@ -73,8 +76,11 @@ class SubmissionRequestDocDataRepositoryTest(
             assertThat(newRequest.notifyTo).isEqualTo(request.notifyTo)
             assertThat(newRequest.submission).isEqualTo(request.submission)
             assertThat(newRequest.totalFiles).isEqualTo(request.totalFiles)
+            assertThat(newRequest.deprecatedFiles).isEqualTo(request.deprecatedFiles)
+            assertThat(newRequest.conflictingFiles).isEqualTo(request.conflictingFiles)
             assertThat(newRequest.currentIndex).isEqualTo(request.currentIndex)
             assertThat(newRequest.modificationTime).isCloseTo(request.modificationTime, within(100, ChronoUnit.MILLIS))
+            assertThat(newRequest.previousVersion).isEqualTo(request.previousVersion)
         }
 
     @Test
@@ -85,15 +91,18 @@ class SubmissionRequestDocDataRepositoryTest(
                     DocSubmissionRequest(
                         id = ObjectId(),
                         accNo = "abc-123",
-                        version = 1,
+                        version = 2,
                         status = RequestStatus.CLEANED,
                         draftKey = "temp-123",
                         notifyTo = "user@test.org",
                         submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                         totalFiles = 5,
+                        deprecatedFiles = 10,
+                        conflictingFiles = 1,
                         currentIndex = 6,
                         modificationTime = Instant.now(),
                         statusChanges = emptyList(),
+                        previousVersion = 1,
                     ),
                 )
 
@@ -107,9 +116,12 @@ class SubmissionRequestDocDataRepositoryTest(
                     notifyTo = "user-b@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
                     totalFiles = 51,
+                    deprecatedFiles = 10,
+                    conflictingFiles = 1,
                     currentIndex = 61,
                     modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),
+                    previousVersion = 1,
                 )
             val (_, created) = testInstance.saveRequest(newRequest)
 
@@ -144,9 +156,12 @@ class SubmissionRequestDocDataRepositoryTest(
                     notifyTo = "user-b@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
                     totalFiles = 51,
+                    deprecatedFiles = 10,
+                    conflictingFiles = 1,
                     currentIndex = 61,
                     modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),
+                    previousVersion = 1,
                 )
             testInstance.saveRequest(rqt)
 
@@ -162,7 +177,7 @@ class SubmissionRequestDocDataRepositoryTest(
         @Container
         val mongoContainer: MongoDBContainer =
             MongoDBContainer(DockerImageName.parse(MONGO_VERSION))
-                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(Duration.ofSeconds(MINIMUM_RUNNING_TIME)))
+                .withStartupCheckStrategy(MinimumDurationRunningStartupCheckStrategy(ofSeconds(MINIMUM_RUNNING_TIME)))
 
         @JvmStatic
         @DynamicPropertySource

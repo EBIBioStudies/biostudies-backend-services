@@ -89,11 +89,14 @@ class SubmissionRequestMongoPersistenceService(
                 SubmissionRequest(
                     submission = stored,
                     draftKey = request.draftKey,
-                    request.notifyTo,
-                    request.status,
-                    request.totalFiles,
-                    request.currentIndex,
-                    request.modificationTime.atOffset(UTC),
+                    notifyTo = request.notifyTo,
+                    status = request.status,
+                    conflictingFiles = request.conflictingFiles,
+                    deprecatedFiles = request.deprecatedFiles,
+                    totalFiles = request.totalFiles,
+                    currentIndex = request.currentIndex,
+                    previousVersion = request.previousVersion,
+                    modificationTime = request.modificationTime.atOffset(UTC),
                 )
             return changeId to subRequest
         }
@@ -111,7 +114,9 @@ class SubmissionRequestMongoPersistenceService(
             changeId: String,
             request: SubmissionRequest,
         ) {
-            logger.error(it) { "Error on request accNo='$accNo', version='$version', changeId='$changeId'" }
+            logger.error(it) {
+                "Error on request accNo='$accNo', version='$version', changeId='$changeId', status='$status'"
+            }
             saveRequest(request, changeId, ProcessResult.ERROR)
         }
 
@@ -149,7 +154,10 @@ class SubmissionRequestMongoPersistenceService(
             status = rqt.status,
             submission = BasicDBObject.parse(content),
             totalFiles = rqt.totalFiles,
+            conflictingFiles = rqt.conflictingFiles,
+            deprecatedFiles = rqt.deprecatedFiles,
             currentIndex = rqt.currentIndex,
+            previousVersion = rqt.previousVersion,
             modificationTime = rqt.modificationTime.toInstant(),
         )
     }
@@ -160,11 +168,14 @@ class SubmissionRequestMongoPersistenceService(
             SubmissionRequest(
                 submission = stored,
                 draftKey = request.draftKey,
-                request.notifyTo,
-                request.status,
-                request.totalFiles,
-                request.currentIndex,
-                request.modificationTime.atOffset(UTC),
+                notifyTo = request.notifyTo,
+                status = request.status,
+                totalFiles = request.totalFiles,
+                deprecatedFiles = request.deprecatedFiles,
+                conflictingFiles = request.conflictingFiles,
+                currentIndex = request.currentIndex,
+                previousVersion = request.previousVersion,
+                modificationTime = request.modificationTime.atOffset(UTC),
             )
         return subRequest
     }
