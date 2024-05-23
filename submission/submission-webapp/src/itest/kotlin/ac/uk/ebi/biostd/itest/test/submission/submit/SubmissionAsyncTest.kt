@@ -9,6 +9,7 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED_CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
@@ -121,6 +122,7 @@ class SubmissionAsyncTest(
             extSubmissionSubmitter.indexRequest("SimpleAsync2", 2)
             assertStageExecution(INDEXED)
             assertStageExecution(LOADED)
+            assertStageExecution(INDEXED_CLEANED)
             assertStageExecution(CLEANED)
             assertStageExecution(FILES_COPIED)
             assertStageExecution(PERSISTED)

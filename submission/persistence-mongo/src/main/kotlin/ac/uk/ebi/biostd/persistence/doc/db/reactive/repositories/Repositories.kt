@@ -148,6 +148,7 @@ interface SubmissionRequestFilesRepository : CoroutineCrudRepository<DocSubmissi
         status: RequestFileStatus,
     ): Flow<DocSubmissionRequestFile>
 
+    @Query("{ 'path': ?0, 'accNo': ?1, 'version': ?2, 'previousSubFile': false }")
     suspend fun getByPathAndAccNoAndVersion(
         path: String,
         accNo: String,

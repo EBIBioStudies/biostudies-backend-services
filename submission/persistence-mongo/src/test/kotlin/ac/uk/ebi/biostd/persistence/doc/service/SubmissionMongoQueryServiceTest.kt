@@ -183,9 +183,12 @@ internal class SubmissionMongoQueryServiceTest(
         fun `filtered by keyword on section title`() =
             runTest {
                 val extSectionMatch = section.copy(attributes = listOf(attribute.copy(name = "Title", value = "match")))
-                val extSectionMismatch = section.copy(attributes = listOf(attribute.copy(name = "Title", value = "m_atch")))
-                val docSectionMatch = docSection.copy(attributes = listOf(DocAttribute(name = "Title", value = "match")))
-                val docSectionNoMatch = docSection.copy(attributes = listOf(DocAttribute(name = "Tit_le", value = "match")))
+                val extSectionMismatch =
+                    section.copy(attributes = listOf(attribute.copy(name = "Title", value = "m_atch")))
+                val docSectionMatch =
+                    docSection.copy(attributes = listOf(DocAttribute(name = "Title", value = "match")))
+                val docSectionNoMatch =
+                    docSection.copy(attributes = listOf(DocAttribute(name = "Tit_le", value = "match")))
 
                 saveAsRequest(extSubmission.copy(accNo = "acc1", section = extSectionMatch), REQUESTED)
                 saveAsRequest(extSubmission.copy(accNo = "acc2", section = extSectionMismatch), REQUESTED)
@@ -402,9 +405,12 @@ internal class SubmissionMongoQueryServiceTest(
             notifyTo = submission.owner,
             submission = BasicDBObject.parse(serializationService.serialize(submission)),
             totalFiles = 6,
+            deprecatedFiles = 10,
+            conflictingFiles = 1,
             currentIndex = 0,
             modificationTime = Instant.now(),
             statusChanges = emptyList(),
+            previousVersion = 1,
         )
     }
 

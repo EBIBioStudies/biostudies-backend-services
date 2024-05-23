@@ -12,19 +12,22 @@ data class SubmissionRequestFile(
     val path: String,
     val file: ExtFile,
     val status: RequestFileStatus,
+    val previousSubFile: Boolean = false,
 ) {
     constructor(
         sub: ExtSubmission,
         index: Int,
         file: ExtFile,
         status: RequestFileStatus,
-    ) : this(sub.accNo, sub.version, index, file.filePath, file, status)
+        previousSubFile: Boolean = false,
+    ) : this(sub.accNo, sub.version, index, file.filePath, file, status, previousSubFile)
 }
 
 enum class RequestFileStatus {
     INDEXED,
     LOADED,
     COPIED,
+    CLEANED,
     RELEASED,
     CONFLICTING,
     DEPRECATED,

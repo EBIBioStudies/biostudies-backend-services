@@ -79,6 +79,13 @@ class RemoteExtSubmissionSubmitter(
         TODO("Remote execution not required")
     }
 
+    override suspend fun indexToCleanRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        TODO("Remote execution not required")
+    }
+
     private suspend fun executeRemotely(
         accNo: String,
         version: Int,

@@ -13,8 +13,8 @@ import ac.uk.ebi.biostd.persistence.filesystem.pagetab.PageTabService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.helpers.CollectionService
 import ac.uk.ebi.biostd.submission.domain.helpers.OnBehalfUtils
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleanIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestCleaner
-import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestFinalizer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestIndexer
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
@@ -53,12 +53,13 @@ class SubmissionWebConfig {
         persistenceService: SubmissionPersistenceService,
         queryService: SubmissionPersistenceQueryService,
         requestIndexer: SubmissionRequestIndexer,
+        requestCleanIndexer: SubmissionRequestCleanIndexer,
         requestLoader: SubmissionRequestLoader,
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
         submissionSaver: SubmissionRequestSaver,
-        submissionFinalizer: SubmissionRequestFinalizer,
+        submissionQueryService: ExtSubmissionQueryService,
     ): ExtSubmissionSubmitter {
         val local =
             LocalExtSubmissionSubmitter(
@@ -67,12 +68,13 @@ class SubmissionWebConfig {
                 requestService,
                 persistenceService,
                 requestIndexer,
+                requestCleanIndexer,
                 requestLoader,
                 requestProcessor,
                 submissionReleaser,
                 submissionCleaner,
                 submissionSaver,
-                submissionFinalizer,
+                submissionQueryService,
             )
         val remote = RemoteExtSubmissionSubmitter(clusterClient, appProperties.submissionTask)
         return ExtendedSubmissionSubmitter(local, remote, appProperties.submissionTask, requestService, queryService)
