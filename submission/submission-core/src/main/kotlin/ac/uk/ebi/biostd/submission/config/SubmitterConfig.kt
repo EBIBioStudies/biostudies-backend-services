@@ -259,7 +259,7 @@ class SubmitterConfig(
     }
 
     @Configuration
-    class FilesHandlerConfig() {
+    class FilesHandlerConfig {
         @Bean
         fun folderResolver(appProperties: ApplicationProperties): SubmissionFolderResolver = SubFolderResolver(appProperties)
     }
