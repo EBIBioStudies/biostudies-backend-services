@@ -58,7 +58,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                     totalFiles = 5,
                     deprecatedFiles = 10,
-                    conflictedFiles = 12,
+                    conflictingFiles = 12,
                     currentIndex = 6,
                     modificationTime = Instant.now(),
                     previousVersion = 1,
@@ -77,7 +77,7 @@ class SubmissionRequestDocDataRepositoryTest(
             assertThat(newRequest.submission).isEqualTo(request.submission)
             assertThat(newRequest.totalFiles).isEqualTo(request.totalFiles)
             assertThat(newRequest.deprecatedFiles).isEqualTo(request.deprecatedFiles)
-            assertThat(newRequest.conflictedFiles).isEqualTo(request.conflictedFiles)
+            assertThat(newRequest.conflictingFiles).isEqualTo(request.conflictingFiles)
             assertThat(newRequest.currentIndex).isEqualTo(request.currentIndex)
             assertThat(newRequest.modificationTime).isCloseTo(request.modificationTime, within(100, ChronoUnit.MILLIS))
             assertThat(newRequest.previousVersion).isEqualTo(request.previousVersion)
@@ -98,7 +98,7 @@ class SubmissionRequestDocDataRepositoryTest(
                         submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                         totalFiles = 5,
                         deprecatedFiles = 10,
-                        conflictedFiles = 1,
+                        conflictingFiles = 1,
                         currentIndex = 6,
                         modificationTime = Instant.now(),
                         statusChanges = emptyList(),
@@ -117,7 +117,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
                     totalFiles = 51,
                     deprecatedFiles = 10,
-                    conflictedFiles = 1,
+                    conflictingFiles = 1,
                     currentIndex = 61,
                     modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),
@@ -157,7 +157,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
                     totalFiles = 51,
                     deprecatedFiles = 10,
-                    conflictedFiles = 1,
+                    conflictingFiles = 1,
                     currentIndex = 61,
                     modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),

@@ -9,7 +9,7 @@ data class SubmissionRequest(
     val notifyTo: String,
     val status: RequestStatus,
     val totalFiles: Int,
-    val conflictedFiles: Int,
+    val conflictingFiles: Int,
     val deprecatedFiles: Int,
     val currentIndex: Int,
     val modificationTime: OffsetDateTime,
@@ -21,7 +21,7 @@ data class SubmissionRequest(
         notifyTo,
         status = RequestStatus.REQUESTED,
         totalFiles = 0,
-        conflictedFiles = 0,
+        conflictingFiles = 0,
         deprecatedFiles = 0,
         currentIndex = 0,
         previousVersion = null,
@@ -56,7 +56,7 @@ data class SubmissionRequest(
      * fields.
      */
     fun cleanIndexed(
-        conflictedFiles: Int,
+        conflictingFiles: Int,
         deprecatedFiles: Int,
         previousVersion: Int?,
     ): SubmissionRequest {
@@ -64,7 +64,7 @@ data class SubmissionRequest(
             status = RequestStatus.INDEXED_CLEANED,
             modificationTime = OffsetDateTime.now(),
             currentIndex = 0,
-            conflictedFiles = conflictedFiles,
+            conflictingFiles = conflictingFiles,
             deprecatedFiles = deprecatedFiles,
             previousVersion = previousVersion,
         )
@@ -106,7 +106,7 @@ val RequestStatus.action: String
         return when (this) {
             RequestStatus.REQUESTED -> "Indexing"
             RequestStatus.INDEXED -> "Loading"
-            RequestStatus.LOADED -> "Indexing To Clean Files"
+            RequestStatus.LOADED -> "Indexing Files to Clean"
             RequestStatus.INDEXED_CLEANED -> "Cleaning"
             RequestStatus.CLEANED -> "Copy Files"
             RequestStatus.FILES_COPIED -> "Release Files"

@@ -211,7 +211,7 @@ class SubmissionRequestDocDataRepository(
                 .set(RQT_IDX, rqt.currentIndex)
                 .set(RQT_TOTAL_FILES, rqt.totalFiles)
                 .set(RQT_DEPRECATED_FILES, rqt.deprecatedFiles)
-                .set(RQT_CONFLICTED_FILES, rqt.conflictedFiles)
+                .set(RQT_CONFLICTED_FILES, rqt.conflictingFiles)
                 .set(RQT_MODIFICATION_TIME, rqt.modificationTime)
                 .set(RQT_PREV_SUB_VERSION, rqt.previousVersion)
                 .set("$RQT_STATUS_CHANGES.$.$RQT_STATUS_CHANGE_ENDTIME", processEndTime)

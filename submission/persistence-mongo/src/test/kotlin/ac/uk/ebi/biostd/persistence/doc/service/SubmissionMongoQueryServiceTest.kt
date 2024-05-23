@@ -406,7 +406,7 @@ internal class SubmissionMongoQueryServiceTest(
             submission = BasicDBObject.parse(serializationService.serialize(submission)),
             totalFiles = 6,
             deprecatedFiles = 10,
-            conflictedFiles = 1,
+            conflictingFiles = 1,
             currentIndex = 0,
             modificationTime = Instant.now(),
             statusChanges = emptyList(),
