@@ -10,11 +10,9 @@ import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.api.UserFileType.DIR
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.io.ext.createFile
-import ebi.ac.uk.util.collections.second
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Named
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
@@ -29,8 +27,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import java.nio.file.Paths
 import java.util.stream.Stream
+import kotlin.test.assertNotNull
 
-@Disabled
 @ExtendWith(SpringExtension::class)
 @TestInstance(PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -91,9 +89,14 @@ class UserFileApiTest(
 
         val files = webClient.listUserFiles(folder)
         assertThat(files).hasSize(2)
-        assertThat(files.first().name).isEqualTo("test-inner-folder")
-        assertThat(files.first().type).isEqualTo(DIR)
-        assertFile(files.second(), webClient.downloadFile(file.name, folder), file, folder)
+
+        val expectedDir = files.find { it.name == "test-inner-folder" }
+        assertNotNull(expectedDir)
+        assertThat(expectedDir.type).isEqualTo(DIR)
+
+        val expectedFile = files.find { it.name == file.name }
+        assertNotNull(expectedFile)
+        assertFile(expectedFile, webClient.downloadFile(file.name, folder), file, folder)
 
         webClient.deleteFile(innerFile2.name, innerFolder)
         val innerFiles = webClient.listUserFiles(innerFolder)
