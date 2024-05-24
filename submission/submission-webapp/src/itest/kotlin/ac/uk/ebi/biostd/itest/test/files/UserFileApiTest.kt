@@ -24,6 +24,7 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import java.nio.file.Paths
@@ -32,6 +33,7 @@ import java.util.stream.Stream
 @ExtendWith(SpringExtension::class)
 @TestInstance(PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext
 class UserFileApiTest(
     @Autowired val securityTestService: SecurityTestService,
     @LocalServerPort val serverPort: Int,
