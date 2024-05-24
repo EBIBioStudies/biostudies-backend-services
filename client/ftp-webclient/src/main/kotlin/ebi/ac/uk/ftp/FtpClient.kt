@@ -5,6 +5,7 @@ import org.apache.commons.net.ftp.FTPFile
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.file.Path
+import java.nio.file.Paths
 
 interface FtpClient {
     /**
@@ -121,8 +122,20 @@ private class SimpleFtpClient(
      */
     override fun deleteFile(path: Path) {
         ftpClientPool.executeRestoringWorkingDirectory { ftp ->
+            /**
+             * As delete multiple files are not supported by apache client its necessary delete by iterating over each
+             * file.
+             */
+            fun deleteDirectory(dirPath: Path) {
+                ftp.changeWorkingDirectory(dirPath.toString())
+                ftp.listNames().forEach { deleteFile(Paths.get(dirPath.toString(), it)) }
+
+                ftp.changeToParentDirectory()
+                ftp.removeDirectory(dirPath.fileName.toString())
+            }
+
             val fileDeleted = ftp.deleteFile(path.toString())
-            if (fileDeleted.not()) ftp.deleteDirectory(path)
+            if (fileDeleted.not()) deleteDirectory(path)
         }
     }
 
@@ -148,16 +161,5 @@ private class SimpleFtpClient(
                 it.changeWorkingDirectory(source)
             }
         }
-    }
-
-    /**
-     * As delete multiple files are not supported by apache client its neccessary delete by iterating over each file.
-     */
-    private fun FTPClient.deleteDirectory(dirPath: Path) {
-        changeWorkingDirectory(dirPath.toString())
-        listNames().forEach { deleteFile(it) }
-
-        changeToParentDirectory()
-        removeDirectory(dirPath.fileName.toString())
     }
 }
