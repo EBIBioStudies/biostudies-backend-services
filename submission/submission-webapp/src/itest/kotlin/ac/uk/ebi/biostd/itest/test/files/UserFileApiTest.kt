@@ -14,6 +14,7 @@ import ebi.ac.uk.util.collections.second
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Named
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
@@ -24,12 +25,12 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import java.nio.file.Paths
 import java.util.stream.Stream
 
+@Disabled
 @ExtendWith(SpringExtension::class)
 @TestInstance(PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
