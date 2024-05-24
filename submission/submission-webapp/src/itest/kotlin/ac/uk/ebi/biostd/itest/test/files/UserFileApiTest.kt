@@ -33,7 +33,6 @@ import java.util.stream.Stream
 @ExtendWith(SpringExtension::class)
 @TestInstance(PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@DirtiesContext
 class UserFileApiTest(
     @Autowired val securityTestService: SecurityTestService,
     @LocalServerPort val serverPort: Int,

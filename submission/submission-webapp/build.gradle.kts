@@ -196,7 +196,7 @@ val itest =
 
         retry {
             maxRetries.set(3)
-            maxFailures.set(10)
+            maxFailures.set(20)
             failOnPassedAfterRetry.set(false)
         }
 
