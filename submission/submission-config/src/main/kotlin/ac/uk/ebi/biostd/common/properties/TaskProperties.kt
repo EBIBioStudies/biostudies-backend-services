@@ -17,6 +17,7 @@ data class TaskProperties(
 enum class Mode {
     INDEX,
     LOAD,
+    INDEX_TO_CLEAN,
     COPY,
     CLEAN,
     CHECK_RELEASED,
