@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.common.properties.Mode.CLEAN
 import ac.uk.ebi.biostd.common.properties.Mode.COPY
 import ac.uk.ebi.biostd.common.properties.Mode.FINALIZE
 import ac.uk.ebi.biostd.common.properties.Mode.INDEX
+import ac.uk.ebi.biostd.common.properties.Mode.INDEX_TO_CLEAN
 import ac.uk.ebi.biostd.common.properties.Mode.LOAD
 import ac.uk.ebi.biostd.common.properties.Mode.SAVE
 import ac.uk.ebi.biostd.common.properties.TaskProperties
@@ -65,6 +66,7 @@ class Execute(
         when (properties.taskMode) {
             INDEX -> submissionSubmitter.indexRequest(accNo, version)
             LOAD -> submissionSubmitter.loadRequest(accNo, version)
+            INDEX_TO_CLEAN -> submissionSubmitter.indexToCleanRequest(accNo, version)
             CLEAN -> submissionSubmitter.cleanRequest(accNo, version)
             COPY -> submissionSubmitter.processRequest(accNo, version)
             CHECK_RELEASED -> submissionSubmitter.checkReleased(accNo, version)

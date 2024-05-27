@@ -91,6 +91,15 @@ class ExtendedSubmissionSubmitterTest(
             }
 
         @Test
+        fun `index to clean request`() =
+            runTest {
+                testInstance.indexToCleanRequest(ACC_NO, VERSION)
+
+                coVerify(exactly = 1) { remoteExtSubmissionSubmitter.indexToCleanRequest(ACC_NO, VERSION) }
+                coVerify(exactly = 0) { localExtSubmissionSubmitter.indexToCleanRequest(any(), any()) }
+            }
+
+        @Test
         fun `clean request`() =
             runTest {
                 testInstance.cleanRequest(ACC_NO, VERSION)
@@ -172,7 +181,7 @@ class ExtendedSubmissionSubmitterTest(
                 testInstance.handleRequest(ACC_NO, VERSION)
 
                 coVerify(exactly = 1) {
-                    remoteExtSubmissionSubmitter.cleanRequest(ACC_NO, VERSION)
+                    remoteExtSubmissionSubmitter.indexToCleanRequest(ACC_NO, VERSION)
                 }
 
                 coVerify(exactly = 0) {
@@ -310,6 +319,7 @@ class ExtendedSubmissionSubmitterTest(
     private fun setUpLocalSubmitter() {
         coEvery { localExtSubmissionSubmitter.indexRequest(ACC_NO, VERSION) } answers { nothing }
         coEvery { localExtSubmissionSubmitter.loadRequest(ACC_NO, VERSION) } answers { nothing }
+        coEvery { localExtSubmissionSubmitter.indexToCleanRequest(ACC_NO, VERSION) } answers { nothing }
         coEvery { localExtSubmissionSubmitter.cleanRequest(ACC_NO, VERSION) } answers { nothing }
         coEvery { localExtSubmissionSubmitter.processRequest(ACC_NO, VERSION) } answers { nothing }
         coEvery { localExtSubmissionSubmitter.checkReleased(ACC_NO, VERSION) } answers { nothing }
@@ -319,6 +329,7 @@ class ExtendedSubmissionSubmitterTest(
 
     private fun setUpRemoteSubmitter() {
         coEvery { remoteExtSubmissionSubmitter.loadRequest(ACC_NO, VERSION) } answers { nothing }
+        coEvery { remoteExtSubmissionSubmitter.indexToCleanRequest(ACC_NO, VERSION) } answers { nothing }
         coEvery { remoteExtSubmissionSubmitter.cleanRequest(ACC_NO, VERSION) } answers { nothing }
         coEvery { remoteExtSubmissionSubmitter.processRequest(ACC_NO, VERSION) } answers { nothing }
         coEvery { remoteExtSubmissionSubmitter.checkReleased(ACC_NO, VERSION) } answers { nothing }
