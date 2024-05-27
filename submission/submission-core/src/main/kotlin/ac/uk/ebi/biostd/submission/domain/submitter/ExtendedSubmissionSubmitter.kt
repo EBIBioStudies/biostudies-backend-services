@@ -35,6 +35,16 @@ class ExtendedSubmissionSubmitter(
         }
     }
 
+    override suspend fun indexToCleanRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        when (submissionTaskProperties.enabled) {
+            true -> remoteExtSubmissionSubmitter.indexToCleanRequest(accNo, version)
+            else -> localExtSubmissionSubmitter.indexToCleanRequest(accNo, version)
+        }
+    }
+
     override suspend fun cleanRequest(
         accNo: String,
         version: Int,
