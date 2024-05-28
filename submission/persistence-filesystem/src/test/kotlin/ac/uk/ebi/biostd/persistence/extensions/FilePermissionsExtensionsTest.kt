@@ -1,6 +1,6 @@
 package ac.uk.ebi.biostd.persistence.extensions
 
-import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.permissions
+import ac.uk.ebi.biostd.persistence.filesystem.extensions.permissions
 import ebi.ac.uk.io.Permissions
 import ebi.ac.uk.io.RWXR_XR_X
 import ebi.ac.uk.io.RWXR_X___

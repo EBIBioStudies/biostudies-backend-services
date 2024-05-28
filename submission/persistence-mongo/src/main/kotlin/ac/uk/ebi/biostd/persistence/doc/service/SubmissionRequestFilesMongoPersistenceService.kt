@@ -16,7 +16,7 @@ class SubmissionRequestFilesMongoPersistenceService(
     private val requestFilesRepository: SubmissionRequestFilesRepository,
 ) : SubmissionRequestFilesPersistenceService {
     override suspend fun saveSubmissionRequestFile(file: SubmissionRequestFile) {
-        requestRepository.upsertSubmissionRequestFile(file)
+        requestRepository.upsertSubRqtFile(file)
     }
 
     override suspend fun getSubmissionRequestFile(
@@ -51,6 +51,6 @@ class SubmissionRequestFilesMongoPersistenceService(
 
     private fun DocSubmissionRequestFile.toSubmissionRequestFile(): SubmissionRequestFile {
         val file = extSerializationService.deserializeFile(file.toString())
-        return SubmissionRequestFile(accNo, version, index, path, file, status)
+        return SubmissionRequestFile(accNo, version, index, path, file, status, previousSubFile)
     }
 }

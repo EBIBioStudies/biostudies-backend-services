@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.persistence.doc.service
 import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.OptResponse
@@ -88,11 +89,14 @@ class SubmissionRequestMongoPersistenceService(
                 SubmissionRequest(
                     submission = stored,
                     draftKey = request.draftKey,
-                    request.notifyTo,
-                    request.status,
-                    request.totalFiles,
-                    request.currentIndex,
-                    request.modificationTime.atOffset(UTC),
+                    notifyTo = request.notifyTo,
+                    status = request.status,
+                    conflictingFiles = request.conflictingFiles,
+                    deprecatedFiles = request.deprecatedFiles,
+                    totalFiles = request.totalFiles,
+                    currentIndex = request.currentIndex,
+                    previousVersion = request.previousVersion,
+                    modificationTime = request.modificationTime.atOffset(UTC),
                 )
             return changeId to subRequest
         }
@@ -110,7 +114,9 @@ class SubmissionRequestMongoPersistenceService(
             changeId: String,
             request: SubmissionRequest,
         ) {
-            logger.error(it) { "Error on request accNo='$accNo', version='$version', changeId='$changeId'" }
+            logger.error(it) {
+                "Error on request accNo='$accNo', version='$version', changeId='$changeId', status='$status'"
+            }
             saveRequest(request, changeId, ProcessResult.ERROR)
         }
 
@@ -119,6 +125,13 @@ class SubmissionRequestMongoPersistenceService(
             .onSuccess { onSuccess(it, changeId) }
             .onFailure { onError(it, changeId, request) }
             .getOrThrow()
+    }
+
+    override suspend fun isRequestCompleted(
+        accNo: String,
+        version: Int,
+    ): Boolean {
+        return requestRepository.existsByAccNoAndVersionAndStatus(accNo, version, PROCESSED)
     }
 
     private suspend fun saveRequest(
@@ -141,7 +154,10 @@ class SubmissionRequestMongoPersistenceService(
             status = rqt.status,
             submission = BasicDBObject.parse(content),
             totalFiles = rqt.totalFiles,
+            conflictingFiles = rqt.conflictingFiles,
+            deprecatedFiles = rqt.deprecatedFiles,
             currentIndex = rqt.currentIndex,
+            previousVersion = rqt.previousVersion,
             modificationTime = rqt.modificationTime.toInstant(),
         )
     }
@@ -152,11 +168,14 @@ class SubmissionRequestMongoPersistenceService(
             SubmissionRequest(
                 submission = stored,
                 draftKey = request.draftKey,
-                request.notifyTo,
-                request.status,
-                request.totalFiles,
-                request.currentIndex,
-                request.modificationTime.atOffset(UTC),
+                notifyTo = request.notifyTo,
+                status = request.status,
+                totalFiles = request.totalFiles,
+                deprecatedFiles = request.deprecatedFiles,
+                conflictingFiles = request.conflictingFiles,
+                currentIndex = request.currentIndex,
+                previousVersion = request.previousVersion,
+                modificationTime = request.modificationTime.atOffset(UTC),
             )
         return subRequest
     }

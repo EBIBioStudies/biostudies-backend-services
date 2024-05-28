@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.persistence.filesystem.pagetab
 import ac.uk.ebi.biostd.integration.SerializationService
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.JSON_PRETTY
 import ac.uk.ebi.biostd.integration.SubFormat.Companion.TSV
-import ac.uk.ebi.biostd.persistence.filesystem.extensions.FilePermissionsExtensions.permissions
+import ac.uk.ebi.biostd.persistence.filesystem.extensions.permissions
 import ebi.ac.uk.extended.mapping.to.ToFileListMapper
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
 import ebi.ac.uk.extended.model.ExtFileList

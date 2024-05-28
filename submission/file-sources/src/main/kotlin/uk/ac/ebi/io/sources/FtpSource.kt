@@ -12,6 +12,7 @@ import uk.ac.ebi.io.builder.createFile
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.createTempFile
+import kotlin.io.path.name
 
 /**
  *  Ftp source. Mix both ftp protocol to validate file presence and direct ftp mount point to access file content.
@@ -46,9 +47,9 @@ class FtpSource(
     }
 
     private fun findFile(filePath: String): FTPFile? {
-        val ftpPath = ftpUrl.resolve(filePath).parent
-        val files = ftpClient.listFiles(ftpPath)
-        return files.firstOrNull { it.name == filePath }
+        val ftpPath = ftpUrl.resolve(filePath)
+        val files = ftpClient.listFiles(ftpPath.parent)
+        return files.firstOrNull { it.name == ftpPath.name }
     }
 
     private fun downloadFile(path: Path): File {

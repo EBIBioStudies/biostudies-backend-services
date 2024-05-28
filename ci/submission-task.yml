@@ -1,7 +1,7 @@
 .deploy-prod-submission-task:
   dependencies:
     - build-test
-  script: gradle :submission:submission-task:bootJar updateSubmissionTaskArtifact -Penv=prod -PdeployPath=$APPS_PATH/submitter/prod
+  script: gradle updateSubmissionTaskArtifact -Penv=prod -PdeployPath=$APPS_PATH/submitter/prod
 
 auto-deploy-prod-submission-task:
   extends: .deploy-prod-submission-task
@@ -15,14 +15,14 @@ deploy-dev-submission-task:
   when: manual
   dependencies:
     - build-test
-  script: gradle :submission:submission-task:bootJar updateSubmissionTaskArtifact -Penv=dev -PdeployPath=$APPS_PATH/submitter/dev
+  script: gradle updateSubmissionTaskArtifact -Penv=dev -PdeployPath=$APPS_PATH/submitter/dev
 
 deploy-beta-submission-task:
   stage: deploy-beta-submission-task
   when: manual
   dependencies:
     - build-test
-  script: gradle :submission:submission-task:bootJar updateSubmissionTaskArtifact -Penv=beta -PdeployPath=$APPS_PATH/submitter/beta
+  script: gradle updateSubmissionTaskArtifact -Penv=beta -PdeployPath=$APPS_PATH/submitter/beta
 
 deploy-prod-submission-task:
   extends: .deploy-prod-submission-task

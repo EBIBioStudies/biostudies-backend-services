@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.submission.domain.submission
 
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmission
 import ac.uk.ebi.biostd.submission.exceptions.UserCanNotDeleteSubmissions
@@ -26,6 +27,7 @@ class SubmissionService(
     private val eventsPublisherService: EventsPublisherService,
     private val submissionPersistenceService: SubmissionPersistenceService,
     private val fileStorageService: FileStorageService,
+    private val requestQueryService: SubmissionRequestPersistenceService,
 ) {
     suspend fun submit(rqt: SubmitRequest): ExtSubmission {
         logger.info { "${rqt.accNo} ${rqt.owner} Received sync submit request with draft key '${rqt.draftKey}'" }
@@ -35,7 +37,7 @@ class SubmissionService(
 
         return waitUntil(
             ofMinutes(SYNC_SUBMIT_TIMEOUT),
-            conditionEvaluator = { queryService.existByAccNoAndVersion(accNo, version) },
+            conditionEvaluator = { requestQueryService.isRequestCompleted(accNo, version) },
             processFunction = { queryService.getExtByAccNo(accNo) },
         )
     }

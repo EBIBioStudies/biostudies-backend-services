@@ -13,6 +13,7 @@ import ac.uk.ebi.biostd.submission.exceptions.RemovedDoiException
 import ac.uk.ebi.biostd.submission.model.Contributor
 import ac.uk.ebi.biostd.submission.model.DoiRequest
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
+import ebi.ac.uk.base.isNotBlank
 import ebi.ac.uk.commons.http.builder.httpHeadersOf
 import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
 import ebi.ac.uk.commons.http.ext.RequestParams
@@ -81,37 +82,31 @@ class DoiService(
         return request.doi
     }
 
-    private fun getContributors(sub: Submission): List<Contributor> {
-        val organizations = getOrganizations(sub)
-        val contributors = sub.allSections().filter { it.type.lowercase() == AUTHOR_TYPE.lowercase() }
-        validateContributors(contributors, organizations)
+    private fun getContributors(submission: Submission): List<Contributor> {
+        fun isNameValid(author: Section): Boolean {
+            val name = author.findAttr(NAME_ATTR)
+            return name.isNotBlank() && name!!.contains(" ")
+        }
+
+        val organizations = getOrganizations(submission)
+        val contributors =
+            submission
+                .allSections()
+                .filter { it.type.equals(AUTHOR_TYPE, ignoreCase = true) }
+                .filter { isNameValid(it) }
 
         return contributors.map { it.asContributor(organizations) }
     }
 
-    private fun validateContributors(
-        contributors: List<Section>,
-        organizations: Map<String, String>,
-    ) {
-        fun validate(contr: Section) {
-            val names = requireNotNull(contr.findAttr(NAME_ATTR)) { throw InvalidAuthorNameException() }
-            val org = requireNotNull(contr.findAttr(AFFILIATION_ATTR)) { throw MissingAuthorAffiliationException() }
-            requireNotNull(organizations[org]) { throw InvalidAuthorAffiliationException(names, org) }
-        }
-
-        contributors
-            .ifEmpty { throw MissingDoiFieldException(AUTHOR_TYPE) }
-            .forEach(::validate)
-    }
-
     private fun Section.asContributor(organizations: Map<String, String>): Contributor {
-        val names = findAttr(NAME_ATTR)!!
-        val affiliation = findAttr(AFFILIATION_ATTR)!!
+        val names = findAttr(NAME_ATTR) ?: throw InvalidAuthorNameException()
+        val affiliation = findAttr(AFFILIATION_ATTR) ?: throw MissingAuthorAffiliationException()
+        val org = organizations[affiliation] ?: throw InvalidAuthorAffiliationException(names, affiliation)
 
         return Contributor(
             name = names.substringBeforeLast(" ", ""),
             surname = names.substringAfterLast(" "),
-            affiliation = organizations[affiliation]!!,
+            affiliation = org,
             orcid = find(ORCID_ATTR),
         )
     }

@@ -5,8 +5,10 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED_CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
+import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -30,6 +32,16 @@ class ExtendedSubmissionSubmitter(
         when (submissionTaskProperties.enabled) {
             true -> remoteExtSubmissionSubmitter.loadRequest(accNo, version)
             else -> localExtSubmissionSubmitter.loadRequest(accNo, version)
+        }
+    }
+
+    override suspend fun indexToCleanRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        when (submissionTaskProperties.enabled) {
+            true -> remoteExtSubmissionSubmitter.indexToCleanRequest(accNo, version)
+            else -> localExtSubmissionSubmitter.indexToCleanRequest(accNo, version)
         }
     }
 
@@ -80,12 +92,13 @@ class ExtendedSubmissionSubmitter(
         return when (requestService.getRequestStatus(accNo, version)) {
             REQUESTED -> triggerAndWait(accNo, version) { indexRequest(accNo, version) }
             INDEXED -> triggerAndWait(accNo, version) { loadRequest(accNo, version) }
-            LOADED -> triggerAndWait(accNo, version) { cleanRequest(accNo, version) }
+            LOADED -> triggerAndWait(accNo, version) { indexToCleanRequest(accNo, version) }
+            INDEXED_CLEANED -> triggerAndWait(accNo, version) { cleanRequest(accNo, version) }
             CLEANED -> triggerAndWait(accNo, version) { processRequest(accNo, version) }
             FILES_COPIED -> triggerAndWait(accNo, version) { checkReleased(accNo, version) }
             CHECK_RELEASED -> localExtSubmissionSubmitter.saveAndFinalize(accNo, version)
             PERSISTED -> finalizeRequest(accNo, version)
-            else -> error("Request accNo=$accNo, version=$version has been already processed")
+            PROCESSED -> error("Request accNo=$accNo, version=$version has been already processed")
         }
     }
 

@@ -3,6 +3,8 @@ package ac.uk.ebi.biostd.persistence.common.model
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 
+typealias SubRqtFile = SubmissionRequestFile
+
 data class SubmissionRequestFile(
     val accNo: String,
     val version: Int,
@@ -10,18 +12,23 @@ data class SubmissionRequestFile(
     val path: String,
     val file: ExtFile,
     val status: RequestFileStatus,
+    val previousSubFile: Boolean = false,
 ) {
     constructor(
         sub: ExtSubmission,
         index: Int,
         file: ExtFile,
         status: RequestFileStatus,
-    ) : this(sub.accNo, sub.version, index, file.filePath, file, status)
+        previousSubFile: Boolean = false,
+    ) : this(sub.accNo, sub.version, index, file.filePath, file, status, previousSubFile)
 }
 
 enum class RequestFileStatus {
     INDEXED,
     LOADED,
     COPIED,
+    CLEANED,
     RELEASED,
+    CONFLICTING,
+    DEPRECATED,
 }

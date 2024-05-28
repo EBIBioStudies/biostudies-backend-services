@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode
 import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode.HARD_LINKS
 import ac.uk.ebi.biostd.persistence.filesystem.api.NfsReleaseMode.MOVE
 import ebi.ac.uk.extended.model.ExtFile
+import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.Permissions
@@ -20,14 +21,13 @@ class NfsFtpService(
     private val folderResolver: SubmissionFolderResolver,
 ) : FtpService {
     override suspend fun releaseSubmissionFile(
+        sub: ExtSubmissionInfo,
         file: ExtFile,
-        subRelPath: String,
-        subSecretKey: String,
     ): ExtFile =
         withContext(Dispatchers.IO) {
             val nfsFile = file as NfsFile
-            val publicSubFolder = getPublicFolder(subRelPath)
-            val privateSubFolder = folderResolver.getPrivateSubFolder(subSecretKey, subRelPath)
+            val publicSubFolder = getPublicFolder(sub.relPath)
+            val privateSubFolder = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath)
 
             when (releaseMode) {
                 MOVE -> moveRelease(nfsFile, publicSubFolder)

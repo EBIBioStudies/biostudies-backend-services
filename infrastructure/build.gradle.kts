@@ -53,7 +53,7 @@ tasks.register<Exec>("executeScript") {
     val args = project.ext["args"].toString()
     val linuxScript = project.ext["linuxScript"].toString()
     val windowsScript = project.ext["windowsScript"].toString()
-    val os = System.getProperty("os.name").toLowerCase(ROOT)
+    val os = System.getProperty("os.name").lowercase(ROOT)
 
     commandLine =
         when {
