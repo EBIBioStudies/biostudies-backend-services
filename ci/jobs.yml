@@ -1,10 +1,18 @@
 auto-deploy-dev:
+  extends: .deploy-dev
   stage: auto-deploy-dev
-  dependencies:
-    - build-test
   only:
     refs:
       - master
+
+deploy-dev:
+  extends: .deploy-dev
+  stage: deploy-dev
+  when: manual
+
+.deploy-dev:
+  dependencies:
+    - build-test
   script:
     - gradle deployBioCommandLine -Penv=dev -PdeployPath=$APPS_PATH/cli/dev
     - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/dev/apps
@@ -17,8 +25,19 @@ auto-deploy-dev:
     - gradle updateSubmissionTaskArtifact -Penv=dev -PdeployPath=$APPS_PATH/submitter/dev
     - gradle deploySubmitter -Penv=dev -PdeployPath=$APPS_PATH/submitter/dev
 
-auto-deploy-beta:
+auto-deploy-dev:
+  extends: .deploy-beta
   stage: auto-deploy-beta
+  only:
+    refs:
+      - beta
+
+deploy-dev:
+  extends: .deploy-beta
+  stage: deploy-beta
+  when: manual
+
+.deploy-beta:
   dependencies:
     - build-test
   only:
@@ -36,8 +55,20 @@ auto-deploy-beta:
     - gradle updateSubmissionTaskArtifact -Penv=beta -PdeployPath=$APPS_PATH/submitter/beta
     - gradle deploySubmitter -Penv=beta -PdeployPath=$APPS_PATH/submitter/beta -PjvmParams=-Xmx12g
 
+
 auto-deploy-prod:
+  extends: .deploy-prod
   stage: auto-deploy-prod
+  only:
+    refs:
+      - prod
+
+deploy-prod:
+  extends: .deploy-prod
+  stage: deploy-beta
+  when: manual
+
+.deploy-prod:
   dependencies:
     - build-test
   only:

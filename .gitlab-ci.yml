@@ -18,6 +18,9 @@ stages:
   - auto-deploy-dev
   - auto-deploy-beta
   - auto-deploy-prod
+  - deploy-dev
+  - deploy-beta
+  - deploy-prod
   - build-fat-jar
   - build-push-docker-image
 
