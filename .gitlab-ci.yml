@@ -7,73 +7,17 @@ variables:
   DOCKER_TLS_CERTDIR: ""
 
 include:
-  - local: '/ci/submitter.yml'
-  - local: '/ci/submission-task.yml'
-  - local: '/ci/pmc-processor.yml'
-  - local: '/ci/exporter.yml'
-  - local: '/ci/submission-releaser.yml'
-  - local: '/ci/stats-reporter.yml'
-  - local: '/ci/scheduler.yml'
-  - local: '/ci/bio-commandline.yml'
-  - local: '/ci/submission-handlers.yml'
   - local: '/ci/docker.yml'
-
+  - local: '/ci/jobs.yml'
 
 stages:
   - build-test
   - nfs-itest
   - fire-itest
   - fire-caos-itest
-  - auto-deploy-dev-bio-commandline
-  - auto-deploy-beta-bio-commandline
-  - auto-deploy-prod-bio-commandline
-  - auto-deploy-prod-submission-task
-  - deploy-dev-submission-task
-  - deploy-beta-submission-task
-  - deploy-prod-submission-task
-  - auto-deploy-dev-submitter
-  - auto-deploy-beta-submitter
-  - auto-deploy-prod-submitter
-  - auto-deploy-migrator-submitter
-  - auto-deploy-sandbox-submitter
-  - auto-deploy-dev-handlers
-  - auto-deploy-beta-handlers
-  - auto-deploy-prod-handlers
-  - auto-deploy-sandbox-handlers
-  - auto-deploy-prod-scheduler
-  - auto-deploy-prod-exporter-task
-  - auto-deploy-prod-releaser-task
-  - auto-deploy-prod-stats-reporter-task
-  - auto-deploy-prod-pmc-processor-task
-  - deploy-dev-submitter
-  - deploy-beta-submitter
-  - deploy-prod-submitter
-  - deploy-migrator-submitter
-  - build-fat-jar-prod
-  - build-push-docker-image-prod
-  - deploy-sandbox-submitter
-  - deploy-dev-pmc-processor-task
-  - deploy-beta-pmc-processor-task
-  - deploy-prod-pmc-processor-task
-  - deploy-dev-exporter-task
-  - deploy-beta-exporter-task
-  - deploy-prod-exporter-task
-  - deploy-dev-releaser-task
-  - deploy-beta-releaser-task
-  - deploy-prod-releaser-task
-  - deploy-dev-stats-reporter-task
-  - deploy-beta-stats-reporter-task
-  - deploy-prod-stats-reporter-task
-  - deploy-dev-scheduler
-  - deploy-beta-scheduler
-  - deploy-prod-scheduler
-  - deploy-dev-bio-commandline
-  - deploy-beta-bio-commandline
-  - deploy-prod-bio-commandline
-  - deploy-dev-handlers
-  - deploy-beta-handlers
-  - deploy-prod-handlers
-  - deploy-sandbox-handlers
+  - auto-deploy-dev
+  - auto-deploy-beta
+  - auto-deploy-prod
   - build-fat-jar
   - build-push-docker-image
 
