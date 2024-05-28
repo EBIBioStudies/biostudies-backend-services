@@ -43,7 +43,7 @@ auto-deploy-prod:
   only:
     refs:
       - prod
-  scripts:
+  script:
     - gradle deployBioCommandLine -Penv=prod -PdeployPath=$APPS_PATH/cli/prod
     - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
     - gradle updatePmcArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
