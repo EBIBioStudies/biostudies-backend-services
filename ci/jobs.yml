@@ -25,14 +25,14 @@ deploy-dev:
     - gradle updateSubmissionTaskArtifact -Penv=dev -PdeployPath=$APPS_PATH/submitter/dev
     - gradle deploySubmitter -Penv=dev -PdeployPath=$APPS_PATH/submitter/dev
 
-auto-deploy-dev:
+auto-deploy-beta:
   extends: .deploy-beta
   stage: auto-deploy-beta
   only:
     refs:
       - beta
 
-deploy-dev:
+deploy-beta:
   extends: .deploy-beta
   stage: deploy-beta
   when: manual
