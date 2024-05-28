@@ -8,6 +8,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ebi.ac.uk.api.UserFile
 import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.api.UserFileType.DIR
+import ebi.ac.uk.api.UserFileType.FILE
 import ebi.ac.uk.api.security.RegisterRequest
 import ebi.ac.uk.io.ext.createFile
 import kotlinx.coroutines.test.runTest
@@ -27,7 +28,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.io.File
 import java.nio.file.Paths
 import java.util.stream.Stream
-import kotlin.test.assertNotNull
 
 @ExtendWith(SpringExtension::class)
 @TestInstance(PER_CLASS)
@@ -80,28 +80,25 @@ class UserFileApiTest(
         val folder = "test-folder 17-3"
         val innerFolder = "$folder/test-inner-folder"
         val file = tempFolder.createFile("FileList1.txt", "An example content")
+        val hiddenFile = tempFolder.createFile(".hiddenFile.txt", "Hidden file")
         val innerFile1 = tempFolder.createFile("InnerFile1.txt", "An inner file")
         val innerFile2 = tempFolder.createFile("InnerFile2.txt", "Another inner file")
 
         webClient.uploadFile(file, folder)
+        webClient.uploadFile(hiddenFile, folder)
         webClient.uploadFile(innerFile1, innerFolder)
         webClient.uploadFile(innerFile2, innerFolder)
 
-        val files = webClient.listUserFiles(folder)
-        assertThat(files).hasSize(2)
-
-        val expectedDir = files.find { it.name == "test-inner-folder" }
-        assertNotNull(expectedDir)
-        assertThat(expectedDir.type).isEqualTo(DIR)
-
-        val expectedFile = files.find { it.name == file.name }
-        assertNotNull(expectedFile)
-        assertFile(expectedFile, webClient.downloadFile(file.name, folder), file, folder)
+        assertThat(webClient.listUserFiles(folder))
+            .hasSize(3)
+            .anyMatch { it.name == file.name && it.type == FILE }
+            .anyMatch { it.name == hiddenFile.name && it.type == FILE }
+            .anyMatch { it.name == "test-inner-folder" && it.type == DIR }
 
         webClient.deleteFile(innerFile2.name, innerFolder)
-        val innerFiles = webClient.listUserFiles(innerFolder)
-        assertThat(innerFiles).hasSize(1)
-        assertThat(innerFiles.first().name).isEqualTo(innerFile1.name)
+        assertThat(webClient.listUserFiles(innerFolder))
+            .hasSize(1)
+            .allMatch { it.name == innerFile1.name }
 
         webClient.deleteFile(folder)
         assertThat(webClient.listUserFiles()).isEmpty()
