@@ -40,9 +40,6 @@ deploy-dev:
 .deploy-beta:
   dependencies:
     - build-test
-  only:
-    refs:
-      - beta
   script:
     - gradle deployBioCommandLine -Penv=beta -PdeployPath=$APPS_PATH/cli/beta
     - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/beta/apps
@@ -71,9 +68,6 @@ deploy-prod:
 .deploy-prod:
   dependencies:
     - build-test
-  only:
-    refs:
-      - prod
   script:
     - gradle deployBioCommandLine -Penv=prod -PdeployPath=$APPS_PATH/cli/prod
     - gradle updateExporterArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
