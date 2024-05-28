@@ -62,7 +62,7 @@ auto-deploy-prod:
 
 deploy-prod:
   extends: .deploy-prod
-  stage: deploy-beta
+  stage: deploy-prod
   when: manual
 
 .deploy-prod:
