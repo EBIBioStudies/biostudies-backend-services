@@ -81,3 +81,4 @@ deploy-prod:
     - gradle deployMigratorSubmitter -Penv=prod -PdeployPath=$APPS_PATH/submitter/migrator -PjvmParams=-Xmx8g
     - gradle deploySubmitter -Penv=prod -PdeployPath=$APPS_PATH/submitter/prod -PjvmParams=-Xmx16g
     - gradle deploySubmitter -Penv=sandbox -PdeployPath=$APPS_PATH/submitter/sandbox -PjvmParams=-Xmx16g
+    - gradle deployHandlers -Penv=sandbox -PdeployPath=$APPS_PATH/handlers/sandbox
