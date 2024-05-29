@@ -6,7 +6,6 @@ import uk.ac.ebi.biostd.client.cli.commands.DeleteCommand
 import uk.ac.ebi.biostd.client.cli.commands.GrantPermissionCommand
 import uk.ac.ebi.biostd.client.cli.commands.MigrateCommand
 import uk.ac.ebi.biostd.client.cli.commands.SubmitAsyncCommand
-import uk.ac.ebi.biostd.client.cli.commands.SubmitCommand
 import uk.ac.ebi.biostd.client.cli.commands.TransferCommand
 import uk.ac.ebi.biostd.client.cli.commands.ValidateFileListCommand
 import uk.ac.ebi.biostd.client.cli.services.SecurityService
@@ -23,7 +22,6 @@ fun main(args: Array<String>) {
     val securityService = SecurityService()
     BioStudiesCommandLine()
         .subcommands(
-            SubmitCommand(service),
             SubmitAsyncCommand(service),
             DeleteCommand(service),
             MigrateCommand(service),
