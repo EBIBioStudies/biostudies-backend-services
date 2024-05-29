@@ -113,7 +113,7 @@ private class SimpleFtpClient(
     override fun listFiles(path: Path): List<FTPFile> {
         return ftpClientPool.executeRestoringWorkingDirectory { ftp ->
             ftp.changeWorkingDirectory(path.toString())
-            ftp.listFiles().toList()
+            ftp.listAllFiles()
         }
     }
 
@@ -128,7 +128,7 @@ private class SimpleFtpClient(
              */
             fun deleteDirectory(dirPath: Path) {
                 ftp.changeWorkingDirectory(dirPath.toString())
-                ftp.listNames().forEach { deleteFile(Paths.get(dirPath.toString(), it)) }
+                ftp.listAllFiles().forEach { deleteFile(Paths.get(dirPath.toString(), it.name)) }
 
                 ftp.changeToParentDirectory()
                 ftp.removeDirectory(dirPath.fileName.toString())
@@ -161,5 +161,9 @@ private class SimpleFtpClient(
                 it.changeWorkingDirectory(source)
             }
         }
+    }
+
+    private fun FTPClient.listAllFiles(): List<FTPFile> {
+        return listFiles().filterNot { it.name == "." || it.name == ".." }.toList()
     }
 }

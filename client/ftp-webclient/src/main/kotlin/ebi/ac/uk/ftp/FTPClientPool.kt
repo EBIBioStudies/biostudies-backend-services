@@ -51,6 +51,7 @@ internal class FTPClientPool(
             ftp.connect(ftpUrl, ftpPort)
             ftp.login(ftpUser, ftpPassword)
             ftp.changeWorkingDirectory(ftpRootPath)
+            ftp.listHiddenFiles = true
             ftp.enterLocalPassiveMode()
             return ftp
         }
