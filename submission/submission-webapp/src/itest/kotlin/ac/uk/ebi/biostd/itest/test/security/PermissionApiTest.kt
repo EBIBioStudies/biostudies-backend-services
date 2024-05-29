@@ -1,18 +1,19 @@
 package ac.uk.ebi.biostd.itest.test.security
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
+import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.common.properties.StorageMode
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.model.DbAccessTag
 import ac.uk.ebi.biostd.persistence.model.DbUser
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
-import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
+import ebi.ac.uk.dsl.tsv.line
+import ebi.ac.uk.dsl.tsv.tsv
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeAll
@@ -31,7 +32,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PermissionApiTest(
     @Autowired private val userDataRepository: UserDataRepository,
-    @Autowired private val accessTagRepository: AccessTagDataRepo,
     @Autowired private val accessPermissionRepository: AccessPermissionRepository,
     @Autowired private val securityTestService: SecurityTestService,
     @LocalServerPort val serverPort: Int,
@@ -48,7 +48,7 @@ class PermissionApiTest(
             superWebClient = getWebClient(serverPort, SuperUser)
             regularWebClient = getWebClient(serverPort, RegularUser)
 
-            accessTagRepository.save(dbAccessTag)
+            setUpTestCollection()
         }
 
     @BeforeEach
@@ -57,40 +57,53 @@ class PermissionApiTest(
     }
 
     @Test
-    fun `21-1 give permission to a user by superUser`() {
-        superWebClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
+    fun `21-1 grant permission to a user by superuser`() {
+        superWebClient.grantPermission(dbUser.email, "PermissionCollection", "READ")
 
         val permissions = accessPermissionRepository.findAllByUserEmail(dbUser.email)
 
         assertThat(permissions).hasSize(1)
         assertThat(permissions.first().user.email).isEqualTo(dbUser.email)
-        assertThat(permissions.first().accessTag.name).isEqualTo(dbAccessTag.name)
+        assertThat(permissions.first().accessTag.name).isEqualTo("PermissionCollection")
     }
 
     @Test
-    fun `21-2 trying to give permission to a user by regularUser`() {
+    fun `21-2 grant permission to a user by regular user`() {
         assertThrows<WebClientException> {
-            regularWebClient.givePermissionToUser(dbUser.email, dbAccessTag.name, "READ")
+            regularWebClient.grantPermission(dbUser.email, "PermissionCollection", "READ")
         }
     }
 
     @Test
-    fun `21-3 trying to give permission to non-existent user`() {
+    fun `21-3 grant permission to non-existing user`() {
         assertThrows<WebClientException>("The user $FAKE_USER does not exist") {
-            superWebClient.givePermissionToUser(FAKE_USER, dbAccessTag.name, "READ")
+            superWebClient.grantPermission(FAKE_USER, "PermissionCollection", "READ")
         }
     }
 
     @Test
-    fun `21-4 trying to give permission to a user but non-existent accessTag`() {
-        assertThrows<WebClientException>("The accessTag $FAKE_ACCESS_TAG does not exist") {
-            superWebClient.givePermissionToUser(dbUser.email, FAKE_ACCESS_TAG, "READ")
+    fun `21-4 grant permission to non-existing submission`() {
+        assertThrows<WebClientException>("The submission $FAKE_ACC_NO was not found") {
+            superWebClient.grantPermission(dbUser.email, FAKE_ACC_NO, "READ")
         }
+    }
+
+    private fun setUpTestCollection() {
+        val collection =
+            tsv {
+                line("Submission", "PermissionCollection")
+                line("AccNoTemplate", "!{S-PCOL}")
+                line()
+
+                line("Project")
+            }.toString()
+
+        superWebClient.submitSingle(collection, TSV)
     }
 
     private companion object {
         const val FAKE_USER = "fakeUser"
-        const val FAKE_ACCESS_TAG = "fakeAccessTag"
+        const val FAKE_ACC_NO = "fakeAccNo"
         val dbUser =
             DbUser(
                 email = "test@email.com",
@@ -100,6 +113,5 @@ class PermissionApiTest(
                 passwordDigest = ByteArray(1),
                 storageMode = StorageMode.NFS,
             )
-        val dbAccessTag = DbAccessTag(id = 2, name = "accessTagName")
     }
 }

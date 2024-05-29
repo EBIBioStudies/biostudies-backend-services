@@ -7,9 +7,9 @@ internal class SecurityService {
 
     private fun permission(rqt: PermissionRequest) {
         val config = rqt.securityConfig
-        bioWebClient(config.server, config.user, config.password).givePermissionToUser(
+        bioWebClient(config.server, config.user, config.password).grantPermission(
             rqt.targetUser,
-            rqt.accessTagName,
+            rqt.accNo,
             rqt.accessType,
         )
     }

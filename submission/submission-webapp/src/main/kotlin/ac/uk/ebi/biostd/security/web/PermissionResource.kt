@@ -9,15 +9,19 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @PreAuthorize("hasAuthority('ADMIN')")
-class PermissionResource(private val permissionsService: PermissionService) {
+class PermissionResource(
+    private val permissionsService: PermissionService,
+) {
     @PutMapping("/permissions")
-    fun givePermissionToUser(
+    suspend fun grantPermission(
         @RequestBody request: PermissionRequest,
-    ) = permissionsService.givePermissionToUser(request.accessType, request.userEmail, request.accessTagName)
+    ) {
+        permissionsService.grantPermission(request.accessType, request.userEmail, request.accNo)
+    }
 }
 
 data class PermissionRequest(
     val userEmail: String,
     val accessType: AccessType,
-    val accessTagName: String,
+    val accNo: String,
 )

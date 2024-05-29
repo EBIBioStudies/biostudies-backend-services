@@ -112,9 +112,9 @@ class CollectionsListTest(
     }
 
     private fun setUpPermissions() {
-        superUserWebClient.givePermissionToUser(DefaultUser.email, "DefaultCollection", ATTACH.name)
-        superUserWebClient.givePermissionToUser(RegularUser.email, "SampleCollection", ATTACH.name)
-        superUserWebClient.givePermissionToUser(CollectionUser.email, "SampleCollection", ADMIN.name)
+        superUserWebClient.grantPermission(DefaultUser.email, "DefaultCollection", ATTACH.name)
+        superUserWebClient.grantPermission(RegularUser.email, "SampleCollection", ATTACH.name)
+        superUserWebClient.grantPermission(CollectionUser.email, "SampleCollection", ADMIN.name)
     }
 
     object CollectionUser : TestUser {
