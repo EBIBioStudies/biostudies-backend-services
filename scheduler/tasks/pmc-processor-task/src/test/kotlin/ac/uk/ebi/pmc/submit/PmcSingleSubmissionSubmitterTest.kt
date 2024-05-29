@@ -96,6 +96,7 @@ internal class PmcSingleSubmissionSubmitterTest(private val tempFolder: Temporar
                                 "orcid" to "orcid"
                                 "allow" to jsonArray("allow")
                                 "deny" to jsonArray("deny")
+                                "uploadType" to "nfs"
                             }.toString(),
                         ),
                 ),

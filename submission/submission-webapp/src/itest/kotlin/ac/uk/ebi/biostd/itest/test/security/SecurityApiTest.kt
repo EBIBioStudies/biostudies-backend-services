@@ -93,13 +93,22 @@ class SecurityApiTest(
     @Test
     fun `22-7 check Nfs home type user`() =
         runTest {
-            securityTestService.ensureUserRegistration(NewUser)
-            val client = getWebClient(serverPort, NewUser)
+            securityTestService.ensureUserRegistration(NfsUser)
+            val client = getWebClient(serverPort, NfsUser)
 
             val result = client.getProfile()
 
             assertThat(result.uploadType).isEqualTo("nfs")
         }
+
+    object NfsUser : TestUser {
+        override val username = "New Nfs User"
+        override val email = "new-nfs-biostudies-mgmt@ebi.ac.uk"
+        override val password = "12345"
+        override val superUser = true
+
+        override fun asRegisterRequest() = RegisterRequest(username, email, password)
+    }
 
     object NewUser : TestUser {
         override val username = "New User"
