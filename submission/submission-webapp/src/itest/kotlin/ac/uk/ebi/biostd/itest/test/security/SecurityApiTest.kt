@@ -2,11 +2,15 @@ package ac.uk.ebi.biostd.itest.test.security
 
 import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
+import ac.uk.ebi.biostd.itest.common.SecurityTestService
+import ac.uk.ebi.biostd.itest.entities.FtpSuperUser
 import ac.uk.ebi.biostd.itest.entities.TestUser
+import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.api.security.CheckUserRequest
 import ebi.ac.uk.api.security.LoginRequest
 import ebi.ac.uk.api.security.RegisterRequest
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
@@ -23,6 +27,7 @@ import kotlin.test.assertNotNull
 class SecurityApiTest(
     @LocalServerPort val serverPort: Int,
     @Autowired private val userDataRepository: UserDataRepository,
+    @Autowired val securityTestService: SecurityTestService,
 ) {
     private lateinit var webClient: SecurityWebClient
 
@@ -72,6 +77,37 @@ class SecurityApiTest(
         val user = userDataRepository.findByEmailAndActive("Case-Insensitive-Inactive@mail.org", false)
         assertNotNull(user)
         assertThat(user.email).isEqualTo("case-insensitive-inactive@mail.org")
+    }
+
+    @Test
+    fun `22-6 check ftp home type user`() =
+        runTest {
+            securityTestService.ensureUserRegistration(FtpSuperUser)
+            val client = getWebClient(serverPort, FtpSuperUser)
+
+            val result = client.getProfile()
+
+            assertThat(result.uploadType).isEqualTo("ftp")
+        }
+
+    @Test
+    fun `22-7 check Nfs home type user`() =
+        runTest {
+            securityTestService.ensureUserRegistration(NfsUser)
+            val client = getWebClient(serverPort, NfsUser)
+
+            val result = client.getProfile()
+
+            assertThat(result.uploadType).isEqualTo("nfs")
+        }
+
+    object NfsUser : TestUser {
+        override val username = "New Nfs User"
+        override val email = "new-nfs-biostudies-mgmt@ebi.ac.uk"
+        override val password = "12345"
+        override val superUser = true
+
+        override fun asRegisterRequest() = RegisterRequest(username, email, password)
     }
 
     object NewUser : TestUser {
