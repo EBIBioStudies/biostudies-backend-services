@@ -1,4 +1,3 @@
-
 import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
@@ -28,7 +27,7 @@ allprojects {
     tasks {
         withType<KotlinCompile>().all {
             kotlinOptions {
-                jvmTarget = "11"
+                jvmTarget = "17"
                 freeCompilerArgs =
                     freeCompilerArgs +
                     arrayOf(
@@ -37,6 +36,21 @@ allprojects {
                         "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
                     )
             }
+        }
+
+        withType<Test>().all {
+            jvmArgs =
+                listOf(
+                    "--add-opens",
+                    "java.base/java.time=ALL-UNNAMED",
+                    "--add-opens",
+                    "java.base/java.lang.reflect=ALL-UNNAMED",
+                )
+        }
+
+        withType<JavaCompile>().all {
+            sourceCompatibility = "17"
+            targetCompatibility = "17"
         }
 
         detekt {

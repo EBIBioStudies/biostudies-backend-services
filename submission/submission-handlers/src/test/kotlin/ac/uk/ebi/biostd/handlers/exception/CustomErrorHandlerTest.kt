@@ -7,7 +7,6 @@ import ebi.ac.uk.commons.http.slack.Alert
 import ebi.ac.uk.commons.http.slack.NotificationsSender
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
@@ -19,7 +18,6 @@ import kotlin.test.assertFailsWith
 
 @ExtendWith(MockKExtension::class)
 class CustomErrorHandlerTest(
-    @MockK private val throwable: Throwable,
     @MockK private val notificationsSender: NotificationsSender,
 ) {
     private val testInstance = CustomErrorHandler(notificationsSender)
@@ -28,11 +26,11 @@ class CustomErrorHandlerTest(
     fun `handle error`() {
         val alertSlot = slot<Alert>()
         val expectedAlert = Alert(SYSTEM_NAME, HANDLERS_SUBSYSTEM, "$ERROR_MESSAGE: the error message")
+        val expection = RuntimeException("the error message")
 
-        every { throwable.localizedMessage } returns "the error message"
         coEvery { notificationsSender.send(capture(alertSlot)) } answers { nothing }
 
-        assertFailsWith<AmqpRejectAndDontRequeueException> { testInstance.handleError(throwable) }
+        assertFailsWith<AmqpRejectAndDontRequeueException> { testInstance.handleError(expection) }
 
         val alert = alertSlot.captured
         assertThat(alert).isEqualToComparingFieldByField(expectedAlert)

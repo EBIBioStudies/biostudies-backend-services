@@ -15,7 +15,7 @@ cd $(dirname $0)
 
 # Obtain the process id by checking any process running with the application name
 PID=$(pgrep -f APP_PATH/APP_NAME)
-JAVA_HOME=/nfs/biostudies/.adm/java/zulu11.45.27-ca-jdk11.0.10-linux_x64
+JAVA_HOME=/nfs/biostudies/.adm/java/zulu17.50.19-ca-jdk17.0.11-linux_x64
 
 # Kill and wait for process to be finished
 while $(kill -9 ${PID} 2>/dev/null); do sleep 1;done;
