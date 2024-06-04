@@ -9,7 +9,6 @@ import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.base.orFalse
-import ebi.ac.uk.model.constants.SubFields.PUBLIC_ACCESS_TAG
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.exception.UserNotFoundByEmailException
 
@@ -26,15 +25,13 @@ internal class UserPrivilegesService(
 
     override fun canSubmitExtended(submitter: String): Boolean = isSuperUser(submitter)
 
-    override fun canSubmitToCollection(
+    override suspend fun canSubmitToCollection(
         submitter: String,
         collection: String,
     ): Boolean {
-        val accessTags = listOf(collection)
-
         return isSuperUser(submitter) ||
-            isAdmin(submitter, accessTags) ||
-            hasPermissions(submitter, accessTags, ATTACH)
+            isAdmin(submitter, collection) ||
+            hasPermissions(submitter, collection, ATTACH)
     }
 
     override fun allowedCollections(
@@ -54,12 +51,10 @@ internal class UserPrivilegesService(
         submitter: String,
         accNo: String,
     ): Boolean {
-        val accessTags = submissionQueryService.getAccessTags(accNo)
-
         return isSuperUser(submitter) ||
-            isAdmin(submitter, accessTags) ||
+            isAdmin(submitter, accNo) ||
             isAuthor(getOwner(accNo), submitter) ||
-            hasPermissions(submitter, accessTags, UPDATE)
+            hasPermissions(submitter, accNo, UPDATE)
     }
 
     override suspend fun canDelete(
@@ -67,29 +62,31 @@ internal class UserPrivilegesService(
         accNo: String,
     ): Boolean {
         return (isAuthor(getOwner(accNo), submitter) && isPublic(accNo).not()) ||
-            hasPermissions(submitter, submissionQueryService.getAccessTags(accNo), DELETE)
+            hasPermissions(submitter, accNo, DELETE)
     }
 
     override fun canRelease(email: String): Boolean = isSuperUser(email)
 
     override fun canSuppress(email: String): Boolean = isSuperUser(email)
 
-    private fun hasPermissions(
+    private suspend fun hasPermissions(
         user: String,
-        accessTags: List<String>,
+        accNo: String,
         accessType: AccessType,
     ): Boolean {
-        val tags = accessTags.filter { it != PUBLIC_ACCESS_TAG.value }
-        return tags.isNotEmpty() && tags.all { userPermissionsService.hasPermission(user, it, accessType) }
+        val collections = submissionQueryService.getCollections(accNo)
+        return userPermissionsService.hasPermission(user, accNo, accessType) ||
+            (collections.isNotEmpty() && collections.all { userPermissionsService.hasPermission(user, it, accessType) })
     }
 
     private fun isSuperUser(email: String) = getUser(email).superuser
 
-    private fun isAdmin(
+    private suspend fun isAdmin(
         email: String,
-        accessTags: List<String>,
+        accNo: String,
     ): Boolean {
-        return accessTags.isNotEmpty() && accessTags.all { userPermissionsService.isAdmin(email, it) }
+        val collections = submissionQueryService.getCollections(accNo)
+        return collections.isNotEmpty() && collections.all { userPermissionsService.isAdmin(email, it) }
     }
 
     private fun isAuthor(
@@ -99,7 +96,11 @@ internal class UserPrivilegesService(
 
     private fun getUser(email: String) = userRepository.findByEmail(email) ?: throw UserNotFoundByEmailException(email)
 
-    private suspend fun getOwner(accNo: String) = submissionQueryService.findLatestBasicByAccNo(accNo)?.owner
+    private suspend fun getOwner(accNo: String): String? {
+        return submissionQueryService.findLatestBasicByAccNo(accNo)?.owner
+    }
 
-    private suspend fun isPublic(accNo: String) = submissionQueryService.findLatestBasicByAccNo(accNo)?.released.orFalse()
+    private suspend fun isPublic(accNo: String): Boolean {
+        return submissionQueryService.findLatestBasicByAccNo(accNo)?.released.orFalse()
+    }
 }

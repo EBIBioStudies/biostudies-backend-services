@@ -1,9 +1,9 @@
 get:
-  summary: User Projects
-  description: Retrieves the list of the projects that are available for the user.
+  summary: User Collections
+  description: Retrieves the list of the collections that are available for the user.
 
   tags:
-    - Projects
+    - Collections
 
   parameters:
     - in: header

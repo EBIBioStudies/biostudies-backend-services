@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ADMIN
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
@@ -161,7 +162,7 @@ class SubmitPermissionTest(
             }.toString()
 
         assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
-        superUserWebClient.givePermissionToUser(ExistingUser.email, "TestCollection4", ADMIN.name)
+        superUserWebClient.grantPermission(ExistingUser.email, "TestCollection4", ADMIN.name)
 
         assertThat(regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
     }
@@ -185,7 +186,7 @@ class SubmitPermissionTest(
             }.toString()
 
         assertThat(superUserWebClient.submitSingle(project, SubmissionFormat.TSV)).isSuccessful()
-        superUserWebClient.givePermissionToUser(ExistingUser.email, "TestCollection5", ADMIN.name)
+        superUserWebClient.grantPermission(ExistingUser.email, "TestCollection5", ADMIN.name)
 
         assertThat(regularUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
 
@@ -232,10 +233,69 @@ class SubmitPermissionTest(
         assertThat(impersonatedUserClient.submitSingle(resubmission, SubmissionFormat.TSV)).isSuccessful()
     }
 
+    @Test
+    fun `4-9 not owner user resubmits without the update permission`() {
+        val submission =
+            tsv {
+                line("Submission", "S-SBMT1")
+                line("Title", "Test Submission")
+                line()
+
+                line("Study")
+                line()
+            }.toString()
+
+        assertThat(superUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+
+        val resubmission =
+            tsv {
+                line("Submission", "S-SBMT1")
+                line("Title", "Test Resubmission")
+                line()
+
+                line("Study")
+                line()
+            }.toString()
+
+        assertThatExceptionOfType(WebClientException::class.java)
+            .isThrownBy { regularUserWebClient.submitSingle(resubmission, SubmissionFormat.TSV) }
+            .withMessageContaining(
+                "The user {register_user@ebi.ac.uk} is not allowed to update the submission S-SBMT1",
+            )
+    }
+
+    @Test
+    fun `4-10 not owner user resubmits with the update permission`() {
+        val submission =
+            tsv {
+                line("Submission", "S-SBMT2")
+                line("Title", "Test Submission")
+                line()
+
+                line("Study")
+                line()
+            }.toString()
+
+        assertThat(superUserWebClient.submitSingle(submission, SubmissionFormat.TSV)).isSuccessful()
+
+        val resubmission =
+            tsv {
+                line("Submission", "S-SBMT2")
+                line("Title", "Test Resubmission")
+                line()
+
+                line("Study")
+                line()
+            }.toString()
+
+        superUserWebClient.grantPermission(ExistingUser.email, "S-SBMT2", UPDATE.name)
+        assertThat(regularUserWebClient.submitSingle(resubmission, SubmissionFormat.TSV)).isSuccessful()
+    }
+
     private fun setAttachPermission(
         testUser: TestUser,
         collection: String,
-    ) = superUserWebClient.givePermissionToUser(testUser.email, collection, ATTACH.name)
+    ) = superUserWebClient.grantPermission(testUser.email, collection, ATTACH.name)
 
     object ExistingUser : TestUser {
         override val username = "Register User"

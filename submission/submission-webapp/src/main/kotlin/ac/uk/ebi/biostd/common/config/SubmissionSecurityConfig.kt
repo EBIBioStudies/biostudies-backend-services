@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.repositories.AccessPermissionRepository
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
@@ -24,7 +25,8 @@ class SubmissionSecurityConfig(
         permissionRepository: AccessPermissionRepository,
         userDataRepository: UserDataRepository,
         accessTagDataRepository: AccessTagDataRepo,
-    ) = PermissionService(permissionRepository, userDataRepository, accessTagDataRepository)
+        submissionQueryService: SubmissionMetaQueryService,
+    ) = PermissionService(submissionQueryService, permissionRepository, userDataRepository, accessTagDataRepository)
 
     @Bean
     fun securityMapper() = SecurityMapper()

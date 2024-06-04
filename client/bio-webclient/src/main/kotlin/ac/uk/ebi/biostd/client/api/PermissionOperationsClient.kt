@@ -8,12 +8,12 @@ import org.springframework.web.reactive.function.client.WebClient
 class PermissionOperationsClient(
     private val client: WebClient,
 ) : PermissionOperations {
-    override fun givePermissionToUser(
+    override fun grantPermission(
         user: String,
-        accessTagName: String,
+        accNo: String,
         accessType: String,
     ) {
-        val body = hashMapOf("userEmail" to user, "accessType" to accessType, "accessTagName" to accessTagName)
+        val body = hashMapOf("userEmail" to user, "accessType" to accessType, "accNo" to accNo)
         client.put(PERMISSIONS_URL, RequestParams(body = body))
     }
 
