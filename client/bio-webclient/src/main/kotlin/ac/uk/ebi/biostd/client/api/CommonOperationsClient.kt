@@ -2,6 +2,7 @@ package ac.uk.ebi.biostd.client.api
 
 import ac.uk.ebi.biostd.client.integration.web.GeneralOperations
 import ebi.ac.uk.api.dto.UserGroupDto
+import ebi.ac.uk.api.security.UserProfile
 import ebi.ac.uk.commons.http.builder.linkedMultiValueMapOf
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.getForObject
@@ -46,5 +47,9 @@ class CommonOperationsClient(
     ) {
         val body = linkedMapOf("groupName" to groupName, "userName" to userName)
         client.put(GROUP_URL, RequestParams(body = body))
+    }
+
+    override fun getProfile(): UserProfile {
+        return client.getForObject("/auth/profile")
     }
 }

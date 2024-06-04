@@ -25,6 +25,7 @@ data class SecurityPermission(val accessType: AccessType, val accessTag: String)
 sealed interface UserFolder {
     val relativePath: Path
     val path: Path
+    val type: String
 }
 
 data class FtpUserFolder(
@@ -36,9 +37,13 @@ data class FtpUserFolder(
      * The File system ftp path. Used to access ftp files as file system file.
      */
     override val path: Path,
-) : UserFolder
+) : UserFolder {
+    override val type = "ftp"
+}
 
-data class NfsUserFolder(override val relativePath: Path, override val path: Path) : UserFolder
+data class NfsUserFolder(override val relativePath: Path, override val path: Path) : UserFolder {
+    override val type = "nfs"
+}
 
 fun NfsUserFolder.resolve(subPath: String): Path = path.resolve(subPath)
 

@@ -95,6 +95,7 @@ internal class PmcSubmissionSubmitterTest {
                                 "orcid" to "orcid"
                                 "allow" to jsonArray("allow")
                                 "deny" to jsonArray("deny")
+                                "uploadType" to "nfs"
                             }.toString(),
                         ),
                 ),
