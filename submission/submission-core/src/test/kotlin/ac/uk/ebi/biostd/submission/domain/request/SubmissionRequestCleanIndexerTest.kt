@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -183,13 +184,18 @@ class SubmissionRequestCleanIndexerTest(
 
             mockkStatic(ExtSerializationService::filesFlow)
             coEvery { serializationService.filesFlow(currentSub) } returns flowOf(file)
+            coEvery { fileRqtService.saveSubmissionRequestFile(any()) } coAnswers { nothing }
 
             val (previousVersion, conflicted, deprecated) = testInstance.indexRequest(newSub)
 
             assertThat(previousVersion).isEqualTo(CURRENT_VERSION)
             assertThat(conflicted).isZero()
             assertThat(deprecated).isZero()
-            coVerify(exactly = 0) { fileRqtService.saveSubmissionRequestFile(any()) }
+            coVerify { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlot)) }
+
+            val requestFile = requestFileSlot.captured
+            assertThat(requestFile.status).isEqualTo(REUSED)
+            assertThat(requestFile.file).isEqualTo(file)
         }
 
         @Test
@@ -230,7 +236,7 @@ class SubmissionRequestCleanIndexerTest(
         }
     }
 
-    companion object {
+    private companion object {
         const val ACC_NO = "abc"
         const val NEW_VERSION = 2
         const val CURRENT_VERSION = 1

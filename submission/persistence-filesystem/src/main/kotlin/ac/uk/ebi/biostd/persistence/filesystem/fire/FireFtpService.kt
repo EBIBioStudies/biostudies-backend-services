@@ -13,8 +13,17 @@ class FireFtpService(
         sub: ExtSubmissionInfo,
         file: ExtFile,
     ): FireFile {
-        val fireFile = file as FireFile
-        val apiFile = fireClient.publish(fireFile.fireId)
-        return fireFile.copy(firePath = apiFile.path!!, published = apiFile.published)
+        require(file is FireFile) { "FireFtpService should handle only Fire Files" }
+        val apiFile = fireClient.publish(file.fireId)
+        return file.copy(firePath = apiFile.path!!, published = apiFile.published)
+    }
+
+    override suspend fun suppressSubmissionFile(
+        sub: ExtSubmissionInfo,
+        file: ExtFile,
+    ): FireFile {
+        require(file is FireFile) { "FireFtpService should handle only Fire Files" }
+        val apiFile = fireClient.unpublish(file.fireId)
+        return file.copy(firePath = apiFile.path!!, published = apiFile.published)
     }
 }

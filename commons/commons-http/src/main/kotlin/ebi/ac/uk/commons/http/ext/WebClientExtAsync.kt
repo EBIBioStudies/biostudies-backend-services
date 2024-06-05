@@ -36,6 +36,10 @@ suspend fun WebClient.postAsync(
     require(response.statusCode().isError.not()) { response.toString() }
 }
 
+suspend inline fun <reified T : Any> WebClient.deleteForObjectAsync(url: String): T {
+    return delete().uri(url).retrieveAsync<T>()
+}
+
 suspend fun WebClient.deleteAsync(url: String) {
     val response = delete().uri(url).awaitExchange()
     require(response.statusCode().isError.not()) { response.toString() }

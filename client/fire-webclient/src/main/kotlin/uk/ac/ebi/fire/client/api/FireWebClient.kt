@@ -2,6 +2,7 @@ package uk.ac.ebi.fire.client.api
 
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.deleteAsync
+import ebi.ac.uk.commons.http.ext.deleteForObjectAsync
 import ebi.ac.uk.commons.http.ext.getForObjectAsync
 import ebi.ac.uk.commons.http.ext.postForObjectAsync
 import ebi.ac.uk.commons.http.ext.putForObjectAsync
@@ -68,8 +69,8 @@ internal class FireWebClient(
         return client.putForObjectAsync<FireApiFile>("/objects/$fireOid/publish")
     }
 
-    override suspend fun unpublish(fireOid: String) {
-        client.deleteAsync("/objects/$fireOid/publish")
+    override suspend fun unpublish(fireOid: String): FireApiFile {
+        return client.deleteForObjectAsync<FireApiFile>("/objects/$fireOid/publish")
     }
 
     override suspend fun delete(fireOid: String) {

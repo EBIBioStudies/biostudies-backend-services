@@ -2,7 +2,8 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.RELEASED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.SUPPRESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
@@ -30,7 +31,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.verify
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -40,7 +40,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestReleaserTest(
     @MockK private val storageService: FileStorageService,
@@ -95,7 +94,7 @@ class SubmissionRequestReleaserTest(
                 fireRqtFile,
             )
         coEvery { storageService.releaseSubmissionFile(submission, nfsFile) } returns releasedFile
-        every { rqt.withNewStatus(RequestStatus.CHECK_RELEASED) } returns rqt
+        every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
 
         coEvery {
             requestService.updateRqtFile(
@@ -122,7 +121,7 @@ class SubmissionRequestReleaserTest(
     }
 
     @Test
-    fun `check released when not released`(
+    fun `check released when not released and no previous version`(
         @MockK rqt: SubmissionRequest,
         @MockK submission: ExtSubmission,
     ) = runTest {
@@ -131,6 +130,7 @@ class SubmissionRequestReleaserTest(
         every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
         every { eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION) } answers { nothing }
 
+        coEvery { queryService.findExtByAccNo(ACC_NO, includeFileListFiles = false) } returns null
         coEvery {
             requestService.onRequest(ACC_NO, VERSION, FILES_COPIED, PROCESS_ID, capture(rqtSlot))
         } coAnswers {
@@ -144,6 +144,107 @@ class SubmissionRequestReleaserTest(
             persistenceService wasNot called
         }
         coVerify(exactly = 1) {
+            eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
+        }
+    }
+
+    @Test
+    fun `check released when not released and previous version was private`(
+        @MockK rqt: SubmissionRequest,
+        @MockK current: ExtSubmission,
+        @MockK submission: ExtSubmission,
+    ) = runTest {
+        every { rqt.submission } returns submission
+        every { submission.released } returns false
+        every { current.released } returns false
+        every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
+        every { eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION) } answers { nothing }
+
+        coEvery { queryService.findExtByAccNo(ACC_NO, includeFileListFiles = false) } returns current
+        coEvery {
+            requestService.onRequest(ACC_NO, VERSION, FILES_COPIED, PROCESS_ID, capture(rqtSlot))
+        } coAnswers {
+            rqtSlot.captured.invoke(rqt)
+        }
+
+        testInstance.checkReleased(ACC_NO, VERSION, PROCESS_ID)
+
+        verify {
+            storageService wasNot called
+            persistenceService wasNot called
+        }
+        coVerify(exactly = 1) {
+            eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
+        }
+    }
+
+    @Test
+    fun `check released when not released and previous version was public`(
+        @MockK current: ExtSubmission,
+        @MockK submission: ExtSubmission,
+        @MockK rqt: SubmissionRequest,
+        @MockK nfsFile: NfsFile,
+        @MockK fireFile: FireFile,
+        @MockK suppressedNfsFile: NfsFile,
+        @MockK suppressedFireFile: FireFile,
+    ) = runTest {
+        val relPath = "sub-relpath"
+        val secretKey = "secret-key"
+        val mode = StorageMode.FIRE
+
+        val nfsRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 1, "test1.txt", nfsFile, REUSED)
+        val fireRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 2, "test2.txt", fireFile, REUSED)
+
+        every { current.released } returns true
+        every { fireFile.published } returns true
+        every { rqt.submission } returns submission
+        every { rqt.currentIndex } returns 1
+        every { submission.accNo } returns ACC_NO
+        every { submission.version } returns VERSION
+        every { submission.released } returns false
+        every { submission.relPath } returns relPath
+        every { submission.secretKey } returns secretKey
+        every { submission.storageMode } returns mode
+        every { eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION) } answers { nothing }
+        every { filesService.getSubmissionRequestFiles(ACC_NO, VERSION, REUSED) } returns
+            flowOf(
+                nfsRqtFile,
+                fireRqtFile,
+            )
+        coEvery { queryService.findExtByAccNo(ACC_NO, includeFileListFiles = false) } returns current
+        coEvery { storageService.suppressSubmissionFile(submission, nfsFile) } returns suppressedNfsFile
+        coEvery { storageService.suppressSubmissionFile(submission, fireFile) } returns suppressedFireFile
+        every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
+
+        coEvery {
+            requestService.updateRqtFile(
+                nfsRqtFile.copy(
+                    file = suppressedNfsFile,
+                    status = SUPPRESSED,
+                ),
+            )
+        } answers { nothing }
+
+        coEvery {
+            requestService.updateRqtFile(
+                fireRqtFile.copy(
+                    file = suppressedFireFile,
+                    status = SUPPRESSED,
+                ),
+            )
+        } answers { nothing }
+
+        coEvery {
+            requestService.onRequest(ACC_NO, VERSION, FILES_COPIED, PROCESS_ID, capture(rqtSlot))
+        } coAnswers {
+            rqtSlot.captured.invoke(rqt)
+        }
+
+        testInstance.checkReleased(ACC_NO, VERSION, PROCESS_ID)
+
+        coVerify(exactly = 1) {
+            storageService.suppressSubmissionFile(submission, nfsFile)
+            storageService.suppressSubmissionFile(submission, fireFile)
             eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
         }
     }

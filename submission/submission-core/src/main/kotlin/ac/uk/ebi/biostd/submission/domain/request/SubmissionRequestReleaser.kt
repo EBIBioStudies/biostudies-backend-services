@@ -2,6 +2,8 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.RELEASED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.SUPPRESSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
@@ -46,10 +48,16 @@ class SubmissionRequestReleaser(
         version: Int,
         processId: String,
     ) {
-        rqtService.onRequest(accNo, version, FILES_COPIED, processId, {
-            if (it.submission.released) releaseRequest(accNo, it)
+        rqtService.onRequest(accNo, version, FILES_COPIED, processId) {
+            if (it.submission.released) {
+                releaseRequest(accNo, it)
+            } else {
+                val current = queryService.findExtByAccNo(accNo, includeFileListFiles = false)
+                if (current != null && current.released) suppressRequest(accNo, it)
+            }
+
             RqtUpdate(it.withNewStatus(CHECK_RELEASED))
-        })
+        }
 
         eventsPublisherService.requestCheckedRelease(accNo, version)
     }
@@ -109,6 +117,54 @@ class SubmissionRequestReleaser(
         val releasedFile = fileStorageService.releaseSubmissionFile(sub, file)
         logger.info { "${sub.accNo}, ${sub.owner} Finished publishing file $idx - ${file.filePath}" }
         return releasedFile
+    }
+
+    private suspend fun suppressRequest(
+        accNo: String,
+        request: SubmissionRequest,
+    ) {
+        val sub = request.submission
+        logger.info { "$accNo ${sub.owner} Started suppressing submission files over ${sub.storageMode}" }
+        suppressSubmissionFiles(sub)
+        logger.info { "$accNo ${sub.owner} Finished suppressing submission files over ${sub.storageMode}" }
+    }
+
+    private suspend fun suppressSubmissionFiles(sub: ExtSubmission) {
+        suspend fun suppressFile(reqFile: SubmissionRequestFile) {
+            when (val file = reqFile.file) {
+                is NfsFile -> {
+                    val released = reqFile.copy(file = suppress(sub, reqFile.index, file), status = SUPPRESSED)
+                    rqtService.updateRqtFile(released)
+                }
+
+                is FireFile -> {
+                    if (file.published) {
+                        val suppressed = reqFile.copy(file = suppress(sub, reqFile.index, file), status = SUPPRESSED)
+                        rqtService.updateRqtFile(suppressed)
+                    } else {
+                        rqtService.updateRqtFile(reqFile.copy(status = SUPPRESSED))
+                    }
+                }
+            }
+        }
+
+        supervisorScope {
+            filesRequestService
+                .getSubmissionRequestFiles(sub.accNo, sub.version, REUSED)
+                .concurrently(concurrency) { suppressFile(it) }
+                .collect()
+        }
+    }
+
+    private suspend fun suppress(
+        sub: ExtSubmission,
+        idx: Int,
+        file: ExtFile,
+    ): ExtFile {
+        logger.info { "${sub.accNo}, ${sub.owner} Started suppressing file $idx - ${file.filePath}" }
+        val suppressed = fileStorageService.suppressSubmissionFile(sub, file)
+        logger.info { "${sub.accNo}, ${sub.owner} Finished suppressing file $idx - ${file.filePath}" }
+        return suppressed
     }
 
     private suspend fun generateFtpLinks(sub: ExtSubmission) {

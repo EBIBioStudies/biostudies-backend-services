@@ -11,6 +11,11 @@ interface FileStorageService {
         file: ExtFile,
     ): ExtFile
 
+    suspend fun suppressSubmissionFile(
+        sub: ExtSubmissionInfo,
+        file: ExtFile,
+    ): ExtFile
+
     suspend fun persistSubmissionFile(
         sub: ExtSubmissionInfo,
         file: ExtFile,

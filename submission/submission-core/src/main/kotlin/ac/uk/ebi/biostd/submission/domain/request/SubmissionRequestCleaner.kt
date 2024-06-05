@@ -36,11 +36,11 @@ class SubmissionRequestCleaner(
         version: Int,
         processId: String,
     ) {
-        requestService.onRequest(accNo, version, INDEXED_CLEANED, processId, {
+        requestService.onRequest(accNo, version, INDEXED_CLEANED, processId) {
             val previousVersion = it.previousVersion
             if (previousVersion != null) cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING)
             RqtUpdate(it.withNewStatus(CLEANED))
-        })
+        }
         eventsPublisherService.requestCleaned(accNo, version)
     }
 
