@@ -19,12 +19,14 @@ import ebi.ac.uk.security.integration.components.IUserPrivilegesService
 import ebi.ac.uk.security.integration.model.api.SecurityUser
 import kotlinx.coroutines.flow.Flow
 import mu.KotlinLogging
+import java.time.Clock
 import java.time.Instant
 
 private val logger = KotlinLogging.logger {}
 
 @Suppress("LongParameterList")
 class SubmissionDraftService(
+    private val clock: Clock,
     private val submitWebHandler: SubmitWebHandler,
     private val toSubmissionMapper: ToSubmissionMapper,
     private val serializationService: SerializationService,
@@ -77,7 +79,7 @@ class SubmissionDraftService(
         userEmail: String,
         content: String,
     ): SubmissionDraft {
-        val draftKey = "TMP_${Instant.now().toEpochMilli()}"
+        val draftKey = "TMP_${Instant.now(clock).toEpochMilli()}"
         val draft = draftPersistenceService.createSubmissionDraft(userEmail, draftKey, content)
         logger.info { "$draftKey $userEmail Draft with key '$draftKey' CREATED for user '$userEmail'" }
 

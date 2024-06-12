@@ -40,6 +40,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import java.net.URI
+import java.time.Clock
 
 @Suppress("LongParameterList")
 @Configuration
@@ -117,6 +118,7 @@ class SubmissionWebConfig {
         persistenceDraftService: SubmissionDraftPersistenceService,
     ): SubmissionDraftService =
         SubmissionDraftService(
+            Clock.systemDefaultZone(),
             submitWebHandler,
             toSubmissionMapper,
             serializationService,
