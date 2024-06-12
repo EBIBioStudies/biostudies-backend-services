@@ -10,10 +10,10 @@ import ebi.ac.uk.test.clean
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -24,11 +24,11 @@ import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.services.SubmissionService
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
-internal class SubmitAsyncCommandTest(
+internal class SubmitCommandTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val submissionService: SubmissionService,
 ) {
-    private var testInstance = SubmitAsyncCommand(submissionService)
+    private var testInstance = SubmitCommand(submissionService)
     private val rootFolder: String = temporaryFolder.root.absolutePath
 
     @AfterEach
@@ -38,16 +38,16 @@ internal class SubmitAsyncCommandTest(
     }
 
     @Test
-    fun `submit async successful`() {
+    fun `submit successful`() {
         val submission = temporaryFolder.createFile("Submission.tsv")
         val attachedFile1 = temporaryFolder.createFile("attachedFile1.tsv")
         val attachedFile2 = temporaryFolder.createFile("attachedFile2.tsv")
 
         val securityConfig = SecurityConfig("server", "user", "password")
         val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), StorageMode.FIRE, emptyList())
-        val request = SubmissionRequest(submission, securityConfig, filesConfig)
+        val request = SubmissionRequest(submission, 0, securityConfig, filesConfig)
 
-        every { submissionService.submitAsync(request) } returns AcceptedSubmission("S-BSST1", 2)
+        coEvery { submissionService.submit(request) } returns AcceptedSubmission("S-BSST1", 2)
 
         testInstance.parse(
             listOf(
@@ -59,7 +59,7 @@ internal class SubmitAsyncCommandTest(
             ),
         )
 
-        verify(exactly = 1) { submissionService.submitAsync(request) }
+        coVerify(exactly = 1) { submissionService.submit(request) }
     }
 
     @Test
@@ -71,9 +71,9 @@ internal class SubmitAsyncCommandTest(
         val securityConfig = SecurityConfig("server", "user", "password")
         val sources = listOf(PreferredSource.SUBMISSION, PreferredSource.USER_SPACE)
         val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), StorageMode.NFS, sources)
-        val request = SubmissionRequest(submission, securityConfig, filesConfig)
+        val request = SubmissionRequest(submission, 0, securityConfig, filesConfig)
 
-        every { submissionService.submitAsync(request) } returns AcceptedSubmission("S-BSST1", 2)
+        coEvery { submissionService.submit(request) } returns AcceptedSubmission("S-BSST1", 2)
 
         testInstance.parse(
             listOf(
@@ -87,7 +87,7 @@ internal class SubmitAsyncCommandTest(
             ),
         )
 
-        verify(exactly = 1) { submissionService.submitAsync(request) }
+        coVerify(exactly = 1) { submissionService.submit(request) }
     }
 
     @Test
@@ -96,9 +96,9 @@ internal class SubmitAsyncCommandTest(
 
         val securityConfig = SecurityConfig("server", "user", "password")
         val filesConfig = SubmissionFilesConfig(emptyList(), StorageMode.FIRE, emptyList())
-        val request = SubmissionRequest(submission, securityConfig, filesConfig)
+        val request = SubmissionRequest(submission, 0, securityConfig, filesConfig)
 
-        every { submissionService.submitAsync(request) } returns AcceptedSubmission("S-BSST1", 2)
+        coEvery { submissionService.submit(request) } returns AcceptedSubmission("S-BSST1", 2)
 
         testInstance.parse(
             listOf(
@@ -110,7 +110,7 @@ internal class SubmitAsyncCommandTest(
             ),
         )
 
-        verify(exactly = 1) { submissionService.submitAsync(request) }
+        coVerify(exactly = 1) { submissionService.submit(request) }
     }
 
     @Test

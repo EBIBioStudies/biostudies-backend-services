@@ -10,13 +10,14 @@ import com.github.ajalt.clikt.core.PrintMessage
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
-import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.RequestStatus.PROCESSED
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.AfterEach
@@ -40,41 +41,51 @@ internal class SubmissionServiceTest {
     fun beforeEach() = mockkObject(SecurityWebClient)
 
     @Test
-    fun submit() {
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
-        every {
-            bioWebClient.submitSingle(subRequest.submissionFile, subRequest.filesConfig).body
-        } returns submission
+    fun `submit`() =
+        runTest {
+            val accepted = AcceptedSubmission("S-BSST1", 2)
 
-        val submitted = testInstance.submit(subRequest)
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
+            every {
+                bioWebClient.asyncSubmitSingle(subRequest.submissionFile, subRequest.filesConfig)
+            } returns accepted
 
-        assertThat(submitted).isEqualTo(submission)
-        verify(exactly = 1) {
-            create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.submitSingle(subRequest.submissionFile, subRequest.filesConfig)
+            val response = testInstance.submit(subRequest)
+
+            assertThat(response).isEqualTo(accepted)
+            verify(exactly = 0) { bioWebClient.getSubmissionRequestStatus(any(), any()) }
+            verify(exactly = 1) {
+                create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
+                bioWebClient.asyncSubmitSingle(
+                    subRequest.submissionFile,
+                    subRequest.filesConfig,
+                )
+            }
         }
-    }
 
     @Test
-    fun `submit async`() {
-        val accepted = AcceptedSubmission("S-BSST1", 2)
+    fun `submit with timeout`() =
+        runTest {
+            val accepted = AcceptedSubmission("S-BSST1", 2)
 
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
-        every {
-            bioWebClient.asyncSubmitSingle(subRequest.submissionFile, subRequest.filesConfig)
-        } returns accepted
+            every { bioWebClient.getSubmissionRequestStatus("S-BSST1", 2) } returns PROCESSED
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
+            every {
+                bioWebClient.asyncSubmitSingle(subRequest.submissionFile, subRequest.filesConfig)
+            } returns accepted
 
-        val response = testInstance.submitAsync(subRequest)
+            val response = testInstance.submit(subRequest.copy(timeout = 1))
 
-        assertThat(response).isEqualTo(accepted)
-        verify(exactly = 1) {
-            create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.asyncSubmitSingle(
-                subRequest.submissionFile,
-                subRequest.filesConfig,
-            )
+            assertThat(response).isEqualTo(accepted)
+            verify(exactly = 1) {
+                create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
+                bioWebClient.getSubmissionRequestStatus("S-BSST1", 2)
+                bioWebClient.asyncSubmitSingle(
+                    subRequest.submissionFile,
+                    subRequest.filesConfig,
+                )
+            }
         }
-    }
 
     @Test
     fun `transfer submission`() {
@@ -170,12 +181,11 @@ internal class SubmissionServiceTest {
         private const val ROOT_PATH = "root-path"
 
         private val webClientException: WebClientException = mockk()
-        private val submission: Submission = mockk()
         private val bioWebClient: BioWebClient = mockk()
         private val securityConfig = SecurityConfig(SERVER, USER, PASSWORD, ON_BEHALF)
         private val filesConfig = SubmissionFilesConfig(listOf(mockk()), FIRE, listOf(SUBMISSION))
 
-        private val subRequest = SubmissionRequest(mockk(), securityConfig, filesConfig)
+        private val subRequest = SubmissionRequest(mockk(), 0, securityConfig, filesConfig)
         private val deletionRequest = DeletionRequest(securityConfig, accNoList = listOf(ACC_NO))
         private val validateFileList = ValidateFileListRequest(FILE_LIST_PATH, ROOT_PATH, ACC_NO, securityConfig)
     }

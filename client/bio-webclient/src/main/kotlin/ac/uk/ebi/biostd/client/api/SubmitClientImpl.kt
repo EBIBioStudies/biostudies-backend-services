@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.client.integration.web.MultipartSubmitOperations
 import ac.uk.ebi.biostd.client.integration.web.PermissionOperations
 import ac.uk.ebi.biostd.client.integration.web.StatsOperations
 import ac.uk.ebi.biostd.client.integration.web.SubmissionOperations
+import ac.uk.ebi.biostd.client.integration.web.SubmissionRequestOperations
 import ac.uk.ebi.biostd.client.integration.web.SubmitClient
 import ac.uk.ebi.biostd.client.integration.web.SubmitOperations
 import ac.uk.ebi.biostd.integration.SerializationService
@@ -31,4 +32,5 @@ internal class SubmitClientImpl(
     DraftSubmissionOperations by SubmissionDraftClient(client),
     ExtSubmissionOperations by ExtSubmissionClient(client, extSerializationService),
     PermissionOperations by PermissionOperationsClient(client),
-    StatsOperations by StatsClient(client)
+    StatsOperations by StatsClient(client),
+    SubmissionRequestOperations by SubmissionRequestClient(client)

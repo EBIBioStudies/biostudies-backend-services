@@ -79,6 +79,7 @@ deploy-prod:
     - gradle updateMigratorArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
     - gradle updateReleaserArtifact -Penv=codon -PdeployPath=$CODON_APPS_PATH/scheduler/prod/apps
     - gradle updateSubmissionTaskArtifact -Penv=prod -PdeployPath=$APPS_PATH/submitter/prod
+    - gradle updateSubmissionTaskArtifact -Penv=prod -PdeployPath=$APPS_PATH/submitter/migrator
     - gradle updateSubmissionTaskArtifact -Penv=sandbox -PdeployPath=$APPS_PATH/submitter/sandbox
     - gradle deployMigratorSubmitter -Penv=prod -PdeployPath=$APPS_PATH/submitter/migrator -PjvmParams=-Xmx8g
     - gradle deploySubmitter -Penv=prod -PdeployPath=$APPS_PATH/submitter/prod -PjvmParams=-Xmx16g

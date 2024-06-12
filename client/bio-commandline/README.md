@@ -12,7 +12,7 @@ command line jar under `build/libs` folder.
 ### Submit
 Make a submission to BioStudies
 
-`java -jar build/libs/BioStudiesCLI-2.0.jar submitAsync -s <server> -u <user> -p <password> -i <page tab input> -a <files>`
+`java -jar build/libs/BioStudiesCLI-2.0.jar submit -s <server> -u <user> -p <password> -i <page tab input> -a <files>`
 
 #### Arguments
 * **s or --server:** BioStudies instance URL.
@@ -112,7 +112,7 @@ java -jar build/libs/BioStudiesCLI-2.0.jar validateFileList \
 Grants the specified permissions for the given user in the given collection.
 
 ```
-java -jar BioStudiesCLI-2.0.jar grantCollectionPermission \
+java -jar BioStudiesCLI-2.0.jar grantPermission \
 -s <server> \
 -u <user> \
 -p <password> \

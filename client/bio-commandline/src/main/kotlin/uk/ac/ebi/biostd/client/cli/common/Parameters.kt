@@ -19,6 +19,10 @@ internal object SubmissionParameters {
         """
     const val STORAGE_MODE = "Submission storage mode. Determines where submission need to be saved FIRE/NFS"
     const val FILE_LIST_PATH = "Path to the file list to be validated. The path is relative to the user folder"
+    const val TIMEOUT = """
+       Optional number of minutes to wait for the submit operation to finish. If no value is passed, the submit
+       operation will return immediately. 
+    """
 }
 
 internal object MigrationParameters {

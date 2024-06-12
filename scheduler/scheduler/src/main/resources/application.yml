@@ -76,12 +76,6 @@ stats:
     database: # The name of the database to access the data
     uri: # The database connection URI
 
-spring:
-  boot:
-    admin:
-      client:
-        enabled: false
-
 management:
   endpoints:
     web:

@@ -5,6 +5,7 @@ import java.io.File
 
 internal data class SubmissionRequest(
     val submissionFile: File,
+    val timeout: Int,
     val securityConfig: SecurityConfig,
     val filesConfig: SubmissionFilesConfig,
 )

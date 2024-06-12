@@ -1,6 +1,8 @@
 package ac.uk.ebi.biostd.persistence.common.model
 
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.REQUESTED
 import java.time.OffsetDateTime
 
 data class SubmissionRequest(
@@ -19,7 +21,7 @@ data class SubmissionRequest(
         submission,
         draftKey,
         notifyTo,
-        status = RequestStatus.REQUESTED,
+        status = REQUESTED,
         totalFiles = 0,
         conflictingFiles = 0,
         deprecatedFiles = 0,
@@ -71,40 +73,13 @@ data class SubmissionRequest(
     }
 }
 
-enum class RequestStatus {
-    REQUESTED,
-    INDEXED,
-    LOADED,
-    INDEXED_CLEANED,
-    CLEANED,
-    FILES_COPIED,
-    CHECK_RELEASED,
-    PERSISTED,
-    PROCESSED,
-    ;
-
-    companion object {
-        val PROCESSING: Set<RequestStatus> =
-            setOf(
-                REQUESTED,
-                INDEXED,
-                LOADED,
-                INDEXED_CLEANED,
-                CLEANED,
-                FILES_COPIED,
-                CHECK_RELEASED,
-                PERSISTED,
-            )
-    }
-}
-
 /**
- * Retrieves the expected action to be perform when submission request is the given status.
+ * Retrieves the expected action to be performed when submission request is the given status.
  */
 val RequestStatus.action: String
     get() {
         return when (this) {
-            RequestStatus.REQUESTED -> "Indexing"
+            REQUESTED -> "Indexing"
             RequestStatus.INDEXED -> "Loading"
             RequestStatus.LOADED -> "Indexing Files to Clean"
             RequestStatus.INDEXED_CLEANED -> "Cleaning"
