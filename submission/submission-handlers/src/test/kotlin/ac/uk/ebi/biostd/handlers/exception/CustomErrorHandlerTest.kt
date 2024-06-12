@@ -26,11 +26,11 @@ class CustomErrorHandlerTest(
     fun `handle error`() {
         val alertSlot = slot<Alert>()
         val expectedAlert = Alert(SYSTEM_NAME, HANDLERS_SUBSYSTEM, "$ERROR_MESSAGE: the error message")
-        val expection = RuntimeException("the error message")
+        val exception = RuntimeException("the error message")
 
         coEvery { notificationsSender.send(capture(alertSlot)) } answers { nothing }
 
-        assertFailsWith<AmqpRejectAndDontRequeueException> { testInstance.handleError(expection) }
+        assertFailsWith<AmqpRejectAndDontRequeueException> { testInstance.handleError(exception) }
 
         val alert = alertSlot.captured
         assertThat(alert).isEqualToComparingFieldByField(expectedAlert)
