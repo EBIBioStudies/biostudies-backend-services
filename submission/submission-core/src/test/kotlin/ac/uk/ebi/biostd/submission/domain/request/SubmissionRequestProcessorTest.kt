@@ -2,8 +2,6 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
@@ -14,6 +12,8 @@ import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.model.RequestStatus.CLEANED
+import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
 import io.mockk.coEvery

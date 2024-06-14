@@ -1,20 +1,20 @@
 package ac.uk.ebi.biostd.submission.domain.submitter
 
 import ac.uk.ebi.biostd.common.properties.SubmissionTaskProperties
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED_CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
+import ebi.ac.uk.model.RequestStatus.CLEANED
+import ebi.ac.uk.model.RequestStatus.FILES_COPIED
+import ebi.ac.uk.model.RequestStatus.INDEXED
+import ebi.ac.uk.model.RequestStatus.INDEXED_CLEANED
+import ebi.ac.uk.model.RequestStatus.LOADED
+import ebi.ac.uk.model.RequestStatus.PERSISTED
+import ebi.ac.uk.model.RequestStatus.PROCESSED
+import ebi.ac.uk.model.RequestStatus.REQUESTED
 import java.time.Duration.ofMinutes
 
 @Suppress("TooManyFunctions")

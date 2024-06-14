@@ -2,7 +2,6 @@ package ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories
 
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionStatType
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.SubmissionCollections
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
@@ -11,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionStats
 import ac.uk.ebi.biostd.persistence.doc.model.FileListDocFile
+import ebi.ac.uk.model.RequestStatus
 import kotlinx.coroutines.flow.Flow
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Pageable

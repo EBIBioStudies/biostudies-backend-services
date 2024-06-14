@@ -3,10 +3,10 @@ package uk.ac.ebi.biostd.client.cli.commands
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
-import com.github.ajalt.clikt.parameters.types.int
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import kotlinx.coroutines.runBlocking
@@ -15,10 +15,10 @@ import uk.ac.ebi.biostd.client.cli.common.CommonParameters.PASSWORD_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.SERVER_HELP
 import uk.ac.ebi.biostd.client.cli.common.CommonParameters.USER_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.ATTACHED_HELP
+import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.AWAIT
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.INPUT_HELP
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.PREFERRED_SOURCES
 import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.STORAGE_MODE
-import uk.ac.ebi.biostd.client.cli.common.SubmissionParameters.TIMEOUT
 import uk.ac.ebi.biostd.client.cli.common.splitFiles
 import uk.ac.ebi.biostd.client.cli.common.splitPreferredSources
 import uk.ac.ebi.biostd.client.cli.dto.SecurityConfig
@@ -36,7 +36,7 @@ internal class SubmitCommand(
     private val attached by option("-a", "--attached", help = ATTACHED_HELP)
     private val preferredSources by option("-ps", "--preferredSources", help = PREFERRED_SOURCES)
     private val storageMode by option("-sm", "--storageMode", help = STORAGE_MODE).default(FIRE.value)
-    private val timeout by option("-tm", "--timeout", help = TIMEOUT).int().default(0)
+    private val await by option("-aw", "--await", help = AWAIT).flag(default = false)
 
     override fun run() {
         runBlocking { submit() }
@@ -47,6 +47,6 @@ internal class SubmitCommand(
         val securityConfig = SecurityConfig(server, user, password, onBehalf)
         val filesConfig = SubmissionFilesConfig(splitFiles(attached), mode, splitPreferredSources(preferredSources))
 
-        submissionService.submit(SubmissionRequest(input, timeout, securityConfig, filesConfig))
+        submissionService.submit(SubmissionRequest(input, await, securityConfig, filesConfig))
     }
 }

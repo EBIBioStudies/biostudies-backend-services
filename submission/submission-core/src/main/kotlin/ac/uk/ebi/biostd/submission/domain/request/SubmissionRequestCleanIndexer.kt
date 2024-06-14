@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.submission.domain.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -12,6 +11,7 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.extended.model.storageMode
+import ebi.ac.uk.model.RequestStatus
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import mu.KotlinLogging

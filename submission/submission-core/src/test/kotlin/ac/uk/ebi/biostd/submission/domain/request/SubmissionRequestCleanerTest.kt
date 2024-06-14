@@ -2,8 +2,6 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED_CLEANED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
@@ -15,6 +13,8 @@ import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
 import ebi.ac.uk.extended.model.StorageMode.FIRE
+import ebi.ac.uk.model.RequestStatus.CLEANED
+import ebi.ac.uk.model.RequestStatus.INDEXED_CLEANED
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify

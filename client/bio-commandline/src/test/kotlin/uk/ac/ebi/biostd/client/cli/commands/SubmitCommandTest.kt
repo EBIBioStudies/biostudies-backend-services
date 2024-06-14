@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.client.cli.commands
 
-import ac.uk.ebi.biostd.client.dto.AcceptedSubmission
 import ac.uk.ebi.biostd.client.integration.web.SubmissionFilesConfig
 import com.github.ajalt.clikt.core.IncorrectOptionValueCount
 import com.github.ajalt.clikt.core.MissingParameter
@@ -45,9 +44,9 @@ internal class SubmitCommandTest(
 
         val securityConfig = SecurityConfig("server", "user", "password")
         val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), StorageMode.FIRE, emptyList())
-        val request = SubmissionRequest(submission, 0, securityConfig, filesConfig)
+        val request = SubmissionRequest(submission, false, securityConfig, filesConfig)
 
-        coEvery { submissionService.submit(request) } returns AcceptedSubmission("S-BSST1", 2)
+        coEvery { submissionService.submit(request) } answers { nothing }
 
         testInstance.parse(
             listOf(
@@ -71,9 +70,9 @@ internal class SubmitCommandTest(
         val securityConfig = SecurityConfig("server", "user", "password")
         val sources = listOf(PreferredSource.SUBMISSION, PreferredSource.USER_SPACE)
         val filesConfig = SubmissionFilesConfig(listOf(attachedFile1, attachedFile2), StorageMode.NFS, sources)
-        val request = SubmissionRequest(submission, 0, securityConfig, filesConfig)
+        val request = SubmissionRequest(submission, false, securityConfig, filesConfig)
 
-        coEvery { submissionService.submit(request) } returns AcceptedSubmission("S-BSST1", 2)
+        coEvery { submissionService.submit(request) } answers { nothing }
 
         testInstance.parse(
             listOf(
@@ -96,9 +95,9 @@ internal class SubmitCommandTest(
 
         val securityConfig = SecurityConfig("server", "user", "password")
         val filesConfig = SubmissionFilesConfig(emptyList(), StorageMode.FIRE, emptyList())
-        val request = SubmissionRequest(submission, 0, securityConfig, filesConfig)
+        val request = SubmissionRequest(submission, false, securityConfig, filesConfig)
 
-        coEvery { submissionService.submit(request) } returns AcceptedSubmission("S-BSST1", 2)
+        coEvery { submissionService.submit(request) } answers { nothing }
 
         testInstance.parse(
             listOf(

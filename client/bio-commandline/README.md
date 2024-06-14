@@ -24,6 +24,7 @@ Make a submission to BioStudies
 * **ps or --preferredSource:** Comma separated list of file sources. Valid values are FIRE, SUBMISSION and USER_SPACE.
   The order of the list indicates the priority in which the sources will be used
 * **sm or --storageMode:** Submission storage mode. Determines where submission need to be saved FIRE/NFS
+* **aw or --await:** Indicates whether to wait for the submission processing
 
 **Notes:**
 

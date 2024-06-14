@@ -1,12 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.extended
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
@@ -21,6 +15,12 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
 import ac.uk.ebi.biostd.submission.domain.submitter.LocalExtSubmissionSubmitter
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
+import ebi.ac.uk.model.RequestStatus.CLEANED
+import ebi.ac.uk.model.RequestStatus.FILES_COPIED
+import ebi.ac.uk.model.RequestStatus.LOADED
+import ebi.ac.uk.model.RequestStatus.PERSISTED
+import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.test.basicExtSubmission
 import io.mockk.clearAllMocks
 import io.mockk.coEvery

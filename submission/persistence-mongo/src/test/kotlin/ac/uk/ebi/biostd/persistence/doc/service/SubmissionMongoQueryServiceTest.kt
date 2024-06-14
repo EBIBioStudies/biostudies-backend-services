@@ -1,11 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.exception.SubmissionNotFoundException
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
@@ -27,6 +22,11 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.extended.model.ExtAttribute
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.CLEANED
+import ebi.ac.uk.model.RequestStatus.FILES_COPIED
+import ebi.ac.uk.model.RequestStatus.LOADED
+import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSED
 import ebi.ac.uk.model.constants.ProcessingStatus.PROCESSING
 import ebi.ac.uk.model.constants.SectionFields.TITLE
@@ -58,11 +58,11 @@ import java.time.Duration.ofSeconds
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED as REQUEST_PROCESSED
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.fullExtSubmission as extSubmission
 import ac.uk.ebi.biostd.persistence.doc.test.doc.ext.rootSectionAttribute as attribute
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSection as docSection
 import ac.uk.ebi.biostd.persistence.doc.test.doc.testDocSubmission as docSubmission
+import ebi.ac.uk.model.RequestStatus.PROCESSED as REQUEST_PROCESSED
 
 @ExtendWith(MockKExtension::class, SpringExtension::class)
 @Testcontainers

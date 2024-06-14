@@ -2,11 +2,6 @@ package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.INDEXED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
@@ -22,6 +17,11 @@ import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.createNfsFile
+import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.CLEANED
+import ebi.ac.uk.model.RequestStatus.FILES_COPIED
+import ebi.ac.uk.model.RequestStatus.PERSISTED
+import ebi.ac.uk.model.RequestStatus.REQUESTED
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.junit5.MockKExtension

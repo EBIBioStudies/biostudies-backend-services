@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.client.cli.services
 
-import ac.uk.ebi.biostd.client.dto.AcceptedSubmission
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import com.github.ajalt.clikt.output.TermUi.echo
 import ebi.ac.uk.coroutines.waitUntil
@@ -10,31 +9,25 @@ import uk.ac.ebi.biostd.client.cli.dto.MigrationRequest
 import uk.ac.ebi.biostd.client.cli.dto.SubmissionRequest
 import uk.ac.ebi.biostd.client.cli.dto.TransferRequest
 import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
-import java.time.Duration.ofMinutes
 import java.time.Duration.ofSeconds
 
 @Suppress("TooManyFunctions")
 internal class SubmissionService {
-    suspend fun submit(request: SubmissionRequest): AcceptedSubmission =
+    suspend fun submit(request: SubmissionRequest) =
         performRequest {
             val client = bioWebClient(request.securityConfig)
-            val acceptedSubmission = client.asyncSubmitSingle(request.submissionFile, request.filesConfig)
-            val (accNo, version) = acceptedSubmission
+            val (accNo, version) = client.asyncSubmitSingle(request.submissionFile, request.filesConfig)
 
             echo("SUCCESS: Submission $accNo, version: $version is in queue to be processed")
 
-            if (request.timeout > 0) client.waitForSubmission(request.timeout.toLong(), accNo, version)
-
-            return acceptedSubmission
+            if (request.await) client.waitForSubmission(accNo, version)
         }
 
     private suspend fun BioWebClient.waitForSubmission(
-        timeout: Long,
         accNo: String,
         version: Int,
     ) {
         waitUntil(
-            duration = ofMinutes(timeout),
             interval = ofSeconds(CHECK_INTERVAL),
         ) {
             val status = getSubmissionRequestStatus(accNo, version)

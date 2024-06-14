@@ -18,7 +18,6 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import kotlinx.coroutines.test.runTest
-import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -50,9 +49,8 @@ internal class SubmissionServiceTest {
                 bioWebClient.asyncSubmitSingle(subRequest.submissionFile, subRequest.filesConfig)
             } returns accepted
 
-            val response = testInstance.submit(subRequest)
+            testInstance.submit(subRequest)
 
-            assertThat(response).isEqualTo(accepted)
             verify(exactly = 0) { bioWebClient.getSubmissionRequestStatus(any(), any()) }
             verify(exactly = 1) {
                 create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
@@ -74,9 +72,8 @@ internal class SubmissionServiceTest {
                 bioWebClient.asyncSubmitSingle(subRequest.submissionFile, subRequest.filesConfig)
             } returns accepted
 
-            val response = testInstance.submit(subRequest.copy(timeout = 1))
+            testInstance.submit(subRequest.copy(await = true))
 
-            assertThat(response).isEqualTo(accepted)
             verify(exactly = 1) {
                 create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
                 bioWebClient.getSubmissionRequestStatus("S-BSST1", 2)
@@ -185,7 +182,7 @@ internal class SubmissionServiceTest {
         private val securityConfig = SecurityConfig(SERVER, USER, PASSWORD, ON_BEHALF)
         private val filesConfig = SubmissionFilesConfig(listOf(mockk()), FIRE, listOf(SUBMISSION))
 
-        private val subRequest = SubmissionRequest(mockk(), 0, securityConfig, filesConfig)
+        private val subRequest = SubmissionRequest(mockk(), false, securityConfig, filesConfig)
         private val deletionRequest = DeletionRequest(securityConfig, accNoList = listOf(ACC_NO))
         private val validateFileList = ValidateFileListRequest(FILE_LIST_PATH, ROOT_PATH, ACC_NO, securityConfig)
     }

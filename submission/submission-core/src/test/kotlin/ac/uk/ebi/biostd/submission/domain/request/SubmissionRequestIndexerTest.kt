@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
@@ -9,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ebi.ac.uk.base.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
