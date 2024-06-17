@@ -2,8 +2,6 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
@@ -14,6 +12,8 @@ import ac.uk.ebi.biostd.submission.common.TEST_CONCURRENCY
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.model.RequestStatus.CLEANED
+import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -22,7 +22,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
@@ -30,7 +29,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.events.service.EventsPublisherService
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestProcessorTest(
     @MockK private val storageService: FileStorageService,

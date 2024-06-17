@@ -15,7 +15,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -27,7 +26,6 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.test.assertFails
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class NfsFilesServiceTest(
     private val tempFolder: TemporaryFolder,

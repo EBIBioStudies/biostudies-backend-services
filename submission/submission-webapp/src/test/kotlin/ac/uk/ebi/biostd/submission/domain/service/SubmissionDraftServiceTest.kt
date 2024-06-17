@@ -28,7 +28,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.unmockkStatic
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -41,7 +40,6 @@ import java.time.Instant
 import java.time.ZoneId
 
 @ExtendWith(MockKExtension::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 class SubmissionDraftServiceTest(
     @MockK private val submitWebHandler: SubmitWebHandler,
     @MockK private val toSubmissionMapper: ToSubmissionMapper,

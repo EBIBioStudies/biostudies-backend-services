@@ -22,6 +22,7 @@ import ebi.ac.uk.extended.model.StorageMode
 import ebi.ac.uk.io.sources.PreferredSource
 import ebi.ac.uk.model.Collection
 import ebi.ac.uk.model.Group
+import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.SubmissionStat
 import ebi.ac.uk.model.WebSubmissionDraft
@@ -39,7 +40,8 @@ interface SubmitClient :
     DraftSubmissionOperations,
     ExtSubmissionOperations,
     PermissionOperations,
-    StatsOperations
+    StatsOperations,
+    SubmissionRequestOperations
 
 typealias SubmissionResponse = ClientResponse<Submission>
 
@@ -303,4 +305,11 @@ interface MultipartAsyncSubmitOperations {
         filesConfig: SubmissionFilesConfig,
         attrs: Map<String, String> = emptyMap(),
     ): AcceptedSubmission
+}
+
+interface SubmissionRequestOperations {
+    fun getSubmissionRequestStatus(
+        accNo: String,
+        version: Int,
+    ): RequestStatus
 }

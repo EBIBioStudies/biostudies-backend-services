@@ -6,11 +6,11 @@ import kotlinx.coroutines.withContext
 import java.time.Duration
 import java.time.Duration.ofMillis
 
-private const val DEFAULT_DURATION = 300L
+private const val DEFAULT_INTERVAL = 300L
 
 suspend fun waitUntil(
     duration: Duration,
-    interval: Duration = ofMillis(DEFAULT_DURATION),
+    interval: Duration = ofMillis(DEFAULT_INTERVAL),
     conditionEvaluator: suspend () -> Boolean,
 ) {
     /**
@@ -34,9 +34,31 @@ suspend fun waitUntil(
     waitUntil(conditionEvaluator, duration.toMillis(), interval.toMillis())
 }
 
+suspend fun waitUntil(
+    interval: Duration = ofMillis(DEFAULT_INTERVAL),
+    conditionEvaluator: suspend () -> Boolean,
+) {
+    /**
+     * Wait indefinitely until the given condition is complete
+     */
+    suspend fun waitUntil(
+        conditionEvaluator: suspend () -> Boolean,
+        interval: Long,
+    ): Unit =
+        withContext(Dispatchers.Default) {
+            val result = runCatching { conditionEvaluator() }.getOrElse { false }
+            if (result.not()) {
+                delay(interval)
+                waitUntil(conditionEvaluator, interval)
+            }
+        }
+
+    waitUntil(conditionEvaluator, interval.toMillis())
+}
+
 suspend fun <T> waitUntil(
     duration: Duration,
-    interval: Duration = ofMillis(DEFAULT_DURATION),
+    interval: Duration = ofMillis(DEFAULT_INTERVAL),
     conditionEvaluator: suspend () -> Boolean,
     processFunction: suspend () -> T,
 ): T {

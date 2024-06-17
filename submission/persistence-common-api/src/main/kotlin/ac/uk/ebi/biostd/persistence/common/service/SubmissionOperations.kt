@@ -3,7 +3,6 @@ package ac.uk.ebi.biostd.persistence.common.service
 import ac.uk.ebi.biostd.persistence.common.model.BasicCollection
 import ac.uk.ebi.biostd.persistence.common.model.BasicSubmission
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionFilter
@@ -11,6 +10,7 @@ import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.ExtSubmissionInfo
+import ebi.ac.uk.model.RequestStatus
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.domain.Page
 import java.time.temporal.TemporalAmount

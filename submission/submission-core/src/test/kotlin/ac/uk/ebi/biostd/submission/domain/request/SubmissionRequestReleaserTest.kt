@@ -2,9 +2,6 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.RELEASED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
@@ -20,6 +17,9 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
+import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.called
 import io.mockk.clearAllMocks
@@ -30,7 +30,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import io.mockk.verify
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -40,7 +39,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestReleaserTest(
     @MockK private val storageService: FileStorageService,

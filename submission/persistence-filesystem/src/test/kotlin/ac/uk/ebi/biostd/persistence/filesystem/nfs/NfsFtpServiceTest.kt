@@ -14,7 +14,6 @@ import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -24,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import java.nio.file.Files
 import kotlin.io.path.createDirectories
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(TemporaryFolderExtension::class, MockKExtension::class)
 internal class NfsFtpServiceTest(
     private val tempFolder: TemporaryFolder,
