@@ -26,7 +26,6 @@ import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.junit5.MockKExtension
 import io.mockk.unmockkStatic
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -52,7 +51,6 @@ import java.time.Instant
 
 @ExtendWith(MockKExtension::class, SpringExtension::class, TemporaryFolderExtension::class)
 @Testcontainers
-@OptIn(ExperimentalCoroutinesApi::class)
 @SpringBootTest(classes = [MongoDbReposConfig::class, LockConfig::class])
 class SubmissionRequestMongoPersistenceServiceTest(
     private val tempFolder: TemporaryFolder,

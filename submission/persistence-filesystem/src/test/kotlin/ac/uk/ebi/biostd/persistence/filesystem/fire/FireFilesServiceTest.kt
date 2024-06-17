@@ -16,7 +16,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.verify
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -29,7 +28,6 @@ import uk.ac.ebi.fire.client.model.FireApiFile
 import java.util.UUID
 import kotlin.test.assertFails
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class FireFilesServiceTest(
     private val tempFolder: TemporaryFolder,

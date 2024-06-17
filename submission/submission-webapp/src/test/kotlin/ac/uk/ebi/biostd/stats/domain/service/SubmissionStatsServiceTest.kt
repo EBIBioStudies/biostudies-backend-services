@@ -22,7 +22,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.slot
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -35,7 +34,6 @@ import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 class SubmissionStatsServiceTest(
     private val temporaryFolder: TemporaryFolder,
     @MockK private val statsFileHandler: StatsFileHandler,
@@ -52,7 +50,7 @@ class SubmissionStatsServiceTest(
         )
 
     @BeforeEach
-    fun beferoEach() {
+    fun beforeEach() {
         temporaryFolder.clean()
     }
 

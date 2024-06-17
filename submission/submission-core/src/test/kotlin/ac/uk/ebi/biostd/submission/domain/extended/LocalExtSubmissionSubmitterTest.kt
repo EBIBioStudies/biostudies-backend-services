@@ -30,7 +30,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.slot
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -42,7 +41,6 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 
 @ExtendWith(MockKExtension::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 internal class LocalExtSubmissionSubmitterTest(
     @MockK private val properties: ApplicationProperties,
     @MockK private val sub: ExtSubmission,

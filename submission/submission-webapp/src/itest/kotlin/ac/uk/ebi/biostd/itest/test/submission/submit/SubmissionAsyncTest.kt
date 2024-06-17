@@ -26,7 +26,6 @@ import ebi.ac.uk.model.RequestStatus.PERSISTED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.model.extensions.title
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -44,7 +43,6 @@ import java.time.Duration.ofMillis
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionAsyncTest(
     @Autowired val securityTestService: SecurityTestService,

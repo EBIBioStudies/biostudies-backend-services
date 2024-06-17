@@ -39,7 +39,7 @@ suspend fun waitUntil(
     conditionEvaluator: suspend () -> Boolean,
 ) {
     /**
-     * Wait definitively until the given condition is complete
+     * Wait indefinitely until the given condition is complete
      */
     suspend fun waitUntil(
         conditionEvaluator: suspend () -> Boolean,
