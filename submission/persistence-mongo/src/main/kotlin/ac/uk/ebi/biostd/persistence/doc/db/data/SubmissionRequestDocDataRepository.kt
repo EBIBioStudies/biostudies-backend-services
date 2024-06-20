@@ -1,8 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.model.action
 import ac.uk.ebi.biostd.persistence.common.request.SubmissionListFilter
@@ -45,6 +42,9 @@ import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequestFile
 import com.google.common.collect.ImmutableList
 import com.mongodb.BasicDBObject
+import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING
+import ebi.ac.uk.model.RequestStatus.PROCESSED
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle

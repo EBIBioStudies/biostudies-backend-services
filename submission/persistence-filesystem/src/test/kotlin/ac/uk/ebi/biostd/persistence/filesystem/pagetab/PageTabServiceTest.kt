@@ -13,16 +13,16 @@ import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkStatic
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
+import java.time.Clock
 import java.time.LocalDate
+import java.time.ZoneId
 
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 internal class PageTabServiceTest(
@@ -36,14 +36,14 @@ internal class PageTabServiceTest(
     private val fileListJson = temporaryFolder.createFile("fileList.json")
     private val fileListTsv = temporaryFolder.createFile("fileList.tsv")
 
-    private val testInstance = PageTabService(baseTempDir, pageTabUtil)
+    private val date = LocalDate.of(2023, 1, 24).atStartOfDay(ZoneId.of("UTC"))
+    private val clock = Clock.fixed(date.toInstant(), ZoneId.of("UTC"))
+
+    private val testInstance = PageTabService(clock, baseTempDir, pageTabUtil)
 
     @Test
     fun `generate pagetab`() =
         runTest {
-            mockkStatic(LocalDate::class)
-            every { LocalDate.now() } returns LocalDate.of(2023, 1, 24)
-
             val tempDir = File("${baseTempDir.absolutePath}/2023/1/24/S-TEST123/1")
             val fileList = temporaryFolder.createFile("file-list")
             val fileListSection = ExtSection(type = "t2", fileList = ExtFileList(filePath = "a-path", fileList))

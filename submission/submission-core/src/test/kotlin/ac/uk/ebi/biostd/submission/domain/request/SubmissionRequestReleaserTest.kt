@@ -4,8 +4,6 @@ import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.SUPPRESSED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
@@ -21,6 +19,8 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.FireFile
 import ebi.ac.uk.extended.model.NfsFile
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
+import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.called
 import io.mockk.clearAllMocks

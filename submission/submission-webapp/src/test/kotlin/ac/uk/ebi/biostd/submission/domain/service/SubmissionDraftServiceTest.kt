@@ -26,10 +26,8 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkStatic
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -37,10 +35,11 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.Clock
 import java.time.Instant
+import java.time.ZoneId
 
 @ExtendWith(MockKExtension::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 class SubmissionDraftServiceTest(
     @MockK private val submitWebHandler: SubmitWebHandler,
     @MockK private val toSubmissionMapper: ToSubmissionMapper,
@@ -50,8 +49,12 @@ class SubmissionDraftServiceTest(
     @MockK private val submissionQueryService: SubmissionPersistenceQueryService,
     @MockK private val draftPersistenceService: SubmissionDraftPersistenceService,
 ) {
+    private val now = Instant.ofEpochMilli(2)
+    private val clock = Clock.fixed(now, ZoneId.systemDefault())
+
     private val testInstance =
         SubmissionDraftService(
+            clock,
             submitWebHandler,
             toSubmissionMapper,
             serializationService,
@@ -100,7 +103,13 @@ class SubmissionDraftServiceTest(
             coEvery { userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY) } returns true
             coEvery { submissionQueryService.getExtByAccNo(DRAFT_KEY) } returns submission
             coEvery { draftPersistenceService.findSubmissionDraft(USER_ID, DRAFT_KEY) } returns null
-            coEvery { draftPersistenceService.createSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDraft
+            coEvery {
+                draftPersistenceService.createSubmissionDraft(
+                    USER_ID,
+                    DRAFT_KEY,
+                    DRAFT_CONTENT,
+                )
+            } returns testDraft
             coEvery {
                 serializationService.serializeSubmission(toSubmissionMapper.toSimpleSubmission(submission), JsonPretty)
             } returns DRAFT_CONTENT
@@ -122,7 +131,8 @@ class SubmissionDraftServiceTest(
             coEvery { userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY) } returns false
             coEvery { draftPersistenceService.findSubmissionDraft(USER_ID, DRAFT_KEY) } returns null
 
-            val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.getOrCreateSubmissionDraft(USER_ID, DRAFT_KEY) }
+            val error =
+                assertThrows<UserCanNotUpdateSubmit> { testInstance.getOrCreateSubmissionDraft(USER_ID, DRAFT_KEY) }
             assertThat(error.message).isEqualTo("The user {$USER_ID} is not allowed to update the submission $DRAFT_KEY")
 
             coVerify(exactly = 1) {
@@ -148,7 +158,13 @@ class SubmissionDraftServiceTest(
     @Test
     fun `update submission draft`() =
         runTest {
-            coEvery { draftPersistenceService.updateSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT) } returns testDraft
+            coEvery {
+                draftPersistenceService.updateSubmissionDraft(
+                    USER_ID,
+                    DRAFT_KEY,
+                    DRAFT_CONTENT,
+                )
+            } returns testDraft
 
             testInstance.updateSubmissionDraft(USER_ID, DRAFT_KEY, DRAFT_CONTENT)
 
@@ -158,10 +174,6 @@ class SubmissionDraftServiceTest(
     @Test
     fun `create submission draft`() =
         runTest {
-            mockkStatic(Instant::class)
-            val draftCreationTime = 2L
-
-            every { Instant.now().toEpochMilli() } returns draftCreationTime
             coEvery { draftPersistenceService.createSubmissionDraft(USER_ID, "TMP_2", DRAFT_CONTENT) } returns testDraft
 
             testInstance.createSubmissionDraft(USER_ID, DRAFT_CONTENT)

@@ -1,5 +1,6 @@
 import Dependencies.CliKt
 import Dependencies.CommonsLang3
+import Dependencies.KotlinCoroutines
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.Log4J
@@ -7,12 +8,8 @@ import Projects.BioWebClient
 import Projects.CommonsModelExtendedSerialization
 import Projects.CommonsModelExtendedTest
 import Projects.CommonsUtil
-import TestDependencies.AssertJ
-import TestDependencies.Junit
-import TestDependencies.Junit5Console
-import TestDependencies.JunitExtensions
-import TestDependencies.KotlinTestJunit
-import TestDependencies.MockK
+import TestDependencies.BaseTestCompileDependencies
+import TestDependencies.BaseTestRuntimeDependencies
 
 plugins {
     id(Plugins.ShadowPlugin) version PluginVersions.ShadowPluginVersion
@@ -26,17 +23,15 @@ dependencies {
 
     implementation(CliKt)
     implementation(CommonsLang3)
+    implementation(KotlinCoroutines)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
     implementation(Log4J)
 
     testImplementation(testFixtures(project(CommonsModelExtendedSerialization)))
-    testImplementation(Junit)
-    testImplementation(JunitExtensions)
-    testImplementation(AssertJ)
-    testImplementation(MockK)
-    testImplementation(KotlinTestJunit)
-    testRuntimeOnly(Junit5Console)
+
+    BaseTestCompileDependencies.forEach { testImplementation(it) }
+    BaseTestRuntimeDependencies.forEach { testImplementation(it) }
 }
 
 tasks {

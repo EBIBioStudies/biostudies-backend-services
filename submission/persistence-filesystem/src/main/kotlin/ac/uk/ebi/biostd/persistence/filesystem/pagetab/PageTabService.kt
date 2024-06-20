@@ -9,10 +9,11 @@ import ebi.ac.uk.io.ext.size
 import uk.ac.ebi.extended.serialization.service.TrackSection
 import uk.ac.ebi.extended.serialization.service.iterateSections
 import java.io.File
-import java.time.LocalDate
-import java.time.temporal.ChronoField
+import java.time.Clock
+import java.time.ZonedDateTime
 
 class PageTabService(
+    private val clock: Clock,
     private val baseTempFolder: File,
     private val pageTabUtil: PageTabUtil,
 ) : PageTabService {
@@ -81,12 +82,12 @@ class PageTabService(
         accNo: String,
         version: Int,
     ): File {
-        val now = LocalDate.now()
+        val now = ZonedDateTime.now(clock)
         val path =
             baseTempFolder
-                .resolve(now.get(ChronoField.YEAR).toString())
-                .resolve(now.get(ChronoField.MONTH_OF_YEAR).toString())
-                .resolve(now.get(ChronoField.DAY_OF_MONTH).toString())
+                .resolve(now.year.toString())
+                .resolve(now.month.value.toString())
+                .resolve(now.dayOfMonth.toString())
                 .resolve(accNo)
                 .resolve(version.toString())
         path.mkdirs()

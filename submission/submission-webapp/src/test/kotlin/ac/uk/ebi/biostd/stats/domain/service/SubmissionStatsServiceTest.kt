@@ -10,6 +10,10 @@ import ac.uk.ebi.biostd.submission.stats.StatsFileHandler
 import ac.uk.ebi.biostd.submission.stats.SubmissionStatsService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
+import ebi.ac.uk.test.clean
+import ebi.ac.uk.test.createFile
+import io.github.glytching.junit.extension.folder.TemporaryFolder
+import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -18,21 +22,20 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockkStatic
 import io.mockk.slot
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import uk.ac.ebi.extended.serialization.service.filesFlow
-import java.io.File
 
-@ExtendWith(MockKExtension::class)
-@OptIn(ExperimentalCoroutinesApi::class)
+@ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionStatsServiceTest(
+    private val temporaryFolder: TemporaryFolder,
     @MockK private val statsFileHandler: StatsFileHandler,
     @MockK private val queryService: SubmissionPersistenceQueryService,
     @MockK private val submissionStatsService: StatsDataService,
@@ -45,6 +48,11 @@ class SubmissionStatsServiceTest(
             serializationService,
             queryService,
         )
+
+    @BeforeEach
+    fun beforeEach() {
+        temporaryFolder.clean()
+    }
 
     @AfterEach
     fun afterEach() = clearAllMocks()
@@ -93,11 +101,12 @@ class SubmissionStatsServiceTest(
 
     @Test
     fun `register from file`(
-        @MockK file: File,
         @MockK stat: SubmissionStat,
     ) = runTest {
         val stats = listOf(stat)
         coEvery { submissionStatsService.saveAll(stats) } returns stats
+
+        val file = temporaryFolder.createFile("statsFile.txt", "stats")
         coEvery { statsFileHandler.readStats(file, VIEWS) } returns stats
 
         assertThat(testInstance.register("VIEWS", file)).isEqualTo(stats)
@@ -110,10 +119,11 @@ class SubmissionStatsServiceTest(
 
     @Test
     fun `increment stats`(
-        @MockK file: File,
         @MockK stat: SubmissionStat,
     ) = runTest {
         val stats = listOf(stat)
+        val file = temporaryFolder.createFile("statsFile.txt", "stats")
+
         coEvery { statsFileHandler.readStats(file, VIEWS) } returns stats
         coEvery { submissionStatsService.incrementAll(stats) } returns stats
 

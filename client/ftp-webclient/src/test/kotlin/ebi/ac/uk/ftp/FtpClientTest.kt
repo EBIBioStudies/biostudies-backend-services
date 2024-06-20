@@ -2,7 +2,6 @@ package ebi.ac.uk.ftp
 
 import ebi.ac.uk.test.createTempFile
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junitpioneer.jupiter.RetryingTest
 import java.io.File
 import java.nio.file.Paths
@@ -18,13 +17,9 @@ class FtpClientTest {
             FTP_ROOT_PATH,
         )
 
-    @BeforeEach
-    fun beforeEach() {
-        testInstance.deleteFile(Paths.get(""))
-    }
-
     @RetryingTest(TEST_RETRY)
     fun uploadFileInFolder() {
+        testInstance.deleteFile(HOME)
         val tempFile = createTempFile("test-file-1")
         val rootPath = Paths.get("")
 
@@ -39,6 +34,7 @@ class FtpClientTest {
 
     @RetryingTest(TEST_RETRY)
     fun `delete folder`() {
+        testInstance.deleteFile(HOME)
         val tempFile = createTempFile("test-file-1")
 
         val rootPath = Paths.get("")
@@ -62,6 +58,7 @@ class FtpClientTest {
 
     @RetryingTest(TEST_RETRY)
     fun `upload a file, list it and download it`() {
+        testInstance.deleteFile(HOME)
         val tempFile = createTempFile("test-file")
 
         val rootPath = Paths.get("")
@@ -90,6 +87,7 @@ class FtpClientTest {
             )
         }
 
+        val HOME = Paths.get("")
         const val FTP_USER = "ftpUser"
         const val FTP_PASSWORD = "ftpPassword"
         const val FTP_ROOT_PATH = ".test"

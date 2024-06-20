@@ -10,7 +10,6 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.nfsFtpPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.nfsSubmissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.model.DbSequence
@@ -29,6 +28,7 @@ import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.io.ext.listFilesOrEmpty
+import ebi.ac.uk.model.RequestStatus.PROCESSED
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
