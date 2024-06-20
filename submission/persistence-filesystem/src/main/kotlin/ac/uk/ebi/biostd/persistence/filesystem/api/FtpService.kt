@@ -9,7 +9,7 @@ internal interface FtpService {
         file: ExtFile,
     ): ExtFile
 
-    suspend fun suppressSubmissionFile(
+    suspend fun unReleaseSubmissionFile(
         sub: ExtSubmissionInfo,
         file: ExtFile,
     ): ExtFile

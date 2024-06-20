@@ -3,7 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.RELEASED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
-import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.SUPPRESSED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.UNRELEASED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
@@ -78,7 +78,6 @@ class SubmissionRequestReleaserTest(
         val nfsRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 1, "test1.txt", nfsFile, COPIED)
         val fireRqtFile = SubmissionRequestFile(ACC_NO, VERSION, 2, "test2.txt", fireFile, COPIED)
 
-        every { fireFile.published } returns true
         every { rqt.submission } returns submission
         every { rqt.currentIndex } returns 1
         every { submission.accNo } returns ACC_NO
@@ -93,6 +92,7 @@ class SubmissionRequestReleaserTest(
                 nfsRqtFile,
                 fireRqtFile,
             )
+        coEvery { storageService.releaseSubmissionFile(submission, fireFile) } returns fireFile
         coEvery { storageService.releaseSubmissionFile(submission, nfsFile) } returns releasedFile
         every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
 
@@ -130,7 +130,7 @@ class SubmissionRequestReleaserTest(
         every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
         every { eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION) } answers { nothing }
 
-        coEvery { queryService.findExtByAccNo(ACC_NO, includeFileListFiles = false) } returns null
+        coEvery { queryService.findCoreInfo(ACC_NO) } returns null
         coEvery {
             requestService.onRequest(ACC_NO, VERSION, FILES_COPIED, PROCESS_ID, capture(rqtSlot))
         } coAnswers {
@@ -160,7 +160,7 @@ class SubmissionRequestReleaserTest(
         every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
         every { eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION) } answers { nothing }
 
-        coEvery { queryService.findExtByAccNo(ACC_NO, includeFileListFiles = false) } returns current
+        coEvery { queryService.findCoreInfo(ACC_NO) } returns current
         coEvery {
             requestService.onRequest(ACC_NO, VERSION, FILES_COPIED, PROCESS_ID, capture(rqtSlot))
         } coAnswers {
@@ -211,7 +211,7 @@ class SubmissionRequestReleaserTest(
                 nfsRqtFile,
                 fireRqtFile,
             )
-        coEvery { queryService.findExtByAccNo(ACC_NO, includeFileListFiles = false) } returns current
+        coEvery { queryService.findCoreInfo(ACC_NO) } returns current
         coEvery { storageService.suppressSubmissionFile(submission, nfsFile) } returns suppressedNfsFile
         coEvery { storageService.suppressSubmissionFile(submission, fireFile) } returns suppressedFireFile
         every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
@@ -220,7 +220,7 @@ class SubmissionRequestReleaserTest(
             requestService.updateRqtFile(
                 nfsRqtFile.copy(
                     file = suppressedNfsFile,
-                    status = SUPPRESSED,
+                    status = UNRELEASED,
                 ),
             )
         } answers { nothing }
@@ -229,7 +229,7 @@ class SubmissionRequestReleaserTest(
             requestService.updateRqtFile(
                 fireRqtFile.copy(
                     file = suppressedFireFile,
-                    status = SUPPRESSED,
+                    status = UNRELEASED,
                 ),
             )
         } answers { nothing }

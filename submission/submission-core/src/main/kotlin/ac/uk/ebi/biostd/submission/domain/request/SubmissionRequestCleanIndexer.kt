@@ -89,7 +89,7 @@ class SubmissionRequestCleanIndexer(
             .getSubmissionRequestFiles(new.accNo, new.version, LOADED)
             .map { it.file }
             .collect { response[it.filePath] = FileRecord(it.md5, new.storageMode) }
-        return FilesRecords(new.storageMode, response)
+        return FilesRecords(response)
     }
 }
 
@@ -97,7 +97,6 @@ class SubmissionRequestCleanIndexer(
  * Contains new submission file entries and storage type.
  */
 private class FilesRecords(
-    val storageMode: StorageMode,
     val files: Map<String, FileRecord>,
 ) {
     /**

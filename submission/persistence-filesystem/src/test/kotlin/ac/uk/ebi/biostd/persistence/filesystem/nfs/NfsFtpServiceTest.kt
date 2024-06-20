@@ -101,7 +101,7 @@ internal class NfsFtpServiceTest(
                         size = publicFile.size(),
                     )
 
-                testInstance.suppressSubmissionFile(subInfo, nfsFile)
+                testInstance.unReleaseSubmissionFile(subInfo, nfsFile)
 
                 assertThat(publicFile).doesNotExist()
             }
@@ -156,7 +156,7 @@ internal class NfsFtpServiceTest(
 
                 val privateFolder = folderResolver.getPrivateSubFolder(SECRET_KEY, REL_PATH).resolve(FILES_PATH)
                 val suppressedPath = privateFolder.resolve("move-test.txt")
-                val suppressed = testInstance.suppressSubmissionFile(subInfo, nfsFile) as NfsFile
+                val suppressed = testInstance.unReleaseSubmissionFile(subInfo, nfsFile) as NfsFile
                 assertThat(suppressedPath).exists()
                 assertThat(suppressed.fullPath).isEqualTo(suppressedPath.toString())
                 assertThat(suppressed.file).isEqualTo(suppressedPath.toFile())

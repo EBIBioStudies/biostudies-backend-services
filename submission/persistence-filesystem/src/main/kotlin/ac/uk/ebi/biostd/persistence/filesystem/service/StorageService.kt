@@ -46,8 +46,8 @@ class StorageService(
         file: ExtFile,
     ): ExtFile {
         return when (sub.storageMode) {
-            FIRE -> fireFtpService.suppressSubmissionFile(sub, file)
-            NFS -> nfsFtpService.suppressSubmissionFile(sub, file)
+            FIRE -> fireFtpService.unReleaseSubmissionFile(sub, file)
+            NFS -> nfsFtpService.unReleaseSubmissionFile(sub, file)
         }
     }
 

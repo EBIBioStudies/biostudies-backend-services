@@ -29,7 +29,7 @@ enum class RequestFileStatus {
     COPIED,
     CLEANED,
     RELEASED,
-    SUPPRESSED,
+    UNRELEASED,
     CONFLICTING,
     DEPRECATED,
     REUSED,

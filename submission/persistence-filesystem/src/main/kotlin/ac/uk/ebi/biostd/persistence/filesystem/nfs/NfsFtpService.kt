@@ -27,13 +27,13 @@ class NfsFtpService(
         file: ExtFile,
     ): ExtFile =
         withContext(Dispatchers.IO) {
-            val nfsFile = file as NfsFile
+            require(file is NfsFile) { "NfsFtpService should only handle NfsFile" }
             val publicSubFolder = getPublicFolder(sub.relPath)
             val privateSubFolder = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath)
 
             when (releaseMode) {
-                MOVE -> moveRelease(nfsFile, publicSubFolder)
-                HARD_LINKS -> hardLinkRelease(nfsFile, privateSubFolder, publicSubFolder)
+                MOVE -> moveRelease(file, publicSubFolder)
+                HARD_LINKS -> hardLinkRelease(file, privateSubFolder, publicSubFolder)
             }
         }
 
@@ -55,25 +55,23 @@ class NfsFtpService(
         return nfsFile
     }
 
-    override suspend fun suppressSubmissionFile(
+    override suspend fun unReleaseSubmissionFile(
         sub: ExtSubmissionInfo,
         file: ExtFile,
     ): ExtFile =
         withContext(Dispatchers.IO) {
-            val nfsFile = file as NfsFile
-            val publicSubFolder = getPublicFolder(sub.relPath)
-            val privateSubFolder = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath)
-
+            require(file is NfsFile) { "NfsFtpService should only handle NfsFile" }
             when (releaseMode) {
-                MOVE -> moveSuppress(nfsFile, privateSubFolder)
-                HARD_LINKS -> hardLinkSuppress(nfsFile, publicSubFolder)
+                MOVE -> moveSuppress(file, sub)
+                HARD_LINKS -> hardLinkSuppress(file, sub)
             }
         }
 
     private fun moveSuppress(
         nfsFile: NfsFile,
-        privateSubFolder: Path,
+        sub: ExtSubmissionInfo,
     ): NfsFile {
+        val privateSubFolder = folderResolver.getPrivateSubFolder(sub.secretKey, sub.relPath)
         val suppressedFile = privateSubFolder.resolve(nfsFile.relPath).toFile()
         FileUtils.moveFile(nfsFile.file, suppressedFile, Permissions(RW_R_____, RWXR_X___))
         return nfsFile.copy(fullPath = suppressedFile.absolutePath, file = suppressedFile)
@@ -81,9 +79,9 @@ class NfsFtpService(
 
     private fun hardLinkSuppress(
         nfsFile: NfsFile,
-        publicSubFolder: Path,
+        sub: ExtSubmissionInfo,
     ): NfsFile {
-        val releasedFile = publicSubFolder.resolve(nfsFile.relPath).toFile()
+        val releasedFile = getPublicFolder(sub.relPath).resolve(nfsFile.relPath).toFile()
         FileUtils.deleteFile(releasedFile)
 
         return nfsFile

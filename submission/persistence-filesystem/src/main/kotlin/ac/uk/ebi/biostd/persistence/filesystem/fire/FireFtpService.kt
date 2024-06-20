@@ -18,7 +18,7 @@ class FireFtpService(
         return file.copy(firePath = apiFile.path!!, published = apiFile.published)
     }
 
-    override suspend fun suppressSubmissionFile(
+    override suspend fun unReleaseSubmissionFile(
         sub: ExtSubmissionInfo,
         file: ExtFile,
     ): FireFile {

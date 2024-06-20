@@ -85,7 +85,7 @@ class FireFtpServiceTest(
                 )
             coEvery { fireClient.unpublish(fireFile.fireId) } answers { apiFile }
 
-            val file = testInstance.suppressSubmissionFile(sub, fireFile)
+            val file = testInstance.unReleaseSubmissionFile(sub, fireFile)
 
             assertThat(file.published).isFalse()
             assertThat(file.firePath).isEqualTo("fire-path")
