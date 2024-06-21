@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -63,6 +64,7 @@ class SubmissionRequestCleanIndexer(
         newFiles: FilesRecords,
         current: ExtSubmission,
     ): Triple<Int, Int, Int> {
+        val reusedIdx = AtomicInteger(0)
         val conflictIdx = AtomicInteger(0)
         val deprecatedIdx = AtomicInteger(0)
 
@@ -71,7 +73,7 @@ class SubmissionRequestCleanIndexer(
                 when (newFiles.findMatch(file)) {
                     MatchType.CONFLICTING -> SubRqtFile(new, conflictIdx.incrementAndGet(), file, CONFLICTING, true)
                     MatchType.DEPRECATED -> SubRqtFile(new, deprecatedIdx.incrementAndGet(), file, DEPRECATED, true)
-                    MatchType.REUSED -> null
+                    MatchType.REUSED -> SubRqtFile(new, reusedIdx.incrementAndGet(), file, REUSED, true)
                 }
             }
             .collect {
@@ -87,7 +89,7 @@ class SubmissionRequestCleanIndexer(
             .getSubmissionRequestFiles(new.accNo, new.version, LOADED)
             .map { it.file }
             .collect { response[it.filePath] = FileRecord(it.md5, new.storageMode) }
-        return FilesRecords(new.storageMode, response)
+        return FilesRecords(response)
     }
 }
 
@@ -95,7 +97,6 @@ class SubmissionRequestCleanIndexer(
  * Contains new submission file entries and storage type.
  */
 private class FilesRecords(
-    val storageMode: StorageMode,
     val files: Map<String, FileRecord>,
 ) {
     /**

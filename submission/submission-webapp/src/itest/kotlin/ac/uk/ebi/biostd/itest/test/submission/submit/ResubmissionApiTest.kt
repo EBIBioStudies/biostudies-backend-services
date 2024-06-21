@@ -7,6 +7,7 @@ import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
+import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.ftpPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
@@ -20,6 +21,7 @@ import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
+import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.ext.createFile
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -245,36 +247,65 @@ class ResubmissionApiTest(
     }
 
     @Test
-    fun `5-5 super user suppresses submission from another user`() {
-        val version1 =
-            tsv {
-                line("Submission", "S-RSTST5")
-                line("Title", "Public Submission")
-                line("ReleaseDate", OffsetDateTime.now().toStringDate())
-                line()
-                line("Study")
-                line()
-            }.toString()
+    fun `5-5 super user suppresses submission from another user`() =
+        runTest {
+            val version1 =
+                tsv {
+                    line("Submission", "S-RSTST5")
+                    line("Title", "Public Submission")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+                    line("Study")
+                    line()
+                    line("File", "file_5-5-1.txt")
+                    line()
+                    line("File", "file_5-5-2.txt")
+                    line()
+                }.toString()
 
-        val onBehalfClient =
-            SecurityWebClient
-                .create("http://localhost:$serverPort")
-                .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
+            val onBehalfClient =
+                SecurityWebClient
+                    .create("http://localhost:$serverPort")
+                    .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
 
-        assertThat(onBehalfClient.submitSingle(version1, TSV)).isSuccessful()
+            webClient.uploadFile(tempFolder.createFile("file_5-5-1.txt", "5-5-1 file content"))
+            webClient.uploadFile(tempFolder.createFile("file_5-5-2.txt", "5-5-2 file content"))
+            assertThat(onBehalfClient.submitSingle(version1, TSV)).isSuccessful()
 
-        val version2 =
-            tsv {
-                line("Submission", "S-RSTST5")
-                line("Title", "Suppressed Submission")
-                line("ReleaseDate", "2050-05-22")
-                line()
-                line("Study")
-                line()
-            }.toString()
+            val submittedV1 = submissionRepository.getExtByAccNo("S-RSTST5")
+            val ftpFilesV1 = FileUtils.listAllFiles(File("$ftpPath/${submittedV1.relPath}/Files"))
+            val ftpFile1 = File("$ftpPath/${submittedV1.relPath}/Files/file_5-5-1.txt")
+            val ftpFile2 = File("$ftpPath/${submittedV1.relPath}/Files/file_5-5-2.txt")
 
-        assertThat(onBehalfClient.submitSingle(version2, TSV)).isSuccessful()
-    }
+            assertThat(ftpFilesV1).containsOnly(ftpFile1, ftpFile2)
+            assertThat(ftpFile1).hasContent("5-5-1 file content")
+            assertThat(ftpFile2).hasContent("5-5-2 file content")
+            assertThat(File("$submissionPath/${submittedV1.relPath}/Files/file_5-5-1.txt")).hasContent("5-5-1 file content")
+            assertThat(File("$submissionPath/${submittedV1.relPath}/Files/file_5-5-2.txt")).hasContent("5-5-2 file content")
+
+            val version2 =
+                tsv {
+                    line("Submission", "S-RSTST5")
+                    line("Title", "Suppressed Submission")
+                    line("ReleaseDate", "2050-05-22")
+                    line()
+                    line("Study")
+                    line()
+                    line("File", "file_5-5-1.txt")
+                    line()
+                }.toString()
+
+            assertThat(onBehalfClient.submitSingle(version2, TSV)).isSuccessful()
+
+            val submittedV2 = submissionRepository.getExtByAccNo("S-RSTST5")
+
+            assertThat(File("$ftpPath/${submittedV2.relPath}/Files/file_5-5-1.txt")).doesNotExist()
+            assertThat(File("$ftpPath/${submittedV2.relPath}/Files/file_5-5-2.txt")).doesNotExist()
+            val submissionFilesV2 = FileUtils.listAllFiles(File("$submissionPath/${submittedV2.relPath}/Files"))
+            val expectedFileV2 = File("$submissionPath/${submittedV2.relPath}/Files/file_5-5-1.txt")
+            assertThat(submissionFilesV2).containsOnly(expectedFileV2)
+            assertThat(expectedFileV2).hasContent("5-5-1 file content")
+        }
 
     @Test
     fun `5-6 add metadata to a public submission`() =

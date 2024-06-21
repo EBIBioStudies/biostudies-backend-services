@@ -13,7 +13,7 @@ class UnPublishHandler(
     override val urlPattern: Regex = "$FIRE_BASE_URL/(.*)/publish".toRegex()
 
     override fun handle(rqt: Request): ResponseDefinition {
-        fireDB.unpublish(urlPattern.getGroup(rqt.url, 1))
-        return ResponseDefinition.ok()
+        val file = fireDB.unpublish(urlPattern.getGroup(rqt.url, 1))
+        return ResponseDefinition.okForJson(file)
     }
 }

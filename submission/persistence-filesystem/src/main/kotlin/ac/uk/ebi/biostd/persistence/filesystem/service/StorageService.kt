@@ -41,6 +41,16 @@ class StorageService(
         }
     }
 
+    override suspend fun suppressSubmissionFile(
+        sub: ExtSubmissionInfo,
+        file: ExtFile,
+    ): ExtFile {
+        return when (sub.storageMode) {
+            FIRE -> fireFtpService.unReleaseSubmissionFile(sub, file)
+            NFS -> nfsFtpService.unReleaseSubmissionFile(sub, file)
+        }
+    }
+
     override suspend fun deleteSubmissionFile(
         sub: ExtSubmissionInfo,
         file: ExtFile,

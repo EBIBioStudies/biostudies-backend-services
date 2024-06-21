@@ -33,10 +33,10 @@ class SubmissionRequestProcessor(
         version: Int,
         processId: String,
     ) {
-        requestService.onRequest(accNo, version, CLEANED, processId, {
+        requestService.onRequest(accNo, version, CLEANED, processId) {
             processRequest(it.submission)
             RqtUpdate(it.withNewStatus(FILES_COPIED))
-        })
+        }
         eventsPublisherService.requestFilesCopied(accNo, version)
     }
 

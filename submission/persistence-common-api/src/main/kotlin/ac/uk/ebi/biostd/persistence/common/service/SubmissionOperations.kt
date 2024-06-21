@@ -60,6 +60,8 @@ interface SubmissionPersistenceQueryService {
 
     suspend fun getExtendedSubmissions(filter: SubmissionFilter): Page<ExtSubmission>
 
+    suspend fun findCoreInfo(accNo: String): ExtSubmissionInfo?
+
     suspend fun getCoreInfoByAccNoAndVersion(
         accNo: String,
         version: Int,

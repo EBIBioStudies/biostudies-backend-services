@@ -76,10 +76,11 @@ class FireMockDatabase(
         return recordsById.getValue(fireOid).toFile()
     }
 
-    fun unpublish(fireOid: String) {
+    fun unpublish(fireOid: String): FireApiFile {
         val record = recordsById.getValue(fireOid)
         recordsById[fireOid] = record.copy(published = false)
         if (record.firePath != null) fileSystem.unpublish(record.firePath)
+        return recordsById.getValue(fireOid).toFile()
     }
 
     fun findByMd5(md5: String): List<FireApiFile> = recordsById.values.map { it.toFile() }.filter { it.objectMd5 == md5 }

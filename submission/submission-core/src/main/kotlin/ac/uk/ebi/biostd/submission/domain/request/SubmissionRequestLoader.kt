@@ -43,10 +43,10 @@ class SubmissionRequestLoader(
         version: Int,
         processId: String,
     ) {
-        requestService.onRequest(accNo, version, INDEXED, processId, {
+        requestService.onRequest(accNo, version, INDEXED, processId) {
             loadRequest(it.submission)
             RqtUpdate(it.withNewStatus(LOADED))
-        })
+        }
         eventsPublisherService.requestLoaded(accNo, version)
     }
 

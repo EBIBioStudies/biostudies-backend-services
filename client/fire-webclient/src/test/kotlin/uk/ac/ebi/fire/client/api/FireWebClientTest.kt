@@ -212,14 +212,13 @@ class FireWebClientTest(
     @Test
     fun unpublish() =
         runTest {
-            every { response.statusCode() } returns OK
-            every { client.delete().uri("/objects/the-fire-oid/publish").exchange() } returns Mono.just(response)
+            every {
+                client.delete().uri("/objects/the-fire-oid/publish").retrieve().bodyToMono<FireApiFile>()
+            } returns Mono.just(fireFile)
 
-            testInstance.unpublish("the-fire-oid")
+            val response = testInstance.unpublish("the-fire-oid")
 
-            verify(exactly = 1) {
-                client.delete().uri("/objects/the-fire-oid/publish").exchange()
-            }
+            assertThat(response).isEqualTo(fireFile)
         }
 
     @Test
