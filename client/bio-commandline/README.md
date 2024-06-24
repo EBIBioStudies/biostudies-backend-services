@@ -12,7 +12,7 @@ command line jar under `build/libs` folder.
 ### Submit
 Make a submission to BioStudies
 
-`java -jar build/libs/BioStudiesCLI-2.0.jar submitAsync -s <server> -u <user> -p <password> -i <page tab input> -a <files>`
+`java -jar build/libs/BioStudiesCLI-2.0.jar submit -s <server> -u <user> -p <password> -i <page tab input> -a <files>`
 
 #### Arguments
 * **s or --server:** BioStudies instance URL.
@@ -24,6 +24,7 @@ Make a submission to BioStudies
 * **ps or --preferredSource:** Comma separated list of file sources. Valid values are FIRE, SUBMISSION and USER_SPACE.
   The order of the list indicates the priority in which the sources will be used
 * **sm or --storageMode:** Submission storage mode. Determines where submission need to be saved FIRE/NFS
+* **aw or --await:** Indicates whether to wait for the submission processing
 
 **Notes:**
 
@@ -112,7 +113,7 @@ java -jar build/libs/BioStudiesCLI-2.0.jar validateFileList \
 Grants the specified permissions for the given user in the given collection.
 
 ```
-java -jar BioStudiesCLI-2.0.jar grantCollectionPermission \
+java -jar BioStudiesCLI-2.0.jar grantPermission \
 -s <server> \
 -u <user> \
 -p <password> \

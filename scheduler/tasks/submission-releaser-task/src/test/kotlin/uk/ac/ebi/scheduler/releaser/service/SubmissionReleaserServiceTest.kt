@@ -1,10 +1,10 @@
 package uk.ac.ebi.scheduler.releaser.service
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionReleaserRepository
 import ac.uk.ebi.biostd.persistence.doc.db.reactive.repositories.SubmissionRequestRepository
 import ac.uk.ebi.biostd.persistence.doc.db.repositories.ReleaseData
+import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.util.date.asOffsetAtEndOfDay
 import ebi.ac.uk.util.date.toDate
 import io.mockk.clearAllMocks

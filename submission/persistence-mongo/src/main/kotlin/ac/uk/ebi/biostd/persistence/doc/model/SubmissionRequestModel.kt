@@ -1,9 +1,9 @@
 package ac.uk.ebi.biostd.persistence.doc.model
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocRequestFields
 import com.mongodb.DBObject
+import ebi.ac.uk.model.RequestStatus
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document

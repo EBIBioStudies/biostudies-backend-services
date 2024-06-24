@@ -1,6 +1,5 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
@@ -9,6 +8,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ebi.ac.uk.base.Either.Companion.left
 import ebi.ac.uk.extended.model.ExtSection
 import ebi.ac.uk.extended.model.NfsFile
+import ebi.ac.uk.model.RequestStatus
 import ebi.ac.uk.test.basicExtSubmission
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
@@ -18,7 +18,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.slot
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -26,7 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestIndexerTest(
     private val tempFolder: TemporaryFolder,

@@ -1,9 +1,6 @@
 package ac.uk.ebi.biostd.persistence.doc.service
 
 import ac.uk.ebi.biostd.persistence.common.exception.ConcurrentSubException
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.Companion.PROCESSING
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.OptResponse
@@ -12,6 +9,9 @@ import ac.uk.ebi.biostd.persistence.doc.db.data.ProcessResult
 import ac.uk.ebi.biostd.persistence.doc.db.data.SubmissionRequestDocDataRepository
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
 import com.mongodb.BasicDBObject
+import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.Companion.PROCESSING
+import ebi.ac.uk.model.RequestStatus.PROCESSED
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import mu.KotlinLogging

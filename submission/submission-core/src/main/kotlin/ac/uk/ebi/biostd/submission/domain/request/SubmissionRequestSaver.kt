@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CHECK_RELEASED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
 import ac.uk.ebi.biostd.persistence.common.service.RqtResponse
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.copyWithAttributes
+import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
+import ebi.ac.uk.model.RequestStatus.PERSISTED
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService

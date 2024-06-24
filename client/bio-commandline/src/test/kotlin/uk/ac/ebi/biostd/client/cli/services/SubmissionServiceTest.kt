@@ -10,7 +10,7 @@ import com.github.ajalt.clikt.core.PrintMessage
 import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
-import ebi.ac.uk.model.Submission
+import ebi.ac.uk.model.RequestStatus.PROCESSED
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -60,15 +60,16 @@ internal class SubmissionServiceTest {
         }
 
     @Test
-    fun `submit async`() {
-        val accepted = AcceptedSubmission("S-BSST1", 2)
+    fun `submit with timeout`() =
+        runTest {
+            val accepted = AcceptedSubmission("S-BSST1", 2)
 
         every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns webClient
         every {
             webClient.asyncSubmitSingle(subRequest.submissionFile, subRequest.filesConfig)
         } returns accepted
 
-        val response = testInstance.submitAsync(subRequest)
+            testInstance.submit(subRequest.copy(await = true))
 
         assertThat(response).isEqualTo(accepted)
         verify(exactly = 1) {
@@ -78,7 +79,6 @@ internal class SubmissionServiceTest {
                 subRequest.filesConfig,
             )
         }
-    }
 
     @Test
     fun `transfer submission`() {
@@ -179,7 +179,7 @@ internal class SubmissionServiceTest {
         private val securityConfig = SecurityConfig(SERVER, USER, PASSWORD, ON_BEHALF)
         private val filesConfig = SubmissionFilesConfig(listOf(mockk()), FIRE, listOf(SUBMISSION))
 
-        private val subRequest = SubmissionRequest(mockk(), securityConfig, filesConfig)
+        private val subRequest = SubmissionRequest(mockk(), false, securityConfig, filesConfig)
         private val deletionRequest = DeletionRequest(securityConfig, accNoList = listOf(ACC_NO))
         private val validateFileList = ValidateFileListRequest(FILE_LIST_PATH, ROOT_PATH, ACC_NO, securityConfig)
     }

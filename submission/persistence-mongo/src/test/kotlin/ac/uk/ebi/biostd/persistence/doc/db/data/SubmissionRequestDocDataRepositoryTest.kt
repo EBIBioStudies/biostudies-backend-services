@@ -1,7 +1,5 @@
 package ac.uk.ebi.biostd.persistence.doc.db.data
 
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.model.action
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbReposConfig
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmissionRequest
@@ -9,6 +7,8 @@ import com.mongodb.BasicDBObject
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
 import ebi.ac.uk.dsl.json.jsonObj
+import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.REQUESTED
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest

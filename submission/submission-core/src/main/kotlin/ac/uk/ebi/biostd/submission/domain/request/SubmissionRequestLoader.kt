@@ -1,8 +1,6 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -18,6 +16,8 @@ import ebi.ac.uk.extended.model.StorageMode.FIRE
 import ebi.ac.uk.io.ext.createTempFile
 import ebi.ac.uk.io.ext.md5
 import ebi.ac.uk.io.ext.size
+import ebi.ac.uk.model.RequestStatus.INDEXED
+import ebi.ac.uk.model.RequestStatus.LOADED
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.supervisorScope

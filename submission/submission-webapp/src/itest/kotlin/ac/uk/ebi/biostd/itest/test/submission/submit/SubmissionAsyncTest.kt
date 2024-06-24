@@ -5,15 +5,6 @@ import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.SuperUser
 import ac.uk.ebi.biostd.itest.itest.getWebClient
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.FILES_COPIED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.INDEXED_CLEANED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.LOADED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PERSISTED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.PROCESSED
-import ac.uk.ebi.biostd.persistence.common.model.RequestStatus.REQUESTED
 import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
@@ -25,8 +16,16 @@ import ebi.ac.uk.dsl.submission
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.extended.mapping.to.ToSubmissionMapper
+import ebi.ac.uk.model.RequestStatus
+import ebi.ac.uk.model.RequestStatus.CLEANED
+import ebi.ac.uk.model.RequestStatus.FILES_COPIED
+import ebi.ac.uk.model.RequestStatus.INDEXED
+import ebi.ac.uk.model.RequestStatus.INDEXED_CLEANED
+import ebi.ac.uk.model.RequestStatus.LOADED
+import ebi.ac.uk.model.RequestStatus.PERSISTED
+import ebi.ac.uk.model.RequestStatus.PROCESSED
+import ebi.ac.uk.model.RequestStatus.REQUESTED
 import ebi.ac.uk.model.extensions.title
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -44,7 +43,6 @@ import java.time.Duration.ofMillis
 
 @Import(FilePersistenceConfig::class)
 @ExtendWith(SpringExtension::class)
-@OptIn(ExperimentalCoroutinesApi::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SubmissionAsyncTest(
     @Autowired val securityTestService: SecurityTestService,
