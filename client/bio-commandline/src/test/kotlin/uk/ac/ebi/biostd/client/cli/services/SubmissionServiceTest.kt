@@ -12,11 +12,14 @@ import ebi.ac.uk.extended.model.StorageMode.NFS
 import ebi.ac.uk.io.sources.PreferredSource.SUBMISSION
 import ebi.ac.uk.model.Submission
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.AfterEach
@@ -40,28 +43,29 @@ internal class SubmissionServiceTest {
     fun beforeEach() = mockkObject(SecurityWebClient)
 
     @Test
-    fun submit() {
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
-        every {
-            bioWebClient.submitSingle(subRequest.submissionFile, subRequest.filesConfig).body
-        } returns submission
+    fun submit(): Unit =
+        runTest {
+            every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns webClient
+            coEvery {
+                webClient.submitSingle(subRequest.submissionFile, subRequest.filesConfig).body
+            } returns submission
 
-        val submitted = testInstance.submit(subRequest)
+            val submitted = testInstance.submit(subRequest)
 
-        assertThat(submitted).isEqualTo(submission)
-        verify(exactly = 1) {
-            create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.submitSingle(subRequest.submissionFile, subRequest.filesConfig)
+            assertThat(submitted).isEqualTo(submission)
+            coVerify(exactly = 1) {
+                create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
+                webClient.submitSingle(subRequest.submissionFile, subRequest.filesConfig)
+            }
         }
-    }
 
     @Test
     fun `submit async`() {
         val accepted = AcceptedSubmission("S-BSST1", 2)
 
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
+        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns webClient
         every {
-            bioWebClient.asyncSubmitSingle(subRequest.submissionFile, subRequest.filesConfig)
+            webClient.asyncSubmitSingle(subRequest.submissionFile, subRequest.filesConfig)
         } returns accepted
 
         val response = testInstance.submitAsync(subRequest)
@@ -69,7 +73,7 @@ internal class SubmissionServiceTest {
         assertThat(response).isEqualTo(accepted)
         verify(exactly = 1) {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.asyncSubmitSingle(
+            webClient.asyncSubmitSingle(
                 subRequest.submissionFile,
                 subRequest.filesConfig,
             )
@@ -81,27 +85,27 @@ internal class SubmissionServiceTest {
         val securityConfig = SecurityConfig(SERVER, USER, PASSWORD)
         val request = TransferRequest(ACC_NO, NFS, securityConfig)
 
-        every { bioWebClient.transferSubmission(ACC_NO, NFS) } answers { nothing }
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns bioWebClient
+        every { webClient.transferSubmission(ACC_NO, NFS) } answers { nothing }
+        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD) } returns webClient
 
         testInstance.transfer(request)
 
         verify(exactly = 1) {
-            bioWebClient.transferSubmission(ACC_NO, NFS)
+            webClient.transferSubmission(ACC_NO, NFS)
             create(SERVER).getAuthenticatedClient(USER, PASSWORD)
         }
     }
 
     @Test
     fun `delete successful`() {
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
-        every { bioWebClient.deleteSubmissions(deletionRequest.accNoList) } answers { nothing }
+        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns webClient
+        every { webClient.deleteSubmissions(deletionRequest.accNoList) } answers { nothing }
 
         testInstance.delete(deletionRequest)
 
         verify(exactly = 1) {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.deleteSubmissions(deletionRequest.accNoList)
+            webClient.deleteSubmissions(deletionRequest.accNoList)
         }
     }
 
@@ -148,14 +152,14 @@ internal class SubmissionServiceTest {
     @Test
     fun `validate file list`() {
         val (fileListPath, accNo, rootPath) = validateFileList
-        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns bioWebClient
-        every { bioWebClient.validateFileList(fileListPath, rootPath, accNo) } answers { nothing }
+        every { create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF) } returns webClient
+        every { webClient.validateFileList(fileListPath, rootPath, accNo) } answers { nothing }
 
         testInstance.validateFileList(validateFileList)
 
         verify(exactly = 1) {
             create(SERVER).getAuthenticatedClient(USER, PASSWORD, ON_BEHALF)
-            bioWebClient.validateFileList(fileListPath, rootPath, accNo)
+            webClient.validateFileList(fileListPath, rootPath, accNo)
         }
     }
 
@@ -171,7 +175,7 @@ internal class SubmissionServiceTest {
 
         private val webClientException: WebClientException = mockk()
         private val submission: Submission = mockk()
-        private val bioWebClient: BioWebClient = mockk()
+        private val webClient: BioWebClient = mockk()
         private val securityConfig = SecurityConfig(SERVER, USER, PASSWORD, ON_BEHALF)
         private val filesConfig = SubmissionFilesConfig(listOf(mockk()), FIRE, listOf(SUBMISSION))
 

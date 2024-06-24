@@ -10,7 +10,7 @@ import uk.ac.ebi.biostd.client.cli.dto.ValidateFileListRequest
 
 @Suppress("TooManyFunctions")
 internal class SubmissionService {
-    fun submit(rqt: SubmissionRequest): Submission =
+    suspend fun submit(rqt: SubmissionRequest): Submission =
         performRequest {
             val client = bioWebClient(rqt.securityConfig)
             return client.submitSingle(rqt.submissionFile, rqt.filesConfig).body

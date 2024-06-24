@@ -11,6 +11,7 @@ import TestDependencies.AssertJ
 import TestDependencies.Junit
 import TestDependencies.Junit5Console
 import TestDependencies.JunitExtensions
+import TestDependencies.KotlinCoroutinesTest
 import TestDependencies.KotlinTestJunit
 import TestDependencies.MockK
 
@@ -32,6 +33,7 @@ dependencies {
 
     testImplementation(testFixtures(project(CommonsModelExtendedSerialization)))
     testImplementation(Junit)
+    testImplementation(KotlinCoroutinesTest)
     testImplementation(JunitExtensions)
     testImplementation(AssertJ)
     testImplementation(MockK)

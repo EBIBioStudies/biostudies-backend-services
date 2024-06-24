@@ -266,21 +266,21 @@ interface SubmitOperations {
 }
 
 interface MultipartSubmitOperations {
-    fun submitSingle(
-        submission: String,
+    suspend fun submitSingle(
+        sub: String,
         format: SubmissionFormat,
-        filesConfig: SubmissionFilesConfig,
+        config: SubmissionFilesConfig,
     ): SubmissionResponse
 
-    fun submitSingle(
-        submission: Submission,
+    suspend fun submitSingle(
+        sub: Submission,
         format: SubmissionFormat,
-        filesConfig: SubmissionFilesConfig,
+        config: SubmissionFilesConfig,
     ): SubmissionResponse
 
-    fun submitSingle(
-        submission: File,
-        filesConfig: SubmissionFilesConfig,
+    suspend fun submitSingle(
+        sub: File,
+        config: SubmissionFilesConfig,
         attrs: Map<String, String> = emptyMap(),
     ): SubmissionResponse
 }
