@@ -40,7 +40,7 @@ internal class MultiPartSubmitClient(
                 FileSystemResource(sub),
                 attrs.entries.map { ATTRIBUTES to ExtAttributeDetail(it.key, it.value) },
             )
-        return submit(headers, body)
+        return submit("/submissions/direct", headers, body)
     }
 
     override suspend fun submitSingle(
@@ -50,7 +50,7 @@ internal class MultiPartSubmitClient(
     ): SubmissionResponse {
         val headers = createHeaders(format)
         val body = multipartBody(config, sub)
-        return submit(headers, body)
+        return submit("/submissions", headers, body)
     }
 
     override suspend fun submitSingle(
@@ -61,13 +61,13 @@ internal class MultiPartSubmitClient(
         val headers = createHeaders(format)
         val serializedSubmission = serializationService.serializeSubmission(sub, format.asSubFormat())
         val body = multipartBody(config, serializedSubmission)
-        return submit(headers, body)
+        return submit("/submissions", headers, body)
     }
 
     private suspend fun submit(
+        url: String,
         headers: HttpHeaders,
         body: LinkedMultiValueMap<String, Any>,
-        url: String = "/submissions",
     ): SubmissionResponse {
         val response =
             client.post()

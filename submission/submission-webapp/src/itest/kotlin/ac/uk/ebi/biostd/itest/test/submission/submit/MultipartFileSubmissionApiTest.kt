@@ -111,10 +111,10 @@ class MultipartFileSubmissionApiTest(
                         }
                     }
                 }
+            val config = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("SomeFile.txt")), storageMode)
 
-            val filesConfig =
-                SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("SomeFile.txt")), storageMode)
-            val response = webClient.submitSingle(excelPageTab, filesConfig)
+            val response = webClient.submitSingle(excelPageTab, config)
+
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-EXC123", "SomeFile.txt")
             fileList.delete()
