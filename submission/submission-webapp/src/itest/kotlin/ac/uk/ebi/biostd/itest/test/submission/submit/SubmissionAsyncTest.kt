@@ -74,10 +74,10 @@ class SubmissionAsyncTest(
                     line()
                 }.toString()
 
-            webClient.submitAsync(submission, TSV)
+            val (accNo, version) = webClient.submitAsync(submission, TSV)
 
             waitUntil(ONE_MINUTE) {
-                submissionRepository.existByAccNoAndVersion("SimpleAsync1", 1)
+                submissionRepository.existByAccNoAndVersion(accNo, version)
             }
 
             val saved = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("SimpleAsync1"))
