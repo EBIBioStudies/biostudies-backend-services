@@ -17,7 +17,9 @@ internal class SubmissionService {
         performRequest {
             val client = bioWebClient(request.securityConfig)
             val (accNo, version) = client.asyncSubmitSingle(request.submissionFile, request.filesConfig)
+
             echo("SUCCESS: Submission $accNo, version: $version is in queue to be processed")
+
             if (request.await) client.waitForSubmission(accNo, version)
         }
 
