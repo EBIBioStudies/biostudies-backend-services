@@ -35,11 +35,8 @@ class SubmissionService(
         val (accNo, version) = submissionSubmitter.createRequest(rqt)
         eventsPublisherService.requestCreated(accNo, version)
 
-        return waitUntil(
-            ofMinutes(SYNC_SUBMIT_TIMEOUT),
-            conditionEvaluator = { requestQueryService.isRequestCompleted(accNo, version) },
-            processFunction = { queryService.getExtByAccNo(accNo) },
-        )
+        waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { requestQueryService.isRequestCompleted(accNo, version) }
+        return queryService.getExtByAccNo(accNo)
     }
 
     suspend fun submitAsync(rqt: SubmitRequest): AcceptedSubmission {

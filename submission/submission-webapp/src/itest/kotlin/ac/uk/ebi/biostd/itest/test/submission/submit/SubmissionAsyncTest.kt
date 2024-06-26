@@ -29,7 +29,7 @@ import ebi.ac.uk.model.extensions.title
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.awaitility.Durations.ONE_MINUTE
+import org.awaitility.Durations.ONE_SECOND
 import org.awaitility.Durations.TWO_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -62,7 +62,7 @@ class SubmissionAsyncTest(
         }
 
     @Test
-    fun `19-1 simple submit async`() =
+    fun `19-1 simple submit async`(): Unit =
         runTest {
             val submission =
                 tsv {
@@ -74,11 +74,8 @@ class SubmissionAsyncTest(
                     line()
                 }.toString()
 
-            webClient.submitAsync(submission, TSV)
-
-            waitUntil(ONE_MINUTE) {
-                submissionRepository.existByAccNoAndVersion("SimpleAsync1", 1)
-            }
+            val (accNo, version) = webClient.submitAsync(submission, TSV)
+            waitUntil(timeout = ONE_SECOND) { submissionRepository.existByAccNoAndVersion(accNo, version) }
 
             val saved = toSubmissionMapper.toSimpleSubmission(submissionRepository.getExtByAccNo("SimpleAsync1"))
             assertThat(saved).isEqualTo(
@@ -112,7 +109,7 @@ class SubmissionAsyncTest(
             assertThat(statusAfterCreation).isEqualTo(REQUESTED)
 
             suspend fun assertStageExecution(status: RequestStatus) {
-                waitUntil(interval = ofMillis(10), duration = TWO_SECONDS) {
+                waitUntil(checkInterval = ofMillis(10), timeout = TWO_SECONDS) {
                     requestRepository.getRequestStatus("SimpleAsync2", 2) == status
                 }
             }
