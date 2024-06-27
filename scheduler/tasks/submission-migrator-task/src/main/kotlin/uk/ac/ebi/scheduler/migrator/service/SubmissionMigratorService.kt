@@ -37,8 +37,8 @@ class SubmissionMigratorService(
             logger.info { "Started migrating submission ${migrationData.accNo} to FIRE" }
             bioWebClient.transferSubmission(migrationData.accNo, FIRE)
             waitUntil(
-                duration = ofMinutes(properties.await),
-                interval = ofSeconds(properties.delay),
+                timeout = ofMinutes(properties.await),
+                checkInterval = ofSeconds(properties.delay),
             ) { migratorRepository.isMigrated(migrationData.accNo) }
         }
 

@@ -108,10 +108,7 @@ class ExtendedSubmissionSubmitter(
         stageTrigger: suspend () -> Unit,
     ): ExtSubmission {
         stageTrigger()
-        return waitUntil(
-            ofMinutes(SYNC_SUBMIT_TIMEOUT),
-            conditionEvaluator = { queryService.existByAccNoAndVersion(accNo, version) },
-            processFunction = { queryService.getExtByAccNo(accNo) },
-        )
+        waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { queryService.existByAccNoAndVersion(accNo, version) }
+        return queryService.getExtByAccNo(accNo)
     }
 }

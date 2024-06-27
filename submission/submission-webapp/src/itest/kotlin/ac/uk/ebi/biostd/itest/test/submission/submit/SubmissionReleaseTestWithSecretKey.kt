@@ -144,7 +144,12 @@ class SubmissionReleaseTestWithSecretKey(
 
             val (rqtAccNo, rqtVersion) = webClient.releaseSubmission(accNo, newRelease.toInstant())
 
-            waitUntil(Duration.ofSeconds(10)) { submissionRepository.existByAccNoAndVersion(rqtAccNo, rqtVersion) }
+            waitUntil(timeout = Duration.ofSeconds(10)) {
+                submissionRepository.existByAccNoAndVersion(
+                    rqtAccNo,
+                    rqtVersion,
+                )
+            }
             val newVersion = submissionRepository.getExtByAccNo(accNo)
             Assertions.assertThat(newVersion.releaseTime).isEqualTo(newRelease.atMidnight())
             Assertions.assertThat(newVersion.released).isEqualTo(true)

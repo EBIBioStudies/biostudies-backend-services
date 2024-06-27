@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.client.cli.services
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import com.github.ajalt.clikt.output.TermUi.echo
+import ebi.ac.uk.coroutines.FOREVER
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
@@ -17,7 +18,6 @@ internal class SubmissionService {
         performRequest {
             val client = bioWebClient(request.securityConfig)
             val (accNo, version) = client.asyncSubmitSingle(request.submissionFile, request.filesConfig)
-
             echo("SUCCESS: Submission $accNo, version: $version is in queue to be processed")
 
             if (request.await) client.waitForSubmission(accNo, version)
@@ -28,14 +28,12 @@ internal class SubmissionService {
         version: Int,
     ) {
         waitUntil(
-            interval = ofSeconds(CHECK_INTERVAL),
+            checkInterval = ofSeconds(CHECK_INTERVAL),
+            timeout = FOREVER,
         ) {
             val status = getSubmissionRequestStatus(accNo, version)
-            val isProcessed = status == PROCESSED
-
-            if (isProcessed.not()) echo("INFO: Waiting for submission to be processed")
-
-            isProcessed
+            echo("INFO: Waiting for submission to be PROCESSED. Current status: $status")
+            return@waitUntil status == PROCESSED
         }
 
         echo("SUCCESS: Submission $accNo, version: $version is processed")
