@@ -65,8 +65,8 @@ class RemoteClusterClient(
         return runInSession {
             var status: String = PEND_STATUS
             waitUntil(
-                interval = ofSeconds(checkJobInterval),
-                duration = ofSeconds(maxSecondsDuration),
+                checkInterval = ofSeconds(checkJobInterval),
+                timeout = ofSeconds(maxSecondsDuration),
             ) {
                 status = jobStatus(job.id)
                 val executionFinished = status == DONE_STATUS || status == EXIT_STATUS

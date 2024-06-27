@@ -116,7 +116,7 @@ class SubmissionStatsTest(
             webClient.uploadFiles(listOf(tempFolder.createFile("statsFile3.pdf", "pdf content")), "a")
 
             assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
-            waitUntil(TEN_SECONDS) { statsDataService.findByAccNo("S-STTS1").isNotEmpty() }
+            waitUntil(timeout = TEN_SECONDS) { statsDataService.findByAccNo("S-STTS1").isNotEmpty() }
 
             val statVersion1 = statsDataService.findByAccNo("S-STTS1")
             assertThat(statVersion1).hasSize(1)
@@ -125,7 +125,7 @@ class SubmissionStatsTest(
             assertThat(statVersion1.first().accNo).isEqualTo("S-STTS1")
 
             assertThat(webClient.submitSingle(version2, TSV)).isSuccessful()
-            waitUntil(TEN_SECONDS) { statsDataService.findByAccNo("S-STTS1").first().value != 576L }
+            waitUntil(timeout = TEN_SECONDS) { statsDataService.findByAccNo("S-STTS1").first().value != 576L }
             val stats = statsDataService.findByAccNo("S-STTS1")
             assertThat(stats).hasSize(1)
             assertThat(stats.first().value).isEqualTo(1647L)
@@ -194,7 +194,7 @@ class SubmissionStatsTest(
             webClient.uploadFiles(listOf(tempFolder.createFile("statsFile3.pdf", "pdf content")), "a")
 
             assertThat(webClient.submitSingle(version1, TSV, NFS)).isSuccessful()
-            waitUntil(TEN_SECONDS) { statsDataService.findByAccNo("S-STTS2").isNotEmpty() }
+            waitUntil(timeout = TEN_SECONDS) { statsDataService.findByAccNo("S-STTS2").isNotEmpty() }
             val statVersion1 = statsDataService.findByAccNo("S-STTS2")
             assertThat(statVersion1).hasSize(1)
             assertThat(statVersion1.first().value).isEqualTo(574L)
