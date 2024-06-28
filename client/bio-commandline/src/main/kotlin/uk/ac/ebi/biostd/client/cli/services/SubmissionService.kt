@@ -14,7 +14,7 @@ import java.time.Duration.ofSeconds
 
 @Suppress("TooManyFunctions")
 internal class SubmissionService {
-    suspend fun submit(request: SubmissionRequest) =
+    suspend fun submit(request: SubmissionRequest): Unit =
         performRequest {
             val client = bioWebClient(request.securityConfig)
             val (accNo, version) = client.asyncSubmitSingle(request.submissionFile, request.filesConfig)

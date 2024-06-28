@@ -94,42 +94,43 @@ class FileListValidationTest(
     }
 
     @Test
-    fun `11-4 valid file list`() {
-        val previousVersion =
-            tsv {
-                line("Submission", "S-FLV123")
-                line()
+    fun `11-4 valid file list`() =
+        runTest {
+            val previousVersion =
+                tsv {
+                    line("Submission", "S-FLV123")
+                    line()
 
-                line("Study")
-                line()
+                    line("Study")
+                    line()
 
-                line("File", "File2.tif")
-                line()
-            }.toString()
+                    line("File", "File2.tif")
+                    line()
+                }.toString()
 
-        val file1 = tempFolder.createFile("File1.tif", "content-1")
-        val file2 = tempFolder.createFile("File2.tif", "content-2")
-        val fileListContent =
-            tsv {
-                line("Files")
-                line("File1.tif")
-                line("File2.tif")
-                line()
-            }.toString()
+            val file1 = tempFolder.createFile("File1.tif", "content-1")
+            val file2 = tempFolder.createFile("File2.tif", "content-2")
+            val fileListContent =
+                tsv {
+                    line("Files")
+                    line("File1.tif")
+                    line("File2.tif")
+                    line()
+                }.toString()
 
-        val fileList = tempFolder.createFile("ValidFileList.tsv", fileListContent)
+            val fileList = tempFolder.createFile("ValidFileList.tsv", fileListContent)
 
-        webClient.uploadFiles(listOf(file1, fileList))
-        webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file2), storageMode))
+            webClient.uploadFiles(listOf(file1, fileList))
+            webClient.submitSingle(previousVersion, TSV, SubmissionFilesConfig(listOf(file2), storageMode))
 
-        webClient.validateFileList(fileList.name, accNo = "S-FLV123")
+            webClient.validateFileList(fileList.name, accNo = "S-FLV123")
 
-        webClient.deleteFile(file1.name)
-        webClient.deleteFile(fileList.name)
+            webClient.deleteFile(file1.name)
+            webClient.deleteFile(fileList.name)
 
-        file1.delete()
-        file2.delete()
-    }
+            file1.delete()
+            file2.delete()
+        }
 
     @Test
     fun `11-6 valid file list with root path`() {

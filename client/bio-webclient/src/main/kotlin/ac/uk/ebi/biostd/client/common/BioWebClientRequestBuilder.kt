@@ -12,6 +12,7 @@ import org.springframework.util.LinkedMultiValueMap
 internal fun multipartBody(
     filesConfig: SubmissionFilesConfig,
     submission: Any,
+    attributes: List<Pair<String, Any>> = emptyList(),
 ): LinkedMultiValueMap<String, Any> {
     val (files, storageMode, sources) = filesConfig
     val pairs =
@@ -19,5 +20,6 @@ internal fun multipartBody(
             .plus(sources.map { PREFERRED_SOURCES to it.name })
             .plus(STORAGE_MODE to storageMode.value)
             .plus(SUBMISSION to submission)
+            .plus(attributes)
     return linkedMultiValueMapOf(pairs)
 }

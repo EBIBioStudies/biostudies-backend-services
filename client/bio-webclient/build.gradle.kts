@@ -1,4 +1,6 @@
 import Dependencies.JSONOrg
+import Dependencies.KotlinCoroutines
+import Dependencies.KotlinCoroutinesReactive
 import Dependencies.KotlinReflect
 import Dependencies.KotlinStdLib
 import Dependencies.ReactorNetty
@@ -25,6 +27,8 @@ dependencies {
     api(project(CommonsSerialization))
     api(project(CommonsModelExtendedSerialization))
 
+    implementation(KotlinCoroutines)
+    implementation(KotlinCoroutinesReactive)
     implementation(KotlinReflect)
     implementation(KotlinStdLib)
     implementation(JSONOrg)
