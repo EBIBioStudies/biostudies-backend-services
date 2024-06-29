@@ -82,9 +82,8 @@ internal class SubmissionRequestSaverTest(
             submission
         }
 
-        val response = testInstance.saveRequest(ACC_NO, VERSION, PROCESS_ID)
+        testInstance.saveRequest(ACC_NO, VERSION, PROCESS_ID)
 
-        assertThat(response).isEqualTo(submission)
         assertThat(newFile).isEqualTo(updatedSubFile)
         coVerify(exactly = 1) {
             eventsPublisherService.submissionSubmitted(ACC_NO, notifyTo)

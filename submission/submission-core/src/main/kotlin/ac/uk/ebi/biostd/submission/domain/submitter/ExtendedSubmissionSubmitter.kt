@@ -96,8 +96,8 @@ class ExtendedSubmissionSubmitter(
             INDEXED_CLEANED -> triggerAndWait(accNo, version) { cleanRequest(accNo, version) }
             CLEANED -> triggerAndWait(accNo, version) { processRequest(accNo, version) }
             FILES_COPIED -> triggerAndWait(accNo, version) { checkReleased(accNo, version) }
-            CHECK_RELEASED -> localExtSubmissionSubmitter.saveAndFinalize(accNo, version)
-            PERSISTED -> finalizeRequest(accNo, version)
+            CHECK_RELEASED -> triggerAndWait(accNo, version) { localExtSubmissionSubmitter.saveRequest(accNo, version) }
+            PERSISTED -> triggerAndWait(accNo, version) { finalizeRequest(accNo, version) }
             PROCESSED -> error("Request accNo=$accNo, version=$version has been already processed")
         }
     }

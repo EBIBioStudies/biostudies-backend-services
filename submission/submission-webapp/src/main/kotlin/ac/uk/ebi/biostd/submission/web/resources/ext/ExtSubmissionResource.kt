@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.submission.converters.BioUser
 import ac.uk.ebi.biostd.submission.domain.extended.ExtPageRequest
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.ExtFileTable
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -87,10 +88,11 @@ class ExtSubmissionResource(
     suspend fun submitExtendedAsync(
         @BioUser user: SecurityUser,
         @RequestParam(SUBMISSION) extSubmission: String,
-    ) = extSubmissionService.submitExtAsync(
-        user.email,
-        extSerializationService.deserialize(extSubmission),
-    )
+    ): AcceptedSubmission =
+        extSubmissionService.submitExtAsync(
+            user.email,
+            extSerializationService.deserialize(extSubmission),
+        )
 
     @GetMapping
     suspend fun submissions(

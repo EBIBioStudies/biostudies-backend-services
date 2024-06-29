@@ -23,22 +23,6 @@ internal class SubmissionService {
             if (request.await) client.waitForSubmission(accNo, version)
         }
 
-    private suspend fun BioWebClient.waitForSubmission(
-        accNo: String,
-        version: Int,
-    ) {
-        waitUntil(
-            checkInterval = ofSeconds(CHECK_INTERVAL),
-            timeout = FOREVER,
-        ) {
-            val status = getSubmissionRequestStatus(accNo, version)
-            echo("INFO: Waiting for submission to be PROCESSED. Current status: $status")
-            return@waitUntil status == PROCESSED
-        }
-
-        echo("SUCCESS: Submission $accNo, version: $version is processed")
-    }
-
     fun transfer(request: TransferRequest) =
         performRequest {
             val client = bioWebClient(request.securityConfig)
@@ -73,5 +57,21 @@ internal class SubmissionService {
 
     companion object {
         private const val CHECK_INTERVAL = 20L
+    }
+
+    private suspend fun BioWebClient.waitForSubmission(
+        accNo: String,
+        version: Int,
+    ) {
+        waitUntil(
+            checkInterval = ofSeconds(CHECK_INTERVAL),
+            timeout = FOREVER,
+        ) {
+            val status = getSubmissionRequestStatus(accNo, version)
+            echo("INFO: Waiting for submission to be PROCESSED. Current status: $status")
+            return@waitUntil status == PROCESSED
+        }
+
+        echo("SUCCESS: Submission $accNo, version: $version is processed")
     }
 }

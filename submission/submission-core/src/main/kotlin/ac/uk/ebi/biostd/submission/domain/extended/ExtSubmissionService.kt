@@ -5,6 +5,7 @@ import ac.uk.ebi.biostd.persistence.common.request.ExtSubmitRequest
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.exception.UserNotFoundException
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
+import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
@@ -78,11 +79,12 @@ class ExtSubmissionService(
     suspend fun submitExtAsync(
         user: String,
         sub: ExtSubmission,
-    ) {
+    ): AcceptedSubmission {
         logger.info { "${sub.accNo} $user Received async submit request for ext submission ${sub.accNo}" }
         val submission = processSubmission(user, sub)
         val (accNo, version) = submissionSubmitter.createRequest(ExtSubmitRequest(submission, submission.submitter))
         eventsPublisherService.submissionRequest(accNo, version)
+        return AcceptedSubmission(accNo, version)
     }
 
     suspend fun transferSubmission(

@@ -68,14 +68,14 @@ class RemoteExtSubmissionSubmitter(
     override suspend fun saveRequest(
         accNo: String,
         version: Int,
-    ): ExtSubmission {
+    ) {
         TODO("Remote execution not required")
     }
 
     override suspend fun finalizeRequest(
         accNo: String,
         version: Int,
-    ): ExtSubmission {
+    ) {
         TODO("Remote execution not required")
     }
 
