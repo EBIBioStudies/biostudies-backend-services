@@ -18,6 +18,8 @@ import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
 import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
+import ebi.ac.uk.model.RequestStatus.INDEXED
+import ebi.ac.uk.model.RequestStatus.INDEXED_CLEANED
 import ebi.ac.uk.model.RequestStatus.LOADED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
@@ -167,7 +169,7 @@ internal class LocalExtSubmissionSubmitterTest(
         @Test
         fun `save request`() =
             runTest {
-                coEvery { requestSaver.saveRequest(ACC_NO, VERSION, INSTANCE_ID) } returns sub
+                coEvery { requestSaver.saveRequest(ACC_NO, VERSION, INSTANCE_ID) } answers { nothing }
 
                 testInstance.saveRequest(ACC_NO, VERSION)
 
@@ -180,9 +182,8 @@ internal class LocalExtSubmissionSubmitterTest(
                 coEvery { requestCleaner.finalizeRequest(ACC_NO, VERSION, INSTANCE_ID) } answers { nothing }
                 coEvery { subQueryService.getExtendedSubmission(ACC_NO, includeFileListFiles = false) } returns sub
 
-                val result = testInstance.finalizeRequest(ACC_NO, VERSION)
+                testInstance.finalizeRequest(ACC_NO, VERSION)
 
-                assertThat(result).isEqualTo(sub)
                 coVerify(exactly = 1) { requestCleaner.finalizeRequest(ACC_NO, VERSION, INSTANCE_ID) }
             }
     }
@@ -194,13 +195,7 @@ internal class LocalExtSubmissionSubmitterTest(
             runTest {
                 coEvery { requestService.getRequestStatus("accNo", 1) } returns REQUESTED
                 coEvery { requestIndexer.indexRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
-                coEvery { requestLoader.loadRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
-                coEvery { requestCleanIndexer.indexRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
-                coEvery { requestProcessor.processRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
-                coEvery { requestReleaser.checkReleased("accNo", 1, INSTANCE_ID) } answers { nothing }
-                coEvery { requestCleaner.cleanCurrentVersion("accNo", 1, INSTANCE_ID) } answers { nothing }
-                coEvery { requestSaver.saveRequest("accNo", 1, INSTANCE_ID) } answers { sub }
-                coEvery { requestCleaner.finalizeRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
+                coEvery { requestService.isRequestCompleted("accNo", 1) } returns true
                 coEvery { subQueryService.getExtendedSubmission("accNo", includeFileListFiles = false) } returns sub
 
                 val result = testInstance.handleRequest("accNo", 1)
@@ -209,12 +204,23 @@ internal class LocalExtSubmissionSubmitterTest(
                 coVerify(exactly = 1) {
                     requestService.getRequestStatus("accNo", 1)
                     requestIndexer.indexRequest("accNo", 1, INSTANCE_ID)
+                }
+            }
+
+        @Test
+        fun `when indexed`() =
+            runTest {
+                coEvery { requestService.getRequestStatus("accNo", 1) } returns INDEXED
+                coEvery { requestLoader.loadRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
+                coEvery { requestService.isRequestCompleted("accNo", 1) } returns true
+                coEvery { subQueryService.getExtendedSubmission("accNo", includeFileListFiles = false) } returns sub
+
+                val result = testInstance.handleRequest("accNo", 1)
+
+                assertThat(result).isEqualTo(sub)
+                coVerify(exactly = 1) {
+                    requestService.getRequestStatus("accNo", 1)
                     requestLoader.loadRequest("accNo", 1, INSTANCE_ID)
-                    requestCleaner.cleanCurrentVersion("accNo", 1, INSTANCE_ID)
-                    requestProcessor.processRequest("accNo", 1, INSTANCE_ID)
-                    requestReleaser.checkReleased("accNo", 1, INSTANCE_ID)
-                    requestSaver.saveRequest("accNo", 1, INSTANCE_ID)
-                    requestCleaner.finalizeRequest("accNo", 1, INSTANCE_ID)
                 }
             }
 
@@ -223,11 +229,24 @@ internal class LocalExtSubmissionSubmitterTest(
             runTest {
                 coEvery { requestService.getRequestStatus("accNo", 1) } returns LOADED
                 coEvery { requestCleanIndexer.indexRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
-                coEvery { requestProcessor.processRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
-                coEvery { requestReleaser.checkReleased("accNo", 1, INSTANCE_ID) } answers { nothing }
+                coEvery { requestService.isRequestCompleted("accNo", 1) } returns true
+                coEvery { subQueryService.getExtendedSubmission("accNo", includeFileListFiles = false) } returns sub
+
+                val result = testInstance.handleRequest("accNo", 1)
+
+                assertThat(result).isEqualTo(sub)
+                coVerify(exactly = 1) {
+                    requestService.getRequestStatus("accNo", 1)
+                    requestCleanIndexer.indexRequest("accNo", 1, INSTANCE_ID)
+                }
+            }
+
+        @Test
+        fun `when indexed files to clean`() =
+            runTest {
+                coEvery { requestService.getRequestStatus("accNo", 1) } returns INDEXED_CLEANED
                 coEvery { requestCleaner.cleanCurrentVersion("accNo", 1, INSTANCE_ID) } answers { nothing }
-                coEvery { requestSaver.saveRequest("accNo", 1, INSTANCE_ID) } answers { sub }
-                coEvery { requestCleaner.finalizeRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
+                coEvery { requestService.isRequestCompleted("accNo", 1) } returns true
                 coEvery { subQueryService.getExtendedSubmission("accNo", includeFileListFiles = false) } returns sub
 
                 val result = testInstance.handleRequest("accNo", 1)
@@ -236,14 +255,6 @@ internal class LocalExtSubmissionSubmitterTest(
                 coVerify(exactly = 1) {
                     requestService.getRequestStatus("accNo", 1)
                     requestCleaner.cleanCurrentVersion("accNo", 1, INSTANCE_ID)
-                    requestProcessor.processRequest("accNo", 1, INSTANCE_ID)
-                    requestReleaser.checkReleased("accNo", 1, INSTANCE_ID)
-                    requestSaver.saveRequest("accNo", 1, INSTANCE_ID)
-                    requestCleaner.finalizeRequest("accNo", 1, INSTANCE_ID)
-                }
-                coVerify(exactly = 0) {
-                    requestIndexer.indexRequest("accNo", 1, INSTANCE_ID)
-                    requestLoader.loadRequest("accNo", 1, INSTANCE_ID)
                 }
             }
 
@@ -252,10 +263,8 @@ internal class LocalExtSubmissionSubmitterTest(
             runTest {
                 coEvery { requestService.getRequestStatus("accNo", 1) } returns CLEANED
                 coEvery { requestProcessor.processRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
-                coEvery { requestReleaser.checkReleased("accNo", 1, INSTANCE_ID) } answers { nothing }
-                coEvery { requestSaver.saveRequest("accNo", 1, INSTANCE_ID) } answers { sub }
-                coEvery { requestCleaner.finalizeRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
-                coEvery { subQueryService.getExtendedSubmission("accNo") } returns sub
+                coEvery { requestService.isRequestCompleted("accNo", 1) } returns true
+                coEvery { subQueryService.getExtendedSubmission("accNo", includeFileListFiles = false) } returns sub
 
                 val result = testInstance.handleRequest("accNo", 1)
 
@@ -263,14 +272,6 @@ internal class LocalExtSubmissionSubmitterTest(
                 coVerify(exactly = 1) {
                     requestService.getRequestStatus("accNo", 1)
                     requestProcessor.processRequest("accNo", 1, INSTANCE_ID)
-                    requestReleaser.checkReleased("accNo", 1, INSTANCE_ID)
-                    requestSaver.saveRequest("accNo", 1, INSTANCE_ID)
-                    requestCleaner.finalizeRequest("accNo", 1, INSTANCE_ID)
-                }
-                coVerify(exactly = 0) {
-                    requestIndexer.indexRequest("accNo", 1, INSTANCE_ID)
-                    requestLoader.loadRequest("accNo", 1, INSTANCE_ID)
-                    requestCleaner.cleanCurrentVersion("accNo", 1, INSTANCE_ID)
                 }
             }
 
@@ -279,8 +280,7 @@ internal class LocalExtSubmissionSubmitterTest(
             runTest {
                 coEvery { requestService.getRequestStatus("accNo", 1) } returns FILES_COPIED
                 coEvery { requestReleaser.checkReleased("accNo", 1, INSTANCE_ID) } answers { nothing }
-                coEvery { requestSaver.saveRequest("accNo", 1, INSTANCE_ID) } answers { sub }
-                coEvery { requestCleaner.finalizeRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
+                coEvery { requestService.isRequestCompleted("accNo", 1) } returns true
                 coEvery { subQueryService.getExtendedSubmission("accNo", includeFileListFiles = false) } returns sub
 
                 val result = testInstance.handleRequest("accNo", 1)
@@ -289,14 +289,6 @@ internal class LocalExtSubmissionSubmitterTest(
                 coVerify(exactly = 1) {
                     requestService.getRequestStatus("accNo", 1)
                     requestReleaser.checkReleased("accNo", 1, INSTANCE_ID)
-                    requestSaver.saveRequest("accNo", 1, INSTANCE_ID)
-                    requestCleaner.finalizeRequest("accNo", 1, INSTANCE_ID)
-                }
-                coVerify(exactly = 0) {
-                    requestIndexer.indexRequest("accNo", 1, INSTANCE_ID)
-                    requestLoader.loadRequest("accNo", 1, INSTANCE_ID)
-                    requestCleaner.cleanCurrentVersion("accNo", 1, INSTANCE_ID)
-                    requestProcessor.processRequest("accNo", 1, INSTANCE_ID)
                 }
             }
 
@@ -304,8 +296,8 @@ internal class LocalExtSubmissionSubmitterTest(
         fun `when checked released`() =
             runTest {
                 coEvery { requestService.getRequestStatus("accNo", 1) } returns CHECK_RELEASED
-                coEvery { requestSaver.saveRequest("accNo", 1, INSTANCE_ID) } returns sub
-                coEvery { requestCleaner.finalizeRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
+                coEvery { requestSaver.saveRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
+                coEvery { requestService.isRequestCompleted("accNo", 1) } returns true
                 coEvery { subQueryService.getExtendedSubmission("accNo", includeFileListFiles = false) } returns sub
 
                 val result = testInstance.handleRequest("accNo", 1)
@@ -314,37 +306,23 @@ internal class LocalExtSubmissionSubmitterTest(
                 coVerify(exactly = 1) {
                     requestService.getRequestStatus("accNo", 1)
                     requestSaver.saveRequest("accNo", 1, INSTANCE_ID)
-                    requestCleaner.finalizeRequest("accNo", 1, INSTANCE_ID)
-                }
-                coVerify(exactly = 0) {
-                    requestIndexer.indexRequest("accNo", 1, INSTANCE_ID)
-                    requestLoader.loadRequest("accNo", 1, INSTANCE_ID)
-                    requestCleaner.cleanCurrentVersion("accNo", 1, INSTANCE_ID)
-                    requestProcessor.processRequest("accNo", 1, INSTANCE_ID)
-                    requestReleaser.checkReleased("accNo", 1, INSTANCE_ID)
                 }
             }
 
         @Test
         fun `when persisted`() =
             runTest {
-                coEvery { requestCleaner.finalizeRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
                 coEvery { requestService.getRequestStatus("accNo", 1) } returns PERSISTED
+                coEvery { requestCleaner.finalizeRequest("accNo", 1, INSTANCE_ID) } answers { nothing }
+                coEvery { requestService.isRequestCompleted("accNo", 1) } returns true
                 coEvery { subQueryService.getExtendedSubmission("accNo", includeFileListFiles = false) } returns sub
 
-                testInstance.handleRequest("accNo", 1)
+                val result = testInstance.handleRequest("accNo", 1)
 
+                assertThat(result).isEqualTo(sub)
                 coVerify(exactly = 1) {
                     requestService.getRequestStatus("accNo", 1)
                     requestCleaner.finalizeRequest("accNo", 1, INSTANCE_ID)
-                }
-                coVerify(exactly = 0) {
-                    requestIndexer.indexRequest("accNo", 1, INSTANCE_ID)
-                    requestLoader.loadRequest("accNo", 1, INSTANCE_ID)
-                    requestCleaner.cleanCurrentVersion("accNo", 1, INSTANCE_ID)
-                    requestProcessor.processRequest("accNo", 1, INSTANCE_ID)
-                    requestReleaser.checkReleased("accNo", 1, INSTANCE_ID)
-                    requestSaver.saveRequest("accNo", 1, INSTANCE_ID)
                 }
             }
     }

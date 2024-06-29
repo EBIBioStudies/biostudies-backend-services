@@ -252,12 +252,12 @@ class ExtendedSubmissionSubmitterTest(
         fun `handle released request`() =
             runTest {
                 coEvery { requestService.getRequestStatus(ACC_NO, VERSION) } returns CHECK_RELEASED
-                coEvery { localExtSubmissionSubmitter.saveAndFinalize(ACC_NO, VERSION) } returns submission
+                coEvery { localExtSubmissionSubmitter.saveRequest(ACC_NO, VERSION) } answers { nothing }
 
                 testInstance.handleRequest(ACC_NO, VERSION)
 
                 coVerify(exactly = 1) {
-                    localExtSubmissionSubmitter.saveAndFinalize(ACC_NO, VERSION)
+                    localExtSubmissionSubmitter.saveRequest(ACC_NO, VERSION)
                 }
 
                 coVerify(exactly = 0) {
@@ -323,8 +323,8 @@ class ExtendedSubmissionSubmitterTest(
         coEvery { localExtSubmissionSubmitter.cleanRequest(ACC_NO, VERSION) } answers { nothing }
         coEvery { localExtSubmissionSubmitter.processRequest(ACC_NO, VERSION) } answers { nothing }
         coEvery { localExtSubmissionSubmitter.checkReleased(ACC_NO, VERSION) } answers { nothing }
-        coEvery { localExtSubmissionSubmitter.saveRequest(ACC_NO, VERSION) } returns submission
-        coEvery { localExtSubmissionSubmitter.finalizeRequest(ACC_NO, VERSION) } returns submission
+        coEvery { localExtSubmissionSubmitter.saveRequest(ACC_NO, VERSION) } answers { nothing }
+        coEvery { localExtSubmissionSubmitter.finalizeRequest(ACC_NO, VERSION) } answers { nothing }
     }
 
     private fun setUpRemoteSubmitter() {

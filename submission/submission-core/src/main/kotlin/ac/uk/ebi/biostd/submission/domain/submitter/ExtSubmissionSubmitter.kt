@@ -39,12 +39,12 @@ interface ExtSubmissionSubmitter {
     suspend fun saveRequest(
         accNo: String,
         version: Int,
-    ): ExtSubmission
+    )
 
     suspend fun finalizeRequest(
         accNo: String,
         version: Int,
-    ): ExtSubmission
+    )
 
     suspend fun handleRequest(
         accNo: String,
