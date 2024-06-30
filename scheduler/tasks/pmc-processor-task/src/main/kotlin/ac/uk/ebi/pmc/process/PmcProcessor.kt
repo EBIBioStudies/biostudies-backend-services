@@ -6,13 +6,11 @@ import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.process.util.FileDownloader
 import ac.uk.ebi.pmc.process.util.SubmissionInitializer
 import ac.uk.ebi.scheduler.properties.PmcMode
+import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.model.Submission
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.supervisorScope
 
 private const val BUFFER_SIZE = 30
 
@@ -22,33 +20,31 @@ class PmcProcessor(
     private val submissionDocService: SubmissionDocService,
     private val fileDownloader: FileDownloader,
 ) {
-    fun processAll(sourceFile: String?) {
-        runBlocking { processSubmissions(sourceFile) }
-    }
+    fun processAll(sourceFile: String?): Unit = runBlocking { processAllSubmissions(sourceFile) }
 
-    private suspend fun processSubmissions(sourceFile: String?) =
-        withContext(Dispatchers.Default) {
+    private suspend fun processAllSubmissions(sourceFile: String?) {
+        supervisorScope {
             submissionDocService.findReadyToProcess(sourceFile)
-                .map { async { processSubmission(it) } }
-                .buffer(BUFFER_SIZE)
-                .collect { it.await() }
+                .concurrently(BUFFER_SIZE) { processSubmission(it) }
+                .collect()
         }
+    }
 
     private suspend fun processSubmission(submissionDoc: SubmissionDoc) {
         runCatching { submissionInitializer.getSubmission(submissionDoc.body) }
             .fold(
-                { downloadFiles(it, submissionDoc) },
+                { (submission, body) -> downloadFiles(submission, body, submissionDoc) },
                 { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
             )
     }
 
     private suspend fun downloadFiles(
-        submissionPair: Pair<Submission, String>,
+        submission: Submission,
+        subBody: String,
         submissionDoc: SubmissionDoc,
     ) {
-        val (submission, body) = submissionPair
         fileDownloader.downloadFiles(submission).fold(
-            { submissionDocService.saveProcessedSubmission(submissionDoc.withBody(body), it) },
+            { submissionDocService.saveProcessedSubmission(submissionDoc.withBody(subBody), it) },
             { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
         )
     }

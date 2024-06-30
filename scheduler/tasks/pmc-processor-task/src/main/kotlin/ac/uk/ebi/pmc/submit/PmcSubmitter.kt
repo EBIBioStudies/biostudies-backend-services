@@ -9,14 +9,11 @@ import ac.uk.ebi.pmc.persistence.SubmissionDocService
 import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import ac.uk.ebi.scheduler.properties.PmcMode
+import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.extended.model.StorageMode
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withTimeout
 import mu.KotlinLogging
 import java.io.File
@@ -35,32 +32,31 @@ class PmcSubmitter(
     private val errorDocService: ErrorsDocService,
     private val submissionService: SubmissionDocService,
 ) {
-    fun submitAll(sourceFile: String?) =
+    fun submitAll(sourceFile: String?): Unit =
         runBlocking {
             submitSubmissions(sourceFile)
         }
 
-    fun submitSingle(submissionId: String) =
+    fun submitSingle(submissionId: String): Unit =
         runBlocking {
             val submission = submissionService.findById(submissionId)
             submitSubmission(submission, 1)
         }
 
-    private suspend fun submitSubmissions(sourceFile: String?) =
-        coroutineScope {
-            val counter = AtomicInteger(0)
+    private suspend fun submitSubmissions(sourceFile: String?) {
+        val counter = AtomicInteger(0)
+        supervisorScope {
             submissionService.findReadyToSubmit(sourceFile)
-                .map { async(Dispatchers.IO) { submitSubmission(it, counter.incrementAndGet()) } }
-                .buffer(BUFFER_SIZE)
-                .map { it.await() }
+                .concurrently(BUFFER_SIZE) { submitSubmission(it, counter.incrementAndGet()) }
                 .collect()
         }
+    }
 
     private suspend fun submitSubmission(
         sub: SubmissionDoc,
         idx: Int,
-    ) = coroutineScope {
-        runCatching { withTimeout(TIMEOUT) { submit(sub) } }
+    ): Unit =
+        submit(sub)
             .fold(
                 {
                     logger.info { "submitted $idx, accNo='${sub.accNo}', in ${it.duration.inWholeMilliseconds} ms" }
@@ -71,13 +67,14 @@ class PmcSubmitter(
                     errorDocService.saveError(sub, PmcMode.SUBMIT, it)
                 },
             )
-    }
 
-    private suspend fun submit(submission: SubmissionDoc): TimedValue<SubmissionResponse> {
-        return measureTimedValue {
+    private suspend fun submit(submission: SubmissionDoc): Result<TimedValue<SubmissionResponse>> {
+        suspend fun submit(submission: SubmissionDoc): SubmissionResponse {
             val files = submissionService.getSubFiles(submission.files).map { File(it.path) }
             val filesConfig = SubmissionFilesConfig(files, StorageMode.NFS)
-            bioWebClient.submitSingle(submission.body, SubmissionFormat.JSON, filesConfig)
+            return bioWebClient.submitSingle(submission.body, SubmissionFormat.JSON, filesConfig)
         }
+
+        return runCatching { withTimeout(TIMEOUT) { measureTimedValue { submit(submission) } } }
     }
 }
