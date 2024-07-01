@@ -7,5 +7,6 @@ data class JobSpec(
     val cores: Int = ONE_CORE,
     val ram: MemorySpec = ONE_GB,
     val queue: QueueSpec = StandardQueue,
+    val minutes: Int = 60,
     val command: String,
 )

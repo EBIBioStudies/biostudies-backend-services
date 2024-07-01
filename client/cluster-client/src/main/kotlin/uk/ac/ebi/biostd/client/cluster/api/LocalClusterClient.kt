@@ -19,7 +19,7 @@ class LocalClusterClient : ClusterClient {
             val processId = executeProcess(jobSpec.command, logFile)
 
             jobLogs[processId] = logFile
-            success(Job(processId.toString(), LOCAL_QUEUE, logFile.absolutePath))
+            success(Job(processId.toString(), LOCAL_QUEUE))
         }
     }
 
@@ -32,7 +32,7 @@ class LocalClusterClient : ClusterClient {
             val logFile = createTempFile().toFile()
             val processId = executeProcess(jobSpec.command, logFile)
             waitProcess(processId)
-            return@withContext Job(processId.toString(), LOCAL_QUEUE, logFile.absolutePath)
+            return@withContext Job(processId.toString(), LOCAL_QUEUE)
         }
     }
 

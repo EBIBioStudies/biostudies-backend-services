@@ -12,7 +12,7 @@ class CommandRunner(private val session: Session) {
         val channel = createChannel()
         channel.setCommand(command)
         channel.connect()
-        val output = getOutput(channel.inputStream)
+        val output = getOutput(channel.inputStream).trim()
         channel.disconnect()
         return Pair(channel.exitStatus, output)
     }

@@ -2,8 +2,8 @@ package uk.ac.ebi.biostd.client.cluster.api
 
 import ebi.ac.uk.coroutines.waitUntil
 import mu.KotlinLogging
-import uk.ac.ebi.biostd.client.cluster.common.JobResponseParser
 import uk.ac.ebi.biostd.client.cluster.common.JobSubmitFailException
+import uk.ac.ebi.biostd.client.cluster.common.toLsfJob
 import uk.ac.ebi.biostd.client.cluster.exception.FailedJobException
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
@@ -15,7 +15,6 @@ private val logger = KotlinLogging.logger {}
 
 class LsfClusterClient(
     private val logsPath: String,
-    private val responseParser: JobResponseParser,
     private val sshClient: SshClient,
 ) : ClusterClient {
     override suspend fun triggerJobAsync(jobSpec: JobSpec): Result<Job> {
@@ -26,7 +25,7 @@ class LsfClusterClient(
 
         return sshClient.runInSession {
             val (exitStatus, response) = executeCommand(command)
-            return@runInSession asJobReturn(exitStatus, response, logsPath)
+            return@runInSession asJobReturn(exitStatus, response)
         }
     }
 
@@ -42,7 +41,7 @@ class LsfClusterClient(
 
     override suspend fun jobStatus(jobId: String): String {
         return sshClient.runInSession {
-            val status = executeCommand("bjobs -o STAT -noheader $jobId").second.trimIndent()
+            val status = executeCommand("bjobs -o STAT -noheader $jobId").second
             logger.info { "Job $jobId status $status" }
             status
         }
@@ -78,9 +77,8 @@ class LsfClusterClient(
     private fun asJobReturn(
         exitCode: Int,
         response: String,
-        logsPath: String,
     ): Result<Job> {
-        if (exitCode == 0) return success(responseParser.toJob(response, logsPath))
+        if (exitCode == 0) return success(toLsfJob(response))
 
         logger.error(response) { "Error submission job, exitCode='$exitCode', response='$response'" }
         return failure(JobSubmitFailException(response))
@@ -96,7 +94,7 @@ class LsfClusterClient(
             sshMachine: String,
             logsPath: String,
         ): LsfClusterClient {
-            return LsfClusterClient(logsPath, JobResponseParser(), SshClient(sshMachine, sshKey))
+            return LsfClusterClient(logsPath, SshClient(sshMachine, sshKey))
         }
     }
 
