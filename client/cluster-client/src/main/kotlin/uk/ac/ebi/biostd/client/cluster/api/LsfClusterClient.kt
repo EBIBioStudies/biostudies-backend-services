@@ -15,8 +15,11 @@ private val logger = KotlinLogging.logger {}
 
 class LsfClusterClient(
     private val logsPath: String,
-    private val sshClient: SshClient,
+    private val sshMachine: String,
+    private val sshKey: String,
 ) : ClusterClient {
+    private val sshClient by lazy { SshClient(sshMachine = sshMachine, sshKey = sshKey) }
+
     override suspend fun triggerJobAsync(jobSpec: JobSpec): Result<Job> {
         val parameters = mutableListOf("bsub -o $logsPath/%J_OUT -e $logsPath/%J_IN")
         parameters.addAll(jobSpec.asParameter())
@@ -94,7 +97,7 @@ class LsfClusterClient(
             sshMachine: String,
             logsPath: String,
         ): LsfClusterClient {
-            return LsfClusterClient(logsPath, SshClient(sshMachine, sshKey))
+            return LsfClusterClient(logsPath = logsPath, sshKey = sshKey, sshMachine = sshMachine)
         }
     }
 

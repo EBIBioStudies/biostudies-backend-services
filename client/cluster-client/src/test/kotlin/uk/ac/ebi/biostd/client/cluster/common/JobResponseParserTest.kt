@@ -10,6 +10,4 @@ internal class JobResponseParserTest {
         assertThat(job.id).isEqualTo("9148559")
         assertThat(job.queue).isEqualTo("research-rh7")
     }
-
-    }
 }
