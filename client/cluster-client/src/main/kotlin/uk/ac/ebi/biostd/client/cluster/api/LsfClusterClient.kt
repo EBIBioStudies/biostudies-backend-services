@@ -1,6 +1,5 @@
 package uk.ac.ebi.biostd.client.cluster.api
 
-import com.jcraft.jsch.JSch
 import ebi.ac.uk.coroutines.waitUntil
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.client.cluster.common.JobResponseParser
@@ -92,16 +91,29 @@ class LsfClusterClient(
         const val EXIT_STATUS = "EXIT"
         const val PEND_STATUS = "PEND"
 
-        private val responseParser = JobResponseParser()
-
         fun create(
             sshKey: String,
             sshMachine: String,
             logsPath: String,
         ): LsfClusterClient {
-            val sshClient = JSch()
-            sshClient.addIdentity(sshKey)
-            return LsfClusterClient(logsPath, responseParser, SshClient(sshMachine, sshKey))
+            return LsfClusterClient(logsPath, JobResponseParser(), SshClient(sshMachine, sshKey))
         }
     }
+
+    private fun JobSpec.asParameter(): List<String> =
+        buildList {
+            add("-n")
+            add(cores.toString())
+
+            add("-M")
+            add(ram.toString())
+
+            add("-R")
+            add("rusage[mem=$ram]")
+
+            add("-q")
+            add(queue.name)
+
+            add(command)
+        }
 }

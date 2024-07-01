@@ -8,21 +8,4 @@ data class JobSpec(
     val ram: MemorySpec = ONE_GB,
     val queue: QueueSpec = StandardQueue,
     val command: String,
-) {
-    fun asParameter(): List<String> =
-        buildList {
-            add("-n")
-            add(cores.toString())
-
-            add("-M")
-            add(ram.toString())
-
-            add("-R")
-            add("rusage[mem=$ram]")
-
-            add("-q")
-            add(queue.name)
-
-            add(command)
-        }
-}
+)
