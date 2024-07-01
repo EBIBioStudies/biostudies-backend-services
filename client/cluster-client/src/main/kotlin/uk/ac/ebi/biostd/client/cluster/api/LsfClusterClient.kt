@@ -1,10 +1,7 @@
 package uk.ac.ebi.biostd.client.cluster.api
 
 import com.jcraft.jsch.JSch
-import com.jcraft.jsch.Session
 import ebi.ac.uk.coroutines.waitUntil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.client.cluster.common.JobResponseParser
 import uk.ac.ebi.biostd.client.cluster.common.JobSubmitFailException
@@ -17,10 +14,10 @@ import kotlin.Result.Companion.success
 
 private val logger = KotlinLogging.logger {}
 
-class RemoteClusterClient(
+class LsfClusterClient(
     private val logsPath: String,
     private val responseParser: JobResponseParser,
-    private val sessionFunction: () -> Session,
+    private val sshClient: SshClient,
 ) : ClusterClient {
     override suspend fun triggerJobAsync(jobSpec: JobSpec): Result<Job> {
         val parameters = mutableListOf("bsub -o $logsPath/%J_OUT -e $logsPath/%J_IN")
@@ -28,7 +25,7 @@ class RemoteClusterClient(
         val command = parameters.joinToString(separator = " ")
         logger.info { "Executing command '$command'" }
 
-        return runInSession {
+        return sshClient.runInSession {
             val (exitStatus, response) = executeCommand(command)
             return@runInSession asJobReturn(exitStatus, response, logsPath)
         }
@@ -39,11 +36,13 @@ class RemoteClusterClient(
         checkJobInterval: Long,
         maxSecondsDuration: Long,
     ): Job {
-        return triggerJobAsync(jobSpec).fold({ await(it, checkJobInterval, maxSecondsDuration) }, { throw it })
+        val job = triggerJobAsync(jobSpec).getOrThrow()
+        await(job, checkJobInterval, maxSecondsDuration)
+        return job
     }
 
     override suspend fun jobStatus(jobId: String): String {
-        return runInSession {
+        return sshClient.runInSession {
             val status = executeCommand("bjobs -o STAT -noheader $jobId").second.trimIndent()
             logger.info { "Job $jobId status $status" }
             status
@@ -51,7 +50,7 @@ class RemoteClusterClient(
     }
 
     override suspend fun jobLogs(jobId: String): String {
-        return runInSession {
+        return sshClient.runInSession {
             val (_, response) = executeCommand("cat $logsPath/${jobId}_OUT")
             return@runInSession response
         }
@@ -61,25 +60,19 @@ class RemoteClusterClient(
         job: Job,
         checkJobInterval: Long,
         maxSecondsDuration: Long,
-    ): Job {
-        return runInSession {
-            var status: String = PEND_STATUS
+    ) {
+        sshClient.runInSession {
             waitUntil(
                 checkInterval = ofSeconds(checkJobInterval),
                 timeout = ofSeconds(maxSecondsDuration),
             ) {
-                status = jobStatus(job.id)
-                val executionFinished = status == DONE_STATUS || status == EXIT_STATUS
+                val status = jobStatus(job.id)
                 when (status) {
-                    EXIT_STATUS -> logger.error { "Job ${job.id} status is $EXIT_STATUS. Execution failed" }
-                    DONE_STATUS -> logger.info { "Job ${job.id} status is $DONE_STATUS. Execution completed" }
-                    else -> logger.info { "Job ${job.id} status is $status. Waiting for completion" }
+                    DONE_STATUS -> true
+                    EXIT_STATUS -> throw FailedJobException(job)
+                    else -> false
                 }
-
-                return@waitUntil executionFinished
             }
-
-            if (status == DONE_STATUS) job else throw FailedJobException(job)
         }
     }
 
@@ -94,23 +87,10 @@ class RemoteClusterClient(
         return failure(JobSubmitFailException(response))
     }
 
-    private suspend fun <T> runInSession(exec: suspend CommandRunner.() -> T): T {
-        return withContext(Dispatchers.IO) {
-            val session = sessionFunction()
-
-            try {
-                session.connect()
-                exec(CommandRunner(session))
-            } finally {
-                session.disconnect()
-            }
-        }
-    }
-
     companion object {
-        internal const val DONE_STATUS = "DONE"
-        internal const val EXIT_STATUS = "EXIT"
-        internal const val PEND_STATUS = "PEND"
+        const val DONE_STATUS = "DONE"
+        const val EXIT_STATUS = "EXIT"
+        const val PEND_STATUS = "PEND"
 
         private val responseParser = JobResponseParser()
 
@@ -118,14 +98,10 @@ class RemoteClusterClient(
             sshKey: String,
             sshMachine: String,
             logsPath: String,
-        ): RemoteClusterClient {
+        ): LsfClusterClient {
             val sshClient = JSch()
             sshClient.addIdentity(sshKey)
-            return RemoteClusterClient(logsPath, responseParser) {
-                val session = sshClient.getSession(sshMachine)
-                session.setConfig("StrictHostKeyChecking", "no")
-                return@RemoteClusterClient session
-            }
+            return LsfClusterClient(logsPath, responseParser, SshClient(sshMachine, sshKey))
         }
     }
 }
