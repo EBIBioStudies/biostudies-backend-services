@@ -51,7 +51,7 @@ internal class SubmissionReleaserTrigger(
             Report(
                 SYSTEM_NAME,
                 RELEASER_SUBSYSTEM,
-                "Triggered $RELEASER_SUBSYSTEM in mode $mode in the cluster job $job. Logs available at ${job.logsPath}",
+                "Triggered $RELEASER_SUBSYSTEM in mode $mode in the cluster job $job.",
             ),
         )
 

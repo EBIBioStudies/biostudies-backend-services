@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.common.config
 
+import ac.uk.ebi.biostd.cluster.web.ClusterExecutor
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
 import ac.uk.ebi.biostd.files.service.FileServiceFactory
 import ac.uk.ebi.biostd.integration.SerializationService
@@ -146,4 +147,7 @@ class SubmissionWebConfig {
 
     @Bean
     fun onBehalfUtils(securityQueryService: ISecurityQueryService): OnBehalfUtils = OnBehalfUtils(securityQueryService)
+
+    @Bean
+    fun clusterExecutor(properties: ApplicationProperties) = ClusterExecutor(properties)
 }
