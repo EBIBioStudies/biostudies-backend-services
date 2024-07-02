@@ -62,12 +62,12 @@ class NfsFtpService(
         withContext(Dispatchers.IO) {
             require(file is NfsFile) { "NfsFtpService should only handle NfsFile" }
             when (releaseMode) {
-                MOVE -> moveSuppress(file, sub)
-                HARD_LINKS -> hardLinkSuppress(file, sub)
+                MOVE -> moveUnRelease(file, sub)
+                HARD_LINKS -> hardLinkUnRelease(file, sub)
             }
         }
 
-    private fun moveSuppress(
+    private fun moveUnRelease(
         nfsFile: NfsFile,
         sub: ExtSubmissionInfo,
     ): NfsFile {
@@ -77,7 +77,7 @@ class NfsFtpService(
         return nfsFile.copy(fullPath = suppressedFile.absolutePath, file = suppressedFile)
     }
 
-    private fun hardLinkSuppress(
+    private fun hardLinkUnRelease(
         nfsFile: NfsFile,
         sub: ExtSubmissionInfo,
     ): NfsFile {

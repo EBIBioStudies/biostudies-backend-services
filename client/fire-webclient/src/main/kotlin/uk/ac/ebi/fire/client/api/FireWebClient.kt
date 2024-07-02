@@ -2,7 +2,6 @@ package uk.ac.ebi.fire.client.api
 
 import ebi.ac.uk.commons.http.ext.RequestParams
 import ebi.ac.uk.commons.http.ext.deleteAsync
-import ebi.ac.uk.commons.http.ext.deleteForObjectAsync
 import ebi.ac.uk.commons.http.ext.getForObjectAsync
 import ebi.ac.uk.commons.http.ext.postForObjectAsync
 import ebi.ac.uk.commons.http.ext.putForObjectAsync
@@ -13,6 +12,7 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestOperations
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.awaitBody
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
@@ -70,7 +70,7 @@ internal class FireWebClient(
     }
 
     override suspend fun unpublish(fireOid: String): FireApiFile {
-        return client.deleteForObjectAsync<FireApiFile>("/objects/$fireOid/publish")
+        return client.delete().uri("/objects/$fireOid/publish").retrieve().awaitBody()
     }
 
     override suspend fun delete(fireOid: String) {

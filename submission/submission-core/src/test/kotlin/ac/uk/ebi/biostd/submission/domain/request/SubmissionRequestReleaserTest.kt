@@ -212,8 +212,8 @@ class SubmissionRequestReleaserTest(
                 fireRqtFile,
             )
         coEvery { queryService.findCoreInfo(ACC_NO) } returns current
-        coEvery { storageService.suppressSubmissionFile(submission, nfsFile) } returns suppressedNfsFile
-        coEvery { storageService.suppressSubmissionFile(submission, fireFile) } returns suppressedFireFile
+        coEvery { storageService.unReleaseSubmissionFile(submission, nfsFile) } returns suppressedNfsFile
+        coEvery { storageService.unReleaseSubmissionFile(submission, fireFile) } returns suppressedFireFile
         every { rqt.withNewStatus(CHECK_RELEASED) } returns rqt
 
         coEvery {
@@ -243,8 +243,8 @@ class SubmissionRequestReleaserTest(
         testInstance.checkReleased(ACC_NO, VERSION, PROCESS_ID)
 
         coVerify(exactly = 1) {
-            storageService.suppressSubmissionFile(submission, nfsFile)
-            storageService.suppressSubmissionFile(submission, fireFile)
+            storageService.unReleaseSubmissionFile(submission, nfsFile)
+            storageService.unReleaseSubmissionFile(submission, fireFile)
             eventsPublisherService.requestCheckedRelease(ACC_NO, VERSION)
         }
     }

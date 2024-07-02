@@ -41,7 +41,7 @@ class StorageService(
         }
     }
 
-    override suspend fun suppressSubmissionFile(
+    override suspend fun unReleaseSubmissionFile(
         sub: ExtSubmissionInfo,
         file: ExtFile,
     ): ExtFile {

@@ -272,16 +272,16 @@ class ResubmissionApiTest(
             webClient.uploadFile(tempFolder.createFile("file_5-5-2.txt", "5-5-2 file content"))
             assertThat(onBehalfClient.submitSingle(version1, TSV)).isSuccessful()
 
-            val submittedV1 = submissionRepository.getExtByAccNo("S-RSTST5")
-            val ftpFilesV1 = FileUtils.listAllFiles(File("$ftpPath/${submittedV1.relPath}/Files"))
-            val ftpFile1 = File("$ftpPath/${submittedV1.relPath}/Files/file_5-5-1.txt")
-            val ftpFile2 = File("$ftpPath/${submittedV1.relPath}/Files/file_5-5-2.txt")
+            val subV1 = submissionRepository.getExtByAccNo("S-RSTST5")
+            val ftpFilesV1 = FileUtils.listAllFiles(File("$ftpPath/${subV1.relPath}/Files"))
+            val ftpFile1 = File("$ftpPath/${subV1.relPath}/Files/file_5-5-1.txt")
+            val ftpFile2 = File("$ftpPath/${subV1.relPath}/Files/file_5-5-2.txt")
 
             assertThat(ftpFilesV1).containsOnly(ftpFile1, ftpFile2)
             assertThat(ftpFile1).hasContent("5-5-1 file content")
             assertThat(ftpFile2).hasContent("5-5-2 file content")
-            assertThat(File("$submissionPath/${submittedV1.relPath}/Files/file_5-5-1.txt")).hasContent("5-5-1 file content")
-            assertThat(File("$submissionPath/${submittedV1.relPath}/Files/file_5-5-2.txt")).hasContent("5-5-2 file content")
+            assertThat(File("$submissionPath/${subV1.relPath}/Files/file_5-5-1.txt")).hasContent("5-5-1 file content")
+            assertThat(File("$submissionPath/${subV1.relPath}/Files/file_5-5-2.txt")).hasContent("5-5-2 file content")
 
             val version2 =
                 tsv {
@@ -297,12 +297,13 @@ class ResubmissionApiTest(
 
             assertThat(onBehalfClient.submitSingle(version2, TSV)).isSuccessful()
 
-            val submittedV2 = submissionRepository.getExtByAccNo("S-RSTST5")
+            val subV2 = submissionRepository.getExtByAccNo("S-RSTST5")
 
-            assertThat(File("$ftpPath/${submittedV2.relPath}/Files/file_5-5-1.txt")).doesNotExist()
-            assertThat(File("$ftpPath/${submittedV2.relPath}/Files/file_5-5-2.txt")).doesNotExist()
-            val submissionFilesV2 = FileUtils.listAllFiles(File("$submissionPath/${submittedV2.relPath}/Files"))
-            val expectedFileV2 = File("$submissionPath/${submittedV2.relPath}/Files/file_5-5-1.txt")
+            assertThat(File("$ftpPath/${subV2.relPath}/Files")).isEmptyDirectory()
+            assertThat(File("$ftpPath/${subV2.relPath}/Files/file_5-5-1.txt")).doesNotExist()
+            assertThat(File("$ftpPath/${subV2.relPath}/Files/file_5-5-2.txt")).doesNotExist()
+            val submissionFilesV2 = FileUtils.listAllFiles(File("$submissionPath/${subV2.relPath}/Files"))
+            val expectedFileV2 = File("$submissionPath/${subV2.relPath}/Files/file_5-5-1.txt")
             assertThat(submissionFilesV2).containsOnly(expectedFileV2)
             assertThat(expectedFileV2).hasContent("5-5-1 file content")
         }

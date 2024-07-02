@@ -65,7 +65,6 @@ internal class NfsFtpServiceTest(
                         .apply { createDirectories() }
                         .toFile()
                 val file = filesDir.createNewFile("file.txt", "file content")
-
                 val nfsFile =
                     NfsFile(
                         filePath = "file.txt",
@@ -85,12 +84,11 @@ internal class NfsFtpServiceTest(
             }
 
         @Test
-        fun `suppress submission file`() =
+        fun `un-release submission file`() =
             runTest {
                 val publicFolder = folderResolver.getPublicSubFolder(REL_PATH).toFile()
                 val publicFilesFolder = publicFolder.createDirectory(FILES_PATH)
                 val publicFile = publicFilesFolder.createFile("test.txt")
-
                 val nfsFile =
                     NfsFile(
                         filePath = "test.txt",
@@ -120,7 +118,6 @@ internal class NfsFtpServiceTest(
                         .apply { createDirectories() }
                         .toFile()
                 val file = filesDir.createNewFile("file.txt", "file content")
-
                 val nfsFile =
                     NfsFile(
                         filePath = "file.txt",
@@ -139,7 +136,7 @@ internal class NfsFtpServiceTest(
             }
 
         @Test
-        fun `suppress submission file`() =
+        fun `un-release submission file`() =
             runTest {
                 val subFolder = folderResolver.getPublicSubFolder(REL_PATH).toFile()
                 val filesPath = subFolder.createDirectory(FILES_PATH)
@@ -153,10 +150,11 @@ internal class NfsFtpServiceTest(
                         md5 = file.md5(),
                         size = file.size(),
                     )
-
                 val privateFolder = folderResolver.getPrivateSubFolder(SECRET_KEY, REL_PATH).resolve(FILES_PATH)
                 val suppressedPath = privateFolder.resolve("move-test.txt")
+
                 val suppressed = testInstance.unReleaseSubmissionFile(subInfo, nfsFile) as NfsFile
+
                 assertThat(suppressedPath).exists()
                 assertThat(suppressed.fullPath).isEqualTo(suppressedPath.toString())
                 assertThat(suppressed.file).isEqualTo(suppressedPath.toFile())

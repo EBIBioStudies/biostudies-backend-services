@@ -154,7 +154,7 @@ class SubmissionRequestReleaser(
         file: ExtFile,
     ): ExtFile {
         logger.info { "${sub.accNo}, ${sub.owner} Started suppressing file $idx - ${file.filePath}" }
-        val unreleased = fileStorageService.suppressSubmissionFile(sub, file)
+        val unreleased = fileStorageService.unReleaseSubmissionFile(sub, file)
         logger.info { "${sub.accNo}, ${sub.owner} Finished suppressing file $idx - ${file.filePath}" }
         return unreleased
     }
