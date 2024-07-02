@@ -33,7 +33,7 @@ class StatsReporterTrigger(
             Report(
                 SYSTEM_NAME,
                 REPORTER_SUBSYSTEM,
-                "Triggered $REPORTER_SUBSYSTEM in the cluster job $job. Logs available at ${job.logsPath}",
+                "Triggered $REPORTER_SUBSYSTEM in the cluster job $job.",
             ),
         )
 

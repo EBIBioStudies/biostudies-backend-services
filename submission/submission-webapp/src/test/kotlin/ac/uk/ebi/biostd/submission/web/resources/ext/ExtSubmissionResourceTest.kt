@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.submission.converters.ExtSubmissionConverter
 import ac.uk.ebi.biostd.submission.domain.extended.ExtPageRequest
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionQueryService
 import ac.uk.ebi.biostd.submission.domain.extended.ExtSubmissionService
+import ac.uk.ebi.biostd.submission.model.AcceptedSubmission
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.extended.model.ExtFileTable
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.domain.Page
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.multipart
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
@@ -57,6 +59,7 @@ class ExtSubmissionResourceTest(
                 ExtFileTableConverter(extSerializationService),
                 ExtSubmissionConverter(extSerializationService),
                 ExtPageSubmissionConverter(extSerializationService),
+                MappingJackson2HttpMessageConverter(),
             )
             .setCustomArgumentResolvers(bioUserResolver, FileListPathDescriptorResolver())
             .build()
@@ -117,7 +120,7 @@ class ExtSubmissionResourceTest(
 
     @Test
     fun submitExtendedAsync(
-        @MockK extSubmission: ExtSubmission,
+        @MockK sub: ExtSubmission,
     ) {
         val user = TestSuperUser.asSecurityUser()
         val fileLists = slot<List<MultipartFile>>()
@@ -125,18 +128,25 @@ class ExtSubmissionResourceTest(
 
         bioUserResolver.securityUser = user
         every { tempFileGenerator.asFiles(capture(fileLists)) } returns emptyList()
-        coEvery { extSubmissionService.submitExtAsync(user.email, extSubmission) } answers { nothing }
-        every { extSerializationService.deserialize(submissionJson) } returns extSubmission
+        coEvery { extSubmissionService.submitExtAsync(user.email, sub) } answers { AcceptedSubmission("S-TEST123", 2) }
+        every { extSerializationService.deserialize(submissionJson) } returns sub
 
         mvc.multipart("/submissions/extended/async") {
-            content = submissionJson
             param(SUBMISSION, submissionJson)
         }.asyncDispatch().andExpect {
             status { isOk() }
+            content {
+                json(
+                    jsonObj {
+                        "accNo" to "S-TEST123"
+                        "version" to 2
+                    }.toString(),
+                )
+            }
         }
 
         coVerify(exactly = 1) {
-            extSubmissionService.submitExtAsync(user.email, extSubmission)
+            extSubmissionService.submitExtAsync(user.email, sub)
             extSerializationService.deserialize(submissionJson)
         }
     }

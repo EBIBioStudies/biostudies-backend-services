@@ -68,14 +68,14 @@ class RemoteExtSubmissionSubmitter(
     override suspend fun saveRequest(
         accNo: String,
         version: Int,
-    ): ExtSubmission {
+    ) {
         TODO("Remote execution not required")
     }
 
     override suspend fun finalizeRequest(
         accNo: String,
         version: Int,
-    ): ExtSubmission {
+    ) {
         TODO("Remote execution not required")
     }
 
@@ -102,9 +102,17 @@ class RemoteExtSubmissionSubmitter(
                 appendSpaced("--mode=${mode.name}")
             }
 
-        val job = clusterClient.triggerJobAsync(JobSpec(cores = 4, ram = SIXTEEN_GB, DataMoverQueue, command))
+        val job =
+            clusterClient.triggerJobAsync(
+                JobSpec(
+                    cores = 4,
+                    ram = SIXTEEN_GB,
+                    queue = DataMoverQueue,
+                    command = command,
+                ),
+            )
         job.fold(
-            { logger.info { "$accNo Triggered submission task $mode. Job Id: ${it.id}, Logs: ${it.logsPath}" } },
+            { logger.info { "$accNo Triggered submission task $mode. Job Id: ${it.id}." } },
             { throw it },
         )
     }

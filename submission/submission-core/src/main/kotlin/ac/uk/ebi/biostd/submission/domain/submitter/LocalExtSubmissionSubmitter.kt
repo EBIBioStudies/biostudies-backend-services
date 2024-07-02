@@ -14,6 +14,8 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
+import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
+import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.model.RequestStatus.CHECK_RELEASED
 import ebi.ac.uk.model.RequestStatus.CLEANED
@@ -24,6 +26,10 @@ import ebi.ac.uk.model.RequestStatus.LOADED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
+import mu.KotlinLogging
+import java.time.Duration.ofMinutes
+
+private val logger = KotlinLogging.logger {}
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class LocalExtSubmissionSubmitter(
@@ -92,109 +98,34 @@ class LocalExtSubmissionSubmitter(
     override suspend fun saveRequest(
         accNo: String,
         version: Int,
-    ): ExtSubmission {
-        return requestSaver.saveRequest(accNo, version, properties.processId)
+    ) {
+        requestSaver.saveRequest(accNo, version, properties.processId)
     }
 
     override suspend fun finalizeRequest(
         accNo: String,
         version: Int,
-    ): ExtSubmission {
+    ) {
         requestCleaner.finalizeRequest(accNo, version, properties.processId)
-        return submissionQueryService.getExtendedSubmission(accNo, includeFileListFiles = false)
     }
 
     override suspend fun handleRequest(
         accNo: String,
         version: Int,
     ): ExtSubmission {
-        return when (requestService.getRequestStatus(accNo, version)) {
-            REQUESTED -> completeRequest(accNo, version)
-            INDEXED -> loadRequestFiles(accNo, version)
-            LOADED -> indexToCleanFiles(accNo, version)
-            INDEXED_CLEANED -> cleanRequestFiles(accNo, version)
-            CLEANED -> processRequestFiles(accNo, version)
-            FILES_COPIED -> releaseSubmission(accNo, version)
-            CHECK_RELEASED -> saveAndFinalize(accNo, version)
+        when (requestService.getRequestStatus(accNo, version)) {
+            REQUESTED -> indexRequest(accNo, version)
+            INDEXED -> loadRequest(accNo, version)
+            LOADED -> indexToCleanRequest(accNo, version)
+            INDEXED_CLEANED -> cleanRequest(accNo, version)
+            CLEANED -> processRequest(accNo, version)
+            FILES_COPIED -> checkReleased(accNo, version)
+            CHECK_RELEASED -> saveRequest(accNo, version)
             PERSISTED -> finalizeRequest(accNo, version)
-            PROCESSED -> submissionQueryService.getExtendedSubmission(accNo, includeFileListFiles = false)
+            PROCESSED -> logger.info { "Submission $accNo, $version has been already proccessed." }
         }
-    }
 
-    private suspend fun completeRequest(
-        accNo: String,
-        version: Int,
-    ): ExtSubmission {
-        indexRequest(accNo, version)
-        loadRequest(accNo, version)
-        indexToCleanRequest(accNo, version)
-        cleanRequest(accNo, version)
-        processRequest(accNo, version)
-        checkReleased(accNo, version)
-        saveRequest(accNo, version)
-        return finalizeRequest(accNo, version)
-    }
-
-    private suspend fun loadRequestFiles(
-        accNo: String,
-        version: Int,
-    ): ExtSubmission {
-        loadRequest(accNo, version)
-        indexToCleanFiles(accNo, version)
-        cleanRequest(accNo, version)
-        processRequest(accNo, version)
-        checkReleased(accNo, version)
-        saveRequest(accNo, version)
-        return finalizeRequest(accNo, version)
-    }
-
-    private suspend fun indexToCleanFiles(
-        accNo: String,
-        version: Int,
-    ): ExtSubmission {
-        indexToCleanRequest(accNo, version)
-        cleanRequest(accNo, version)
-        processRequest(accNo, version)
-        checkReleased(accNo, version)
-        saveRequest(accNo, version)
-        return finalizeRequest(accNo, version)
-    }
-
-    private suspend fun cleanRequestFiles(
-        accNo: String,
-        version: Int,
-    ): ExtSubmission {
-        cleanRequest(accNo, version)
-        processRequest(accNo, version)
-        checkReleased(accNo, version)
-        saveRequest(accNo, version)
-        return finalizeRequest(accNo, version)
-    }
-
-    private suspend fun processRequestFiles(
-        accNo: String,
-        version: Int,
-    ): ExtSubmission {
-        processRequest(accNo, version)
-        checkReleased(accNo, version)
-        saveRequest(accNo, version)
-        return finalizeRequest(accNo, version)
-    }
-
-    private suspend fun releaseSubmission(
-        accNo: String,
-        version: Int,
-    ): ExtSubmission {
-        checkReleased(accNo, version)
-        saveRequest(accNo, version)
-        return finalizeRequest(accNo, version)
-    }
-
-    internal suspend fun saveAndFinalize(
-        accNo: String,
-        version: Int,
-    ): ExtSubmission {
-        saveRequest(accNo, version)
-        return finalizeRequest(accNo, version)
+        waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { requestService.isRequestCompleted(accNo, version) }
+        return submissionQueryService.getExtendedSubmission(accNo)
     }
 }

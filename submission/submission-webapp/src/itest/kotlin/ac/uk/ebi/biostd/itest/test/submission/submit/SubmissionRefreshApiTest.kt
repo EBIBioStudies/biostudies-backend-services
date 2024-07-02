@@ -94,7 +94,7 @@ class SubmissionRefreshApiTest(
             webClient = getWebClient(serverPort, SuperUser)
         }
 
-    private fun createTestSubmission(accNo: String) {
+    private suspend fun createTestSubmission(accNo: String) {
         fun testSubmission(accNo: String): Submission {
             return submission(accNo) {
                 title = SUBTITLE

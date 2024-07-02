@@ -135,7 +135,7 @@ class SubmissionStorageModeTest(
             val nfsSub = submissionRepository.getExtByAccNo("S-STR-MODE-3", includeFileListFiles = true)
 
             webClient.transferSubmission("S-STR-MODE-3", FIRE)
-            waitUntil(ofSeconds(10)) {
+            waitUntil(timeout = ofSeconds(10)) {
                 submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-3", 2).status == PROCESSED
             }
 
@@ -161,7 +161,7 @@ class SubmissionStorageModeTest(
 
             webClient.transferSubmission("S-STR-MODE-4", NFS)
 
-            waitUntil(ofSeconds(10)) {
+            waitUntil(timeout = ofSeconds(10)) {
                 submissionRequestRepository.getByAccNoAndVersion("S-STR-MODE-4", 2).status == PROCESSED
             }
 

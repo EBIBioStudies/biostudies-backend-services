@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -32,7 +33,6 @@ import ebi.ac.uk.util.collections.second
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -111,9 +111,10 @@ class MultipartFileSubmissionApiTest(
                         }
                     }
                 }
+            val config = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("SomeFile.txt")), storageMode)
 
-            val filesConfig = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("SomeFile.txt")), storageMode)
-            val response = webClient.submitSingle(excelPageTab, filesConfig)
+            val response = webClient.submitSingle(excelPageTab, config)
+
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-EXC123", "SomeFile.txt")
             fileList.delete()
@@ -259,8 +260,8 @@ class MultipartFileSubmissionApiTest(
             val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
             val response =
                 webClient.submitSingle(
-                    submission = submission,
-                    filesConfig = filesConfig,
+                    sub = submission,
+                    config = filesConfig,
                     attrs = hashMapOf(("Type" to "Exp"), ("Exp" to "1")),
                 )
             assertThat(response).isSuccessful()
@@ -274,14 +275,14 @@ class MultipartFileSubmissionApiTest(
         }
 
     @Test
-    fun `9-5 invalid format file`() {
-        val submission = tempFolder.createFile("submission.txt", "invalid file")
-        val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
+    fun `9-5 invalid format file`() =
+        runTest {
+            val submission = tempFolder.createFile("submission.txt", "invalid file")
+            val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
 
-        assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { webClient.submitSingle(submission, filesConfig) }
-            .withMessageContaining("Unsupported page tab format submission.txt")
-    }
+            val exception = assertThrows<WebClientException> { webClient.submitSingle(submission, filesConfig) }
+            assertThat(exception).hasMessageContaining("Unsupported page tab format submission.txt")
+        }
 
     private suspend fun assertSubmissionFiles(
         accNo: String,

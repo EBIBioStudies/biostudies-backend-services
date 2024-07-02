@@ -2,6 +2,7 @@ package uk.ac.ebi.biostd.client.cli.services
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import com.github.ajalt.clikt.output.TermUi.echo
+import ebi.ac.uk.coroutines.FOREVER
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import uk.ac.ebi.biostd.client.cli.dto.DeletionRequest
@@ -13,33 +14,14 @@ import java.time.Duration.ofSeconds
 
 @Suppress("TooManyFunctions")
 internal class SubmissionService {
-    suspend fun submit(request: SubmissionRequest) =
+    suspend fun submit(request: SubmissionRequest): Unit =
         performRequest {
             val client = bioWebClient(request.securityConfig)
             val (accNo, version) = client.asyncSubmitSingle(request.submissionFile, request.filesConfig)
-
             echo("SUCCESS: Submission $accNo, version: $version is in queue to be processed")
 
             if (request.await) client.waitForSubmission(accNo, version)
         }
-
-    private suspend fun BioWebClient.waitForSubmission(
-        accNo: String,
-        version: Int,
-    ) {
-        waitUntil(
-            interval = ofSeconds(CHECK_INTERVAL),
-        ) {
-            val status = getSubmissionRequestStatus(accNo, version)
-            val isProcessed = status == PROCESSED
-
-            if (isProcessed.not()) echo("INFO: Waiting for submission to be processed")
-
-            isProcessed
-        }
-
-        echo("SUCCESS: Submission $accNo, version: $version is processed")
-    }
 
     fun transfer(request: TransferRequest) =
         performRequest {
@@ -75,5 +57,21 @@ internal class SubmissionService {
 
     companion object {
         private const val CHECK_INTERVAL = 20L
+    }
+
+    private suspend fun BioWebClient.waitForSubmission(
+        accNo: String,
+        version: Int,
+    ) {
+        waitUntil(
+            checkInterval = ofSeconds(CHECK_INTERVAL),
+            timeout = FOREVER,
+        ) {
+            val status = getSubmissionRequestStatus(accNo, version)
+            echo("INFO: Waiting for submission to be PROCESSED. Current status: $status")
+            return@waitUntil status == PROCESSED
+        }
+
+        echo("SUCCESS: Submission $accNo, version: $version is processed")
     }
 }

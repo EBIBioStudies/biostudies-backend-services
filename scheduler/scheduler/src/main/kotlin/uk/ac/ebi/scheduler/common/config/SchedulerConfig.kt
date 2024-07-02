@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.EnableScheduling
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
-import uk.ac.ebi.biostd.client.cluster.api.RemoteClusterClient
+import uk.ac.ebi.biostd.client.cluster.api.LsfClusterClient
 import uk.ac.ebi.scheduler.common.properties.AppProperties
 import uk.ac.ebi.scheduler.pmc.exporter.api.ExporterProperties
 import uk.ac.ebi.scheduler.pmc.exporter.domain.ExporterTrigger
@@ -25,7 +25,7 @@ import uk.ac.ebi.scheduler.stats.domain.StatsReporterTrigger
 internal class SchedulerConfig {
     @Bean
     fun clusterOperations(appProperties: AppProperties): ClusterClient =
-        RemoteClusterClient.create(
+        LsfClusterClient.create(
             appProperties.cluster.sshKey,
             appProperties.cluster.server,
             appProperties.cluster.logsPath,

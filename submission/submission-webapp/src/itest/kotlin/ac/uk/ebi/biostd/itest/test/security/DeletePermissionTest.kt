@@ -277,7 +277,8 @@ class DeletePermissionTest(
             assertThat(superUserWebClient.submitSingle(submission2, TSV)).isSuccessful()
             assertThat(superUserWebClient.submitSingle(submission3, TSV)).isSuccessful()
 
-            val errorMsg = "The user biostudies-mgmt@ebi.ac.uk is not allowed to delete the submissions S-DLT111, S-DLT113"
+            val errorMsg =
+                "The user biostudies-mgmt@ebi.ac.uk is not allowed to delete the submissions S-DLT111, S-DLT113"
             assertThatExceptionOfType(WebClientException::class.java)
                 .isThrownBy { superUserWebClient.deleteSubmissions(listOf("S-DLT111", "S-DLT112", "S-DLT113")) }
                 .withMessageContaining(errorMsg)
@@ -335,7 +336,7 @@ class DeletePermissionTest(
         assertThat(deletedSubmission.version).isEqualTo(version)
     }
 
-    private fun setUpTestCollection() {
+    private suspend fun setUpTestCollection() {
         val project =
             tsv {
                 line("Submission", "ACollection")

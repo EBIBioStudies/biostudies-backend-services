@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -32,7 +33,6 @@ import ebi.ac.uk.util.collections.second
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -162,76 +162,80 @@ class FileListSubmissionTest(
         }
 
     @Test
-    fun `3-3 JSON submission with invalid file list format`() {
-        val fileList = tempFolder.createFile("FileList.txt", "Invalid file list")
-        val submission =
-            jsonObj {
-                "accno" to "S-TEST5"
-                "attributes" to
-                    jsonArray({
-                        "name" to "Title"
-                        "value" to "Test Submission"
-                    })
-                "section" to {
-                    "accno" to "SECT-001"
-                    "type" to "Study"
+    fun `3-3 JSON submission with invalid file list format`() =
+        runTest {
+            val fileList = tempFolder.createFile("FileList.txt", "Invalid file list")
+            val submission =
+                jsonObj {
+                    "accno" to "S-TEST5"
                     "attributes" to
-                        jsonArray(
-                            {
-                                "name" to "Title"
-                                "value" to "Root Section"
-                            },
-                            {
-                                "name" to "File List"
-                                "value" to "FileList.txt"
-                            },
-                        )
-                }
-            }.toString()
+                        jsonArray({
+                            "name" to "Title"
+                            "value" to "Test Submission"
+                        })
+                    "section" to {
+                        "accno" to "SECT-001"
+                        "type" to "Study"
+                        "attributes" to
+                            jsonArray(
+                                {
+                                    "name" to "Title"
+                                    "value" to "Root Section"
+                                },
+                                {
+                                    "name" to "File List"
+                                    "value" to "FileList.txt"
+                                },
+                            )
+                    }
+                }.toString()
 
-        val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
-        assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { webClient.submitSingle(submission, JSON, filesConfig) }
-            .withMessageContaining("Unsupported page tab format FileList.txt")
-    }
+            val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
+            val exeception =
+                assertThrows<WebClientException> {
+                    webClient.submitSingle(submission, JSON, filesConfig)
+                }
+            assertThat(exeception).hasMessageContaining("Unsupported page tab format FileList.txt")
+        }
 
     @Test
-    fun `3-4 list referenced files`() {
-        val referencedFile = tempFolder.createFile("referenced.txt")
-        val submission =
-            tsv {
-                line("Submission", "S-TEST6")
-                line("Title", "Submission With Inner File List")
-                line()
-
-                line("Study")
-                line("File List", "folder/inner-file-list.tsv")
-                line()
-            }.toString()
-
-        val fileList =
-            tempFolder.createFile(
-                "inner-file-list.tsv",
+    fun `3-4 list referenced files`() =
+        runTest {
+            val referencedFile = tempFolder.createFile("referenced.txt")
+            val submission =
                 tsv {
-                    line("Files", "GEN")
-                    line("referenced.txt", "ABC")
-                }.toString(),
-            )
+                    line("Submission", "S-TEST6")
+                    line("Title", "Submission With Inner File List")
+                    line()
 
-        webClient.uploadFile(fileList, "folder")
-        val filesConfig = SubmissionFilesConfig(listOf(referencedFile), storageMode)
-        assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
+                    line("Study")
+                    line("File List", "folder/inner-file-list.tsv")
+                    line()
+                }.toString()
 
-        val extSubmission = webClient.getExtByAccNo("S-TEST6")
-        val referencedFiles = webClient.getReferencedFiles(extSubmission.section.fileList!!.filesUrl!!).files
+            val fileList =
+                tempFolder.createFile(
+                    "inner-file-list.tsv",
+                    tsv {
+                        line("Files", "GEN")
+                        line("referenced.txt", "ABC")
+                    }.toString(),
+                )
 
-        assertThat(referencedFiles).hasSize(1)
-        val referenced = referencedFiles.first()
-        assertThat(referenced.filePath).isEqualTo("referenced.txt")
-        assertThat(referenced.relPath).isEqualTo("Files/referenced.txt")
-        assertThat(referenced.attributes).isEqualTo(listOf(ExtAttribute("GEN", "ABC")))
-        assertThat(referenced.md5).isEqualTo(referencedFile.md5())
-    }
+            webClient.uploadFile(fileList, "folder")
+            val filesConfig = SubmissionFilesConfig(listOf(referencedFile), storageMode)
+            assertThat(webClient.submitSingle(submission, TSV, filesConfig)).isSuccessful()
+
+            val extSubmission = webClient.getExtByAccNo("S-TEST6")
+            val referencedFiles = webClient.getReferencedFiles(extSubmission.section.fileList!!.filesUrl!!).files
+
+            assertThat(referencedFiles).hasSize(1)
+            val referenced = referencedFiles.first()
+            assertThat(referenced.filePath).isEqualTo("referenced.txt")
+            assertThat(referenced.relPath).isEqualTo("Files/referenced.txt")
+            assertThat(referenced.attributes).isEqualTo(listOf(ExtAttribute("GEN", "ABC")))
+            assertThat(referenced.md5).isEqualTo(referencedFile.md5())
+        }
 
     @Test
     @EnabledIfSystemProperty(named = "enableFire", matches = "false")
@@ -309,62 +313,64 @@ class FileListSubmissionTest(
         }
 
     @Test
-    fun `3-6 empty file list`() {
-        val sub =
-            tsv {
-                line("Submission", "S-TEST8")
-                line("Title", "Empty File List")
-                line()
-
-                line("Study")
-                line("File List", "empty-file-list.tsv")
-                line()
-            }.toString()
-
-        val fileList =
-            tempFolder.createFile(
-                "empty-file-list.tsv",
+    fun `3-6 empty file list`() =
+        runTest {
+            val sub =
                 tsv {
-                    line("Files", "GEN")
-                }.toString(),
-            )
+                    line("Submission", "S-TEST8")
+                    line("Title", "Empty File List")
+                    line()
 
-        val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
-        val exception = assertThrows(WebClientException::class.java) { webClient.submitSingle(sub, TSV, filesConfig) }
-        assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-        assertThat(exception).hasMessageContaining("A file list should contain at least one file")
-        fileList.delete()
-    }
+                    line("Study")
+                    line("File List", "empty-file-list.tsv")
+                    line()
+                }.toString()
+
+            val fileList =
+                tempFolder.createFile(
+                    "empty-file-list.tsv",
+                    tsv {
+                        line("Files", "GEN")
+                    }.toString(),
+                )
+
+            val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
+            val exception = assertThrows<WebClientException> { webClient.submitSingle(sub, TSV, filesConfig) }
+            assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(exception).hasMessageContaining("A file list should contain at least one file")
+            fileList.delete()
+        }
 
     @Test
-    fun `3-7 empty attribute name`() {
-        val referencedFile = tempFolder.createFile("File9.txt", "file 9 content")
-        val sub =
-            tsv {
-                line("Submission", "S-TEST9")
-                line("Title", "Empty Attribute Name")
-                line()
-
-                line("Study")
-                line("File List", "no-attr-name-file-list.tsv")
-                line()
-            }.toString()
-
-        val fileList =
-            tempFolder.createFile(
-                "no-attr-name-file-list.tsv",
+    fun `3-7 empty attribute name`() =
+        runTest {
+            val referencedFile = tempFolder.createFile("File9.txt", "file 9 content")
+            val sub =
                 tsv {
-                    line("Files", "GEN", "")
-                    line("File9.txt", "ABC", "DEF")
-                }.toString(),
-            )
+                    line("Submission", "S-TEST9")
+                    line("Title", "Empty Attribute Name")
+                    line()
 
-        val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
-        val exception = assertThrows(WebClientException::class.java) { webClient.submitSingle(sub, TSV, filesConfig) }
-        assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-        assertThat(exception).hasMessageContaining("Attribute name is required")
-        fileList.delete()
-    }
+                    line("Study")
+                    line("File List", "no-attr-name-file-list.tsv")
+                    line()
+                }.toString()
+
+            val fileList =
+                tempFolder.createFile(
+                    "no-attr-name-file-list.tsv",
+                    tsv {
+                        line("Files", "GEN", "")
+                        line("File9.txt", "ABC", "DEF")
+                    }.toString(),
+                )
+
+            val filesConfig = SubmissionFilesConfig(listOf(fileList, referencedFile), storageMode)
+            val exception = assertThrows<WebClientException> { webClient.submitSingle(sub, TSV, filesConfig) }
+            assertThat(exception.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+            assertThat(exception).hasMessageContaining("Attribute name is required")
+            fileList.delete()
+        }
 
     private suspend fun assertSubmissionFiles(
         accNo: String,
