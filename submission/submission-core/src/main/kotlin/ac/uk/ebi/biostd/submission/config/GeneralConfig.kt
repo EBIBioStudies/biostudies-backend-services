@@ -86,7 +86,7 @@ internal class GeneralConfig {
     fun clusterClient(properties: ApplicationProperties): ClusterClient =
         LsfClusterClient.create(
             properties.cluster.key,
-            properties.cluster.server,
+            properties.cluster.lsfServer,
             properties.cluster.logsPath,
         )
 
