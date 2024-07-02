@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.cluster.web
 
+import ac.uk.ebi.biostd.common.properties.Cluster
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping

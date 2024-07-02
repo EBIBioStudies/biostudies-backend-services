@@ -149,5 +149,5 @@ class SubmissionWebConfig {
     fun onBehalfUtils(securityQueryService: ISecurityQueryService): OnBehalfUtils = OnBehalfUtils(securityQueryService)
 
     @Bean
-    fun clusterExecutor(properties: ApplicationProperties) = ClusterExecutor(properties)
+    fun clusterExecutor(properties: ApplicationProperties): ClusterExecutor = ClusterExecutor(properties)
 }

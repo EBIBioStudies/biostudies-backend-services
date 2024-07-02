@@ -10,4 +10,11 @@ internal class JobResponseParserTest {
         assertThat(job.id).isEqualTo("9148559")
         assertThat(job.queue).isEqualTo("research-rh7")
     }
+
+    @Test
+    fun toJobSlurmRespone() {
+        val job = toSlurmJob("Submitted batch job 27223401")
+        assertThat(job.id).isEqualTo("27223401")
+        assertThat(job.queue).isEqualTo("not-specified")
+    }
 }

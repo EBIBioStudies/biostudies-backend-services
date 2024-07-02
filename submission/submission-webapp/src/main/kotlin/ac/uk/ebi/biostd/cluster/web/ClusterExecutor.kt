@@ -1,17 +1,20 @@
 package ac.uk.ebi.biostd.cluster.web
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.common.properties.Cluster
+import ac.uk.ebi.biostd.submission.config.GeneralConfig
 import uk.ac.ebi.biostd.client.cluster.api.LsfClusterClient
+import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 
-class ClusterExecutor private constructor(val lsfClusterClient: LsfClusterClient) {
+class ClusterExecutor private constructor(
+    val lsfClusterClient: LsfClusterClient,
+    val slurmClusterClient: SlurmClusterClient,
+) {
     constructor(properties: ApplicationProperties) : this(
-        LsfClusterClient.create(
-            properties.cluster.key,
-            properties.cluster.server,
-            properties.cluster.logsPath,
-        ),
+        lsfClusterClient = GeneralConfig.lsfCluster(properties),
+        slurmClusterClient = GeneralConfig.slurmCluster(properties),
     )
 
     suspend fun triggerJobAsync(
@@ -20,6 +23,7 @@ class ClusterExecutor private constructor(val lsfClusterClient: LsfClusterClient
     ): Result<Job> {
         return when (cluster) {
             Cluster.LSF -> lsfClusterClient.triggerJobAsync(jobSpec)
+            Cluster.SLURM -> slurmClusterClient.triggerJobAsync(jobSpec)
         }
     }
 
@@ -29,6 +33,7 @@ class ClusterExecutor private constructor(val lsfClusterClient: LsfClusterClient
     ): Job {
         return when (cluster) {
             Cluster.LSF -> lsfClusterClient.triggerJobSync(jobSpec)
+            Cluster.SLURM -> slurmClusterClient.triggerJobSync(jobSpec)
         }
     }
 
@@ -38,6 +43,7 @@ class ClusterExecutor private constructor(val lsfClusterClient: LsfClusterClient
     ): String {
         return when (cluster) {
             Cluster.LSF -> lsfClusterClient.jobStatus(jobId)
+            Cluster.SLURM -> slurmClusterClient.jobStatus(jobId)
         }
     }
 
@@ -47,20 +53,7 @@ class ClusterExecutor private constructor(val lsfClusterClient: LsfClusterClient
     ): String {
         return when (cluster) {
             Cluster.LSF -> lsfClusterClient.jobLogs(jobId)
-        }
-    }
-}
-
-enum class Cluster {
-    LSF,
-    ;
-
-    companion object {
-        fun fromName(name: String): Cluster {
-            return when (name.uppercase()) {
-                "LSF" -> LSF
-                else -> throw IllegalArgumentException("$name is not a valid cluster name")
-            }
+            Cluster.SLURM -> slurmClusterClient.jobLogs(jobId)
         }
     }
 }
