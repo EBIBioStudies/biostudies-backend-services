@@ -8,6 +8,10 @@ import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 
+/**
+ * Temporally class added with the purpose of testing both cluster type access. Expected to be deleted when codon
+ * service is completly deprecated.
+ */
 class ClusterExecutor private constructor(
     val lsfClusterClient: LsfClusterClient,
     val slurmClusterClient: SlurmClusterClient,
