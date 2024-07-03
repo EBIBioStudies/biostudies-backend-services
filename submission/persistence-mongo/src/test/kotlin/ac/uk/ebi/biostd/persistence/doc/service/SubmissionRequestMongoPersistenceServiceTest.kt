@@ -92,11 +92,10 @@ class SubmissionRequestMongoPersistenceServiceTest(
                     version,
                     REQUESTED,
                     "processId",
-                    {
-                        operation++
-                        RqtUpdate(it.copy(status = PERSISTED))
-                    },
-                )
+                ) {
+                    operation++
+                    RqtUpdate(it.copy(status = PERSISTED))
+                }
 
                 assertThat(operation).isOne()
                 val request = requestRepository.getByAccNoAndVersion(accNo, version)
@@ -161,8 +160,9 @@ class SubmissionRequestMongoPersistenceServiceTest(
                 notifyTo = "user@test.org",
                 submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                 totalFiles = 5,
-                deprecatedFiles = 10,
                 conflictingFiles = 1,
+                deprecatedFiles = 10,
+                reusedFiles = 2,
                 currentIndex = 0,
                 modificationTime = modificationTime,
                 statusChanges = emptyList(),
@@ -211,8 +211,9 @@ class SubmissionRequestMongoPersistenceServiceTest(
             notifyTo = "user@test.org",
             submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
             totalFiles = 5,
-            deprecatedFiles = 10,
             conflictingFiles = 1,
+            deprecatedFiles = 10,
+            reusedFiles = 2,
             currentIndex = 0,
             modificationTime = Instant.ofEpochMilli(1664981300),
             statusChanges = emptyList(),

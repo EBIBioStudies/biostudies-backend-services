@@ -26,7 +26,7 @@ interface FireWebClient {
 
     suspend fun publish(fireOid: String): FireApiFile
 
-    suspend fun unpublish(fireOid: String)
+    suspend fun unpublish(fireOid: String): FireApiFile
 
     suspend fun delete(fireOid: String)
 }

@@ -12,6 +12,7 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestOperations
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.awaitBody
 import uk.ac.ebi.fire.client.integration.web.FireWebClient
 import uk.ac.ebi.fire.client.model.FireApiFile
 import java.io.File
@@ -68,8 +69,8 @@ internal class FireWebClient(
         return client.putForObjectAsync<FireApiFile>("/objects/$fireOid/publish")
     }
 
-    override suspend fun unpublish(fireOid: String) {
-        client.deleteAsync("/objects/$fireOid/publish")
+    override suspend fun unpublish(fireOid: String): FireApiFile {
+        return client.delete().uri("/objects/$fireOid/publish").retrieve().awaitBody()
     }
 
     override suspend fun delete(fireOid: String) {

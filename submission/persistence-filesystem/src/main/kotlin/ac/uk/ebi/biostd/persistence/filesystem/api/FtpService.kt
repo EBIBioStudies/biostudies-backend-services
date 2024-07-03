@@ -8,4 +8,9 @@ internal interface FtpService {
         sub: ExtSubmissionInfo,
         file: ExtFile,
     ): ExtFile
+
+    suspend fun unReleaseSubmissionFile(
+        sub: ExtSubmissionInfo,
+        file: ExtFile,
+    ): ExtFile
 }

@@ -27,10 +27,10 @@ class SubmissionRequestSaver(
         processId: String,
     ) {
         val (rqt, submission) =
-            requestService.onRequest(accNo, version, CHECK_RELEASED, processId, {
+            requestService.onRequest(accNo, version, CHECK_RELEASED, processId) {
                 val sub = saveRequest(it.submission)
                 RqtResponse(it.withNewStatus(PERSISTED), sub)
-            })
+            }
         eventsPublisherService.submissionSubmitted(submission.accNo, rqt.notifyTo)
         eventsPublisherService.submissionPersisted(submission.accNo, submission.version)
     }

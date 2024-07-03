@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -61,11 +62,12 @@ class SubmissionRequestCleanIndexerTest(
             every { newSub.version } returns CURRENT_VERSION
             coEvery { queryService.findExtByAccNo(ACC_NO, includeFileListFiles = true) } returns null
 
-            val (previousVersion, conflicted, deprecated) = testInstance.indexRequest(newSub)
+            val (reused, deprecated, conflicting, currentVersion) = testInstance.indexRequest(newSub)
 
-            assertThat(previousVersion).isNull()
-            assertThat(conflicted).isZero()
+            assertThat(currentVersion).isNull()
+            assertThat(reused).isZero()
             assertThat(deprecated).isZero()
+            assertThat(conflicting).isZero()
             verify { serializationService wasNot Called }
         }
 
@@ -111,10 +113,11 @@ class SubmissionRequestCleanIndexerTest(
             coEvery { serializationService.filesFlow(currentSub) } returns flowOf(file)
             coEvery { fileRqtService.saveSubmissionRequestFile(any()) } coAnswers { nothing }
 
-            val (previousVersion, conflicted, deprecated) = testInstance.indexRequest(newSub)
+            val (reused, deprecated, conflicting, currentVersion) = testInstance.indexRequest(newSub)
 
-            assertThat(previousVersion).isEqualTo(CURRENT_VERSION)
-            assertThat(conflicted).isZero()
+            assertThat(currentVersion).isEqualTo(CURRENT_VERSION)
+            assertThat(reused).isZero()
+            assertThat(conflicting).isZero()
             assertThat(deprecated).isOne()
             coVerify { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlot)) }
             val requestFile = requestFileSlot.captured
@@ -149,11 +152,12 @@ class SubmissionRequestCleanIndexerTest(
 
             every { newSub.storageMode } returns FIRE
 
-            val (previousVersion, conflicted, deprecated) = testInstance.indexRequest(newSub)
+            val (reused, deprecated, conflicting, currentVersion) = testInstance.indexRequest(newSub)
 
-            assertThat(previousVersion).isEqualTo(CURRENT_VERSION)
-            assertThat(conflicted).isZero()
+            assertThat(currentVersion).isEqualTo(CURRENT_VERSION)
+            assertThat(reused).isZero()
             assertThat(deprecated).isOne()
+            assertThat(conflicting).isZero()
             coVerify { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlot)) }
             val requestFile = requestFileSlot.captured
             assertThat(requestFile.status).isEqualTo(DEPRECATED)
@@ -183,13 +187,19 @@ class SubmissionRequestCleanIndexerTest(
 
             mockkStatic(ExtSerializationService::filesFlow)
             coEvery { serializationService.filesFlow(currentSub) } returns flowOf(file)
+            coEvery { fileRqtService.saveSubmissionRequestFile(any()) } coAnswers { nothing }
 
-            val (previousVersion, conflicted, deprecated) = testInstance.indexRequest(newSub)
+            val (reused, deprecated, conflicting, currentVersion) = testInstance.indexRequest(newSub)
 
-            assertThat(previousVersion).isEqualTo(CURRENT_VERSION)
-            assertThat(conflicted).isZero()
+            assertThat(currentVersion).isEqualTo(CURRENT_VERSION)
+            assertThat(reused).isOne()
             assertThat(deprecated).isZero()
-            coVerify(exactly = 0) { fileRqtService.saveSubmissionRequestFile(any()) }
+            assertThat(conflicting).isZero()
+            coVerify { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlot)) }
+
+            val requestFile = requestFileSlot.captured
+            assertThat(requestFile.status).isEqualTo(REUSED)
+            assertThat(requestFile.file).isEqualTo(file)
         }
 
         @Test
@@ -217,11 +227,12 @@ class SubmissionRequestCleanIndexerTest(
             coEvery { serializationService.filesFlow(currentSub) } returns flowOf(replacedFile)
             coEvery { fileRqtService.saveSubmissionRequestFile(any()) } coAnswers { nothing }
 
-            val (previousVersion, conflicted, deprecated) = testInstance.indexRequest(newSub)
+            val (reused, deprecated, conflicting, currentVersion) = testInstance.indexRequest(newSub)
 
-            assertThat(previousVersion).isEqualTo(CURRENT_VERSION)
-            assertThat(conflicted).isOne()
+            assertThat(currentVersion).isEqualTo(CURRENT_VERSION)
+            assertThat(reused).isZero()
             assertThat(deprecated).isZero()
+            assertThat(conflicting).isOne()
             coVerify { fileRqtService.saveSubmissionRequestFile(capture(requestFileSlot)) }
 
             val requestFile = requestFileSlot.captured
@@ -230,7 +241,7 @@ class SubmissionRequestCleanIndexerTest(
         }
     }
 
-    companion object {
+    private companion object {
         const val ACC_NO = "abc"
         const val NEW_VERSION = 2
         const val CURRENT_VERSION = 1

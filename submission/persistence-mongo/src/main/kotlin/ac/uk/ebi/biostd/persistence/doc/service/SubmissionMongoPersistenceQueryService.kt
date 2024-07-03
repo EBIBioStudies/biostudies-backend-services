@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 import kotlin.math.max
 
+@Suppress("TooManyFunctions")
 internal class SubmissionMongoPersistenceQueryService(
     private val submissionRepo: SubmissionDocDataRepository,
     private val toExtSubmissionMapper: ToExtSubmissionMapper,
@@ -76,6 +77,11 @@ internal class SubmissionMongoPersistenceQueryService(
         val page = submissionRepo.getSubmissionsPage(filter)
         val items = page.content.map { toExtSubmissionMapper.toExtSubmission(it, false) }
         return PageImpl(items.toList(), PageRequest.of(filter.pageNumber, filter.limit), page.totalElements)
+    }
+
+    override suspend fun findCoreInfo(accNo: String): ExtSubmissionInfo? {
+        val sub = submissionRepo.findByAccNo(accNo)
+        return sub?.let { Info(it.accNo, it.version, it.owner, it.released, it.secretKey, it.relPath, it.storageMode) }
     }
 
     override suspend fun getCoreInfoByAccNoAndVersion(
