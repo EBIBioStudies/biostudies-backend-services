@@ -6,14 +6,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class SshClient private constructor(
-    private val sshMachine: String,
+    private val sshServer: String,
     private val jSch: JSch,
 ) {
     constructor(sshMachine: String, sshKey: String) : this(sshMachine, JSch().apply { addIdentity(sshKey) })
 
     internal suspend fun <T> runInSession(exec: suspend CommandRunner.() -> T): T {
         fun createSession(): Session {
-            val session = jSch.getSession(sshMachine)
+            val session = jSch.getSession(sshServer)
             session.setConfig("StrictHostKeyChecking", "no")
             return session
         }

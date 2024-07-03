@@ -15,10 +15,10 @@ private val logger = KotlinLogging.logger {}
 
 class SlurmClusterClient(
     private val logsPath: String,
-    private val sshMachine: String,
+    private val sshServer: String,
     private val sshKey: String,
 ) : ClusterClient {
-    private val sshClient by lazy { SshClient(sshMachine = sshMachine, sshKey = sshKey) }
+    private val sshClient by lazy { SshClient(sshMachine = sshServer, sshKey = sshKey) }
 
     override suspend fun triggerJobAsync(jobSpec: JobSpec): Result<Job> {
         val parameters = mutableListOf("sbatch --output=$logsPath/%J_OUT --error=$logsPath/%J_IN")
@@ -51,13 +51,17 @@ class SlurmClusterClient(
             if (status.isBlank()) return null else return status
         }
 
-        suspend fun CommandRunner.historicalJobStatus(): String {
+        suspend fun CommandRunner.historicalJobStatus(): String? {
             val command = "sacct --noheader --format=JobID,State --jobs=$jobId | grep \"^$jobId \" | awk '{print \$2}'"
-            return executeCommand(command).second
+            val status = executeCommand(command).second
+            if (status.isBlank()) return null else return status
         }
 
         return sshClient.runInSession {
-            val status = runningJobStatus() ?: historicalJobStatus()
+            val status =
+                runningJobStatus()
+                    ?: historicalJobStatus()
+                    ?: error("Could not find status for job $jobId in Slurm cluster")
             logger.info { "Job $jobId status $status" }
             status
         }
@@ -104,7 +108,7 @@ class SlurmClusterClient(
             sshMachine: String,
             logsPath: String,
         ): SlurmClusterClient {
-            return SlurmClusterClient(logsPath = logsPath, sshMachine = sshMachine, sshKey = sshKey)
+            return SlurmClusterClient(logsPath = logsPath, sshServer = sshMachine, sshKey = sshKey)
         }
 
         fun JobSpec.asParameter(): List<String> =

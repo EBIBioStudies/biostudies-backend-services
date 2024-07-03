@@ -1,6 +1,7 @@
 package uk.ac.ebi.biostd.client.cluster.common
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Test
 
 internal class JobResponseParserTest {
@@ -12,9 +13,23 @@ internal class JobResponseParserTest {
     }
 
     @Test
+    fun toJobLsfWhenError() {
+        assertThatExceptionOfType(IllegalStateException::class.java)
+            .isThrownBy { toLsfJob("Job Could not be submitted") }
+            .withMessage("could not parse response, 'Job Could not be submitted'")
+    }
+
+    @Test
     fun toJobSlurmRespone() {
         val job = toSlurmJob("Submitted batch job 27223401")
         assertThat(job.id).isEqualTo("27223401")
         assertThat(job.queue).isEqualTo("not-specified")
+    }
+
+    @Test
+    fun toJobSlurmResponeWhenError() {
+        assertThatExceptionOfType(IllegalStateException::class.java)
+            .isThrownBy { toSlurmJob("Job Could not be submitted") }
+            .withMessage("could not parse response, 'Job Could not be submitted'")
     }
 }
