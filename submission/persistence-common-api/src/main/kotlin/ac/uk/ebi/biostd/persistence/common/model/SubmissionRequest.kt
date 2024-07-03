@@ -13,6 +13,7 @@ data class SubmissionRequest(
     val totalFiles: Int,
     val conflictingFiles: Int,
     val deprecatedFiles: Int,
+    val reusedFiles: Int,
     val currentIndex: Int,
     val modificationTime: OffsetDateTime,
     val previousVersion: Int?,
@@ -25,6 +26,7 @@ data class SubmissionRequest(
         totalFiles = 0,
         conflictingFiles = 0,
         deprecatedFiles = 0,
+        reusedFiles = 0,
         currentIndex = 0,
         previousVersion = null,
         modificationTime = OffsetDateTime.now(),
@@ -60,6 +62,7 @@ data class SubmissionRequest(
     fun cleanIndexed(
         conflictingFiles: Int,
         deprecatedFiles: Int,
+        reusedFiles: Int,
         previousVersion: Int?,
     ): SubmissionRequest {
         return copy(
@@ -68,6 +71,7 @@ data class SubmissionRequest(
             currentIndex = 0,
             conflictingFiles = conflictingFiles,
             deprecatedFiles = deprecatedFiles,
+            reusedFiles = reusedFiles,
             previousVersion = previousVersion,
         )
     }
