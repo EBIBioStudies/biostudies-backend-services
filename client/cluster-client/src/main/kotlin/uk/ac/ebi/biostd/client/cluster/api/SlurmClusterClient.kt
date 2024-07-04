@@ -1,10 +1,10 @@
 package uk.ac.ebi.biostd.client.cluster.api
 
+import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.coroutines.waitUntil
 import mu.KotlinLogging
 import uk.ac.ebi.biostd.client.cluster.common.JobSubmitFailException
-import uk.ac.ebi.biostd.client.cluster.common.toLsfJob
-import uk.ac.ebi.biostd.client.cluster.exception.FailedJobException
+import uk.ac.ebi.biostd.client.cluster.common.toSlurmJob
 import uk.ac.ebi.biostd.client.cluster.model.Job
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
 import java.time.Duration.ofSeconds
@@ -13,7 +13,7 @@ import kotlin.Result.Companion.success
 
 private val logger = KotlinLogging.logger {}
 
-class LsfClusterClient(
+class SlurmClusterClient(
     private val logsPath: String,
     private val sshServer: String,
     private val sshKey: String,
@@ -21,7 +21,7 @@ class LsfClusterClient(
     private val sshClient by lazy { SshClient(sshMachine = sshServer, sshKey = sshKey) }
 
     override suspend fun triggerJobAsync(jobSpec: JobSpec): Result<Job> {
-        val parameters = mutableListOf("bsub -o $logsPath/%J_OUT -e $logsPath/%J_IN")
+        val parameters = mutableListOf("sbatch --output=$logsPath/%J_OUT --error=$logsPath/%J_IN")
         parameters.addAll(jobSpec.asParameter())
         val command = parameters.joinToString(separator = " ")
         logger.info { "Executing command '$command'" }
@@ -42,9 +42,26 @@ class LsfClusterClient(
         return job
     }
 
+    /**
+     * Return the slurm job status. PENDING/RUNNING/COMPLETING/COMPLETED
+     */
     override suspend fun jobStatus(jobId: String): String {
+        suspend fun CommandRunner.runningJobStatus(): String? {
+            val status = executeCommand("squeue --noheader --format=%T --job $jobId").second
+            if (status.isBlank()) return null else return status
+        }
+
+        suspend fun CommandRunner.historicalJobStatus(): String? {
+            val command = "sacct --noheader --format=JobID,State --jobs=$jobId | grep \"^$jobId \" | awk '{print \$2}'"
+            val status = executeCommand(command).second
+            if (status.isBlank()) return null else return status
+        }
+
         return sshClient.runInSession {
-            val status = executeCommand("bjobs -o STAT -noheader $jobId").second
+            val status =
+                runningJobStatus()
+                    ?: historicalJobStatus()
+                    ?: error("Could not find status for job $jobId in Slurm cluster")
             logger.info { "Job $jobId status $status" }
             status
         }
@@ -62,17 +79,15 @@ class LsfClusterClient(
         checkJobInterval: Long,
         maxSecondsDuration: Long,
     ) {
-        sshClient.runInSession {
+        return sshClient.runInSession {
             waitUntil(
                 checkInterval = ofSeconds(checkJobInterval),
                 timeout = ofSeconds(maxSecondsDuration),
             ) {
                 val status = jobStatus(job.id)
-                when (status) {
-                    DONE_STATUS -> true
-                    EXIT_STATUS -> throw FailedJobException(job)
-                    else -> false
-                }
+                val completed = status == "COMPLETED"
+                if (completed.orFalse()) logger.info { "Job ${job.id} status is $status. Waiting for completion" }
+                return@waitUntil completed
             }
         }
     }
@@ -81,40 +96,28 @@ class LsfClusterClient(
         exitCode: Int,
         response: String,
     ): Result<Job> {
-        if (exitCode == 0) return success(toLsfJob(response))
+        if (exitCode == 0) return success(toSlurmJob(response))
 
         logger.error(response) { "Error submission job, exitCode='$exitCode', response='$response'" }
         return failure(JobSubmitFailException(response))
     }
 
     companion object {
-        const val DONE_STATUS = "DONE"
-        const val EXIT_STATUS = "EXIT"
-        const val PEND_STATUS = "PEND"
-
         fun create(
             sshKey: String,
             sshMachine: String,
             logsPath: String,
-        ): LsfClusterClient {
-            return LsfClusterClient(logsPath = logsPath, sshKey = sshKey, sshServer = sshMachine)
+        ): SlurmClusterClient {
+            return SlurmClusterClient(logsPath = logsPath, sshServer = sshMachine, sshKey = sshKey)
         }
+
+        fun JobSpec.asParameter(): List<String> =
+            buildList {
+                add("--cores=$cores")
+                add("--time=$minutes")
+                add("--mem=$ram")
+                add("--partition=${queue.name}")
+                add("--wrap=\"$command\"")
+            }
     }
-
-    private fun JobSpec.asParameter(): List<String> =
-        buildList {
-            add("-n")
-            add(cores.toString())
-
-            add("-M")
-            add(ram.toString())
-
-            add("-R")
-            add("rusage[mem=$ram]")
-
-            add("-q")
-            add(queue.name)
-
-            add(command)
-        }
 }
