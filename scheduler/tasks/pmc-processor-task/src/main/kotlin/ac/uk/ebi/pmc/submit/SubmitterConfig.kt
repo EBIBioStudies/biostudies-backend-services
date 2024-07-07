@@ -2,8 +2,8 @@ package ac.uk.ebi.pmc.submit
 
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
 import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
-import ac.uk.ebi.pmc.persistence.ErrorsDocService
-import ac.uk.ebi.pmc.persistence.SubmissionDocService
+import ac.uk.ebi.pmc.persistence.domain.ErrorsService
+import ac.uk.ebi.pmc.persistence.domain.SubmissionService
 import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -24,7 +24,7 @@ class SubmitterConfig {
     @Bean
     fun pmcSubmitter(
         bioWebClient: BioWebClient,
-        errorsDocService: ErrorsDocService,
-        submissionDocService: SubmissionDocService,
+        errorsDocService: ErrorsService,
+        submissionDocService: SubmissionService,
     ) = PmcSubmitter(bioWebClient, errorsDocService, submissionDocService)
 }

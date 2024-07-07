@@ -1,31 +1,31 @@
 package ac.uk.ebi.pmc.load
 
-import ac.uk.ebi.pmc.persistence.ErrorsDocService
-import ac.uk.ebi.pmc.persistence.InputFilesDocService
-import ac.uk.ebi.pmc.persistence.SubmissionDocService
+import ac.uk.ebi.pmc.persistence.domain.ErrorsService
+import ac.uk.ebi.pmc.persistence.domain.InputFilesService
+import ac.uk.ebi.pmc.persistence.domain.SubmissionService
 import ac.uk.ebi.scheduler.properties.PmcMode
 import ebi.ac.uk.base.splitIgnoringEmpty
+import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.SUB_SEPARATOR
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import java.io.File
 
 private val sanitizeRegex = "(\n)(\t)*|(\t)+(\n)".toRegex()
 
-private const val BUFFER_SIZE = 30
+private const val CONCURRENCY = 30
 private val logger = KotlinLogging.logger {}
 
 class PmcSubmissionLoader(
     private val pmcSubmissionTabProcessor: PmcSubmissionTabProcessor,
-    private val errorDocService: ErrorsDocService,
-    private val inputFilesDocService: InputFilesDocService,
-    private val submissionService: SubmissionDocService,
+    private val errorService: ErrorsService,
+    private val inputFilesService: InputFilesService,
+    private val submissionService: SubmissionService,
 ) {
     /**
      * Process the given plain file and load submissions into database. Previously loaded submission are register
@@ -36,60 +36,62 @@ class PmcSubmissionLoader(
     suspend fun processFile(
         file: FileSpec,
         processedFolder: File,
-    ) = withContext(Dispatchers.Default) {
-        logger.info { "processing file ${file.name}" }
-        val toLoad = loadSubmissions(file)
-        toLoad.buffer(BUFFER_SIZE).collect {
-            val (source, submission, positionInFile) = it
-            val (body, result) = deserialize(submission)
-            loadSubmission(result, body, source, positionInFile)
-        }
+    ) {
+        logger.info { "processing file ${file.name} in folder ${processedFolder.name}" }
 
-        inputFilesDocService.reportProcessed(file)
+        loadSubmissions(file)
+            .concurrently(CONCURRENCY, {
+                val (source, submission, positionInFile) = it
+                val (body, result) = deserialize(submission)
+                loadSubmission(result, body, source, positionInFile)
+            }).collect()
+
+        inputFilesService.reportProcessed(file)
         moveFile(file.originalFile, processedFolder.resolve(file.originalFile.name))
     }
 
     suspend fun processCorruptedFile(
-        pair: Pair<File, Throwable>,
-        failedFolder: File,
+        file: File,
+        failFolder: File,
+        error: Throwable,
     ) {
-        logger.info { "processing file ${pair.first.name}" }
-        inputFilesDocService.reportFailed(pair.first, pair.second.stackTraceToString())
-        moveFile(pair.first, failedFolder.resolve(pair.first.name))
+        logger.info { "processing file ${file.name}" }
+        inputFilesService.reportFailed(file, error.stackTraceToString())
+        moveFile(file, failFolder.resolve(file.name))
     }
 
-    private fun moveFile(
+    private suspend fun moveFile(
         file: File,
         processed: File,
-    ) {
-        file.copyTo(processed, overwrite = true)
-        file.delete()
-    }
-
-    private fun loadSubmissions(file: FileSpec): Flow<LoadedSubmissionInfo> =
-        flow {
-            sanitize(file.content)
-                .splitIgnoringEmpty(SUB_SEPARATOR)
-                .forEachIndexed { index, submissionBody -> emit(LoadedSubmissionInfo(file, submissionBody, index)) }
+    ): Unit =
+        withContext(Dispatchers.IO) {
+            file.copyTo(processed, overwrite = true)
+            file.delete()
         }
+
+    private fun loadSubmissions(file: FileSpec): Flow<LoadedSubmissionInfo> {
+        return file.content.replace(sanitizeRegex, "\n")
+            .splitIgnoringEmpty(SUB_SEPARATOR)
+            .mapIndexed { index, submissionBody -> LoadedSubmissionInfo(file, submissionBody, index) }
+            .asFlow()
+    }
 
     private suspend fun loadSubmission(
         result: Result<Submission>,
         body: String,
         file: FileSpec,
         positionInFile: Int,
-    ) = result.fold(
-        { submissionService.saveLoadedVersion(it, file.name, file.modified, positionInFile) },
-        { errorDocService.saveError(file.name, body, PmcMode.LOAD, it) },
-    )
+    ): Unit =
+        result.fold(
+            { submissionService.saveLoadedVersion(it, file.name, positionInFile) },
+            { errorService.saveError(file.name, body, PmcMode.LOAD, it) },
+        )
 
     private fun deserialize(originalPagetab: String): Pair<String, Result<Submission>> =
         Pair(
             originalPagetab,
             runCatching { pmcSubmissionTabProcessor.transformSubmission(originalPagetab) },
         )
-
-    private fun sanitize(fileText: String) = fileText.replace(sanitizeRegex, "\n")
 }
 
 private data class LoadedSubmissionInfo(

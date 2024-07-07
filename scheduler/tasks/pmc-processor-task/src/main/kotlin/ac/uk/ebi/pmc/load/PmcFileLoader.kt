@@ -31,7 +31,7 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
             processFiles(
                 toProcess = files,
                 processed = folder.createSubFolder("processed"),
-                failed = folder.createSubFolder("failed"),
+                folder = folder.createSubFolder("failed"),
             )
         }
     }
@@ -39,7 +39,7 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
     private suspend fun processFiles(
         toProcess: List<File>,
         processed: File,
-        failed: File,
+        folder: File,
     ) {
         toProcess.asSequence()
             .onEach { file -> logger.info { "checking file '${file.absolutePath}'" } }
@@ -47,7 +47,7 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
             .forEach { either ->
                 either.fold(
                     { pmcLoader.processFile(it, processed) },
-                    { pmcLoader.processCorruptedFile(it, failed) },
+                    { (file, error) -> pmcLoader.processCorruptedFile(file, folder, error) },
                 )
             }
     }

@@ -3,33 +3,38 @@ package ac.uk.ebi.pmc.migrations
 import ac.uk.ebi.pmc.config.ERRORS_COL
 import ac.uk.ebi.pmc.config.INPUT_FILES_COL
 import ac.uk.ebi.pmc.config.PersistenceConfig
-import ac.uk.ebi.pmc.config.PersistenceConfig.Companion.createMongockConfig
 import ac.uk.ebi.pmc.config.PropConfig
 import ac.uk.ebi.pmc.config.SUBMISSION_COL
 import ac.uk.ebi.pmc.config.SUB_FILES_COL
-import ac.uk.ebi.pmc.persistence.docs.FileDoc.Fields.FILE_DOC_ACC_NO
-import ac.uk.ebi.pmc.persistence.docs.FileDoc.Fields.FILE_DOC_PATH
-import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_ACC_NO
-import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_POS_IN_FILE
-import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_SOURCE_FILE
-import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_SOURCE_TIME
-import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc.Fields.SUB_STATUS
-import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_ACCNO
-import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_MODE
-import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_SOURCE_FILE
-import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc.Fields.ERROR_UPLOADED
+import ac.uk.ebi.pmc.persistence.docs.SubFileDocument.Fields.FILE_DOC_ACC_NO
+import ac.uk.ebi.pmc.persistence.docs.SubFileDocument.Fields.FILE_DOC_PATH
+import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument.Fields.SUB_ACC_NO
+import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument.Fields.SUB_POS_IN_FILE
+import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument.Fields.SUB_SOURCE_FILE
+import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument.Fields.SUB_SOURCE_TIME
+import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument.Fields.SUB_STATUS
+import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDocument.Fields.ERROR_ACCNO
+import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDocument.Fields.ERROR_MODE
+import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDocument.Fields.ERROR_SOURCE_FILE
+import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDocument.Fields.ERROR_UPLOADED
 import ebi.ac.uk.db.MINIMUM_RUNNING_TIME
 import ebi.ac.uk.db.MONGO_VERSION
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
+import kotlinx.coroutines.reactive.awaitFirst
+import kotlinx.coroutines.reactive.awaitFirstOrNull
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.bson.Document
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.DefaultApplicationArguments
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.data.domain.Sort.Direction.ASC
-import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate
 import org.springframework.data.mongodb.core.index.Index
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -46,42 +51,52 @@ import java.time.Duration.ofSeconds
 @Testcontainers
 internal class PMCDatabaseChangeLogTest(
     @Autowired private val springContext: ApplicationContext,
-    @Autowired private val mongoTemplate: MongoTemplate,
+    @Autowired private val mongoTemplate: ReactiveMongoTemplate,
 ) {
     @BeforeEach
-    fun init() {
-        mongoTemplate.collectionNames.forEach { name -> mongoTemplate.dropCollection(name) }
-    }
+    fun init(): Unit =
+        runBlocking {
+            mongoTemplate.collectionNames.asFlow()
+                .collect { name -> mongoTemplate.dropCollection(name).awaitFirstOrNull() }
+        }
 
     @Test
-    fun `create schema migration 001 when collections does not exists`() {
-        runPMCMigrations()
+    fun `create schema migration 001 when collections does not exists`() =
+        runTest {
+            mongoTemplate.executeMigrations()
 
-        assertErrorsCollection()
-        assertSubmissionCollection()
-        assertFilesSubmissionsCollection()
-        assertInputFilesCollection()
-    }
+            assertErrorsCollection()
+            assertSubmissionCollection()
+            assertFilesSubmissionsCollection()
+            assertInputFilesCollection()
+        }
 
     @Test
-    fun `create schema migration 001 when collections exists`() {
-        mongoTemplate.createCollection(ERRORS_COL)
-        mongoTemplate.createCollection(SUBMISSION_COL)
-        mongoTemplate.createCollection(SUB_FILES_COL)
-        mongoTemplate.createCollection(INPUT_FILES_COL)
+    fun `create schema migration 001 when collections exists`() =
+        runTest {
+            mongoTemplate.createCollection(ERRORS_COL)
+            mongoTemplate.createCollection(SUBMISSION_COL)
+            mongoTemplate.createCollection(SUB_FILES_COL)
+            mongoTemplate.createCollection(INPUT_FILES_COL)
 
-        runPMCMigrations()
+            mongoTemplate.executeMigrations()
 
-        assertErrorsCollection()
-        assertSubmissionCollection()
-        assertFilesSubmissionsCollection()
-        assertInputFilesCollection()
+            assertErrorsCollection()
+            assertSubmissionCollection()
+            assertFilesSubmissionsCollection()
+            assertInputFilesCollection()
+        }
+
+    private suspend fun ReactiveMongoTemplate.colIndexes(name: String): List<Document> {
+        return mongoTemplate.getCollection(name)
+            .awaitFirst().listIndexes().asFlow().toList()
+            .map { it["key"] as Document }
     }
 
-    private fun assertErrorsCollection() {
-        val indexes = mongoTemplate.getCollection(ERRORS_COL).listIndexes().map { it["key"]!! }
+    private suspend fun assertErrorsCollection() {
+        val indexes = mongoTemplate.colIndexes(ERRORS_COL)
 
-        assertThat(mongoTemplate.collectionExists(ERRORS_COL)).isTrue
+        assertThat(mongoTemplate.collectionExists(ERRORS_COL).awaitFirst()).isTrue()
         assertThat(indexes).hasSize(5)
 
         assertThat(indexes).contains(Index().on("_id", ASC).indexKeys)
@@ -91,10 +106,10 @@ internal class PMCDatabaseChangeLogTest(
         assertThat(indexes).contains(Index().on(ERROR_UPLOADED, ASC).indexKeys)
     }
 
-    private fun assertSubmissionCollection() {
-        val indexes = mongoTemplate.getCollection(SUBMISSION_COL).listIndexes().map { it["key"]!! }
+    private suspend fun assertSubmissionCollection() {
+        val indexes = mongoTemplate.colIndexes(SUBMISSION_COL)
 
-        assertThat(mongoTemplate.collectionExists(SUBMISSION_COL)).isTrue
+        assertThat(mongoTemplate.collectionExists(SUBMISSION_COL).awaitFirst()).isTrue()
         assertThat(indexes).hasSize(8)
 
         assertThat(indexes).contains(Index().on("_id", ASC).indexKeys)
@@ -109,34 +124,24 @@ internal class PMCDatabaseChangeLogTest(
         assertThat(indexes).contains(Index().on(SUB_SOURCE_TIME, ASC).indexKeys)
     }
 
-    private fun assertFilesSubmissionsCollection() {
-        val indexes = mongoTemplate.getCollection(SUB_FILES_COL).listIndexes().map { it["key"]!! }
+    private suspend fun assertFilesSubmissionsCollection() {
+        val indexes = mongoTemplate.colIndexes(SUB_FILES_COL)
 
-        assertThat(mongoTemplate.collectionExists(SUB_FILES_COL)).isTrue
+        assertThat(mongoTemplate.collectionExists(SUB_FILES_COL).awaitFirst()).isTrue()
         assertThat(indexes).hasSize(1)
 
         assertThat(indexes).contains(Index().on("_id", ASC).indexKeys)
     }
 
-    private fun assertInputFilesCollection() {
-        val indexes = mongoTemplate.getCollection(INPUT_FILES_COL).listIndexes().map { it["key"]!! }
+    private suspend fun assertInputFilesCollection() {
+        val indexes = mongoTemplate.colIndexes(INPUT_FILES_COL)
 
-        assertThat(mongoTemplate.collectionExists(INPUT_FILES_COL)).isTrue
+        assertThat(mongoTemplate.collectionExists(INPUT_FILES_COL).awaitFirst()).isTrue()
         assertThat(indexes).hasSize(3)
 
         assertThat(indexes).contains(Index().on("_id", ASC).indexKeys)
         assertThat(indexes).contains(Index().on(FILE_DOC_ACC_NO, ASC).indexKeys)
         assertThat(indexes).contains(Index().on(FILE_DOC_PATH, ASC).indexKeys)
-    }
-
-    private fun runPMCMigrations() {
-        val runner =
-            createMongockConfig(
-                mongoTemplate,
-                springContext,
-                "ac.uk.ebi.pmc.migrations",
-            )
-        runner.run(DefaultApplicationArguments())
     }
 
     companion object {

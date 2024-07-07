@@ -1,8 +1,8 @@
 package ac.uk.ebi.pmc.process
 
-import ac.uk.ebi.pmc.persistence.ErrorsDocService
-import ac.uk.ebi.pmc.persistence.SubmissionDocService
-import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
+import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument
+import ac.uk.ebi.pmc.persistence.domain.ErrorsService
+import ac.uk.ebi.pmc.persistence.domain.SubmissionService
 import ac.uk.ebi.pmc.process.util.FileDownloader
 import ac.uk.ebi.pmc.process.util.SubmissionInitializer
 import ac.uk.ebi.scheduler.properties.PmcMode
@@ -12,40 +12,40 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 
-private const val BUFFER_SIZE = 30
+private const val CONCURRENCY = 30
 
 class PmcProcessor(
-    private val errorDocService: ErrorsDocService,
     private val submissionInitializer: SubmissionInitializer,
-    private val submissionDocService: SubmissionDocService,
+    private val errorService: ErrorsService,
+    private val submissionService: SubmissionService,
     private val fileDownloader: FileDownloader,
 ) {
-    fun processAll(sourceFile: String?): Unit = runBlocking { processAllSubmissions(sourceFile) }
+    fun processAll(sourceFile: String?): Unit = runBlocking { processSubmissions(sourceFile) }
 
-    private suspend fun processAllSubmissions(sourceFile: String?) {
+    private suspend fun processSubmissions(sourceFile: String?) {
         supervisorScope {
-            submissionDocService.findReadyToProcess(sourceFile)
-                .concurrently(BUFFER_SIZE) { processSubmission(it) }
+            submissionService.findReadyToProcess(sourceFile)
+                .concurrently(CONCURRENCY) { processSubmission(it) }
                 .collect()
         }
     }
 
-    private suspend fun processSubmission(submissionDoc: SubmissionDoc) {
-        runCatching { submissionInitializer.getSubmission(submissionDoc.body) }
+    private suspend fun processSubmission(subDoc: SubmissionDocument) {
+        runCatching { submissionInitializer.getSubmission(subDoc.body) }
             .fold(
-                { (submission, body) -> downloadFiles(submission, body, submissionDoc) },
-                { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
+                { (sub, subBody) -> downloadFiles(sub, subBody, subDoc) },
+                { errorService.saveError(subDoc, PmcMode.PROCESS, it) },
             )
     }
 
     private suspend fun downloadFiles(
         submission: Submission,
         subBody: String,
-        submissionDoc: SubmissionDoc,
+        sub: SubmissionDocument,
     ) {
         fileDownloader.downloadFiles(submission).fold(
-            { submissionDocService.saveProcessedSubmission(submissionDoc.withBody(subBody), it) },
-            { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
+            { submissionService.saveProcessedSubmission(sub.copy(body = subBody), it) },
+            { errorService.saveError(sub, PmcMode.PROCESS, it) },
         )
     }
 }

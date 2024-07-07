@@ -1,18 +1,11 @@
 package ac.uk.ebi.pmc
 
-import ac.uk.ebi.pmc.persistence.docs.FileDoc
-import ac.uk.ebi.pmc.persistence.docs.InputFileDoc
-import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
-import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc
-import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.LOADED
-import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.PROCESSED
-import ac.uk.ebi.scheduler.properties.PmcMode
+import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument
+import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
 import ebi.ac.uk.model.Attribute
 import java.time.Instant
-import java.time.Instant.ofEpochSecond
-import ac.uk.ebi.pmc.persistence.docs.InputFileStatus.PROCESSED as PROCESSED1
 
 const val FILE1_CONTENT = "that is the content"
 const val FILE2_CONTENT = "that is another the content"
@@ -129,41 +122,37 @@ val prcoessedSubmissionBody =
     }
 
 internal val docSubmission =
-    SubmissionDoc(
+    SubmissionDocument(
         accNo = "S-123SUCCESS",
         body = submissionBody.toString(),
-        status = LOADED,
+        status = SubmissionStatus.LOADED,
         sourceFile = "sourceFile1",
         posInFile = 0,
-        sourceTime = Instant.parse("2021-03-14T08:41:02Z"),
+        sourceTime = 2021_03_14_1,
         files = listOf(),
         updated = Instant.parse("2021-03-14T08:41:45.090Z"),
     )
 
 internal val invalidFileSubmission =
-    SubmissionDoc(
+    SubmissionDocument(
         accNo = "S-EPMC8901234",
         body = invalidFileSubmissionBody.toString(),
-        status = LOADED,
+        status = SubmissionStatus.LOADED,
         sourceFile = "sourceFile2",
         posInFile = 1,
-        sourceTime = Instant.parse("2021-03-14T08:41:02Z"),
+        sourceTime = 2021_03_14_2,
         files = listOf(),
         updated = Instant.parse("2021-03-14T08:41:45.090Z"),
     )
 
 internal val processedSubmission =
-    SubmissionDoc(
+    SubmissionDocument(
         accNo = "S-EPMC1234567",
         body = prcoessedSubmissionBody.toString(),
-        status = PROCESSED,
+        status = SubmissionStatus.PROCESSED,
         sourceFile = "sourceFile1",
         posInFile = 0,
-        sourceTime = Instant.parse("2021-03-14T08:41:02Z"),
+        sourceTime = 2021_03_14_2,
         files = listOf(),
         updated = Instant.parse("2021-03-14T08:41:45.090Z"),
     )
-
-internal val submissionErrorDoc = SubmissionErrorDoc(submission = docSubmission, error = "error", mode = PmcMode.LOAD)
-internal val submissionFileDoc = FileDoc(name = "name", path = "path", accNo = "accNo")
-internal val inputFileDoc = InputFileDoc(name = "name", loaded = ofEpochSecond(1000), status = PROCESSED1, error = null)

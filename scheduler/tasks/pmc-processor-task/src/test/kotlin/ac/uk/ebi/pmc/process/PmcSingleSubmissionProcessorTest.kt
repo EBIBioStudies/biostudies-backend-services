@@ -12,13 +12,13 @@ import ac.uk.ebi.pmc.URL_FILE2_FILES_SERVER
 import ac.uk.ebi.pmc.URL_FILE3_FILES_SERVER
 import ac.uk.ebi.pmc.config.AppConfig
 import ac.uk.ebi.pmc.config.PersistenceConfig
-import ac.uk.ebi.pmc.docSubmission
-import ac.uk.ebi.pmc.persistence.docs.FileDoc
-import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
-import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.PROCESSED
-import ac.uk.ebi.pmc.persistence.repository.ErrorsRepository
-import ac.uk.ebi.pmc.persistence.repository.SubFileRepository
-import ac.uk.ebi.pmc.persistence.repository.SubmissionRepository
+import ac.uk.ebi.pmc.persistence.docs.SubFileDocument
+import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument
+import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
+import ac.uk.ebi.pmc.persistence.repository.ErrorsDocRepository
+import ac.uk.ebi.pmc.persistence.repository.SubFileDocRepository
+import ac.uk.ebi.pmc.persistence.repository.SubmissionDocRepository
+import ac.uk.ebi.pmc.submissionBody
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
@@ -32,7 +32,9 @@ import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -54,6 +56,7 @@ import java.io.File
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.Duration.ofSeconds
+import java.time.Instant
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration(classes = [PersistenceConfig::class])
@@ -137,9 +140,9 @@ internal class PmcSingleSubmissionProcessorTest(private val tempFolder: Temporar
     @SpringBootTest(classes = [AppConfig::class])
     @DirtiesContext
     inner class PmcProcessTest(
-        @Autowired val errorsRepository: ErrorsRepository,
-        @Autowired val submissionRepository: SubmissionRepository,
-        @Autowired val fileRepository: SubFileRepository,
+        @Autowired val errorsRepository: ErrorsDocRepository,
+        @Autowired val submissionRepository: SubmissionDocRepository,
+        @Autowired val fileRepository: SubFileDocRepository,
         @Autowired val pmcTaskExecutor: PmcTaskExecutor,
     ) {
         @BeforeEach
@@ -151,29 +154,41 @@ internal class PmcSingleSubmissionProcessorTest(private val tempFolder: Temporar
             }
         }
 
+        private val docSubmission =
+            SubmissionDocument(
+                accNo = "S-123SUCCESS",
+                body = submissionBody.toString(),
+                status = SubmissionStatus.LOADED,
+                sourceFile = "sourceFile1",
+                posInFile = 0,
+                sourceTime = 2021_03_14_01,
+                files = listOf(),
+                updated = Instant.parse("2021-03-14T08:41:45.090Z"),
+            )
+
         @Test
         fun `when success`() {
-            runBlocking {
-                submissionRepository.insertOrExpire(docSubmission)
+            runTest {
+                submissionRepository.save(docSubmission)
 
                 pmcTaskExecutor.run()
 
-                assertThat(errorsRepository.findAll()).isEmpty()
-                assertThat(fileRepository.findAll()).hasSize(2)
+                assertThat(errorsRepository.findAll().toList()).isEmpty()
+                assertThat(fileRepository.findAll().toList()).hasSize(2)
 
-                val submissions = submissionRepository.findAll()
+                val submissions = submissionRepository.findAll().toList()
                 assertThat(submissions).hasSize(1)
-                assertProcessedSubmission(submissions.first(), fileRepository.findAll())
+                assertProcessedSubmission(submissions.first(), fileRepository.findAll().toList())
             }
         }
 
         private fun assertProcessedSubmission(
-            docSubmission: SubmissionDoc,
-            files: List<FileDoc>,
+            docSubmission: SubmissionDocument,
+            files: List<SubFileDocument>,
         ) {
-            assertThat(docSubmission.status).isEqualTo(PROCESSED)
+            assertThat(docSubmission.status).isEqualTo(SubmissionStatus.PROCESSED)
             assertThat(docSubmission.files).hasSize(2)
-            assertThat(docSubmission.files).containsAll(files.map { it._id })
+            assertThat(docSubmission.files).containsAll(files.map { it.id })
 
             assertThat(File(tempFolder.root.absolutePath + FILE1_PATH)).hasContent(FILE1_CONTENT)
             assertThat(File(tempFolder.root.absolutePath + FILE2_PATH)).hasContent(FILE2_CONTENT)
