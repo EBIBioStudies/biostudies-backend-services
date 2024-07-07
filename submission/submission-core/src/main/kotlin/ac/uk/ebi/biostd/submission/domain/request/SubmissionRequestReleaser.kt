@@ -2,6 +2,8 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.COPIED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.RELEASED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.UNRELEASED
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequest
 import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFile
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
@@ -46,10 +48,16 @@ class SubmissionRequestReleaser(
         version: Int,
         processId: String,
     ) {
-        rqtService.onRequest(accNo, version, FILES_COPIED, processId, {
-            if (it.submission.released) releaseRequest(accNo, it)
+        rqtService.onRequest(accNo, version, FILES_COPIED, processId) {
+            if (it.submission.released) {
+                releaseRequest(accNo, it)
+            } else {
+                val current = queryService.findCoreInfo(accNo)
+                if (current != null && current.released) unReleaseRequest(accNo, it)
+            }
+
             RqtUpdate(it.withNewStatus(CHECK_RELEASED))
-        })
+        }
 
         eventsPublisherService.requestCheckedRelease(accNo, version)
     }
@@ -82,12 +90,8 @@ class SubmissionRequestReleaser(
                 }
 
                 is FireFile -> {
-                    if (file.published) {
-                        rqtService.updateRqtFile(reqFile.copy(status = RELEASED))
-                    } else {
-                        val released = reqFile.copy(file = release(sub, reqFile.index, file), status = RELEASED)
-                        rqtService.updateRqtFile(released)
-                    }
+                    val released = reqFile.copy(file = release(sub, reqFile.index, file), status = RELEASED)
+                    rqtService.updateRqtFile(released)
                 }
             }
         }
@@ -109,6 +113,50 @@ class SubmissionRequestReleaser(
         val releasedFile = fileStorageService.releaseSubmissionFile(sub, file)
         logger.info { "${sub.accNo}, ${sub.owner} Finished publishing file $idx - ${file.filePath}" }
         return releasedFile
+    }
+
+    private suspend fun unReleaseRequest(
+        accNo: String,
+        request: SubmissionRequest,
+    ) {
+        val sub = request.submission
+        logger.info { "$accNo ${sub.owner} Started suppressing submission files over ${sub.storageMode}" }
+        unReleaseSubmissionFiles(sub)
+        logger.info { "$accNo ${sub.owner} Finished suppressing submission files over ${sub.storageMode}" }
+    }
+
+    private suspend fun unReleaseSubmissionFiles(sub: ExtSubmission) {
+        suspend fun unReleaseFile(reqFile: SubmissionRequestFile) {
+            when (val file = reqFile.file) {
+                is NfsFile -> {
+                    val released = reqFile.copy(file = unRelease(sub, reqFile.index, file), status = UNRELEASED)
+                    rqtService.updateRqtFile(released)
+                }
+
+                is FireFile -> {
+                    val unreleased = reqFile.copy(file = unRelease(sub, reqFile.index, file), status = UNRELEASED)
+                    rqtService.updateRqtFile(unreleased)
+                }
+            }
+        }
+
+        supervisorScope {
+            filesRequestService
+                .getSubmissionRequestFiles(sub.accNo, sub.version, REUSED)
+                .concurrently(concurrency) { unReleaseFile(it) }
+                .collect()
+        }
+    }
+
+    private suspend fun unRelease(
+        sub: ExtSubmission,
+        idx: Int,
+        file: ExtFile,
+    ): ExtFile {
+        logger.info { "${sub.accNo}, ${sub.owner} Started suppressing file $idx - ${file.filePath}" }
+        val unreleased = fileStorageService.unReleaseSubmissionFile(sub, file)
+        logger.info { "${sub.accNo}, ${sub.owner} Finished suppressing file $idx - ${file.filePath}" }
+        return unreleased
     }
 
     private suspend fun generateFtpLinks(sub: ExtSubmission) {

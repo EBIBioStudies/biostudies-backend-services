@@ -1,6 +1,7 @@
 package ac.uk.ebi.biostd.submission.config
 
 import ac.uk.ebi.biostd.common.properties.ApplicationProperties
+import ac.uk.ebi.biostd.common.properties.Cluster
 import ac.uk.ebi.biostd.common.properties.FilesProperties
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionFilesPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.integration.MongoDbServicesConfig
@@ -13,7 +14,8 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.api.LocalClusterClient
-import uk.ac.ebi.biostd.client.cluster.api.RemoteClusterClient
+import uk.ac.ebi.biostd.client.cluster.api.LsfClusterClient
+import uk.ac.ebi.biostd.client.cluster.api.SlurmClusterClient
 import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.fire.client.integration.web.FireClientFactory
 import uk.ac.ebi.fire.client.integration.web.FireConfig
@@ -29,7 +31,7 @@ import kotlin.time.Duration.Companion.minutes
 @Configuration
 @Import(MongoDbServicesConfig::class)
 @EnableConfigurationProperties(ApplicationProperties::class)
-internal class GeneralConfig {
+class GeneralConfig {
     @Bean
     fun filesSourceListBuilder(config: FilesSourceConfig): FilesSourceListBuilder = config.filesSourceListBuilder()
 
@@ -83,12 +85,12 @@ internal class GeneralConfig {
 
     @Bean
     @ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "true")
-    fun clusterClient(properties: ApplicationProperties): ClusterClient =
-        RemoteClusterClient.create(
-            properties.cluster.key,
-            properties.cluster.server,
-            properties.cluster.logsPath,
-        )
+    fun clusterClient(properties: ApplicationProperties): ClusterClient {
+        return when (properties.cluster.default) {
+            Cluster.LSF -> lsfCluster(properties)
+            Cluster.SLURM -> slurmCluster(properties)
+        }
+    }
 
     @Bean
     @ConditionalOnProperty(prefix = "app.cluster", name = ["enabled"], havingValue = "false")
@@ -105,6 +107,22 @@ internal class GeneralConfig {
                 ftpUrl = fileProperties.ftpUrl,
                 ftpPort = fileProperties.ftpPort,
                 ftpRootPath = fileProperties.ftpRootPath,
+            )
+        }
+
+        fun lsfCluster(properties: ApplicationProperties): LsfClusterClient {
+            return LsfClusterClient.create(
+                properties.cluster.key,
+                properties.cluster.lsfServer,
+                properties.cluster.logsPath,
+            )
+        }
+
+        fun slurmCluster(properties: ApplicationProperties): SlurmClusterClient {
+            return SlurmClusterClient.create(
+                properties.cluster.key,
+                properties.cluster.slurmServer,
+                properties.cluster.logsPath,
             )
         }
     }

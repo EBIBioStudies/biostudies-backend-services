@@ -3,6 +3,7 @@ package ac.uk.ebi.biostd.submission.domain.request
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -39,30 +40,33 @@ class SubmissionRequestCleanIndexer(
         processId: String,
     ) {
         requestService.onRequest(accNo, version, RequestStatus.LOADED, processId) {
-            val (activeVersion, conflicted, deprecated) = indexRequest(it.submission)
-            RqtUpdate(it.cleanIndexed(conflicted, deprecated, activeVersion))
+            val (reused, deprecated, conflicting, activeVersion) = indexRequest(it.submission)
+            RqtUpdate(it.cleanIndexed(conflicting, deprecated, reused, activeVersion))
         }
         eventsPublisherService.requestIndexedToClean(accNo, version)
     }
 
-    suspend fun indexRequest(new: ExtSubmission): Triple<Int?, Int, Int> {
+    internal suspend fun indexRequest(new: ExtSubmission): FilesCount {
         val current = queryService.findExtByAccNo(new.accNo, includeFileListFiles = true)
+
         if (current != null) {
             logger.info { "${new.accNo} ${new.owner} Started indexing submission files to be cleaned" }
             val newFiles = summarizeFileRecords(new)
             val response = indexToCleanFiles(new = new, newFiles = newFiles, current = current)
             logger.info { "${new.accNo} ${new.owner} Finished indexing submission files to be cleaned" }
+
             return response
         }
 
-        return Triple(null, 0, 0)
+        return FilesCount(0, 0, 0, null)
     }
 
     private suspend fun indexToCleanFiles(
         new: ExtSubmission,
         newFiles: FilesRecords,
         current: ExtSubmission,
-    ): Triple<Int, Int, Int> {
+    ): FilesCount {
+        val reusedIdx = AtomicInteger(0)
         val conflictIdx = AtomicInteger(0)
         val deprecatedIdx = AtomicInteger(0)
 
@@ -71,14 +75,15 @@ class SubmissionRequestCleanIndexer(
                 when (newFiles.findMatch(file)) {
                     MatchType.CONFLICTING -> SubRqtFile(new, conflictIdx.incrementAndGet(), file, CONFLICTING, true)
                     MatchType.DEPRECATED -> SubRqtFile(new, deprecatedIdx.incrementAndGet(), file, DEPRECATED, true)
-                    MatchType.REUSED -> null
+                    MatchType.REUSED -> SubRqtFile(new, reusedIdx.incrementAndGet(), file, REUSED, true)
                 }
             }
             .collect {
                 logger.info { "${new.accNo} ${new.owner} Indexing to clean file ${it.index}, path='${it.path}'" }
                 filesRequestService.saveSubmissionRequestFile(it)
             }
-        return Triple(current.version, conflictIdx.get(), deprecatedIdx.get())
+
+        return FilesCount(reusedIdx.get(), deprecatedIdx.get(), conflictIdx.get(), current.version)
     }
 
     private suspend fun summarizeFileRecords(new: ExtSubmission): FilesRecords {
@@ -87,7 +92,7 @@ class SubmissionRequestCleanIndexer(
             .getSubmissionRequestFiles(new.accNo, new.version, LOADED)
             .map { it.file }
             .collect { response[it.filePath] = FileRecord(it.md5, new.storageMode) }
-        return FilesRecords(new.storageMode, response)
+        return FilesRecords(response)
     }
 }
 
@@ -95,7 +100,6 @@ class SubmissionRequestCleanIndexer(
  * Contains new submission file entries and storage type.
  */
 private class FilesRecords(
-    val storageMode: StorageMode,
     val files: Map<String, FileRecord>,
 ) {
     /**
@@ -111,6 +115,13 @@ private class FilesRecords(
         }
     }
 }
+
+internal data class FilesCount(
+    val reused: Int,
+    val deprecated: Int,
+    val conflicting: Int,
+    val currentVersion: Int?,
+)
 
 private enum class MatchType {
     CONFLICTING,

@@ -51,7 +51,6 @@ class SubmissionReleaserTriggerTest(
     fun beforeEach() {
         every { job.id } returns "ABC123"
         every { job.queue } returns "standard"
-        every { job.logsPath } returns "/the/logs/path"
 
         every { appProperties.appsFolder } returns "apps-folder"
         every { appProperties.javaHome } returns "/home/jdk11"

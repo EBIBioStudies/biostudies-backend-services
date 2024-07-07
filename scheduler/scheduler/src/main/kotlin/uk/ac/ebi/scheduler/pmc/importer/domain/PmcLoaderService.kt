@@ -54,7 +54,7 @@ internal class PmcLoaderService private constructor(
             Report(
                 SYSTEM_NAME,
                 LOADER_SUBSYSTEM,
-                "Triggered PMC loader params=[$params], cluster job: $job, logs will be available at ${job.logsPath}",
+                "Triggered PMC loader params=[$params], cluster job: $job.",
             ),
         )
         return job
@@ -74,7 +74,7 @@ internal class PmcLoaderService private constructor(
             Report(
                 SYSTEM_NAME,
                 PROCESSOR_SUBSYSTEM,
-                "Triggered PMC processor params=[$params], cluster job: $job, logs will be available at ${job.logsPath}",
+                "Triggered PMC processor params=[$params], cluster job: $job.",
             ),
         )
         return job
@@ -89,7 +89,7 @@ internal class PmcLoaderService private constructor(
             Report(
                 SYSTEM_NAME,
                 SUBMITTER_SUBSYSTEM,
-                "Triggered PMC submitter, cluster job: $job, logs will be available at ${job.logsPath}",
+                "Triggered PMC submitter, cluster job: $job.",
             ),
         )
         return job
@@ -104,7 +104,7 @@ internal class PmcLoaderService private constructor(
             Report(
                 SYSTEM_NAME,
                 SUBMITTER_SUBSYSTEM,
-                "Triggered PMC submitter['$submissionId'], cluster job: $job, logs will be available at ${job.logsPath}",
+                "Triggered PMC submitter['$submissionId'], cluster job: $job.",
             ),
         )
         return job

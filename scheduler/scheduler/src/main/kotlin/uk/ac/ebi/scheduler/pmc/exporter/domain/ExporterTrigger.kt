@@ -64,7 +64,7 @@ class ExporterTrigger(
             Report(
                 SYSTEM_NAME,
                 EXPORTER_SUBSYSTEM,
-                "Triggered $EXPORTER_SUBSYSTEM in the cluster job $job in mode $mode. Logs available at ${job.logsPath}",
+                "Triggered $EXPORTER_SUBSYSTEM in the cluster job $job in mode $mode.",
             ),
         )
 

@@ -160,7 +160,9 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.cluster.enabled", false)
         properties.addProperty("app.cluster.user", "test-user")
         properties.addProperty("app.cluster.key", "test-key")
-        properties.addProperty("app.cluster.server", "test-server")
+        properties.addProperty("app.cluster.lsfServer", "test-server")
+        properties.addProperty("app.cluster.slurmServer", "test-server")
+        properties.addProperty("app.cluster.default", "LSF")
         properties.addProperty("app.cluster.logsPath", clusterLogsPath.absolutePath)
     }
 

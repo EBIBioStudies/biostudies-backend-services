@@ -49,7 +49,6 @@ class StatsReporterTriggerTest(
 
         every { job.id } returns "ABC123"
         every { job.queue } returns "standard"
-        every { job.logsPath } returns "/the/logs/path"
 
         coEvery { notificationsSender.send(capture(jobReport)) } answers { nothing }
         coEvery { clusterClient.triggerJobAsync(capture(jobSpecs)) } returns Result.success(job)

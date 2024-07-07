@@ -59,6 +59,7 @@ class SubmissionRequestDocDataRepositoryTest(
                     totalFiles = 5,
                     deprecatedFiles = 10,
                     conflictingFiles = 12,
+                    reusedFiles = 5,
                     currentIndex = 6,
                     modificationTime = Instant.now(),
                     previousVersion = 1,
@@ -97,8 +98,9 @@ class SubmissionRequestDocDataRepositoryTest(
                         notifyTo = "user@test.org",
                         submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0" }.toString()),
                         totalFiles = 5,
-                        deprecatedFiles = 10,
                         conflictingFiles = 1,
+                        deprecatedFiles = 10,
+                        reusedFiles = 2,
                         currentIndex = 6,
                         modificationTime = Instant.now(),
                         statusChanges = emptyList(),
@@ -116,8 +118,9 @@ class SubmissionRequestDocDataRepositoryTest(
                     notifyTo = "user-b@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
                     totalFiles = 51,
-                    deprecatedFiles = 10,
                     conflictingFiles = 1,
+                    deprecatedFiles = 10,
+                    reusedFiles = 2,
                     currentIndex = 61,
                     modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),
@@ -145,7 +148,7 @@ class SubmissionRequestDocDataRepositoryTest(
     @Test
     fun loadRequest() =
         runTest {
-            val procesId = "processId"
+            val processId = "processId"
             val rqt =
                 DocSubmissionRequest(
                     id = ObjectId(),
@@ -156,8 +159,9 @@ class SubmissionRequestDocDataRepositoryTest(
                     notifyTo = "user-b@test.org",
                     submission = BasicDBObject.parse(jsonObj { "submission" to "S-BSST0-b" }.toString()),
                     totalFiles = 51,
-                    deprecatedFiles = 10,
                     conflictingFiles = 1,
+                    deprecatedFiles = 10,
+                    reusedFiles = 2,
                     currentIndex = 61,
                     modificationTime = Instant.now().plusSeconds(10),
                     statusChanges = emptyList(),
@@ -165,7 +169,7 @@ class SubmissionRequestDocDataRepositoryTest(
                 )
             testInstance.saveRequest(rqt)
 
-            val (changeId, request) = testInstance.getRequest(rqt.accNo, rqt.version, REQUESTED, procesId)
+            val (changeId, request) = testInstance.getRequest(rqt.accNo, rqt.version, REQUESTED, processId)
 
             val statusChange = request.statusChanges.filter { it.statusId.toString() == changeId }.first()
             assertThat(statusChange.status).isEqualTo(REQUESTED.action)

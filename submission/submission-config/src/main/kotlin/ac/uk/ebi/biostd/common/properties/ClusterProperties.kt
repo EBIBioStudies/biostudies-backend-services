@@ -11,6 +11,24 @@ data class ClusterProperties(
     val enabled: Boolean,
     val user: String,
     val key: String,
-    val server: String,
+    val lsfServer: String,
+    val slurmServer: String,
     val logsPath: String,
+    val default: Cluster,
 )
+
+enum class Cluster {
+    LSF,
+    SLURM,
+    ;
+
+    companion object {
+        fun fromName(name: String): Cluster {
+            return when (name.uppercase()) {
+                "LSF" -> LSF
+                "SLURM" -> SLURM
+                else -> throw IllegalArgumentException("$name is not a valid cluster name")
+            }
+        }
+    }
+}
