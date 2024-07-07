@@ -1,5 +1,6 @@
 package ac.uk.ebi.pmc.load
 
+import ebi.ac.uk.base.Either
 import ebi.ac.uk.base.Either.Companion.left
 import ebi.ac.uk.base.Either.Companion.right
 import ebi.ac.uk.functions.milisToInstant
@@ -25,31 +26,37 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
         folder: File,
         file: File?,
     ) {
-        runBlocking {
-            val files = if (file != null) listOf(file) else folder.listFiles(GzFilter).orEmpty().toList()
-            logger.info { "loading files ${files.joinToString()}" }
-            processFiles(
-                toProcess = files,
-                processed = folder.createSubFolder("processed"),
-                folder = folder.createSubFolder("failed"),
-            )
-        }
+        val files = if (file != null) listOf(file) else folder.listFiles(GzFilter).orEmpty().toList()
+        logger.info { "loading files ${files.joinToString()}" }
+        processFiles(
+            toProcess = files,
+            processedFolder = folder.createSubFolder("processed"),
+            failedFolder = folder.createSubFolder("failed"),
+        )
     }
 
-    private suspend fun processFiles(
+    private fun processFiles(
         toProcess: List<File>,
-        processed: File,
-        folder: File,
+        processedFolder: File,
+        failedFolder: File,
     ) {
         toProcess.asSequence()
             .onEach { file -> logger.info { "checking file '${file.absolutePath}'" } }
             .map { file -> runCatching { getFileData(file) }.fold({ left(it) }, { right(Pair(file, it)) }) }
             .forEach { either ->
-                either.fold(
-                    { pmcLoader.processFile(it, processed) },
-                    { (file, error) -> pmcLoader.processCorruptedFile(file, folder, error) },
-                )
+                runBlocking { processFile(either, processedFolder, failedFolder) }
             }
+    }
+
+    private suspend fun processFile(
+        loadResult: Either<FileSpec, Pair<File, Throwable>>,
+        processedFolder: File,
+        failedFolder: File,
+    ) {
+        loadResult.fold(
+            { pmcLoader.processFile(it, processedFolder) },
+            { (file, error) -> pmcLoader.processCorruptedFile(file, failedFolder, error) },
+        )
     }
 
     private fun getFileData(file: File): FileSpec {
