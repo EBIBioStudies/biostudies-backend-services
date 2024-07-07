@@ -46,8 +46,11 @@ class PmcSubmissionLoader(
                 loadSubmission(result, body, source, positionInFile)
             }).collect()
 
+        logger.info { "finishing processing file ${file.name} in folder ${processedFolder.name}" }
+
         inputFilesService.reportProcessed(file)
         moveFile(file.originalFile, processedFolder.resolve(file.originalFile.name))
+        logger.info { "Finished processing file ${file.name} in folder ${processedFolder.name}" }
     }
 
     suspend fun processCorruptedFile(

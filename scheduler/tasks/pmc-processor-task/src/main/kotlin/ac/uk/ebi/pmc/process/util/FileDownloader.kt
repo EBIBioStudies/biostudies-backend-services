@@ -39,12 +39,16 @@ class FileDownloader(
         file: BioFile,
     ): File =
         withContext(Dispatchers.IO) {
-            val targetFolder = Paths.get(properties.temp).resolve(pmcId).toFile()
-            targetFolder.mkdirs()
+            val targetFile = Paths.get(properties.temp).resolve(pmcId).resolve(file.path).toFile()
+            val targetFolder = targetFile.parentFile
 
-            val targetFile = targetFolder.resolve(file.path)
-            pmcApi.downloadFileStream(pmcId, file.path).byteStream().copyToFile(targetFile)
-            targetFile
+            targetFolder.mkdirs()
+            if (targetFile.exists()) targetFile.delete()
+            targetFile.createNewFile()
+
+            val pmcFileStream = pmcApi.downloadFileStream(pmcId, file.path).byteStream()
+            pmcFileStream.copyToFile(targetFile)
+            return@withContext targetFile
         }
 
     private fun InputStream.copyToFile(destinationFile: File) {

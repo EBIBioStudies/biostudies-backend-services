@@ -13,6 +13,13 @@ internal class JobResponseParserTest {
     }
 
     @Test
+    fun toJobLsfResponseWhenSpecificQueue() {
+        val job = toLsfJob("Job <4838563> is submitted to queue <standard>.")
+        assertThat(job.id).isEqualTo("4838563")
+        assertThat(job.queue).isEqualTo("standard")
+    }
+
+    @Test
     fun toJobLsfWhenError() {
         assertThatExceptionOfType(IllegalStateException::class.java)
             .isThrownBy { toLsfJob("Job Could not be submitted") }

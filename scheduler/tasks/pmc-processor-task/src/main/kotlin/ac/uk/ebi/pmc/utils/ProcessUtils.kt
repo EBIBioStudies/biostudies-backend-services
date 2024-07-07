@@ -18,7 +18,7 @@ suspend fun <T> retry(
         try {
             return block()
         } catch (e: Exception) {
-            logger.error { e }
+            logger.error(e) { "Error executing retry operation" }
         }
         delay(currentDelay)
         currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)

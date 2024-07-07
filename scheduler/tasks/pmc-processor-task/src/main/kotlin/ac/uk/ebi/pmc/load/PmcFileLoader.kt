@@ -39,14 +39,13 @@ class PmcFileLoader(private val pmcLoader: PmcSubmissionLoader) {
         toProcess: List<File>,
         processedFolder: File,
         failedFolder: File,
-    ) {
-        toProcess.asSequence()
-            .onEach { file -> logger.info { "checking file '${file.absolutePath}'" } }
-            .map { file -> runCatching { getFileData(file) }.fold({ left(it) }, { right(Pair(file, it)) }) }
-            .forEach { either ->
-                runBlocking { processFile(either, processedFolder, failedFolder) }
-            }
-    }
+    ): Unit =
+        runBlocking {
+            toProcess.asSequence()
+                .onEach { file -> logger.info { "checking file '${file.absolutePath}'" } }
+                .map { file -> runCatching { getFileData(file) }.fold({ left(it) }, { right(Pair(file, it)) }) }
+                .forEach { either -> processFile(either, processedFolder, failedFolder) }
+        }
 
     private suspend fun processFile(
         loadResult: Either<FileSpec, Pair<File, Throwable>>,
