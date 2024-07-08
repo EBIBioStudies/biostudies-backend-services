@@ -40,11 +40,7 @@ class FileDownloader(
     ): File =
         withContext(Dispatchers.IO) {
             val targetFile = Paths.get(properties.temp).resolve(pmcId).resolve(file.path).toFile()
-            val targetFolder = targetFile.parentFile
-
-            targetFolder.mkdirs()
-            if (targetFile.exists()) targetFile.delete()
-            targetFile.createNewFile()
+            targetFile.parentFile.apply { mkdirs() }
 
             val pmcFileStream = pmcApi.downloadFileStream(pmcId, file.path).byteStream()
             pmcFileStream.copyToFile(targetFile)
