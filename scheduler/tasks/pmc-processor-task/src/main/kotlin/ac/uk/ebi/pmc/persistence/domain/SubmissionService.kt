@@ -53,7 +53,7 @@ class SubmissionService(
     ) {
         val newVersion = sub.copy(files = saveFiles(sub.accNo, files), status = PROCESSED)
         subRepository.update(newVersion)
-        logger.info { "finish processing submission with accNo = '${sub.accNo}' from file ${sub.sourceFile}" }
+        logger.info { "Finish processing submission with accNo = '${sub.accNo}' from file ${sub.sourceFile}" }
     }
 
     fun findReadyToProcess(sourceFile: String?): Flow<SubmissionDocument> =

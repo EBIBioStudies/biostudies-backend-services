@@ -37,7 +37,7 @@ class PmcSubmissionLoader(
         file: FileSpec,
         processedFolder: File,
     ) {
-        logger.info { "processing file ${file.name} in folder ${processedFolder.name}" }
+        logger.info { "Processing file ${file.name} in folder ${processedFolder.name}" }
 
         loadSubmissions(file)
             .concurrently(CONCURRENCY, {
@@ -46,7 +46,7 @@ class PmcSubmissionLoader(
                 loadSubmission(result, body, source, positionInFile)
             }).collect()
 
-        logger.info { "finishing processing file ${file.name} in folder ${processedFolder.name}" }
+        logger.info { "Finishing processing file ${file.name} in folder ${processedFolder.name}" }
 
         inputFilesService.reportProcessed(file)
         moveFile(file.originalFile, processedFolder.resolve(file.originalFile.name))
@@ -58,7 +58,7 @@ class PmcSubmissionLoader(
         failFolder: File,
         error: Throwable,
     ) {
-        logger.info { "processing file ${file.name}" }
+        logger.info { "Processing corrupted file ${file.name}" }
         inputFilesService.reportFailed(file, error.stackTraceToString())
         moveFile(file, failFolder.resolve(file.name))
     }
