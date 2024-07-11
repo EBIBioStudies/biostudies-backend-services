@@ -10,14 +10,14 @@ import mu.KotlinLogging
 import uk.ac.ebi.biostd.client.cluster.api.ClusterClient
 import uk.ac.ebi.biostd.client.cluster.model.DataMoverQueue
 import uk.ac.ebi.biostd.client.cluster.model.JobSpec
-import uk.ac.ebi.biostd.client.cluster.model.MemorySpec.Companion.SIXTEEN_GB
+import uk.ac.ebi.biostd.client.cluster.model.MemorySpec
 
 private val logger = KotlinLogging.logger {}
 
 @Suppress("TooManyFunctions")
 class RemoteExtSubmissionSubmitter(
     private val clusterClient: ClusterClient,
-    private val submissionTaskProperties: SubmissionTaskProperties,
+    private val properties: SubmissionTaskProperties,
 ) : ExtSubmissionSubmitter {
     override suspend fun createRequest(rqt: ExtSubmitRequest): Pair<String, Int> {
         TODO("Remote execution not required")
@@ -93,10 +93,10 @@ class RemoteExtSubmissionSubmitter(
     ) = withContext(Dispatchers.IO) {
         val command =
             buildString {
-                appendSpaced(submissionTaskProperties.javaLocation)
+                appendSpaced(properties.javaLocation)
                 appendSpaced("-jar")
-                appendSpaced(submissionTaskProperties.jarLocation)
-                appendSpaced("--spring.config.location=${submissionTaskProperties.configFileLocation}")
+                appendSpaced(properties.jarLocation)
+                appendSpaced("--spring.config.location=${properties.configFileLocation}")
                 appendSpaced("--accNo=$accNo")
                 appendSpaced("--version=$version")
                 appendSpaced("--mode=${mode.name}")
@@ -105,8 +105,8 @@ class RemoteExtSubmissionSubmitter(
         val job =
             clusterClient.triggerJobAsync(
                 JobSpec(
-                    cores = 4,
-                    ram = SIXTEEN_GB,
+                    cores = properties.taskCores,
+                    ram = MemorySpec.fromMegaBytes(properties.taskMemoryMgb),
                     queue = DataMoverQueue,
                     command = command,
                 ),
