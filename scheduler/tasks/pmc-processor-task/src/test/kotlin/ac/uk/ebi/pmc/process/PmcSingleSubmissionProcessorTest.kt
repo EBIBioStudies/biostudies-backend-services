@@ -2,10 +2,8 @@ package ac.uk.ebi.pmc.process
 
 import ac.uk.ebi.pmc.FILE1_CONTENT
 import ac.uk.ebi.pmc.FILE1_NAME
-import ac.uk.ebi.pmc.FILE1_PATH
 import ac.uk.ebi.pmc.FILE2_CONTENT
 import ac.uk.ebi.pmc.FILE2_NAME
-import ac.uk.ebi.pmc.FILE2_PATH
 import ac.uk.ebi.pmc.PmcTaskExecutor
 import ac.uk.ebi.pmc.URL_FILE1_FILES_SERVER
 import ac.uk.ebi.pmc.URL_FILE2_FILES_SERVER
@@ -52,7 +50,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.MongoDBContainer
 import org.testcontainers.containers.startupcheck.MinimumDurationRunningStartupCheckStrategy
 import org.testcontainers.utility.DockerImageName
-import java.io.File
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import java.net.HttpURLConnection.HTTP_OK
 import java.time.Duration.ofSeconds
@@ -156,7 +153,7 @@ internal class PmcSingleSubmissionProcessorTest(private val tempFolder: Temporar
 
         private val docSubmission =
             SubmissionDocument(
-                accNo = "S-123SUCCESS",
+                accNo = "S-EPMC6005694",
                 body = submissionBody.toString(),
                 status = SubmissionStatus.LOADED,
                 sourceFile = "sourceFile1",
@@ -190,8 +187,15 @@ internal class PmcSingleSubmissionProcessorTest(private val tempFolder: Temporar
             assertThat(docSubmission.files).hasSize(2)
             assertThat(docSubmission.files).containsAll(files.map { it.id })
 
-            assertThat(File(tempFolder.root.absolutePath + FILE1_PATH)).hasContent(FILE1_CONTENT)
-            assertThat(File(tempFolder.root.absolutePath + FILE2_PATH)).hasContent(FILE2_CONTENT)
+            val expectedPath =
+                tempFolder.root
+                    .resolve(docSubmission.accNo.takeLast(3))
+                    .resolve(docSubmission.accNo)
+                    .resolve("${docSubmission.sourceTime}")
+                    .resolve("${docSubmission.posInFile}")
+
+            assertThat(expectedPath.resolve(FILE1_NAME)).hasContent(FILE1_CONTENT)
+            assertThat(expectedPath.resolve(FILE2_NAME)).hasContent(FILE2_CONTENT)
         }
     }
 }

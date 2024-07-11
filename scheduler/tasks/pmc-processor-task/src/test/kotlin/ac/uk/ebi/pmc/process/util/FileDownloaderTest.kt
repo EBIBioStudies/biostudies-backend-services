@@ -1,7 +1,6 @@
 package ac.uk.ebi.pmc.process.util
 
 import ac.uk.ebi.pmc.client.PmcApi
-import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.SUBMISSION_EXTESIONS
@@ -23,11 +22,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 class FileDownloaderTest(
     val temporaryFolder: TemporaryFolder,
     @MockK
-    val properties: PmcImporterProperties,
-    @MockK
     val pmcApi: PmcApi,
 ) {
-    private val testInstance = FileDownloader(properties, pmcApi)
+    private val testInstance = FileDownloader(pmcApi)
 
     @Test
     fun downloadFilesWhenError(
@@ -37,13 +34,14 @@ class FileDownloaderTest(
         runTest {
             mockkStatic(SUBMISSION_EXTESIONS)
             val exception = RuntimeException("An http Exception")
+            val targetFolder = temporaryFolder.root
             every { submission.allFiles() } returns listOf(file)
             every { submission.accNo } returns "S-EPMC123"
             every { file.path } returns "path"
-            every { properties.temp } returns temporaryFolder.root.absolutePath
+
             coEvery { pmcApi.downloadFileStream("123", "path") } throws exception
 
-            val result = testInstance.downloadFiles(submission)
+            val result = testInstance.downloadFiles(targetFolder, submission)
 
             assertThat(result.isFailure).isTrue()
             assertThat(result.exceptionOrNull()).hasMessage("An http Exception")

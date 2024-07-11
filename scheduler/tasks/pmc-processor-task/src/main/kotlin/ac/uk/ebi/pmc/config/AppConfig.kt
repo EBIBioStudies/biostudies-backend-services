@@ -47,10 +47,7 @@ class AppConfig {
     fun serializationService(): SerializationService = SerializationConfig.serializationService()
 
     @Bean
-    fun fileDownloader(
-        pmcApi: PmcApi,
-        properties: PmcImporterProperties,
-    ): FileDownloader = FileDownloader(properties, pmcApi)
+    fun fileDownloader(pmcApi: PmcApi): FileDownloader = FileDownloader(pmcApi)
 
     @Bean
     fun submissionInitializer(serializationService: SerializationService): SubmissionInitializer =

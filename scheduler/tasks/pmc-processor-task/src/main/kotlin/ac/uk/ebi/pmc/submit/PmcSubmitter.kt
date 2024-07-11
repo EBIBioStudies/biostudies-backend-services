@@ -49,7 +49,7 @@ class PmcSubmitter(
         val counter = AtomicInteger(0)
         supervisorScope {
             submissionService.findReadyToSubmit(sourceFile)
-                .concurrently(CONCURRENCY, { submitSubmission(it, counter.incrementAndGet()) })
+                .concurrently(CONCURRENCY) { submitSubmission(it, counter.incrementAndGet()) }
                 .collect()
         }
     }

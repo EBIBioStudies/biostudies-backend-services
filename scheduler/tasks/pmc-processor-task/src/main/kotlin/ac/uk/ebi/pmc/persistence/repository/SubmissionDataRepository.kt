@@ -28,7 +28,7 @@ import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 interface ErrorsRepository : CoroutineCrudRepository<SubmissionErrorDocument, ObjectId>
 
 interface SubmissionDocRepository : CoroutineCrudRepository<SubmissionDocument, ObjectId> {
-    suspend fun getById(ObjectId: ObjectId): SubmissionDocument
+    suspend fun getById(objectId: ObjectId): SubmissionDocument
 }
 
 class SubmissionDataRepository(

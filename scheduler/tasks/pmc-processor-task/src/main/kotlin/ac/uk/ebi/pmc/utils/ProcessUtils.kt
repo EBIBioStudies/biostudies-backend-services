@@ -7,7 +7,7 @@ private val logger = KotlinLogging.logger {}
 
 @Suppress("TooGenericExceptionCaught")
 suspend fun <T> retry(
-    times: Int = 3,
+    times: Int,
     initialDelay: Long = 100,
     maxDelay: Long = 1000,
     factor: Double = 2.0,
