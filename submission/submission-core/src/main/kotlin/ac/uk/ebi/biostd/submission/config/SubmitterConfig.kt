@@ -23,6 +23,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
 import ac.uk.ebi.biostd.submission.domain.submission.SubFolderResolver
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionProcessor
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionSubmitter
@@ -89,6 +90,7 @@ class SubmitterConfig(
         filesRequestService: SubmissionRequestFilesPersistenceService,
         requestService: SubmissionRequestPersistenceService,
         eventsPublisherService: EventsPublisherService,
+        userPrivilegesService: IUserPrivilegesService,
     ): SubmissionRequestCleanIndexer =
         SubmissionRequestCleanIndexer(
             serializationService,
@@ -96,6 +98,20 @@ class SubmitterConfig(
             filesRequestService,
             requestService,
             eventsPublisherService,
+        )
+
+    @Bean
+    fun requestValidator(
+        userPrivilegesService: IUserPrivilegesService,
+        eventsPublisherService: EventsPublisherService,
+        queryService: SubmissionPersistenceQueryService,
+        requestService: SubmissionRequestPersistenceService,
+    ): SubmissionRequestValidator =
+        SubmissionRequestValidator(
+            userPrivilegesService,
+            eventsPublisherService,
+            queryService,
+            requestService,
         )
 
     @Bean
@@ -189,8 +205,9 @@ class SubmitterConfig(
         persistenceService: SubmissionPersistenceService,
         submissionQueryService: ExtSubmissionQueryService,
         requestIndexer: SubmissionRequestIndexer,
-        requestToCleanIndexed: SubmissionRequestCleanIndexer,
         requestLoader: SubmissionRequestLoader,
+        requestToCleanIndexed: SubmissionRequestCleanIndexer,
+        requestValidator: SubmissionRequestValidator,
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
@@ -202,8 +219,9 @@ class SubmitterConfig(
             requestService,
             persistenceService,
             requestIndexer,
-            requestToCleanIndexed,
             requestLoader,
+            requestToCleanIndexed,
+            requestValidator,
             requestProcessor,
             submissionReleaser,
             submissionCleaner,

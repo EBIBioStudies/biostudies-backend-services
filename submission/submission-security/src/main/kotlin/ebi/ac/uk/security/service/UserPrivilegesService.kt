@@ -4,6 +4,7 @@ import ac.uk.ebi.biostd.persistence.common.model.AccessType
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.ATTACH
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.DELETE
 import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE_PUBLIC
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionMetaQueryService
 import ac.uk.ebi.biostd.persistence.common.service.UserPermissionsService
 import ac.uk.ebi.biostd.persistence.repositories.AccessTagDataRepo
@@ -63,6 +64,10 @@ internal class UserPrivilegesService(
     ): Boolean {
         return (isAuthor(getOwner(accNo), submitter) && isPublic(accNo).not()) ||
             hasPermissions(submitter, accNo, DELETE)
+    }
+
+    override suspend fun canUpdatePublicSubmission(submitter: String, accNo: String): Boolean {
+        return hasPermissions(submitter, accNo, UPDATE_PUBLIC)
     }
 
     override fun canRelease(email: String): Boolean = isSuperUser(email)

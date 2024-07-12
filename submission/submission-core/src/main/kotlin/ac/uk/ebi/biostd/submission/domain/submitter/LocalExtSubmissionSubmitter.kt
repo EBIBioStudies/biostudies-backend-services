@@ -14,6 +14,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionService.Companion.SYNC_SUBMIT_TIMEOUT
 import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.extended.model.ExtSubmission
@@ -22,10 +23,12 @@ import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import ebi.ac.uk.model.RequestStatus.INDEXED
 import ebi.ac.uk.model.RequestStatus.INDEXED_CLEANED
+import ebi.ac.uk.model.RequestStatus.INVALID
 import ebi.ac.uk.model.RequestStatus.LOADED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
+import ebi.ac.uk.model.RequestStatus.VALIDATED
 import mu.KotlinLogging
 import java.time.Duration.ofMinutes
 
@@ -38,8 +41,9 @@ class LocalExtSubmissionSubmitter(
     private val requestService: SubmissionRequestPersistenceService,
     private val persistenceService: SubmissionPersistenceService,
     private val requestIndexer: SubmissionRequestIndexer,
-    private val requestToCleanIndexer: SubmissionRequestCleanIndexer,
     private val requestLoader: SubmissionRequestLoader,
+    private val requestToCleanIndexer: SubmissionRequestCleanIndexer,
+    private val requestValidator: SubmissionRequestValidator,
     private val requestProcessor: SubmissionRequestProcessor,
     private val requestReleaser: SubmissionRequestReleaser,
     private val requestCleaner: SubmissionRequestCleaner,
@@ -67,18 +71,25 @@ class LocalExtSubmissionSubmitter(
         requestLoader.loadRequest(accNo, version, properties.processId)
     }
 
-    override suspend fun cleanRequest(
-        accNo: String,
-        version: Int,
-    ) {
-        requestCleaner.cleanCurrentVersion(accNo, version, properties.processId)
-    }
-
     override suspend fun indexToCleanRequest(
         accNo: String,
         version: Int,
     ) {
         requestToCleanIndexer.indexRequest(accNo, version, properties.processId)
+    }
+
+    override suspend fun validateRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        requestValidator.validateRequest(accNo, version, properties.processId)
+    }
+
+    override suspend fun cleanRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        requestCleaner.cleanCurrentVersion(accNo, version, properties.processId)
     }
 
     override suspend fun processRequest(
@@ -117,12 +128,14 @@ class LocalExtSubmissionSubmitter(
             REQUESTED -> indexRequest(accNo, version)
             INDEXED -> loadRequest(accNo, version)
             LOADED -> indexToCleanRequest(accNo, version)
-            INDEXED_CLEANED -> cleanRequest(accNo, version)
+            INDEXED_CLEANED -> validateRequest(accNo, version)
+            VALIDATED -> cleanRequest(accNo, version)
             CLEANED -> processRequest(accNo, version)
             FILES_COPIED -> checkReleased(accNo, version)
             CHECK_RELEASED -> saveRequest(accNo, version)
             PERSISTED -> finalizeRequest(accNo, version)
-            PROCESSED -> logger.info { "Submission $accNo, $version has been already proccessed." }
+            INVALID -> logger.info { "Submission $accNo, $version is in an invalid state" }
+            PROCESSED -> logger.info { "Submission $accNo, $version has been already processed." }
         }
 
         waitUntil(timeout = ofMinutes(SYNC_SUBMIT_TIMEOUT)) { requestService.isRequestCompleted(accNo, version) }

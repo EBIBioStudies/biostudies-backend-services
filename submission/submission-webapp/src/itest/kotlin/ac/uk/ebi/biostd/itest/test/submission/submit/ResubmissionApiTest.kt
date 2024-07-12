@@ -11,7 +11,9 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.ftpPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
+import ac.uk.ebi.biostd.persistence.common.model.AccessType.UPDATE_PUBLIC
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
+import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceService
 import ac.uk.ebi.biostd.persistence.doc.commons.ExtendedUpdate
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_ACC_NO
 import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields.SUB_RELEASE_TIME
@@ -19,16 +21,20 @@ import ac.uk.ebi.biostd.persistence.doc.db.converters.shared.DocSubmissionFields
 import ac.uk.ebi.biostd.persistence.doc.model.DocSubmission
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.coroutines.waitUntil
 import ebi.ac.uk.dsl.tsv.line
 import ebi.ac.uk.dsl.tsv.tsv
 import ebi.ac.uk.io.FileUtils
 import ebi.ac.uk.io.ext.createFile
+import ebi.ac.uk.io.ext.createOrReplaceFile
+import ebi.ac.uk.model.RequestStatus.INVALID
 import ebi.ac.uk.util.date.toStringDate
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
+import org.awaitility.Durations.TWO_SECONDS
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -50,6 +56,7 @@ import java.time.ZoneOffset.UTC
 class ResubmissionApiTest(
     @Autowired val mongoTemplate: ReactiveMongoTemplate,
     @Autowired val securityTestService: SecurityTestService,
+    @Autowired val requestRepository: SubmissionRequestPersistenceService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
     @LocalServerPort val serverPort: Int,
 ) {
@@ -293,6 +300,8 @@ class ResubmissionApiTest(
                     line()
                     line("File", "file_5-5-1.txt")
                     line()
+                    line("File", "file_5-5-2.txt")
+                    line()
                 }.toString()
 
             assertThat(onBehalfClient.submitSingle(version2, TSV)).isSuccessful()
@@ -303,9 +312,11 @@ class ResubmissionApiTest(
             assertThat(File("$ftpPath/${subV2.relPath}/Files/file_5-5-1.txt")).doesNotExist()
             assertThat(File("$ftpPath/${subV2.relPath}/Files/file_5-5-2.txt")).doesNotExist()
             val submissionFilesV2 = FileUtils.listAllFiles(File("$submissionPath/${subV2.relPath}/Files"))
-            val expectedFileV2 = File("$submissionPath/${subV2.relPath}/Files/file_5-5-1.txt")
-            assertThat(submissionFilesV2).containsOnly(expectedFileV2)
-            assertThat(expectedFileV2).hasContent("5-5-1 file content")
+            val expectedFile1 = File("$submissionPath/${subV2.relPath}/Files/file_5-5-1.txt")
+            val expectedFile2 = File("$submissionPath/${subV2.relPath}/Files/file_5-5-2.txt")
+            assertThat(submissionFilesV2).containsOnly(expectedFile1, expectedFile2)
+            assertThat(expectedFile1).hasContent("5-5-1 file content")
+            assertThat(expectedFile2).hasContent("5-5-2 file content")
         }
 
     @Test
@@ -383,4 +394,82 @@ class ResubmissionApiTest(
             .isThrownBy { webClient.submitSingle(version2, TSV) }
             .withMessageContaining("The release date of a public study cannot be changed")
     }
+
+    @Test
+    fun `5-7 not authorized user updates public submission files`() =
+        runTest {
+            val version1 =
+                tsv {
+                    line("Submission", "S-RSTST8")
+                    line("Title", "Update Submission Files")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+                    line("Study")
+                    line()
+                    line("File", "file_5-7-1.txt")
+                    line()
+                    line("File", "file_5-7-2.txt")
+                    line()
+                }.toString()
+
+            webClient.uploadFile(tempFolder.createFile("file_5-7-1.txt", "5-7-1 file content"))
+            webClient.uploadFile(tempFolder.createFile("file_5-7-2.txt", "5-7-2 file content"))
+            assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
+
+            val version2 =
+                tsv {
+                    line("Submission", "S-RSTST8")
+                    line("Title", "Update Submission Files")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+                    line("Study")
+                    line()
+                    line("File", "file_5-7-1.txt")
+                    line()
+                }.toString()
+
+            webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-7-1.txt", "5-7-1 file updated content"))
+            webClient.submitAsync(version2, TSV)
+
+            waitUntil(timeout = TWO_SECONDS) { requestRepository.getRequestStatus("S-RSTST8", 2) == INVALID }
+        }
+
+    @Test
+    fun `5-8 authorized user updates public submission files`() =
+        runTest {
+            val version1 =
+                tsv {
+                    line("Submission", "S-RSTST9")
+                    line("Title", "Update Submission Files")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+                    line("Study")
+                    line()
+                    line("File", "file_5-7-1.txt")
+                    line()
+                    line("File", "file_5-7-2.txt")
+                    line()
+                }.toString()
+
+            webClient.uploadFile(tempFolder.createFile("file_5-7-1.txt", "5-7-1 file content"))
+            webClient.uploadFile(tempFolder.createFile("file_5-7-2.txt", "5-7-2 file content"))
+            assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
+
+            val version2 =
+                tsv {
+                    line("Submission", "S-RSTST9")
+                    line("Title", "Update Submission Files")
+                    line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                    line()
+                    line("Study")
+                    line()
+                    line("File", "file_5-7-1.txt")
+                    line()
+                }.toString()
+
+            webClient.grantPermission(SuperUser.email, "S-RSTST9", UPDATE_PUBLIC.name)
+            webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-7-1.txt", "5-7-1 file updated content"))
+
+            assertThat(webClient.submitSingle(version2, TSV)).isSuccessful()
+        }
 }

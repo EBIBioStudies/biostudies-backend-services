@@ -21,6 +21,11 @@ interface ExtSubmissionSubmitter {
         version: Int,
     )
 
+    suspend fun validateRequest(
+        accNo: String,
+        version: Int,
+    )
+
     suspend fun cleanRequest(
         accNo: String,
         version: Int,

@@ -86,10 +86,11 @@ val RequestStatus.action: String
             REQUESTED -> "Indexing"
             RequestStatus.INDEXED -> "Loading"
             RequestStatus.LOADED -> "Indexing Files to Clean"
-            RequestStatus.INDEXED_CLEANED -> "Cleaning"
-            RequestStatus.CLEANED -> "Copy Files"
-            RequestStatus.FILES_COPIED -> "Release Files"
-            RequestStatus.CHECK_RELEASED -> "Save Submission"
+            RequestStatus.INDEXED_CLEANED -> "Validating"
+            RequestStatus.VALIDATED -> "Cleaning"
+            RequestStatus.CLEANED -> "Copying Files"
+            RequestStatus.FILES_COPIED -> "Releasing Files"
+            RequestStatus.CHECK_RELEASED -> "Saving Submission"
             RequestStatus.PERSISTED -> "Submission Post Processing"
             else -> error("Invalid state $this")
         }

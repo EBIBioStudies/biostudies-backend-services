@@ -4,12 +4,14 @@ enum class RequestStatus {
     REQUESTED,
     INDEXED,
     LOADED,
+    VALIDATED,
     INDEXED_CLEANED,
     CLEANED,
     FILES_COPIED,
     CHECK_RELEASED,
     PERSISTED,
     PROCESSED,
+    INVALID,
     ;
 
     companion object {

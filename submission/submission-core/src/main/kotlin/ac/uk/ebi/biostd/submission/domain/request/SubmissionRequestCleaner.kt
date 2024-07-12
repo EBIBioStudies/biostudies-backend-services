@@ -10,9 +10,9 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ac.uk.ebi.biostd.persistence.filesystem.api.FileStorageService
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.model.RequestStatus.CLEANED
-import ebi.ac.uk.model.RequestStatus.INDEXED_CLEANED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
+import ebi.ac.uk.model.RequestStatus.VALIDATED
 import kotlinx.coroutines.flow.withIndex
 import mu.KotlinLogging
 import uk.ac.ebi.events.service.EventsPublisherService
@@ -36,7 +36,7 @@ class SubmissionRequestCleaner(
         version: Int,
         processId: String,
     ) {
-        requestService.onRequest(accNo, version, INDEXED_CLEANED, processId) {
+        requestService.onRequest(accNo, version, VALIDATED, processId) {
             val previousVersion = it.previousVersion
             if (previousVersion != null) cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING)
             RqtUpdate(it.withNewStatus(CLEANED))
