@@ -102,7 +102,7 @@ class SubmissionReleaserTriggerTest(
         assertThat(specs.cores).isEqualTo(FOUR_CORES)
         assertThat(specs.command).isEqualTo(
             """
-            "module load openjdk-11.0.1-gcc-9.3.0-unymjzh; \
+            "module load openjdk-17.0.5_8-gcc-11.2.0-gsv4jnu; \
             java \
             -Dsun.jnu.encoding=UTF-8 -Xmx6g \
             -jar apps-folder/submission-releaser-task-1.0.0.jar \
