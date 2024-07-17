@@ -22,7 +22,9 @@ data class DocSubmissionRequest(
     val submission: DBObject,
     val totalFiles: Int,
     val conflictingFiles: Int,
+    val conflictingPageTab: Int,
     val deprecatedFiles: Int,
+    val deprecatedPageTab: Int,
     val reusedFiles: Int,
     val currentIndex: Int,
     val previousVersion: Int?,
@@ -40,7 +42,9 @@ data class DocSubmissionRequest(
             .setOnInsert(DocRequestFields.RQT_SUBMISSION, submission)
             .setOnInsert(DocRequestFields.RQT_TOTAL_FILES, totalFiles)
             .setOnInsert(DocRequestFields.RQT_DEPRECATED_FILES, deprecatedFiles)
+            .setOnInsert(DocRequestFields.RQT_DEPRECATED_PAGE_TAB, deprecatedPageTab)
             .setOnInsert(DocRequestFields.RQT_CONFLICTING_FILES, conflictingFiles)
+            .setOnInsert(DocRequestFields.RQT_CONFLICTING_PAGE_TAB, conflictingPageTab)
             .setOnInsert(DocRequestFields.RQT_REUSED_FILES, reusedFiles)
             .setOnInsert(DocRequestFields.RQT_PREV_SUB_VERSION, previousVersion)
             .setOnInsert(DocRequestFields.RQT_IDX, currentIndex)

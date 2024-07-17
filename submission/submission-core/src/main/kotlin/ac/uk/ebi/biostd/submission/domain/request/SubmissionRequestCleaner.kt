@@ -2,7 +2,9 @@ package ac.uk.ebi.biostd.submission.domain.request
 
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING_PAGE_TAB
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED_PAGE_TAB
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -38,14 +40,18 @@ class SubmissionRequestCleaner(
     ) {
         requestService.onRequest(accNo, version, VALIDATED, processId) {
             val previousVersion = it.previousVersion
-            if (previousVersion != null) cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING)
+            if (previousVersion != null) {
+                cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING)
+                cleanFiles(accNo, version, previousVersion = previousVersion, CONFLICTING_PAGE_TAB)
+            }
+
             RqtUpdate(it.withNewStatus(CLEANED))
         }
         eventsPublisherService.requestCleaned(accNo, version)
     }
 
     /**
-     * Executes the finalize or submission processing stage when files deprecated (file not used any more) from previous
+     * Executes the finalize or submission processing stage when files deprecated (file not used anymore) from previous
      * version are deleted. Note that submission is query wth negative version as new version has been already
      * persisted at this point.
      */
@@ -54,11 +60,15 @@ class SubmissionRequestCleaner(
         version: Int,
         processId: String,
     ) {
-        requestService.onRequest(accNo, version, PERSISTED, processId, {
+        requestService.onRequest(accNo, version, PERSISTED, processId) {
             val previousVersion = it.previousVersion
-            if (previousVersion != null) cleanFiles(accNo, version, previousVersion = -previousVersion, DEPRECATED)
+            if (previousVersion != null) {
+                cleanFiles(accNo, version, previousVersion = -previousVersion, DEPRECATED)
+                cleanFiles(accNo, version, previousVersion = -previousVersion, DEPRECATED_PAGE_TAB)
+            }
+
             RqtUpdate(it.withNewStatus(PROCESSED))
-        })
+        }
         eventsPublisherService.submissionFinalized(accNo, version)
     }
 

@@ -36,10 +36,6 @@ class SubmissionRequestValidator(
     }
 
     internal suspend fun validateRequest(rqt: SubmissionRequest): RequestStatus {
-        return validateFilesChanges(rqt)
-    }
-
-    private suspend fun validateFilesChanges(rqt: SubmissionRequest): RequestStatus {
         val accNo = rqt.submission.accNo
         val submitter = rqt.submission.submitter
         val currentReleased = queryService.findCoreInfo(rqt.submission.accNo)?.released.orFalse()
@@ -58,9 +54,8 @@ class SubmissionRequestValidator(
     /**
      * A submission request has file changes if:
      * - Any file has been deleted (deprecatedFiles > 0)
-     * - Any file has been replaced (conflictingFiles > 2). 2 is used as a base since, for resubmissions, the two
-     *   pagetab files will be always regenerated
+     * - Any file has been replaced (conflictingFiles > 0)
      */
     private val SubmissionRequest.hasFilesChanges: Boolean
-        get() = deprecatedFiles > 0 || conflictingFiles > 2
+        get() = deprecatedFiles > 0 || conflictingFiles > 0
 }

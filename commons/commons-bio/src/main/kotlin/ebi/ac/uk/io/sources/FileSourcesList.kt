@@ -35,7 +35,7 @@ private val validPathPattern =
         append("\$") // End of the line
     }.trimIndent().toRegex()
 
-class FileSourcesList(val checkFilesPath: Boolean, val sources: List<FilesSource>) {
+class FileSourcesList(private val checkFilesPath: Boolean, val sources: List<FilesSource>) {
     suspend fun findExtFile(
         path: String,
         type: String,
