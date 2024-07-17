@@ -7,14 +7,14 @@ import ac.uk.ebi.pmc.PmcTaskExecutor
 import ac.uk.ebi.pmc.SUB_ATTRIBUTE
 import ac.uk.ebi.pmc.SUB_ERROR_TEXT
 import ac.uk.ebi.pmc.config.AppConfig
-import ac.uk.ebi.pmc.persistence.docs.InputFileDoc
-import ac.uk.ebi.pmc.persistence.docs.InputFileStatus.PROCESSED
-import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
-import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDoc
-import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.LOADED
+import ac.uk.ebi.pmc.persistence.docs.InputFileDocument
+import ac.uk.ebi.pmc.persistence.docs.InputFileStatus
+import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument
+import ac.uk.ebi.pmc.persistence.docs.SubmissionErrorDocument
+import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus
 import ac.uk.ebi.pmc.persistence.repository.ErrorsRepository
-import ac.uk.ebi.pmc.persistence.repository.InputFileRepository
-import ac.uk.ebi.pmc.persistence.repository.SubmissionRepository
+import ac.uk.ebi.pmc.persistence.repository.InputFilesDocRepository
+import ac.uk.ebi.pmc.persistence.repository.SubmissionDocRepository
 import ac.uk.ebi.pmc.processedSubmission
 import ac.uk.ebi.scheduler.properties.PmcMode.LOAD
 import com.github.tomakehurst.wiremock.WireMockServer
@@ -31,6 +31,7 @@ import ebi.ac.uk.model.constants.APPLICATION_JSON
 import ebi.ac.uk.util.collections.second
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
@@ -99,7 +100,7 @@ internal class PmcSingleFileLoaderTest(private val tempFolder: TemporaryFolder) 
 
     companion object {
         private const val PMC_EXPORT_FILE = "fileLoadTest.txt"
-        private const val PMC_EXPORT_FILE_GZIP = "$PMC_EXPORT_FILE.gz"
+        private const val PMC_EXPORT_FILE_GZIP = "$PMC_EXPORT_FILE-bs-07-02-2024-6.txt.gz"
     }
 
     @Nested
@@ -109,9 +110,9 @@ internal class PmcSingleFileLoaderTest(private val tempFolder: TemporaryFolder) 
     @DirtiesContext
     inner class PmcLoadTest(
         @Autowired val errorsRepository: ErrorsRepository,
-        @Autowired val submissionRepository: SubmissionRepository,
+        @Autowired val submissionRepository: SubmissionDocRepository,
         @Autowired val serializationService: SerializationService,
-        @Autowired val inputFileRepository: InputFileRepository,
+        @Autowired val inputFileRepository: InputFilesDocRepository,
         @Autowired val pmcTaskExecutor: PmcTaskExecutor,
         @Autowired val resourceLoader: ResourceLoader,
     ) {
@@ -134,15 +135,15 @@ internal class PmcSingleFileLoaderTest(private val tempFolder: TemporaryFolder) 
 
                 pmcTaskExecutor.run()
 
-                val errors = errorsRepository.findAll()
+                val errors = errorsRepository.findAll().toList()
                 assertThat(errors).hasSize(1)
                 assertError(errors.first())
 
-                val submissions = submissionRepository.findAll()
+                val submissions = submissionRepository.findAll().toList()
                 assertThat(submissions).hasSize(1)
                 assertSubmission(submissions.first())
 
-                val docFiles = inputFileRepository.findAll()
+                val docFiles = inputFileRepository.findAll().toList()
                 assertThat(docFiles).hasSize(1)
                 assertThatDocFile(docFiles.first())
 
@@ -151,13 +152,13 @@ internal class PmcSingleFileLoaderTest(private val tempFolder: TemporaryFolder) 
             }
         }
 
-        private fun assertThatDocFile(docFile: InputFileDoc) {
+        private fun assertThatDocFile(docFile: InputFileDocument) {
             assertThat(docFile.name).isEqualTo(gzipFilePath)
             assertThat(docFile.loaded).isNotNull
-            assertThat(docFile.status).isEqualTo(PROCESSED)
+            assertThat(docFile.status).isEqualTo(InputFileStatus.PROCESSED)
         }
 
-        private fun assertError(savedError: SubmissionErrorDoc) {
+        private fun assertError(savedError: SubmissionErrorDocument) {
             assertThat(savedError.accNo).isNull()
             assertThat(savedError.sourceFile).isEqualTo(gzipFilePath)
             assertThat(savedError.mode).isEqualTo(LOAD)
@@ -165,9 +166,9 @@ internal class PmcSingleFileLoaderTest(private val tempFolder: TemporaryFolder) 
             assertThat(savedError.uploaded).isNotEqualTo(processedSubmission.updated)
         }
 
-        private fun assertSubmission(submission: SubmissionDoc) {
+        private fun assertSubmission(submission: SubmissionDocument) {
             assertThat(submission.accNo).isEqualTo(ACC_NO)
-            assertThat(submission.status).isEqualTo(LOADED)
+            assertThat(submission.status).isEqualTo(SubmissionStatus.LOADED)
             assertThat(submission.sourceFile).isEqualTo(gzipFilePath)
             assertThat(submission.posInFile).isEqualTo(0)
             assertThat(submission.files).isEmpty()

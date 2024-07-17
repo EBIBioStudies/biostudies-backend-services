@@ -1,11 +1,8 @@
 import Dependencies.CommonsIO
 import Dependencies.CommonsLang3
-import Dependencies.KMongoAsync
-import Dependencies.KMongoCoroutine
+import Dependencies.KotlinCoroutines
+import Dependencies.KotlinCoroutinesReactive
 import Dependencies.KotlinLogging
-import Dependencies.MongockBom
-import Dependencies.MongockSpringDataV3
-import Dependencies.MongockSpringV5
 import Dependencies.OkHttpLogging
 import Dependencies.Retrofit2
 import Dependencies.SpringWebFlux
@@ -16,7 +13,7 @@ import Projects.CommonsTest
 import Projects.SchedulerTaskProperties
 import SpringBootDependencies.SpringBootStarter
 import SpringBootDependencies.SpringBootStarterConfigProcessor
-import SpringBootDependencies.SpringBootStarterMongo
+import SpringBootDependencies.SpringBootStarterReactiveMongo
 import SpringBootDependencies.SpringBootStarterTest
 import SpringBootDependencies.SpringBootStarterWeb
 import TestDependencies.AssertJ
@@ -42,18 +39,14 @@ dependencies {
 
     implementation(CommonsIO)
     implementation(CommonsLang3)
-    implementation(KMongoCoroutine)
-    implementation(KMongoAsync)
     implementation(KotlinLogging)
     implementation(Retrofit2)
     implementation(OkHttpLogging)
-
-    implementation(MongockBom)
-    implementation(MongockSpringV5)
-    implementation(MongockSpringDataV3)
+    implementation(KotlinCoroutines)
+    implementation(KotlinCoroutinesReactive)
 
     implementation(SpringBootStarter)
-    implementation(SpringBootStarterMongo)
+    implementation(SpringBootStarterReactiveMongo)
     implementation(SpringBootStarterWeb)
     implementation(SpringBootStarterConfigProcessor)
     implementation(SpringWebFlux)

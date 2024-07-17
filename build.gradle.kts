@@ -31,6 +31,7 @@ allprojects {
                 freeCompilerArgs =
                     freeCompilerArgs +
                     arrayOf(
+                        // "-Xdebug", // uncoment to avoid variables to be optimized out
                         "-Xjvm-default=all",
                         "-opt-in=kotlin.RequiresOptIn",
                         "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",

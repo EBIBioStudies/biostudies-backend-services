@@ -2,52 +2,75 @@ package ac.uk.ebi.pmc.process.util
 
 import ac.uk.ebi.pmc.client.PmcApi
 import ac.uk.ebi.pmc.utils.retry
-import ac.uk.ebi.scheduler.properties.PmcImporterProperties
+import ebi.ac.uk.coroutines.concurrently
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.extensions.allFiles
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.InputStream
-import java.nio.file.Paths
-import ebi.ac.uk.model.BioFile as SubmissionFile
 
 /**
  * In charge of download PMC files.
  */
 class FileDownloader(
-    private val properties: PmcImporterProperties,
     private val pmcApi: PmcApi,
 ) {
-    suspend fun downloadFiles(submission: Submission): Result<List<File>> {
-        return runCatching {
-            coroutineScope {
-                submission.allFiles()
-                    .map { async { retry(times = 3) { downloadFile(getPmcId(submission.accNo), it) } } }
-                    .awaitAll()
-            }
-        }
+    suspend fun downloadFiles(
+        targetFolder: File,
+        submission: Submission,
+    ): Result<List<File>> {
+        return runCatching { donwloadSubFiles(targetFolder, submission) }
+    }
+
+    private suspend fun donwloadSubFiles(
+        targetFolder: File,
+        submission: Submission,
+    ): List<File> {
+        return submission
+            .allFiles()
+            .asFlow()
+            .concurrently(CONCURRENCY) { retry(RETRIES) { downloadFile(targetFolder, getPmcId(submission.accNo), it) } }
+            .toList()
     }
 
     private suspend fun downloadFile(
+        targetFolder: File,
         pmcId: String,
-        file: SubmissionFile,
+        file: BioFile,
     ): File =
         withContext(Dispatchers.IO) {
-            val targetFolder = Paths.get(properties.temp).resolve(pmcId).toFile()
-            targetFolder.mkdirs()
-
             val targetFile = targetFolder.resolve(file.path)
-            pmcApi.downloadFileStream(pmcId, file.path).byteStream().copyToFile(targetFile)
-            return@withContext targetFile
+            when (targetFile.exists()) {
+                true -> targetFile
+                false -> copyToFile(pmcApi.downloadFileStream(pmcId, file.path), targetFile)
+            }
         }
 
-    private fun InputStream.copyToFile(destinationFile: File) {
-        use { input -> destinationFile.outputStream().use { output -> input.copyTo(output) } }
+    @Suppress("TooGenericExceptionCaught")
+    private fun copyToFile(
+        responseBody: okhttp3.ResponseBody,
+        targetFile: File,
+    ): File {
+        val source = responseBody.byteStream()
+        val target = targetFile.outputStream()
+
+        try {
+            source.use { input -> target.use { output -> input.copyTo(output) } }
+        } catch (exception: Exception) {
+            if (targetFile.exists()) targetFile.delete()
+            throw exception
+        }
+
+        return targetFile
     }
 
     private fun getPmcId(accNo: String) = accNo.removePrefix("S-EPMC")
+
+    companion object {
+        const val CONCURRENCY = 5
+        const val RETRIES = 3
+    }
 }

@@ -1,9 +1,10 @@
 package ac.uk.ebi.pmc.process
 
-import ac.uk.ebi.pmc.persistence.ErrorsDocService
-import ac.uk.ebi.pmc.persistence.SubmissionDocService
+import ac.uk.ebi.pmc.persistence.domain.ErrorsService
+import ac.uk.ebi.pmc.persistence.domain.SubmissionService
 import ac.uk.ebi.pmc.process.util.FileDownloader
 import ac.uk.ebi.pmc.process.util.SubmissionInitializer
+import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Lazy
@@ -13,9 +14,10 @@ import org.springframework.context.annotation.Lazy
 class ProcessorConfig {
     @Bean
     fun pmcProcessor(
-        errorsDocService: ErrorsDocService,
+        errorsDocService: ErrorsService,
         submissionInitializer: SubmissionInitializer,
-        submissionDocService: SubmissionDocService,
+        submissionDocService: SubmissionService,
         fileDownloader: FileDownloader,
-    ) = PmcProcessor(errorsDocService, submissionInitializer, submissionDocService, fileDownloader)
+        properties: PmcImporterProperties,
+    ): PmcProcessor = PmcProcessor(submissionInitializer, errorsDocService, submissionDocService, fileDownloader, properties)
 }

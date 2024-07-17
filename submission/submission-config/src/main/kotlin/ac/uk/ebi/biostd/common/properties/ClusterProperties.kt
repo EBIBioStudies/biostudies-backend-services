@@ -5,6 +5,8 @@ data class SubmissionTaskProperties(
     val jarLocation: String,
     val javaLocation: String,
     val configFileLocation: String,
+    val taskMemoryMgb: Int,
+    val taskCores: Int,
 )
 
 data class ClusterProperties(

@@ -7,7 +7,7 @@ private val logger = KotlinLogging.logger {}
 
 @Suppress("TooGenericExceptionCaught")
 suspend fun <T> retry(
-    times: Int = 3,
+    times: Int,
     initialDelay: Long = 100,
     maxDelay: Long = 1000,
     factor: Double = 2.0,
@@ -18,7 +18,7 @@ suspend fun <T> retry(
         try {
             return block()
         } catch (e: Exception) {
-            logger.error { e }
+            logger.error(e) { "Error executing retry operation" }
         }
         delay(currentDelay)
         currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)

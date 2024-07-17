@@ -4,11 +4,12 @@ import ac.uk.ebi.pmc.FILE1_CONTENT
 import ac.uk.ebi.pmc.FILE1_NAME
 import ac.uk.ebi.pmc.PmcTaskExecutor
 import ac.uk.ebi.pmc.config.AppConfig
+import ac.uk.ebi.pmc.persistence.docs.SubFileDocument
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.ERROR_SUBMIT
 import ac.uk.ebi.pmc.persistence.docs.SubmissionStatus.SUBMITTED
 import ac.uk.ebi.pmc.persistence.repository.ErrorsRepository
-import ac.uk.ebi.pmc.persistence.repository.SubFileRepository
-import ac.uk.ebi.pmc.persistence.repository.SubmissionRepository
+import ac.uk.ebi.pmc.persistence.repository.SubFileDocRepository
+import ac.uk.ebi.pmc.persistence.repository.SubmissionDocRepository
 import ac.uk.ebi.pmc.prcoessedSubmissionBody
 import ac.uk.ebi.pmc.processedSubmission
 import com.github.tomakehurst.wiremock.WireMockServer
@@ -32,7 +33,9 @@ import ebi.ac.uk.model.constants.TEXT_PLAIN
 import ebi.ac.uk.test.createFile
 import io.github.glytching.junit.extension.folder.TemporaryFolder
 import io.github.glytching.junit.extension.folder.TemporaryFolderExtension
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -164,8 +167,8 @@ internal class PmcSubmissionSubmitterTest {
     @DirtiesContext
     inner class PmcSubmitTest(
         @Autowired val errorsRepository: ErrorsRepository,
-        @Autowired val submissionRepository: SubmissionRepository,
-        @Autowired val fileRepository: SubFileRepository,
+        @Autowired val submissionRepository: SubmissionDocRepository,
+        @Autowired val fileRepository: SubFileDocRepository,
         @Autowired val pmcTaskExecutor: PmcTaskExecutor,
         private val tempFolder: TemporaryFolder,
     ) {
@@ -180,17 +183,23 @@ internal class PmcSubmissionSubmitterTest {
 
         @Test
         fun `when success submit`() {
-            runBlocking {
+            runTest {
                 val targetFile = tempFolder.createFile(FILE1_NAME, FILE1_CONTENT)
-                val fileObjectId = fileRepository.saveFile(targetFile, processedSubmission.accNo)
-                submissionRepository.insertOrExpire(processedSubmission.copy(files = listOf(fileObjectId)))
+                val fileDoc =
+                    SubFileDocument(
+                        accNo = processedSubmission.accNo,
+                        name = targetFile.name,
+                        path = targetFile.absolutePath,
+                    )
+                val fileObjectId = fileRepository.save(fileDoc).id
+                submissionRepository.save(processedSubmission.copy(files = listOf(fileObjectId)))
 
                 pmcTaskExecutor.run()
 
-                assertThat(errorsRepository.findAll()).isEmpty()
-                assertThat(fileRepository.findAll()).hasSize(1)
+                assertThat(errorsRepository.findAll().toList()).isEmpty()
+                assertThat(fileRepository.findAll().toList()).hasSize(1)
 
-                val submissions = submissionRepository.findAll()
+                val submissions = submissionRepository.findAll().toList()
                 assertThat(submissions).hasSize(1)
 
                 val submission = submissions.first()
@@ -201,15 +210,15 @@ internal class PmcSubmissionSubmitterTest {
 
         @Test
         fun `when error submit`() {
-            runBlocking {
-                submissionRepository.insertOrExpire(processedSubmission)
+            runTest {
+                submissionRepository.save(processedSubmission)
 
                 pmcTaskExecutor.run()
 
-                assertThat(errorsRepository.findAll()).hasSize(1)
-                assertThat(fileRepository.findAll()).isEmpty()
+                assertThat(errorsRepository.findAll().toList()).hasSize(1)
+                assertThat(fileRepository.findAll().toList()).isEmpty()
 
-                val submissions = submissionRepository.findAll()
+                val submissions = submissionRepository.findAll().toList()
                 assertThat(submissions).hasSize(1)
 
                 val submission = submissions.first()

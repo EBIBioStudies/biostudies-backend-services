@@ -15,6 +15,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
+import ebi.ac.uk.asserts.assertThatThrows
 import ebi.ac.uk.asserts.assertThrows
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
@@ -191,11 +192,8 @@ class FileListSubmissionTest(
                 }.toString()
 
             val filesConfig = SubmissionFilesConfig(listOf(fileList), storageMode)
-            val exeception =
-                assertThrows<WebClientException> {
-                    webClient.submitSingle(submission, JSON, filesConfig)
-                }
-            assertThat(exeception).hasMessageContaining("Unsupported page tab format FileList.txt")
+            assertThatThrows<WebClientException> { webClient.submitSingle(submission, JSON, filesConfig) }
+                .hasMessageContaining("Unsupported page tab format FileList.txt")
         }
 
     @Test
