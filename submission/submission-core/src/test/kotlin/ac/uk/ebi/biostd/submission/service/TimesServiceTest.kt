@@ -1,7 +1,7 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
-import ac.uk.ebi.biostd.submission.exceptions.InvalidReleaseDateException
+import ac.uk.ebi.biostd.submission.exceptions.InvalidReleaseException
 import ac.uk.ebi.biostd.submission.exceptions.PastReleaseDateException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ebi.ac.uk.model.extensions.releaseDate
@@ -57,12 +57,14 @@ class TimesServiceTest(
             every { request.previousVersion?.creationTime } returns testTime
 
             val times = testInstance.getTimes(request)
+
             assertThat(times.createTime).isEqualTo(testTime)
         }
 
         @Test
         fun `when is new`() {
             val times = testInstance.getTimes(request)
+
             assertThat(times.createTime).isEqualTo(mockNow)
         }
     }
@@ -144,7 +146,7 @@ class TimesServiceTest(
         fun `when updating public submission release date`() {
             every { request.submission.releaseDate } returns "2015-10-10T21:16:36.000Z"
 
-            val error = assertThrows<InvalidReleaseDateException> { testInstance.getTimes(request) }
+            val error = assertThrows<InvalidReleaseException> { testInstance.getTimes(request) }
             assertThat(error.message).isEqualTo("The release date of a public study cannot be changed")
         }
 
@@ -153,7 +155,7 @@ class TimesServiceTest(
             every { request.previousVersion?.released } returns true
             every { request.submission.releaseDate } returns "2020-10-10T09:27:04.000Z"
 
-            val error = assertThrows<InvalidReleaseDateException> { testInstance.getTimes(request) }
+            val error = assertThrows<InvalidReleaseException> { testInstance.getTimes(request) }
             assertThat(error.message).isEqualTo("The release date of a public study cannot be changed")
         }
 
