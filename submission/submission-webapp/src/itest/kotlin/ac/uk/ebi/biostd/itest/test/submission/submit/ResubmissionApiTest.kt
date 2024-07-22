@@ -348,39 +348,4 @@ class ResubmissionApiTest(
                 }.toString()
             assertThat(webClient.submitSingle(version2, TSV)).isSuccessful()
         }
-
-    @Test
-    fun `5-7 change the release date of a public submission`() {
-        val version1 =
-            tsv {
-                line("Submission", "S-RSTST7")
-                line("Title", "Release date change test")
-                line("ReleaseDate", OffsetDateTime.now().toStringDate())
-                line()
-                line("Study")
-                line()
-            }.toString()
-
-        assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
-
-        mongoTemplate.updateMulti(
-            Query(where(SUB_ACC_NO).`in`("S-RSTST7").andOperator(where(SUB_VERSION).gt(0))),
-            ExtendedUpdate().set(SUB_RELEASE_TIME, OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, UTC).toInstant()),
-            DocSubmission::class.java,
-        )
-
-        val version2 =
-            tsv {
-                line("Submission", "S-RSTST7")
-                line("Title", "Release date change test")
-                line("ReleaseDate", "2019-11-20")
-                line()
-                line("Study")
-                line()
-            }.toString()
-
-        assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { webClient.submitSingle(version2, TSV) }
-            .withMessageContaining("The release date of a public study cannot be changed")
-    }
 }

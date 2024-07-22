@@ -67,7 +67,7 @@ internal class UserPrivilegesService(
 
     override fun canRelease(email: String): Boolean = isSuperUser(email)
 
-    override fun canSuppress(email: String): Boolean = isSuperUser(email)
+    override fun canUpdateReleaseDate(email: String): Boolean = isSuperUser(email)
 
     private suspend fun hasPermissions(
         user: String,
@@ -76,7 +76,16 @@ internal class UserPrivilegesService(
     ): Boolean {
         val collections = submissionQueryService.getCollections(accNo)
         return userPermissionsService.hasPermission(user, accNo, accessType) ||
-            (collections.isNotEmpty() && collections.all { userPermissionsService.hasPermission(user, it, accessType) })
+            (
+                collections.isNotEmpty() &&
+                    collections.all {
+                        userPermissionsService.hasPermission(
+                            user,
+                            it,
+                            accessType,
+                        )
+                    }
+            )
     }
 
     private fun isSuperUser(email: String) = getUser(email).superuser

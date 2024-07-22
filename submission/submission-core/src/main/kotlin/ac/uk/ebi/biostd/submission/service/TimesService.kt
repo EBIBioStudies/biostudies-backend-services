@@ -26,23 +26,23 @@ class TimesService(
         val creationTime = rqt.previousVersion?.creationTime ?: now
         val releaseTime = rqt.submission.releaseDate?.let { parseDate(it) }
         val released = releaseTime?.isBeforeOrEqual(now).orFalse()
+        val submitter = rqt.submitter.email
 
-        if (releaseTime != null) checkPermissions(releaseTime, rqt)
+        if (releaseTime != null && privileges.canUpdateReleaseDate(submitter).not()) checkReleaseTime(rqt, releaseTime)
         return Times(creationTime, now, releaseTime, released)
     }
 
-    private fun checkPermissions(
-        releaseTime: OffsetDateTime,
+    private fun checkReleaseTime(
         rqt: SubmitRequest,
+        releaseTime: OffsetDateTime,
     ) {
-        val submitter = rqt.submitter.email
         val today = OffsetDateTime.now().atStartOfDay()
 
         when (val previous = rqt.previousVersion) {
             null -> if (releaseTime < today) throw PastReleaseDateException()
             else ->
                 if (previous.released) {
-                    if (releaseTime > today && privileges.canSuppress(submitter).not()) throw InvalidReleaseException()
+                    if (releaseTime > today) throw InvalidReleaseException()
                     if (releaseTime != previous.releaseTime && releaseTime < today) throw InvalidReleaseException()
                 }
         }
