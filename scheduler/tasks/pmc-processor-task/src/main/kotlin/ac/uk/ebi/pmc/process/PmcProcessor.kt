@@ -1,55 +1,74 @@
 package ac.uk.ebi.pmc.process
 
-import ac.uk.ebi.pmc.persistence.ErrorsDocService
-import ac.uk.ebi.pmc.persistence.SubmissionDocService
-import ac.uk.ebi.pmc.persistence.docs.SubmissionDoc
+import ac.uk.ebi.pmc.persistence.docs.SubmissionDocument
+import ac.uk.ebi.pmc.persistence.domain.ErrorsService
+import ac.uk.ebi.pmc.persistence.domain.SubmissionService
 import ac.uk.ebi.pmc.process.util.FileDownloader
 import ac.uk.ebi.pmc.process.util.SubmissionInitializer
+import ac.uk.ebi.scheduler.properties.PmcImporterProperties
 import ac.uk.ebi.scheduler.properties.PmcMode
+import ebi.ac.uk.coroutines.concurrently
 import ebi.ac.uk.model.Submission
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
-
-private const val BUFFER_SIZE = 30
+import java.io.File
+import java.nio.file.Paths
 
 class PmcProcessor(
-    private val errorDocService: ErrorsDocService,
     private val submissionInitializer: SubmissionInitializer,
-    private val submissionDocService: SubmissionDocService,
+    private val errorService: ErrorsService,
+    private val submissionService: SubmissionService,
     private val fileDownloader: FileDownloader,
+    private val properties: PmcImporterProperties,
 ) {
-    fun processAll(sourceFile: String?) {
-        runBlocking { processSubmissions(sourceFile) }
+    fun processAll(sourceFile: String?): Unit = runBlocking { processSubmissions(sourceFile) }
+
+    private suspend fun processSubmissions(sourceFile: String?) {
+        supervisorScope {
+            submissionService.findReadyToProcess(sourceFile)
+                .concurrently(CONCURRENCY) { processSubmission(it) }
+                .collect()
+        }
     }
 
-    private suspend fun processSubmissions(sourceFile: String?) =
-        withContext(Dispatchers.Default) {
-            submissionDocService.findReadyToProcess(sourceFile)
-                .map { async { processSubmission(it) } }
-                .buffer(BUFFER_SIZE)
-                .collect { it.await() }
-        }
-
-    private suspend fun processSubmission(submissionDoc: SubmissionDoc) {
-        runCatching { submissionInitializer.getSubmission(submissionDoc.body) }
+    private suspend fun processSubmission(subDoc: SubmissionDocument) {
+        runCatching { submissionInitializer.getSubmission(subDoc.body) }
             .fold(
-                { downloadFiles(it, submissionDoc) },
-                { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
+                { (sub, subBody) -> downloadFiles(sub, subBody, subDoc) },
+                { errorService.saveError(subDoc, PmcMode.PROCESS, it) },
             )
     }
 
     private suspend fun downloadFiles(
-        submissionPair: Pair<Submission, String>,
-        submissionDoc: SubmissionDoc,
+        sub: Submission,
+        subBody: String,
+        subDoc: SubmissionDocument,
     ) {
-        val (submission, body) = submissionPair
-        fileDownloader.downloadFiles(submission).fold(
-            { submissionDocService.saveProcessedSubmission(submissionDoc.withBody(body), it) },
-            { errorDocService.saveError(submissionDoc, PmcMode.PROCESS, it) },
+        val targetFolder = createTargetFolder(subDoc)
+        fileDownloader.downloadFiles(targetFolder, sub).fold(
+            { submissionService.saveProcessedSubmission(subDoc.copy(body = subBody), it) },
+            { errorService.saveError(subDoc, PmcMode.PROCESS, it) },
         )
+    }
+
+    private suspend fun createTargetFolder(subDoc: SubmissionDocument): File =
+        withContext(Dispatchers.IO) {
+            val target =
+                Paths.get(properties.temp)
+                    .resolve(subDoc.accNo.takeLast(PARTITION_CHARACTERS))
+                    .resolve(subDoc.accNo)
+                    .resolve("${subDoc.sourceTime}")
+                    .resolve("${subDoc.posInFile}")
+                    .toFile()
+            target.mkdirs()
+            return@withContext target
+        }
+
+    companion object {
+        private const val CONCURRENCY = 30
+        private const val PARTITION_CHARACTERS = 3
     }
 }

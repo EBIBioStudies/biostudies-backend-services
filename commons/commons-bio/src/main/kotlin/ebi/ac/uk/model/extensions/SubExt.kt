@@ -1,6 +1,7 @@
 package ebi.ac.uk.model.extensions
 
 import ebi.ac.uk.extended.model.ExtAttributeDetail
+import ebi.ac.uk.model.BioFile
 import ebi.ac.uk.model.Section
 import ebi.ac.uk.model.Submission
 import ebi.ac.uk.model.constants.COLLECTION_TYPE
@@ -8,6 +9,8 @@ import ebi.ac.uk.model.constants.SubFields
 import ebi.ac.uk.util.date.asIsoTime
 import ebi.ac.uk.util.date.fromIsoTime
 import java.time.OffsetDateTime
+
+const val SUBMISSION_EXTESIONS = "ebi.ac.uk.model.extensions.SubExtKt"
 
 /**
  * Indicate that submission should be register for specific project.
@@ -113,7 +116,7 @@ fun Submission.withAttributes(attrs: List<ExtAttributeDetail>): Submission {
     return this
 }
 
-fun Submission.allFiles() = section.allFiles() + section.allSections().flatMap { it.allFiles() }
+fun Submission.allFiles(): List<BioFile> = section.allFiles() + section.allSections().flatMap { it.allFiles() }
 
 fun Submission.getSectionByType(name: String): Section = section.allSections().first { it.type == name }
 

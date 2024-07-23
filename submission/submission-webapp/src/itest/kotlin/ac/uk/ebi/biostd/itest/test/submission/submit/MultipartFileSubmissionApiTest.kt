@@ -15,7 +15,7 @@ import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
-import ebi.ac.uk.asserts.assertThrows
+import ebi.ac.uk.asserts.assertThatThrows
 import ebi.ac.uk.dsl.excel.excel
 import ebi.ac.uk.dsl.json.jsonArray
 import ebi.ac.uk.dsl.json.jsonObj
@@ -113,8 +113,9 @@ class MultipartFileSubmissionApiTest(
                 }
             val config = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("SomeFile.txt")), storageMode)
 
-            val response = webClient.submitSingle(excelPageTab, config)
-
+            val filesConfig =
+                SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("SomeFile.txt")), storageMode)
+            val response = webClient.submitSingle(excelPageTab, filesConfig)
             assertThat(response).isSuccessful()
             assertSubmissionFiles("S-EXC123", "SomeFile.txt")
             fileList.delete()
@@ -280,8 +281,8 @@ class MultipartFileSubmissionApiTest(
             val submission = tempFolder.createFile("submission.txt", "invalid file")
             val filesConfig = SubmissionFilesConfig(emptyList(), storageMode)
 
-            val exception = assertThrows<WebClientException> { webClient.submitSingle(submission, filesConfig) }
-            assertThat(exception).hasMessageContaining("Unsupported page tab format submission.txt")
+            assertThatThrows<WebClientException> { webClient.submitSingle(submission, filesConfig) }
+                .hasMessageContaining("Unsupported page tab format submission.txt")
         }
 
     private suspend fun assertSubmissionFiles(

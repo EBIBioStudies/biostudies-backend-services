@@ -154,6 +154,8 @@ class ITestListener : TestExecutionListener {
         properties.addProperty("app.submissionTask.jarLocation", jarLocation)
         properties.addProperty("app.submissionTask.javaLocation", javaLocation)
         properties.addProperty("app.submissionTask.configFileLocation", configFile)
+        properties.addProperty("app.submissionTask.taskMemoryMgb", 4096)
+        properties.addProperty("app.submissionTask.taskCores", 2)
     }
 
     private fun clusterSetup() {
