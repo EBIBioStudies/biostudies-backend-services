@@ -124,8 +124,8 @@ class StatsMongoDataServiceTest(
 
             val result = testInstance.saveAll(stats)
             assertThat(result).hasSize(2)
-            assertThat(result.first()).isEqualToComparingFieldByField(stats.third())
-            assertThat(result.second()).isEqualToComparingFieldByField(stats.second())
+            assertThat(result.first()).usingRecursiveComparison().isEqualTo(stats.third())
+            assertThat(result.second()).usingRecursiveComparison().isEqualTo(stats.second())
         }
 
     @Test

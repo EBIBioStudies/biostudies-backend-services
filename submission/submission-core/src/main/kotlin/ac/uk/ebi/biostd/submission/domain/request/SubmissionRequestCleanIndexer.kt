@@ -103,7 +103,7 @@ class SubmissionRequestCleanIndexer(
             deprecatedPageTabIdx.get(),
             conflictIdx.get(),
             conflictPageTabIdx.get(),
-            current.version
+            current.version,
         )
     }
 

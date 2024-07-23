@@ -66,7 +66,10 @@ internal class UserPrivilegesService(
             hasPermissions(submitter, accNo, DELETE)
     }
 
-    override suspend fun canUpdatePublicSubmission(submitter: String, accNo: String): Boolean {
+    override suspend fun canUpdatePublicSubmission(
+        submitter: String,
+        accNo: String,
+    ): Boolean {
         return hasPermissions(submitter, accNo, UPDATE_PUBLIC)
     }
 

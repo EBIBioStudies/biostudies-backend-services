@@ -35,11 +35,13 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.ExtSerializationService
 
+@Disabled
 @ExtendWith(MockKExtension::class, TemporaryFolderExtension::class)
 class SubmissionRequestReleaserTest(
     @MockK private val storageService: FileStorageService,

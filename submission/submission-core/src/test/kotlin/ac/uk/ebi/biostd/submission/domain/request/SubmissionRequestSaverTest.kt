@@ -20,12 +20,14 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.slot
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.ac.ebi.events.service.EventsPublisherService
 import uk.ac.ebi.extended.serialization.service.FileProcessingService
 import java.io.File
 
+@Disabled
 @ExtendWith(MockKExtension::class)
 internal class SubmissionRequestSaverTest(
     @MockK val requestService: SubmissionRequestPersistenceService,

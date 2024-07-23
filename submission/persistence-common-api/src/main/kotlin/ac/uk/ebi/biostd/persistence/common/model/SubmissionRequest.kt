@@ -63,9 +63,7 @@ data class SubmissionRequest(
      * Create a Submission Request after clean indexing stage setting conflicted, deprecated files and previous version
      * fields.
      */
-    fun cleanIndexed(
-        fileChanges: SubmissionRequestFileChanges,
-    ): SubmissionRequest {
+    fun cleanIndexed(fileChanges: SubmissionRequestFileChanges): SubmissionRequest {
         return copy(
             status = RequestStatus.INDEXED_CLEANED,
             modificationTime = OffsetDateTime.now(),

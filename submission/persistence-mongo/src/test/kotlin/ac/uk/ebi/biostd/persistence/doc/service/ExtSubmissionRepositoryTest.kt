@@ -74,10 +74,10 @@ class ExtSubmissionRepositoryTest(
 
             val result = testInstance.saveSubmission(submission)
 
-            assertThat(result.section).isEqualToIgnoringGivenFields(
-                section.copy(fileList = defaultFileList(filesUrl = null)),
-                "fileList",
-            )
+            assertThat(result.section)
+                .usingRecursiveComparison()
+                .ignoringFields("fileList")
+                .isEqualTo(section.copy(fileList = defaultFileList(filesUrl = null)))
 
             val savedSubmission = subDataRepository.getSubmission(submission.accNo, 1)
             assertThat(subDataRepository.findAll().toList()).hasSize(1)

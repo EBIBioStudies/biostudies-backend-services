@@ -79,7 +79,7 @@ object Versions {
     const val CommonsFileUploadVersion = "1.4"
     const val CommonsLang3Version = "3.8.1"
     const val CommonsIOVersion = "2.6"
-    const val CommonsNetVersion = "3.6"
+    const val CommonsNetVersion = "3.11.1"
     const val CommonsPoolVersion = "2.12.0"
     const val CommonsCsvVersion = "1.8"
     const val MySqlVersion = "8.3.0"

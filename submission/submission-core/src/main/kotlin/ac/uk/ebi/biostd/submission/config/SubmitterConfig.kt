@@ -57,7 +57,7 @@ import uk.ac.ebi.fire.client.integration.web.FireClient
 import uk.ac.ebi.serialization.common.FilesResolver
 import java.io.File
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @Configuration
 @Import(
     ServiceConfig::class,
@@ -90,7 +90,6 @@ class SubmitterConfig(
         filesRequestService: SubmissionRequestFilesPersistenceService,
         requestService: SubmissionRequestPersistenceService,
         eventsPublisherService: EventsPublisherService,
-        userPrivilegesService: IUserPrivilegesService,
     ): SubmissionRequestCleanIndexer =
         SubmissionRequestCleanIndexer(
             serializationService,

@@ -1,5 +1,6 @@
 package ebi.ac.uk.ftp
 
+import org.apache.commons.net.ftp.FTP
 import org.apache.commons.net.ftp.FTPClient
 import org.apache.commons.net.ftp.FTPFile
 import java.io.InputStream
@@ -72,6 +73,7 @@ private class SimpleFtpClient(
         ftpClientPool.execute { ftp ->
             for ((path, inputStream) in files) {
                 ftp.createFtpFolder(path.parent)
+                ftp.setFileType(FTP.BINARY_FILE_TYPE)
                 inputStream().use { ftp.storeFile(path.toString(), it) }
             }
         }
