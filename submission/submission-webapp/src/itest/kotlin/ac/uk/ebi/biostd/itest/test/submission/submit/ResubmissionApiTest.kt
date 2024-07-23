@@ -518,7 +518,7 @@ class ResubmissionApiTest(
                 val version1 =
                     tsv {
                         line("Submission", "S-RSTST10")
-                        line("Title", "Update Submission Files")
+                        line("Title", "Remove File List")
                         line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
                         line("Study")
@@ -543,7 +543,7 @@ class ResubmissionApiTest(
                 val version2 =
                     tsv {
                         line("Submission", "S-RSTST10")
-                        line("Title", "Update Submission Files")
+                        line("Title", "Remove File List")
                         line("ReleaseDate", OffsetDateTime.now().toStringDate())
                         line()
                         line("Study")
