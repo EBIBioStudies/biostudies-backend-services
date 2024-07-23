@@ -32,6 +32,7 @@ class TimesService(
         return Times(creationTime, now, releaseTime, released)
     }
 
+    @Suppress("ThrowsCount")
     private fun checkReleaseTime(
         rqt: SubmitRequest,
         releaseTime: OffsetDateTime,
