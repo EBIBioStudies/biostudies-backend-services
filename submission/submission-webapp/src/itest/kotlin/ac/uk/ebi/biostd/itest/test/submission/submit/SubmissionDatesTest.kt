@@ -39,17 +39,22 @@ class SubmissionDatesTest(
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int,
 ) {
+    private lateinit var adminWebClient: BioWebClient
+    private lateinit var userWebClient: BioWebClient
+
+    @BeforeAll
+    fun init(): Unit =
+        runBlocking {
+            securityTestService.ensureUserRegistration(DefaultUser)
+            securityTestService.ensureUserRegistration(SuperUser)
+            securityTestService.ensureSequence("S-BSST")
+
+            userWebClient = getWebClient(serverPort, DefaultUser)
+            adminWebClient = getWebClient(serverPort, SuperUser)
+        }
+
     @Nested
     inner class DatesCases() {
-        private lateinit var adminWebClient: BioWebClient
-
-        @BeforeAll
-        fun init(): Unit =
-            runBlocking {
-                securityTestService.ensureUserRegistration(SuperUser)
-                adminWebClient = getWebClient(serverPort, SuperUser)
-            }
-
         @Test
         fun `28-1 Creation date is not changed beetween re submissions`() =
             runTest {
@@ -112,23 +117,9 @@ class SubmissionDatesTest(
     }
 
     @Nested
-    inner class NormalUser {
-        private lateinit var userWebClient: BioWebClient
-        private lateinit var adminWebClient: BioWebClient
-
-        @BeforeAll
-        fun init(): Unit =
-            runBlocking {
-                securityTestService.ensureUserRegistration(DefaultUser)
-                securityTestService.ensureUserRegistration(SuperUser)
-                securityTestService.ensureSequence("S-BSST")
-
-                userWebClient = getWebClient(serverPort, DefaultUser)
-                adminWebClient = getWebClient(serverPort, SuperUser)
-            }
-
+    inner class WhenRegularUser {
         @Test
-        fun `28-3 Normal user submit with release date in the past`() =
+        fun `28-3 Regular user submit with release date in the past`() =
             runTest {
                 val submission =
                     tsv {
@@ -162,20 +153,8 @@ class SubmissionDatesTest(
             }
 
         @Test
-        fun `28-4 Normal user re-submit an already released submission with a new release date in the future`() =
+        fun `28-4 Regular user re-submit a public submission with a new release date in the future`() =
             runTest {
-                fun submission(releaseDate: String): String {
-                    return tsv {
-                        line("Submission")
-                        line("Title", "Sample Submission")
-                        line("ReleaseDate", releaseDate)
-                        line()
-
-                        line("Study")
-                        line()
-                    }.toString()
-                }
-
                 val v1 =
                     tsv {
                         line("Submission")
@@ -222,7 +201,7 @@ class SubmissionDatesTest(
             }
 
         @Test
-        fun `28-5 Normal user re-submit a not released submission with a new release date in the past`() =
+        fun `28-5 Regular user re-submit a private submission with a new release date in the past`() =
             runTest {
                 fun submission(releaseDate: String): String {
                     return tsv {
@@ -284,17 +263,8 @@ class SubmissionDatesTest(
 
     @Nested
     inner class AdminUser {
-        private lateinit var adminWebClient: BioWebClient
-
-        @BeforeAll
-        fun init(): Unit =
-            runBlocking {
-                securityTestService.ensureUserRegistration(SuperUser)
-                adminWebClient = getWebClient(serverPort, SuperUser)
-            }
-
         @Test
-        fun `28-6 Admin Submit and Re Submit in the past`() =
+        fun `28-6 Admin submits and re submit in the past`() =
             runTest {
                 val v1 =
                     tsv {
@@ -357,6 +327,41 @@ class SubmissionDatesTest(
                     }.toString()
                 assertThat(adminWebClient.submitSingle(v2, TSV)).isSuccessful()
                 val v2Extended = submissionRepository.getExtByAccNoAndVersion("RELEASE-0020", 2)
+                assertThat(v2Extended.released).isFalse()
+                assertThat(v2Extended.releaseTime).isEqualTo(OffsetDateTime.parse("2050-04-24T00:00+00:00"))
+            }
+
+        @Test
+        fun `28-8 Admin make a Regular user public submission private`() =
+            runTest {
+                val v1 =
+                    tsv {
+                        line("Submission")
+                        line("Title", "Sample Submission")
+                        line("ReleaseDate", OffsetDateTime.now().toStringDate())
+                        line()
+
+                        line("Study")
+                        line()
+                    }.toString()
+
+                val submitted = userWebClient.submitSingle(v1, TSV)
+                assertThat(submitted).isSuccessful()
+                val accNo = submitted.body.accNo
+
+                val v2 =
+                    tsv {
+                        line("Submission", accNo)
+                        line("Title", "Sample Submission")
+                        line("ReleaseDate", "2050-04-24")
+                        line()
+
+                        line("Study")
+                        line()
+                    }.toString()
+
+                assertThat(adminWebClient.submitSingle(v2, TSV)).isSuccessful()
+                val v2Extended = submissionRepository.getExtByAccNoAndVersion(accNo, 2)
                 assertThat(v2Extended.released).isFalse()
                 assertThat(v2Extended.releaseTime).isEqualTo(OffsetDateTime.parse("2050-04-24T00:00+00:00"))
             }

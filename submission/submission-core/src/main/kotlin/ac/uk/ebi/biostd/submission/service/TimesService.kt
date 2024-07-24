@@ -42,10 +42,7 @@ class TimesService(
         when (val previous = rqt.previousVersion) {
             null -> if (releaseTime < today) throw PastReleaseDateException()
             else ->
-                if (previous.released) {
-                    if (releaseTime > today) throw InvalidReleaseException()
-                    if (releaseTime != previous.releaseTime && releaseTime < today) throw InvalidReleaseException()
-                }
+                if (previous.released && releaseTime != previous.releaseTime) throw InvalidReleaseException()
         }
     }
 

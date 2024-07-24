@@ -98,7 +98,7 @@ class SecurityUtilTest(
         }
 
         @Test
-        fun `check password is set as invalid when normal user security token is used`() {
+        fun `check password is set as invalid when Regular user security token is used`() {
             val userToken = testInstance.createToken(simpleUser)
             every { userRepository.getReferenceById(SecurityTestEntities.USER_ID) } returns simpleUser
 
