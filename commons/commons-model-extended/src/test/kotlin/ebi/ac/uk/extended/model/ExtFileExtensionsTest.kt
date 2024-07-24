@@ -27,7 +27,7 @@ class ExtFileExtensionsTest {
         val newAttributes = listOf(ExtAttribute("Override", "New"))
         val copied = fireFile.copyWithAttributes(newAttributes)
 
-        assertThat(copied).isEqualToIgnoringGivenFields(fireFile, "attributes")
+        assertThat(copied).usingRecursiveComparison().ignoringFields("attributes").isEqualTo(fireFile)
         assertThat(copied.attributes).isEqualTo(newAttributes)
     }
 
@@ -49,7 +49,7 @@ class ExtFileExtensionsTest {
         val newAttributes = listOf(ExtAttribute("Override", "New"))
         val copied = nfsFile.copyWithAttributes(newAttributes)
 
-        assertThat(copied).isEqualToIgnoringGivenFields(nfsFile, "attributes")
+        assertThat(copied).usingRecursiveComparison().ignoringFields("attributes").isEqualTo(nfsFile)
         assertThat(copied.attributes).isEqualTo(newAttributes)
     }
 }

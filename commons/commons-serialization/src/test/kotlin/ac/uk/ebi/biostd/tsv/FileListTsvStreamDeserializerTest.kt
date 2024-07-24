@@ -97,7 +97,7 @@ class FileListTsvStreamDeserializerTest(
             output.outputStream().use { testInstance.serializeFileList(files.asFlow(), it) }
 
             val result = output.inputStream().use { testInstance.deserializeFileList(it).toList() }
-            assertThat(result).allSatisfy { assertThat(it).isEqualToComparingFieldByField(iterator.next()) }
+            assertThat(result).allSatisfy { assertThat(it).usingRecursiveComparison().isEqualTo(iterator.next()) }
             assertThat(result).hasSize(20000)
         }
 

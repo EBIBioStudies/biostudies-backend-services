@@ -74,7 +74,7 @@ class SubmissionListApiTest(
                 ),
             )
 
-        assertThat(submissionList).hasOnlyOneElementSatisfying {
+        assertThat(submissionList).satisfiesOnlyOnce {
             assertThat(it.accno).isEqualTo("LIST-API-17")
             assertThat(it.version).isEqualTo(1)
             assertThat(it.method).isEqualTo(PAGE_TAB)
@@ -92,7 +92,7 @@ class SubmissionListApiTest(
                 ),
             )
 
-        assertThat(submissionList).hasOnlyOneElementSatisfying {
+        assertThat(submissionList).satisfiesOnlyOnce {
             assertThat(it.accno).isEqualTo("LIST-API-27")
             assertThat(it.version).isEqualTo(1)
             assertThat(it.method).isEqualTo(SubmissionMethod.FILE)
@@ -110,7 +110,7 @@ class SubmissionListApiTest(
                 ),
             )
 
-        assertThat(submissionList).hasOnlyOneElementSatisfying {
+        assertThat(submissionList).satisfiesOnlyOnce {
             assertThat(it.title).contains("list-api-keyword-20")
         }
     }
@@ -163,7 +163,7 @@ class SubmissionListApiTest(
                 ),
             )
 
-        assertThat(submissionList).hasOnlyOneElementSatisfying {
+        assertThat(submissionList).satisfiesOnlyOnce {
             assertThat(it.accno).isEqualTo("SECT-123")
             assertThat(it.version).isEqualTo(1)
             assertThat(it.method).isEqualTo(PAGE_TAB)
@@ -187,7 +187,7 @@ class SubmissionListApiTest(
         assertThat(webClient.submitSingle(submission, TSV)).isSuccessful()
 
         val submissionTitleList = webClient.getSubmissions(mapOf("keywords" to "secTitle"))
-        assertThat(submissionTitleList).hasOnlyOneElementSatisfying {
+        assertThat(submissionTitleList).satisfiesOnlyOnce {
             assertThat(it.accno).isEqualTo("SECT-124")
             assertThat(it.version).isEqualTo(1)
             assertThat(it.method).isEqualTo(PAGE_TAB)
@@ -218,7 +218,7 @@ class SubmissionListApiTest(
                 ),
             )
 
-        assertThat(submissionList).hasOnlyOneElementSatisfying {
+        assertThat(submissionList).satisfiesOnlyOnce {
             assertThat(it.accno).isEqualTo("SECT-125")
             assertThat(it.version).isEqualTo(1)
             assertThat(it.method).isEqualTo(PAGE_TAB)

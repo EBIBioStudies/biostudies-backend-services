@@ -118,7 +118,7 @@ internal class FileUtilsTest(private val temporaryFolder: TemporaryFolder) {
 
                 assertThat(target).isDirectory()
                 assertThat(nestedDir).isDirectory()
-                assertThat(nestedFile).hasSameContentAs(subDirFile)
+                assertThat(nestedFile).hasSameTextualContentAs(subDirFile)
                 assertThat(getPosixFilePermissions(target.toPath())).containsExactlyInAnyOrderElementsOf(RWX______)
                 assertThat(getPosixFilePermissions(nestedDir.toPath())).containsExactlyInAnyOrderElementsOf(RWX______)
                 assertThat(getPosixFilePermissions(nestedFile.toPath())).containsExactlyInAnyOrderElementsOf(RW_______)

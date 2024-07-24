@@ -55,7 +55,7 @@ class TsvDeserializerTest {
     fun `basic submission`() {
         val result = deserializer.deserialize(basicSubmission().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC123") {
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
@@ -68,7 +68,7 @@ class TsvDeserializerTest {
     fun `submission with empty attribute`() {
         val result = deserializer.deserialize(submissionWithEmptyAttribute().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC123") {
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
@@ -81,7 +81,7 @@ class TsvDeserializerTest {
     fun `submission with blank attribute`() {
         val result = deserializer.deserialize(submissionWithBlankAttribute().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC123") {
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
@@ -94,7 +94,7 @@ class TsvDeserializerTest {
     fun `submission with null attribute`() {
         val result = deserializer.deserialize(submissionWithNullAttribute().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC123") {
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
@@ -107,7 +107,7 @@ class TsvDeserializerTest {
     fun `submission with quoted value`() {
         val result = deserializer.deserialize(submissionWithQuoteValue().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC123") {
                 attribute("Title", "The \"Submission\": title.")
                 attribute("Abstract", "\"The Submission\": this is description.")
@@ -121,7 +121,7 @@ class TsvDeserializerTest {
     fun `basic submission with comments`() {
         val result = deserializer.deserialize(basicSubmissionWithComments().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC123") {
                 attribute("Title", "Basic Submission")
                 attribute("DataSource", "EuropePMC")
@@ -134,7 +134,7 @@ class TsvDeserializerTest {
     fun `submission with multiline attribute value`() {
         val result = deserializer.deserialize(basicSubmissionWithMultiline().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC123") {
                 attribute("Title", "This is a really long title \n with a break line")
                 attribute("Another", "another attribute")
@@ -146,7 +146,7 @@ class TsvDeserializerTest {
     fun `detailed attributes`() {
         val result = deserializer.deserialize(submissionWithDetailedAttributes().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC124") {
                 attribute("Title", "Submission With Detailed Attributes")
 
@@ -167,7 +167,7 @@ class TsvDeserializerTest {
     fun `submission with root section`() {
         val result = deserializer.deserialize(submissionWithRootSection().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
                 attribute("Title", "Test Submission")
 
@@ -183,7 +183,7 @@ class TsvDeserializerTest {
     fun `submission with generic root section`() {
         val result = deserializer.deserialize(submissionWithGenericRootSection().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
                 attribute("Title", "Test Submission")
                 section("Compound") {
@@ -197,7 +197,7 @@ class TsvDeserializerTest {
     fun `submission with multiple line breaks`() {
         val result = deserializer.deserialize(submissionWithMultipleLineBreaks().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
                 attribute("Title", "Test Submission")
 
@@ -213,7 +213,7 @@ class TsvDeserializerTest {
     fun subsection() {
         val result = deserializer.deserialize(submissionWithSubsection().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
                 attribute("Title", "Test Submission")
 
@@ -235,7 +235,7 @@ class TsvDeserializerTest {
     fun `inner subsections`() {
         val result = deserializer.deserialize(submissionWithInnerSubsections().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
                 attribute("Title", "Test Submission")
 
@@ -278,7 +278,7 @@ class TsvDeserializerTest {
     fun `inner subsections table`() {
         val result = deserializer.deserialize(submissionWithInnerSubsectionsTable().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
                 attribute("Title", "Test Submission")
 
@@ -321,7 +321,7 @@ class TsvDeserializerTest {
     fun links() {
         val result = deserializer.deserialize(submissionWithLinks().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
                 attribute("Title", "Test Submission")
 
@@ -340,7 +340,7 @@ class TsvDeserializerTest {
     fun `links table with attribute details`() {
         val result = deserializer.deserialize(submissionWithLinksTable().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
                 attribute("Title", "Test Submission")
 
@@ -376,7 +376,7 @@ class TsvDeserializerTest {
     fun files() {
         val result = deserializer.deserialize(submissionWithFiles().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
                 attribute("Title", "Test Submission")
 
@@ -396,7 +396,7 @@ class TsvDeserializerTest {
     fun `files table`() {
         val result = deserializer.deserialize(submissionWithFilesTable().toString())
 
-        assertThat(result).isEqualToComparingFieldByField(
+        assertThat(result).usingRecursiveComparison().isEqualTo(
             submission("S-EPMC125") {
                 attribute("Title", "Test Submission")
 
@@ -526,7 +526,7 @@ class TsvDeserializerTest {
                 assertEither(sections.first()).hasRightValueSatisfying {
                     val innerSections = it.elements
                     assertThat(innerSections).hasSize(1)
-                    assertThat(innerSections.first()).isEqualToComparingFieldByField(
+                    assertThat(innerSections.first()).usingRecursiveComparison().isEqualTo(
                         Section(
                             type = "Data",
                             accNo = "DT-1",

@@ -111,7 +111,6 @@ class MultipartFileSubmissionApiTest(
                         }
                     }
                 }
-            val config = SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("SomeFile.txt")), storageMode)
 
             val filesConfig =
                 SubmissionFilesConfig(listOf(fileList, tempFolder.createFile("SomeFile.txt")), storageMode)

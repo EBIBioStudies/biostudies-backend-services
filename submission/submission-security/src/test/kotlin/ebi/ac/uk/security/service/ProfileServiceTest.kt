@@ -73,7 +73,7 @@ class ProfileServiceTest(temporaryFolder: TemporaryFolder) {
 
         val (user, token) = testInstance.getUserProfile(testUser, "a token")
 
-        assertThat(user).isEqualToComparingFieldByField(expectedUser)
+        assertThat(user).usingRecursiveComparison().isEqualTo(expectedUser)
         assertThat(token).isEqualTo("a token")
     }
 }
