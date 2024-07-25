@@ -39,7 +39,7 @@ class JsonSerializerTest(
             fileSystem.outputStream().use { jsonSerializer.serializeFileList(files.asSequence(), it) }
             val response = fileSystem.inputStream().use { jsonSerializer.deserializeFileList(it).toList() }
 
-            assertThat(response).allSatisfy { assertThat(it).isEqualToComparingFieldByField(iterator.next()) }
+            assertThat(response).allSatisfy { assertThat(it).usingRecursiveComparison().isEqualTo(iterator.next()) }
             assertThat(response).hasSize(20_000)
         }
 

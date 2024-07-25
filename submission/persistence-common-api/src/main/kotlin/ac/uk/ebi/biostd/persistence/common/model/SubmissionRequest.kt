@@ -12,7 +12,9 @@ data class SubmissionRequest(
     val status: RequestStatus,
     val totalFiles: Int,
     val conflictingFiles: Int,
+    val conflictingPageTab: Int,
     val deprecatedFiles: Int,
+    val deprecatedPageTab: Int,
     val reusedFiles: Int,
     val currentIndex: Int,
     val modificationTime: OffsetDateTime,
@@ -25,7 +27,9 @@ data class SubmissionRequest(
         status = REQUESTED,
         totalFiles = 0,
         conflictingFiles = 0,
+        conflictingPageTab = 0,
         deprecatedFiles = 0,
+        deprecatedPageTab = 0,
         reusedFiles = 0,
         currentIndex = 0,
         previousVersion = null,
@@ -59,23 +63,29 @@ data class SubmissionRequest(
      * Create a Submission Request after clean indexing stage setting conflicted, deprecated files and previous version
      * fields.
      */
-    fun cleanIndexed(
-        conflictingFiles: Int,
-        deprecatedFiles: Int,
-        reusedFiles: Int,
-        previousVersion: Int?,
-    ): SubmissionRequest {
+    fun cleanIndexed(fileChanges: SubmissionRequestFileChanges): SubmissionRequest {
         return copy(
             status = RequestStatus.INDEXED_CLEANED,
             modificationTime = OffsetDateTime.now(),
             currentIndex = 0,
-            conflictingFiles = conflictingFiles,
-            deprecatedFiles = deprecatedFiles,
-            reusedFiles = reusedFiles,
-            previousVersion = previousVersion,
+            conflictingFiles = fileChanges.conflictingFiles,
+            conflictingPageTab = fileChanges.conflictingPageTab,
+            deprecatedFiles = fileChanges.deprecatedFiles,
+            deprecatedPageTab = fileChanges.deprecatedPageTab,
+            reusedFiles = fileChanges.reusedFiles,
+            previousVersion = fileChanges.previousVersion,
         )
     }
 }
+
+data class SubmissionRequestFileChanges(
+    val reusedFiles: Int,
+    val deprecatedFiles: Int,
+    val deprecatedPageTab: Int,
+    val conflictingFiles: Int,
+    val conflictingPageTab: Int,
+    val previousVersion: Int?,
+)
 
 /**
  * Retrieves the expected action to be performed when submission request is the given status.
@@ -86,10 +96,11 @@ val RequestStatus.action: String
             REQUESTED -> "Indexing"
             RequestStatus.INDEXED -> "Loading"
             RequestStatus.LOADED -> "Indexing Files to Clean"
-            RequestStatus.INDEXED_CLEANED -> "Cleaning"
-            RequestStatus.CLEANED -> "Copy Files"
-            RequestStatus.FILES_COPIED -> "Release Files"
-            RequestStatus.CHECK_RELEASED -> "Save Submission"
+            RequestStatus.INDEXED_CLEANED -> "Validating"
+            RequestStatus.VALIDATED -> "Cleaning"
+            RequestStatus.CLEANED -> "Copying Files"
+            RequestStatus.FILES_COPIED -> "Releasing Files"
+            RequestStatus.CHECK_RELEASED -> "Saving Submission"
             RequestStatus.PERSISTED -> "Submission Post Processing"
             else -> error("Invalid state $this")
         }

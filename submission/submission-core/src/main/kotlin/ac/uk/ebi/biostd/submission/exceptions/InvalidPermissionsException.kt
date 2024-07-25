@@ -32,8 +32,3 @@ class UserCanNotDeleteSubmissions(
     user: String,
     accNos: List<String>,
 ) : InvalidPermissionsException("The user $user is not allowed to delete the submissions ${accNos.joinToString(", ")}")
-
-class UserCanNotRelease(
-    accNo: String,
-    user: String,
-) : InvalidPermissionsException("The user $user is not allowed to release the submission $accNo")

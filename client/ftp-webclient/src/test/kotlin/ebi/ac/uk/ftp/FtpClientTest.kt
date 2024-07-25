@@ -26,10 +26,10 @@ class FtpClientTest {
         testInstance.uploadFile(rootPath.resolve("a-folder").resolve("file1.txt")) { tempFile.inputStream() }
 
         val files = testInstance.listFiles(rootPath)
-        assertThat(files).hasOnlyOneElementSatisfying { it.name == "a-folder" && it.isDirectory }
+        assertThat(files).satisfiesOnlyOnce { it.name == "a-folder" && it.isDirectory } // .hasOnlyOneElementSatisfying {  }
 
         val folderFiles = testInstance.listFiles(rootPath.resolve("a-folder"))
-        assertThat(folderFiles).hasOnlyOneElementSatisfying { it.name == "file1.txt" && it.isFile }
+        assertThat(folderFiles).satisfiesOnlyOnce { it.name == "file1.txt" && it.isFile }
     }
 
     @RetryingTest(TEST_RETRY)
@@ -71,9 +71,9 @@ class FtpClientTest {
         val file = files.first()
         assertThat(file.name).isEqualTo("test-file.txt")
 
-        val outputFile = createTempFile()
+        val outputFile = createTempFile("")
         outputFile.outputStream().use { testInstance.downloadFile(filePath, it) }
-        assertThat(outputFile).hasSameContentAs(tempFile)
+        assertThat(outputFile).hasSameBinaryContentAs(tempFile)
     }
 
     companion object {
@@ -87,7 +87,7 @@ class FtpClientTest {
             )
         }
 
-        val HOME = Paths.get("")
+        private val HOME = Paths.get("")
         const val FTP_USER = "ftpUser"
         const val FTP_PASSWORD = "ftpPassword"
         const val FTP_ROOT_PATH = ".test"

@@ -34,7 +34,7 @@ class FtpFileService(
         path: String,
         fileName: String,
     ): File {
-        val target = Files.createTempFile(path, fileName)
+        val target = Files.createTempFile(null, fileName)
         val ftpPath = basePath.resolve(path).resolve(fileName)
 
         target.outputStream().use { ftp.downloadFile(ftpPath, it) }

@@ -33,7 +33,7 @@ class CustomErrorHandlerTest(
         assertFailsWith<AmqpRejectAndDontRequeueException> { testInstance.handleError(exception) }
 
         val alert = alertSlot.captured
-        assertThat(alert).isEqualToComparingFieldByField(expectedAlert)
+        assertThat(alert).usingRecursiveComparison().isEqualTo(expectedAlert)
         coVerify(exactly = 1) { notificationsSender.send(alert) }
     }
 }

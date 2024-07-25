@@ -1,9 +1,13 @@
 package ac.uk.ebi.biostd.submission.domain.request
 
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.CONFLICTING_PAGE_TAB
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED
+import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.DEPRECATED_PAGE_TAB
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.LOADED
 import ac.uk.ebi.biostd.persistence.common.model.RequestFileStatus.REUSED
+import ac.uk.ebi.biostd.persistence.common.model.SubmissionRequestFileChanges
 import ac.uk.ebi.biostd.persistence.common.service.RqtUpdate
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestFilesPersistenceService
@@ -11,6 +15,7 @@ import ac.uk.ebi.biostd.persistence.common.service.SubmissionRequestPersistenceS
 import ebi.ac.uk.extended.model.ExtFile
 import ebi.ac.uk.extended.model.ExtSubmission
 import ebi.ac.uk.extended.model.StorageMode
+import ebi.ac.uk.extended.model.allPageTabFiles
 import ebi.ac.uk.extended.model.storageMode
 import ebi.ac.uk.model.RequestStatus
 import kotlinx.coroutines.flow.map
@@ -40,13 +45,12 @@ class SubmissionRequestCleanIndexer(
         processId: String,
     ) {
         requestService.onRequest(accNo, version, RequestStatus.LOADED, processId) {
-            val (reused, deprecated, conflicting, activeVersion) = indexRequest(it.submission)
-            RqtUpdate(it.cleanIndexed(conflicting, deprecated, reused, activeVersion))
+            RqtUpdate(it.cleanIndexed(indexRequest(it.submission)))
         }
         eventsPublisherService.requestIndexedToClean(accNo, version)
     }
 
-    internal suspend fun indexRequest(new: ExtSubmission): FilesCount {
+    internal suspend fun indexRequest(new: ExtSubmission): SubmissionRequestFileChanges {
         val current = queryService.findExtByAccNo(new.accNo, includeFileListFiles = true)
 
         if (current != null) {
@@ -58,24 +62,34 @@ class SubmissionRequestCleanIndexer(
             return response
         }
 
-        return FilesCount(0, 0, 0, null)
+        return SubmissionRequestFileChanges(0, 0, 0, 0, 0, null)
     }
 
     private suspend fun indexToCleanFiles(
         new: ExtSubmission,
         newFiles: FilesRecords,
         current: ExtSubmission,
-    ): FilesCount {
+    ): SubmissionRequestFileChanges {
         val reusedIdx = AtomicInteger(0)
         val conflictIdx = AtomicInteger(0)
+        val conflictPageTabIdx = AtomicInteger(0)
         val deprecatedIdx = AtomicInteger(0)
+        val deprecatedPageTabIdx = AtomicInteger(0)
+
+        fun fileUpdate(
+            idx: AtomicInteger,
+            file: ExtFile,
+            status: RequestFileStatus,
+        ) = SubRqtFile(new, idx.incrementAndGet(), file, status, true)
 
         serializationService.filesFlow(current)
             .mapNotNull { file ->
                 when (newFiles.findMatch(file)) {
-                    MatchType.CONFLICTING -> SubRqtFile(new, conflictIdx.incrementAndGet(), file, CONFLICTING, true)
-                    MatchType.DEPRECATED -> SubRqtFile(new, deprecatedIdx.incrementAndGet(), file, DEPRECATED, true)
-                    MatchType.REUSED -> SubRqtFile(new, reusedIdx.incrementAndGet(), file, REUSED, true)
+                    MatchType.CONFLICTING -> fileUpdate(conflictIdx, file, CONFLICTING)
+                    MatchType.CONFLICTING_PAGE_TAB -> fileUpdate(conflictPageTabIdx, file, CONFLICTING_PAGE_TAB)
+                    MatchType.DEPRECATED -> fileUpdate(deprecatedIdx, file, DEPRECATED)
+                    MatchType.DEPRECATED_PAGE_TAB -> fileUpdate(deprecatedPageTabIdx, file, DEPRECATED_PAGE_TAB)
+                    MatchType.REUSED -> fileUpdate(reusedIdx, file, REUSED)
                 }
             }
             .collect {
@@ -83,15 +97,24 @@ class SubmissionRequestCleanIndexer(
                 filesRequestService.saveSubmissionRequestFile(it)
             }
 
-        return FilesCount(reusedIdx.get(), deprecatedIdx.get(), conflictIdx.get(), current.version)
+        return SubmissionRequestFileChanges(
+            reusedIdx.get(),
+            deprecatedIdx.get(),
+            deprecatedPageTabIdx.get(),
+            conflictIdx.get(),
+            conflictPageTabIdx.get(),
+            current.version,
+        )
     }
 
     private suspend fun summarizeFileRecords(new: ExtSubmission): FilesRecords {
         val response = mutableMapOf<String, FileRecord>()
+        val pageTabFiles = new.allPageTabFiles.groupBy { it.md5 }
+
         filesRequestService
             .getSubmissionRequestFiles(new.accNo, new.version, LOADED)
             .map { it.file }
-            .collect { response[it.filePath] = FileRecord(it.md5, new.storageMode) }
+            .collect { response[it.filePath] = FileRecord(it.md5, new.storageMode, pageTabFiles.containsKey(it.md5)) }
         return FilesRecords(response)
     }
 }
@@ -100,33 +123,38 @@ class SubmissionRequestCleanIndexer(
  * Contains new submission file entries and storage type.
  */
 private class FilesRecords(
-    val files: Map<String, FileRecord>,
+    val newFiles: Map<String, FileRecord>,
 ) {
     /**
-     * Validates if there is a entry in the current submission files with the given file Path (storage mode) but
-     * diferent Md5.
+     * Identifies and classifies the given file in one of the five categories:
+     * - DEPRECATED: The existing file is not present in the new version or the storage mode has changed
+     * - DEPRECATED_PAGE_TAB: The existing pagetab file is not present in the new version and storage mode has changed
+     * - CONFLICTING: The existing file is present in the new version but with different content
+     * - CONFLICTING_PAGE_TAB: The existing pagetab file is present in the new version but with different content
+     * - REUSED: The existing file hasn't changed in the new version, so it can be reused
      */
     fun findMatch(existing: ExtFile): MatchType {
-        val newFile = files[existing.filePath]
+        val newFile = newFiles[existing.filePath]
+        val storageModeChanged = newFile?.storageMode != existing.storageMode
+        val md5Changed = newFile?.md5 != existing.md5
+        val isPageTab = newFile?.isPageTab ?: false
+
         return when {
-            newFile == null || newFile.storageMode != existing.storageMode -> MatchType.DEPRECATED
-            newFile.md5 != existing.md5 -> MatchType.CONFLICTING
+            newFile != null && storageModeChanged && isPageTab -> MatchType.DEPRECATED_PAGE_TAB
+            newFile == null || storageModeChanged -> MatchType.DEPRECATED
+            md5Changed && isPageTab -> MatchType.CONFLICTING_PAGE_TAB
+            md5Changed -> MatchType.CONFLICTING
             else -> MatchType.REUSED
         }
     }
 }
 
-internal data class FilesCount(
-    val reused: Int,
-    val deprecated: Int,
-    val conflicting: Int,
-    val currentVersion: Int?,
-)
-
 private enum class MatchType {
     CONFLICTING,
+    CONFLICTING_PAGE_TAB,
     DEPRECATED,
+    DEPRECATED_PAGE_TAB,
     REUSED,
 }
 
-private data class FileRecord(val md5: String, val storageMode: StorageMode)
+private data class FileRecord(val md5: String, val storageMode: StorageMode, val isPageTab: Boolean)

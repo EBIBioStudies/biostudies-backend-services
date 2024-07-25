@@ -6,7 +6,6 @@ import ac.uk.ebi.biostd.itest.entities.TestUser
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ebi.ac.uk.api.UserFile
-import ebi.ac.uk.api.UserFileType
 import ebi.ac.uk.api.UserFileType.DIR
 import ebi.ac.uk.api.UserFileType.FILE
 import ebi.ac.uk.api.security.RegisterRequest
@@ -111,7 +110,7 @@ class UserFileApiTest(
         relativePath: String,
     ) {
         assertThat(resultFile.name).isEqualTo(file.name)
-        assertThat(resultFile.type).isEqualTo(UserFileType.FILE)
+        assertThat(resultFile.type).isEqualTo(FILE)
         assertThat(resultFile.size).isEqualTo(file.length())
         assertThat(resultFile.path).isEqualTo(Paths.get("user").resolve(relativePath).toString())
         assertThat(file).hasContent(downloadFile.readText())

@@ -27,7 +27,7 @@ class TsvSingleElementDeserializationTest {
                 line()
             }.toString()
 
-        assertThat(deserializer.deserializeElement<BioFile>(tsv)).isEqualToComparingFieldByField(
+        assertThat(deserializer.deserializeElement<BioFile>(tsv)).usingRecursiveComparison().isEqualTo(
             file("File1.txt") {
                 attribute("Attr", "Value")
             },
@@ -43,7 +43,7 @@ class TsvSingleElementDeserializationTest {
                 line()
             }.toString()
 
-        assertThat(deserializer.deserializeElement<FilesTable>(tsv)).isEqualToComparingFieldByField(
+        assertThat(deserializer.deserializeElement<FilesTable>(tsv)).usingRecursiveComparison().isEqualTo(
             filesTable {
                 file("File1.txt") {
                     attribute("Attr", "Value")
@@ -61,7 +61,7 @@ class TsvSingleElementDeserializationTest {
                 line()
             }.toString()
 
-        assertThat(deserializer.deserializeElement<Link>(tsv)).isEqualToComparingFieldByField(
+        assertThat(deserializer.deserializeElement<Link>(tsv)).usingRecursiveComparison().isEqualTo(
             link("http://alink.org") {
                 attribute("Attr", "Value")
             },
@@ -77,7 +77,7 @@ class TsvSingleElementDeserializationTest {
                 line()
             }.toString()
 
-        assertThat(deserializer.deserializeElement<LinksTable>(tsv)).isEqualToComparingFieldByField(
+        assertThat(deserializer.deserializeElement<LinksTable>(tsv)).usingRecursiveComparison().isEqualTo(
             linksTable {
                 link("http://alink.org") {
                     attribute("Attr", "Value")
@@ -98,7 +98,7 @@ class TsvSingleElementDeserializationTest {
                 line()
             }.toString()
 
-        assertThat(deserializer.deserializeElement<LinksTable>(tsv)).isEqualToComparingFieldByField(
+        assertThat(deserializer.deserializeElement<LinksTable>(tsv)).usingRecursiveComparison().isEqualTo(
             linksTable {
                 link("AF069307") {
                     attribute("Attr1", "Value 1")

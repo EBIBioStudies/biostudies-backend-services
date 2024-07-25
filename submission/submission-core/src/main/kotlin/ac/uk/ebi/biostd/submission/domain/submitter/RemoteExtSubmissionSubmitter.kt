@@ -44,6 +44,13 @@ class RemoteExtSubmissionSubmitter(
         executeRemotely(accNo, version, Mode.INDEX_TO_CLEAN)
     }
 
+    override suspend fun validateRequest(
+        accNo: String,
+        version: Int,
+    ) {
+        executeRemotely(accNo, version, Mode.VALIDATE)
+    }
+
     override suspend fun cleanRequest(
         accNo: String,
         version: Int,

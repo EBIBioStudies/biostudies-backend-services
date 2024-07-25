@@ -11,10 +11,12 @@ import ebi.ac.uk.model.RequestStatus.CLEANED
 import ebi.ac.uk.model.RequestStatus.FILES_COPIED
 import ebi.ac.uk.model.RequestStatus.INDEXED
 import ebi.ac.uk.model.RequestStatus.INDEXED_CLEANED
+import ebi.ac.uk.model.RequestStatus.INVALID
 import ebi.ac.uk.model.RequestStatus.LOADED
 import ebi.ac.uk.model.RequestStatus.PERSISTED
 import ebi.ac.uk.model.RequestStatus.PROCESSED
 import ebi.ac.uk.model.RequestStatus.REQUESTED
+import ebi.ac.uk.model.RequestStatus.VALIDATED
 import java.time.Duration.ofMinutes
 
 @Suppress("TooManyFunctions")
@@ -93,11 +95,13 @@ class ExtendedSubmissionSubmitter(
             REQUESTED -> triggerAndWait(accNo, version) { indexRequest(accNo, version) }
             INDEXED -> triggerAndWait(accNo, version) { loadRequest(accNo, version) }
             LOADED -> triggerAndWait(accNo, version) { indexToCleanRequest(accNo, version) }
-            INDEXED_CLEANED -> triggerAndWait(accNo, version) { cleanRequest(accNo, version) }
+            INDEXED_CLEANED -> triggerAndWait(accNo, version) { validateRequest(accNo, version) }
+            VALIDATED -> triggerAndWait(accNo, version) { cleanRequest(accNo, version) }
             CLEANED -> triggerAndWait(accNo, version) { processRequest(accNo, version) }
             FILES_COPIED -> triggerAndWait(accNo, version) { checkReleased(accNo, version) }
             CHECK_RELEASED -> triggerAndWait(accNo, version) { localExtSubmissionSubmitter.saveRequest(accNo, version) }
             PERSISTED -> triggerAndWait(accNo, version) { finalizeRequest(accNo, version) }
+            INVALID -> error("Request accNo=$accNo, version=$version is in an invalid state")
             PROCESSED -> error("Request accNo=$accNo, version=$version has been already processed")
         }
     }

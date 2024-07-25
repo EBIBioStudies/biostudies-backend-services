@@ -31,6 +31,8 @@ enum class RequestFileStatus {
     RELEASED,
     UNRELEASED,
     CONFLICTING,
+    CONFLICTING_PAGE_TAB,
     DEPRECATED,
+    DEPRECATED_PAGE_TAB,
     REUSED,
 }

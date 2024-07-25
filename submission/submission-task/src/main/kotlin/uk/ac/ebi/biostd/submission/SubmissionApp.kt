@@ -10,6 +10,7 @@ import ac.uk.ebi.biostd.common.properties.Mode.INDEX
 import ac.uk.ebi.biostd.common.properties.Mode.INDEX_TO_CLEAN
 import ac.uk.ebi.biostd.common.properties.Mode.LOAD
 import ac.uk.ebi.biostd.common.properties.Mode.SAVE
+import ac.uk.ebi.biostd.common.properties.Mode.VALIDATE
 import ac.uk.ebi.biostd.common.properties.TaskProperties
 import ac.uk.ebi.biostd.submission.config.SubmissionConfig
 import ac.uk.ebi.biostd.submission.domain.submitter.ExtSubmissionSubmitter
@@ -67,6 +68,7 @@ class Execute(
             INDEX -> submissionSubmitter.indexRequest(accNo, version)
             LOAD -> submissionSubmitter.loadRequest(accNo, version)
             INDEX_TO_CLEAN -> submissionSubmitter.indexToCleanRequest(accNo, version)
+            VALIDATE -> submissionSubmitter.validateRequest(accNo, version)
             CLEAN -> submissionSubmitter.cleanRequest(accNo, version)
             COPY -> submissionSubmitter.processRequest(accNo, version)
             CHECK_RELEASED -> submissionSubmitter.checkReleased(accNo, version)

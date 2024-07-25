@@ -15,7 +15,7 @@ class StatsMapperTest {
         val stat = SingleSubmissionStat("S-BSST0", 12L, FILES_SIZE)
         val expectedDto = SubmissionStat("S-BSST0", 12L, FILES_SIZE.value)
 
-        assertThat(stat.toStatDto()).isEqualToComparingFieldByField(expectedDto)
+        assertThat(stat.toStatDto()).usingRecursiveComparison().isEqualTo(expectedDto)
     }
 
     @Test
@@ -23,7 +23,7 @@ class StatsMapperTest {
         val dto = SubmissionStat("S-BSST0", 12L, "FILES_SIZE")
         val expectedStat = SingleSubmissionStat("S-BSST0", 12L, FILES_SIZE)
 
-        assertThat(dto.toStat()).isEqualToComparingFieldByField(expectedStat)
+        assertThat(dto.toStat()).usingRecursiveComparison().isEqualTo(expectedStat)
     }
 
     @Test

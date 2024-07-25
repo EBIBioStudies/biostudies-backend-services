@@ -21,6 +21,7 @@ import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestLoader
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestProcessor
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestReleaser
 import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestSaver
+import ac.uk.ebi.biostd.submission.domain.request.SubmissionRequestValidator
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionDraftService
 import ac.uk.ebi.biostd.submission.domain.service.SubmissionRequestService
 import ac.uk.ebi.biostd.submission.domain.submission.SubmissionQueryService
@@ -55,8 +56,9 @@ class SubmissionWebConfig {
         persistenceService: SubmissionPersistenceService,
         queryService: SubmissionPersistenceQueryService,
         requestIndexer: SubmissionRequestIndexer,
-        requestCleanIndexer: SubmissionRequestCleanIndexer,
         requestLoader: SubmissionRequestLoader,
+        requestCleanIndexer: SubmissionRequestCleanIndexer,
+        requestValidator: SubmissionRequestValidator,
         requestProcessor: SubmissionRequestProcessor,
         submissionReleaser: SubmissionRequestReleaser,
         submissionCleaner: SubmissionRequestCleaner,
@@ -70,8 +72,9 @@ class SubmissionWebConfig {
                 requestService,
                 persistenceService,
                 requestIndexer,
-                requestCleanIndexer,
                 requestLoader,
+                requestCleanIndexer,
+                requestValidator,
                 requestProcessor,
                 submissionReleaser,
                 submissionCleaner,
