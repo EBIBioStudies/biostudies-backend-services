@@ -79,7 +79,7 @@ class AccNoServiceTest(
 
                 val error = assertThrows<UserCanNotProvideAccessNumber> { testInstance.calculateAccNo(request) }
                 assertThat(error.message)
-                    .isEqualTo("The user {submiter@email.com} is not allowed to provide accession number directly")
+                    .isEqualTo("The user submiter@email.com is not allowed to provide accession number directly")
             }
 
         @Test
@@ -155,7 +155,7 @@ class AccNoServiceTest(
 
                 val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.calculateAccNo(request) }
                 assertThat(error.message)
-                    .isEqualTo("The user {$SUBMITTER} is not allowed to update the submission $ACC_NO")
+                    .isEqualTo("The user $SUBMITTER is not allowed to update the submission $ACC_NO")
             }
 
         @Test
@@ -188,7 +188,7 @@ class AccNoServiceTest(
                 val error = assertThrows<UserCanNotUpdateSubmit> { testInstance.calculateAccNo(request) }
 
                 assertThat(error.message).isEqualTo(
-                    "The user {submiter@email.com} is not allowed to update the submission AAB12",
+                    "The user submiter@email.com is not allowed to update the submission AAB12",
                 )
             }
     }

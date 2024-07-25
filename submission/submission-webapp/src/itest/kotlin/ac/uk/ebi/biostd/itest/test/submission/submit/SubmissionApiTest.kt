@@ -12,8 +12,6 @@ import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.submissionPath
 import ac.uk.ebi.biostd.itest.itest.ITestListener.Companion.tempFolder
 import ac.uk.ebi.biostd.itest.itest.getWebClient
 import ac.uk.ebi.biostd.persistence.common.service.SubmissionPersistenceQueryService
-import ac.uk.ebi.biostd.persistence.model.DbSequence
-import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.submission.config.FilePersistenceConfig
 import ebi.ac.uk.asserts.assertThat
 import ebi.ac.uk.dsl.file
@@ -55,7 +53,6 @@ import kotlin.test.assertFailsWith
 class SubmissionApiTest(
     @Autowired val securityTestService: SecurityTestService,
     @Autowired val submissionRepository: SubmissionPersistenceQueryService,
-    @Autowired val sequenceRepository: SequenceDataRepository,
     @Autowired val toSubmissionMapper: ToSubmissionMapper,
     @LocalServerPort val serverPort: Int,
 ) {
@@ -65,9 +62,9 @@ class SubmissionApiTest(
     fun init(): Unit =
         runBlocking {
             securityTestService.ensureUserRegistration(SuperUser)
-            webClient = getWebClient(serverPort, SuperUser)
+            securityTestService.ensureSequence("S-BSST")
 
-            sequenceRepository.save(DbSequence("S-BSST"))
+            webClient = getWebClient(serverPort, SuperUser)
         }
 
     @Test

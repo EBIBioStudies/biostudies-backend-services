@@ -1,9 +1,7 @@
 package ac.uk.ebi.biostd.itest.test.submission.submit
 
-import ac.uk.ebi.biostd.client.exception.WebClientException
 import ac.uk.ebi.biostd.client.integration.commons.SubmissionFormat.TSV
 import ac.uk.ebi.biostd.client.integration.web.BioWebClient
-import ac.uk.ebi.biostd.client.integration.web.SecurityWebClient
 import ac.uk.ebi.biostd.itest.common.SecurityTestService
 import ac.uk.ebi.biostd.itest.entities.RegularUser
 import ac.uk.ebi.biostd.itest.entities.SuperUser
@@ -28,7 +26,6 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -212,42 +209,7 @@ class ResubmissionApiTest(
     }
 
     @Test
-    fun `5-4 regular user suppresses own submission`() {
-        val version1 =
-            tsv {
-                line("Submission", "S-RSTST4")
-                line("Title", "Public Submission")
-                line("ReleaseDate", OffsetDateTime.now().toStringDate())
-                line()
-                line("Study")
-                line()
-            }.toString()
-
-        val regularUser = RegularUser.email
-        val onBehalfClient =
-            SecurityWebClient
-                .create("http://localhost:$serverPort")
-                .getAuthenticatedClient(SuperUser.email, SuperUser.password, regularUser)
-
-        assertThat(onBehalfClient.submitSingle(version1, TSV)).isSuccessful()
-
-        val version2 =
-            tsv {
-                line("Submission", "S-RSTST4")
-                line("Title", "Suppressed Submission")
-                line("ReleaseDate", "2050-05-22")
-                line()
-                line("Study")
-                line()
-            }.toString()
-
-        assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { getWebClient(serverPort, RegularUser).submitSingle(version2, TSV) }
-            .withMessageContaining("The release date of a public study cannot be changed")
-    }
-
-    @Test
-    fun `5-5 super user suppresses submission from another user`() =
+    fun `5-4 Make a public submission private should remove FTP files`() =
         runTest {
             val version1 =
                 tsv {
@@ -263,14 +225,9 @@ class ResubmissionApiTest(
                     line()
                 }.toString()
 
-            val onBehalfClient =
-                SecurityWebClient
-                    .create("http://localhost:$serverPort")
-                    .getAuthenticatedClient(SuperUser.email, SuperUser.password, RegularUser.email)
-
             webClient.uploadFile(tempFolder.createFile("file_5-5-1.txt", "5-5-1 file content"))
             webClient.uploadFile(tempFolder.createFile("file_5-5-2.txt", "5-5-2 file content"))
-            assertThat(onBehalfClient.submitSingle(version1, TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
 
             val subV1 = submissionRepository.getExtByAccNo("S-RSTST5")
             val ftpFilesV1 = FileUtils.listAllFiles(File("$ftpPath/${subV1.relPath}/Files"))
@@ -295,7 +252,7 @@ class ResubmissionApiTest(
                     line()
                 }.toString()
 
-            assertThat(onBehalfClient.submitSingle(version2, TSV)).isSuccessful()
+            assertThat(webClient.submitSingle(version2, TSV)).isSuccessful()
 
             val subV2 = submissionRepository.getExtByAccNo("S-RSTST5")
 
@@ -348,39 +305,4 @@ class ResubmissionApiTest(
                 }.toString()
             assertThat(webClient.submitSingle(version2, TSV)).isSuccessful()
         }
-
-    @Test
-    fun `5-7 change the release date of a public submission`() {
-        val version1 =
-            tsv {
-                line("Submission", "S-RSTST7")
-                line("Title", "Release date change test")
-                line("ReleaseDate", OffsetDateTime.now().toStringDate())
-                line()
-                line("Study")
-                line()
-            }.toString()
-
-        assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
-
-        mongoTemplate.updateMulti(
-            Query(where(SUB_ACC_NO).`in`("S-RSTST7").andOperator(where(SUB_VERSION).gt(0))),
-            ExtendedUpdate().set(SUB_RELEASE_TIME, OffsetDateTime.of(2018, 10, 10, 0, 0, 0, 0, UTC).toInstant()),
-            DocSubmission::class.java,
-        )
-
-        val version2 =
-            tsv {
-                line("Submission", "S-RSTST7")
-                line("Title", "Release date change test")
-                line("ReleaseDate", "2019-11-20")
-                line()
-                line("Study")
-                line()
-            }.toString()
-
-        assertThatExceptionOfType(WebClientException::class.java)
-            .isThrownBy { webClient.submitSingle(version2, TSV) }
-            .withMessageContaining("The release date of a public study cannot be changed")
-    }
 }

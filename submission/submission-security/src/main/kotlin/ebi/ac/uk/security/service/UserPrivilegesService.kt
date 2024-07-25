@@ -17,7 +17,7 @@ internal class UserPrivilegesService(
     private val userRepository: UserDataRepository,
     private val tagsDataRepository: AccessTagDataRepo,
     private val submissionQueryService: SubmissionMetaQueryService,
-    private val userPermissionsService: UserPermissionsService,
+    private val permissionsService: UserPermissionsService,
 ) : IUserPrivilegesService {
     override fun canProvideAccNo(email: String) = isSuperUser(email)
 
@@ -41,7 +41,7 @@ internal class UserPrivilegesService(
         when {
             isSuperUser(email) -> tagsDataRepository.findAll().map { it.name }
             else ->
-                userPermissionsService
+                permissionsService
                     .allowedTags(email, accessType)
                     .map { it.accessTag.name }
                     .distinct()
@@ -67,7 +67,7 @@ internal class UserPrivilegesService(
 
     override fun canRelease(email: String): Boolean = isSuperUser(email)
 
-    override fun canSuppress(email: String): Boolean = isSuperUser(email)
+    override fun canUpdateReleaseDate(email: String): Boolean = isSuperUser(email)
 
     private suspend fun hasPermissions(
         user: String,
@@ -75,8 +75,8 @@ internal class UserPrivilegesService(
         accessType: AccessType,
     ): Boolean {
         val collections = submissionQueryService.getCollections(accNo)
-        return userPermissionsService.hasPermission(user, accNo, accessType) ||
-            (collections.isNotEmpty() && collections.all { userPermissionsService.hasPermission(user, it, accessType) })
+        return permissionsService.hasPermission(user, accNo, accessType) ||
+            (collections.isNotEmpty() && collections.all { permissionsService.hasPermission(user, it, accessType) })
     }
 
     private fun isSuperUser(email: String) = getUser(email).superuser
@@ -86,7 +86,7 @@ internal class UserPrivilegesService(
         accNo: String,
     ): Boolean {
         val collections = submissionQueryService.getCollections(accNo)
-        return collections.isNotEmpty() && collections.all { userPermissionsService.isAdmin(email, it) }
+        return collections.isNotEmpty() && collections.all { permissionsService.isAdmin(email, it) }
     }
 
     private fun isAuthor(

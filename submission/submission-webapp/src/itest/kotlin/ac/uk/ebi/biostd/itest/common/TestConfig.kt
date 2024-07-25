@@ -1,5 +1,6 @@
 package ac.uk.ebi.biostd.itest.common
 
+import ac.uk.ebi.biostd.persistence.repositories.SequenceDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataDataRepository
 import ac.uk.ebi.biostd.persistence.repositories.UserDataRepository
 import ebi.ac.uk.security.service.SecurityService
@@ -11,8 +12,9 @@ class TestConfig {
     @Bean
     fun securityTestService(
         userDataRepository: UserDataRepository,
+        sequenceDataRepository: SequenceDataRepository,
         securityService: SecurityService,
-    ) = SecurityTestService(securityService, userDataRepository)
+    ) = SecurityTestService(securityService, userDataRepository, sequenceDataRepository)
 
     @Bean(name = ["TestCollectionValidator"])
     fun testCollectionValidator(): TestCollectionValidator = TestCollectionValidator()
