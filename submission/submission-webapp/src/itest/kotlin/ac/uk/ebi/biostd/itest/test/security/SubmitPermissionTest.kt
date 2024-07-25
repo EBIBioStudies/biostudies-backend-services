@@ -260,7 +260,7 @@ class SubmitPermissionTest(
         assertThatExceptionOfType(WebClientException::class.java)
             .isThrownBy { regularUserWebClient.submitSingle(resubmission, SubmissionFormat.TSV) }
             .withMessageContaining(
-                "The user {register_user@ebi.ac.uk} is not allowed to update the submission S-SBMT1",
+                "The user register_user@ebi.ac.uk is not allowed to update the submission S-SBMT1",
             )
     }
 

@@ -7,12 +7,12 @@ sealed class InvalidPermissionsException(message: String) : RuntimeException(mes
 
 class UserCanNotProvideAccessNumber(
     user: String,
-) : InvalidPermissionsException("The user {$user} is not allowed to provide accession number directly")
+) : InvalidPermissionsException("The user $user is not allowed to provide accession number directly")
 
 class UserCanNotUpdateSubmit(
     accNo: String,
     user: String,
-) : InvalidPermissionsException("The user {$user} is not allowed to update the submission $accNo")
+) : InvalidPermissionsException("The user $user is not allowed to update the submission $accNo")
 
 class UserCanNotSubmitCollectionsException(
     user: String,

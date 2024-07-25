@@ -1,13 +1,13 @@
 package ac.uk.ebi.biostd.submission.service
 
 import ac.uk.ebi.biostd.submission.exceptions.InvalidDateFormatException
-import ac.uk.ebi.biostd.submission.exceptions.InvalidReleaseDateException
+import ac.uk.ebi.biostd.submission.exceptions.InvalidReleaseException
 import ac.uk.ebi.biostd.submission.exceptions.PastReleaseDateException
 import ac.uk.ebi.biostd.submission.model.SubmitRequest
 import ebi.ac.uk.base.orFalse
 import ebi.ac.uk.model.extensions.releaseDate
 import ebi.ac.uk.security.integration.components.IUserPrivilegesService
-import ebi.ac.uk.util.date.asOffsetAtStartOfDay
+import ebi.ac.uk.util.date.atStartOfDay
 import ebi.ac.uk.util.date.isBeforeOrEqual
 import java.time.Instant
 import java.time.LocalDate
@@ -19,46 +19,30 @@ import java.time.ZoneOffset.UTC
  * Calculates the submission release date based on current state of the submission in the system. Calculation rules.
  */
 class TimesService(
-    private val privilegesService: IUserPrivilegesService,
+    private val privileges: IUserPrivilegesService,
 ) {
-    internal fun getTimes(request: SubmitRequest): Times {
+    internal fun getTimes(rqt: SubmitRequest): Times {
         val now = OffsetDateTime.now()
-        val creationTime = request.previousVersion?.creationTime ?: now
-        val releaseTime = request.submission.releaseDate?.let { releaseTime(now, it, request) }
+        val creationTime = rqt.previousVersion?.creationTime ?: now
+        val releaseTime = rqt.submission.releaseDate?.let { parseDate(it) }
         val released = releaseTime?.isBeforeOrEqual(now).orFalse()
+        val submitter = rqt.submitter.email
 
+        if (releaseTime != null && privileges.canUpdateReleaseDate(submitter).not()) checkReleaseTime(rqt, releaseTime)
         return Times(creationTime, now, releaseTime, released)
     }
 
-    private fun releaseTime(
-        now: OffsetDateTime,
-        releaseDate: String,
-        request: SubmitRequest,
-    ): OffsetDateTime {
-        val releaseTime = parseDate(releaseDate)
-        val user = request.submitter.email
-        val today = now.toInstant().asOffsetAtStartOfDay()
-        val isReleased = request.previousVersion?.released.orFalse()
-        val previousReleaseTime = request.previousVersion?.releaseTime?.toInstant()?.asOffsetAtStartOfDay()
+    @Suppress("ThrowsCount")
+    private fun checkReleaseTime(
+        rqt: SubmitRequest,
+        releaseTime: OffsetDateTime,
+    ) {
+        val today = OffsetDateTime.now().atStartOfDay()
 
-        fun checkFutureReleaseTime() =
-            when {
-                isReleased && privilegesService.canSuppress(user).not() -> throw InvalidReleaseDateException()
-                else -> releaseTime
-            }
-
-        fun checkPastReleaseTime() =
-            when {
-                isReleased -> throw InvalidReleaseDateException()
-                previousReleaseTime == null -> throw PastReleaseDateException()
-                else -> releaseTime
-            }
-
-        return when {
-            previousReleaseTime?.isEqual(releaseTime).orFalse() -> releaseTime
-            releaseTime.isAfter(today) -> checkFutureReleaseTime()
-            releaseTime.isBefore(today) -> checkPastReleaseTime()
-            else -> releaseTime
+        when (val previous = rqt.previousVersion) {
+            null -> if (releaseTime < today) throw PastReleaseDateException()
+            else ->
+                if (previous.released && releaseTime != previous.releaseTime) throw InvalidReleaseException()
         }
     }
 

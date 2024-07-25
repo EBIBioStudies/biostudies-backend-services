@@ -133,7 +133,7 @@ class SubmissionDraftServiceTest(
 
             val error =
                 assertThrows<UserCanNotUpdateSubmit> { testInstance.getOrCreateSubmissionDraft(USER_ID, DRAFT_KEY) }
-            assertThat(error.message).isEqualTo("The user {$USER_ID} is not allowed to update the submission $DRAFT_KEY")
+            assertThat(error.message).isEqualTo("The user $USER_ID is not allowed to update the submission $DRAFT_KEY")
 
             coVerify(exactly = 1) {
                 userPrivilegesService.canResubmit(USER_ID, DRAFT_KEY)
