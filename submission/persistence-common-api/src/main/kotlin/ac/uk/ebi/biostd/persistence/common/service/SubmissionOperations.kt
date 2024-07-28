@@ -37,6 +37,8 @@ interface SubmissionPersistenceQueryService {
         version: Int,
     ): Boolean
 
+    suspend fun existActiveByAccNo(accNo: String): Boolean
+
     suspend fun findExtByAccNo(
         accNo: String,
         includeFileListFiles: Boolean = false,
