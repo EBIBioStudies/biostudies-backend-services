@@ -29,6 +29,7 @@ interface SubmissionPersistenceService {
     suspend fun getNextVersion(accNo: String): Int
 }
 
+@Suppress("TooManyFunctions")
 interface SubmissionPersistenceQueryService {
     suspend fun existByAccNo(accNo: String): Boolean
 
@@ -137,7 +138,10 @@ sealed interface OptResponse<T> {
     operator fun component2(): T = value
 }
 
-class RqtUpdate(override val rqt: SubmissionRequest, override val value: Unit = Unit) : OptResponse<Unit>
+class RqtUpdate(
+    override val rqt: SubmissionRequest,
+    override val value: Unit = Unit,
+) : OptResponse<Unit>
 
 class RqtResponse(
     override val rqt: SubmissionRequest,
