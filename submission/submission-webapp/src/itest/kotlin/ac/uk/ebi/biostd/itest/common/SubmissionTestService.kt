@@ -12,6 +12,6 @@ class SubmissionTestService(
         waitUntil(
             ofSeconds(60),
             ofMillis(200),
-        ) { submissionRepository.existActiveByAccNo(accNo) }
+        ) { submissionRepository.existActiveByAccNo(accNo).not() }
     }
 }
