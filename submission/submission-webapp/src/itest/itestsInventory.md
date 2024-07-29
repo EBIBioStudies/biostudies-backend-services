@@ -20,16 +20,31 @@ Contains test related to submission deletion.
 | DeletePermissionTest | 1-12    | Regular user with ADMIN access tag deletes private submission             |
 | DeletePermissionTest | 1-13    | Regular user with ADMIN access tag deletes public submission              |
 
+### File List Test Suite
+
+Contains test related to file list.
+
+| Class                  | Test No | Test name                                                         |
+|------------------------|---------|-------------------------------------------------------------------|
+| FileListSubmissionTest | 3-1     | JSON submission with TSV file list                                |
+| FileListSubmissionTest | 3-2     | JSON submission with XLS file list                                |
+| FileListSubmissionTest | 3-3     | JSON submission with invalid file list format                     |
+| FileListSubmissionTest | 3-4     | Filelist Submission with files inside a folder                    |
+| FileListSubmissionTest | 3-5     | Filelist Submission with files reusing previous version file list |
+| FileListSubmissionTest | 3-6     | Filelist Submission with an empty file list                       |
+| FileListSubmissionTest | 3-7     | Filelist Submission with a file list with an empty attribute name |
+| FileListValidationTest | 11-1    | Filelist validation when blank file list                          |
+| FileListValidationTest | 11-2    | Filelist validation when empty file list                          |
+| FileListValidationTest | 11-3    | Filelist validation when unsupported file list format             |
+| FileListValidationTest | 11-4    | Filelist when missing files                                       |
+| FileListValidationTest | 11-5    | Filelist validation when valid filelist                           |
+| FileListValidationTest | 11-6    | Filelist validation when valid filelist with root path            |
+| FileListValidationTest | 11-7    | Filelist validation when valid filelist on behalf another user    |
+
 | Class                           | Test No | Test name                                                                        | Description                                                                                   |
 |---------------------------------|---------|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------
 | AllInOneSubmissionTest          | 2-1     | submit all in one TSV submission                                                 | Submits three completely filled submissions (TSV, JSON, XML). Files previously uploaded.      |
 | AllInOneSubmissionTest          | 2-2     | submit all in one JSON submission                                                |                                                                                               |
-| FileListSubmissionTest          | 3-1     | JSON submission with TSV file list                                               | Submits submissions considering different formats on the file list file.                      |
-| FileListSubmissionTest          | 3-2     | JSON submission with XLS file list                                               |                                                                                               |
-| FileListSubmissionTest          | 3-3     | JSON submission with invalid file list format                                    |                                                                                               |
-| FileListSubmissionTest          | 3-4     | list referenced files                                                            |                                                                                               |
-| FileListSubmissionTest          | 3-5     | reuse previous version file list                                                 |                                                                                               |
-| FileListSubmissionTest          | 3-6     | empty file list                                                                  |                                                                                               |
 | SubmitPermissionTest            | 4-1     | create collection with superuser                                                 | Shows under which permissions a user could perform a submission                               |
 | SubmitPermissionTest            | 4-2     | create collection with regular user                                              |                                                                                               |
 | SubmitPermissionTest            | 4-3     | submit without attach permission                                                 |                                                                                               |
@@ -79,14 +94,6 @@ Contains test related to submission deletion.
 | MultipartFileSubmissionApiTest  | 9-5     | invalid format file                                                              |                                                                                               |
 | SubmissionStorageModeTest       | 10-1    | Fire to Nfs                                                                      | Submit in Fire storage mode, resubmit in Nfs mode, and vice versa.                            |
 | SubmissionStorageModeTest       | 10-2    | Nfs to Fire                                                                      |                                                                                               |
-| FileListValidationTest          | 11-1    | blank file list                                                                  | Different cases in which a submission can be performed with a fileList                        |
-| FileListValidationTest          | 11-2    | empty file list                                                                  |                                                                                               |
-| FileListValidationTest          | 11-3    | unsupported file list format                                                     |                                                                                               |
-| FileListValidationTest          | 11-4    | valid file list                                                                  |                                                                                               |
-| FileListValidationTest          | 11-6    | valid file list with root path                                                   |                                                                                               |
-| FileListValidationTest          | 11-7    | file list with missing files on NFS mode                                         |                                                                                               |
-| FileListValidationTest          | 11-8    | file list with missing files on FIRE mode                                        |                                                                                               |
-| FileListValidationTest          | 11-9    | valid file list on behalf another user                                           |                                                                                               |
 | SubmissionDraftApiTest          | 12-1    | get draft submission when draft does not exist but submission does               | How the system behaves with respect on drafts                                                 |
 | SubmissionDraftApiTest          | 12-2    | create and get submission draft                                                  |                                                                                               |
 | SubmissionDraftApiTest          | 12-3    | create and update submission draft                                               |                                                                                               |
