@@ -385,6 +385,11 @@ class ResubmissionApiTest(
                 webClient.uploadFile(tempFolder.createFile("file_5-7-2.txt", "5-7-2 file content"))
                 assertThat(webClient.submitSingle(version1, TSV)).isSuccessful()
 
+                val sub = submissionRepository.getExtByAccNo("S-RSTST7")
+                assertThat(sub.version).isEqualTo(1)
+                assertThat(File("$submissionPath/${sub.relPath}/Files/file_5-7-1.txt")).exists()
+                assertThat(File("$submissionPath/${sub.relPath}/Files/file_5-7-2.txt")).exists()
+
                 val version2 =
                     tsv {
                         line("Submission", "S-RSTST7")
@@ -401,6 +406,11 @@ class ResubmissionApiTest(
                 webClient.uploadFile(tempFolder.createOrReplaceFile("file_5-7-1.txt", "5-7-1 file updated content"))
 
                 assertThat(webClient.submitSingle(version2, TSV)).isSuccessful()
+
+                val subV2 = submissionRepository.getExtByAccNo("S-RSTST7")
+                assertThat(subV2.version).isEqualTo(2)
+                assertThat(File("$submissionPath/${sub.relPath}/Files/file_5-7-1.txt")).exists()
+                assertThat(File("$submissionPath/${sub.relPath}/Files/file_5-7-2.txt")).doesNotExist()
             }
 
         @Test
